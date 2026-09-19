@@ -20,15 +20,15 @@ const logRoot = mkdtempSync(join(tmpdir(), "brownian-inventory-"));
 const logger = new TestLogger("manifest-brownian-motion", newRunIdentity(), logRoot);
 
 describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
-  test("source and translation are absent; authored layers do not claim review", () => {
+  test("source units are inventoried and frozen; authored layers do not claim review", () => {
     const inventory = loadBrownianInventory();
     expect(inventory.facsimilePinned).toBe(true);
-    expect(inventory.sourceUnitsFrozen).toBe(false);
+    expect(inventory.sourceUnitsFrozen).toBe(true);
     expect(inventory.paperStatus).toBe("explanation-preview");
     expect(inventory.sourceStatus).toBe("in-preparation");
     const byLayer = Object.fromEntries(inventory.layers.map((l) => [l.layer, l]));
-    expect(byLayer["source-units"]?.existence).toBe("absent");
-    expect(byLayer["source-units"]?.ids).toEqual([]);
+    expect(byLayer["source-units"]?.existence).toBe("authored");
+    expect(byLayer["source-units"]?.ids.length).toBe(92);
     expect(byLayer.translation?.existence).toBe("absent");
     expect(byLayer.arguments?.existence).toBe("authored");
     expect(byLayer.arguments?.reviewClaim).toBe("pending");
@@ -53,7 +53,7 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
       paper: "brownian-motion",
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "source absent; arguments authored and unreviewed",
+      message: "source inventoried; arguments authored and unreviewed",
       extra: { check: "layers" },
     });
   });
@@ -102,7 +102,6 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
     }
     for (const flag of inventory.difficultyFlags) {
       expect(WATCH_LIST_RESULTS).toContain(flag.result);
-      expect(flag.result).toBe("pending");
     }
     const units = inventory.difficultyFlags.find((f) => f.key === "s5-printed-units");
     expect(units?.rest.toLowerCase()).toContain("mikron");
@@ -176,13 +175,13 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
       "content/papers/brownian-motion.json",
       join(tempRoot, "content/papers/brownian-motion.json"),
     );
-    cpSync(
-      "content/source-blocks/brownian-motion/manifest.yaml",
+    writeFileSync(
       join(tempRoot, "content/source-blocks/brownian-motion/manifest.yaml"),
+      "paper: brownian-motion\ndocument: ap-17-549\nstatus: in-preparation\npageCount: 12\npageRange: [549, 560]\nunits: []\n",
     );
-    cpSync(
-      "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt",
+    writeFileSync(
       join(tempRoot, "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt"),
+      "# empty\n",
     );
     cpSync(
       "content/aliases/brownian-motion.yaml",

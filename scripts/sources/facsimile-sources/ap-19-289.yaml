@@ -35,7 +35,12 @@ articlePages:
     - 97
     - 98
     - 99
-    - 100
+  verifiedAnchor:
+  parentPageIndex: 83
+  printedPage: 303
+  verifiedBy: "agent:TanElk"
+  verifiedDate: "2026-09-19"
+  notes: "Audit 2026-09-19: parent page 83 is printed 303 (running head 'Neue Bestimmung der Molekueldimensionen'), not 289"
 rights:
   rightsStatus: scan-open-terms
   publicationDecision: publish

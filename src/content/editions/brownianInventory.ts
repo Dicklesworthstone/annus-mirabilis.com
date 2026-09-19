@@ -248,10 +248,16 @@ export function loadBrownianInventory(root = process.cwd()): BrownianInventory {
       "Source units are present but the pinned facsimile receipt is absent. Invented units are not admitted.",
     );
   }
-  if (manifest.idsFrozenAt || snapshotIds.length > 0) {
+  if ((manifest.idsFrozenAt || snapshotIds.length > 0) && !facsimilePinned) {
     throw new InventoryHonestyError(
       "ids-frozen-without-facsimile",
       "Source ids cannot freeze until the facsimile is pinned and units are inventoried.",
+    );
+  }
+  if (manifest.idsFrozenAt && manifest.units.length === 0) {
+    throw new InventoryHonestyError(
+      "ids-frozen-without-units",
+      "Source ids cannot freeze until units are inventoried.",
     );
   }
   if (aliasList.length > 0) {
@@ -267,13 +273,18 @@ export function loadBrownianInventory(root = process.cwd()): BrownianInventory {
     );
   }
 
+  const isFrozen = Boolean(manifest.idsFrozenAt && snapshotIds.length > 0);
+
   const layers: LayerInventory[] = [
     {
       layer: "source-units",
       existence: manifest.units.length === 0 ? "absent" : "authored",
       reviewClaim: "not-claimed",
       ids: manifest.units.map((u) => u.id),
-      note: "Pinned facsimile absent. Units stay empty.",
+      note:
+        manifest.units.length === 0
+          ? "Pinned facsimile absent. Units stay empty."
+          : "Source units inventoried from authentic page scans.",
     },
     {
       layer: "translation",
@@ -319,7 +330,7 @@ export function loadBrownianInventory(root = process.cwd()): BrownianInventory {
     bibliographicKey: BROWNIAN_BIB_KEY,
     facsimilePinned,
     facsimilePinFailure: pinVerification.failure,
-    sourceUnitsFrozen: false,
+    sourceUnitsFrozen: isFrozen,
     layers,
     difficultyFlags,
     treatmentMapRows: TREATMENT_MAP_ROWS,

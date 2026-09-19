@@ -5,6 +5,1280 @@ status: in-preparation
 scope: full-document
 pageCount: 12
 pageRange: [549, 560]
-# idsFrozenAt is omitted: the facsimile is not pinned, so ids are not frozen.
-# Inventing sentence units from memory would be a false inventory.
-units: []
+idsFrozenAt: "2026-09-19T04:30:00Z"
+frozenBy: pane15
+units:
+  - id: masthead-title
+    kind: masthead-title
+    section: s0
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-masthead-title
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-introduction-conditional
+
+  - id: masthead-author
+    kind: masthead-author
+    section: s0
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-masthead-author
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-introduction-conditional
+
+  - id: s0-p1
+    kind: paragraph
+    section: s0
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-s0-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-introduction-conditional
+
+  - id: s0-p2
+    kind: paragraph
+    section: s0
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-s0-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-introduction-conditional
+
+  - id: s1
+    kind: heading
+    section: s1
+    originalLabel: "§ 1. Über den suspendierten Teilchen zuzuschreibenden osmotischen Druck."
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s1-p1
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 549
+      - page: 550
+    destination:
+      editionBlockId: de-brownian-motion-s1-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: eq-s1-d1
+    kind: display-equation
+    section: s1
+    containedIn: s1-p1
+    editorialLabel: "ed:s1-d1"
+    locators:
+      - page: 550
+    destination:
+      editionBlockId: de-brownian-motion-eq-s1-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s1-p2
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 550
+    destination:
+      editionBlockId: de-brownian-motion-s1-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s1-p3
+    kind: paragraph
+    section: s1
+    locators:
+      - page: 550
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s1-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: eq-s1-d2
+    kind: display-equation
+    section: s1
+    containedIn: s1-p3
+    editorialLabel: "ed:s1-d2"
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-eq-s1-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s2
+    kind: heading
+    section: s2
+    originalLabel: "§ 2. Der osmotische Druck vom Standpunkte der molekularkinetischen Theorie der Wärme.¹)"
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-fn1
+    kind: footnote
+    section: s2
+    containedIn: s2
+    footnoteMark: "1)"
+    locators:
+      - page: 551
+    references:
+      - id: s2-fn1-r1
+        occurrenceId: s2-fn1-r1
+        printedText: "Ann. d. Phys. 9. p. 417. 1902"
+        kind: bibliographic
+        target:
+          citationId: einstein-1902-thermodynamik
+      - id: s2-fn1-r2
+        occurrenceId: s2-fn1-r2
+        printedText: "11. p. 170. 1903"
+        kind: bibliographic
+        target:
+          citationId: einstein-1903-thermodynamik
+    destination:
+      editionBlockId: de-brownian-motion-s2-fn1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p1
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s2-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d1
+    kind: display-equation
+    section: s2
+    containedIn: s2-p1
+    editorialLabel: "ed:s2-d1"
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d2
+    kind: display-equation
+    section: s2
+    containedIn: s2-p1
+    editorialLabel: "ed:s2-d2"
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d3
+    kind: display-equation
+    section: s2
+    containedIn: s2-p1
+    editorialLabel: "ed:s2-d3"
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p2
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p3
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p4
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 552
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d4
+    kind: display-equation
+    section: s2
+    containedIn: s2-p4
+    editorialLabel: "ed:s2-d4"
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d5
+    kind: display-equation
+    section: s2
+    containedIn: s2-p4
+    editorialLabel: "ed:s2-d5"
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d6
+    kind: display-equation
+    section: s2
+    containedIn: s2-p4
+    editorialLabel: "ed:s2-d6"
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d7
+    kind: display-equation
+    section: s2
+    containedIn: s2-p4
+    editorialLabel: "ed:s2-d7"
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p5
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-fn2
+    kind: footnote
+    section: s2
+    containedIn: s2-p5
+    footnoteMark: "1)"
+    locators:
+      - page: 553
+    references:
+      - id: s2-fn2-r1
+        occurrenceId: s2-fn2-r1
+        printedText: "A. Einstein, Ann. d. Phys. 11. p. 170. 1903"
+        kind: bibliographic
+        target:
+          citationId: einstein-1903-thermodynamik
+    destination:
+      editionBlockId: de-brownian-motion-s2-fn2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d8
+    kind: display-equation
+    section: s2
+    containedIn: s2-p5
+    editorialLabel: "ed:s2-d8"
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p6
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d9
+    kind: display-equation
+    section: s2
+    containedIn: s2-p6
+    editorialLabel: "ed:s2-d9"
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d9
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p7
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d10
+    kind: display-equation
+    section: s2
+    containedIn: s2-p7
+    editorialLabel: "ed:s2-d10"
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d10
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d11
+    kind: display-equation
+    section: s2
+    containedIn: s2-p7
+    editorialLabel: "ed:s2-d11"
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d11
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: eq-s2-d12
+    kind: display-equation
+    section: s2
+    containedIn: s2-p7
+    editorialLabel: "ed:s2-d12"
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-eq-s2-d12
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p8
+    kind: paragraph
+    section: s2
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s3
+    kind: heading
+    section: s3
+    originalLabel: "§ 3. Theorie der Diffusion kleiner suspendierter Kugeln."
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p1
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p2
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-d1
+    kind: display-equation
+    section: s3
+    containedIn: s3-p2
+    editorialLabel: "ed:s3-d1"
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p3
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-d2
+    kind: display-equation
+    section: s3
+    containedIn: s3-p3
+    editorialLabel: "ed:s3-d2"
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-d3
+    kind: display-equation
+    section: s3
+    containedIn: s3-p3
+    editorialLabel: "ed:s3-d3"
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p4
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-1
+    kind: display-equation
+    section: s3
+    containedIn: s3-p4
+    originalLabel: "(1)"
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-d4
+    kind: display-equation
+    section: s3
+    containedIn: s3-p4
+    editorialLabel: "ed:s3-d4"
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p5
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 554
+      - page: 555
+    references:
+      - id: s3-p5-s1-r1
+        occurrenceId: s3-p5-s1-r1
+        printedText: "Gleichung (1)"
+        kind: internal
+        target:
+          id: eq-s3-1
+    destination:
+      editionBlockId: de-brownian-motion-s3-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p6
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-d5
+    kind: display-equation
+    section: s3
+    containedIn: s3-p6
+    editorialLabel: "ed:s3-d5"
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-d6
+    kind: display-equation
+    section: s3
+    containedIn: s3-p6
+    editorialLabel: "ed:s3-d6"
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-d6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-fn1
+    kind: footnote
+    section: s3
+    containedIn: s3-p6
+    footnoteMark: "1)"
+    locators:
+      - page: 555
+    references:
+      - id: s3-fn1-r1
+        occurrenceId: s3-fn1-r1
+        printedText: "G. Kirchhoff, Vorlesungen über Mechanik, 26. Vorlesung § 4"
+        kind: bibliographic
+        target:
+          citationId: kirchhoff-1876-mechanik
+    destination:
+      editionBlockId: de-brownian-motion-s3-fn1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p7
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-d7
+    kind: display-equation
+    section: s3
+    containedIn: s3-p7
+    editorialLabel: "ed:s3-d7"
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-d7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-d8
+    kind: display-equation
+    section: s3
+    containedIn: s3-p7
+    editorialLabel: "ed:s3-d8"
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-d8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-2
+    kind: display-equation
+    section: s3
+    containedIn: s3-p7
+    originalLabel: "(2)"
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-eq-2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p8
+    kind: paragraph
+    section: s3
+    locators:
+      - page: 555
+      - page: 556
+    references:
+      - id: s3-p8-s1-r1
+        occurrenceId: s3-p8-s1-r1
+        printedText: "(1)"
+        kind: internal
+        target:
+          id: eq-s3-1
+      - id: s3-p8-s1-r2
+        occurrenceId: s3-p8-s1-r2
+        printedText: "(2)"
+        kind: internal
+        target:
+          id: eq-2
+    destination:
+      editionBlockId: de-brownian-motion-s3-p8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: eq-s3-d9
+    kind: display-equation
+    section: s3
+    containedIn: s3-p8
+    editorialLabel: "ed:s3-d9"
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-eq-s3-d9
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s4
+    kind: heading
+    section: s4
+    originalLabel: "§ 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion."
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p1
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p2
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p3
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p4
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d1
+    kind: display-equation
+    section: s4
+    containedIn: s4-p4
+    editorialLabel: "ed:s4-d1"
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d2
+    kind: display-equation
+    section: s4
+    containedIn: s4-p4
+    editorialLabel: "ed:s4-d2"
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d3
+    kind: display-equation
+    section: s4
+    containedIn: s4-p4
+    editorialLabel: "ed:s4-d3"
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p5
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p6
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d4
+    kind: display-equation
+    section: s4
+    containedIn: s4-p6
+    editorialLabel: "ed:s4-d4"
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d5
+    kind: display-equation
+    section: s4
+    containedIn: s4-p6
+    editorialLabel: "ed:s4-d5"
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d6
+    kind: display-equation
+    section: s4
+    containedIn: s4-p6
+    editorialLabel: "ed:s4-d6"
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p7
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d7
+    kind: display-equation
+    section: s4
+    containedIn: s4-p7
+    editorialLabel: "ed:s4-d7"
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p8
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 557
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d8
+    kind: display-equation
+    section: s4
+    containedIn: s4-p8
+    editorialLabel: "ed:s4-d8"
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d9
+    kind: display-equation
+    section: s4
+    containedIn: s4-p8
+    editorialLabel: "ed:s4-d9"
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d9
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-1
+    kind: display-equation
+    section: s4
+    containedIn: s4-p8
+    originalLabel: "(1)"
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p9
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p9
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p10
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 558
+    references:
+      - id: s4-p10-s5-r1
+        occurrenceId: s4-p10-s5-r1
+        printedText: "Gleichung (1)"
+        kind: internal
+        target:
+          id: eq-s4-1
+    destination:
+      editionBlockId: de-brownian-motion-s4-p10
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d10
+    kind: display-equation
+    section: s4
+    containedIn: s4-p10
+    editorialLabel: "ed:s4-d10"
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d10
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d11
+    kind: display-equation
+    section: s4
+    containedIn: s4-p10
+    editorialLabel: "ed:s4-d11"
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d11
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p11
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 558
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s4-p11
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: eq-s4-d12
+    kind: display-equation
+    section: s4
+    containedIn: s4-p11
+    editorialLabel: "ed:s4-d12"
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-eq-s4-d12
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p12
+    kind: paragraph
+    section: s4
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s4-p12
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s5
+    kind: heading
+    section: s5
+    originalLabel: "§ 5. Formel für die mittlere Verschiebung suspendierter Teilchen. Eine neue Methode zur Bestimmung der wahren Größe der Atome."
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p1
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 559
+    references:
+      - id: s5-p1-s1-r1
+        occurrenceId: s5-p1-s1-r1
+        printedText: "§ 3"
+        kind: internal
+        target:
+          id: s3
+      - id: s5-p1-s2-r1
+        occurrenceId: s5-p1-s2-r1
+        printedText: "§ 4"
+        kind: internal
+        target:
+          id: s4
+    destination:
+      editionBlockId: de-brownian-motion-s5-p1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: eq-s5-d1
+    kind: display-equation
+    section: s5
+    containedIn: s5-p1
+    editorialLabel: "ed:s5-d1"
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-eq-s5-d1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: eq-s5-d2
+    kind: display-equation
+    section: s5
+    containedIn: s5-p1
+    editorialLabel: "ed:s5-d2"
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-eq-s5-d2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: eq-s5-d3
+    kind: display-equation
+    section: s5
+    containedIn: s5-p1
+    editorialLabel: "ed:s5-d3"
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-eq-s5-d3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p2
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s5-p2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: eq-s5-d4
+    kind: display-equation
+    section: s5
+    containedIn: s5-p2
+    editorialLabel: "ed:s5-d4"
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-eq-s5-d4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p3
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 560
+    destination:
+      editionBlockId: de-brownian-motion-s5-p3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: eq-s5-d5
+    kind: display-equation
+    section: s5
+    containedIn: s5-p3
+    editorialLabel: "ed:s5-d5"
+    locators:
+      - page: 560
+    destination:
+      editionBlockId: de-brownian-motion-eq-s5-d5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p4
+    kind: paragraph
+    section: s5
+    locators:
+      - page: 560
+    destination:
+      editionBlockId: de-brownian-motion-s5-p4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-closing-outlook
+
+  - id: closing-dateline
+    kind: closing-dateline
+    section: closing
+    locators:
+      - page: 560
+    destination:
+      editionBlockId: de-brownian-motion-closing-dateline
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-closing-outlook
+
+  - id: closing-received
+    kind: closing-received
+    section: closing
+    locators:
+      - page: 560
+    destination:
+      editionBlockId: de-brownian-motion-closing-received
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-closing-outlook

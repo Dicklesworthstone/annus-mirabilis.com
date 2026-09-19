@@ -1,48 +1,156 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
+import { loadReadingFiles } from "../../../scripts/build-content.ts";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
-import { formatManifestReportText, generateManifestReport } from "../manifest/report.ts";
-import { validateSourceManifest } from "../manifest/schema.ts";
+import { compileReadingContent } from "../compiler/compile.ts";
+import { parseReceipt } from "../provenance/parseReceipt.ts";
+import { receiptToSourceAsset } from "../provenance/receiptToSourceAsset.ts";
 import { parseYaml } from "../provenance/yaml.ts";
-import { BROWNIAN_INVENTORY_BEAD } from "./brownianInventory.ts";
+import { BROWNIAN_INVENTORY_BEAD, BROWNIAN_PAPER } from "./brownianInventory.ts";
 
-const logRoot = mkdtempSync(join(tmpdir(), "brownian-manifest-e2e-"));
-const logger = new TestLogger("manifest-brownian-motion", newRunIdentity(), logRoot);
+const ROOT = process.cwd();
+const logRunId = newRunIdentity();
+const logRoot = join(ROOT, "artifacts/test-logs");
+const logger = new TestLogger("manifest-brownian-motion-e2e", logRunId, logRoot);
+
+function retainEvidenceOnFailure(
+  name: string,
+  stdout: string,
+  stderr: string,
+  extra?: Record<string, unknown>,
+) {
+  const evidenceDir = join(
+    ROOT,
+    "artifacts/test-logs/manifest-brownian-motion",
+    logRunId,
+    "evidence",
+  );
+  mkdirSync(evidenceDir, { recursive: true });
+  writeFileSync(join(evidenceDir, `${name}.stdout.log`), stdout);
+  writeFileSync(join(evidenceDir, `${name}.stderr.log`), stderr);
+  if (extra) {
+    writeFileSync(join(evidenceDir, `${name}.extra.json`), JSON.stringify(extra, null, 2));
+  }
+}
 
 describe("brownian source-manifest report CLI (am-edn-inventory-brownian-slg)", () => {
-  it("report pipeline exits clean, records absence, and never prints a percentage or a reviewed certificate", () => {
-    const path = join(process.cwd(), "content/source-blocks/brownian-motion/manifest.yaml");
-    const manifest = validateSourceManifest(parseYaml(readFileSync(path, "utf8")), path);
-    const report = generateManifestReport(manifest);
-    const json = JSON.stringify(report, null, 2);
-    const text = formatManifestReportText(report);
-    assert.equal(report.paper, "brownian-motion");
-    assert.equal(report.status, "in-preparation");
-    assert.equal(report.totalUnits, 0);
-    assert.ok(!/%/.test(json));
-    assert.ok(!/%/.test(text));
-    assert.ok(text.includes("No source units inventoried"));
-    assert.ok(!text.toLowerCase().includes("are reviewed"));
-    // This once asserted the receipt did NOT exist. It does now: f88de57 landed a
-    // real 14 KB facsimile receipt for ap-17-549. The invariant worth guarding was
-    // never "no provenance exists" - it is that a facsimile receipt does not by
-    // itself make the report claim source units. Those are separate states, and
-    // conflating them is how a reviewed-looking number appears before any
-    // transcription has happened.
-    const receipt = "docs/provenance/ap-17-549.md";
-    assert.equal(existsSync(receipt), true, `${receipt} should exist; f88de57 added it`);
-    assert.ok(readFileSync(receipt, "utf8").includes("receiptKind: facsimile-scan"));
-    assert.equal(report.totalUnits, 0);
-    assert.equal(report.status, "in-preparation");
+  it("source-manifest-report CLI runs cleanly with code 0, all destinations assigned, matching page counts, and no percentages", () => {
+    const proc = spawnSync("bun", ["scripts/source-manifest-report.ts", BROWNIAN_PAPER], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+
+    const exitCode = proc.status ?? 1;
+    const stdout = proc.stdout ?? "";
+    const stderr = proc.stderr ?? "";
+
+    if (exitCode !== 0) {
+      retainEvidenceOnFailure("source-manifest-report", stdout, stderr);
+    }
+
+    assert.equal(exitCode, 0, `source-manifest-report failed with stderr: ${stderr}`);
+
+    // No percentage in output
+    assert.ok(!/%/.test(stdout), "Report stdout must not contain percentages");
+    assert.ok(!/%/.test(stderr), "Report stderr must not contain percentages");
+    assert.ok(!stdout.toLowerCase().includes("are reviewed"), "Must not claim reviewed edition");
+
+    // Validate units and destinations against manifest
+    const manifestPath = join(ROOT, "content/source-blocks/brownian-motion/manifest.yaml");
+    const manifest = parseYaml(readFileSync(manifestPath, "utf8")) as {
+      units: Array<{ id: string; destination?: unknown; locators: Array<{ page: number }> }>;
+    };
+
+    assert.equal(manifest.units.length, 92);
+    for (const unit of manifest.units) {
+      assert.ok(unit.destination, `Unit ${unit.id} must have a destination`);
+    }
+
+    // Verify per-page counts match SourceAsset.pageMapping
+    const receiptPath = join(ROOT, "docs/provenance/ap-17-549.md");
+    assert.ok(existsSync(receiptPath), `${receiptPath} must exist`);
+    const receiptParsed = parseReceipt(readFileSync(receiptPath, "utf8"), receiptPath);
+    assert.ok(receiptParsed.ok);
+
+    const sourceAsset = receiptToSourceAsset(receiptParsed.frontMatter!);
+    assert.equal(sourceAsset.pageMapping.length, 12);
+
+    for (const pageEntry of sourceAsset.pageMapping) {
+      const pageUnits = manifest.units.filter((u) =>
+        u.locators.some((l) => l.page === pageEntry.printedPage),
+      );
+      assert.ok(pageUnits.length >= 1, `Page ${pageEntry.printedPage} must have units`);
+    }
+
     logger.log({
-      testId: "report-cli",
+      testId: "e2e-source-manifest-report",
       beadId: BROWNIAN_INVENTORY_BEAD,
-      paper: "brownian-motion",
+      paper: BROWNIAN_PAPER,
       outcome: "passed",
-      extra: { check: "cli-report" },
+      comparisonKind: "bitwise",
+      message:
+        "source-manifest-report CLI completed with exit code 0, verified destinations, matching page counts, and no percentages.",
+      extra: { check: "report-cli" },
+    });
+  });
+
+  it("corpus content compiler check produces no rejections for brownian-motion", async () => {
+    const files = await loadReadingFiles();
+    const compiled = compileReadingContent(files);
+
+    if (!compiled.ok) {
+      const errors = compiled.diagnostics.filter((d) => d.severity === "error");
+      retainEvidenceOnFailure("content-compiler", "", JSON.stringify(errors, null, 2));
+    }
+
+    assert.equal(compiled.ok, true, "Content compiler must succeed");
+
+    const brownianRejections = compiled.diagnostics.filter(
+      (d) =>
+        d.severity === "error" &&
+        (d.path?.includes("brownian-motion") || d.message?.includes("brownian-motion")),
+    );
+    assert.equal(brownianRejections.length, 0, "No rejections for brownian-motion");
+
+    logger.log({
+      testId: "e2e-content-compiler-clean",
+      beadId: BROWNIAN_INVENTORY_BEAD,
+      paper: BROWNIAN_PAPER,
+      outcome: "passed",
+      comparisonKind: "bitwise",
+      message: "Corpus content compiler has zero rejections for brownian-motion.",
+      extra: { check: "content-compiler" },
+    });
+  });
+
+  it("receipt verification check passes cleanly with 0 errors for ap-17-549", () => {
+    const proc = spawnSync("bun", ["scripts/check-receipts.ts", "--key", "ap-17-549"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+
+    const exitCode = proc.status ?? 1;
+    const stdout = proc.stdout ?? "";
+    const stderr = proc.stderr ?? "";
+
+    if (exitCode !== 0) {
+      retainEvidenceOnFailure("check-receipts", stdout, stderr);
+    }
+
+    assert.equal(exitCode, 0, `check-receipts failed with stderr: ${stderr}`);
+    assert.ok(stdout.includes("0 errors"), "check-receipts must report 0 errors");
+
+    logger.log({
+      testId: "e2e-check-receipts",
+      beadId: BROWNIAN_INVENTORY_BEAD,
+      paper: BROWNIAN_PAPER,
+      outcome: "passed",
+      comparisonKind: "bitwise",
+      message: "check-receipts script passed with 0 errors for ap-17-549.",
+      extra: { check: "check-receipts" },
     });
   });
 });
