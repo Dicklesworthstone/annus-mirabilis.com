@@ -198,6 +198,118 @@ Participant \`brownian-motion-no-algebra-20270412-7\` completed the session.
     );
   });
 
+  /**
+   * The front-matter branches, all eight of which a plant sweep found
+   * deletable with this file green (am-muyh). The suite tested the fields a
+   * report is most likely to get wrong and left the shape of the document
+   * itself unguarded: a report with no front matter at all would have been
+   * accepted by a validator that had lost the check.
+   */
+  it("refuses a document with no front matter, and one whose front matter never closes", () => {
+    let thrown: unknown;
+    try {
+      validateRoundReportText("# Round Report\n\nNo front matter here.\n", "fixtures/a.md");
+    } catch (err) {
+      thrown = err;
+    }
+    logCheck(
+      "front-matter-missing",
+      "fixtures/a.md",
+      "missing-front-matter",
+      thrown instanceof RoundReportValidationError && thrown.code === "missing-front-matter",
+      `expected missing-front-matter, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
+    );
+
+    let unclosed: unknown;
+    try {
+      validateRoundReportText("---\npaper: brownian-motion\nroute: no-algebra\n", "fixtures/b.md");
+    } catch (err) {
+      unclosed = err;
+    }
+    logCheck(
+      "front-matter-unclosed",
+      "fixtures/b.md",
+      "unclosed-front-matter",
+      unclosed instanceof RoundReportValidationError && unclosed.code === "unclosed-front-matter",
+      `expected unclosed-front-matter, got ${unclosed instanceof Error ? unclosed.message : String(unclosed)}`,
+    );
+  });
+
+  it("refuses front matter that is not a mapping, and front matter that is not YAML", () => {
+    let notMapping: unknown;
+    try {
+      validateRoundReportText(
+        "---\n- brownian-motion\n- no-algebra\n---\n\n# R\n",
+        "fixtures/c.md",
+      );
+    } catch (err) {
+      notMapping = err;
+    }
+    assert.ok(
+      notMapping instanceof RoundReportValidationError,
+      `expected a validation error, got ${String(notMapping)}`,
+    );
+    assert.ok(
+      ["invalid-front-matter", "malformed-front-matter-yaml"].includes(notMapping.code),
+      `a YAML sequence is not a round report's front matter; got ${notMapping.code}`,
+    );
+
+    // A duplicate key is the shape this project's YAML reader refuses
+    // outright. An unterminated quote is not: it parses to a string, which is
+    // why the first draft of this test passed without ever reaching the
+    // malformed-YAML branch.
+    let malformed: unknown;
+    try {
+      validateRoundReportText(
+        "---\npaper: brownian-motion\npaper: mass-energy\n---\n\n# R\n",
+        "fixtures/d.md",
+      );
+    } catch (err) {
+      malformed = err;
+    }
+    logCheck(
+      "front-matter-malformed-yaml",
+      "fixtures/d.md",
+      "malformed-front-matter-yaml",
+      malformed instanceof RoundReportValidationError &&
+        malformed.code === "malformed-front-matter-yaml",
+      `expected malformed-front-matter-yaml, got ${malformed instanceof Error ? malformed.message : String(malformed)}`,
+    );
+  });
+
+  it("refuses an unknown paper, a malformed date, empty anchors, and a missing facilitator", () => {
+    const cases: readonly (readonly [string, string, string])[] = [
+      ["paper: brownian-motion", "paper: molecular-dimensions-slice", "invalid-paper"],
+      ['date: "2027-04-12"', 'date: "12 April 2027"', "invalid-date"],
+      [
+        'anchors:\n  - "#s4-diffusion-equation"\n  - "bm-01:step-drag"',
+        "anchors: []",
+        "missing-anchors",
+      ],
+      [
+        "facilitator: open-comprehension-brownian-motion",
+        'facilitator: "  "',
+        "missing-facilitator",
+      ],
+    ];
+    for (const [find, replace, code] of cases) {
+      assert.ok(VALID_FIXTURE.includes(find), `fixture must contain ${JSON.stringify(find)}`);
+      let thrown: unknown;
+      try {
+        validateRoundReportText(VALID_FIXTURE.replace(find, replace), "fixtures/e.md");
+      } catch (err) {
+        thrown = err;
+      }
+      logCheck(
+        `front-matter-${code}`,
+        "fixtures/e.md",
+        code,
+        thrown instanceof RoundReportValidationError && thrown.code === code,
+        `expected ${code} for ${JSON.stringify(replace)}, got ${thrown instanceof Error ? thrown.message : String(thrown)}`,
+      );
+    }
+  });
+
   it("validates all markdown files under docs/comprehension/rounds/", () => {
     // Only a missing directory is tolerated. A validation failure used to be
     // swallowed by the same catch, which made this gate green whatever the
@@ -379,6 +491,54 @@ Participants:
         "barrier-anchor-missing",
         "a barrier with prose instead of an anchor",
       );
+    });
+
+    it("refuses a barriers key that is not a list", () => {
+      const content = VALID_FIXTURE.replace(
+        "facilitator: open-comprehension-brownian-motion",
+        "facilitator: open-comprehension-brownian-motion\nbarriers: none",
+      );
+      expectRefusal(content, "invalid-barriers", "barriers written as a scalar");
+    });
+
+    it("refuses a barriers entry that is not a mapping", () => {
+      expectRefusal(
+        withBarriers("  - undefined-symbol\n"),
+        "invalid-barrier",
+        "a bare string entry",
+      );
+    });
+
+    it("refuses a disposition outside the three the protocol defines", () => {
+      expectRefusal(
+        withBarriers(`  - code: undefined-symbol
+    anchor: "#s4-formula-2"
+    met: 1
+    resolved: 1
+    blocking: false
+    disposition: wontfix
+`),
+        "barrier-disposition-unknown",
+        "an invented disposition",
+      );
+    });
+
+    it("refuses a met count that cannot describe a participant", () => {
+      // The resolved branch was covered; this is the met branch beside it,
+      // which a plant sweep found deletable with this file green.
+      for (const met of ["0", "-1", "1.5", '"two"']) {
+        expectRefusal(
+          withBarriers(`  - code: undefined-symbol
+    anchor: "#s4-formula-2"
+    met: ${met}
+    resolved: 0
+    blocking: false
+    disposition: open
+`),
+          "barrier-counts-invalid",
+          `met: ${met}`,
+        );
+      }
     });
 
     it("refuses counts that cannot describe a round", () => {
