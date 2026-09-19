@@ -1,0 +1,12 @@
+.counting-entrance, .clock-entrance { min-width: 0; }
+.counting-entrance figure, .clock-entrance figure { margin: 1rem 0; }
+.counting-entrance svg, .clock-entrance svg { display: block; width: 100%; max-width: 38rem; height: auto; }
+.counting-entrance fieldset, .clock-entrance fieldset { display: flex; flex-wrap: wrap; gap: 1rem; }
+.counting-entrance select, .clock-entrance input { font: inherit; max-width: 100%; }
+.encounter-table { max-width: 100%; overflow-x: auto; margin-block: 1rem; }
+.encounter-table table { border-collapse: collapse; width: 100%; }
+.encounter-table th, .encounter-table td { border-bottom: 1px solid currentColor; padding: .5rem; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.counting-entrance details, .clock-entrance details { margin-block: .8rem; }
+.counting-entrance summary, .clock-entrance summary { cursor: pointer; }
+.entrance-bridge { border-top: 1px solid currentColor; margin-top: 1.5rem; padding-top: 1rem; }
+@media print { .counting-entrance fieldset, .clock-entrance fieldset { display: none; } }
