@@ -142,8 +142,19 @@ export function checkBudgetChanges(input: BudgetChangeCheckInput): BudgetChangeC
       // Check 1: Measurement record must exist under perf/measurements/
       const hasMeasurement = input.measurementFiles?.some((f) => isMeasurementFor(f, id));
       if (!hasMeasurement) {
+        // When the directory is empty the cause is the directory, not this change, and
+        // saying so here is the difference between someone fixing their budget and
+        // someone rediscovering that no budget can satisfy this rule yet. Open question
+        // on am-plat-perf-budgets-s3ww: whether perf/measurements/ is meant to be
+        // populated, and by what, or whether this rule should be scoped to budgets that
+        // have a record.
+        const noRecordsAtAll = (input.measurementFiles?.length ?? 0) === 0;
         violations.push(
-          `Budget "${id}" changed from ${JSON.stringify(oldEntry.value)} to ${JSON.stringify(newEntry.value)} without a committed measurement record in perf/measurements/`,
+          `Budget "${id}" changed from ${JSON.stringify(oldEntry.value)} to ${JSON.stringify(newEntry.value)} without a committed measurement record in perf/measurements/${
+            noRecordsAtAll
+              ? " — note that perf/measurements/ currently holds NO records at all, so no budget can satisfy this rule yet; that is a gap in am-plat-perf-budgets-s3ww rather than a problem with this change"
+              : ""
+          }`,
         );
       }
 
