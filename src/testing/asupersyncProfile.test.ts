@@ -9,6 +9,7 @@ import {
   classifyAsupersyncWasmFailure,
   diagnoseAsupersyncProfiles,
   getDefaultAsupersyncDir,
+  getDefaultFrankensimDir,
   parseCargoFeatures,
   validateWasmBrowserProfile,
   verifyAsupersyncManifest,
@@ -27,7 +28,10 @@ function expect<T>(actual: T, customMessage?: string) {
       assert.deepEqual(actual, expected, customMessage);
     },
     toBeDefined() {
-      assert.ok(actual !== undefined && actual !== null, customMessage ?? "Expected value to be defined");
+      assert.ok(
+        actual !== undefined && actual !== null,
+        customMessage ?? "Expected value to be defined",
+      );
     },
     toBeUndefined() {
       assert.equal(actual, undefined, customMessage);
@@ -54,8 +58,26 @@ function expect<T>(actual: T, customMessage?: string) {
 
 const ASUPERSYNC_DIR = getDefaultAsupersyncDir();
 const hasAsupersyncCheckout = existsSync(join(ASUPERSYNC_DIR, "Cargo.toml"));
-const itSkipIf = (condition: boolean) => (name: string, fn: () => void | Promise<void>) =>
-  it(name, { skip: condition }, fn);
+// The AC3 audit reads FRANKENSIM, not asupersync: verifySiblingWasmCrates walks
+// <frankensim>/crates/<crate>/Cargo.toml. Guarding it on hasAsupersyncCheckout
+// would be the right shape with the wrong predicate, and measurably useless -
+// with asupersync present and frankensim absent the file still reports
+// 14 pass 1 fail 0 skipped. Two sibling checkouts, two conditions.
+const FRANKENSIM_DIR = getDefaultFrankensimDir();
+const hasFrankensimCrates = existsSync(join(FRANKENSIM_DIR, "crates"));
+/**
+ * Skips with a stated reason rather than a bare boolean.
+ *
+ * A test that needs an absent sibling checkout must report not-available; it
+ * must not fail, and it must not pass quietly either. node --test prints the
+ * reason beside the skipped test, so the run says which dependency was missing
+ * and how to supply it.
+ */
+const itSkipIf =
+  (condition: boolean, reason?: string) => (name: string, fn: () => void | Promise<void>) =>
+    it(name, condition ? { skip: reason ?? "dependency not available" } : {}, fn);
+const NO_ASUPERSYNC = `asupersync checkout not found at ${ASUPERSYNC_DIR} (set ASUPERSYNC_DIR)`;
+const NO_FRANKENSIM = `frankensim crates not found at ${join(FRANKENSIM_DIR, "crates")} (set FRANKENSIM_DIR)`;
 
 describe("asupersync WASM Browser Profile Verification (am-fs-asupersync-wasm-profile-jaax)", () => {
   const BUGGY_MANIFEST_SNIPPET = `
@@ -149,20 +171,23 @@ serde = { version = "1.0", optional = true }
     }
   });
 
-  itSkipIf(!hasAsupersyncCheckout)("verifies live asupersync Cargo.toml on disk", () => {
-    const asupersyncPath = join(ASUPERSYNC_DIR, "Cargo.toml");
-    const diag = verifyAsupersyncManifest(asupersyncPath);
-    expect(diag).not.toBeNull();
-    expect(diag?.ok).toBe(true);
-    expect(diag?.desktopProfileOk).toBe(true);
-    for (const profile of CANONICAL_WASM_PROFILES) {
-      const p = diag?.profiles[profile];
-      expect(p).toBeDefined();
-      expect(p?.ok).toBe(true);
-      expect(p?.hasRuntimeCore).toBe(true);
-      expect(p?.hasNativeRuntime).toBe(false);
-    }
-  });
+  itSkipIf(!hasAsupersyncCheckout, NO_ASUPERSYNC)(
+    "verifies live asupersync Cargo.toml on disk",
+    () => {
+      const asupersyncPath = join(ASUPERSYNC_DIR, "Cargo.toml");
+      const diag = verifyAsupersyncManifest(asupersyncPath);
+      expect(diag).not.toBeNull();
+      expect(diag?.ok).toBe(true);
+      expect(diag?.desktopProfileOk).toBe(true);
+      for (const profile of CANONICAL_WASM_PROFILES) {
+        const p = diag?.profiles[profile];
+        expect(p).toBeDefined();
+        expect(p?.ok).toBe(true);
+        expect(p?.hasRuntimeCore).toBe(true);
+        expect(p?.hasNativeRuntime).toBe(false);
+      }
+    },
+  );
 
   describe("classifyAsupersyncWasmFailure", () => {
     it("classifies compile_error! native-runtime as forbidden-native-runtime", () => {
@@ -264,7 +289,7 @@ asupersync v0.5.0 (/home/agent/projects/asupersync)
       expect(dirtyCheck.matchingLines[0]).toContain("native-runtime");
     });
 
-    itSkipIf(!hasAsupersyncCheckout)(
+    itSkipIf(!hasAsupersyncCheckout, NO_ASUPERSYNC)(
       "runs live cargo tree on asupersync checkout and confirms native-runtime is 0",
       () => {
         const proc = spawnSync(
@@ -298,23 +323,26 @@ asupersync v0.5.0 (/home/agent/projects/asupersync)
   });
 
   describe("AC3: Six sibling wasm crates declare wasm-browser-prod and prediction refutation is documented in writing", () => {
-    it("audits all six sibling crate manifests and verifies formal refutation in docs/FRANKENSIM_BINDING.md", () => {
-      const audit = verifySiblingWasmCrates();
-      expect(audit.refutationRecorded).toBe(true);
-      expect(audit.refutationDetails).toContain("docs/FRANKENSIM_BINDING.md §4.13");
+    itSkipIf(!hasFrankensimCrates, NO_FRANKENSIM)(
+      "audits all six sibling crate manifests and verifies formal refutation in docs/FRANKENSIM_BINDING.md",
+      () => {
+        const audit = verifySiblingWasmCrates();
+        expect(audit.refutationRecorded).toBe(true);
+        expect(audit.refutationDetails).toContain("docs/FRANKENSIM_BINDING.md §4.13");
 
-      // Verify all six sibling crates are audited
-      expect(Object.keys(audit.crates).sort()).toEqual([...SIBLING_WASM_CRATES].sort());
-      for (const crate of SIBLING_WASM_CRATES) {
-        const c = audit.crates[crate];
-        expect(c).toBeDefined();
-        if (c?.exists) {
-          expect(c.declaresWasmBrowserProd).toBe(true);
-          expect(c.defaultFeaturesFalse).toBe(true);
+        // Verify all six sibling crates are audited
+        expect(Object.keys(audit.crates).sort()).toEqual([...SIBLING_WASM_CRATES].sort());
+        for (const crate of SIBLING_WASM_CRATES) {
+          const c = audit.crates[crate];
+          expect(c).toBeDefined();
+          if (c?.exists) {
+            expect(c.declaresWasmBrowserProd).toBe(true);
+            expect(c.defaultFeaturesFalse).toBe(true);
+          }
         }
-      }
-      expect(audit.ok).toBe(true);
-    });
+        expect(audit.ok).toBe(true);
+      },
+    );
   });
 
   describe("AC4: Native builds of asupersync consumers are unaffected", () => {
@@ -338,7 +366,8 @@ Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 55s
       const honestRecords: CommandAuditRecord[] = [
         {
           commandId: "cmd1",
-          command: "cargo check -p asupersync --lib --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod",
+          command:
+            "cargo check -p asupersync --lib --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod",
           exitCode: 0,
         },
         {
@@ -367,7 +396,8 @@ Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 55s
         },
         {
           commandId: "cmd5",
-          command: "cargo tree -e features -p asupersync --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod",
+          command:
+            "cargo tree -e features -p asupersync --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod",
           exitCode: 0,
         },
       ];
@@ -400,4 +430,3 @@ Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 55s
     });
   });
 });
-
