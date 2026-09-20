@@ -9,10 +9,19 @@ import { runOcrOrchestrator, syntheticPageRenderer } from "./ocr-ledgers.ts";
 
 const SYNTHETIC_RENDER = { customRenderer: syntheticPageRenderer };
 
+/** The credential planted in the environment for the end-to-end run. */
+const E2E_SECRET_VALUE = "luna-e2e-credential-2f4a8c1d-not-a-real-key";
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 describe("OCR Orchestrator: End-to-End Pipeline Test", () => {
   it("runs full 31-page pipeline with concurrency 2, deliberate failure at chunk 5, resume, summarize, and coverage verification", async () => {
+    // A credential present for the whole run, so the sweep below has something to find if
+    // any write path skips redaction. The name matches redact()'s sensitive list; the
+    // value is distinctive enough that a substring hit is never a coincidence.
+    const previousKey = process.env.LUNA_API_KEY;
+    process.env.LUNA_API_KEY = E2E_SECRET_VALUE;
+
     const planPath = "scripts/sources/ocr-plans/fixture-31p.yaml";
     const toolRunId = `e2e-run-${Date.now()}`;
     let process1LogRunId = "";
@@ -135,9 +144,44 @@ describe("OCR Orchestrator: End-to-End Pipeline Test", () => {
         "Log must contain skipped-checkpoint status from process 2",
       );
 
-      // Verify no credentials exist anywhere in run.jsonl or summary.json
+      // Verify no credentials exist anywhere in run.jsonl or summary.json.
+      //
+      // The two lines below search for one lowercase literal, "bearer ". They pass on a run
+      // that never had a credential to leak, which is every run of the fixture adapter, so
+      // on their own they are a check that cannot fail for the right reason. They are kept
+      // because a literal "bearer " in an artifact would still be wrong, and the sweep that
+      // follows is the one that does the work.
       assert.ok(!logContent.includes("bearer "), "Log must not contain raw bearer credentials");
       assert.ok(!JSON.stringify(res2.summary).includes("bearer "));
+
+      // The real check: a distinctive secret is put in the environment for the whole run
+      // above, and no file this run wrote may contain it - not the log, not the summary,
+      // not the coverage report, not a checkpoint, not a page draft, not the receipt block.
+      // `redact` keys off the NAME of the variable, so the value is only safe if every
+      // write path passes through it; a single unredacted path fails this.
+      const written: string[] = [];
+      async function collect(dir: string): Promise<void> {
+        for (const entry of await readdir(dir, { withFileTypes: true })) {
+          const full = resolve(dir, entry.name);
+          if (entry.isDirectory()) await collect(full);
+          else written.push(full);
+        }
+      }
+      await collect(runDir);
+      assert.ok(written.length > 0, "The run directory must contain files to sweep");
+
+      const leaked: string[] = [];
+      for (const file of written) {
+        if ((await readFile(file, "utf-8")).includes(E2E_SECRET_VALUE)) leaked.push(file);
+      }
+      assert.deepEqual(
+        leaked,
+        [],
+        `These artifacts contain the run's credential: ${leaked.join(", ")}`,
+      );
+      // And the same value must not reach the returned records either.
+      assert.ok(!JSON.stringify(res2.summary).includes(E2E_SECRET_VALUE));
+      assert.ok(!JSON.stringify(res2.coverage).includes(E2E_SECRET_VALUE));
 
       // Verify no artifact contains a field named 'runId'
       for (const entry of logEntries) {
@@ -163,6 +207,11 @@ describe("OCR Orchestrator: End-to-End Pipeline Test", () => {
         await cp(runDir, evidenceDir, { recursive: true });
       }
       throw testError;
+    } finally {
+      // The environment is shared with every other test in this process, so the planted
+      // credential is put back exactly as it was, present or absent.
+      if (previousKey === undefined) delete process.env.LUNA_API_KEY;
+      else process.env.LUNA_API_KEY = previousKey;
     }
   });
 });
