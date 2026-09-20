@@ -495,6 +495,173 @@ function buildDenominator(
   });
 }
 
+/**
+ * Check 5, lifted so it can run when the LEDGER IS ABSENT.
+ *
+ * Neither check reads the ledger - verified by searching their bodies for the ledger
+ * text - yet the absent-ledger branch marked all fifteen not-available, so four real
+ * manifests, four real id snapshots and four real alias files sat unexamined behind an
+ * unrelated missing input. Measured: supplying any ledger string at all makes these two
+ * pass over 25 real units for mass-energy and 87 for brownian-motion
+ * (am-edn-alignment-tooling-do1).
+ */
+function runCheck5(
+  root: string,
+  slug: RouteSlug,
+  options: EditionContractOptions,
+): ContractCheckResult {
+  const bundle = loadManifestBundle(root, slug);
+  // Check 5: Manifest coverage (spec #5, invokes am-cm-source-manifest-6qa)
+  // --------------------------------------------------------------------------
+  // Actually INVOKES its declared owner (am-06x1). The spec gives this check role
+  // "invokes am-cm-source-manifest-6qa", whose validateManifest is what decides page
+  // coverage, locator order, footnote and equation placement, sequence gaps and the
+  // derived-status rules; this check read `options.manifestCoverageMatch !== false`,
+  // which no production caller sets, so it announced "Every manifest unit has an edition
+  // block and derived statuses match" for every paper without loading a manifest.
+  // Alias records are passed because the validator needs them to tell an explained gap
+  // from an unexplained one; they explain gaps, they do not waive them. Frozen snapshots
+  // are deliberately NOT passed here: the snapshot question is check 6's, and one defect
+  // reported twice under two owners would overstate what the fifteen cover.
+  let manifestDiagnostics: readonly { severity: string; rule: string; message: string }[] | null =
+    null;
+  let manifestUnavailable: string | null = null;
+  if (options.manifestCoverageMatch === undefined) {
+    if (!bundle.ok) {
+      manifestUnavailable = bundle.reason;
+    } else {
+      try {
+        manifestDiagnostics = validateManifest(bundle.manifest, {
+          manifests: new Map([[bundle.manifest.paper, bundle.manifest]]),
+          aliases: bundle.aliases,
+        });
+      } catch (err: unknown) {
+        manifestUnavailable = `validateManifest threw: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    }
+  }
+  const manifestErrors = (manifestDiagnostics ?? []).filter((d) => d.severity === "error");
+  if (manifestUnavailable !== null) {
+    return {
+      checkNumber: 5,
+      check: "manifest-coverage",
+      owner: "am-cm-source-manifest-6qa",
+      role: "invokes",
+      outcome: "not-available",
+      code: "manifest-not-loadable",
+      message:
+        `Check 5 (Manifest coverage) could not run: ${manifestUnavailable}. ` +
+        "Validating nothing is not coverage.",
+    };
+  } else {
+    const check5Passed =
+      options.manifestCoverageMatch !== undefined
+        ? options.manifestCoverageMatch !== false
+        : manifestDiagnostics !== null && manifestErrors.length === 0;
+    return {
+      checkNumber: 5,
+      check: "manifest-coverage",
+      owner: "am-cm-source-manifest-6qa",
+      role: "invokes",
+      outcome: check5Passed ? "passed" : "failed",
+      code: check5Passed ? undefined : "manifest-coverage-mismatch",
+      message: check5Passed
+        ? `Every manifest unit has an edition block and derived statuses match (${bundle.ok ? bundle.manifest.units.length : 0} unit(s) validated).`
+        : `Manifest validation reported ${manifestErrors.length} error(s): ${manifestErrors
+            .slice(0, 3)
+            .map((d) => `${d.rule}: ${d.message}`)
+            .join("; ")}`,
+    };
+  }
+}
+
+/**
+ * Check 6, lifted so it can run when the LEDGER IS ABSENT.
+ *
+ * Neither check reads the ledger - verified by searching their bodies for the ledger
+ * text - yet the absent-ledger branch marked all fifteen not-available, so four real
+ * manifests, four real id snapshots and four real alias files sat unexamined behind an
+ * unrelated missing input. Measured: supplying any ledger string at all makes these two
+ * pass over 25 real units for mass-energy and 87 for brownian-motion
+ * (am-edn-alignment-tooling-do1).
+ */
+function runCheck6(
+  root: string,
+  slug: RouteSlug,
+  options: EditionContractOptions,
+): ContractCheckResult {
+  const bundle = loadManifestBundle(root, slug);
+  // Check 6: Id snapshot (spec #6, implements)
+  // --------------------------------------------------------------------------
+  // Computed from the frozen snapshot on disk (am-06x1). This check read
+  // `options.idSnapshotClean !== false`, which no production caller sets, so it reported
+  // "Every removed id is covered by an alias" for every paper without opening
+  // manifest.ids.snapshot.txt. The three inputs it needs - the snapshot, the manifest's
+  // live unit ids, and the alias records - are all on disk for every slug, so it runs
+  // today. validateFrozenIds fails on a frozen id that vanished without a resolving
+  // alias and on a retired id that came back; an id added since the snapshot is reported
+  // but does not fail, because the snapshot is a floor under retirement, not a freeze on
+  // authoring.
+  const snapshotPath = join(root, `content/source-blocks/${slug}/manifest.ids.snapshot.txt`);
+  let frozenResult: ReturnType<typeof validateFrozenIds> | null = null;
+  let frozenUnavailable: string | null = null;
+  if (options.idSnapshotClean === undefined) {
+    if (!bundle.ok) {
+      frozenUnavailable = bundle.reason;
+    } else if (!existsSync(snapshotPath)) {
+      frozenUnavailable = `no frozen id snapshot at ${snapshotPath}`;
+    } else {
+      try {
+        const snapshotText = readFileSync(snapshotPath, "utf8");
+        if (parseIdSnapshot(snapshotText).length === 0) {
+          frozenUnavailable = `${snapshotPath} lists no ids to hold the manifest to`;
+        } else {
+          frozenResult = validateFrozenIds(
+            snapshotText,
+            bundle.manifest.units.map((unit) => unit.id),
+            bundle.aliases,
+          );
+        }
+      } catch (err: unknown) {
+        frozenUnavailable = `snapshot validation threw: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    }
+  }
+  if (frozenUnavailable !== null) {
+    return {
+      checkNumber: 6,
+      check: "id-snapshot",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: "not-available",
+      code: "id-snapshot-absent",
+      message:
+        `Check 6 (Id snapshot) could not run: ${frozenUnavailable}. ` +
+        "An unread snapshot covers no retirement.",
+    };
+  } else {
+    const check6Passed =
+      options.idSnapshotClean !== undefined
+        ? options.idSnapshotClean !== false
+        : frozenResult?.ok === true;
+    const breaking = (frozenResult?.findings ?? []).filter((f) => f.kind !== "new-id");
+    return {
+      checkNumber: 6,
+      check: "id-snapshot",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: check6Passed ? "passed" : "failed",
+      code: check6Passed ? undefined : "id-snapshot-uncovered",
+      message: check6Passed
+        ? `Every removed id is covered by an alias and added ids are valid successors (${frozenResult?.newCount ?? 0} id(s) added since the snapshot).`
+        : `Id snapshot broken in ${breaking.length} place(s): ${breaking
+            .slice(0, 3)
+            .map((f) => `${f.kind}: ${f.id}`)
+            .join("; ")}`,
+    };
+  }
+}
+
 export function assertEditionContract(
   slugRaw: string,
   options: EditionContractOptions = {},
@@ -526,7 +693,23 @@ export function assertEditionContract(
       message: `No ledger present for ${slug} at ${presence.path}. Absence is not completeness.`,
     });
 
+    // Checks 5 and 6 do NOT read the ledger, and marking them not-available because a
+    // different input is missing left four real manifests, four real id snapshots and four
+    // real alias files unexamined. Measured before changing this: supplying any ledger
+    // string at all made both pass over 25 real units for mass-energy and 87 for
+    // brownian-motion. An absent ledger is a reason those two cannot be part of a COMPLETE
+    // edition verdict; it is not a reason to decline to look at them
+    // (am-edn-alignment-tooling-do1).
+    const LEDGER_INDEPENDENT = new Set([5, 6]);
     for (const spec of CONTRACT_CHECKS_SPEC) {
+      if (spec.checkNumber === 5) {
+        checks.push(runCheck5(root, slug, options));
+        continue;
+      }
+      if (spec.checkNumber === 6) {
+        checks.push(runCheck6(root, slug, options));
+        continue;
+      }
       checks.push({
         checkNumber: spec.checkNumber,
         check: spec.check,
@@ -534,7 +717,9 @@ export function assertEditionContract(
         role: spec.role,
         outcome: "not-available",
         code: "ledger-absent",
-        message: `Check ${spec.checkNumber} (${spec.title}) not available: no ledger present.`,
+        message:
+          `Check ${spec.checkNumber} (${spec.title}) not available: no ledger present. ` +
+          `${LEDGER_INDEPENDENT.size} of the fifteen do not read the ledger and were run anyway.`,
       });
     }
 
@@ -867,139 +1052,10 @@ export function assertEditionContract(
   }
 
   // --------------------------------------------------------------------------
-  // Check 5: Manifest coverage (spec #5, invokes am-cm-source-manifest-6qa)
-  // --------------------------------------------------------------------------
-  // Actually INVOKES its declared owner (am-06x1). The spec gives this check role
-  // "invokes am-cm-source-manifest-6qa", whose validateManifest is what decides page
-  // coverage, locator order, footnote and equation placement, sequence gaps and the
-  // derived-status rules; this check read `options.manifestCoverageMatch !== false`,
-  // which no production caller sets, so it announced "Every manifest unit has an edition
-  // block and derived statuses match" for every paper without loading a manifest.
-  // Alias records are passed because the validator needs them to tell an explained gap
-  // from an unexplained one; they explain gaps, they do not waive them. Frozen snapshots
-  // are deliberately NOT passed here: the snapshot question is check 6's, and one defect
-  // reported twice under two owners would overstate what the fifteen cover.
-  let manifestDiagnostics: readonly { severity: string; rule: string; message: string }[] | null =
-    null;
-  let manifestUnavailable: string | null = null;
-  if (options.manifestCoverageMatch === undefined) {
-    if (!bundle.ok) {
-      manifestUnavailable = bundle.reason;
-    } else {
-      try {
-        manifestDiagnostics = validateManifest(bundle.manifest, {
-          manifests: new Map([[bundle.manifest.paper, bundle.manifest]]),
-          aliases: bundle.aliases,
-        });
-      } catch (err: unknown) {
-        manifestUnavailable = `validateManifest threw: ${err instanceof Error ? err.message : String(err)}`;
-      }
-    }
-  }
-  const manifestErrors = (manifestDiagnostics ?? []).filter((d) => d.severity === "error");
-  if (manifestUnavailable !== null) {
-    checks.push({
-      checkNumber: 5,
-      check: "manifest-coverage",
-      owner: "am-cm-source-manifest-6qa",
-      role: "invokes",
-      outcome: "not-available",
-      code: "manifest-not-loadable",
-      message:
-        `Check 5 (Manifest coverage) could not run: ${manifestUnavailable}. ` +
-        "Validating nothing is not coverage.",
-    });
-  } else {
-    const check5Passed =
-      options.manifestCoverageMatch !== undefined
-        ? options.manifestCoverageMatch !== false
-        : manifestDiagnostics !== null && manifestErrors.length === 0;
-    checks.push({
-      checkNumber: 5,
-      check: "manifest-coverage",
-      owner: "am-cm-source-manifest-6qa",
-      role: "invokes",
-      outcome: check5Passed ? "passed" : "failed",
-      code: check5Passed ? undefined : "manifest-coverage-mismatch",
-      message: check5Passed
-        ? `Every manifest unit has an edition block and derived statuses match (${bundle.ok ? bundle.manifest.units.length : 0} unit(s) validated).`
-        : `Manifest validation reported ${manifestErrors.length} error(s): ${manifestErrors
-            .slice(0, 3)
-            .map((d) => `${d.rule}: ${d.message}`)
-            .join("; ")}`,
-    });
-  }
+  checks.push(runCheck5(root, slug, options));
 
   // --------------------------------------------------------------------------
-  // Check 6: Id snapshot (spec #6, implements)
-  // --------------------------------------------------------------------------
-  // Computed from the frozen snapshot on disk (am-06x1). This check read
-  // `options.idSnapshotClean !== false`, which no production caller sets, so it reported
-  // "Every removed id is covered by an alias" for every paper without opening
-  // manifest.ids.snapshot.txt. The three inputs it needs - the snapshot, the manifest's
-  // live unit ids, and the alias records - are all on disk for every slug, so it runs
-  // today. validateFrozenIds fails on a frozen id that vanished without a resolving
-  // alias and on a retired id that came back; an id added since the snapshot is reported
-  // but does not fail, because the snapshot is a floor under retirement, not a freeze on
-  // authoring.
-  const snapshotPath = join(root, `content/source-blocks/${slug}/manifest.ids.snapshot.txt`);
-  let frozenResult: ReturnType<typeof validateFrozenIds> | null = null;
-  let frozenUnavailable: string | null = null;
-  if (options.idSnapshotClean === undefined) {
-    if (!bundle.ok) {
-      frozenUnavailable = bundle.reason;
-    } else if (!existsSync(snapshotPath)) {
-      frozenUnavailable = `no frozen id snapshot at ${snapshotPath}`;
-    } else {
-      try {
-        const snapshotText = readFileSync(snapshotPath, "utf8");
-        if (parseIdSnapshot(snapshotText).length === 0) {
-          frozenUnavailable = `${snapshotPath} lists no ids to hold the manifest to`;
-        } else {
-          frozenResult = validateFrozenIds(
-            snapshotText,
-            bundle.manifest.units.map((unit) => unit.id),
-            bundle.aliases,
-          );
-        }
-      } catch (err: unknown) {
-        frozenUnavailable = `snapshot validation threw: ${err instanceof Error ? err.message : String(err)}`;
-      }
-    }
-  }
-  if (frozenUnavailable !== null) {
-    checks.push({
-      checkNumber: 6,
-      check: "id-snapshot",
-      owner: "this bead (am-edn-alignment-tooling-do1)",
-      role: "implements",
-      outcome: "not-available",
-      code: "id-snapshot-absent",
-      message:
-        `Check 6 (Id snapshot) could not run: ${frozenUnavailable}. ` +
-        "An unread snapshot covers no retirement.",
-    });
-  } else {
-    const check6Passed =
-      options.idSnapshotClean !== undefined
-        ? options.idSnapshotClean !== false
-        : frozenResult?.ok === true;
-    const breaking = (frozenResult?.findings ?? []).filter((f) => f.kind !== "new-id");
-    checks.push({
-      checkNumber: 6,
-      check: "id-snapshot",
-      owner: "this bead (am-edn-alignment-tooling-do1)",
-      role: "implements",
-      outcome: check6Passed ? "passed" : "failed",
-      code: check6Passed ? undefined : "id-snapshot-uncovered",
-      message: check6Passed
-        ? `Every removed id is covered by an alias and added ids are valid successors (${frozenResult?.newCount ?? 0} id(s) added since the snapshot).`
-        : `Id snapshot broken in ${breaking.length} place(s): ${breaking
-            .slice(0, 3)
-            .map((f) => `${f.kind}: ${f.id}`)
-            .join("; ")}`,
-    });
-  }
+  checks.push(runCheck6(root, slug, options));
 
   // --------------------------------------------------------------------------
   // Check 7: No ledger markers in edition blocks (spec #7, invokes am-cm-checks-structural-lq0)

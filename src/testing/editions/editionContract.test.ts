@@ -243,18 +243,56 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     }
   });
 
-  test("when ledger is absent, all 15 checks are reported as not-available with owner attribution", () => {
+  test("an absent ledger silences the thirteen that read it, and not the two that do not", () => {
+    // REVISED 2026-09-20 (am-edn-alignment-tooling-do1). This asserted that ALL fifteen
+    // report `ledger-absent`, which was asserting the defect: checks 5 and 6 never read the
+    // ledger, and blanket-declining them left four real manifests, four real id snapshots
+    // and four real alias files unexamined behind an unrelated missing input. Measured
+    // against the real repository: supplying any ledger string at all made both PASS over
+    // 25 real units for mass-energy and 87 for brownian-motion. They now run regardless,
+    // and decline for their OWN reason when their own inputs are missing - which is what
+    // this root, with no manifest at all, produces.
     const result = assertEditionContract("light-quanta", { root: "/nonexistent" });
     expect(result.ledger).toBe("absent");
     expect(result.outcome).toBe("not-available");
 
+    const LEDGER_INDEPENDENT = new Set([5, 6]);
     for (const spec of CONTRACT_CHECKS_SPEC) {
       const match = result.checks.find((c) => c.checkNumber === spec.checkNumber);
       expect(match).toBeDefined();
       expect(match?.owner).toBe(spec.owner);
       expect(match?.role).toBe(spec.role);
       expect(match?.outcome).toBe("not-available");
-      expect(match?.code).toBe("ledger-absent");
+      if (LEDGER_INDEPENDENT.has(spec.checkNumber)) {
+        // Its own reason, not somebody else's missing input - and each gives a DIFFERENT
+        // one, which is the point: check 5 cannot load a manifest, check 6 cannot find an
+        // id snapshot. A shared code would have told the reader less than two do.
+        expect(match?.code).not.toBe("ledger-absent");
+        expect(match?.code).toBe(
+          spec.checkNumber === 5 ? "manifest-not-loadable" : "id-snapshot-absent",
+        );
+      } else {
+        expect(match?.code).toBe("ledger-absent");
+      }
+    }
+  });
+
+  test("with real manifests and no ledger, checks 5 and 6 reach a real verdict", () => {
+    // The point of the change above, asserted against the REAL repository rather than a
+    // fixture: no reviewed ledger exists for any paper, and these two still judge real
+    // material. If a ledger ever lands this keeps passing; if someone re-gates them behind
+    // the ledger, it fails.
+    for (const [slug, units] of [
+      ["mass-energy", 25],
+      ["brownian-motion", 87],
+    ] as const) {
+      const r = assertEditionContract(slug, {});
+      expect(r.ledger).toBe("absent");
+      const five = r.checks.find((c) => c.checkNumber === 5);
+      const six = r.checks.find((c) => c.checkNumber === 6);
+      expect(five?.outcome, `check 5 must judge ${slug}'s real manifest`).toBe("passed");
+      expect(five?.message).toContain(`${units} unit(s) validated`);
+      expect(six?.outcome, `check 6 must judge ${slug}'s real id snapshot`).toBe("passed");
     }
   });
 });
