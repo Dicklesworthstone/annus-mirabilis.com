@@ -127,10 +127,31 @@ describe("extractFromRepoFile: the repository-boundary guard", () => {
     expect(extracted.source).toContain("publicDoubler");
   });
 
-  test("refuses a module path that resolves outside the repository root", () => {
-    expect(() => extractFromRepoFile(REPO_ROOT, "../outside.ts", "f")).toThrow(
-      /escapes the repository root/,
-    );
+  test("refuses a module path that resolves outside the repository root with kernel-path-escape", () => {
+    // The code, not only the message. A different guard whose message also
+    // mentions the repository root would satisfy a message-only assertion, and
+    // the am-muyh scanner counts a refusal site untested until a test names its
+    // code, which is how this one was found.
+    let caught: unknown;
+    try {
+      extractFromRepoFile(REPO_ROOT, "../outside.ts", "f");
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(KernelExtractionError);
+    expect((caught as KernelExtractionError).code).toBe("kernel-path-escape");
+    expect((caught as KernelExtractionError).message).toMatch(/escapes the repository root/);
+
+    // The accept arm, so the refusal is attributable to the escaping path and
+    // not to the fixture being unreadable: an in-repo path of the same shape
+    // extracts cleanly.
+    expect(() =>
+      extractFromRepoFile(
+        REPO_ROOT,
+        "src/testing/fixtures/kernelSource/simpleFunction.fixture.ts",
+        "publicDoubler",
+      ),
+    ).not.toThrow();
   });
 });
 
@@ -159,6 +180,8 @@ describe("assertPinnedHash: the drift check", () => {
       throw new Error("expected a throw");
     } catch (error) {
       message = error instanceof Error ? error.message : String(error);
+      expect(error).toBeInstanceOf(KernelExtractionError);
+      expect((error as KernelExtractionError).code).toBe("kernel-hash-drift");
     }
     expect(message).toContain("bm-fixture");
     expect(message).toContain("publicDoubler");
