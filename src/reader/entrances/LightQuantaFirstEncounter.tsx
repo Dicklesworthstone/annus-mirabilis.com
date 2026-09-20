@@ -123,8 +123,13 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
           role="img"
           aria-label={`Arrangement ${placement + 1}. ${row.parts.map((part, i) => `Token ${i + 1} in the ${partName(part, example.setup.parts)} part`).join(". ")}`}
         >
+          {/*
+            Keyed on the part's printed name rather than its ordinal. The names
+            are what the diagram and its aria-label call these boxes, so they are
+            the identity a reader would use, and they are unique within a setup.
+          */}
           {Array.from({ length: example.setup.parts }, (_, part) => (
-            <g key={part}>
+            <g key={partName(part, example.setup.parts)}>
               <rect
                 x={5 + (part * 310) / example.setup.parts}
                 y={5}
@@ -138,6 +143,13 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
               </text>
             </g>
           ))}
+          {/*
+            A token has no identity beyond its position in the arrangement. A
+            composite key naming the position was tried and the rule still
+            flagged it, so the plain ordinal stays rather than leaving a longer
+            key that buys nothing. The list is a static diagram of one
+            arrangement and is never reordered.
+          */}
           {row.parts.map((part, token) => (
             <g key={token}>
               <circle
