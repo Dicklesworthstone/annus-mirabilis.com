@@ -4,7 +4,8 @@
  */
 
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   collectDonor,
@@ -991,6 +992,48 @@ describe("License inventory summary states how many rights positions are settled
     expect(lines).toEqual([
       "\u2714 Third-party license inventory check passed. (2 items evaluated)",
     ]);
+  });
+
+  /**
+   * The class survived its own fix, which is why this pair exists. At total 0 the summary still led
+   * with a tick and the word "passed", carrying "(0 items evaluated)" beside it - the same shape as
+   * the original defect with the count set to zero. Proven reachable end to end rather than argued:
+   * a root whose collectors find nothing and whose committed notices match that nothing printed
+   *
+   *     ✔ Third-party license inventory check passed. (0 items evaluated)     exitCode 0
+   *
+   * which is a broken collector reporting a conformance it never measured. The wording alone would
+   * not have been enough: CI reads the exit code, so an empty inventory is now a violation.
+   */
+  test("an inventory that measured nothing does not report a pass", () => {
+    const lines = formatInventorySummary(summarizeRightsPositions([]));
+    expect(lines.some((l) => l.includes("passed"))).toBe(false);
+    expect(lines.some((l) => l.startsWith("\u2714"))).toBe(false);
+    expect(lines.join("\n")).toContain("no items were evaluated");
+  });
+
+  test("a non-empty fully settled inventory still reports a pass, so the refusal is about emptiness", () => {
+    const lines = formatInventorySummary(summarizeRightsPositions([settled]));
+    expect(lines).toEqual([
+      "\u2714 Third-party license inventory check passed. (1 items evaluated)",
+    ]);
+  });
+
+  test("a root whose collectors find nothing fails the check rather than passing it", () => {
+    const dir = mkdtempSync(join(tmpdir(), "license-inventory-empty-"));
+    // notices that match the empty result, so the adjacent stale-notices check cannot be what fails
+    const built = buildLicenseInventory(dir, defaultFsAdapters);
+    expect(built.items.length).toBe(0);
+    writeFileSync(join(dir, "THIRD_PARTY_NOTICES.md"), built.renderedNotices ?? "", "utf8");
+
+    const res = runLicenseInventoryCheck({
+      rootDir: dir,
+      fs: defaultFsAdapters,
+      silent: true,
+      logsDir: join(dir, "logs"),
+    });
+    expect(res.success).toBe(false);
+    expect(res.exitCode).toBe(1);
   });
 
   test("the real inventory has open positions, and every one of them is still counted", () => {

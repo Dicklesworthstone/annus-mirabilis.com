@@ -257,6 +257,24 @@ export function runLicenseInventoryCheck(options: CheckOptions = {}): {
     });
   }
 
+  // An empty inventory is a broken collector or a wrong root, never a clean bill. Without this the
+  // check exits 0 over a set it never measured; the wording alone would not have been enough,
+  // because CI reads the exit code and not the sentence.
+  if (inventory.items.length === 0) {
+    errors.push({
+      item: {
+        kind: "npm",
+        name: "license-inventory",
+        version: "0",
+        license: "EMPTY-INVENTORY",
+        source: rootDir,
+      },
+      rule: "empty-inventory",
+      message:
+        "No items were evaluated. The inventory found nothing to check, so nothing is established.",
+    });
+  }
+
   const logOptions: { logRunId?: string; logsDir?: string } = {};
   if (options.logRunId !== undefined) {
     logOptions.logRunId = options.logRunId;

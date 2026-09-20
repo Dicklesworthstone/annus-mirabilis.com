@@ -105,6 +105,18 @@ export function summarizeRightsPositions(
 
 /** The lines the check prints when it finds no policy violation. */
 export function formatInventorySummary(summary: RightsPositionSummary): string[] {
+  // An inventory that measured nothing has established nothing, so it does not get a tick. The
+  // original defect was a headline claiming more than the count beside it, and "passed. (0 items
+  // evaluated)" is the same sentence with the count set to zero. Proven reachable end to end: a
+  // root whose collectors find nothing and whose committed notices match that nothing printed the
+  // tick and exited 0, which is how a broken collector reports a conformance it never measured.
+  if (summary.total === 0) {
+    return [
+      "✖ Third-party license inventory: no items were evaluated.",
+      "  The inventory found nothing to check, so nothing is established. A collector or the root",
+      "  directory is wrong; an empty result is not a clean result.",
+    ];
+  }
   if (summary.pendingOwnerRuling === 0) {
     return [`✔ Third-party license inventory check passed. (${summary.total} items evaluated)`];
   }
