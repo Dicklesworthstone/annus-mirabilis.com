@@ -43,6 +43,28 @@ function baseName(sourcePath: string): string {
 /**
  * Parses modalityClasses from a markdown/YAML conventions content string.
  */
+/**
+ * A conventions file that names a class GLOSS_NOTE_CLASSES does not contain.
+ *
+ * A TYPE, not a sentence (am-jrjy). The loader in ./glossConventions.ts must
+ * distinguish a validation failure, which it rethrows, from an IO failure,
+ * which it downgrades to a warning and falls back to the defaults. It used to
+ * do that by testing whether the caught error's MESSAGE contained "is not a
+ * valid GlossNoteClass" - prose produced here, matched there. Rewording this
+ * string would have silently turned a validation failure into a warning, and
+ * an invalid modality class into the default list, with nothing in either
+ * module pointing at the other. `code` is carried as well as the class so the
+ * check survives a module being instantiated twice.
+ */
+export class GlossConventionsValidationError extends Error {
+  readonly code = "invalid-modality-class";
+
+  constructor(message: string) {
+    super(message);
+    this.name = "GlossConventionsValidationError";
+  }
+}
+
 export function parseModalityClassesFromContent(
   content: string,
   sourcePath = "GLOSS_CONVENTIONS.md",
@@ -60,7 +82,7 @@ export function parseModalityClassesFromContent(
     // Validate against GLOSS_NOTE_CLASSES
     for (const item of rawItems) {
       if (!(GLOSS_NOTE_CLASSES as readonly string[]).includes(item)) {
-        throw new Error(
+        throw new GlossConventionsValidationError(
           `[${baseName(sourcePath)} -> source.ts] Class "${item}" in modalityClasses is not a valid GlossNoteClass in GLOSS_NOTE_CLASSES.`,
         );
       }

@@ -17,12 +17,14 @@ import path from "node:path";
 import {
   DEFAULT_MODALITY_CLASSES,
   type GlossConventions,
+  GlossConventionsValidationError,
   parseModalityClassesFromContent,
 } from "./glossConventions.pure.ts";
 
 export {
   DEFAULT_MODALITY_CLASSES,
   type GlossConventions,
+  GlossConventionsValidationError,
   isModalityClass,
   parseModalityClassesFromContent,
 } from "./glossConventions.pure.ts";
@@ -61,7 +63,16 @@ export function loadGlossConventions(customPath?: string): GlossConventions {
     };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    if (message.includes("is not a valid GlossNoteClass")) {
+    // Structural, not prose (am-jrjy). This decides whether a caught error is a
+    // VALIDATION failure to rethrow or an IO failure to downgrade to a warning,
+    // and it used to decide by matching the message text - text produced in
+    // ./glossConventions.pure.ts, matched here. Rewording it there would have
+    // downgraded a validation failure here, replacing an invalid modality class
+    // with the defaults, and nothing linked the two files.
+    if (
+      err instanceof GlossConventionsValidationError ||
+      (err as { code?: unknown })?.code === "invalid-modality-class"
+    ) {
       throw err;
     }
     warnings.push(`Error reading ${resolvedPath}: ${message}`);

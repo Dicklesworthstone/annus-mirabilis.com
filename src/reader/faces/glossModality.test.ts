@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import {
   DEFAULT_MODALITY_CLASSES,
+  GlossConventionsValidationError,
   isModalityClass,
   loadGlossConventions,
   parseModalityClassesFromContent,
@@ -73,5 +76,56 @@ modalityClasses:
     expect(isModalityClass("compound", customClasses)).toBe(false);
     expect(isModalityClass("separable-verb", customClasses)).toBe(false);
     expect(isModalityClass(undefined, customClasses)).toBe(false);
+  });
+});
+
+describe("loadGlossConventions tells validation from IO structurally (am-jrjy)", () => {
+  // The loader must RETHROW a validation failure and DOWNGRADE an IO failure to
+  // a warning. It used to decide by testing whether the caught error's message
+  // contained "is not a valid GlossNoteClass" - prose produced in
+  // glossConventions.pure.ts and matched in glossConventions.ts. Rewording the
+  // string in one module would have silently downgraded a validation failure in
+  // the other, substituting the default modality classes for an invalid file,
+  // and nothing in either module pointed at the other.
+
+  const scratch = (): string => mkdtempSync(path.join(tmpdir(), "am-jrjy-gloss-"));
+
+  test("a validation failure still rethrows, as a typed error carrying its code", () => {
+    const dir = scratch();
+    const file = path.join(dir, "GLOSS_CONVENTIONS.md");
+    writeFileSync(file, "modalityClasses:\n  - konjunktiv-i\n  - made-up-fake-class\n");
+
+    let caught: unknown;
+    try {
+      loadGlossConventions(file);
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(GlossConventionsValidationError);
+    expect((caught as GlossConventionsValidationError).code).toBe("invalid-modality-class");
+  });
+
+  test("an IO failure still downgrades to a warning and the default classes", () => {
+    // A directory exists, so it passes the existsSync guard and readFileSync
+    // throws EISDIR: a real IO failure, not a synthetic one.
+    const dir = scratch();
+    const asDirectory = path.join(dir, "GLOSS_CONVENTIONS.md");
+    mkdirSync(asDirectory);
+
+    const result = loadGlossConventions(asDirectory);
+    expect(result.modalityClasses).toEqual(DEFAULT_MODALITY_CLASSES);
+    expect(result.warnings.some((w) => w.includes("Error reading"))).toBe(true);
+  });
+
+  // The argument, not just the behaviour: the classification must not depend on
+  // the wording. A validation error whose message no longer contains the old
+  // sentence is still a validation error.
+  test("rewording the message does not downgrade a validation failure", () => {
+    const reworded = new GlossConventionsValidationError(
+      "modalityClasses names a class the note-class table does not define",
+    );
+    expect(reworded.message.includes("is not a valid GlossNoteClass")).toBe(false);
+    expect(reworded).toBeInstanceOf(GlossConventionsValidationError);
+    expect(reworded.code).toBe("invalid-modality-class");
   });
 });
