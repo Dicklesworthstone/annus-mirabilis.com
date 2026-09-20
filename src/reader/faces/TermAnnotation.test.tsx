@@ -48,8 +48,14 @@ describe("TermAnnotation unit and face integration", () => {
 
     expect(html).toContain('data-term-id="term-verschiebung"');
     expect(html).toContain('data-term-expanded="false"');
-    expect(html).toContain('role="button"');
-    expect(html).toContain('tabindex="0"');
+    // A native <button>, so the trigger needs no role override and no tabindex:
+    // it is focusable and Enter/Space-activated by the platform. Both absences
+    // are asserted, so a silent regression to <abbr role="button" tabindex="0">
+    // would fail here rather than pass quietly.
+    expect(html).toContain("<button");
+    expect(html).toContain('type="button"');
+    expect(html).not.toContain('role="button"');
+    expect(html).not.toContain('tabindex="0"');
     expect(html).toContain('aria-expanded="false"');
     expect(html).toContain(`title="${termDef}"`);
     expect(html).toContain("Verschiebung");
