@@ -125,12 +125,13 @@ export function LowSpeedExplorer({
           id={`${id}-order`}
           data-low-speed-order
           value={selection.order}
-          onChange={(event) =>
-            setSelection((current) => ({
-              ...current,
-              order: Number(event.currentTarget.value) as LowSpeedOrder,
-            }))
-          }
+          onChange={(event) => {
+            // am-6iz4. currentTarget is only valid while the event is dispatching. Reading it
+            // inside the updater, which React runs afterwards, threw "null is not an object".
+            // Captured first, exactly as the checkbox handler above already does.
+            const order = Number(event.currentTarget.value) as LowSpeedOrder;
+            setSelection((current) => ({ ...current, order }));
+          }}
         >
           <option value="2">Through second order</option>
           <option value="4">Through fourth order</option>
