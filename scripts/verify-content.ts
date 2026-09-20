@@ -25,7 +25,7 @@ import {
   type ReadingTargetKind,
 } from "../src/content/audits/readings.ts";
 import { auditShelf, type ShelfAuditInput } from "../src/content/audits/shelf.ts";
-import { summarize } from "../src/content/audits/types.ts";
+import { type AuditFinding, type AuditReport, summarize } from "../src/content/audits/types.ts";
 import {
   loadCommittedInventory,
   RULE_0_HELP,
@@ -111,6 +111,95 @@ const provenance = loadProvenanceReceipts({
   rootDir: root,
   requireLocal: args.requireLocal,
 });
+
+/**
+ * am-unwired-audits-uwot. The readings and instruments audits used to run over ONE item each:
+ * one owner file of 24, one manifest of 38. Nothing recorded that restriction as intentional and
+ * nothing failed when the population grew, so a new unaudited owner or instrument was invisible.
+ *
+ * They now run over the whole population. Items that cannot pass yet are recorded here with a
+ * reason, and an entry EXPIRES: if a listed item stops producing findings, the audit raises a
+ * stale-audit-exemption error naming it, so the entry has to be deleted rather than left behind.
+ * Same shape as EXPECTED_UNREACHABLE in src/testing/scriptReachability.test.ts.
+ */
+const READINGS_OWNERS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
+  ["am-bm-08-measurement-bias-h1ye", "R2/R3 obligations unmet at 2026-09-19; the full-population readings audit reports errors against this owner. Delete this entry when its readings land (am-unwired-audits-uwot)."],
+  ["am-sr-06-velocity-composition-7ni4", "R2/R3 obligations unmet at 2026-09-19; same audit, same bead."],
+  ["am-sr-07-field-equations-xxes", "R2/R3 obligations unmet at 2026-09-19; same audit, same bead."],
+]);
+
+const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
+  ["avogadro-lab", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["bm-02", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 4 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["bm-03", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["bm-04", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["bm-06", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["bm-07", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["bm-08", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["light-thread", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["lq-01", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["lq-02", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 4 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["lq-03", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["lq-04", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["lq-05", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["lq-06", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["lq-07", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["lq-08", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["lq-09", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["me-01", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["me-03", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["shelf-fizeau", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["shelf-maxwell-galilean", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["shelf-michelson-morley", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-01", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-03", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-04", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-05", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-06", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-07", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-08", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-09", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-10", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-11", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-12", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  ["sr-13", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+]);
+
+/**
+ * Downgrade findings against recorded items to flags, and raise an error for any recorded item
+ * that no longer has findings. The second half is the part that matters: without it the map is a
+ * suppression list that silently outlives its reason.
+ */
+function applyAuditExemptions(
+  auditName: string,
+  report: AuditReport,
+  exemptions: ReadonlyMap<string, string>,
+  keyOf: (finding: AuditFinding) => string | undefined,
+): AuditReport {
+  const covered = new Set<string>();
+  const out: AuditFinding[] = [];
+  for (const finding of report.findings) {
+    const key = keyOf(finding);
+    const reason = key === undefined ? undefined : exemptions.get(key);
+    if (key !== undefined && reason !== undefined) {
+      covered.add(key);
+      out.push({ ...finding, severity: "flag", message: `${finding.message} [recorded as not yet auditable: ${reason}]` });
+    } else {
+      out.push(finding);
+    }
+  }
+  for (const [key, reason] of exemptions) {
+    if (covered.has(key)) continue;
+    out.push({
+      check: "stale-audit-exemption",
+      family: "audit",
+      severity: "error",
+      recordId: key,
+      message: `${key} is recorded as not yet auditable, but the ${auditName} audit now reports nothing against it. Delete its entry and this reason: ${reason}`,
+    });
+  }
+  return summarize(auditName, out);
+}
 
 function loadLiveReadingsAuditInput(
   rootDir: string,
@@ -215,10 +304,13 @@ const result = await runVerifyContent({
   },
   audits: {
     readings: async () => {
-      const input = loadLiveReadingsAuditInput(root, {
-        ownerBeadIds: ["am-bm-01-tracer-ensemble-hdly"],
-      });
-      return auditReadings(input);
+      const input = loadLiveReadingsAuditInput(root);
+      return applyAuditExemptions(
+        "readings",
+        auditReadings(input),
+        READINGS_OWNERS_NOT_YET_AUDITABLE,
+        (finding) => finding.ownerBeadId,
+      );
     },
     shelf: async () => {
       const input: ShelfAuditInput = { cards: [] };
@@ -235,8 +327,13 @@ const result = await runVerifyContent({
       return auditMisconceptions(input);
     },
     instruments: async () => {
-      const rows = loadLiveInstrumentRows(root, { ids: ["bm-01"] });
-      return auditInstruments(rows);
+      const rows = loadLiveInstrumentRows(root);
+      return applyAuditExemptions(
+        "instruments",
+        auditInstruments(rows),
+        INSTRUMENTS_NOT_YET_AUDITABLE,
+        (finding) => finding.recordId,
+      );
     },
   },
   revisionCheck: async (ref) => {
