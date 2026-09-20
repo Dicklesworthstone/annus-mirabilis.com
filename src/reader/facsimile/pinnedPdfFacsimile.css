@@ -1,0 +1,236 @@
+/**
+ * Pinned facsimile viewer (am-vw1o).
+ *
+ * The component previously carried Tailwind-shaped utility classes. Tailwind is not installed and
+ * the project's decision D-2026-09-17-tailwind-styling-resolution keeps semantic CSS as the sole
+ * styling system, so those names matched no rule and the viewer rendered with none of the layout,
+ * colour or spacing they described. This file is that styling written for the first time, not a
+ * restyle: every declaration below replaces a class that resolved to nothing.
+ *
+ * Colours come from the theme tokens rather than the utility names the old classes used
+ * (parchment-300, ink-950, amber-500 and the rest are defined nowhere in this repository), so the
+ * viewer now follows Annalen, Kramgasse Night and Slate like the rest of the reader.
+ */
+
+.facsimile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* The page stage. A dark surround is deliberate: it separates the scanned sheet from the page
+   around it, and plot-darkfield is the token the reader already uses for that job. */
+.facsimile-stage {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  min-height: 440px;
+  padding: 0.5rem;
+  overflow: auto;
+  border: 1px solid var(--rule);
+  border-radius: 0.75rem;
+  background: var(--plot-darkfield);
+}
+
+@media (min-width: 640px) {
+  .facsimile-stage {
+    min-height: 560px;
+    padding: 1rem;
+  }
+}
+
+/* The scanned sheet itself stays white regardless of theme: it is a photograph of paper, not a
+   surface the theme owns. */
+.facsimile-page {
+  max-width: 100%;
+  height: auto;
+  background: #ffffff;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 30%);
+  transition: opacity 150ms ease;
+}
+
+.facsimile-page.is-hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.facsimile-page.is-shown {
+  position: relative;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .facsimile-page {
+    transition: none;
+  }
+}
+
+.facsimile-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+}
+
+.facsimile-overlay-error {
+  padding: 1.5rem;
+  color: var(--paper);
+}
+
+.facsimile-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+  background: var(--panel);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 30%);
+}
+
+.facsimile-spinner {
+  width: 1rem;
+  height: 1rem;
+  color: var(--accent);
+  animation: facsimile-spin 1s linear infinite;
+}
+
+@keyframes facsimile-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .facsimile-spinner {
+    animation: none;
+  }
+}
+
+.facsimile-error-text {
+  max-width: 28rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+}
+
+.facsimile-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.75rem;
+  background: var(--panel);
+}
+
+.facsimile-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.facsimile-title-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--accent);
+}
+
+.facsimile-title-text {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.facsimile-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.facsimile-nav-button {
+  padding: 0.375rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.facsimile-nav-button:hover:not(:disabled) {
+  background: var(--wash);
+}
+
+.facsimile-nav-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.facsimile-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.facsimile-icon-small {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.facsimile-page-form {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.facsimile-page-input {
+  width: 2.5rem;
+  padding: 0.125rem 0.25rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.25rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.facsimile-page-count {
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.facsimile-reset {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.25rem;
+  background: var(--accent);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  cursor: pointer;
+}
+
+.facsimile-reset:hover {
+  filter: brightness(0.9);
+}
+
+.facsimile-nav-button:focus-visible,
+.facsimile-page-input:focus-visible,
+.facsimile-reset:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

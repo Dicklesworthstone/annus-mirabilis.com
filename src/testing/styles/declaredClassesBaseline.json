@@ -126,7 +126,7 @@
   "src/reader/faces/UnreviewedBanner.tsx": 0,
   "src/reader/faces/inlines.tsx": 0,
   "src/reader/faces/results/ResultCard.tsx": 0,
-  "src/reader/facsimile/PinnedPdfFacsimile.tsx": 154,
+  "src/reader/facsimile/PinnedPdfFacsimile.tsx": 0,
   "src/reader/misconceptions/MisconceptionCallout.tsx": 0,
   "src/search/CommandPalette.tsx": 0,
   "src/testing/view-kit/fixtures/PlantedLorentzView.fixture.tsx": 0,

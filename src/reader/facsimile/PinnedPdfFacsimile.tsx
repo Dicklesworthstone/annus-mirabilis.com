@@ -18,6 +18,7 @@ import Image from "next/image";
 import type { RefObject } from "react";
 import type { PinnedPdfFacsimileState } from "./pinnedPdfFacsimileState.ts";
 import { usePinnedPdfFacsimile } from "./usePinnedPdfFacsimile.ts";
+import "./pinnedPdfFacsimile.css";
 
 export interface PinnedPdfFacsimileProps {
   /** Canonical same-origin URL of the immutable source PDF. */
@@ -142,17 +143,12 @@ function PinnedPdfPageViewport({
       : `${title} original scanned facsimile page`;
 
   return (
-    <div
-      ref={viewportRef}
-      className="relative flex min-h-[440px] w-full items-start justify-center overflow-auto rounded-xl border border-parchment-300 bg-ink-950 p-2 dark:border-ink-800 sm:min-h-[560px] sm:p-4"
-    >
+    <div ref={viewportRef} className="facsimile-stage">
       {showPreview && previewUrl ? (
         <Image
           alt={`${title} original source facsimile, page 1`}
-          className={`h-auto max-w-full bg-white shadow-lg transition-opacity duration-150 ${
-            renderState === "ready" && pageNumber === 1
-              ? "pointer-events-none absolute opacity-0"
-              : "relative opacity-100"
+          className={`facsimile-page ${
+            renderState === "ready" && pageNumber === 1 ? "is-hidden" : "is-shown"
           }`}
           data-testid="pinned-pdf-preview"
           height={1600}
@@ -166,31 +162,20 @@ function PinnedPdfPageViewport({
         ref={canvasRef}
         role="img"
         aria-label={canvasLabel}
-        className={`h-auto max-w-full bg-white shadow-lg transition-opacity duration-150 ${
-          renderState === "ready"
-            ? "relative opacity-100"
-            : "pointer-events-none absolute opacity-0"
-        }`}
+        className={`facsimile-page ${renderState === "ready" ? "is-shown" : "is-hidden"}`}
         data-testid="pinned-pdf-canvas"
       />
       {renderState === "loading" && (
-        <div
-          role="status"
-          aria-label={loadingLabel}
-          className="absolute inset-0 flex flex-col items-center justify-center bg-ink-950/40 p-4 text-center backdrop-blur-xs"
-        >
-          <div className="flex items-center gap-2 rounded-lg border border-parchment-300/40 bg-ink-950/90 px-3 py-2 text-xs font-sans text-parchment-100 shadow-md">
-            <LoaderCircleIcon className="h-4 w-4 animate-spin text-amber-500" />
+        <div role="status" aria-label={loadingLabel} className="facsimile-overlay">
+          <div className="facsimile-badge">
+            <LoaderCircleIcon className="facsimile-spinner" />
             <span>{loadingLabel}</span>
           </div>
         </div>
       )}
       {renderState === "error" && (
-        <div
-          role="alert"
-          className="absolute inset-0 flex flex-col items-center justify-center bg-ink-950/80 p-6 text-center text-parchment-100"
-        >
-          <p className="max-w-md text-sm font-sans">
+        <div role="alert" className="facsimile-overlay facsimile-overlay-error">
+          <p className="facsimile-error-text">
             {state.errorMessage ?? "The facsimile page could not be rendered."}
           </p>
         </div>
@@ -217,27 +202,27 @@ export function PinnedPdfFacsimile({
   } = usePinnedPdfFacsimile({ initialPage, pdfUrl });
 
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="facsimile">
       {/* Viewer toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-parchment-300 dark:border-ink-800 bg-parchment-100/60 dark:bg-ink-900/60 p-2.5 sm:p-3 text-xs font-sans">
-        <div className="flex items-center gap-2">
-          <FileTextIcon className="w-4 h-4 text-amber-700 dark:text-amber-400" />
-          <span className="font-semibold text-ink-950 dark:text-parchment-50">{title}</span>
+      <div className="facsimile-toolbar">
+        <div className="facsimile-title">
+          <FileTextIcon className="facsimile-title-icon" />
+          <span className="facsimile-title-text">{title}</span>
         </div>
 
         {/* Page controls */}
-        <div className="flex items-center gap-1.5">
+        <div className="facsimile-controls">
           <button
             type="button"
             disabled={state.pageNumber <= 1}
             onClick={() => goToPage(state.pageNumber - 1)}
             aria-label="Previous page"
-            className="p-1.5 rounded-lg border border-parchment-300 dark:border-ink-700 disabled:opacity-40 hover:bg-parchment-200 dark:hover:bg-ink-800 cursor-pointer disabled:cursor-not-allowed"
+            className="facsimile-nav-button"
           >
-            <ChevronLeftIcon className="w-4 h-4" />
+            <ChevronLeftIcon className="facsimile-icon" />
           </button>
 
-          <form onSubmit={submitPageInput} className="flex items-center gap-1">
+          <form onSubmit={submitPageInput} className="facsimile-page-form">
             <label htmlFor="facsimile-page-input" className="sr-only">
               Page number
             </label>
@@ -247,9 +232,9 @@ export function PinnedPdfFacsimile({
               inputMode="numeric"
               value={pageInput}
               onChange={(e) => setPageInput(e.target.value)}
-              className="w-10 rounded border border-parchment-300 dark:border-ink-700 bg-white dark:bg-ink-950 px-1 py-0.5 text-center font-mono text-xs"
+              className="facsimile-page-input"
             />
-            <span className="text-ink-500 font-mono">/ {state.pageCount || "–"}</span>
+            <span className="facsimile-page-count">/ {state.pageCount || "–"}</span>
           </form>
 
           <button
@@ -257,9 +242,9 @@ export function PinnedPdfFacsimile({
             disabled={state.pageCount > 0 && state.pageNumber >= state.pageCount}
             onClick={() => goToPage(state.pageNumber + 1)}
             aria-label="Next page"
-            className="p-1.5 rounded-lg border border-parchment-300 dark:border-ink-700 disabled:opacity-40 hover:bg-parchment-200 dark:hover:bg-ink-800 cursor-pointer disabled:cursor-not-allowed"
+            className="facsimile-nav-button"
           >
-            <ChevronRightIcon className="w-4 h-4" />
+            <ChevronRightIcon className="facsimile-icon" />
           </button>
 
           {state.renderState === "error" && (
@@ -267,9 +252,9 @@ export function PinnedPdfFacsimile({
               type="button"
               onClick={retry}
               aria-label="Retry rendering"
-              className="ml-2 flex items-center gap-1 px-2 py-1 rounded bg-amber-600 text-white hover:bg-amber-700 text-[11px] font-mono cursor-pointer"
+              className="facsimile-reset"
             >
-              <RotateCcwIcon className="w-3 h-3" />
+              <RotateCcwIcon className="facsimile-icon-small" />
               <span>Retry</span>
             </button>
           )}
