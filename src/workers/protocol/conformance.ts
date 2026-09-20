@@ -117,17 +117,18 @@ export async function runProtocolConformance(
 
   async function step(
     testId: string,
-    action: () => Promise<{ passed: boolean; message: string; details?: any }>,
+    action: () => Promise<{ passed: boolean; message: string; details?: Record<string, unknown> }>,
   ) {
     const start = performance.now();
     let passed = false;
     let message = "";
-    // `any` is deliberate and measured (am-6iz4). `details` is a free-form failure-dump
-    // payload: each step returns a different shape and the dump reads details?.rawMessage,
-    // details?.decodeContext and the per-step fields directly. Typing it `unknown` gives 13
-    // TypeScript errors at those reads, so removing the `any` here is a refactor of the dump
-    // schema rather than a lint fix, and it belongs to whoever owns this harness.
-    let details: any;
+    // A free-form failure-dump payload: each step returns a different shape and the dump
+    // reads details?.rawMessage, details?.decodeContext and the per-step fields directly,
+    // then spreads the rest. `Record<string, unknown>` carries that exactly - every read
+    // is an optional index read, which is what these are - and costs nothing. Bare
+    // `unknown` costs 13 TypeScript errors at those reads, which is what made this look
+    // like somebody else's refactor (am-6iz4).
+    let details: Record<string, unknown> | undefined;
 
     try {
       const res = await action();
