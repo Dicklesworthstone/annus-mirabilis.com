@@ -14,11 +14,13 @@ import {
   folioObservations,
   formatPinReport,
   getDefaultRepoRoot,
+  isUnmeasurable,
   locateExtractInParent,
   PinMeasurementError,
   pdfPageTexts,
   renderPageHash,
   requireTool,
+  UNMEASURABLE_CODES,
   verifyFacsimilePins,
 } from "./verify-facsimile-pins.ts";
 
@@ -462,6 +464,68 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
     });
   });
 
+  describe("4c. A missing parent scan is not a verdict about a pin (am-yf6h)", () => {
+    // CI is this case on every run: /sources is git-ignored, so no parent scan is
+    // ever on disk there, and before this the summary read "0 verified, 6 refused"
+    // as though the pins had been examined and found wanting.
+    const emptyRoot = path.join(REPO_ROOT, "artifacts", "test-tmp", "pins-no-sources");
+
+    test("pins that cannot be compared are classed as unmeasurable, not as refused on evidence", () => {
+      fs.mkdirSync(emptyRoot, { recursive: true });
+      const report = verifyFacsimilePins({ repoRoot: emptyRoot });
+
+      // Reachability first: the state under test has to actually occur.
+      assert.ok(report.results.length > 0, "no configs were read, so this proves nothing");
+      const artifactCodes = new Set(
+        report.results
+          .flatMap((r) => r.findings.map((f) => f.code))
+          .filter((c) => UNMEASURABLE_CODES.has(c)),
+      );
+      assert.ok(
+        artifactCodes.size > 0,
+        "expected missing-file refusals with no repository around; got none",
+      );
+
+      // The split, asserted against NAMED configs rather than by restating the
+      // predicate. Comparing isUnmeasurable() to a filter over the same set would
+      // be true whatever either contained.
+      //
+      // ap-17-891 and ap-18-639 have sound anchors, so with no files present there
+      // is nothing left but environment: unmeasurable. ap-19-289, ap-34-591 and
+      // ap-17-549 fail config arithmetic, which needs no files and is just as true
+      // in CI as here, so they are NOT unmeasurable and must still be reported.
+      const byKey = new Map(report.results.map((r) => [r.key, r]));
+      for (const key of ["ap-17-891", "ap-18-639", "ap-17-132"]) {
+        const result = byKey.get(key);
+        assert.notEqual(result, undefined, `${key} was not read`);
+        assert.equal(
+          isUnmeasurable(result?.findings ?? []),
+          true,
+          `${key} has no config defect, so with no files present it is unmeasurable, not refused: ` +
+            `${(result?.findings ?? []).map((f) => f.code).join(", ")}`,
+        );
+      }
+      for (const key of ["ap-19-289", "ap-34-591", "ap-17-549"]) {
+        const result = byKey.get(key);
+        assert.notEqual(result, undefined, `${key} was not read`);
+        assert.equal(
+          isUnmeasurable(result?.findings ?? []),
+          false,
+          `${key} fails config arithmetic, which needs no files; classing it unmeasurable would ` +
+            "hide a real finding in CI",
+        );
+      }
+
+      // And the report says so in words, so a reader of a CI log is not told that
+      // six pins were examined and refused when none of them was examined at all.
+      const text = formatPinReport(report);
+      assert.ok(
+        text.includes("could not be MEASURED here at all"),
+        "the report must name how many pins were not measurable",
+      );
+    });
+  });
+
   describe("5. Quality gate registry", () => {
     test("QUALITY_GATE_STEPS registers facsimile-pins", () => {
       const step = QUALITY_GATE_STEPS.find((s) => s.id === "facsimile-pins");
@@ -482,15 +546,45 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
   describe("6. The pins on disk", () => {
     test("every pinned facsimile verifies against its parent", { timeout: 180_000 }, () => {
       const report = verifyFacsimilePins();
-      if (!report.valid) {
+
+      // A finding that required a measurement is evidence about a pin. A missing
+      // parent scan is not (am-yf6h). /sources is git-ignored, so in CI every pin
+      // refuses for the second reason and the summary reads "0 verified, 6 refused"
+      // - which is exactly the sentence this file's own bead was filed about, and
+      // CI now runs this test. Asserting on the measured findings keeps the real
+      // red red in both places and stops the environment being reported as a
+      // verdict. It hides nothing: an unmeasurable pin is still listed below.
+      const measured = report.results.flatMap((r) =>
+        r.findings.filter((f) => !UNMEASURABLE_CODES.has(f.code)),
+      );
+      const unmeasurable = report.results.filter((r) => isUnmeasurable(r.findings));
+
+      if (measured.length > 0) {
         // This is the deliverable red. Three pins carry wrong page windows (ap-17-549's
         // config, ap-19-289's and ap-34-591's stale extracts) and re-pinning is owner-
         // authorized work. This gate stays red until the owner authorizes the repair; do
         // not silence it by editing configs, adding anchors, or exempting a key. If the
         // report below says a parent scan is not on disk, the pins were not verified here
         // either: /sources is git-ignored, so run this where the parents were downloaded.
-        throw new Error(`\n${formatPinReport(report)}`);
+        throw new Error(
+          `\n${formatPinReport(report)}\n` +
+            `${measured.length} finding(s) came from an actual measurement or from config ` +
+            `arithmetic, and those are the deliverable red. ` +
+            `${unmeasurable.length} pin(s) could not be measured here at all.`,
+        );
       }
+
+      if (unmeasurable.length > 0) {
+        // Nothing was refused on evidence and nothing could be checked either.
+        // Reporting that as a pass would be the same lie in the other direction,
+        // so it is stated and the registry keeps this step requiredInCi false.
+        throw new Error(
+          `\n${formatPinReport(report)}\n` +
+            `No pin was refused on evidence, but ${unmeasurable.length} could not be measured ` +
+            `here, so this run verified nothing. Run it where the parent scans live.`,
+        );
+      }
+
       assert.equal(report.valid, true);
       assert.equal(report.refusedCount, 0);
     });

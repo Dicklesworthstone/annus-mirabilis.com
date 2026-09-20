@@ -419,6 +419,29 @@ function spawnFailureMessage(tool: string, error: unknown): string {
   );
 }
 
+/**
+ * Codes that mean the gate could not MEASURE, as opposed to measuring and refusing.
+ *
+ * The distinction is the whole of am-yf6h: a missing parent scan, a missing pinned
+ * file or a tool that would not start says nothing whatever about a pin, and
+ * "0 verified, 6 refused" printed under those conditions is a verdict about the
+ * environment wearing the clothes of a verdict about the pins. /sources is
+ * git-ignored, so in CI every pin lands here and the summary has been saying it
+ * that way on every run.
+ */
+export const UNMEASURABLE_CODES: ReadonlySet<PinRefusalCode> = new Set<PinRefusalCode>([
+  "PARENT_PDF_UNAVAILABLE",
+  "PINNED_PDF_UNAVAILABLE",
+  "PARENT_RECORD_MISSING",
+  "RENDER_TOOL_UNAVAILABLE",
+  "RENDER_TOOL_SPAWN_FAILED",
+]);
+
+/** True when a pin produced findings and every one of them is an environment precondition. */
+export function isUnmeasurable(findings: readonly PinFinding[]): boolean {
+  return findings.length > 0 && findings.every((f) => UNMEASURABLE_CODES.has(f.code));
+}
+
 export function requireTool(tool: string): void {
   const probe = spawnSync(tool, ["-v"], { encoding: "utf8" });
   const error = probe.error as NodeJS.ErrnoException | undefined;
@@ -938,6 +961,15 @@ export function formatPinReport(report: FacsimilePinReport): string {
   lines.push(
     `Summary: ${report.checkedCount} pins checked, ${report.verifiedCount} verified, ${report.refusedCount} refused.`,
   );
+  const unmeasurable = report.results.filter((r) => isUnmeasurable(r.findings)).length;
+  if (unmeasurable > 0) {
+    lines.push(
+      `Of those, ${unmeasurable} could not be MEASURED here at all: the parent scan, the pinned ` +
+        `file or the render tool was unavailable, so no comparison ran. Those refusals are a ` +
+        `statement about this environment and not about the pins. /sources is git-ignored, so ` +
+        `this is the normal state in CI; the pin gate runs where the parents were downloaded.`,
+    );
+  }
   return lines.join("\n");
 }
 

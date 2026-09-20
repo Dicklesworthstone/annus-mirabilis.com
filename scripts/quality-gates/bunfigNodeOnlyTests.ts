@@ -6,6 +6,7 @@
 
 import { type Dirent, existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
+import ts from "typescript";
 
 export const BUNFIG_RELATIVE_PATH = "bunfig.toml";
 /** Extra node --test inputs that bunfig does not ignore. Globs are expanded to files. */
@@ -241,28 +242,164 @@ export function formatUnignoredSubprocessTestFailure(
  * silence the gate: a test that spawns node belongs in bunfig.toml pathIgnorePatterns, where the
  * node lane will pick it up and actually run it.
  */
-export const SUBPROCESS_LANE_EXEMPTIONS: ReadonlyMap<string, string> = new Map([
+const SPAWN_CALLEES = new Set([
+  "spawn",
+  "spawnSync",
+  "exec",
+  "execSync",
+  "execFile",
+  "execFileSync",
+  "fork",
+]);
+
+/** What a spawn call's first argument names, as far as the syntax can say. */
+export type SpawnTarget =
+  | { readonly kind: "literal"; readonly executable: string }
+  | { readonly kind: "runtime-dependent"; readonly expression: string };
+
+/**
+ * The executables a file spawns, read from the syntax tree rather than matched in the text.
+ *
+ * A regex here would be this bead's own defect: `execFileSync("git", ...)` and a comment saying
+ * execFileSync("node") are the same characters to a substring test and opposite answers to a
+ * parser. ts.createSourceFile needs no program and no type information, so it costs one parse per
+ * file and reads .mjs as happily as .ts.
+ */
+export function spawnTargets(code: string, fileName = "file.ts"): SpawnTarget[] {
+  const sf = ts.createSourceFile(fileName, code, ts.ScriptTarget.Latest, true);
+  const targets: SpawnTarget[] = [];
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)) {
+      const callee = ts.isPropertyAccessExpression(node.expression)
+        ? node.expression.name.text
+        : ts.isIdentifier(node.expression)
+          ? node.expression.text
+          : "";
+      if (SPAWN_CALLEES.has(callee)) {
+        const first = node.arguments[0];
+        if (!first) {
+          targets.push({ kind: "runtime-dependent", expression: "(no argument)" });
+        } else if (ts.isStringLiteral(first) || ts.isNoSubstitutionTemplateLiteral(first)) {
+          targets.push({ kind: "literal", executable: firstWord(first.text) });
+        } else if (ts.isTemplateExpression(first)) {
+          // `bun scripts/x.ts ${arg}`: the executable is in the head, before any substitution.
+          targets.push({ kind: "literal", executable: firstWord(first.head.text) });
+        } else {
+          targets.push({ kind: "runtime-dependent", expression: first.getText(sf).slice(0, 60) });
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sf);
+  return targets;
+}
+
+function firstWord(text: string): string {
+  return text.trim().split(/\s+/)[0] ?? "";
+}
+
+/** node, node22, /usr/local/bin/node - but never bun, git, sh or a script path. */
+export function isNodeExecutable(executable: string): boolean {
+  const base = executable.split("/").pop() ?? executable;
+  return /^node(\d+(\.\d+)*)?(\.exe)?$/.test(base);
+}
+
+export interface SubprocessLaneExemption {
+  /**
+   * "checked"      every spawn in the file names a literal executable, so the gate confirms the
+   *                reason itself and a change to `node` fails.
+   * "unverifiable" at least one spawn target is decided at runtime - in practice
+   *                process.execPath, which IS node under node and bun under bun. The syntax cannot
+   *                settle it, so the reason below is a HUMAN CLAIM and is labelled as one.
+   */
+  readonly basis: "checked" | "unverifiable";
+  readonly reason: string;
+}
+
+/**
+ * Files excused from the subprocess lane rule, each with the reason and with how far that reason
+ * is enforced.
+ *
+ * This replaces `&& !code.includes("EBADF")`, a bare substring over the whole file that granted a
+ * LANE EXEMPTION: a comment or a variable name containing those five characters was enough, and
+ * nothing recorded which files used it. Measured before removal: exactly five did, and all five
+ * were absent from pathIgnorePatterns, so the escape was load-bearing rather than dead. It also
+ * rewarded the wrong thing - what earned it was EBADF-handling code, and that handling is an early
+ * return that makes a test pass having asserted nothing.
+ *
+ * THE LIMIT, STATED RATHER THAN PAPERED OVER. bunfig.toml's comment says the failure is posix_spawn
+ * OF NODE, so the question each entry answers is "which executable is the child". For a literal
+ * that is decidable and IS decided here. For process.execPath it is not decidable at all, because
+ * the same expression is node under node and bun under bun. Three of the five entries are checked;
+ * two are human claims, marked, and the gate refuses to let a checkable file be marked as a claim.
+ */
+export const SUBPROCESS_LANE_EXEMPTIONS: ReadonlyMap<string, SubprocessLaneExemption> = new Map([
   [
     "src/content/manifest/report.test.ts",
-    "spawns `bun scripts/source-manifest-report.ts`, so the child is bun and not node",
+    {
+      basis: "checked",
+      reason: "spawns `bun scripts/source-manifest-report.ts`, so the child is bun and not node",
+    },
   ],
   [
     "src/content/coverage/coverageLedger.test.ts",
-    "spawns `bun scripts/coverage-report.ts`, so the child is bun and not node",
-  ],
-  [
-    "src/testing/editions/alignEditions.test.ts",
-    "spawns process.execPath, which under `bun test` is the bun binary rather than node",
+    { basis: "checked", reason: "spawns `bun scripts/coverage-report.ts`, so the child is bun" },
   ],
   [
     "src/testing/checkRevisions.integration.test.ts",
-    'execFileSync("git", ...): the child is git, which posix_spawn handles normally',
+    {
+      basis: "checked",
+      reason: 'execFileSync("git", ...): the child is git, which posix_spawn handles normally',
+    },
+  ],
+  [
+    "src/testing/editions/alignEditions.test.ts",
+    {
+      basis: "unverifiable",
+      reason:
+        "spawns process.execPath, which under `bun test` is the bun binary; unverifiable because the same expression is node under node",
+    },
   ],
   [
     "src/testing/brownianDemo.test.mjs",
-    "spawns process.execPath, which under `bun test` is the bun binary rather than node",
+    {
+      basis: "unverifiable",
+      reason:
+        "spawns process.execPath, which under `bun test` is the bun binary; unverifiable because the same expression is node under node",
+    },
   ],
 ]);
+
+/**
+ * Check an exemption against the file it excuses. Returns the reason it is not honoured, or null.
+ *
+ * Both directions are refused, so the label cannot be used to dodge the check: a "checked" entry
+ * whose file spawns something the syntax cannot resolve is mislabelled, and an "unverifiable" entry
+ * whose file spawns only literals is a claim where a check was available.
+ */
+export function verifySubprocessLaneExemption(
+  relPath: string,
+  code: string,
+  exemption: SubprocessLaneExemption,
+): string | null {
+  const targets = spawnTargets(code, relPath);
+  const literals = targets.filter((t) => t.kind === "literal");
+  const runtime = targets.filter((t) => t.kind === "runtime-dependent");
+
+  const node = literals.find((t) => isNodeExecutable(t.executable));
+  if (node && node.kind === "literal") {
+    return `exempted as "${exemption.reason}" but spawns ${node.executable}; a node child is the case the lane rule exists for, so it belongs in bunfig.toml pathIgnorePatterns`;
+  }
+  if (exemption.basis === "checked" && runtime.length > 0) {
+    const first = runtime[0];
+    return `marked basis "checked" but spawns ${first && first.kind === "runtime-dependent" ? first.expression : "a runtime value"}, which the syntax cannot resolve; mark it "unverifiable" so the reason reads as the human claim it is`;
+  }
+  if (exemption.basis === "unverifiable" && runtime.length === 0) {
+    return `marked basis "unverifiable" but every spawn target is a literal, so the claim is checkable; mark it "checked"`;
+  }
+  return null;
+}
 
 export function findUnignoredSubprocessTests(
   root: string = process.cwd(),
