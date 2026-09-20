@@ -270,6 +270,51 @@ export function parseMeasurements(text: string): ParsedMeasurement[] {
   return out;
 }
 
+/**
+ * Every JSX opening tag that carries a className, with its attribute text and
+ * its class list split out.
+ *
+ * One walker, used by the counter and by the staleness check, so the two agree
+ * about what an element is. Its limits are the limits of a regex over JSX: a
+ * tag whose attributes contain a `>` (an inline arrow function, a comparison)
+ * is not seen. That is why the staleness check below fails CLOSED - an element
+ * this cannot find is reported as missing rather than assumed present.
+ */
+function* elementsWithClasses(source: string): Generator<{ attrs: string; classes: string[] }> {
+  for (const match of source.matchAll(/<([a-zA-Z0-9_-]+)\b([^>]*?)>/gs)) {
+    const attrs = match[2] ?? "";
+    const classAttrMatch = attrs.match(/className\s*=\s*(?:\{`([^`]+)`\}|"([^"]+)"|'([^']+)')/s);
+    if (!classAttrMatch) continue;
+    const classStr = classAttrMatch[1] ?? classAttrMatch[2] ?? classAttrMatch[3] ?? "";
+    yield { attrs, classes: classStr.split(/\s+/).filter(Boolean) };
+  }
+}
+
+/**
+ * The accessible names carried by the elements of `className` in one source file.
+ *
+ * The staleness check needs a structural relation - this element carries that
+ * name - and asking whether the FILE contains the string is not one. am-afam
+ * demonstrated the gap by plant: repointing the RodSimultaneityLab record at
+ * "Predict before calculating", the real aria-label of a button at :220 that is
+ * neither a table-scroll nor a scroll region, left the suite at 11 pass 0 fail.
+ * A name that belongs to some other element of some other kind makes the record
+ * point at nothing that was measured, which is exactly what the name was added
+ * to prevent.
+ */
+export function accessibleNamesForClass(source: string, className: string): string[] {
+  const names: string[] = [];
+  for (const { attrs, classes } of elementsWithClasses(source)) {
+    if (!classes.includes(className)) continue;
+    const labelMatch = attrs.match(
+      /aria-label\s*=\s*(?:\{`([^`]*)`\}|\{"([^"]*)"\}|"([^"]*)"|'([^']*)')/s,
+    );
+    const label = labelMatch?.[1] ?? labelMatch?.[2] ?? labelMatch?.[3] ?? labelMatch?.[4];
+    if (label !== undefined) names.push(label);
+  }
+  return names;
+}
+
 /** A record is honoured only while its own numbers still say the region does not overflow. */
 export function staleReason(
   record: NonOverflowingRecord,
@@ -291,8 +336,15 @@ export function staleReason(
   if (!src.includes(record.className)) {
     return `${recordKey(record.file, record.className)}: the file no longer carries that class, so the measurement is stale.`;
   }
-  if (record.ariaLabel !== undefined && !src.includes(record.ariaLabel)) {
-    return `${recordKey(record.file, record.className, record.ariaLabel)}: the file no longer carries that accessible name, so the measurement describes an element that is gone or renamed.`;
+  if (record.ariaLabel !== undefined) {
+    const names = accessibleNamesForClass(src, record.className);
+    if (!names.includes(record.ariaLabel)) {
+      const found =
+        names.length > 0
+          ? `elements of that class carry: ${names.map((n) => `"${n}"`).join(", ")}`
+          : "no element of that class in that file carries an accessible name this can read";
+      return `${recordKey(record.file, record.className, record.ariaLabel)}: no element with className "${record.className}" carries the accessible name "${record.ariaLabel}" (${found}). The name is the discriminator between two recorded elements of one class, so a name that belongs to a different element - or to nothing - makes the record point at something nobody measured.`;
+    }
   }
   return undefined;
 }
@@ -467,14 +519,7 @@ export function countUnreachableScrollRegions(
   recorded: ReadonlyMap<string, NonOverflowingRecord> = RECORDED_NON_OVERFLOWING,
 ): number {
   let count = 0;
-  const tagRegex = /<([a-zA-Z0-9_-]+)\b([^>]*?)>/gs;
-  for (const match of source.matchAll(tagRegex)) {
-    const attrs = match[2] ?? "";
-    const classAttrMatch = attrs.match(/className\s*=\s*(?:\{`([^`]+)`\}|"([^"]+)"|'([^']+)')/s);
-    if (!classAttrMatch) continue;
-    const classStr = classAttrMatch[1] ?? classAttrMatch[2] ?? classAttrMatch[3] ?? "";
-    const classes = classStr.split(/\s+/).filter(Boolean);
-
+  for (const { attrs, classes } of elementsWithClasses(source)) {
     for (const cls of AUDITED_SCROLL_CLASSES) {
       if (classes.includes(cls)) {
         const hasTabIndex = /tabIndex|tabindex/i.test(attrs);
@@ -662,6 +707,80 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
     assert.equal(
       staleReason(base, () => 'className="table-scroll"'),
       undefined,
+    );
+  });
+
+  // am-afam: the accessible name is checked as a RELATION, not as a substring.
+  const ROD = "src/components/lab/RodSimultaneityLab.tsx";
+  const rodSource = () => readFileSync(join(ROOT, ROD), "utf8");
+  const rodRecord = {
+    file: ROD,
+    className: "table-scroll",
+    ariaLabel: "Accepted laboratory telemetry snapshot table",
+    url: "/lab/sr-04/",
+    measurements: "320px: 216px/216px (diff 0); 1280px: 1116px/1116px (diff 0)",
+    reason:
+      "the telemetry snapshot table fits at both viewports; the event table above it does not",
+    measuredBy: "test",
+  } as const;
+
+  test("am-afam: a name belonging to a DIFFERENT element in the same file is refused", () => {
+    // The fixture is TanElk's plant, kept as a fixture instead of a one-off run.
+    // "Predict before calculating" is a real aria-label in this same file, on a
+    // button that is neither a table-scroll nor a scroll region.
+    const impostor = "Predict before calculating";
+    const src = rodSource();
+
+    // Reachability first: the state being refused is one the OLD check accepted.
+    // If the file stopped carrying this string the plant would be vacuous - it
+    // would pass the new check for the wrong reason and prove nothing.
+    assert.ok(
+      src.includes(impostor),
+      `${impostor} is no longer in ${ROD}; pick another real label from a non-table-scroll element or the plant is vacuous`,
+    );
+    assert.ok(
+      !accessibleNamesForClass(src, "table-scroll").includes(impostor),
+      "and it must not be a table-scroll's own name, or there is nothing to discriminate",
+    );
+
+    const why = staleReason({ ...rodRecord, ariaLabel: impostor }, rodSource);
+    assert.ok(why?.includes("carries the accessible name"), why);
+    assert.ok(why?.includes(impostor), why);
+  });
+
+  test("am-afam control: the genuine name still passes, and an unnamed record is untouched", () => {
+    // Without this half a check that refuses everything looks like a fix.
+    assert.equal(staleReason(rodRecord, rodSource), undefined);
+
+    // The other table-scroll in the same file - the one that overflows and keeps
+    // its tabIndex - is a real name of the right class, so the relation is not
+    // satisfied by "the only name in the file" either.
+    assert.equal(
+      staleReason(
+        { ...rodRecord, ariaLabel: "Spacetime event coordinates and invariant interval table" },
+        rodSource,
+      ),
+      undefined,
+    );
+
+    // Records with no accessible name are keyed and checked exactly as before:
+    // the new arm is entered only when ariaLabel is present.
+    const unnamed = {
+      file: MEASURED,
+      className: "table-scroll",
+      url: "/x/",
+      measurements: "320px: 254px/254px (diff 0)",
+      reason: "r",
+      measuredBy: "test",
+    } as const;
+    assert.equal(
+      staleReason(unnamed, () => 'className="table-scroll"'),
+      undefined,
+    );
+    assert.equal(
+      [...RECORDED_NON_OVERFLOWING.keys()].filter((k) => k.split("::").length === 2).length,
+      RECORDED_NON_OVERFLOWING.size - 1,
+      "exactly one record is keyed by three parts; the rest keep their two-part keys",
     );
   });
 
