@@ -32,6 +32,9 @@ export function syntheticFixtureDraft(pdfPage: number, key: string): string {
   ].join("\n");
 }
 
+/** A per-request token a service might issue; deliberately never in process.env. */
+export const FOREIGN_TOKEN = "svc-issued-9d1c4b77-not-from-the-environment";
+
 export interface FixtureAdapterOptions {
   fixtureDir?: string | undefined;
   workerIdentity?: string | undefined;
@@ -43,9 +46,11 @@ export interface FixtureAdapterOptions {
    * a failing request. Off by default. Two forms, because `redact` protects them by
    * different rules and each has to be exercised on its own:
    *   "header" - `Authorization: Bearer <key>`, caught by the header pattern;
-   *   "bare"   - the key alone in a query string, caught only by the env-value rule.
+   *   "bare"    - the key alone in a query string, caught only by the env-value rule;
+   *   "foreign" - a token that is NOT in the environment, so only the header pattern can
+   *               catch it. A service-issued per-request token looks like this.
    */
-  echoCredentialInAuthError?: "header" | "bare" | undefined;
+  echoCredentialInAuthError?: "header" | "bare" | "foreign" | undefined;
   failWithCode?:
     | "ADAPTER_UNAVAILABLE"
     | "ADAPTER_AUTH"
@@ -66,7 +71,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
   readonly costUnits: number;
   private failAtChunkIndex: number | null;
   private failWithCode: string | null;
-  private echoCredentialInAuthError: "header" | "bare" | null;
+  private echoCredentialInAuthError: "header" | "bare" | "foreign" | null;
   private timeoutsBeforeSuccess: number;
   private currentTimeoutCount = 0;
   private customPageText: Record<number, string>;
@@ -133,7 +138,13 @@ export class FixtureAdapter implements CloudOcrAdapter {
                     // a query string. Only the env-value rule can catch this one.
                     `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}: ` +
                     `GET /v1/ocr?key=${process.env.LUNA_API_KEY ?? ""} returned 401`
-                  : `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}`,
+                  : this.echoCredentialInAuthError === "foreign"
+                    ? // A token the environment never held, so the env-value rule cannot
+                      // see it and the header pattern is the only thing standing between
+                      // it and the log.
+                      `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}: ` +
+                      `Authorization: Bearer ${FOREIGN_TOKEN} was rejected`
+                    : `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}`,
             );
           case "ADAPTER_QUOTA":
             throw new AdapterQuotaError(`Cloud OCR quota exceeded at chunk ${chunk.chunkIndex}`);

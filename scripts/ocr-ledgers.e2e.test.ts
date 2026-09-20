@@ -4,7 +4,7 @@ import { cp, mkdir, readdir, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
-import { FixtureAdapter } from "./ocr-adapters/fixture-adapter.ts";
+import { FixtureAdapter, FOREIGN_TOKEN } from "./ocr-adapters/fixture-adapter.ts";
 import { runOcrOrchestrator, syntheticPageRenderer } from "./ocr-ledgers.ts";
 
 const SYNTHETIC_RENDER = { customRenderer: syntheticPageRenderer };
@@ -28,7 +28,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
  * orchestrator must redact it before the message reaches run.jsonl.
  */
 describe("OCR Orchestrator: a credential on a write path is redacted", () => {
-  for (const form of ["header", "bare"] as const) {
+  for (const form of ["header", "bare", "foreign"] as const) {
     it(`writes [REDACTED] and never the key, when the adapter error carries it (${form})`, async () => {
       const previousKey = process.env.LUNA_API_KEY;
       process.env.LUNA_API_KEY = E2E_SECRET_VALUE;
