@@ -1,12 +1,12 @@
 import { execSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import * as os from "node:os";
-import { dirname, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { brotliCompressSync, gzipSync } from "node:zlib";
 import { loadCommittedProfiles } from "../src/testing/perfProfiles.ts";
-import { measureReadingFace } from "./measure-reading-face.ts";
+import { measureReadingFace, READING_FACE_BUDGET_BYTES } from "./measure-reading-face.ts";
 import { loadCommittedBudgets } from "./perf/budgets.ts";
 import { computeCalibration } from "./perf/calibration.ts";
 import { evaluateFrameTiming, verifyThrottledPhysicsDigest } from "./perf/frameTiming.ts";
@@ -275,22 +275,56 @@ export async function runPerformanceBudgets(
   // -------------------------------------------------------------------------
   // Row 2: Reading-face HTML (<= 250,000 bytes gzipped)
   // -------------------------------------------------------------------------
-  const sampleReadingFaceHtml =
-    opts.plantViolationRow === 2
-      ? randomBytes(300_000).toString("base64") // Exceeds 250,000 bytes gzipped (~309 kB)
-      : "<html><head><title>Brownian Motion</title></head><body><article>" +
-        "<p>Einstein 1905 Brownian motion paper text</p>".repeat(500) +
-        "</article></body></html>";
+  // The budget is for the LARGEST paper's reading face with every reading rendered,
+  // so the row measures the built pages and takes the maximum. It used to measure
+  // "<p>Einstein 1905 Brownian motion paper text</p>".repeat(500) - 500 copies of one
+  // sentence, which gzips to 203 bytes against a 250,000 byte budget and can never
+  // fail. The real Brownian face is 246,244 bytes gzipped, 98% of budget (am-uxh9).
+  const readingFaceDir = resolve(root, ".next/server/app/papers");
+  const builtReadingFaces = existsSync(readingFaceDir)
+    ? readdirSync(readingFaceDir)
+        .filter((name) => name.endsWith(".html"))
+        .map((name) => ({ name, html: readFileSync(join(readingFaceDir, name), "utf8") }))
+    : [];
 
-  const readingFaceMeasurement = measureReadingFace(sampleReadingFaceHtml);
-  recordMetric(
-    "reading-face-html",
-    !readingFaceMeasurement.overBudget,
-    readingFaceMeasurement.budgetBytes,
-    readingFaceMeasurement.gzipBytes,
-    "bytes",
-    `Gzipped size ${readingFaceMeasurement.gzipBytes} bytes (raw ${readingFaceMeasurement.rawBytes})`,
-  );
+  if (opts.plantViolationRow === 2) {
+    const planted = measureReadingFace(randomBytes(300_000).toString("base64"));
+    recordMetric(
+      "reading-face-html",
+      !planted.overBudget,
+      planted.budgetBytes,
+      planted.gzipBytes,
+      "bytes",
+      `Planted violation: ${planted.gzipBytes} bytes gzipped (raw ${planted.rawBytes})`,
+    );
+  } else if (builtReadingFaces.length === 0) {
+    // No build, so nothing to measure. This must NOT read as a pass: a budget row
+    // that reports success without opening a page is the defect this row had.
+    recordMetric(
+      "reading-face-html",
+      false,
+      READING_FACE_BUDGET_BYTES,
+      0,
+      "bytes",
+      `No built reading face found under ${relative(root, readingFaceDir)}; run the production build before this gate. Measuring nothing is not passing.`,
+    );
+  } else {
+    const measured = builtReadingFaces
+      .map((face) => ({ name: face.name, m: measureReadingFace(face.html) }))
+      .sort((a, b) => b.m.gzipBytes - a.m.gzipBytes);
+    const largest = measured[0];
+    if (!largest) throw new Error("reading-face measurement produced no rows despite built pages");
+    recordMetric(
+      "reading-face-html",
+      !largest.m.overBudget,
+      largest.m.budgetBytes,
+      largest.m.gzipBytes,
+      "bytes",
+      `Largest built reading face ${largest.name}: ${largest.m.gzipBytes} bytes gzipped ` +
+        `(raw ${largest.m.rawBytes}) across ${measured.length} built paper page(s); ` +
+        `next largest ${measured[1]?.name ?? "none"} at ${measured[1]?.m.gzipBytes ?? 0}.`,
+    );
+  }
 
   // -------------------------------------------------------------------------
   // Row 3: Visible text and math on mobile-low-cost (cold cache, no JS)
