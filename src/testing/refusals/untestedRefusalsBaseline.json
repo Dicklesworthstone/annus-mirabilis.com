@@ -1,5 +1,5 @@
 {
-  "scripts/a11y/checks.ts": 4,
+  "scripts/a11y/checks.ts": 0,
   "scripts/backfill-review-records.ts": 1,
   "scripts/build-content.ts": 2,
   "scripts/check-receipts.ts": 0,

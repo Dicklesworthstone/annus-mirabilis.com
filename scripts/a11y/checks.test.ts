@@ -153,6 +153,11 @@ describe("Automated Accessibility Checks Suite (am-a11y-baseline-1cg5)", () => {
       ];
       const violations = checkPageTitles(routes);
       assert.equal(violations.length, 0);
+      assert.equal(
+        violations.filter((v) => v.rule === "page-titled").length,
+        0,
+        "unique non-empty titles raise no page-titled violation",
+      );
     });
 
     it("fails on duplicate and empty page titles (planted negative)", () => {
@@ -163,6 +168,18 @@ describe("Automated Accessibility Checks Suite (am-a11y-baseline-1cg5)", () => {
       ];
       const violations = checkPageTitles(routes);
       assert.equal(violations.length, 2);
+      // The rule id, not just the message. Both sites emit "page-titled", and a
+      // message-only assertion would be satisfied by a violation of a different
+      // rule that happened to say "empty". am-muyh's scanner counts a refusal
+      // site untested until a test names its code, and it was right to here.
+      assert.deepEqual(
+        violations.map((v) => v.rule),
+        ["page-titled", "page-titled"],
+      );
+      assert.deepEqual(
+        violations.map((v) => v.criterion),
+        ["2.4.2", "2.4.2"],
+      );
       assert.ok(violations.some((v) => v.message.includes("empty")));
       assert.ok(violations.some((v) => v.message.includes("Duplicate")));
     });
@@ -179,6 +196,11 @@ describe("Automated Accessibility Checks Suite (am-a11y-baseline-1cg5)", () => {
       ];
       const violations = checkLinkPurpose(links);
       assert.equal(violations.length, 0);
+      assert.equal(
+        violations.filter((v) => v.rule === "link-purpose").length,
+        0,
+        "descriptive names raise no link-purpose violation",
+      );
     });
 
     it("fails on vague link texts like 'here', 'click here', 'more' (planted negative)", () => {
@@ -189,6 +211,13 @@ describe("Automated Accessibility Checks Suite (am-a11y-baseline-1cg5)", () => {
       ];
       const violations = checkLinkPurpose(links);
       assert.equal(violations.length, 3);
+      // Both emission sites carry the rule id "link-purpose"; asserting it here
+      // distinguishes them from any other rule whose message also mentions a
+      // name, and is what the am-muyh scanner looks for.
+      assert.deepEqual(
+        violations.map((v) => v.rule),
+        ["link-purpose", "link-purpose", "link-purpose"],
+      );
       assert.ok(violations.some((v) => v.message.includes("no accessible name")));
       assert.ok(violations.some((v) => v.message.includes("vague")));
     });
