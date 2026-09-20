@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -97,7 +97,16 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
       },
       {
         file: "src/components/lab/sr07/FieldEquationsLab.tsx",
-        className: "formula",
+        className: "sr07-components",
+        url: "/lab/sr-07/",
+        measurements: "320px: 288px/288px (diff 0); 1280px: 1216px/1216px (diff 0)",
+        reason:
+          "Applied to a <table> element with default display: table; fits viewport width without scrolling.",
+        measuredBy: "am-bc6s",
+      },
+      {
+        file: "src/components/lab/sr07/FieldEquationsLab.tsx",
+        className: "sr07-equation",
         url: "/lab/sr-07/",
         measurements: "320px: 288px/288px (diff 0); 1280px: 1216px/1216px (diff 0)",
         reason:
@@ -505,12 +514,16 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
     assert.ok(staleReason(base, () => undefined)?.includes("no longer exists"));
     assert.ok(staleReason(base, () => "nothing relevant here")?.includes("no longer carries"));
     assert.ok(
-      staleReason({ ...base, measurements: "measured, looked fine" }, () => 'className="table-scroll"')?.includes(
-        "do not parse",
-      ),
+      staleReason(
+        { ...base, measurements: "measured, looked fine" },
+        () => 'className="table-scroll"',
+      )?.includes("do not parse"),
     );
     // The genuine case still passes, so this is not a check that refuses everything.
-    assert.equal(staleReason(base, () => 'className="table-scroll"'), undefined);
+    assert.equal(
+      staleReason(base, () => 'className="table-scroll"'),
+      undefined,
+    );
   });
 
   test("am-uj6w: every committed record is live, parseable and not stale", () => {

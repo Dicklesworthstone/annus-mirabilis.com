@@ -649,9 +649,14 @@ export function IonizationLab({ example }: IonizationLabProps) {
             <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
               Accepted Laboratory Telemetry Snapshot
             </h4>
+            {/*
+              No tabIndex: this table was measured and does not overflow - 286/286 at 320x900 and
+              529/529 at 1280x900 on /lab/lq-09/, recorded by pane28 under am-6iz4 and registered
+              in RECORDED_NON_OVERFLOWING. A tabIndex here is a tab stop with nothing to scroll,
+              which is the phantom stop the scrollable-regions ratchet's own header warns against.
+            */}
             <section
               className="table-scroll"
-              tabIndex={0}
               aria-label="Accepted laboratory telemetry snapshot table"
             >
               <table aria-label="Accepted laboratory telemetry snapshot">
