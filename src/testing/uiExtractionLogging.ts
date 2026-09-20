@@ -31,7 +31,14 @@ export interface UiExtractionLogEntry {
   readonly logRunId: string;
   readonly testId: string;
   readonly beadId: "am-scaf-extract-ui-components-c31";
-  readonly outcome: "pass" | "fail";
+  /**
+   * "not-available" exists because a check that could not look must be able to say so.
+   * The vocabulary was "pass" | "fail" only, which forced a gap - an absent build
+   * directory, an unreadable input - to be written down as one or the other. The
+   * project logging standard (am-test-logging-standard-l3cp) carries the third state
+   * for the same reason.
+   */
+  readonly outcome: "pass" | "fail" | "not-available";
   readonly durationMs: number;
   readonly message: string;
   readonly path?: string | undefined;
@@ -46,7 +53,7 @@ export interface UiExtractionLogEntry {
 export function appendUiExtractionLog(entry: {
   readonly logRunId: string;
   readonly testId: string;
-  readonly outcome: "pass" | "fail";
+  readonly outcome: "pass" | "fail" | "not-available";
   readonly durationMs: number;
   readonly message: string;
   readonly path?: string | undefined;

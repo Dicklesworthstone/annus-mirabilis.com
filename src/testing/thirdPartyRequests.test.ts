@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it } from "bun:test";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { appendUiExtractionLog, newUiExtractionLogRunId } from "./uiExtractionLogging.ts";
 
@@ -268,6 +268,76 @@ describe("Third-Party Request & Forbidden Identity Scan", () => {
     });
 
     expect(allViolations).toHaveLength(0);
+  });
+
+  /**
+   * The other half of the criterion (am-scaf-extract-ui-components-c31).
+   *
+   * The acceptance line reads "the third-party request scan passes on src/ AND THE BUILT
+   * OUTPUT", and until now only the first half ran: findScannableFiles skips .next, and
+   * nothing looked at out/. A third-party request does not have to appear in src/ to reach
+   * a reader. A bundler can inline a provider URL, a CSS pipeline can emit an @import, a
+   * framework can add a preconnect hint, and a font package can rewrite a local reference
+   * into a remote one. Every one of those is invisible to a source-only scan and visible
+   * in the emitted HTML and CSS.
+   *
+   * An absent or stale out/ is reported, never passed over. out/ is gitignored and no
+   * verify lane builds it, so "no violations found" over a directory nobody built would be
+   * the same false affirmative this scan exists to prevent.
+   */
+  it("passes scan on the built output, or says why it could not", () => {
+    const startTime = performance.now();
+    const outDir = join(process.cwd(), "out");
+
+    if (!existsSync(outDir)) {
+      appendUiExtractionLog({
+        logRunId,
+        testId: "third-party-requests-built-output",
+        outcome: "not-available",
+        durationMs: Math.round(performance.now() - startTime),
+        message:
+          "No out/ directory: the site has not been built in this checkout, so the emitted " +
+          "HTML and CSS could not be scanned. Scanning nothing is not a clean build.",
+      });
+      // Deliberately not an assertion failure: out/ is gitignored and no verify lane
+      // builds it, so a checkout without one is ordinary. The log carries the gap.
+      expect(existsSync(outDir)).toBe(false);
+      return;
+    }
+
+    const built = findScannableFiles(outDir);
+    const violations: ScanViolation[] = [];
+    for (const file of built) {
+      violations.push(...scanSourceText(file, readFileSync(file, "utf8")));
+    }
+    const durationMs = Math.round(performance.now() - startTime);
+
+    if (violations.length > 0) {
+      for (const v of violations) {
+        appendUiExtractionLog({
+          logRunId,
+          testId: "third-party-requests-built-output",
+          outcome: "fail",
+          durationMs,
+          message: `Violation: ${v.rule} at ${v.path}:${v.line}`,
+          path: v.path,
+          line: v.line,
+          origin: v.origin,
+        });
+      }
+    } else {
+      appendUiExtractionLog({
+        logRunId,
+        testId: "third-party-requests-built-output",
+        outcome: "pass",
+        durationMs,
+        message: `Scanned ${built.length} built file(s) cleanly with 0 violations.`,
+      });
+    }
+
+    // The count is reported so a scan that suddenly reaches nothing is visible as a
+    // number rather than as a quiet pass.
+    expect({ files: built.length > 0, violations }).toEqual({ files: true, violations: [] });
   });
 
   it("planted negative test: detects external analytics script tag", () => {
