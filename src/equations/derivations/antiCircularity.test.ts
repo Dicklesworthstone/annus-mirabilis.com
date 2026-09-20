@@ -14,7 +14,7 @@ import {
   fixtureEntryAssumptionCrossReferenceTarget,
   fixtureStepCrossReferenceTarget,
 } from "./fixtures.ts";
-import { verifyChain } from "./verifyChain.ts";
+import { hasPaperSegment, verifyChain } from "./verifyChain.ts";
 
 describe("Derivation Anti-Circularity: Self-Citation Gating", () => {
   test("step citing chain.target as premise is rejected, naming the step ID and target (verifyChain.ts:88)", () => {
@@ -41,5 +41,61 @@ describe("Derivation Anti-Circularity: Self-Citation Gating", () => {
     const report = verifyChain(fixtureEntryAssumptionCrossReferenceTarget);
     expect(report.passed).toBe(true);
     expect(report.errors).toHaveLength(0);
+  });
+});
+
+describe("paper classification by id segment, not by substring (am-o44v)", () => {
+  // The repair replaced chain.id.includes("me-") and .includes("sr-"), two- and
+  // three-character substring tests that decided WHICH physics constraints a
+  // chain is checked against. Both halves are asserted here, and the genuine
+  // half uses REAL ids taken from the corpus rather than invented ones - the
+  // lesson from ac0d401b, where a release gate was tightened against a bare
+  // "READY" that the real input never contained and refused every deployment.
+  const realMassEnergyIds = [
+    "arg-me-import",
+    "arg-me-two-ledgers",
+    "arg-me-symmetric-emission",
+    "eq-model-me-exact-drop",
+    "eq-model-me-ledger-subtraction",
+  ];
+  const realRelativityIds = [
+    "arg-sr-charge-current",
+    "arg-sr-clock-and-length",
+    "arg-sr-doppler-aberration",
+    "arg-sr-field-components",
+  ];
+
+  test("every real mass-energy id in the corpus is still classified", () => {
+    for (const id of realMassEnergyIds) {
+      expect(hasPaperSegment(id, "me")).toBe(true);
+      expect(hasPaperSegment(id, "sr")).toBe(false);
+    }
+  });
+
+  test("every real relativity id in the corpus is still classified", () => {
+    for (const id of realRelativityIds) {
+      expect(hasPaperSegment(id, "sr")).toBe(true);
+      expect(hasPaperSegment(id, "me")).toBe(false);
+    }
+  });
+
+  test("an id that merely contains the marker inside a word is not classified", () => {
+    // frame-simultaneous and time-average already exist in this corpus as ids
+    // of other kinds, and both contain the characters "me-". Under the old
+    // substring test a chain named either would have been held to mass-energy
+    // constraints.
+    for (const id of ["frame-simultaneous", "time-average", "runtime-utilities", "scheme-a"]) {
+      expect(hasPaperSegment(id, "me")).toBe(false);
+    }
+    for (const id of ["usr-local-path", "browser-frame"]) {
+      expect(hasPaperSegment(id, "sr")).toBe(false);
+    }
+  });
+
+  test("the spelled-out namespaces classify too, as whole segments", () => {
+    expect(hasPaperSegment("arg-mass-energy-scope", "me")).toBe(true);
+    expect(hasPaperSegment("chain-lorentz-boost", "sr")).toBe(true);
+    // and not as fragments inside a longer word
+    expect(hasPaperSegment("nonlorentzian-limit", "sr")).toBe(false);
   });
 });

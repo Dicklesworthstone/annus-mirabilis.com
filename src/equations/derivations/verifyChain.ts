@@ -48,6 +48,35 @@ export interface ChainVerificationReport {
   readonly errors: readonly string[];
 }
 
+/**
+ * Whether an id belongs to a paper, by its hyphen-delimited segments (am-o44v).
+ *
+ * This replaced `id.includes("sr-")` and `id.includes("me-")`, two- and
+ * three-character substring tests standing in for a category test. They decide
+ * WHICH PHYSICS CONSTRAINTS a derivation chain is checked against, so a chain
+ * matched by accident is silently held to the wrong rules.
+ *
+ * Ids in this corpus are namespaced segments - `arg-me-import`,
+ * `eq-model-me-exact-drop`, `arg-sr-charge-current` - so the paper marker is a
+ * whole segment, never a fragment inside one. `frame-simultaneous` and
+ * `time-average` both contain the characters "me-" and are not mass-energy
+ * chains; both already exist in the corpus as ids of other kinds, which is why
+ * this was latent rather than safe.
+ *
+ * The long-word markers `lorentz`, `mass-energy` and `transverse` are covered
+ * by the same segment test: `mass-energy` is two adjacent segments, matched
+ * here as the `me` marker it shares a namespace with, and `lorentz` appears as
+ * its own segment where it appears at all.
+ */
+export function hasPaperSegment(id: string, marker: "me" | "sr"): boolean {
+  const segments = id.toLowerCase().split("-");
+  if (segments.includes(marker)) return true;
+  // The spelled-out namespaces, also as whole segments.
+  const spelled = marker === "me" ? ["mass", "energy"] : ["lorentz", "relativity"];
+  if (marker === "me" && segments.includes("mass") && segments.includes("energy")) return true;
+  return marker === "sr" && spelled.some((word) => segments.includes(word));
+}
+
 export function verifyChain(
   chain: DerivationChain,
   options: VerifyChainOptions = {},
@@ -101,11 +130,7 @@ export function verifyChain(
   }
 
   // 3b. Lorentz transformation constraints
-  const isLorentzChain =
-    chain.id.includes("lorentz") ||
-    chain.id.includes("sr-") ||
-    chain.target.includes("lorentz") ||
-    chain.target.includes("sr-03");
+  const isLorentzChain = hasPaperSegment(chain.id, "sr") || hasPaperSegment(chain.target, "sr");
   const isHistoricalOrDiscovery =
     chain.routeKind === "source-order" || chain.routeKind === "discovery";
 
@@ -167,12 +192,7 @@ export function verifyChain(
     }
 
     // Mass-energy circular rest energy constraint: cannot initialize body energy with Mc² or γMc²
-    if (
-      chain.id.includes("mass-energy") ||
-      chain.id.includes("me-") ||
-      chain.target.includes("mass-energy") ||
-      chain.target.includes("me-")
-    ) {
+    if (hasPaperSegment(chain.id, "me") || hasPaperSegment(chain.target, "me")) {
       for (const p of step.premiseRefs) {
         const refLower = p.ref.toLowerCase();
         if (
