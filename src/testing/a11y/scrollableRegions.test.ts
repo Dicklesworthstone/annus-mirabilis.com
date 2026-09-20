@@ -78,6 +78,15 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
   (
     [
       {
+        file: "src/components/lab/WaveDescriptionLab.tsx",
+        className: "table-scroll",
+        url: "/lab/lq-01/",
+        measurements: "320px: 220px/220px (diff 0); 1280px: 1116px/1116px (diff 0)",
+        reason:
+          "Was 604px/220px. Two causes, both measured: the dotted Quantity ID and Owner ID columns had no break opportunity and held 400 of the 604 pixels, and the ten cells set their padding inline so the site's own narrow-viewport rule never reached them. The identifier columns may now wrap below 480px and the cells read --table-cell-x. This file carries exactly one element of this class.",
+        measuredBy: "am-6iz4",
+      },
+      {
         file: "src/components/lab/lq05/IndependentConfigurationsLab.tsx",
         className: "table-scroll",
         url: "/lab/lq-05/",

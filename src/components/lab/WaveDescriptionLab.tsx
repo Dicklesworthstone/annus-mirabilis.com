@@ -711,11 +711,7 @@ export function WaveDescriptionLab({
         <h3 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
           Accepted Laboratory Telemetry Snapshot
         </h3>
-        <section
-          className="table-scroll"
-          tabIndex={0}
-          aria-label="Accepted laboratory telemetry snapshot table"
-        >
+        <section className="table-scroll" aria-label="Accepted laboratory telemetry snapshot table">
           <table
             style={{
               width: "100%",
@@ -727,11 +723,11 @@ export function WaveDescriptionLab({
           >
             <thead>
               <tr style={{ borderBottom: "1px solid var(--line)", color: "var(--muted)" }}>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Quantity ID</th>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Status</th>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Value / Result</th>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Unit</th>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Owner ID</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Quantity ID</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Status</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Value / Result</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Unit</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Owner ID</th>
               </tr>
             </thead>
             <tbody>
@@ -741,8 +737,10 @@ export function WaveDescriptionLab({
                   style={{ borderBottom: "1px solid var(--line)" }}
                   data-quantity-id={out.quantityId}
                 >
-                  <td style={{ padding: "0.4rem 0.5rem", fontWeight: 500 }}>{out.quantityId}</td>
-                  <td style={{ padding: "0.4rem 0.5rem" }}>
+                  <td style={{ padding: "0.4rem var(--table-cell-x)", fontWeight: 500 }}>
+                    {out.quantityId}
+                  </td>
+                  <td style={{ padding: "0.4rem var(--table-cell-x)" }}>
                     <span
                       className="badge"
                       style={out.status === "value" ? undefined : { color: "var(--accent)" }}
@@ -750,7 +748,7 @@ export function WaveDescriptionLab({
                       {out.status}
                     </span>
                   </td>
-                  <td style={{ padding: "0.4rem 0.5rem" }}>
+                  <td style={{ padding: "0.4rem var(--table-cell-x)" }}>
                     {out.status === "value"
                       ? out.value instanceof Float64Array
                         ? `[Float64Array ${out.value.length} pts]`
@@ -764,9 +762,15 @@ export function WaveDescriptionLab({
                         ? String(out.reason)
                         : "Out of domain"}
                   </td>
-                  <td style={{ padding: "0.4rem 0.5rem", color: "var(--muted)" }}>{out.unit}</td>
+                  <td style={{ padding: "0.4rem var(--table-cell-x)", color: "var(--muted)" }}>
+                    {out.unit}
+                  </td>
                   <td
-                    style={{ padding: "0.4rem 0.5rem", color: "var(--muted)", fontSize: "0.7rem" }}
+                    style={{
+                      padding: "0.4rem var(--table-cell-x)",
+                      color: "var(--muted)",
+                      fontSize: "0.7rem",
+                    }}
                   >
                     {out.ownerId}
                   </td>

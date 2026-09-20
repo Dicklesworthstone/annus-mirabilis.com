@@ -524,7 +524,7 @@ tbody th {
   columns is ninety-six pixels of a two-hundred-pixel box (am-14at).
 */
 .table-scroll {
-  --table-cell-x: 0.75rem;
+  --table-cell-x: 0.5rem;
 }
 
 @media (max-width: 480px) {
