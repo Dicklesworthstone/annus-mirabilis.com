@@ -12,6 +12,9 @@ import {
   nodeOnlyTestArgs,
   parsePathIgnorePatterns,
   SUBPROCESS_LANE_EXEMPTIONS,
+  shouldSkipDirectory,
+  spawnTargets,
+  verifySubprocessLaneExemption,
 } from "./bunfigNodeOnlyTests.ts";
 
 describe("bunfigNodeOnlyTests", () => {
@@ -155,21 +158,111 @@ describe("bunfigNodeOnlyTests", () => {
    */
   it("every subprocess-lane exemption names a real file, carries a reason, and is still needed", () => {
     assert.ok(SUBPROCESS_LANE_EXEMPTIONS.size > 0, "an empty list means the escape is unused");
-    for (const [rel, reason] of SUBPROCESS_LANE_EXEMPTIONS) {
+    for (const [rel, exemption] of SUBPROCESS_LANE_EXEMPTIONS) {
       assert.ok(
         existsSync(resolve(process.cwd(), rel)),
         `${rel} is excused from the subprocess lane rule but does not exist`,
       );
       assert.ok(
-        reason.trim().length >= 20,
+        exemption.reason.trim().length >= 20,
         `${rel} must record WHICH executable it spawns, not merely that it is excused`,
       );
+      const code = readFileSync(resolve(process.cwd(), rel), "utf8");
       assert.equal(
-        classifyTestFileContent(readFileSync(resolve(process.cwd(), rel), "utf8")),
+        classifyTestFileContent(code),
         "spawns a subprocess",
         `${rel} is no longer flagged by the rule, so its exemption is stale and should be deleted`,
       );
+      assert.equal(
+        verifySubprocessLaneExemption(rel, code, exemption),
+        null,
+        `${rel}'s exemption is not supported by what the file actually spawns`,
+      );
     }
+  });
+
+  /**
+   * The enforcement and its limit, stated as tests rather than as prose.
+   *
+   * A literal executable is decidable, so it IS decided: three of the five entries are "checked"
+   * and a change to a node child fails. process.execPath is NOT decidable - the same expression is
+   * node under node and bun under bun - so those entries are labelled "unverifiable" and their
+   * reasons read as the human claims they are. The label cannot be used to dodge the check in
+   * either direction.
+   */
+  it("a literal node child is refused however the exemption is labelled", () => {
+    const spawnsNode =
+      'import { spawnSync } from "node:child_process";\nspawnSync("node", ["--test", "x.ts"]);';
+    for (const basis of ["checked", "unverifiable"] as const) {
+      const broken = verifySubprocessLaneExemption("x.test.ts", spawnsNode, {
+        basis,
+        reason: "a reason of entirely sufficient length to pass the length check",
+      });
+      assert.match(String(broken), /spawns node/);
+    }
+  });
+
+  it("a runtime-dependent child cannot be labelled checked, and a literal one cannot be labelled unverifiable", () => {
+    const execPath =
+      'import { spawnSync } from "node:child_process";\nspawnSync(process.execPath, ["x.ts"]);';
+    const literal = 'import { spawnSync } from "node:child_process";\nspawnSync("bun", ["x.ts"]);';
+    const reason = "a reason of entirely sufficient length to pass the length check";
+    assert.match(
+      String(verifySubprocessLaneExemption("x.test.ts", execPath, { basis: "checked", reason })),
+      /cannot resolve/,
+    );
+    assert.match(
+      String(
+        verifySubprocessLaneExemption("x.test.ts", literal, { basis: "unverifiable", reason }),
+      ),
+      /checkable/,
+    );
+    assert.equal(
+      verifySubprocessLaneExemption("x.test.ts", literal, { basis: "checked", reason }),
+      null,
+    );
+    assert.equal(
+      verifySubprocessLaneExemption("x.test.ts", execPath, { basis: "unverifiable", reason }),
+      null,
+    );
+  });
+
+  /**
+   * Found by planting a real violation in src/content/coverage/coverageLedger.test.ts and watching
+   * the gate stay green. SKIP_DIRS was a flat set of names applied at every depth, so a directory
+   * called "coverage" was treated as a coverage report wherever it sat. src/content/coverage is a
+   * source directory with two test files, and neither this gate nor the node-lane expansion could
+   * see them - a file listed in pathIgnorePatterns under it would have been skipped by bun and run
+   * by nobody.
+   */
+  it("a build-output name is skipped at the root and not in the middle of the source tree", () => {
+    assert.equal(shouldSkipDirectory("coverage", true), true);
+    assert.equal(shouldSkipDirectory("coverage", false), false);
+    assert.equal(shouldSkipDirectory("dist", true), true);
+    assert.equal(shouldSkipDirectory("dist", false), false);
+    // never source directories, so skipped wherever they appear
+    assert.equal(shouldSkipDirectory("node_modules", false), true);
+    assert.equal(shouldSkipDirectory(".git", false), true);
+  });
+
+  it("the walk reaches the test files inside src/content/coverage", () => {
+    const expanded = expandIgnorePatternsToTestFiles(["src/content/coverage"], process.cwd());
+    assert.ok(
+      expanded.includes("src/content/coverage/coverageLedger.test.ts"),
+      `the walk did not enter src/content/coverage; it found ${JSON.stringify(expanded)}`,
+    );
+  });
+
+  it("spawnTargets reads the executable from the syntax, not from the text", () => {
+    // the case a substring test gets wrong in both directions
+    assert.deepEqual(spawnTargets('execFileSync("git", ["log"]);'), [
+      { kind: "literal", executable: "git" },
+    ]);
+    assert.deepEqual(spawnTargets('// execFileSync("node", [])'), []);
+    // authored as a template so the ${...} inside the FIXTURE stays literal source text
+    assert.deepEqual(spawnTargets(`execSync(\`bun scripts/x.ts \${flag}\`);`), [
+      { kind: "literal", executable: "bun" },
+    ]);
   });
 
   it("formatUnignoredSubprocessTestFailure formats failure with exact line to add", () => {

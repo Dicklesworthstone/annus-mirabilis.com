@@ -14,7 +14,23 @@ export const NODE_SUITE_ALWAYS = [
   "scripts/e2e/**/*.test.ts",
   "scripts/quality-gates/bunfigNodeOnlyTests.test.ts",
 ] as const;
-const SKIP_DIRS = new Set(["node_modules", ".git", ".next", "artifacts", "dist", "coverage"]);
+/** Skipped wherever they appear: these are never source directories. */
+const SKIP_DIRS_ANY_DEPTH = new Set(["node_modules", ".git", ".next"]);
+/**
+ * Skipped only at the repository root. These are build-output names, and a flat name test promoted
+ * them to "a directory called coverage is a coverage report, wherever it is". src/content/coverage
+ * is a source directory holding two test files, and this walk never entered it: the gate could not
+ * see them, and expandIgnorePatternsToTestFiles could not expand them into the node lane either, so
+ * a file listed there would have been skipped by bun and run by nobody. Found by planting a
+ * violation in one of those two files and watching the gate stay green.
+ */
+const SKIP_DIRS_AT_ROOT = new Set(["artifacts", "dist", "coverage", "out", "public"]);
+
+export function shouldSkipDirectory(nameOrRelPath: string, isAtRoot: boolean): boolean {
+  const name = nameOrRelPath.split("/").pop() ?? nameOrRelPath;
+  if (SKIP_DIRS_ANY_DEPTH.has(name) || name.startsWith(".")) return true;
+  return isAtRoot && SKIP_DIRS_AT_ROOT.has(name);
+}
 
 export function parsePathIgnorePatterns(bunfigText: string): string[] {
   const block = bunfigText.match(/pathIgnorePatterns\s*=\s*\[([\s\S]*?)\]/);
@@ -72,8 +88,9 @@ function walkFiles(dir: string, root: string, out: string[]): void {
   }
   if (entries === undefined) return;
   for (const entry of entries) {
-    if (SKIP_DIRS.has(entry.name) || entry.name.startsWith(".")) continue;
     const full = join(dir, entry.name);
+    if (entry.isDirectory() && shouldSkipDirectory(entry.name, dir === root)) continue;
+    if (!entry.isDirectory() && entry.name.startsWith(".")) continue;
     if (entry.isDirectory()) {
       walkFiles(full, root, out);
     } else if (entry.isFile()) {
@@ -428,7 +445,17 @@ export function findUnignoredSubprocessTests(
       continue;
     }
     const reason = classifyTestFileContent(content);
-    if (reason !== null && !SUBPROCESS_LANE_EXEMPTIONS.has(relPath)) {
+    if (reason !== null) {
+      const exemption = SUBPROCESS_LANE_EXEMPTIONS.get(relPath);
+      if (exemption) {
+        // An exemption is honoured only while the file still supports it. A file that starts
+        // spawning node is reported here rather than quietly keeping its excuse.
+        const broken = verifySubprocessLaneExemption(relPath, content, exemption);
+        if (broken !== null) {
+          violations.push({ file: relPath, reason: broken, lineToAdd: `  "${relPath}",` });
+        }
+        continue;
+      }
       const isIgnored = patterns.some((p) => matchPattern(relPath, p));
       if (!isIgnored) {
         violations.push({
