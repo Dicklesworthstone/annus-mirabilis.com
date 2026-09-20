@@ -54,10 +54,13 @@ describe("OCR Orchestrator: a credential on a write path is redacted", () => {
           logText.includes("authentication failed"),
           "The adapter's auth error must be recorded",
         );
-        // ...and the credential inside it did not survive the trip.
+        // ...and the credential inside it did not survive the trip. Which credential
+        // depends on the form: "foreign" carries a token the environment never held, and
+        // asserting the env key there would pass without checking anything.
+        const secret = form === "foreign" ? FOREIGN_TOKEN : E2E_SECRET_VALUE;
         assert.ok(
-          !logText.includes(E2E_SECRET_VALUE),
-          "run.jsonl contains the raw credential from the adapter error",
+          !logText.includes(secret),
+          `run.jsonl contains the raw credential from the adapter error (${form})`,
         );
         assert.ok(logText.includes("[REDACTED]"), "The credential must be recorded as redacted");
       } finally {
