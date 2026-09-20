@@ -287,6 +287,8 @@ function applyAuditExemptions(
   report: AuditReport,
   exemptions: ReadonlyMap<string, string>,
   keyOf: (finding: AuditFinding) => string | undefined,
+  /** Records the audit's input held. Reported so "0 errors" cannot be read as "all of them". */
+  populationTotal: number,
 ): AuditReport {
   const covered = new Set<string>();
   const out: AuditFinding[] = [];
@@ -314,7 +316,11 @@ function applyAuditExemptions(
       message: `${key} is recorded as not yet auditable, but the ${auditName} audit now reports nothing against it. Delete its entry and this reason: ${reason}`,
     });
   }
-  return summarize(auditName, out);
+  return summarize(auditName, out, {
+    total: populationTotal,
+    judged: Math.max(0, populationTotal - exemptions.size),
+    notYetAuditable: exemptions.size,
+  });
 }
 
 function loadLiveReadingsAuditInput(
@@ -426,6 +432,7 @@ const result = await runVerifyContent({
         auditReadings(input),
         READINGS_OWNERS_NOT_YET_AUDITABLE,
         (finding) => finding.ownerBeadId,
+        input.owners.length,
       );
     },
     shelf: async () => {
@@ -449,6 +456,7 @@ const result = await runVerifyContent({
         auditInstruments(rows),
         INSTRUMENTS_NOT_YET_AUDITABLE,
         (finding) => finding.recordId,
+        rows.length,
       );
     },
   },
@@ -465,6 +473,11 @@ const result = await runVerifyContent({
   ],
 });
 
+// Denominators first. An audit reporting "0 errors" says nothing about how many records it looked
+// at, and both the readings and instrument audits carry a not-yet-auditable list whose entries have
+// their failures downgraded to flags. These lines say how much of each subject was judged against
+// the full rule, in the same form the licence inventory uses for "72 of 79".
+for (const line of result.populations) console.log(line);
 for (const line of result.flags) console.log(`FLAG ${line}`);
 for (const line of result.skipped) console.log(line);
 for (const line of result.errors) console.error(line);
@@ -483,6 +496,9 @@ for (const line of result.flags) {
 }
 for (const line of result.skipped) {
   logger.log({ testId: "verify-content-skipped", outcome: "skipped", message: line });
+}
+for (const line of result.populations) {
+  logger.log({ testId: "verify-content-population", outcome: "passed", message: line });
 }
 logger.log({
   testId: "verify-content-summary",

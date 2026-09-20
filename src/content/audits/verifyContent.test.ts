@@ -3,7 +3,7 @@ import { QUALITY_GATE_STEPS } from "../../../scripts/quality-gates/registry.ts";
 import { getLogger } from "../../testing/log/logger.ts";
 import { listRegisteredChecks } from "../compiler/checks/registry.ts";
 import { compareCheckInventory, registerVerifyContentChecks } from "./inventory.ts";
-import { errorCheckCodes } from "./types.ts";
+import { errorCheckCodes, populationLine, summarize } from "./types.ts";
 import { loadCommittedInventory, RULE_0_HELP, runVerifyContent } from "./verifyContent.ts";
 
 const logger = getLogger("verify-content-tests");
@@ -248,4 +248,40 @@ describe("verify-content orchestrator", () => {
 
 afterAll(async () => {
   await logger.flush();
+});
+
+/**
+ * An audit reporting "0 errors" says nothing about how many records it looked at, and both the
+ * readings and instruments audits carry a not-yet-auditable list whose entries have their failures
+ * downgraded to flags. Before this, 24 of 24 and 21 of 24 produced the same output. Measured on the
+ * real tree at the time of writing: readings judges 21 of 24, instruments judges 4 of 38.
+ *
+ * Same form the licence inventory uses for "72 of 79 evaluated against a settled rights position".
+ */
+describe("Audit reports state how much of their subject they judged", () => {
+  test("the line names judged, total and the not-yet-auditable remainder", () => {
+    const report = summarize("readings", [], { total: 24, judged: 21, notYetAuditable: 3 });
+    expect(populationLine(report)).toBe(
+      "readings audit: 21 of 24 records judged against the full rule, 3 recorded as not yet auditable.",
+    );
+  });
+
+  test("THE CONTROL: with nothing exempt the remainder is named as none, not omitted", () => {
+    const report = summarize("instruments", [], { total: 38, judged: 38, notYetAuditable: 0 });
+    // saying "none" rather than dropping the clause keeps the two cases the same shape, so a reader
+    // scanning for the remainder cannot mistake its absence for a full judgement
+    expect(populationLine(report)).toBe(
+      "instruments audit: 38 of 38 records judged against the full rule, none recorded as not yet auditable.",
+    );
+  });
+
+  test("an audit with no records says so instead of reporting a judged count of zero", () => {
+    const report = summarize("shelf", [], { total: 0, judged: 0, notYetAuditable: 0 });
+    expect(populationLine(report)).toBe("shelf audit: no records to judge.");
+    expect(populationLine(report)).not.toContain("0 of 0");
+  });
+
+  test("an audit that declares no population produces no line rather than a fabricated one", () => {
+    expect(populationLine(summarize("misconceptions", []))).toBeNull();
+  });
 });
