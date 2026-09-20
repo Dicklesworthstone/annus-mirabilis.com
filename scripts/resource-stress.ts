@@ -36,6 +36,7 @@ import {
   WasmMemoryStaleViewError,
   WasmMemoryTracker,
 } from "../src/experiments/memory/wasmViews.ts";
+import { TestLogger } from "../src/testing/log/logger.ts";
 import { HeavyFixtureLaboratory } from "../src/testing/runtime-fixtures/heavyFixture.ts";
 import { disposeSceneGraph } from "../src/visuals/three/dispose.ts";
 
@@ -529,7 +530,28 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const isJson = process.argv.includes("--json");
   const isVerbose = process.argv.includes("--verbose");
 
-  runResourceStressSuite().then((report) => {
+  runResourceStressSuite().then(async (report) => {
+    // Structured log (am-uxh9). The scenario rows existed only as stdout, so a
+    // run left nothing to audit afterwards: which lifecycle scenario passed,
+    // and how long it took, was unrecoverable once the terminal scrolled.
+    const logger = new TestLogger("resource-stress");
+    for (const scenario of report.scenarios) {
+      logger.log({
+        testId: scenario.name,
+        outcome: scenario.passed ? "passed" : "failed",
+        durationMs: scenario.durationMs,
+        message: scenario.passed
+          ? `${scenario.name} held its resource contract.`
+          : `${scenario.name} failed: ${scenario.error ?? "no error recorded"}`,
+      });
+    }
+    logger.log({
+      testId: "resource-stress-summary",
+      outcome: report.passed ? "passed" : "failed",
+      message: `${report.passedScenarios} of ${report.totalScenarios} scenarios passed.`,
+    });
+    await logger.flush();
+
     if (isJson) {
       console.log(JSON.stringify(report, null, 2));
     } else {
@@ -550,6 +572,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         }
       }
       console.log(`================================================================\n`);
+      console.log(`Structured log: ${logger.filePath}\n`);
     }
 
     process.exit(report.passed ? 0 : 1);

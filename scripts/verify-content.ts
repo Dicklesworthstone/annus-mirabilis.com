@@ -12,10 +12,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
-import {
-  auditInstruments,
-  loadLiveInstrumentRows,
-} from "../src/content/audits/instruments.ts";
+import { auditInstruments, loadLiveInstrumentRows } from "../src/content/audits/instruments.ts";
 import {
   auditMisconceptions,
   type MisconceptionAuditInput,
@@ -36,6 +33,7 @@ import {
 } from "../src/content/audits/verifyContent.ts";
 import { auditKernelBindings } from "../src/content/kernel/audit.ts";
 import { loadProvenanceReceipts } from "../src/content/provenance/loadReceipts.ts";
+import { TestLogger } from "../src/testing/log/logger.ts";
 import { runArchitectureGateCli } from "./app-router-architecture.ts";
 import { mainAuditDimensions } from "./audit-dimensions.ts";
 import { loadReadingFiles } from "./build-content.ts";
@@ -127,8 +125,13 @@ function loadLiveReadingsAuditInput(
       const beadId = name.replace(".yaml", "");
       if (options?.ownerBeadIds && !options.ownerBeadIds.includes(beadId)) continue;
       try {
-        const parsed = yaml.load(readFileSync(resolve(ownersDir, name), "utf8")) as Record<string, unknown> | null;
-        const ownerBeadId = String(parsed?.ownerBeadId ?? parsed?.beadId ?? name.replace(".yaml", ""));
+        const parsed = yaml.load(readFileSync(resolve(ownersDir, name), "utf8")) as Record<
+          string,
+          unknown
+        > | null;
+        const ownerBeadId = String(
+          parsed?.ownerBeadId ?? parsed?.beadId ?? name.replace(".yaml", ""),
+        );
         const targetIds: string[] = [];
         const targetKinds: ReadingTargetKind[] = [];
         if (Array.isArray(parsed?.targets)) {
@@ -137,8 +140,10 @@ function loadLiveReadingsAuditInput(
             const kind: ReadingTargetKind =
               t.kind === "caption" || t.captions
                 ? "instrument-caption"
-                : (t.kind as ReadingTargetKind) ?? "paragraph";
-            const id = (t.id as string | undefined) ?? (t.instrument ? `caption-${String(t.instrument)}` : undefined);
+                : ((t.kind as ReadingTargetKind) ?? "paragraph");
+            const id =
+              (t.id as string | undefined) ??
+              (t.instrument ? `caption-${String(t.instrument)}` : undefined);
             if (id) {
               targetIds.push(id);
               if (!targetKinds.includes(kind)) targetKinds.push(kind);
@@ -250,6 +255,32 @@ const result = await runVerifyContent({
 for (const line of result.flags) console.log(`FLAG ${line}`);
 for (const line of result.skipped) console.log(line);
 for (const line of result.errors) console.error(line);
+
+// Structured log (am-uxh9). This gate decides whether content may publish and
+// used to leave no artifact at all: its refusals existed only as stdout, so a
+// run could not be audited after the fact and yesterday's failures were
+// unrecoverable. One row per error, flag and skip, plus a summary row, so the
+// record names WHICH check refused rather than only how many did.
+const logger = new TestLogger("verify-content");
+for (const line of result.errors) {
+  logger.log({ testId: "verify-content-error", outcome: "failed", message: line });
+}
+for (const line of result.flags) {
+  logger.log({ testId: "verify-content-flag", outcome: "passed", message: `FLAG ${line}` });
+}
+for (const line of result.skipped) {
+  logger.log({ testId: "verify-content-skipped", outcome: "skipped", message: line });
+}
+logger.log({
+  testId: "verify-content-summary",
+  outcome: result.ok ? "passed" : "failed",
+  message:
+    `verify-content ${result.ok ? "passed" : "failed"}: ` +
+    `${result.errors.length} error(s), ${result.flags.length} flag(s), ${result.skipped.length} skipped.`,
+});
+await logger.flush();
+console.log(`Structured log: ${logger.filePath}`);
+
 if (result.ok) {
   console.log(
     JSON.stringify({
