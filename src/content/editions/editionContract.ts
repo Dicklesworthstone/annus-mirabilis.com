@@ -12,6 +12,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseRouteSlug, type RouteSlug } from "../ids.ts";
+import { validateLedger } from "../ledger/validateLedger.ts";
 import type { Alignment } from "../schemas/source.ts";
 import { spanTextDigest } from "../schemas/spans.ts";
 import {
@@ -296,6 +297,30 @@ function reconstructionHolds(ledgerText: string, editionText: string): boolean {
   return edition === stripped;
 }
 
+/**
+ * Ledger-only furniture that must never survive into an edition block (am-06x1).
+ *
+ * These are exactly the two things `reconstructionHolds` strips out of the ledger
+ * before comparing it with the edition, so they are already this file's definition
+ * of what belongs to the ledger and not to the reader's text: the page markers that
+ * anchor a diplomatic transcription, and the emphasis spans that record typography.
+ */
+const LEDGER_FURNITURE: readonly { readonly name: string; readonly pattern: RegExp }[] = [
+  { name: "page marker", pattern: /---\s*REVIEWED\s+TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---/g },
+  { name: "emphasis span", pattern: /\[\[[^\]]+\]\]/g },
+];
+
+/** Every piece of ledger furniture found in an edition text, named and quoted. */
+function findLedgerFurniture(editionText: string): readonly string[] {
+  const found: string[] = [];
+  for (const { name, pattern } of LEDGER_FURNITURE) {
+    for (const match of editionText.matchAll(new RegExp(pattern.source, "g"))) {
+      found.push(`${name} ${JSON.stringify(match[0])}`);
+    }
+  }
+  return found;
+}
+
 export function assertEditionContract(
   slugRaw: string,
   options: EditionContractOptions = {},
@@ -432,18 +457,62 @@ export function assertEditionContract(
   // --------------------------------------------------------------------------
   // Check 2: Ledger is clean (spec #2, invokes am-edn-ledger-validator-edv)
   // --------------------------------------------------------------------------
-  const check2Passed = options.ledgerClean !== false;
-  checks.push({
-    checkNumber: 2,
-    check: "ledger-clean",
-    owner: "am-edn-ledger-validator-edv",
-    role: "invokes",
-    outcome: check2Passed ? "passed" : "failed",
-    code: check2Passed ? undefined : "ledger-not-clean",
-    message: check2Passed
-      ? "Ledger passed validation with clean status."
-      : "Ledger validation reported issues.",
-  });
+  // Actually INVOKES its declared owner (am-06x1). The spec gives this check role
+  // "invokes am-edn-ledger-validator-edv", and validateLedger exists and accepts the
+  // ledger text directly; this check nonetheless read `options.ledgerClean !== false`,
+  // which no production caller sets, so it reported "Ledger passed validation with
+  // clean status" for every edition without ever calling the validator it names.
+  // A ledger supplied by a caller is not a reviewed ledger: validateLedger compares the
+  // declared page count against the pinned receipt and requires an [[ANNALEN-PAGE n]]
+  // anchor after every page marker, neither of which a synthetic string carries. So this
+  // check validates the ledger ON DISK, and when there is none it says it could not look
+  // rather than reporting a clean one. Claiming "passed" for text a caller handed in is
+  // exactly the false affirmative this bead is about.
+  let ledgerFindings: readonly string[] | null = null;
+  let ledgerNotValidatable: string | null = null;
+  if (options.ledgerClean === undefined) {
+    if (presence.presence === "present") {
+      try {
+        const validation = validateLedger(join(root, presence.path), { content: text });
+        ledgerFindings = validation.errors.map(
+          (finding) => `${finding.code ?? "error"}: ${finding.message}`,
+        );
+      } catch (err: unknown) {
+        ledgerFindings = [`validator-threw: ${err instanceof Error ? err.message : String(err)}`];
+      }
+    } else {
+      ledgerNotValidatable =
+        "Ledger text was supplied by the caller and no reviewed ledger is on disk, so the " +
+        "validator has no receipt to reconcile against. A supplied string is not a clean ledger.";
+    }
+  }
+  if (ledgerNotValidatable !== null) {
+    checks.push({
+      checkNumber: 2,
+      check: "ledger-clean",
+      owner: "am-edn-ledger-validator-edv",
+      role: "invokes",
+      outcome: "not-available",
+      code: "ledger-not-on-disk",
+      message: `Check 2 (Ledger clean) could not run: ${ledgerNotValidatable}`,
+    });
+  } else {
+    const check2Passed =
+      options.ledgerClean !== undefined
+        ? options.ledgerClean !== false
+        : ledgerFindings !== null && ledgerFindings.length === 0;
+    checks.push({
+      checkNumber: 2,
+      check: "ledger-clean",
+      owner: "am-edn-ledger-validator-edv",
+      role: "invokes",
+      outcome: check2Passed ? "passed" : "failed",
+      code: check2Passed ? undefined : "ledger-not-clean",
+      message: check2Passed
+        ? "Ledger passed validation with clean status."
+        : `Ledger validation reported ${(ledgerFindings ?? []).length} error(s): ${(ledgerFindings ?? []).slice(0, 3).join("; ")}`,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 3: Reconstruction (spec #3, implements)
@@ -521,18 +590,43 @@ export function assertEditionContract(
   // --------------------------------------------------------------------------
   // Check 7: No ledger markers in edition blocks (spec #7, invokes am-cm-checks-structural-lq0)
   // --------------------------------------------------------------------------
-  const check7Passed = options.noLedgerMarkers !== false;
-  checks.push({
-    checkNumber: 7,
-    check: "no-ledger-markers",
-    owner: "am-cm-checks-structural-lq0",
-    role: "invokes",
-    outcome: check7Passed ? "passed" : "failed",
-    code: check7Passed ? undefined : "ledger-marker-in-edition",
-    message: check7Passed
-      ? "No ledger markers or scan furniture present in edition blocks."
-      : "Ledger marker or scan furniture found in edition block.",
-  });
+  // Computed from the edition text, not taken from a flag (am-06x1). This check used to
+  // read `options.noLedgerMarkers !== false`, which no production caller sets, so it
+  // reported "No ledger markers or scan furniture present" for every edition having
+  // examined none. The caller's override is still honoured when given, so an owner that
+  // computes this elsewhere can still speak; absent both, the check reports that it could
+  // not look rather than that it looked and found nothing.
+  const furnitureFound =
+    options.editionText === undefined ? null : findLedgerFurniture(options.editionText);
+  const check7Passed =
+    options.noLedgerMarkers !== undefined
+      ? options.noLedgerMarkers !== false
+      : furnitureFound !== null && furnitureFound.length === 0;
+  if (options.noLedgerMarkers === undefined && furnitureFound === null) {
+    checks.push({
+      checkNumber: 7,
+      check: "no-ledger-markers",
+      owner: "am-cm-checks-structural-lq0",
+      role: "invokes",
+      outcome: "not-available",
+      code: "edition-text-absent",
+      message:
+        "Check 7 (No ledger markers) could not run: no edition text was supplied. " +
+        "Examining nothing is not a clean edition.",
+    });
+  } else {
+    checks.push({
+      checkNumber: 7,
+      check: "no-ledger-markers",
+      owner: "am-cm-checks-structural-lq0",
+      role: "invokes",
+      outcome: check7Passed ? "passed" : "failed",
+      code: check7Passed ? undefined : "ledger-marker-in-edition",
+      message: check7Passed
+        ? "No ledger markers or scan furniture present in edition blocks."
+        : `Ledger furniture found in edition block: ${(furnitureFound ?? []).join("; ")}`,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 8: Alignment coverage and edge validity (spec #8, invokes am-cm-checks-structural-lq0)

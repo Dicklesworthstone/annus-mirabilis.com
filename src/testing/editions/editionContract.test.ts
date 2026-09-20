@@ -189,7 +189,21 @@ describe("15-check composition with owner attribution (AC 5)", () => {
       expect(match?.check).toBe(spec.check);
       expect(match?.owner).toBe(spec.owner);
       expect(match?.role).toBe(spec.role);
-      expect(match?.outcome).toBe("passed");
+    }
+
+    // Outcomes are named per check rather than asserted uniformly "passed" (am-06x1).
+    // The blanket assertion held only because seven checks could not fail: they read
+    // `options.X !== false` from options no production caller sets. Check 2 now invokes
+    // validateLedger, which needs a reviewed ledger on disk with a receipt to reconcile
+    // page counts against; this fixture supplies a ledger string, so the honest outcome
+    // is not-available. Asserting it by name means a future change that silently turns it
+    // back into an unconditional pass fails here.
+    const outcomeOf = (n: number) => result.checks.find((c) => c.checkNumber === n)?.outcome;
+    expect(outcomeOf(2)).toBe("not-available");
+    expect(result.checks.find((c) => c.checkNumber === 2)?.code).toBe("ledger-not-on-disk");
+    for (const spec of CONTRACT_CHECKS_SPEC) {
+      if (spec.checkNumber === 2) continue;
+      expect(outcomeOf(spec.checkNumber)).toBe("passed");
     }
   });
 
@@ -379,5 +393,19 @@ describe("Check 15: span revision currency and separate failure reporting (AC 6)
     expect(check15).toBeDefined();
     expect(check15?.outcome).toBe("passed");
     expect(check15?.code).toBeUndefined();
+  });
+});
+
+describe("PLANT (am-06x1): check 7 corrupts the DATA, not the flag", () => {
+  test("a page marker left in the edition text fails check 7", () => {
+    const corrupted = "--- REVIEWED TRANSCRIPTION PAGE 3 OF 12 --- Die Bewegung ist unregelmäßig.";
+    const result = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      editionText: corrupted,
+    });
+    const check7 = result.checks.find((c) => c.checkNumber === 7);
+    console.log("[am-06x1 plant] check7:", JSON.stringify(check7));
+    expect(check7?.outcome).toBe("failed");
+    expect(check7?.code).toBe("ledger-marker-in-edition");
   });
 });
