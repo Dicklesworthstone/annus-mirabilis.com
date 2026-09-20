@@ -59,23 +59,26 @@ export function parseInventoryRows(markdown: string): InventoryRow[] {
  * joining this list is a claim that the project pins something it does not use,
  * and it should have to be written down here to make it.
  */
-const NOT_IN_PACKAGE_JSON: readonly string[] = [
-  "@types/three",
-  "autoprefixer",
-  "bun",
-  "fflate",
-  "fonttools",
-  "lucide-react",
-  "marked",
-  "minisearch",
-  "node",
-  "pdfjs-dist",
-  "tailwindcss",
-  "three",
-  "ubs",
-  "vercel",
-  "zod",
-];
+const NOT_IN_PACKAGE_JSON: ReadonlyMap<string, string> = new Map([
+  ["node", "runtime, pinned in package.json engines.node rather than as a dependency"],
+  ["bun", "runtime, pinned in package.json packageManager"],
+  ["ubs", "local binary, no npm manifest reaches it; see the verification note below the table"],
+  ["vercel", "local CLI used by the release script, not an app dependency"],
+  ["fonttools", "Python tool used by the font subsetting step, not an npm dependency"],
+  ["tailwindcss", "probe-only: pinned for a capability not yet adopted (see am-vw1o)"],
+  ["autoprefixer", "probe-only: pinned for a capability not yet adopted"],
+  ["lucide-react", "probe-only: pinned for a capability not yet adopted"],
+  ["three", "probe-only: pinned for a capability not yet adopted"],
+  ["@types/three", "probe-only: types for a capability not yet adopted"],
+  [
+    "pdfjs-dist",
+    "probe-only: the facsimile viewer ships vendored pdfjs under public/, not via npm",
+  ],
+  ["zod", "probe-only: pinned for a capability not yet adopted"],
+  ["fflate", "probe-only: pinned for a capability not yet adopted"],
+  ["marked", "probe-only: pinned for a capability not yet adopted"],
+  ["minisearch", "probe-only: pinned for a capability not yet adopted"],
+]);
 
 describe("DECISIONS.md locked versions (am-niyd)", () => {
   const markdown = readFileSync(join(ROOT, "docs", "DECISIONS.md"), "utf8");
@@ -132,9 +135,23 @@ describe("DECISIONS.md locked versions (am-niyd)", () => {
       .sort();
     assert.deepEqual(
       [...new Set(unsourced)],
-      [...NOT_IN_PACKAGE_JSON],
+      [...NOT_IN_PACKAGE_JSON.keys()].sort(),
       "a row the manifest does not declare must be listed in NOT_IN_PACKAGE_JSON with its reason",
     );
+  });
+
+  // am-uj6w's class, found in this file: the message above prescribes "with its
+  // reason", and until this assertion existed NOT_IN_PACKAGE_JSON was a plain
+  // string[] with nowhere to put one. A contributor obeying the message had no
+  // field to write into, and a bare name satisfied the checker. A gate that
+  // prescribes a remedy it does not read teaches people to ignore its wording.
+  it("every unsourced row carries a reason the gate actually reads", () => {
+    for (const [name, reason] of NOT_IN_PACKAGE_JSON) {
+      assert.ok(
+        reason.trim().length >= 20,
+        `${name} must record WHY the manifest does not declare it, not just that it does not`,
+      );
+    }
   });
 
   // The ubs row is owner-gated: docs/DECISIONS.md states that which version is
