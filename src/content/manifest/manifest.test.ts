@@ -386,6 +386,60 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
+  // am-o44v: the qualification test was `!eq.id.includes("-s") && !eq.id.match(/^eq-s\d+/)`.
+  // The regex is the real grammar (AGENTS.md: a section-qualified anchor is #eq-s<n>-<printed>).
+  // The `includes("-s")` clause let ANY id containing those two characters anywhere count as
+  // section-qualified, so an unqualified duplicate named eq-17-series escaped the error.
+  //
+  // Measured against the real corpus before the clause was removed: of 130 equation ids in the
+  // committed manifests, 128 match the regex, 0 passed only through the loose clause, and the
+  // two that match neither (eq-2, eq-A) carry no printed label. So nothing real depended on it.
+  it("am-o44v: an unqualified duplicate whose id merely CONTAINS '-s' is still caught", () => {
+    const manifest = createMiniPaperManifest({
+      units: [
+        { id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] },
+        { id: "eq-17-series", kind: "equation", originalLabel: "(1)", locators: [{ page: 132 }] },
+        { id: "eq-17-sum", kind: "equation", originalLabel: "(1)", locators: [{ page: 133 }] },
+      ],
+    });
+    const diags = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+    });
+    const dup = diags.filter((d) => d.rule === "duplicate-equation-anchor");
+    assert.equal(dup.length, 2, "both unqualified ids sharing printed label (1) must be reported");
+    logTest(
+      "am-o44v-duplicate-anchor-substring-escape",
+      "passed",
+      "An id containing '-s' no longer counts as section-qualified",
+    );
+  });
+
+  it("am-o44v: genuinely section-qualified duplicates are still accepted", () => {
+    // The other half, against REAL input: content/source-blocks/brownian-motion/manifest.yaml
+    // really does carry the printed label "(1)" twice, on eq-s3-1 and eq-s4-1. Both are
+    // section-qualified and neither may be reported, or the tightening would break the corpus.
+    const manifest = createMiniPaperManifest({
+      units: [
+        { id: "s1-p1", kind: "paragraph", locators: [{ page: 132 }] },
+        { id: "eq-s3-1", kind: "equation", originalLabel: "(1)", locators: [{ page: 132 }] },
+        { id: "eq-s4-1", kind: "equation", originalLabel: "(1)", locators: [{ page: 133 }] },
+      ],
+    });
+    const diags = validateManifest(manifest, {
+      manifests: new Map([[manifest.paper, manifest]]),
+    });
+    assert.equal(
+      diags.filter((d) => d.rule === "duplicate-equation-anchor").length,
+      0,
+      "the real brownian-motion pair eq-s3-1 / eq-s4-1 must stay accepted",
+    );
+    logTest(
+      "am-o44v-duplicate-anchor-genuine-pair",
+      "passed",
+      "Section-qualified duplicates from the real corpus are still accepted",
+    );
+  });
+
   it("planted negative: display equation containedIn paragraph ending on earlier page fails", () => {
     const manifest = createMiniPaperManifest({
       pageCount: 3,

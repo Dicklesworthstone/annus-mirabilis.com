@@ -400,7 +400,12 @@ export function validateManifest(
   for (const [label, eqs] of printedEqLabels.entries()) {
     if (eqs.length > 1) {
       for (const eq of eqs) {
-        if (!eq.id.includes("-s") && !eq.id.match(/^eq-s\d+/)) {
+        // am-o44v: `!eq.id.includes("-s") &&` stood here too. AGENTS.md fixes the qualified
+        // form as #eq-s<n>-<printed>, which the regex already tests; the substring clause let
+        // any id containing those two characters anywhere count as qualified, so an unqualified
+        // eq-17-series escaped this error. Measured before removing it: of 130 equation ids in
+        // the committed manifests, 128 match the regex and 0 depended on the loose clause.
+        if (!eq.id.match(/^eq-s\d+/)) {
           addDiag(
             "error",
             "duplicate-equation-anchor",
