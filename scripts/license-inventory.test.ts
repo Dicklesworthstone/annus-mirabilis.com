@@ -15,7 +15,7 @@ import {
 } from "./license-inventory/collectDonor.ts";
 import { collectFonts } from "./license-inventory/collectFonts.ts";
 import { collectWasm } from "./license-inventory/collectWasm.ts";
-import { evaluatePolicy } from "./license-inventory/evaluatePolicy.ts";
+import { evaluatePolicy, versionMatchesRange } from "./license-inventory/evaluatePolicy.ts";
 import {
   buildLicenseInventory,
   defaultFsAdapters,
@@ -823,5 +823,49 @@ export function Header() {
         (e) => e.rule === "unattributed-donor-extraction" && e.item.name === plantedPath,
       ),
     ).toBe(true);
+  });
+});
+
+describe("version ranges match by dotted segment, not by characters (am-avyr)", () => {
+  // The fallback was version.startsWith(range), so a bare range admitted any
+  // version whose TEXT began with it. A policy exception records which versions
+  // a licence finding was reviewed against, so admitting an unreviewed version
+  // is the failure direction that matters.
+
+  test("a bare 1.1 rejects 1.10.0 and accepts 1.1.4", () => {
+    expect(versionMatchesRange("1.10.0", "1.1")).toBe(false);
+    expect(versionMatchesRange("1.1.4", "1.1")).toBe(true);
+    // The bead's second example, and the same shape one major up.
+    expect(versionMatchesRange("2.15.3", "2.1")).toBe(false);
+    expect(versionMatchesRange("2.1.9", "2.1")).toBe(true);
+  });
+
+  // THE CONTROL, and without it this is a tightening rather than a fix: every
+  // range docs/license-policy.yaml actually carries must evaluate exactly as it
+  // did. Both are handled by branches above the fallback and neither is
+  // touched, but "not touched" is an argument and this is a measurement.
+  test("the ranges the real policy carries evaluate exactly as before", () => {
+    // caniuse-lite, versionRange "*": admits everything, including versions
+    // that would fail a segment-prefix test.
+    for (const version of ["1.0.30001", "1.10.0", "2.15.3", "unknown", "0.0.0-next"]) {
+      expect(versionMatchesRange(version, "*")).toBe(true);
+    }
+    // argparse, versionRange "^2.0.0": caret means same major, so 2.x admits
+    // and 1.x and 3.x do not - unchanged by this commit.
+    for (const version of ["2.0.0", "2.0.1", "2.13.0", "2.15.3"]) {
+      expect(versionMatchesRange(version, "^2.0.0")).toBe(true);
+    }
+    for (const version of ["1.9.9", "3.0.0"]) {
+      expect(versionMatchesRange(version, "^2.0.0")).toBe(false);
+    }
+    // And the two escapes above the fallback that a segment test must not
+    // shadow: an exact string match, and the "unknown" version the collector
+    // emits when a manifest declares none.
+    expect(versionMatchesRange("1.10.0", "1.10.0")).toBe(true);
+    expect(versionMatchesRange("unknown", "1.1")).toBe(true);
+  });
+
+  test("a range with more segments than the version cannot match", () => {
+    expect(versionMatchesRange("1.1", "1.1.4")).toBe(false);
   });
 });

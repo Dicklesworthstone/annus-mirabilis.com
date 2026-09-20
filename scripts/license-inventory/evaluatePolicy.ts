@@ -12,7 +12,7 @@ import type {
   PolicyViolation,
 } from "./types.ts";
 
-function versionMatchesRange(version: string, range?: string): boolean {
+export function versionMatchesRange(version: string, range?: string): boolean {
   if (!range || range === "*" || range === "any") return true;
   if (version === range || version === "unknown") return true;
   if (range.startsWith("^")) {
@@ -25,7 +25,20 @@ function versionMatchesRange(version: string, range?: string): boolean {
     const vParts = version.split(".");
     return rParts[0] === vParts[0] && rParts[1] === vParts[1];
   }
-  return version.startsWith(range);
+  // A bare range is a version PREFIX BY DOTTED SEGMENT, not by characters
+  // (am-avyr). `version.startsWith(range)` admitted 1.10.0 under a bare 1.1,
+  // and 2.15.3 under 2.1, because "1.10.0" does begin with the characters
+  // "1.1". A policy exception is a decision about which versions a licence
+  // finding was reviewed against, so admitting a version nobody reviewed is
+  // the failure direction that matters.
+  //
+  // Latent rather than live: docs/license-policy.yaml carries only ^2.0.0 and
+  // *, both handled above, so nothing reaches this line today. The first bare
+  // range written into that file is what makes it live.
+  const rangeParts = range.split(".");
+  const versionParts = version.split(".");
+  if (rangeParts.length > versionParts.length) return false;
+  return rangeParts.every((part, i) => part === versionParts[i]);
 }
 
 export function evaluatePolicy(
