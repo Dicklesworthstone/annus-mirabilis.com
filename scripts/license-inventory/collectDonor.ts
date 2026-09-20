@@ -203,11 +203,16 @@ export function parseDonorAuditReuseTable(markdown: string): DonorReuseSeamRow[]
   let inSection5 = false;
 
   for (const line of lines) {
-    if (
-      line.startsWith("## 5. Reuse Table") ||
-      line.startsWith("## 5. ") ||
-      line.includes("Reuse Table")
-    ) {
+    // am-o44v. This used to also accept `line.includes("Reuse Table")`, a substring test standing
+    // in for "this line IS the section 5 heading". Any prose cross-reference to the Reuse Table
+    // earlier in the document set inSection5 on that line, and the next `## ` heading then broke
+    // the loop before the real section was ever reached: 20 rows became 0, silently, and a donor
+    // seam with no row carries no notice requirement. Measured on the real document, planted in
+    // section 2 and asserted in license-inventory.test.ts. The first two disjuncts were the same
+    // test written twice. The heading is matched by its NUMBER, so retitling the section is safe
+    // and renumbering it is caught by the existing row-count assertion rather than passing as an
+    // empty table.
+    if (line.startsWith("## 5.")) {
       inSection5 = true;
       continue;
     }

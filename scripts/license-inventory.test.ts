@@ -503,6 +503,57 @@ describe("Canonical seam table parsing and cross-referencing", () => {
     expect(layoutRow?.donorPaths).toContain("src/app/robots.ts");
     expect(layoutRow?.donorPaths).toContain("src/app/sitemap.ts");
   });
+
+  /**
+   * am-o44v. The section-5 entry test used to accept any line CONTAINING "Reuse Table", so a prose
+   * cross-reference elsewhere in the document opened the section early and the next `## ` heading
+   * closed the loop before the real table was reached. The whole donor reuse table then parsed as
+   * empty, and a seam with no row carries no notice requirement, so the failure was silent and in
+   * the fails-open direction on a rights obligation.
+   *
+   * The plant is one ordinary sentence in section 2 of the REAL document, held in memory; the file
+   * on disk is never touched. The control is the same sentence with the two words changed, which
+   * isolates the substring as the cause rather than the insertion.
+   */
+  test("a prose mention of the Reuse Table elsewhere in the document does not empty the table", () => {
+    const auditText = readFileSync(join(process.cwd(), "docs/DONOR_AUDIT.md"), "utf8");
+    const baseline = parseDonorAuditReuseTable(auditText);
+    expect(baseline.length).toBeGreaterThan(0);
+
+    const lines = auditText.split("\n");
+    const sectionTwo = lines.findIndex((l) => l.startsWith("## 2."));
+    expect(sectionTwo).toBeGreaterThan(-1);
+
+    const planted = [...lines];
+    planted.splice(
+      sectionTwo + 6,
+      0,
+      "See the Reuse Table in Section 5 for the per-seam decisions.",
+    );
+    expect(parseDonorAuditReuseTable(planted.join("\n")).length).toBe(baseline.length);
+
+    const control = [...lines];
+    control.splice(sectionTwo + 6, 0, "See Section 5 for the per-seam decisions.");
+    expect(parseDonorAuditReuseTable(control.join("\n")).length).toBe(baseline.length);
+  });
+
+  /**
+   * am-o44v, the other half. `decision.toLowerCase().startsWith("reuse")` beside an `=== "reuse"`
+   * arm looks like a substring standing in for a category, and the sweep's reflex is to tighten it
+   * to equality. Measured against the real document first: equality matches 5 rows, the prefix
+   * matches 7. "Reuse architecture" and "Reuse with new identities" are genuine reuse decisions,
+   * and tightening would have dropped two donor seams from the licence inventory - failing open on
+   * exactly the obligation this collector exists to record. The redundant arm is the EXACT one.
+   * This test pins that, so the tightening is not attempted again without the numbers.
+   */
+  test("the reuse decision test keeps the seams whose decision extends the word Reuse", () => {
+    const auditText = readFileSync(join(process.cwd(), "docs/DONOR_AUDIT.md"), "utf8");
+    const decisions = parseDonorAuditReuseTable(auditText).map((r) => r.decision.toLowerCase());
+    const exact = decisions.filter((d) => d === "reuse").length;
+    const prefixed = decisions.filter((d) => d.startsWith("reuse")).length;
+    expect(exact).toBeGreaterThan(0);
+    expect(prefixed).toBeGreaterThan(exact);
+  });
 });
 
 describe("Known donor gaps integrity (contentGlyphCoverage pattern)", () => {
