@@ -40,6 +40,13 @@ interface LogEntry {
   readonly logRunId: string;
   readonly rule?: string | undefined;
   readonly severity?: "error" | "flag" | "info" | undefined;
+  /**
+   * The shared log schema's outcome vocabulary (am-uxh9). Every row carried a
+   * severity and no outcome, so 616 rows told a reader how bad a finding was but
+   * never whether the run had failed on it. An error is a failure; a flag and an
+   * info are recorded observations that do not fail the gate.
+   */
+  readonly outcome?: "passed" | "failed" | undefined;
   readonly context?: VoiceContext | undefined;
   readonly recordId?: string | undefined;
   readonly file?: string | undefined;
@@ -177,6 +184,7 @@ export async function runVoiceLint(): Promise<{
               logRunId,
               rule: f.rule,
               severity: f.severity,
+              outcome: f.severity === "error" ? "failed" : "passed",
               context: f.context,
               recordId: recId,
               file: filePath,
@@ -214,6 +222,7 @@ export async function runVoiceLint(): Promise<{
                   logRunId,
                   rule: f.rule,
                   severity: f.severity,
+                  outcome: f.severity === "error" ? "failed" : "passed",
                   context: f.context,
                   recordId: recId,
                   file: filePath,
@@ -266,6 +275,7 @@ export async function runVoiceLint(): Promise<{
           logRunId,
           rule: f.rule,
           severity: f.severity,
+          outcome: f.severity === "error" ? "failed" : "passed",
           context: f.context,
           file: item.file,
           line: item.line,
@@ -320,6 +330,7 @@ export async function runVoiceLint(): Promise<{
                     logRunId,
                     rule: f.rule,
                     severity: f.severity,
+                    outcome: f.severity === "error" ? "failed" : "passed",
                     context: f.context,
                     file: relPath,
                     path: msgKey,
@@ -346,6 +357,7 @@ export async function runVoiceLint(): Promise<{
       logRunId,
       rule: "no-parallel-deny-lists",
       severity: "error",
+      outcome: "failed",
       context: "prose",
       file: pf.file,
       line: pf.line,
@@ -365,6 +377,7 @@ export async function runVoiceLint(): Promise<{
       logRunId,
       rule: "stale-override",
       severity: "flag",
+      outcome: "passed",
       file: stale.entry.target,
       matchedText: stale.entry.matchedText,
       suggestion: `Override for "${stale.entry.target}" is stale; matched text no longer occurs.`,
@@ -376,6 +389,7 @@ export async function runVoiceLint(): Promise<{
     timestamp,
     suite: "voice-lint",
     logRunId,
+    outcome: errorCount > 0 ? "failed" : "passed",
     summary: {
       totalScanned,
       errorCount,

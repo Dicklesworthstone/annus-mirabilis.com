@@ -126,6 +126,30 @@ export function runAuditCli(argv: string[] = process.argv.slice(2)): {
       errorSteps: report.errors.length,
     }),
   ];
+  // One row per STEP, not only per problem (am-uxh9). This file is printed as
+  // "Detailed report written to ..." and used to hold a single summary line
+  // whenever every step was valid - 22 steps audited, nothing named. A reader
+  // could see that 22 passed but not which chain, step or tool that covered, so
+  // a step silently losing its tool between runs left no trace to diff.
+  const pendingKeys = new Set(report.pending.map((p) => `${p.chainId}::${p.stepId}`));
+  const errorKeys = new Set(report.errors.map((e) => `${e.chainId}::${e.stepId}`));
+  for (const chain of filteredChains) {
+    for (const step of chain.steps) {
+      const key = `${chain.id}::${step.id}`;
+      if (pendingKeys.has(key) || errorKeys.has(key)) continue;
+      lines.push(
+        JSON.stringify({
+          status: "valid",
+          chainId: chain.id,
+          proofRouteId: chain.proofRouteId,
+          stepId: step.id,
+          reasonKind: step.reasonKind,
+          tool: step.tool,
+          toolRunId,
+        }),
+      );
+    }
+  }
   for (const p of report.pending) {
     lines.push(JSON.stringify({ status: "pending", ...p, toolRunId }));
   }
