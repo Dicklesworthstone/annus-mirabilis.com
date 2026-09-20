@@ -7,8 +7,11 @@
  * Bead: am-cm-dimension-validator-aoz
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { load as loadYaml } from "js-yaml";
 import { checkDimensions, type DimensionCheckResult } from "../src/content/dimensions/check.ts";
 import { dimensionText, formatRational } from "../src/content/dimensions/rational.ts";
 import type {
@@ -16,6 +19,8 @@ import type {
   UnitSystemContext,
 } from "../src/content/dimensions/unitSystems.ts";
 import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
+
+const REPO_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 
 export interface EquationAuditEntry {
   readonly id: string;
@@ -148,6 +153,62 @@ export async function runDimensionAudit(
   };
 }
 
+/**
+ * Builds the audit corpus from the repository: every equation record that carries a
+ * tree, with the quantity dimensions those trees reference.
+ *
+ * Quantity dimensions are authored in content/quantities/*.yaml as numeric arrays;
+ * the checker takes rational exponents as strings, so they are stringified here and
+ * nowhere else. Files under constant-sets/ describe constant VALUES rather than
+ * quantity dimensions and are skipped.
+ */
+export function loadRepositoryCorpus(root: string = REPO_ROOT): EquationAuditEntry[] {
+  const quantities: Record<string, QuantityDescriptor> = {};
+  const quantityDir = join(root, "content/quantities");
+  if (existsSync(quantityDir)) {
+    for (const name of readdirSync(quantityDir)) {
+      if (!name.endsWith(".yaml") && !name.endsWith(".yml")) continue;
+      const parsed = loadYaml(readFileSync(join(quantityDir, name), "utf8"));
+      if (!Array.isArray(parsed)) continue;
+      for (const record of parsed) {
+        if (!record || typeof record !== "object") continue;
+        const entry = record as { id?: unknown; dimension?: unknown };
+        if (typeof entry.id !== "string" || !Array.isArray(entry.dimension)) continue;
+        quantities[entry.id] = {
+          id: entry.id,
+          dimension: entry.dimension.map((exponent) => String(exponent)),
+        } as QuantityDescriptor;
+      }
+    }
+  }
+
+  const entries: EquationAuditEntry[] = [];
+  const equationsRoot = join(root, "content/equations");
+  if (!existsSync(equationsRoot)) return entries;
+  for (const paperDir of readdirSync(equationsRoot)) {
+    const dir = join(equationsRoot, paperDir);
+    if (!statSync(dir).isDirectory()) continue;
+    for (const name of readdirSync(dir)) {
+      if (!name.endsWith(".json")) continue;
+      const record = JSON.parse(readFileSync(join(dir, name), "utf8")) as {
+        id?: unknown;
+        paper?: unknown;
+        tree?: unknown;
+        unitSystem?: unknown;
+      };
+      if (typeof record.id !== "string" || record.tree === undefined) continue;
+      entries.push({
+        id: record.id,
+        paper: typeof record.paper === "string" ? record.paper : paperDir,
+        tree: record.tree,
+        quantities,
+        ...(record.unitSystem ? { unitSystem: record.unitSystem as UnitSystemContext } : {}),
+      });
+    }
+  }
+  return entries;
+}
+
 export async function mainAuditDimensions(
   args: string[],
 ): Promise<{ exitCode: number; summary: DimensionAuditSummary }> {
@@ -163,6 +224,33 @@ export async function mainAuditDimensions(
   if (values.corpus && existsSync(values.corpus)) {
     const raw = readFileSync(values.corpus, "utf8");
     entries = JSON.parse(raw);
+  } else {
+    // The registry invokes this gate as `bun scripts/audit-dimensions.ts`, with no
+    // --corpus. Before am-uxh9 that left entries empty, so the audit reported
+    // "0 total (0 consistent, 0 errors)" and exited 0 having opened nothing, while
+    // 18 equation records with trees sat on disk. The repository corpus is now the
+    // default and --corpus remains an override for fixtures.
+    entries = loadRepositoryCorpus();
+  }
+
+  if (entries.length === 0) {
+    // A dimension audit that audits nothing is not a pass.
+    console.error(
+      "Dimension audit: no equation records with trees were found. " +
+        "Measuring nothing is not passing; check content/equations or pass --corpus.",
+    );
+    return {
+      exitCode: 1,
+      summary: {
+        total: 0,
+        consistent: 0,
+        inconsistent: 0,
+        semanticMismatch: 0,
+        unsupportedCheck: 0,
+        ok: false,
+        paperCounts: {},
+      },
+    };
   }
 
   const summary = await runDimensionAudit(entries);
