@@ -624,7 +624,11 @@ export function assertEditionContract(
 
   let pageMapMismatches: readonly PageMapMismatch[] | null = null;
   let reconciliationUnavailable: string | null = null;
-  if (options.perPageCountsMatch === undefined) {
+  // am-izth. The option may force a FAILURE, which is how the test drives the mismatch branch,
+  // but it may never assert a PASS. The defect this check carried was a positive match reported
+  // without comparing anything, and a caller-supplied `true` would be the same defect through a
+  // different door, so the real reconciliation runs in every case except a forced failure.
+  if (options.perPageCountsMatch !== false) {
     const bibKey = PAPER_BIB_KEYS[slug];
     const receiptPath = join(root, `docs/provenance/${bibKey}.md`);
     if (!bundle.ok || !existsSync(receiptPath)) {
@@ -699,8 +703,8 @@ export function assertEditionContract(
     });
   } else {
     const check4Passed =
-      options.perPageCountsMatch !== undefined
-        ? options.perPageCountsMatch !== false
+      options.perPageCountsMatch === false
+        ? false
         : pageMapMismatches !== null && pageMapMismatches.length === 0;
     checks.push({
       checkNumber: 4,
