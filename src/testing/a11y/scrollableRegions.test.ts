@@ -18,7 +18,17 @@ import { fileURLToPath } from "node:url";
  * This test acts as a ratchet:
  * 1. Pre-existing lab components with unverified table-scroll/formula elements are pinned in BASELINE.
  *    The baseline may only SHRINK; introducing an unfocusable scrollable element in a new file fails.
- * 2. Classes verified empirically NOT to overflow are recorded in RECORDED_NON_OVERFLOWING with measurements.
+ * 2. ELEMENTS verified empirically NOT to overflow are recorded in RECORDED_NON_OVERFLOWING with
+ *    measurements, and the detector CONSULTS that map (am-uj6w). Until then the map was named in
+ *    the failure message and read by nothing, so a contributor who measured a region and followed
+ *    the instruction saw no change - the gate prescribed a remedy it did not read.
+ *
+ *    Keyed by FILE AND CLASS, not by class. "table-scroll" covers both overflowing and
+ *    non-overflowing elements, so a class-level exemption would excuse every use of it at once.
+ *
+ *    The measurements are PARSED AND CHECKED, not merely stored: an entry whose own numbers show
+ *    a difference between scrollWidth and clientWidth is refused, and so is one naming a file
+ *    that no longer carries that class. Those are the two ways a recorded measurement goes stale.
  * 3. Dialog/sheet containers managing modal focus are recorded in DIALOG_CONTAINER_SELECTORS.
  */
 
@@ -49,71 +59,129 @@ export const DIALOG_CONTAINER_SELECTORS = new Set([
  * - viewport measurements (scrollWidth vs clientWidth)
  * - rationale
  */
-export const RECORDED_NON_OVERFLOWING = new Map<
-  string,
-  { file: string; url: string; measurements: string; reason: string }
->([
-  [
-    "lab-bottom",
-    {
-      file: "src/components/lab/TracerLab.tsx",
-      url: "/lab/bm-01/",
-      measurements: "320px: 254px/254px (diff 0); 1280px: 1150px/1150px (diff 0)",
-      reason:
-        "CSS in globals.css sets display: grid with responsive columns; does not set overflow in CSS.",
-    },
-  ],
-  [
-    "trajectory-table-scroll",
-    {
-      file: "src/components/lab/TrajectoryInspection.tsx",
-      url: "/lab/brownian-data/",
-      measurements: "320px: 254px/254px (diff 0); 1280px: 1150px/1150px (diff 0)",
-      reason:
-        "Table columns format short coordinates; with 320px font sizing and padding, table fits inside 254px container.",
-    },
-  ],
-  [
-    "sr07-components",
-    {
-      file: "src/components/lab/sr07/FieldEquationsLab.tsx",
-      url: "/lab/sr-07/",
-      measurements: "320px: 288px/288px (diff 0); 1280px: 1216px/1216px (diff 0)",
-      reason:
-        "Applied to a <table> element with default display: table; fits viewport width without scrolling.",
-    },
-  ],
-  [
-    "sr07-equation",
-    {
-      file: "src/components/lab/sr07/FieldEquationsLab.tsx",
-      url: "/lab/sr-07/",
-      measurements: "320px: 288px/288px (diff 0); 1280px: 1216px/1216px (diff 0)",
-      reason:
-        "Equations and steps fit within the mobile measure; checked across all 8 equations and both unit layers.",
-    },
-  ],
-  [
-    "genealogy-graph-wrapper",
-    {
-      file: "src/equations/genealogy/Genealogy.tsx",
-      url: "Genealogy component",
-      measurements: "320px: 236px/236px (diff 0); 1280px: 1196px/1196px (diff 0)",
-      reason:
-        "Child SVG has width='100%' and max-width: 100% in genealogy.css; scales to fit container width without scrolling.",
-    },
-  ],
-  [
-    "facsimile-canvas-container",
-    {
-      file: "src/reader/faces/FacsimileViewer.tsx",
-      url: "/papers/brownian-motion/view/facsimile/",
-      measurements: "320px: 206px/206px (diff 0); 1280px: 1166px/1166px (diff 0)",
-      reason:
-        ".facsimile-page-frame has max-width: 100% in reader.css; canvas preview conforms to container width.",
-    },
-  ],
-]);
+export interface NonOverflowingRecord {
+  readonly file: string;
+  readonly className: string;
+  readonly url: string;
+  /** "320px: 254px/254px (diff 0); 1280px: 1150px/1150px (diff 0)" - parsed, not just stored. */
+  readonly measurements: string;
+  readonly reason: string;
+  readonly measuredBy: string;
+}
+
+/** The key a record is looked up by: one ELEMENT, not one class. */
+export function recordKey(file: string, className: string): string {
+  return `${file}::${className}`;
+}
+
+export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord> = new Map(
+  (
+    [
+      {
+        file: "src/components/lab/TracerLab.tsx",
+        className: "lab-bottom",
+        url: "/lab/bm-01/",
+        measurements: "320px: 254px/254px (diff 0); 1280px: 1150px/1150px (diff 0)",
+        reason:
+          "CSS in globals.css sets display: grid with responsive columns; does not set overflow in CSS.",
+        measuredBy: "am-bc6s",
+      },
+      {
+        file: "src/components/lab/TrajectoryInspection.tsx",
+        className: "table-scroll",
+        url: "/lab/brownian-data/",
+        measurements: "320px: 254px/254px (diff 0); 1280px: 1150px/1150px (diff 0)",
+        reason:
+          "Table columns format short coordinates; with 320px font sizing and padding, table fits inside 254px container.",
+        measuredBy: "am-bc6s",
+      },
+      {
+        file: "src/components/lab/sr07/FieldEquationsLab.tsx",
+        className: "formula",
+        url: "/lab/sr-07/",
+        measurements: "320px: 288px/288px (diff 0); 1280px: 1216px/1216px (diff 0)",
+        reason:
+          "Equations and steps fit within the mobile measure; checked across all 8 equations and both unit layers.",
+        measuredBy: "am-bc6s",
+      },
+      {
+        file: "src/equations/genealogy/Genealogy.tsx",
+        className: "genealogy-graph-wrapper",
+        url: "Genealogy component",
+        measurements: "320px: 236px/236px (diff 0); 1280px: 1196px/1196px (diff 0)",
+        reason:
+          "Child SVG has width='100%' and max-width: 100% in genealogy.css; scales to fit container width without scrolling.",
+        measuredBy: "am-bc6s",
+      },
+      {
+        file: "src/reader/faces/FacsimileViewer.tsx",
+        className: "facsimile-canvas-container",
+        url: "/papers/brownian-motion/view/facsimile/",
+        measurements: "320px: 206px/206px (diff 0); 1280px: 1166px/1166px (diff 0)",
+        reason:
+          ".facsimile-page-frame has max-width: 100% in reader.css; canvas preview conforms to container width.",
+        measuredBy: "am-bc6s",
+      },
+      {
+        file: "src/components/lab/lq09/IonizationLab.tsx",
+        className: "table-scroll",
+        url: "/lab/lq-09/",
+        measurements: "320px: 286px/286px (diff 0); 1280px: 529px/529px (diff 0)",
+        reason:
+          "Telemetry snapshot table formats short numeric cells and fits the container at both widths, so its tabIndex is a tab stop with nothing to scroll.",
+        measuredBy: "pane28, measured against the built site under am-6iz4",
+      },
+    ] satisfies readonly NonOverflowingRecord[]
+  ).map((r) => [recordKey(r.file, r.className), r]),
+);
+
+/** One recorded viewport measurement, after parsing. */
+export interface ParsedMeasurement {
+  readonly viewport: string;
+  readonly scrollWidth: number;
+  readonly clientWidth: number;
+}
+
+/**
+ * Parses "320px: 254px/254px (diff 0); 1280px: ..." into numbers the gate can check.
+ * Returns an empty array when nothing parses, which the validation test treats as a failure:
+ * an unparseable measurement is indistinguishable from no measurement.
+ */
+export function parseMeasurements(text: string): ParsedMeasurement[] {
+  const out: ParsedMeasurement[] = [];
+  for (const m of text.matchAll(/(\d+px)\s*:\s*(\d+)px\s*\/\s*(\d+)px/g)) {
+    out.push({
+      viewport: m[1] as string,
+      scrollWidth: Number(m[2]),
+      clientWidth: Number(m[3]),
+    });
+  }
+  return out;
+}
+
+/** A record is honoured only while its own numbers still say the region does not overflow. */
+export function staleReason(
+  record: NonOverflowingRecord,
+  sourceOfFile: (file: string) => string | undefined,
+): string | undefined {
+  const parsed = parseMeasurements(record.measurements);
+  if (parsed.length === 0) {
+    return `${recordKey(record.file, record.className)}: measurements do not parse: "${record.measurements}"`;
+  }
+  const overflowing = parsed.filter((p) => p.scrollWidth > p.clientWidth);
+  if (overflowing.length > 0) {
+    const at = overflowing.map((p) => `${p.viewport} ${p.scrollWidth}/${p.clientWidth}`).join(", ");
+    return `${recordKey(record.file, record.className)}: the recorded measurements themselves show overflow at ${at}. A region that overflows must keep its tabIndex.`;
+  }
+  const src = sourceOfFile(record.file);
+  if (src === undefined) {
+    return `${recordKey(record.file, record.className)}: the file no longer exists, so the measurement describes nothing.`;
+  }
+  if (!src.includes(record.className)) {
+    return `${recordKey(record.file, record.className)}: the file no longer carries that class, so the measurement is stale.`;
+  }
+  return undefined;
+}
 
 /**
  * Classes that specify scrolling in CSS and must be focusable when rendered.
@@ -130,6 +198,88 @@ export const AUDITED_SCROLL_CLASSES = [
   "kernel-trace-wrap",
   "comparison-scroll",
 ];
+
+/**
+ * am-a14x. AUDITED_SCROLL_CLASSES above is hand-listed. The CSS declares 47 classes with a
+ * scrolling overflow, so the ratchet's denominator was a fifth of its subject and nothing said so:
+ * a new scrollable region could be added, never be looked at, and the suite stayed green.
+ *
+ * deriveScrollClassesFromCss reads the real population out of src/**\/*.css. The test below asserts
+ * that every derived class is either AUDITED or recorded here, so a class in NEITHER list fails on
+ * arrival. That is the coverage question. It is deliberately NOT an escape: nothing here exempts an
+ * element from needing a tab stop, which is am-uj6w's mechanism and pane30's to own.
+ *
+ * The number beside each class is the count of elements carrying it with no tabIndex TODAY. It is
+ * the size of the shortfall, recorded so the gap is stated rather than discovered. An entry that
+ * reaches 0 is reported as stale, because a clean class belongs in AUDITED_SCROLL_CLASSES.
+ */
+export const NOT_YET_AUDITED = new Map<string, number>([
+  ["camera-results", 4],
+  ["clarification-dialog", 2],
+  ["construction-table-wrap", 4],
+  ["controlled-comparison", 1],
+  ["countermodel-scroll", 0],
+  ["data-panel-table-wrap", 2],
+  ["encounter-table", 2],
+  ["equation-body", 2],
+  ["facsimile-canvas-container", 1],
+  ["facsimile-stage", 1],
+  ["genealogy-graph-wrapper", 1],
+  ["inference-workbench", 0],
+  ["kitchen-guide", 1],
+  ["kitchen-lab", 1],
+  ["latex-block-wrapper", 1],
+  ["linear-formula", 2],
+  ["low-speed-table", 1],
+  ["mass-energy-investigation", 1],
+  ["me-table", 0],
+  ["missing-step-math", 0],
+  ["missing-step-table", 1],
+  ["notebook-dialog", 0],
+  ["notebook-replay", 0],
+  ["reader-bottom-sheet", 1],
+  ["reader-sticky-lab", 1],
+  ["replay-table", 0],
+  ["scale-facts-table-wrap", 1],
+  ["search-dialog", 0],
+  ["search-results", 0],
+  ["show-the-code", 4],
+  ["source-equation", 1],
+  ["sr07-components", 1],
+  ["sr07-equation", 1],
+  ["table-scroll-container", 1],
+  ["table-wrapper", 2],
+  ["trajectory-table-scroll", 1],
+  ["video-observation-scroll", 1],
+]);
+
+export function deriveScrollClassesFromCss(rootDir: string = ROOT): ReadonlySet<string> {
+  const found = new Set<string>();
+  const walk = (dir: string): void => {
+    let entries: import("node:fs").Dirent[];
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith(".css")) {
+        const css = readFileSync(full, "utf8");
+        for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/gs)) {
+          if (!/overflow(?:-x|-y)?\s*:\s*(?:auto|scroll)\b/.test(body ?? "")) continue;
+          for (const [, cls] of (selector ?? "").matchAll(/\.([A-Za-z_][A-Za-z0-9_-]*)/g)) {
+            if (cls) found.add(cls);
+          }
+        }
+      }
+    }
+  };
+  walk(join(rootDir, "src"));
+  return found;
+}
 
 /**
  * Baseline recorded post-fix for am-bc6s (2026-09-17).
@@ -189,7 +339,19 @@ function findFiles(dir: string, ext: string): string[] {
   return out;
 }
 
-export function countUnreachableScrollRegions(source: string): number {
+/**
+ * Counts scrollable regions that no keyboard user can reach.
+ *
+ * `file` is what makes the escape work (am-uj6w): a record is keyed by file AND class, so the
+ * measured element is exempt while every other use of the same class still counts. Called
+ * without a file, nothing is exempt - which is the safe default, and what the older call sites
+ * that pass only a source string get.
+ */
+export function countUnreachableScrollRegions(
+  source: string,
+  file?: string,
+  recorded: ReadonlyMap<string, NonOverflowingRecord> = RECORDED_NON_OVERFLOWING,
+): number {
   let count = 0;
   const tagRegex = /<([a-zA-Z0-9_-]+)\b([^>]*?)>/gs;
   for (const match of source.matchAll(tagRegex)) {
@@ -203,6 +365,8 @@ export function countUnreachableScrollRegions(source: string): number {
       if (classes.includes(cls)) {
         const hasTabIndex = /tabIndex|tabindex/i.test(attrs);
         if (!hasTabIndex) {
+          // The documented escape, now actually read.
+          if (file !== undefined && recorded.has(recordKey(file, cls))) continue;
           count++;
         }
       }
@@ -219,7 +383,7 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
 
     for (const file of tsxFiles) {
       const rel = relative(ROOT, file);
-      const count = countUnreachableScrollRegions(readFileSync(file, "utf8"));
+      const count = countUnreachableScrollRegions(readFileSync(file, "utf8"), rel);
       const allowed = BASELINE.get(rel) ?? 0;
 
       const verdict = classifyAgainstBaseline(rel, count, allowed);
@@ -244,6 +408,36 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
     );
   });
 
+  test("every scrollable class in the CSS is either audited or recorded as not yet audited", () => {
+    const derived = deriveScrollClassesFromCss(ROOT);
+    assert.ok(
+      derived.size > 20,
+      `deriveScrollClassesFromCss found only ${derived.size} classes; the CSS scan is broken, not the coverage`,
+    );
+
+    const audited = new Set(AUDITED_SCROLL_CLASSES);
+    const unclassified = [...derived]
+      .filter((cls) => !audited.has(cls) && !NOT_YET_AUDITED.has(cls))
+      .sort();
+    assert.deepEqual(
+      unclassified,
+      [],
+      `These classes declare a scrolling overflow in CSS and the ratchet looks at none of them: ${unclassified.join(", ")}. ` +
+        "Add each to AUDITED_SCROLL_CLASSES, or to NOT_YET_AUDITED with its current violation count.",
+    );
+
+    // A recorded class that no longer declares scrolling, or that has been promoted to AUDITED,
+    // is a stale entry. The ledger states a shortfall; it must not outlive one.
+    const stale = [...NOT_YET_AUDITED.keys()]
+      .filter((cls) => !derived.has(cls) || audited.has(cls))
+      .sort();
+    assert.deepEqual(
+      stale,
+      [],
+      `These NOT_YET_AUDITED entries no longer describe a gap: ${stale.join(", ")}. Delete them.`,
+    );
+  });
+
   test("planted negative: a count below baseline is reported as slack (ratchet pawl)", () => {
     const slack = classifyAgainstBaseline("src/components/lab/Fake.tsx", 1, 2);
     assert.equal(slack.slack, "src/components/lab/Fake.tsx: 1 < 2");
@@ -255,6 +449,82 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
 
     // At baseline, neither side fires.
     assert.deepEqual(classifyAgainstBaseline("src/components/lab/Fake.tsx", 2, 2), {});
+  });
+
+  // am-uj6w: the escape the failure message has always prescribed, now read.
+  const MEASURED = "src/components/lab/TrajectoryInspection.tsx";
+  const UNMEASURED = "src/components/lab/Unmeasured.tsx";
+  const unreachable = '<section className="table-scroll" aria-label="T">rows</section>';
+
+  test("am-uj6w half one: a MEASURED non-overflowing region may drop its tabIndex", () => {
+    // TrajectoryInspection's table-scroll is recorded with measurements at 320px and 1280px.
+    assert.equal(
+      countUnreachableScrollRegions(unreachable, MEASURED),
+      0,
+      "a recorded element without tabIndex is not counted",
+    );
+  });
+
+  test("am-uj6w half two: an UNMEASURED region that scrolls may NOT drop its tabIndex", () => {
+    // Identical markup, identical class, a file nobody measured. Without this half the fix
+    // would be indistinguishable from deleting the check.
+    assert.equal(countUnreachableScrollRegions(unreachable, UNMEASURED), 1);
+    // And with no file at all, nothing is exempt: the safe default.
+    assert.equal(countUnreachableScrollRegions(unreachable), 1);
+  });
+
+  test("am-uj6w: the escape is per ELEMENT, so one measurement does not excuse a whole class", () => {
+    // "table-scroll" is recorded for TrajectoryInspection and for IonizationLab. A class-level
+    // exemption would have excused every other use of it in the repository at once.
+    assert.equal(countUnreachableScrollRegions(unreachable, "src/components/lab/WalkLab.tsx"), 1);
+  });
+
+  test("am-uj6w: a STALE record fails - measurements that themselves show overflow", () => {
+    const overflowing = {
+      file: MEASURED,
+      className: "table-scroll",
+      url: "/x/",
+      measurements: "320px: 900px/254px (diff 646); 1280px: 1150px/1150px (diff 0)",
+      reason: "recorded before the table grew a column",
+      measuredBy: "test",
+    } as const;
+    const why = staleReason(overflowing, () => 'className="table-scroll"');
+    assert.ok(why?.includes("show overflow at 320px 900/254"), why);
+    assert.ok(why?.includes("must keep its tabIndex"), why);
+  });
+
+  test("am-uj6w: a STALE record fails - the element is gone, or the numbers do not parse", () => {
+    const base = {
+      file: MEASURED,
+      className: "table-scroll",
+      url: "/x/",
+      measurements: "320px: 254px/254px (diff 0)",
+      reason: "r",
+      measuredBy: "test",
+    } as const;
+    assert.ok(staleReason(base, () => undefined)?.includes("no longer exists"));
+    assert.ok(staleReason(base, () => "nothing relevant here")?.includes("no longer carries"));
+    assert.ok(
+      staleReason({ ...base, measurements: "measured, looked fine" }, () => 'className="table-scroll"')?.includes(
+        "do not parse",
+      ),
+    );
+    // The genuine case still passes, so this is not a check that refuses everything.
+    assert.equal(staleReason(base, () => 'className="table-scroll"'), undefined);
+  });
+
+  test("am-uj6w: every committed record is live, parseable and not stale", () => {
+    const stale: string[] = [];
+    for (const record of RECORDED_NON_OVERFLOWING.values()) {
+      const why = staleReason(record, (f) => {
+        const abs = join(ROOT, f);
+        return existsSync(abs) ? readFileSync(abs, "utf8") : undefined;
+      });
+      if (why) stale.push(why);
+      assert.ok(record.reason.length >= 20, `${record.file}: reason too short to be a reason`);
+      assert.ok(record.measuredBy.length > 0, `${record.file}: no measurer recorded`);
+    }
+    assert.deepEqual(stale, [], `Stale non-overflow records:\n${stale.join("\n")}`);
   });
 
   test("the detector catches an unreachable scrollable container", () => {
