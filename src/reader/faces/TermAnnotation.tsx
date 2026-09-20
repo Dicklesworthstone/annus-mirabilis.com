@@ -40,22 +40,28 @@ export function TermAnnotation({ termId, text, definition, lang, dir }: TermAnno
 
   return (
     <span className="term-annotation-wrapper" data-term-wrapper={termId}>
-      <abbr
+      {/*
+        A real <button>, not an <abbr role="button">: the disclosure is then
+        announced by the platform instead of an overridden role. handleKeyDown
+        stays and keeps calling preventDefault on Enter and Space, which
+        suppresses the click the browser would otherwise synthesize, so the
+        toggle still fires exactly once. The <abbr> stays inside, carrying the
+        expansion in its title, because the term IS a period abbreviation.
+      */}
+      <button
+        type="button"
         className="term-annotation"
         data-term-id={termId}
         data-term-expanded={isOpen ? "true" : "false"}
-        title={definition || termId}
         lang={lang}
         dir={dir}
-        tabIndex={0}
-        role="button"
         aria-expanded={isOpen}
         aria-controls={isOpen ? popoverId : undefined}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
       >
-        {text}
-      </abbr>
+        <abbr title={definition || termId}>{text}</abbr>
+      </button>
       {isOpen && definition && (
         <span
           id={popoverId}
