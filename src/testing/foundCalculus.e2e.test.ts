@@ -1,3 +1,4 @@
+import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
 import { mkdir, readFile, stat, utimes, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
@@ -241,7 +242,8 @@ test("foundCalculus.e2e: planted negative - static route content gate fails when
 });
 
 test("foundCalculus.e2e: planted negative - stale build directory with mismatched buildDigest fails freshness check and refuses to serve", async () => {
-  const tempBase = "/Volumes/USBNVME16TB/temp_agent_space";
+  // am-yhus: the OS temp dir, not a mounted external volume that exists on one machine.
+  const tempBase = tmpdir();
   const fixtureDir = resolve(tempBase, `stale-out-digest-${Date.now()}`);
   await mkdir(resolve(fixtureDir, "search"), { recursive: true });
   await writeFile(
@@ -268,7 +270,8 @@ test("foundCalculus.e2e: planted negative - stale build directory with mismatche
 });
 
 test("foundCalculus.e2e: planted negative - stale build directory with outdated mtime predating HEAD fails freshness check", async () => {
-  const tempBase = "/Volumes/USBNVME16TB/temp_agent_space";
+  // am-yhus: the OS temp dir, not a mounted external volume that exists on one machine.
+  const tempBase = tmpdir();
   const fixtureDir = resolve(tempBase, `stale-out-mtime-${Date.now()}`);
   await mkdir(fixtureDir, { recursive: true });
   await writeFile(resolve(fixtureDir, "index.html"), "<!doctype html><title>Stale</title>");

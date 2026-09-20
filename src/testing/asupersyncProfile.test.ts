@@ -178,7 +178,7 @@ error: feature \`native-runtime\` is forbidden on wasm32 browser builds.
     it("classifies unresolved import serde inside asupersync as missing-runtime-core", () => {
       const transcript = `
 error[E0432]: unresolved import \`serde\`
-  --> /Users/jemanuel/projects/asupersync/src/evidence.rs:34:5
+  --> /home/agent/projects/asupersync/src/evidence.rs:34:5
    |
 34 | use serde::{Deserialize, Serialize};
    |     ^^^^^ could not find \`serde\` in the list of imported crates
@@ -189,7 +189,7 @@ error: could not compile \`asupersync\` (lib) due to 716 previous errors
 
     it("classifies clean compilation as linked", () => {
       const transcript = `
-   Compiling asupersync v0.5.0 (/Users/jemanuel/projects/asupersync)
+   Compiling asupersync v0.5.0 (/home/agent/projects/asupersync)
     Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 26s
       `;
       expect(classifyAsupersyncWasmFailure(transcript)).toBe("linked");
@@ -214,7 +214,7 @@ Caused by: No such file or directory (os error 2)
 
       // Command 1 transcript: cargo check -p asupersync --lib --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod
       const cmd1Transcript = `
-cd /Users/jemanuel/projects/asupersync
+cd /home/agent/projects/asupersync
 RCH_REQUIRE_REMOTE=1 RCH_VISIBILITY=verbose RCH_DAEMON_WAIT_RESPONSE_TIMEOUT_SECS=5400 rch exec -- cargo check -p asupersync --lib --target wasm32-unknown-unknown --no-default-features --features wasm-browser-prod
 exit=0
 Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 26s
@@ -224,7 +224,7 @@ Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 26s
 
       // Command 2 transcript: real consumer crate asupersync-wasm
       const cmd2Transcript = `
-cd /Users/jemanuel/projects/asupersync/asupersync-wasm
+cd /home/agent/projects/asupersync/asupersync-wasm
 RCH_REQUIRE_REMOTE=1 RCH_VISIBILITY=verbose RCH_DAEMON_WAIT_RESPONSE_TIMEOUT_SECS=5400 rch exec -- cargo check --target wasm32-unknown-unknown -j 3
 exit=0
 Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 13s
@@ -238,7 +238,7 @@ Finished \`dev\` profile [unoptimized + debuginfo] target(s) in 1m 13s
     it("confirms native-runtime occurrences is 0 on valid wasm tree and detects regressions", () => {
       // Clean cargo tree transcript (Command 5)
       const cleanTree = `
-asupersync v0.5.0 (/Users/jemanuel/projects/asupersync)
+asupersync v0.5.0 (/home/agent/projects/asupersync)
 ├── asupersync feature "browser-io"
 │   └── asupersync feature "wasm-browser-prod" (command-line)
 ├── asupersync feature "runtime-core"
@@ -253,7 +253,7 @@ asupersync v0.5.0 (/Users/jemanuel/projects/asupersync)
 
       // Regression tree containing native-runtime (e.g. tree line 736 before fix)
       const dirtyTree = `
-asupersync v0.5.0 (/Users/jemanuel/projects/asupersync)
+asupersync v0.5.0 (/home/agent/projects/asupersync)
 ├── asupersync feature "default"
 │   └── asupersync feature "native-runtime"
 │       └── polling v2.8.0

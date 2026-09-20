@@ -34,9 +34,9 @@ import {
 import type { ExtractedKernelSource } from "./types.ts";
 import { verifySliceKernels } from "./verify.ts";
 
-const TEMP_BASE = existsSync("/Volumes/USBNVME16TB/temp_agent_space")
-  ? "/Volumes/USBNVME16TB/temp_agent_space"
-  : tmpdir();
+// am-yhus: always the OS temp dir. The old form preferred a mounted external
+// volume when present, so this machine and CI ran different code paths.
+const TEMP_BASE = tmpdir();
 
 const VALID_EXTRACTED: ExtractedKernelSource = {
   language: "ts",

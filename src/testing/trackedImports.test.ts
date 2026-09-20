@@ -5,6 +5,7 @@
  * states the live tree cannot be asked to hold on demand.
  */
 
+import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -192,7 +193,7 @@ describe("tracked imports (am-zm52)", () => {
   // third arm.
   test("end to end against a real index: present-and-untracked is red, tracked is green, ignored is green", () => {
     const repo = join(
-      "/Volumes/USBNVME16TB/temp_agent_space",
+      tmpdir(),
       `zm52-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     );
     mkdirSync(join(repo, "src/editions"), { recursive: true });

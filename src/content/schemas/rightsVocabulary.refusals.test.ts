@@ -23,9 +23,9 @@ import {
   RightsVocabularyError,
 } from "./rightsVocabulary.ts";
 
-const TEMP_BASE = existsSync("/Volumes/USBNVME16TB/temp_agent_space")
-  ? "/Volumes/USBNVME16TB/temp_agent_space"
-  : tmpdir();
+// am-yhus: always the OS temp dir. The old form preferred a mounted external
+// volume when present, so this machine and CI ran different code paths.
+const TEMP_BASE = tmpdir();
 
 function createTempVocabFile(yamlContent: string): string {
   const dir = mkdtempSync(path.join(TEMP_BASE, "am-rights-vocab-refusals-"));

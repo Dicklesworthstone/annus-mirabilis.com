@@ -1,6 +1,7 @@
+import { tmpdir } from "node:os";
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import yaml from "js-yaml";
 import {
@@ -25,10 +26,8 @@ Die Bewegung ist unregelmäßig. Sie hört nicht auf.
 `;
 
 function getTempDir(): string {
-  const base = "/Volumes/USBNVME16TB/temp_agent_space";
-  const dir = join(base, `reconcile-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
-  mkdirSync(dir, { recursive: true });
-  return dir;
+  // am-yhus: mkdtempSync under the OS temp dir, so this runs the same everywhere.
+  return mkdtempSync(join(tmpdir(), "reconcile-test-"));
 }
 
 describe("reconciliation: manifest differences and boundaries", () => {

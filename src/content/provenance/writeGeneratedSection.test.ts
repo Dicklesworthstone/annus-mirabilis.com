@@ -100,7 +100,7 @@ describe("writeGeneratedSection refusal throw sites (am-muyh)", () => {
 
   test("refusal (writeGeneratedSection.ts:106): file-not-found rejects non-existent file path", () => {
     // Accept: existing file path with section markers succeeds
-    const scratchDir = "/Users/jemanuel/.gemini/antigravity-cli/brain/29d4e82d-bbc6-4302-b8e7-83061e8e17fb/scratch";
+    const scratchDir = "/home/agent/.gemini/antigravity-cli/brain/29d4e82d-bbc6-4302-b8e7-83061e8e17fb/scratch";
     const scratchFile = `${scratchDir}/test-writeGeneratedSectionSync.md`;
     fs.mkdirSync(scratchDir, { recursive: true });
     fs.writeFileSync(scratchFile, validTemplate, "utf8");

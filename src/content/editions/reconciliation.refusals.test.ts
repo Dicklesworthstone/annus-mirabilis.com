@@ -14,8 +14,9 @@
  * 10. (reconciliation.ts:368) update-required (in writeProposedBlocks)
  */
 
+import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import yaml from "js-yaml";
@@ -30,11 +31,8 @@ import {
 import type { ProposedBlock, ReconciliationDifference } from "./segmentLedger.ts";
 
 function getTestTempDir(): string {
-  const base = "/Volumes/USBNVME16TB/temp_agent_space";
-  const dir = join(
-    base,
-    `reconcile-refusals-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-  );
+  // am-yhus: mkdtempSync under the OS temp dir, so this runs the same everywhere.
+  const dir = mkdtempSync(join(tmpdir(), "reconcile-refusals-"));
   mkdirSync(dir, { recursive: true });
   return dir;
 }

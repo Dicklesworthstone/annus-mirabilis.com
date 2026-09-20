@@ -17,8 +17,9 @@
  *   10. (brownianInventory.ts:264) paper-overclaimed
  */
 
+import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
-import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import yaml from "js-yaml";
@@ -35,11 +36,8 @@ import { validateEditionDeclaration } from "./editionDeclaration.ts";
 import { validateSegmentation } from "./segmentSentences.ts";
 
 function createTempBrownianFixture(): string {
-  const base = "/Volumes/USBNVME16TB/temp_agent_space";
-  const tempRoot = join(
-    base,
-    `bm-inventory-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-  );
+  // am-yhus: mkdtempSync under the OS temp dir, so this runs the same everywhere.
+  const tempRoot = mkdtempSync(join(tmpdir(), "bm-inventory-"));
 
   mkdirSync(join(tempRoot, "docs/provenance"), { recursive: true });
   mkdirSync(join(tempRoot, "public/papers/pdfs"), { recursive: true });

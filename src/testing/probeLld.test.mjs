@@ -13,7 +13,7 @@ Load command 17
 Load command 18
           cmd LC_RPATH
       cmdsize 80
-         path /Users/runner/work/rust/rust/build/aarch64-apple-darwin/llvm/lib (offset 12)
+         path /home/runner/work/rust/rust/build/aarch64-apple-darwin/llvm/lib (offset 12)
 `;
 
 const LATER_NIGHTLY_OTOOL = `Load command 14
@@ -26,14 +26,14 @@ Load command 17
 
 test("pin rust-lld rpath is @loader_path/../lib, which is rustlib lib not toolchain lib", () => {
   const rustLld =
-    "/Users/jemanuel/.rustup/toolchains/nightly-2026-07-06-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-lld";
+    "/home/agent/.rustup/toolchains/nightly-2026-07-06-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-lld";
   const d = diagnoseRustLldRpath(PIN_OTOOL, rustLld, [
-    "/Users/jemanuel/.rustup/toolchains/nightly-2026-07-06-aarch64-apple-darwin/lib/libLLVM.dylib",
+    "/home/agent/.rustup/toolchains/nightly-2026-07-06-aarch64-apple-darwin/lib/libLLVM.dylib",
   ]);
   assert.equal(d.loadsLibLLVM, true);
   assert.deepEqual(d.rpaths, [
     "@loader_path/../lib",
-    "/Users/runner/work/rust/rust/build/aarch64-apple-darwin/llvm/lib",
+    "/home/runner/work/rust/rust/build/aarch64-apple-darwin/llvm/lib",
   ]);
   assert.ok(d.resolvedLibSearch[0].endsWith("lib/rustlib/aarch64-apple-darwin/lib"));
   assert.equal(d.rpathHasLibLLVM, false);
@@ -45,10 +45,10 @@ test("pin rust-lld rpath is @loader_path/../lib, which is rustlib lib not toolch
 
 test("a later nightly that places libLLVM on the rustlib rpath is not the pin defect", () => {
   const rustLld =
-    "/Users/jemanuel/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-lld";
+    "/home/agent/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-lld";
   const d = diagnoseRustLldRpath(LATER_NIGHTLY_OTOOL, rustLld, [
-    "/Users/jemanuel/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libLLVM.dylib",
-    "/Users/jemanuel/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/libLLVM.dylib",
+    "/home/agent/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/lib/libLLVM.dylib",
+    "/home/agent/.rustup/toolchains/nightly-2026-08-31-aarch64-apple-darwin/lib/libLLVM.dylib",
   ]);
   assert.equal(d.loadsLibLLVM, true);
   assert.equal(d.rpathHasLibLLVM, true);

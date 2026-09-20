@@ -73,7 +73,7 @@ describe("datasetLoader (am-inst-dataset-overlay-ra9r)", () => {
     expect(() =>
       loadHistoricalDatasetFromYaml(VALID_DATASET_YAML, {
         sourcePath:
-          "/Users/jemanuel/projects/annus-mirabilis_com/pipeline/scratch/run-01/test.yaml",
+          "/home/agent/projects/annus-mirabilis.com/pipeline/scratch/run-01/test.yaml",
       }),
     ).toThrow(DatasetValidationError);
   });

@@ -9,7 +9,7 @@ const logger = getLogger("permalink", logRunId);
 const MEDIA_LEAK_EXAMPLES = [
   { field: "fileName", value: "microscope_recording_20260916_patient_004.avi" },
   { field: "blobUrl", value: "blob:https://annus-mirabilis.com/1234-5678-9abc" },
-  { field: "filePath", value: "/Users/jemanuel/Desktop/brownian_particles.mp4" },
+  { field: "filePath", value: "/home/agent/Desktop/brownian_particles.mp4" },
   { field: "localPath", value: "C:\\Users\\student\\data\\camera_capture.png" },
 ];
 

@@ -9,9 +9,8 @@ import {
 } from "../../../scripts/e2e/fixtures/fixtureApps.ts";
 
 const ROOT = process.cwd();
-const TEMP_BASE = fs.existsSync("/Volumes/USBNVME16TB/temp_agent_space")
-  ? "/Volumes/USBNVME16TB/temp_agent_space"
-  : os.tmpdir();
+// am-yhus: always the OS temp dir.
+const TEMP_BASE = os.tmpdir();
 
 describe("View Kit Fixture Application Conformance (am-inst-2d-view-kit-u75r)", () => {
   const createdDirs: string[] = [];

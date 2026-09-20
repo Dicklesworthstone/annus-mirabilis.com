@@ -16,7 +16,7 @@ describe("datasets loader refusal throw sites (am-muyh)", () => {
         () => {
           loadHistoricalDatasetFromYaml(fixtureYaml, {
             sourcePath:
-              "/Users/jemanuel/projects/annus-mirabilis.com/data/pipeline/raw-dataset.yaml",
+              "/home/agent/projects/annus-mirabilis.com/data/pipeline/raw-dataset.yaml",
             checkQuantityRegistry: false,
           });
         },

@@ -1,5 +1,6 @@
+import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -381,7 +382,8 @@ export function lint(entries: string[]) {
   // one mention credited all 37. Two fixture roots, identical but for how the
   // test file refers to the source.
   test("a test file that only NAMES a source file credits it nothing; one that imports it credits it", () => {
-    const base = "/Volumes/USBNVME16TB/temp_agent_space";
+    // am-yhus: mkdtempSync under the OS temp dir, so this runs the same everywhere.
+    const base = mkdtempSync(join(tmpdir(), "refusal-ratchet-"));
     const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     const SOURCE = `

@@ -8,6 +8,7 @@
  * Spec: am-cm-checks-structural-lq0
  */
 
+import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import {
@@ -27,7 +28,8 @@ import { spanTextDigest } from "../../schemas/spans.ts";
 import { type ContentFile, createBaseCorpus, mutateCorpus } from "./testFixtures.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
-const TEMP_BASE = "/Volumes/USBNVME16TB/temp_agent_space";
+// am-yhus: the OS temp dir, not a mounted external volume that exists on one machine.
+const TEMP_BASE = tmpdir();
 const logger = new TestLogger("content-structural-tests");
 const REPO_INDEX_PATH = join(ROOT, "generated", "content", "index.json");
 

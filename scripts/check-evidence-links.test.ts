@@ -61,7 +61,7 @@ describe("Evidence Links Checker", () => {
   it("fails on broken file references and identifies the missing file", () => {
     const brokenContent = `
 # Broken Doc
-Referencing [missing file](file:///Users/jemanuel/projects/annus-mirabilis_com/nonexistent/file.ts).
+Referencing [missing file](file:///home/agent/projects/annus-mirabilis.com/nonexistent/file.ts).
 Also \`src/nonexistent/code.ts\`.
 `;
 
