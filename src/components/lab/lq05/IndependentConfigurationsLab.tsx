@@ -469,7 +469,6 @@ export function IndependentConfigurationsLab({
 
         <section
           className="table-scroll"
-          tabIndex={0}
           aria-label="Calculated microstate and entropy outputs table"
         >
           <table
@@ -483,72 +482,78 @@ export function IndependentConfigurationsLab({
           >
             <thead>
               <tr style={{ borderBottom: "1px solid var(--line)", color: "var(--muted)" }}>
-                <th style={{ padding: "0.5rem 0.75rem" }}>Physical Quantity</th>
-                <th style={{ padding: "0.5rem 0.75rem" }}>Symbolic Form</th>
-                <th style={{ padding: "0.5rem 0.75rem" }}>Calculated Value</th>
-                <th style={{ padding: "0.5rem 0.75rem" }}>Physical Meaning</th>
+                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Physical Quantity</th>
+                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Symbolic Form</th>
+                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Calculated Value</th>
+                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Physical Meaning</th>
               </tr>
             </thead>
             <tbody>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
-                <td style={{ padding: "0.5rem 0.75rem", fontWeight: 500 }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
                   Relative State Probability
                 </td>
-                <td style={{ padding: "0.5rem 0.75rem" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   {p.locked ? "W_locked = f" : "W = (V/V₀)ⁿ = fⁿ"}
                 </td>
-                <td style={{ padding: "0.5rem 0.75rem", fontWeight: "bold" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: "bold" }}>
                   {p.locked
                     ? evaluation.locked.value.toFixed(6)
                     : evaluation.independentProbability.linearRepresentable
                       ? evaluation.independentProbability.value.toExponential(6)
                       : `10^(${evaluation.independentProbability.log10W.toFixed(4)})`}
                 </td>
-                <td style={{ padding: "0.5rem 0.75rem", color: "var(--muted)" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   {p.locked
                     ? "Rigid cluster moving as one unit"
                     : "Probability that all n independent points are found in V"}
                 </td>
               </tr>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
-                <td style={{ padding: "0.5rem 0.75rem", fontWeight: 500 }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
                   Natural Logarithm ln W
                 </td>
-                <td style={{ padding: "0.5rem 0.75rem" }}>{p.locked ? "ln f" : "n ln f"}</td>
-                <td style={{ padding: "0.5rem 0.75rem", fontWeight: 600 }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
+                  {p.locked ? "ln f" : "n ln f"}
+                </td>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 600 }}>
                   {p.locked
                     ? Math.log(evaluation.locked.value).toFixed(6)
                     : evaluation.independentProbability.lnW.toFixed(6)}
                 </td>
-                <td style={{ padding: "0.5rem 0.75rem", color: "var(--muted)" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   Proportional to the entropy difference ΔS / k_B
                 </td>
               </tr>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
-                <td style={{ padding: "0.5rem 0.75rem", fontWeight: 500 }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
                   Dimensionless Entropy Change ΔS/k_B
                 </td>
-                <td style={{ padding: "0.5rem 0.75rem" }}>{p.locked ? "ln f" : "n ln(V/V₀)"}</td>
-                <td style={{ padding: "0.5rem 0.75rem", fontWeight: 600 }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
+                  {p.locked ? "ln f" : "n ln(V/V₀)"}
+                </td>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 600 }}>
                   {p.locked
                     ? Math.log(evaluation.locked.value).toFixed(6)
                     : evaluation.independentProbability.deltaSOverKb.toFixed(6)}
                 </td>
-                <td style={{ padding: "0.5rem 0.75rem", color: "var(--muted)" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   Matches Wien-regime radiation entropy S - S₀ = (E / hν) k_B ln(V/V₀)
                 </td>
               </tr>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
-                <td style={{ padding: "0.5rem 0.75rem", fontWeight: 500 }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
                   Base-10 Logarithm log₁₀ W
                 </td>
-                <td style={{ padding: "0.5rem 0.75rem" }}>{p.locked ? "log₁₀ f" : "n log₁₀ f"}</td>
-                <td style={{ padding: "0.5rem 0.75rem" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
+                  {p.locked ? "log₁₀ f" : "n log₁₀ f"}
+                </td>
+                <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   {p.locked
                     ? Math.log10(evaluation.locked.value).toFixed(6)
                     : evaluation.independentProbability.log10W.toFixed(6)}
                 </td>
-                <td style={{ padding: "0.5rem 0.75rem", color: "var(--muted)" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   Order of magnitude (e.g. 10^-18 for n = 60)
                 </td>
               </tr>

@@ -517,7 +517,21 @@ tbody th {
   are deliberately left alone: a value must never be split across lines as "1.0000e" and
   "-3".
 */
+/*
+  Lab telemetry cells set their own padding inline, which no stylesheet rule can reach.
+  They read the horizontal half from this token instead, so the value stays exactly what
+  it was on a desktop and can tighten on a phone, where twelve pixels a side across four
+  columns is ninety-six pixels of a two-hundred-pixel box (am-14at).
+*/
+.table-scroll {
+  --table-cell-x: 0.75rem;
+}
+
 @media (max-width: 480px) {
+  .table-scroll {
+    --table-cell-x: 0.25rem;
+  }
+
   .table-scroll th:first-child,
   .table-scroll td:first-child,
   .table-scroll th:last-child,

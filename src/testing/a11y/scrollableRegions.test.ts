@@ -78,6 +78,15 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
   (
     [
       {
+        file: "src/components/lab/lq05/IndependentConfigurationsLab.tsx",
+        className: "table-scroll",
+        url: "/lab/lq-05/",
+        measurements: "320px: 190px/190px (diff 0); 1280px: 926px/926px (diff 0)",
+        reason:
+          "Was 254px/190px. Its twenty cells set padding inline, which no stylesheet rule can reach, so twelve pixels a side across four columns spent ninety-six of a one-hundred-and-ninety-pixel box. They now read the horizontal half from --table-cell-x, unchanged at 0.75rem on a desktop and 0.25rem below 480px, so the 1280px measurement is identical to before. This file carries exactly one element of this class.",
+        measuredBy: "am-6iz4",
+      },
+      {
         file: "src/components/lab/lq06/CoefficientMatchLab.tsx",
         className: "table-scroll",
         url: "/lab/lq-06/",
