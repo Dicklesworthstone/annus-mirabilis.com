@@ -15,4 +15,5 @@ pathIgnorePatterns = [
   "src/testing/styles/computedStylesLayout.test.ts",
   "src/testing/foundCalculus.browser.test.mjs",
   "src/testing/asupersyncProfile.test.ts",
+  "src/testing/trackedImports.test.ts",
 ]
