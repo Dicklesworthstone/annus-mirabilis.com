@@ -108,8 +108,23 @@ export default async function Image() {
           gap: "16px",
         }}
       >
+        {/*
+          am-ecuf. This was one text node, a <br />, and a second text node, and the
+          emitted card showed ONE line running off the right edge: "Albert Einstein's
+          Miraculous Year, Decoded &" cut mid-glyph, with "Made Interactive." absent.
+          The markup said <br /> and the markup is what misled - this image is rendered
+          by Satori at build time, not by a browser, and <br /> is not a line break
+          there. Two explicit children of a column flex container are.
+
+          maxWidth is the card's real content width, not a guess: 1200 total, less the
+          16px border on each side, less the 70px padding on each side, is 1028. A
+          headline longer than one line now wraps inside the card instead of leaving it.
+        */}
         <h1
           style={{
+            display: "flex",
+            flexDirection: "column",
+            maxWidth: "1028px",
             fontSize: "54px",
             fontWeight: "bold",
             color: "#1a1916",
@@ -117,9 +132,8 @@ export default async function Image() {
             margin: 0,
           }}
         >
-          Albert Einstein&apos;s Miraculous Year,
-          <br />
-          Decoded &amp; Made Interactive.
+          <span>Albert Einstein&apos;s Miraculous Year,</span>
+          <span>Decoded &amp; Made Interactive.</span>
         </h1>
         <p
           style={{
