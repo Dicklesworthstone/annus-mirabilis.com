@@ -442,3 +442,37 @@ Applying this to the crops retained from the 2026-09-19 audits gives their real 
 Two consequences worth stating plainly. A page overview is for finding a line, never for judging
 its left edge. And a figure like "read at 300%" in an earlier note may describe the command rather
 than the reading: where the crop was full width, halve it.
+
+### Three spurious §5 units found at true 300%, 2026-09-19 — **REPAIRED**
+
+The twelve pages the 2.5x re-map never covered were re-read at a true 300 percent on the left
+margin. **p. 906 prints exactly one indented paragraph start**, "Es folgt ferner, daß die
+Lichtgeschwindigkeit", and the manifest recorded four. Three units were spurious:
+
+| Retired | Printed line | Reads | Now part of |
+|---|---|---|---|
+| `s5-p4` | "Es ist bemerkenswert, daß v und w in symmetrischer Weise" | flush after `eq-s5-d5` | `s5-p2` |
+| `s5-p5` | "Aus dieser Gleichung folgt, daß aus der Zusammensetzung" | flush after `eq-s5-d6` | `s5-p2` |
+| `s5-p7` | "Wir hätten die Formel für U für den Fall" | flush after `eq-s5-d8` | `s5-p6` |
+
+`s5-p6` therefore carries the 906-907 span and the three printed `§ 3` references, renumbered
+`s5-p6-r1` to `s5-p6-r3`. Containment moved with the paragraphs: `eq-s5-d6` and `eq-s5-d7` to
+`s5-p2`, `eq-s5-d9` to `s5-p6`. No id was renumbered and none was deleted; the three are `merged`
+alias records under `am-cm-id-scheme-8bn`, taking the paper to 208 units and 89 paragraphs.
+
+**How the ids were matched to the printed lines**, since the manifest holds no text: each display
+records which paragraph contains it, so `eq-s5-d6 -> s5-p4` identifies `s5-p4` as the paragraph
+introducing `U = (v+w)/(1+vw/V²)`, which is the flush "Es ist bemerkenswert" line. The containment
+chain, not a guess about ordering, fixed the mapping.
+
+**Why the earlier reading missed it, which is the transferable part.** The first crops of this page
+began at x = 0 and so included the dark gutter at the page edge. The gutter is ink, so it becomes
+the leftmost dark pixel on every row, and both a by-eye scan and an automated left-edge measurement
+then report the same column for a flush line and an indented one. The defect is invisible precisely
+because the measurement looks consistent. Re-cropping from x = 250, right of the gutter, separated
+the two columns immediately: flush at 125 px, indent at 250 px in the 250 percent crop.
+
+**The rule this adds to the indent-versus-flush section: crop right of the gutter.** A window that
+starts at the physical page edge can defeat the discriminator on a verso whose text block sits far
+from the edge. Check that the window's left margin is white before trusting any left-edge reading,
+and prefer a window positioned on the text block over one positioned on the page.

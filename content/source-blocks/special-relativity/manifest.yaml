@@ -1140,41 +1140,23 @@ units:
       editionBlockId: block-special-relativity-eq-s5-d5
       translationUnits:
         - trans-special-relativity-eq-s5-d5
-  - id: s5-p4
-    kind: paragraph
-    section: s5
-    locators:
-      - page: 906
-    destination:
-      editionBlockId: block-special-relativity-s5-p4
-      translationUnits:
-        - trans-special-relativity-s5-p4
   - id: eq-s5-d6
     kind: display-equation
     section: s5
     locators:
       - page: 906
-    containedIn: s5-p4
+    containedIn: s5-p2
     editorialLabel: ed:s5-d6
     destination:
       editionBlockId: block-special-relativity-eq-s5-d6
       translationUnits:
         - trans-special-relativity-eq-s5-d6
-  - id: s5-p5
-    kind: paragraph
-    section: s5
-    locators:
-      - page: 906
-    destination:
-      editionBlockId: block-special-relativity-s5-p5
-      translationUnits:
-        - trans-special-relativity-s5-p5
   - id: eq-s5-d7
     kind: display-equation
     section: s5
     locators:
       - page: 906
-    containedIn: s5-p5
+    containedIn: s5-p2
     editorialLabel: ed:s5-d7
     destination:
       editionBlockId: block-special-relativity-eq-s5-d7
@@ -1185,6 +1167,26 @@ units:
     section: s5
     locators:
       - page: 906
+      - page: 907
+    references:
+      - id: s5-p6-r1
+        occurrenceId: s5-p6-r1
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
+      - id: s5-p6-r2
+        occurrenceId: s5-p6-r2
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
+      - id: s5-p6-r3
+        occurrenceId: s5-p6-r3
+        printedText: § 3
+        kind: internal
+        target:
+          id: s3
     destination:
       editionBlockId: block-special-relativity-s5-p6
       translationUnits:
@@ -1200,41 +1202,12 @@ units:
       editionBlockId: block-special-relativity-eq-s5-d8
       translationUnits:
         - trans-special-relativity-eq-s5-d8
-  - id: s5-p7
-    kind: paragraph
-    section: s5
-    locators:
-      - page: 906
-      - page: 907
-    references:
-      - id: s5-p7-r1
-        occurrenceId: s5-p7-r1
-        printedText: § 3
-        kind: internal
-        target:
-          id: s3
-      - id: s5-p7-r2
-        occurrenceId: s5-p7-r2
-        printedText: § 3
-        kind: internal
-        target:
-          id: s3
-      - id: s5-p7-r3
-        occurrenceId: s5-p7-r3
-        printedText: § 3
-        kind: internal
-        target:
-          id: s3
-    destination:
-      editionBlockId: block-special-relativity-s5-p7
-      translationUnits:
-        - trans-special-relativity-s5-p7
   - id: eq-s5-d9
     kind: display-equation
     section: s5
     locators:
       - page: 906
-    containedIn: s5-p7
+    containedIn: s5-p6
     editorialLabel: ed:s5-d9
     destination:
       editionBlockId: block-special-relativity-eq-s5-d9

@@ -100,13 +100,10 @@ eq-s5-d2
 eq-s5-d3
 eq-s5-d4
 eq-s5-d5
-s5-p4
 eq-s5-d6
-s5-p5
 eq-s5-d7
 s5-p6
 eq-s5-d8
-s5-p7
 eq-s5-d9
 s5-p8
 part-2

@@ -98,3 +98,24 @@ aliases:
     reason: "Not a printed paragraph. p. 902 carries NO indented line at all: 'Wir fragen nun nach der Bedeutung' and 'Aus dieser und der vorhin gefundenen Relation' are both flush at 290-300 percent on page-12.png, and every other line on the page is a continuation. The whole page continues s3-p22 from p. 901. Found by the one-to-one denominator pass, not by the boundary pass, which had counted one printed start against one recorded start and reported the page as matching."
     date: "2026-09-19"
     editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s5-p4
+    kind: merged
+    replacementIds:
+      - s5-p2
+    reason: "Not a printed paragraph. 'Es ist bemerkenswert, dass v und w in symmetrischer Weise' on p. 906 is FLUSH, resuming s5-p2 after eq-s5-d5; eq-s5-d6 now records containedIn: s5-p2. Found by the 2026-09-19 true-300-percent re-read of the twelve pages the 2.5x re-map never covered. The earlier reading of this page was made on a crop whose window included the dark gutter, which pulled the measured left edge to the page edge and made a flush line look like a start."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s5-p5
+    kind: merged
+    replacementIds:
+      - s5-p2
+    reason: "Not a printed paragraph. 'Aus dieser Gleichung folgt, dass aus der Zusammensetzung zweier Geschwindigkeiten' on p. 906 is FLUSH, resuming s5-p2 after eq-s5-d6; eq-s5-d7 now records containedIn: s5-p2. Confirmed on a gutter-excluded window at a true 300 percent, with complete gap-free coverage of the page."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
+  - retiredId: s5-p7
+    kind: merged
+    replacementIds:
+      - s5-p6
+    reason: "Not a printed paragraph. 'Wir haetten die Formel fuer U fuer den Fall' on p. 906 is FLUSH, resuming s5-p6 after eq-s5-d8. s5-p6 therefore carries the 906-907 span and the three printed '\u00a7 3' references, renumbered s5-p6-r1 to s5-p6-r3; eq-s5-d9 now records containedIn: s5-p6. p. 906 prints exactly one indented paragraph start, 'Es folgt ferner, dass die Lichtgeschwindigkeit', which is s5-p6."
+    date: "2026-09-19"
+    editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
