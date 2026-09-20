@@ -19,6 +19,7 @@ import {
 } from "../src/content/audits/misconceptions.ts";
 import {
   auditReadings,
+  type ReadingSet,
   type ReadingsAuditInput,
   type ReadingsOwnerEntry,
   type ReadingTarget,
@@ -356,7 +357,7 @@ function loadLiveReadingsAuditInput(
                   targetId: id,
                   targetKind: kind,
                   paper: String(parsed.paper ?? "brownian-motion"),
-                  readings: t.readings as any,
+                  readings: t.readings as ReadingSet,
                   ...(Array.isArray(t.scopeCritical)
                     ? { scopeCritical: t.scopeCritical.map(String) }
                     : {}),

@@ -49,7 +49,7 @@ if (confirmRaw || hasFlag("--confirm")) {
   const kind = (repairParts[0] ?? "retired") as AliasKind;
   const repIds = (repairParts[1] ?? "").split(",").filter(Boolean);
   const retiredId = diffIdOrRetired.includes(":")
-    ? diffIdOrRetired.split(":")[1]!
+    ? (diffIdOrRetired.split(":")[1] ?? "")
     : diffIdOrRetired;
 
   const result = confirmAlias({

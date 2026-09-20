@@ -40,20 +40,16 @@ import {
 } from "../src/experiments/lifecycle/degradation.ts";
 import { lifecycleDiagnostics } from "../src/experiments/lifecycle/diagnostics.ts";
 import {
-  decodeStreamCheckpoint,
   encodeStreamCheckpoint,
   evaluateCheckpointRecovery,
   handleLaboratoryCrashOrContextLoss,
 } from "../src/experiments/lifecycle/recovery.ts";
 import {
   BufferTransferRefusedError,
-  OwnedBuffer,
   SnapshotBufferPool,
 } from "../src/experiments/memory/buffers.ts";
 import {
   copyOutF64,
-  TrackedWasmView,
-  verifyGlueReturnsCopy,
   WasmMemoryStaleViewError,
   WasmMemoryTracker,
 } from "../src/experiments/memory/wasmViews.ts";
