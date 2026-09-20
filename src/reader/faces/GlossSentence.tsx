@@ -92,7 +92,11 @@ export function GlossSentence({
         id={sentenceId}
         data-sentence-id={sentenceId}
         data-source-sentence="true"
-        tabIndex={0}
+        // A fragment target, not a scroll region: nothing in the CSS gives a gloss
+        // sentence overflow or a height, so tabIndex={0} put every sentence in the tab
+        // order for nothing. -1 keeps it focusable for the #sentenceId deep link, which
+        // is what the return-to-the-exact-sentence route needs.
+        tabIndex={-1}
         aria-labelledby={`sentence-german-${sentenceId}`}
       >
         <div className="sentence-german-unadorned" id={`sentence-german-${sentenceId}`} lang="de">
@@ -125,7 +129,10 @@ export function GlossSentence({
       id={sentenceId}
       data-sentence-id={sentenceId}
       data-source-sentence="true"
-      tabIndex={0}
+      // As above: a fragment target, not a scroll region. This sentence already carries
+      // real tab stops in its actions nav, so tabIndex={0} added a redundant stop in
+      // front of each one of them, the whole length of the reading face.
+      tabIndex={-1}
       aria-labelledby={`sentence-header-${sentenceId}`}
     >
       {/* Semantic actions for non-visual and assistive reading */}
