@@ -10,6 +10,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
+  formatCoverageMarkdown,
   generateCoverageReport,
   validateCoverageLedger,
   writeCoverageReportArtifacts,
@@ -495,5 +496,58 @@ describe("Coverage Ledger Validation and Computation Suite", () => {
       "passed",
       "CLI successfully runs with evidence and emits valid JSON/Markdown artifacts",
     );
+  });
+});
+
+/**
+ * am-9n4g criteria 2 and 3. After the fabricated context was removed, the report still emitted
+ *
+ *     ## 6. Numerical Validation
+ *     Total scenarios: 0
+ *     - not-run: 1
+ *
+ * One scenario not run out of a declared total of zero. The 1 is an absence MARKER the generator
+ * seeds when evidence is missing - numericalByStatus["not-run"] = 1 - rendered in the same shape as
+ * a count, so two figures from different sources sat under one heading and the smaller one survived
+ * the removal of its own population.
+ *
+ * The marker is still shown, because hiding which absence state was recorded would be a different
+ * dishonesty, but it is labelled as a marker and the total no longer claims a zero count.
+ */
+describe("Coverage markdown does not print a count for a dimension with no population", () => {
+  it("an absent dimension states that nothing was measured and labels its marker", () => {
+    const report = generateCoverageReport({ argumentNodes: [] });
+    const md = formatCoverageMarkdown(report);
+
+    // criterion 3: no figure survives the removal of its population
+    assert.equal(/Total scenarios: 0/.test(md), false);
+    assert.equal(/Total review records: 0/.test(md), false);
+    assert.equal(/^- not-run: 1$/m.test(md), false);
+    assert.equal(/^- not-reviewed: 1$/m.test(md), false);
+
+    // criterion 2: the heading carries the reason instead of numbers
+    assert.match(md, /## 1\. Source Status\nTotal source units: none measured\./);
+    assert.match(md, /`not-run` is an absence marker \(recorded as 1\), not a count/);
+  });
+
+  it("THE CONTROL: a populated dimension still prints its total and breakdown", () => {
+    const nodes: ArgumentNodeCoverage[] = [
+      {
+        id: "arg-control",
+        paper: "brownian-motion",
+        section: "s1",
+        logicalRole: "premise",
+        readingsPresent: ["R0"],
+        treatment: { kind: "static", description: "A static treatment." },
+        accessibilityEquivalent: { kind: "textual-equivalent", details: "Described in prose." },
+      },
+    ];
+    const report = generateCoverageReport({ argumentNodes: nodes });
+    const md = formatCoverageMarkdown(report);
+    assert.match(md, /Total argument nodes: 1/);
+    assert.match(md, /^- static: 1$/m);
+    // and the dimensions that ARE absent in the same report still say so, so the rule is per
+    // dimension rather than per report
+    assert.match(md, /Total source units: none measured\./);
   });
 });

@@ -412,6 +412,47 @@ export function generateCoverageReport(
 /**
  * Formats coverage report into per-paper Markdown tables.
  */
+/**
+ * One dimension's lines.
+ *
+ * A dimension with no population used to print its total beside its status map, and when evidence
+ * was absent the generator seeds a marker - numericalByStatus["not-run"] = 1,
+ * reviewByStatus["not-reviewed"] = 1 - so the report emitted
+ *
+ *     ## 6. Numerical Validation
+ *     Total scenarios: 0
+ *     - not-run: 1
+ *
+ * One scenario not run, out of a declared total of zero. The 1 is a marker meaning "no evidence",
+ * rendered in the same shape as a count, and it survives the removal of its own population. A
+ * reader cannot tell it from arithmetic, and two figures from different sources sat under one
+ * heading.
+ *
+ * At a total of zero the figures are therefore not printed as counts. The marker is still shown,
+ * because suppressing it would hide which absence state the generator recorded, but it is labelled
+ * as a marker. Removing the marker from the DATA belongs to am-cm-coverage-ledger-0ip; this is the
+ * rendering not asserting arithmetic it does not have.
+ */
+function dimensionLines(
+  heading: string,
+  totalLabel: string,
+  total: number,
+  breakdown: Record<string, number>,
+): string[] {
+  const lines = [heading];
+  const entries = Object.entries(breakdown);
+  if (total === 0) {
+    lines.push(`${totalLabel}: none measured.`);
+    for (const [key, value] of entries) {
+      lines.push(`- \`${key}\` is an absence marker (recorded as ${value}), not a count.`);
+    }
+    return lines;
+  }
+  lines.push(`${totalLabel}: ${total}`);
+  for (const [key, value] of entries) lines.push(`- ${key}: ${value}`);
+  return lines;
+}
+
 export function formatCoverageMarkdown(report: CoverageReport): string {
   const lines: string[] = [];
 
@@ -424,53 +465,74 @@ export function formatCoverageMarkdown(report: CoverageReport): string {
   );
   lines.push(``);
 
-  lines.push(`## 1. Source Status`);
-  lines.push(`Total source units: ${report.sourceStatus.totalUnits}`);
-  for (const [st, count] of Object.entries(report.sourceStatus.byStatus)) {
-    lines.push(`- ${st}: ${count}`);
-  }
+  lines.push(
+    ...dimensionLines(
+      `## 1. Source Status`,
+      "Total source units",
+      report.sourceStatus.totalUnits,
+      report.sourceStatus.byStatus,
+    ),
+  );
   lines.push(``);
 
-  lines.push(`## 2. Translation Review`);
-  lines.push(`Total translation units: ${report.translationReview.totalUnits}`);
-  for (const [st, count] of Object.entries(report.translationReview.byStatus)) {
-    lines.push(`- ${st}: ${count}`);
-  }
+  lines.push(
+    ...dimensionLines(
+      `## 2. Translation Review`,
+      "Total translation units",
+      report.translationReview.totalUnits,
+      report.translationReview.byStatus,
+    ),
+  );
   lines.push(``);
 
-  lines.push(`## 3. Argument Treatment`);
-  lines.push(`Total argument nodes: ${report.argumentTreatment.totalNodes}`);
-  for (const [kind, count] of Object.entries(report.argumentTreatment.byKind)) {
-    lines.push(`- ${kind}: ${count}`);
-  }
+  lines.push(
+    ...dimensionLines(
+      `## 3. Argument Treatment`,
+      "Total argument nodes",
+      report.argumentTreatment.totalNodes,
+      report.argumentTreatment.byKind,
+    ),
+  );
   lines.push(``);
 
-  lines.push(`## 4. Instrument Availability`);
-  lines.push(`Total instruments: ${report.instrumentAvailability.totalInstruments}`);
-  for (const [prov, count] of Object.entries(report.instrumentAvailability.byProvenance)) {
-    lines.push(`- ${prov}: ${count}`);
-  }
+  lines.push(
+    ...dimensionLines(
+      `## 4. Instrument Availability`,
+      "Total instruments",
+      report.instrumentAvailability.totalInstruments,
+      report.instrumentAvailability.byProvenance,
+    ),
+  );
   lines.push(``);
 
-  lines.push(`## 5. Accessibility Equivalence`);
-  lines.push(`Total nodes: ${report.accessibilityEquivalence.totalNodes}`);
-  for (const [kind, count] of Object.entries(report.accessibilityEquivalence.byKind)) {
-    lines.push(`- ${kind}: ${count}`);
-  }
+  lines.push(
+    ...dimensionLines(
+      `## 5. Accessibility Equivalence`,
+      "Total nodes",
+      report.accessibilityEquivalence.totalNodes,
+      report.accessibilityEquivalence.byKind,
+    ),
+  );
   lines.push(``);
 
-  lines.push(`## 6. Numerical Validation`);
-  lines.push(`Total scenarios: ${report.numericalValidation.totalScenarios}`);
-  for (const [st, count] of Object.entries(report.numericalValidation.byStatus)) {
-    lines.push(`- ${st}: ${count}`);
-  }
+  lines.push(
+    ...dimensionLines(
+      `## 6. Numerical Validation`,
+      "Total scenarios",
+      report.numericalValidation.totalScenarios,
+      report.numericalValidation.byStatus,
+    ),
+  );
   lines.push(``);
 
-  lines.push(`## 7. Editorial Review Approval`);
-  lines.push(`Total review records: ${report.editorialReview.totalReviews}`);
-  for (const [st, count] of Object.entries(report.editorialReview.byStatus)) {
-    lines.push(`- ${st}: ${count}`);
-  }
+  lines.push(
+    ...dimensionLines(
+      `## 7. Editorial Review Approval`,
+      "Total review records",
+      report.editorialReview.totalReviews,
+      report.editorialReview.byStatus,
+    ),
+  );
   lines.push(``);
 
   return lines.join("\n");
