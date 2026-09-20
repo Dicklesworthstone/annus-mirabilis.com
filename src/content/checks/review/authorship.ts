@@ -81,13 +81,28 @@ export function validateReviewAuthorship(
   const issues: AuthorshipIssue[] = [];
   const reviewerId = review.reviewer;
 
-  // 1. Model reviewer check
-  if (
-    reviewerId.startsWith("agent:") ||
-    reviewerId.startsWith("model:") ||
-    reviewerId.toLowerCase().includes("gpt") ||
-    reviewerId.toLowerCase().includes("claude")
-  ) {
+  // 1. Model reviewer check.
+  //
+  // By the declared namespace, never by sniffing a vendor word out of a name
+  // (am-o44v). The two arms removed here were
+  // `reviewerId.toLowerCase().includes("gpt")` and `...includes("claude")`, a
+  // substring test standing in for a category test. A HUMAN REVIEWER NAMED
+  // CLAUDE was classified as a model and their review refused, and for a
+  // project whose German-source and physics reviewers are named people that is
+  // a live misclassification, not a theoretical one. No word-boundary variant
+  // fixes it either: "Claude Bernard" has "claude" as a whole segment. Guessing
+  // whether a reviewer is a machine from the letters in their name cannot be
+  // made correct.
+  //
+  // Nothing is weakened, because a model is identified three other ways and all
+  // three remain: the `agent:` or `model:` namespace below; the structural test
+  // further down, which refuses a reviewer matching an authorship entry whose
+  // own `kind` is "model"; and the owners registry, where a reviewer absent
+  // from docs/OWNERS.md is refused by crossProjection's
+  // `cross-projection-unknown-reviewer`. A model recorded honestly is caught by
+  // its namespace or its declared kind; one recorded dishonestly was never
+  // going to be caught by its name.
+  if (reviewerId.startsWith("agent:") || reviewerId.startsWith("model:")) {
     issues.push({
       code: "model-reviewer",
       message: `Reviewer "${reviewerId}" is a model or agent. Independent human review is required.`,

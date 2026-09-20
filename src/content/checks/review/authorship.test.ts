@@ -147,4 +147,73 @@ describe("authorship checks", () => {
       assert.equal(/draftedBy:\s*readonly\s+AuthorshipEntry\[\]/.test(content), false);
     }
   });
+
+  // am-o44v, both halves. The genuine cases use the shapes this corpus really
+  // writes: docs/PLAN_MINING_DECISIONS.md records a decider as
+  // "agent:pane30 (BrightIsland)", and the owners registry holds human ids.
+  it("a genuine agent: or model: prefixed reviewer is still refused, at the schema", () => {
+    // Where the refusal actually happens, found by this control failing:
+    // validateReviewRecord calls assertHumanReviewer, which THROWS on the two
+    // namespace prefixes before validateReviewAuthorship is ever reached. So
+    // the prefixed cases cannot be asserted through getReview - getReview is
+    // what refuses them. That schema check uses the two prefixes and nothing
+    // else, which means the vendor-substring arms removed from authorship.ts
+    // were duplicating a correct check one layer up while misclassifying
+    // people.
+    for (const reviewerId of [
+      "agent:pane30 (BrightIsland)",
+      "agent:pane28",
+      "model:gpt-4o",
+      "model:claude-opus-5",
+    ]) {
+      assert.throws(
+        () => getReview(reviewerId, "reading-ns"),
+        (err: unknown) => {
+          assert.equal((err as { code?: string }).code, "model-reviewer");
+          return true;
+        },
+        `${reviewerId} must still be refused as a model reviewer`,
+      );
+    }
+  });
+
+  it("a human whose name merely contains a vendor word is not a model reviewer", () => {
+    const reading = {
+      id: "reading-human",
+      authorship: { draftedBy: [{ id: "editor-carol", kind: "human" }] },
+    };
+    // Claude is an ordinary given name. Under the substring test this reviewer
+    // was refused with code model-reviewer for having it.
+    for (const reviewerId of ["Claude Bernard", "claudette-moreau", "e-gupta"]) {
+      const issues = validateReviewAuthorship(
+        reading,
+        getReview(reviewerId, "reading-human"),
+        registry,
+      );
+      assert.equal(
+        issues.some((i) => i.code === "model-reviewer"),
+        false,
+        `${reviewerId} is a person, not a model`,
+      );
+    }
+  });
+
+  it("the structural path still refuses a model, so dropping the name sniff removes no coverage", () => {
+    // The reviewer id carries no namespace and no vendor word. It is refused
+    // because the authorship entry it matches declares kind "model" - the
+    // category test that was always the right one.
+    const reading = {
+      id: "reading-structural",
+      authorship: { draftedBy: [{ id: "reviewer-nine", kind: "model", modelId: "some-model" }] },
+    };
+    const issues = validateReviewAuthorship(
+      reading,
+      getReview("reviewer-nine", "reading-structural"),
+      registry,
+    );
+    assert.equal(
+      issues.some((i) => i.code === "model-reviewer"),
+      true,
+    );
+  });
 });
