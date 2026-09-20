@@ -1,93 +1,122 @@
 import { describe, expect, it } from "bun:test";
-import { readdir, readFile } from "node:fs/promises";
-import { relative, resolve } from "node:path";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import {
+  extractImportSpecifiers,
+  isClientSurfaceFile,
+  unrepresentedRoots,
+  walkTypeScriptFiles,
+} from "./clientSurface.ts";
 import { getLogger } from "./log/logger.ts";
 
-describe("Client Component Import Boundary Gate (am-cm-compiler-core-oa7)", () => {
+/**
+ * AGENTS.md: "Never create a giant aggregate module (an allEinsteinContent.ts) imported into client
+ * components." This gate enforces it.
+ *
+ * am-84kb rewrote what it can see. The population used to be three directory literals - src/app,
+ * src/visuals, src/components - and 37 of the 126 client-marked files under src/ were outside all
+ * three: the whole reader shell, the equation layer, the a11y reading settings, the discovery
+ * workbench. Nothing was escaping at the time, measured by running the old forbidden-import rules
+ * over all 126 and finding zero violations inside the roots and zero outside. The defect was that a
+ * regression in 29% of the client surface could not have been caught, because those files were
+ * never in the denominator.
+ *
+ * Two things changed, and the second was not asked for: the population is now every TypeScript file
+ * under src/, and both "is this a client component" and "is this an import" are read from the
+ * parser instead of from the text. See src/testing/clientSurface.ts for why each was measured.
+ */
+describe("Client Component Import Boundary Gate (am-cm-compiler-core-oa7, am-84kb)", () => {
   const logger = getLogger("content-compiler-tests");
 
-  function logTest(testId: string, outcome: "passed" | "failed", message: string) {
-    logger.log({
-      testId,
-      beadId: "am-cm-compiler-core-oa7",
-      outcome,
-      message,
-    });
-  }
+  /** The module paths a client component may never reach, as path SEGMENTS rather than substrings. */
+  const FORBIDDEN_SEGMENT_RUNS: readonly (readonly string[])[] = [
+    ["content", "compiler"],
+    ["generated", "content"],
+  ];
 
-  async function walkDir(dir: string, fileList: string[] = []): Promise<string[]> {
-    try {
-      const entries = await readdir(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = resolve(dir, entry.name);
-        if (entry.isDirectory()) {
-          if (entry.name !== "node_modules" && entry.name !== ".next" && entry.name !== ".git") {
-            await walkDir(fullPath, fileList);
-          }
-        } else if (/\.(tsx|ts|jsx|js|mjs)$/.test(entry.name)) {
-          fileList.push(fullPath);
-        }
+  function forbiddenTarget(specifier: string): string | null {
+    const segments = specifier.replace(/^@\//, "").split("/").filter(Boolean);
+    for (const run of FORBIDDEN_SEGMENT_RUNS) {
+      for (let i = 0; i + run.length <= segments.length; i++) {
+        if (run.every((part, j) => segments[i + j] === part)) return run.join("/");
       }
-    } catch {
-      // Directory may not exist yet
     }
-    return fileList;
+    return null;
   }
 
-  it("verifies no client component under src/app or src/visuals imports the compiler core or generated corpus aggregate", async () => {
+  /**
+   * Renaming a root must still fail loudly. The old gate asserted this per directory because its
+   * walk swallowed readdir errors; the population no longer names directories, so the floor is kept
+   * as a coverage assertion instead: these three are known to hold client code, and a tree where one
+   * of them contributes nothing is a tree this gate has stopped covering.
+   */
+  const ROOTS_THAT_MUST_STILL_BE_REPRESENTED = ["src/app/", "src/visuals/", "src/components/"];
+
+  it("no client component anywhere under src/ imports the compiler core or the generated corpus aggregate", async () => {
     const root = process.cwd();
-    const appFiles = await walkDir(resolve(root, "src/app"));
-    const visualFiles = await walkDir(resolve(root, "src/visuals"));
-    const componentFiles = await walkDir(resolve(root, "src/components"));
+    const scannedFiles = await walkTypeScriptFiles(root, "src");
 
-    const scannedFiles = [...appFiles, ...visualFiles, ...componentFiles];
+    expect(scannedFiles.length).toBeGreaterThan(0);
+    expect(unrepresentedRoots(scannedFiles, ROOTS_THAT_MUST_STILL_BE_REPRESENTED)).toEqual([]);
 
-    // Scanned-nothing guard. walkDir swallows readdir errors ("Directory may not
-    // exist yet"), so a renamed or unreadable root would leave scannedFiles empty
-    // and this gate would pass having inspected no files at all. Sibling gate
-    // noPhysicsInComponents.test.ts:123 already asserts this; this one did not.
-    expect(appFiles.length).toBeGreaterThan(0);
-    expect(visualFiles.length).toBeGreaterThan(0);
-    expect(componentFiles.length).toBeGreaterThan(0);
+    const violations: { file: string; line: number; importStatement: string; target: string }[] =
+      [];
+    let clientFileCount = 0;
 
-    const violations: { file: string; line: number; importStatement: string }[] = [];
-
-    for (const filePath of scannedFiles) {
-      const content = await readFile(filePath, "utf8");
-      const isClient =
-        content.includes('"use client"') ||
-        content.includes("'use client'") ||
-        filePath.includes("/visuals/");
-
-      if (isClient) {
-        const lines = content.split(/\r?\n/);
-        for (let idx = 0; idx < lines.length; idx++) {
-          const line = lines[idx];
-          if (!line) continue;
-          // Check for forbidden imports
-          if (
-            /from\s+["'].*?(?:content\/compiler|generated\/content(?:\/index)?)["']/.test(line) ||
-            /import\(["'].*?(?:content\/compiler|generated\/content(?:\/index)?)["']\)/.test(line)
-          ) {
-            violations.push({
-              file: relative(root, filePath),
-              line: idx + 1,
-              importStatement: line.trim(),
-            });
-          }
+    for (const file of scannedFiles) {
+      const content = await readFile(resolve(root, file), "utf8");
+      if (!isClientSurfaceFile(file, content)) continue;
+      clientFileCount++;
+      for (const imported of extractImportSpecifiers(file, content)) {
+        const target = forbiddenTarget(imported.specifier);
+        if (target !== null) {
+          violations.push({
+            file,
+            line: imported.line,
+            importStatement: imported.text,
+            target,
+          });
         }
       }
     }
+
+    // A client surface of zero would make "no violations" meaningless, and is the shape the old
+    // three-directory population could reach by a rename.
+    expect(clientFileCount).toBeGreaterThan(0);
 
     if (violations.length > 0) {
       console.error("Client import boundary violations detected:", violations);
     }
+    expect(violations).toEqual([]);
 
-    expect(violations.length).toBe(0);
-    logTest(
-      "client-import-boundary",
-      violations.length === 0 ? "passed" : "failed",
-      `Verified client import boundary across ${scannedFiles.length} files (0 violations).`,
+    logger.log({
+      testId: "client-import-boundary",
+      beadId: "am-84kb",
+      outcome: violations.length === 0 ? "passed" : "failed",
+      message: `Scanned ${scannedFiles.length} files under src/; ${clientFileCount} are client components; ${violations.length} violations.`,
+    });
+  });
+
+  it("the forbidden-target test matches path segments, not substrings", () => {
+    // the cases a substring rule gets wrong in both directions
+    expect(forbiddenTarget("../../content/compiler/compile.ts")).toBe("content/compiler");
+    expect(forbiddenTarget("@/content/compiler")).toBe("content/compiler");
+    expect(forbiddenTarget("../generated/content/index.ts")).toBe("generated/content");
+    expect(forbiddenTarget("../../content/compilerNotes.ts")).toBeNull();
+    expect(forbiddenTarget("./mycontent/compilerish")).toBeNull();
+    expect(forbiddenTarget("../content/records.ts")).toBeNull();
+  });
+
+  it("a root that contributes nothing is reported, so a rename cannot make this gate silent", () => {
+    const asShipped = ["src/app/page.tsx", "src/visuals/Plot.tsx", "src/components/Chip.tsx"];
+    expect(unrepresentedRoots(asShipped, ROOTS_THAT_MUST_STILL_BE_REPRESENTED)).toEqual([]);
+    // src/visuals renamed away: the walk still returns files, so only this check can notice
+    const afterRename = ["src/app/page.tsx", "src/components/Chip.tsx", "src/vis/Plot.tsx"];
+    expect(unrepresentedRoots(afterRename, ROOTS_THAT_MUST_STILL_BE_REPRESENTED)).toEqual([
+      "src/visuals/",
+    ]);
+    expect(unrepresentedRoots([], ROOTS_THAT_MUST_STILL_BE_REPRESENTED)).toEqual(
+      ROOTS_THAT_MUST_STILL_BE_REPRESENTED,
     );
   });
 });
