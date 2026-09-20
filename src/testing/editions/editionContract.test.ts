@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { load as parseYaml } from "js-yaml";
 import {
   assertEditionContract,
   CONTRACT_CHECKS_SPEC,
@@ -404,8 +408,176 @@ describe("PLANT (am-06x1): check 7 corrupts the DATA, not the flag", () => {
       editionText: corrupted,
     });
     const check7 = result.checks.find((c) => c.checkNumber === 7);
-    console.log("[am-06x1 plant] check7:", JSON.stringify(check7));
     expect(check7?.outcome).toBe("failed");
     expect(check7?.code).toBe("ledger-marker-in-edition");
+  });
+});
+
+/**
+ * Planted negatives for the three checks that read their answer from disk (am-06x1).
+ *
+ * Checks 4, 5 and 6 each used to be `options.X !== false`, which no production caller
+ * sets, so each announced a positive result for every edition having opened no file.
+ * The negative a pass-through fails is not "the real corpus is clean" - a pass-through
+ * says that too - it is "a corrupted corpus goes red and an unreachable one says so".
+ * Each plant copies the real production files and perturbs the copy, so the plant tracks
+ * the corpus instead of freezing a fixture beside it, and the real files are never
+ * written to. The perturbations are read out of the data (the first locator page, the
+ * first retired id) rather than spelled out here, so renumbering the paper cannot quietly
+ * turn a plant into a no-op.
+ */
+describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", () => {
+  const SLUG = "brownian-motion";
+  const BIB_KEY = "ap-17-549";
+  const MANIFEST_REL = `content/source-blocks/${SLUG}/manifest.yaml`;
+  const SNAPSHOT_REL = `content/source-blocks/${SLUG}/manifest.ids.snapshot.txt`;
+  const ALIAS_REL = `content/aliases/${SLUG}.yaml`;
+  const RECEIPT_REL = `docs/provenance/${BIB_KEY}.md`;
+
+  /** A temp root holding byte copies of the four production files the checks read. */
+  const copyCorpus = (): string => {
+    const root = mkdtempSync(join(tmpdir(), "am-06x1-contract-"));
+    for (const rel of [MANIFEST_REL, SNAPSHOT_REL, ALIAS_REL, RECEIPT_REL]) {
+      mkdirSync(join(root, dirname(rel)), { recursive: true });
+      copyFileSync(join(process.cwd(), rel), join(root, rel));
+    }
+    return root;
+  };
+
+  const checkAt = (root: string, checkNumber: number) =>
+    assertEditionContract(SLUG, { root, ledgerText: LEDGER }).checks.find(
+      (c) => c.checkNumber === checkNumber,
+    );
+
+  test("the copied corpus is green before anything is perturbed", () => {
+    const root = copyCorpus();
+    for (const n of [4, 5, 6]) {
+      expect(checkAt(root, n)?.outcome).toBe("passed");
+    }
+  });
+
+  test("check 4 fails when a display equation moves to the next printed page", () => {
+    const root = copyCorpus();
+    const manifestPath = join(root, MANIFEST_REL);
+    const text = readFileSync(manifestPath, "utf8");
+    // Move the last display equation of section 2 one printed page on. The receipt still
+    // lists it on the page it was printed on, so the page map and the manifest disagree.
+    const match = text.match(/( {2}- id: eq-s2-d10\n(?: {4}.*\n)*? {6}- page: )(\d+)/);
+    expect(match).not.toBeNull();
+    const page = Number.parseInt(match?.[2] ?? "0", 10);
+    expect(page).toBeGreaterThan(0);
+    writeFileSync(
+      manifestPath,
+      text.replace(match?.[0] ?? "", `${match?.[1] ?? ""}${page + 1}`),
+      "utf8",
+    );
+    const check4 = checkAt(root, 4);
+    expect(check4?.outcome).toBe("failed");
+    expect(check4?.code).toBe("count-reconciliation-mismatch");
+    expect(check4?.message).toContain("unnumberedIds");
+    // The perturbation is a page map disagreement, not an id one: check 6 stays green,
+    // so a single red check cannot be read as every check firing at once.
+    expect(checkAt(root, 6)?.outcome).toBe("passed");
+  });
+
+  test("check 4 fails when a refined page loses its refinedBy stamp", () => {
+    const root = copyCorpus();
+    const receiptPath = join(root, RECEIPT_REL);
+    const lines = readFileSync(receiptPath, "utf8").split("\n");
+    const index = lines.findIndex((line) => line.trim().startsWith("refinedBy:"));
+    expect(index).toBeGreaterThan(-1);
+    lines.splice(index, 1);
+    writeFileSync(receiptPath, lines.join("\n"), "utf8");
+    const check4 = checkAt(root, 4);
+    expect(check4?.outcome).toBe("failed");
+    expect(check4?.message).toContain("refinedBy");
+  });
+
+  test("check 5 fails when a locator leaves the paper's printed range", () => {
+    const root = copyCorpus();
+    const manifestPath = join(root, MANIFEST_REL);
+    const text = readFileSync(manifestPath, "utf8");
+    const first = text.indexOf("      - page: ");
+    expect(first).toBeGreaterThan(-1);
+    const end = text.indexOf("\n", first);
+    writeFileSync(
+      manifestPath,
+      `${text.slice(0, first)}      - page: 9999${text.slice(end)}`,
+      "utf8",
+    );
+    const check5 = checkAt(root, 5);
+    expect(check5?.outcome).toBe("failed");
+    expect(check5?.code).toBe("manifest-coverage-mismatch");
+    expect(check5?.message).toContain("page-out-of-range");
+  });
+
+  test("check 6 fails when a retired id comes back as a live unit", () => {
+    const root = copyCorpus();
+    const manifestPath = join(root, MANIFEST_REL);
+    const text = readFileSync(manifestPath, "utf8");
+    const aliases = parseYaml(readFileSync(join(root, ALIAS_REL), "utf8")) as {
+      aliases?: { retiredId?: string; replacementIds?: string[] }[];
+    };
+    const retired = aliases.aliases?.[0]?.retiredId;
+    const successor = aliases.aliases?.[0]?.replacementIds?.[0];
+    expect(typeof retired).toBe("string");
+    expect(typeof successor).toBe("string");
+    // Revive the retired id beside the unit that absorbed it, on the same printed page, so
+    // the manifest stays internally ordered and only the id snapshot has been broken.
+    const anchor = text.match(
+      new RegExp(`( {2}- id: ${successor}\\n(?: {4}.*\\n)*?) {6}- page: (\\d+)`),
+    );
+    expect(anchor).not.toBeNull();
+    const page = anchor?.[2];
+    const revived = [
+      `  - id: ${retired}`,
+      "    kind: paragraph",
+      `    section: ${String(retired).split("-")[0]}`,
+      "    locators:",
+      `      - page: ${page}`,
+      "    destination:",
+      `      editionBlockId: de-${SLUG}-${retired}`,
+      "      translationUnits:",
+      "        - planned",
+      "",
+      "",
+    ].join("\n");
+    writeFileSync(manifestPath, text.replace(anchor?.[0] ?? "", `${revived}${anchor?.[0] ?? ""}`));
+    const check6 = checkAt(root, 6);
+    expect(check6?.outcome).toBe("failed");
+    expect(check6?.code).toBe("id-snapshot-uncovered");
+    expect(check6?.message).toContain("retired-id-reused");
+    // The manifest validator is content with the revived unit - it is well formed, in
+    // order, and it closes the gap the alias explained - so check 5 passes. Check 6 is
+    // not a second reading of check 5's diagnostics.
+    expect(checkAt(root, 5)?.outcome).toBe("passed");
+  });
+
+  test("check 6 fails when a frozen id leaves the manifest without an alias", () => {
+    const root = copyCorpus();
+    const manifestPath = join(root, MANIFEST_REL);
+    const text = readFileSync(manifestPath, "utf8");
+    const block = text.match(/ {2}- id: eq-s2-d10\n(?: {4}.*\n)*/);
+    expect(block).not.toBeNull();
+    writeFileSync(manifestPath, text.replace(block?.[0] ?? "", ""), "utf8");
+    const check6 = checkAt(root, 6);
+    expect(check6?.outcome).toBe("failed");
+    expect(check6?.message).toContain("frozen-id-missing");
+  });
+
+  test("an unreachable corpus reports not-available, which a pass-through never does", () => {
+    const root = mkdtempSync(join(tmpdir(), "am-06x1-empty-"));
+    const check4 = checkAt(root, 4);
+    const check5 = checkAt(root, 5);
+    const check6 = checkAt(root, 6);
+    expect(check4?.outcome).toBe("not-available");
+    expect(check4?.code).toBe("reconciliation-inputs-absent");
+    expect(check5?.outcome).toBe("not-available");
+    expect(check5?.code).toBe("manifest-not-loadable");
+    expect(check6?.outcome).toBe("not-available");
+    expect(check6?.code).toBe("id-snapshot-absent");
+    for (const check of [check4, check5, check6]) {
+      expect(check?.outcome).not.toBe("passed");
+    }
   });
 });
