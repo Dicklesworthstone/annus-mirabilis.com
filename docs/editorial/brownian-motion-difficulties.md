@@ -238,3 +238,51 @@ units in any manifest, because the canonical format has no `sentence` kind, so t
 unit class that cannot be addressed. The same gap is recorded for the relativity paper as
 `check:blocking:sentence-units-unrepresentable`; it is one decision for `am-cm-source-manifest-6qa`
 across all four papers, and it should also settle which grammar reference occurrence ids use.
+
+### `check:receipt-page-map-never-refined` — **REPAIRED 2026-09-19**
+
+The acceptance line "counts reconcile with the receipt's page map and `SourceAsset.pageMapping`, and
+both are refined" was unmet, and no gate said so. All twelve front-matter `pageMap` entries in
+`docs/provenance/ap-17-549.md` still carried the pre-refinement stub: no `refinedBy`,
+`displayEquations: {numbered: [], unnumbered: 0}` on every page against the manifest's 43 displays,
+`footnoteMarks: []` on the three pages that carry a mark, and `sectionIds` omitting `s0` on 549,
+`s2` on 551, `s3` on 556 and `s4` on 559. The `## Page map` body was one sentence where the
+relativity receipt has 31 per-page entries. Reconciled field by field, the committed receipt
+disagreed with the manifest in 33 places.
+
+The consumer this starved is `resolveEquationPage` in `src/content/provenance/receiptSchema.ts`,
+which answers which facsimile page a display sits on by reading `displayEquations.numbered` and
+`displayEquations.unnumberedIds`. With the stub in place it returned `null` for all 43 Brownian
+displays, and nothing noticed, because nothing asked.
+
+**Repair.** The front matter and the body were rewritten in the relativity format from the manifest,
+and all twelve pages were then re-read on the corrected renders at 155 to 260 percent
+(`artifacts/page-images/ap-17-549-CORRECTED/parent-173` to `parent-184`) to confirm the manifest
+itself before it was copied into evidence: section spread, paragraph starts, display count and
+printed label, footnote marks. Two readings are worth recording. The stub claimed the printed `(1)`
+was on p. 551; it is on p. 554, and p. 551 prints no numbered equation at all. Page 557's
+`f + ∂f/∂t · τ = …` runs over two lines and is one display, not two, matching the stacked-display
+rule recorded above; p. 554's `oder` and p. 555's `oder` are flush connectives between displays, not
+paragraph starts.
+
+**Why page 549 is not stamped.** `receipt-pagemap-refined-no-unnumbered-ids` in
+`src/content/provenance/checkReceipt.ts` rejects a `refinedBy` stamp on an entry whose
+`unnumberedIds` is empty, so a page that prints no display equation cannot be marked refined however
+carefully it was read. Page 549 prints none, so it keeps the unstamped form and eleven of twelve
+entries carry the stamp. The same rule explains the three unstamped entries in the relativity
+receipt (891, 892, 893) and the three in the light-quanta receipt (132, 133, 145): all six are
+zero-display pages, not pages nobody checked. This is a real limitation of the receipt format and it
+belongs to the checker's owner, not to an inventory bead; nothing here edits that rule.
+
+**Gate.** `reconcilePageMapAgainstManifest` in `src/content/editions/brownianInventory.ts` compares
+every entry against the manifest across sections, numbered labels, unnumbered display ids, footnote
+marks and the stamp, and `brownian.manifest.test.ts` asserts it returns nothing. Run against the
+committed stub it returns 33 mismatches, so the assertion has a falsifying case. Five planted
+negatives cover the classes separately, including the mirror case of stamping the zero-display page,
+which the checker would reject.
+
+**Related, not repaired here.** Check 4 of `src/content/editions/editionContract.ts` reports
+"Manifest per-page counts and receipt pageMap match" from `options.perPageCountsMatch !== false`.
+No production caller ever computes that option; only `editionContract.test.ts` passes `false`. The
+check therefore reports a match for every edition without comparing anything, and it is the check
+that would have caught this defect. It belongs to `am-edn-alignment-tooling-do1`.

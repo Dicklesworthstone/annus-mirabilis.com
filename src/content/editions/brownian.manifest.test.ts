@@ -14,18 +14,21 @@ import {
 import { validateSourceManifest } from "../manifest/schema.ts";
 import { validateManifest } from "../manifest/validator.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
+import { resolveEquationPage } from "../provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../provenance/receiptToSourceAsset.ts";
 import { parseYaml } from "../provenance/yaml.ts";
 import {
+  admitAliasRecords,
   BROWNIAN_BIB_KEY,
   BROWNIAN_INVENTORY_BEAD,
   BROWNIAN_PAPER,
-  DIFFICULTY_FLAG_KEYS,
-  TREATMENT_MAP_ROWS,
+  brownianPageMapMismatches,
   brownianSourceManifestDiagnostics,
-  admitAliasRecords,
+  DIFFICULTY_FLAG_KEYS,
   loadBrownianInventory,
   parseDifficultyFlags,
+  reconcilePageMapAgainstManifest,
+  TREATMENT_MAP_ROWS,
 } from "./brownianInventory.ts";
 
 const ROOT = process.cwd();
@@ -181,15 +184,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     );
     expect(spanningParagraphs.length).toBe(7);
     const spanningIds = spanningParagraphs.map((u) => u.id).sort();
-    expect(spanningIds).toEqual([
-      "s1-p1",
-      "s1-p3",
-      "s2-p4",
-      "s3-p5",
-      "s3-p8",
-      "s4-p11",
-      "s4-p6",
-    ]);
+    expect(spanningIds).toEqual(["s1-p1", "s1-p3", "s2-p4", "s3-p5", "s3-p8", "s4-p11", "s4-p6"]);
 
     logger.log({
       testId: "masthead-sections-and-closings",
@@ -370,8 +365,8 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       const unitsInRow = manifest.units.filter((u) => u.section === row);
       expect(unitsInRow.length).toBeGreaterThan(0);
 
-      const obligationsInRow = unitsInRow.flatMap(
-        (u) => typeof u.destination === "object" ? u.destination.argumentObligations ?? [] : [],
+      const obligationsInRow = unitsInRow.flatMap((u) =>
+        typeof u.destination === "object" ? (u.destination.argumentObligations ?? []) : [],
       );
       expect(obligationsInRow.length).toBeGreaterThan(0);
     }
@@ -435,11 +430,15 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     const live = ["s2-p5", "s3-p2", "s4-p6"];
 
     // Admitted only because the ids are frozen.
-    expect(() => admitAliasRecords([good], { idsFrozenAt: "2026-09-19T04:30:00Z", liveIds: live })).not.toThrow();
+    expect(() =>
+      admitAliasRecords([good], { idsFrozenAt: "2026-09-19T04:30:00Z", liveIds: live }),
+    ).not.toThrow();
 
     // 1. Before the freeze there is nothing to retire: a non-empty alias file is still refused.
     //    This is the original guard's rule, and it must not have been lost by making the file non-empty.
-    expect(() => admitAliasRecords([good], { liveIds: live })).toThrow(/must stay empty until ids freeze/);
+    expect(() => admitAliasRecords([good], { liveIds: live })).toThrow(
+      /must stay empty until ids freeze/,
+    );
 
     // 2. A retirement that redirects to an id the manifest does not contain is refused.
     const dangling = { ...good, replacementIds: ["s2-p99"] };
@@ -449,7 +448,10 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
 
     // 3. Reusing a retired id as a live unit is refused: retired ids are never reused.
     expect(() =>
-      admitAliasRecords([good], { idsFrozenAt: "2026-09-19T04:30:00Z", liveIds: [...live, "s2-p6"] }),
+      admitAliasRecords([good], {
+        idsFrozenAt: "2026-09-19T04:30:00Z",
+        liveIds: [...live, "s2-p6"],
+      }),
     ).toThrow(/still present in the manifest/);
 
     // 4. A malformed record is refused rather than silently skipped.
@@ -546,7 +548,8 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       paper: BROWNIAN_PAPER,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Snapshot equals manifest units (87 IDs) and the five boundary-audit retirements resolve.",
+      message:
+        "Snapshot equals manifest units (87 IDs) and the five boundary-audit retirements resolve.",
       extra: { check: "frozen-ids" },
     });
   });
@@ -563,14 +566,12 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     const snapshotText = readFileSync(snapshotPath, "utf8");
 
     // Mutation 1: removing s4-p1 without an alias fails validateFrozenIds
-    const manifestWithoutS4P1 = manifest.units
-      .filter((u) => u.id !== "s4-p1")
-      .map((u) => u.id);
+    const manifestWithoutS4P1 = manifest.units.filter((u) => u.id !== "s4-p1").map((u) => u.id);
     const result1 = validateFrozenIds(snapshotText, manifestWithoutS4P1, []);
     expect(result1.ok).toBe(false);
-    expect(
-      result1.findings.some((f) => f.kind === "frozen-id-missing" && f.id === "s4-p1"),
-    ).toBe(true);
+    expect(result1.findings.some((f) => f.kind === "frozen-id-missing" && f.id === "s4-p1")).toBe(
+      true,
+    );
 
     // Mutation 2: invalid reference occurrence id fails validateManifest
     const mutatedUnits = manifest.units.map((u) => {
@@ -721,7 +722,9 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(s5p4).toBeDefined();
     expect(s5p4?.section).toBe("s5");
     expect(s5p4?.locators[0]?.page).toBe(560);
-    expect(typeof s5p4?.destination === "object" ? s5p4.destination.argumentObligations : undefined).toContain("arg:brownian-closing-outlook");
+    expect(
+      typeof s5p4?.destination === "object" ? s5p4.destination.argumentObligations : undefined,
+    ).toContain("arg:brownian-closing-outlook");
 
     logger.log({
       testId: "paper-specific-structural-obligations",
@@ -798,8 +801,114 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       paper: BROWNIAN_PAPER,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Difficulties file has all 4 sections and all 7 verification flags with expected values.",
+      message:
+        "Difficulties file has all 4 sections and all 7 verification flags with expected values.",
       extra: { flagCount: flags.length, check: "difficulties" },
+    });
+  });
+  test("the receipt page map reconciles with the manifest, page by page", () => {
+    const logger = new TestLogger("brownian-manifest", newRunIdentity());
+
+    // Real proof, not a count: every one of the twelve entries is compared field by field
+    // against the units the manifest places on that printed page. Before 2026-09-19 all twelve
+    // carried the pre-refinement stub and this returned 20 mismatches.
+    const mismatches = brownianPageMapMismatches(ROOT);
+    expect(mismatches).toEqual([]);
+
+    const manifest = validateSourceManifest(
+      parseYaml(
+        readFileSync(join(ROOT, `content/source-blocks/${BROWNIAN_PAPER}/manifest.yaml`), "utf8"),
+      ),
+      "manifest.yaml",
+    );
+    const receiptPath = join(ROOT, `docs/provenance/${BROWNIAN_BIB_KEY}.md`);
+    const pageMap = parseReceipt(readFileSync(receiptPath, "utf8"), receiptPath).frontMatter
+      ?.pageMap;
+    expect(Array.isArray(pageMap)).toBe(true);
+    expect(pageMap!.length).toBe(12);
+
+    // The map is not empty of the things the stub was empty of. A page map that reconciles
+    // because both sides say nothing would pass the check above.
+    const allUnnumbered = pageMap!.flatMap((entry) => entry.displayEquations.unnumberedIds ?? []);
+    const allNumbered = pageMap!.flatMap((entry) => entry.displayEquations.numbered);
+    const allMarks = pageMap!.flatMap((entry) => entry.footnoteMarks);
+    expect(allUnnumbered.length).toBe(40);
+    expect(allNumbered.sort()).toEqual(["(1)", "(1)", "(2)"]);
+    expect(allMarks.length).toBe(3);
+    // Eleven of the twelve carry the stamp. Page 549 prints no display equation, and
+    // `receipt-pagemap-refined-no-unnumbered-ids` refuses a stamp on an entry with an empty
+    // `unnumberedIds`, so that page stays unstamped by the checker's own rule.
+    const stamped = pageMap!.filter((entry) => entry.refinedBy !== undefined);
+    expect(stamped).toHaveLength(11);
+    expect(new Set(stamped.map((entry) => entry.refinedBy))).toEqual(
+      new Set([BROWNIAN_INVENTORY_BEAD]),
+    );
+    expect(pageMap!.find((entry) => entry.refinedBy === undefined)?.printedPage).toBe(549);
+
+    // resolveEquationPage is the consumer this refinement exists for: it answered null for
+    // every Brownian display while the stub stood.
+    expect(resolveEquationPage(pageMap!, "eq-s3-d1")).toBe(6);
+    expect(resolveEquationPage(pageMap!, "(2)")).toBe(7);
+
+    // Planted negatives. Each perturbs one field of a copy and must be caught; a planted
+    // negative that stays green is a claim about the plant, not about the data.
+    const units = manifest.units as Parameters<typeof reconcilePageMapAgainstManifest>[0];
+    const bead = BROWNIAN_INVENTORY_BEAD;
+    const clone = () => JSON.parse(JSON.stringify(pageMap)) as typeof pageMap;
+
+    const stubbedEquations = clone()!.map((entry) => ({
+      ...entry,
+      displayEquations: { numbered: [], unnumberedIds: [] },
+    }));
+    const stubDefects = reconcilePageMapAgainstManifest(units, stubbedEquations, bead);
+    expect(stubDefects.length).toBeGreaterThan(0);
+    expect(stubDefects.some((defect) => defect.field === "unnumberedIds")).toBe(true);
+
+    const droppedSection = clone()!.map((entry, index) =>
+      index === 0
+        ? { ...entry, sectionIds: entry.sectionIds.filter((id: string) => id !== "s0") }
+        : entry,
+    );
+    const sectionDefects = reconcilePageMapAgainstManifest(units, droppedSection, bead);
+    expect(sectionDefects).toHaveLength(1);
+    expect(sectionDefects[0]!.field).toBe("sectionIds");
+    expect(sectionDefects[0]!.printedPage).toBe(549);
+
+    const droppedMarks = clone()!.map((entry) => ({ ...entry, footnoteMarks: [] }));
+    const markDefects = reconcilePageMapAgainstManifest(units, droppedMarks, bead);
+    expect(markDefects).toHaveLength(3);
+    expect(markDefects.every((defect) => defect.field === "footnoteMarks")).toBe(true);
+
+    const unstamped = clone()!.map(({ refinedBy: _drop, ...rest }) => rest);
+    const stampDefects = reconcilePageMapAgainstManifest(units, unstamped, bead);
+    expect(stampDefects).toHaveLength(11);
+    expect(stampDefects.every((defect) => defect.field === "refinedBy")).toBe(true);
+    expect(stampDefects.map((defect) => defect.printedPage)).not.toContain(549);
+
+    // The mirror plant: stamping the zero-display page is also a defect, because the receipt
+    // checker rejects that entry outright. A rule that only caught missing stamps would let
+    // the receipt fail `check-receipts` while this test stayed green.
+    const overStamped = clone()!.map((entry) => ({ ...entry, refinedBy: bead }));
+    const overStampDefects = reconcilePageMapAgainstManifest(units, overStamped, bead);
+    expect(overStampDefects).toHaveLength(1);
+    expect(overStampDefects[0]!.field).toBe("refinedBy");
+    expect(overStampDefects[0]!.printedPage).toBe(549);
+
+    logger.log({
+      testId: "receipt-page-map-reconciles",
+      beadId: BROWNIAN_INVENTORY_BEAD,
+      paper: BROWNIAN_PAPER,
+      outcome: "passed",
+      comparisonKind: "bitwise",
+      message:
+        "All 12 receipt pageMap entries reconcile with the manifest across sections, numbered and unnumbered displays, footnote marks and refinedBy; five planted negatives are caught.",
+      extra: {
+        pages: 12,
+        unnumberedIds: allUnnumbered.length,
+        numbered: allNumbered.length,
+        footnoteMarks: allMarks.length,
+        check: "receipt-page-map",
+      },
     });
   });
 });
