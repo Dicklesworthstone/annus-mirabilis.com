@@ -36,21 +36,29 @@ export const REGISTERED_LAYOUTS: Readonly<Record<string, RegisteredLayoutSpec>> 
     layoutVersion: 1,
     dtype: "float64",
     expectedDimensions: 2, // [nParticles, steps + 1]
-    validateShape: (shape) => shape.length === 2 && shape[0]! >= 1 && shape[1]! >= 1,
+    // Both dimensions carry the same lower bound, so every() states it without
+    // indexing past a length check that TypeScript cannot see through.
+    validateShape: (shape) => shape.length === 2 && shape.every((n) => n >= 1),
   },
   "diffusion1d-frames@1": {
     layoutId: "diffusion1d-frames",
     layoutVersion: 1,
     dtype: "float64",
     expectedDimensions: 2, // [frames, n]
-    validateShape: (shape) => shape.length === 2 && shape[0]! >= 1 && shape[1]! >= 3,
+    // The two dimensions have different lower bounds - frames and cells - so this one
+    // reads them by name after the length check rather than asserting non-null.
+    validateShape: (shape) => {
+      if (shape.length !== 2) return false;
+      const [frames, cells] = shape;
+      return frames !== undefined && cells !== undefined && frames >= 1 && cells >= 3;
+    },
   },
   "philox-normals@1": {
     layoutId: "philox-normals",
     layoutVersion: 1,
     dtype: "float64",
     expectedDimensions: 1, // [count]
-    validateShape: (shape) => shape.length === 1 && shape[0]! >= 1,
+    validateShape: (shape) => shape.length === 1 && shape.every((n) => n >= 1),
   },
 };
 
