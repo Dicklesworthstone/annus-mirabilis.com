@@ -25,11 +25,13 @@ function parseArgs(args: string[]): {
   reviewRecordsPath?: string;
   outDir: string;
   json: boolean;
+  demonstration: boolean;
 } {
   let scenarioEvidencePath: string | undefined;
   let reviewRecordsPath: string | undefined;
   let outDir = join(process.cwd(), "artifacts", "coverage");
   let json = false;
+  let demonstration = false;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -45,6 +47,8 @@ function parseArgs(args: string[]): {
       if (val) outDir = val;
     } else if (arg === "--json") {
       json = true;
+    } else if (arg === "--demonstration") {
+      demonstration = true;
     }
   }
 
@@ -53,7 +57,8 @@ function parseArgs(args: string[]): {
     reviewRecordsPath?: string;
     outDir: string;
     json: boolean;
-  } = { outDir, json };
+    demonstration: boolean;
+  } = { outDir, json, demonstration };
   if (scenarioEvidencePath !== undefined) {
     result.scenarioEvidencePath = scenarioEvidencePath;
   }
@@ -67,8 +72,11 @@ export async function runCoverageReport(args: string[]): Promise<{
   report: CoverageReport;
   jsonPath: string;
   mdPath: string;
+  /** Says whether the unwired dimensions were measured, so a caller cannot read a 0 as a count. */
+  provenance: string;
+  unwiredDimensions: readonly string[];
 }> {
-  const { scenarioEvidencePath, reviewRecordsPath, outDir, json } = parseArgs(args);
+  const { scenarioEvidencePath, reviewRecordsPath, outDir, json, demonstration } = parseArgs(args);
 
   let scenarioEvidence:
     | { scenarioId: string; status: "passed" | "failed" | "skipped"; failureMessage?: string }[]
@@ -96,8 +104,27 @@ export async function runCoverageReport(args: string[]): Promise<{
     reviewRecords = JSON.parse(content);
   }
 
-  // Base sample / loaded argument nodes for standard report
-  const sampleNodes: ArgumentNodeCoverage[] = [
+  // am-wdqy's sibling, found by the empty-set sweep: THESE THREE COLLECTIONS ARE LITERALS IN THIS
+  // FILE. Nothing reads the content tree for them. Run with no arguments, this gate printed
+  //
+  //     - **Inputs:** None
+  //     ## 1. Source Status
+  //     Total source units: 158
+  //     - reviewed: 158
+  //
+  // and exited 0, while registered requiredInCi with cadence every-run and required in the preview
+  // and launch profiles. "Inputs: None" and "158 reviewed" are two lines apart and only one of them
+  // is true. The numbers are not a measurement of this repository and never were.
+  //
+  // The model for the honest form is in this same file: the numerical-validation dimension already
+  // reports `not-run` when its evidence is absent rather than a count of zero. These three now
+  // behave the same way - they are supplied only under --demonstration, and a default run reports
+  // them as not measured, with the reason.
+  //
+  // DELETION CONDITION: when am-cm-coverage-ledger-0ip wires real loaders for source manifests,
+  // argument nodes and instruments, this fixture and the --demonstration flag go away and the
+  // dimensions become measured. This bead is not that work; it is the gate not lying in the meantime.
+  const demonstrationNodes: ArgumentNodeCoverage[] = [
     {
       id: "arg-bm-observable",
       paper: "brownian-motion",
@@ -147,7 +174,7 @@ export async function runCoverageReport(args: string[]): Promise<{
     },
   ];
 
-  const instrumentsMap = new Map([
+  const demonstrationInstruments = new Map([
     [
       "bm-01",
       { id: "bm-01", provenance: "host-calculation-available" as const, paper: "brownian-motion" },
@@ -163,7 +190,7 @@ export async function runCoverageReport(args: string[]): Promise<{
     ["bm-06", { id: "bm-06", provenance: "artifact-loaded" as const, paper: "brownian-motion" }],
   ]);
 
-  const sourceManifestsMap = new Map([
+  const demonstrationSourceManifests = new Map([
     [
       "brownian-motion",
       {
@@ -174,11 +201,20 @@ export async function runCoverageReport(args: string[]): Promise<{
     ],
   ]);
 
+  // The three unwired dimensions. Empty by default so no fabricated figure is presented as
+  // coverage; the provenance block below says an empty figure here means "not measured", which is
+  // the distinction a bare 0 cannot carry.
+  const UNWIRED_DIMENSIONS = [
+    "Source Status",
+    "Argument Treatment",
+    "Instrument Availability",
+  ] as const;
+
   const context: LedgerContext = {
-    argumentNodes: sampleNodes,
-    instruments: instrumentsMap,
-    sourceManifests: sourceManifestsMap,
-    knownExperiments: new Set(["bm-01", "bm-05", "bm-06"]),
+    argumentNodes: demonstration ? demonstrationNodes : [],
+    instruments: demonstration ? demonstrationInstruments : new Map(),
+    sourceManifests: demonstration ? demonstrationSourceManifests : new Map(),
+    knownExperiments: demonstration ? new Set(["bm-01", "bm-05", "bm-06"]) : new Set<string>(),
     scenarioEvidence,
     scenarioEvidencePath,
     reviewRecords,
@@ -189,14 +225,23 @@ export async function runCoverageReport(args: string[]): Promise<{
   const report = generateCoverageReport(context, toolRunId);
   const { jsonPath, mdPath } = writeCoverageReportArtifacts(report, outDir);
 
+  // The provenance block goes to stdout in BOTH modes, because a JSON consumer reading
+  // sourceStatus.totalUnits has the same right to know whether that figure was measured. The
+  // report object itself cannot carry it without changing CoverageReport, which belongs to
+  // am-cm-coverage-ledger-0ip; until then this line is the carrier and the limitation is stated.
+  const provenance = demonstration
+    ? `DEMONSTRATION RUN. ${UNWIRED_DIMENSIONS.join(", ")} are filled from a fixture in scripts/coverage-report.ts, not measured from this repository. Do not cite these figures as coverage.`
+    : `NOT MEASURED: ${UNWIRED_DIMENSIONS.join(", ")} have no loader wired (am-cm-coverage-ledger-0ip), so their figures are absent rather than zero. Every other dimension below is measured from its declared input.`;
+
   if (json) {
     console.log(JSON.stringify(report, null, 2));
   } else {
     console.log(formatCoverageMarkdown(report));
     console.log(`\nArtifacts written:\n- JSON: ${jsonPath}\n- Markdown: ${mdPath}`);
   }
+  console.log(`\n${provenance}`);
 
-  return { report, jsonPath, mdPath };
+  return { report, jsonPath, mdPath, provenance, unwiredDimensions: UNWIRED_DIMENSIONS };
 }
 
 async function main() {

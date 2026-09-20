@@ -75,4 +75,68 @@ describe("Coverage Report CLI Contract (scripts/coverage-report.ts)", () => {
       `Schema validation failed: ${schemaCheck.errors.join(", ")}`,
     );
   });
+
+  /**
+   * am-wdqy's sibling. This gate is requiredInCi with cadence every-run and required in the preview
+   * and launch profiles, and with no arguments it printed
+   *
+   *     - **Inputs:** None
+   *     ## 1. Source Status
+   *     Total source units: 158
+   *     - reviewed: 158
+   *
+   * from three literals in scripts/coverage-report.ts, exiting 0. "Inputs: None" and "158 reviewed"
+   * sat two lines apart and only one was true.
+   *
+   * Both halves are pinned here: a default run must not present the fixture as coverage, and a
+   * populated run must still report its figures - otherwise this is a gag rather than a fix.
+   */
+  it("a default run does not present the fixture as coverage, and says the figures are absent rather than zero", async () => {
+    mkdirSync(testOutDir, { recursive: true });
+    const { report, mdPath, provenance, unwiredDimensions } = await runCoverageReport([
+      "--outDir",
+      testOutDir,
+      "--json",
+    ]);
+
+    assert.equal(report.sourceStatus.totalUnits, 0, "the fixture's 158 must not appear by default");
+    assert.equal(report.argumentTreatment.totalNodes, 0);
+    assert.equal(report.instrumentAvailability.totalInstruments, 0);
+
+    assert.match(provenance, /NOT MEASURED/);
+    assert.match(provenance, /absent rather than zero/);
+    assert.match(provenance, /am-cm-coverage-ledger-0ip/);
+    for (const dimension of unwiredDimensions) assert.match(provenance, new RegExp(dimension));
+
+    const md = readFileSync(mdPath, "utf8");
+    assert.equal(md.includes("Total source units: 158"), false);
+  });
+
+  it("THE CONTROL: a populated run still reports its figures", async () => {
+    mkdirSync(testOutDir, { recursive: true });
+
+    // (a) the fixture, when explicitly asked for, still renders - and is labelled as a fixture
+    const demo = await runCoverageReport(["--outDir", testOutDir, "--json", "--demonstration"]);
+    assert.equal(demo.report.sourceStatus.totalUnits, 158);
+    assert.equal(demo.report.argumentTreatment.totalNodes, 3);
+    assert.match(demo.provenance, /DEMONSTRATION RUN/);
+    assert.match(demo.provenance, /Do not cite these figures as coverage/);
+
+    // (b) a dimension with a REAL input is untouched by the change: measured counts still appear
+    const scenarioFile = join(testOutDir, "control-scenarios.jsonl");
+    writeFileSync(
+      scenarioFile,
+      `${JSON.stringify({ scenarioId: "sc-control-01", status: "passed" })}\n`,
+      "utf8",
+    );
+    const measured = await runCoverageReport([
+      "--scenario-evidence",
+      scenarioFile,
+      "--outDir",
+      testOutDir,
+      "--json",
+    ]);
+    assert.equal(measured.report.numericalValidation.totalScenarios, 1);
+    assert.equal(measured.report.numericalValidation.byStatus.passing, 1);
+  });
 });
