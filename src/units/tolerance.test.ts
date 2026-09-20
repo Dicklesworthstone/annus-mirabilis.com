@@ -226,7 +226,80 @@ describe("module purity", () => {
   });
 });
 
-function hasMathAbsDivision(line: string): boolean {
+/**
+ * The code part of a line: a full-line comment contributes nothing, and a trailing
+ * comment is cut off (am-f5mo).
+ *
+ * The detector used to read comments as code. Writing a comment that SPELLS OUT the
+ * shape it looks for made the gate flag the comment - the same family as am-v5te,
+ * where a guard read a description of a command as a command. A checker that cannot
+ * tell an expression from a description of one cannot be reasoned about.
+ *
+ * This cuts at the first `//`, which would also truncate a line whose string literal
+ * contains `//`. That can only ever LOSE a detection, never invent one, and no such
+ * line exists in the corpus today.
+ */
+function codePortion(line: string): string {
+  const trimmed = line.trimStart();
+  if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) return "";
+  const idx = line.indexOf("//");
+  return idx === -1 ? line : line.slice(0, idx);
+}
+
+/** Dotted identifiers in a fragment, so `stats[1]!.mean` contributes `stats` and `mean`. */
+function identifiersIn(fragment: string): Set<string> {
+  const out = new Set<string>();
+  for (const match of fragment.matchAll(/[A-Za-z_$][\w$]*/g)) {
+    const name = match[0];
+    if (name === "Math" || name === "abs" || name === "max" || name === "min") continue;
+    out.add(name);
+  }
+  return out;
+}
+
+/** Splits on the top-level binary minus, ignoring one inside parens, brackets or a unary position. */
+function splitOnTopLevelMinus(argument: string): readonly [string, string] | null {
+  let depth = 0;
+  for (let i = 1; i < argument.length; i++) {
+    const ch = argument[i];
+    if (ch === "(" || ch === "[") depth++;
+    else if (ch === ")" || ch === "]") depth--;
+    else if (ch === "-" && depth === 0) {
+      const before = argument.slice(0, i).trimEnd();
+      const after = argument.slice(i + 1).trim();
+      // A binary minus has a complete operand on its left; `(-x)` and `a * -b` do not.
+      if (before.length === 0 || after.length === 0) continue;
+      if (/[+\-*/%(,<>=!&|^?:]$/.test(before)) continue;
+      return [before, after] as const;
+    }
+  }
+  return null;
+}
+
+/**
+ * A HAND-ROLLED RELATIVE COMPARISON, which is what this gate exists to catch: the
+ * magnitude of a DIFFERENCE, divided by one of the things being differenced.
+ *
+ *     Math.abs(actual - reference) / reference
+ *     Math.abs(a - b) / Math.abs(b)
+ *     Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b))
+ *
+ * That is `withinTolerance` written out by hand, and it belongs in src/units/tolerance.ts.
+ *
+ * What it is NOT, and what the old shape-only matcher flagged anyway (am-f5mo):
+ *
+ *     Math.abs(vx) / C_SI                      a magnitude normalised by a constant
+ *     Math.abs(m1 - m0) / distanceUm           a measured scale in px per um
+ *
+ * Neither divides by an operand of its own difference, so neither is a comparison of
+ * two computed results; the second is a calibration whose numerator and denominator
+ * carry different dimensions on purpose. The old matcher required only that a
+ * `Math.abs(...)` be followed by `/`, which is a shape, not a meaning - and the file
+ * that exposed it had two adjacent lines doing the same category of arithmetic where
+ * only the one opening with Math.abs was flagged.
+ */
+function hasMathAbsDivision(rawLine: string): boolean {
+  const line = codePortion(rawLine);
   let idx = line.indexOf("Math.abs(");
   while (idx !== -1) {
     let depth = 0;
@@ -244,7 +317,18 @@ function hasMathAbsDivision(line: string): boolean {
     if (endIdx !== -1) {
       const after = line.slice(endIdx + 1).trimStart();
       if (after.startsWith("/") && !after.startsWith("//")) {
-        return true;
+        const argument = line.slice(idx + 9, endIdx);
+        const operands = splitOnTopLevelMinus(argument);
+        if (operands) {
+          const divisor = after.slice(1);
+          const divisorNames = identifiersIn(divisor);
+          const leftNames = identifiersIn(operands[0]);
+          const rightNames = identifiersIn(operands[1]);
+          const touchesOperand =
+            [...divisorNames].some((name) => leftNames.has(name)) ||
+            [...divisorNames].some((name) => rightNames.has(name));
+          if (touchesOperand) return true;
+        }
       }
     }
     idx = line.indexOf("Math.abs(", idx + 8);
@@ -252,10 +336,96 @@ function hasMathAbsDivision(line: string): boolean {
   return false;
 }
 
-function isDuplicateToleranceComparison(line: string): boolean {
+function isDuplicateToleranceComparison(rawLine: string): boolean {
+  const line = codePortion(rawLine);
   if (line.includes("Math.abs(") && /EPSILON/.test(line)) return true;
-  return hasMathAbsDivision(line);
+  return hasMathAbsDivision(rawLine);
 }
+
+describe("hand-rolled relative comparison detector (am-f5mo)", () => {
+  // THE NEGATIVE AN OVER-BROAD MATCHER PASSES AND A NARROWED ONE MUST NOT LOSE.
+  // Narrowing a detector is the easy half; the risk is narrowing it into silence.
+  // Each of these divides the magnitude of a difference by one of the things being
+  // differenced, which is withinTolerance written out by hand, and each must still
+  // be caught.
+  test("still catches a real hand-rolled relative comparison", () => {
+    for (const line of [
+      "const rel = Math.abs(actual - reference) / reference;",
+      "const rel = Math.abs(actual - reference) / Math.abs(reference);",
+      "if (Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b)) > tol) return false;",
+      "const drift = Math.abs(measured - expected) / expected;",
+      "  return Math.abs(got - want) / Math.abs(want) <= spec.relative;",
+      "const e = Math.abs(stats.mean - stats.reference) / stats.reference;",
+    ]) {
+      expect(isDuplicateToleranceComparison(line)).toBe(true);
+    }
+  });
+
+  // A relative comparison written with a trailing comment is still a comparison.
+  test("a trailing comment does not hide a real comparison", () => {
+    expect(
+      isDuplicateToleranceComparison("const rel = Math.abs(a - b) / b; // relative error"),
+    ).toBe(true);
+  });
+
+  // The EPSILON branch is untouched by the narrowing.
+  test("still catches the EPSILON form", () => {
+    expect(
+      isDuplicateToleranceComparison("if (Math.abs(x - y) < Number.EPSILON) return true;"),
+    ).toBe(true);
+  });
+
+  test("does not flag a magnitude normalised by an independent constant", () => {
+    // src/physics/reference/electron.ts: speed beta normalisation. The numerator is
+    // not a difference at all, so there are no operands to divide by.
+    expect(isDuplicateToleranceComparison("const beta = Math.abs(vx) / C_SI;")).toBe(false);
+  });
+
+  test("does not flag a measured scale whose divisor is not one of its operands", () => {
+    // src/experiments/bm07/kitchen/videoCapture.ts: a micrometre calibration. The
+    // numerator is a mark separation in pixels and the divisor an independently known
+    // separation in micrometres - different dimensions on purpose, px/um out.
+    expect(
+      isDuplicateToleranceComparison(
+        "const pixelsPerUm = Math.abs(stats[1]!.mean - stats[0]!.mean) / distanceUm;",
+      ),
+    ).toBe(false);
+  });
+
+  test("the one-line and two-line forms of the same arithmetic now agree", () => {
+    // The bead's whole evidence that the old check was line-based: splitting this
+    // statement in two, changing no arithmetic, flipped the verdict. Both are now false.
+    const oneLine = "const pixelsPerUm = Math.abs(stats[1]!.mean - stats[0]!.mean) / distanceUm;";
+    const split = "const markSeparationPx = Math.abs(stats[1]!.mean - stats[0]!.mean);";
+    expect(isDuplicateToleranceComparison(oneLine)).toBe(false);
+    expect(isDuplicateToleranceComparison(split)).toBe(false);
+  });
+
+  test("does not read a comment as code", () => {
+    // Reproduces the bead's first repro step: a comment that spells out the shape.
+    for (const line of [
+      "// matches Math.abs(a - b) / b, which is why the division below is flagged",
+      "   * Math.abs(actual - reference) / reference is the shape this gate catches.",
+      "  /* Math.abs(x - y) / y */",
+    ]) {
+      expect(isDuplicateToleranceComparison(line)).toBe(false);
+    }
+  });
+
+  test("a unary minus is not a difference", () => {
+    expect(isDuplicateToleranceComparison("const s = Math.abs(-offset) / scale;")).toBe(false);
+  });
+
+  // Pins the DIFFERENCE requirement independently of the divisor requirement. Without
+  // this case, replacing splitOnTopLevelMinus with a stub that treats the whole argument
+  // as both operands left the suite green: every other negative here is also rejected by
+  // the divisor test, so the two requirements were not separately covered. Sign
+  // extraction divides a magnitude by the very same value and compares nothing.
+  test("a magnitude over itself is not a comparison: the difference requirement stands alone", () => {
+    expect(isDuplicateToleranceComparison("const sign = Math.abs(vx) / vx;")).toBe(false);
+    expect(isDuplicateToleranceComparison("const unit = Math.abs(speed) / speed;")).toBe(false);
+  });
+});
 
 describe("single tolerance module: no duplicate comparison logic elsewhere", () => {
   test("negative for false-positive direction: identifier with 'rel' and no division does not trip the gate", () => {
