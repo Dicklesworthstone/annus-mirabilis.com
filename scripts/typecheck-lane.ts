@@ -32,25 +32,52 @@ export interface LaneCheck {
 }
 
 /**
- * Every registered instrument must map to a search paper.
+ * Every catalogue id must map to a search paper.
  *
- * This is the assertion documentsFromCompiled makes by throwing. Asserting it here costs a map over
- * the catalogue and needs no generator, no content compile and no build.
+ * This is the assertion documentsFromCompiled makes by throwing, and it is the one cross-check
+ * nobody had: registryDispatch.test.ts checks the catalogue against OWNER_BINDINGS and
+ * CATALOGUE_QUESTIONS - same population, different codomain - and the search-paper mapping went
+ * unchecked until light-thread was added to the catalogue without being added to the id grammar.
+ *
+ * THE DIRECTION IS CATALOGUE -> GRAMMAR, and it is not symmetric. The catalogue
+ * (src/experiments/catalogue.ts) is authoritative for which instruments exist; the grammar
+ * (CORE_INSTRUMENT_PATTERN and NON_CORE_INSTRUMENT_IDS in src/content/ids.ts) is authoritative for
+ * which id strings are well-formed. Deriving the grammar from the catalogue would make every id
+ * anyone writes well-formed by construction, and parseInstrumentId could never reject a typo -
+ * src/content/ids.test.ts asserts it rejects "shelf-fizaeu" and "LQ-01", and those assertions only
+ * mean something while the grammar is independent.
+ *
+ * ALL 38 CATALOGUE IDS, NOT THE 34 REGISTERED ONES. The filter used to mirror
+ * documentsFromCompiled, which skips non-registered instruments, but mirroring one consumer's slice
+ * is the wrong denominator: an id is an id whether or not it is registered, well-formedness does not
+ * depend on status, and src/content/anchors.ts parses ids without consulting it. Widening changed no
+ * verdict on the day it was made - all 38 parse - which is what makes it safe to state.
  */
 export function checkInstrumentPaperMapping(
   ids: readonly string[] = CATALOGUE_IDS,
   statusOf: (id: string) => string | undefined = (id) =>
     CATALOGUE_STATUS[id as keyof typeof CATALOGUE_STATUS],
 ): LaneCheck {
-  const registered = ids.filter((id) => statusOf(id) === "registered");
-  const unmapped = registered.filter((id) => familyPaper(id) === null);
+  // The vacuity guard, and it is the same one registryDispatch.test.ts needs for the same reason:
+  // "every id maps" over an empty catalogue is true and establishes nothing. A catalogue that has
+  // become empty is a loading fault, not a clean bill.
+  if (ids.length === 0) {
+    return {
+      name: "registry",
+      ok: false,
+      detail:
+        "the instrument catalogue is empty, so 'every id maps to a search paper' is vacuously true and establishes nothing. CATALOGUE_STATUS in src/experiments/catalogue.ts failed to load or was emptied.",
+    };
+  }
+  const unmapped = ids.filter((id) => familyPaper(id) === null);
+  const registered = ids.filter((id) => statusOf(id) === "registered").length;
   return {
     name: "registry",
     ok: unmapped.length === 0,
     detail:
       unmapped.length === 0
-        ? `${registered.length} of ${ids.length} catalogue ids are registered; all map to a search paper.`
-        : `${unmapped.length} registered instrument(s) map to no search paper, which makes the search index build throw: ${unmapped.join(", ")}. Add the id to the paper map in src/search/documents.ts, or register it under an id the instrument-id grammar accepts.`,
+        ? `${ids.length} catalogue ids (${registered} registered); all map to a search paper.`
+        : `${unmapped.length} of ${ids.length} catalogue id(s) map to no search paper, which makes the search index build throw: ${unmapped.join(", ")}. Add the id to the non-core list in src/content/ids.ts, or use an id the instrument-id grammar accepts.`,
   };
 }
 

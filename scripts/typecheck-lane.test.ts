@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { CATALOGUE_IDS, REGISTERED_IDS } from "../src/experiments/catalogue.ts";
 import { familyPaper } from "../src/search/documents.ts";
 import {
   checkInstrumentPaperMapping,
@@ -30,7 +31,7 @@ describe("the typecheck lane turns red on both historical outages", () => {
    * all map to null. The check is driven with one of those, and the repair of the original is
    * asserted beside it so a future widening of this test cannot quietly lose either fact.
    */
-  test("ad92ef0b's class: a registered instrument the grammar rejects fails the registry check", () => {
+  test("ad92ef0b's shape: a catalogue id the grammar rejects fails the registry check", () => {
     expect(familyPaper("light-thread")).toBe("cross-paper"); // repaired by 76ee7230
     expect(familyPaper("a-brand-new-lab")).toBeNull(); // the class, still live
 
@@ -38,6 +39,34 @@ describe("the typecheck lane turns red on both historical outages", () => {
     expect(check.ok).toBe(false);
     expect(check.detail).toContain("a-brand-new-lab");
     expect(check.detail).toContain("search index build throw");
+  });
+
+  /**
+   * The real shape, over the real catalogue. ad92ef0b added light-thread to CATALOGUE_STATUS
+   * without adding it to NON_CORE_INSTRUMENT_IDS, so parseInstrumentId rejected it and the search
+   * index build threw. This asserts the invariant that was missing, over every id the catalogue
+   * actually holds, rather than over a list assembled in the test.
+   */
+  test("every id the real catalogue holds maps to a search paper", () => {
+    const check = checkInstrumentPaperMapping();
+    expect(check.ok).toBe(true);
+    // all of them, not the registered slice: an id is an id whether or not it is registered
+    expect(check.detail).toContain(`${CATALOGUE_IDS.length} catalogue ids`);
+    expect(CATALOGUE_IDS.filter((id) => familyPaper(id) === null)).toEqual([]);
+    // and the population is bigger than the registered slice, so the widening is not cosmetic
+    expect(CATALOGUE_IDS.length).toBeGreaterThan(REGISTERED_IDS.length);
+  });
+
+  /**
+   * The vacuity guard, written for the same reason as the one in registryDispatch.test.ts: "every
+   * id maps" over an empty catalogue is true and establishes nothing. Without this, a catalogue
+   * that failed to load would report the check PASSING.
+   */
+  test("an empty catalogue fails the check rather than passing it vacuously", () => {
+    const check = checkInstrumentPaperMapping([], () => "registered");
+    expect(check.ok).toBe(false);
+    expect(check.detail).toContain("vacuously true");
+    expect(check.detail).toContain("failed to load");
   });
 
   test("dacd28fd: the real TS7053 output fails the types check and is counted", () => {
@@ -76,10 +105,28 @@ describe("the typecheck lane turns red on both historical outages", () => {
   });
 
   test("the registry check states its denominator rather than only its verdict", () => {
-    const check = checkInstrumentPaperMapping(["bm-01", "sr-03", "future-idea"], (id) =>
-      id === "future-idea" ? "planned" : "registered",
+    // shelf-fizeau is in-preparation and is in the grammar's non-core list, so it belongs to the
+    // population and maps. The detail reports the whole catalogue with the registered count beside
+    // it, rather than reporting only the registered slice as the population.
+    const check = checkInstrumentPaperMapping(["bm-01", "sr-03", "shelf-fizeau"], (id) =>
+      id === "shelf-fizeau" ? "in-preparation" : "registered",
     );
     expect(check.ok).toBe(true);
-    expect(check.detail).toContain("2 of 3 catalogue ids are registered");
+    expect(check.detail).toContain("3 catalogue ids (2 registered)");
+  });
+
+  /**
+   * The widening, asserted as a behaviour change rather than left implicit. Before, the check
+   * filtered to registered ids and an in-preparation id the grammar rejects passed. It does not now:
+   * well-formedness does not depend on status, and src/content/anchors.ts parses ids without
+   * consulting one.
+   */
+  test("an in-preparation id the grammar rejects fails too, not just a registered one", () => {
+    const check = checkInstrumentPaperMapping(["bm-01", "future-idea"], (id) =>
+      id === "future-idea" ? "in-preparation" : "registered",
+    );
+    expect(check.ok).toBe(false);
+    expect(check.detail).toContain("future-idea");
+    expect(check.detail).toContain("1 of 2 catalogue id(s)");
   });
 });
