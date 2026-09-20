@@ -131,6 +131,29 @@ input {
   background: var(--paper);
   color: var(--ink);
 }
+
+/*
+ * A radio or a checkbox is not a text field, and the rule above was sizing it like one.
+ *
+ * am-8w0x. `width: 100%` with `min-width: 0` makes every control fill its container.
+ * For the theme toggle, whose labels are inline-flex boxes sized by their own text,
+ * WebKit resolved that to ZERO for the short labels - "Annalen" and "Slate" measured
+ * 0 x 12 CSS pixels against 13 x 13 in Chromium - so there was nothing to click at the
+ * control itself. Chromium did not collapse them but was distorted too: the long
+ * labels' radios measured 49 and 56 pixels wide instead of 13.
+ *
+ * Measured, not inferred: the toggle's own stylesheet reproduces none of this in
+ * isolation, and adding this block to an isolated page reproduces it exactly in both
+ * engines. 83 radio and checkbox inputs exist in src/, and `.check input` below already
+ * pins its own size - one component that hit this and patched itself. This fixes the
+ * class instead, and any later, more specific rule still wins on source order.
+ */
+input[type="radio"],
+input[type="checkbox"] {
+  width: auto;
+  flex: none;
+  padding: 0;
+}
 :focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 4px;
