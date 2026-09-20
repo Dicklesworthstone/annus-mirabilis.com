@@ -4,6 +4,7 @@
  */
 
 import { type ConstantSet, constantValue, thermalConstant } from "../constants.ts";
+import { quantumConstantsSI, thermalConstantSI } from "./quantumConstants.ts";
 import type {
   BandLimitedMeanQuantumEnergyResult,
   CyclicFrequency,
@@ -11,6 +12,7 @@ import type {
 } from "./types.ts";
 
 const JOULES_PER_EV = 1.602176634e-19;
+const constantReaders = { read: constantValue, thermal: thermalConstant };
 
 /** Effective independent particle count E / (h*nu) or E / (B*nu). */
 export function effectiveIndependentCount(
@@ -30,7 +32,7 @@ export function effectiveIndependentCount(
   if (typeof setOrB === "number") {
     elementEnergy = setOrB * nu;
   } else if (setOrB && "entries" in setOrB) {
-    const h = constantValue(setOrB, "planckConstant").value;
+    const { h } = quantumConstantsSI(setOrB, constantReaders);
     elementEnergy = h * nu;
   } else {
     // Modern SI
@@ -61,8 +63,7 @@ export function meanQuantumEnergyWien(
   set: ConstantSet,
   options: { epsilonW?: number } = {},
 ): MeanQuantumEnergyWienResult {
-  const kB = thermalConstant(set).value;
-  const h = constantValue(set, "planckConstant").value;
+  const { kB, h } = quantumConstantsSI(set, constantReaders);
 
   const meanWienJoules = 3 * kB * T;
   const meanWienEv = meanWienJoules / JOULES_PER_EV;
@@ -161,7 +162,7 @@ export function meanQuantumEnergyWienBand(
   const epsilonW = options.epsilonW ?? 0.01;
   const wienBoundaryX = Math.log(1 / epsilonW);
 
-  const kB = thermalConstant(set).value;
+  const kB = thermalConstantSI(set, constantReaders);
 
   let meanEnergyJoules: number;
   if (xMin === 0 && xMax === Infinity) {
