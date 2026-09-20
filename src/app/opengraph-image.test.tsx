@@ -59,6 +59,30 @@ describe("Root OpenGraph Image Generator", () => {
     expect(escaped).toEqual([]);
   });
 
+  // am-jfyo. Every build printed "Failed to load dynamic font for ✦ . Error: Failed to
+  // download dynamic font. Status: 400" and shipped the brand mark as an empty
+  // missing-glyph box. next/og reaches the NETWORK for any glyph its built-in font does
+  // not cover, and this file's own header has claimed since the donor extraction that
+  // it makes no third-party font request. The claim was false for that one glyph, on
+  // every build, and nothing checked it - the warning was only ever read by a person
+  // watching build output scroll past.
+  //
+  // The warning arrives on console.error, verified by intercepting each channel in turn.
+  test("rendering the card fetches no font over the network", async () => {
+    const messages: string[] = [];
+    const original = console.error;
+    console.error = (...args: unknown[]) => {
+      messages.push(args.map(String).join(" "));
+      original(...args);
+    };
+    try {
+      await (await Image()).arrayBuffer();
+    } finally {
+      console.error = original;
+    }
+    expect(messages.filter((message) => /dynamic font/i.test(message))).toEqual([]);
+  });
+
   test("generates valid ImageResponse instance with image/png content-type", async () => {
     const res = await Image();
     expect(res).toBeDefined();

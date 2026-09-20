@@ -64,12 +64,37 @@ export default async function Image() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#ffffff",
-              fontSize: "26px",
-              fontWeight: "bold",
             }}
           >
-            ✦
+            {/*
+              am-jfyo. This was the character U+2726 BLACK FOUR POINTED STAR. Satori's
+              built-in font does not cover it, so every single build reached the network
+              for a font, got HTTP 400, and shipped the mark as an empty missing-glyph
+              box - verified by looking at out/opengraph-image, not inferred from the
+              warning. The file's own header has claimed since the donor extraction that
+              it makes no third-party font request; that claim was false for this one
+              glyph on every build.
+
+              Drawn instead of typed. The mark is decoration, not text a reader reads, so
+              it needs no font and no network: the three self-hosted families in
+              public/fonts cover none of U+2726 either, and bundling a fourth for one
+              ornament would be a licensing and subsetting decision rather than a build
+              fix.
+            */}
+            {/* No <title>: Satori renders it as visible TEXT in the raster, which
+                printed "Annus Mirabilis mark" across the header the first time I tried
+                it. The card's accessible name is the route's own `alt` export, which is
+                what every consumer of an Open Graph image actually uses. */}
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="#ffffff"
+              role="img"
+              aria-label="Annus Mirabilis mark"
+            >
+              <path d="M12 1 L14 10 L23 12 L14 14 L12 23 L10 14 L1 12 L10 10 Z" />
+            </svg>
           </div>
           <span
             style={{
