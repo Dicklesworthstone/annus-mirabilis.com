@@ -14,6 +14,60 @@ const E2E_SECRET_VALUE = "luna-e2e-credential-2f4a8c1d-not-a-real-key";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
+/**
+ * Criterion 7, "credentials never appear in any written file", with a credential that is
+ * actually on a write path (am-src-ocr-orchestrator-u1e0).
+ *
+ * The sweep in the pipeline test above checks every file the run wrote, but the happy
+ * path never handles a credential, so with redaction switched off nothing leaked and the
+ * sweep passed anyway: a plant that cannot reach the planted state. Verified, not assumed -
+ * disabling the env-value branch of `redact` left that test green.
+ *
+ * The leak vector a real adapter has is an error that quotes the failing request. This
+ * drives it: the fixture adapter's auth failure echoes the Authorization header, and the
+ * orchestrator must redact it before the message reaches run.jsonl.
+ */
+describe("OCR Orchestrator: a credential on a write path is redacted", () => {
+  for (const form of ["header", "bare"] as const) {
+    it(`writes [REDACTED] and never the key, when the adapter error carries it (${form})`, async () => {
+      const previousKey = process.env.LUNA_API_KEY;
+      process.env.LUNA_API_KEY = E2E_SECRET_VALUE;
+      const toolRunId = `redaction-run-${Date.now()}`;
+      const runDir = resolve(ROOT, "artifacts/ocr-runs/fixture-3p", toolRunId);
+
+      try {
+        const result = await runOcrOrchestrator({
+          planPath: "scripts/sources/ocr-plans/fixture-3p.yaml",
+          toolRunId,
+          adapter: new FixtureAdapter({
+            failAtChunkIndex: 0,
+            failWithCode: "ADAPTER_AUTH",
+            echoCredentialInAuthError: form,
+          }),
+          renderOptions: SYNTHETIC_RENDER,
+        });
+        assert.equal(result.ok, false, "An auth failure must not report success");
+
+        const logText = await readFile(resolve(runDir, "run.jsonl"), "utf-8");
+        // The message reached the log, so the write path really was exercised...
+        assert.ok(
+          logText.includes("authentication failed"),
+          "The adapter's auth error must be recorded",
+        );
+        // ...and the credential inside it did not survive the trip.
+        assert.ok(
+          !logText.includes(E2E_SECRET_VALUE),
+          "run.jsonl contains the raw credential from the adapter error",
+        );
+        assert.ok(logText.includes("[REDACTED]"), "The credential must be recorded as redacted");
+      } finally {
+        if (previousKey === undefined) delete process.env.LUNA_API_KEY;
+        else process.env.LUNA_API_KEY = previousKey;
+      }
+    });
+  }
+});
+
 describe("OCR Orchestrator: End-to-End Pipeline Test", () => {
   it("runs full 31-page pipeline with concurrency 2, deliberate failure at chunk 5, resume, summarize, and coverage verification", async () => {
     // A credential present for the whole run, so the sweep below has something to find if

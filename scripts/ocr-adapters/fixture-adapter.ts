@@ -38,6 +38,12 @@ export interface FixtureAdapterOptions {
   model?: string | undefined;
   costUnits?: number | undefined;
   failAtChunkIndex?: number | null | undefined;
+  /**
+   * Make the ADAPTER_AUTH failure quote the Authorization header, the way a real HTTP
+   * client reports a failing request. Off by default; the redaction test turns it on so
+   * there is a credential on a write path for the orchestrator to redact.
+   */
+  echoCredentialInAuthError?: boolean;
   failWithCode?:
     | "ADAPTER_UNAVAILABLE"
     | "ADAPTER_AUTH"
@@ -58,6 +64,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
   readonly costUnits: number;
   private failAtChunkIndex: number | null;
   private failWithCode: string | null;
+  private echoCredentialInAuthError: boolean;
   private timeoutsBeforeSuccess: number;
   private currentTimeoutCount = 0;
   private customPageText: Record<number, string>;
@@ -81,6 +88,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
     this.costUnits = options.costUnits ?? 1.0;
     this.failAtChunkIndex = options.failAtChunkIndex ?? null;
     this.failWithCode = options.failWithCode ?? null;
+    this.echoCredentialInAuthError = options.echoCredentialInAuthError ?? false;
     this.timeoutsBeforeSuccess = options.timeoutsBeforeSuccess ?? 0;
     this.customPageText = options.customPageText ?? {};
   }
@@ -113,7 +121,14 @@ export class FixtureAdapter implements CloudOcrAdapter {
             );
           case "ADAPTER_AUTH":
             throw new AdapterAuthError(
-              `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}`,
+              this.echoCredentialInAuthError
+                ? // The leak vector a real adapter has: an HTTP client that reports the
+                  // failing request, Authorization header and all. Opt-in, so no existing
+                  // expectation of this message changes, and used by the redaction test to
+                  // give the orchestrator something it must redact before writing.
+                  `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}: ` +
+                    `request was Authorization: Bearer ${process.env.LUNA_API_KEY ?? ""}`
+                : `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}`,
             );
           case "ADAPTER_QUOTA":
             throw new AdapterQuotaError(`Cloud OCR quota exceeded at chunk ${chunk.chunkIndex}`);
