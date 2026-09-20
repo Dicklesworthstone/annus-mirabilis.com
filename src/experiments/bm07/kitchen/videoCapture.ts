@@ -72,6 +72,14 @@ export function startCapture(geometry: VideoGeometry, fps: number, interval: str
     return captureRefusal("Confirm a nominal frame rate from 0.1 to 10000 Hz and a 0.5, 1 or 2 second sampling interval.", "timing");
   return ready(Object.freeze({ geometry, fps, interval: interval as VideoCapture["interval"], points: Object.freeze([]), calibration: Object.freeze({}) }));
 }
+/** Last point matching a predicate, scanning backwards. Array.prototype.findLast is ES2023 and
+ * this project's tsconfig lib is ES2022; `.at(-1)` used elsewhere in the reader is the same
+ * generation. Kept local rather than widening lib, which would admit every ES2023 array method
+ * repo-wide against no declared browser floor. */
+function lastMatching(points: readonly KitchenPoint[], match: (p: KitchenPoint) => boolean): KitchenPoint | undefined {
+  for (let i = points.length - 1; i >= 0; i -= 1) { const p = points[i]; if (p && match(p)) return p; }
+  return undefined;
+}
 export function appendVideoPoint(state: VideoCapture, frame: CapturedFrame, mark: Mark,
   x: number, y: number, objectId = "particle-1", loss: KitchenPoint["lossReason"] = "",
   identityDecision: KitchenPoint["identityDecision"] = ""): CaptureResult<VideoCapture> {
@@ -92,11 +100,7 @@ export function appendVideoPoint(state: VideoCapture, frame: CapturedFrame, mark
   if (typeof objectId !== "string" || !objectId.trim() || objectId.length > 80 || /[\u0000-\u001f\u007f]/.test(objectId))
     return captureRefusal("Use a nonempty particle label of at most 80 characters with no control codes.", "objectId");
   const id = kind === "particle" ? objectId : kind === "stationary" ? "stationary-feature" : `mark-${mark}`;
-  let previous: KitchenPoint | undefined;
-  for (let i = state.points.length - 1; i >= 0; i--) {
-    const point = state.points[i]!;
-    if (point.kind === kind && point.objectId === id) { previous = point; break; }
-  }
+  const previous = lastMatching(state.points, p => p.kind === kind && p.objectId === id);
   if (previous && (frame.time < previous.time || (kind === "particle" && frame.time === previous.time)))
     return captureRefusal("Use a later frame for this particle. Repeated stationary-feature and calibration clicks may share one actual frame time.", "time");
   if ((previous?.status === "lost" && !loss) !== (identityDecision !== ""))

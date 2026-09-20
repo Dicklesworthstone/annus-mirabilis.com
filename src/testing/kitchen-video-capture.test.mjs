@@ -140,3 +140,16 @@ test("skipped compositor counts survive export and withhold interval coverage", 
   assert.ok(analysis.warnings.some(w=>w.includes("2 additional frames")));
   assert.equal(analysis.outputs.find(o=>o.quantityId==="diffusionInterval").status,"not-applicable");
 });
+
+// The time-ordering refusal compares against the LATEST prior observation of the same object, not
+// the earliest. A forward scan finds the earliest and silently accepts an out-of-order frame, so
+// this case discriminates the scan direction that the other tests cannot.
+test("an out-of-order frame is refused against the latest prior observation, not the first", () => {
+  let s = calibrated();
+  s = take(appendVideoPoint(s, frame(1), "particle", 100, 50));
+  s = take(appendVideoPoint(s, frame(3), "particle", 120, 50));
+  const out = appendVideoPoint(s, frame(2), "particle", 110, 50);
+  assert.equal(out.kind, "refused", "t=2 after t=3 must be refused; a forward scan compares against t=1 and accepts it");
+  assert.equal(out.refusal.affected.parameterIds[0], "time");
+  assert.equal(s.points.filter(p => p.kind === "particle").length, 2);
+});
