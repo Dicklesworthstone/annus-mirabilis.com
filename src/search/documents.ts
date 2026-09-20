@@ -1,3 +1,4 @@
+import { parseInstrumentId } from "../content/ids.ts";
 import { type SearchAlias, type SearchDocument, validateSearchDocument } from "./core.ts";
 
 export type SearchProfile = "scaffold" | "preview" | "launch";
@@ -98,7 +99,27 @@ function blocksText(blocks: readonly Block[]): string {
     })
     .join(" ");
 }
+/**
+ * The paper an instrument is filed under in search, or null when nothing declares it.
+ *
+ * This read the two-letter prefix and nothing else, so the moment `light-thread`
+ * registered, prepare:content threw "Registered instrument needs a search paper
+ * mapping: light-thread" and NOTHING could build - out/ could not be regenerated at
+ * all, so every measurement of the built site was measuring a pre-outage artefact.
+ *
+ * The throw is right and stays: an instrument with no declared paper must fail loudly
+ * rather than be filed under a plausible wrong one. What was wrong is that this held a
+ * second, poorer copy of a taxonomy src/content/ids.ts already owns. Core ids match
+ * CORE_INSTRUMENT_PATTERN and carry their paper in the prefix; `shelf` and `discovery`
+ * instruments are declared in NON_CORE_INSTRUMENT_IDS and belong to no single paper, so
+ * they file under "cross-paper" - the value this module already emits for foundations
+ * that span papers. Joining to the parser means a newly declared instrument cannot take
+ * the build down again: `avogadro-lab` was one registration away from the same outage.
+ */
 function familyPaper(id: string): string | null {
+  const parsed = parseInstrumentId(id);
+  if (!parsed.ok) return null;
+  if (parsed.kind !== "core") return "cross-paper";
   const papers: Readonly<Record<string, string>> = {
     bm: "brownian-motion",
     lq: "light-quanta",
