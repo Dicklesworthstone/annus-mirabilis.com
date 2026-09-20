@@ -204,6 +204,24 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-cm-audit-scripts-d34",
   },
   {
+    // am-unwired-audits-uwot. This script existed with a real failure path and was invoked by
+    // nothing: not a registry step, not an npm script, not a workflow, not imported by a test.
+    // It reads content/quantities/constant-sets/ and passes today, so wiring it in is not red on
+    // arrival. Unlike the four plan-specified audits, whose logic verify-content already calls,
+    // this one had no path into the chain at all.
+    id: "verify-constant-sets",
+    title: "Verify constant sets and cross-set consistency",
+    command: ["bun", "scripts/verify-constant-sets.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/verify-constant-sets.ts",
+    },
+    owner: "am-unwired-audits-uwot",
+  },
+  {
     id: "verify-wasm-artifacts",
     title: "Verify WASM artifacts and hashes",
     command: ["bun", "scripts/verify-wasm-artifacts.ts"],
