@@ -507,6 +507,24 @@ tbody th {
   max-width: 100%;
   overflow-x: auto;
 }
+
+/*
+  On a phone these telemetry tables were hiding up to 416 pixels behind a sideways scroll
+  a reader had to discover (am-14at). The width is forced by the dotted identifier columns
+  - `radiation.twoSourceIntensity`, `lq08.acceptedInputs` - which carry no space and so no
+  break opportunity. Those columns are always the outermost ones in these tables, so only
+  they are allowed to break mid-token. The interior columns hold formatted quantities and
+  are deliberately left alone: a value must never be split across lines as "1.0000e" and
+  "-3".
+*/
+@media (max-width: 480px) {
+  .table-scroll th:first-child,
+  .table-scroll td:first-child,
+  .table-scroll th:last-child,
+  .table-scroll td:last-child {
+    overflow-wrap: anywhere;
+  }
+}
 .lab-bottom {
   display: grid;
   grid-template-columns: 1fr 1fr;
