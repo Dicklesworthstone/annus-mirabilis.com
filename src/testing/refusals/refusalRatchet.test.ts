@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -373,5 +373,75 @@ export function lint(entries: string[]) {
     // beside it, which is the evasion this rule must not open.
     // Dropped: the two records that say they passed.
     assert.deepEqual(codes, ["guard-refused", "inventory-complete", "no-parallel-deny-lists"]);
+  });
+
+  // am-fkyc. Coverage used to be credited by `content.includes(basename)`, a
+  // raw substring over the whole test file with comments included, and
+  // basenames are not unique here: 74 are shared, `session.ts` by 37 files, so
+  // one mention credited all 37. Two fixture roots, identical but for how the
+  // test file refers to the source.
+  test("a test file that only NAMES a source file credits it nothing; one that imports it credits it", () => {
+    const base = "/Volumes/USBNVME16TB/temp_agent_space";
+    const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    const SOURCE = `
+export class WidgetError extends Error {
+  constructor(readonly code: string, message: string) {
+    super(message);
+  }
+}
+export function validateWidget(input: unknown) {
+  if (input === null) {
+    throw new WidgetError("widget-refused", "the widget was refused");
+  }
+  return input;
+}
+`;
+    // Deliberately NOT co-located with the source, because a co-located
+    // foo.test.ts is credited by its own rule and would mask this one.
+    const MENTION_ONLY = `
+import test from "node:test";
+// Exercises the refusal in validate.ts, honestly it does.
+test("widget-refused is refused", () => {
+  const code = "widget-refused";
+  if (code !== "widget-refused") throw new Error("no");
+});
+`;
+    const IMPORTS = `
+import test from "node:test";
+import { validateWidget } from "../widget/validate.ts";
+test("widget-refused is refused", () => {
+  try {
+    validateWidget(null);
+  } catch (err) {
+    if ((err as { code?: string }).code !== "widget-refused") throw err;
+  }
+});
+`;
+
+    const build = (suffix: string, testBody: string): string => {
+      const root = join(base, `refusal-credit-${stamp}-${suffix}`);
+      mkdirSync(join(root, "src/widget"), { recursive: true });
+      mkdirSync(join(root, "src/elsewhere"), { recursive: true });
+      writeFileSync(join(root, "src/widget/validate.ts"), SOURCE);
+      writeFileSync(join(root, "src/elsewhere/coverage.test.ts"), testBody);
+      return root;
+    };
+
+    const mentionRoot = build("mention", MENTION_ONLY);
+    const mentioned = analyzeUntestedRefusals(mentionRoot).analyses.get("src/widget/validate.ts");
+    assert.ok(mentioned, "the fixture source must be scanned at all");
+    assert.equal(mentioned.totalSites, 1);
+    assert.equal(mentioned.untestedSitesCount, 1, "naming a file in a comment is not a test of it");
+
+    const importRoot = build("import", IMPORTS);
+    const imported = analyzeUntestedRefusals(importRoot).analyses.get("src/widget/validate.ts");
+    assert.ok(imported, "the fixture source must be scanned at all");
+    assert.equal(imported.totalSites, 1);
+    assert.equal(
+      imported.untestedSitesCount,
+      0,
+      "a test that imports the module and names the code does cover it",
+    );
   });
 });

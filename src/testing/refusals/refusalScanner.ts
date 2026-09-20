@@ -341,10 +341,21 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
       if (sitesByFile.has(candidate)) importedFiles.add(candidate);
     }
 
-    // Static imports
-    const importMatches = content.matchAll(/from\s+["']([^"']+)["']/g);
-    for (const im of importMatches) {
-      const importPath = im[1];
+    // Static and dynamic imports, resolved as modules.
+    //
+    // What stood here as well, until am-fkyc, was a raw substring test:
+    // `content.includes(basename(srcRel))` over the whole test file, comments
+    // included. It credited a source file with coverage because its file NAME
+    // appeared anywhere in a test file, and basenames are not unique - 74 are
+    // shared across this tree, `session.ts` by 37 files. One mention credited
+    // all 37. I tripped it myself, in a comment, and the slack pawl is the only
+    // thing that caught it. A test covers what it loads.
+    for (const match of [
+      ...content.matchAll(/\bfrom\s+["']([^"']+)["']/g),
+      ...content.matchAll(/\bimport\s*\(\s*["']([^"']+)["']/g),
+      ...content.matchAll(/\brequire\s*\(\s*["']([^"']+)["']/g),
+    ]) {
+      const importPath = match[1];
       if (importPath?.startsWith(".")) {
         const resolved = normalize(join(tfDir, importPath));
         for (const ext of ["", ".ts", ".tsx", "/index.ts", "/index.tsx"]) {
@@ -356,14 +367,6 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
       }
     }
 
-    // Basename mention in test file (e.g. tests referencing authored.ts)
-    for (const srcRel of sitesByFile.keys()) {
-      const b = basename(srcRel);
-      if (content.includes(b)) {
-        importedFiles.add(srcRel);
-      }
-    }
-
     // Check for explicit site citations like (authored.ts:90), (verifyChain.ts:88), or (passageActions.schema.ts:60)
     const siteCiteMatches = content.matchAll(/\(([a-zA-Z0-9_.-]+\.ts):(\d+)\)/g);
     for (const scm of siteCiteMatches) {
@@ -371,7 +374,12 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
       const citedLineStr = scm[2];
       if (citedBase && citedLineStr) {
         const citedLine = Number.parseInt(citedLineStr, 10);
-        for (const srcRel of sitesByFile.keys()) {
+        // Scoped to the files this test actually imports. The citation says
+        // WHICH SITE in a file the test drives; it is not itself a claim to
+        // have driven a file, and matching it by basename alone across the
+        // tree is the same laundering am-fkyc names - `(session.ts:42)` in a
+        // comment would otherwise credit line 42 of all 37 session.ts files.
+        for (const srcRel of importedFiles) {
           if (basename(srcRel) === citedBase) {
             let citedSet = explicitSiteCitations.get(srcRel);
             if (!citedSet) {
