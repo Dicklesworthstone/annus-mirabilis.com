@@ -126,7 +126,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       };
       const res = validateFacsimileAnchor(cfg);
       expect(res.valid).toBe(false);
-      expect(res.refusalCode).toBe("MISSING_VERIFIED_ANCHOR");
+      expect(res.refusalCode).toBe("missing-verified-anchor");
     });
 
     test("supports verifiedAnchor placed inside articlePages section", () => {
@@ -154,7 +154,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
         verifiedAnchor: { ...validBaseConfig.verifiedAnchor, parentPageIndex: 1.5 },
       });
       expect(res1.valid).toBe(false);
-      expect(res1.refusalCode).toBe("INVALID_CONFIG");
+      expect(res1.refusalCode).toBe("invalid-config");
 
       // Non-positive printedPage
       const res2 = validateFacsimileAnchor({
@@ -162,7 +162,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
         verifiedAnchor: { ...validBaseConfig.verifiedAnchor, printedPage: 0 },
       });
       expect(res2.valid).toBe(false);
-      expect(res2.refusalCode).toBe("INVALID_CONFIG");
+      expect(res2.refusalCode).toBe("invalid-config");
 
       // Empty verifiedBy
       const res3 = validateFacsimileAnchor({
@@ -170,7 +170,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
         verifiedAnchor: { ...validBaseConfig.verifiedAnchor, verifiedBy: "   " },
       });
       expect(res3.valid).toBe(false);
-      expect(res3.refusalCode).toBe("INVALID_CONFIG");
+      expect(res3.refusalCode).toBe("invalid-config");
     });
 
     test("non-contiguous parentPageIndices refuses with NON_CONTIGUOUS_PARENT_PAGES", () => {
@@ -184,7 +184,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       };
       const res = validateFacsimileAnchor(cfg);
       expect(res.valid).toBe(false);
-      expect(res.refusalCode).toBe("NON_CONTIGUOUS_PARENT_PAGES");
+      expect(res.refusalCode).toBe("non-contiguous-parent-pages");
       expect(res.errors[0]).toContain("not contiguous at index 2");
     });
 
@@ -199,7 +199,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       };
       const res = validateFacsimileAnchor(cfg);
       expect(res.valid).toBe(false);
-      expect(res.refusalCode).toBe("FACSIMILE_PAGE_OFFSET_MISMATCH");
+      expect(res.refusalCode).toBe("facsimile-page-offset-mismatch");
       expect(res.errors[0]).toContain("length (2) does not match expected page count (3)");
     });
 
@@ -219,7 +219,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       };
       const res = validateFacsimileAnchor(cfg);
       expect(res.valid).toBe(false);
-      expect(res.refusalCode).toBe("FACSIMILE_PAGE_OFFSET_MISMATCH");
+      expect(res.refusalCode).toBe("facsimile-page-offset-mismatch");
       expect(res.errors[0]).toContain(
         "parentPageIndices[0] (25) does not match expected parent page index (20)",
       );
@@ -252,7 +252,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       expect(failReport.passedCount).toBe(0);
       expect(failReport.failedCount).toBe(1);
       expect(failReport.results["fixture-offset.yaml"]?.refusalCode).toBe(
-        "FACSIMILE_PAGE_OFFSET_MISMATCH",
+        "facsimile-page-offset-mismatch",
       );
       expect(failReport.results["fixture-offset.yaml"]?.errors[0]).toContain(
         "parentPageIndices[0] (25) does not match expected parent page index (20)",

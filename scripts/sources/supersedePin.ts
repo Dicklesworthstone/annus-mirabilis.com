@@ -90,7 +90,7 @@ export function assertSupersedeAuthorized(
 ): asserts auth is SupersedeAuthorization {
   if (auth === undefined) {
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Superseding the pin for '${key}' requires an authorization record. Refusing: a pinned facsimile is replaced only on the owner's explicit written authorization (AGENTS.md Rule 1).`,
     );
   }
@@ -99,25 +99,25 @@ export function assertSupersedeAuthorized(
     auth.authorizationText.trim().length < MINIMUM_AUTHORIZATION_TEXT
   ) {
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Superseding the pin for '${key}' requires the authorizing words quoted verbatim, not a summary. Got ${auth.authorizationText ? `${auth.authorizationText.trim().length} characters` : "nothing"}.`,
     );
   }
   if (!auth.authorizedBy?.trim()) {
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Superseding the pin for '${key}' requires naming who authorized it.`,
     );
   }
   if (!auth.reason?.trim()) {
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Superseding the pin for '${key}' requires a reason a later reader can check.`,
     );
   }
   if (!auth.keys.includes(key)) {
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `The authorization covers [${auth.keys.join(", ")}] and does not reach '${key}'. Refusing: an authorization for one facsimile is not an authorization for another.`,
     );
   }
@@ -141,14 +141,14 @@ export function supersedePin(
   const pinned = cfg.pinned;
   if (!pinned) {
     throw new FacsimileError(
-      "INVALID_CONFIG",
+      "invalid-config",
       `No pinned record for '${key}'. Superseding replaces an existing pin; use the ordinary pin path for a first pin.`,
     );
   }
   const parent = pinned.parent;
   if (!parent) {
     throw new FacsimileError(
-      "INVALID_CONFIG",
+      "invalid-config",
       `Pinned record for '${key}' has no parent scan, so there is nothing to re-extract from.`,
     );
   }
@@ -158,14 +158,14 @@ export function supersedePin(
   const parentPath = path.isAbsolute(parent.path) ? parent.path : path.join(root, parent.path);
   if (!fs.existsSync(parentPath)) {
     throw new FacsimileError(
-      "INVALID_CONFIG",
+      "invalid-config",
       `Parent scan ${parent.path} is not present locally. Superseding re-extracts from the retained parent and never refetches.`,
     );
   }
   const parentSha = sha256File(parentPath);
   if (parentSha !== parent.sha256) {
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Parent scan ${parent.path} has digest ${parentSha}, but the config records ${parent.sha256}. Refusing to re-extract from source bytes the receipt does not describe.`,
     );
   }
@@ -173,7 +173,7 @@ export function supersedePin(
   const indices = cfg.articlePages.parentPageIndices;
   if (!indices || indices.length === 0) {
     throw new FacsimileError(
-      "PARENT_PAGE_INDEX_MISSING",
+      "parent-page-index-missing",
       `Config '${key}' declares no parentPageIndices, so there is no window to extract.`,
     );
   }
@@ -184,7 +184,7 @@ export function supersedePin(
 
   if (newSha256 === pinned.sha256) {
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Re-extracting '${key}' from parent pages ${indices[0]}-${indices[indices.length - 1]} reproduces the digest already pinned (${newSha256}). There is nothing to supersede; the window in this config is the window the pin already holds.`,
     );
   }
@@ -204,7 +204,7 @@ export function supersedePin(
     const retiredCheck = sha256File(retiredAbs);
     if (retiredCheck !== retiredSha) {
       throw new FacsimileError(
-        "PINNED_DIGEST_CONFLICT",
+        "pinned-digest-conflict",
         `Retired copy at ${retiredRel} has digest ${retiredCheck}, expected ${retiredSha}. Refusing to proceed: the outgoing bytes are not safely retained.`,
       );
     }
@@ -218,7 +218,7 @@ export function supersedePin(
   if (staged !== newSha256) {
     fs.rmSync(tmp, { force: true });
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Staged copy digest ${staged} does not match the extraction ${newSha256}.`,
     );
   }
@@ -274,7 +274,7 @@ function writeSupersededConfig(
     supersededPins?: SupersededPinRecord[];
   };
   if (!parsed.pinned) {
-    throw new FacsimileError("INVALID_CONFIG", `Config ${configPath} lost its pinned record.`);
+    throw new FacsimileError("invalid-config", `Config ${configPath} lost its pinned record.`);
   }
 
   parsed.pinned.sha256 = update.newSha256;
@@ -293,7 +293,7 @@ function writeSupersededConfig(
   if (!validation.valid) {
     fs.rmSync(tmpPath, { force: true });
     throw new FacsimileError(
-      "INVALID_CONFIG",
+      "invalid-config",
       `Superseded config failed validation: ${validation.errors.join("; ")}`,
     );
   }

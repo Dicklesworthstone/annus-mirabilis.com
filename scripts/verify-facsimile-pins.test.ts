@@ -83,7 +83,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       });
 
       assert.equal(anchorImpliedFirstIndex, 173);
-      const offsetFinding = findings.find((f) => f.code === "FACSIMILE_PAGE_OFFSET_MISMATCH");
+      const offsetFinding = findings.find((f) => f.code === "facsimile-page-offset-mismatch");
       assert.notEqual(offsetFinding, undefined);
       assert.ok(
         offsetFinding?.message.includes("parentPageIndices[0] (132)"),
@@ -108,7 +108,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
 
       assert.equal(result.consensus?.offset, -376);
       assert.equal(result.folioImpliedFirstIndex, 173);
-      const finding = result.findings.find((f) => f.code === "PARENT_FOLIO_OFFSET_MISMATCH");
+      const finding = result.findings.find((f) => f.code === "parent-folio-offset-mismatch");
       assert.notEqual(finding, undefined);
       assert.ok(
         finding?.message.includes("declared first parent index 132"),
@@ -140,7 +140,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
 
       assert.equal(findings.length, 2);
       assert.equal(
-        findings.every((f) => f.code === "STALE_PINNED_EXTRACT"),
+        findings.every((f) => f.code === "stale-pinned-extract"),
         true,
       );
       assert.ok(
@@ -167,7 +167,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       });
 
       assert.equal(findings.length, 2);
-      assert.equal(findings[0]?.code, "STALE_PINNED_EXTRACT");
+      assert.equal(findings[0]?.code, "stale-pinned-extract");
       assert.ok(
         findings[0]?.message.includes("parent page 219"),
         `must contain ${String("parent page 219")}`,
@@ -194,7 +194,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         },
       });
 
-      assert.equal(finding?.code, "MALFORMED_VERIFIED_ANCHOR");
+      assert.equal(finding?.code, "malformed-verified-anchor");
       assert.ok(
         finding?.message.includes("articlePages"),
         `must contain ${String("articlePages")}`,
@@ -219,7 +219,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         observations: parentVoting(MEASURED_OFFSET["ap-19-289"], 210, 200),
       });
 
-      const finding = result.findings.find((f) => f.code === "PRINTED_RANGE_OUTSIDE_PARENT");
+      const finding = result.findings.find((f) => f.code === "printed-range-outside-parent");
       assert.notEqual(finding, undefined);
       assert.ok(finding?.message.includes("591-592"), `must contain ${String("591-592")}`);
       assert.ok(finding?.message.includes("207-445"), `must contain ${String("207-445")}`);
@@ -231,7 +231,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         articlePages: { printedFirst: 591, printedLast: 592, parentPageIndices: [219, 220] },
       });
       assert.equal(
-        findings.some((f) => f.code === "MISSING_VERIFIED_ANCHOR"),
+        findings.some((f) => f.code === "missing-verified-anchor"),
         true,
       );
     });
@@ -253,7 +253,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         ],
       });
       assert.equal(result.consensus, null);
-      assert.equal(result.findings[0]?.code, "FOLIO_CONSENSUS_UNAVAILABLE");
+      assert.equal(result.findings[0]?.code, "folio-consensus-unavailable");
     });
 
     test("a folio vote without a clear winner refuses rather than picking one", () => {
@@ -446,7 +446,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
 
     test("a genuinely absent tool is ENOENT and says so", () => {
       const refusal = refusalOf("am-yf6h-no-such-tool-anywhere");
-      assert.equal(refusal.code, "RENDER_TOOL_UNAVAILABLE");
+      assert.equal(refusal.code, "render-tool-unavailable");
       assert.ok(refusal.message.includes("ENOENT"), refusal.message);
       assert.ok(refusal.message.includes("not available on PATH"), refusal.message);
     });
@@ -466,7 +466,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
           !refusal.message.includes("ENOENT"),
           `the fixture produced an ENOENT after all, so it does not exercise the second branch: ${refusal.message}`,
         );
-        assert.equal(refusal.code, "RENDER_TOOL_SPAWN_FAILED");
+        assert.equal(refusal.code, "render-tool-spawn-failed");
         assert.ok(refusal.message.includes("EACCES"), refusal.message);
         // The sentence that caused am-yf6h must not appear.
         assert.ok(

@@ -97,23 +97,23 @@ export interface FacsimileSourceConfig {
 
 export type FacsimileErrorCode =
   // Policy refusals (exit code 2)
-  | "WITNESS_OR_PUBLISHER_HOST"
-  | "SCAN_TERMS_UNKNOWN"
-  | "REFERENCE_ONLY_NOT_PINNABLE"
-  | "RIGHTS_VOCABULARY_INVALID"
-  | "DERIVATIVE_WITHOUT_REASON"
-  | "PINNED_DIGEST_CONFLICT"
-  | "LOCK_HELD"
-  | "RESTORE_DIGEST_MISMATCH"
+  | "witness-or-publisher-host"
+  | "scan-terms-unknown"
+  | "reference-only-not-pinnable"
+  | "rights-vocabulary-invalid"
+  | "derivative-without-reason"
+  | "pinned-digest-conflict"
+  | "lock-held"
+  | "restore-digest-mismatch"
   // Validation failures (exit code 3)
-  | "INVALID_CONFIG"
-  | "NOT_A_PDF"
-  | "TRUNCATED_PDF"
-  | "PDF_PARSE_FAILED"
-  | "PAGE_COUNT_OUT_OF_RANGE"
-  | "PARENT_PAGE_INDEX_MISSING"
-  | "HOST_CHECKSUM_MISMATCH"
-  | "EXTRACTION_NONDETERMINISTIC"
+  | "invalid-config"
+  | "not-a-pdf"
+  | "truncated-pdf"
+  | "pdf-parse-failed"
+  | "page-count-out-of-range"
+  | "parent-page-index-missing"
+  | "host-checksum-mismatch"
+  | "extraction-nondeterministic"
   // Thrown by the page-extraction path in download-facsimiles.ts when a page
   // object or a mapped object id is missing from the source PDF. It was absent
   // from this union, so getExitCodeForError fell through to its default and
@@ -121,48 +121,48 @@ export type FacsimileErrorCode =
   // validation failure (3), alongside PDF_PARSE_FAILED and
   // PARENT_PAGE_INDEX_MISSING. scripts/ is outside the typecheck program
   // (am-7mp8), so nothing reported the missing member.
-  | "EXTRACTION_ERROR"
-  | "MISSING_VERIFIED_ANCHOR"
-  | "FACSIMILE_PAGE_OFFSET_MISMATCH"
-  | "NON_CONTIGUOUS_PARENT_PAGES"
+  | "extraction-error"
+  | "missing-verified-anchor"
+  | "facsimile-page-offset-mismatch"
+  | "non-contiguous-parent-pages"
   // Network failures (exit code 4)
-  | "HTTP_NOT_HTTPS"
-  | "REDIRECT_TO_HTTP"
-  | "HTTP_STATUS"
-  | "SIZE_LIMIT_EXCEEDED"
-  | "NETWORK_RETRIES_EXHAUSTED"
+  | "http-not-https"
+  | "redirect-to-http"
+  | "http-status"
+  | "size-limit-exceeded"
+  | "network-retries-exhausted"
   // General failure (exit code 1)
-  | "UNEXPECTED_ERROR";
+  | "unexpected-error";
 
 export function getExitCodeForError(code: FacsimileErrorCode): number {
   switch (code) {
-    case "WITNESS_OR_PUBLISHER_HOST":
-    case "SCAN_TERMS_UNKNOWN":
-    case "REFERENCE_ONLY_NOT_PINNABLE":
-    case "RIGHTS_VOCABULARY_INVALID":
-    case "DERIVATIVE_WITHOUT_REASON":
-    case "PINNED_DIGEST_CONFLICT":
-    case "LOCK_HELD":
-    case "RESTORE_DIGEST_MISMATCH":
+    case "witness-or-publisher-host":
+    case "scan-terms-unknown":
+    case "reference-only-not-pinnable":
+    case "rights-vocabulary-invalid":
+    case "derivative-without-reason":
+    case "pinned-digest-conflict":
+    case "lock-held":
+    case "restore-digest-mismatch":
       return 2;
-    case "INVALID_CONFIG":
-    case "NOT_A_PDF":
-    case "TRUNCATED_PDF":
-    case "PDF_PARSE_FAILED":
-    case "PAGE_COUNT_OUT_OF_RANGE":
-    case "PARENT_PAGE_INDEX_MISSING":
-    case "HOST_CHECKSUM_MISMATCH":
-    case "EXTRACTION_NONDETERMINISTIC":
-    case "EXTRACTION_ERROR":
-    case "MISSING_VERIFIED_ANCHOR":
-    case "FACSIMILE_PAGE_OFFSET_MISMATCH":
-    case "NON_CONTIGUOUS_PARENT_PAGES":
+    case "invalid-config":
+    case "not-a-pdf":
+    case "truncated-pdf":
+    case "pdf-parse-failed":
+    case "page-count-out-of-range":
+    case "parent-page-index-missing":
+    case "host-checksum-mismatch":
+    case "extraction-nondeterministic":
+    case "extraction-error":
+    case "missing-verified-anchor":
+    case "facsimile-page-offset-mismatch":
+    case "non-contiguous-parent-pages":
       return 3;
-    case "HTTP_NOT_HTTPS":
-    case "REDIRECT_TO_HTTP":
-    case "HTTP_STATUS":
-    case "SIZE_LIMIT_EXCEEDED":
-    case "NETWORK_RETRIES_EXHAUSTED":
+    case "http-not-https":
+    case "redirect-to-http":
+    case "http-status":
+    case "size-limit-exceeded":
+    case "network-retries-exhausted":
       return 4;
     default:
       return 1;
@@ -225,7 +225,7 @@ export function validateConfig(config: unknown): ValidationResult {
     return {
       valid: false,
       errors: ["Configuration root must be an object"],
-      refusalCode: "INVALID_CONFIG",
+      refusalCode: "invalid-config",
     };
   }
 
@@ -248,7 +248,7 @@ export function validateConfig(config: unknown): ValidationResult {
       return {
         valid: false,
         errors: ["scan-terms-unknown cannot be pinned or published until terms are located"],
-        refusalCode: "SCAN_TERMS_UNKNOWN",
+        refusalCode: "scan-terms-unknown",
       };
     }
 
@@ -256,7 +256,7 @@ export function validateConfig(config: unknown): ValidationResult {
       return {
         valid: false,
         errors: ["reference-only assets are consulted and cited, never pinned"],
-        refusalCode: "REFERENCE_ONLY_NOT_PINNABLE",
+        refusalCode: "reference-only-not-pinnable",
       };
     }
 
@@ -269,7 +269,7 @@ export function validateConfig(config: unknown): ValidationResult {
         errors: [
           "Scans with terms restricting redistribution must not be published (must be pin-local-only or reference-only)",
         ],
-        refusalCode: "RIGHTS_VOCABULARY_INVALID",
+        refusalCode: "rights-vocabulary-invalid",
       };
     }
 
@@ -282,7 +282,7 @@ export function validateConfig(config: unknown): ValidationResult {
         return {
           valid: false,
           errors: ["publicationDecision: pin-local-only requires a non-empty publicationReason"],
-          refusalCode: "RIGHTS_VOCABULARY_INVALID",
+          refusalCode: "rights-vocabulary-invalid",
         };
       }
     }
@@ -296,7 +296,7 @@ export function validateConfig(config: unknown): ValidationResult {
       return {
         valid: false,
         errors: ["cloudProcessing requires a non-empty cloudProcessingBasis"],
-        refusalCode: "RIGHTS_VOCABULARY_INVALID",
+        refusalCode: "rights-vocabulary-invalid",
       };
     }
   }
@@ -349,7 +349,7 @@ export function validateConfig(config: unknown): ValidationResult {
               errors: [
                 `candidates[${i}].url uses forbidden host '${parsedUrl.hostname}': ${hostCheck.reason}`,
               ],
-              refusalCode: "WITNESS_OR_PUBLISHER_HOST",
+              refusalCode: "witness-or-publisher-host",
             };
           }
           const isLoopbackTest =
@@ -361,7 +361,7 @@ export function validateConfig(config: unknown): ValidationResult {
               errors: [
                 `candidates[${i}].url must use HTTPS protocol, found '${parsedUrl.protocol}'`,
               ],
-              refusalCode: "HTTP_NOT_HTTPS",
+              refusalCode: "http-not-https",
             };
           }
         } catch {
@@ -379,7 +379,7 @@ export function validateConfig(config: unknown): ValidationResult {
           return {
             valid: false,
             errors: [`candidates[${i}] with hostFileSource 'derivative' requires derivativeReason`],
-            refusalCode: "DERIVATIVE_WITHOUT_REASON",
+            refusalCode: "derivative-without-reason",
           };
         }
       }
@@ -444,7 +444,7 @@ export function validateConfig(config: unknown): ValidationResult {
     return {
       valid: false,
       errors,
-      refusalCode: "INVALID_CONFIG",
+      refusalCode: "invalid-config",
     };
   }
 
@@ -475,7 +475,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
     return {
       valid: false,
       errors: ["Configuration root must be an object"],
-      refusalCode: "INVALID_CONFIG",
+      refusalCode: "invalid-config",
     };
   }
 
@@ -497,7 +497,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
       errors: [
         `Config '${key}' is missing a verified anchor. An unverifiable pin is not a verified pin. Each facsimile source config must record a verified anchor with parentPageIndex, printedPage, and verifiedBy.`,
       ],
-      refusalCode: "MISSING_VERIFIED_ANCHOR",
+      refusalCode: "missing-verified-anchor",
     };
   }
 
@@ -515,7 +515,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
       errors: [
         `Config '${key}' verifiedAnchor.parentPageIndex must be a positive integer, got ${String(parentPageIndex)}`,
       ],
-      refusalCode: "INVALID_CONFIG",
+      refusalCode: "invalid-config",
     };
   }
 
@@ -525,7 +525,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
       errors: [
         `Config '${key}' verifiedAnchor.printedPage must be a positive integer, got ${String(printedPage)}`,
       ],
-      refusalCode: "INVALID_CONFIG",
+      refusalCode: "invalid-config",
     };
   }
 
@@ -533,7 +533,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
     return {
       valid: false,
       errors: [`Config '${key}' verifiedAnchor.verifiedBy must be a non-empty string`],
-      refusalCode: "INVALID_CONFIG",
+      refusalCode: "invalid-config",
     };
   }
 
@@ -551,7 +551,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
     return {
       valid: false,
       errors: [`Config '${key}' is missing articlePages section`],
-      refusalCode: "INVALID_CONFIG",
+      refusalCode: "invalid-config",
     };
   }
 
@@ -570,7 +570,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
       errors: [
         `Config '${key}' articlePages must specify integer printedFirst and printedLast with printedLast >= printedFirst`,
       ],
-      refusalCode: "INVALID_CONFIG",
+      refusalCode: "invalid-config",
     };
   }
 
@@ -583,7 +583,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
       errors: [
         `Config '${key}' articlePages.parentPageIndices must be a non-empty array of positive integers`,
       ],
-      refusalCode: "PARENT_PAGE_INDEX_MISSING",
+      refusalCode: "parent-page-index-missing",
     };
   }
 
@@ -595,7 +595,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
         errors: [
           `Config '${key}' articlePages.parentPageIndices[${i}] must be a positive integer, found ${String(idx)}`,
         ],
-        refusalCode: "INVALID_CONFIG",
+        refusalCode: "invalid-config",
       };
     }
   }
@@ -607,7 +607,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
       errors: [
         `Config '${key}' articlePages.parentPageIndices length (${parentPageIndices.length}) does not match expected page count (${expectedPageCount}) for printed pages ${printedFirst}..${printedLast}`,
       ],
-      refusalCode: "FACSIMILE_PAGE_OFFSET_MISMATCH",
+      refusalCode: "facsimile-page-offset-mismatch",
       anchor,
     };
   }
@@ -622,7 +622,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
         errors: [
           `Config '${key}' articlePages.parentPageIndices are not contiguous at index ${i}: expected ${prev + 1}, found ${curr}`,
         ],
-        refusalCode: "NON_CONTIGUOUS_PARENT_PAGES",
+        refusalCode: "non-contiguous-parent-pages",
         anchor,
       };
     }
@@ -642,7 +642,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
       errors: [
         `Config '${key}' parentPageIndices[0] (${actualFirstParent}) does not match expected parent page index (${expectedFirstParent}) for printedFirst (${printedFirst}) via verified anchor (parent ${anchor.parentPageIndex} -> printed ${anchor.printedPage}, offset ${offset})`,
       ],
-      refusalCode: "FACSIMILE_PAGE_OFFSET_MISMATCH",
+      refusalCode: "facsimile-page-offset-mismatch",
       anchor,
       offset,
     };
@@ -654,7 +654,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
       errors: [
         `Config '${key}' parentPageIndices[last] (${actualLastParent}) does not match expected parent page index (${expectedLastParent}) for printedLast (${printedLast}) via verified anchor (parent ${anchor.parentPageIndex} -> printed ${anchor.printedPage}, offset ${offset})`,
       ],
-      refusalCode: "FACSIMILE_PAGE_OFFSET_MISMATCH",
+      refusalCode: "facsimile-page-offset-mismatch",
       anchor,
       offset,
     };

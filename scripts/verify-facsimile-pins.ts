@@ -63,27 +63,27 @@ export type PinCheck = "artifact" | "anchor" | "content-identity" | "folio-cover
 
 export type PinRefusalCode =
   // artifact availability and identity
-  | "RENDER_TOOL_UNAVAILABLE"
-  | "RENDER_TOOL_SPAWN_FAILED"
-  | "PINNED_PDF_UNAVAILABLE"
-  | "PARENT_PDF_UNAVAILABLE"
-  | "PARENT_RECORD_MISSING"
-  | "PINNED_DIGEST_CONFLICT"
-  | "PARENT_DIGEST_CONFLICT"
-  | "PINNED_PAGE_COUNT_MISMATCH"
-  | "PAGE_RENDER_FAILED"
+  | "render-tool-unavailable"
+  | "render-tool-spawn-failed"
+  | "pinned-pdf-unavailable"
+  | "parent-pdf-unavailable"
+  | "parent-record-missing"
+  | "pinned-digest-conflict"
+  | "parent-digest-conflict"
+  | "pinned-page-count-mismatch"
+  | "page-render-failed"
   // anchor arithmetic
-  | "MISSING_VERIFIED_ANCHOR"
-  | "MALFORMED_VERIFIED_ANCHOR"
-  | "FACSIMILE_PAGE_OFFSET_MISMATCH"
-  | "NON_CONTIGUOUS_PARENT_PAGES"
-  | "INVALID_CONFIG"
+  | "missing-verified-anchor"
+  | "malformed-verified-anchor"
+  | "facsimile-page-offset-mismatch"
+  | "non-contiguous-parent-pages"
+  | "invalid-config"
   // content identity
-  | "STALE_PINNED_EXTRACT"
+  | "stale-pinned-extract"
   // folio coverage
-  | "FOLIO_CONSENSUS_UNAVAILABLE"
-  | "PARENT_FOLIO_OFFSET_MISMATCH"
-  | "PRINTED_RANGE_OUTSIDE_PARENT";
+  | "folio-consensus-unavailable"
+  | "parent-folio-offset-mismatch"
+  | "printed-range-outside-parent";
 
 export interface PinFinding {
   readonly check: PinCheck;
@@ -180,7 +180,7 @@ export function detectMalformedAnchor(config: unknown): PinFinding | null {
     if (stray.length > 0) {
       return {
         check: "anchor",
-        code: "MALFORMED_VERIFIED_ANCHOR",
+        code: "malformed-verified-anchor",
         message:
           `Config '${key}' writes anchor fields (${stray.join(", ")}) directly under ${scopeName} ` +
           `instead of inside a verifiedAnchor object, so they are not read as an anchor. ` +
@@ -212,7 +212,7 @@ export function evaluateDeclaredAnchor(config: unknown): {
   if (!res.valid) {
     findings.push({
       check: "anchor",
-      code: (res.refusalCode ?? "INVALID_CONFIG") as PinRefusalCode,
+      code: (res.refusalCode ?? "invalid-config") as PinRefusalCode,
       message: res.errors.join("; "),
     });
   }
@@ -265,7 +265,7 @@ export function evaluateContentIdentity(input: ContentIdentityInput): readonly P
   if (input.extractFirstHash !== input.parentFirstHash) {
     findings.push({
       check: "content-identity",
-      code: "STALE_PINNED_EXTRACT",
+      code: "stale-pinned-extract",
       message:
         `Config '${input.key}': the pinned extract's first page does not render identically to ` +
         `parent page ${input.declaredFirstIndex}, the first index the config declares ` +
@@ -277,7 +277,7 @@ export function evaluateContentIdentity(input: ContentIdentityInput): readonly P
   if (input.extractLastHash !== input.parentLastHash) {
     findings.push({
       check: "content-identity",
-      code: "STALE_PINNED_EXTRACT",
+      code: "stale-pinned-extract",
       message:
         `Config '${input.key}': the pinned extract's last page does not render identically to ` +
         `parent page ${input.declaredLastIndex}, the last index the config declares ` +
@@ -348,7 +348,7 @@ export function evaluateFolioCoverage(input: FolioCoverageInput): FolioCoverageR
   if (!consensus) {
     findings.push({
       check: "folio-coverage",
-      code: "FOLIO_CONSENSUS_UNAVAILABLE",
+      code: "folio-consensus-unavailable",
       message:
         `Config '${input.key}': the parent scan's text layer did not yield a dominant folio offset ` +
         `(needs at least ${MIN_CONSENSUS_VOTES} votes and ${MIN_CONSENSUS_DOMINANCE}x the runner-up). ` +
@@ -364,7 +364,7 @@ export function evaluateFolioCoverage(input: FolioCoverageInput): FolioCoverageR
   if (input.declaredFirstIndex !== folioImpliedFirstIndex) {
     findings.push({
       check: "folio-coverage",
-      code: "PARENT_FOLIO_OFFSET_MISMATCH",
+      code: "parent-folio-offset-mismatch",
       message:
         `Config '${input.key}': declared first parent index ${input.declaredFirstIndex} for printed page ` +
         `${input.printedFirst}, but the parent's own text layer puts printed ${input.printedFirst} at ` +
@@ -377,7 +377,7 @@ export function evaluateFolioCoverage(input: FolioCoverageInput): FolioCoverageR
   if (input.declaredLastIndex !== folioImpliedLastIndex) {
     findings.push({
       check: "folio-coverage",
-      code: "PARENT_FOLIO_OFFSET_MISMATCH",
+      code: "parent-folio-offset-mismatch",
       message:
         `Config '${input.key}': declared last parent index ${input.declaredLastIndex} for printed page ` +
         `${input.printedLast}, but the parent's own text layer puts printed ${input.printedLast} at ` +
@@ -390,7 +390,7 @@ export function evaluateFolioCoverage(input: FolioCoverageInput): FolioCoverageR
   if (input.printedFirst < parentPrintedFirst || input.printedLast > parentPrintedLast) {
     findings.push({
       check: "folio-coverage",
-      code: "PRINTED_RANGE_OUTSIDE_PARENT",
+      code: "printed-range-outside-parent",
       message:
         `Config '${input.key}': printed pages ${input.printedFirst}-${input.printedLast} are not inside ` +
         `the printed span this parent covers, ${parentPrintedFirst}-${parentPrintedLast} ` +
@@ -448,11 +448,11 @@ function spawnFailureMessage(tool: string, error: unknown): string {
  * that way on every run.
  */
 export const UNMEASURABLE_CODES: ReadonlySet<PinRefusalCode> = new Set<PinRefusalCode>([
-  "PARENT_PDF_UNAVAILABLE",
-  "PINNED_PDF_UNAVAILABLE",
-  "PARENT_RECORD_MISSING",
-  "RENDER_TOOL_UNAVAILABLE",
-  "RENDER_TOOL_SPAWN_FAILED",
+  "parent-pdf-unavailable",
+  "pinned-pdf-unavailable",
+  "parent-record-missing",
+  "render-tool-unavailable",
+  "render-tool-spawn-failed",
 ]);
 
 /** True when a pin produced findings and every one of them is an environment precondition. */
@@ -469,14 +469,14 @@ export function requireTool(tool: string): void {
   const where = error.syscall ?? "spawnSync";
   if (error.code === "ENOENT") {
     throw new PinMeasurementError(
-      "RENDER_TOOL_UNAVAILABLE",
+      "render-tool-unavailable",
       `'${tool}' is not available on PATH (ENOENT from ${where}). The pinned facsimiles ` +
         `cannot be compared against their parents without it, and an unverifiable pin is ` +
         `not a verified pin.`,
     );
   }
   throw new PinMeasurementError(
-    "RENDER_TOOL_SPAWN_FAILED",
+    "render-tool-spawn-failed",
     `'${tool}' was found but could not be started: ${error.code ?? "unknown error"} from ` +
       `${where} (${error.message}). This is a failure of this process to launch the tool, ` +
       `NOT evidence that the tool is missing and NOT a finding about the pins. Nothing was ` +
@@ -493,14 +493,14 @@ export function pdfPageCount(pdfPath: string): number {
   const out = spawnSync("pdfinfo", [pdfPath], { encoding: "utf8" });
   if (out.status !== 0) {
     throw new PinMeasurementError(
-      "PAGE_RENDER_FAILED",
+      "page-render-failed",
       `pdfinfo failed on '${pdfPath}': ${(out.stderr ?? "").trim() || `exit ${String(out.status)}`}`,
     );
   }
   const match = /^Pages:\s+(\d+)$/m.exec(out.stdout);
   if (!match?.[1]) {
     throw new PinMeasurementError(
-      "PAGE_RENDER_FAILED",
+      "page-render-failed",
       `pdfinfo did not report a page count for '${pdfPath}'`,
     );
   }
@@ -532,13 +532,13 @@ export function renderPageHash(pdfPath: string, page: number): string {
     const rendered = `${root}.png`;
     if (out.error) {
       throw new PinMeasurementError(
-        "RENDER_TOOL_SPAWN_FAILED",
+        "render-tool-spawn-failed",
         spawnFailureMessage("pdftoppm", out.error),
       );
     }
     if (out.status !== 0 || !fs.existsSync(rendered)) {
       throw new PinMeasurementError(
-        "PAGE_RENDER_FAILED",
+        "page-render-failed",
         `pdftoppm could not render page ${page} of '${pdfPath}': ` +
           `${(out.stderr ?? "").trim() || `exit ${String(out.status)}`}`,
       );
@@ -561,13 +561,13 @@ export function pdfPageTexts(pdfPath: string): string[] {
   });
   if (out.error) {
     throw new PinMeasurementError(
-      "RENDER_TOOL_SPAWN_FAILED",
+      "render-tool-spawn-failed",
       spawnFailureMessage("pdftotext", out.error),
     );
   }
   if (out.status !== 0) {
     throw new PinMeasurementError(
-      "PAGE_RENDER_FAILED",
+      "page-render-failed",
       `pdftotext failed on '${pdfPath}': ${(out.stderr ?? "").trim() || `exit ${String(out.status)}`}`,
     );
   }
@@ -697,7 +697,7 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
   if (!pinned) {
     findings.push({
       check: "artifact",
-      code: "PINNED_PDF_UNAVAILABLE",
+      code: "pinned-pdf-unavailable",
       message: `Config '${key}' records no pinned artifact, so there is nothing to verify.`,
     });
     return { key, verified: false, facts, findings };
@@ -705,7 +705,7 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
   if (!pinned.parent) {
     findings.push({
       check: "artifact",
-      code: "PARENT_RECORD_MISSING",
+      code: "parent-record-missing",
       message:
         `Config '${key}' records a pinned extract but no parent record, so the pinned pages ` +
         `cannot be compared with the pages they claim to come from.`,
@@ -720,7 +720,7 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
   ) {
     findings.push({
       check: "artifact",
-      code: "INVALID_CONFIG",
+      code: "invalid-config",
       message: `Config '${key}' does not declare a printed range and parent page indices to verify.`,
     });
     return { key, verified: false, facts, findings };
@@ -732,14 +732,14 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
   if (!fs.existsSync(extractPath)) {
     findings.push({
       check: "artifact",
-      code: "PINNED_PDF_UNAVAILABLE",
+      code: "pinned-pdf-unavailable",
       message: `Config '${key}': pinned PDF '${pinned.path}' is not on disk.`,
     });
   }
   if (!fs.existsSync(parentPath)) {
     findings.push({
       check: "artifact",
-      code: "PARENT_PDF_UNAVAILABLE",
+      code: "parent-pdf-unavailable",
       message:
         `Config '${key}': parent scan '${pinned.parent.path}' is not on disk. The parent scans are ` +
         `not committed (/sources is ignored), so this gate runs where they were downloaded. ` +
@@ -759,7 +759,7 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
     if (extractDigest !== pinned.sha256) {
       findings.push({
         check: "artifact",
-        code: "PINNED_DIGEST_CONFLICT",
+        code: "pinned-digest-conflict",
         message:
           `Config '${key}': pinned PDF digest on disk (${extractDigest}) does not match the recorded ` +
           `sha256 (${pinned.sha256}).`,
@@ -769,7 +769,7 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
     if (parentDigest !== pinned.parent.sha256) {
       findings.push({
         check: "artifact",
-        code: "PARENT_DIGEST_CONFLICT",
+        code: "parent-digest-conflict",
         message:
           `Config '${key}': parent scan digest on disk (${parentDigest}) does not match the recorded ` +
           `sha256 (${pinned.parent.sha256}), so nothing compared against it would mean anything.`,
@@ -781,7 +781,7 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
     if (extractPages !== pinned.pageCount) {
       findings.push({
         check: "artifact",
-        code: "PINNED_PAGE_COUNT_MISMATCH",
+        code: "pinned-page-count-mismatch",
         message: `Config '${key}': pinned PDF holds ${extractPages} pages but the record says ${pinned.pageCount}.`,
       });
     }
@@ -847,7 +847,7 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
       const message = err instanceof Error ? err.message : String(err);
       findings.push({
         check: "artifact",
-        code: "PAGE_RENDER_FAILED",
+        code: "page-render-failed",
         message: `Config '${key}': measurement failed: ${message}`,
       });
     }
@@ -878,7 +878,7 @@ export function verifyFacsimilePins(options?: {
           findings: [
             {
               check: "artifact",
-              code: "INVALID_CONFIG",
+              code: "invalid-config",
               message: `Config directory '${dir}' does not exist`,
             },
           ],
@@ -910,7 +910,7 @@ export function verifyFacsimilePins(options?: {
         findings: [
           {
             check: "artifact",
-            code: "INVALID_CONFIG",
+            code: "invalid-config",
             message: `Failed to read or parse '${file}': ${message}`,
           },
         ],

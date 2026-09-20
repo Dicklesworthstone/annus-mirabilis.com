@@ -75,28 +75,28 @@ describe("1. validatePdf structural verification", () => {
     const buf = fs.readFileSync(path.join(FIXTURES_DIR, "html-named.pdf"));
     const res = validatePdf(buf);
     expect(res.valid).toBe(false);
-    expect(res.errorCode).toBe("NOT_A_PDF");
+    expect(res.errorCode).toBe("not-a-pdf");
   });
 
   test("rejects json-error.pdf with NOT_A_PDF", () => {
     const buf = fs.readFileSync(path.join(FIXTURES_DIR, "json-error.pdf"));
     const res = validatePdf(buf);
     expect(res.valid).toBe(false);
-    expect(res.errorCode).toBe("NOT_A_PDF");
+    expect(res.errorCode).toBe("not-a-pdf");
   });
 
   test("rejects truncated.pdf with TRUNCATED_PDF", () => {
     const buf = fs.readFileSync(path.join(FIXTURES_DIR, "truncated.pdf"));
     const res = validatePdf(buf);
     expect(res.valid).toBe(false);
-    expect(res.errorCode).toBe("TRUNCATED_PDF");
+    expect(res.errorCode).toBe("truncated-pdf");
   });
 
   test("fails with PAGE_COUNT_OUT_OF_RANGE when expected range does not cover actual pages", () => {
     const buf = fs.readFileSync(path.join(FIXTURES_DIR, "valid-2page.pdf"));
     const res = validatePdf(buf, { min: 3, max: 5 });
     expect(res.valid).toBe(false);
-    expect(res.errorCode).toBe("PAGE_COUNT_OUT_OF_RANGE");
+    expect(res.errorCode).toBe("page-count-out-of-range");
   });
 });
 
@@ -242,7 +242,7 @@ describe("6. pinFile sequence and PINNED_DIGEST_CONFLICT", () => {
       pinFile(stagedPath, destPath, otherSha);
     } catch (e: any) {
       expect(e).toBeInstanceOf(FacsimileError);
-      expect(e.code).toBe("PINNED_DIGEST_CONFLICT");
+      expect(e.code).toBe("pinned-digest-conflict");
       expect(e.exitCode).toBe(2);
     }
 
@@ -286,7 +286,7 @@ describe("8. Rights vocabulary refusals", () => {
     };
     const res = validateConfig(cfg);
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("SCAN_TERMS_UNKNOWN");
+    expect(res.refusalCode).toBe("scan-terms-unknown");
   });
 
   test("reference-only refuses with REFERENCE_ONLY_NOT_PINNABLE", () => {
@@ -300,7 +300,7 @@ describe("8. Rights vocabulary refusals", () => {
     };
     const res = validateConfig(cfg);
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("REFERENCE_ONLY_NOT_PINNABLE");
+    expect(res.refusalCode).toBe("reference-only-not-pinnable");
   });
 
   test("scan-terms-restrict-redistribution with publish refuses with RIGHTS_VOCABULARY_INVALID", () => {
@@ -314,7 +314,7 @@ describe("8. Rights vocabulary refusals", () => {
     };
     const res = validateConfig(cfg);
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("RIGHTS_VOCABULARY_INVALID");
+    expect(res.refusalCode).toBe("rights-vocabulary-invalid");
   });
 
   test("cloudProcessing with no cloudProcessingBasis refuses with RIGHTS_VOCABULARY_INVALID", () => {
@@ -327,7 +327,7 @@ describe("8. Rights vocabulary refusals", () => {
     };
     const res = validateConfig(cfg);
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("RIGHTS_VOCABULARY_INVALID");
+    expect(res.refusalCode).toBe("rights-vocabulary-invalid");
   });
 });
 
@@ -368,7 +368,7 @@ describe("9. Schema and denylist checks: publisher subscription and witness host
     };
     const res = validateConfig(cfg);
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("WITNESS_OR_PUBLISHER_HOST");
+    expect(res.refusalCode).toBe("witness-or-publisher-host");
     expect(res.errors[0]).toContain("onlinelibrary.wiley.com");
   });
 
@@ -384,7 +384,7 @@ describe("9. Schema and denylist checks: publisher subscription and witness host
     };
     const res = validateConfig(cfg);
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("WITNESS_OR_PUBLISHER_HOST");
+    expect(res.refusalCode).toBe("witness-or-publisher-host");
   });
 
   test("refuses Wikisource subdomain host with WITNESS_OR_PUBLISHER_HOST", () => {
@@ -399,7 +399,7 @@ describe("9. Schema and denylist checks: publisher subscription and witness host
     };
     const res = validateConfig(cfg);
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("WITNESS_OR_PUBLISHER_HOST");
+    expect(res.refusalCode).toBe("witness-or-publisher-host");
   });
 
   test("derivative candidate without derivativeReason fails with DERIVATIVE_WITHOUT_REASON", () => {
@@ -415,7 +415,7 @@ describe("9. Schema and denylist checks: publisher subscription and witness host
     };
     const res = validateConfig(cfg);
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("DERIVATIVE_WITHOUT_REASON");
+    expect(res.refusalCode).toBe("derivative-without-reason");
   });
 });
 
@@ -443,7 +443,7 @@ describe("10. Key claims exclusion and release", () => {
       acquireKeyClaim(key, toolRunId2, { locksDir: testLocksDir });
     } catch (e: any) {
       expect(e).toBeInstanceOf(FacsimileError);
-      expect(e.code).toBe("LOCK_HELD");
+      expect(e.code).toBe("lock-held");
     }
 
     // Release rewrites state to released
@@ -628,7 +628,7 @@ describe("12. Loopback HTTP network test server", () => {
       expect(true).toBe(false); // unreachable
     } catch (e: any) {
       expect(e).toBeInstanceOf(FacsimileError);
-      expect(e.code).toBe("REDIRECT_TO_HTTP");
+      expect(e.code).toBe("redirect-to-http");
     }
   });
 
@@ -647,7 +647,7 @@ describe("12. Loopback HTTP network test server", () => {
       expect(true).toBe(false);
     } catch (e: any) {
       expect(e).toBeInstanceOf(FacsimileError);
-      expect(e.code).toBe("HTTP_STATUS");
+      expect(e.code).toBe("http-status");
     }
   });
 
@@ -660,7 +660,7 @@ describe("12. Loopback HTTP network test server", () => {
       expect(true).toBe(false);
     } catch (e: any) {
       expect(e).toBeInstanceOf(FacsimileError);
-      expect(e.code).toBe("SIZE_LIMIT_EXCEEDED");
+      expect(e.code).toBe("size-limit-exceeded");
     }
   });
 });
@@ -811,7 +811,7 @@ describe("15. Quality gate checkAllConfigs and planted bad input refusal", () =>
   test("a config with NO verifiedAnchor key is refused (the ap-34-591 shape)", () => {
     const res = validateConfig(configWithoutAnchor({}));
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("MISSING_VERIFIED_ANCHOR");
+    expect(res.refusalCode).toBe("missing-verified-anchor");
   });
 
   test("a config whose verifiedAnchor key is present but null is refused too (the ap-19-289 shape)", () => {
@@ -819,7 +819,7 @@ describe("15. Quality gate checkAllConfigs and planted bad input refusal", () =>
     // reader can see that the verdict no longer depends on which way the file broke.
     const res = validateConfig(configWithoutAnchor({ verifiedAnchor: null }));
     expect(res.valid).toBe(false);
-    expect(res.refusalCode).toBe("MISSING_VERIFIED_ANCHOR");
+    expect(res.refusalCode).toBe("missing-verified-anchor");
   });
 
   test("control: the same config WITH an anchor is accepted, so this refuses nothing it should admit", () => {
@@ -858,7 +858,7 @@ rights:
     const { valid, results } = checkAllConfigs(tempDir);
     expect(valid).toBe(false);
     expect(entry(results, "ap-99-999.yaml").valid).toBe(false);
-    expect(entry(results, "ap-99-999.yaml").refusalCode).toBe("WITNESS_OR_PUBLISHER_HOST");
+    expect(entry(results, "ap-99-999.yaml").refusalCode).toBe("witness-or-publisher-host");
     expect(entry(results, "ap-99-999.yaml").errors[0]).toContain("onlinelibrary.wiley.com");
   });
 });
@@ -869,26 +869,26 @@ describe("16. Error codes are classified, not defaulted (am-7mp8)", () => {
     // missing from FacsimileErrorCode, so getExitCodeForError fell through to its
     // default and reported a PDF-structure failure as a general failure. scripts/
     // is outside the typecheck program, so nothing said so.
-    expect(new FacsimileError("EXTRACTION_ERROR", "missing page object").exitCode).toBe(3);
+    expect(new FacsimileError("extraction-error", "missing page object").exitCode).toBe(3);
     for (const code of [
-      "PDF_PARSE_FAILED",
-      "PARENT_PAGE_INDEX_MISSING",
-      "EXTRACTION_NONDETERMINISTIC",
+      "pdf-parse-failed",
+      "parent-page-index-missing",
+      "extraction-nondeterministic",
     ] as const) {
       expect(getExitCodeForError(code)).toBe(3);
     }
   });
 
   test("policy refusals and network failures keep their own classes", () => {
-    expect(getExitCodeForError("PINNED_DIGEST_CONFLICT")).toBe(2);
-    expect(getExitCodeForError("NETWORK_RETRIES_EXHAUSTED")).toBe(4);
+    expect(getExitCodeForError("pinned-digest-conflict")).toBe(2);
+    expect(getExitCodeForError("network-retries-exhausted")).toBe(4);
   });
 
   test("a code outside the union still falls back to a general failure", () => {
     // Planted negative: the fallback must remain reachable, or this test would
     // pass for any code at all and prove nothing about the mapping.
     expect(getExitCodeForError("NOT_A_REAL_CODE" as never)).toBe(1);
-    expect(getExitCodeForError("UNEXPECTED_ERROR")).toBe(1);
+    expect(getExitCodeForError("unexpected-error")).toBe(1);
   });
 });
 
@@ -1196,7 +1196,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("PINNED_DIGEST_CONFLICT");
+    expect(caughtError.code).toBe("pinned-digest-conflict");
     expect(caughtError.exitCode).toBe(2);
 
     // Existing file must remain unmodified (Rule 1)
@@ -1265,7 +1265,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("PINNED_DIGEST_CONFLICT");
+    expect(caughtError.code).toBe("pinned-digest-conflict");
     expect(caughtError.exitCode).toBe(2);
 
     // Config must not be overwritten
@@ -1319,7 +1319,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("HOST_CHECKSUM_MISMATCH");
+    expect(caughtError.code).toBe("host-checksum-mismatch");
     expect(caughtError.exitCode).toBe(3);
   });
 
@@ -1368,7 +1368,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("NOT_A_PDF");
+    expect(caughtError.code).toBe("not-a-pdf");
     expect(caughtError.exitCode).toBe(3);
   });
 
@@ -1417,7 +1417,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("NOT_A_PDF");
+    expect(caughtError.code).toBe("not-a-pdf");
     expect(caughtError.exitCode).toBe(3);
   });
 
@@ -1467,7 +1467,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("TRUNCATED_PDF");
+    expect(caughtError.code).toBe("truncated-pdf");
     expect(caughtError.exitCode).toBe(3);
   });
 
@@ -1516,7 +1516,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("PAGE_COUNT_OUT_OF_RANGE");
+    expect(caughtError.code).toBe("page-count-out-of-range");
     expect(caughtError.exitCode).toBe(3);
   });
 
@@ -1566,7 +1566,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("SIZE_LIMIT_EXCEEDED");
+    expect(caughtError.code).toBe("size-limit-exceeded");
     expect(caughtError.exitCode).toBe(4);
   });
 
@@ -1612,7 +1612,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("HTTP_STATUS");
+    expect(caughtError.code).toBe("http-status");
     expect(caughtError.exitCode).toBe(4);
   });
 
@@ -1666,7 +1666,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("REDIRECT_TO_HTTP");
+    expect(caughtError.code).toBe("redirect-to-http");
     expect(caughtError.exitCode).toBe(4);
   });
 
@@ -1715,7 +1715,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("NETWORK_RETRIES_EXHAUSTED");
+    expect(caughtError.code).toBe("network-retries-exhausted");
     expect(caughtError.exitCode).toBe(4);
     expect(calls).toBe(4); // initial + 3 retries
   });
@@ -1817,7 +1817,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     }
 
     expect(caughtError).toBeInstanceOf(FacsimileError);
-    expect(caughtError.code).toBe("LOCK_HELD");
+    expect(caughtError.code).toBe("lock-held");
     expect(caughtError.exitCode).toBe(2);
 
     releaseKeyClaim(activeClaim.claimPath);
@@ -1971,7 +1971,7 @@ describe("19. Stale lock detection, age reporting, and take-over-stale", () => {
     }
 
     expect(caught).toBeInstanceOf(FacsimileError);
-    expect(caught.code).toBe("LOCK_HELD");
+    expect(caught.code).toBe("lock-held");
     expect(caught.message).toContain("Stale claim held for key");
     expect(caught.message).toContain("dead PID 99999999");
     expect(caught.message).toContain(`--take-over-stale ${staleToolRunId}`);
@@ -2111,7 +2111,7 @@ describe("20. CLI main entrypoint argument parsing and mockFetch dispatch", () =
     }
 
     expect(caught).toBeInstanceOf(FacsimileError);
-    expect(caught.code).toBe("RESTORE_DIGEST_MISMATCH");
+    expect(caught.code).toBe("restore-digest-mismatch");
     expect(caught.exitCode).toBe(2);
   });
 });

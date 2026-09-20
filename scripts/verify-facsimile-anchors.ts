@@ -54,7 +54,7 @@ export function verifyFacsimileAnchors(options?: {
         [dir]: {
           valid: false,
           errors: [`Config directory '${dir}' does not exist`],
-          refusalCode: "INVALID_CONFIG",
+          refusalCode: "invalid-config",
         },
       },
     };
@@ -81,7 +81,7 @@ export function verifyFacsimileAnchors(options?: {
           [options.key]: {
             valid: false,
             errors: [`No facsimile config found matching key '${options.key}' in '${dir}'`],
-            refusalCode: "INVALID_CONFIG",
+            refusalCode: "invalid-config",
           },
         },
       };
@@ -109,7 +109,7 @@ export function verifyFacsimileAnchors(options?: {
       results[file] = {
         valid: false,
         errors: [`Failed to read or parse YAML: ${message}`],
-        refusalCode: "INVALID_CONFIG",
+        refusalCode: "invalid-config",
       };
       failedCount++;
     }

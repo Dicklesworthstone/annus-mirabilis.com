@@ -69,13 +69,13 @@ export function loadConfig(configPathOrKey: string, configDir?: string): Facsimi
     fullPath = path.join(dir, `${configPathOrKey}.yaml`);
   }
   if (!fs.existsSync(fullPath)) {
-    throw new FacsimileError("INVALID_CONFIG", `Configuration file not found at ${fullPath}`);
+    throw new FacsimileError("invalid-config", `Configuration file not found at ${fullPath}`);
   }
   const content = fs.readFileSync(fullPath, "utf8");
   const parsed = yaml.load(content) as FacsimileSourceConfig;
   const validation = validateConfig(parsed);
   if (!validation.valid) {
-    const code = validation.refusalCode || "INVALID_CONFIG";
+    const code = validation.refusalCode || "invalid-config";
     throw new FacsimileError(
       code,
       `Invalid configuration in ${fullPath}: ${validation.errors.join("; ")}`,
@@ -96,7 +96,7 @@ export function checkAllConfigs(configDir?: string): {
         [dir]: {
           valid: false,
           errors: [`Config directory ${dir} does not exist`],
-          refusalCode: "INVALID_CONFIG",
+          refusalCode: "invalid-config",
         },
       },
     };
@@ -120,7 +120,7 @@ export function checkAllConfigs(configDir?: string): {
       results[file] = {
         valid: false,
         errors: [`Failed to parse YAML: ${message}`],
-        refusalCode: "INVALID_CONFIG",
+        refusalCode: "invalid-config",
       };
       allValid = false;
     }
@@ -164,7 +164,7 @@ export function acquireKeyClaim(
         }
         if (isAlive) {
           throw new FacsimileError(
-            "LOCK_HELD",
+            "lock-held",
             `Active lock held for key '${key}' by PID ${data.pid} (run ${data.toolRunId}) in ${claimFile}`,
           );
         }
@@ -179,7 +179,7 @@ export function acquireKeyClaim(
           const ageMs = Date.now() - new Date(data.acquiredAt).getTime();
           const ageSec = Math.max(0, Math.round(ageMs / 1000));
           throw new FacsimileError(
-            "LOCK_HELD",
+            "lock-held",
             `Stale claim held for key '${key}' by dead PID ${data.pid} (toolRunId: ${data.toolRunId}, age: ${ageSec}s). Explicit --take-over-stale ${data.toolRunId} required to proceed.`,
           );
         }
@@ -282,7 +282,7 @@ export function validatePdf(
     return {
       valid: false,
       pageCount: 0,
-      errorCode: "NOT_A_PDF",
+      errorCode: "not-a-pdf",
       message: "File content starts with HTML, XML, or JSON instead of %PDF-",
     };
   }
@@ -293,7 +293,7 @@ export function validatePdf(
     return {
       valid: false,
       pageCount: 0,
-      errorCode: "NOT_A_PDF",
+      errorCode: "not-a-pdf",
       message: "Missing %PDF- header within the first 1024 bytes",
     };
   }
@@ -305,7 +305,7 @@ export function validatePdf(
     return {
       valid: false,
       pageCount: 0,
-      errorCode: "TRUNCATED_PDF",
+      errorCode: "truncated-pdf",
       message: "Missing %%EOF marker in the last 2048 bytes (truncated file)",
     };
   }
@@ -319,7 +319,7 @@ export function validatePdf(
     return {
       valid: false,
       pageCount: 0,
-      errorCode: "PDF_PARSE_FAILED",
+      errorCode: "pdf-parse-failed",
       message: "Failed to locate any /Type /Page objects in PDF",
     };
   }
@@ -329,7 +329,7 @@ export function validatePdf(
       return {
         valid: false,
         pageCount,
-        errorCode: "PAGE_COUNT_OUT_OF_RANGE",
+        errorCode: "page-count-out-of-range",
         message: `Page count ${pageCount} is outside expected range [${expectedRange.min}, ${expectedRange.max}]`,
       };
     }
@@ -355,7 +355,7 @@ export function detectEmbeddedTextLayer(
       // the pattern have drifted apart, which is a parse failure, not a page to skip.
       if (idText === undefined || dict === undefined)
         throw new FacsimileError(
-          "PDF_PARSE_FAILED",
+          "pdf-parse-failed",
           "A PDF object matched without its id or dictionary.",
         );
       if (/\/Type\s*\/Page\b/.test(dict) && !/\/Type\s*\/Pages\b/.test(dict)) {
@@ -399,7 +399,7 @@ export function extractArticle(
   for (let match = objRegex.exec(text); match !== null; match = objRegex.exec(text)) {
     const [, idText, , rawBody] = match;
     if (idText === undefined || rawBody === undefined)
-      throw new FacsimileError("PDF_PARSE_FAILED", "A PDF object matched without its id or body.");
+      throw new FacsimileError("pdf-parse-failed", "A PDF object matched without its id or body.");
     const id = Number.parseInt(idText, 10);
     const body = rawBody.trim();
     objects.set(id, body);
@@ -414,7 +414,7 @@ export function extractArticle(
     const id = pageObjIds[idx - 1];
     if (id === undefined) {
       throw new FacsimileError(
-        "PARENT_PAGE_INDEX_MISSING",
+        "parent-page-index-missing",
         `Parent PDF has ${pageObjIds.length} pages; requested 1-based page ${idx} does not exist.`,
       );
     }
@@ -432,7 +432,7 @@ export function extractArticle(
     ) {
       const refIdText = refMatch[1];
       if (refIdText === undefined)
-        throw new FacsimileError("PDF_PARSE_FAILED", "An object reference matched without its id.");
+        throw new FacsimileError("pdf-parse-failed", "An object reference matched without its id.");
       const refId = Number.parseInt(refIdText, 10);
       const targetBody = objects.get(refId);
       if (!collectedIds.has(refId) && targetBody !== undefined) {
@@ -449,7 +449,7 @@ export function extractArticle(
   for (const pageId of selectedPageIds) {
     const pageBody = objects.get(pageId);
     if (!pageBody) {
-      throw new FacsimileError("EXTRACTION_ERROR", `Missing page object ${pageId} in source PDF`);
+      throw new FacsimileError("extraction-error", `Missing page object ${pageId} in source PDF`);
     }
     collectReferences(pageBody);
   }
@@ -508,7 +508,7 @@ export function extractArticle(
     const newId = idMap.get(pageId);
     if (!originalBody || newId === undefined) {
       throw new FacsimileError(
-        "EXTRACTION_ERROR",
+        "extraction-error",
         `Missing page object or mapped ID for page ${pageId}`,
       );
     }
@@ -524,7 +524,7 @@ export function extractArticle(
     const newId = idMap.get(id);
     if (!originalBody || newId === undefined) {
       throw new FacsimileError(
-        "EXTRACTION_ERROR",
+        "extraction-error",
         `Missing dependency object or mapped ID for object ${id}`,
       );
     }
@@ -587,7 +587,7 @@ export function pinFile(
       return { pinned: false, action: "noop" };
     }
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Pinned file conflict at ${destinationPath}: existing digest is ${existingSha256}, incoming is ${expectedSha256}. Refusing to replace pinned file.`,
     );
   }
@@ -599,7 +599,7 @@ export function pinFile(
   const verifiedDigest = sha256File(tmpDest);
   if (verifiedDigest !== expectedSha256) {
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Digest mismatch on staged copy: expected ${expectedSha256}, got ${verifiedDigest}`,
     );
   }
@@ -614,7 +614,7 @@ export function updatePinnedRecord(configPath: string, pinned: PinnedRecord): vo
 
   if (parsed.pinned?.sha256 && parsed.pinned.sha256 !== pinned.sha256) {
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Configuration ${configPath} already pinned with digest ${parsed.pinned.sha256}; cannot replace with ${pinned.sha256}`,
     );
   }
@@ -630,7 +630,7 @@ export function updatePinnedRecord(configPath: string, pinned: PinnedRecord): vo
   const validation = validateConfig(reloaded);
   if (!validation.valid) {
     throw new FacsimileError(
-      "INVALID_CONFIG",
+      "invalid-config",
       `Failed to validate updated config: ${validation.errors.join("; ")}`,
     );
   }
@@ -803,7 +803,7 @@ export async function restorePin(
   const cfg = loadConfig(key, options?.configDir);
   if (!cfg.pinned) {
     throw new FacsimileError(
-      "INVALID_CONFIG",
+      "invalid-config",
       `No pinned record found for key '${key}' to restore.`,
     );
   }
@@ -819,7 +819,7 @@ export async function restorePin(
       return { restored: false, sha256: existingSha };
     }
     throw new FacsimileError(
-      "PINNED_DIGEST_CONFLICT",
+      "pinned-digest-conflict",
       `Existing file at ${destPath} has conflicting digest ${existingSha}; restore will not touch an existing conflicting file.`,
     );
   }
@@ -829,7 +829,7 @@ export async function restorePin(
     process.env.NODE_ENV === "test" &&
     (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost");
   if (parsed.protocol !== "https:" && !isLoopback) {
-    throw new FacsimileError("HTTP_NOT_HTTPS", `Restore URL is not HTTPS: ${cfg.pinned.originUrl}`);
+    throw new FacsimileError("http-not-https", `Restore URL is not HTTPS: ${cfg.pinned.originUrl}`);
   }
 
   const runId = newToolRunId();
@@ -842,7 +842,7 @@ export async function restorePin(
   const res = await fetchFn(cfg.pinned.originUrl, { method: "GET" });
   if (res.status !== 200) {
     throw new FacsimileError(
-      "HTTP_STATUS",
+      "http-status",
       `Restore download from ${cfg.pinned.originUrl} returned HTTP ${res.status}`,
     );
   }
@@ -853,7 +853,7 @@ export async function restorePin(
   const stagedSha = sha256File(downloadPath);
   if (stagedSha !== cfg.pinned.sha256) {
     throw new FacsimileError(
-      "RESTORE_DIGEST_MISMATCH",
+      "restore-digest-mismatch",
       `Restored file SHA-256 (${stagedSha}) does not match recorded digest (${cfg.pinned.sha256})`,
     );
   }
@@ -904,11 +904,11 @@ export async function fetchToStaging(
     if (parsed.protocol !== "https:" && !isLoopback) {
       if (redirects.length > 0) {
         throw new FacsimileError(
-          "REDIRECT_TO_HTTP",
+          "redirect-to-http",
           `Redirect chain diverted to insecure HTTP: ${currentUrl}`,
         );
       }
-      throw new FacsimileError("HTTP_NOT_HTTPS", `Candidate URL is not HTTPS: ${currentUrl}`);
+      throw new FacsimileError("http-not-https", `Candidate URL is not HTTPS: ${currentUrl}`);
     }
 
     try {
@@ -922,7 +922,7 @@ export async function fetchToStaging(
         const location = res.headers.get("location");
         if (!location) {
           throw new FacsimileError(
-            "HTTP_STATUS",
+            "http-status",
             `Redirect HTTP ${res.status} missing Location header`,
           );
         }
@@ -941,13 +941,13 @@ export async function fetchToStaging(
           continue;
         }
         throw new FacsimileError(
-          "NETWORK_RETRIES_EXHAUSTED",
+          "network-retries-exhausted",
           `HTTP ${res.status} after ${attempts} retries`,
         );
       }
 
       if (res.status !== 200) {
-        throw new FacsimileError("HTTP_STATUS", `HTTP error ${res.status} fetching ${currentUrl}`);
+        throw new FacsimileError("http-status", `HTTP error ${res.status} fetching ${currentUrl}`);
       }
 
       break;
@@ -962,14 +962,14 @@ export async function fetchToStaging(
       }
       const message = err instanceof Error ? err.message : String(err);
       throw new FacsimileError(
-        "NETWORK_RETRIES_EXHAUSTED",
+        "network-retries-exhausted",
         `Fetch failed after ${attempts} attempts: ${message}`,
       );
     }
   }
 
   if (res?.status !== 200) {
-    throw new FacsimileError("HTTP_STATUS", `Failed to retrieve 200 OK for ${url}`);
+    throw new FacsimileError("http-status", `Failed to retrieve 200 OK for ${url}`);
   }
 
   const contentType = res.headers.get("content-type") || "application/octet-stream";
@@ -985,7 +985,7 @@ export async function fetchToStaging(
   if (data.length > maxBytes) {
     fs.writeFileSync(stagingPath, data.subarray(0, maxBytes));
     throw new FacsimileError(
-      "SIZE_LIMIT_EXCEEDED",
+      "size-limit-exceeded",
       `Download exceeded maximum allowed size of ${maxBytes} bytes (received ${data.length} bytes)`,
     );
   }
@@ -1093,7 +1093,7 @@ export async function downloadFacsimile(
   const candidate = cfg.candidates[candidateIndex];
   if (!candidate) {
     throw new FacsimileError(
-      "INVALID_CONFIG",
+      "invalid-config",
       `No candidate found at index ${candidateIndex} for key ${key}`,
     );
   }
@@ -1112,7 +1112,7 @@ export async function downloadFacsimile(
       process.env.NODE_ENV === "test" &&
       (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost");
     if (parsed.protocol !== "https:" && !isLoopback) {
-      throw new FacsimileError("HTTP_NOT_HTTPS", `Candidate URL is not HTTPS: ${candidate.url}`);
+      throw new FacsimileError("http-not-https", `Candidate URL is not HTTPS: ${candidate.url}`);
     }
 
     let headStatus = 200;
@@ -1185,7 +1185,7 @@ export async function downloadFacsimile(
     });
     if (!checksumCheck.ok) {
       throw new FacsimileError(
-        "HOST_CHECKSUM_MISMATCH",
+        "host-checksum-mismatch",
         checksumCheck.error || "Host checksum verification failed",
       );
     }
@@ -1194,7 +1194,7 @@ export async function downloadFacsimile(
     const valPdf = validatePdf(fileBuf, candidate.expectedPageCountRange);
     if (!valPdf.valid) {
       throw new FacsimileError(
-        valPdf.errorCode || "NOT_A_PDF",
+        valPdf.errorCode || "not-a-pdf",
         valPdf.message || "PDF validation failed",
       );
     }
@@ -1207,7 +1207,7 @@ export async function downloadFacsimile(
     if (candidate.kind === "whole-volume" || candidate.kind === "whole-issue") {
       if (!cfg.articlePages.parentPageIndices || cfg.articlePages.parentPageIndices.length === 0) {
         throw new FacsimileError(
-          "PARENT_PAGE_INDEX_MISSING",
+          "parent-page-index-missing",
           "Whole-volume/whole-issue candidate requires configured parentPageIndices",
         );
       }
@@ -1233,7 +1233,7 @@ export async function downloadFacsimile(
 
     if (cfg.pinned?.sha256 && cfg.pinned.sha256 !== finalSha256) {
       throw new FacsimileError(
-        "PINNED_DIGEST_CONFLICT",
+        "pinned-digest-conflict",
         `Configuration pinned record conflict for ${key}: existing recorded digest is ${cfg.pinned.sha256}, incoming is ${finalSha256}. Refusing to replace pinned record.`,
       );
     }
@@ -1317,7 +1317,7 @@ export async function downloadFacsimile(
     };
   } catch (err: unknown) {
     const exitCode = err instanceof FacsimileError ? err.exitCode : 1;
-    const errorCode = err instanceof FacsimileError ? err.code : "UNEXPECTED_ERROR";
+    const errorCode = err instanceof FacsimileError ? err.code : "unexpected-error";
     const message = err instanceof Error ? err.message : String(err);
 
     writeStructuredLog(logPath, {
@@ -1498,7 +1498,7 @@ export async function main(
     return finish(0);
   } catch (err: unknown) {
     const exitCode = err instanceof FacsimileError ? err.exitCode : 1;
-    const errorCode = err instanceof FacsimileError ? err.code : "UNEXPECTED_ERROR";
+    const errorCode = err instanceof FacsimileError ? err.code : "unexpected-error";
     const message = err instanceof Error ? err.message : String(err);
     console.error(`\n❌ Pinning failed (${errorCode}): ${message}`);
     return finish(exitCode);
