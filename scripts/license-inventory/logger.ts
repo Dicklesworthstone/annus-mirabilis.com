@@ -6,7 +6,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { generateLogRunId } from "../app-router-architecture.ts";
-import type { EvaluatedItem, PolicyViolation } from "./types.ts";
+import { type EvaluatedItem, type PolicyViolation, summarizeRightsPositions } from "./types.ts";
 
 export interface LogSummary {
   readonly total: number;
@@ -65,6 +65,7 @@ export function writeLicenseInventoryLogs(
   }
 
   // Summary event
+  const rights = summarizeRightsPositions(evaluatedItems);
   const summaryEvent = {
     timestamp: now,
     suite: "license-inventory",
@@ -76,15 +77,27 @@ export function writeLicenseInventoryLogs(
     version: "1.0",
     license: "summary",
     source: "all",
-    rule: "inventory-complete",
     outcome: errors.length === 0 ? "passed" : "failed",
+    // `outcome` reports policy VIOLATIONS and stays "passed" when there are none, because that is
+    // what the exit code means. It is not a statement that every rights position is settled, so the
+    // message and the rule say how many are, and `pendingOwnerRuling` makes the number queryable
+    // rather than only printable.
+    rule:
+      rights.pendingOwnerRuling > 0
+        ? "inventory-complete-with-open-rights-positions"
+        : "inventory-complete",
     message:
-      errors.length === 0
-        ? "All license checks passed."
-        : `${errors.length} license policy violation(s) found.`,
+      errors.length > 0
+        ? `${errors.length} license policy violation(s) found.`
+        : rights.pendingOwnerRuling === 0
+          ? "All license checks passed."
+          : `No policy violations. ${rights.settled} of ${rights.total} items evaluated against a settled rights position; ${rights.pendingOwnerRuling} exempt pending an owner ruling.`,
     extra: {
       totalItems: evaluatedItems.length,
       violations: errors.length,
+      settledRightsPositions: rights.settled,
+      pendingOwnerRuling: rights.pendingOwnerRuling,
+      pendingOwnerRulingItems: rights.pendingNames,
       byKind,
     },
   };

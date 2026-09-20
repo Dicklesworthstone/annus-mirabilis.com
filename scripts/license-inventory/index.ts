@@ -15,6 +15,7 @@ import { evaluatePolicy } from "./evaluatePolicy.ts";
 import { writeLicenseInventoryLogs } from "./logger.ts";
 import { renderNotices } from "./renderNotices.ts";
 import type { EvaluationResult, LicenseItem, LicensePolicy } from "./types.ts";
+import { formatInventorySummary, summarizeRightsPositions } from "./types.ts";
 
 export interface FilesystemAdapters {
   readonly readText: (path: string) => string | null;
@@ -274,9 +275,12 @@ export function runLicenseInventoryCheck(options: CheckOptions = {}): {
 
   if (!silent) {
     if (success) {
-      console.log(
-        `✔ Third-party license inventory check passed. (${inventory.items.length} items evaluated)`,
-      );
+      // The count of items is not the count of settled rights positions. See
+      // summarizeRightsPositions in ./types.ts for why the population is not narrowed.
+      for (const line of formatInventorySummary(
+        summarizeRightsPositions(evaluation.evaluatedItems),
+      ))
+        console.log(line);
       console.log(`  Structured log: ${logPath}`);
     } else {
       console.error(`✖ Third-party license inventory check FAILED:`);

@@ -24,7 +24,12 @@ import {
 } from "./license-inventory/index.ts";
 import { renderNotices } from "./license-inventory/renderNotices.ts";
 import { checkSpdxExpression, parseSpdx } from "./license-inventory/spdx.ts";
-import type { LicenseItem, LicensePolicy } from "./license-inventory/types.ts";
+import {
+  formatInventorySummary,
+  type LicenseItem,
+  type LicensePolicy,
+  summarizeRightsPositions,
+} from "./license-inventory/types.ts";
 
 const BASE_POLICY: LicensePolicy = {
   allowlist: [
@@ -918,5 +923,85 @@ describe("version ranges match by dotted segment, not by characters (am-avyr)", 
 
   test("a range with more segments than the version cannot match", () => {
     expect(versionMatchesRange("1.1", "1.1.4")).toBe(false);
+  });
+});
+
+/**
+ * am-zqat. The check printed "Third-party license inventory check passed. (79 items evaluated)"
+ * whenever no policy violation was found, and seven of those 79 were exempt under known-donor-gap -
+ * the rule for a file whose rights position NOBODY HAS RULED ON. The exit code was right about
+ * violations and the sentence was wrong about what it meant, which is how a green gate ends up in a
+ * status report as "no open rights questions".
+ *
+ * The trap in fixing it is narrowing the population to the settled 72. An open position that stops
+ * being counted is worse than one reported as passed, because then nothing shows it exists. These
+ * tests pin the count as well as the claim.
+ */
+describe("License inventory summary states how many rights positions are settled", () => {
+  const item = (name: string, license: string): LicenseItem => ({
+    kind: "donor",
+    name,
+    version: "da11ff4",
+    license,
+    source: name,
+  });
+  const settled = {
+    item: item("a", "MIT"),
+    outcome: "passed" as const,
+    ruleApplied: "allowlist:MIT",
+  };
+  const devTool = {
+    item: item("b", "MIT"),
+    outcome: "exempt" as const,
+    ruleApplied: "dev-dependency-tool-exemption",
+  };
+  const pending = {
+    item: item("src/app/robots.ts", "PENDING-OWNER-RULING"),
+    outcome: "exempt" as const,
+    ruleApplied: "known-donor-gap",
+  };
+
+  test("the population is not narrowed: settled plus pending is always the whole set", () => {
+    for (const items of [[settled, devTool, pending], [settled], [pending, pending], []]) {
+      const s = summarizeRightsPositions(items);
+      expect(s.total).toBe(items.length);
+      expect(s.settled + s.pendingOwnerRuling).toBe(s.total);
+    }
+  });
+
+  test("a rule someone decided is settled; a question nobody answered is not", () => {
+    const s = summarizeRightsPositions([settled, devTool, pending]);
+    // the dev-dependency exemption is a DECIDED rule, so it counts as settled even though it is an
+    // exemption; known-donor-gap is an open question and does not
+    expect(s.settled).toBe(2);
+    expect(s.pendingOwnerRuling).toBe(1);
+    expect(s.pendingNames).toEqual(["src/app/robots.ts"]);
+  });
+
+  test("with an open position the summary does not claim the check passed", () => {
+    const lines = formatInventorySummary(summarizeRightsPositions([settled, devTool, pending]));
+    expect(lines.some((l) => l.includes("inventory check passed"))).toBe(false);
+    expect(lines.join("\n")).toContain("3 items");
+    expect(lines.join("\n")).toContain("2 of 3 evaluated against a settled rights position");
+    expect(lines.join("\n")).toContain("src/app/robots.ts");
+  });
+
+  test("with none open the wording is unchanged, so the qualification appears only when earned", () => {
+    const lines = formatInventorySummary(summarizeRightsPositions([settled, devTool]));
+    expect(lines).toEqual([
+      "\u2714 Third-party license inventory check passed. (2 items evaluated)",
+    ]);
+  });
+
+  test("the real inventory has open positions, and every one of them is still counted", () => {
+    const items = buildLicenseInventory(process.cwd(), defaultFsAdapters).items;
+    const evaluation = evaluatePolicy(items, BASE_POLICY);
+    const s = summarizeRightsPositions(evaluation.evaluatedItems);
+    expect(s.total).toBe(evaluation.evaluatedItems.length);
+    expect(s.settled + s.pendingOwnerRuling).toBe(s.total);
+    // the guard against the narrowing fix: if someone drops the open positions from the population
+    // this goes to zero and the check starts claiming a conformance nobody established
+    expect(s.pendingOwnerRuling).toBeGreaterThan(0);
+    expect(formatInventorySummary(s).some((l) => l.includes("inventory check passed"))).toBe(false);
   });
 });
