@@ -6,7 +6,7 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import {
   collectDonor,
   KNOWN_DONOR_GAPS,
@@ -23,6 +23,7 @@ import {
   type FilesystemAdapters,
   runLicenseInventoryCheck,
 } from "./license-inventory/index.ts";
+import { writeLicenseInventoryLogs } from "./license-inventory/logger.ts";
 import { renderNotices } from "./license-inventory/renderNotices.ts";
 import { checkSpdxExpression, parseSpdx } from "./license-inventory/spdx.ts";
 import {
@@ -1048,3 +1049,173 @@ describe("License inventory summary states how many rights positions are settled
     expect(formatInventorySummary(s).some((l) => l.includes("inventory check passed"))).toBe(false);
   });
 });
+
+/**
+ * am-wdqy's sibling problem, filed against my own closed work: the refusal RATCHET reported
+ * "scripts/license-inventory/index.ts: 2 untested refusal throw site(s), baseline 1" within the hour
+ * of am-zqat closing. Both things were true - the BEHAVIOUR of empty-inventory was verified through
+ * formatInventorySummary and the exit code, and the refusal SITE had no targeted test. A test that
+ * asserts only "it failed" does not record WHY it failed, so a refusal can be replaced by an
+ * unrelated failure and the test stays green.
+ *
+ * These two drive each site and read the rule back out of the retained evidence, which also
+ * exercises the evidence-retention path that only runs on failure.
+ */
+describe("License inventory refusal sites are driven by name", () => {
+  const policyYamlForRefusalTests = "allowlist:\n  - MIT\n  - Apache-2.0\nexceptions: []\n";
+
+  function evidenceFor(logPath: string, itemName: string): { rule: string; message: string } {
+    const logRunId = basename(logPath, ".jsonl");
+    const violationPath = join(
+      dirname(logPath),
+      logRunId,
+      "evidence",
+      itemName.replace(/[^a-zA-Z0-9._-]/g, "_"),
+      "violation.json",
+    );
+    return JSON.parse(readFileSync(violationPath, "utf8")) as { rule: string; message: string };
+  }
+
+  test("stale committed notices refuse with rule stale-committed-inventory (index.ts:255)", () => {
+    const logsDir = mkdtempSync(join(tmpdir(), "license-stale-logs-"));
+    const declared: LicenseItem = {
+      kind: "npm",
+      name: "demo-library",
+      version: "1.0.0",
+      license: "MIT",
+      source: "node_modules/demo-library",
+    };
+    // committed notices for a DIFFERENT version than the tree declares, so the inventory is
+    // non-empty and stale-committed-inventory is the only refusal in play
+    const staleNotices = renderNotices([{ ...declared, version: "0.9.0" }]);
+    const fs: FilesystemAdapters = {
+      readText: (p: string) => {
+        if (p.endsWith("THIRD_PARTY_NOTICES.md")) return staleNotices;
+        if (p.endsWith("node_modules/demo-library/package.json"))
+          return JSON.stringify({ name: "demo-library", version: "1.0.0", license: "MIT" });
+        if (p.endsWith("package.json"))
+          return JSON.stringify({ dependencies: { "demo-library": "^1.0.0" } });
+        if (p.endsWith("docs/license-policy.yaml")) return policyYamlForRefusalTests;
+        return null;
+      },
+      exists: (p: string) =>
+        p.endsWith("package.json") ||
+        p.endsWith("node_modules/demo-library") ||
+        p.endsWith("docs/license-policy.yaml") ||
+        p.endsWith("THIRD_PARTY_NOTICES.md"),
+      findFiles: () => [],
+      listDir: () => [],
+    };
+
+    const result = runLicenseInventoryCheck({
+      rootDir: "/fixture-root",
+      fs,
+      silent: true,
+      logsDir,
+    });
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    // the discriminating half: it failed FOR THIS REASON, not merely failed
+    expect(result.inventory.items.length).toBeGreaterThan(0);
+    expect(evidenceFor(result.logPath, "THIRD_PARTY_NOTICES.md").rule).toBe(
+      "stale-committed-inventory",
+    );
+  });
+
+  test("an inventory of zero items refuses with rule empty-inventory (index.ts:272)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "license-empty-root-"));
+    const built = buildLicenseInventory(dir, defaultFsAdapters);
+    expect(built.items.length).toBe(0);
+    // notices that match the empty result, so stale-committed-inventory cannot be what refuses
+    writeFileSync(join(dir, "THIRD_PARTY_NOTICES.md"), built.renderedNotices ?? "", "utf8");
+
+    const logsDir = join(dir, "logs");
+    const result = runLicenseInventoryCheck({
+      rootDir: dir,
+      fs: defaultFsAdapters,
+      silent: true,
+      logsDir,
+    });
+    expect(result.success).toBe(false);
+    expect(result.exitCode).toBe(1);
+    const violation = evidenceFor(result.logPath, "license-inventory");
+    expect(violation.rule).toBe("empty-inventory");
+    expect(violation.message).toContain("nothing is established");
+  });
+
+  /**
+   * The summary row's `rule` is the queryable signal that open rights positions exist, and nothing
+   * asserted it. Imported directly from ./license-inventory/logger.ts so the coverage is recorded
+   * against that file rather than reaching it transitively through index.ts.
+   *
+   * NOTE FOR THE RATCHET: the scanner reads `rule: "literal"`, and am-zqat made this one a
+   * CONDITIONAL over two literals, so the site left the scanner's view without being tested. These
+   * assertions exist so the coverage is real whether or not the scanner can see the site; the
+   * scanner gap is filed separately.
+   */
+  test("the log summary rule names open rights positions (inventory-complete-with-open-rights-positions)", () => {
+    const logsDir = mkdtempSync(join(tmpdir(), "license-logger-"));
+    const donorItem: LicenseItem = {
+      kind: "donor",
+      name: "src/app/robots.ts",
+      version: "da11ff4",
+      license: "PENDING-OWNER-RULING",
+      source: "src/app/robots.ts",
+    };
+    const settledItem: LicenseItem = {
+      kind: "npm",
+      name: "demo-library",
+      version: "1.0.0",
+      license: "MIT",
+      source: "node_modules/demo-library",
+    };
+
+    const withPending = writeLicenseInventoryLogs(
+      process.cwd(),
+      [
+        { item: settledItem, outcome: "passed", ruleApplied: "allowlist:MIT" },
+        { item: donorItem, outcome: "exempt", ruleApplied: "known-donor-gap" },
+      ],
+      [],
+      { logsDir },
+    );
+    const pendingSummary = readSummaryRow(withPending.logPath);
+    expect(pendingSummary.rule).toBe("inventory-complete-with-open-rights-positions");
+    expect(pendingSummary.outcome).toBe("passed");
+    expect((pendingSummary.extra as { pendingOwnerRuling: number }).pendingOwnerRuling).toBe(1);
+
+    const withoutPending = writeLicenseInventoryLogs(
+      process.cwd(),
+      [{ item: settledItem, outcome: "passed", ruleApplied: "allowlist:MIT" }],
+      [],
+      { logsDir },
+    );
+    const settledSummary = readSummaryRow(withoutPending.logPath);
+    expect(settledSummary.rule).toBe("inventory-complete");
+    expect(settledSummary.message).toBe("All license checks passed.");
+  });
+});
+
+function readSummaryRow(logPath: string): {
+  rule: string;
+  outcome: string;
+  message: string;
+  extra: unknown;
+} {
+  const rows = readFileSync(logPath, "utf8")
+    .split("\n")
+    .filter(Boolean)
+    .map(
+      (l) =>
+        JSON.parse(l) as {
+          kind: string;
+          rule: string;
+          outcome: string;
+          message: string;
+          extra: unknown;
+        },
+    );
+  const summary = rows.find((r) => r.kind === "summary");
+  if (!summary) throw new Error(`No summary row in ${logPath}`);
+  return summary;
+}
