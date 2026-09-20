@@ -29,34 +29,85 @@ function validEntry(overrides: Partial<Record<string, unknown>> = {}) {
   };
 }
 
+/**
+ * The refusal CODE a parse threw, or null if it did not throw.
+ *
+ * `toThrow(RegistryError)` was all several of these asserted, and that passes
+ * whichever guard fired: a fixture aimed at the id check could be satisfied by
+ * `missing-cluster` and read as coverage of a rule it never reached. The
+ * am-muyh scanner counts those sites untested for the same reason, which is
+ * how they were found (am-kfkw, am-fkyc).
+ */
+function refusalCodeOf(run: () => unknown): string | null {
+  try {
+    run();
+    return null;
+  } catch (err) {
+    if (!(err instanceof RegistryError)) throw err;
+    return err.code;
+  }
+}
+
 describe("parseRegistry: fixture violations", () => {
-  test("a duplicate id fails", () => {
-    expect(() =>
-      parseRegistry({
-        schemaVersion: 1,
-        entries: [validEntry(), validEntry()],
-      }),
-    ).toThrow(RegistryError);
+  test("a duplicate id fails with duplicate-id, and two distinct ids parse", () => {
+    expect(
+      refusalCodeOf(() =>
+        parseRegistry({
+          schemaVersion: 1,
+          entries: [validEntry(), validEntry()],
+        }),
+      ),
+    ).toBe("duplicate-id");
+
+    // The accept arm, and the discriminator: the same two entries with
+    // different ids must parse, so the refusal is the repeat and not the
+    // shape of validEntry().
+    const accepted = parseRegistry({
+      schemaVersion: 1,
+      entries: [validEntry(), validEntry({ id: "foundation:second-node" })],
+    });
+    expect(accepted.entries.length).toBe(2);
   });
 
-  test("an id with two owners (same id, different ownerBead) fails as a duplicate", () => {
-    expect(() =>
-      parseRegistry({
-        schemaVersion: 1,
-        entries: [
-          validEntry({ ownerBead: "am-first-owner-000" }),
-          validEntry({ ownerBead: "am-second-owner-111" }),
-        ],
-      }),
-    ).toThrow(RegistryError);
+  test("an id with two owners (same id, different ownerBead) fails as duplicate-id", () => {
+    expect(
+      refusalCodeOf(() =>
+        parseRegistry({
+          schemaVersion: 1,
+          entries: [
+            validEntry({ ownerBead: "am-first-owner-000" }),
+            validEntry({ ownerBead: "am-second-owner-111" }),
+          ],
+        }),
+      ),
+    ).toBe("duplicate-id");
+
+    // Distinct ids with distinct owners are ordinary, so the id is what the
+    // refusal is about and not the second ownerBead.
+    const accepted = parseRegistry({
+      schemaVersion: 1,
+      entries: [
+        validEntry({ ownerBead: "am-first-owner-000" }),
+        validEntry({ id: "foundation:second-node", ownerBead: "am-second-owner-111" }),
+      ],
+    });
+    expect(accepted.entries.length).toBe(2);
   });
 
-  test("a malformed id fails", () => {
+  test("a malformed id fails with invalid-id, and a well-formed one parses", () => {
     for (const id of ["not-namespaced", "foundation:Upper", "foundation:has_underscore", ""]) {
-      expect(() => parseRegistry({ schemaVersion: 1, entries: [validEntry({ id })] })).toThrow(
-        RegistryError,
-      );
+      expect(
+        refusalCodeOf(() => parseRegistry({ schemaVersion: 1, entries: [validEntry({ id })] })),
+      ).toBe("invalid-id");
     }
+
+    // Every other field is held at its valid value in validEntry(), so an
+    // accepted id here is the only difference between this and the four above.
+    const accepted = parseRegistry({
+      schemaVersion: 1,
+      entries: [validEntry({ id: "foundation:well-formed-2" })],
+    });
+    expect(accepted.entries[0]?.id).toBe("foundation:well-formed-2");
   });
 
   test("an invalid kind fails", () => {

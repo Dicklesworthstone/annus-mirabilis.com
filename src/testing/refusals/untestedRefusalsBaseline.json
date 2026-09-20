@@ -33,7 +33,7 @@
   "src/content/editions/reconciliation.ts": 0,
   "src/content/editions/segmentSentences.ts": 0,
   "src/content/entrances/entranceRecord.ts": 0,
-  "src/content/foundations/registry.ts": 2,
+  "src/content/foundations/registry.ts": 0,
   "src/content/ids.ts": 0,
   "src/content/kernel/bindings.ts": 0,
   "src/content/kernel/check.ts": 0,
