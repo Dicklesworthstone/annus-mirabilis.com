@@ -4,9 +4,9 @@
  * Implements rules C.1 through C.8.
  */
 
-import { createHash } from "node:crypto";
 import { parseEquationAnchor, parseParagraphId } from "../ids.ts";
 import type { Alignment, AlignmentEdge } from "../schemas/source.ts";
+import { spanTextDigest } from "../schemas/spans.ts";
 import {
   classifyAlignableUnit,
   isPermanentEnglishId,
@@ -472,8 +472,17 @@ export function validateGloss(input: ValidateGlossInput): readonly AlignmentIssu
     }
 
     // 2. Staleness check via digest comparison (no re-tokenisation needed)
-    const expectedDigest =
-      alignable.digest ?? createHash("sha256").update(alignable.text, "utf8").digest("hex");
+    //
+    // The digest is spanTextDigest's, not one computed here. This line used to call
+    // createHash("sha256").update(alignable.text) directly, which is spanTextDigest
+    // WITHOUT its NFC normalization, so the two disagreed on exactly the characters
+    // this corpus is made of: "unregelmaessig" written with a decomposed umlaut hashes
+    // differently under the inline form and identically under spanTextDigest. A gloss
+    // whose sourceTextDigest was stored the project's way was then reported stale the
+    // moment its German arrived decomposed, with nothing changed. The bead's technical
+    // approach says neither the span rule nor the gloss rule computes a digest of its
+    // own, and this was the second implementation of "has this text changed".
+    const expectedDigest = alignable.digest ?? spanTextDigest(alignable.text);
     if (g.sourceTextDigest && g.sourceTextDigest !== expectedDigest) {
       issues.push({
         code: "gloss-stale",

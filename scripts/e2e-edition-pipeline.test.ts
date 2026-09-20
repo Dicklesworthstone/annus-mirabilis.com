@@ -53,6 +53,7 @@ const stageOf = (run: { stages: readonly { stage: string }[] }, stage: string) =
         code?: string | undefined;
         message: string;
         pending?: readonly string[] | undefined;
+        evidence?: readonly string[] | undefined;
         durationMs: number;
       }
     | undefined;

@@ -15,6 +15,7 @@ import {
   registerReviewStateCheck,
   resetReviewStateCheck,
 } from "../../content/editions/reviewState.ts";
+import { spanTextDigest } from "../../content/schemas/spans.ts";
 import { getLogger } from "../log/logger.ts";
 
 const logger = getLogger("editions");
@@ -200,6 +201,81 @@ describe("staleness guard: gloss-stale evaluated by digest comparison", () => {
         },
       ],
       alignableUnits: [{ id: "s1-p1-s1", text, digest: currentDigest }],
+    });
+    expect(issues.filter((i) => i.code === "gloss-stale")).toHaveLength(0);
+  });
+});
+
+/**
+ * The digest the gloss rule compares with is the project's, not one of its own.
+ *
+ * Both tests above supply `digest` explicitly and use "Die Brownsche Bewegung", which
+ * has no umlaut, so neither reaches the fallback that computes the digest nor notices
+ * how it computes it. The fallback used to be
+ * createHash("sha256").update(alignable.text) - spanTextDigest without its NFC
+ * normalization - and German is where that bites: an umlaut written as one code point
+ * and the same umlaut written as letter-plus-combining-mark are the same text and hash
+ * differently under the inline form. A gloss whose sourceTextDigest was stored with
+ * spanTextDigest was then reported stale the moment its German arrived decomposed,
+ * with nothing changed and no way for the editor to tell.
+ */
+describe("gloss staleness uses spanTextDigest, not a second digest of its own", () => {
+  const SENTENCE_NFC = "Die Bewegung der Teilchen ist unregelmäßig und regellos.".normalize("NFC");
+  const SENTENCE_NFD = SENTENCE_NFC.normalize("NFD");
+
+  test("PLANTED: the same German sentence decomposed is not stale", () => {
+    // The two strings are different sequences of code points and the same text.
+    expect(SENTENCE_NFD).not.toBe(SENTENCE_NFC);
+    expect(SENTENCE_NFD.normalize("NFC")).toBe(SENTENCE_NFC);
+
+    const issues = validateGloss({
+      glossUnits: [
+        {
+          sentenceId: "s1-p1-s1",
+          // Stored the way every other digest in this tree is stored.
+          sourceTextDigest: spanTextDigest(SENTENCE_NFC),
+          attribution: { id: "alice", kind: "human" },
+          editor: { id: "bob", kind: "human" },
+        },
+      ],
+      // No `digest` supplied, so the rule computes one: the path the fixtures above
+      // never take.
+      alignableUnits: [{ id: "s1-p1-s1", text: SENTENCE_NFD }],
+    });
+    expect(issues.filter((i) => i.code === "gloss-stale")).toHaveLength(0);
+  });
+
+  test("a sentence whose words actually changed is still stale", () => {
+    const edited = SENTENCE_NFC.replace("unregelmäßig", "regelmäßig");
+    const issues = validateGloss({
+      glossUnits: [
+        {
+          sentenceId: "s1-p1-s1",
+          sourceTextDigest: spanTextDigest(SENTENCE_NFC),
+          attribution: { id: "alice", kind: "human" },
+          editor: { id: "bob", kind: "human" },
+        },
+      ],
+      alignableUnits: [{ id: "s1-p1-s1", text: edited }],
+    });
+    // The fix must not turn the rule off: a real edit, one word negated, still refuses.
+    expect(issues.filter((i) => i.code === "gloss-stale")).toHaveLength(1);
+  });
+
+  test("the rule's fallback digest is spanTextDigest's, byte for byte", () => {
+    // Asserted through the rule's own verdict rather than by reimplementing it here:
+    // a stored spanTextDigest of the exact text must not be stale when the rule
+    // computes the comparison digest itself.
+    const issues = validateGloss({
+      glossUnits: [
+        {
+          sentenceId: "s1-p1-s1",
+          sourceTextDigest: spanTextDigest(SENTENCE_NFC),
+          attribution: { id: "alice", kind: "human" },
+          editor: { id: "bob", kind: "human" },
+        },
+      ],
+      alignableUnits: [{ id: "s1-p1-s1", text: SENTENCE_NFC }],
     });
     expect(issues.filter((i) => i.code === "gloss-stale")).toHaveLength(0);
   });
