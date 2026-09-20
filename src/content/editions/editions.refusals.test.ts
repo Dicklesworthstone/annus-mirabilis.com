@@ -22,10 +22,13 @@ import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import yaml from "js-yaml";
+import { parseReceipt } from "../provenance/parseReceipt.ts";
 import {
   admitAliasRecords,
+  brownianPageMapMismatches,
   InventoryHonestyError,
   loadBrownianInventory,
+  type PageMapMismatch,
 } from "./brownianInventory.ts";
 import { validateEditionDeclaration } from "./editionDeclaration.ts";
 import { validateSegmentation } from "./segmentSentences.ts";
@@ -70,6 +73,41 @@ function createTempBrownianFixture(): string {
   );
 
   return tempRoot;
+}
+
+const BROWNIAN_RECEIPT_REL = "docs/provenance/ap-17-549.md";
+
+/**
+ * Replaces the top-level `pageMap:` block of a fixture's pinned receipt.
+ *
+ * `null` removes the key outright; a string is spliced in where the block was.
+ * Textual rather than a YAML round trip, because the receipt is read back by
+ * the project's own restricted parser and a re-dump would change far more of
+ * the file than the one key under test.
+ */
+function rewriteReceiptPageMap(tempRoot: string, replacement: string | null): void {
+  const receiptPath = join(tempRoot, BROWNIAN_RECEIPT_REL);
+  const lines = readFileSync(receiptPath, "utf8").split("\n");
+  const start = lines.indexOf("pageMap:");
+  assert.notEqual(start, -1, "the fixture receipt must carry a pageMap block to rewrite");
+  let end = start + 1;
+  while (end < lines.length) {
+    const line = lines[end] ?? "";
+    // The block runs to the next top-level key, or to the end of the front matter.
+    if (line === "---" || /^[A-Za-z][A-Za-z0-9_-]*:/.test(line)) break;
+    end += 1;
+  }
+  const spliced = replacement === null ? [] : replacement.split("\n");
+  writeFileSync(
+    receiptPath,
+    [...lines.slice(0, start), ...spliced, ...lines.slice(end)].join("\n"),
+  );
+}
+
+/** What the fixture receipt's front matter actually parses `pageMap` to. */
+function receiptPageMap(tempRoot: string): unknown {
+  const receiptPath = join(tempRoot, BROWNIAN_RECEIPT_REL);
+  return parseReceipt(readFileSync(receiptPath, "utf8"), receiptPath).frontMatter?.pageMap;
 }
 
 describe("Editions Refusal Sites", () => {
@@ -491,6 +529,110 @@ describe("Editions Refusal Sites", () => {
         const tempRoot = createTempBrownianFixture();
         const inv = loadBrownianInventory(tempRoot);
         assert.equal(inv.paper, "brownian-motion");
+      });
+    });
+
+    // 11. (brownianInventory.ts:583) receipt-pagemap-absent (am-h83f).
+    // a92732ba added this site with no test and the am-muyh pawl caught it.
+    // The receipt page map is the evidence `resolveEquationPage` reads, so a
+    // receipt carrying none cannot be reconciled against its manifest at all.
+    // An empty list is that same absence written a second way, and the guard
+    // refuses both; the two reject arms below drive the two halves of its
+    // disjunction and each asserts which half it reached, so the pair cannot
+    // quietly collapse into one branch tested twice.
+    describe("Site (brownianInventory.ts:583): receipt-pagemap-absent", () => {
+      it("throws receipt-pagemap-absent when the receipt carries no pageMap key (brownianInventory.ts:583)", () => {
+        const tempRoot = createTempBrownianFixture();
+        assert.ok(
+          Array.isArray(receiptPageMap(tempRoot)),
+          "the fixture receipt must start with a pageMap, or removing it drives nothing",
+        );
+        rewriteReceiptPageMap(tempRoot, null);
+        assert.equal(
+          receiptPageMap(tempRoot),
+          undefined,
+          "this arm must reach the !Array.isArray half of the guard",
+        );
+
+        assert.throws(
+          () => brownianPageMapMismatches(tempRoot),
+          (err: unknown) => {
+            assert.ok(err instanceof InventoryHonestyError);
+            assert.equal(err.code, "receipt-pagemap-absent");
+            assert.ok(err.message.includes("no pageMap to reconcile"));
+            return true;
+          },
+        );
+      });
+
+      it("throws receipt-pagemap-absent when the receipt's pageMap is an empty list (brownianInventory.ts:583)", () => {
+        const tempRoot = createTempBrownianFixture();
+        rewriteReceiptPageMap(tempRoot, "pageMap: []");
+        const parsed = receiptPageMap(tempRoot);
+        assert.ok(
+          Array.isArray(parsed) && parsed.length === 0,
+          "this arm must reach the length === 0 half of the guard, not !Array.isArray",
+        );
+
+        assert.throws(
+          () => brownianPageMapMismatches(tempRoot),
+          (err: unknown) => {
+            assert.ok(err instanceof InventoryHonestyError);
+            assert.equal(err.code, "receipt-pagemap-absent");
+            return true;
+          },
+        );
+      });
+
+      // The accept arm. Not throwing is too weak on its own: a body that
+      // returned [] after the guard would pass that. So the receipt is given a
+      // page map that disagrees with the manifest on a known page, and the
+      // disagreement has to come back. The restored fixture then has to stop
+      // reporting it, which is the control that separates a plant from a story.
+      it("reconciles a receipt whose pageMap is present, and reports a planted disagreement (brownianInventory.ts:583)", () => {
+        const baselineRoot = createTempBrownianFixture();
+        const baseline = brownianPageMapMismatches(baselineRoot);
+        assert.ok(Array.isArray(baseline));
+        const claimsS9 = (mismatches: readonly PageMapMismatch[]): boolean =>
+          mismatches.some(
+            (mismatch) =>
+              mismatch.printedPage === 549 &&
+              mismatch.field === "sectionIds" &&
+              mismatch.receipt.length === 1 &&
+              mismatch.receipt[0] === "s9",
+          );
+        assert.equal(claimsS9(baseline), false, "the unplanted receipt does not claim s9");
+
+        const plantedRoot = createTempBrownianFixture();
+        rewriteReceiptPageMap(
+          plantedRoot,
+          [
+            "pageMap:",
+            "  - pdfPageIndex: 1",
+            "    printedPage: 549",
+            "    sectionIds:",
+            "      - s9",
+            "    displayEquations:",
+            "      numbered: []",
+            "      unnumberedIds: []",
+            "    footnoteMarks: []",
+          ].join("\n"),
+        );
+        const planted = brownianPageMapMismatches(plantedRoot);
+        const s9 = planted.find(
+          (mismatch) => mismatch.printedPage === 549 && mismatch.field === "sectionIds",
+        );
+        assert.ok(s9, "the planted page 549 entry must be reconciled, not skipped");
+        assert.deepEqual([...s9.receipt], ["s9"]);
+        assert.ok(
+          s9.manifest.length > 0,
+          "the manifest side must carry the sections really printed on page 549",
+        );
+        assert.equal(s9.manifest.includes("s9"), false);
+
+        // Restore: a fresh unmodified fixture stops reporting the plant.
+        const restoredRoot = createTempBrownianFixture();
+        assert.equal(claimsS9(brownianPageMapMismatches(restoredRoot)), false);
       });
     });
   });
