@@ -313,17 +313,32 @@ export async function runPerformanceBudgets(
       .map((face) => ({ name: face.name, m: measureReadingFace(face.html) }))
       .sort((a, b) => b.m.gzipBytes - a.m.gzipBytes);
     const largest = measured[0];
-    if (!largest) throw new Error("reading-face measurement produced no rows despite built pages");
-    recordMetric(
-      "reading-face-html",
-      !largest.m.overBudget,
-      largest.m.budgetBytes,
-      largest.m.gzipBytes,
-      "bytes",
-      `Largest built reading face ${largest.name}: ${largest.m.gzipBytes} bytes gzipped ` +
-        `(raw ${largest.m.rawBytes}) across ${measured.length} built paper page(s); ` +
-        `next largest ${measured[1]?.name ?? "none"} at ${measured[1]?.m.gzipBytes ?? 0}.`,
-    );
+    if (!largest) {
+      // Unreachable while builtReadingFaces is non-empty, and the guard exists only so the
+      // index access narrows. It reports rather than throws for the same reason the branch
+      // above does: a gate that crashes tells the runner nothing about the budget, and this
+      // row's whole history is about not letting an unmeasured state read as a verdict.
+      recordMetric(
+        "reading-face-html",
+        false,
+        READING_FACE_BUDGET_BYTES,
+        0,
+        "bytes",
+        `Measurement produced no rows for ${builtReadingFaces.length} built reading face(s) under ` +
+          `${relative(root, readingFaceDir)}. Measuring nothing is not passing.`,
+      );
+    } else {
+      recordMetric(
+        "reading-face-html",
+        !largest.m.overBudget,
+        largest.m.budgetBytes,
+        largest.m.gzipBytes,
+        "bytes",
+        `Largest built reading face ${largest.name}: ${largest.m.gzipBytes} bytes gzipped ` +
+          `(raw ${largest.m.rawBytes}) across ${measured.length} built paper page(s); ` +
+          `next largest ${measured[1]?.name ?? "none"} at ${measured[1]?.m.gzipBytes ?? 0}.`,
+      );
+    }
   }
 
   // -------------------------------------------------------------------------
