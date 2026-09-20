@@ -298,6 +298,14 @@ export function MassEnergyFirstEncounter({
       </details>
       <h3>Why the slower traveler matters</h3>
       <p>{record.consistencyCase}</p>
+      {/*
+        KEEP the tabIndex. Measured against the built site, both rendered instances
+        overflow at 320px: 480/262 scrollWidth over clientWidth (1280px: 730/730). The
+        tabIndex is the keyboard's only route into the hidden 218 pixels.
+        a11y/noNoninteractiveTabindex flags this and its FIXABLE fix deletes the
+        attribute; `me-table` is NOT in AUDITED_SCROLL_CLASSES, so the scrollable-regions
+        ratchet would not catch that removal either (am-6iz4, am-uj6w).
+      */}
       <section className="me-table" aria-label="Two-speed energy comparison" tabIndex={0}>
         <table>
           <caption>

@@ -33,6 +33,13 @@ export function DatasetTable({
     dataset.fits?.filter((f) => !seriesId || !f.seriesId || f.seriesId === seriesId) ?? [];
 
   return (
+    // KEEP the tabIndex. This is a scroll container by construction - overflowX: "auto"
+    // below, wrapping a historical dataset whose column count comes from the record - and
+    // it cannot be measured against the built site, because DatasetOverlay is mounted by
+    // no route today and its showTable prop defaults to false, so nothing renders it
+    // there. a11y/noNoninteractiveTabindex flags it and its FIXABLE fix deletes the
+    // attribute; the element carries no className, so no class-keyed gate, including the
+    // scrollable-regions ratchet, can see it at all (am-6iz4, am-uj6w).
     <section
       className={className ? className.trim() : undefined}
       data-testid="dataset-table"
