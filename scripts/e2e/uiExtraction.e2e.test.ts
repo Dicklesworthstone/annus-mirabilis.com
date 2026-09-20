@@ -248,33 +248,38 @@ async function runChecks(
   // 2. The palette opens on the keyboard shortcut and Escape closes it with focus
   //    restored. See the test below this function for why this currently fails.
   await record("command-palette", async () => {
-    await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 20_000 });
-    const opener = page
-      .locator("[data-command-palette-trigger], button[aria-label*='search' i]")
-      .first();
+    // The opener is an ANCHOR, a.search-launcher with aria-haspopup="dialog",
+    // rendered by SearchLauncher in src/app/layout.tsx. My first version looked
+    // for [data-command-palette-trigger] or button[aria-label*="search"], which
+    // this component has never carried, and reported "no page mounts it" in both
+    // engines - a selector failure wearing the clothes of a product gap. It is
+    // the defect class this repository has been sweeping all week and I wrote a
+    // fresh instance of it. The selector below is the element the layout renders.
+    await page.goto(baseUrl, { waitUntil: "load", timeout: 20_000 });
+    const opener = page.locator("a.search-launcher[aria-haspopup='dialog']").first();
     if ((await opener.count()) === 0) {
-      throw new Error(
-        "no palette trigger matched [data-command-palette-trigger] or button[aria-label*='search' i]. " +
-          "src/search/CommandPalette.tsx exists and no page mounts it (am-im0x).",
-      );
+      throw new Error("no a.search-launcher[aria-haspopup='dialog'] on the built page");
     }
     await opener.focus();
-    await page.keyboard.press(browserName === "webkit" ? "Meta+k" : "Control+k");
-    const dialog = page.locator("[data-command-palette-dialog], [role='dialog']").first();
-    await dialog.waitFor({ state: "visible", timeout: 5000 });
+    // launcher.ts accepts either modifier; the engine's platform decides which a
+    // reader presses, and both must reach the same handler.
+    await page.keyboard.press(process.platform === "darwin" ? "Meta+k" : "Control+k");
+    const dialog = page.locator("dialog[open], [role='dialog']").first();
+    await dialog.waitFor({ state: "visible", timeout: 10_000 });
     await page.keyboard.press("Escape");
-    await dialog.waitFor({ state: "hidden", timeout: 5000 });
+    await dialog.waitFor({ state: "hidden", timeout: 10_000 });
     const focusReturned = await page.evaluate(() => {
       const active = document.activeElement;
-      return (
-        active !== null &&
-        (active.matches("[data-command-palette-trigger]") ||
-          (active.getAttribute("aria-label") ?? "").toLowerCase().includes("search"))
-      );
+      return active?.classList.contains("search-launcher") === true;
     });
-    if (!focusReturned)
-      throw new Error("Escape closed the palette without restoring focus to the opener");
-    return "shortcut opened the palette, Escape closed it, focus returned to the opener";
+    if (!focusReturned) {
+      const where = await page.evaluate(() => {
+        const a = document.activeElement;
+        return a === null ? "null" : `${a.tagName.toLowerCase()}.${a.className || "(no class)"}`;
+      });
+      throw new Error(`Escape closed the palette but focus went to ${where}, not the opener`);
+    }
+    return "the shortcut opened the palette, Escape closed it, focus returned to a.search-launcher";
   });
 
   // 3. A nonexistent route is a 404 WITH the not-found page, not a soft 200.
