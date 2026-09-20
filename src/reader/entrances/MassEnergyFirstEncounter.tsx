@@ -202,8 +202,15 @@ export function MassEnergyFirstEncounter({
           </p>
         </article>
       </div>
-      <div
+      {/*
+        A <section> with a name rather than a bare <div>: the drop zone carries
+        drag handlers, and an element with handlers and no role is announced as
+        nothing. The button inside it already performs the identical action, so
+        the non-drag path AGENTS.md requires exists and is named in the copy.
+      */}
+      <section
         className="me-align-target"
+        aria-label="Align the accounts"
         onDragOver={(event) => {
           if (ready) event.preventDefault();
         }}
@@ -224,7 +231,7 @@ export function MassEnergyFirstEncounter({
           Use the button, or drag the “Beside the body” card here. Both actions perform the same
           alignment.
         </p>
-      </div>
+      </section>
       <h3>{PHASES[state.phase]}</h3>
       <div data-encounter-live>
         <SubtractionSteps
