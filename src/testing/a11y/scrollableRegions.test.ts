@@ -98,6 +98,24 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
   (
     [
       {
+        file: "src/components/lab/lq08/PhotoelectricLab.tsx",
+        className: "table-scroll",
+        url: "/lab/lq-08/",
+        measurements: "320px: 220px/220px (diff 0); 1280px: 1116px/1116px (diff 0)",
+        reason:
+          "Was 636px/220px, then 253px/220px once the dotted identifier columns could wrap, then fitting once its ten cells read --table-cell-x instead of an inline 0.5rem no stylesheet could reach. This file carries exactly one element of this class.",
+        measuredBy: "am-6iz4",
+      },
+      {
+        file: "src/components/lab/sr12/ChargeCurrentLab.tsx",
+        className: "table-scroll",
+        url: "/lab/sr-12/",
+        measurements: "320px: 252px/252px (diff 0); 1280px: 1148px/1148px (diff 0)",
+        reason:
+          "Was 400px/252px, then 274px/252px once the identifier columns could wrap, then fitting once its forty-eight cells read --table-cell-x instead of an inline 0.5rem shorthand. The 1280px figure is unchanged, which is the evidence the desktop rendering did not move. This file carries exactly one element of this class.",
+        measuredBy: "am-6iz4",
+      },
+      {
         file: "src/components/lab/WaveDescriptionLab.tsx",
         className: "table-scroll",
         url: "/lab/lq-01/",

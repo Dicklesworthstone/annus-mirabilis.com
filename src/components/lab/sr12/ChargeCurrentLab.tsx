@@ -382,7 +382,6 @@ export function ChargeCurrentLab({
       {/* Telemetry Output Table */}
       <section
         className="table-scroll"
-        tabIndex={0}
         aria-label="Charge and current density telemetry across frames"
         style={{
           overflowX: "auto",
@@ -401,114 +400,138 @@ export function ChargeCurrentLab({
         >
           <thead>
             <tr style={{ background: "var(--wash)", borderBottom: "1px solid var(--line)" }}>
-              <th style={{ padding: "0.5rem" }}>Quantity</th>
-              <th style={{ padding: "0.5rem" }}>Stationary Frame (K)</th>
-              <th style={{ padding: "0.5rem" }}>Moving Frame (k)</th>
-              <th style={{ padding: "0.5rem" }}>Unit</th>
-              <th style={{ padding: "0.5rem" }}>Lorentz Transformation Law</th>
+              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Quantity</th>
+              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Stationary Frame (K)</th>
+              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Moving Frame (k)</th>
+              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Unit</th>
+              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Lorentz Transformation Law</th>
             </tr>
           </thead>
           <tbody>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
-              <td style={{ padding: "0.5rem", fontWeight: 500 }}>Charge Density ρ</td>
-              <td style={{ padding: "0.5rem" }}>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
+                Charge Density ρ
+              </td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                 <OutputReading item={rhoStat} />
               </td>
               <td
                 style={{
-                  padding: "0.5rem",
+                  padding: "0.5rem var(--table-cell-x)",
                   fontFamily: "var(--font-mono)",
                   color: "var(--accent)",
                 }}
               >
                 <OutputReading item={rhoMov} />
               </td>
-              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C/m³</td>
-              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>ρ&apos; = γ (ρ - vJx/c²)</td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>C/m³</td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
+                ρ&apos; = γ (ρ - vJx/c²)
+              </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
-              <td style={{ padding: "0.5rem", fontWeight: 500 }}>Current Density Jx</td>
-              <td style={{ padding: "0.5rem" }}>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
+                Current Density Jx
+              </td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                 <OutputReading item={jStat} />
               </td>
-              <td style={{ padding: "0.5rem", fontFamily: "var(--font-mono)" }}>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", fontFamily: "var(--font-mono)" }}>
                 <OutputReading item={jMov} />
               </td>
-              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>A/m²</td>
-              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>J&apos;x = γ (Jx - vρ)</td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>A/m²</td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
+                J&apos;x = γ (Jx - vρ)
+              </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
-              <td style={{ padding: "0.5rem", fontWeight: 500 }}>Lorentz Factor γ</td>
-              <td style={{ padding: "0.5rem" }} colSpan={2}>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
+                Lorentz Factor γ
+              </td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)" }} colSpan={2}>
                 <OutputReading item={gRes} />
               </td>
-              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>1</td>
-              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>1 / √(1 - v²/c²)</td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>1</td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
+                1 / √(1 - v²/c²)
+              </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
-              <td style={{ padding: "0.5rem", fontWeight: 500 }}>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
                 Four-Current Invariant (cρ)² - |J|²
               </td>
-              <td style={{ padding: "0.5rem" }} colSpan={2}>
+              <td style={{ padding: "0.5rem var(--table-cell-x)" }} colSpan={2}>
                 <OutputReading item={invSI} />
               </td>
-              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>A²/m⁴</td>
-              <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
+                A²/m⁴
+              </td>
+              <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                 Exact scalar invariant across all frames
               </td>
             </tr>
             {p.mode === "current-loop" && (
               <>
                 <tr style={{ borderBottom: "1px solid var(--line)" }}>
-                  <td style={{ padding: "0.5rem", fontWeight: 500 }}>Loop Top Leg Charge (+x)</td>
-                  <td style={{ padding: "0.5rem" }}>0 C</td>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
+                    Loop Top Leg Charge (+x)
+                  </td>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)" }}>0 C</td>
                   <td
                     style={{
-                      padding: "0.5rem",
+                      padding: "0.5rem var(--table-cell-x)",
                       fontFamily: "var(--font-mono)",
                       color: "var(--accent)",
                     }}
                   >
                     <OutputReading item={legPos} />
                   </td>
-                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C</td>
-                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
+                    C
+                  </td>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                     q&apos;+ = -v I lx / c²
                   </td>
                 </tr>
                 <tr style={{ borderBottom: "1px solid var(--line)" }}>
-                  <td style={{ padding: "0.5rem", fontWeight: 500 }}>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
                     Loop Bottom Leg Charge (-x)
                   </td>
-                  <td style={{ padding: "0.5rem" }}>0 C</td>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)" }}>0 C</td>
                   <td
                     style={{
-                      padding: "0.5rem",
+                      padding: "0.5rem var(--table-cell-x)",
                       fontFamily: "var(--font-mono)",
                       color: "var(--plot)",
                     }}
                   >
                     <OutputReading item={legNeg} />
                   </td>
-                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C</td>
-                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
+                    C
+                  </td>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                     q&apos;- = +v I lx / c²
                   </td>
                 </tr>
                 <tr style={{ borderBottom: "1px solid var(--line)" }}>
-                  <td style={{ padding: "0.5rem", fontWeight: 500 }}>Loop Total Charge</td>
-                  <td style={{ padding: "0.5rem" }}>0 C</td>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
+                    Loop Total Charge
+                  </td>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)" }}>0 C</td>
                   <td
                     style={{
-                      padding: "0.5rem",
+                      padding: "0.5rem var(--table-cell-x)",
                       fontFamily: "var(--font-mono)",
                       fontWeight: 600,
                     }}
                   >
                     <OutputReading item={loopTot} />
                   </td>
-                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C</td>
-                  <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
+                    C
+                  </td>
+                  <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                     Q&apos; = q&apos;+ + q&apos;- = 0 (charge conservation)
                   </td>
                 </tr>
@@ -516,38 +539,44 @@ export function ChargeCurrentLab({
             )}
             {p.mode === "moving-sphere" && (
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
-                <td style={{ padding: "0.5rem", fontWeight: 500 }}>Sphere Total Charge Q</td>
-                <td style={{ padding: "0.5rem" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
+                  Sphere Total Charge Q
+                </td>
+                <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   <OutputReading item={sphereStat} />
                 </td>
                 <td
                   style={{
-                    padding: "0.5rem",
+                    padding: "0.5rem var(--table-cell-x)",
                     fontFamily: "var(--font-mono)",
                     fontWeight: 600,
                   }}
                 >
                   <OutputReading item={sphereMov} />
                 </td>
-                <td style={{ padding: "0.5rem", color: "var(--muted)" }}>C</td>
-                <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>C</td>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   Q&apos; = Q (exact invariance of total charge)
                 </td>
               </tr>
             )}
             {p.mode === "gaussian-pulse" && (
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
-                <td style={{ padding: "0.5rem", fontWeight: 500 }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
                   Continuity Residual ∂ρ/∂t + ∇·J
                 </td>
-                <td style={{ padding: "0.5rem" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   <OutputReading item={contStat} />
                 </td>
-                <td style={{ padding: "0.5rem", fontFamily: "var(--font-mono)" }}>
+                <td
+                  style={{ padding: "0.5rem var(--table-cell-x)", fontFamily: "var(--font-mono)" }}
+                >
                   <OutputReading item={contMov} />
                 </td>
-                <td style={{ padding: "0.5rem", color: "var(--muted)" }}>A/m³</td>
-                <td style={{ padding: "0.5rem", color: "var(--muted)" }}>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
+                  A/m³
+                </td>
+                <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   0 in all inertial frames
                 </td>
               </tr>

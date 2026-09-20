@@ -522,11 +522,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         <h3 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
           Accepted Laboratory Snapshot (Instance Telemetry)
         </h3>
-        <section
-          className="table-scroll"
-          tabIndex={0}
-          aria-label="Accepted laboratory snapshot telemetry table"
-        >
+        <section className="table-scroll" aria-label="Accepted laboratory snapshot telemetry table">
           <table
             style={{
               width: "100%",
@@ -538,11 +534,11 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
           >
             <thead>
               <tr style={{ borderBottom: "1px solid var(--line)", color: "var(--muted)" }}>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Quantity ID</th>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Status</th>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Value / Result</th>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Unit</th>
-                <th style={{ padding: "0.4rem 0.5rem" }}>Owner ID</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Quantity ID</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Status</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Value / Result</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Unit</th>
+                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Owner ID</th>
               </tr>
             </thead>
             <tbody>
@@ -552,8 +548,10 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                   style={{ borderBottom: "1px solid var(--line)" }}
                   data-quantity-id={out.quantityId}
                 >
-                  <td style={{ padding: "0.4rem 0.5rem", fontWeight: 500 }}>{out.quantityId}</td>
-                  <td style={{ padding: "0.4rem 0.5rem" }}>
+                  <td style={{ padding: "0.4rem var(--table-cell-x)", fontWeight: 500 }}>
+                    {out.quantityId}
+                  </td>
+                  <td style={{ padding: "0.4rem var(--table-cell-x)" }}>
                     <span
                       className="badge"
                       style={out.status === "value" ? undefined : { color: "var(--accent)" }}
@@ -561,7 +559,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                       {out.status}
                     </span>
                   </td>
-                  <td style={{ padding: "0.4rem 0.5rem" }}>
+                  <td style={{ padding: "0.4rem var(--table-cell-x)" }}>
                     {out.status === "value"
                       ? typeof out.value === "number"
                         ? out.value.toExponential(4)
@@ -570,9 +568,15 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                         ? `N/A (${"reason" in out ? String(out.reason) : ""})`
                         : `Underdetermined (${"compatibleFamily" in out ? String(out.compatibleFamily) : ""})`}
                   </td>
-                  <td style={{ padding: "0.4rem 0.5rem", color: "var(--muted)" }}>{out.unit}</td>
+                  <td style={{ padding: "0.4rem var(--table-cell-x)", color: "var(--muted)" }}>
+                    {out.unit}
+                  </td>
                   <td
-                    style={{ padding: "0.4rem 0.5rem", color: "var(--muted)", fontSize: "0.7rem" }}
+                    style={{
+                      padding: "0.4rem var(--table-cell-x)",
+                      color: "var(--muted)",
+                      fontSize: "0.7rem",
+                    }}
                   >
                     {out.ownerId}
                   </td>
