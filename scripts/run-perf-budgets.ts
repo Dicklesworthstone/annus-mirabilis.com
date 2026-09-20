@@ -81,6 +81,7 @@ export async function runPerformanceBudgets(
   const metrics: Record<string, MetricReportEntry> = {};
   const routesSummary: RouteTransferSummary[] = [];
   const failedMetrics: string[] = [];
+  const notAvailableMetrics: string[] = [];
 
   function recordMetric(
     id: string,
@@ -89,13 +90,26 @@ export async function runPerformanceBudgets(
     actual: unknown,
     unit: string,
     notes?: string,
+    status?: "pass" | "fail" | "not-available",
   ) {
+    // A not-available row reached no verdict. It is never `passed`, so nothing downstream can
+    // read it as coverage, and it is not a failure either, so it does not turn the chain red for
+    // a measurement this process cannot take. It is counted and named separately instead.
+    const unavailable = status === "not-available";
+    const effectivePassed = unavailable ? false : passed;
+    const resolved: "pass" | "fail" | "not-available" = unavailable
+      ? "not-available"
+      : passed
+        ? "pass"
+        : "fail";
     if (notes !== undefined) {
-      metrics[id] = { id, budget, actual, unit, passed, notes };
+      metrics[id] = { id, budget, actual, unit, passed: effectivePassed, notes, status: resolved };
     } else {
-      metrics[id] = { id, budget, actual, unit, passed };
+      metrics[id] = { id, budget, actual, unit, passed: effectivePassed, status: resolved };
     }
-    if (!passed) {
+    if (unavailable) {
+      notAvailableMetrics.push(id);
+    } else if (!passed) {
       failedMetrics.push(id);
     }
     appendLogLine(logPath, {
@@ -137,6 +151,7 @@ export async function runPerformanceBudgets(
     route: string,
   ): {
     sizes: Record<string, { raw: number; gzip: number; brotli: number }>;
+    contents: Record<string, string>;
     missing: string[];
   } | null {
     const wanted = normalizeRoute(route);
@@ -150,6 +165,12 @@ export async function runPerformanceBudgets(
     if (chunks === undefined || chunks.length === 0) return null;
 
     const sizes: Record<string, { raw: number; gzip: number; brotli: number }> = {};
+    // Contents, not only sizes. A byte total cannot tell a 30 kB chunk of reader code from a
+    // 30 kB chunk of Three.js, so a size-only row passes while a forbidden import sits in the
+    // initial graph. checkInitialRouteGraph already looks for node_modules/three/,
+    // node_modules/pdfjs-dist/, .wasm filenames and the other forbidden signatures; it just
+    // needs to be given something to look at.
+    const contents: Record<string, string> = {};
     const missing: string[] = [];
     for (const chunk of chunks) {
       const chunkPath = resolve(rootDir, ".next", chunk);
@@ -163,8 +184,9 @@ export async function runPerformanceBudgets(
         gzip: gzipSync(buf).length,
         brotli: brotliCompressSync(buf).length,
       };
+      contents[chunk] = buf.toString("utf8");
     }
-    return { sizes, missing };
+    return { sizes, contents, missing };
   }
 
   // -------------------------------------------------------------------------
@@ -214,6 +236,7 @@ export async function runPerformanceBudgets(
         manifest: appManifest,
         preferredEncoding: "brotli",
         chunkSizes: measured.sizes,
+        chunkContents: measured.contents,
       });
       if (!res.byteAccounting) {
         // Unreachable while sizes are supplied; fail rather than substitute.
@@ -374,7 +397,10 @@ export async function runPerformanceBudgets(
     true,
     visibleTextResult.ok,
     "boolean",
-    visibleTextResult.ok ? "MathML and R1 present" : visibleTextResult.violations.join("; "),
+    visibleTextResult.ok
+      ? "MathML and R1 present (evaluated against an inline sample, not a built page)"
+      : visibleTextResult.violations.join("; "),
+    opts.plantViolationRow === 3 ? undefined : ("not-available" as const),
   );
 
   // -------------------------------------------------------------------------
@@ -405,7 +431,8 @@ export async function runPerformanceBudgets(
       interactionLatencyResult.budgetMs,
       interactionLatencyResult.p75LatencyMs,
       "ms",
-      `p75 latency ${interactionLatencyResult.p75LatencyMs} ms across ${interactionLatencyResult.interactionCount} interactions`,
+      `p75 latency ${interactionLatencyResult.p75LatencyMs} ms across ${interactionLatencyResult.interactionCount} synthetic interactions; no browser was driven`,
+      opts.plantViolationRow === 4 ? undefined : ("not-available" as const),
     );
   } catch (err) {
     recordMetric("interaction-latency-p75", false, 200, String(err), "ms");
@@ -429,7 +456,8 @@ export async function runPerformanceBudgets(
     layoutShiftResult.budgetScore,
     layoutShiftResult.maxSessionWindowScore,
     "score",
-    `Max window shift score ${layoutShiftResult.maxSessionWindowScore}`,
+    `Max window shift score ${layoutShiftResult.maxSessionWindowScore} from a synthetic shift list; no page was rendered`,
+    opts.plantViolationRow === 5 ? undefined : ("not-available" as const),
   );
 
   // -------------------------------------------------------------------------
@@ -471,7 +499,8 @@ export async function runPerformanceBudgets(
     instrumentFeedbackResult.budgetMs,
     instrumentFeedbackResult.maxFeedbackMs,
     "ms",
-    `Total feedback time ${instrumentFeedbackResult.maxFeedbackMs} ms`,
+    `Total feedback time ${instrumentFeedbackResult.maxFeedbackMs} ms from synthetic marks; no instrument was operated`,
+    opts.plantViolationRow === 6 ? undefined : ("not-available" as const),
   );
 
   // -------------------------------------------------------------------------
@@ -506,25 +535,38 @@ export async function runPerformanceBudgets(
     frameTimingResult.thresholds.medianMaxMs,
     frameTimingResult.medianMs,
     "ms",
-    `Median frame interval ${frameTimingResult.medianMs} ms, tail fraction ${(frameTimingResult.longFraction * 100).toFixed(1)}%; physics digest matched=${physicsCheck.matched}`,
+    `Median frame interval ${frameTimingResult.medianMs} ms, tail fraction ${(frameTimingResult.longFraction * 100).toFixed(1)}%; physics digest matched=${physicsCheck.matched}; intervals are synthetic, no frames were rendered`,
+    opts.plantViolationRow === 7 || opts.plantViolationPhysics ? undefined : ("not-available" as const),
   );
 
   // -------------------------------------------------------------------------
   // Row 8: Resource lifecycle (external check, am-plat-resource-stress-9zgu)
   // -------------------------------------------------------------------------
+  // This row asserted true with a hardcoded "no-leak" on both sides and measured nothing at all.
+  // The external contract it names is not read here, so this process has no basis for a verdict.
   recordMetric(
     "resource-lifecycle",
-    true,
+    false,
     "no-leak",
-    "no-leak",
+    "not-measured",
     "status",
-    "Verified via am-plat-resource-stress-9zgu contract",
+    "Resource lifecycle is checked by am-plat-resource-stress-9zgu, which this process does not run or read. No verdict is reached here.",
+    ("not-available" as const),
   );
 
   // -------------------------------------------------------------------------
   // Generate & Write PerfReport
   // -------------------------------------------------------------------------
+  // A not-available row is not a failure, so it does not turn the chain red for a measurement this
+  // process cannot take. It is also not a pass, so the summary states the coverage plainly rather
+  // than letting eight green-looking rows imply eight measurements.
   const overallPassed = failedMetrics.length === 0;
+  const measuredCount = Object.keys(metrics).length - notAvailableMetrics.length;
+  console.log(
+    `[run-perf-budgets] ${measuredCount} of ${Object.keys(metrics).length} rows reached real build output; ` +
+      `${notAvailableMetrics.length} reported not-available` +
+      (notAvailableMetrics.length > 0 ? `: ${notAvailableMetrics.join(", ")}` : ""),
+  );
   const report: PerfReport = {
     toolRunId,
     logRunId,

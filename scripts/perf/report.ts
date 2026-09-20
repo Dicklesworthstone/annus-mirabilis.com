@@ -45,6 +45,13 @@ export interface MetricReportEntry {
   actual: unknown;
   unit: string;
   passed: boolean;
+  /**
+   * am-lj8r. "pass" and "fail" are verdicts about the real build. "not-available" says the row
+   * could not reach real data at all and therefore reached no verdict, which is different from
+   * passing and must never be summarised as one. Precedent: the not-available status pane29 gave
+   * contract checks that cannot observe what they assert.
+   */
+  status?: "pass" | "fail" | "not-available";
   notes?: string;
 }
 
