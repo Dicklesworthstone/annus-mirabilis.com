@@ -36,6 +36,7 @@ const FIXTURE = join(process.cwd(), "src/testing/fixtures/editions/mini-paper");
 const MANIFEST = "content/source-blocks/mass-energy/manifest.yaml";
 const SNAPSHOT = "content/source-blocks/mass-energy/manifest.ids.snapshot.txt";
 const RECEIPT = "docs/provenance/ap-18-639.md";
+const DECLARATION = "content/source-blocks/mass-energy/edition.yaml";
 
 /** A throwaway copy of the fixture, so a mutation never touches the committed corpus. */
 function mutatedFixture(relativePath: string, mutate: (text: string) => string): string {
@@ -139,15 +140,60 @@ describe("mini-paper fixture contract (am-edn-alignment-tooling-do1)", () => {
     );
   });
 
-  test("checks 1 and 3 decline here, because this corpus gives them nothing to compare", () => {
+  test("check 1 passes AND NAMES ITS INPUT, so it cannot be mistaken for a pass over real bytes", () => {
+    const c = outcomeOf(FIXTURE, 1);
+    expect(c?.outcome).toBe("passed");
+    // The requirement is not that the chain verified; it is that the message says WHAT it
+    // verified. "Digest chain verified." over an unnamed input is how a pass over a fixture
+    // becomes indistinguishable from a pass over the real facsimile.
+    expect(c?.message).toContain("edition.yaml");
+    expect(c?.message).toContain("mini-paper");
+    expect(c?.message).toContain("ap-18-639-reviewed.txt");
+    expect(c?.message).toContain("ap-18-639.pdf");
+    expect(c?.message).toMatch(/sha256 [0-9a-f]{12}/);
+  });
+
+  test("MUTATION: a declared facsimile digest that does not match the bytes fails check 1", () => {
+    const root = mutatedFixture(DECLARATION, (t) =>
+      t.replace(/facsimileDigest: "[0-9a-f]{64}"/, `facsimileDigest: "${"a".repeat(64)}"`),
+    );
+    // The mutation reaches the state it tests.
+    expect(readFileSync(join(root, DECLARATION), "utf8")).toContain("a".repeat(64));
+    const c = outcomeOf(root, 1);
+    expect(c?.outcome, "a broken chain is a FAILURE, not a decline").toBe("failed");
+    expect(c?.code).toBe("digest-mismatch");
+    // A failure names both sides, so the reader knows which one to fix.
+    expect(c?.message).toContain("hashes to");
+    expect(c?.message).toContain("declares");
+  });
+
+  test("a malformed declaration is NOT-AVAILABLE, because a broken file is not a verdict", () => {
+    const root = mutatedFixture(DECLARATION, () => "paper: [mass-energy\n  bibliographicKey: :\n");
+    const c = outcomeOf(root, 1);
+    expect(c?.outcome, "a YAML error says nothing about the edition").toBe("not-available");
+    expect(c?.code).toBe("edition-declaration-malformed");
+    expect(c?.message).toContain("not a verdict about the edition");
+  });
+
+  test("with no declaration at all, check 1 declines naming the path it looked for", () => {
+    // Asserted against the REAL repository, which has no edition.yaml for any paper. Before
+    // the harness read the file this reported `ledger-absent` - somebody else's missing
+    // input - so authoring a declaration would have changed nothing.
+    const r = assertEditionContract("brownian-motion", {});
+    const c = r.checks.find((x) => x.checkNumber === 1);
+    expect(c?.outcome).toBe("not-available");
+    expect(c?.code).toBe("edition-declaration-absent");
+    expect(c?.message).toContain("content/source-blocks/brownian-motion/edition.yaml");
+  });
+
+  test("check 3 declines here, because this corpus gives it nothing to compare", () => {
     // Recorded as an assertion rather than a footnote: both reported a PASS over nothing
     // until this commit. Check 1 said "Digest chain verified." with no declared digest of
     // either kind, and check 3 said "Edition text reconstructs from the ledger" with no
     // edition text - while check 7 declined that same missing input. Pinning the decline
     // means a change that restores either unconditional pass fails here.
-    const c1 = outcomeOf(FIXTURE, 1);
-    expect(c1?.outcome).toBe("not-available");
-    expect(c1?.message).not.toContain("Digest chain verified.");
+    // Check 1 no longer belongs here: the fixture now carries an edition declaration, so
+    // it reaches a verdict. Its decline paths are asserted above, per disk condition.
     const c3 = outcomeOf(FIXTURE, 3);
     expect(c3?.outcome).toBe("not-available");
     expect(c3?.message).toContain("nothing to reconstruct");
@@ -167,7 +213,7 @@ describe("mini-paper fixture contract (am-edn-alignment-tooling-do1)", () => {
     // two, which is the kind of denominator error this whole field exists to prevent.
     expect(
       r.checks.filter((c) => c.checkNumber !== undefined && c.outcome === "passed").length,
-    ).toBe(4);
+    ).toBe(5);
     for (const entry of d.declined) expect(entry.reason.length).toBeGreaterThan(20);
   });
 });

@@ -662,6 +662,115 @@ function runCheck6(
   }
 }
 
+/**
+ * The edition declaration, read FROM DISK.
+ *
+ * Nothing loaded `content/source-blocks/<slug>/edition.yaml` before this: checks 1 and 14
+ * read `options.declaration`, an object no production caller passes, so authoring the file
+ * would have changed nothing. Reading it is what makes check 1 able to judge material that
+ * already exists - five of the six pinned facsimiles verify against their receipts today.
+ *
+ * THE THREE DISK CONDITIONS ARE NOT CONTRACT VERDICTS. A file that is missing, unreadable,
+ * or malformed says nothing about whether the edition is faithful; it says the input is not
+ * here. Each is `not-available` with its own code, the same distinction the empty-population
+ * declines draw. Only a declaration that loads can produce a pass or a failure about the
+ * edition (am-edn-alignment-tooling-do1).
+ */
+export type DeclarationLoad =
+  | Readonly<{ kind: "loaded"; path: string; raw: unknown }>
+  | Readonly<{ kind: "absent"; path: string }>
+  | Readonly<{ kind: "unreadable"; path: string; reason: string }>
+  | Readonly<{ kind: "malformed"; path: string; reason: string }>;
+
+export function loadEditionDeclaration(root: string, slug: RouteSlug): DeclarationLoad {
+  const path = join(root, `content/source-blocks/${slug}/edition.yaml`);
+  if (!existsSync(path)) {
+    return { kind: "absent", path };
+  }
+  let text: string;
+  try {
+    text = readFileSync(path, "utf8");
+  } catch (err) {
+    return { kind: "unreadable", path, reason: err instanceof Error ? err.message : String(err) };
+  }
+  try {
+    return { kind: "loaded", path, raw: parseYaml(text) };
+  } catch (err) {
+    return { kind: "malformed", path, reason: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/** A disk condition reported as an absent input rather than a verdict about the edition. */
+function declineForDisk(meta: ContractCheckMetadata, load: DeclarationLoad): ContractCheckResult {
+  const detail =
+    load.kind === "absent"
+      ? `no edition declaration at ${load.path}`
+      : load.kind === "unreadable"
+        ? `${load.path} could not be read: ${load.reason}`
+        : `${load.path} is not valid YAML: ${(load as { reason: string }).reason}`;
+  return {
+    checkNumber: meta.checkNumber,
+    check: meta.check,
+    owner: meta.owner,
+    role: meta.role,
+    outcome: "not-available",
+    code: `edition-declaration-${load.kind}`,
+    message:
+      `Check ${meta.checkNumber} (${meta.title}) could not run: ${detail}. ` +
+      "A missing or unreadable input is not a verdict about the edition.",
+  };
+}
+
+/**
+ * Check 1 with no ledger: the facsimile link of the chain still exists and can be judged.
+ *
+ * Only the ledger-digest half of check 1 needs the ledger. The facsimile half needs a
+ * declaration and a PDF, and five of the six pinned facsimiles already verify against their
+ * receipts. Declining the whole check because a different input is missing is the same
+ * error the absent-ledger branch made about checks 5 and 6.
+ */
+function runCheck1FacsimileOnly(root: string, slug: RouteSlug): ContractCheckResult {
+  const meta = specFor(1);
+  const load = loadEditionDeclaration(root, slug);
+  if (load.kind !== "loaded") return declineForDisk(meta, load);
+  const declared = validateEditionDeclaration(load.raw, { repoRoot: root });
+  const facsimileDigest = declared.declaration?.facsimileDigest;
+  if (!facsimileDigest) {
+    return declineEmptyPopulation(
+      meta,
+      `${load.path} declares no facsimile digest, and the ledger is absent, so no link of the chain was compared.`,
+    );
+  }
+  const pdfPath = join(root, `public/papers/pdfs/${PAPER_BIB_KEYS[slug]}.pdf`);
+  if (!existsSync(pdfPath)) {
+    return {
+      checkNumber: meta.checkNumber,
+      check: meta.check,
+      owner: meta.owner,
+      role: meta.role,
+      outcome: "not-available",
+      code: "facsimile-not-available",
+      message:
+        `Check 1 (Digest chain) could not run: ${load.path} declares a facsimile digest but ` +
+        `${pdfPath} is not in this checkout. Absent bytes are not a verdict about the edition.`,
+    };
+  }
+  const actual = createHash("sha256").update(readFileSync(pdfPath)).digest("hex");
+  const ok = actual === facsimileDigest;
+  return {
+    checkNumber: meta.checkNumber,
+    check: meta.check,
+    owner: meta.owner,
+    role: meta.role,
+    outcome: ok ? "passed" : "failed",
+    code: ok ? undefined : "digest-mismatch",
+    message: ok
+      ? `Digest chain verified from ${load.path}: facsimile ${pdfPath} sha256 ${actual.slice(0, 12)}. ` +
+        "The ledger link was NOT compared, because no ledger is present."
+      : `Digest chain broken: facsimile ${pdfPath} hashes to ${actual.slice(0, 12)} but ${load.path} declares ${facsimileDigest.slice(0, 12)}.`,
+  };
+}
+
 export function assertEditionContract(
   slugRaw: string,
   options: EditionContractOptions = {},
@@ -700,8 +809,12 @@ export function assertEditionContract(
     // brownian-motion. An absent ledger is a reason those two cannot be part of a COMPLETE
     // edition verdict; it is not a reason to decline to look at them
     // (am-edn-alignment-tooling-do1).
-    const LEDGER_INDEPENDENT = new Set([5, 6]);
+    const LEDGER_INDEPENDENT = new Set([1, 5, 6]);
     for (const spec of CONTRACT_CHECKS_SPEC) {
+      if (spec.checkNumber === 1) {
+        checks.push(runCheck1FacsimileOnly(root, slug));
+        continue;
+      }
       if (spec.checkNumber === 5) {
         checks.push(runCheck5(root, slug, options));
         continue;
@@ -810,16 +923,67 @@ export function assertEditionContract(
       "Facsimile bytes are not in this checkout. Logged as not-available, not a pass.";
   }
 
-  if (!options.declaredLedgerDigest && !options.declaredFacsimileDigest) {
-    // A chain with no declared link is not a verified chain. This branch reported
-    // "Digest chain verified." with neither a ledger digest nor a facsimile digest
-    // supplied, which is the seventh instance of the shape this bead has been clearing.
-    checks.push(
-      declineEmptyPopulation(
-        specFor(1),
-        "no declared ledger digest and no declared facsimile digest were supplied, so no link of the chain was compared.",
-      ),
-    );
+  // The declaration is read from disk when the caller does not inject digests, so a paper
+  // that has one is judged against it rather than skipped.
+  const declarationLoad =
+    options.declaredLedgerDigest || options.declaredFacsimileDigest
+      ? null
+      : loadEditionDeclaration(root, slug);
+
+  if (declarationLoad !== null && declarationLoad.kind !== "loaded") {
+    checks.push(declineForDisk(specFor(1), declarationLoad));
+  } else if (declarationLoad !== null) {
+    const declared = validateEditionDeclaration(declarationLoad.raw, { repoRoot: root });
+    const ledgerDigest = declared.declaration?.ledgerDigest;
+    const facsimileDigest = declared.declaration?.facsimileDigest;
+    if (!ledgerDigest && !facsimileDigest) {
+      checks.push(
+        declineEmptyPopulation(
+          specFor(1),
+          `${declarationLoad.path} declares neither a ledger digest nor a facsimile digest, so no link of the chain was compared.`,
+        ),
+      );
+    } else {
+      // A PASS NAMES ITS INPUT. "The chain verified" over an unnamed input is how a pass
+      // over a fixture becomes indistinguishable from a pass over the real facsimile, and
+      // untangling exactly that confusion is what the last several commits have been for.
+      const compared: string[] = [];
+      let failed: string | undefined;
+      if (ledgerDigest) {
+        const actual = sha256(text);
+        if (actual === ledgerDigest) {
+          compared.push(`ledger ${presence.path} sha256 ${actual.slice(0, 12)}`);
+        } else {
+          failed = `ledger ${presence.path} hashes to ${actual.slice(0, 12)} but ${declarationLoad.path} declares ${ledgerDigest.slice(0, 12)}`;
+        }
+      }
+      if (!failed && facsimileDigest) {
+        const pdfPath = join(root, `public/papers/pdfs/${PAPER_BIB_KEYS[slug]}.pdf`);
+        if (!existsSync(pdfPath)) {
+          compared.push(
+            `facsimile ${pdfPath} not in this checkout, digest ${facsimileDigest.slice(0, 12)} recorded but not re-verified`,
+          );
+        } else {
+          const actual = createHash("sha256").update(readFileSync(pdfPath)).digest("hex");
+          if (actual === facsimileDigest) {
+            compared.push(`facsimile ${pdfPath} sha256 ${actual.slice(0, 12)}`);
+          } else {
+            failed = `facsimile ${pdfPath} hashes to ${actual.slice(0, 12)} but ${declarationLoad.path} declares ${facsimileDigest.slice(0, 12)}`;
+          }
+        }
+      }
+      checks.push({
+        checkNumber: 1,
+        check: "digest-chain",
+        owner: "this bead (am-edn-alignment-tooling-do1)",
+        role: "implements",
+        outcome: failed ? "failed" : "passed",
+        code: failed ? "digest-mismatch" : undefined,
+        message: failed
+          ? `Digest chain broken: ${failed}.`
+          : `Digest chain verified from ${declarationLoad.path}: ${compared.join("; ")}.`,
+      });
+    }
   } else {
     checks.push({
       checkNumber: 1,

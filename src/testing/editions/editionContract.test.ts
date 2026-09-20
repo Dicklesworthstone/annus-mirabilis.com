@@ -256,7 +256,10 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     expect(result.ledger).toBe("absent");
     expect(result.outcome).toBe("not-available");
 
-    const LEDGER_INDEPENDENT = new Set([5, 6]);
+    // Check 1 joined these on 2026-09-20: only its LEDGER-digest half needs the ledger, and
+    // its facsimile half needs a declaration and a PDF. It now declines for the input it is
+    // actually missing rather than for somebody else's.
+    const LEDGER_INDEPENDENT = new Set([1, 5, 6]);
     for (const spec of CONTRACT_CHECKS_SPEC) {
       const match = result.checks.find((c) => c.checkNumber === spec.checkNumber);
       expect(match).toBeDefined();
@@ -269,7 +272,11 @@ describe("15-check composition with owner attribution (AC 5)", () => {
         // id snapshot. A shared code would have told the reader less than two do.
         expect(match?.code).not.toBe("ledger-absent");
         expect(match?.code).toBe(
-          spec.checkNumber === 5 ? "manifest-not-loadable" : "id-snapshot-absent",
+          spec.checkNumber === 1
+            ? "edition-declaration-absent"
+            : spec.checkNumber === 5
+              ? "manifest-not-loadable"
+              : "id-snapshot-absent",
         );
       } else {
         expect(match?.code).toBe("ledger-absent");

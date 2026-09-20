@@ -1,0 +1,15 @@
+# AUTHORED FIXTURE EDITION DECLARATION - NOT A REAL ONE (am-edn-alignment-tooling-do1).
+#
+# The standing question on this bead, answered here as everywhere else: this file is
+# AUTHORED. Its facsimileDigest is the digest of the FOUR-LINE PLACEHOLDER PDF beside it,
+# not of any scan of Annalen der Physik; its ledgerDigest is of the authored fixture ledger.
+# Check 1 passing against this proves the chain is COMPARED, not that any real page was
+# scanned. The real declaration for mass-energy is written by its German edition bead and
+# would name the real 438 KB facsimile whose digest already verifies against its receipt.
+paper: mass-energy
+bibliographicKey: ap-18-639
+facsimileDigest: "794abaa4f6f06fc519895c22944a0ab43ad02b4fb32bdefa1952ce81613cb47b"
+ledgerDigest: "4c503605b593bd85695763f7adf2542fbfb1fcd0216ac0f3dc2fe6e279fff49d"
+editors:
+  - fixture-editor
+reconciliationRunId: "20260920T000000Z-fixture0"
