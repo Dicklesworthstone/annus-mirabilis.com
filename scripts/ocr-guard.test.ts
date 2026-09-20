@@ -96,3 +96,49 @@ describe("OCR Guard (Hard Resource Policy)", () => {
     assert.equal(violations.length, 0, "pdftoppm should be allowed without violations");
   });
 });
+
+/**
+ * The denylist is a register, and a register rots (am-src-ocr-orchestrator-u1e0).
+ *
+ * The bead's criterion 3 reads "the guard test enforces it against source and
+ * dependencies, AND EVERY DENYLIST ENTRY HAS A REASON". The scan half was enforced; the
+ * reason half was true of the data and required of nothing, so an entry added without a
+ * reason would have passed. The same for coverage: AGENTS.md names focr, Tesseract and
+ * OCRmyPDF explicitly, and all three are on the list today because someone put them
+ * there, not because anything would fail if they were dropped.
+ *
+ * Both are asserted here from the policy's own words rather than from the list itself,
+ * so the list cannot satisfy the test by being whatever it is.
+ */
+describe("OCR denylist register integrity", () => {
+  it("every entry carries a pattern, a category, and a reason that says why", async () => {
+    const { denylist } = await loadDenylist(ROOT);
+    assert.ok(denylist.length > 0, "An empty denylist forbids nothing");
+
+    const defective = denylist.filter(
+      (entry) =>
+        !entry.pattern?.trim() ||
+        !entry.category?.trim() ||
+        // A reason has to be a reason. "no" and "forbidden" are not one, and a reader
+        // hitting this guard needs to know what the tool is and which rule it breaks.
+        (entry.reason ?? "").trim().length < 25,
+    );
+    assert.deepEqual(
+      defective.map((e) => e.pattern ?? "(no pattern)"),
+      [],
+      "Every denylist entry needs a pattern, a category, and a reason of real length",
+    );
+  });
+
+  it("the three engines AGENTS.md names by name are all covered", async () => {
+    // Quoted from the policy: "This includes `focr`, Tesseract, OCRmyPDF, vision
+    // transcription loops, and any other process whose purpose is to recognize text
+    // from page pixels." The first three are named, so they are checkable.
+    const namedInPolicy = ["focr", "tesseract", "ocrmypdf"];
+    const { denylist } = await loadDenylist(ROOT);
+    const patterns = denylist.map((entry) => entry.pattern.toLowerCase());
+
+    const uncovered = namedInPolicy.filter((tool) => !patterns.some((p) => p.includes(tool)));
+    assert.deepEqual(uncovered, [], "AGENTS.md names these OCR engines and the denylist must too");
+  });
+});
