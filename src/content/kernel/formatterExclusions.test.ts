@@ -227,6 +227,42 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
         rule: "noArrayIndexKey",
         why: "The index is the token's identity: the circle renders token + 1, the aria-label says Token n, and the caption says the labels are what distinguish tokens.",
       },
+      // The four a11y overrides (am-6iz4, authorised by TanElk 2026-09-20). Each element
+      // is a scrolling region whose tabIndex is the keyboard's only route into the hidden
+      // content, which WCAG 2.1.1 and src/testing/a11y/scrollableRegions.test.ts both
+      // require; the lint rule forbids that same attribute. THE RULE'S OWN REMEDY WAS
+      // MEASURED AND IS UNAVAILABLE, so nobody needs to redo the table: on one real site,
+      //   <section ... tabIndex={0}>                1 error   noNoninteractiveTabindex
+      //   <div role="region" ... tabIndex={0}>      2 errors  + useSemanticElements
+      //   <section role="region" ... tabIndex={0}>  3 errors  + noRedundantRoles
+      // noNoninteractiveTabindex fires with role="region" present, and useSemanticElements
+      // sends the div form back to <section>, which is where it started. A role on a
+      // <table> fares no better: role="grid" trades it for
+      // noNoninteractiveElementToInteractiveRole.
+      //
+      // The pawl below is what keeps these honest. If one of these elements is ever made
+      // to fit, its tabIndex goes and biome stops reporting the rule there, and the probe
+      // then fails the override as dead config rather than letting it linger.
+      "src/components/lab/RodSimultaneityLab.tsx": {
+        group: "a11y",
+        rule: "noNoninteractiveTabindex",
+        why: "The spacetime coordinates table at :688 measures 325/216 at 320px - 109 pixels hidden - driven by its Simultaneity column, 105 of the 325, holding the unbreakable words Simultaneous and Ordered (-). SAID OUT LOUD SO THIS IS NEVER READ AS COVERING THE FILE: the telemetry table at :749 in the same file FITS, at 216/216, and keeps its tabIndex only because dropping it would need a RECORDED_NON_OVERFLOWING entry keyed by file and class, which would also cover :688, which does not fit.",
+      },
+      "src/equations/missingStep/MissingStepPanel.tsx": {
+        group: "a11y",
+        rule: "noNoninteractiveTabindex",
+        why: "One JSX site rendering many expressions: 2 of the 8 instances on /papers/brownian-motion/ overflow at both viewports, 285/254 and 283/254 at 320px, 317/295 and 315/295 at 1280px. The other 6 fit, so this is not a whole-site claim, and the site has to serve the widest.",
+      },
+      "src/reader/entrances/MassEnergyFirstEncounter.tsx": {
+        group: "a11y",
+        rule: "noNoninteractiveTabindex",
+        why: "The me-table measures 480/262 at 320px on both pages that render it - 218 pixels hidden - and 730/730 at 1280px.",
+      },
+      "src/visuals/overlays/DatasetTable.tsx": {
+        group: "a11y",
+        rule: "noNoninteractiveTabindex",
+        why: "NOT MEASURED, and that is the honest word for it: DatasetOverlay is mounted by no route and its showTable prop defaults to false, so this element renders nowhere in the built site and cannot be measured there. It is a scroll container by construction - inline overflowX: auto around a historical dataset whose column count comes from the record - and it carries no className, so no class-keyed gate can see it either. When a route mounts it, measure it and revisit this entry.",
+      },
       "src/components/lab/PredictOverlay.test.tsx": {
         group: "suspicious",
         rule: "noApproximativeNumericConstant",

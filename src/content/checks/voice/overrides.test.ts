@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { findStaleOverrides, type VoiceOverrideEntry, validateOverrideEntry } from "./overrides.ts";
 import { isOverridden } from "./check.ts";
+import { findStaleOverrides, type VoiceOverrideEntry, validateOverrideEntry } from "./overrides.ts";
 
 describe("overrides: Validation & Staleness Rules", () => {
   it("validates a complete override entry", () => {

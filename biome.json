@@ -112,6 +112,46 @@
           }
         }
       }
+    },
+    {
+      "includes": ["src/components/lab/RodSimultaneityLab.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/equations/missingStep/MissingStepPanel.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/reader/entrances/MassEnergyFirstEncounter.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/visuals/overlays/DatasetTable.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off"
+          }
+        }
+      }
     }
   ]
 }
