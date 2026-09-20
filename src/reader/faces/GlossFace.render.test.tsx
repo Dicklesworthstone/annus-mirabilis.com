@@ -136,6 +136,21 @@ describe("GlossFace component rendering and interactions", () => {
     // Sentence anchors for alignment highlighting and keyboard stepping
     expect(html).toContain('data-sentence-id="me-p1-s1"');
     expect(html).toContain('data-source-sentence="true"');
-    expect(html).toContain('tabindex="0"');
+
+    // -1, NOT 0, and the distinction is the point rather than an implementation
+    // detail. A gloss sentence is a FRAGMENT TARGET, not a scroll region: nothing
+    // in the CSS gives it overflow or a height, so tabIndex={0} put every sentence
+    // in the tab order for nothing - a keyboard reader tabbing through the face
+    // stopped at each sentence with nothing to do there. 0c890a0f changed it to -1,
+    // which keeps the element focusable for the #sentenceId deep link, the route
+    // that returns a reader to the exact sentence, while removing it from the
+    // sequential tab order.
+    //
+    // This assertion previously read tabindex="0" and was stale, not wrong about
+    // the code: it outlived the fix by asserting the behaviour the fix removed.
+    // Both directions are pinned below so restoring 0 fails here rather than
+    // passing quietly.
+    expect(html).toContain('tabindex="-1"');
+    expect(html).not.toContain('tabindex="0"');
   });
 });
