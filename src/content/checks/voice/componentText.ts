@@ -6,7 +6,9 @@
  *
  * Requirements:
  * - Scans .tsx files under src/ (excluding src/testing/, *.test.*, src/equations/legacy/).
- * - Extracts JSX text nodes.
+ * - Extracts JSX prose as whole sentences: the text of a block element is reassembled from its
+ *   own text nodes and the text of its inline children, so a rule sees what a reader reads
+ *   rather than the fragments an author's markup happens to produce (am-dbpk).
  * - Extracts string literals from accessible-name and descriptive attributes:
  *   aria-label, aria-description, title, alt, placeholder, label.
  * - Records file path, 1-based line, 1-based column, text, context, and optional attribute.
@@ -38,6 +40,64 @@ export const ACCESSIBLE_ATTRIBUTES = new Set([
   "placeholder",
   "label",
 ]);
+
+/**
+ * HTML elements that do not interrupt a sentence. Text inside one of these belongs to the
+ * surrounding sentence, so the extractor folds it into the parent's string instead of scanning
+ * it alone (am-dbpk).
+ *
+ * `blockquote`, `q` and `cite` are deliberately absent even though two of them are inline:
+ * they carry the quotation layer that exempts a rule, and folding one into its parent would
+ * silently drop that exemption. Capitalised tags - other components - are absent too, because
+ * this file cannot know whether a component renders inline, and guessing wrong would join two
+ * sentences that a reader sees apart.
+ */
+const INLINE_TAGS = new Set([
+  "a",
+  "abbr",
+  "b",
+  "bdi",
+  "bdo",
+  "br",
+  "code",
+  "data",
+  "del",
+  "dfn",
+  "em",
+  "i",
+  "ins",
+  "kbd",
+  "mark",
+  "s",
+  "samp",
+  "small",
+  "span",
+  "strong",
+  "sub",
+  "sup",
+  "time",
+  "u",
+  "var",
+  "wbr",
+]);
+
+/**
+ * What an interpolated expression contributes to the reassembled sentence.
+ *
+ * A string literal contributes itself, so the common `{" "}` line-break spacer becomes the space
+ * it renders as. Anything else is a value this file cannot know, and it contributes a single
+ * space. A space is the honest substitute for two reasons: a rule can still match across it, so
+ * "Earn {n} points" is still caught, and it cannot fuse two words into a phrase the author never
+ * wrote, which an empty substitution would do.
+ */
+function expressionText(node: ts.JsxExpression, sourceFile: ts.SourceFile): string {
+  const inner = node.expression;
+  if (inner && (ts.isStringLiteral(inner) || ts.isNoSubstitutionTemplateLiteral(inner))) {
+    return inner.text;
+  }
+  void sourceFile;
+  return " ";
+}
 
 /**
  * Parses a TSX source file and extracts all visitor-facing text and attribute literals.
@@ -80,16 +140,91 @@ export function extractStringsFromTsx(
     return false;
   }
 
+  /** An inline element whose text belongs to the surrounding sentence, not to a sentence of its own. */
+  function isInlineElement(node: ts.Node): boolean {
+    if (isQuotationElement(node)) return false;
+    let tagName: string | undefined;
+    if (ts.isJsxElement(node)) tagName = node.openingElement.tagName.getText(sourceFile);
+    else if (ts.isJsxSelfClosingElement(node)) tagName = node.tagName.getText(sourceFile);
+    return tagName !== undefined && INLINE_TAGS.has(tagName);
+  }
+
+  /**
+   * Text nodes already folded into an ancestor's reassembled sentence. Without this set the same
+   * words would be scanned twice, once inside the sentence and once alone, and a single authoring
+   * mistake would be reported two or three times depending on how much emphasis it carried.
+   */
+  const consumed = new Set<ts.Node>();
+
+  /**
+   * Concatenates one element's sentence: its own text nodes, the text of its inline children, and
+   * a substitute for each interpolation, in source order. A block child is a boundary and is left
+   * for its own visit. Returns the assembled text and the first text node it came from, which is
+   * the position a finding reports so an author still gets a place to open.
+   */
+  function assembleSentence(children: readonly ts.JsxChild[]): {
+    text: string;
+    first: ts.Node | undefined;
+  } {
+    let text = "";
+    let first: ts.Node | undefined;
+    for (const child of children) {
+      if (ts.isJsxText(child)) {
+        const raw = child.getText(sourceFile);
+        if (raw.trim() && first === undefined) first = child;
+        if (raw.trim()) consumed.add(child);
+        text += raw;
+      } else if (ts.isJsxExpression(child)) {
+        text += expressionText(child, sourceFile);
+      } else if (isInlineElement(child)) {
+        if (ts.isJsxElement(child)) {
+          // Mark the element itself, not only its text: the walk reaches it again as a child and
+          // must not emit the same words a second time as a sentence of their own.
+          consumed.add(child);
+          const inner = assembleSentence(child.children);
+          if (inner.first !== undefined && first === undefined) first = inner.first;
+          text += inner.text;
+        }
+        // A self-closing inline element (<br />, <wbr />) contributes no text.
+      } else {
+        // A block child ends this sentence and starts its own; leave it for its own visit.
+        text += " ";
+      }
+    }
+    // Collapse the newlines and indentation of source formatting the way a browser does, so the
+    // scanned string is the sentence a reader sees on one line.
+    return { text: text.replace(/\s+/gu, " ").trim(), first };
+  }
+
   function visit(node: ts.Node, currentLayer?: "quotation" | "translation"): void {
     let layer = currentLayer;
     if (isQuotationElement(node)) {
       layer = "quotation";
     }
 
-    // 1. JSX Text Nodes
-    if (ts.isJsxText(node)) {
+    // 1. JSX prose, reassembled one sentence per element (am-dbpk).
+    if ((ts.isJsxElement(node) || ts.isJsxFragment(node)) && !consumed.has(node)) {
+      const { text, first } = assembleSentence(node.children);
+      if (first && text && !/^[{};()]+$/.test(text)) {
+        const { line, character } = sourceFile.getLineAndCharacterOfPosition(
+          first.getStart(sourceFile),
+        );
+        results.push({
+          file: relativeFile,
+          line: line + 1,
+          column: character + 1,
+          text,
+          context: "prose",
+          source: layer ? { layer } : undefined,
+        });
+      }
+    }
+
+    // A text node an ancestor already folded in is not scanned again. One that no element owns -
+    // a stray child of a non-element node - is still scanned on its own.
+    if (ts.isJsxText(node) && !consumed.has(node)) {
       const rawText = node.getText(sourceFile);
-      const text = rawText.trim();
+      const text = rawText.replace(/\s+/gu, " ").trim();
       if (text && !/^[{};()]+$/.test(text)) {
         const { line, character } = sourceFile.getLineAndCharacterOfPosition(
           node.getStart(sourceFile),

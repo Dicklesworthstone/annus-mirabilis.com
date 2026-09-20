@@ -186,7 +186,7 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
 
         <table>
           <caption>
-            The light clock (supplemental illustration, offered after the measurement definitions --
+            The light clock (supplemental illustration, offered after the measurement definitions:
             it illustrates dilation, it does not define it).
           </caption>
           <tbody>

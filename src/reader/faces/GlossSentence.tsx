@@ -216,7 +216,7 @@ export function GlossSentence({
                 <span className="rw-english" lang="en">
                   ({item.english})
                 </span>
-                {" — "}
+                {" · "}
                 <span className="rw-class">[{item.noteClass}]</span>
                 {item.grammarNote && <span className="rw-note">: {item.grammarNote}</span>}
               </li>
