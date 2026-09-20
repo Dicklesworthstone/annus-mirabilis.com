@@ -10,7 +10,16 @@
  */
 
 import { describe, expect, it } from "bun:test";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { appendUiExtractionLog, newUiExtractionLogRunId } from "./uiExtractionLogging.ts";
 
@@ -188,6 +197,23 @@ export function scanSourceText(filePath: string, content: string): ScanViolation
   return violations;
 }
 
+/**
+ * Scan an emitted-site directory. Exported and directory-taking so the planted negative
+ * can drive the real walker over a fixture instead of writing into the gitignored out/,
+ * which nothing may delete afterwards.
+ */
+export function scanBuiltOutput(dir: string): {
+  readonly files: number;
+  readonly violations: ScanViolation[];
+} {
+  const files = findScannableFiles(dir);
+  const violations: ScanViolation[] = [];
+  for (const file of files) {
+    violations.push(...scanSourceText(file, readFileSync(file, "utf8")));
+  }
+  return { files: files.length, violations };
+}
+
 function findScannableFiles(dir: string): string[] {
   const files: string[] = [];
   try {
@@ -305,11 +331,7 @@ describe("Third-Party Request & Forbidden Identity Scan", () => {
       return;
     }
 
-    const built = findScannableFiles(outDir);
-    const violations: ScanViolation[] = [];
-    for (const file of built) {
-      violations.push(...scanSourceText(file, readFileSync(file, "utf8")));
-    }
+    const { files: built, violations } = scanBuiltOutput(outDir);
     const durationMs = Math.round(performance.now() - startTime);
 
     if (violations.length > 0) {
@@ -331,13 +353,41 @@ describe("Third-Party Request & Forbidden Identity Scan", () => {
         testId: "third-party-requests-built-output",
         outcome: "pass",
         durationMs,
-        message: `Scanned ${built.length} built file(s) cleanly with 0 violations.`,
+        message: `Scanned ${built} built file(s) cleanly with 0 violations.`,
       });
     }
 
     // The count is reported so a scan that suddenly reaches nothing is visible as a
     // number rather than as a quiet pass.
-    expect({ files: built.length > 0, violations }).toEqual({ files: true, violations: [] });
+    expect({ files: built > 0, violations }).toEqual({ files: true, violations: [] });
+  });
+
+  it("planted negative: an analytics tag in emitted HTML fails the built-output scan", () => {
+    // A fixture directory shaped like out/: the walker, the extension filter and the rule
+    // set are the real ones, only the root differs. This is the case a source-only scan
+    // cannot see, because nothing like it exists anywhere in src/.
+    const fixtureRoot = mkdtempSync(join(tmpdir(), "am-built-output-scan-"));
+    mkdirSync(join(fixtureRoot, "papers", "brownian-motion"), { recursive: true });
+    writeFileSync(
+      join(fixtureRoot, "papers", "brownian-motion", "index.html"),
+      '<!doctype html><html><head><script src="https://analytics.example.com/t.js"></script></head><body></body></html>',
+      "utf8",
+    );
+    const planted = scanBuiltOutput(fixtureRoot);
+    expect(planted.files).toBe(1);
+    expect(planted.violations.length).toBeGreaterThan(0);
+
+    // And the same walker over a clean emitted page reports nothing, so the failure above
+    // is the analytics tag and not the fixture shape.
+    const cleanRoot = mkdtempSync(join(tmpdir(), "am-built-output-clean-"));
+    writeFileSync(
+      join(cleanRoot, "index.html"),
+      '<!doctype html><html><head><title>Annus Mirabilis</title></head><body><a href="/papers">Papers</a></body></html>',
+      "utf8",
+    );
+    const clean = scanBuiltOutput(cleanRoot);
+    expect(clean.files).toBe(1);
+    expect(clean.violations).toEqual([]);
   });
 
   it("planted negative test: detects external analytics script tag", () => {
