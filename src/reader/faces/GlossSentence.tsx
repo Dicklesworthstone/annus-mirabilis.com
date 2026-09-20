@@ -87,14 +87,15 @@ export function GlossSentence({
   // If no gloss unit is available, render German text with an honest coverage notice and link to parallel face
   if (!glossUnit) {
     return (
-      <div
+      <section
         className="gloss-sentence gloss-sentence-missing"
         id={sentenceId}
         data-sentence-id={sentenceId}
         data-source-sentence="true"
         tabIndex={0}
+        aria-labelledby={`sentence-german-${sentenceId}`}
       >
-        <div className="sentence-german-unadorned" lang="de">
+        <div className="sentence-german-unadorned" id={`sentence-german-${sentenceId}`} lang="de">
           {germanText}
         </div>
         <div className="gloss-coverage-notice" role="note" data-coverage-notice="true">
@@ -107,7 +108,7 @@ export function GlossSentence({
             Read in parallel face
           </a>
         </div>
-      </div>
+      </section>
     );
   }
 
