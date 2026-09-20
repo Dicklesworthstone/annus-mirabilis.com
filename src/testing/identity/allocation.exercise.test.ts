@@ -160,3 +160,69 @@ describe("Exercise Sample Points Stream Allocation (exercise.sample-points.v1)",
     expect(() => parseU64(parsedJsonNumber)).toThrow(U64ValidationError);
   });
 });
+
+describe("test-fixture block admission by id segment, not substring (am-o44v)", () => {
+  const fixtureRecord = (allocationId: string): AllocationRecord => ({
+    allocationId,
+    // Inside TEST_FIXTURE_RANGE [0x1905f000, 0x1905ffff]. My first draft used
+    // 0x7f000001, which the RANGE check refuses before the id guard is ever
+    // reached - a fixture that cannot arrive at the state it is meant to test.
+    streamKernelId: 0x1905f001,
+    streamVersion: 1,
+    block: "test-fixture",
+    tileFormula: "tile=v",
+    indexRule: "draws",
+    maxDrawsPerStream: 64,
+    computeTile: (v: number) => v,
+  });
+
+  // The guard read id.includes("test") || id.includes("fixture") ||
+  // id.includes("seeded"), which matched anywhere inside the id. The
+  // test-fixture kernel range is a determinism boundary: a production stream
+  // admitted into it collides with fixture streams and stops meaning what its
+  // identity says.
+
+  it("every test-fixture id the corpus actually uses is still admitted", () => {
+    // Real ids, read off the corpus rather than invented. "src-testing..."
+    // is why the marker set carries "testing" as well as "test": an exact set
+    // without it would have refused a genuine registration, which is how a
+    // substring-to-equality tightening breaks a gate.
+    // Same markers in the same segment positions as the four real ids, with a
+    // version suffix that does not collide: three of the four are already in
+    // the shared registry, and re-registering them throws "already registered"
+    // before the guard under test is reached.
+    for (const allocationId of [
+      "exercise.property-test.v9",
+      "runtime-fixture.v9",
+      "src-testing.exercise-mock.v9",
+      "statistical-policy.seeded.v9",
+    ]) {
+      const registry = new StreamAllocationRegistry();
+      expect(() => registry.registerAllocation(fixtureRecord(allocationId))).not.toThrow();
+    }
+  });
+
+  it("an id that merely contains the letters is refused", () => {
+    // "latest" contains "test"; so do contest, protest and attestation.
+    for (const allocationId of [
+      "bm-01.latest.v1",
+      "latest-ensemble.v1",
+      "contest.run.v1",
+      "bm-07.attestation.v1",
+    ]) {
+      const registry = new StreamAllocationRegistry();
+      expect(() => registry.registerAllocation(fixtureRecord(allocationId))).toThrow(
+        /cannot register in test-fixture block/,
+      );
+    }
+  });
+
+  it("callerIsTest still admits a fixture registration whatever the id says", () => {
+    // The authoritative signal is untouched: a caller in src/testing registers
+    // in the fixture block even with an id carrying no marker at all.
+    const registry = new StreamAllocationRegistry();
+    expect(() =>
+      registry.registerAllocation(fixtureRecord("bm-01.latest.v1"), { callerIsTest: true }),
+    ).not.toThrow();
+  });
+});

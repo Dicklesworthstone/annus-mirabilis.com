@@ -81,6 +81,44 @@ export const expectedLaterAllocations: readonly ExpectedLaterAllocation[] = Obje
   },
 ]);
 
+/**
+ * Markers by which an allocation id declares itself a test fixture (am-o44v).
+ *
+ * Derived from the ids the corpus actually carries, not invented:
+ * `exercise.property-test.v1`, `runtime-fixture.v1`,
+ * `src-testing.exercise-mock.v1`, `statistical-policy.seeded.v1`. "testing" is
+ * in the set because one of those four inflects it that way; leaving it out
+ * would have refused a genuine registration, which is the failure mode of
+ * tightening a substring test into an exact one without checking the real
+ * input shapes.
+ */
+const TEST_FIXTURE_MARKERS: ReadonlySet<string> = new Set([
+  "test",
+  "testing",
+  "fixture",
+  "seeded",
+]);
+
+/**
+ * Whether an allocation id declares the test-fixture block, by SEGMENT.
+ *
+ * This replaced `id.includes("test") || id.includes("fixture") ||
+ * id.includes("seeded")`. Those matched anywhere inside the id, so an
+ * allocation whose id merely contained the letters - "latest" contains "test" -
+ * was admitted into the reserved test-fixture kernel-ID range. That range is a
+ * determinism boundary: a production stream registered inside it collides with
+ * fixture streams and stops meaning what its identity says.
+ *
+ * `options.callerIsTest` remains the authoritative signal and is still checked
+ * first; this only decides whether an id DECLARES the block.
+ */
+function declaresTestFixture(allocationId: string): boolean {
+  return allocationId
+    .toLowerCase()
+    .split(/[.\-_]/)
+    .some((segment) => TEST_FIXTURE_MARKERS.has(segment));
+}
+
 export class StreamAllocationRegistry {
   private readonly allocations = new Map<string, AllocationRecord>();
 
@@ -116,12 +154,7 @@ export class StreamAllocationRegistry {
           `Test-fixture allocation "${record.allocationId}" must use kernel ID in test-fixture range [0x${TEST_FIXTURE_RANGE.start.toString(16)}, 0x${TEST_FIXTURE_RANGE.end.toString(16)}], received 0x${streamKernelId.toString(16)}.`,
         );
       }
-      if (
-        !options?.callerIsTest &&
-        !record.allocationId.includes("test") &&
-        !record.allocationId.includes("fixture") &&
-        !record.allocationId.includes("seeded")
-      ) {
+      if (!options?.callerIsTest && !declaresTestFixture(record.allocationId)) {
         throw new Error(
           `Production allocation "${record.allocationId}" cannot register in test-fixture block with kernel ID 0x${streamKernelId.toString(16)}.`,
         );
