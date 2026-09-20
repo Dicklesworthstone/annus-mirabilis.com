@@ -33,7 +33,7 @@ export async function generateNotebookReplay(
   const raw = parseContentYaml(
     await readFile(resolve(root, "content/aliases/brownian-motion.yaml"), "utf8"),
   );
-  if (!raw || raw.paper !== "brownian-motion" || !Array.isArray(raw.aliases))
+  if (raw?.paper !== "brownian-motion" || !Array.isArray(raw.aliases))
     throw new Error("Invalid Brownian alias collection.");
   const aliases = raw.aliases.map((value) => {
     const checked = validateAliasRecord(value);

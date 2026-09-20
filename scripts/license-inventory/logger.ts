@@ -90,7 +90,7 @@ export function writeLicenseInventoryLogs(
   };
 
   lines.push(JSON.stringify(summaryEvent));
-  writeFileSync(logPath, lines.join("\n") + "\n", "utf8");
+  writeFileSync(logPath, `${lines.join("\n")}\n`, "utf8");
 
   // Evidence retention on failure
   if (errors.length > 0) {

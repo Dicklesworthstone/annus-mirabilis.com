@@ -126,7 +126,7 @@ export async function generateMissingSteps(
     lessons,
   };
   await mkdir(output, { recursive: true });
-  await writeFile(resolve(output, "missing-steps.json"), JSON.stringify(result) + "\n");
+  await writeFile(resolve(output, "missing-steps.json"), `${JSON.stringify(result)}\n`);
   return result;
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

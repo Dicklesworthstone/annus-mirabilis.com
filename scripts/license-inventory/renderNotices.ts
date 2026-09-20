@@ -97,5 +97,5 @@ export function renderNotices(items: readonly LicenseItem[]): string {
     lines.push("");
   }
 
-  return lines.join("\n").trimEnd() + "\n";
+  return `${lines.join("\n").trimEnd()}\n`;
 }

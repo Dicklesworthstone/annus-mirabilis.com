@@ -30,7 +30,7 @@ try {
   });
   const page = await context.newPage();
   page.on("pageerror", (error) => errors.push(String(error)));
-  page.on("request", (request) => requests.push(request.url() + " " + (request.postData() ?? "")));
+  page.on("request", (request) => requests.push(`${request.url()} ${request.postData() ?? ""}`));
   await page.goto(new URL("/lab/bm-01/compare/", base).href);
   const lab = page.locator("[data-controlled-comparison]");
   await lab.getByRole("button", { name: "Start live comparison", exact: true }).click();

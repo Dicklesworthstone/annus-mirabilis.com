@@ -90,13 +90,13 @@ const sourceDigest = `sha256:${createHash("sha256")
   .digest("hex")}`;
 await writeFile(
   "src/generated/mass-energy-elimination.json",
-  JSON.stringify({ ...elimination, equations: proofEquations, sourceDigest }, null, 2) + "\n",
+  `${JSON.stringify({ ...elimination, equations: proofEquations, sourceDigest }, null, 2)}\n`,
 );
 const lowSpeedView = renderLowSpeedProof(lowSpeed, equations);
 const lowSpeedDigest = `sha256:${createHash("sha256").update(JSON.stringify({ rendererDigest, lowSpeedView })).digest("hex")}`;
 await writeFile(
   "src/generated/mass-energy-low-speed.json",
-  JSON.stringify({ ...lowSpeedView, sourceDigest: lowSpeedDigest }, null, 2) + "\n",
+  `${JSON.stringify({ ...lowSpeedView, sourceDigest: lowSpeedDigest }, null, 2)}\n`,
 );
 console.log(
   JSON.stringify({ event: "equations-compiled", count: equations.length, rendererDigest }),

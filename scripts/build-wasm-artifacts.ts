@@ -61,7 +61,7 @@ export async function buildWasmArtifacts(options: BuildOptions = {}): Promise<Bu
     const resolvedBuildRoot = resolve(options.buildRoot);
     const resolvedOutput = resolve(outputBaseDir);
     if (
-      !resolvedOutput.startsWith(resolvedBuildRoot + "/") &&
+      !resolvedOutput.startsWith(`${resolvedBuildRoot}/`) &&
       resolvedOutput !== resolvedBuildRoot
     ) {
       throw new Error(
