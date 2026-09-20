@@ -12,6 +12,7 @@ import {
 import { validateEditionDeclaration } from "../../content/editions/editionDeclaration.ts";
 import {
   getReviewStateCheck,
+  registerReviewStateCheck,
   resetReviewStateCheck,
   strictNoReviewedCheck,
 } from "../../content/editions/reviewState.ts";
@@ -413,6 +414,60 @@ describe("Check 15: span revision currency and separate failure reporting (AC 6)
     expect(check15).toBeDefined();
     expect(check15?.outcome).toBe("passed");
     expect(check15?.code).toBeUndefined();
+  });
+});
+
+/**
+ * The contract's half of "both entry points call the REGISTERED check".
+ *
+ * The bead requires that align-editions.ts and assertEditionContract both consult the
+ * registration rather than implementing a review rule of their own, and the align side
+ * already has that pair. The contract side had none, so nothing in the tree showed that
+ * check 14 goes through the registry at all.
+ *
+ * The discriminating case is an ACCEPTING registration, not a rejecting one. The
+ * shipped default rejects every `reviewed` state, so a hardcoded "reviewed is never
+ * allowed" rule inside the contract would pass a rejecting-registration test while
+ * consulting nothing. Only a registration that accepts one unit can tell the two apart.
+ */
+describe("check 14 consults the registered review-state check (am-edn-alignment-tooling-do1)", () => {
+  const reviewedUnit = {
+    id: "s1-p1-s1",
+    reviewState: "reviewed" as const,
+    translator: { id: "alice", kind: "human" as const },
+    editor: { id: "bob", kind: "human" as const },
+  };
+  const check14Of = () =>
+    assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      reviewUnits: [reviewedUnit],
+    }).checks.find((c) => c.checkNumber === 14);
+
+  test("the shipped default refuses a reviewed unit with review-records-not-available", () => {
+    resetReviewStateCheck();
+    const check14 = check14Of();
+    expect(check14?.outcome).toBe("failed");
+    expect(check14?.code).toBe("review-records-not-available");
+  });
+
+  test("a registration accepting that unit makes the same input pass, and resetting refuses it again", () => {
+    resetReviewStateCheck();
+    expect(check14Of()?.outcome).toBe("failed");
+
+    registerReviewStateCheck((request) =>
+      request.unitId === "s1-p1-s1"
+        ? { ok: true }
+        : { ok: false, code: "review-records-not-available", message: "denied" },
+    );
+    try {
+      expect(check14Of()?.outcome).toBe("passed");
+    } finally {
+      // Restored whatever the assertion did: a leaked registration would silently
+      // accept reviewed units for every test that runs after this one.
+      resetReviewStateCheck();
+    }
+    expect(check14Of()?.outcome).toBe("failed");
+    expect(getReviewStateCheck()).toBe(strictNoReviewedCheck);
   });
 });
 
