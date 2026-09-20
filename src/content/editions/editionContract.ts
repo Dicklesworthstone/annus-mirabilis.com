@@ -201,12 +201,49 @@ export type ContractCheckResult = Readonly<{
   message: string;
 }>;
 
+/**
+ * What the harness was given, what it judged, and what it declined.
+ *
+ * A harness that reports only its successes is the same shape as a gate printing PASSED on
+ * an empty set, and check 8 was exactly that before this landed: with zero German units,
+ * zero English units and zero edges it reported `passed` with the message "Alignment
+ * coverage and edge validity verified." Nothing had been verified. Every run now states
+ * its denominator on both axes - how many checks of the fifteen actually reached a verdict
+ * and why the rest did not, and how many alignable units were aligned out of how many were
+ * supplied - so a reader can tell a clean edition from an unexamined one (am-edn-alignment-tooling-do1).
+ */
+export type ContractDenominator = Readonly<{
+  /** Checks in CONTRACT_CHECKS_SPEC. */
+  checksSpecified: number;
+  /** Checks that reached passed or failed. */
+  checksJudged: number;
+  /** Checks that declined, with the reason each gave. */
+  checksDeclined: number;
+  declined: readonly Readonly<{
+    checkNumber?: number | undefined;
+    check: ContractCheckName;
+    code?: string | undefined;
+    reason: string;
+  }>[];
+  /** German alignable units supplied to check 8, and how many carry at least one edge. */
+  germanUnitsGiven: number;
+  germanUnitsAligned: number;
+  germanUnitsUnaligned: readonly string[];
+  /** English units supplied to check 8, and how many carry at least one edge. */
+  englishUnitsGiven: number;
+  englishUnitsAligned: number;
+  englishUnitsUnaligned: readonly string[];
+  edgesGiven: number;
+}>;
+
 export type EditionContractResult = Readonly<{
   slug: RouteSlug;
   ledger: LedgerPresence;
   translationCompleteness: TranslationCompleteness;
   outcome: "passed" | "failed" | "not-available";
   checks: readonly ContractCheckResult[];
+  /** Never optional: a run that cannot say what it examined has not reported. */
+  denominator: ContractDenominator;
 }>;
 
 export type SpanRevisionCheckInput = Readonly<{
@@ -385,6 +422,43 @@ function loadManifestBundle(root: string, slug: RouteSlug): ManifestBundle {
   }
 }
 
+/** The denominator of a run, derived from what the checks were actually handed. */
+function buildDenominator(
+  checks: readonly ContractCheckResult[],
+  units: {
+    germanIds: readonly string[];
+    englishIds: readonly string[];
+    germanUnaligned: readonly string[];
+    englishUnaligned: readonly string[];
+    edges: number;
+  },
+): ContractDenominator {
+  const declined = checks
+    .filter((c) => c.outcome === "not-available" && c.checkNumber !== undefined)
+    .map((c) => ({
+      checkNumber: c.checkNumber,
+      check: c.check,
+      code: c.code,
+      reason: c.message,
+    }));
+  const judged = checks.filter(
+    (c) => c.checkNumber !== undefined && c.outcome !== "not-available",
+  ).length;
+  return Object.freeze({
+    checksSpecified: CONTRACT_CHECKS_SPEC.length,
+    checksJudged: judged,
+    checksDeclined: declined.length,
+    declined: Object.freeze(declined),
+    germanUnitsGiven: units.germanIds.length,
+    germanUnitsAligned: units.germanIds.length - units.germanUnaligned.length,
+    germanUnitsUnaligned: Object.freeze([...units.germanUnaligned]),
+    englishUnitsGiven: units.englishIds.length,
+    englishUnitsAligned: units.englishIds.length - units.englishUnaligned.length,
+    englishUnitsUnaligned: Object.freeze([...units.englishUnaligned]),
+    edgesGiven: units.edges,
+  });
+}
+
 export function assertEditionContract(
   slugRaw: string,
   options: EditionContractOptions = {},
@@ -459,6 +533,13 @@ export function assertEditionContract(
       translationCompleteness: completeness,
       outcome: "not-available",
       checks: Object.freeze(checks),
+      denominator: buildDenominator(checks, {
+        germanIds: [],
+        englishIds: [],
+        germanUnaligned: [],
+        englishUnaligned: [],
+        edges: 0,
+      }),
     };
   }
 
@@ -910,28 +991,54 @@ export function assertEditionContract(
   const edges = options.edges ?? (options.alignment ? edgesFromAlignment(options.alignment) : []);
   const englishIds = options.englishIds ?? edges.map((e) => e.targetId);
 
+  // The denominator this check was given, computed before any verdict so it is reported
+  // whether the check runs or declines.
+  const germanWithEdge = new Set(edges.map((e) => e.sourceId));
+  const englishWithEdge = new Set(edges.map((e) => e.targetId));
+  const germanUnaligned = germanIds.filter((id) => !germanWithEdge.has(id));
+  const englishUnaligned = englishIds.filter((id) => !englishWithEdge.has(id));
+
   let check8Passed = true;
   let check8Code: string | undefined;
-  let check8Message = "Alignment coverage and edge validity verified.";
+  let check8Message = "Alignment edges name permanent ids.";
 
-  if (edges.length > 0 || (options.englishIds && options.englishIds.length > 0)) {
+  if (germanIds.length === 0 && englishIds.length === 0 && edges.length === 0) {
+    // Examining nothing is not coverage. This branch reported `passed` with the message
+    // "Alignment coverage and edge validity verified." until am-edn-alignment-tooling-do1;
+    // the empty set is precisely the case a coverage check must refuse to bless.
+    checks.push({
+      checkNumber: 8,
+      check: "alignment-coverage",
+      owner: "am-cm-checks-structural-lq0",
+      role: "invokes",
+      outcome: "not-available",
+      code: "alignment-population-empty",
+      message:
+        "Check 8 (Alignment coverage) could not run: 0 German alignable units, 0 English units " +
+        "and 0 edges were supplied. Nothing was examined, so nothing is verified.",
+    });
+  } else {
+    check8Message =
+      `Alignment coverage and edge validity verified over ${germanIds.length} German unit(s) ` +
+      `and ${englishIds.length} English unit(s) across ${edges.length} edge(s).`;
+
     const issues = validateManyToManyAlignment({ edges, germanIds, englishIds });
     if (issues.length > 0) {
       check8Passed = false;
       check8Code = issues[0]?.code;
       check8Message = issues.map((i) => i.message).join(" ");
     }
-  }
 
-  checks.push({
-    checkNumber: 8,
-    check: "alignment-coverage",
-    owner: "am-cm-checks-structural-lq0",
-    role: "invokes",
-    outcome: check8Passed ? "passed" : "failed",
-    code: check8Code,
-    message: check8Message,
-  });
+    checks.push({
+      checkNumber: 8,
+      check: "alignment-coverage",
+      owner: "am-cm-checks-structural-lq0",
+      role: "invokes",
+      outcome: check8Passed ? "passed" : "failed",
+      code: check8Code,
+      message: check8Message,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 9: Display equation byte identity (spec #9, invokes am-cm-checks-structural-lq0)
@@ -1287,5 +1394,12 @@ export function assertEditionContract(
     translationCompleteness: completeness,
     outcome: failed ? "failed" : unavailable ? "not-available" : "passed",
     checks: Object.freeze(checks),
+    denominator: buildDenominator(checks, {
+      germanIds,
+      englishIds,
+      germanUnaligned,
+      englishUnaligned,
+      edges: edges.length,
+    }),
   };
 }
