@@ -129,6 +129,26 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-scaf-quality-gates-ci-4xx",
   },
+  // 5b. Unreviewed git stashes (am-70ig)
+  //
+  // requiredInCi is false and that is the honest setting, not a convenience: refs/stash is never
+  // pushed, `git ls-remote origin` returns no stash refs, and a fresh CI checkout therefore has
+  // none. A CI run of this step could only ever pass. Recording it as skipped-not-required says
+  // so; marking it required would manufacture a green.
+  {
+    id: "stashes",
+    title: "Unreviewed git stashes",
+    command: ["bun", "scripts/check-stashes.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: false,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/check-stashes.ts",
+      tool: "git",
+    },
+    owner: "am-70ig",
+  },
   // 6. Ultimate Bug Scanner (diff mode)
   {
     id: "ubs-diff",

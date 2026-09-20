@@ -1,0 +1,32 @@
+[
+  {
+    "sha": "0a9d5395155af09afc0e00e4d696c5647cbce2e1",
+    "date": "2026-09-17",
+    "verdict": "Superseded. 4 of 6 real files 100% in HEAD; the two radiation test files are reworded, not lost - HEAD's radiation.spectra.test.ts carries the spectral-axis adversarial at line 296 and radiation.entropy.test.ts has all seven identical test names.",
+    "reviewedUnder": "am-8wv8"
+  },
+  {
+    "sha": "e1ed4559fa5a0c050b07b749ef7a9ddd3c871f64",
+    "date": "2026-09-17",
+    "verdict": "Superseded. 10 of 12 real files landed; notationPage.test.ts has eight identical test names in HEAD; the bm07 change is a one-line import refactor that was abandoned and both modules exist.",
+    "reviewedUnder": "am-8wv8"
+  },
+  {
+    "sha": "3779165d35f86a2011bd891a6f4015a736e3b04d",
+    "date": "2026-09-16",
+    "verdict": "Superseded. The rebase autostash, the largest at 24 files and 1072 insertions: 20 of 23 real files are byte-for-byte in HEAD, the rest are a comment rewording and draft DONOR_AUDIT rows that HEAD's longer copy supersedes.",
+    "reviewedUnder": "am-8wv8"
+  },
+  {
+    "sha": "9557b90002dca9190b1c07bab1f1351f7acba51a",
+    "date": "2026-09-16",
+    "verdict": "No work at all. Only .beads/issues.jsonl, which is a generated tracker export.",
+    "reviewedUnder": "am-8wv8"
+  },
+  {
+    "sha": "5df718f571f7c12c396281e357d3fcf652899624",
+    "date": "2026-09-16",
+    "verdict": "Superseded. The @/* path alias landed in 95661f09; the DONOR_AUDIT rows are drafts of documentation HEAD has written more fully.",
+    "reviewedUnder": "am-8wv8"
+  }
+]
