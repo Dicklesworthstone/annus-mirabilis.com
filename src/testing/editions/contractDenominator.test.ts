@@ -28,7 +28,7 @@ import {
 
 const LEDGER = `--- REVIEWED TRANSCRIPTION PAGE 1 OF 1 ---
 [[PAGE 639]]
-[[HEADING s0]]
+[[HEADING s1]]
 Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?
 [[DATELINE]]
 Bern, den 27. September 1905.
@@ -57,9 +57,9 @@ describe("edition contract denominator (am-edn-alignment-tooling-do1)", () => {
   test("the denominator names what was given, aligned, and left unaligned", () => {
     const r = assertEditionContract("mass-energy", {
       ledgerText: LEDGER,
-      germanIds: ["s0", "closing-dateline"],
-      englishIds: ["s0", "closing-dateline"],
-      edges: [{ sourceId: "s0", targetId: "s0" }],
+      germanIds: ["s1", "closing-dateline"],
+      englishIds: ["s1", "closing-dateline"],
+      edges: [{ sourceId: "s1", targetId: "s1" }],
     });
     const d = r.denominator;
     expect(d.germanUnitsGiven).toBe(2);
@@ -91,13 +91,74 @@ describe("edition contract denominator (am-edn-alignment-tooling-do1)", () => {
     }
   });
 
+  test("every check that was handed nothing declines, and none of them says valid", () => {
+    // Six checks shared one shape: a default message asserting validity, a guarded
+    // validation, and an unconditional push of that default. Supplied with nothing they
+    // reported passed. The fixture reaches that state by construction - it supplies a
+    // ledger and nothing else - so this is the exact input the defect mishandled.
+    const r = assertEditionContract("mass-energy", { ledgerText: LEDGER });
+    // Check 8 is deliberately NOT in this list. Given only a ledger it derives German
+    // alignable units from it, so its population is not empty: it correctly FAILS with
+    // `empty-alignment` because units exist and nothing aligns them. Declining there would
+    // be the weaker answer. Its empty-population decline is asserted in the first test of
+    // this file, where the ids and edges are explicitly empty. The distinction matters:
+    // "nothing to examine" and "something to examine that nothing covers" are different
+    // findings and must not collapse into one.
+    const EMPTY_POPULATION = new Map<number, string>([
+      [10, "inline-math-atoms-population-empty"],
+      [11, "term-definitions-population-empty"],
+      [13, "gloss-units-population-empty"],
+      [14, "review-states-population-empty"],
+      [15, "span-revision-currency-population-empty"],
+    ]);
+    for (const [n, code] of EMPTY_POPULATION) {
+      const c = r.checks.find((x) => x.checkNumber === n);
+      expect(c?.outcome, `check ${n} should decline on an empty population`).toBe("not-available");
+      expect(c?.code, `check ${n} should name why it declined`).toBe(code);
+      expect(c?.message).toContain("Nothing was examined");
+    }
+    const c8 = r.checks.find((x) => x.checkNumber === 8);
+    expect(c8?.outcome, "check 8 has units from the ledger, so it fails rather than declines").toBe(
+      "failed",
+    );
+    expect(c8?.code).toBe("empty-alignment");
+
+    // And the sentences they used to emit are gone. Asserting the claim, not a word.
+    const claims = [
+      "Alignment coverage and edge validity verified.",
+      "Inline math atoms, reference IDs, and footnote marks match.",
+      "Term definitions and language metadata valid.",
+      "Gloss units valid and current.",
+      "Review states, provenance, and editors valid.",
+      "Span revisions and digests are current.",
+    ];
+    const allMessages = r.checks.map((c) => c.message).join("\n");
+    for (const claim of claims) {
+      expect(allMessages, `no check may still emit: ${claim}`).not.toContain(claim);
+    }
+  });
+
+  test("a check with a real population still reaches a verdict, so declining is not the default", () => {
+    // The other direction: the guards must not have turned every check into a decline.
+    const r = assertEditionContract("mass-energy", {
+      ledgerText: LEDGER,
+      germanIds: ["s1"],
+      englishIds: ["s1"],
+      edges: [{ sourceId: "s1", targetId: "s1" }],
+    });
+    const c8 = r.checks.find((c) => c.checkNumber === 8);
+    expect(c8?.outcome).toBe("passed");
+    expect(c8?.message).toContain("1 German unit(s)");
+    expect(r.denominator.checksJudged).toBeGreaterThan(0);
+  });
+
   test("a coverage failure is still a failure, so the decline is not a way out", () => {
     // The fixture reaches the failing state: an English unit with no edge at all.
     const r = assertEditionContract("mass-energy", {
       ledgerText: LEDGER,
-      germanIds: ["s0"],
-      englishIds: ["s0", "orphan"],
-      edges: [{ sourceId: "s0", targetId: "s0" }],
+      germanIds: ["s1"],
+      englishIds: ["s1", "orphan"],
+      edges: [{ sourceId: "s1", targetId: "s1" }],
     });
     const c8 = r.checks.find((c) => c.checkNumber === 8);
     expect(c8?.outcome).toBe("failed");

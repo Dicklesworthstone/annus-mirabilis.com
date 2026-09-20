@@ -422,6 +422,42 @@ function loadManifestBundle(root: string, slug: RouteSlug): ManifestBundle {
   }
 }
 
+/**
+ * A check that was handed nothing declines and says so.
+ *
+ * Six checks shared one shape: a default message asserting the thing was valid, a guarded
+ * validation that only ran when inputs existed, and an unconditional push of that default.
+ * Supplied with nothing they reported `passed` over "Inline math atoms, reference IDs, and
+ * footnote marks match", "Term definitions and language metadata valid", "Gloss units valid
+ * and current", "Review states, provenance, and editors valid", "Span revisions and digests
+ * are current", and check 8's "Alignment coverage and edge validity verified". None of it
+ * had been examined. A check cannot distinguish a clean edition from an unexamined one
+ * unless it states its population, so each now declines when that population is empty
+ * (am-edn-alignment-tooling-do1).
+ */
+function declineEmptyPopulation(
+  meta: ContractCheckMetadata,
+  populationDescription: string,
+): ContractCheckResult {
+  return {
+    checkNumber: meta.checkNumber,
+    check: meta.check,
+    owner: meta.owner,
+    role: meta.role,
+    outcome: "not-available",
+    code: `${meta.check}-population-empty`,
+    message:
+      `Check ${meta.checkNumber} (${meta.title}) could not run: ${populationDescription} ` +
+      "Nothing was examined, so nothing is verified.",
+  };
+}
+
+function specFor(checkNumber: number): ContractCheckMetadata {
+  const meta = CONTRACT_CHECKS_SPEC.find((c) => c.checkNumber === checkNumber);
+  if (!meta) throw new Error(`No contract check spec for check ${checkNumber}`);
+  return meta;
+}
+
 /** The denominator of a run, derived from what the checks were actually handed. */
 function buildDenominator(
   checks: readonly ContractCheckResult[],
@@ -1134,15 +1170,24 @@ export function assertEditionContract(
     }
   }
 
-  checks.push({
-    checkNumber: 10,
-    check: "inline-math-atoms",
-    owner: "this bead (am-edn-alignment-tooling-do1)",
-    role: "implements",
-    outcome: check10Passed ? "passed" : "failed",
-    code: check10Code,
-    message: check10Message,
-  });
+  if (!(options.components && options.components.length > 0)) {
+    checks.push(
+      declineEmptyPopulation(
+        specFor(10),
+        "no alignment components were supplied, so there were no inline math atoms, reference ids or footnote marks to compare.",
+      ),
+    );
+  } else {
+    checks.push({
+      checkNumber: 10,
+      check: "inline-math-atoms",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: check10Passed ? "passed" : "failed",
+      code: check10Code,
+      message: check10Message,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 11: Term definitions over 80 chars, lang metadata (spec #11, invokes)
@@ -1160,15 +1205,24 @@ export function assertEditionContract(
     }
   }
 
-  checks.push({
-    checkNumber: 11,
-    check: "term-definitions",
-    owner: "am-cm-schemas-source-1en",
-    role: "invokes",
-    outcome: check11Passed ? "passed" : "failed",
-    code: check11Code,
-    message: check11Message,
-  });
+  if (!(options.terms && options.terms.length > 0)) {
+    checks.push(
+      declineEmptyPopulation(
+        specFor(11),
+        "no term occurrences were supplied, so no definition length or language metadata was examined.",
+      ),
+    );
+  } else {
+    checks.push({
+      checkNumber: 11,
+      check: "term-definitions",
+      owner: "am-cm-schemas-source-1en",
+      role: "invokes",
+      outcome: check11Passed ? "passed" : "failed",
+      code: check11Code,
+      message: check11Message,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 12: Hero quote resolves to edition text (spec #12, invokes am-cm-checks-structural-lq0)
@@ -1273,15 +1327,24 @@ export function assertEditionContract(
     }
   }
 
-  checks.push({
-    checkNumber: 13,
-    check: "gloss-units",
-    owner: "this bead (am-edn-alignment-tooling-do1)",
-    role: "implements",
-    outcome: check13Passed ? "passed" : "failed",
-    code: check13Code,
-    message: check13Message,
-  });
+  if (!options.glossInput) {
+    checks.push(
+      declineEmptyPopulation(
+        specFor(13),
+        "no gloss input was supplied, so no gloss unit addressing, token coverage or staleness was examined.",
+      ),
+    );
+  } else {
+    checks.push({
+      checkNumber: 13,
+      check: "gloss-units",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: check13Passed ? "passed" : "failed",
+      code: check13Code,
+      message: check13Message,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 14: Review states, provenance, and edition.yaml editors (spec #14, implements)
@@ -1312,15 +1375,26 @@ export function assertEditionContract(
     }
   }
 
-  checks.push({
-    checkNumber: 14,
-    check: "review-states",
-    owner: "this bead (am-edn-alignment-tooling-do1)",
-    role: "implements",
-    outcome: check14Passed ? "passed" : "failed",
-    code: check14Code,
-    message: check14Message,
-  });
+  if (
+    !(options.declaration !== undefined || (options.reviewUnits && options.reviewUnits.length > 0))
+  ) {
+    checks.push(
+      declineEmptyPopulation(
+        specFor(14),
+        "neither an edition declaration nor any review-state units were supplied, so no review state, provenance entry or editor list was examined.",
+      ),
+    );
+  } else {
+    checks.push({
+      checkNumber: 14,
+      check: "review-states",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: check14Passed ? "passed" : "failed",
+      code: check14Code,
+      message: check14Message,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 15: Span revision currency & digest integrity (spec #15, implements)
@@ -1338,15 +1412,24 @@ export function assertEditionContract(
     }
   }
 
-  checks.push({
-    checkNumber: 15,
-    check: "span-revision-currency",
-    owner: "this bead (am-edn-alignment-tooling-do1)",
-    role: "implements",
-    outcome: check15Passed ? "passed" : "failed",
-    code: check15Code,
-    message: check15Message,
-  });
+  if (!(options.spans && options.spans.length > 0)) {
+    checks.push(
+      declineEmptyPopulation(
+        specFor(15),
+        "no spans were supplied, so no span revision or digest was examined.",
+      ),
+    );
+  } else {
+    checks.push({
+      checkNumber: 15,
+      check: "span-revision-currency",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: check15Passed ? "passed" : "failed",
+      code: check15Code,
+      message: check15Message,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Legacy aliases for backward compatibility with existing tests

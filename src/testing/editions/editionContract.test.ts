@@ -213,10 +213,25 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     // content/, and no paper record declares a quote. Naming them keeps the count of
     // fifteen truthful about what is being asserted, and a future change that turns one
     // back into an unconditional pass fails here rather than reading as progress.
+    //
+    // EXTENDED 2026-09-20 (am-edn-alignment-tooling-do1 Unit 1). The comment above turned
+    // out to understate the problem: five more checks were passing on an empty set for the
+    // same reason check 8 was, and this fixture supplies none of their inputs. It passes a
+    // ledger, an edition text, ids and edges - and no alignment components, no term
+    // occurrences, no gloss input, no declaration or review units, and no spans. So checks
+    // 10, 11, 13, 14 and 15 had nothing to examine and said "match", "valid", "valid and
+    // current", "valid" and "are current" anyway. They now decline, and are named here with
+    // their codes for the same reason the first three were: so a change that turns one back
+    // into an unconditional pass fails here rather than reading as progress.
     const notAvailable = new Map<number, string>([
       [2, "ledger-not-on-disk"],
       [9, "english-face-absent"],
       [12, "hero-quote-not-declared"],
+      [10, "inline-math-atoms-population-empty"],
+      [11, "term-definitions-population-empty"],
+      [13, "gloss-units-population-empty"],
+      [14, "review-states-population-empty"],
+      [15, "span-revision-currency-population-empty"],
     ]);
     for (const [checkNumber, code] of notAvailable) {
       expect(outcomeOf(checkNumber)).toBe("not-available");
