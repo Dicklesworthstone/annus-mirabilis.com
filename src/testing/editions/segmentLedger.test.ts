@@ -324,13 +324,19 @@ describe("German word tokenization regression suite", () => {
 
   test("headings, footnotes, and closings tokenize under identical rules with 0-based indices", () => {
     const headingTokens = wordTokens(tokenizeGerman("§ 1. KINEMATISCHER TEIL"));
-    headingTokens.forEach((w, idx) => expect(w.tokenIndex).toBe(idx));
+    for (const [idx, w] of headingTokens.entries()) {
+      expect(w.tokenIndex).toBe(idx);
+    }
 
     const fnTokens = wordTokens(tokenizeGerman("Vgl. A. Einstein, a. a. O."));
-    fnTokens.forEach((w, idx) => expect(w.tokenIndex).toBe(idx));
+    for (const [idx, w] of fnTokens.entries()) {
+      expect(w.tokenIndex).toBe(idx);
+    }
 
     const closingTokens = wordTokens(tokenizeGerman("Bern, Mai 1905."));
-    closingTokens.forEach((w, idx) => expect(w.tokenIndex).toBe(idx));
+    for (const [idx, w] of closingTokens.entries()) {
+      expect(w.tokenIndex).toBe(idx);
+    }
   });
 });
 
