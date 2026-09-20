@@ -297,6 +297,28 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
 /**
  * Runs full repository analysis comparing detected refusal throw sites against test suites.
  */
+/**
+ * Does this test block assert this refusal code?
+ *
+ * The code must appear AS A STRING LITERAL. A third disjunct, `block.includes(code)`,
+ * stood beside these two and made both redundant: it credited coverage to any block
+ * that merely CONTAINED the code, so a block testing `"tape-artifact-mismatch"` counted
+ * as covering `artifact-mismatch`, which nothing may have tested.
+ *
+ * Measured over this scanner's own population, from its own roots and its own
+ * scanRefusalThrowSites: 1320 distinct codes, of which 84 are a prefix of another and
+ * 40 are a substring of another away from the start. The count feeds a per-site budget
+ * below, so every fragment match inflated the number of sites reported as covered. The
+ * direction is fail-open on a coverage measurement.
+ *
+ * Backticks are deliberately not accepted: checked across all 1156 test files, no code
+ * appears only in a template-literal form, so admitting one would widen the rule
+ * without covering anything (am-he9s).
+ */
+export function blockCoversCode(block: string, code: string): boolean {
+  return block.includes(`"${code}"`) || block.includes(`'${code}'`);
+}
+
 export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult {
   const testFiles = findTestFiles([join(rootDir, "src"), join(rootDir, "scripts")]);
 
@@ -407,7 +429,7 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
         let blockCount = 0;
         for (let b = 1; b < blocks.length; b++) {
           const block = blocks[b] ?? "";
-          if (block.includes(`"${code}"`) || block.includes(`'${code}'`) || block.includes(code)) {
+          if (blockCoversCode(block, code)) {
             blockCount++;
           }
         }
