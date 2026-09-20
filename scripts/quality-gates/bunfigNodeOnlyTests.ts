@@ -187,8 +187,8 @@ export function classifyTestFileContent(rawContent: string): string | null {
     SUBPROCESS_BARE_IMPORT_REGEX.test(code) ||
     SUBPROCESS_DYNAMIC_IMPORT_REGEX.test(code);
 
-  if (hasSubprocessImport && SUBPROCESS_SPAWN_CALL_REGEX.test(code) && !code.includes("EBADF")) {
-    return "spawns a subprocess without EBADF handling";
+  if (hasSubprocessImport && SUBPROCESS_SPAWN_CALL_REGEX.test(code)) {
+    return "spawns a subprocess";
   }
 
   return null;
@@ -211,9 +211,58 @@ export function formatUnignoredSubprocessTestFailure(
   lines.push(
     "Subprocess-spawning and browser tests cannot run under bun test on macOS (EBADF posix_spawn failure).",
     "They must be listed in bunfig.toml pathIgnorePatterns so bun test skips them and scripts/run-node-only-tests.ts runs them under node --test.",
+    "",
+    "The failure is posix_spawn OF NODE. If your test's child is bun, git or another binary, add it to",
+    "SUBPROCESS_LANE_EXEMPTIONS in scripts/quality-gates/bunfigNodeOnlyTests.ts with the reason, naming",
+    "the executable. Catching EBADF and returning is not a reason: that makes the test pass having",
+    "asserted nothing, which is what the exemption list replaced.",
   );
   return lines.join("\n");
 }
+
+/**
+ * Files excused from the subprocess lane rule, each with the reason it is excused.
+ *
+ * This replaces `&& !code.includes("EBADF")`, which used to sit in the condition above. That was a
+ * bare substring test over the whole file granting a LANE EXEMPTION: a comment, a variable name or
+ * an unrelated sentence containing those five characters excused a test from a rule about where it
+ * runs, and nothing anywhere recorded which files were using the escape. Measured before removing
+ * it: exactly five files depended on it, and all five were absent from pathIgnorePatterns, so the
+ * escape was load-bearing rather than dead.
+ *
+ * It also excused them for the WRONG REASON. What earns the escape is containing EBADF-handling
+ * code - and that handling is an early `return` that makes the test pass having asserted nothing.
+ * A file therefore earned the right to run in the lane where it fails by carrying the code that
+ * hides the failure. The real justification is a different fact: bunfig.toml's comment says the
+ * failure is "posix_spawn OF NODE", and none of these five spawns node. Verified per file by
+ * reading the spawn call, not inferred from the group.
+ *
+ * An entry here is a claim that the spawned executable is not node. Adding one is not a way to
+ * silence the gate: a test that spawns node belongs in bunfig.toml pathIgnorePatterns, where the
+ * node lane will pick it up and actually run it.
+ */
+export const SUBPROCESS_LANE_EXEMPTIONS: ReadonlyMap<string, string> = new Map([
+  [
+    "src/content/manifest/report.test.ts",
+    "spawns `bun scripts/source-manifest-report.ts`, so the child is bun and not node",
+  ],
+  [
+    "src/content/coverage/coverageLedger.test.ts",
+    "spawns `bun scripts/coverage-report.ts`, so the child is bun and not node",
+  ],
+  [
+    "src/testing/editions/alignEditions.test.ts",
+    "spawns process.execPath, which under `bun test` is the bun binary rather than node",
+  ],
+  [
+    "src/testing/checkRevisions.integration.test.ts",
+    'execFileSync("git", ...): the child is git, which posix_spawn handles normally',
+  ],
+  [
+    "src/testing/brownianDemo.test.mjs",
+    "spawns process.execPath, which under `bun test` is the bun binary rather than node",
+  ],
+]);
 
 export function findUnignoredSubprocessTests(
   root: string = process.cwd(),
@@ -242,7 +291,7 @@ export function findUnignoredSubprocessTests(
       continue;
     }
     const reason = classifyTestFileContent(content);
-    if (reason !== null) {
+    if (reason !== null && !SUBPROCESS_LANE_EXEMPTIONS.has(relPath)) {
       const isIgnored = patterns.some((p) => matchPattern(relPath, p));
       if (!isIgnored) {
         violations.push({

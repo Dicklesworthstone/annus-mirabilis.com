@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, it } from "node:test";
 import {
@@ -11,6 +11,7 @@ import {
   formatUnignoredSubprocessTestFailure,
   nodeOnlyTestArgs,
   parsePathIgnorePatterns,
+  SUBPROCESS_LANE_EXEMPTIONS,
 } from "./bunfigNodeOnlyTests.ts";
 
 describe("bunfigNodeOnlyTests", () => {
@@ -112,23 +113,63 @@ describe("bunfigNodeOnlyTests", () => {
     );
     assert.equal(
       classifyTestFileContent('import { spawn } from "node:child_process";\nspawn("ls");'),
-      "spawns a subprocess without EBADF handling",
+      "spawns a subprocess",
     );
   });
 
-  it("classifyTestFileContent ignores comments, non-subprocess tests, and tests handling EBADF", () => {
+  it("classifyTestFileContent ignores comments and non-subprocess tests", () => {
     assert.equal(classifyTestFileContent('// import { chromium } from "playwright";'), null);
     assert.equal(classifyTestFileContent('/*\nimport { chromium } from "playwright";\n*/'), null);
     assert.equal(
       classifyTestFileContent('import assert from "node:assert";\nassert.equal(1, 1);'),
       null,
     );
+  });
+
+  /**
+   * am-o44v. classifyTestFileContent used to return null for the case below, because the condition
+   * carried `&& !code.includes("EBADF")`: a bare substring over the whole file, granting an
+   * exemption from a rule about which LANE a test runs in. A comment or a variable name containing
+   * those five characters was enough. What it rewarded was worse than what it measured - the code
+   * that earns the escape is an early return on EBADF, which makes the test pass having asserted
+   * nothing, so a file bought its way into the lane where it fails by carrying the code that hides
+   * the failure.
+   */
+  it("a file is no longer excused from the lane rule by containing the letters EBADF", () => {
+    const spawnsAndMentionsEbadf =
+      'import { spawnSync } from "node:child_process";\ntry { spawnSync("git"); } catch (err) { if (err?.code === "EBADF") return; }';
+    assert.equal(classifyTestFileContent(spawnsAndMentionsEbadf), "spawns a subprocess");
+    // and the weakest form of the old escape, a bare comment, which never handled anything
     assert.equal(
       classifyTestFileContent(
-        'import { spawnSync } from "node:child_process";\ntry { spawnSync("git"); } catch (err) { if (err?.code === "EBADF") return; }',
+        'import { spawnSync } from "node:child_process";\nspawnSync("node");\n// see bunfig: EBADF',
       ),
-      null,
+      "spawns a subprocess",
     );
+  });
+
+  /**
+   * The list is a ratchet with a pawl: an entry may only exist while it is doing work. Without the
+   * second assertion an exemption would outlive the file it excuses, and a stale allowlist entry is
+   * how a gate quietly stops covering something.
+   */
+  it("every subprocess-lane exemption names a real file, carries a reason, and is still needed", () => {
+    assert.ok(SUBPROCESS_LANE_EXEMPTIONS.size > 0, "an empty list means the escape is unused");
+    for (const [rel, reason] of SUBPROCESS_LANE_EXEMPTIONS) {
+      assert.ok(
+        existsSync(resolve(process.cwd(), rel)),
+        `${rel} is excused from the subprocess lane rule but does not exist`,
+      );
+      assert.ok(
+        reason.trim().length >= 20,
+        `${rel} must record WHICH executable it spawns, not merely that it is excused`,
+      );
+      assert.equal(
+        classifyTestFileContent(readFileSync(resolve(process.cwd(), rel), "utf8")),
+        "spawns a subprocess",
+        `${rel} is no longer flagged by the rule, so its exemption is stale and should be deleted`,
+      );
+    }
   });
 
   it("formatUnignoredSubprocessTestFailure formats failure with exact line to add", () => {
