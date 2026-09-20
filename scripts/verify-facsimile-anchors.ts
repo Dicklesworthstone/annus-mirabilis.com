@@ -21,6 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
+import { TestLogger } from "../src/testing/log/logger.ts";
 import {
   type AnchorValidationResult,
   validateFacsimileAnchor,
@@ -65,9 +66,10 @@ export function verifyFacsimileAnchors(options?: {
     .sort();
 
   if (options?.key) {
-    const keyTarget = options.key.endsWith(".yaml") || options.key.endsWith(".yml")
-      ? options.key
-      : `${options.key}.yaml`;
+    const keyTarget =
+      options.key.endsWith(".yaml") || options.key.endsWith(".yml")
+        ? options.key
+        : `${options.key}.yaml`;
     files = files.filter((f) => f === keyTarget || f.startsWith(`${options.key}.`));
     if (files.length === 0) {
       return {
@@ -169,6 +171,27 @@ export async function runCli(): Promise<number> {
   } else {
     console.log(formatAnchorReport(report));
   }
+
+  // Structured log (am-uxh9). This gate is registered requiredInCi and is RED today on
+  // three real defects, and it wrote no artifact at all: the refusals existed only as
+  // stdout, so nothing recorded which config failed on which rule.
+  const logger = new TestLogger("facsimile-page-anchors");
+  for (const [file, result] of Object.entries(report.results)) {
+    logger.log({
+      testId: file,
+      outcome: result.valid ? "passed" : "failed",
+      message: result.valid
+        ? `Anchor consistent${result.offset === undefined ? "" : ` (offset ${result.offset})`}.`
+        : `[${result.refusalCode ?? "ERROR"}] ${result.errors.join("; ")}`,
+    });
+  }
+  logger.log({
+    testId: "facsimile-page-anchors-summary",
+    outcome: report.valid ? "passed" : "failed",
+    message: `${report.checkedCount} checked, ${report.passedCount} valid, ${report.failedCount} failed.`,
+  });
+  await logger.flush();
+  console.log(`Structured log: ${logger.filePath}`);
 
   return report.valid ? 0 : 3;
 }

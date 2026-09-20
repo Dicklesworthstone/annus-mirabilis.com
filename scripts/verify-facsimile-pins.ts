@@ -53,6 +53,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
+import { TestLogger } from "../src/testing/log/logger.ts";
 import {
   type FacsimileSourceConfig,
   validateFacsimileAnchor,
@@ -917,6 +918,38 @@ export async function runCli(): Promise<number> {
   } else {
     console.log(formatPinReport(report));
   }
+
+  // Structured log (am-uxh9). This gate printed its whole verdict to stdout and wrote
+  // nothing, so a run left no artifact: which pin was refused, and on which of the three
+  // checks, was unrecoverable once the terminal scrolled. I wrote this gate on am-cf6m and
+  // missed it in my own sweep of am-uxh9, which classified it healthy on the strength of
+  // its stdout report.
+  const logger = new TestLogger("facsimile-pins");
+  for (const result of report.results) {
+    if (result.verified) {
+      logger.log({
+        testId: result.key,
+        outcome: "passed",
+        message: "Anchor, content identity and folio coverage all agree.",
+      });
+      continue;
+    }
+    for (const finding of result.findings) {
+      logger.log({
+        testId: result.key,
+        outcome: "failed",
+        message: `[${finding.check}/${finding.code}] ${finding.message}`,
+      });
+    }
+  }
+  logger.log({
+    testId: "facsimile-pins-summary",
+    outcome: report.valid ? "passed" : "failed",
+    message: `${report.checkedCount} pins checked, ${report.verifiedCount} verified, ${report.refusedCount} refused.`,
+  });
+  await logger.flush();
+  console.log(`Structured log: ${logger.filePath}`);
+
   return report.valid ? 0 : 3;
 }
 
