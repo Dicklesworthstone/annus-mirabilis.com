@@ -11,8 +11,11 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { load as parseYaml } from "js-yaml";
 import { parseRouteSlug, type RouteSlug } from "../ids.ts";
 import { validateLedger } from "../ledger/validateLedger.ts";
+import { validateSourceManifest } from "../manifest/schema.ts";
+import { parseReceipt } from "../provenance/parseReceipt.ts";
 import type { Alignment } from "../schemas/source.ts";
 import { spanTextDigest } from "../schemas/spans.ts";
 import {
@@ -28,13 +31,21 @@ import {
   validateReviewStates,
   validateTerms,
 } from "./alignment.ts";
+import { BROWNIAN_INVENTORY_BEAD } from "./brownianInventory.ts";
 import { validateEditionDeclaration } from "./editionDeclaration.ts";
 import {
   inspectLedgerPresence,
   type LedgerPresence,
+  PAPER_BIB_KEYS,
   type TranslationCompleteness,
   translationCompleteness,
 } from "./ledgerPresence.ts";
+import {
+  type ManifestUnitLike,
+  type PageMapEntryLike,
+  type PageMapMismatch,
+  reconcilePageMapAgainstManifest,
+} from "./pageMapReconciliation.ts";
 import { germanAlignableIds, segmentLedger } from "./segmentLedger.ts";
 
 export type ContractCheckName =
@@ -542,18 +553,77 @@ export function assertEditionContract(
   // --------------------------------------------------------------------------
   // Check 4: Count reconciliation (spec #4, implements)
   // --------------------------------------------------------------------------
-  const check4Passed = options.perPageCountsMatch !== false;
-  checks.push({
-    checkNumber: 4,
-    check: "count-reconciliation",
-    owner: "this bead (am-edn-alignment-tooling-do1)",
-    role: "implements",
-    outcome: check4Passed ? "passed" : "failed",
-    code: check4Passed ? undefined : "count-reconciliation-mismatch",
-    message: check4Passed
-      ? "Manifest per-page counts and receipt pageMap match."
-      : "Manifest per-page counts disagree with validator statistics or receipt pageMap.",
-  });
+  // Actually reconciles (am-06x1). reconcilePageMapAgainstManifest already exists and is
+  // what the per-paper gates use; this check claimed its result while calling nothing, so
+  // "Manifest per-page counts and receipt pageMap match" was asserted for every edition.
+  // Both inputs are loadable from root and slug, so this needs no ledger and runs today.
+  let pageMapMismatches: readonly PageMapMismatch[] | null = null;
+  let reconciliationUnavailable: string | null = null;
+  if (options.perPageCountsMatch === undefined) {
+    const bibKey = PAPER_BIB_KEYS[slug];
+    const manifestPath = join(root, `content/source-blocks/${slug}/manifest.yaml`);
+    const receiptPath = join(root, `docs/provenance/${bibKey}.md`);
+    if (!existsSync(manifestPath) || !existsSync(receiptPath)) {
+      reconciliationUnavailable = `manifest or receipt absent (${manifestPath}, ${receiptPath})`;
+    } else {
+      try {
+        const manifest = validateSourceManifest(
+          parseYaml(readFileSync(manifestPath, "utf8")),
+          manifestPath,
+        );
+        const parsedReceipt = parseReceipt(readFileSync(receiptPath, "utf8"), receiptPath);
+        const pageMap = parsedReceipt.frontMatter?.pageMap;
+        if (!Array.isArray(pageMap) || pageMap.length === 0) {
+          reconciliationUnavailable = `${receiptPath} declares no pageMap to reconcile against`;
+        } else {
+          // refinedBy must be the bead the RECEIPT records as having refined those pages -
+          // the inventory bead - not this contract's own bead. Passing the contract's id
+          // made every refined page report a mismatch that was purely my argument choice.
+          pageMapMismatches = reconcilePageMapAgainstManifest(
+            manifest.units as readonly ManifestUnitLike[],
+            pageMap as readonly PageMapEntryLike[],
+            BROWNIAN_INVENTORY_BEAD,
+          );
+        }
+      } catch (err: unknown) {
+        reconciliationUnavailable = `reconciliation threw: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    }
+  }
+  if (reconciliationUnavailable !== null) {
+    checks.push({
+      checkNumber: 4,
+      check: "count-reconciliation",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: "not-available",
+      code: "reconciliation-inputs-absent",
+      message:
+        `Check 4 (Count reconciliation) could not run: ${reconciliationUnavailable}. ` +
+        "Reconciling nothing is not a match.",
+    });
+  } else {
+    const check4Passed =
+      options.perPageCountsMatch !== undefined
+        ? options.perPageCountsMatch !== false
+        : pageMapMismatches !== null && pageMapMismatches.length === 0;
+    checks.push({
+      checkNumber: 4,
+      check: "count-reconciliation",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: check4Passed ? "passed" : "failed",
+      code: check4Passed ? undefined : "count-reconciliation-mismatch",
+      message: check4Passed
+        ? `Manifest per-page counts and receipt pageMap match across ${(pageMapMismatches ?? []).length === 0 ? "every reconciled page" : "?"}.`
+        : `Manifest per-page counts disagree with the receipt pageMap in ${(pageMapMismatches ?? []).length} place(s): ${(
+            pageMapMismatches ?? []
+          )
+            .slice(0, 3)
+            .map((m) => JSON.stringify(m))
+            .join("; ")}`,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 5: Manifest coverage (spec #5, invokes am-cm-source-manifest-6qa)
