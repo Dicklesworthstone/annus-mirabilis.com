@@ -9,6 +9,7 @@ import {
   LANES,
   type LaneSession,
   laneByName,
+  laneSkipReason,
   launchLaneSession,
   runFixtureJourneyOnLane,
 } from "./lanes.ts";
@@ -118,24 +119,46 @@ test("AC 1: all 11 lanes run fixture journeys and pass on correct fixtures", {
   });
   try {
     let passedCount = 0;
+    const skipped: string[] = [];
     for (const lane of LANES) {
       try {
         const result = await runFixtureJourneyOnLane(lane, server.url);
         assert.equal(result.ok, true, `Lane ${lane.name} failed: ${result.message}`);
         passedCount += 1;
       } catch (err: unknown) {
-        const e = err as { code?: string; message?: string } | null;
-        if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
-        throw err;
+        const reason = laneSkipReason(err);
+        if (reason === null) throw err;
+        // A lane that could not start is recorded and counted, never a silent
+        // early return. The previous code returned here, exiting before the
+        // assertion below, so eleven failing lanes reported green.
+        skipped.push(`${lane.name} (${reason})`);
       }
     }
-    assert.equal(passedCount, LANES.length, `Expected all ${LANES.length} lanes to pass`);
+
+    if (skipped.length > 0) {
+      console.log(
+        `[lanes] ${passedCount} of ${LANES.length} lanes ran; skipped: ${skipped.join("; ")}`,
+      );
+    }
+
+    // Every lane is accounted for as either run or skipped, so none can vanish.
+    assert.equal(
+      passedCount + skipped.length,
+      LANES.length,
+      `Expected all ${LANES.length} lanes to be accounted for, got ${passedCount} passed and ${skipped.length} skipped`,
+    );
+    // And a run in which nothing ran proves nothing, so it is a failure rather
+    // than a green tick. Eleven skipped lanes is a broken harness, not noise.
+    assert.ok(
+      passedCount > 0,
+      `No lane ran: all ${LANES.length} were skipped (${skipped.join("; ")}). This run establishes nothing about the lanes.`,
+    );
   } finally {
     await server.close();
   }
 });
 
-test("AC 5: the JavaScript-disabled lane reads fixture section text and equation MathML from static document", async () => {
+test("AC 5: the JavaScript-disabled lane reads fixture section text and equation MathML from static document", async (t) => {
   const server: RunningFixtureServer = await startFixtureServer({
     staticRoot: STATIC_ROOT,
     appsRoot: APPS_ROOT,
@@ -146,9 +169,12 @@ test("AC 5: the JavaScript-disabled lane reads fixture section text and equation
     try {
       session = await launchLaneSession(lane);
     } catch (err: unknown) {
-      const e = err as { code?: string; message?: string } | null;
-      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
-      throw err;
+      const reason = laneSkipReason(err);
+      if (reason === null) throw err;
+      // Reported as skipped rather than returned from: this test proves
+      // nothing when its one lane never started, and a pass would say it did.
+      t.skip(`lane could not start: ${reason}`);
+      return;
     }
 
     try {
@@ -186,7 +212,7 @@ test("AC 5: the JavaScript-disabled lane reads fixture section text and equation
   }
 });
 
-test("AC 6: the no-WebGL lane confirms WebGL is unavailable and the page stays usable", async () => {
+test("AC 6: the no-WebGL lane confirms WebGL is unavailable and the page stays usable", async (t) => {
   const server: RunningFixtureServer = await startFixtureServer({
     staticRoot: STATIC_ROOT,
     appsRoot: APPS_ROOT,
@@ -197,9 +223,12 @@ test("AC 6: the no-WebGL lane confirms WebGL is unavailable and the page stays u
     try {
       session = await launchLaneSession(lane);
     } catch (err: unknown) {
-      const e = err as { code?: string; message?: string } | null;
-      if (e?.code === "EBADF" || e?.message?.includes("EBADF")) return;
-      throw err;
+      const reason = laneSkipReason(err);
+      if (reason === null) throw err;
+      // Reported as skipped rather than returned from: this test proves
+      // nothing when its one lane never started, and a pass would say it did.
+      t.skip(`lane could not start: ${reason}`);
+      return;
     }
 
     try {

@@ -279,6 +279,29 @@ export interface FixtureJourneyLaneResult {
   readonly message?: string;
 }
 
+/**
+ * The reason a lane could not be RUN, as opposed to a lane that ran and failed.
+ *
+ * Browser teardown can hand back EBADF from a closed pipe, and a lane that
+ * never started is not evidence either way. It is also not a pass, which is
+ * what the previous code made it: three catch blocks in lanes.test.ts
+ * returned early on EBADF, exiting before the assertion that counts the
+ * lanes, so all eleven could fail and the suite reported green
+ * (am-ebadf-lane-escape-kjla).
+ *
+ * Two rules hold this to its job. It matches the `code` property ONLY: the
+ * old arm also matched any error whose MESSAGE contained the substring
+ * "EBADF", so an unrelated failure whose text happened to include those five
+ * characters was swallowed too. That collision is the wider half of the
+ * defect and is why fixing only the EBADF path would not have been enough.
+ * And it returns a reason rather than a boolean, so a caller cannot record a
+ * skip without being able to say why.
+ */
+export function laneSkipReason(error: unknown): string | null {
+  const code = (error as { code?: unknown } | null)?.code;
+  return code === "EBADF" ? "EBADF from the browser transport; the lane never started" : null;
+}
+
 export async function runFixtureJourneyOnLane(
   lane: LaneDefinition,
   fixtureServerUrl: string,
