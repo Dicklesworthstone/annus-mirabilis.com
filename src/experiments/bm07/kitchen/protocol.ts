@@ -1,3 +1,6 @@
+import { getConstantSet } from "../../../physics/reference/constants.ts";
+import { kitchenInputBox } from "./uncertainty.ts";
+import { withinTolerance } from "../../../units/tolerance.ts";
 import { decodeResultBatch } from "../../results/codec.ts";
 import type { RequestToken } from "../../store/instanceStore.ts";
 import { parseKitchenCsv } from "./csv.ts";
@@ -164,6 +167,7 @@ export function decodeKitchenResponse(
     "gasConstantProvenance",
     "numberMeaning",
     "combinedIntervalReason",
+    "uncertainty",
   ]);
   if (
     JSON.stringify(validateKitchenOptions(a.options)) !==
@@ -171,6 +175,37 @@ export function decodeKitchenResponse(
   )
     throw new TypeError("Wrong analysis options.");
   const document = parseKitchenCsv(request.csv);
+  const u = a.uncertainty;
+  closed(u, ["state", "scaleExponent", "inputCoverage", "cameraCoverage", "combinedCoverage"]);
+  if (!["unavailable", "sensitivity", "combined"].includes(u.state) ||
+      ![null, -2, -3].includes(u.scaleExponent) ||
+      [u.inputCoverage, u.cameraCoverage, u.combinedCoverage].some(p =>
+        p !== null && (typeof p !== "number" || !Number.isFinite(p) || p <= 0 || p > 1)) ||
+      u.inputCoverage !== (document.metadata.physical_input_coverage ? Number(document.metadata.physical_input_coverage) : null))
+    throw new TypeError("Invalid input-uncertainty declaration.");
+  if (u.state !== "unavailable" &&
+      (u.scaleExponent === null || a.scaleSource !== "measured" ||
+       !["independent", a.options.axis].includes(document.metadata.radius_scale_axis) ||
+       (document.metadata.radius_scale_axis !== "independent" &&
+        (document.metadata.calibration_axes !== "both" || !document.metadata.pixel_aspect_ratio)) ||
+       document.metadata.radius_provenance !== "independent" ||
+       u.scaleExponent !== (document.metadata.radius_scale_axis === "independent" ? -2 : -3)))
+    throw new TypeError("The radius/calibration dependence was not declared.");
+  if (u.state !== "unavailable") {
+    const setId = a.options.constantSet === "metadata" ? document.metadata.constant_set_id : a.options.constantSet;
+    if (a.constantSetId !== setId || a.scale === null ||
+        a.scale !== 1e-6 / Number(document.metadata[`pixels_per_um_${a.options.axis}`]) ||
+        kitchenInputBox(document, a.options.axis, a.scaleSource, a.scale, getConstantSet(setId)).kind !== "accepted")
+      throw new TypeError("The declared physical-input box does not support this result.");
+  }
+  if (u.state === "combined") {
+    if (u.inputCoverage === null || u.cameraCoverage === null || u.combinedCoverage === null ||
+        !document.metadata.physical_input_provenance || u.combinedCoverage < a.options.coverage ||
+        u.combinedCoverage > Math.min(u.inputCoverage, u.cameraCoverage) ||
+        !withinTolerance(u.combinedCoverage, 1 - ((1 - u.inputCoverage) + (1 - u.cameraCoverage)),
+          { absolute: 16 * Number.EPSILON }).ok)
+      throw new TypeError("Combined coverage is not supported by its declared error budget.");
+  } else if (u.combinedCoverage !== null) throw new TypeError("An unavailable interval cannot claim combined coverage.");
   if (
     !Array.isArray(a.tracks) ||
     a.tracks.length > document.points.length ||
@@ -252,7 +287,7 @@ export function decodeKitchenResponse(
     if (output.status !== "value") continue;
     const length = ["pairs", "pairTimes"].includes(output.quantityId)
       ? 2 * a.counts.retainedPairs
-      : ["diffusionInterval", "molecularInterval"].includes(output.quantityId)
+      : ["diffusionInterval", "molecularInterval", "molecularInputRange", "combinedMolecularInterval", "combinedSamplingInterval"].includes(output.quantityId)
         ? 2
         : null;
     if (
@@ -267,7 +302,7 @@ export function decodeKitchenResponse(
         output.value !== Math.max(0, a.counts.retainedPairs - 1))
     )
       throw new TypeError("Wrong pair degrees of freedom.");
-    if (["diffusionInterval", "molecularInterval"].includes(output.quantityId)) {
+    if (["diffusionInterval", "molecularInterval", "molecularInputRange", "combinedMolecularInterval", "combinedSamplingInterval"].includes(output.quantityId)) {
       const b = output.value as Float64Array;
       const lower = b[0];
       const upper = b[1];
@@ -281,11 +316,22 @@ export function decodeKitchenResponse(
         throw new TypeError("Inadmissible confidence set.");
     }
     if (
-      ["molecularNumber", "molecularInterval"].includes(output.quantityId) &&
+      ["molecularNumber", "molecularInterval", "molecularInputRange", "combinedMolecularInterval"].includes(output.quantityId) &&
       document.metadata.radius_provenance !== "independent"
     )
       throw new TypeError("Circular or undeclared radius.");
   }
+  if (u.state === "combined") {
+    const camera = outputs.find(o => o.quantityId === "combinedSamplingInterval");
+    if (camera?.status !== "value" || !(camera.value instanceof Float64Array) || !(camera.value[0]! > 0))
+      throw new TypeError("A zero-containing diffusion set has no finite upper molecular-number bound.");
+  }
+  const hasValue = (id: string) => outputs.some(o => o.quantityId === id && o.status === "value");
+  if (hasValue("combinedMolecularInterval") !== (u.state === "combined") ||
+      hasValue("molecularInputRange") !== (u.state !== "unavailable") ||
+      (hasValue("combinedSamplingInterval") && u.cameraCoverage === null) ||
+      (u.state === "combined" && (!hasValue("combinedSamplingInterval") || Object.keys(a.lostPairs).length > 0)))
+    throw new TypeError("Uncertainty results and coverage report disagree.");
   return {
     message: {
       ...input,

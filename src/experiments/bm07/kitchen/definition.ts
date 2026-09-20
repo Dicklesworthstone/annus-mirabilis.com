@@ -20,6 +20,9 @@ const contract = (unit: string, semanticKind: string): OutputContract => ({
   statuses: ["value", "underdetermined", "not-applicable"],
 });
 export const KITCHEN_OUTPUTS = Object.freeze({
+  molecularInputRange: contract("1/mol", "input-box-sensitivity-envelope"),
+  combinedMolecularInterval: contract("1/mol", "joint-input-camera-confidence-envelope"),
+  combinedSamplingInterval: contract("m2/s", "allocated-camera-confidence-set-at-nominal-scale"),
   naiveD: contract("m2/s", "uncorrected-observed-diffusivity"),
   correctedD: contract("m2/s", "noise-corrected-disjoint-pair-estimate"),
   noiseVariance: contract("m2", "stationary-click-coordinate-variance"),
@@ -36,7 +39,15 @@ export const KITCHEN_OUTPUTS = Object.freeze({
   pairTimes: contract("s", "pair-start-and-end-times"),
 });
 export type KitchenTrack = Readonly<{ key: string; label: string; indices: readonly number[] }>;
+export type KitchenUncertainty = Readonly<{
+  state: "unavailable" | "sensitivity" | "combined";
+  scaleExponent: -2 | -3 | null;
+  inputCoverage: number | null;
+  cameraCoverage: number | null;
+  combinedCoverage: number | null;
+}>;
 export type KitchenAnalysis = Readonly<{
+  uncertainty: KitchenUncertainty;
   options: KitchenOptions;
   tracks: readonly KitchenTrack[];
   selectedTrack: string;

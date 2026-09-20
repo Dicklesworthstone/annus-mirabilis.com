@@ -15,7 +15,13 @@ export const KITCHEN_COLUMNS = Object.freeze([
   "identity_decision",
 ] as const);
 export const KITCHEN_READER_COLUMNS = Object.freeze(KITCHEN_COLUMNS.slice(1));
+/** Optional, explicit joint input-box declarations. Legacy CSVs remain valid. */
+export const KITCHEN_UNCERTAINTY_KEYS = Object.freeze([
+  "pixels_per_um_x_interval", "pixels_per_um_y_interval", "viscosity_interval_mpa_s",
+  "gas_constant_interval", "radius_scale_axis", "physical_input_coverage", "physical_input_provenance",
+] as const);
 export const KITCHEN_METADATA_KEYS = Object.freeze([
+  ...KITCHEN_UNCERTAINTY_KEYS,
   "source_width_px",
   "source_height_px",
   "working_scale",
@@ -119,7 +125,7 @@ export function intervalMetadata(raw: string, field: string): readonly [number, 
   return Object.freeze([a, b]);
 }
 export function validateKitchenMetadata(input: Record<string, string>): KitchenMetadata {
-  const optional = new Set(["exposure_s", "data_origin", "radius_provenance"]);
+  const optional = new Set<string>(["exposure_s", "data_origin", "radius_provenance", ...KITCHEN_UNCERTAINTY_KEYS]);
   for (const key of KITCHEN_METADATA_KEYS)
     if (!(key in input) && !optional.has(key))
       throw new KitchenInputError(
@@ -128,6 +134,7 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
         "the metadata declaration is missing (a blank value is allowed for an unknown optional measurement).",
       );
   const m = {
+    ...Object.fromEntries(KITCHEN_UNCERTAINTY_KEYS.map(key => [key, ""])),
     ...input,
     exposure_s: input.exposure_s ?? "",
     data_origin: input.data_origin ?? "reader-supplied",
@@ -155,6 +162,7 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
   numeric("viscosity_mpa_s", 1e-6, 1e9, true);
   numeric("radius_um", 1e-6, 1e6, true);
   numeric("radius_interval_coverage", 0.001, 1, true);
+  numeric("physical_input_coverage", 0.001, 1, true);
   numeric("exposure_s", 0, 2, true);
   const choice = (k: MetadataKey, values: readonly string[]) => {
     if (!values.includes(m[k])) throw new KitchenInputError(0, k, `choose ${values.join(", ")}.`);
@@ -172,6 +180,9 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
   ]);
   choice("data_origin", ["reader-supplied", "synthetic"]);
   choice("radius_provenance", ["independent", "same-displacements", "unknown"]);
+  choice("radius_scale_axis", ["", "independent", "x", "y"]);
+  if (m.physical_input_coverage && !m.physical_input_provenance.trim())
+    throw new KitchenInputError(0, "physical_input_provenance", "describe the source and simultaneous-coverage basis of the complete input box; marginal coverage or click scatter alone is insufficient.");
   for (const axis of ["x", "y"] as const)
     if (
       (m.calibration_axes === axis || m.calibration_axes === "both") &&
@@ -186,6 +197,10 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
     ["temperature_interval_k", "temperature_k"],
     ["radius_interval_um", "radius_um"],
     ["calibration_interval_um", ""],
+    ["pixels_per_um_x_interval", "pixels_per_um_x"],
+    ["pixels_per_um_y_interval", "pixels_per_um_y"],
+    ["viscosity_interval_mpa_s", "viscosity_mpa_s"],
+    ["gas_constant_interval", ""],
   ] as const) {
     const range = intervalMetadata(m[k], k);
     if (

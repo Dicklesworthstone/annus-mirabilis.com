@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { allocateJointInputCoverage, cameraMolecularInputEnvelope } from "../physics/reference/inference/physicalUncertainty.ts";
 import { getConstantSet, constantValue } from "../physics/reference/constants.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 import { invertToMolecularNumber } from "../physics/reference/inference.ts";
 import { disjointPairsKnownNoiseInterval, stationaryClickNoiseEstimate } from "../physics/reference/inference/observation.ts";
 const set = getConstantSet("modern-si-2019"), R = constantValue(set,"molarGasConstant").value;
@@ -10,7 +11,7 @@ const interval = { lower: 1e-12, upper: 2e-12, q: 20, coverage: .95, coverageKin
 const box = () => ({ nominalScale: 1e-7, scale: [1e-7,1e-7], radius: [5e-7,5e-7],
   temperature: [293.15,293.15], viscosity: [.001,.001], gasConstant: [R,R], radiusCalibration: "independent-length" });
 const value = r => { assert.equal(r.kind,"accepted",JSON.stringify(r)); return r.data; };
-const near = (a,b) => assert.ok(Math.abs(a/b-1)<1e-12,`${a} != ${b}`);
+const near = (a,b) => assert.ok(withinTolerance(a,b,{relative:1e-12}).ok,`${a} != ${b}`);
 
 test("singleton input box reproduces the existing inversion owner",()=>{
  const b=box(), a=value(cameraMolecularInputEnvelope(interval,b,set,false));
@@ -31,7 +32,8 @@ for(const mode of ["independent-length","same-axis"]) test(`${mode}: every corne
  for(const s of b.scale) for(const a0 of b.radius) for(const T of b.temperature) for(const eta of b.viscosity) for(const gas of b.gasConstant) for(const D0 of [interval.lower,interval.upper]) {
   const D=D0*(s/b.nominalScale)**2, a=a0*(mode==="same-axis" ? s/b.nominalScale : 1);
   const N=gas*T/(6*Math.PI*eta*a*D);
-  assert.ok(N>=e.lower*(1-1e-14)&&N<=e.upper*(1+1e-14));
+  assert.ok((N>=e.lower || withinTolerance(N,e.lower,{relative:1e-12}).ok) &&
+    (N<=e.upper || withinTolerance(N,e.upper,{relative:1e-12}).ok));
  }
 });
 test("the allocated camera error plus joint input error does not exceed target error",()=>{

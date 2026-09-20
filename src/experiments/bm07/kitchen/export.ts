@@ -42,7 +42,7 @@ export function kitchenAnalysisJson(accepted: KitchenAccepted, sourceDigest: str
       results,
       observationsCsv: exportKitchenCsv(document),
       limits:
-        "Intervals are conditional on the admitted observation model. Calibration and physical-input uncertainty are not combined. An imported declaration is not proof that its assumptions hold.",
+        "Original intervals hold physical inputs fixed. Separate input-envelope outputs propagate declared ranges; combined coverage requires the recorded joint input coverage and camera allocation. Timing, exposure and model adequacy remain assumptions. An imported declaration is not proof that its assumptions hold.",
     },
     null,
     2,
