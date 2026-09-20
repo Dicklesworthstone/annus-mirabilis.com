@@ -797,22 +797,54 @@ Inherited from the donor's de-slopify rule and tightened. It applies to every vi
 
 ## Verification Commands (Available Once the Scaffold Lands)
 
+### Before you commit: seconds, and yours to run
+
+These are affordable enough that there is no excuse for skipping them, and between them they catch
+the two ways this repository has actually broken.
+
+```bash
+bun run check:types                        # 2.3s  tsc --noEmit AND the instrument registry, named separately
+bun run check:architecture                 # 0.3s  App Router root and root-file allowlist
+bunx biome check --write <your files>      #       YOUR changed files, by explicit path, never the repo
+bun test <the one test file you changed>   #       one file, not a lane
+ubs --diff
+ubs --staged
+```
+
+`bun run check:types` exists because `bun run typecheck` is **not** `tsc --noEmit`: it is
+`prepare:content && prepare:lab && prepare:offline && tsc --noEmit`, 34 generators before the
+typechecker, and its exit code cannot tell you which of the two failed. On 2026-09-20 it exited 1
+having printed no `error TS` line at all, because a generator threw and `tsc` never ran. The lane
+runs the checks separately and says which one broke. Both of that day's outages turn it red.
+
+Biome is run **on the files you changed, by explicit path**. Repo-wide `bun run lint` is currently
+red on files nobody in this batch authored, so it cannot be a pre-commit gate, and reformatting a
+file you only touched one line of buries your change in a diff nobody can review.
+
+### Central verify: minutes, and the orchestrator's to run
+
+Do not run these to check your own commit. They are expensive, they are shared, and four panes each
+running a full lane is four times the cost of the orchestrator running it once.
+
 ```bash
 bun run gates                              # full local gate chain (bun scripts/quality-gates.ts --fail-fast --family fast)
 bun scripts/quality-gates.ts --profile scaffold  # scaffold release profile verification
 bun scripts/quality-gates.ts --profile preview   # preview release profile verification
 bun scripts/quality-gates.ts --profile launch    # launch release profile verification
-bun run typecheck                          # tsc --noEmit, strict
-bun run lint                               # Biome
+bun run typecheck                          # the prepare chain, then tsc --noEmit
+bun run lint                               # Biome, repo-wide
 bun run format                             # Biome format
 bun run test                               # unit and integration tests (bun + node multi-runner)
+bun run test:node                          # the node lane, derived from bunfig pathIgnorePatterns
 bun run build                              # production build, including the content compiler
 bun scripts/verify-content.ts              # every compiler rejection plus Rules 0 to 2
 bun scripts/verify-wasm-artifacts.ts       # digests, instantiation, exports, Philox cross-check, refusals
 bun scripts/e2e-paper-vertical-slices.ts   # browser acceptance lanes with JSONL logs
-ubs --diff
-ubs --staged
 ```
+
+**Neither test lane typechecks anything.** `bun test` strips types and the node lane runs
+`node --experimental-strip-types`, which also strips them, so a green suite says nothing about
+whether the repository compiles. That is what `bun run check:types` is for.
 
 Until a command exists, do not report it as passing.
 
