@@ -450,23 +450,50 @@ describe("Reviewer Briefs and Owners Table Suite", () => {
     });
 
     it("planted negative: catches superseded statement in bad fixture", () => {
+      // am-gov-owners-and-reviewers-hte item 3. This fixture used to carry three
+      // of the five rules and assert `violations.length >= 3`, so "$k$ from 1 to"
+      // and "60 s displacement without constant set" were never exercised: either
+      // could have stopped matching and the suite would have stayed green. I
+      // checked before writing the lines rather than after - both fire on a
+      // plausible bad line today - so this pins working rules rather than
+      // discovering broken ones.
       const badFixture = `
 # Physics Brief with Defect
 Printed elementary charge is used.
 $R$ and $L$ called 'printed constants' in paper 1.
 The spelling gasConstant is used directly.
+We let $k$ from 1 to N index the oscillators.
+The 60 s displacement is 6.156365 micrometres.
 `;
       const violations = checkSupersededPhrases(badFixture);
-      assert.ok(
-        violations.length >= 3,
-        "Planted negative fixture must detect all superseded phrases",
-      );
       assert.ok(violations.some((v) => v.phrase === "printed elementary charge" && v.line === 3));
+
+      // The pawl: every rule must be exercised by this fixture. A sixth rule added
+      // without a line here turns this red, which is the only thing that keeps the
+      // fixture growing alongside the rules instead of falling behind them.
+      assert.deepEqual(
+        new Set(violations.map((v) => v.phrase)),
+        new Set(SUPERSEDED_PHYSICS_RULES.map((rule) => rule.name)),
+        "every superseded rule needs a line in the planted fixture, or it is unproven",
+      );
       logCheck(
         "physics-planted-negative",
         "badFixture",
         "passed",
-        "Planted negative fixture detected superseded phrases with line numbers",
+        "Planted negative fixture exercises every superseded rule with line numbers",
+      );
+    });
+
+    it("control: a 60 s displacement stated WITH its constant set is not flagged", () => {
+      // Without this the rule above could be a blunt match on "60 s displacement"
+      // and the planted negative would look exactly the same. physics.md itself
+      // states that figure, so a blunt rule would refuse the shipped brief.
+      const legitimate =
+        "The 60 s displacement under the einstein-1905 constant set is about 6 micrometres.";
+      assert.deepEqual(
+        checkSupersededPhrases(legitimate),
+        [],
+        "the rule must key on the missing constant set, not on the phrase",
       );
     });
   });
