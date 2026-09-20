@@ -63,18 +63,22 @@ export interface ConformanceReport {
 }
 
 export interface WorkerChannel {
-  postMessage: (msg: unknown, transfer?: any[]) => void;
-  onmessage: ((ev: any) => void) | null;
+  postMessage: (msg: unknown, transfer?: Transferable[]) => void;
+  onmessage: ((ev: { data: unknown }) => void) | null;
   terminate?: () => void;
 }
 
-function requestResponse(channel: WorkerChannel, msg: unknown, transfer?: any[]): Promise<unknown> {
+function requestResponse(
+  channel: WorkerChannel,
+  msg: unknown,
+  transfer?: Transferable[],
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       reject(new Error(`Timeout waiting for worker response to ${JSON.stringify(msg)}`));
     }, 2000);
 
-    channel.onmessage = (ev: any) => {
+    channel.onmessage = (ev: { data: unknown }) => {
       clearTimeout(timeout);
       channel.onmessage = null;
       resolve(ev.data ?? ev);
@@ -118,6 +122,11 @@ export async function runProtocolConformance(
     const start = performance.now();
     let passed = false;
     let message = "";
+    // `any` is deliberate and measured (am-6iz4). `details` is a free-form failure-dump
+    // payload: each step returns a different shape and the dump reads details?.rawMessage,
+    // details?.decodeContext and the per-step fields directly. Typing it `unknown` gives 13
+    // TypeScript errors at those reads, so removing the `any` here is a refactor of the dump
+    // schema rather than a lint fix, and it belongs to whoever owns this harness.
     let details: any;
 
     try {
@@ -125,9 +134,9 @@ export async function runProtocolConformance(
       passed = res.passed;
       message = res.message;
       details = res.details;
-    } catch (err: any) {
+    } catch (err: unknown) {
       passed = false;
-      message = err.message ?? String(err);
+      message = err instanceof Error ? err.message : String(err);
     }
     const durationMs = performance.now() - start;
 
@@ -197,7 +206,7 @@ export async function runProtocolConformance(
   try {
     // 1. Hello and negotiation
     await step("conformance-hello", async () => {
-      const resp: any = await requestResponse(worker, { messageKind: "hello" });
+      const resp = await requestResponse(worker, { messageKind: "hello" });
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 0,
@@ -235,7 +244,7 @@ export async function runProtocolConformance(
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
 
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 0,
@@ -273,7 +282,7 @@ export async function runProtocolConformance(
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
 
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 1,
@@ -312,7 +321,7 @@ export async function runProtocolConformance(
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
 
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 2,
@@ -356,7 +365,7 @@ export async function runProtocolConformance(
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
 
-      const envelope: any = await requestResponse(worker, req);
+      const envelope = await requestResponse(worker, req);
       const mapped = mapFrankenSimRefusalEnvelope(
         envelope,
         { instanceId, runId, actionIndex: 4, revisions: req.revisions },
@@ -399,7 +408,7 @@ export async function runProtocolConformance(
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
 
-      const envelope: any = await requestResponse(worker, req);
+      const envelope = await requestResponse(worker, req);
       const mapped = mapFrankenSimRefusalEnvelope(
         envelope,
         { instanceId, runId, actionIndex: 5, revisions: req.revisions },
@@ -443,7 +452,7 @@ export async function runProtocolConformance(
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
 
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 5,
@@ -487,7 +496,7 @@ export async function runProtocolConformance(
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
 
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 5,
@@ -528,7 +537,7 @@ export async function runProtocolConformance(
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
 
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 8,
@@ -569,7 +578,7 @@ export async function runProtocolConformance(
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
 
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 8,
@@ -609,7 +618,7 @@ export async function runProtocolConformance(
         operation: "evaluate",
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 5,
@@ -664,7 +673,7 @@ export async function runProtocolConformance(
         operation: "evaluate",
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 5, // instance has accepted actionIndex 5
@@ -717,7 +726,7 @@ export async function runProtocolConformance(
         operation: "evaluate",
         workBudget: { maxSteps: 100, maxAllocationBytes: 1048576 },
       };
-      const resp: any = await requestResponse(worker, req);
+      const resp = await requestResponse(worker, req);
       const context: DecodeContext = {
         runId,
         acceptedActionIndex: 5,
