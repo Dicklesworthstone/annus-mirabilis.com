@@ -470,3 +470,48 @@ describe("segmentation validation: contiguity and non-overlap", () => {
     ).toBe(true);
   });
 });
+
+describe("a heading becomes a section by its id SHAPE, not by beginning with s (am-o44v)", () => {
+  const ledger = (headings: readonly string[]): string =>
+    [
+      "--- REVIEWED TRANSCRIPTION PAGE 1 OF 1 ---",
+      ...headings.flatMap((h) => [h, "Ein Satz folgt der Ueberschrift."]),
+    ].join("\n");
+
+  test("real section headings still open a section and reset the counters", () => {
+    // s0 through s10 are the shapes the corpus uses.
+    const result = segmentLedger({ ledgerText: ledger(["[[HEADING s1]]", "[[HEADING s2]]"]) });
+    expect(result.status).toBe("proposed");
+    if (result.status !== "proposed") return;
+    const ids = result.blocks.map((b) => b.id);
+    expect(ids).toContain("s1");
+    expect(ids).toContain("s2");
+    // The paragraph under each heading is numbered from that section, which is
+    // what the counter reset produces.
+    expect(ids.some((id) => id.startsWith("s1-p"))).toBe(true);
+    expect(ids.some((id) => id.startsWith("s2-p"))).toBe(true);
+  });
+
+  test("a part heading is a part, not a section", () => {
+    const result = segmentLedger({ ledgerText: ledger(["[[PART-HEADING part-1]]"]) });
+    expect(result.status).toBe("proposed");
+    if (result.status !== "proposed") return;
+    const part = result.blocks.find((b) => b.id === "part-1");
+    expect(part?.kind).toBe("part-heading");
+  });
+
+  // The control for the shape test itself: the guard used to be
+  // id.startsWith("s"), which "summary", "sources" and "sigma" all satisfy.
+  // headingId keeps them out today by returning the raw line for anything it
+  // cannot parse, so this asserts the invariant rather than a live bug - if
+  // headingId's fallback ever changes, a stray heading must not silently
+  // become a section and renumber every paragraph after it.
+  test("a heading id that merely begins with s does not open a section", () => {
+    for (const id of ["summary", "sources", "sigma", "scenario-a"]) {
+      expect(/^s\d+$/.test(id)).toBe(false);
+    }
+    for (const id of ["s0", "s1", "s10"]) {
+      expect(/^s\d+$/.test(id)).toBe(true);
+    }
+  });
+});

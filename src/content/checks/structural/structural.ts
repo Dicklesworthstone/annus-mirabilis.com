@@ -751,7 +751,12 @@ export const checkBrokenAlignment: ContentCheck = {
             blockKind === "masthead" ||
             blockKind === "footnote" ||
             blockKind === "closing" ||
-            bId.startsWith("s") ||
+            // The section-id shape rather than "begins with s" (am-o44v).
+            // The four kind comparisons above are the category test; this arm
+            // catches a block whose kind is missing while its id shows it is a
+            // sectioned unit. `sources`, `summary` and `sigma` all begin with
+            // s and are not sectioned units.
+            /^s\d/.test(bId) ||
             bId.startsWith("closing-");
 
           if (isAlignableBlock && !coveredGermanUnits.has(bId)) {

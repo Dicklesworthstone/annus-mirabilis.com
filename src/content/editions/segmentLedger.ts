@@ -237,7 +237,13 @@ export function segmentLedger(input: {
     if (heading) {
       flushParagraph();
       const id = headingId(line);
-      if (id.startsWith("s")) {
+      // The section-id SHAPE, not "begins with s" (am-o44v). headingId returns
+      // `part-N`, `s<n>`, or the raw line as a fallback, so today only `s<n>`
+      // can reach this branch - but that is an invariant held two functions
+      // away. Expressed locally, `summary`, `sources` or `sigma` cannot silently
+      // become a section and reset the paragraph, equation and footnote
+      // counters for everything that follows.
+      if (/^s\d+$/.test(id)) {
         section = id;
         paragraph = 0;
         equationCounter = 0;
