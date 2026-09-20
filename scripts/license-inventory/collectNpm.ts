@@ -82,6 +82,46 @@ function findLicenseFile(
   return {};
 }
 
+/**
+ * am-o44v. Last-resort licence identification from the licence TEXT, used only when a package
+ * declares no license field. It classified by substring, and one of those substrings is shared:
+ * "Redistribution and use in source and binary forms" opens BSD-2-Clause as well as BSD-3-Clause.
+ * The clause that distinguishes them is the third one, "Neither the name ... may be used to
+ * endorse". Without it the old code still answered BSD-3-Clause.
+ *
+ * Measured on an installed package: node_modules/entities declares BSD-2-Clause, its LICENSE has
+ * the shared opening and no third clause, and this function used to call it BSD-3-Clause. Latent
+ * rather than live only because entities declares its licence, so the fallback is not reached.
+ *
+ * Where the text cannot distinguish, this now returns undefined so the caller records UNKNOWN. A
+ * licence is a rights claim: an honest unknown is correct where a confident wrong answer is not,
+ * and refusing asserts nothing new.
+ */
+export function licenseFromText(licenseText: string): string | undefined {
+  if (
+    licenseText.includes("MIT License") ||
+    licenseText.includes("Permission is hereby granted, free of charge")
+  ) {
+    return "MIT";
+  }
+  if (licenseText.includes("Apache License") && licenseText.includes("Version 2.0")) {
+    return "Apache-2.0";
+  }
+  if (licenseText.includes("ISC License")) {
+    return "ISC";
+  }
+  if (licenseText.includes("BSD 3-Clause")) {
+    return "BSD-3-Clause";
+  }
+  if (licenseText.includes("Redistribution and use in source and binary forms")) {
+    // Shared by the 2-, 3- and 4-clause BSD families. Only the third clause separates them.
+    const hasThirdClause =
+      licenseText.includes("Neither the name") || licenseText.includes("neither the name");
+    return hasThirdClause ? "BSD-3-Clause" : undefined;
+  }
+  return undefined;
+}
+
 export function collectNpm(options: CollectNpmOptions): {
   production: LicenseItem[];
   tools: LicenseItem[];
@@ -152,21 +192,7 @@ export function collectNpm(options: CollectNpmOptions): {
       found.licensePath === undefined ? undefined : relative(rootDir, found.licensePath);
 
     if (!license && licenseText) {
-      if (
-        licenseText.includes("MIT License") ||
-        licenseText.includes("Permission is hereby granted, free of charge")
-      ) {
-        license = "MIT";
-      } else if (licenseText.includes("Apache License") && licenseText.includes("Version 2.0")) {
-        license = "Apache-2.0";
-      } else if (
-        licenseText.includes("BSD 3-Clause") ||
-        licenseText.includes("Redistribution and use in source and binary forms")
-      ) {
-        license = "BSD-3-Clause";
-      } else if (licenseText.includes("ISC License")) {
-        license = "ISC";
-      }
+      license = licenseFromText(licenseText) ?? "";
     }
 
     if (!license) {
