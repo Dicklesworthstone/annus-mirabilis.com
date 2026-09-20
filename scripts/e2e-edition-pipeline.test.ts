@@ -158,7 +158,17 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     const paperPath = join(root, "content/papers/brownian-motion.json");
     writeFileSync(paperPath, "{ not json", "utf8");
     const red = await runEditionPipeline({ slug: "brownian-motion", root });
-    expect(stageOf(red, "compile")?.outcome).toBe("failed");
+    const compileRed = stageOf(red, "compile");
+    expect(compileRed?.outcome).toBe("failed");
+    // The refusal code matters, not just the failure. This stage has two failure
+    // paths - the compiler REPORTING errors (compile-errors) and the compiler or the
+    // loader THROWING (compile-threw) - and asserting only "failed" would accept
+    // either, so a corrupted record that crashed the loader instead of producing
+    // diagnostics would still read as proof that diagnostics are surfaced.
+    expect(compileRed?.code).toBe("compile-errors");
+    expect(compileRed?.message).toMatch(/Content compiler reported \d+ error\(s\)/);
+    // The findings are kept, not just counted, so the failure can be diagnosed later.
+    expect((compileRed?.evidence ?? []).length).toBeGreaterThan(0);
 
     // An empty corpus compiles trivially. Reporting that as a pass would say the paper's
     // records are sound when none were read.
