@@ -171,9 +171,16 @@ async function runChecks(
   browserName: "chromium" | "webkit",
   browser: Browser,
   baseUrl: string,
+  options: {
+    /** Installed before the first navigation; used to plant a defect in a built asset. */
+    readonly prepare?: (page: import("playwright").Page) => Promise<void>;
+    /** Distinguishes a plant's entries from the real run's in the same log. */
+    readonly logPrefix?: string;
+  } = {},
 ): Promise<CheckOutcome[]> {
   const context = await browser.newContext({ viewport: { ...VIEWPORT } });
   const page = await context.newPage();
+  if (options.prepare) await options.prepare(page);
   const consoleLines: string[] = [];
   const requests: string[] = [];
   page.on("console", (m) => consoleLines.push(`[${m.type()}] ${m.text()}`));
@@ -197,7 +204,7 @@ async function runChecks(
     results.push(outcome);
     appendUiExtractionLog({
       logRunId: LOG_RUN_ID,
-      testId: `am-ahyb/${check}`,
+      testId: `am-ahyb/${options.logPrefix ?? ""}${check}`,
       outcome: outcome.ok ? "pass" : "fail",
       durationMs: performance.now() - started,
       message: outcome.message,
@@ -442,6 +449,95 @@ test("am-ahyb: the five extracted-chrome checks, in both engines, against the bu
     `checks failed on the built site:\n${failures.join("\n")}\n` +
       `Evidence under artifacts/test-logs/ui-extraction/${LOG_RUN_ID}/evidence/.`,
   );
+});
+
+/**
+ * Removes the palette's keyboard shortcut from the built chunk that binds it.
+ *
+ * TWO PLANTS FAILED TO FAIL BEFORE THIS ONE, and the reason is worth keeping.
+ *
+ * The bead asks for "a removed Escape handler fails the palette check only". I
+ * wrote that first: rewriting the chunk's `"Escape"!==e.key` guard, which is the
+ * handler at CommandPalette.ts:298, changed nothing observable in either engine.
+ * Then I targeted focus restoration, `o.focus({preventScroll:!0})` from
+ * CommandPalette.ts:146, and that changed nothing either. Both rewrites hit real
+ * chunks - the counters proved it - and the palette check stayed green.
+ *
+ * The cause is the platform. The palette is a native `<dialog>` opened with
+ * `showModal()` at CommandPalette.ts:349, so the browser closes it on Escape and
+ * returns focus to the element that was focused when it opened, whether or not
+ * any script asks. The product's own Escape and focus code is belt and braces
+ * over behaviour the platform already guarantees.
+ *
+ * That is a real limit on what the criterion's Escape clause can prove, and it is
+ * reported rather than papered over. What IS the product's alone is the shortcut:
+ * `"k"!==e.key.toLowerCase()` in the layout chunk, bound by launcher.ts with no
+ * platform fallback. Remove it and the palette cannot open at all.
+ *
+ * Returns how many responses were rewritten, because a plant that matched nothing
+ * would leave every check green and read as proof of robustness.
+ */
+function breakPaletteShortcut(rewritten: { count: number }) {
+  const TARGET = '"k"!==e.key.toLowerCase()';
+  return async (page: import("playwright").Page): Promise<void> => {
+    await page.route("**/_next/static/chunks/**/*.js", async (route) => {
+      const response = await route.fetch();
+      const body = await response.text();
+      if (!body.includes(TARGET)) {
+        await route.fulfill({ response, body });
+        return;
+      }
+      rewritten.count += 1;
+      await route.fulfill({
+        response,
+        body: body.split(TARGET).join('"am-ahyb-no-such-key"!==e.key.toLowerCase()'),
+      });
+    });
+  };
+}
+
+test("am-ahyb planted negative: removing the shortcut fails the palette check only", async (t) => {
+  if (!existsSync(join(OUT_DIR, "index.html"))) {
+    t.skip("out/index.html is absent: not-available, not a pass.");
+    return;
+  }
+  const { baseUrl, server } = await startStaticServer();
+  try {
+    for (const engine of ENGINES) {
+      const browser = await engine.launcher.launch();
+      try {
+        const rewritten = { count: 0 };
+        const outcomes = await runChecks(engine.name, browser, baseUrl, {
+          prepare: breakPaletteShortcut(rewritten),
+          logPrefix: "plant-no-shortcut/",
+        });
+
+        // Reachability, before any claim about what the plant proves: the rewrite
+        // has to have hit something. Zero rewrites with everything still passing
+        // would look exactly like "removing the handler is harmless".
+        assert.ok(
+          rewritten.count > 0,
+          `${engine.name}: no built chunk contained the shortcut guard, so this plant changed nothing`,
+        );
+
+        const failed = outcomes.filter((o) => !o.ok).map((o) => o.check);
+        assert.deepEqual(
+          failed,
+          ["command-palette"],
+          `${engine.name}: removing the shortcut must fail the palette check and only that one`,
+        );
+        const palette = outcomes.find((o) => o.check === "command-palette");
+        assert.ok(
+          palette?.message.includes("Timeout") || palette?.message.includes("visible"),
+          `${engine.name}: the failure must be the dialog never appearing, not some other breakage: ${palette?.message}`,
+        );
+      } finally {
+        await browser.close();
+      }
+    }
+  } finally {
+    await new Promise<void>((done) => server.close(() => done()));
+  }
 });
 
 test("am-ahyb planted negative: a remote script breaks the network check and nothing else", async (t) => {
