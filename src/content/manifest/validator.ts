@@ -287,10 +287,12 @@ export function validateManifest(
         );
       } else {
         const isParentValid =
-          parent.kind === "paragraph" ||
-          parent.kind === "footnote" ||
-          parent.kind === "heading" ||
-          parent.kind === "section-heading";
+          unit.kind === "sentence"
+            ? parent.kind === "paragraph"
+            : parent.kind === "paragraph" ||
+              parent.kind === "footnote" ||
+              parent.kind === "heading" ||
+              parent.kind === "section-heading";
         if (!isParentValid) {
           addDiag(
             "error",
@@ -582,6 +584,50 @@ export function validateManifest(
             {
               unitId: missingId,
               repair: `Register an alias in content/aliases/ for '${missingId}' or renumber.`,
+            },
+          );
+        }
+      }
+    }
+  }
+
+  // Group sentences by paragraph (am-xz2d decision 1). The same shape as the paragraph
+  // rule one level down: s1-p1-s1 and s1-p1-s3 without s1-p1-s2 is a gap, and an alias
+  // record explains it exactly as it explains a retired paragraph.
+  const paragraphSentences = new Map<string, number[]>();
+  for (const unit of manifest.units) {
+    if (unit.kind === "sentence") {
+      const match = unit.id.match(/^(s\d+-p\d+)-s(\d+)$/);
+      if (match?.[1] && match[2]) {
+        const paragraphId = match[1];
+        const sNum = Number.parseInt(match[2], 10);
+        const list = paragraphSentences.get(paragraphId) ?? [];
+        list.push(sNum);
+        paragraphSentences.set(paragraphId, list);
+      }
+    }
+  }
+
+  for (const [paragraphId, sNums] of paragraphSentences.entries()) {
+    if (sNums.length === 0) continue;
+    const sorted = [...sNums].sort((a, b) => a - b);
+    const minS = sorted[0];
+    const maxS = sorted[sorted.length - 1];
+    if (minS === undefined || maxS === undefined) continue;
+    const numSet = new Set(sorted);
+
+    for (let s = minS; s <= maxS; s++) {
+      if (!numSet.has(s)) {
+        const missingId = `${paragraphId}-s${s}`;
+        const gapStatus = explainGap(missingId, aliases);
+        if (gapStatus.status === "unexplained") {
+          addDiag(
+            "error",
+            "sequence-gap",
+            `Unexplained sentence sequence gap: missing '${missingId}'. Must have a registered alias record or consecutive numbering.`,
+            {
+              unitId: missingId,
+              repair: `Register an alias in content/aliases/ for '${missingId}' or renumber the sentences of '${paragraphId}'.`,
             },
           );
         }

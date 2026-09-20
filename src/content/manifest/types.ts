@@ -43,6 +43,11 @@ export const MANIFEST_UNIT_KINDS = [
   "part-heading",
   "section-heading",
   "paragraph",
+  // am-xz2d decision 1, owner ruling 2026-09-20, verbatim option "Add a sentence kind":
+  // a sentence is a unit in its own right (id `s<n>-p<m>-s<k>`, contained in its
+  // paragraph), not a list of ids hanging off the paragraph. The inventories named this
+  // gap themselves - see `unfrozenRequiredUnitKinds` in the special-relativity manifest.
+  "sentence",
   "equation",
   "display-equation",
   "inline-equation",

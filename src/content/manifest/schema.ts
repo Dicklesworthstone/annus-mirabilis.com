@@ -4,7 +4,7 @@
  * Spec: AGENTS.md and am-cm-source-manifest-6qa
  */
 
-import { parseBibKey } from "../ids.ts";
+import { parseBibKey, parseSentenceId } from "../ids.ts";
 import type {
   ManifestLocator,
   ManifestUnit,
@@ -13,6 +13,7 @@ import type {
   SourceManifestExport,
   SourceManifestImport,
 } from "./types.ts";
+import { MANIFEST_UNIT_KINDS } from "./types.ts";
 
 export class ManifestSchemaError extends Error {
   readonly code: string;
@@ -261,6 +262,68 @@ export function validateSourceManifest(raw: unknown, filePath = "manifest"): Sou
         `Unit '${u.id}' requires a kind.`,
         `${unitPath}.kind`,
       );
+    }
+
+    // MANIFEST_UNIT_KINDS is specified as a one-to-one map onto SourceBlock kinds
+    // (am-cm-source-manifest-6qa requirement 2), but nothing read it: measured on
+    // 2026-09-20, the constant had no consumer outside its own type alias and the
+    // barrel export, so any string passed. The four manifests use 11 kinds and all 11
+    // are in the list, so this refusal rejects nothing that exists today; what it stops
+    // is the next invented kind entering a manifest unannounced.
+    if (!(MANIFEST_UNIT_KINDS as readonly string[]).includes(u.kind)) {
+      throw new ManifestSchemaError(
+        "unknown-unit-kind",
+        `Unit '${u.id}' has kind '${u.kind}', which is not one of the ${MANIFEST_UNIT_KINDS.length} manifest unit kinds: ${MANIFEST_UNIT_KINDS.join(", ")}.`,
+        `${unitPath}.kind`,
+      );
+    }
+
+    // A sentence is a unit (am-xz2d decision 1). Authoring sentence ids as a list on
+    // another unit is the draft form: before the ruling the field was copied nowhere and
+    // vanished with no diagnostic, so an editor could commit sentence ids and lose them.
+    if (u.sentenceIds !== undefined) {
+      throw new ManifestSchemaError(
+        "draft-sentence-ids",
+        `Unit '${u.id}' carries a 'sentenceIds' list. Sentences are units of kind 'sentence' with ids 's<n>-p<m>-s<k>' contained in their paragraph, not a list on another unit (am-xz2d decision 1). This field was previously discarded without a diagnostic.`,
+        `${unitPath}.sentenceIds`,
+        `Replace the list with one unit of kind 'sentence' per sentence, each with containedIn: '${u.id}'.`,
+        String(u.id),
+      );
+    }
+
+    if (u.kind === "sentence") {
+      const parsedSentenceId = parseSentenceId(String(u.id));
+      if (!parsedSentenceId.ok) {
+        throw new ManifestSchemaError(
+          "invalid-sentence-id",
+          parsedSentenceId.error,
+          `${unitPath}.id`,
+          `Use the sentence id grammar 's<n>-p<m>-s<k>'.`,
+          String(u.id),
+        );
+      }
+      // The id already names its paragraph, so containedIn cannot be guessed wrong
+      // without the two disagreeing. Requiring both keeps the parent link explicit and
+      // checkable rather than inferred at read time.
+      const owningParagraph = String(u.id).replace(/-s\d+$/, "");
+      if (typeof u.containedIn !== "string" || !u.containedIn.trim()) {
+        throw new ManifestSchemaError(
+          "sentence-missing-containedin",
+          `Sentence unit '${u.id}' requires containedIn naming its paragraph '${owningParagraph}'.`,
+          `${unitPath}.containedIn`,
+          `Add containedIn: '${owningParagraph}'.`,
+          String(u.id),
+        );
+      }
+      if (u.containedIn !== owningParagraph) {
+        throw new ManifestSchemaError(
+          "sentence-containedin-mismatch",
+          `Sentence unit '${u.id}' is containedIn '${u.containedIn}', but its id names paragraph '${owningParagraph}'.`,
+          `${unitPath}.containedIn`,
+          `Set containedIn: '${owningParagraph}' or renumber the sentence.`,
+          String(u.id),
+        );
+      }
     }
 
     // Validate locators
