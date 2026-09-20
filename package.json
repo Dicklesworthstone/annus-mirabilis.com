@@ -37,6 +37,8 @@
     "test:replay": "node --experimental-strip-types --test src/reader/notebook/*.test.mjs scripts/generate-notebook-replay.test.mjs",
     "test:replay:browser": "node --experimental-strip-types scripts/e2e/explanationReplay.mjs",
     "test:missing-steps": "node --experimental-strip-types --test src/equations/missingStep/*.test.mjs src/physics/reference/stepEnumeration.test.mjs",
+    "test:ui-extraction:browser": "node --experimental-strip-types --test scripts/e2e/uiExtraction.e2e.test.ts",
+    "test:light-thread:browser": "node --experimental-strip-types --test scripts/e2e/lightThread.e2e.test.ts",
     "test:mass-energy:browser": "bun scripts/test-mass-energy-browser.mjs"
   },
   "dependencies": {
