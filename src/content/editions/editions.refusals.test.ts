@@ -17,9 +17,9 @@
  *   10. (brownianInventory.ts:264) paper-overclaimed
  */
 
-import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import yaml from "js-yaml";
@@ -188,7 +188,11 @@ describe("Editions Refusal Sites", () => {
         bibliographicKey: "ap-17-549",
         facsimileDigest: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f",
         ledgerDigest: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-        editors: ["ed-albert"],
+        // A human who is actually assigned in docs/OWNERS.md. This fixture said
+        // "ed-albert", who is in no registry; the validator only checked spelling, so
+        // the surrounding test could call that id "recognized" without anything
+        // recognizing it.
+        editors: ["jemanuel"],
         reconciliationRunId: "run-2026-09-18",
       };
     }
@@ -234,10 +238,57 @@ describe("Editions Refusal Sites", () => {
         assert.ok(res.issues.some((i) => i.code === "unknown-editor"));
       });
 
-      it("accepts recognized human editor identifier (editionDeclaration.ts:77)", () => {
+      it("accepts a human editor who is assigned in docs/OWNERS.md (editionDeclaration.ts:77)", () => {
         const raw = createValidDeclaration();
         const res = validateEditionDeclaration(raw);
         assert.ok(!res.issues.some((i) => i.code === "unknown-editor"));
+      });
+
+      it("reports unknown-editor for a well-formed id that is in no registry", () => {
+        // The historical fixture. It spells like an id and belongs to nobody.
+        const raw = { ...createValidDeclaration(), editors: ["ed-albert"] };
+        const res = validateEditionDeclaration(raw);
+        assert.equal(res.ok, false);
+        assert.ok(res.issues.some((i) => i.code === "unknown-editor"));
+        assert.ok(res.issues.some((i) => i.message.includes("docs/OWNERS.md")));
+      });
+
+      it("reports editor-not-assigned for an unfilled recruiting slot", () => {
+        // Listed in OWNERS.md, and not a person: status "open: recruiting".
+        const raw = {
+          ...createValidDeclaration(),
+          editors: ["open-german-source-brownian-motion"],
+        };
+        const res = validateEditionDeclaration(raw);
+        assert.equal(res.ok, false);
+        assert.ok(res.issues.some((i) => i.code === "editor-not-assigned"));
+        // Presence in the registry is not enough, and the message says which rule bit.
+        assert.ok(!res.issues.some((i) => i.code === "unknown-editor"));
+      });
+
+      it("also reports model-only-editors when the list's only human is an unfilled slot", () => {
+        // The second emit site of that code. The first says "this list is all models";
+        // this one says "this list names no human the registry can vouch for", which an
+        // unfilled recruiting slot is. Both are the section D rule that a declaration
+        // carries at least one human editor, and a declaration that reported only the
+        // per-editor issue would leave the list looking one repair away from valid.
+        const raw = {
+          ...createValidDeclaration(),
+          editors: ["open-german-source-brownian-motion"],
+        };
+        const res = validateEditionDeclaration(raw);
+        assert.equal(res.ok, false);
+        assert.ok(res.issues.some((i) => i.code === "model-only-editors"));
+        assert.ok(res.issues.some((i) => i.code === "editor-not-assigned"));
+      });
+
+      it("reports owners-registry-unavailable rather than passing when OWNERS.md cannot be read", () => {
+        // An unreadable registry must not restore the permissive behaviour: a check
+        // that could not look has not looked.
+        const raw = createValidDeclaration();
+        const res = validateEditionDeclaration(raw, { repoRoot: "/nonexistent/repo/root" });
+        assert.equal(res.ok, false);
+        assert.ok(res.issues.some((i) => i.code === "owners-registry-unavailable"));
       });
     });
 
