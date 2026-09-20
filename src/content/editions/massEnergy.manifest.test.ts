@@ -2,14 +2,20 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import { resolveAlias, validateAliasRecord } from "../aliases.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../frozenIds.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
 import { validateManifest } from "../manifest/validator.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
+import { resolveEquationPage } from "../provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../provenance/receiptToSourceAsset.ts";
 import { parseYaml } from "../provenance/yaml.ts";
-import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
+import {
+  type ManifestUnitLike,
+  type PageMapEntryLike,
+  reconcilePageMapAgainstManifest,
+} from "./pageMapReconciliation.ts";
 
 const ROOT = process.cwd();
 const MASS_ENERGY_BEAD = "am-edn-inventory-mass-energy-g2d";
@@ -441,7 +447,9 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     expect(content).toContain("## 4. Verification flags");
 
     // Notation section explicitly addresses beta
-    const notationSection = content.split("## 2. Notation difficulties")[1]?.split("## 3. Segmentation decisions")[0];
+    const notationSection = content
+      .split("## 2. Notation difficulties")[1]
+      ?.split("## 3. Segmentation decisions")[0];
     expect(notationSection).toBeDefined();
     expect(notationSection?.toLowerCase()).toContain("beta");
     expect(notationSection).toContain("NOT printed");
@@ -530,9 +538,7 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     expect(mutatedResult.ok).toBe(false);
     expect(mutatedResult.missingCount).toBe(1);
     expect(
-      mutatedResult.findings.some(
-        (f) => f.kind === "frozen-id-missing" && f.id === "eq-s0-d7",
-      ),
+      mutatedResult.findings.some((f) => f.kind === "frozen-id-missing" && f.id === "eq-s0-d7"),
     ).toBe(true);
 
     logger.log({
@@ -543,6 +549,104 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
       comparisonKind: "bitwise",
       message: "Snapshot equals manifest IDs; removing frozen ID fails validation.",
       extra: { check: "snapshot-alias" },
+    });
+  });
+  test("the receipt page map reconciles with the manifest, page by page", () => {
+    const logger2 = new TestLogger("manifest-mass-energy", newRunIdentity());
+    const manifest = validateSourceManifest(
+      parseYaml(
+        readFileSync(join(ROOT, "content/source-blocks/mass-energy/manifest.yaml"), "utf8"),
+      ),
+      "manifest.yaml",
+    );
+    const receiptPath = join(ROOT, "docs/provenance/ap-18-639.md");
+    const pageMap = parseReceipt(readFileSync(receiptPath, "utf8"), receiptPath).frontMatter
+      ?.pageMap;
+    expect(Array.isArray(pageMap)).toBe(true);
+    expect(pageMap!.length).toBe(3);
+
+    const sectionIds = Array.from({ length: 0 + 1 }, (_value, index) => `s${index}`);
+    const units = manifest.units as readonly ManifestUnitLike[];
+    const entries = pageMap as unknown as readonly PageMapEntryLike[];
+
+    // Nothing in the tree compared a page map with its manifest until 2026-09-19. The Brownian
+    // receipt turned out to disagree with its own manifest in 33 places; this asserts that this
+    // paper's does not, field by field, across sections, numbered labels, unnumbered display ids,
+    // footnote marks and the refinement stamp.
+    // This paper has no printed sections, and its manifest omits the `section` field entirely, so
+    // the reconciliation reads the section from the id prefix as the id scheme prescribes.
+    expect(
+      reconcilePageMapAgainstManifest(
+        units,
+        entries,
+        "am-edn-inventory-mass-energy-g2d",
+        sectionIds,
+      ),
+    ).toEqual([]);
+
+    // Not vacuous: the map actually carries the things a stub would leave empty.
+    const unnumbered = entries.flatMap((entry) => entry.displayEquations?.unnumberedIds ?? []);
+    const displays = units.filter((unit) => unit.kind === "display-equation");
+    expect(unnumbered.length).toBeGreaterThan(0);
+    expect(new Set(unnumbered).size).toBe(
+      displays.filter((d) => d.originalLabel === undefined).length,
+    );
+    expect(resolveEquationPage(pageMap!, "eq-s0-d1")).toBe(1);
+
+    // `receipt-pagemap-refined-no-unnumbered-ids` refuses a `refinedBy` stamp on an entry whose
+    // `unnumberedIds` is empty, so the stamp is expected exactly on the pages that have one. Here
+    // that leaves no page without a display equation, so every entry is stamped.
+    const stamped = entries.filter((entry) => entry.refinedBy !== undefined);
+    expect(stamped).toHaveLength(3);
+    expect(new Set(stamped.map((entry) => entry.refinedBy))).toEqual(
+      new Set(["am-edn-inventory-mass-energy-g2d"]),
+    );
+    expect(
+      entries.filter((entry) => entry.refinedBy === undefined).map((entry) => entry.printedPage),
+    ).toEqual([]);
+
+    // Planted negatives: each perturbation must be caught, or the assertion above proves nothing.
+    const clone = () => JSON.parse(JSON.stringify(entries)) as PageMapEntryLike[];
+    const stubbed = clone().map((entry) => ({
+      ...entry,
+      displayEquations: { numbered: [], unnumberedIds: [] },
+    }));
+    const stubDefects = reconcilePageMapAgainstManifest(
+      units,
+      stubbed,
+      "am-edn-inventory-mass-energy-g2d",
+      sectionIds,
+    );
+    expect(stubDefects.some((defect) => defect.field === "unnumberedIds")).toBe(true);
+
+    const desectioned = clone().map((entry) => ({ ...entry, sectionIds: [] }));
+    const sectionDefects = reconcilePageMapAgainstManifest(
+      units,
+      desectioned,
+      "am-edn-inventory-mass-energy-g2d",
+      sectionIds,
+    );
+    expect(sectionDefects.filter((defect) => defect.field === "sectionIds").length).toBe(3);
+
+    const unstampedAll = clone().map(({ refinedBy: _drop, ...rest }) => rest);
+    const stampDefects = reconcilePageMapAgainstManifest(
+      units,
+      unstampedAll,
+      "am-edn-inventory-mass-energy-g2d",
+      sectionIds,
+    );
+    expect(stampDefects.length).toBe(3);
+    expect(stampDefects.every((defect) => defect.field === "refinedBy")).toBe(true);
+
+    logger2.log({
+      testId: "receipt-page-map-reconciles",
+      beadId: "am-edn-inventory-mass-energy-g2d",
+      paper: "mass-energy",
+      outcome: "passed",
+      comparisonKind: "bitwise",
+      message:
+        "Receipt pageMap reconciles with the manifest across sections, displays, footnote marks and the refinement stamp; three planted negatives are caught.",
+      extra: { pages: 3, unnumberedIds: unnumbered.length, check: "receipt-page-map" },
     });
   });
 });

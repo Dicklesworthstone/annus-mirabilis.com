@@ -286,3 +286,77 @@ which the checker would reject.
 No production caller ever computes that option; only `editionContract.test.ts` passes `false`. The
 check therefore reports a match for every edition without comparing anything, and it is the check
 that would have caught this defect. It belongs to `am-edn-alignment-tooling-do1`.
+
+### Seven pages re-read at true 300% on the left margin, 2026-09-19
+
+**Denominator: 7 of 7 pages rechecked, 7 matched; 19 of 19 paragraph starts on those pages matched. No reversals, no repairs.**
+
+Seven of the twelve pages (549, 550, 552, 556, 557, 559, 560) had last been judged on full-page
+renders at 155%, which is below the standard this file itself sets. They were re-read at true 300%.
+
+**Why "true" 300% needs saying.** A crop is shown at a capped width, so a full-width page crop
+enlarged to 300% is displayed at roughly 195% and the nominal figure is not what reaches the eye.
+These reads therefore used a narrow left-margin window, 520 px of the 1022 px page, enlarged to
+300%: 1560 px, under the cap, so the printed indent step is seen at its stated magnification. Any
+future re-read should do the same rather than trusting the resize factor alone.
+
+Measured flush and indent columns, in the coordinates of the 300% crops. The text block sits at a
+different offset on rectos and versos, which is why each page carries its own pair and why a
+measurement from one page is never evidence about another:
+
+| Page | Flush | Indent | Starts found | Manifest |
+|---|---|---|---|---|
+| 549 | 30 | 185 | 3 | 3 |
+| 550 | 510 | 655 | 2 | 2 |
+| 552 | 510 | 655 | 3 | 3 |
+| 556 | 510 | 655 | 4 | 4 |
+| 557 | 200 | 300 | 2 | 2 |
+| 559 | 155 / 195 | 255 / 300 | 3 | 3 |
+| 560 | 845 | 1000 | 2 | 2 |
+
+The five remaining pages (551, 553, 554, 555, 558) were read at 235 to 260% during the receipt
+refinement and carry 13 starts. 19 + 13 = 32, which is the manifest's paragraph count, so the
+per-page denominators close against the whole-paper total rather than only against each other.
+
+Flush resumptions confirmed again on these pages, each a place where a unit could wrongly be
+created: "bringen, wobei J von dx1 dy1" after the first display on p. 552; "ausdrückbar sein, wobei"
+after `eq-s4-d1` on p. 556; "Durch Eliminieren von D erhalten wir:" and "Diese Gleichung läßt
+erkennen" on p. 559; and "Die mittlere Verschiebung in 1 Min. wäre also ca. 6 Mikron." on p. 559,
+which closes `s5-p2` rather than opening a unit.
+
+Two display facts re-confirmed at this magnification: the two-line
+`f + ∂f/∂t · τ = …` with its right-aligned continuation `+ ∂²f/∂x² ∫ …` on p. 557 is **one**
+display, and p. 557's foot carries the signature line "Annalen der Physik. IV. Folge. 17.", which
+is scan furniture and correctly absent from the manifest.
+
+### The crop-width trap: nominal magnification is not what reaches the eye
+
+**A stored crop is shown at a capped width. Enlarging a full-page crop to 300% produces a file
+about 3050 px wide, which is then displayed at 2000 px, so the printed indent step is seen at about
+1.96x, not 3x. The resize factor in the command is not evidence about what was actually read.**
+
+Measure it rather than trusting the figure. The body line pitch of these renders is **30 px at 1x**
+on all four papers, so the zoom of any crop can be recovered after the fact:
+
+```
+file_zoom = (measured line pitch in the crop) / 30
+eye_zoom  = file_zoom * min(crop_width, 2000) / crop_width
+```
+
+A crop narrower than about 660 px of the original page keeps a 300% enlargement under the cap
+(660 x 3 = 1980), so it is read at its stated magnification. The left-margin window used for the
+2026-09-19 re-reads is 520 px wide, giving 1560 px and a true 3.0x.
+
+Applying this to the crops retained from the 2026-09-19 audits gives their real eye magnification:
+
+| Crop set | Purpose | File zoom | Width | Eye zoom |
+|---|---|---|---|---|
+| narrow left-margin windows | the 300% re-reads | 2.97-3.00x | 1560 | **3.0x** |
+| full-page 300% bands | the mass-energy audit | 2.95-3.00x | 3054 | **1.96x** |
+| full-width page bands at 235-260% | five Brownian pages | 2.35-2.60x | 2402-2657 | **1.96x** |
+| narrow strips at 250% | the relativity re-map | 2.43-2.55x | 804 | **2.5x** |
+| page overviews | orientation only | 0.63-1.55x | 600-1300 | **under 2x** |
+
+Two consequences worth stating plainly. A page overview is for finding a line, never for judging
+its left edge. And a figure like "read at 300%" in an earlier note may describe the command rather
+than the reading: where the crop was full width, halve it.

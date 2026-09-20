@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import { resolveAlias, validateAliasRecord } from "../aliases.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../frozenIds.ts";
 import { formatManifestReportText, generateManifestReport } from "../manifest/report.ts";
@@ -9,9 +10,14 @@ import { validateSourceManifest } from "../manifest/schema.ts";
 import { validateManifest } from "../manifest/validator.ts";
 import { checkReceipt } from "../provenance/checkReceipt.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
+import { resolveEquationPage } from "../provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../provenance/receiptToSourceAsset.ts";
 import { parseYaml } from "../provenance/yaml.ts";
-import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
+import {
+  type ManifestUnitLike,
+  type PageMapEntryLike,
+  reconcilePageMapAgainstManifest,
+} from "./pageMapReconciliation.ts";
 
 const ROOT = process.cwd();
 
@@ -214,7 +220,9 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       } else {
         expect(entry.refinedBy).toBe(RELATIVITY_BEAD);
         const unnumberedManifest = displaysOnPage.filter((u) => !u.originalLabel).map((u) => u.id);
-        const numberedManifest = displaysOnPage.filter((u) => u.originalLabel).map((u) => u.originalLabel!);
+        const numberedManifest = displaysOnPage
+          .filter((u) => u.originalLabel)
+          .map((u) => u.originalLabel!);
 
         expect(entry.displayEquations.unnumberedIds).toEqual(unnumberedManifest);
         expect(entry.displayEquations.numbered).toEqual(numberedManifest);
@@ -233,7 +241,8 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Counts reconcile with receipt pageMap and SourceAsset.pageMapping across all 31 pages.",
+      message:
+        "Counts reconcile with receipt pageMap and SourceAsset.pageMapping across all 31 pages.",
       extra: { check: "page-counts" },
     });
   });
@@ -260,7 +269,10 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
 
     for (const unit of manifest.units) {
       if (typeof unit.destination === "object" && unit.destination !== null) {
-        if (unit.destination.argumentObligations && unit.destination.argumentObligations.length > 0) {
+        if (
+          unit.destination.argumentObligations &&
+          unit.destination.argumentObligations.length > 0
+        ) {
           if (unit.section) {
             coveredRows.add(unit.section);
           } else if (unit.id.startsWith("closing-")) {
@@ -280,7 +292,8 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Every row of the treatment map (s0..s10, closing) has an argument obligation recorded.",
+      message:
+        "Every row of the treatment map (s0..s10, closing) has an argument obligation recorded.",
       extra: { coveredRows: Array.from(coveredRows), check: "treatment-map" },
     });
   });
@@ -316,7 +329,8 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Part headings and section headings are strictly ordered; masthead and closings exist.",
+      message:
+        "Part headings and section headings are strictly ordered; masthead and closings exist.",
       extra: { check: "order" },
     });
   });
@@ -395,9 +409,12 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       [dummyBadImportingManifest.paper, dummyBadImportingManifest as unknown as typeof manifest],
     ]);
 
-    const badImportDiags = validateManifest(dummyBadImportingManifest as unknown as typeof manifest, {
-      manifests: manifestsBadMap,
-    });
+    const badImportDiags = validateManifest(
+      dummyBadImportingManifest as unknown as typeof manifest,
+      {
+        manifests: manifestsBadMap,
+      },
+    );
     const badUnexportedDiags = badImportDiags.filter((d) => d.rule === "import-unexported-result");
     expect(badUnexportedDiags.length).toBe(1);
 
@@ -407,7 +424,8 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message: "Exported results eq-s8-d4 and eq-s10-d8 resolve; validator guards exports against unexported imports.",
+      message:
+        "Exported results eq-s8-d4 and eq-s10-d8 resolve; validator guards exports against unexported imports.",
       extra: { check: "exported-results" },
     });
   });
@@ -524,16 +542,36 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     const records = loadAliasRecords();
     expect(records.length).toBe(13);
     expect(records.map((r) => r.retiredId).sort()).toEqual([
-      "s1-p4", "s3-p11", "s3-p13", "s3-p19", "s3-p8", "s4-p2",
-      "s5-p3", "s6-p6", "s8-p11", "s8-p3", "s8-p4", "s8-p8", "s8-p9",
+      "s1-p4",
+      "s3-p11",
+      "s3-p13",
+      "s3-p19",
+      "s3-p8",
+      "s4-p2",
+      "s5-p3",
+      "s6-p6",
+      "s8-p11",
+      "s8-p3",
+      "s8-p4",
+      "s8-p8",
+      "s8-p9",
     ]);
 
     const liveIds = manifest.units.map((u) => u.id);
     const expectedTarget: Record<string, string> = {
-      "s1-p4": "s1-p3", "s3-p8": "s3-p7", "s3-p11": "s3-p10", "s3-p13": "s3-p12",
+      "s1-p4": "s1-p3",
+      "s3-p8": "s3-p7",
+      "s3-p11": "s3-p10",
+      "s3-p13": "s3-p12",
       "s3-p19": "s3-p22",
-      "s4-p2": "s4-p1", "s5-p3": "s5-p2", "s6-p6": "s6-p5", "s8-p3": "s8-p2",
-      "s8-p4": "s8-p2", "s8-p8": "s8-p7", "s8-p9": "s8-p7", "s8-p11": "s8-p10",
+      "s4-p2": "s4-p1",
+      "s5-p3": "s5-p2",
+      "s6-p6": "s6-p5",
+      "s8-p3": "s8-p2",
+      "s8-p4": "s8-p2",
+      "s8-p8": "s8-p7",
+      "s8-p9": "s8-p7",
+      "s8-p11": "s8-p10",
     };
     for (const [retired, target] of Object.entries(expectedTarget)) {
       expect(liveIds).not.toContain(retired);
@@ -572,7 +610,10 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(unexplained.length).toBe(13);
 
     // Snapshot file
-    const snapshotPath = join(ROOT, "content/source-blocks/special-relativity/manifest.ids.snapshot.txt");
+    const snapshotPath = join(
+      ROOT,
+      "content/source-blocks/special-relativity/manifest.ids.snapshot.txt",
+    );
     expect(existsSync(snapshotPath)).toBe(true);
 
     const snapshotText = readFileSync(snapshotPath, "utf8");
@@ -591,9 +632,7 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(mutatedResult.ok).toBe(false);
     expect(mutatedResult.missingCount).toBe(1);
     expect(
-      mutatedResult.findings.some(
-        (f) => f.kind === "frozen-id-missing" && f.id === "eq-s8-d4",
-      ),
+      mutatedResult.findings.some((f) => f.kind === "frozen-id-missing" && f.id === "eq-s8-d4"),
     ).toBe(true);
 
     logger.log({
@@ -654,6 +693,107 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       comparisonKind: "bitwise",
       message: "checkReceipt passes for ap-17-891 with 0 errors.",
       extra: { check: "receipt" },
+    });
+  });
+  test("the receipt page map reconciles with the manifest, page by page", () => {
+    const logger2 = new TestLogger("manifest-special-relativity", newRunIdentity());
+    const manifest = validateSourceManifest(
+      parseYaml(
+        readFileSync(join(ROOT, "content/source-blocks/special-relativity/manifest.yaml"), "utf8"),
+      ),
+      "manifest.yaml",
+    );
+    const receiptPath = join(ROOT, "docs/provenance/ap-17-891.md");
+    const pageMap = parseReceipt(readFileSync(receiptPath, "utf8"), receiptPath).frontMatter
+      ?.pageMap;
+    expect(Array.isArray(pageMap)).toBe(true);
+    expect(pageMap!.length).toBe(31);
+
+    const sectionIds = Array.from({ length: 10 + 1 }, (_value, index) => `s${index}`);
+    const units = manifest.units as readonly ManifestUnitLike[];
+    const entries = pageMap as unknown as readonly PageMapEntryLike[];
+
+    // Nothing in the tree compared a page map with its manifest until 2026-09-19. The Brownian
+    // receipt turned out to disagree with its own manifest in 33 places; this asserts that this
+    // paper's does not, field by field, across sections, numbered labels, unnumbered display ids,
+    // footnote marks and the refinement stamp.
+    // eq-s6-d2 is the one display in any of the four papers that straddles a page break: the
+    // Maxwell-Hertz system runs from p. 907 onto p. 908, verified on page-17 and page-18 of
+    // the renders, and the receipt correctly lists it under both pages.
+    expect(
+      reconcilePageMapAgainstManifest(
+        units,
+        entries,
+        "am-edn-inventory-relativity-0u9",
+        sectionIds,
+      ),
+    ).toEqual([]);
+
+    // Not vacuous: the map actually carries the things a stub would leave empty.
+    const unnumbered = entries.flatMap((entry) => entry.displayEquations?.unnumberedIds ?? []);
+    const displays = units.filter((unit) => unit.kind === "display-equation");
+    expect(unnumbered.length).toBeGreaterThan(0);
+    expect(new Set(unnumbered).size).toBe(
+      displays.filter((d) => d.originalLabel === undefined).length,
+    );
+    // resolveEquationPage answers the first page that lists the id, so a display spanning the
+    // 907/908 break resolves to PDF page 17, the page it starts on.
+    expect(resolveEquationPage(pageMap!, "eq-s6-d2")).toBe(17);
+
+    // `receipt-pagemap-refined-no-unnumbered-ids` refuses a `refinedBy` stamp on an entry whose
+    // `unnumberedIds` is empty, so the stamp is expected exactly on the pages that have one. Here
+    // that leaves three pages that print no display equation (891, 892, 893).
+    const stamped = entries.filter((entry) => entry.refinedBy !== undefined);
+    expect(stamped).toHaveLength(28);
+    expect(new Set(stamped.map((entry) => entry.refinedBy))).toEqual(
+      new Set(["am-edn-inventory-relativity-0u9"]),
+    );
+    expect(
+      entries.filter((entry) => entry.refinedBy === undefined).map((entry) => entry.printedPage),
+    ).toEqual([891, 892, 893]);
+
+    // Planted negatives: each perturbation must be caught, or the assertion above proves nothing.
+    const clone = () => JSON.parse(JSON.stringify(entries)) as PageMapEntryLike[];
+    const stubbed = clone().map((entry) => ({
+      ...entry,
+      displayEquations: { numbered: [], unnumberedIds: [] },
+    }));
+    const stubDefects = reconcilePageMapAgainstManifest(
+      units,
+      stubbed,
+      "am-edn-inventory-relativity-0u9",
+      sectionIds,
+    );
+    expect(stubDefects.some((defect) => defect.field === "unnumberedIds")).toBe(true);
+
+    const desectioned = clone().map((entry) => ({ ...entry, sectionIds: [] }));
+    const sectionDefects = reconcilePageMapAgainstManifest(
+      units,
+      desectioned,
+      "am-edn-inventory-relativity-0u9",
+      sectionIds,
+    );
+    expect(sectionDefects.filter((defect) => defect.field === "sectionIds").length).toBe(31);
+
+    const unstampedAll = clone().map(({ refinedBy: _drop, ...rest }) => rest);
+    const stampDefects = reconcilePageMapAgainstManifest(
+      units,
+      unstampedAll,
+      "am-edn-inventory-relativity-0u9",
+      sectionIds,
+    );
+    expect(stampDefects.length).toBe(28);
+    expect(stampDefects.every((defect) => defect.field === "refinedBy")).toBe(true);
+
+    logger2.log({
+      testId: "receipt-page-map-reconciles",
+      beadId: "am-edn-inventory-relativity-0u9",
+      paper: "special-relativity",
+      outcome: "passed",
+      comparisonKind: "bitwise",
+      message:
+        "Receipt pageMap reconciles with the manifest across sections, displays, footnote marks and the refinement stamp; three planted negatives are caught.",
+      extra: { pages: 31, unnumberedIds: unnumbered.length, check: "receipt-page-map" },
     });
   });
 });

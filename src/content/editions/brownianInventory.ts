@@ -18,6 +18,14 @@ import { validateSourceManifest } from "../manifest/schema.ts";
 import { validateManifest } from "../manifest/validator.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
 import { parseYaml } from "../provenance/yaml.ts";
+import {
+  type ManifestUnitLike,
+  type PageMapEntryLike,
+  type PageMapMismatch,
+  reconcilePageMapAgainstManifest,
+} from "./pageMapReconciliation.ts";
+
+export { type PageMapMismatch, reconcilePageMapAgainstManifest };
 
 export const BROWNIAN_PAPER = "brownian-motion";
 export const BROWNIAN_BIB_KEY = "ap-17-549";
@@ -437,133 +445,6 @@ export function brownianSourceManifestDiagnostics(root = process.cwd()) {
     return parsed.value;
   });
   return validateManifest(manifest, { manifests: new Map([[manifest.paper, manifest]]), aliases });
-}
-
-/**
- * A single disagreement between the receipt's `pageMap` and the manifest.
- *
- * The receipt page map is evidence, not decoration: `resolveEquationPage` reads
- * `displayEquations.numbered` and `displayEquations.unnumberedIds` to answer which
- * facsimile page an equation sits on, and it answers `null` for every equation the
- * map omits. Until 2026-09-19 this paper's twelve entries were the pre-refinement
- * stub, so that lookup was silently empty for all 43 displays, `footnoteMarks` was
- * empty on the three marked pages, and four pages named the wrong sections.
- */
-export type PageMapMismatch = Readonly<{
-  printedPage: number;
-  field: "sectionIds" | "numbered" | "unnumberedIds" | "footnoteMarks" | "refinedBy";
-  receipt: readonly string[];
-  manifest: readonly string[];
-}>;
-
-type PageMapEntryLike = Readonly<{
-  printedPage: number | null;
-  sectionIds?: readonly string[] | undefined;
-  displayEquations?:
-    | Readonly<{
-        numbered?: readonly string[] | undefined;
-        unnumberedIds?: readonly string[] | undefined;
-      }>
-    | undefined;
-  footnoteMarks?: readonly string[] | undefined;
-  refinedBy?: string | undefined;
-}>;
-
-type ManifestUnitLike = Readonly<{
-  id: string;
-  kind: string;
-  section?: string | undefined;
-  locators: readonly Readonly<{ page: number }>[];
-  originalLabel?: string | undefined;
-  footnoteMark?: string | undefined;
-  markPage?: number | undefined;
-}>;
-
-const BROWNIAN_SECTION_IDS = ["s0", "s1", "s2", "s3", "s4", "s5"] as const;
-
-const sorted = (values: Iterable<string>): string[] => [...values].sort();
-
-/**
- * Reconciles a receipt page map against the manifest it describes, page by page.
- *
- * Pure so a test can plant a negative by perturbing a copy of either side.
- */
-export function reconcilePageMapAgainstManifest(
-  units: readonly ManifestUnitLike[],
-  pageMap: readonly PageMapEntryLike[],
-  refinedBy: string,
-): PageMapMismatch[] {
-  const sections = new Map<number, Set<string>>();
-  const numbered = new Map<number, string[]>();
-  const unnumbered = new Map<number, string[]>();
-  const footnotes = new Map<number, string[]>();
-  const push = (index: Map<number, string[]>, page: number, value: string): void => {
-    const bucket = index.get(page);
-    if (bucket) bucket.push(value);
-    else index.set(page, [value]);
-  };
-
-  for (const unit of units) {
-    const pages = unit.locators.map((locator) => locator.page);
-    const first = pages[0];
-    if (first === undefined) continue;
-    const section = unit.section;
-    if (section !== undefined && (BROWNIAN_SECTION_IDS as readonly string[]).includes(section)) {
-      for (const page of pages) {
-        const bucket = sections.get(page);
-        if (bucket) bucket.add(section);
-        else sections.set(page, new Set([section]));
-      }
-    }
-    if (unit.kind === "display-equation") {
-      if (unit.originalLabel !== undefined) push(numbered, first, unit.originalLabel);
-      else push(unnumbered, first, unit.id);
-    }
-    if (unit.kind === "footnote" && unit.footnoteMark !== undefined) {
-      push(footnotes, unit.markPage ?? first, unit.footnoteMark);
-    }
-  }
-
-  const mismatches: PageMapMismatch[] = [];
-  const compare = (
-    printedPage: number,
-    field: PageMapMismatch["field"],
-    receipt: readonly string[],
-    manifest: readonly string[],
-  ): void => {
-    const left = sorted(receipt);
-    const right = sorted(manifest);
-    if (left.length !== right.length || left.some((value, index) => value !== right[index])) {
-      mismatches.push({ printedPage, field, receipt: left, manifest: right });
-    }
-  };
-
-  for (const entry of pageMap) {
-    const page = entry.printedPage;
-    // A receipt may carry an entry for a scan page outside the article's printed range; it has
-    // no printed page number and no manifest units, so there is nothing to reconcile it against.
-    if (page === null) continue;
-    compare(page, "sectionIds", entry.sectionIds ?? [], [...(sections.get(page) ?? [])]);
-    compare(page, "numbered", entry.displayEquations?.numbered ?? [], numbered.get(page) ?? []);
-    compare(
-      page,
-      "unnumberedIds",
-      entry.displayEquations?.unnumberedIds ?? [],
-      unnumbered.get(page) ?? [],
-    );
-    compare(page, "footnoteMarks", entry.footnoteMarks ?? [], footnotes.get(page) ?? []);
-    // `receipt-pagemap-refined-no-unnumbered-ids` in checkReceipt.ts refuses a `refinedBy`
-    // stamp on an entry whose `unnumberedIds` is empty, so a page that prints no display
-    // equation cannot carry the stamp however carefully it was read. The stamp is therefore
-    // required exactly on the pages that have one. This is also why three of relativity's
-    // thirty-one entries and three of light-quanta's seventeen are unstamped: those six are
-    // the zero-display pages, not pages nobody checked.
-    const stampable = (unnumbered.get(page) ?? []).length > 0;
-    const expectedStamp = stampable ? [refinedBy] : [];
-    const actualStamp = entry.refinedBy === undefined ? [] : [entry.refinedBy];
-    compare(page, "refinedBy", actualStamp, expectedStamp);
-  }
-  return mismatches;
 }
 
 /**

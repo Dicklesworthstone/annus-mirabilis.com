@@ -410,3 +410,35 @@ Totals after repair: **211 units, 92 paragraphs**, thirteen ids retired through
 **What is still open.** Two judgements, both recorded above with their reversal conditions: the
 p. 920 enumeration folding and the p. 911 display grouping. Neither was decided from an unmagnified
 reading, and neither should be treated as settled because the page "reconciles".
+
+### The crop-width trap: nominal magnification is not what reaches the eye
+
+**A stored crop is shown at a capped width. Enlarging a full-page crop to 300% produces a file
+about 3050 px wide, which is then displayed at 2000 px, so the printed indent step is seen at about
+1.96x, not 3x. The resize factor in the command is not evidence about what was actually read.**
+
+Measure it rather than trusting the figure. The body line pitch of these renders is **30 px at 1x**
+on all four papers, so the zoom of any crop can be recovered after the fact:
+
+```
+file_zoom = (measured line pitch in the crop) / 30
+eye_zoom  = file_zoom * min(crop_width, 2000) / crop_width
+```
+
+A crop narrower than about 660 px of the original page keeps a 300% enlargement under the cap
+(660 x 3 = 1980), so it is read at its stated magnification. The left-margin window used for the
+2026-09-19 re-reads is 520 px wide, giving 1560 px and a true 3.0x.
+
+Applying this to the crops retained from the 2026-09-19 audits gives their real eye magnification:
+
+| Crop set | Purpose | File zoom | Width | Eye zoom |
+|---|---|---|---|---|
+| narrow left-margin windows | the 300% re-reads | 2.97-3.00x | 1560 | **3.0x** |
+| full-page 300% bands | the mass-energy audit | 2.95-3.00x | 3054 | **1.96x** |
+| full-width page bands at 235-260% | five Brownian pages | 2.35-2.60x | 2402-2657 | **1.96x** |
+| narrow strips at 250% | the relativity re-map | 2.43-2.55x | 804 | **2.5x** |
+| page overviews | orientation only | 0.63-1.55x | 600-1300 | **under 2x** |
+
+Two consequences worth stating plainly. A page overview is for finding a line, never for judging
+its left edge. And a figure like "read at 300%" in an earlier note may describe the command rather
+than the reading: where the crop was full width, halve it.
