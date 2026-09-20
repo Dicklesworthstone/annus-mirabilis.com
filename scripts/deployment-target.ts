@@ -168,7 +168,16 @@ export function assertDeploymentReadyAndAliased(
   // so a status of ALREADY_PROMOTED passed it, and status is parsed from free text (/^status (.+)$/)
   // so the whole rest of the line is matched. The category test is equality with the one status
   // that means ready.
-  if (parsed.status.trim().toUpperCase() !== "READY") {
+  //
+  // The Vercel CLI decorates the status with a bullet ("status  \u25cf Ready"), so the leading
+  // non-alphanumeric run is stripped before the comparison. Everything after it is compared
+  // WHOLE. Stripping the decoration is not a licence to match loosely: "NOT READY" and
+  // "ALREADY_PROMOTED" both survive the strip intact and both fail the equality.
+  const statusToken = parsed.status
+    .replace(/^[^\p{L}\p{N}]+/u, "")
+    .trim()
+    .toUpperCase();
+  if (statusToken !== "READY") {
     throw new Error(
       `Deployment is not Ready (current status: "${parsed.status || "unknown"}", url: "${parsed.url || "unknown"}"). ` +
         `Refusing release promotion.`,

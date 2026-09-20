@@ -173,6 +173,44 @@ Fetching deployment "annus-mirabilis-5yxsj0n8j" in dicklesworthstones-projects
     ).toThrow(/missing required production alias/);
   });
 
+  // am-o44v: the readiness gate asked whether the status CONTAINS "ready". It is what stands
+  // between a deployment and the alias move onto annus-mirabilis.com, and "already" contains
+  // "ready", so ALREADY_PROMOTED passed it - as did the literal words NOT READY, because status
+  // is parsed from free text by /^status\s+(.+)$/i and the whole rest of the line is matched.
+  //
+  // Each fixture below is SAMPLE_READY_INSPECT with one word changed, so every required alias is
+  // present and the status is the only thing that can refuse it. A fixture missing an alias would
+  // pass these tests for the wrong reason.
+  const withStatus = (status: string): string =>
+    SAMPLE_READY_INSPECT.replace("status\t● Ready", `status\t${status}`);
+
+  test("am-o44v: a status that merely CONTAINS 'ready' is refused", () => {
+    for (const status of ["ALREADY_PROMOTED", "● ALREADY_PROMOTED", "NOT READY", "● Not Ready"]) {
+      const inspect = withStatus(status);
+      expect(inspect).toContain(status);
+      expect(() =>
+        assertDeploymentReadyAndAliased(inspect, [
+          "annus-mirabilis.com",
+          "www.annus-mirabilis.com",
+        ]),
+      ).toThrow(/not Ready/);
+    }
+  });
+
+  test("am-o44v: a genuine Ready still passes, decorated or bare", () => {
+    // The other half. Without this, the equality could be tightened until it refuses everything -
+    // which is exactly what ac0d401b did: it compared against "READY" while the Vercel CLI prints
+    // "● Ready", so the gate refused every deployment including the ready ones, and the commit
+    // reported a different test file as its evidence.
+    for (const status of ["● Ready", "Ready", "READY", "ready"]) {
+      const verified = assertDeploymentReadyAndAliased(withStatus(status), [
+        "annus-mirabilis.com",
+        "www.annus-mirabilis.com",
+      ]);
+      expect(verified.id).toBe("dpl_Gu19xujsrTgywGbTvsReLzm64DQE");
+    }
+  });
+
   test("fails closed when deployment is not in Ready state", () => {
     expect(() =>
       assertDeploymentReadyAndAliased(SAMPLE_BUILDING_INSPECT, ["annus-mirabilis.com"]),
