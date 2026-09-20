@@ -30,6 +30,7 @@ import {
   OUTCOME_ALLOWED_KEYS,
   type OutcomeResponse,
   PROTOCOL_VERSION,
+  type ProvenanceRecord,
   REFUSAL_ALLOWED_KEYS,
   REQUEST_ALLOWED_KEYS,
   type RefusalResponse,
@@ -386,7 +387,12 @@ export function decode(message: unknown, context: DecodeContext): DecodeResult {
     if (!provenance || typeof provenance !== "object") {
       return { ok: false, code: "malformed-response", reason: 'Missing "provenance" record.' };
     }
-    const provCheck = validateProvenanceRecord(provenance as any);
+    // Named rather than `any`: the object has been checked to be an object and nothing
+    // more, and validateProvenanceRecord is the thing that checks the rest. Its parameter
+    // type still claims a valid record, which is the wider fix and belongs to the protocol
+    // bead; what matters here is that a malformed record now returns a typed refusal
+    // rather than throwing.
+    const provCheck = validateProvenanceRecord(provenance as ProvenanceRecord);
     if (!provCheck.ok) {
       return { ok: false, code: provCheck.code, reason: provCheck.reason };
     }

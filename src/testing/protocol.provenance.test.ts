@@ -6,6 +6,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { computeEvaluatorHashes } from "../../scripts/hash-evaluators.ts";
+import { decode } from "../workers/protocol/decode.ts";
 import {
   clearAdmittedEvaluators,
   clearAdmittedManifest,
@@ -146,5 +147,60 @@ describe("protocol.provenance", () => {
       assert.equal(typeof manifest.bundleId, "string");
       assert.equal(typeof manifest.wasmDigest, "string");
     }
+  });
+});
+
+/**
+ * A malformed provenance record refuses; it does not throw (am-6iz4).
+ *
+ * decode() checks that `provenance` is an object and then hands it to
+ * validateProvenanceRecord, whose parameter type claims a valid ProvenanceRecord. The gap
+ * between those two was bridged by `as any`, and underneath it the frankensim branch read
+ * provenance.artifactDigest.replace(...) unguarded: an accepted message carrying
+ * `provenance: { ownerKind: "frankensim" }` made the decoder THROW a TypeError. A decoder
+ * that throws on malformed input is what the typed-refusal contract exists to prevent, and
+ * a thrown TypeError carries no code for a caller to act on.
+ */
+describe("malformed provenance refuses rather than throwing", () => {
+  const acceptedWith = (provenance: unknown) => ({
+    messageKind: "accepted",
+    instanceId: "instance-1",
+    runId: "run-1",
+    actionIndex: 1,
+    revisions: { input: 1, observer: 0, measurement: 0, estimator: 0 },
+    stepIndex: 0,
+    simulatedTime: 0,
+    outputs: {},
+    provenance,
+  });
+  const context = {
+    runId: "run-1",
+    acceptedActionIndex: 0,
+    acceptedStepIndex: 0,
+    issuedActionIndices: new Set([1]),
+  } as never;
+
+  it("an ownerKind of frankensim with no artifactDigest is a typed refusal", () => {
+    const result = decode(acceptedWith({ ownerKind: "frankensim" }), context);
+    assert.equal(result.ok, false);
+    if (result.ok) return;
+    assert.equal(result.code, "unadmitted-digest");
+    assert.ok(result.reason.includes("artifact digest"), result.reason);
+  });
+
+  it("a digest that is present but not a string is also a refusal, not a throw", () => {
+    const result = decode(acceptedWith({ ownerKind: "frankensim", artifactDigest: 42 }), context);
+    assert.equal(result.ok, false);
+    if (result.ok) return;
+    assert.equal(result.code, "unadmitted-digest");
+  });
+
+  it("the guard did not close the door on everything", () => {
+    // Without this case the two above would pass over a validator that refused
+    // everything: a host-reference record is refused for its own reason, not the digest.
+    const good = decode(acceptedWith({ ownerKind: "host-reference" }), context);
+    assert.equal(good.ok, false);
+    if (good.ok) return;
+    assert.notEqual(good.code, "unadmitted-digest");
   });
 });

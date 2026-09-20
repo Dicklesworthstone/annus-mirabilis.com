@@ -297,7 +297,7 @@ export async function runProtocolConformance(
         return { passed: false, message: `Expected accepted, got ${decoded.message.messageKind}` };
       }
       const buffers = decoded.message.buffers;
-      if (!buffers || buffers.length !== 1 || buffers[0]?.layoutId !== "brownian-frames") {
+      if (buffers?.length !== 1 || buffers[0]?.layoutId !== "brownian-frames") {
         return { passed: false, message: "Expected brownian-frames buffer layout." };
       }
       return { passed: true, message: "Buffer transfer validated layout and byte length." };
@@ -381,10 +381,7 @@ export async function runProtocolConformance(
           message: `Expected unsupported-kernel, got ${mapped.refusal.code}`,
         };
       }
-      if (
-        !mapped.refusal.details ||
-        mapped.refusal.details.upstreamCode !== "unsupported-step-kernel"
-      ) {
+      if (mapped.refusal.details?.upstreamCode !== "unsupported-step-kernel") {
         return { passed: false, message: "Upstream code was not preserved in refusal details." };
       }
       return { passed: true, message: "FrankenSim envelope mapped to registered refusal code." };

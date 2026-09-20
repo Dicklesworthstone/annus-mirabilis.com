@@ -249,8 +249,22 @@ export function validateProvenanceRecord(provenance: ProvenanceRecord):
     } {
   const rawOwnerKind: unknown = provenance.ownerKind;
   if (rawOwnerKind === "frankensim") {
-    // 1. Check artifact digest against manifest
-    const digest = provenance.artifactDigest.replace(/^sha256:/i, "");
+    // 1. Check artifact digest against manifest.
+    //
+    // The digest is read defensively because this validator is reached from decode(),
+    // which hands it a `provenance` field that has only been checked to be an object. A
+    // response carrying `provenance: { ownerKind: "frankensim" }` and nothing else used
+    // to throw a TypeError here, and a decoder that throws on malformed input is exactly
+    // what the typed-refusal contract exists to prevent.
+    const rawDigest: unknown = provenance.artifactDigest;
+    if (typeof rawDigest !== "string") {
+      return {
+        ok: false,
+        code: "unadmitted-digest",
+        reason: `WASM artifact digest is missing or not a string: ${JSON.stringify(rawDigest)}.`,
+      };
+    }
+    const digest = rawDigest.replace(/^sha256:/i, "");
     if (!isAdmittedWasmDigest(digest)) {
       return {
         ok: false,
