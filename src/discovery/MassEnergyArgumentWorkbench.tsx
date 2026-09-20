@@ -54,8 +54,14 @@ export function MassEnergyArgumentWorkbench({
   }, []);
 
   useEffect(() => {
+    // `order` was a bare trigger here: the body read only refs, so the effect
+    // re-ran on every order change and moved focus whether or not the removal
+    // had actually landed. Checking that the card is gone makes the dependency
+    // a real read and makes the focus move conditional on the thing it exists
+    // to follow. Focus returns to the removed card's Add button in the palette,
+    // which is why the id can be absent from `order` and still resolve.
     const id = focusAfterRemoval.current;
-    if (id) {
+    if (id && !order.includes(id as ArgumentStepId)) {
       addButtons.current.get(id)?.focus();
       focusAfterRemoval.current = null;
     }
