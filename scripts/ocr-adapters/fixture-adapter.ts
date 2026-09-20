@@ -39,11 +39,13 @@ export interface FixtureAdapterOptions {
   costUnits?: number | undefined;
   failAtChunkIndex?: number | null | undefined;
   /**
-   * Make the ADAPTER_AUTH failure quote the Authorization header, the way a real HTTP
-   * client reports a failing request. Off by default; the redaction test turns it on so
-   * there is a credential on a write path for the orchestrator to redact.
+   * Make the ADAPTER_AUTH failure carry the credential, the way a real HTTP client reports
+   * a failing request. Off by default. Two forms, because `redact` protects them by
+   * different rules and each has to be exercised on its own:
+   *   "header" - `Authorization: Bearer <key>`, caught by the header pattern;
+   *   "bare"   - the key alone in a query string, caught only by the env-value rule.
    */
-  echoCredentialInAuthError?: boolean;
+  echoCredentialInAuthError?: "header" | "bare" | undefined;
   failWithCode?:
     | "ADAPTER_UNAVAILABLE"
     | "ADAPTER_AUTH"
@@ -64,7 +66,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
   readonly costUnits: number;
   private failAtChunkIndex: number | null;
   private failWithCode: string | null;
-  private echoCredentialInAuthError: boolean;
+  private echoCredentialInAuthError: "header" | "bare" | null;
   private timeoutsBeforeSuccess: number;
   private currentTimeoutCount = 0;
   private customPageText: Record<number, string>;
@@ -88,7 +90,7 @@ export class FixtureAdapter implements CloudOcrAdapter {
     this.costUnits = options.costUnits ?? 1.0;
     this.failAtChunkIndex = options.failAtChunkIndex ?? null;
     this.failWithCode = options.failWithCode ?? null;
-    this.echoCredentialInAuthError = options.echoCredentialInAuthError ?? false;
+    this.echoCredentialInAuthError = options.echoCredentialInAuthError ?? null;
     this.timeoutsBeforeSuccess = options.timeoutsBeforeSuccess ?? 0;
     this.customPageText = options.customPageText ?? {};
   }
@@ -121,14 +123,17 @@ export class FixtureAdapter implements CloudOcrAdapter {
             );
           case "ADAPTER_AUTH":
             throw new AdapterAuthError(
-              this.echoCredentialInAuthError
-                ? // The leak vector a real adapter has: an HTTP client that reports the
-                  // failing request, Authorization header and all. Opt-in, so no existing
-                  // expectation of this message changes, and used by the redaction test to
-                  // give the orchestrator something it must redact before writing.
+              this.echoCredentialInAuthError === "header"
+                ? // An HTTP client reporting the failing request, Authorization header
+                  // and all. The header pattern in redact() is what catches this.
                   `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}: ` +
                     `request was Authorization: Bearer ${process.env.LUNA_API_KEY ?? ""}`
-                : `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}`,
+                : this.echoCredentialInAuthError === "bare"
+                  ? // The same key with nothing around it to recognise, as it appears in
+                    // a query string. Only the env-value rule can catch this one.
+                    `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}: ` +
+                    `GET /v1/ocr?key=${process.env.LUNA_API_KEY ?? ""} returned 401`
+                  : `Cloud OCR authentication failed at chunk ${chunk.chunkIndex}`,
             );
           case "ADAPTER_QUOTA":
             throw new AdapterQuotaError(`Cloud OCR quota exceeded at chunk ${chunk.chunkIndex}`);
