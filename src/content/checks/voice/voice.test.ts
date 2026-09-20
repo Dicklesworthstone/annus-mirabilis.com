@@ -405,6 +405,9 @@ describe("overclaim", () => {
     "settled the question",
     "Millikan proved that light is quantised",
     "the Michelson–Morley result caused the 1905 paper",
+    // The negation exemption is scoped to one sentence: a denial in the previous
+    // sentence does not license a verdict in this one.
+    "It was not obvious at the time. Perrin proved it in 1909",
   ];
   for (const text of failing) {
     it(`"${text}" fails in prose`, () => {
@@ -417,6 +420,11 @@ describe("overclaim", () => {
     "the theorem is proved in section 3",
     "Einstein cites the failed attempts to detect motion relative to the ether",
     "a signal could travel from the first of these events to the second",
+    // The sentences that took verify-content red in CI run 35481561814. Each one denies
+    // proof, which is the distinction the rule exists to protect.
+    "This relation is assumed, not proved by conservation.",
+    "Treat localized energy transfer as an additional hypothesis, not as something proved by drawing separate dots.",
+    "The equality was never proved for the general case",
   ];
   for (const text of passing) {
     it(`"${text}" passes`, () => {

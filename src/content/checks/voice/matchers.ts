@@ -318,6 +318,32 @@ export function matchStatusEnumLeak(
   return findings;
 }
 
+/**
+ * Whether this occurrence of "proved" is the thing a sentence DENIES (am-edit-voice-lint-trmf).
+ *
+ * The overclaim rule exists to catch a verdict on the world. A sentence that says a
+ * relation is "assumed, not proved by conservation", or that something is "an additional
+ * hypothesis, not as something proved by drawing separate dots", is making exactly the
+ * distinction the rule is protecting, and the rule was failing it: five of the six errors
+ * that took verify-content red in CI run 35481561814 were negated uses in the
+ * mass-energy equation records and one light-quanta argument. Rewriting those sentences to
+ * satisfy the linter would have damaged correct epistemics to keep a gate quiet.
+ *
+ * The negator must be in the same sentence and must reach the match without crossing a
+ * sentence-ending mark, so "It was not obvious. Perrin proved it." is still a finding.
+ */
+function isDirectlyNegated(text: string, matchIndex: number): boolean {
+  const lookbehind = text.slice(Math.max(0, matchIndex - 40), matchIndex).toLowerCase();
+  const negator = Math.max(
+    lookbehind.lastIndexOf("not "),
+    lookbehind.lastIndexOf("never "),
+    lookbehind.lastIndexOf("n't "),
+  );
+  if (negator === -1) return false;
+  const between = lookbehind.slice(negator);
+  return !/[.;:!?]/.test(between);
+}
+
 export function matchOverclaim(
   text: string,
   rule: OverclaimRule,
@@ -339,6 +365,7 @@ export function matchOverclaim(
         const windowEnd = Math.min(text.length, m.index + m.matchedText.length + 60);
         const window = text.slice(windowStart, windowEnd).toLowerCase();
         if (rule.provedAllowlistNearWords.some((w) => window.includes(w.toLowerCase()))) continue;
+        if (isDirectlyNegated(text, m.index)) continue;
       }
       findings.push(
         finding(
