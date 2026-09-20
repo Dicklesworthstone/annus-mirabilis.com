@@ -56,17 +56,24 @@ export function VideoTracker({ disabled = false, onAnalyze }: {
     const ticket = ++generation.current;
     const element = video.current, surface = canvas.current;
     const scratch = document.createElement("canvas");
+    // Both 2D contexts are acquired once, here, instead of inside the draw callback. A
+    // browser that refuses a context refuses it for the session, so asking per frame only
+    // moved the discovery into a callback whose one way to report was `throw`. Asking once
+    // lets the existing typed refusal answer before a file is read and leaves the callback
+    // with no failure path of its own. Resizing a canvas clears it but does not invalidate
+    // its context, so both stay valid across frames.
+    const scratchCtx = scratch.getContext("2d"), surfaceCtx = surface.getContext("2d");
+    if (!scratchCtx || !surfaceCtx) {
+      setFailure(captureRefusal("This browser refused a 2D drawing context, so a frame cannot be captured here. Measure the recording elsewhere and import the result as CSV; the guide, schema and practice data remain available.", "canvas"));
+      return;
+    }
     const local = createVideoFrameReader(element, rate, geometry => {
       // Draw into a temporary bounded surface first; a failed draw leaves the
       // accepted canvas untouched, rather than erasing the picture under clicks.
       scratch.width = geometry.canvasWidth; scratch.height = geometry.canvasHeight;
-      const ctx = scratch.getContext("2d");
-      if (!ctx) throw new Error("Canvas unavailable");
-      ctx.drawImage(element, 0, 0, scratch.width, scratch.height);
-      const output = surface.getContext("2d");
-      if (!output) throw new Error("Canvas unavailable");
+      scratchCtx.drawImage(element, 0, 0, scratch.width, scratch.height);
       surface.width = scratch.width; surface.height = scratch.height;
-      output.drawImage(scratch, 0, 0);
+      surfaceCtx.drawImage(scratch, 0, 0);
     });
     reader.current = local; setBusy(true); setReleased(false);
     try {
@@ -157,9 +164,9 @@ export function VideoTracker({ disabled = false, onAnalyze }: {
     <noscript><p>Video capture requires JavaScript. The guide, schema and practice data remain available below.</p></noscript>
     <fieldset disabled={locked || !!capture}>
       <legend>Choose the recording and confirm its timing</legend>
-      <label>Local video <input ref={fileInput} type="file" accept="video/*" onChange={e => { setFile(e.target.files?.[0] ?? null); setFailure(null); }} /></label>
-      <label>Confirmed nominal frame rate (Hz) <input type="text" inputMode="decimal" value={fps} placeholder="Read from your recording" onChange={e => setFps(e.target.value)} /></label>
-      <label>Requested sampling interval <select value={interval} onChange={e => setInterval(e.target.value)}><option value="0.5">0.5 seconds</option><option value="1">1 second</option><option value="2">2 seconds</option></select></label>
+      <div className="field"><label htmlFor={`${id}-video-file`}>Local video</label><input id={`${id}-video-file`} ref={fileInput} type="file" accept="video/*" onChange={e => { setFile(e.target.files?.[0] ?? null); setFailure(null); }} /></div>
+      <div className="field"><label htmlFor={`${id}-fps`}>Confirmed nominal frame rate (Hz)</label><input id={`${id}-fps`} type="text" inputMode="decimal" value={fps} placeholder="Read from your recording" onChange={e => setFps(e.target.value)} /></div>
+      <div className="field"><label htmlFor={`${id}-interval`}>Requested sampling interval</label><select id={`${id}-interval`} value={interval} onChange={e => setInterval(e.target.value)}><option value="0.5">0.5 seconds</option><option value="1">1 second</option><option value="2">2 seconds</option></select></div>
       <button type="button" disabled={!file} onClick={() => void open()}>Open selected local video</button>
     </fieldset>
     <p className="fine">The small video is the decoder view; the large canvas is the frozen frame used for annotation. Coordinates are browser-oriented intrinsic pixels. Encoded rotation and pixel aspect are not independently verified. No crop or extra rotation is applied.</p>
@@ -182,41 +189,41 @@ export function VideoTracker({ disabled = false, onAnalyze }: {
     {frame && frame.reads >= KITCHEN_VIDEO_LIMITS.frameReads * KITCHEN_VIDEO_LIMITS.warningFraction && <p className="notice">Approaching the frame-read limit. Export annotations now; they are not saved automatically.</p>}
     <fieldset disabled={locked || released || !capture}>
       <legend>Select a paused frame</legend>
-      <label>Requested video time (seconds) <input type="text" inputMode="decimal" value={target} onChange={e => setTarget(e.target.value)} /></label>
+      <div className="field"><label htmlFor={`${id}-target-time`}>Requested video time (seconds)</label><input id={`${id}-target-time`} type="text" inputMode="decimal" value={target} onChange={e => setTarget(e.target.value)} /></div>
       <button type="button" onClick={() => { try { void read(kitchenNumber(target, "requested time")); } catch (error) { report(error); } }}>Read requested frame</button>
       <button type="button" onClick={() => { if (frame && capture) void read(frame.frame.stamp.requestedTime + Number(capture.interval)); }}>Next sample</button>
     </fieldset>
     <button type="button" disabled={!ready || (!capture && !busy) || released} onClick={release}>Stop and release video; keep annotations</button>
     <fieldset disabled={!pointReady}>
       <legend>Record a source-pixel position</legend>
-      <label>Observation <select value={mark} onChange={e => { setMark(e.target.value as Mark); setIdentity(""); }}>
+      <div className="field"><label htmlFor={`${id}-mark`}>Observation</label><select id={`${id}-mark`} value={mark} onChange={e => { setMark(e.target.value as Mark); setIdentity(""); }}>
         <option value="x-a">X calibration mark A</option><option value="x-b">X calibration mark B</option>
         <option value="y-a">Y calibration mark A</option><option value="y-b">Y calibration mark B</option>
         <option value="stationary">One stationary feature</option><option value="particle">Moving particle</option>
-      </select></label>
-      <label>X (source pixels) <input type="text" inputMode="decimal" value={x} onChange={e => setX(e.target.value)} /></label>
-      <label>Y (source pixels) <input type="text" inputMode="decimal" value={y} onChange={e => setY(e.target.value)} /></label>
+      </select></div>
+      <div className="field"><label htmlFor={`${id}-x`}>X (source pixels)</label><input id={`${id}-x`} type="text" inputMode="decimal" value={x} onChange={e => setX(e.target.value)} /></div>
+      <div className="field"><label htmlFor={`${id}-y`}>Y (source pixels)</label><input id={`${id}-y`} type="text" inputMode="decimal" value={y} onChange={e => setY(e.target.value)} /></div>
       <button type="button" disabled={mark === "particle" && !calibrated} onClick={() => record()}>Record point</button>
       <p>Arrow keys move the crosshair by one source pixel; Shift moves ten. Pointer selection does not record a point until you choose Record point.</p>
       {mark === "particle" && <>
-        <label>Particle label <input value={particle} maxLength={80} onChange={e => setParticle(e.target.value)} /></label>
-        <label>First position after a loss <select value={identity} onChange={e => setIdentity(e.target.value as KitchenPoint["identityDecision"])}><option value="">No reacquisition decision</option><option value="reacquired-same">I identify the same particle</option><option value="new-object">This is a new object</option></select></label>
-        <label>Loss reason <select value={loss} onChange={e => setLoss(e.target.value as typeof loss)}><option value="edge">Left the image edge</option><option value="focus">Lost focus</option><option value="occluded">Occluded</option></select></label>
+        <div className="field"><label htmlFor={`${id}-particle`}>Particle label</label><input id={`${id}-particle`} value={particle} maxLength={80} onChange={e => setParticle(e.target.value)} /></div>
+        <div className="field"><label htmlFor={`${id}-identity`}>First position after a loss</label><select id={`${id}-identity`} value={identity} onChange={e => setIdentity(e.target.value as KitchenPoint["identityDecision"])}><option value="">No reacquisition decision</option><option value="reacquired-same">I identify the same particle</option><option value="new-object">This is a new object</option></select></div>
+        <div className="field"><label htmlFor={`${id}-loss`}>Loss reason</label><select id={`${id}-loss`} value={loss} onChange={e => setLoss(e.target.value as typeof loss)}><option value="edge">Left the image edge</option><option value="focus">Lost focus</option><option value="occluded">Occluded</option></select></div>
         <button type="button" disabled={!calibrated} onClick={() => record(true)}>Record loss at this frame</button>
       </>}
     </fieldset>
     <fieldset disabled={locked || !capture || tracking}>
       <legend>Calibrate measured axes before tracking</legend>
       <p>Click each of two fixed micrometer marks at least three times. For X, use their known horizontal separation; for Y, use their known vertical separation. Do not change magnification, stabilization or camera geometry during this session. One calibrated axis is sufficient for one-coordinate analysis.</p>
-      <label>Known mark separation (micrometres) <input type="text" inputMode="decimal" value={distance} onChange={e => setDistance(e.target.value)} /></label>
+      <div className="field"><label htmlFor={`${id}-distance`}>Known mark separation (micrometres)</label><input id={`${id}-distance`} type="text" inputMode="decimal" value={distance} onChange={e => setDistance(e.target.value)} /></div>
       <button type="button" onClick={() => calibrate("x")}>Calibrate X</button><button type="button" onClick={() => calibrate("y")}>Calibrate Y</button>
     </fieldset>
     {capture && <div data-video-calibration>{(["x","y"] as const).map(axis => <p key={axis}>{axis.toUpperCase()}: {capture.calibration[axis] ? `${capture.calibration[axis]!.pixelsPerUm} px/µm; repeated-click standard uncertainty ${capture.calibration[axis]!.standardUncertainty} px/µm` : "not calibrated"}.</p>)}</div>}
     <p>Record at least ten independent clicks on the same stationary feature. Repeated clicks in one paused frame describe click scatter, not a direct measurement of moving-particle localization error. The analyzer states that extra assumption and does not silently pool axes.</p>
     <fieldset disabled={locked || !capture}>
       <legend>Declare camera inputs, then send a fixed snapshot to analysis</legend>
-      <label>Exposure duration (seconds; blank means unknown) <input type="text" inputMode="decimal" value={exposure} onChange={e => setExposure(e.target.value)} /></label>
-      <label>Verified pixel aspect ratio (blank means unknown) <input type="text" inputMode="decimal" value={aspect} onChange={e => setAspect(e.target.value)} /></label>
+      <div className="field"><label htmlFor={`${id}-exposure`}>Exposure duration (seconds; blank means unknown)</label><input id={`${id}-exposure`} type="text" inputMode="decimal" value={exposure} onChange={e => setExposure(e.target.value)} /></div>
+      <div className="field"><label htmlFor={`${id}-aspect`}>Verified pixel aspect ratio (blank means unknown)</label><input id={`${id}-aspect`} type="text" inputMode="decimal" value={aspect} onChange={e => setAspect(e.target.value)} /></div>
       <p>Unknown exposure withholds a camera interval. Radius, temperature and viscosity are not inferred from this video; declare independently known physical inputs in the analysis controls below.</p>
       <div className="actions"><button type="button" disabled={!counts} onClick={() => download("json")}>Download raw annotations JSON</button>
         <button type="button" disabled={!calibrated || !counts} onClick={() => download("csv")}>Download analysis CSV</button>

@@ -1,6 +1,11 @@
 .video-tracker { margin-block: 2rem; border-block: 1px solid currentColor; padding-block: 1rem; }
 .video-tracker fieldset { display: flex; flex-wrap: wrap; gap: .8rem; margin-block: 1rem; min-width: 0; }
 .video-tracker fieldset p { flex-basis: 100%; }
+/* A value-bearing control is a SIBLING of its label, not a child: nesting one puts its value
+   into the control's accessible name (am-qt1j). `.field` restores the stacked layout the
+   nested form gave for free. The bare `label` rule stays for the checkbox, which carries no
+   text value and is idiomatic to nest. */
+.video-tracker .field { display: grid; gap: .3rem; max-width: 100%; }
 .video-tracker label { display: grid; gap: .3rem; max-width: 100%; }
 .video-tracker input, .video-tracker select { max-width: 100%; }
 .video-decoder { display: block; width: 160px; max-width: 100%; margin-block: .5rem; }
