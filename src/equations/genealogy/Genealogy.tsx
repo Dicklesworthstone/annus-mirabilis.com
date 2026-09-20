@@ -230,8 +230,17 @@ export function GenealogyListFallback({
             <span
               className="genealogy-edge-type"
               data-edge-type={incomingEdge?.edgeType}
-              aria-label={`Derivation type: ${edgeLabel}`}
+              aria-hidden="true"
             >
+              {/*
+                A plain span has the generic role, which supports no accessible
+                name, so the aria-label this carried was not dependable. It was
+                also redundant: the sibling button's name already opens with the
+                edge label ("Historical Derivation leads to ..."), so voicing the
+                span too was the duplicate announcement AGENTS.md forbids. The
+                bracketed text stays visible and is now hidden from assistive
+                technology, matching the repeated-node branch above.
+              */}
               [{edgeLabel}]
             </span>
           )}

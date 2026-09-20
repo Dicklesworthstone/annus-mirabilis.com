@@ -333,18 +333,26 @@ describe("am-eq-genealogy-hmm: Genealogy component rendering and navigation", ()
       'data-from="root-postulate" data-to="hist-eq" data-edge-type="historical-derivation"',
     );
 
-    // 2. Explicit edge naming in accessible nested list fallback
+    // 2. Explicit edge naming in the nested list fallback.
+    //
+    // The span is aria-hidden and carries no aria-label. A plain span has the
+    // generic role, which supports no accessible name, so the label it used to
+    // carry was unreliable; and the sibling button's own name already opens with
+    // the edge label, so voicing the span too was a duplicate announcement. The
+    // VISIBLE naming this test exists for is unchanged, and is asserted below
+    // together with the absence of the label that did nothing.
     expect(html).toContain(
-      '<span class="genealogy-edge-type" data-edge-type="historical-derivation" aria-label="Derivation type: Historical Derivation">[Historical Derivation]</span>',
+      '<span class="genealogy-edge-type" data-edge-type="historical-derivation" aria-hidden="true">[Historical Derivation]</span>',
     );
     expect(html).toContain(
-      '<span class="genealogy-edge-type" data-edge-type="modern-verification-oracle" aria-label="Derivation type: Modern Verification Oracle">[Modern Verification Oracle]</span>',
+      '<span class="genealogy-edge-type" data-edge-type="modern-verification-oracle" aria-hidden="true">[Modern Verification Oracle]</span>',
     );
     expect(html).toContain(
-      '<span class="genealogy-edge-type" data-edge-type="pedagogical-reconstruction" aria-label="Derivation type: Pedagogical Reconstruction">[Pedagogical Reconstruction]</span>',
+      '<span class="genealogy-edge-type" data-edge-type="pedagogical-reconstruction" aria-hidden="true">[Pedagogical Reconstruction]</span>',
     );
     expect(html).toContain(
-      '<span class="genealogy-edge-type" data-edge-type="cross-reference" aria-label="Derivation type: Cross-Paper Reference">[Cross-Paper Reference]</span>',
+      '<span class="genealogy-edge-type" data-edge-type="cross-reference" aria-hidden="true">[Cross-Paper Reference]</span>',
     );
+    expect(html).not.toContain('aria-label="Derivation type:');
   });
 });
