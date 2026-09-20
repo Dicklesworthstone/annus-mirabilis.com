@@ -155,12 +155,60 @@ export function findTestFiles(dirs: readonly string[]): string[] {
   return out;
 }
 
+const PASS_OUTCOME_HINT = /\boutcome\s*:\s*["'](pass|passed)["']/;
+
+/**
+ * Lines belonging to a record that reports its own outcome as a literal pass.
+ *
+ * The property patterns below read `rule:`, `code:` and friends wherever they
+ * appear, which means a structured log line reporting SUCCESS was counted as a
+ * refusal site and the ratchet then demanded a test for it. `all-pass` in
+ * check-receipts.ts is the clearest case: `severity: "info"`, `outcome: "pass"`,
+ * message "Receipt passed all verification checks."
+ *
+ * The discriminator is the record's own outcome, not its name and not the fact
+ * that it is a log line. Failure records keep their sites: `no-parallel-deny-lists`
+ * in lint-voice.ts is emitted the same way, with `outcome: "failed"`, and IS the
+ * only emission of that violation. A record whose outcome is computed
+ * (`errors.length === 0 ? "passed" : "failed"`) also keeps its site, because it
+ * can report a failure.
+ *
+ * Only the property forms consult this. A `throw` is a refusal whatever record
+ * surrounds it, so `outcome: "passed"` beside one cannot hide it.
+ */
+function passOutcomeRecordLines(source: string): Set<number> {
+  const lines = new Set<number>();
+  // Nothing to parse in the overwhelming majority of files.
+  if (!PASS_OUTCOME_HINT.test(source)) return lines;
+  const file = ts.createSourceFile("record.ts", source, ts.ScriptTarget.Latest, true);
+  const visit = (node: ts.Node): void => {
+    if (ts.isObjectLiteralExpression(node)) {
+      const reportsPass = node.properties.some(
+        (prop) =>
+          ts.isPropertyAssignment(prop) &&
+          prop.name.getText(file) === "outcome" &&
+          ts.isStringLiteralLike(prop.initializer) &&
+          (prop.initializer.text === "pass" || prop.initializer.text === "passed"),
+      );
+      if (reportsPass) {
+        for (const prop of node.properties) {
+          lines.add(file.getLineAndCharacterOfPosition(prop.getStart(file)).line + 1);
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  return lines;
+}
+
 /**
  * Scans source file text for refusal throw sites.
  */
 export function scanRefusalThrowSites(source: string, relPath: string): RefusalThrowSite[] {
   const sites: RefusalThrowSite[] = [];
   const lines = source.split("\n");
+  const passOutcomeLines = passOutcomeRecordLines(source);
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
@@ -203,7 +251,7 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
       /(?:rule|refusalCode|errorCode)\s*:\s*["']([a-zA-Z0-9_-]+)["']/,
     );
     const refCode = refPropMatch?.[1];
-    if (refCode && isRefusalCode(refCode)) {
+    if (refCode && isRefusalCode(refCode) && !passOutcomeLines.has(lineNum)) {
       sites.push({
         file: relPath,
         line: lineNum,
@@ -216,7 +264,7 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
     // Pattern 3: code: "..." in refusal, error, or diagnostic contexts
     const codeMatch = line.match(/code\s*:\s*["']([a-zA-Z0-9_-]+)["']/);
     const candidateCode = codeMatch?.[1];
-    if (candidateCode && isRefusalCode(candidateCode)) {
+    if (candidateCode && isRefusalCode(candidateCode) && !passOutcomeLines.has(lineNum)) {
       const contextWindow = lines
         .slice(Math.max(0, i - 4), Math.min(lines.length, i + 5))
         .join("\n");

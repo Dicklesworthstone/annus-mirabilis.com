@@ -313,4 +313,65 @@ export function check(x: number) {
     }
     assert.equal(byRoot.size, declared.length);
   });
+
+  // The property patterns read `rule:` and `code:` wherever they appear, so a
+  // structured log line reporting SUCCESS was being counted as a refusal site
+  // and the ratchet then demanded a test for it. Three such sites existed, of
+  // 1897. The discriminator is the record's own outcome; these four fixtures
+  // are the negatives a looser rule would fail.
+  test("a record reporting its own outcome as passed is not a refusal site, and nothing else is excluded", () => {
+    // One source, four shapes, because they have to be judged against each
+    // other. An earlier version of this test put each shape in its own source,
+    // and three of them were protected by the cheap pre-filter rather than by
+    // the rule under test: with no literal passing outcome anywhere in the file
+    // the parse never runs, so a planted outcome-BLIND exclusion still left them
+    // counted and the fixtures passed for the wrong reason. The real file this
+    // came from, the voice linter, carries a failing record and a passing one
+    // side by side, so that is the shape tested.
+    const mixedRecords = `
+export function lint(entries: string[]) {
+  for (const entry of entries) {
+    logEntries.push({
+      timestamp,
+      suite: "voice-lint",
+      logRunId,
+      rule: "no-parallel-deny-lists",
+      severity: "error",
+      outcome: "failed",
+      file: entry,
+    });
+  }
+  for (const stale of staleOverrides) {
+    logEntries.push({
+      timestamp,
+      suite: "voice-lint",
+      logRunId,
+      rule: "stale-override",
+      severity: "flag",
+      outcome: "passed",
+      file: stale.target,
+    });
+  }
+  lines.push({
+    timestamp,
+    logRunId,
+    rule: "inventory-complete",
+    outcome: errors.length === 0 ? "passed" : "failed",
+  });
+  logs.push({ suite: "s", rule: "checked-nothing", outcome: "pass" });
+  if (!ok) {
+    throw new GuardError("guard-refused", "the guard refused");
+  }
+}
+`;
+    const codes = scanRefusalThrowSites(mixedRecords, "src/dummy/mixedRecords.ts")
+      .map((s) => s.code)
+      .sort();
+
+    // Kept: a failure record IS the emission of that violation. A computed
+    // outcome can report a failure. A throw is a refusal whatever record sits
+    // beside it, which is the evasion this rule must not open.
+    // Dropped: the two records that say they passed.
+    assert.deepEqual(codes, ["guard-refused", "inventory-complete", "no-parallel-deny-lists"]);
+  });
 });
