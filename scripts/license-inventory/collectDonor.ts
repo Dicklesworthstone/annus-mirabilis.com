@@ -291,13 +291,32 @@ export function collectDonor(options: CollectDonorOptions): LicenseItem[] {
     let license = "MIT with OpenAI/Anthropic Rider";
     let noticeError: string | undefined;
 
-    if (
-      entry.noticeForm === "header" ||
-      entry.destPath.endsWith(".ts") ||
-      entry.destPath.endsWith(".tsx") ||
-      entry.destPath.endsWith(".js") ||
-      entry.destPath.endsWith(".jsx")
-    ) {
+    // The audit's own `noticeForm` decides, and the file extension is only the fallback
+    // for a row that records nothing meaningful.
+    //
+    // This branch used to be `noticeForm === "header" || destPath ends with .ts/.tsx/...`,
+    // and the extension test made the recorded value irrelevant: every code file was
+    // required to carry the section 9 header whatever its row said. DONOR_AUDIT.md
+    // section 11 records one row as `owner-blocked` - src/reader/viewMode.ts, whose notes
+    // read "Pure function rewrite; Rider applicability on short rewrites is an unresolved
+    // owner decision (reported as owner-blocked)" - so the gate parsed that answer and
+    // then overrode it, reporting a disallowed license for a notice form the audit says
+    // nobody has ruled on. The seam-table path below already had a typed state for this
+    // exact case, PENDING-OWNER-RULING, exempt under rule `known-donor-gap`; the
+    // section 11 path had no way to say it.
+    //
+    // Writing the header instead would be worse than the false failure: it would assert,
+    // in a file's legal notice, that the Rider applies to a short rewrite, which is the
+    // question the owner has not answered.
+    const OWNER_BLOCKED_FORMS = new Set(["owner-blocked", "pending-owner-ruling"]);
+    const isCodeFile = /\.(ts|tsx|js|jsx)$/.test(entry.destPath);
+    if (OWNER_BLOCKED_FORMS.has(entry.noticeForm)) {
+      license = "PENDING-OWNER-RULING";
+      noticeError =
+        `DONOR_AUDIT.md section 11 records noticeForm '${entry.noticeForm}' for ` +
+        `'${entry.destPath}': the notice form is an open owner decision, so no attribution ` +
+        "header is required or written until it is ruled on.";
+    } else if (entry.noticeForm === "header" || isCodeFile) {
       const headerCheck = validateDonorAttributionHeader(content);
       if (!headerCheck.valid) {
         license = "ATTRIBUTION-HEADER-INVALID";
