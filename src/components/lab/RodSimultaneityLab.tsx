@@ -683,10 +683,9 @@ export function RodSimultaneityLab({
       {/* Spacetime Event Interval Ledger */}
       <div className="notice" style={{ margin: "1.5rem 0" }}>
         <h3 style={{ marginTop: 0 }}>Spacetime Event Coordinates &amp; Invariant Interval</h3>
-        <div
+        <section
           className="table-scroll"
           tabIndex={0}
-          role="region"
           aria-label="Spacetime event coordinates and invariant interval table"
         >
           <table style={{ width: "100%", textAlign: "left", fontFamily: "var(--font-mono)" }}>
@@ -739,16 +738,15 @@ export function RodSimultaneityLab({
               </tr>
             </tbody>
           </table>
-        </div>
+        </section>
       </div>
 
       {/* Accepted Results Telemetry Table */}
       <div className="notice" data-view-id="sr-03-data-table" style={{ margin: "1.5rem 0" }}>
         <h3 style={{ marginTop: 0 }}>Accepted Laboratory Telemetry Snapshot</h3>
-        <div
+        <section
           className="table-scroll"
           tabIndex={0}
-          role="region"
           aria-label="Accepted laboratory telemetry snapshot table"
         >
           <table style={{ width: "100%", textAlign: "left", fontFamily: "var(--font-mono)" }}>
@@ -790,7 +788,7 @@ export function RodSimultaneityLab({
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       </div>
 
       {/* Epistemic Limits (Not Modeled) */}

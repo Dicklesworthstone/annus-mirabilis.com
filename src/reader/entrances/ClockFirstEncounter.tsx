@@ -14,9 +14,8 @@ import "./countingEntrance.css";
 
 function ClockTable({ example, agreed }: { example: ClockExample; agreed: boolean }) {
   return (
-    <div
+    <section
       className="encounter-table"
-      role="region"
       aria-label="Clock readings and the distinct distant assignment"
       tabIndex={0}
     >
@@ -47,7 +46,7 @@ function ClockTable({ example, agreed }: { example: ClockExample; agreed: boolea
           </tr>
         </tbody>
       </table>
-    </div>
+    </section>
   );
 }
 

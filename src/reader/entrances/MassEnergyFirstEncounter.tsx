@@ -291,7 +291,7 @@ export function MassEnergyFirstEncounter({
       </details>
       <h3>Why the slower traveler matters</h3>
       <p>{record.consistencyCase}</p>
-      <div className="me-table" role="region" aria-label="Two-speed energy comparison" tabIndex={0}>
+      <section className="me-table" aria-label="Two-speed energy comparison" tabIndex={0}>
         <table>
           <caption>
             Same emission, two speeds. The exact-within-model drop and its low-speed approximation
@@ -326,7 +326,7 @@ export function MassEnergyFirstEncounter({
             ))}
           </tbody>
         </table>
-      </div>
+      </section>
       <p>
         The large-number example makes the subtraction easy to see. To identify inertia, compare at
         low speed: the energy of motion then follows the ordinary speed-squared rule. The high-speed

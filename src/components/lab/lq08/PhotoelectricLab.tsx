@@ -522,10 +522,9 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         <h3 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
           Accepted Laboratory Snapshot (Instance Telemetry)
         </h3>
-        <div
+        <section
           className="table-scroll"
           tabIndex={0}
-          role="region"
           aria-label="Accepted laboratory snapshot telemetry table"
         >
           <table
@@ -581,7 +580,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       </div>
 
       {/* Historical Readout: Einstein 1905 §8 Order-of-Magnitude Check */}

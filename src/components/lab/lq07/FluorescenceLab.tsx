@@ -619,10 +619,9 @@ export function FluorescenceLab({
           Calculated Energy Ledger &amp; Transition Quantities
         </h3>
 
-        <div
+        <section
           className="table-scroll"
           tabIndex={0}
-          role="region"
           aria-label="Calculated energy ledger and transition quantities table"
         >
           <table>
@@ -707,7 +706,7 @@ export function FluorescenceLab({
               </tr>
             </tbody>
           </table>
-        </div>
+        </section>
       </section>
 
       {/* Assumptions & Not Modeled */}

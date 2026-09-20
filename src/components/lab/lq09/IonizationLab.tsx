@@ -649,10 +649,9 @@ export function IonizationLab({ example }: IonizationLabProps) {
             <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
               Accepted Laboratory Telemetry Snapshot
             </h4>
-            <div
+            <section
               className="table-scroll"
               tabIndex={0}
-              role="region"
               aria-label="Accepted laboratory telemetry snapshot table"
             >
               <table aria-label="Accepted laboratory telemetry snapshot">
@@ -803,7 +802,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </section>
           </div>
         </div>
       </div>

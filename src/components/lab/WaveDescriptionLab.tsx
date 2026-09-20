@@ -711,10 +711,9 @@ export function WaveDescriptionLab({
         <h3 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
           Accepted Laboratory Telemetry Snapshot
         </h3>
-        <div
+        <section
           className="table-scroll"
           tabIndex={0}
-          role="region"
           aria-label="Accepted laboratory telemetry snapshot table"
         >
           <table
@@ -775,7 +774,7 @@ export function WaveDescriptionLab({
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       </div>
 
       {/* Epistemic Limits (Not Modeled) */}

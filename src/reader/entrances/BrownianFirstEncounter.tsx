@@ -399,11 +399,10 @@ export function BrownianFirstEncounter({
           </div>
         </div>
       ) : (
-        <div
+        <section
           className="table-scroll"
           style={{ marginBottom: "1.5rem" }}
           tabIndex={0}
-          role="region"
           aria-label="Particle displacements and squares table"
         >
           <table>
@@ -481,7 +480,7 @@ export function BrownianFirstEncounter({
               })}
             </tbody>
           </table>
-        </div>
+        </section>
       )}
 
       {/* Totals & Arithmetic Engine Output */}
@@ -578,16 +577,15 @@ export function BrownianFirstEncounter({
         <section>
           <h4>Step 2 & 3 · What a signed sum tells us</h4>
           <p>When we add the displacements algebraically, opposite directions cancel out:</p>
-          <div
+          <section
             className="formula"
             style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}
             tabIndex={0}
-            role="region"
             aria-label="Signed sum of displacements"
           >
             {entries.map((x) => `(${formatSignedDisplacement(x)})`).join(" + ")} ={" "}
             <strong>{formatSignedDisplacement(totals.signedSum)} units</strong>
-          </div>
+          </section>
           <p>
             A signed total of zero tells us that the average endpoint has not shifted. It does not
             mean every particle remained at rest. In the authored example all four particles have
@@ -660,15 +658,14 @@ export function BrownianFirstEncounter({
           <p>
             First expand the square of a sum. This algebra holds without an independence assumption:
           </p>
-          <div
+          <section
             className="formula"
             style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}
             tabIndex={0}
-            role="region"
             aria-label="Square of sum expansion formula"
           >
             (Δx₁ + Δx₂)² = Δx₁² + 2·Δx₁·Δx₂ + Δx₂²
-          </div>
+          </section>
           <p>
             Now assume the displacements over the chosen time intervals are independent and each has
             zero mean. Independence makes the average product equal the product of the averages, so

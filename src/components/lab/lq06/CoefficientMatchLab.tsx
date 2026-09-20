@@ -709,10 +709,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
               Accepted Telemetry Snapshot
             </h4>
-            <div
+            <section
               className="table-scroll"
               tabIndex={0}
-              role="region"
               aria-label="Accepted telemetry snapshot table"
             >
               <table aria-label="Accepted telemetry snapshot">
@@ -885,7 +884,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </section>
           </div>
         </div>
       </div>

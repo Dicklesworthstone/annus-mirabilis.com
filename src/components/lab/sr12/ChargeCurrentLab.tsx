@@ -380,10 +380,9 @@ export function ChargeCurrentLab({
       </form>
 
       {/* Telemetry Output Table */}
-      <div
+      <section
         className="table-scroll"
         tabIndex={0}
-        role="region"
         aria-label="Charge and current density telemetry across frames"
         style={{
           overflowX: "auto",
@@ -555,7 +554,7 @@ export function ChargeCurrentLab({
             )}
           </tbody>
         </table>
-      </div>
+      </section>
 
       {/* Predict Mode */}
       <section

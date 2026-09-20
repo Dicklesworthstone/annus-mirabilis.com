@@ -13,12 +13,7 @@ import "./countingEntrance.css";
 
 function OutcomeTable({ example }: { example: TokenExample }) {
   return (
-    <div
-      className="encounter-table"
-      role="region"
-      aria-label="Complete list of arrangements"
-      tabIndex={0}
-    >
+    <section className="encounter-table" aria-label="Complete list of arrangements" tabIndex={0}>
       <table>
         <caption>
           {example.favorable} of {example.total} equally likely arrangements put every token in the
@@ -45,7 +40,7 @@ function OutcomeTable({ example }: { example: TokenExample }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </section>
   );
 }
 

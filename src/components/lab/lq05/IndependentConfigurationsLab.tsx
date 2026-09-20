@@ -467,10 +467,9 @@ export function IndependentConfigurationsLab({
           Calculated Microstate & Entropy Outputs
         </h3>
 
-        <div
+        <section
           className="table-scroll"
           tabIndex={0}
-          role="region"
           aria-label="Calculated microstate and entropy outputs table"
         >
           <table
@@ -555,7 +554,7 @@ export function IndependentConfigurationsLab({
               </tr>
             </tbody>
           </table>
-        </div>
+        </section>
       </section>
 
       {/* Assumptions & Not Modeled */}

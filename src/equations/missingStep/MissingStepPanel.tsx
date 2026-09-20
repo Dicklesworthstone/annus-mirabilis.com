@@ -37,8 +37,7 @@ export function MissingStepPanel({
         ].map(([label, html]) => (
           <section key={label}>
             <h3>{label}</h3>
-            <div
-              role="region"
+            <section
               aria-label={`${label} mathematical expression`}
               tabIndex={0}
               className="missing-step-math"
@@ -84,8 +83,7 @@ export function MissingStepPanel({
         <details key={item.result.dependence} open={index === 0} className="missing-step-case">
           <summary>{item.label}</summary>
           <p>{item.explanation}</p>
-          <div
-            role="region"
+          <section
             aria-label={`${item.label}: outcome table`}
             tabIndex={0}
             className="missing-step-table"
@@ -118,7 +116,7 @@ export function MissingStepPanel({
                 ))}
               </tbody>
             </table>
-          </div>
+          </section>
           <p>
             <strong>Mean square:</strong> {item.result.meanSquare}.{" "}
             <strong>Mean cross contribution:</strong> {item.result.meanCrossTerm}.{" "}

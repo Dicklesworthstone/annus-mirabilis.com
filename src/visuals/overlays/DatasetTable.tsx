@@ -33,10 +33,9 @@ export function DatasetTable({
     dataset.fits?.filter((f) => !seriesId || !f.seriesId || f.seriesId === seriesId) ?? [];
 
   return (
-    <div
+    <section
       className={className ? className.trim() : undefined}
       data-testid="dataset-table"
-      role="region"
       aria-label="Historical dataset table"
       tabIndex={0}
       style={{
@@ -326,6 +325,6 @@ export function DatasetTable({
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
