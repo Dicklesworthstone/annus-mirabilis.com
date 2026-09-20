@@ -78,6 +78,15 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
   (
     [
       {
+        file: "src/reader/entrances/BrownianFirstEncounter.tsx",
+        className: "formula",
+        url: "/papers/brownian-motion/",
+        measurements: "320px: 288px/288px (diff 0); 1280px: 680px/680px (diff 0)",
+        reason:
+          "Both `formula` elements in this file render ONLY with JavaScript disabled: with JS the component swaps that branch for a card layout, so a hydrated measurement finds nothing. Measured in a javaScriptEnabled:false context, which is the only state in which a reader sees them, on /papers/brownian-motion/ and its /s4/ section. Their content is the server-default four-entry signed sum, so it does not grow with reader input. The file carries exactly two elements of this class and both were measured.",
+        measuredBy: "am-6iz4",
+      },
+      {
         file: "src/components/lab/TracerLab.tsx",
         className: "lab-bottom",
         url: "/lab/bm-01/",
@@ -437,6 +446,19 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
 
     // A recorded class that no longer declares scrolling, or that has been promoted to AUDITED,
     // is a stale entry. The ledger states a shortfall; it must not outlive one.
+    // am-a14x, second half. The check above proves the derived set is covered. It does NOT prove
+    // the audited set is real: an entry naming a class no stylesheet declares would sit there
+    // forever, auditing nothing, while making the coverage ratio look better than it is. A derived
+    // denominator nobody checks against is the same trap one level up.
+    const auditedButUndeclared = AUDITED_SCROLL_CLASSES.filter((cls) => !derived.has(cls)).sort();
+    assert.deepEqual(
+      auditedButUndeclared,
+      [],
+      `These classes are audited but no stylesheet declares a scrolling overflow for them: ${auditedButUndeclared.join(", ")}. ` +
+        "Either the class was renamed or removed and the entry is dead weight, or its CSS rule was " +
+        "lost and the regions it names are no longer scrollable.",
+    );
+
     const stale = [...NOT_YET_AUDITED.keys()]
       .filter((cls) => !derived.has(cls) || audited.has(cls))
       .sort();
