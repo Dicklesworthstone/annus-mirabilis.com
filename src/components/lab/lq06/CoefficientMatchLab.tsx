@@ -709,11 +709,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
               Accepted Telemetry Snapshot
             </h4>
-            <section
-              className="table-scroll"
-              tabIndex={0}
-              aria-label="Accepted telemetry snapshot table"
-            >
+            <section className="table-scroll" aria-label="Accepted telemetry snapshot table">
               <table aria-label="Accepted telemetry snapshot">
                 <thead>
                   <tr>

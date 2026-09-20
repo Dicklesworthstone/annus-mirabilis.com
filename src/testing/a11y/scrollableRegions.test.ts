@@ -78,6 +78,24 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
   (
     [
       {
+        file: "src/components/lab/lq06/CoefficientMatchLab.tsx",
+        className: "table-scroll",
+        url: "/lab/lq-06/",
+        measurements: "320px: 286px/286px (diff 0); 1280px: 529px/529px (diff 0)",
+        reason:
+          "Measured against the built site after d9bc02aa let the dotted identifier columns wrap below 480px. This file carries exactly one element of this class, so the record covers precisely what was measured. The table was also driven to every control extreme before the wrap landed and its width did not move, so it is not input-dependent.",
+        measuredBy: "am-6iz4",
+      },
+      {
+        file: "src/components/lab/lq07/FluorescenceLab.tsx",
+        className: "table-scroll",
+        url: "/lab/lq-07/",
+        measurements: "320px: 190px/190px (diff 0); 1280px: 926px/926px (diff 0)",
+        reason:
+          "Measured against the built site after d9bc02aa let the dotted identifier columns wrap below 480px; it was 303px/190px before. This file carries exactly one element of this class, so the record covers precisely what was measured.",
+        measuredBy: "am-6iz4",
+      },
+      {
         file: "src/reader/entrances/BrownianFirstEncounter.tsx",
         className: "formula",
         url: "/papers/brownian-motion/",

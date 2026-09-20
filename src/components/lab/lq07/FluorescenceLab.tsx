@@ -621,7 +621,6 @@ export function FluorescenceLab({
 
         <section
           className="table-scroll"
-          tabIndex={0}
           aria-label="Calculated energy ledger and transition quantities table"
         >
           <table>
