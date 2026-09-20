@@ -625,15 +625,27 @@ export function assertEditionContract(
       "Facsimile bytes are not in this checkout. Logged as not-available, not a pass.";
   }
 
-  checks.push({
-    checkNumber: 1,
-    check: "digest-chain",
-    owner: "this bead (am-edn-alignment-tooling-do1)",
-    role: "implements",
-    outcome: check1Outcome,
-    code: check1Code,
-    message: check1Message,
-  });
+  if (!options.declaredLedgerDigest && !options.declaredFacsimileDigest) {
+    // A chain with no declared link is not a verified chain. This branch reported
+    // "Digest chain verified." with neither a ledger digest nor a facsimile digest
+    // supplied, which is the seventh instance of the shape this bead has been clearing.
+    checks.push(
+      declineEmptyPopulation(
+        specFor(1),
+        "no declared ledger digest and no declared facsimile digest were supplied, so no link of the chain was compared.",
+      ),
+    );
+  } else {
+    checks.push({
+      checkNumber: 1,
+      check: "digest-chain",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: check1Outcome,
+      code: check1Code,
+      message: check1Message,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 2: Ledger is clean (spec #2, invokes am-edn-ledger-validator-edv)
@@ -720,15 +732,28 @@ export function assertEditionContract(
       : "Edition text is not a reconstruction of the ledger (truncation at a sentence end still fails).";
   }
 
-  checks.push({
-    checkNumber: 3,
-    check: "reconstruction",
-    owner: "this bead (am-edn-alignment-tooling-do1)",
-    role: "implements",
-    outcome: check3Passed ? "passed" : "failed",
-    code: check3Code,
-    message: check3Message,
-  });
+  if (options.editionText === undefined) {
+    // Check 7 already declined this exact condition - "no edition text was supplied.
+    // Examining nothing is not a clean edition." - while check 3 blessed it. Eighth
+    // instance of the shape, and the two checks disagreeing about the same missing input
+    // is how it stayed invisible.
+    checks.push(
+      declineEmptyPopulation(
+        specFor(3),
+        "no edition text was supplied, so there was nothing to reconstruct against the ledger.",
+      ),
+    );
+  } else {
+    checks.push({
+      checkNumber: 3,
+      check: "reconstruction",
+      owner: "this bead (am-edn-alignment-tooling-do1)",
+      role: "implements",
+      outcome: check3Passed ? "passed" : "failed",
+      code: check3Code,
+      message: check3Message,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 4: Count reconciliation (spec #4, implements)
