@@ -374,7 +374,7 @@ export async function runProtocolConformance(
       }
       if (
         !mapped.refusal.details ||
-        mapped.refusal.details["upstreamCode"] !== "unsupported-step-kernel"
+        mapped.refusal.details.upstreamCode !== "unsupported-step-kernel"
       ) {
         return { passed: false, message: "Upstream code was not preserved in refusal details." };
       }
