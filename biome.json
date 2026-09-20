@@ -102,6 +102,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["src/components/lab/PredictOverlay.test.tsx"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noApproximativeNumericConstant": "off"
+          }
+        }
+      }
     }
   ]
 }

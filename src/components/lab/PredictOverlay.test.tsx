@@ -51,7 +51,9 @@ describe("PredictOverlay (am-inst-predict-mode-ti7m)", () => {
   });
 
   test("renders clear button when onClear callback is provided", () => {
-    let cleared = false;
+    // renderToStaticMarkup never dispatches events, so this checks only that supplying
+    // onClear is what makes the control render. That the control actually clears the
+    // comparison needs a test that can click, and there is not one yet.
     const html = renderToStaticMarkup(
       <PredictOverlay
         choice={{ form: "candidate", candidateId: "bm-01-predict-viscosity-root-two" }}
@@ -59,9 +61,7 @@ describe("PredictOverlay (am-inst-predict-mode-ti7m)", () => {
           [0, 0],
           [1, 2],
         ]}
-        onClear={() => {
-          cleared = true;
-        }}
+        onClear={() => {}}
       />,
     );
 

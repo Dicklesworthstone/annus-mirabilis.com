@@ -24,6 +24,7 @@
  */
 
 import { describe, expect, test } from "bun:test";
+import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { evaluatorSources } from "./sourceDigest.ts";
@@ -172,45 +173,81 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
     //
     // Two kinds. A FILE override is justified by the finding still being in that file. A
     // GLOB override covering a whole class of files cannot be checked that way, so it is
-    // justified by its scope instead: the only class relaxation this repository allows is
-    // over test code, where `any` is how a test hands a decoder something its types
-    // forbid in order to exercise a refusal path. If those globs ever widen to product
-    // code, this fails.
-    const fileEvidence: Record<string, { rule: string; mustContain: string }> = {
+    // justified by its scope instead, against a written-out allowlist of permitted class
+    // globs: the only class relaxation this repository allows is over test code, where
+    // `any` is how a test hands a decoder something its types forbid in order to exercise
+    // a refusal path. A glob that is not on that allowlist fails.
+    //
+    // The `why` lines are documentation and are not asserted. The ASSERTION is the
+    // measurement below: biome is re-run over the file with the rule forced back on, and
+    // the override is only justified while the rule still fires there. An earlier version
+    // asserted a hand-written `mustContain` string instead, and it was vacuous - taking
+    // biome's own suggested fix turned "disp=0.707" into "disp=0.7071067811865476", which
+    // still CONTAINS the recorded evidence, so the stale override passed. Do not put a
+    // substring back here.
+    const fileEvidence: Record<string, { group: string; rule: string; why: string }> = {
       "scripts/e2e/controlledComparison.mjs": {
+        group: "suspicious",
         rule: "noApproximativeNumericConstant",
-        mustContain: "0.70711",
+        why: "The adversarial fixture must compare the site's printed 0.70711 against a pinned expected number; Math.SQRT1_2 would test arithmetic instead of the site.",
       },
       "src/reader/entrances/LightQuantaFirstEncounter.tsx": {
+        group: "suspicious",
         rule: "noArrayIndexKey",
-        mustContain: "<g key={token}>",
+        why: "The index is the token's identity: the circle renders token + 1, the aria-label says Token n, and the caption says the labels are what distinguish tokens.",
+      },
+      "src/components/lab/PredictOverlay.test.tsx": {
+        group: "suspicious",
+        rule: "noApproximativeNumericConstant",
+        why: "0.707 is a reader's typed prediction and the assertion pins the rendered string disp=0.707; Math.SQRT1_2 renders 0.7071067811865476 and breaks it.",
       },
     };
-    const isTestScope = (glob: string) =>
-      glob.includes(".test.") || glob.includes("__fixtures__") || glob.startsWith("src/testing/");
+    // The class relaxations this repository allows, written out in full, with the rule each
+    // one is allowed to relax. This is a MEMBERSHIP test, not a pattern test. The first
+    // version asked `glob.includes(".test.")`, which would have admitted
+    // `src/reader/notes.test.helpers/**` - product code carrying a substring that looks
+    // like test code. Widening a class relaxation now means adding its exact glob here,
+    // which is a reviewable decision rather than something a directory name can arrange
+    // on its own.
+    const classEvidence: Record<string, { rule: string }> = {
+      "**/*.test.ts": { rule: "noExplicitAny" },
+      "**/*.test.tsx": { rule: "noExplicitAny" },
+      "**/*.test.mjs": { rule: "noExplicitAny" },
+      "**/__fixtures__/**": { rule: "noExplicitAny" },
+      "src/testing/**": { rule: "noExplicitAny" },
+    };
 
     for (const override of lintOverrides) {
       for (const file of override.includes ?? []) {
         if (file.includes("*")) {
-          // A class relaxation: allowed only over test code, and it must say which rule.
-          expect(isTestScope(file), `Class-wide lint override reaches product code: ${file}`).toBe(
-            true,
-          );
-          expect(JSON.stringify(override.linter?.rules)).toContain("noExplicitAny");
+          const scope = classEvidence[file];
+          expect(
+            scope,
+            `Class-wide lint override is not on the allowlist, so it may reach product code: ${file}`,
+          ).toBeDefined();
+          if (!scope) continue;
+          expect(JSON.stringify(override.linter?.rules)).toContain(scope.rule);
           continue;
         }
         const known = fileEvidence[file];
         expect(known, `No recorded justification for the lint override on ${file}`).toBeDefined();
         if (!known) continue;
         expect(existsSync(join(ROOT, file))).toBe(true);
-        // The finding must still be there. If the assertion was rewritten, the override is
-        // stale and this is where that surfaces. Asserted as a boolean so a stale override
-        // reports the file and the missing evidence instead of dumping the whole source.
-        expect(
-          readFileSync(join(ROOT, file), "utf8").includes(known.mustContain),
-          `The lint override on ${file} is stale: ${known.rule} was suppressed because of ${known.mustContain}, which is no longer in the file.`,
-        ).toBe(true);
         expect(JSON.stringify(override.linter?.rules)).toContain(known.rule);
+        // Ask biome whether the rule still fires here, with `--only` forcing it back on
+        // over this very override. A suppression that no longer suppresses anything is
+        // dead config, and dead config is how a rule gets turned off for a file that has
+        // since grown a real defect.
+        const probe = spawnSync(
+          join(ROOT, "node_modules/.bin/biome"),
+          ["check", `--only=${known.group}/${known.rule}`, file],
+          { cwd: ROOT, encoding: "utf8" },
+        );
+        expect(probe.error, `Could not run biome to check the override on ${file}`).toBeUndefined();
+        expect(
+          `${probe.stdout}${probe.stderr}`.includes(`lint/${known.group}/${known.rule}`),
+          `The lint override on ${file} is stale: biome no longer reports ${known.rule} there, so the suppression is dead config.`,
+        ).toBe(true);
       }
     }
   });
