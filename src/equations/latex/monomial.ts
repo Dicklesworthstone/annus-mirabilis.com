@@ -13,7 +13,11 @@ import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { modernGroupsFor } from "../../content/notation/resolve.ts";
 import type { PaperConcordance } from "../../content/schemas/concordance.ts";
 import type { Expression } from "../ast.ts";
-import { extractMonomialFactorSet, type MonomialFactor } from "../monomial.ts";
+import {
+  extractMonomialFactorSet,
+  type MonomialFactor,
+  type MonomialFactorSet,
+} from "../monomial.ts";
 import { wrapHtmlClass, wrapHtmlData } from "./markers.ts";
 import type { RenderLatexOptions } from "./types.ts";
 
@@ -49,7 +53,7 @@ export function tryMergeMonomialQuotient(
 
   // Attempt to extract monomial factor set. If node contains sums or relations,
   // extractMonomialFactorSet will throw, which means members are not monomial factors.
-  let factorSet;
+  let factorSet: MonomialFactorSet;
   try {
     factorSet = extractMonomialFactorSet(coreQuotient);
   } catch {

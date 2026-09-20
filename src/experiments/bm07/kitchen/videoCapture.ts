@@ -9,6 +9,20 @@ import {
   type KitchenPoint,
 } from "./schema.ts";
 
+/**
+ * True when the label carries a C0 control character or DEL. Explicit code-point
+ * test rather than a regex class, for the reason given in replayEntry.ts: a regex
+ * containing control characters cannot be told apart from one that contains them
+ * by mistake.
+ */
+function hasControlCharacter(value: string): boolean {
+  for (const character of value) {
+    const code = character.codePointAt(0) ?? 0;
+    if (code <= 0x1f || code === 0x7f) return true;
+  }
+  return false;
+}
+
 export type CaptureFailure =
   | Readonly<{ kind: "refused"; refusal: RequestRefusal; message: string }>
   | Readonly<{ kind: "outcome"; outcome: ExecutionOutcome; message: string }>;
@@ -287,7 +301,7 @@ export function appendVideoPoint(
     typeof objectId !== "string" ||
     !objectId.trim() ||
     objectId.length > 80 ||
-    /[\u0000-\u001f\u007f]/.test(objectId)
+    hasControlCharacter(objectId)
   )
     return captureRefusal(
       "Use a nonempty particle label of at most 80 characters with no control codes.",

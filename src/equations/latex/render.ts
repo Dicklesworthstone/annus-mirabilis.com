@@ -269,9 +269,11 @@ export function extractSpansFromLatex(latex: string): {
   const opSpans: Span[] = [];
 
   const prefixPattern = /\\htmlData\{(term|op)=([^}]+)\}\{/g;
-  let match: RegExpExecArray | null;
+  // The exec cursor is advanced explicitly rather than by assigning inside the
+  // loop condition, which hides the mutation from a reader scanning the header.
+  let match = prefixPattern.exec(latex);
 
-  while ((match = prefixPattern.exec(latex)) !== null) {
+  while (match !== null) {
     const kind = match[1];
     const id = match[2] ?? "";
     const start = match.index;
@@ -308,6 +310,7 @@ export function extractSpansFromLatex(latex: string): {
         end,
       });
     }
+    match = prefixPattern.exec(latex);
   }
 
   return { termSpans, opSpans };

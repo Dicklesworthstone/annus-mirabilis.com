@@ -102,7 +102,7 @@ describe("bm01.multiInstance: Multi-Instance Non-Interference (AC 4)", () => {
         (s) => s.status === "accepted" && s.accepted?.snapshotVersion === 2,
       );
       expect(snapA2.accepted?.instanceId).toBe("bm01-inst-alpha");
-      expect((snapA2.accepted?.parameters as Bm01Parameters).interval).toBe(4);
+      expect((snapA2.accepted?.parameters as Bm01Parameters | undefined)?.interval).toBe(4);
       expect(snapA2.accepted?.revisions.measurement).toBe(1);
 
       // NON-INTERFERENCE ASSERTION: Instance B MUST remain at snapshotVersion 1,
@@ -111,7 +111,9 @@ describe("bm01.multiInstance: Multi-Instance Non-Interference (AC 4)", () => {
       expect(snapBAfterAMutation.status).toBe("accepted");
       expect(snapBAfterAMutation.accepted?.snapshotVersion).toBe(1);
       expect(snapBAfterAMutation.accepted?.instanceId).toBe("bm01-inst-beta");
-      expect((snapBAfterAMutation.accepted?.parameters as Bm01Parameters).interval).toBe(1);
+      expect(
+        (snapBAfterAMutation.accepted?.parameters as Bm01Parameters | undefined)?.interval,
+      ).toBe(1);
       expect(snapBAfterAMutation.accepted).toBe(initialAcceptedB);
       expect(snapBAfterAMutation.accepted?.parameters).toEqual(initialParamsB);
 
@@ -125,14 +127,16 @@ describe("bm01.multiInstance: Multi-Instance Non-Interference (AC 4)", () => {
         (s) => s.status === "accepted" && s.accepted?.snapshotVersion === 2,
       );
       expect(snapB2.accepted?.instanceId).toBe("bm01-inst-beta");
-      expect((snapB2.accepted?.parameters as Bm01Parameters).eta).toBe(0.002);
-      expect((snapB2.accepted?.parameters as Bm01Parameters).interval).toBe(1); // B's interval unchanged
+      expect((snapB2.accepted?.parameters as Bm01Parameters | undefined)?.eta).toBe(0.002);
+      expect((snapB2.accepted?.parameters as Bm01Parameters | undefined)?.interval).toBe(1); // B's interval unchanged
 
       // Verify instance A was NOT contaminated by B's mutation
       const snapAAfterBMutation = sessionA.getSnapshot();
       expect(snapAAfterBMutation.accepted?.snapshotVersion).toBe(2);
-      expect((snapAAfterBMutation.accepted?.parameters as Bm01Parameters).interval).toBe(4);
-      expect((snapAAfterBMutation.accepted?.parameters as Bm01Parameters).eta).toBe(
+      expect(
+        (snapAAfterBMutation.accepted?.parameters as Bm01Parameters | undefined)?.interval,
+      ).toBe(4);
+      expect((snapAAfterBMutation.accepted?.parameters as Bm01Parameters | undefined)?.eta).toBe(
         BM01_DEFAULTS.eta,
       );
     } finally {

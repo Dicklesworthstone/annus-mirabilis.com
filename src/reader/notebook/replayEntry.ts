@@ -9,6 +9,23 @@ import { scientificDigest } from "../../experiments/digest/scientificDigest.ts";
 import { validateTapeV2 } from "../../experiments/permalink/schema.ts";
 import type { TapeV2 } from "../../experiments/permalink/types.ts";
 
+/**
+ * True when the text carries a C0 control character other than tab, newline or
+ * carriage return. Written as an explicit code-point test rather than a regex
+ * character class: the class is the point of the check, and a regex holding
+ * control characters is indistinguishable to a reader, and to biome, from one
+ * that holds them by accident.
+ */
+function hasDisallowedControlCharacter(value: string): boolean {
+  for (const character of value) {
+    const code = character.codePointAt(0) ?? 0;
+    if (code <= 0x08 || code === 0x0b || code === 0x0c || (code >= 0x0e && code <= 0x1f)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export const REPLAY_LIMITS = Object.freeze({ bytes: 65536, text: 10000, tapeBytes: 1400 });
 export const REPLAY_PREDICTIONS = Object.freeze({
   smaller: "The coordinate RMS will be smaller",
@@ -46,11 +63,7 @@ function record(value: unknown, keys: readonly string[]): Record<string, unknown
   return value as Record<string, unknown>;
 }
 export function replayText(value: unknown, max: number = REPLAY_LIMITS.text): string {
-  if (
-    typeof value !== "string" ||
-    value.length > max ||
-    /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/u.test(value)
-  )
+  if (typeof value !== "string" || value.length > max || hasDisallowedControlCharacter(value))
     throw new TypeError(
       `Replay text must contain at most ${max} characters. Nothing was truncated.`,
     );
