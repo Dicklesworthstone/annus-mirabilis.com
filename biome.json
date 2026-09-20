@@ -82,6 +82,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["scripts/e2e/controlledComparison.mjs"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noApproximativeNumericConstant": "off"
+          }
+        }
+      }
     }
   ]
 }
