@@ -32,6 +32,22 @@ export default function ConnectionsPage() {
           </a>
         </p>
       </section>
+      <section className="reading" id="molecular-number">
+        <p className="eyebrow">Three methods · Companion preview</p>
+        <h2>What information lets you infer a molecular number?</h2>
+        <p>
+          Compare the radiation-constant calculation with Brownian displacement and a joint
+          viscosity–diffusion inversion. Remove the independent tracer radius to expose what the
+          displacement data cannot identify, or change the viscosity coefficient while holding the
+          observations fixed. Historical reconstruction, illustrative inputs, and modern exact
+          definitions stay visibly distinct.
+        </p>
+        <p>
+          <a className="button" href="/lab/avogadro-lab">
+            Open the three-method comparison →
+          </a>
+        </p>
+      </section>
       <section className="reading" id="energy-transformation">
         <p className="eyebrow">Uses this result</p>
         <h2>The energy transformation that leaves the relativity paper</h2>
