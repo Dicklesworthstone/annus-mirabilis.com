@@ -46,6 +46,26 @@ interface CompiledMatcher {
   symbolRegex?: RegExp | undefined;
 }
 
+/**
+ * The process launchers a call may use, as a regex alternation (am-jb4c).
+ *
+ * This was `(?:spawn|exec|execSync|execFile|fork)`, which omitted every *Sync*
+ * variant except execSync. `spawn` does match the first five letters of
+ * `spawnSync`, and the `\\s*\\(` that follows then fails against `Sync(`, so the
+ * whole match failed and three of the six call forms in this repository were
+ * invisible to the guard: spawnSync, execFileSync, and Bun.spawnSync's array
+ * form. That is the worst possible set to miss here, because this is a Bun
+ * repository and those are the forms an author would reach for - the repo's own
+ * code spawns binaries as spawnSync("tool", [...]).
+ *
+ * It stays a CALL matcher and must not become a prose matcher. Every use below
+ * requires this alternation to be followed by an opening parenthesis and the
+ * denied name as a quoted argument, so `const engine = "tesseract"` and the
+ * words in this comment are not violations. AGENTS.md's OCR rule has no
+ * exceptions; a guard switched off for crying wolf enforces nothing at all.
+ */
+const PROCESS_LAUNCHERS = "\\b(?:spawnSync|spawn|execFileSync|execFile|execSync|exec|fork)";
+
 function compileMatchers(denylist: DenylistEntry[]): CompiledMatcher[] {
   return denylist.map((entry) => {
     const p = entry.pattern;
@@ -62,12 +82,13 @@ function compileMatchers(denylist: DenylistEntry[]): CompiledMatcher[] {
     }
 
     if (entry.category === "binary-or-spawn" || entry.category === "import-or-spawn") {
+      // `\\s*\\(?` before the quote admits the array form, Bun.spawnSync(["tool", ...]).
       matcher.spawnRegex = new RegExp(
-        `(?:spawn|exec|execSync|execFile|fork)\\s*\\(\\s*['"\`]${escapeRegex(p)}['"\`]`,
+        `${PROCESS_LAUNCHERS}\\s*\\(\\s*\\[?\\s*['"\`]${escapeRegex(p)}['"\`]`,
         "i",
       );
       matcher.binaryRegex = new RegExp(
-        `(?:spawn|exec|execSync|execFile)\\s*\\([^)]*['"\`]\\s*${escapeRegex(p)}\\b`,
+        `${PROCESS_LAUNCHERS}\\s*\\([^)]*['"\`]\\s*${escapeRegex(p)}\\b`,
         "i",
       );
     }
