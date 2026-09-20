@@ -173,7 +173,24 @@ export function detectNodeBuiltinUsages(content: string): string[] {
  * filtering out type-only imports and exports. Handles ES imports, dynamic imports,
  * and CommonJS require calls.
  */
-export function extractRuntimeImportSpecifiers(content: string): string[] {
+export interface ImportSpecifierOptions {
+  /**
+   * Whether `import type ...` / `export type ...` specifiers count.
+   *
+   * The client-boundary rules ask what the BUNDLE loads, so a type-only import
+   * is correctly invisible to them: it is erased. A question about whether a
+   * module exists is a different question, and `tsc` reports TS2307 for a
+   * missing type-only import exactly as it does for a runtime one, so the
+   * tracked-imports gate (am-zm52) sets this.
+   */
+  readonly includeTypeOnly?: boolean;
+}
+
+export function extractImportSpecifiers(
+  content: string,
+  options: ImportSpecifierOptions = {},
+): string[] {
+  const includeTypeOnly = options.includeTypeOnly === true;
   const code = stripCommentsAndPreserveStrings(content);
   const specs = new Set<string>();
 
@@ -195,7 +212,7 @@ export function extractRuntimeImportSpecifiers(content: string): string[] {
     if (!specifier) continue;
 
     // Skip pure type-only imports/exports: `import type ...` or `export type ...`
-    if (/^(?:import|export)\s+type\b/.test(fullStatement)) {
+    if (!includeTypeOnly && /^(?:import|export)\s+type\b/.test(fullStatement)) {
       continue;
     }
 
@@ -222,16 +239,24 @@ export function extractRuntimeImportSpecifiers(content: string): string[] {
 }
 
 /**
- * Resolves a module import specifier against an in-memory map of files.
+ * The runtime import specifiers of a module: what the bundle actually loads.
  */
-export function resolveImport(
-  fromPath: string,
-  specifier: string,
-  fileMap: Map<string, string>,
-): string | null {
+export function extractRuntimeImportSpecifiers(content: string): string[] {
+  return extractImportSpecifiers(content);
+}
+
+/**
+ * Every repo-relative path a specifier could resolve to, in resolution order.
+ *
+ * Empty for an external package or a static asset. Shared by `resolveImport`
+ * and by the tracked-imports gate, which asks the same question against the
+ * git index and the disk rather than against an in-memory map. One resolution
+ * order, so the two cannot disagree about what a specifier means.
+ */
+export function importCandidatePaths(fromPath: string, specifier: string): string[] {
   // Ignore static assets that are not executable code modules
   if (/\.(css|json|svg|png|jpg|jpeg|webp|wasm|ico|txt|pdf)$/i.test(specifier)) {
-    return null;
+    return [];
   }
 
   let target: string;
@@ -241,10 +266,10 @@ export function resolveImport(
     target = normalize(join(dirname(fromPath), specifier)).replace(/\\/g, "/");
   } else {
     // External npm or node package
-    return null;
+    return [];
   }
 
-  const candidates = [
+  return [
     target,
     `${target}.tsx`,
     `${target}.ts`,
@@ -254,15 +279,20 @@ export function resolveImport(
     `${target}/index.ts`,
     `${target}/index.jsx`,
     `${target}/index.js`,
-  ];
+  ].map(normalizePath);
+}
 
-  for (const candidate of candidates) {
-    const normalized = normalizePath(candidate);
-    if (fileMap.has(normalized)) {
-      return normalized;
-    }
+/**
+ * Resolves a module import specifier against an in-memory map of files.
+ */
+export function resolveImport(
+  fromPath: string,
+  specifier: string,
+  fileMap: Map<string, string>,
+): string | null {
+  for (const candidate of importCandidatePaths(fromPath, specifier)) {
+    if (fileMap.has(candidate)) return candidate;
   }
-
   return null;
 }
 
