@@ -199,6 +199,41 @@ describe("mini-paper fixture contract (am-edn-alignment-tooling-do1)", () => {
     expect(c3?.message).toContain("nothing to reconstruct");
   });
 
+  // Check 8 is the only check that reaches a VERDICT on this fixture without being pinned
+  // anywhere. It reaches "failed", and that is correct rather than a defect to repair: the
+  // fixture has a ledger that segments into German alignable units and no translation at
+  // all, so its alignment coverage genuinely fails. Leaving it unpinned meant the suite was
+  // green over a failing check nobody had read.
+  test("check 8 FAILS on this fixture, because German units exist and no edge does", () => {
+    const c = outcomeOf(FIXTURE, 8);
+    expect(c?.outcome).toBe("failed");
+    expect(c?.code).toBe("empty-alignment");
+    // Pin the reason, not just the code: what must keep being said is that paragraph
+    // counts are not an alignment.
+    expect(c?.message).toContain("paragraph counts are not an alignment");
+
+    // And the denominator proves the failure is about missing EDGES rather than missing
+    // German text, which is the distinction the empty-population decline turns on.
+    const d = assertEditionContract("mass-energy", { root: FIXTURE }).denominator;
+    expect(d.germanUnitsGiven).toBeGreaterThan(0);
+    expect(d.edgesGiven).toBe(0);
+    expect(d.englishUnitsGiven).toBe(0);
+  });
+
+  test("check 8 DECLINES rather than fails when there is no German text either", () => {
+    // The other side of the same branch, and the one that would silently bless an empty
+    // set if it were ever removed: nothing German, nothing English, no edges is "could not
+    // run", not "failed". Reached by emptying the ledger the German ids are segmented from.
+    const root = mutatedFixture(
+      "public/papers/transcripts/ap-18-639-reviewed.txt",
+      () => "--- REVIEWED TRANSCRIPTION PAGE 1 OF 1 ---\n",
+    );
+    const c = outcomeOf(root, 8);
+    expect(c?.outcome).toBe("not-available");
+    expect(c?.code).toBe("alignment-population-empty");
+    expect(c?.message).toContain("Nothing was examined, so nothing is verified.");
+  });
+
   test("the run accounts for all fifteen checks and names every decline", () => {
     const r = assertEditionContract("mass-energy", { root: FIXTURE });
     const d = r.denominator;
