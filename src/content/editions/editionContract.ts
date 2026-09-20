@@ -922,18 +922,79 @@ export function assertEditionContract(
   // --------------------------------------------------------------------------
   // Check 9: Display equation byte identity (spec #9, invokes am-cm-checks-structural-lq0)
   // --------------------------------------------------------------------------
-  const check9Passed = options.displayMathMatches !== false;
-  checks.push({
-    checkNumber: 9,
-    check: "display-math-byte-identity",
-    owner: "am-cm-checks-structural-lq0",
-    role: "invokes",
-    outcome: check9Passed ? "passed" : "failed",
-    code: check9Passed ? undefined : "display-math-bytes-differ",
-    message: check9Passed
-      ? "English and German display equation blocks are byte-identical."
-      : "English display is not byte-identical to the German display.",
-  });
+  // Reports what it can see rather than a flag (am-06x1). This check read
+  // `options.displayMathMatches !== false`, which no production caller sets, so it
+  // announced "English and German display equation blocks are byte-identical" for four
+  // papers that have no English face at all. The comparison it names is defined only
+  // when both faces exist, and measured against the tree on 2026-09-19 neither does:
+  // the manifests declare every display equation's destination, but no German edition
+  // block record and no translation unit record is on disk anywhere in content/ (the
+  // Brownian and light-quanta manifests still carry the `planned` placeholder; the
+  // relativity manifest names 211 translation unit ids, and grep finds every one of them
+  // only in that manifest). So this check counts what the manifest declares and says it
+  // could not compare, naming the two things that are missing. It never passes for want
+  // of an English face. When the faces land, the byte comparison is a call to
+  // validateDisplayByteIdentity per aligned pair, and this is the site of that call.
+  const TRANSLATION_UNIT_PLACEHOLDER = "planned";
+  let displayEquationCount = 0;
+  let declaredEnglishUnits = 0;
+  let displayUnavailable: string | null = null;
+  if (options.displayMathMatches === undefined) {
+    if (!bundle.ok) {
+      displayUnavailable = bundle.reason;
+    } else {
+      for (const unit of bundle.manifest.units) {
+        if (unit.kind !== "display-equation") continue;
+        displayEquationCount += 1;
+        // `destination` is either a bare string (a single edition block) or the record
+        // with translation targets; only the second shape can declare an English unit.
+        const destination = typeof unit.destination === "string" ? undefined : unit.destination;
+        for (const target of destination?.translationUnits ?? []) {
+          if (target !== TRANSLATION_UNIT_PLACEHOLDER && target !== "") declaredEnglishUnits += 1;
+        }
+      }
+      const translationDir = join(root, `content/translations/${slug}`);
+      if (!existsSync(translationDir)) {
+        displayUnavailable =
+          `${displayEquationCount} display equation(s) are declared in the manifest and ` +
+          `${declaredEnglishUnits} carry a translation unit id, but there is no English face ` +
+          `to compare them with: ${translationDir} does not exist, so no translation unit ` +
+          "record is on disk. Comparing nothing is not byte identity.";
+      } else {
+        displayUnavailable =
+          `${translationDir} exists but this check does not yet read translation unit records, ` +
+          "so the byte comparison has not been made. It is reported as not made rather than passed.";
+      }
+    }
+  }
+  if (displayUnavailable !== null) {
+    checks.push({
+      checkNumber: 9,
+      check: "display-math-byte-identity",
+      owner: "am-cm-checks-structural-lq0",
+      role: "invokes",
+      outcome: "not-available",
+      code: "english-face-absent",
+      message: `Check 9 (Display equation byte identity) could not run: ${displayUnavailable}`,
+    });
+  } else {
+    // Reached only when the caller answered for this check: while the English face is
+    // missing the branch above always sets displayUnavailable. An unanswered call that
+    // somehow arrived here fails rather than passes, because a false red is loud and a
+    // false green is the defect this bead exists to remove.
+    const check9Passed = options.displayMathMatches ?? false;
+    checks.push({
+      checkNumber: 9,
+      check: "display-math-byte-identity",
+      owner: "am-cm-checks-structural-lq0",
+      role: "invokes",
+      outcome: check9Passed ? "passed" : "failed",
+      code: check9Passed ? undefined : "display-math-bytes-differ",
+      message: check9Passed
+        ? "English and German display equation blocks are byte-identical."
+        : "English display is not byte-identical to the German display.",
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 10: Inline math atoms, references, footnote marks (spec #10, implements)
@@ -991,18 +1052,89 @@ export function assertEditionContract(
   // --------------------------------------------------------------------------
   // Check 12: Hero quote resolves to edition text (spec #12, invokes am-cm-checks-structural-lq0)
   // --------------------------------------------------------------------------
-  const check12Passed = options.heroQuoteMatches !== false;
-  checks.push({
-    checkNumber: 12,
-    check: "hero-quote",
-    owner: "am-cm-checks-structural-lq0",
-    role: "invokes",
-    outcome: check12Passed ? "passed" : "failed",
-    code: check12Passed ? undefined : "hero-quote-unresolved",
-    message: check12Passed
-      ? "Hero quote resolves to edition text at anchor."
-      : "Hero quote does not match edition text at anchor.",
-  });
+  // Resolves the quote the paper record actually declares (am-06x1). This check read
+  // `options.heroQuoteMatches !== false`, which no production caller sets, so it reported
+  // "Hero quote resolves to edition text at anchor" for papers that declare no hero quote
+  // and have no edition text. It now reads content/papers/<slug>.json and looks for the
+  // three shapes its owner's checkHeroQuoteUnresolved looks for - heroQuote, heroQuotes
+  // and pullQuotes - and resolves each declared quote against the edition text under the
+  // owner's rule: whitespace collapsed, case and punctuation preserved. A quote that is
+  // not in the edition fails. A paper that declares no quote, or declares one with no
+  // edition text to resolve it against, reports not-available with which of the two is
+  // missing. Measured on 2026-09-19, no paper record declares a hero quote, so all four
+  // report not-available today; the check goes live the day one is authored.
+  const heroQuotes: { anchor: string; text: string }[] = [];
+  let heroUnavailable: string | null = null;
+  if (options.heroQuoteMatches === undefined) {
+    const paperPath = join(root, `content/papers/${slug}.json`);
+    if (!existsSync(paperPath)) {
+      heroUnavailable = `no paper record at ${paperPath}`;
+    } else {
+      try {
+        const record = JSON.parse(readFileSync(paperPath, "utf8")) as Record<string, unknown>;
+        const candidates: unknown[] = [];
+        if (record.heroQuote) candidates.push(record.heroQuote);
+        if (Array.isArray(record.heroQuotes)) candidates.push(...record.heroQuotes);
+        if (Array.isArray(record.pullQuotes)) candidates.push(...record.pullQuotes);
+        for (const candidate of candidates) {
+          if (!candidate || typeof candidate !== "object") continue;
+          const quote = candidate as Record<string, unknown>;
+          const quoteText = typeof quote.text === "string" ? quote.text : quote.quote;
+          if (typeof quoteText !== "string" || quoteText === "") continue;
+          heroQuotes.push({
+            anchor: typeof quote.anchor === "string" ? quote.anchor : "(no anchor)",
+            text: quoteText,
+          });
+        }
+        if (heroQuotes.length === 0) {
+          heroUnavailable = `${paperPath} declares no hero quote, so there is none to resolve`;
+        } else if (options.editionText === undefined) {
+          heroUnavailable =
+            `${paperPath} declares ${heroQuotes.length} hero quote(s), but no edition text was ` +
+            "supplied to resolve them against";
+        }
+      } catch (err: unknown) {
+        heroUnavailable = `reading ${paperPath} threw: ${err instanceof Error ? err.message : String(err)}`;
+      }
+    }
+  }
+  if (heroUnavailable !== null) {
+    checks.push({
+      checkNumber: 12,
+      check: "hero-quote",
+      owner: "am-cm-checks-structural-lq0",
+      role: "invokes",
+      outcome: "not-available",
+      code: "hero-quote-not-declared",
+      message:
+        `Check 12 (Hero quote resolution) could not run: ${heroUnavailable}. ` +
+        "An unresolved quote is not a resolved one.",
+    });
+  } else {
+    const collapsed = (options.editionText ?? "").replace(/\s+/g, " ").trim();
+    const unresolved =
+      options.heroQuoteMatches !== undefined
+        ? []
+        : heroQuotes.filter((quote) => !collapsed.includes(quote.text.replace(/\s+/g, " ").trim()));
+    const check12Passed =
+      options.heroQuoteMatches !== undefined
+        ? options.heroQuoteMatches !== false
+        : unresolved.length === 0;
+    checks.push({
+      checkNumber: 12,
+      check: "hero-quote",
+      owner: "am-cm-checks-structural-lq0",
+      role: "invokes",
+      outcome: check12Passed ? "passed" : "failed",
+      code: check12Passed ? undefined : "hero-quote-unresolved",
+      message: check12Passed
+        ? `Hero quote resolves to edition text at anchor (${heroQuotes.length} quote(s) checked).`
+        : `Hero quote does not match edition text at anchor: ${unresolved
+            .slice(0, 2)
+            .map((quote) => `${quote.anchor}: ${JSON.stringify(quote.text.slice(0, 60))}`)
+            .join("; ")}`,
+    });
+  }
 
   // --------------------------------------------------------------------------
   // Check 13: Gloss unit addressing, token coverage, staleness (spec #13, implements)

@@ -203,10 +203,26 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     // is not-available. Asserting it by name means a future change that silently turns it
     // back into an unconditional pass fails here.
     const outcomeOf = (n: number) => result.checks.find((c) => c.checkNumber === n)?.outcome;
-    expect(outcomeOf(2)).toBe("not-available");
-    expect(result.checks.find((c) => c.checkNumber === 2)?.code).toBe("ledger-not-on-disk");
+    const codeOf = (n: number) => result.checks.find((c) => c.checkNumber === n)?.code;
+    // The three checks whose subject matter does not exist in this tree, each named with
+    // the reason it cannot look. Check 2 needs a reviewed ledger on disk with a receipt to
+    // reconcile page counts against, and this fixture supplies a ledger string. Checks 9
+    // and 12 need an English edition face and a declared hero quote, and measured on
+    // 2026-09-19 no paper has either: no translation unit record exists anywhere under
+    // content/, and no paper record declares a quote. Naming them keeps the count of
+    // fifteen truthful about what is being asserted, and a future change that turns one
+    // back into an unconditional pass fails here rather than reading as progress.
+    const notAvailable = new Map<number, string>([
+      [2, "ledger-not-on-disk"],
+      [9, "english-face-absent"],
+      [12, "hero-quote-not-declared"],
+    ]);
+    for (const [checkNumber, code] of notAvailable) {
+      expect(outcomeOf(checkNumber)).toBe("not-available");
+      expect(codeOf(checkNumber)).toBe(code);
+    }
     for (const spec of CONTRACT_CHECKS_SPEC) {
-      if (spec.checkNumber === 2) continue;
+      if (notAvailable.has(spec.checkNumber)) continue;
       expect(outcomeOf(spec.checkNumber)).toBe("passed");
     }
   });
@@ -563,6 +579,64 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
     const check6 = checkAt(root, 6);
     expect(check6?.outcome).toBe("failed");
     expect(check6?.message).toContain("frozen-id-missing");
+  });
+
+  test("check 12 fails on a declared hero quote that is not in the edition text", () => {
+    const root = copyCorpus();
+    mkdirSync(join(root, "content/papers"), { recursive: true });
+    const record = JSON.parse(
+      readFileSync(join(process.cwd(), `content/papers/${SLUG}.json`), "utf8"),
+    ) as Record<string, unknown>;
+    // The owner's checkHeroQuoteUnresolved reads heroQuote, heroQuotes and pullQuotes; this
+    // is the first of those three shapes, declaring a sentence the edition does not contain.
+    record.heroQuote = {
+      anchor: "s0-p1-s1",
+      text: "Diesen Satz hat Einstein nie geschrieben.",
+    };
+    writeFileSync(join(root, `content/papers/${SLUG}.json`), JSON.stringify(record), "utf8");
+    const failing = assertEditionContract(SLUG, {
+      root,
+      ledgerText: LEDGER,
+      editionText: "Die Bewegung ist unregelmäßig. Sie hört nicht auf.",
+    }).checks.find((c) => c.checkNumber === 12);
+    expect(failing?.outcome).toBe("failed");
+    expect(failing?.code).toBe("hero-quote-unresolved");
+
+    // The same check passes on a quote the edition does contain, so the failure above is
+    // the quote and not the plumbing: a check that always fails proves as little as one
+    // that always passes. Whitespace is collapsed and case and punctuation are preserved,
+    // which is the rule the owner applies.
+    record.heroQuote = { anchor: "s0-p1-s1", text: "Die   Bewegung ist\n unregelmäßig." };
+    writeFileSync(join(root, `content/papers/${SLUG}.json`), JSON.stringify(record), "utf8");
+    const resolving = assertEditionContract(SLUG, {
+      root,
+      ledgerText: LEDGER,
+      editionText: "Die Bewegung ist unregelmäßig. Sie hört nicht auf.",
+    }).checks.find((c) => c.checkNumber === 12);
+    expect(resolving?.outcome).toBe("passed");
+    expect(resolving?.message).toContain("1 quote(s) checked");
+  });
+
+  test("checks 9 and 12 report what is missing by name, never a pass", () => {
+    const root = copyCorpus();
+    mkdirSync(join(root, "content/papers"), { recursive: true });
+    copyFileSync(
+      join(process.cwd(), `content/papers/${SLUG}.json`),
+      join(root, `content/papers/${SLUG}.json`),
+    );
+    const checks = assertEditionContract(SLUG, { root, ledgerText: LEDGER }).checks;
+    const check9 = checks.find((c) => c.checkNumber === 9);
+    const check12 = checks.find((c) => c.checkNumber === 12);
+    expect(check9?.outcome).toBe("not-available");
+    expect(check9?.code).toBe("english-face-absent");
+    // The count is read out of the manifest, so a check that stopped looking would stop
+    // being able to say how many display equations are waiting.
+    expect(check9?.message).toMatch(/\d+ display equation\(s\) are declared/);
+    expect(check12?.outcome).toBe("not-available");
+    expect(check12?.code).toBe("hero-quote-not-declared");
+    for (const check of [check9, check12]) {
+      expect(check?.outcome).not.toBe("passed");
+    }
   });
 
   test("an unreachable corpus reports not-available, which a pass-through never does", () => {
