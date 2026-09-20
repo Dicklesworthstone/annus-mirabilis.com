@@ -580,7 +580,6 @@ export function BrownianFirstEncounter({
           <section
             className="formula"
             style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}
-            tabIndex={0}
             aria-label="Signed sum of displacements"
           >
             {entries.map((x) => `(${formatSignedDisplacement(x)})`).join(" + ")} ={" "}
@@ -661,7 +660,6 @@ export function BrownianFirstEncounter({
           <section
             className="formula"
             style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}
-            tabIndex={0}
             aria-label="Square of sum expansion formula"
           >
             (Δx₁ + Δx₂)² = Δx₁² + 2·Δx₁·Δx₂ + Δx₂²
