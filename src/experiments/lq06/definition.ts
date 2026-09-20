@@ -45,7 +45,7 @@ export const LQ06_CLASSES: Readonly<Record<keyof Lq06Parameters, ParameterClass>
   selectedSubexpression: "presentation",
   proposedEnergyElement: "presentation",
   forkAChoice: "presentation",
-  constantSetId: "presentation",
+  constantSetId: "input",
 });
 
 export const LQ06_MODEL = Object.freeze({
