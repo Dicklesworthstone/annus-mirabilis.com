@@ -257,5 +257,5 @@ export function substitute(
   return parseExpression(visit(root), equationId, registry);
 }
 
-export * from "./monomial.ts";
 export * from "./alternateForms.ts";
+export * from "./monomial.ts";

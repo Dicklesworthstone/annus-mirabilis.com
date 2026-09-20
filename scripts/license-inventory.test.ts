@@ -9,6 +9,7 @@ import { join } from "node:path";
 import {
   collectDonor,
   KNOWN_DONOR_GAPS,
+  parseDonorAuditExtractedFiles,
   parseDonorAuditReuseTable,
   validateDonorAttributionHeader,
 } from "./license-inventory/collectDonor.ts";
@@ -557,7 +558,25 @@ describe("Known donor gaps integrity (contentGlyphCoverage pattern)", () => {
     });
 
     const gapItems = items.filter((i) => i.license === "PENDING-OWNER-RULING");
-    expect(gapItems.length).toBe(6);
+    // Every registered gap is exempt, asserted by name rather than by counting, and
+    // every OTHER pending item must be justified by DONOR_AUDIT.md's own noticeForm.
+    // The count alone said "6" and would have been satisfied by any six items; it also
+    // broke the moment the section 11 path learned to report an audit row recorded as
+    // owner-blocked, which is a legitimate seventh pending item and not a new gap.
+    const pendingPaths = new Set(gapItems.map((i) => i.name));
+    for (const gap of KNOWN_DONOR_GAPS) {
+      expect(pendingPaths.has(gap.destPath)).toBe(true);
+    }
+    const auditOwnerBlocked = new Set(
+      parseDonorAuditExtractedFiles(auditText)
+        .filter((e) => e.noticeForm === "owner-blocked" || e.noticeForm === "pending-owner-ruling")
+        .map((e) => e.destPath),
+    );
+    const registered = new Set(KNOWN_DONOR_GAPS.map((g) => g.destPath));
+    for (const item of gapItems) {
+      expect(registered.has(item.name) || auditOwnerBlocked.has(item.name)).toBe(true);
+    }
+    expect(gapItems.length).toBe(registered.size + auditOwnerBlocked.size);
 
     const evalRes = evaluatePolicy(gapItems, BASE_POLICY);
     expect(evalRes.valid).toBe(true);
@@ -566,6 +585,79 @@ describe("Known donor gaps integrity (contentGlyphCoverage pattern)", () => {
       expect(evaluated.outcome).toBe("exempt");
       expect(evaluated.ruleApplied).toBe("known-donor-gap");
     }
+  });
+});
+
+/**
+ * The section 11 path reads the audit's recorded noticeForm.
+ *
+ * It used to require the section 9 attribution header from every .ts, .tsx, .js and
+ * .jsx destination whatever its row said, so DONOR_AUDIT.md's one `owner-blocked` row -
+ * src/reader/viewMode.ts, "Rider applicability on short rewrites is an unresolved owner
+ * decision" - was reported as a disallowed license and failed the gate in CI and here.
+ * Writing the header to silence it would have asserted in a legal notice that the Rider
+ * applies to a short rewrite, which is the question nobody has answered.
+ *
+ * These three cases pin the fix and its limits: the recorded answer is honoured, a row
+ * that claims a header still needs one, and a row that records nothing recognisable
+ * still falls back to requiring a header for a code file.
+ */
+describe("donor section 11 honours the recorded noticeForm (am-gov-license-inventory-w6yz)", () => {
+  const auditFor = (noticeForm: string, destPath = "src/reader/example.ts"): string =>
+    [
+      "## 11. Extracted Files",
+      "",
+      "| sourcePath | newOwner | retainedBehavior | removedAssumptions | firstReaderJourney | batch | commit | noticeForm | notes |",
+      "|---|---|---|---|---|---|---|---|---|",
+      `| \`src/donor/example.ts\` | \`${destPath}\` (\`am-some-bead\`) | behaviour | none | journey | 1 | none | ${noticeForm} | notes |`,
+      "",
+      "## 12. Something Else",
+    ].join("\n");
+
+  const collectWith = (noticeForm: string, fileContent: string) =>
+    collectDonor({
+      rootDir: "/fake",
+      auditMarkdown: auditFor(noticeForm),
+      readText: () => fileContent,
+      exists: () => true,
+    });
+
+  const HEADERLESS = "/**\n * A short pure-function rewrite.\n */\nexport const x = 1;\n";
+  const WITH_HEADER = [
+    "/**",
+    " * Extracted from classic-patents.com",
+    " * Source repository: https://github.com/Dicklesworthstone/classic-patents.com",
+    " * Source path: src/donor/example.ts",
+    " * Pinned commit: da11ff475902728fd8dd1d9db9f3af37c16ec8a5",
+    " * License: MIT License (with OpenAI/Anthropic Rider)",
+    " * Preserved license text: /LICENSE",
+    " */",
+    "export const x = 1;",
+    "",
+  ].join("\n");
+
+  test("an owner-blocked row with no header is PENDING-OWNER-RULING, not a disallowed license", () => {
+    const item = firstItem(collectWith("owner-blocked", HEADERLESS));
+    expect(item.license).toBe("PENDING-OWNER-RULING");
+    expect(item.license).not.toBe("ATTRIBUTION-HEADER-INVALID");
+    // The inventory says why, in the audit's own terms, rather than going quiet.
+    expect(item.authorOrNotice).toContain("owner-blocked");
+    expect(evaluatePolicy([item], BASE_POLICY).valid).toBe(true);
+  });
+
+  test("a row that claims noticeForm 'header' and carries none still fails", () => {
+    const item = firstItem(collectWith("header", HEADERLESS));
+    expect(item.license).toBe("ATTRIBUTION-HEADER-INVALID");
+    expect(evaluatePolicy([item], BASE_POLICY).valid).toBe(false);
+  });
+
+  test("a code file whose row records nothing recognisable still needs the header", () => {
+    // The extension fallback is what made the gate strict in the first place; the fix
+    // narrows it to rows that record a real answer, and must not remove it.
+    const missing = firstItem(collectWith("tbd", HEADERLESS));
+    expect(missing.license).toBe("ATTRIBUTION-HEADER-INVALID");
+    const present = firstItem(collectWith("tbd", WITH_HEADER));
+    expect(present.license).toBe("MIT with OpenAI/Anthropic Rider");
   });
 });
 

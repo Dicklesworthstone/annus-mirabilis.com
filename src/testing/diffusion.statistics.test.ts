@@ -22,7 +22,21 @@ describe("normalQuantile", () => {
   });
 
   test("is strictly monotonic in p", () => {
-    const testP = [1e-10, 1e-6, 1e-4, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1 - 1e-4, 1 - 1e-6, 1 - 1e-10];
+    const testP = [
+      1e-10,
+      1e-6,
+      1e-4,
+      0.01,
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95,
+      0.99,
+      1 - 1e-4,
+      1 - 1e-6,
+      1 - 1e-10,
+    ];
     let prev = -Infinity;
     for (const p of testP) {
       const res = normalQuantile(p);

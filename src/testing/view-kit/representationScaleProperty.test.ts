@@ -423,7 +423,10 @@ describe("RepresentationScale Property & Independence Tests (am-inst-2d-view-kit
       // 7. RepresentationScale validates successfully
       const currentScale: RepresentationScale = {
         spatialMagnification: {
-          appliesTo: (accepted.parameters.spatialMagnificationAppliesTo as string) === "scene" ? "scene" : "centerOfMassShift",
+          appliesTo:
+            (accepted.parameters.spatialMagnificationAppliesTo as string) === "scene"
+              ? "scene"
+              : "centerOfMassShift",
           factor: accepted.parameters.spatialMagnificationFactor as number,
         },
         simulatedElapsedTime: {
@@ -434,7 +437,8 @@ describe("RepresentationScale Property & Independence Tests (am-inst-2d-view-kit
         playbackMultiplier: accepted.parameters.playbackMultiplier as number,
         glyphSize: {
           drawnPx: accepted.parameters.glyphDrawnPx as number,
-          represents: (accepted.parameters.glyphRepresents as string) === "none" ? "none" : "particleRadius",
+          represents:
+            (accepted.parameters.glyphRepresents as string) === "none" ? "none" : "particleRadius",
         },
         quantityNormalization: {
           kind: accepted.parameters.quantityNormalizationKind as any,

@@ -11,16 +11,16 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { Expression } from "../ast.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import {
   buildSourceManifestIndex,
   modernGroupsFor,
   modernSymbolFor,
 } from "../../content/notation/resolve.ts";
+import type { Expression } from "../ast.ts";
+import type { Quantity } from "../quantities.ts";
 import { renderLatex } from "./render.ts";
 import { NotationScopeError } from "./types.ts";
-import type { Quantity } from "../quantities.ts";
 
 const makeTestQuantity = (
   id: string,
@@ -91,10 +91,11 @@ test("Criterion 2: Paper 3 beta renders as gamma and V as c in modern notation, 
       rel(
         "=", // inner grouping or relation
         sym("t", "coordinateTimeStationary"),
-        quot(
-          prod(sym("v", "relativeVelocity"), sym("x", "spatialCoordinateX")),
-          { kind: "power", base: sym("V", "speedOfLight"), exponent: { num: 2, den: 1 } },
-        ),
+        quot(prod(sym("v", "relativeVelocity"), sym("x", "spatialCoordinateX")), {
+          kind: "power",
+          base: sym("V", "speedOfLight"),
+          exponent: { num: 2, den: 1 },
+        }),
       ),
     ),
   );
@@ -135,10 +136,11 @@ test("Criterion 2: Paper 3 beta renders as gamma and V as c in modern notation, 
       rel(
         "=",
         sym(modernT ?? "t", "t_renamed"),
-        quot(
-          prod(sym(modernVel ?? "v", "v_renamed"), sym(modernX ?? "x", "x_renamed")),
-          { kind: "power", base: sym(modernV, "V_renamed"), exponent: { num: 2, den: 1 } },
-        ),
+        quot(prod(sym(modernVel ?? "v", "v_renamed"), sym(modernX ?? "x", "x_renamed")), {
+          kind: "power",
+          base: sym(modernV, "V_renamed"),
+          exponent: { num: 2, den: 1 },
+        }),
       ),
     ),
   );
@@ -153,8 +155,14 @@ test("Criterion 2: Paper 3 beta renders as gamma and V as c in modern notation, 
     sourceDerivedWithRenames,
     "Modern LaTeX must equal source LaTeX with exactly the concordance renames applied",
   );
-  assert.ok(modernRendered.includes(modernBeta), `Modern LaTeX must contain concordance glyph ${modernBeta}`);
-  assert.ok(modernRendered.includes(modernV), `Modern LaTeX must contain concordance glyph ${modernV}`);
+  assert.ok(
+    modernRendered.includes(modernBeta),
+    `Modern LaTeX must contain concordance glyph ${modernBeta}`,
+  );
+  assert.ok(
+    modernRendered.includes(modernV),
+    `Modern LaTeX must contain concordance glyph ${modernV}`,
+  );
 
   // And in source perspective, original glyphs are preserved unchanged
   const sourceRendered = renderLatex(sourceBoostTree, {
@@ -239,14 +247,8 @@ test("Criterion 2: Paper 2 k -> eta, P -> a, and (RT/N)*(1/(6*pi*k*P)) -> k_BT*(
 
   // Printed expression: (RT/N) * (1 / (6 * pi * k * P))
   const sourceDiffusivityTree: Expression = prod(
-    quot(
-      prod(sym("R", "molarGasConstant"), sym("T", "temperature")),
-      sym("N", "avogadroConstant"),
-    ),
-    quot(
-      num("1"),
-      prod(num("6"), piConst, sym("k", "viscosity"), sym("P", "particleRadius")),
-    ),
+    quot(prod(sym("R", "molarGasConstant"), sym("T", "temperature")), sym("N", "avogadroConstant")),
+    quot(num("1"), prod(num("6"), piConst, sym("k", "viscosity"), sym("P", "particleRadius"))),
   );
 
   // Method 1: Modern perspective rendering
@@ -276,10 +278,7 @@ test("Criterion 2: Paper 2 k -> eta, P -> a, and (RT/N)*(1/(6*pi*k*P)) -> k_BT*(
   // Second factor: 1 / (6 * pi * eta * a)
   const concordanceRenamedTree: Expression = prod(
     prod(sym(rnGroup.modernGroup, "kB_renamed"), sym(modernT, "T_renamed")),
-    quot(
-      num("1"),
-      prod(num("6"), piConst, sym(modernK, "eta_renamed"), sym(modernP, "a_renamed")),
-    ),
+    quot(num("1"), prod(num("6"), piConst, sym(modernK, "eta_renamed"), sym(modernP, "a_renamed"))),
   );
 
   const sourceDerivedWithRenames = renderLatex(concordanceRenamedTree, {
@@ -343,11 +342,7 @@ test("Criterion 9 (Refusal Pair): missing notation entry fails loudly naming equ
   );
 
   // Acceptance counterpart: when all symbols are in scope, rendering succeeds
-  const validTree: Expression = rel(
-    "=",
-    sym("x", "displacement"),
-    sym("t", "time"),
-  );
+  const validTree: Expression = rel("=", sym("x", "displacement"), sym("t", "time"));
 
   const output = renderLatex(validTree, {
     perspective: "modern",
@@ -407,7 +402,13 @@ test("Scope Isolation: Paper 2 viscosity k does not modernize in Paper 3, and Pa
   assert.notEqual(modernK_SR, "\\eta");
 
   // In Paper 3 sr-s3, beta modernizes to \gamma
-  const modernBeta_SR = modernSymbolFor("special-relativity", "sr-s3", "\\beta", manifestIndex, cSR);
+  const modernBeta_SR = modernSymbolFor(
+    "special-relativity",
+    "sr-s3",
+    "\\beta",
+    manifestIndex,
+    cSR,
+  );
   assert.equal(modernBeta_SR, "\\gamma");
 
   // In Paper 1 lq-s2, beta modernizes to h/k_B, NEVER \gamma
@@ -483,7 +484,10 @@ test("notation.test: missing concordance entry in scoped paper throws (notation.
       assert.equal(err.equationId, "eq-scoped-missing-throw-test");
       assert.equal(err.paper, "brownian-motion");
       assert.equal(err.scope, "bm-s3");
-      assert.match(err.message, /has no concordance entry in scope "bm-s3" for paper "brownian-motion"/);
+      assert.match(
+        err.message,
+        /has no concordance entry in scope "bm-s3" for paper "brownian-motion"/,
+      );
       return true;
     },
   );
@@ -538,4 +542,3 @@ test("notation.test: missing notation binding in registry fallback throws (notat
   assert.ok(validOutput.length > 0);
   assert.ok(validOutput.includes("U"));
 });
-

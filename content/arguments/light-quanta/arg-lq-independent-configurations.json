@@ -1,1 +1,85 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-lq-independent-configurations","paper":"light-quanta","section":"s5","title":"Independence supplies the exponent","question":"Why is the probability f to the power n, rather than just f?","recap":"For n independent uniformly distributed points, the chance that all lie in a fraction f of a volume is fⁿ. Perfectly locked positions instead give f; the exponent is a statement about independence.","review":"draft","premises":["Each point is uniformly distributed over the initial volume.","The point positions are statistically independent for the independent model.","Entropy differences are related to logarithms of relative configuration probabilities."],"limitations":["The locked-position example is an authored mathematical counterexample, not an established alternative theory of radiation.","Spontaneous concentration probability and constrained-state entropy are related but are not the same observable."],"citations":["ap-17-132"],"readings":{"overview":[{"kind":"paragraph","text":"For n independent uniformly distributed points, the chance that all lie in a fraction f of a volume is fⁿ. Perfectly locked positions instead give f; the exponent is a statement about independence."}],"full":[{"kind":"paragraph","text":"Each independent point has probability f of being inside the chosen fraction. For all n to be inside, multiply n independent probabilities. Taking the logarithm makes the exponent n a coefficient."},{"kind":"formula","latex":"W=f^n,\\qquad\\Delta S=k_B\\ln W=nk_B\\ln f","spoken":"The probability is f to the n; the entropy difference is k B times its logarithm, or n k B logarithm f."},{"kind":"paragraph","text":"With four independent points and half the volume, the probability is 1/16. If all four positions are exactly the same uniformly distributed position, the probability is 1/2 instead. Having four labels is not enough to justify four independent factors."},{"kind":"paragraph","text":"The concentration from V₀ to V smaller than V₀ has a negative entropy difference. Reversing the constrained comparison reverses the sign. LQ-05 makes the probability and entropy readouts separate."},{"kind":"foundation","id":"probability-independence","returnCaption":"Return to the independence assumption behind the volume exponent."}],"steps":[{"kind":"steps","items":["Choose the subvolume fraction f = V/V₀ between zero and one.","For a single uniform point, the probability of being inside is f.","Multiply only when the n positions are independent: W = fⁿ.","For n = 4 and f = 1/2, count one all-inside result among sixteen equally likely inside/outside patterns.","Take ln W = n ln f and multiply by k_B for the entropy difference.","Now lock all positions to one uniform coordinate: there is only one independent condition, so W = f."]}],"margin":[{"kind":"paragraph","text":"For rare configurations, a log-probability readout avoids pretending that a finite animation has directly measured an astronomically small probability. The argument concerns the model’s configuration measure."}]},"prerequisites":[],"help":{"why":"probability-independence","missingStep":"probability-independence","example":"probability-independence"},"experiments":["lq-05"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-independent-configurations",
+  "paper": "light-quanta",
+  "section": "s5",
+  "title": "Independence supplies the exponent",
+  "question": "Why is the probability f to the power n, rather than just f?",
+  "recap": "For n independent uniformly distributed points, the chance that all lie in a fraction f of a volume is fⁿ. Perfectly locked positions instead give f; the exponent is a statement about independence.",
+  "review": "draft",
+  "premises": [
+    "Each point is uniformly distributed over the initial volume.",
+    "The point positions are statistically independent for the independent model.",
+    "Entropy differences are related to logarithms of relative configuration probabilities."
+  ],
+  "limitations": [
+    "The locked-position example is an authored mathematical counterexample, not an established alternative theory of radiation.",
+    "Spontaneous concentration probability and constrained-state entropy are related but are not the same observable."
+  ],
+  "citations": ["ap-17-132"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "For n independent uniformly distributed points, the chance that all lie in a fraction f of a volume is fⁿ. Perfectly locked positions instead give f; the exponent is a statement about independence."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "Each independent point has probability f of being inside the chosen fraction. For all n to be inside, multiply n independent probabilities. Taking the logarithm makes the exponent n a coefficient."
+      },
+      {
+        "kind": "formula",
+        "latex": "W=f^n,\\qquad\\Delta S=k_B\\ln W=nk_B\\ln f",
+        "spoken": "The probability is f to the n; the entropy difference is k B times its logarithm, or n k B logarithm f."
+      },
+      {
+        "kind": "paragraph",
+        "text": "With four independent points and half the volume, the probability is 1/16. If all four positions are exactly the same uniformly distributed position, the probability is 1/2 instead. Having four labels is not enough to justify four independent factors."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The concentration from V₀ to V smaller than V₀ has a negative entropy difference. Reversing the constrained comparison reverses the sign. LQ-05 makes the probability and entropy readouts separate."
+      },
+      {
+        "kind": "foundation",
+        "id": "probability-independence",
+        "returnCaption": "Return to the independence assumption behind the volume exponent."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Choose the subvolume fraction f = V/V₀ between zero and one.",
+          "For a single uniform point, the probability of being inside is f.",
+          "Multiply only when the n positions are independent: W = fⁿ.",
+          "For n = 4 and f = 1/2, count one all-inside result among sixteen equally likely inside/outside patterns.",
+          "Take ln W = n ln f and multiply by k_B for the entropy difference.",
+          "Now lock all positions to one uniform coordinate: there is only one independent condition, so W = f."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "For rare configurations, a log-probability readout avoids pretending that a finite animation has directly measured an astronomically small probability. The argument concerns the model’s configuration measure."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": {
+    "why": "probability-independence",
+    "missingStep": "probability-independence",
+    "example": "probability-independence"
+  },
+  "experiments": ["lq-05"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

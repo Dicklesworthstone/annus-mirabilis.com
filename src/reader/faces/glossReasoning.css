@@ -1,4 +1,6 @@
-.gloss-grammar-cue.cue-reasoning-fallback { display: none; }
+.gloss-grammar-cue.cue-reasoning-fallback {
+  display: none;
+}
 /* Server-render all marked source text once; native checkbox state controls the
    optional reasoning layer even before hydration or when JavaScript is disabled.
    Print deliberately retains reasoning emphasis while hiding interactive controls. */
@@ -16,4 +18,3 @@
     text-decoration: none;
   }
 }
-

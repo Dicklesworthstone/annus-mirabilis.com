@@ -69,10 +69,7 @@ const COMPATIBILITY_MISMATCH_CASES: readonly {
 
 // Accept test
 test("permalink.compatibility: accept identical tape and environment", () => {
-  const check = checkTapeCompatibility(
-    FIXTURE_TEACHING_TAPE_EINSTEIN_08,
-    FIXTURE_ENVIRONMENT,
-  );
+  const check = checkTapeCompatibility(FIXTURE_TEACHING_TAPE_EINSTEIN_08, FIXTURE_ENVIRONMENT);
   assert.equal(check.compatible, true);
 });
 
@@ -293,4 +290,3 @@ test("permalink.compatibility: Site (compatibility.ts:140) rejects replay grid m
     assert.equal(newRunRes.isNewRun, true);
   }
 });
-

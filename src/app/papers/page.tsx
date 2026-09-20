@@ -87,7 +87,9 @@ export default function Papers() {
             {i === 0 && (
               <div className="actions">
                 <a href="/papers/light-quanta/">Read the entropy and light-quantum argument →</a>
-                <a href="/papers/light-quanta/#entry-light-quanta">Show me a counting example first →</a>
+                <a href="/papers/light-quanta/#entry-light-quanta">
+                  Show me a counting example first →
+                </a>
                 <a href="/lab/lq-01/">Wave description & energy spreading →</a>
                 <a href="/lab/lq-06/">Compare the entropy coefficients →</a>
               </div>
@@ -105,7 +107,9 @@ export default function Papers() {
             {i === 2 && (
               <div className="actions">
                 <a href="/papers/special-relativity/">Read from clocks to electrodynamics →</a>
-                <a href="/papers/special-relativity/#entry-special-relativity">Start by setting a distant clock →</a>
+                <a href="/papers/special-relativity/#entry-special-relativity">
+                  Start by setting a distant clock →
+                </a>
                 <a href="/lab/sr-02/">Magnet and conductor →</a>
                 <a href="/lab/sr-03/">Rod measurement & simultaneity →</a>
                 <a href="/lab/sr-10/">Finite light complex →</a>

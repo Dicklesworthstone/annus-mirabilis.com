@@ -197,8 +197,12 @@
    border-bottom, which carry the distinction, are untouched. A border-only
    treatment was rejected on measurement: #b91c1c is 2.50 and 2.76 against the dark
    papers, below the 3:1 non-text minimum, so the fill has to keep carrying it. */
-[data-theme="kramgasse-night"] .derivation-subexpression-highlight { background: #422025; }
-[data-theme="slate"] .derivation-subexpression-highlight { background: #38191a; }
+[data-theme="kramgasse-night"] .derivation-subexpression-highlight {
+  background: #422025;
+}
+[data-theme="slate"] .derivation-subexpression-highlight {
+  background: #38191a;
+}
 
 .step-reasons {
   margin: 0.75rem 0;

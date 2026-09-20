@@ -59,7 +59,11 @@ export function checkOutFreshness(
       return { present: false, fresh: false, reason: `Target path is not a directory: ${rootDir}` };
     }
   } catch (err) {
-    return { present: false, fresh: false, reason: `Cannot stat directory: ${rootDir} (${String(err)})` };
+    return {
+      present: false,
+      fresh: false,
+      reason: `Cannot stat directory: ${rootDir} (${String(err)})`,
+    };
   }
 
   // Determine out/ mtime
@@ -296,7 +300,10 @@ export function assertOutFreshness(
   baseDir: string = process.cwd(),
 ): OutFreshnessResult {
   const result = checkOutFreshness(rootDir, baseDir);
-  assert.ok(result.present, `Expected static build directory "${rootDir}" to be present: ${result.reason}`);
+  assert.ok(
+    result.present,
+    `Expected static build directory "${rootDir}" to be present: ${result.reason}`,
+  );
   assert.ok(result.fresh, `Static build directory "${rootDir}" is STALE: ${result.reason}`);
   return result;
 }

@@ -61,7 +61,9 @@ export async function loadReadingFiles(root = ROOT, corpusDir = "content") {
       }
       if (
         name.endsWith(".md") ||
-        (name.endsWith(".yaml") && !/equations[\\/]derivations[\\/]/.test(full) && name !== "missing-step-allowlist.yaml") ||
+        (name.endsWith(".yaml") &&
+          !/equations[\\/]derivations[\\/]/.test(full) &&
+          name !== "missing-step-allowlist.yaml") ||
         name.endsWith(".yml") ||
         name.endsWith(".txt")
       )

@@ -44,8 +44,8 @@ export default function BrownianDataPage() {
           a realized interval. The camera method models the declared noise and exposure while
           holding their values, timing and spatial calibration exact. Uncertainty in those inputs,
           selection, confinement, correlated tracking errors and different particle properties are
-          not included. A successful calculation does not establish that the recording satisfies
-          the model. A negative estimate or an empty physical confidence set is retained as a
+          not included. A successful calculation does not establish that the recording satisfies the
+          model. A negative estimate or an empty physical confidence set is retained as a
           diagnostic, never silently replaced by a plausible positive answer.
         </p>
         <p>

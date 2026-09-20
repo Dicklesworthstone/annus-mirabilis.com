@@ -8,15 +8,18 @@
  * - A modernOnlySymbols glyph that collides with a renamed symbol is an ERROR.
  */
 
-import { type Expression, walk } from "../ast.ts";
-import type { PaperConcordance } from "../../content/schemas/concordance.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
+import type { PaperConcordance } from "../../content/schemas/concordance.ts";
+import { type Expression, walk } from "../ast.ts";
 import { resolveSymbolGlyph } from "./notation.ts";
 import type { RenderLatexOptions } from "./types.ts";
 
 export interface CollisionDiagnostic {
   readonly kind: "error" | "warning";
-  readonly rule: "modern-glyph-collision" | "printed-glyph-collision" | "modern-only-symbol-collision";
+  readonly rule:
+    | "modern-glyph-collision"
+    | "printed-glyph-collision"
+    | "modern-only-symbol-collision";
   readonly quantityIds: readonly string[];
   readonly glyph: string;
   readonly message: string;
@@ -38,7 +41,9 @@ export function checkEquationGlyphCollisions(
   const diagnostics: CollisionDiagnostic[] = [];
 
   // Extract all unique symbol nodes in the tree
-  const symbols = walk(tree).filter((n): n is Extract<Expression, { kind: "symbol" }> => n.kind === "symbol");
+  const symbols = walk(tree).filter(
+    (n): n is Extract<Expression, { kind: "symbol" }> => n.kind === "symbol",
+  );
 
   // Map from rendered glyph -> array of distinct quantityIds that produce it
   const glyphToQuantities = new Map<string, Set<string>>();

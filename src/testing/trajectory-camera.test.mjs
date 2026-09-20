@@ -109,14 +109,31 @@ test("odd track tails are recorded, never paired with another particle", () => {
 });
 
 test("interleaved two-coordinate tracks preserve every within-pair coordinate", () => {
-  const input = trajectory({ A: [[0, 10], [1, 11], [2, 12]], B: [[30, 40], [31, 41], [32, 42]] });
+  const input = trajectory({
+    A: [
+      [0, 10],
+      [1, 11],
+      [2, 12],
+    ],
+    B: [
+      [30, 40],
+      [31, 41],
+      [32, 42],
+    ],
+  });
   const [a, b, c, d, e, f] = input.points;
   input.points = [a, d, b, e, c, f].map((p, i) => ({ ...p, row: i + 2 }));
   const result = selectTrajectoryFramePairs(input);
   assert.equal(result.kind, "selected");
   assert.deepEqual(Array.from(result.positions), [0, 10, 1, 11, 30, 40, 31, 41]);
   assert.deepEqual(result.report.unpairedRows, [6, 7]);
-  assert.deepEqual(result.report.pairs.map((p) => [p.firstRow, p.secondRow]), [[2, 4], [3, 5]]);
+  assert.deepEqual(
+    result.report.pairs.map((p) => [p.firstRow, p.secondRow]),
+    [
+      [2, 4],
+      [3, 5],
+    ],
+  );
 });
 
 test("the first, third and fifth frame start pairs; frames are never reused", () => {
@@ -129,10 +146,16 @@ test("the first, third and fifth frame start pairs; frames are never reused", ()
 });
 
 test("track labels are data, including prototype-looking names", () => {
-  const tracks = Object.fromEntries([["__proto__", [[0], [1]]], ["constructor", [[2], [3]]]]);
+  const tracks = Object.fromEntries([
+    ["__proto__", [[0], [1]]],
+    ["constructor", [[2], [3]]],
+  ]);
   const result = selectTrajectoryFramePairs(trajectory(tracks));
   assert.equal(result.kind, "selected");
-  assert.deepEqual(result.report.pairs.map((p) => p.track), ["__proto__", "constructor"]);
+  assert.deepEqual(
+    result.report.pairs.map((p) => p.track),
+    ["__proto__", "constructor"],
+  );
 });
 
 for (const dt of [null, 0, -1, NaN, Infinity]) {
@@ -143,18 +166,40 @@ for (const dt of [null, 0, -1, NaN, Infinity]) {
   });
 }
 test("three-dimensional camera data are refused without dropping a coordinate", () => {
-  rejectWithoutOwner(trajectory({ A: [[0, 0, 0], [1, 2, 3], [2, 3, 4], [3, 4, 5]] }), {}, true, /one or two/);
+  rejectWithoutOwner(
+    trajectory({
+      A: [
+        [0, 0, 0],
+        [1, 2, 3],
+        [2, 3, 4],
+        [3, 4, 5],
+      ],
+    }),
+    {},
+    true,
+    /one or two/,
+  );
 });
 test("too few pairs cannot fit a drift", () => {
   rejectWithoutOwner(trajectory({ A: [[0], [1], [2]] }), {}, true, /two disjoint/);
 });
 test("invalid rows, coordinates and track metadata fail closed", () => {
   const changes = [
-    (t) => { t.points[1].row = t.points[0].row; },
-    (t) => { t.points[1].time = t.points[0].time; },
-    (t) => { t.points[1].coordinates[0] = Infinity; },
-    (t) => { t.points[1].coordinates = []; },
-    (t) => { t.trackCount = 20; },
+    (t) => {
+      t.points[1].row = t.points[0].row;
+    },
+    (t) => {
+      t.points[1].time = t.points[0].time;
+    },
+    (t) => {
+      t.points[1].coordinates[0] = Infinity;
+    },
+    (t) => {
+      t.points[1].coordinates = [];
+    },
+    (t) => {
+      t.trackCount = 20;
+    },
   ];
   for (const change of changes) {
     const input = trajectory();
@@ -169,7 +214,12 @@ test("pairing is bounded before coordinate packing", () => {
 });
 
 test("a camera declaration is separate from ideal independent-increment assumptions", () => {
-  rejectWithoutOwner(trajectory(), { independentIsotropic: true }, false, /Declare isotropic Brownian/);
+  rejectWithoutOwner(
+    trajectory(),
+    { independentIsotropic: true },
+    false,
+    /Declare isotropic Brownian/,
+  );
   const { owner, calls } = reference();
   const result = analyzeCameraTrajectory(trajectory(), assumptions(), true, owner);
   assert.equal(result.kind, "analyzed");
@@ -184,7 +234,9 @@ test("one track does not require a multi-particle pooling declaration", () => {
   const { owner } = reference();
   const result = analyzeCameraTrajectory(
     trajectory({ A: [[0], [1], [2], [3]] }),
-    assumptions({ commonDriftAndDiffusion: false }), true, owner,
+    assumptions({ commonDriftAndDiffusion: false }),
+    true,
+    owner,
   );
   assert.equal(result.kind, "analyzed");
 });
@@ -210,7 +262,12 @@ for (const exposure of [-1, NaN, Infinity, 1.01]) {
 }
 test("finite exposure and nonzero noise are forwarded in SI with the exact pair selection", () => {
   const { owner, calls } = reference();
-  const result = analyzeCameraTrajectory(trajectory(), assumptions({ localizationStd: 2, exposureTime: 1 }), true, owner);
+  const result = analyzeCameraTrajectory(
+    trajectory(),
+    assumptions({ localizationStd: 2, exposureTime: 1 }),
+    true,
+    owner,
+  );
   assert.equal(result.kind, "analyzed");
   assert.equal(calls.length, 1);
   assert.deepEqual(Array.from(calls[0].positions), [0, 2, 1000, 1004]);
@@ -224,14 +281,28 @@ test("finite exposure and nonzero noise are forwarded in SI with the exact pair 
 });
 test("an explicitly ideal camera (zero noise and zero exposure) remains admissible", () => {
   const { owner } = reference();
-  assert.equal(analyzeCameraTrajectory(trajectory(), assumptions({ localizationStd: 0, exposureTime: 0 }), true, owner).kind, "analyzed");
+  assert.equal(
+    analyzeCameraTrajectory(
+      trajectory(),
+      assumptions({ localizationStd: 0, exposureTime: 0 }),
+      true,
+      owner,
+    ).kind,
+    "analyzed",
+  );
 });
 test("coverage boundaries are admitted; invalid coverage throws before owner evaluation", () => {
   const { owner, calls } = reference();
   for (const coverage of [0.5, 0.999])
-    assert.equal(analyzeCameraTrajectory(trajectory(), assumptions({ coverage }), true, owner).kind, "analyzed");
+    assert.equal(
+      analyzeCameraTrajectory(trajectory(), assumptions({ coverage }), true, owner).kind,
+      "analyzed",
+    );
   for (const coverage of [0, 0.499, 1, NaN, Infinity])
-    assert.throws(() => analyzeCameraTrajectory(trajectory(), assumptions({ coverage }), true, owner), /coverage/);
+    assert.throws(
+      () => analyzeCameraTrajectory(trajectory(), assumptions({ coverage }), true, owner),
+      /coverage/,
+    );
   assert.equal(calls.length, 2);
 });
 test("typed refusal and no-value explanations are propagated with the pairing receipt", () => {
@@ -290,7 +361,11 @@ test("export records all observations, the applied model and the exact included/
 test("nonfinite values cannot silently become null in an accepted export", () => {
   const { owner } = reference();
   const result = analyzeCameraTrajectory(trajectory(), assumptions(), true, owner);
-  assert.throws(() => cameraTrajectoryAnalysisJson({ ...result, camera: { ...result.camera, estimate: Infinity } }), /nonfinite/);
+  assert.throws(
+    () =>
+      cameraTrajectoryAnalysisJson({ ...result, camera: { ...result.camera, estimate: Infinity } }),
+    /nonfinite/,
+  );
 });
 test("accepted owner arrays are copied before freezing the result", () => {
   const noiseInterval = [1, 1];

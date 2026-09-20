@@ -17,11 +17,14 @@ const assumptions = {
   independentRadius: null,
 };
 const single = "track,time,x\nA,0,0\nA,1,2\nA,2,999\nA,3,1003\nA,4,0\nA,5,6\n";
-const multiple = "track,time,x\nA,0,0\nB,0,1000\nC,0,0\nA,1,2\nB,1,1004\nC,1,6\nA,2,999\nB,2,9999\nC,2,99999\n";
+const multiple =
+  "track,time,x\nA,0,0\nB,0,1000\nC,0,0\nA,1,2\nB,1,1004\nC,1,6\nA,2,999\nB,2,9999\nC,2,99999\n";
 const read = (text, position = "m") => parseTrajectoryCsv(text, { time: "s", position });
 const near = (actual, expected, absolute = 1e-12) =>
-  assert.ok(withinTolerance(actual, expected, { absolute, relative: 1e-10 }).ok,
-    `${actual} did not agree with independently calculated ${expected}`);
+  assert.ok(
+    withinTolerance(actual, expected, { absolute, relative: 1e-10 }).ok,
+    `${actual} did not agree with independently calculated ${expected}`,
+  );
 
 test("real owner fits disjoint displacements [2,4,6] and corrects camera variance", () => {
   const result = analyzeImportedCameraTrajectory(read(single), assumptions, true);
@@ -52,7 +55,9 @@ test("real imported interleaved tracks never include artificial inter-particle j
 
 test("real noise correction retains an empty confidence set instead of inventing a bound", () => {
   const result = analyzeImportedCameraTrajectory(
-    read(single), { ...assumptions, localizationStd: 10 }, true,
+    read(single),
+    { ...assumptions, localizationStd: 10 },
+    true,
   );
   assert.equal(result.kind, "analyzed");
   assert.equal(result.camera.empty, true);
@@ -63,7 +68,9 @@ test("real noise correction retains an empty confidence set instead of inventing
 
 test("micrometre import and metre-based camera parameters use the same SI owner", () => {
   const result = analyzeImportedCameraTrajectory(
-    read(single, "um"), { ...assumptions, localizationStd: 1e-6 }, true,
+    read(single, "um"),
+    { ...assumptions, localizationStd: 1e-6 },
+    true,
   );
   assert.equal(result.kind, "analyzed");
   near(result.camera.estimate, ((4 - 2) / 1.8) * 1e-12, 1e-24);

@@ -62,9 +62,9 @@ export function CameraTrajectoryResult({ analysis }: { analysis: CameraTrajector
       <details>
         <summary>Inspect the selected CSV row pairs</summary>
         <p className="fine">
-          Showing the first {Math.min(PREVIEW_PAIRS, pairing.pairs.length)} of {pairing.pairs.length}
-          {" "}pairs. The accepted-analysis JSON contains the complete pairing receipt and all
-          observations. Row numbers refer to the original CSV, including its header.
+          Showing the first {Math.min(PREVIEW_PAIRS, pairing.pairs.length)} of{" "}
+          {pairing.pairs.length} pairs. The accepted-analysis JSON contains the complete pairing
+          receipt and all observations. Row numbers refer to the original CSV, including its header.
         </p>
         <table>
           <caption>Pair selection within each original track</caption>

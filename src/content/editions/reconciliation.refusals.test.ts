@@ -14,18 +14,18 @@
  * 10. (reconciliation.ts:368) update-required (in writeProposedBlocks)
  */
 
-import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import yaml from "js-yaml";
 import {
   type ConfirmAliasOptions,
   type ConfirmAliasResult,
+  confirmAlias,
   type WriteBlocksOptions,
   type WriteBlocksResult,
-  confirmAlias,
   writeProposedBlocks,
 } from "./reconciliation.ts";
 import type { ProposedBlock, ReconciliationDifference } from "./segmentLedger.ts";
@@ -41,9 +41,7 @@ const SAMPLE_BLOCK: ProposedBlock = {
   id: "s1-p1",
   kind: "paragraph",
   text: "Sample paragraph block for testing.",
-  sentences: [
-    { id: "s1-p1-s1", text: "Sample paragraph block for testing." },
-  ],
+  sentences: [{ id: "s1-p1-s1", text: "Sample paragraph block for testing." }],
 };
 
 describe("Reconciliation Refusal Sites (reconciliation.ts)", () => {

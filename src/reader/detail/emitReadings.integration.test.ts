@@ -1,12 +1,12 @@
+import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import { PaperPage } from "../PaperPage.tsx";
 import { PaperReader } from "../PaperReader.tsx";
-import { CaptionReadingUnit, type CaptionReadingSet } from "./CaptionReadingUnit.tsx";
+import { type CaptionReadingSet, CaptionReadingUnit } from "./CaptionReadingUnit.tsx";
 
 describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
   test("paragraph unit contains exactly four readings with R1 visible and R0, R2, R3 hidden", async () => {
@@ -92,4 +92,3 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
     expect(html).toContain(target.readings.r3.replaceAll("'", "&#x27;"));
   });
 });
-

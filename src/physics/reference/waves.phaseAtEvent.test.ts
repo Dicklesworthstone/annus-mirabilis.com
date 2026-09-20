@@ -1,6 +1,6 @@
+import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { describe, expect, test } from "bun:test";
 import { getQuantity, UnknownQuantityError } from "../../content/quantities/registry.ts";
 import { gamma } from "./kinematics.ts";
 import { logWaves } from "./waves.log.ts";

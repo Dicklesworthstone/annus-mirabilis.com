@@ -60,8 +60,13 @@ export async function buildWasmArtifacts(options: BuildOptions = {}): Promise<Bu
   if (options.buildRoot !== undefined) {
     const resolvedBuildRoot = resolve(options.buildRoot);
     const resolvedOutput = resolve(outputBaseDir);
-    if (!resolvedOutput.startsWith(resolvedBuildRoot + "/") && resolvedOutput !== resolvedBuildRoot) {
-      throw new Error(`Output path outside build root: ${outputBaseDir} is outside ${options.buildRoot}`);
+    if (
+      !resolvedOutput.startsWith(resolvedBuildRoot + "/") &&
+      resolvedOutput !== resolvedBuildRoot
+    ) {
+      throw new Error(
+        `Output path outside build root: ${outputBaseDir} is outside ${options.buildRoot}`,
+      );
     }
   }
 

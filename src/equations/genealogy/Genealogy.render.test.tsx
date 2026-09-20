@@ -3,9 +3,9 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { getLogger } from "../../testing/log/logger.ts";
 import {
+  formatEdgeTypeLabel,
   Genealogy,
   GenealogyListFallback,
-  formatEdgeTypeLabel,
   handleGenealogyKeyDown,
 } from "./Genealogy.tsx";
 import { layoutGenealogyGraph } from "./layoutLayers.ts";
@@ -317,20 +317,34 @@ describe("am-eq-genealogy-hmm: Genealogy component rendering and navigation", ()
 
     // 1. Non-colour cue in SVG: distinct dash patterns
     // Oracle edge has dasharray="2 2"
-    expect(html).toContain('data-from="root-postulate" data-to="oracle-eq" data-edge-type="modern-verification-oracle"');
+    expect(html).toContain(
+      'data-from="root-postulate" data-to="oracle-eq" data-edge-type="modern-verification-oracle"',
+    );
     expect(html).toContain('stroke-dasharray="2 2"');
 
     // Cross-paper edge has dasharray="4 3"
-    expect(html).toContain('data-from="oracle-eq" data-to="ext-result" data-edge-type="cross-reference"');
+    expect(html).toContain(
+      'data-from="oracle-eq" data-to="ext-result" data-edge-type="cross-reference"',
+    );
     expect(html).toContain('stroke-dasharray="4 3"');
 
     // Historical derivation has solid stroke
-    expect(html).toContain('data-from="root-postulate" data-to="hist-eq" data-edge-type="historical-derivation"');
+    expect(html).toContain(
+      'data-from="root-postulate" data-to="hist-eq" data-edge-type="historical-derivation"',
+    );
 
     // 2. Explicit edge naming in accessible nested list fallback
-    expect(html).toContain('<span class="genealogy-edge-type" data-edge-type="historical-derivation" aria-label="Derivation type: Historical Derivation">[Historical Derivation]</span>');
-    expect(html).toContain('<span class="genealogy-edge-type" data-edge-type="modern-verification-oracle" aria-label="Derivation type: Modern Verification Oracle">[Modern Verification Oracle]</span>');
-    expect(html).toContain('<span class="genealogy-edge-type" data-edge-type="pedagogical-reconstruction" aria-label="Derivation type: Pedagogical Reconstruction">[Pedagogical Reconstruction]</span>');
-    expect(html).toContain('<span class="genealogy-edge-type" data-edge-type="cross-reference" aria-label="Derivation type: Cross-Paper Reference">[Cross-Paper Reference]</span>');
+    expect(html).toContain(
+      '<span class="genealogy-edge-type" data-edge-type="historical-derivation" aria-label="Derivation type: Historical Derivation">[Historical Derivation]</span>',
+    );
+    expect(html).toContain(
+      '<span class="genealogy-edge-type" data-edge-type="modern-verification-oracle" aria-label="Derivation type: Modern Verification Oracle">[Modern Verification Oracle]</span>',
+    );
+    expect(html).toContain(
+      '<span class="genealogy-edge-type" data-edge-type="pedagogical-reconstruction" aria-label="Derivation type: Pedagogical Reconstruction">[Pedagogical Reconstruction]</span>',
+    );
+    expect(html).toContain(
+      '<span class="genealogy-edge-type" data-edge-type="cross-reference" aria-label="Derivation type: Cross-Paper Reference">[Cross-Paper Reference]</span>',
+    );
   });
 });

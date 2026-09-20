@@ -13,12 +13,19 @@ export type TeachingProfile = Readonly<{
 }>;
 /** Closed, paper-scoped admission. Adding a paper never admits arbitrary quantities or labs. */
 const profiles: Readonly<Record<TeachingPaper, TeachingProfile>> = Object.freeze({
-  "brownian-motion": Object.freeze({ argumentPrefix: "arg-bm-", quantities: BROWNIAN_QUANTITIES,
-    outputs: Object.freeze({ "bm-01": BM01_OUTPUTS }) }),
-  "mass-energy": Object.freeze({ argumentPrefix: "arg-me-", quantities: MASS_ENERGY_QUANTITIES,
-    outputs: Object.freeze({ "me-02": ME02_OUTPUTS }) }),
+  "brownian-motion": Object.freeze({
+    argumentPrefix: "arg-bm-",
+    quantities: BROWNIAN_QUANTITIES,
+    outputs: Object.freeze({ "bm-01": BM01_OUTPUTS }),
+  }),
+  "mass-energy": Object.freeze({
+    argumentPrefix: "arg-me-",
+    quantities: MASS_ENERGY_QUANTITIES,
+    outputs: Object.freeze({ "me-02": ME02_OUTPUTS }),
+  }),
 });
 export function teachingProfile(paper: unknown): TeachingProfile | null {
   return typeof paper === "string" && Object.hasOwn(profiles, paper)
-    ? profiles[paper as TeachingPaper] : null;
+    ? profiles[paper as TeachingPaper]
+    : null;
 }

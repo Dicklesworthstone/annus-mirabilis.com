@@ -1,1 +1,81 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-sr-electron-work","paper":"special-relativity","section":"s10","title":"The work integral has an observable endpoint","question":"What energy is required to accelerate an electron?","recap":"Integrating the longitudinal force gives kinetic energy mc²(γ − 1), not the total rest energy. Accelerating voltage and curvature provide separate experimental relations under specified fields.","review":"draft","premises":["Use invariant mass m, subluminal speed, and the stated force convention.","For the voltage relation, the particle begins at rest and field work becomes kinetic energy."],"limitations":["The ideal treatment excludes radiation loss and material interactions.","A kinetic-energy expression alone does not derive the September statement about changing rest energy."],"citations":["ap-17-891"],"readings":{"overview":[{"kind":"paragraph","text":"Integrating the longitudinal force gives kinetic energy mc²(γ − 1), not the total rest energy. Accelerating voltage and curvature provide separate experimental relations under specified fields."}],"full":[{"kind":"formula","latex":"K=\\int_0^v m\\gamma(u)^3u\\,du=mc^2(\\gamma-1)","spoken":"Integrating the longitudinal work from rest gives m c squared times gamma minus one."},{"kind":"paragraph","text":"Use dγ/du = γ³u/c² to evaluate the integral. Near zero speed, K approaches mv²/2. At 0.6c the exact value is 0.25mc² whereas the quadratic approximation is 0.18mc², so the approximation error is visible."},{"kind":"formula","latex":"|q|U=K,\\qquad r_B=\\frac{\\gamma mv}{|q|B}","spoken":"For acceleration from rest, charge magnitude times voltage magnitude supplies kinetic energy; in a transverse magnetic field the circular radius is gamma m v over charge magnitude B."},{"kind":"paragraph","text":"The third relation compares electric and magnetic deflection, with force and acceleration conventions kept explicit. In a purely transverse electric field the instantaneous curvature radius is γmv²/(|q|E). SR-13 separates that local curvature from a magnetic circular orbit at constant speed."},{"kind":"foundation","id":"integration","returnCaption":"Return to what energy is required to accelerate an electron."}],"steps":[{"kind":"steps","items":["Write longitudinal force as mγ³ times acceleration.","Multiply by displacement, using a dx = u du.","Integrate from rest and use the derivative of gamma.","Compare the exact value with the low-speed expansion without calling them equal at 0.6c.","For a voltage estimate, use charge magnitude and state the energy-loss assumption.","For deflection, distinguish magnetic constant-speed curvature from an instantaneous transverse electric curvature."]}],"margin":[{"kind":"paragraph","text":"The three experimental relations do not erase model assumptions about fields and radiation loss. The acknowledgment to M. Besso and the June 1905 closing belong to the source edition; this preview does not claim to transcribe or align those blocks."}]},"prerequisites":[{"id":"arg-sr-electron-conventions","edge":"premise"}],"help":{"why":"integration","missingStep":"integration","example":"integration"},"experiments":["sr-13"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-sr-electron-work",
+  "paper": "special-relativity",
+  "section": "s10",
+  "title": "The work integral has an observable endpoint",
+  "question": "What energy is required to accelerate an electron?",
+  "recap": "Integrating the longitudinal force gives kinetic energy mc²(γ − 1), not the total rest energy. Accelerating voltage and curvature provide separate experimental relations under specified fields.",
+  "review": "draft",
+  "premises": [
+    "Use invariant mass m, subluminal speed, and the stated force convention.",
+    "For the voltage relation, the particle begins at rest and field work becomes kinetic energy."
+  ],
+  "limitations": [
+    "The ideal treatment excludes radiation loss and material interactions.",
+    "A kinetic-energy expression alone does not derive the September statement about changing rest energy."
+  ],
+  "citations": ["ap-17-891"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Integrating the longitudinal force gives kinetic energy mc²(γ − 1), not the total rest energy. Accelerating voltage and curvature provide separate experimental relations under specified fields."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "K=\\int_0^v m\\gamma(u)^3u\\,du=mc^2(\\gamma-1)",
+        "spoken": "Integrating the longitudinal work from rest gives m c squared times gamma minus one."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Use dγ/du = γ³u/c² to evaluate the integral. Near zero speed, K approaches mv²/2. At 0.6c the exact value is 0.25mc² whereas the quadratic approximation is 0.18mc², so the approximation error is visible."
+      },
+      {
+        "kind": "formula",
+        "latex": "|q|U=K,\\qquad r_B=\\frac{\\gamma mv}{|q|B}",
+        "spoken": "For acceleration from rest, charge magnitude times voltage magnitude supplies kinetic energy; in a transverse magnetic field the circular radius is gamma m v over charge magnitude B."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The third relation compares electric and magnetic deflection, with force and acceleration conventions kept explicit. In a purely transverse electric field the instantaneous curvature radius is γmv²/(|q|E). SR-13 separates that local curvature from a magnetic circular orbit at constant speed."
+      },
+      {
+        "kind": "foundation",
+        "id": "integration",
+        "returnCaption": "Return to what energy is required to accelerate an electron."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Write longitudinal force as mγ³ times acceleration.",
+          "Multiply by displacement, using a dx = u du.",
+          "Integrate from rest and use the derivative of gamma.",
+          "Compare the exact value with the low-speed expansion without calling them equal at 0.6c.",
+          "For a voltage estimate, use charge magnitude and state the energy-loss assumption.",
+          "For deflection, distinguish magnetic constant-speed curvature from an instantaneous transverse electric curvature."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The three experimental relations do not erase model assumptions about fields and radiation loss. The acknowledgment to M. Besso and the June 1905 closing belong to the source edition; this preview does not claim to transcribe or align those blocks."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-sr-electron-conventions", "edge": "premise" }],
+  "help": { "why": "integration", "missingStep": "integration", "example": "integration" },
+  "experiments": ["sr-13"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

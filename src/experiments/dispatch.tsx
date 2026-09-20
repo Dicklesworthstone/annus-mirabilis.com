@@ -57,7 +57,10 @@ export type ViewLoaders = Readonly<Partial<Record<CatalogueId, ViewLoaderEntry>>
 // lazy(activeLoader) in ExperimentDispatch re-suspends/reinitializes views
 // on unrelated parent updates. Cache only component types (never owners,
 // snapshots or instance state); weak keys do not retain discarded loaders.
-const lazyViews = new WeakMap<ViewLoader, LazyExoticComponent<ComponentType<ExperimentViewProps>>>();
+const lazyViews = new WeakMap<
+  ViewLoader,
+  LazyExoticComponent<ComponentType<ExperimentViewProps>>
+>();
 
 function lazyView(loader: ViewLoader): LazyExoticComponent<ComponentType<ExperimentViewProps>> {
   let view = lazyViews.get(loader);

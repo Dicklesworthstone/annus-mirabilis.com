@@ -28,16 +28,17 @@ export default function NotebookPage() {
       </p>
       <h2>Keep the evidence behind an explanation</h2>
       <p>
-        In the <a href="/lab/bm-01/compare/">controlled Brownian comparison</a>, use
-        “Save this comparison and my explanation” to keep accepted results, exact seeds, the one-change
-        replay recipe, and your before-and-after explanation. Open that entry here to inspect what you saw
-        or explicitly start a new replay. Old evidence stays labeled and separate when the model or passage changes.
+        In the <a href="/lab/bm-01/compare/">controlled Brownian comparison</a>, use “Save this
+        comparison and my explanation” to keep accepted results, exact seeds, the one-change replay
+        recipe, and your before-and-after explanation. Open that entry here to inspect what you saw
+        or explicitly start a new replay. Old evidence stays labeled and separate when the model or
+        passage changes.
       </p>
       <h2>Only on this device</h2>
       <p>
         Nothing in the notebook is uploaded or used to assess you. Questions and free text never
-        enter a shareable passage URL. Saved comparisons and their optional predictions stay in this same notebook;
-        unrelated discovery notes keep their own existing storage.
+        enter a shareable passage URL. Saved comparisons and their optional predictions stay in this
+        same notebook; unrelated discovery notes keep their own existing storage.
       </p>
       <p>
         Browser storage is not a permanent backup. Export important entries as JSON or a readable

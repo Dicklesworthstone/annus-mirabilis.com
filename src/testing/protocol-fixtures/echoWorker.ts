@@ -66,7 +66,8 @@ export function handleWorkerMessageWithPost(
 ): void {
   if (!msg || typeof msg !== "object") return;
   // Field reach eliminated: safely extract property across untrusted boundary without type assertion escape
-  const kind = "messageKind" in msg ? (msg as { readonly messageKind?: unknown }).messageKind : undefined;
+  const kind =
+    "messageKind" in msg ? (msg as { readonly messageKind?: unknown }).messageKind : undefined;
 
   if (kind === "hello") {
     post(ECHO_WORKER_HELLO);

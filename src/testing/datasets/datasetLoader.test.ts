@@ -72,8 +72,7 @@ describe("datasetLoader (am-inst-dataset-overlay-ra9r)", () => {
   test("rejects pipeline-only datasets loaded from pipeline directory", () => {
     expect(() =>
       loadHistoricalDatasetFromYaml(VALID_DATASET_YAML, {
-        sourcePath:
-          "/home/agent/projects/annus-mirabilis.com/pipeline/scratch/run-01/test.yaml",
+        sourcePath: "/home/agent/projects/annus-mirabilis.com/pipeline/scratch/run-01/test.yaml",
       }),
     ).toThrow(DatasetValidationError);
   });

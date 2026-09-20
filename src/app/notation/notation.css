@@ -501,10 +501,18 @@
    separation: danger 1.046 from #c0392b (7%), caution 1.140 from #d35400 (14%).
    --ink over the results is 12.4 to 14.9 against the 4.5 minimum, and the authored
    border colours are untouched, so which hue means which severity is unchanged. */
-[data-theme="kramgasse-night"] .card-collision-alert { background: #272328; }
-[data-theme="slate"] .card-collision-alert { background: #201a1b; }
-[data-theme="kramgasse-night"] .card-collision-alert.caution { background: #362822; }
-[data-theme="slate"] .card-collision-alert.caution { background: #2f2016; }
+[data-theme="kramgasse-night"] .card-collision-alert {
+  background: #272328;
+}
+[data-theme="slate"] .card-collision-alert {
+  background: #201a1b;
+}
+[data-theme="kramgasse-night"] .card-collision-alert.caution {
+  background: #362822;
+}
+[data-theme="slate"] .card-collision-alert.caution {
+  background: #2f2016;
+}
 
 .card-collision-alert .alert-title {
   font-size: 0.85rem;
@@ -730,4 +738,3 @@
 .no-js-concordance-view {
   margin: 1rem 0;
 }
-

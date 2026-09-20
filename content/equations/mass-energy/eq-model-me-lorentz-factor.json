@@ -1,1 +1,130 @@
-{"schemaVersion":1,"kind":"equation","id":"eq-model-me-lorentz-factor","paper":"mass-energy","argument":"arg-me-import","title":"The factor borrowed from relativity","spoken":"The Lorentz factor equals one divided by the square root of one minus the squared speed ratio.","explanation":"The Lorentz factor is defined here in modern notation. Using it for the light energy imports the relativity result; it does not independently derive that result.","review":"draft","notation":"modern-pedagogical","unitSystem":"si","assumptions":["Two equal, opposite light pulses remove total positive energy L; their symmetry removes recoil in the body’s rest frame.","The two inertial descriptions refer to the same emission and the same body boundary; |v| < c.","These are authored modern teaching equations, not a reviewed transcription or printed-notation concordance."],"tree":{"kind":"relation","opId":"eq-model-me-lorentz-factor.op.relation","left":{"kind":"symbol","termId":"eq-model-me-lorentz-factor.t.lorentzFactor","quantityId":"lorentzFactor"},"right":{"kind":"quotient","opId":"eq-model-me-lorentz-factor.op.inverse","numerator":{"kind":"number","value":"1"},"denominator":{"kind":"root","opId":"eq-model-me-lorentz-factor.op.radical","radicand":{"kind":"sum","opId":"eq-model-me-lorentz-factor.op.radicand","args":[{"kind":"number","value":"1"},{"kind":"negate","argument":{"kind":"power","opId":"eq-model-me-lorentz-factor.op.speedSquared","base":{"kind":"quotient","opId":"eq-model-me-lorentz-factor.op.speedRatio","numerator":{"kind":"symbol","termId":"eq-model-me-lorentz-factor.t.frameSpeed","quantityId":"frameSpeed"},"denominator":{"kind":"symbol","termId":"eq-model-me-lorentz-factor.t.speedOfLight","quantityId":"speedOfLight"}},"exponent":{"num":2,"den":1}}}]},"degree":2}},"operator":"="},"notes":[{"nodeId":"eq-model-me-lorentz-factor.t.frameSpeed","title":"Same observer speed","explanation":"v is the signed relative speed between inertial descriptions. Its magnitude is less than c. It is held fixed while the body emits.","foundation":"frames-events"},{"nodeId":"eq-model-me-lorentz-factor.t.speedOfLight","title":"Modern SI speed of light","explanation":"c denotes the speed of light in modern SI notation. A normalized model with c = 1 is a different unit convention and cannot supply values labeled metres per second.","foundation":"bridge-scientific-notation-units"},{"nodeId":"eq-model-me-lorentz-factor.op.speedRatio","title":"Compare the speed with c","explanation":"v/c is dimensionless. Its sign gives the relative direction; squaring removes that direction.","foundation":"bridge-fractions-ratios"},{"nodeId":"eq-model-me-lorentz-factor.op.speedSquared","title":"Square the speed ratio","explanation":"Both positive and negative observer speeds give the same square. The low-speed expansion uses this small dimensionless number.","foundation":"bridge-squaring-square-roots"},{"nodeId":"eq-model-me-lorentz-factor.op.radicand","title":"One minus the squared speed ratio","explanation":"This quantity stays positive for an admitted observer and approaches zero at the excluded light-speed boundary.","foundation":"work-energy"},{"nodeId":"eq-model-me-lorentz-factor.op.radical","title":"Take the positive square root","explanation":"For |v| < c the radicand is positive. The boundary |v| = c is not an allowed inertial observer.","foundation":"bridge-squaring-square-roots"},{"nodeId":"eq-model-me-lorentz-factor.t.lorentzFactor","title":"Modern Lorentz factor","explanation":"γ depends on the observer speed. In this modern teaching notation γ is the factor, not the speed ratio v/c. The transformation of the light energy is imported from relativity, not derived from these energy accounts.","foundation":"frames-events"},{"nodeId":"eq-model-me-lorentz-factor.op.inverse","title":"Take the reciprocal","explanation":"The positive reciprocal is at least one. This definition alone says nothing about a body’s rest energy.","foundation":"bridge-fractions-ratios"},{"nodeId":"eq-model-me-lorentz-factor.op.relation","title":"What this relation asserts","explanation":"The Lorentz factor is defined here in modern notation. Using it for the light energy imports the relativity result; it does not independently derive that result.","foundation":"work-energy"}],"bindings":[],"sentence":[{"text":"The Lorentz factor equals one divided by the square root of one minus the squared speed ratio.","nodeId":"eq-model-me-lorentz-factor.op.relation"}]}
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-lorentz-factor",
+  "paper": "mass-energy",
+  "argument": "arg-me-import",
+  "title": "The factor borrowed from relativity",
+  "spoken": "The Lorentz factor equals one divided by the square root of one minus the squared speed ratio.",
+  "explanation": "The Lorentz factor is defined here in modern notation. Using it for the light energy imports the relativity result; it does not independently derive that result.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Two equal, opposite light pulses remove total positive energy L; their symmetry removes recoil in the body’s rest frame.",
+    "The two inertial descriptions refer to the same emission and the same body boundary; |v| < c.",
+    "These are authored modern teaching equations, not a reviewed transcription or printed-notation concordance."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-lorentz-factor.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-me-lorentz-factor.t.lorentzFactor",
+      "quantityId": "lorentzFactor"
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-me-lorentz-factor.op.inverse",
+      "numerator": { "kind": "number", "value": "1" },
+      "denominator": {
+        "kind": "root",
+        "opId": "eq-model-me-lorentz-factor.op.radical",
+        "radicand": {
+          "kind": "sum",
+          "opId": "eq-model-me-lorentz-factor.op.radicand",
+          "args": [
+            { "kind": "number", "value": "1" },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "power",
+                "opId": "eq-model-me-lorentz-factor.op.speedSquared",
+                "base": {
+                  "kind": "quotient",
+                  "opId": "eq-model-me-lorentz-factor.op.speedRatio",
+                  "numerator": {
+                    "kind": "symbol",
+                    "termId": "eq-model-me-lorentz-factor.t.frameSpeed",
+                    "quantityId": "frameSpeed"
+                  },
+                  "denominator": {
+                    "kind": "symbol",
+                    "termId": "eq-model-me-lorentz-factor.t.speedOfLight",
+                    "quantityId": "speedOfLight"
+                  }
+                },
+                "exponent": { "num": 2, "den": 1 }
+              }
+            }
+          ]
+        },
+        "degree": 2
+      }
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-lorentz-factor.t.frameSpeed",
+      "title": "Same observer speed",
+      "explanation": "v is the signed relative speed between inertial descriptions. Its magnitude is less than c. It is held fixed while the body emits.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor.t.speedOfLight",
+      "title": "Modern SI speed of light",
+      "explanation": "c denotes the speed of light in modern SI notation. A normalized model with c = 1 is a different unit convention and cannot supply values labeled metres per second.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor.op.speedRatio",
+      "title": "Compare the speed with c",
+      "explanation": "v/c is dimensionless. Its sign gives the relative direction; squaring removes that direction.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor.op.speedSquared",
+      "title": "Square the speed ratio",
+      "explanation": "Both positive and negative observer speeds give the same square. The low-speed expansion uses this small dimensionless number.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor.op.radicand",
+      "title": "One minus the squared speed ratio",
+      "explanation": "This quantity stays positive for an admitted observer and approaches zero at the excluded light-speed boundary.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor.op.radical",
+      "title": "Take the positive square root",
+      "explanation": "For |v| < c the radicand is positive. The boundary |v| = c is not an allowed inertial observer.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor.t.lorentzFactor",
+      "title": "Modern Lorentz factor",
+      "explanation": "γ depends on the observer speed. In this modern teaching notation γ is the factor, not the speed ratio v/c. The transformation of the light energy is imported from relativity, not derived from these energy accounts.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor.op.inverse",
+      "title": "Take the reciprocal",
+      "explanation": "The positive reciprocal is at least one. This definition alone says nothing about a body’s rest energy.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor.op.relation",
+      "title": "What this relation asserts",
+      "explanation": "The Lorentz factor is defined here in modern notation. Using it for the light energy imports the relativity result; it does not independently derive that result.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The Lorentz factor equals one divided by the square root of one minus the squared speed ratio.",
+      "nodeId": "eq-model-me-lorentz-factor.op.relation"
+    }
+  ]
+}

@@ -1,1 +1,85 @@
-{"schemaVersion":1,"kind":"equation","id":"eq-model-me-kinetic-drop-definition","paper":"mass-energy","argument":"arg-me-constant-premise","title":"Name the before-minus-after difference","spoken":"Delta K is defined as K before minus K after.","explanation":"Delta K is shorthand for a difference, not an additional energy law. Its before-minus-after sign is the reverse of a signed after-minus-before change.","review":"draft","notation":"modern-pedagogical","unitSystem":"si","assumptions":["Delta K is defined here as kinetic energy before minus after. The definition alone supplies no physical value.","This is modern explanatory notation, not a printed source transcription."],"tree":{"kind":"relation","opId":"eq-model-me-kinetic-drop-definition.op.relation","left":{"kind":"symbol","termId":"eq-model-me-kinetic-drop-definition.t.kineticEnergyDifference","quantityId":"kineticEnergyDifference"},"right":{"kind":"sum","opId":"eq-model-me-kinetic-drop-definition.op.kineticDrop","args":[{"kind":"symbol","termId":"eq-model-me-kinetic-drop-definition.t.kineticEnergyBefore","quantityId":"kineticEnergyBefore"},{"kind":"negate","argument":{"kind":"symbol","termId":"eq-model-me-kinetic-drop-definition.t.kineticEnergyAfter","quantityId":"kineticEnergyAfter"}}]},"operator":"define"},"notes":[{"nodeId":"eq-model-me-kinetic-drop-definition.t.kineticEnergyDifference","title":"Positive kinetic-energy drop","explanation":"ΔK means K₀ − K₁ in this card: before minus after. It is identified from the ledger subtraction only under the unchanged-offset premise.","foundation":"work-energy"},{"nodeId":"eq-model-me-kinetic-drop-definition.t.kineticEnergyBefore","title":"Energy of motion before","explanation":"K₀ is energy of motion before emission, relative to the moving observer. The subtraction does not determine its absolute value.","foundation":"work-energy"},{"nodeId":"eq-model-me-kinetic-drop-definition.t.kineticEnergyAfter","title":"Energy of motion after","explanation":"K₁ is energy of motion after emission at the same speed. Comparing the two kinetic energies identifies a drop without inventing their absolute values.","foundation":"work-energy"},{"nodeId":"eq-model-me-kinetic-drop-definition.op.kineticDrop","title":"Subtract the whole expression","explanation":"The negative sign applies to every term in the second expression. Both accounts use the same body boundary.","foundation":"work-energy"},{"nodeId":"eq-model-me-kinetic-drop-definition.op.relation","title":"Name the before-minus-after difference","explanation":"Delta K is shorthand for a difference, not an additional energy law. Its before-minus-after sign is the reverse of a signed after-minus-before change.","foundation":"work-energy"}],"bindings":[],"sentence":[{"text":"Delta K is defined as K before minus K after.","nodeId":"eq-model-me-kinetic-drop-definition.op.relation"}]}
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-kinetic-drop-definition",
+  "paper": "mass-energy",
+  "argument": "arg-me-constant-premise",
+  "title": "Name the before-minus-after difference",
+  "spoken": "Delta K is defined as K before minus K after.",
+  "explanation": "Delta K is shorthand for a difference, not an additional energy law. Its before-minus-after sign is the reverse of a signed after-minus-before change.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Delta K is defined here as kinetic energy before minus after. The definition alone supplies no physical value.",
+    "This is modern explanatory notation, not a printed source transcription."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-kinetic-drop-definition.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-me-kinetic-drop-definition.t.kineticEnergyDifference",
+      "quantityId": "kineticEnergyDifference"
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-me-kinetic-drop-definition.op.kineticDrop",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-me-kinetic-drop-definition.t.kineticEnergyBefore",
+          "quantityId": "kineticEnergyBefore"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-me-kinetic-drop-definition.t.kineticEnergyAfter",
+            "quantityId": "kineticEnergyAfter"
+          }
+        }
+      ]
+    },
+    "operator": "define"
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-kinetic-drop-definition.t.kineticEnergyDifference",
+      "title": "Positive kinetic-energy drop",
+      "explanation": "ΔK means K₀ − K₁ in this card: before minus after. It is identified from the ledger subtraction only under the unchanged-offset premise.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-definition.t.kineticEnergyBefore",
+      "title": "Energy of motion before",
+      "explanation": "K₀ is energy of motion before emission, relative to the moving observer. The subtraction does not determine its absolute value.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-definition.t.kineticEnergyAfter",
+      "title": "Energy of motion after",
+      "explanation": "K₁ is energy of motion after emission at the same speed. Comparing the two kinetic energies identifies a drop without inventing their absolute values.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-definition.op.kineticDrop",
+      "title": "Subtract the whole expression",
+      "explanation": "The negative sign applies to every term in the second expression. Both accounts use the same body boundary.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-definition.op.relation",
+      "title": "Name the before-minus-after difference",
+      "explanation": "Delta K is shorthand for a difference, not an additional energy law. Its before-minus-after sign is the reverse of a signed after-minus-before change.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "Delta K is defined as K before minus K after.",
+      "nodeId": "eq-model-me-kinetic-drop-definition.op.relation"
+    }
+  ]
+}

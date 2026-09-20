@@ -8,9 +8,9 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { Expression } from "../ast.ts";
-import type { AlternateForm } from "../alternateForms.ts";
 import { parseAlternateFormId } from "../../content/ids.ts";
+import type { AlternateForm } from "../alternateForms.ts";
+import type { Expression } from "../ast.ts";
 import { renderEquationLatex } from "./render.ts";
 
 const sym = (termId: string, quantityId: string): Expression => ({
@@ -28,7 +28,12 @@ const quot = (numerator: Expression, denominator: Expression): Expression => ({
 });
 const group = (argument: Expression): Expression => ({ kind: "group", argument });
 const neg = (argument: Expression): Expression => ({ kind: "negate", argument });
-const rel = (operator: "=" | "approx" | "define", left: Expression, right: Expression, opId?: string): Expression => ({
+const rel = (
+  operator: "=" | "approx" | "define",
+  left: Expression,
+  right: Expression,
+  opId?: string,
+): Expression => ({
   kind: "relation",
   operator,
   left,
@@ -50,10 +55,7 @@ test("transform.test: Paper 3 §6 transformation renders in printed and modern n
           sym("eq-s6-d3.t.y", "electricFieldStationary"),
           neg(
             prod(
-              quot(
-                sym("eq-s6-d3.t.v", "frameSpeed"),
-                sym("eq-s6-d3.t.V", "speedOfLight"),
-              ),
+              quot(sym("eq-s6-d3.t.v", "frameSpeed"), sym("eq-s6-d3.t.V", "speedOfLight")),
               sym("eq-s6-d3.t.N", "magneticFieldStationary"),
             ),
           ),
@@ -150,10 +152,7 @@ test("transform.test: Colorized modern and SI alternate outputs contain valid ma
           sym("eq-s6-d3.t.y", "electricFieldStationary"),
           neg(
             prod(
-              quot(
-                sym("eq-s6-d3.t.v", "frameSpeed"),
-                sym("eq-s6-d3.t.V", "speedOfLight"),
-              ),
+              quot(sym("eq-s6-d3.t.v", "frameSpeed"), sym("eq-s6-d3.t.V", "speedOfLight")),
               sym("eq-s6-d3.t.N", "magneticFieldStationary"),
             ),
           ),

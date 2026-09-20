@@ -8,8 +8,8 @@ import { fileURLToPath } from "node:url";
 import {
   auditInstruments,
   formatInstrumentAuditTable,
-  loadLiveInstrumentRows,
   type InstrumentAuditRow,
+  loadLiveInstrumentRows,
 } from "../src/content/audits/instruments.ts";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));

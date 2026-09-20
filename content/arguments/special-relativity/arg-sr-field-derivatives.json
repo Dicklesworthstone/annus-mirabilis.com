@@ -1,1 +1,87 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-sr-field-derivatives","paper":"special-relativity","section":"s6","title":"Transform derivatives before naming fields","question":"How do the field equations change coordinates?","recap":"The chain rule mixes time and longitudinal derivatives. Grouping the resulting terms suggests transformed electric and magnetic components; covariance alone is not a uniqueness proof of their physical identification.","review":"draft","premises":["Use the Lorentz coordinate map and vacuum Maxwell equations.","The example is expressed in SI with explicit factors of c."],"limitations":["SI factors cannot be obtained by merely renaming the source’s Gaussian field symbols.","A common field scale needs a normalization argument in addition to rearranging equations."],"citations":["ap-17-891"],"readings":{"overview":[{"kind":"paragraph","text":"The chain rule mixes time and longitudinal derivatives. Grouping the resulting terms suggests transformed electric and magnetic components; covariance alone is not a uniqueness proof of their physical identification."}],"full":[{"kind":"formula","latex":"\\partial_t=\\gamma(\\partial_{t'}-v\\partial_{x'}),\\qquad\\partial_x=\\gamma(\\partial_{x'}-v\\partial_{t'}/c^2)","spoken":"The chain rule mixes the time and x derivatives, with gamma and the appropriate powers of light speed."},{"kind":"paragraph","text":"For a plane wave traveling along x with E_y and B_z, the SI vacuum pair is ∂t E_y = −c² ∂x B_z and ∂t B_z = −∂x E_y. Substitute the two derivative operators above into both equations; do not transform only one equation."},{"kind":"paragraph","text":"Combining those substituted equations groups E_y − vB_z with B_z − vE_y/c². Multiplication by the common γ produces E′_y and B′_z and restores the corresponding primed equation pair. SR-07 opens the grouping step rather than treating the field law as a typographic replacement."},{"kind":"paragraph","text":"The source permits a common factor for all transformed fields. Inversion requires its value at v times its value at −v to be one. Spatial symmetry and the positive identity-connected normalization select one."},{"kind":"foundation","id":"partial-derivatives","returnCaption":"Return to how do the field equations change coordinates."}],"steps":[{"kind":"steps","items":["Name the coordinate map and its inverse.","Apply the chain rule to time and x derivatives of the same field.","Substitute into both members of the coupled plane-wave equation pair.","Group the electric/magnetic combinations, retaining every factor of c.","Check the inverse and spatial symmetry before fixing the common normalization.","Keep physical field identification separate from the algebraic fact that the equations keep their form."]}],"margin":[{"kind":"paragraph","text":"The source uses electric-force symbols X, Y, Z and magnetic-force symbols L, M, N, with V for light speed. Its β is γ, not v/c. A field tensor is a later verification language, not a hidden premise of this reconstruction."}]},"prerequisites":[{"id":"arg-sr-lorentz-map","edge":"premise"},{"id":"arg-sr-transverse-and-inverse","edge":"premise"}],"help":{"why":"partial-derivatives","missingStep":"partial-derivatives","example":"partial-derivatives"},"experiments":["sr-07"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-sr-field-derivatives",
+  "paper": "special-relativity",
+  "section": "s6",
+  "title": "Transform derivatives before naming fields",
+  "question": "How do the field equations change coordinates?",
+  "recap": "The chain rule mixes time and longitudinal derivatives. Grouping the resulting terms suggests transformed electric and magnetic components; covariance alone is not a uniqueness proof of their physical identification.",
+  "review": "draft",
+  "premises": [
+    "Use the Lorentz coordinate map and vacuum Maxwell equations.",
+    "The example is expressed in SI with explicit factors of c."
+  ],
+  "limitations": [
+    "SI factors cannot be obtained by merely renaming the source’s Gaussian field symbols.",
+    "A common field scale needs a normalization argument in addition to rearranging equations."
+  ],
+  "citations": ["ap-17-891"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "The chain rule mixes time and longitudinal derivatives. Grouping the resulting terms suggests transformed electric and magnetic components; covariance alone is not a uniqueness proof of their physical identification."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "\\partial_t=\\gamma(\\partial_{t'}-v\\partial_{x'}),\\qquad\\partial_x=\\gamma(\\partial_{x'}-v\\partial_{t'}/c^2)",
+        "spoken": "The chain rule mixes the time and x derivatives, with gamma and the appropriate powers of light speed."
+      },
+      {
+        "kind": "paragraph",
+        "text": "For a plane wave traveling along x with E_y and B_z, the SI vacuum pair is ∂t E_y = −c² ∂x B_z and ∂t B_z = −∂x E_y. Substitute the two derivative operators above into both equations; do not transform only one equation."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Combining those substituted equations groups E_y − vB_z with B_z − vE_y/c². Multiplication by the common γ produces E′_y and B′_z and restores the corresponding primed equation pair. SR-07 opens the grouping step rather than treating the field law as a typographic replacement."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The source permits a common factor for all transformed fields. Inversion requires its value at v times its value at −v to be one. Spatial symmetry and the positive identity-connected normalization select one."
+      },
+      {
+        "kind": "foundation",
+        "id": "partial-derivatives",
+        "returnCaption": "Return to how do the field equations change coordinates."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Name the coordinate map and its inverse.",
+          "Apply the chain rule to time and x derivatives of the same field.",
+          "Substitute into both members of the coupled plane-wave equation pair.",
+          "Group the electric/magnetic combinations, retaining every factor of c.",
+          "Check the inverse and spatial symmetry before fixing the common normalization.",
+          "Keep physical field identification separate from the algebraic fact that the equations keep their form."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The source uses electric-force symbols X, Y, Z and magnetic-force symbols L, M, N, with V for light speed. Its β is γ, not v/c. A field tensor is a later verification language, not a hidden premise of this reconstruction."
+      }
+    ]
+  },
+  "prerequisites": [
+    { "id": "arg-sr-lorentz-map", "edge": "premise" },
+    { "id": "arg-sr-transverse-and-inverse", "edge": "premise" }
+  ],
+  "help": {
+    "why": "partial-derivatives",
+    "missingStep": "partial-derivatives",
+    "example": "partial-derivatives"
+  },
+  "experiments": ["sr-07"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

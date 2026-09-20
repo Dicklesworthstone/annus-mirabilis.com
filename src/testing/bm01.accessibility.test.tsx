@@ -23,7 +23,19 @@ describe("bm01.accessibility: Keyboard Navigation & Usability (AC 13)", () => {
 
   test("all form controls have explicitly associated label elements with matching ids", () => {
     // Required control keys from BM01 parameter fields
-    const fieldKeys = ["T", "eta", "a", "M", "h", "H", "interval", "seed", "axis", "d", "statistic"];
+    const fieldKeys = [
+      "T",
+      "eta",
+      "a",
+      "M",
+      "h",
+      "H",
+      "interval",
+      "seed",
+      "axis",
+      "d",
+      "statistic",
+    ];
 
     for (const key of fieldKeys) {
       const expectedId = `bm01-a11y-test-${key}`;

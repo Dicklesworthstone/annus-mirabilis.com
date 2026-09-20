@@ -7,11 +7,11 @@ import { loadReadingFiles } from "./build-content.ts";
 
 const result = compileReadingContent(await loadReadingFiles());
 if (!result.ok) throw new Error("Invalid reading content; equations were not generated.");
-const massEnergyPaper = result.papers.find(p => p.paper.id === "mass-energy");
+const massEnergyPaper = result.papers.find((p) => p.paper.id === "mass-energy");
 if (!massEnergyPaper) throw new Error("Missing mass-energy paper for the checked derivation.");
 const elimination = buildMassEnergyElimination(massEnergyPaper.equations);
 for (const step of elimination.steps) {
-  if (!result.foundations.some(f => f.id === step.foundation))
+  if (!result.foundations.some((f) => f.id === step.foundation))
     throw new Error(`Missing derivation foundation ${step.foundation}.`);
 }
 const equations = result.papers.flatMap((p) => p.equations.map(compileEquation));
@@ -50,22 +50,42 @@ for (const [paper, file] of [
 ] as const) {
   await writeFile(
     `src/generated/${file}.json`,
-    `${JSON.stringify({ schemaVersion: 1, rendererDigest,
-      equations: equations.filter(equation => equation.paper === paper) }, null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        rendererDigest,
+        equations: equations.filter((equation) => equation.paper === paper),
+      },
+      null,
+      2,
+    )}\n`,
   );
 }
 const usedIds = new Set([
-  ...elimination.certificate.premises.flatMap(p => p.equations),
-  ...elimination.certificate.steps.map(step => step.equation),
+  ...elimination.certificate.premises.flatMap((p) => p.equations),
+  ...elimination.certificate.steps.map((step) => step.equation),
 ]);
-const proofEquations = equations.filter(e => usedIds.has(e.id))
-  .map(({ id, argument, title, spoken, html, mathml, plainLatex, treeDigest }) =>
-    ({ id, argument, title, spoken, html, mathml, plainLatex, treeDigest }));
-if (proofEquations.length !== usedIds.size) throw new Error("A checked proof equation was not rendered.");
+const proofEquations = equations
+  .filter((e) => usedIds.has(e.id))
+  .map(({ id, argument, title, spoken, html, mathml, plainLatex, treeDigest }) => ({
+    id,
+    argument,
+    title,
+    spoken,
+    html,
+    mathml,
+    plainLatex,
+    treeDigest,
+  }));
+if (proofEquations.length !== usedIds.size)
+  throw new Error("A checked proof equation was not rendered.");
 const sourceDigest = `sha256:${createHash("sha256")
-  .update(JSON.stringify({ rendererDigest, elimination, proofEquations })).digest("hex")}`;
-await writeFile("src/generated/mass-energy-elimination.json",
-  JSON.stringify({ ...elimination, equations: proofEquations, sourceDigest }, null, 2) + "\n");
+  .update(JSON.stringify({ rendererDigest, elimination, proofEquations }))
+  .digest("hex")}`;
+await writeFile(
+  "src/generated/mass-energy-elimination.json",
+  JSON.stringify({ ...elimination, equations: proofEquations, sourceDigest }, null, 2) + "\n",
+);
 console.log(
   JSON.stringify({ event: "equations-compiled", count: equations.length, rendererDigest }),
 );

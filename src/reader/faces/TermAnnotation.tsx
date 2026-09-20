@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useId, useState } from "react";
+import type React from "react";
+import { useCallback, useId, useState } from "react";
 
 export interface TermAnnotationProps {
   readonly termId: string;

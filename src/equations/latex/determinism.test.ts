@@ -7,8 +7,8 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { Expression } from "../ast.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
+import type { Expression } from "../ast.ts";
 import { renderEquationLatex } from "./render.ts";
 
 const sym = (termId: string, quantityId: string = termId): Expression => ({
@@ -40,10 +40,11 @@ test("determinism.test: two renders of identical inputs are byte-identical acros
       rel(
         "=",
         sym("t", "coordinateTimeStationary"),
-        quot(
-          prod(sym("v", "relativeVelocity"), sym("x", "spatialCoordinateX")),
-          { kind: "power", base: sym("V", "speedOfLight"), exponent: { num: 2, den: 1 } },
-        ),
+        quot(prod(sym("v", "relativeVelocity"), sym("x", "spatialCoordinateX")), {
+          kind: "power",
+          base: sym("V", "speedOfLight"),
+          exponent: { num: 2, den: 1 },
+        }),
       ),
     ),
   );

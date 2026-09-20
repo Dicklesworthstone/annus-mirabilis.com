@@ -69,12 +69,13 @@ export function parseCargoFeatures(cargoTomlContent: string): Map<string, string
     if (start === -1 || end === -1 || end < start) continue;
 
     const body = rest.slice(start + 1, end).trim();
-    const enables = body.length === 0
-      ? []
-      : body
-          .split(",")
-          .map((item) => item.trim().replace(/^["']|["']$/g, ""))
-          .filter((item) => item.length > 0);
+    const enables =
+      body.length === 0
+        ? []
+        : body
+            .split(",")
+            .map((item) => item.trim().replace(/^["']|["']$/g, ""))
+            .filter((item) => item.length > 0);
 
     features.set(name, enables);
   }
@@ -285,8 +286,7 @@ export function checkSiblingWasmManifest(
   const declaresWasmBrowserProd =
     asupersyncLine !== undefined && asupersyncLine.includes("wasm-browser-prod");
   const defaultFeaturesFalse =
-    asupersyncLine !== undefined &&
-    /default-features\s*=\s*false/.test(asupersyncLine);
+    asupersyncLine !== undefined && /default-features\s*=\s*false/.test(asupersyncLine);
 
   return {
     crate,
@@ -324,14 +324,16 @@ export function verifySiblingWasmCrates(
 
   if (existsSync(docResolved)) {
     const docText = readFileSync(docResolved, "utf8");
-    const hasSection = docText.includes("4.13") && docText.includes("am-fs-asupersync-wasm-profile-jaax");
+    const hasSection =
+      docText.includes("4.13") && docText.includes("am-fs-asupersync-wasm-profile-jaax");
     const hasRefutation =
       docText.includes("REFUTED") &&
       docText.includes("bare `wasm-browser-prod`") &&
       docText.includes("fs-goddard-wasm");
     refutationRecorded = hasSection && hasRefutation;
     if (refutationRecorded) {
-      refutationDetails = "Formal prediction refutation documented in docs/FRANKENSIM_BINDING.md §4.13.";
+      refutationDetails =
+        "Formal prediction refutation documented in docs/FRANKENSIM_BINDING.md §4.13.";
     }
   }
 
@@ -435,4 +437,3 @@ export function verifyCommandRetryDiscipline(
     infrastructureRetries,
   };
 }
-

@@ -104,9 +104,7 @@ export function expressionToDerivationLatex(
 
     const id = nodeId(n);
     if (id && highlightIds?.has(id)) {
-      s = annotate
-        ? `\\htmlData{expression-id=${id}}{\\boxed{${s}}}`
-        : `\\mathbf{${s}}`;
+      s = annotate ? `\\htmlData{expression-id=${id}}{\\boxed{${s}}}` : `\\mathbf{${s}}`;
     }
 
     return s;

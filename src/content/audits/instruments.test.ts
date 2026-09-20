@@ -6,8 +6,8 @@ import { getLogger } from "../../testing/log/logger.ts";
 import {
   auditInstruments,
   formatInstrumentAuditTable,
-  loadLiveInstrumentRows,
   type InstrumentAuditRow,
+  loadLiveInstrumentRows,
 } from "./instruments.ts";
 import { errorCheckCodes } from "./types.ts";
 
@@ -194,7 +194,9 @@ describe("auditInstruments: paired ok/broken fixtures", () => {
       report.findings.some(
         (f) =>
           f.check === "instrument-modes" &&
-          f.message.includes('"count-model" is not a declared mode of lq-08; declared modes: <none>'),
+          f.message.includes(
+            '"count-model" is not a declared mode of lq-08; declared modes: <none>',
+          ),
       ),
     ).toBe(true);
   });

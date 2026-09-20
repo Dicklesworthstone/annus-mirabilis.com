@@ -1,1 +1,74 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-lq-wave-and-transfer","paper":"light-quanta","section":"s0","title":"Keep what waves explain","question":"Why question the description of light without discarding interference?","recap":"Wave optics describes propagation and interference successfully. Einstein asks whether energy exchange with matter needs an additional, explicitly heuristic description.","review":"draft","premises":["A continuous electromagnetic field describes optical propagation.","A model of propagation need not yet explain how matter exchanges energy with radiation."],"limitations":["Drawing isolated light packets does not prove that radiation consists of them.","This is newly authored explanation, not a translation of the introduction."],"citations":["ap-17-132"],"readings":{"overview":[{"kind":"paragraph","text":"Wave optics describes propagation and interference successfully. Einstein asks whether energy exchange with matter needs an additional, explicitly heuristic description."}],"full":[{"kind":"paragraph","text":"A wave can spread through space and interfere with another wave. Those successes are not withdrawn by the light-quantum proposal. The question changes: what happens when radiation is generated, absorbed, or converted into another form?"},{"kind":"paragraph","text":"The introduction contrasts a continuously distributed field with matter described through a finite number of moving constituents. Einstein proposes considering independently moving energy elements whose energy remains localized during propagation and is exchanged as a whole. In this paper that is a heuristic viewpoint: something to investigate through consequences, not a conclusion supplied by an animation."},{"kind":"paragraph","text":"In LQ-01, double the field amplitude while holding the wave shape and medium fixed. The model intensity becomes four times as large. That establishes a consequence of the wave model; it does not settle how an individual energy-transfer event occurs."},{"kind":"foundation","id":"fields-waves","returnCaption":"Return to what wave propagation explains and what energy transfer still asks."}],"steps":[{"kind":"steps","items":["Name the observable first: an interference pattern, a time-averaged intensity, or energy transferred to matter.","Keep the successful wave description for the propagation question.","Distinguish doubling amplitude from doubling intensity: intensity is proportional to amplitude squared in this model.","Treat localized energy transfer as an additional hypothesis, not as something proved by drawing separate dots.","Follow the entropy argument before assigning an energy to an element of light."]}],"margin":[{"kind":"paragraph","text":"Modern photon language and later quantum theory are not premises of this reconstruction. The proposal does not say that purely optical wave phenomena have disappeared."}]},"prerequisites":[],"help":{"why":"fields-waves","missingStep":"fields-waves","example":"fields-waves"},"experiments":["lq-01"],"meaning":{"logicalRole":"qualification","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-wave-and-transfer",
+  "paper": "light-quanta",
+  "section": "s0",
+  "title": "Keep what waves explain",
+  "question": "Why question the description of light without discarding interference?",
+  "recap": "Wave optics describes propagation and interference successfully. Einstein asks whether energy exchange with matter needs an additional, explicitly heuristic description.",
+  "review": "draft",
+  "premises": [
+    "A continuous electromagnetic field describes optical propagation.",
+    "A model of propagation need not yet explain how matter exchanges energy with radiation."
+  ],
+  "limitations": [
+    "Drawing isolated light packets does not prove that radiation consists of them.",
+    "This is newly authored explanation, not a translation of the introduction."
+  ],
+  "citations": ["ap-17-132"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Wave optics describes propagation and interference successfully. Einstein asks whether energy exchange with matter needs an additional, explicitly heuristic description."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "A wave can spread through space and interfere with another wave. Those successes are not withdrawn by the light-quantum proposal. The question changes: what happens when radiation is generated, absorbed, or converted into another form?"
+      },
+      {
+        "kind": "paragraph",
+        "text": "The introduction contrasts a continuously distributed field with matter described through a finite number of moving constituents. Einstein proposes considering independently moving energy elements whose energy remains localized during propagation and is exchanged as a whole. In this paper that is a heuristic viewpoint: something to investigate through consequences, not a conclusion supplied by an animation."
+      },
+      {
+        "kind": "paragraph",
+        "text": "In LQ-01, double the field amplitude while holding the wave shape and medium fixed. The model intensity becomes four times as large. That establishes a consequence of the wave model; it does not settle how an individual energy-transfer event occurs."
+      },
+      {
+        "kind": "foundation",
+        "id": "fields-waves",
+        "returnCaption": "Return to what wave propagation explains and what energy transfer still asks."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Name the observable first: an interference pattern, a time-averaged intensity, or energy transferred to matter.",
+          "Keep the successful wave description for the propagation question.",
+          "Distinguish doubling amplitude from doubling intensity: intensity is proportional to amplitude squared in this model.",
+          "Treat localized energy transfer as an additional hypothesis, not as something proved by drawing separate dots.",
+          "Follow the entropy argument before assigning an energy to an element of light."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Modern photon language and later quantum theory are not premises of this reconstruction. The proposal does not say that purely optical wave phenomena have disappeared."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": { "why": "fields-waves", "missingStep": "fields-waves", "example": "fields-waves" },
+  "experiments": ["lq-01"],
+  "meaning": {
+    "logicalRole": "qualification",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

@@ -92,8 +92,14 @@ export function ClockSyncLab({
       setRefusalCode(result.refusal.code);
       return;
     }
-    setDraft(Object.fromEntries(Object.entries(decoded.parameters).map(([key, value]) => [key, String(value)])) as Record<keyof Sr01Parameters, string>);
-    setLinkNote("Loaded the linked setup and recalculated the event ledger. These are ideal-model results, not observations.");
+    setDraft(
+      Object.fromEntries(
+        Object.entries(decoded.parameters).map(([key, value]) => [key, String(value)]),
+      ) as Record<keyof Sr01Parameters, string>,
+    );
+    setLinkNote(
+      "Loaded the linked setup and recalculated the event ledger. These are ideal-model results, not observations.",
+    );
   }, [restoreFromLocation, session]);
 
   const outputs = accepted?.outputs ?? [];
@@ -172,7 +178,11 @@ export function ClockSyncLab({
         <p className="caption-r0">{SR01_CAPTION.r0}</p>
       </div>
 
-      {linkNote && <p role="status" data-shared-clock-settings>{linkNote}</p>}
+      {linkNote && (
+        <p role="status" data-shared-clock-settings>
+          {linkNote}
+        </p>
+      )}
       <div className="presets-bar">
         <span className="presets-label">Presets:</span>
         {SR01_PRESETS.map((pr) => (
@@ -369,7 +379,9 @@ export function ClockSyncLab({
           >
             Commit prediction and reveal
           </button>
-          <button type="button" className="button" onClick={() => setPredictRevealed(true)}>Show the outcome without a prediction</button>
+          <button type="button" className="button" onClick={() => setPredictRevealed(true)}>
+            Show the outcome without a prediction
+          </button>
         </div>
         {predictRevealed && (
           <section className="predict-reveal" aria-live="polite">
@@ -418,7 +430,13 @@ const roundTripSpeedLsPerS = (2 * separationLs) / (receptionTimeA - emissionTime
   );
 }
 
-export function ClockSyncComparison({ example, restoreFromLocation = false }: { example: PreparedSr01Example; restoreFromLocation?: boolean }) {
+export function ClockSyncComparison({
+  example,
+  restoreFromLocation = false,
+}: {
+  example: PreparedSr01Example;
+  restoreFromLocation?: boolean;
+}) {
   return <ClockSyncLab example={example} restoreFromLocation={restoreFromLocation} />;
 }
 

@@ -13,37 +13,61 @@ import { teachingProfile } from "../equations/teachingProfiles.ts";
 import { evaluateMe02 } from "../physics/reference/massEnergy.ts";
 
 const directory = new URL("../../content/equations/mass-energy/", import.meta.url);
-const records = await Promise.all((await readdir(directory)).filter(p => p.endsWith(".json")).map(async p =>
-  JSON.parse(await readFile(new URL(p, directory), "utf8"))));
-const byName = name => records.find(e => e.id === `eq-model-me-${name}`);
+const records = await Promise.all(
+  (await readdir(directory))
+    .filter((p) => p.endsWith(".json"))
+    .map(async (p) => JSON.parse(await readFile(new URL(p, directory), "utf8"))),
+);
+const byName = (name) => records.find((e) => e.id === `eq-model-me-${name}`);
 
 // Test-only algebra, independent of the production physics owners and TeX renderer.
 function evaluate(node, values) {
   switch (node.kind) {
-    case "number": return Number(node.value);
+    case "number":
+      return Number(node.value);
     case "symbol": {
       assert.ok(Object.hasOwn(values, node.quantityId), `Missing fixture value ${node.quantityId}`);
-      return values[node.quantityId] * (node.scale?.num ?? 1) / (node.scale?.den ?? 1);
+      return (values[node.quantityId] * (node.scale?.num ?? 1)) / (node.scale?.den ?? 1);
     }
-    case "negate": return -evaluate(node.argument, values);
-    case "sum": return node.args.reduce((a, b) => a + evaluate(b, values), 0);
-    case "product": return node.args.reduce((a, b) => a * evaluate(b, values), 1);
-    case "quotient": return evaluate(node.numerator, values) / evaluate(node.denominator, values);
-    case "root": return evaluate(node.radicand, values) ** (1 / node.degree);
-    case "power": return evaluate(node.base, values) ** (node.exponent.num / node.exponent.den);
-    default: throw new Error(`Unexpected test expression: ${node.kind}`);
+    case "negate":
+      return -evaluate(node.argument, values);
+    case "sum":
+      return node.args.reduce((a, b) => a + evaluate(b, values), 0);
+    case "product":
+      return node.args.reduce((a, b) => a * evaluate(b, values), 1);
+    case "quotient":
+      return evaluate(node.numerator, values) / evaluate(node.denominator, values);
+    case "root":
+      return evaluate(node.radicand, values) ** (1 / node.degree);
+    case "power":
+      return evaluate(node.base, values) ** (node.exponent.num / node.exponent.den);
+    default:
+      throw new Error(`Unexpected test expression: ${node.kind}`);
   }
 }
 const fixture = Object.freeze({
-  emittedEnergyRestFrame: 2, bodyEnergyRestBefore: 7, bodyEnergyRestAfter: 5,
-  bodyEnergyMovingBefore: 13, bodyEnergyMovingAfter: 10.5,
-  kineticEnergyBefore: 4, kineticEnergyAfter: 3.5, additiveEnergyConstant: 2,
-  frameSpeed: 3, speedOfLight: 5, lorentzFactor: 1.25,
-  kineticEnergyDifference: 0.5, quadraticKineticDifference: 0.36,
-  finiteSpeedMassProxy: 1 / 9, inertialMassDecrease: 0.08, massChangeSigned: -0.08,
+  emittedEnergyRestFrame: 2,
+  bodyEnergyRestBefore: 7,
+  bodyEnergyRestAfter: 5,
+  bodyEnergyMovingBefore: 13,
+  bodyEnergyMovingAfter: 10.5,
+  kineticEnergyBefore: 4,
+  kineticEnergyAfter: 3.5,
+  additiveEnergyConstant: 2,
+  frameSpeed: 3,
+  speedOfLight: 5,
+  lorentzFactor: 1.25,
+  kineticEnergyDifference: 0.5,
+  quadraticKineticDifference: 0.36,
+  finiteSpeedMassProxy: 1 / 9,
+  inertialMassDecrease: 0.08,
+  massChangeSigned: -0.08,
 });
 function close(actual, expected) {
-  assert.ok(Math.abs(actual - expected) <= 2e-14 * Math.max(1, Math.abs(expected)), `${actual} != ${expected}`);
+  assert.ok(
+    Math.abs(actual - expected) <= 2e-14 * Math.max(1, Math.abs(expected)),
+    `${actual} != ${expected}`,
+  );
 }
 
 for (const source of records) {
@@ -53,9 +77,9 @@ for (const source of records) {
     assert.equal(record.notation, "modern-pedagogical");
     assert.equal(record.review, "draft");
     assert.equal(checkDimensions(record.tree, MASS_ENERGY_QUANTITIES).status, "consistent");
-    const nodes = walk(record.tree).flatMap(n => nodeId(n) ? [nodeId(n)] : []);
+    const nodes = walk(record.tree).flatMap((n) => (nodeId(n) ? [nodeId(n)] : []));
     assert.equal(nodes.length, new Set(nodes).size);
-    assert.deepEqual(new Set(record.notes.map(n => n.nodeId)), new Set(nodes));
+    assert.deepEqual(new Set(record.notes.map((n) => n.nodeId)), new Set(nodes));
     assert.equal(navigationTree(record.tree).length, nodes.length);
     const marked = expressionLatex(record.tree, MASS_ENERGY_QUANTITIES, true);
     for (const id of nodes) assert.ok(marked.includes(id), `Missing rendered target ${id}`);
@@ -71,13 +95,16 @@ for (const source of records) {
 test("all fifteen equations join the real compiler without changing the Brownian slice", async () => {
   const result = compileReadingContent(await loadReadingFiles());
   assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
-  const me = result.papers.find(p => p.paper.id === "mass-energy");
+  const me = result.papers.find((p) => p.paper.id === "mass-energy");
   assert.equal(me.equations.length, 15);
-  assert.equal(result.papers.find(p => p.paper.id === "brownian-motion").equations.length, 3);
+  assert.equal(result.papers.find((p) => p.paper.id === "brownian-motion").equations.length, 3);
   for (const eq of me.equations) {
-    assert.ok(me.arguments.some(a => a.id === eq.argument));
-    for (const note of eq.notes) assert.ok(result.foundations.some(f => f.id === note.foundation));
-    assert.ok(result.diagnostics.some(d => d.path === eq.id && d.code === "equation-review-pending"));
+    assert.ok(me.arguments.some((a) => a.id === eq.argument));
+    for (const note of eq.notes)
+      assert.ok(result.foundations.some((f) => f.id === note.foundation));
+    assert.ok(
+      result.diagnostics.some((d) => d.path === eq.id && d.code === "equation-review-pending"),
+    );
   }
 });
 
@@ -99,18 +126,30 @@ test("changing the offset cannot make the same-C equations remain true", () => {
   // Conservation and the two-frame subtraction still hold; the kinetic identification does not.
   const subtraction = byName("ledger-subtraction");
   close(evaluate(subtraction.tree.left, changed), evaluate(subtraction.tree.right, changed));
-  assert.notEqual(changed.kineticEnergyBefore - changed.kineticEnergyAfter, changed.kineticEnergyDifference);
+  assert.notEqual(
+    changed.kineticEnergyBefore - changed.kineticEnergyAfter,
+    changed.kineticEnergyDifference,
+  );
 });
 
 test("body energies and offsets stay symbolic; live bindings target only admitted owned quantities", () => {
-  const protectedIds = ["bodyEnergyRestBefore", "bodyEnergyRestAfter", "bodyEnergyMovingBefore", "bodyEnergyMovingAfter", "kineticEnergyBefore", "kineticEnergyAfter", "additiveEnergyConstant"];
-  for (const eq of records) for (const b of eq.bindings) {
-    assert.equal(b.experimentId, "me-02");
-    assert.ok(!protectedIds.includes(b.quantityId));
-    const contract = teachingProfile(eq.paper).outputs[b.experimentId][b.outputId];
-    assert.equal(contract.unit, MASS_ENERGY_QUANTITIES[b.quantityId].unit);
-    assert.equal(contract.semanticKind, MASS_ENERGY_QUANTITIES[b.quantityId].semanticKind);
-  }
+  const protectedIds = [
+    "bodyEnergyRestBefore",
+    "bodyEnergyRestAfter",
+    "bodyEnergyMovingBefore",
+    "bodyEnergyMovingAfter",
+    "kineticEnergyBefore",
+    "kineticEnergyAfter",
+    "additiveEnergyConstant",
+  ];
+  for (const eq of records)
+    for (const b of eq.bindings) {
+      assert.equal(b.experimentId, "me-02");
+      assert.ok(!protectedIds.includes(b.quantityId));
+      const contract = teachingProfile(eq.paper).outputs[b.experimentId][b.outputId];
+      assert.equal(contract.unit, MASS_ENERGY_QUANTITIES[b.quantityId].unit);
+      assert.equal(contract.semanticKind, MASS_ENERGY_QUANTITIES[b.quantityId].semanticKind);
+    }
 });
 
 for (const beta of [-0.6, 0, 0.6]) {
@@ -132,29 +171,54 @@ for (const beta of [-0.6, 0, 0.6]) {
 }
 
 for (const [name, change] of [
-  ["unknown paper", e => e.paper = "special-relativity"],
-  ["prototype paper", e => e.paper = "constructor"],
-  ["wrong argument scope", e => e.argument = "arg-bm-observable"],
-  ["invented review", e => e.review = "reviewed"],
-  ["pretended printed notation", e => e.notation = "printed"],
-  ["mixed units", e => e.unitSystem = "gaussian-cgs"],
-  ["cross-paper quantity", e => e.tree.left.quantityId = "diffusionCoefficient"],
-  ["same-unit wrong meaning", e => e.tree.right = { kind: "symbol", termId: `${e.id}.t.wrongEnergy`, quantityId: "quadraticKineticDifference" }],
-  ["wrong dimensions", e => e.tree.right = { kind: "symbol", termId: `${e.id}.t.wrongUnit`, quantityId: "speedOfLight" }],
-  ["cross-laboratory binding", e => e.bindings[0].experimentId = "bm-01"],
-  ["wrong output", e => e.bindings[0].outputId = "quadraticKineticDifference"],
-  ["missing explanation", e => e.notes.pop()],
+  ["unknown paper", (e) => (e.paper = "special-relativity")],
+  ["prototype paper", (e) => (e.paper = "constructor")],
+  ["wrong argument scope", (e) => (e.argument = "arg-bm-observable")],
+  ["invented review", (e) => (e.review = "reviewed")],
+  ["pretended printed notation", (e) => (e.notation = "printed")],
+  ["mixed units", (e) => (e.unitSystem = "gaussian-cgs")],
+  ["cross-paper quantity", (e) => (e.tree.left.quantityId = "diffusionCoefficient")],
+  [
+    "same-unit wrong meaning",
+    (e) =>
+      (e.tree.right = {
+        kind: "symbol",
+        termId: `${e.id}.t.wrongEnergy`,
+        quantityId: "quadraticKineticDifference",
+      }),
+  ],
+  [
+    "wrong dimensions",
+    (e) =>
+      (e.tree.right = {
+        kind: "symbol",
+        termId: `${e.id}.t.wrongUnit`,
+        quantityId: "speedOfLight",
+      }),
+  ],
+  ["cross-laboratory binding", (e) => (e.bindings[0].experimentId = "bm-01")],
+  ["wrong output", (e) => (e.bindings[0].outputId = "quadraticKineticDifference")],
+  ["missing explanation", (e) => e.notes.pop()],
 ]) {
   test(`refuse ${name} before rendering or substituting values`, () => {
-    const record = structuredClone(byName("exact-drop")); change(record);
+    const record = structuredClone(byName("exact-drop"));
+    change(record);
     assert.throws(() => parseEquationRecord(record, name));
   });
 }
 
 test("invalid getters are not evaluated by profile admission", () => {
-  const record = structuredClone(byName("exact-drop")); let read = false;
-  Object.defineProperty(record, "paper", { enumerable: true, get() { read = true; return "mass-energy"; } });
+  const record = structuredClone(byName("exact-drop"));
+  let read = false;
+  Object.defineProperty(record, "paper", {
+    enumerable: true,
+    get() {
+      read = true;
+      return "mass-energy";
+    },
+  });
   assert.throws(() => parseEquationRecord(record, "getter"));
   assert.equal(read, false);
-  for (const paper of [null, {}, "__proto__", "toString"]) assert.equal(teachingProfile(paper), null);
+  for (const paper of [null, {}, "__proto__", "toString"])
+    assert.equal(teachingProfile(paper), null);
 });

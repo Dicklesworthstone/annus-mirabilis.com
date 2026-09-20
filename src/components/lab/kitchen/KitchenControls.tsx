@@ -115,7 +115,8 @@ const labels: Readonly<Record<KitchenInputKey, string>> = {
   viscosity_interval_mpa_s: "Viscosity range [lower,upper] (mPa·s)",
   gas_constant_interval: "Gas-constant range [lower,upper] (J/(mol K); blank for exact SI)",
   radius_scale_axis: "Radius calibration relationship",
-  physical_input_coverage: "Supplied joint coverage of the complete input box (0–1; blank if unknown)",
+  physical_input_coverage:
+    "Supplied joint coverage of the complete input box (0–1; blank if unknown)",
   physical_input_provenance: "Source and basis for the joint input ranges and coverage",
   pixels_per_um_x: "x scale (source pixels/μm)",
   pixels_per_um_y: "y scale (source pixels/μm)",
@@ -161,9 +162,16 @@ export function KitchenInputs({ accepted, busy, revise, onError }: Actions) {
           <option value="both">Both</option>
         </select>
       ) : key === "radius_scale_axis" ? (
-        <select id={`${id}-${key}`} name={key} value={draft[key]} onChange={e => change(key, e.target.value)}>
+        <select
+          id={`${id}-${key}`}
+          name={key}
+          value={draft[key]}
+          onChange={(e) => change(key, e.target.value)}
+        >
           <option value="">Not established</option>
-          <option value="independent">Independent physical length (not this image calibration)</option>
+          <option value="independent">
+            Independent physical length (not this image calibration)
+          </option>
           <option value="x">Radius measured with the same x-axis calibration</option>
           <option value="y">Radius measured with the same y-axis calibration</option>
         </select>
@@ -209,8 +217,8 @@ export function KitchenInputs({ accepted, busy, revise, onError }: Actions) {
           <legend>Unapplied input declarations</legend>
           <p>
             Blank measurements stay unknown. Ranges alone support sensitivity analysis, not
-            simultaneous coverage. Image blur, uncertain shape and
-            wall proximity can invalidate the spherical-particle model.
+            simultaneous coverage. Image blur, uncertain shape and wall proximity can invalidate the
+            spherical-particle model.
           </p>
           <h4>Calibration and timing</h4>
           <div className="input-grid">
@@ -243,23 +251,37 @@ export function KitchenInputs({ accepted, busy, revise, onError }: Actions) {
             ).map(field)}
           </div>
           <h4>Propagate physical-input uncertainty</h4>
-          <p>Give positive ranges containing the point inputs above. Standard uncertainties from
+          <p>
+            Give positive ranges containing the point inputs above. Standard uncertainties from
             clicks are not coverage intervals and are not automatically converted. For a radius
-            sharing this ruler, enter its range in micrometres at the accepted nominal scale;
-            the shared scale is propagated once, with the correct cubed effect on molecular number.</p>
+            sharing this ruler, enter its range in micrometres at the accepted nominal scale; the
+            shared scale is propagated once, with the correct cubed effect on molecular number.
+          </p>
           <div className="input-grid">
-            {(["pixels_per_um_x_interval", "pixels_per_um_y_interval", "radius_scale_axis",
-              "viscosity_interval_mpa_s", "gas_constant_interval", "physical_input_coverage",
-              "physical_input_provenance"] as const).map(field)}
+            {(
+              [
+                "pixels_per_um_x_interval",
+                "pixels_per_um_y_interval",
+                "radius_scale_axis",
+                "viscosity_interval_mpa_s",
+                "gas_constant_interval",
+                "physical_input_coverage",
+                "physical_input_provenance",
+              ] as const
+            ).map(field)}
           </div>
-          <p>Joint coverage means that all supplied calibration, radius, temperature, viscosity
-            and non-exact gas-constant ranges contain their respective true inputs together.
-            It is not the coverage of each range separately. Use a documented, prespecified
-            procedure; this page cannot certify that declaration or correct ranges selected after
-            inspecting the result. Leave coverage blank to inspect range sensitivity only.</p>
-          <p>For example, 97.5% joint input coverage leaves a 2.5% camera error budget for a
-            requested 95% combined interval. The camera interval is recalculated at 97.5%,
-            including stationary-click sampling uncertainty. No independence of the ranges is assumed.</p>
+          <p>
+            Joint coverage means that all supplied calibration, radius, temperature, viscosity and
+            non-exact gas-constant ranges contain their respective true inputs together. It is not
+            the coverage of each range separately. Use a documented, prespecified procedure; this
+            page cannot certify that declaration or correct ranges selected after inspecting the
+            result. Leave coverage blank to inspect range sensitivity only.
+          </p>
+          <p>
+            For example, 97.5% joint input coverage leaves a 2.5% camera error budget for a
+            requested 95% combined interval. The camera interval is recalculated at 97.5%, including
+            stationary-click sampling uncertainty. No independence of the ranges is assumed.
+          </p>
           <p>
             The existing sample origin, source geometry, actual timestamps, click coordinates and
             identity decisions are preserved. Temperature does not silently set viscosity. A radius

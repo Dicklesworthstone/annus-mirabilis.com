@@ -298,7 +298,15 @@ describe("FTCS 1D reference stepper (am-ref-diffusion-lr3 AC 14)", () => {
     }
 
     // Small box with long diffusion => wall contact is true
-    const smallRun = ftcs1d({ n: 21, frames: 2, stepsPerFrame: 200, D: 1.0, dx: 0.2, dt: 0.01, profile: 0 });
+    const smallRun = ftcs1d({
+      n: 21,
+      frames: 2,
+      stepsPerFrame: 200,
+      D: 1.0,
+      dx: 0.2,
+      dt: 0.01,
+      profile: 0,
+    });
     expect(smallRun.kind).toBe("accepted");
     if (smallRun.kind === "accepted") {
       const cmpSmall = ftcsAnalyticComparison({

@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
+import { paperMetadata } from "../../reader/paperRoutes.ts";
 import {
   FIXTURE_BROWNIAN_ALIGNMENT,
   FIXTURE_BROWNIAN_PAPER,
@@ -16,7 +17,6 @@ import { emitMachineReadableExports } from "./emitter.ts";
 import { escapeMarkdownSourceText, generateSectionMarkdown } from "./markdown.ts";
 import { assertExportSafety, ExportValidationError, validateExportRecord } from "./schemas.ts";
 import type { ExportIndex, SectionExport } from "./types.ts";
-import { paperMetadata } from "../../reader/paperRoutes.ts";
 
 const sha256Hex = (buf: string | Uint8Array): string =>
   createHash("sha256").update(buf).digest("hex");
@@ -862,9 +862,7 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
     const sectionMeta = await paperMetadata({ paperId: "brownian-motion", section: "s4" });
     expect(sectionMeta.alternates?.types).toBeDefined();
     const sectionTypes = sectionMeta.alternates?.types as Record<string, string>;
-    expect(sectionTypes["application/json"]).toBe(
-      "/exports/v1/papers/brownian-motion/s4.json",
-    );
+    expect(sectionTypes["application/json"]).toBe("/exports/v1/papers/brownian-motion/s4.json");
     expect(sectionTypes["text/markdown"]).toBe("/exports/v1/papers/brownian-motion/s4.md");
 
     logOutcome(

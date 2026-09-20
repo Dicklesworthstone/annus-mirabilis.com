@@ -11,13 +11,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import katex from "katex";
-import type { Expression } from "../ast.ts";
-import type { AlternateForm } from "../alternateForms.ts";
 import { parseAlternateFormId } from "../../content/ids.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
+import type { AlternateForm } from "../alternateForms.ts";
+import type { Expression } from "../ast.ts";
+import { convertAuthoredLatex } from "./authored.ts";
 import { katexMarkerTrust } from "./markers.ts";
 import { renderEquationLatex } from "./render.ts";
-import { convertAuthoredLatex } from "./authored.ts";
 
 const sym = (termId: string, quantityId: string = termId): Expression => ({
   kind: "symbol",
@@ -51,18 +51,16 @@ test("katex-parse.test: Paper 3 boost equation parses in KaTeX across all modes"
       rel(
         "=",
         sym("t", "coordinateTimeStationary"),
-        quot(
-          prod(sym("v", "relativeVelocity"), sym("x", "spatialCoordinateX")),
-          { kind: "power", base: sym("V", "speedOfLight"), exponent: { num: 2, den: 1 } },
-        ),
+        quot(prod(sym("v", "relativeVelocity"), sym("x", "spatialCoordinateX")), {
+          kind: "power",
+          base: sym("V", "speedOfLight"),
+          exponent: { num: 2, den: 1 },
+        }),
       ),
     ),
   );
 
-  const forms: Array<{ kind: "printed" | "modern" }> = [
-    { kind: "printed" },
-    { kind: "modern" },
-  ];
+  const forms: Array<{ kind: "printed" | "modern" }> = [{ kind: "printed" }, { kind: "modern" }];
   const colorModes: Array<"plain" | "colorized"> = ["plain", "colorized"];
 
   for (const form of forms) {
@@ -156,10 +154,7 @@ test("katex-parse.test: Paper 3 §6 electromagnetic transformation and SI altern
           sym("eq-s6-d3.t.y", "electricFieldStationary"),
           neg(
             prod(
-              quot(
-                sym("eq-s6-d3.t.v", "frameSpeed"),
-                sym("eq-s6-d3.t.V", "speedOfLight"),
-              ),
+              quot(sym("eq-s6-d3.t.v", "frameSpeed"), sym("eq-s6-d3.t.V", "speedOfLight")),
               sym("eq-s6-d3.t.N", "magneticFieldStationary"),
             ),
           ),

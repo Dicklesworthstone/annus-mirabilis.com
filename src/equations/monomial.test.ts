@@ -10,16 +10,11 @@
  */
 
 import { describe, expect, test } from "bun:test";
-import {
-  type Expression,
-  canonical,
-  findNode,
-  walk,
-} from "./ast.ts";
 import { ContentError } from "../content/compiler/json.ts";
+import { canonical, type Expression, findNode, walk } from "./ast.ts";
 import {
-  type CompositeGroup,
   bindCompositeGroup,
+  type CompositeGroup,
   extractMonomialFactorSet,
   validateCompositeGroup,
   viewNode,
@@ -42,11 +37,7 @@ const sum = (args: readonly Expression[], opId?: string): Expression => ({
   args,
   ...(opId ? { opId } : {}),
 });
-const quot = (
-  numerator: Expression,
-  denominator: Expression,
-  opId?: string,
-): Expression => ({
+const quot = (numerator: Expression, denominator: Expression, opId?: string): Expression => ({
   kind: "quotient",
   numerator,
   denominator,
@@ -70,7 +61,10 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
   // Fixture 1: RT/N inside D = (RT / N) * (1 / (6 * pi * k * P))
   // --------------------------------------------------------------------------
   const rtOverNNode: Expression = quot(
-    prod([sym("eq-bm-s3-d4.t.R", "molarGasConstant"), sym("eq-bm-s3-d4.t.T", "temperature")], "eq-bm-s3-d4.op.numProd"),
+    prod(
+      [sym("eq-bm-s3-d4.t.R", "molarGasConstant"), sym("eq-bm-s3-d4.t.T", "temperature")],
+      "eq-bm-s3-d4.op.numProd",
+    ),
     sym("eq-bm-s3-d4.t.N", "avogadroConstant"),
     "eq-bm-s3-d4.op.quot",
   );
@@ -352,10 +346,7 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
     test("Planted Negative 2: Terms in a sum fail rule 'composite-group-monomial-mismatch'", () => {
       // Terms from different parts of a sum: (x + y) * z
       const sumExpr: Expression = prod([
-        sum([
-          sym("eq-test.t.x", "coordinateX"),
-          sym("eq-test.t.y", "coordinateY"),
-        ]),
+        sum([sym("eq-test.t.x", "coordinateX"), sym("eq-test.t.y", "coordinateY")]),
         sym("eq-test.t.z", "coordinateZ"),
       ]);
 

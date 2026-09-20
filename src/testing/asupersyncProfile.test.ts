@@ -5,18 +5,18 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 import {
   CANONICAL_WASM_PROFILES,
-  SIBLING_WASM_CRATES,
+  type CommandAuditRecord,
   classifyAsupersyncWasmFailure,
   diagnoseAsupersyncProfiles,
   getDefaultAsupersyncDir,
   getDefaultFrankensimDir,
   parseCargoFeatures,
+  SIBLING_WASM_CRATES,
   validateWasmBrowserProfile,
   verifyAsupersyncManifest,
   verifyCargoTreeFeatureAbsence,
   verifyCommandRetryDiscipline,
   verifySiblingWasmCrates,
-  type CommandAuditRecord,
 } from "./asupersyncProfile.ts";
 
 function expect<T>(actual: T, customMessage?: string) {

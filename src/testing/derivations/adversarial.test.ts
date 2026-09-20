@@ -102,4 +102,3 @@ test("adversarial.test: entry assumption citing chain.target with edgeType 'cros
   assert.equal(report.passed, true);
   assert.equal(report.errors.length, 0);
 });
-

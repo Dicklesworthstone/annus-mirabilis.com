@@ -293,12 +293,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     const returnRoot = createRoot(returnContainer);
 
     await act(async () => {
-      returnRoot.render(
-        <BrownianFirstEncounter
-          record={record}
-          initialEntries={[-2, 0, 1, 5]}
-        />,
-      );
+      returnRoot.render(<BrownianFirstEncounter record={record} initialEntries={[-2, 0, 1, 5]} />);
     });
 
     const sumEl = returnContainer.querySelector('[data-testid="totals-signed-sum"]');
@@ -452,4 +447,3 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     });
   });
 });
-

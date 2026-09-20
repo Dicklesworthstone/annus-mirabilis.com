@@ -169,7 +169,12 @@ export function ChargeCurrentPlot({
                 rx={4}
               />
               {/* Arrows */}
-              <path d="M 80 20 L 120 20" stroke="var(--accent)" strokeWidth={2} markerEnd="url(#arrow)" />
+              <path
+                d="M 80 20 L 120 20"
+                stroke="var(--accent)"
+                strokeWidth={2}
+                markerEnd="url(#arrow)"
+              />
               <path d="M 140 120 L 100 120" stroke="var(--accent)" strokeWidth={2} />
               <text x={110} y={15} textAnchor="middle" fontSize="10" fill="var(--muted)">
                 Top leg: +I (neutral λ=0)

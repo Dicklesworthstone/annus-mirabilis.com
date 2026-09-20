@@ -112,7 +112,9 @@ export function FacsimileFace({
 
           <div className="facsimile-meta-item">
             <span className="meta-label">Status</span>
-            <span className={`meta-badge ${DECISION_STATUS_CLASS[decision] ?? "status-publish"}`}>{decision}</span>
+            <span className={`meta-badge ${DECISION_STATUS_CLASS[decision] ?? "status-publish"}`}>
+              {decision}
+            </span>
           </div>
 
           {sourceAsset.institution && (

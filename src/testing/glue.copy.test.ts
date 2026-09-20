@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { verifyGlueReturnsCopy } from "../experiments/memory/wasmViews.ts";
 import * as glue from "../../public/wasm/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion.js";
+import { verifyGlueReturnsCopy } from "../experiments/memory/wasmViews.ts";
 
 describe("WASM glue return copy verification", () => {
   test("verifyGlueReturnsCopy correctly distinguishes independent copies from raw views", () => {

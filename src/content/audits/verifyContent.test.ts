@@ -199,11 +199,23 @@ describe("verify-content orchestrator", () => {
         },
         misconceptions: async () => {
           order.push("misconceptions");
-          return { audit: "audit-misconceptions", ok: true, errorCount: 0, flagCount: 0, findings: [] };
+          return {
+            audit: "audit-misconceptions",
+            ok: true,
+            errorCount: 0,
+            flagCount: 0,
+            findings: [],
+          };
         },
         instruments: async () => {
           order.push("instruments");
-          return { audit: "audit-instruments", ok: true, errorCount: 0, flagCount: 0, findings: [] };
+          return {
+            audit: "audit-instruments",
+            ok: true,
+            errorCount: 0,
+            flagCount: 0,
+            findings: [],
+          };
         },
       },
       revisionCheck: async () => {

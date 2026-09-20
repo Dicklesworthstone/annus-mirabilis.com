@@ -651,7 +651,15 @@ export function SpreadingPlot({
 
         {/* Data readout panel on right of SVG */}
         <g transform="translate(260, 25)">
-          <rect x="0" y="0" width="200" height="200" fill="var(--panel)" stroke="var(--line)" rx="6" />
+          <rect
+            x="0"
+            y="0"
+            width="200"
+            height="200"
+            fill="var(--panel)"
+            stroke="var(--line)"
+            rx="6"
+          />
           <text x="12" y="24" fontSize="11" fill="var(--ink)" fontWeight="600">
             Radiant Power Accounting
           </text>

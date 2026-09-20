@@ -214,9 +214,7 @@ export function assertTraceBounds(
   return checkTraceRowCount(instrumentId, functionName, rows.length);
 }
 
-export function roleForQuantity(
-  quantityId: string,
-): "result" | "input" | "constant" | undefined {
+export function roleForQuantity(quantityId: string): "result" | "input" | "constant" | undefined {
   const q = BROWNIAN_QUANTITIES[quantityId];
   if (q) return q.role;
   if (

@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  type PauseReason,
-  VisibilityCoordinator,
-} from "../experiments/lifecycle/visibility.ts";
+import { type PauseReason, VisibilityCoordinator } from "../experiments/lifecycle/visibility.ts";
 import { HeavyFixtureLaboratory } from "./runtime-fixtures/heavyFixture.ts";
 
 describe("Visibility, pagehide, and reduced-motion pausing", () => {

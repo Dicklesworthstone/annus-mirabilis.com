@@ -135,8 +135,9 @@ export default function KitchenGuide() {
           files or another placement’s data.
         </p>
         <p>
-          The analyzer now supports bounded local video annotation and calibration. It does not automatically save sessions or supply a reviewed
-          microscope protocol or licensed real sequence.
+          The analyzer now supports bounded local video annotation and calibration. It does not
+          automatically save sessions or supply a reviewed microscope protocol or licensed real
+          sequence.
         </p>
         <h2 id="worksheet">A shared-schema classroom worksheet</h2>
         <p>

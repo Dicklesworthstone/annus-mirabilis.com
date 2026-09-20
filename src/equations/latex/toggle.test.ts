@@ -14,11 +14,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import katex from "katex";
-import type { Expression } from "../ast.ts";
-import type { AlternateForm } from "../alternateForms.ts";
 import { parseAlternateFormId } from "../../content/ids.ts";
-import { BROWNIAN_QUANTITIES, type QuantityRegistry } from "../quantities.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
+import type { AlternateForm } from "../alternateForms.ts";
+import type { Expression } from "../ast.ts";
+import { BROWNIAN_QUANTITIES, type QuantityRegistry } from "../quantities.ts";
 import { ALLOWED_ROLE_CLASSES, katexMarkerTrust } from "./markers.ts";
 import { renderEquationLatex } from "./render.ts";
 
@@ -45,7 +45,11 @@ const group = (argument: Expression): Expression => ({ kind: "group", argument }
 
 const neg = (argument: Expression): Expression => ({ kind: "negate", argument });
 
-const fn = (name: "exp" | "ln" | "sin" | "cos", argument: Expression, opId?: string): Expression => ({
+const fn = (
+  name: "exp" | "ln" | "sin" | "cos",
+  argument: Expression,
+  opId?: string,
+): Expression => ({
   kind: "function",
   name,
   argument,
@@ -208,22 +212,42 @@ test("toggle.test: Paper 2 diffusion toggle preserves term bindings across notat
 
   // Verify term binding continuity:
   // Printed has D, R, T, N, k, P
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-bm.t.d}{\\htmlClass{am-role-result}{D}}"));
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-bm.t.r}{\\htmlClass{am-role-input}{R}}"));
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-bm.t.t}{\\htmlClass{am-role-input}{T}}"));
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-bm.t.n}{\\htmlClass{am-role-input}{N}}"));
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-bm.t.k}{\\htmlClass{am-role-input}{k}}"));
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-bm.t.p}{\\htmlClass{am-role-input}{P}}"));
+  assert.ok(
+    printedColor.latex.includes("\\htmlData{term=eq-bm.t.d}{\\htmlClass{am-role-result}{D}}"),
+  );
+  assert.ok(
+    printedColor.latex.includes("\\htmlData{term=eq-bm.t.r}{\\htmlClass{am-role-input}{R}}"),
+  );
+  assert.ok(
+    printedColor.latex.includes("\\htmlData{term=eq-bm.t.t}{\\htmlClass{am-role-input}{T}}"),
+  );
+  assert.ok(
+    printedColor.latex.includes("\\htmlData{term=eq-bm.t.n}{\\htmlClass{am-role-input}{N}}"),
+  );
+  assert.ok(
+    printedColor.latex.includes("\\htmlData{term=eq-bm.t.k}{\\htmlClass{am-role-input}{k}}"),
+  );
+  assert.ok(
+    printedColor.latex.includes("\\htmlData{term=eq-bm.t.p}{\\htmlClass{am-role-input}{P}}"),
+  );
 
   // Modern has D, k_B (with term=eq-bm.t.r preserved!), T, \eta (with term=eq-bm.t.k), a (with term=eq-bm.t.p)
-  assert.ok(modernColor.latex.includes("\\htmlData{term=eq-bm.t.d}{\\htmlClass{am-role-result}{D}}"));
+  assert.ok(
+    modernColor.latex.includes("\\htmlData{term=eq-bm.t.d}{\\htmlClass{am-role-result}{D}}"),
+  );
   assert.ok(
     modernColor.latex.includes("\\htmlData{term=eq-bm.t.r}{\\htmlClass{am-role-constant}{k_B}}"),
     "Modern Boltzmann constant must inherit the termId of the first removed numerator factor R",
   );
-  assert.ok(modernColor.latex.includes("\\htmlData{term=eq-bm.t.t}{\\htmlClass{am-role-input}{T}}"));
-  assert.ok(modernColor.latex.includes("\\htmlData{term=eq-bm.t.k}{\\htmlClass{am-role-input}{\\eta}}"));
-  assert.ok(modernColor.latex.includes("\\htmlData{term=eq-bm.t.p}{\\htmlClass{am-role-input}{a}}"));
+  assert.ok(
+    modernColor.latex.includes("\\htmlData{term=eq-bm.t.t}{\\htmlClass{am-role-input}{T}}"),
+  );
+  assert.ok(
+    modernColor.latex.includes("\\htmlData{term=eq-bm.t.k}{\\htmlClass{am-role-input}{\\eta}}"),
+  );
+  assert.ok(
+    modernColor.latex.includes("\\htmlData{term=eq-bm.t.p}{\\htmlClass{am-role-input}{a}}"),
+  );
 
   // Verify op marker preservation
   assert.ok(printedColor.latex.includes("\\htmlData{op=eq-bm.op.rel}"));
@@ -247,10 +271,11 @@ test("toggle.test: Paper 3 boost coordinate toggle preserves term bindings acros
           sym("eq-sr.t.t", "coordinateTimeStationary"),
           neg(
             prod(
-              quot(
-                sym("eq-sr.t.v", "frameSpeed"),
-                { kind: "power", base: sym("eq-sr.t.V", "speedOfLight"), exponent: { num: 2, den: 1 } },
-              ),
+              quot(sym("eq-sr.t.v", "frameSpeed"), {
+                kind: "power",
+                base: sym("eq-sr.t.V", "speedOfLight"),
+                exponent: { num: 2, den: 1 },
+              }),
               sym("eq-sr.t.x", "coordinatePositionStationary"),
             ),
           ),
@@ -281,8 +306,14 @@ test("toggle.test: Paper 3 boost coordinate toggle preserves term bindings acros
     concordance,
   });
 
-  assert.equal(printedPlain.latex, "\\tau = \\beta\\,\\left(t - \\frac{v}{\\left(V\\right)^{2}}\\,x\\right)");
-  assert.equal(modernPlain.latex, "t' = \\gamma\\,\\left(t - \\frac{v}{\\left(c\\right)^{2}}\\,x\\right)");
+  assert.equal(
+    printedPlain.latex,
+    "\\tau = \\beta\\,\\left(t - \\frac{v}{\\left(V\\right)^{2}}\\,x\\right)",
+  );
+  assert.equal(
+    modernPlain.latex,
+    "t' = \\gamma\\,\\left(t - \\frac{v}{\\left(c\\right)^{2}}\\,x\\right)",
+  );
 
   // Colorized toggle
   const printedColor = renderEquationLatex({
@@ -305,16 +336,32 @@ test("toggle.test: Paper 3 boost coordinate toggle preserves term bindings acros
 
   // Term ID mapping verification:
   // tau -> t' under eq-sr.t.tau
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-sr.t.tau}{\\htmlClass{am-role-input}{\\tau}}"));
-  assert.ok(modernColor.latex.includes("\\htmlData{term=eq-sr.t.tau}{\\htmlClass{am-role-input}{t'}}"));
+  assert.ok(
+    printedColor.latex.includes("\\htmlData{term=eq-sr.t.tau}{\\htmlClass{am-role-input}{\\tau}}"),
+  );
+  assert.ok(
+    modernColor.latex.includes("\\htmlData{term=eq-sr.t.tau}{\\htmlClass{am-role-input}{t'}}"),
+  );
 
   // beta -> \gamma under eq-sr.t.beta
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-sr.t.beta}{\\htmlClass{am-role-input}{\\beta}}"));
-  assert.ok(modernColor.latex.includes("\\htmlData{term=eq-sr.t.beta}{\\htmlClass{am-role-input}{\\gamma}}"));
+  assert.ok(
+    printedColor.latex.includes(
+      "\\htmlData{term=eq-sr.t.beta}{\\htmlClass{am-role-input}{\\beta}}",
+    ),
+  );
+  assert.ok(
+    modernColor.latex.includes(
+      "\\htmlData{term=eq-sr.t.beta}{\\htmlClass{am-role-input}{\\gamma}}",
+    ),
+  );
 
   // V -> c under eq-sr.t.V
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-sr.t.V}{\\htmlClass{am-role-input}{V}}"));
-  assert.ok(modernColor.latex.includes("\\htmlData{term=eq-sr.t.V}{\\htmlClass{am-role-input}{c}}"));
+  assert.ok(
+    printedColor.latex.includes("\\htmlData{term=eq-sr.t.V}{\\htmlClass{am-role-input}{V}}"),
+  );
+  assert.ok(
+    modernColor.latex.includes("\\htmlData{term=eq-sr.t.V}{\\htmlClass{am-role-input}{c}}"),
+  );
 
   // Term spans count matches
   assert.equal(printedColor.termSpans.length, modernColor.termSpans.length);
@@ -381,7 +428,11 @@ test("toggle.test: Paper 1 Wien exponential toggle preserves term bindings acros
   assertValidKatex(modernColor.latex, true);
 
   // In printed: \beta carries eq-lq.t.beta
-  assert.ok(printedColor.latex.includes("\\htmlData{term=eq-lq.t.beta}{\\htmlClass{am-role-input}{\\beta}}"));
+  assert.ok(
+    printedColor.latex.includes(
+      "\\htmlData{term=eq-lq.t.beta}{\\htmlClass{am-role-input}{\\beta}}",
+    ),
+  );
 
   // In modern: both h and k_B carry eq-lq.t.beta
   assert.ok(
@@ -428,7 +479,9 @@ test("toggle.test: Paper 1 Planck group removal (R*beta*nu/N -> h*nu) in coloriz
   assertValidKatex(modernColor.latex, true);
 
   // Modern symbol h must be marked with the first removed numerator factor's term ID (eq-lq.t.r)
-  assert.ok(modernColor.latex.includes("\\htmlData{term=eq-lq.t.r}{\\htmlClass{am-role-constant}{h}}"));
+  assert.ok(
+    modernColor.latex.includes("\\htmlData{term=eq-lq.t.r}{\\htmlClass{am-role-constant}{h}}"),
+  );
   assert.ok(modernColor.latex.includes("\\htmlData{term=eq-lq.t.nu}"));
 });
 
@@ -457,7 +510,9 @@ test("toggle.test: Pure group removal (R/N -> k_B) in colorized mode", () => {
   assertMarkerGrammar(modernColor.latex, modernColor.termSpans, modernColor.opSpans);
   assertValidKatex(modernColor.latex, true);
 
-  assert.ok(modernColor.latex.includes("\\htmlData{term=eq-bm.t.r}{\\htmlClass{am-role-constant}{k_B}}"));
+  assert.ok(
+    modernColor.latex.includes("\\htmlData{term=eq-bm.t.r}{\\htmlClass{am-role-constant}{k_B}}"),
+  );
 });
 
 test("toggle.test: Toggle contract guarantees unit conversion is NOT applied under modern toggle", () => {
@@ -498,7 +553,10 @@ test("toggle.test: Toggle contract guarantees unit conversion is NOT applied und
           sum(
             sym("eq-s6.alt.t.y", "electricFieldStationary"),
             neg(
-              prod(sym("eq-s6.alt.t.v", "frameSpeed"), sym("eq-s6.alt.t.N", "magneticFieldStationary")),
+              prod(
+                sym("eq-s6.alt.t.v", "frameSpeed"),
+                sym("eq-s6.alt.t.N", "magneticFieldStationary"),
+              ),
             ),
           ),
         ),

@@ -251,7 +251,9 @@ describe("scenario schema", () => {
     } catch (err) {
       expect(err).toBeInstanceOf(ExperimentValidationError);
       expect((err as ExperimentValidationError).code).toBe("tolerance-spec-invalid");
-      expect((err as ExperimentValidationError).message).toContain("must be a finite number in [0, 1)");
+      expect((err as ExperimentValidationError).message).toContain(
+        "must be a finite number in [0, 1)",
+      );
     }
 
     // Zero tolerance without bitwise
@@ -273,7 +275,9 @@ describe("scenario schema", () => {
     } catch (err) {
       expect(err).toBeInstanceOf(ExperimentValidationError);
       expect((err as ExperimentValidationError).code).toBe("tolerance-spec-invalid");
-      expect((err as ExperimentValidationError).message).toContain("Neither absolute nor relative tolerance is positive");
+      expect((err as ExperimentValidationError).message).toContain(
+        "Neither absolute nor relative tolerance is positive",
+      );
     }
   });
 
@@ -322,7 +326,9 @@ describe("scenario schema", () => {
     } catch (err) {
       expect(err).toBeInstanceOf(ExperimentValidationError);
       expect((err as ExperimentValidationError).code).toBe("tolerance-spec-invalid");
-      expect((err as ExperimentValidationError).message).toContain("must be a finite number in [0, 1)");
+      expect((err as ExperimentValidationError).message).toContain(
+        "must be a finite number in [0, 1)",
+      );
     }
 
     // Zero tolerance without bitwise is rejected
@@ -335,7 +341,9 @@ describe("scenario schema", () => {
     } catch (err) {
       expect(err).toBeInstanceOf(ExperimentValidationError);
       expect((err as ExperimentValidationError).code).toBe("tolerance-spec-invalid");
-      expect((err as ExperimentValidationError).message).toContain("Neither absolute nor relative tolerance is positive");
+      expect((err as ExperimentValidationError).message).toContain(
+        "Neither absolute nor relative tolerance is positive",
+      );
     }
   });
 

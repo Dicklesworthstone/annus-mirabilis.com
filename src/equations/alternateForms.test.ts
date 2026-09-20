@@ -48,7 +48,11 @@ function quot(numerator: Expression, denominator: Expression, opId?: string): Ex
   return { kind: "quotient", numerator, denominator, ...(opId ? { opId } : {}) };
 }
 
-function power(base: Expression, exponent: { num: number; den: number }, opId?: string): Expression {
+function power(
+  base: Expression,
+  exponent: { num: number; den: number },
+  opId?: string,
+): Expression {
   return { kind: "power", base, exponent, ...(opId ? { opId } : {}) };
 }
 
@@ -86,10 +90,7 @@ describe("Equation Alternate Forms Validation", () => {
           prod([
             num("-1"),
             prod([
-              quot(
-                sym("eq-s6-d3.t.v", "relativeVelocityX"),
-                sym("eq-s6-d3.t.V", "speedOfLight"),
-              ),
+              quot(sym("eq-s6-d3.t.v", "relativeVelocityX"), sym("eq-s6-d3.t.V", "speedOfLight")),
               sym("eq-s6-d3.t.N", "magneticFieldRestZ"),
             ]),
           ]),
@@ -213,10 +214,7 @@ describe("Equation Alternate Forms Validation", () => {
           prod([
             num("-1"),
             power(
-              quot(
-                sym("eq-s10-d1.t.v", "relativeVelocityX"),
-                sym("eq-s10-d1.t.V", "speedOfLight"),
-              ),
+              quot(sym("eq-s10-d1.t.v", "relativeVelocityX"), sym("eq-s10-d1.t.V", "speedOfLight")),
               { num: 2, den: 1 },
             ),
           ]),
@@ -268,9 +266,7 @@ describe("Equation Alternate Forms Validation", () => {
       if (result.valid) {
         expect(result.form.id).toBe("eq-s10-d1.alt.momentumRateConvention");
         expect(result.form.relation).toBe("modernization");
-        expect(result.form.modernLensRef).toBe(
-          "lens-relativistic-dynamics-force-convention",
-        );
+        expect(result.form.modernLensRef).toBe("lens-relativistic-dynamics-force-convention");
         expect(result.form.historicalStatus).toBe("later-development");
       }
     });
@@ -306,10 +302,7 @@ describe("Equation Alternate Forms Validation", () => {
       "=",
       sym("eq-s3-d4.t.D", "diffusionCoefficient"),
       prod([
-        quot(
-          sym("eq-s3-d4.t.R", "molarGasConstant"),
-          sym("eq-s3-d4.t.N", "avogadroConstant"),
-        ),
+        quot(sym("eq-s3-d4.t.R", "molarGasConstant"), sym("eq-s3-d4.t.N", "avogadroConstant")),
         sym("eq-s3-d4.t.T", "absoluteTemperature"),
       ]),
     );
@@ -318,10 +311,7 @@ describe("Equation Alternate Forms Validation", () => {
     const substitutedTree: Expression = rel(
       "=",
       sym("eq-s3-d4.t.D", "diffusionCoefficient"),
-      prod([
-        sym("eq-s3-d4.t.kB", "boltzmannConstant"),
-        sym("eq-s3-d4.t.T", "absoluteTemperature"),
-      ]),
+      prod([sym("eq-s3-d4.t.kB", "boltzmannConstant"), sym("eq-s3-d4.t.T", "absoluteTemperature")]),
     );
 
     const compositeGroup: CompositeGroup = {
@@ -591,7 +581,11 @@ describe("Equation Alternate Forms Validation", () => {
       const resEmpty = validateAlternateForms([], gaussianPrimaryTree, s6EquationId);
       expect(resEmpty.valid).toBe(true);
 
-      const resSingle = validateAlternateForms([validConversion], gaussianPrimaryTree, s6EquationId);
+      const resSingle = validateAlternateForms(
+        [validConversion],
+        gaussianPrimaryTree,
+        s6EquationId,
+      );
       expect(resSingle.valid).toBe(true);
       if (resSingle.valid) {
         expect(resSingle.forms.length).toBe(1);
@@ -634,9 +628,14 @@ describe("Equation Alternate Forms Validation", () => {
       }
 
       // If checkRename is disabled (the planted negative):
-      const disabledRes = validateAlternateForm(renameAlternate, gaussianPrimaryTree, s6EquationId, {
-        checkRename: false,
-      });
+      const disabledRes = validateAlternateForm(
+        renameAlternate,
+        gaussianPrimaryTree,
+        s6EquationId,
+        {
+          checkRename: false,
+        },
+      );
       expect(disabledRes.valid).toBe(true);
     });
 

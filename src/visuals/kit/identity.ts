@@ -64,4 +64,3 @@ export function optionalIdentityAttributes(
   }
   return Object.freeze(attrs);
 }
-

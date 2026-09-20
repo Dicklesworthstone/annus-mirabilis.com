@@ -15,8 +15,8 @@ import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind
 import { ReaderLayout } from "./layout/ReaderLayout.tsx";
 import { StickyLabRegion } from "./layout/StickyLabRegion.tsx";
 import "./actions/kindRegistration.ts";
-import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
+import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
 import missingSteps from "../generated/missing-steps.json";
 import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
@@ -178,9 +178,11 @@ export async function PaperReader({
                           />
                         </div>
                       ))}
-                      {(missingSteps.lessons as readonly CompiledMissingStepLesson[]).filter(lesson => lesson.argument === a.id).map(lesson =>
-                        <MissingStepDisclosure key={lesson.id} lesson={lesson} />
-                      )}
+                      {(missingSteps.lessons as readonly CompiledMissingStepLesson[])
+                        .filter((lesson) => lesson.argument === a.id)
+                        .map((lesson) => (
+                          <MissingStepDisclosure key={lesson.id} lesson={lesson} />
+                        ))}
                       <EquationScope scopeLabel="reading argument">
                         {(equationPayload.equations as readonly CompiledEquation[])
                           .filter((e) => e.argument === a.id)

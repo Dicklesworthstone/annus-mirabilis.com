@@ -176,10 +176,13 @@ const validBridge = {
 const validMisconception = {
   id: "misc-bm-instantaneous-velocity",
   paper: "brownian-motion",
-  temptingClaims: ["Brownian particles have a well-defined instantaneous velocity proportional to temperature."],
+  temptingClaims: [
+    "Brownian particles have a well-defined instantaneous velocity proportional to temperature.",
+  ],
   whyTempting: "Classical equipartition suggests (1/2) m v^2 = (1/2) k T.",
   whereItIsTrue: "Only over intervals shorter than the momentum relaxation time.",
-  whatIsTrue: "Observable motion over experimental timescales is diffusive, where displacement variance scales with time.",
+  whatIsTrue:
+    "Observable motion over experimental timescales is diffusive, where displacement variance scales with time.",
   instrumentIds: ["bm-01"],
   intervention: {
     defaultsReviewed: {
@@ -359,29 +362,49 @@ test("argument.refusals: validateHistoricalPremise rejects invalid date precisio
 
   // Reject path: invalid-date-precision
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, date: { ...validHistoricalPremise.date, precision: "century" } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      date: { ...validHistoricalPremise.date, precision: "century" },
+    });
   }, "invalid-date-precision");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects non-YYYY-MM-DD for precision day (argument.ts:394)", () => {
   // Accept path
-  const validDay = { ...validHistoricalPremise, date: { precision: "day" as const, earliest: "1887-05-15", latest: "1887-05-15", latestYear: 1887 } };
+  const validDay = {
+    ...validHistoricalPremise,
+    date: {
+      precision: "day" as const,
+      earliest: "1887-05-15",
+      latest: "1887-05-15",
+      latestYear: 1887,
+    },
+  };
   assert.ok(validateHistoricalPremise(validDay));
 
   // Reject path: invalid-date-precision-format
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, date: { precision: "day", earliest: "1887-05", latest: "1887-05", latestYear: 1887 } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      date: { precision: "day", earliest: "1887-05", latest: "1887-05", latestYear: 1887 },
+    });
   }, "invalid-date-precision-format");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects non-YYYY-MM for precision month (argument.ts:403)", () => {
   // Accept path
-  const validMonth = { ...validHistoricalPremise, date: { precision: "month" as const, earliest: "1887-05", latest: "1887-05", latestYear: 1887 } };
+  const validMonth = {
+    ...validHistoricalPremise,
+    date: { precision: "month" as const, earliest: "1887-05", latest: "1887-05", latestYear: 1887 },
+  };
   assert.ok(validateHistoricalPremise(validMonth));
 
   // Reject path: invalid-date-precision-format
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, date: { precision: "month", earliest: "1887", latest: "1887", latestYear: 1887 } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      date: { precision: "month", earliest: "1887", latest: "1887", latestYear: 1887 },
+    });
   }, "invalid-date-precision-format");
 });
 
@@ -391,18 +414,27 @@ test("argument.refusals: validateHistoricalPremise rejects non-YYYY for precisio
 
   // Reject path: invalid-date-precision-format
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, date: { precision: "year", earliest: "1887-01", latest: "1887-01", latestYear: 1887 } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      date: { precision: "year", earliest: "1887-01", latest: "1887-01", latestYear: 1887 },
+    });
   }, "invalid-date-precision-format");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects invalid eventKind (argument.ts:427)", () => {
   // Accept path
-  const validEvent = { ...validHistoricalPremise, date: { ...validHistoricalPremise.date, eventKind: "published" as const } };
+  const validEvent = {
+    ...validHistoricalPremise,
+    date: { ...validHistoricalPremise.date, eventKind: "published" as const },
+  };
   assert.ok(validateHistoricalPremise(validEvent));
 
   // Reject path: invalid-event-kind
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, date: { ...validHistoricalPremise.date, eventKind: "discovered" } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      date: { ...validHistoricalPremise.date, eventKind: "discovered" },
+    });
   }, "invalid-event-kind");
 });
 
@@ -412,13 +444,24 @@ test("argument.refusals: validateHistoricalPremise rejects missing latestYear in
 
   // Reject path: missing-latest-year
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, date: { ...validHistoricalPremise.date, latestYear: undefined } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      date: { ...validHistoricalPremise.date, latestYear: undefined },
+    });
   }, "missing-latest-year");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects non-object priorEvent (argument.ts:459)", () => {
   // Accept path
-  const withPrior = { ...validHistoricalPremise, priorEvent: { eventKind: "presented" as const, earliest: "1886", latest: "1886", precision: "year" as const } };
+  const withPrior = {
+    ...validHistoricalPremise,
+    priorEvent: {
+      eventKind: "presented" as const,
+      earliest: "1886",
+      latest: "1886",
+      precision: "year" as const,
+    },
+  };
   assert.ok(validateHistoricalPremise(withPrior));
 
   // Reject path: invalid-prior-event
@@ -429,89 +472,197 @@ test("argument.refusals: validateHistoricalPremise rejects non-object priorEvent
 
 test("argument.refusals: validateHistoricalPremise rejects invalid priorEvent eventKind (argument.ts:471)", () => {
   // Accept path
-  const withPrior = { ...validHistoricalPremise, priorEvent: { eventKind: "presented" as const, earliest: "1886", latest: "1886", precision: "year" as const } };
+  const withPrior = {
+    ...validHistoricalPremise,
+    priorEvent: {
+      eventKind: "presented" as const,
+      earliest: "1886",
+      latest: "1886",
+      precision: "year" as const,
+    },
+  };
   assert.ok(validateHistoricalPremise(withPrior));
 
   // Reject path: invalid-prior-event-kind
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, priorEvent: { eventKind: "conjectured" } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      priorEvent: { eventKind: "conjectured" },
+    });
   }, "invalid-prior-event-kind");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects priorEvent latest after card date latest (argument.ts:479)", () => {
   // Accept path
-  const withPrior = { ...validHistoricalPremise, priorEvent: { eventKind: "presented" as const, earliest: "1886", latest: "1886", precision: "year" as const } };
+  const withPrior = {
+    ...validHistoricalPremise,
+    priorEvent: {
+      eventKind: "presented" as const,
+      earliest: "1886",
+      latest: "1886",
+      precision: "year" as const,
+    },
+  };
   assert.ok(validateHistoricalPremise(withPrior));
 
   // Reject path: card-prior-event-not-prior
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, priorEvent: { eventKind: "published", latest: "1899", earliest: "1899", precision: "year" } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      priorEvent: { eventKind: "published", latest: "1899", earliest: "1899", precision: "year" },
+    });
   }, "card-prior-event-not-prior");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects admittedImport object missing declaringJourney (argument.ts:521)", () => {
   // Accept path
-  const validImport = { ...validHistoricalPremise, admittedImport: { declaringJourney: "journey-bm" }, date: { ...validHistoricalPremise.date, earliest: "1905", latest: "1905", latestYear: 1905 } };
+  const validImport = {
+    ...validHistoricalPremise,
+    admittedImport: { declaringJourney: "journey-bm" },
+    date: { ...validHistoricalPremise.date, earliest: "1905", latest: "1905", latestYear: 1905 },
+  };
   assert.ok(validateHistoricalPremise(validImport));
 
   // Reject path: admitted-import-missing-declaring-journey
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, admittedImport: { sourceKey: "ap-17" } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      admittedImport: { sourceKey: "ap-17" },
+    });
   }, "admitted-import-missing-declaring-journey");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects verification missing verifiedBy (argument.ts:560)", () => {
   // Accept path
-  const validVer = { ...validHistoricalPremise, verification: { verifiedBy: "jemanuel", verifierKind: "human" as const, date: "2026-09-18", method: "library scan" as const, evidenceLocator: "p. 5" } };
+  const validVer = {
+    ...validHistoricalPremise,
+    verification: {
+      verifiedBy: "jemanuel",
+      verifierKind: "human" as const,
+      date: "2026-09-18",
+      method: "library scan" as const,
+      evidenceLocator: "p. 5",
+    },
+  };
   assert.ok(validateHistoricalPremise(validVer));
 
   // Reject path: verified-premise-missing-verifier
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, verification: { verifierKind: "human", date: "2026-09-18", method: "library scan", evidenceLocator: "p. 5" } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      verification: {
+        verifierKind: "human",
+        date: "2026-09-18",
+        method: "library scan",
+        evidenceLocator: "p. 5",
+      },
+    });
   }, "verified-premise-missing-verifier");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects verification with invalid verifierKind (argument.ts:568)", () => {
   // Accept path
-  const validVer = { ...validHistoricalPremise, verification: { verifiedBy: "jemanuel", verifierKind: "human" as const, date: "2026-09-18", method: "library scan" as const, evidenceLocator: "p. 5" } };
+  const validVer = {
+    ...validHistoricalPremise,
+    verification: {
+      verifiedBy: "jemanuel",
+      verifierKind: "human" as const,
+      date: "2026-09-18",
+      method: "library scan" as const,
+      evidenceLocator: "p. 5",
+    },
+  };
   assert.ok(validateHistoricalPremise(validVer));
 
   // Reject path: verified-premise-invalid-verifier-kind
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, verification: { verifiedBy: "jemanuel", verifierKind: "committee", date: "2026-09-18", method: "library scan", evidenceLocator: "p. 5" } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      verification: {
+        verifiedBy: "jemanuel",
+        verifierKind: "committee",
+        date: "2026-09-18",
+        method: "library scan",
+        evidenceLocator: "p. 5",
+      },
+    });
   }, "verified-premise-invalid-verifier-kind");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects verification missing date (argument.ts:576)", () => {
   // Accept path
-  const validVer = { ...validHistoricalPremise, verification: { verifiedBy: "jemanuel", verifierKind: "human" as const, date: "2026-09-18", method: "library scan" as const, evidenceLocator: "p. 5" } };
+  const validVer = {
+    ...validHistoricalPremise,
+    verification: {
+      verifiedBy: "jemanuel",
+      verifierKind: "human" as const,
+      date: "2026-09-18",
+      method: "library scan" as const,
+      evidenceLocator: "p. 5",
+    },
+  };
   assert.ok(validateHistoricalPremise(validVer));
 
   // Reject path: verified-premise-missing-date
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, verification: { verifiedBy: "jemanuel", verifierKind: "human", method: "library scan", evidenceLocator: "p. 5" } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      verification: {
+        verifiedBy: "jemanuel",
+        verifierKind: "human",
+        method: "library scan",
+        evidenceLocator: "p. 5",
+      },
+    });
   }, "verified-premise-missing-date");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects verification with invalid method (argument.ts:589)", () => {
   // Accept path
-  const validVer = { ...validHistoricalPremise, verification: { verifiedBy: "jemanuel", verifierKind: "human" as const, date: "2026-09-18", method: "library scan" as const, evidenceLocator: "p. 5" } };
+  const validVer = {
+    ...validHistoricalPremise,
+    verification: {
+      verifiedBy: "jemanuel",
+      verifierKind: "human" as const,
+      date: "2026-09-18",
+      method: "library scan" as const,
+      evidenceLocator: "p. 5",
+    },
+  };
   assert.ok(validateHistoricalPremise(validVer));
 
   // Reject path: verified-premise-invalid-method
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, verification: { verifiedBy: "jemanuel", verifierKind: "human", date: "2026-09-18", method: "word-of-mouth", evidenceLocator: "p. 5" } });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      verification: {
+        verifiedBy: "jemanuel",
+        verifierKind: "human",
+        date: "2026-09-18",
+        method: "word-of-mouth",
+        evidenceLocator: "p. 5",
+      },
+    });
   }, "verified-premise-invalid-method");
 });
 
 test("argument.refusals: validateHistoricalPremise rejects partial top-level verifier without evidenceLocator (argument.ts:627)", () => {
   // Accept path
-  const validVer = { ...validHistoricalPremise, verifier: "jemanuel", dateVerified: "2026-09-18", evidenceLocator: "p. 42" };
+  const validVer = {
+    ...validHistoricalPremise,
+    verifier: "jemanuel",
+    dateVerified: "2026-09-18",
+    evidenceLocator: "p. 42",
+  };
   assert.ok(validateHistoricalPremise(validVer));
 
   // Reject path: verified-premise-missing-locator
   assertArgumentRefusal(() => {
-    validateHistoricalPremise({ ...validHistoricalPremise, verifier: "jemanuel", dateVerified: "2026-09-18" });
+    validateHistoricalPremise({
+      ...validHistoricalPremise,
+      verifier: "jemanuel",
+      dateVerified: "2026-09-18",
+    });
   }, "verified-premise-missing-locator");
 });
 
@@ -617,18 +768,34 @@ test("argument.refusals: validateArgumentNode rejects invalid logicalRole (argum
 
 test("argument.refusals: validateArgumentNode rejects invalid premise ref kind (argument.ts:854)", () => {
   // Accept path
-  const withPremise = { ...validArgumentNode, premises: [{ ref: { kind: "premise" as const, id: "van-t-hoff-1887-osmotic-pressure" }, edgeType: "historical-derivation" as const }] };
+  const withPremise = {
+    ...validArgumentNode,
+    premises: [
+      {
+        ref: { kind: "premise" as const, id: "van-t-hoff-1887-osmotic-pressure" },
+        edgeType: "historical-derivation" as const,
+      },
+    ],
+  };
   assert.ok(validateArgumentNode(withPremise));
 
   // Reject path: invalid-premise-ref
   assertArgumentRefusal(() => {
-    validateArgumentNode({ ...validArgumentNode, premises: [{ ref: { kind: "dataset", id: "d1" }, edgeType: "historical-derivation" }] });
+    validateArgumentNode({
+      ...validArgumentNode,
+      premises: [{ ref: { kind: "dataset", id: "d1" }, edgeType: "historical-derivation" }],
+    });
   }, "invalid-premise-ref");
 });
 
 test("argument.refusals: validateArgumentNode rejects non-object evidence entry (argument.ts:883)", () => {
   // Accept path
-  const withEv = { ...validArgumentNode, evidence: [{ ref: { kind: "dataset" as const, id: "perrin-1909" }, relation: "supports" as const }] };
+  const withEv = {
+    ...validArgumentNode,
+    evidence: [
+      { ref: { kind: "dataset" as const, id: "perrin-1909" }, relation: "supports" as const },
+    ],
+  };
   assert.ok(validateArgumentNode(withEv));
 
   // Reject path: invalid-evidence
@@ -639,34 +806,56 @@ test("argument.refusals: validateArgumentNode rejects non-object evidence entry 
 
 test("argument.refusals: validateArgumentNode rejects invalid evidence ref kind (argument.ts:895)", () => {
   // Accept path
-  const withEv = { ...validArgumentNode, evidence: [{ ref: { kind: "dataset" as const, id: "perrin-1909" }, relation: "supports" as const }] };
+  const withEv = {
+    ...validArgumentNode,
+    evidence: [
+      { ref: { kind: "dataset" as const, id: "perrin-1909" }, relation: "supports" as const },
+    ],
+  };
   assert.ok(validateArgumentNode(withEv));
 
   // Reject path: invalid-evidence-ref
   assertArgumentRefusal(() => {
-    validateArgumentNode({ ...validArgumentNode, evidence: [{ ref: { kind: "invalid-kind", id: "e1" }, relation: "supports" }] });
+    validateArgumentNode({
+      ...validArgumentNode,
+      evidence: [{ ref: { kind: "invalid-kind", id: "e1" }, relation: "supports" }],
+    });
   }, "invalid-evidence-ref");
 });
 
 test("argument.refusals: validateArgumentNode rejects invalid evidence relation (argument.ts:903)", () => {
   // Accept path
-  const withEv = { ...validArgumentNode, evidence: [{ ref: { kind: "dataset" as const, id: "perrin-1909" }, relation: "supports" as const }] };
+  const withEv = {
+    ...validArgumentNode,
+    evidence: [
+      { ref: { kind: "dataset" as const, id: "perrin-1909" }, relation: "supports" as const },
+    ],
+  };
   assert.ok(validateArgumentNode(withEv));
 
   // Reject path: invalid-evidence-relation
   assertArgumentRefusal(() => {
-    validateArgumentNode({ ...validArgumentNode, evidence: [{ ref: { kind: "dataset", id: "perrin-1909" }, relation: "invalid-rel" }] });
+    validateArgumentNode({
+      ...validArgumentNode,
+      evidence: [{ ref: { kind: "dataset", id: "perrin-1909" }, relation: "invalid-rel" }],
+    });
   }, "invalid-evidence-relation");
 });
 
 test("argument.refusals: validateArgumentNode rejects prerequisite missing foundationId (argument.ts:933)", () => {
   // Accept path
-  const withPrereq = { ...validArgumentNode, prerequisites: [{ foundationId: "found-stokes-drag", kind: "proof-edge" as const }] };
+  const withPrereq = {
+    ...validArgumentNode,
+    prerequisites: [{ foundationId: "found-stokes-drag", kind: "proof-edge" as const }],
+  };
   assert.ok(validateArgumentNode(withPrereq));
 
   // Reject path: missing-prerequisite-foundation-id
   assertArgumentRefusal(() => {
-    validateArgumentNode({ ...validArgumentNode, prerequisites: [{ foundationId: "", kind: "proof-edge" }] });
+    validateArgumentNode({
+      ...validArgumentNode,
+      prerequisites: [{ foundationId: "", kind: "proof-edge" }],
+    });
   }, "missing-prerequisite-foundation-id");
 });
 
@@ -696,29 +885,48 @@ test("argument.refusals: validateArgumentNode rejects instrument treatment with 
 
   // Reject path: missing-experiment-ids
   assertArgumentRefusal(() => {
-    validateArgumentNode({ ...validArgumentNode, coverageObligation: { treatment: { kind: "instrument", experimentIds: [] } } });
+    validateArgumentNode({
+      ...validArgumentNode,
+      coverageObligation: { treatment: { kind: "instrument", experimentIds: [] } },
+    });
   }, "missing-experiment-ids");
 });
 
 test("argument.refusals: validateArgumentNode rejects static treatment with empty description (argument.ts:993)", () => {
   // Accept path
-  const staticCov = { ...validArgumentNode, coverageObligation: { treatment: { kind: "static" as const, description: "Static diagram of random walk" } } };
+  const staticCov = {
+    ...validArgumentNode,
+    coverageObligation: {
+      treatment: { kind: "static" as const, description: "Static diagram of random walk" },
+    },
+  };
   assert.ok(validateArgumentNode(staticCov));
 
   // Reject path: missing-static-description
   assertArgumentRefusal(() => {
-    validateArgumentNode({ ...validArgumentNode, coverageObligation: { treatment: { kind: "static", description: "" } } });
+    validateArgumentNode({
+      ...validArgumentNode,
+      coverageObligation: { treatment: { kind: "static", description: "" } },
+    });
   }, "missing-static-description");
 });
 
 test("argument.refusals: validateArgumentNode rejects omitted treatment with empty reason (argument.ts:1003)", () => {
   // Accept path
-  const omittedCov = { ...validArgumentNode, coverageObligation: { treatment: { kind: "omitted" as const, reason: "Covered thoroughly in paper §2" } } };
+  const omittedCov = {
+    ...validArgumentNode,
+    coverageObligation: {
+      treatment: { kind: "omitted" as const, reason: "Covered thoroughly in paper §2" },
+    },
+  };
   assert.ok(validateArgumentNode(omittedCov));
 
   // Reject path: omitted-treatment-missing-reason
   assertArgumentRefusal(() => {
-    validateArgumentNode({ ...validArgumentNode, coverageObligation: { treatment: { kind: "omitted", reason: "" } } });
+    validateArgumentNode({
+      ...validArgumentNode,
+      coverageObligation: { treatment: { kind: "omitted", reason: "" } },
+    });
   }, "omitted-treatment-missing-reason");
 });
 
@@ -728,7 +936,10 @@ test("argument.refusals: validateArgumentNode rejects invalid treatment kind (ar
 
   // Reject path: invalid-treatment-kind
   assertArgumentRefusal(() => {
-    validateArgumentNode({ ...validArgumentNode, coverageObligation: { treatment: { kind: "interactive-3d" } } });
+    validateArgumentNode({
+      ...validArgumentNode,
+      coverageObligation: { treatment: { kind: "interactive-3d" } },
+    });
   }, "invalid-treatment-kind");
 });
 
@@ -834,12 +1045,22 @@ test("argument.refusals: validateQuantity rejects invalid dimensionStatus (argum
 
 test("argument.refusals: validateQuantity rejects state-dependent quantity missing dimensionNote (argument.ts:1248)", () => {
   // Accept path
-  const stateDep = { ...validQuantity, dimensionStatus: "state-dependent" as const, dimension: undefined, dimensionNote: "Temperature dependent" };
+  const stateDep = {
+    ...validQuantity,
+    dimensionStatus: "state-dependent" as const,
+    dimension: undefined,
+    dimensionNote: "Temperature dependent",
+  };
   assert.ok(validateQuantity(stateDep));
 
   // Reject path: missing-dimension-note
   assertArgumentRefusal(() => {
-    validateQuantity({ ...validQuantity, dimensionStatus: "state-dependent", dimension: undefined, dimensionNote: "" });
+    validateQuantity({
+      ...validQuantity,
+      dimensionStatus: "state-dependent",
+      dimension: undefined,
+      dimensionNote: "",
+    });
   }, "missing-dimension-note");
 });
 
@@ -865,7 +1086,11 @@ test("argument.refusals: validateQuantity rejects invalid densityKind (argument.
 
 test("argument.refusals: validateQuantity rejects densityKind 'density' with empty densityPer (argument.ts:1316)", () => {
   // Accept path
-  const densityQty = { ...validQuantity, densityKind: "density" as const, densityPer: ["volume" as const] };
+  const densityQty = {
+    ...validQuantity,
+    densityKind: "density" as const,
+    densityPer: ["volume" as const],
+  };
   assert.ok(validateQuantity(densityQty));
 
   // Reject path: missing-density-per
@@ -876,12 +1101,20 @@ test("argument.refusals: validateQuantity rejects densityKind 'density' with emp
 
 test("argument.refusals: validateQuantity rejects invalid densityPer item (argument.ts:1325)", () => {
   // Accept path
-  const densityQty = { ...validQuantity, densityKind: "density" as const, densityPer: ["volume" as const] };
+  const densityQty = {
+    ...validQuantity,
+    densityKind: "density" as const,
+    densityPer: ["volume" as const],
+  };
   assert.ok(validateQuantity(densityQty));
 
   // Reject path: invalid-density-per-item
   assertArgumentRefusal(() => {
-    validateQuantity({ ...validQuantity, densityKind: "density", densityPer: ["invalid-per" as any] });
+    validateQuantity({
+      ...validQuantity,
+      densityKind: "density",
+      densityPer: ["invalid-per" as any],
+    });
   }, "invalid-density-per-item");
 });
 
@@ -927,7 +1160,13 @@ test("argument.refusals: validateQuantity rejects invalid observation kind (argu
 
 test("argument.refusals: validateQuantity rejects modelArtifact true missing artifactNote (argument.ts:1391)", () => {
   // Accept path
-  assert.ok(validateQuantity({ ...validQuantity, modelArtifact: true, artifactNote: "Derived in ether frame" }));
+  assert.ok(
+    validateQuantity({
+      ...validQuantity,
+      modelArtifact: true,
+      artifactNote: "Derived in ether frame",
+    }),
+  );
 
   // Reject path: missing-artifact-note
   assertArgumentRefusal(() => {
@@ -1002,7 +1241,11 @@ test("argument.refusals: validateSemanticEquation rejects modernTree with invali
 
   // Reject path: missing-modern-relation
   assertArgumentRefusal(() => {
-    validateSemanticEquation({ ...validEquation, modernTree: {}, modernRelation: "invalid-rel" as any });
+    validateSemanticEquation({
+      ...validEquation,
+      modernTree: {},
+      modernRelation: "invalid-rel" as any,
+    });
   }, "missing-modern-relation");
 });
 
@@ -1022,7 +1265,10 @@ test("argument.refusals: validateSemanticEquation rejects non-object notationFor
 
   // Reject path: invalid-notation-form
   assertArgumentRefusal(() => {
-    validateSemanticEquation({ ...validEquation, notationForms: { source: "not-an-object", modern: { mode: "generated", unitSystem: "si" } } });
+    validateSemanticEquation({
+      ...validEquation,
+      notationForms: { source: "not-an-object", modern: { mode: "generated", unitSystem: "si" } },
+    });
   }, "invalid-notation-form");
 });
 
@@ -1032,7 +1278,13 @@ test("argument.refusals: validateSemanticEquation rejects invalid notationMode (
 
   // Reject path: invalid-notation-mode
   assertArgumentRefusal(() => {
-    validateSemanticEquation({ ...validEquation, notationForms: { source: { mode: "invalid-mode", unitSystem: "gaussian-cgs" }, modern: { mode: "generated", unitSystem: "si" } } });
+    validateSemanticEquation({
+      ...validEquation,
+      notationForms: {
+        source: { mode: "invalid-mode", unitSystem: "gaussian-cgs" },
+        modern: { mode: "generated", unitSystem: "si" },
+      },
+    });
   }, "invalid-notation-mode");
 });
 
@@ -1042,18 +1294,41 @@ test("argument.refusals: validateSemanticEquation rejects invalid unitSystem (ar
 
   // Reject path: invalid-unit-system
   assertArgumentRefusal(() => {
-    validateSemanticEquation({ ...validEquation, notationForms: { source: { mode: "generated", unitSystem: "invalid-units" }, modern: { mode: "generated", unitSystem: "si" } } });
+    validateSemanticEquation({
+      ...validEquation,
+      notationForms: {
+        source: { mode: "generated", unitSystem: "invalid-units" },
+        modern: { mode: "generated", unitSystem: "si" },
+      },
+    });
   }, "invalid-unit-system");
 });
 
 test("argument.refusals: validateSemanticEquation rejects authored notation mode missing latex (argument.ts:1646)", () => {
   // Accept path
-  const authEq = { ...validEquation, notationForms: { source: { mode: "authored" as const, unitSystem: "gaussian-cgs" as const, latex: "\\lambda = 2", termBindings: ["t1"] }, modern: { mode: "generated" as const, unitSystem: "si" as const } } };
+  const authEq = {
+    ...validEquation,
+    notationForms: {
+      source: {
+        mode: "authored" as const,
+        unitSystem: "gaussian-cgs" as const,
+        latex: "\\lambda = 2",
+        termBindings: ["t1"],
+      },
+      modern: { mode: "generated" as const, unitSystem: "si" as const },
+    },
+  };
   assert.ok(validateSemanticEquation(authEq));
 
   // Reject path: authored-notation-missing-latex
   assertArgumentRefusal(() => {
-    validateSemanticEquation({ ...validEquation, notationForms: { source: { mode: "authored", unitSystem: "gaussian-cgs", latex: "", termBindings: ["t1"] }, modern: { mode: "generated", unitSystem: "si" } } });
+    validateSemanticEquation({
+      ...validEquation,
+      notationForms: {
+        source: { mode: "authored", unitSystem: "gaussian-cgs", latex: "", termBindings: ["t1"] },
+        modern: { mode: "generated", unitSystem: "si" },
+      },
+    });
   }, "authored-notation-missing-latex");
 });
 
@@ -1075,7 +1350,10 @@ test("argument.refusals: validateSemanticEquation rejects term missing termId (a
 
   // Reject path: missing-term-id
   assertArgumentRefusal(() => {
-    validateSemanticEquation({ ...validEquation, terms: [{ termId: "", quantityId: "particleRadius" }] });
+    validateSemanticEquation({
+      ...validEquation,
+      terms: [{ termId: "", quantityId: "particleRadius" }],
+    });
   }, "missing-term-id");
 });
 
@@ -1092,18 +1370,27 @@ test("argument.refusals: validateSemanticEquation rejects term missing quantityI
 
 test("argument.refusals: validateSemanticEquation rejects term with invalid component (argument.ts:1704)", () => {
   // Accept path
-  const withTerm = { ...validEquation, terms: [{ termId: "t1", quantityId: "particleRadius", component: "x" as const }] };
+  const withTerm = {
+    ...validEquation,
+    terms: [{ termId: "t1", quantityId: "particleRadius", component: "x" as const }],
+  };
   assert.ok(validateSemanticEquation(withTerm));
 
   // Reject path: invalid-component
   assertArgumentRefusal(() => {
-    validateSemanticEquation({ ...validEquation, terms: [{ termId: "t1", quantityId: "particleRadius", component: "w" as any }] });
+    validateSemanticEquation({
+      ...validEquation,
+      terms: [{ termId: "t1", quantityId: "particleRadius", component: "w" as any }],
+    });
   }, "invalid-component");
 });
 
 test("argument.refusals: validateSemanticEquation rejects non-object operation entry (argument.ts:1732)", () => {
   // Accept path
-  const withOp = { ...validEquation, operations: [{ opId: "op-1", kind: "step", explanation: "take derivative" }] };
+  const withOp = {
+    ...validEquation,
+    operations: [{ opId: "op-1", kind: "step", explanation: "take derivative" }],
+  };
   assert.ok(validateSemanticEquation(withOp));
 
   // Reject path: invalid-op
@@ -1214,12 +1501,18 @@ test("argument.refusals: validateFoundationOrBridge rejects invalid kind (argume
 
 test("argument.refusals: validateFoundationOrBridge rejects invalid returnCaption structure (argument.ts:2020)", () => {
   // Accept path
-  const withRc = { ...validFoundation, returnCaptions: [{ callingAnchor: "a1", caption: "return" }] };
+  const withRc = {
+    ...validFoundation,
+    returnCaptions: [{ callingAnchor: "a1", caption: "return" }],
+  };
   assert.ok(validateFoundationOrBridge(withRc));
 
   // Reject path: invalid-return-caption
   assertArgumentRefusal(() => {
-    validateFoundationOrBridge({ ...validFoundation, returnCaptions: [{ callingAnchor: 123 as any }] });
+    validateFoundationOrBridge({
+      ...validFoundation,
+      returnCaptions: [{ callingAnchor: 123 as any }],
+    });
   }, "invalid-return-caption");
 });
 
@@ -1349,7 +1642,13 @@ test("argument.refusals: validateFoundationOrBridge rejects bridge continueWith 
 
   // Reject path: missing-continue-with-target
   assertArgumentRefusal(() => {
-    validateFoundationOrBridge({ ...validBridge, continueWith: [{ route: "more-guidance", targetId: "" }, { route: "less-guidance", targetId: "x" }] });
+    validateFoundationOrBridge({
+      ...validBridge,
+      continueWith: [
+        { route: "more-guidance", targetId: "" },
+        { route: "less-guidance", targetId: "x" },
+      ],
+    });
   }, "missing-continue-with-target");
 });
 
@@ -1359,7 +1658,13 @@ test("argument.refusals: validateFoundationOrBridge rejects bridge continueWith 
 
   // Reject path: invalid-continue-with-routes
   assertArgumentRefusal(() => {
-    validateFoundationOrBridge({ ...validBridge, continueWith: [{ route: "more-guidance", targetId: "a" }, { route: "more-guidance", targetId: "b" }] });
+    validateFoundationOrBridge({
+      ...validBridge,
+      continueWith: [
+        { route: "more-guidance", targetId: "a" },
+        { route: "more-guidance", targetId: "b" },
+      ],
+    });
   }, "invalid-continue-with-routes");
 });
 
@@ -1505,17 +1810,29 @@ test("argument.refusals: validateReadingSet rejects invalid reading target kind 
 
 test("argument.refusals: validateReadingSet rejects invalid footnote targetId grammar (argument.ts:2629)", () => {
   // Accept path
-  assert.ok(validateReadingSet({ ...validReadingSet, targetKind: "footnote" as const, targetId: "s3-fn1" }));
+  assert.ok(
+    validateReadingSet({ ...validReadingSet, targetKind: "footnote" as const, targetId: "s3-fn1" }),
+  );
 
   // Reject path: invalid-target-id-for-kind
   assertArgumentRefusal(() => {
-    validateReadingSet({ ...validReadingSet, targetKind: "footnote", targetId: "not-a-footnote-id" });
+    validateReadingSet({
+      ...validReadingSet,
+      targetKind: "footnote",
+      targetId: "not-a-footnote-id",
+    });
   }, "invalid-target-id-for-kind");
 });
 
 test("argument.refusals: validateReadingSet rejects invalid closing targetId grammar (argument.ts:2638)", () => {
   // Accept path
-  assert.ok(validateReadingSet({ ...validReadingSet, targetKind: "closing" as const, targetId: "closing-dateline" }));
+  assert.ok(
+    validateReadingSet({
+      ...validReadingSet,
+      targetKind: "closing" as const,
+      targetId: "closing-dateline",
+    }),
+  );
 
   // Reject path: invalid-target-id-for-kind
   assertArgumentRefusal(() => {
@@ -1525,31 +1842,61 @@ test("argument.refusals: validateReadingSet rejects invalid closing targetId gra
 
 test("argument.refusals: validateReadingSet rejects invalid equation targetId grammar (argument.ts:2647)", () => {
   // Accept path
-  assert.ok(validateReadingSet({ ...validReadingSet, targetKind: "equation" as const, targetId: "eq-bm-s3-d4" }));
+  assert.ok(
+    validateReadingSet({
+      ...validReadingSet,
+      targetKind: "equation" as const,
+      targetId: "eq-bm-s3-d4",
+    }),
+  );
 
   // Reject path: invalid-target-id-for-kind
   assertArgumentRefusal(() => {
-    validateReadingSet({ ...validReadingSet, targetKind: "equation", targetId: "not-an-equation-id" });
+    validateReadingSet({
+      ...validReadingSet,
+      targetKind: "equation",
+      targetId: "not-an-equation-id",
+    });
   }, "invalid-target-id-for-kind");
 });
 
 test("argument.refusals: validateReadingSet rejects invalid derivation-step targetId grammar (argument.ts:2657)", () => {
   // Accept path
-  assert.ok(validateReadingSet({ ...validReadingSet, targetKind: "derivation-step" as const, targetId: "chain-1/step-1" }));
+  assert.ok(
+    validateReadingSet({
+      ...validReadingSet,
+      targetKind: "derivation-step" as const,
+      targetId: "chain-1/step-1",
+    }),
+  );
 
   // Reject path: invalid-target-id-for-kind
   assertArgumentRefusal(() => {
-    validateReadingSet({ ...validReadingSet, targetKind: "derivation-step", targetId: "INVALID_STEP_ID!" });
+    validateReadingSet({
+      ...validReadingSet,
+      targetKind: "derivation-step",
+      targetId: "INVALID_STEP_ID!",
+    });
   }, "invalid-target-id-for-kind");
 });
 
 test("argument.refusals: validateReadingSet rejects invalid instrument-caption targetId grammar (argument.ts:2667)", () => {
   // Accept path
-  assert.ok(validateReadingSet({ ...validReadingSet, targetKind: "instrument-caption" as const, targetId: "bm-01-figure" }));
+  assert.ok(
+    validateReadingSet({
+      ...validReadingSet,
+      targetKind: "instrument-caption" as const,
+      targetId: "bm-01-figure",
+    }),
+  );
 
   // Reject path: invalid-target-id-for-kind
   assertArgumentRefusal(() => {
-    validateReadingSet({ ...validReadingSet, targetKind: "instrument-caption", targetId: "INVALID_CAPTION!" });
+    validateReadingSet({
+      ...validReadingSet,
+      targetKind: "instrument-caption",
+      targetId: "INVALID_CAPTION!",
+    });
   }, "invalid-target-id-for-kind");
 });
 
@@ -1625,12 +1972,20 @@ test("argument.refusals: validateAuthoringContract rejects missing bridge (argum
 
 test("argument.refusals: validateAuthoringContract rejects malformed qualification entry (argument.ts:2802)", () => {
   // Accept path
-  const withQual = { ...validAuthoringContract, approximationsIntroduced: [{ qualificationId: "q1", statement: "dilute limit", restricts: "concentration" }] };
+  const withQual = {
+    ...validAuthoringContract,
+    approximationsIntroduced: [
+      { qualificationId: "q1", statement: "dilute limit", restricts: "concentration" },
+    ],
+  };
   assert.ok(validateAuthoringContract(withQual));
 
   // Reject path: invalid-qualification
   assertArgumentRefusal(() => {
-    validateAuthoringContract({ ...validAuthoringContract, approximationsIntroduced: [{ qualificationId: 123 as any }] });
+    validateAuthoringContract({
+      ...validAuthoringContract,
+      approximationsIntroduced: [{ qualificationId: 123 as any }],
+    });
   }, "invalid-qualification");
 });
 

@@ -10,8 +10,8 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { Expression } from "../ast.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
+import type { Expression } from "../ast.ts";
 import { renderLatex } from "./render.ts";
 
 const sym = (termId: string, quantityId: string = termId): Expression => ({
@@ -71,11 +71,7 @@ test("monomial.test: group removal RT/N -> k_B T", () => {
 test("monomial.test: group removal R\\beta\\nu/N -> h\\nu", () => {
   const concordance = loadConcordanceForPaper("light-quanta");
   const tree: Expression = quot(
-    prod(
-      sym("R", "molarGasConstant"),
-      sym("beta", "wienConstantBeta"),
-      sym("nu", "frequency"),
-    ),
+    prod(sym("R", "molarGasConstant"), sym("beta", "wienConstantBeta"), sym("nu", "frequency")),
     sym("N", "avogadroConstant"),
   );
 
@@ -100,10 +96,7 @@ test("monomial.test: group removal R\\beta\\nu/N -> h\\nu", () => {
 
 test("monomial.test: group removal R/N -> k_B", () => {
   const concordance = loadConcordanceForPaper("brownian-motion");
-  const tree: Expression = quot(
-    sym("R", "molarGasConstant"),
-    sym("N", "avogadroConstant"),
-  );
+  const tree: Expression = quot(sym("R", "molarGasConstant"), sym("N", "avogadroConstant"));
 
   const modern = renderLatex(tree, {
     perspective: "modern",
@@ -157,14 +150,8 @@ test("monomial.test: two separate printed fractions are never combined into one"
   const concordance = loadConcordanceForPaper("brownian-motion");
   // (RT/N) * (1 / (6*pi*k*P))
   const tree: Expression = prod(
-    quot(
-      prod(sym("R", "molarGasConstant"), sym("T", "temperature")),
-      sym("N", "avogadroConstant"),
-    ),
-    quot(
-      num("1"),
-      prod(num("6"), piConst, sym("k", "viscosity"), sym("P", "particleRadius")),
-    ),
+    quot(prod(sym("R", "molarGasConstant"), sym("T", "temperature")), sym("N", "avogadroConstant")),
+    quot(num("1"), prod(num("6"), piConst, sym("k", "viscosity"), sym("P", "particleRadius"))),
   );
 
   const modern = renderLatex(tree, {
@@ -178,7 +165,10 @@ test("monomial.test: two separate printed fractions are never combined into one"
   // RT/N becomes k_B T, and 1/(6*pi*eta*a) remains its own separate fraction
   assert.equal(modern, "k_B\\,T\\,\\frac{1}{6\\,\\pi\\,\\eta\\,a}");
   // Must NOT combine into \frac{k_B T}{6\pi\eta a}
-  assert.ok(!modern.startsWith("\\frac{k_B"), "Two separate fractions must not be merged into single fraction");
+  assert.ok(
+    !modern.startsWith("\\frac{k_B"),
+    "Two separate fractions must not be merged into single fraction",
+  );
   assert.ok(modern.includes("\\frac{1}{"), "The second fraction must remain 1/...");
 });
 

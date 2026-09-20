@@ -245,7 +245,9 @@ describe("PaperPage", () => {
     // GlossFace output is rendered
     expect(glossMarkup).toContain('data-face="gloss"');
     expect(glossMarkup).toContain('data-reasoning-words="off"');
-    expect(glossMarkup).toContain("Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?");
+    expect(glossMarkup).toContain(
+      "Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?",
+    );
     expect(glossMarkup).toContain('data-sentence-id="me-p1-s1"');
     expect(glossMarkup).toContain('data-source-sentence="true"');
     expect(glossMarkup).toContain('data-alignment-live-region="true"');
@@ -254,4 +256,3 @@ describe("PaperPage", () => {
     expect(glossMarkup).not.toContain("is not yet available");
   });
 });
-

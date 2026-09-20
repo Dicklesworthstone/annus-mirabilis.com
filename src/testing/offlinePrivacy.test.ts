@@ -1,9 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import {
-  type OfflineChapterInput,
-  packageOfflineChapter,
-} from "../platform/offline/chapter.ts";
 import { chapterFixture, fixtureMath } from "../platform/offline/chapter.test.mjs";
+import { type OfflineChapterInput, packageOfflineChapter } from "../platform/offline/chapter.ts";
 
 describe("offlinePrivacy: storage absence, privacy isolation, and CSP guarantees", () => {
   const fixture = chapterFixture() as unknown as OfflineChapterInput;

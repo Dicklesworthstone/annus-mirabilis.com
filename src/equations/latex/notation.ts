@@ -3,8 +3,6 @@
  * Enforces Criterion 2 and Criterion 9.
  */
 
-import type { Expression } from "../ast.ts";
-import type { ConcordanceEntry, PaperConcordance } from "../../content/schemas/concordance.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import {
   buildSourceManifestIndex,
@@ -12,6 +10,8 @@ import {
   normalizeSectionId,
   scopeMatches,
 } from "../../content/notation/resolve.ts";
+import type { ConcordanceEntry, PaperConcordance } from "../../content/schemas/concordance.ts";
+import type { Expression } from "../ast.ts";
 import { NotationScopeError, type RenderLatexOptions } from "./types.ts";
 
 export interface ResolvedSymbol {
@@ -35,8 +35,8 @@ export function resolveSymbolGlyph(
 
   // Determine fallback role and glyph from registry if available
   const registryEntry = options.registry?.[node.quantityId];
-  let role = registryEntry?.role ?? "input";
-  let fallbackGlyph = registryEntry?.glyph ?? node.termId;
+  const role = registryEntry?.role ?? "input";
+  const fallbackGlyph = registryEntry?.glyph ?? node.termId;
 
   if (paper) {
     let concordance: PaperConcordance | undefined;
@@ -82,7 +82,8 @@ export function resolveSymbolGlyph(
       // Find all matching concordance entries in scope
       const matchingEntries: ConcordanceEntry[] = [];
       for (const entry of concordance.entries) {
-        const matchesQuantity = "quantityId" in entry.binding && entry.binding.quantityId === node.quantityId;
+        const matchesQuantity =
+          "quantityId" in entry.binding && entry.binding.quantityId === node.quantityId;
         const entryLatex = normalizeGlyph(entry.glyph.latex);
         const entryUnicode = normalizeGlyph(entry.glyph.unicode);
         const matchesGlyph =
@@ -154,7 +155,11 @@ export function resolveSymbolGlyph(
         }
 
         // Check alternateForm modernOnlySymbols if passed
-        const altSymbols = (options.alternateForm as { modernOnlySymbols?: readonly { quantityId: string; glyph: string }[] } | undefined)?.modernOnlySymbols;
+        const altSymbols = (
+          options.alternateForm as
+            | { modernOnlySymbols?: readonly { quantityId: string; glyph: string }[] }
+            | undefined
+        )?.modernOnlySymbols;
         const altMatch = altSymbols?.find((m) => m.quantityId === node.quantityId);
         if (altMatch) {
           return {

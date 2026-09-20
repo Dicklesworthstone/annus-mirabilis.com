@@ -123,46 +123,157 @@ const provenance = loadProvenanceReceipts({
  * Same shape as EXPECTED_UNREACHABLE in src/testing/scriptReachability.test.ts.
  */
 const READINGS_OWNERS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
-  ["am-bm-08-measurement-bias-h1ye", "R2/R3 obligations unmet at 2026-09-19; the full-population readings audit reports errors against this owner. Delete this entry when its readings land (am-unwired-audits-uwot)."],
-  ["am-sr-06-velocity-composition-7ni4", "R2/R3 obligations unmet at 2026-09-19; same audit, same bead."],
-  ["am-sr-07-field-equations-xxes", "R2/R3 obligations unmet at 2026-09-19; same audit, same bead."],
+  [
+    "am-bm-08-measurement-bias-h1ye",
+    "R2/R3 obligations unmet at 2026-09-19; the full-population readings audit reports errors against this owner. Delete this entry when its readings land (am-unwired-audits-uwot).",
+  ],
+  [
+    "am-sr-06-velocity-composition-7ni4",
+    "R2/R3 obligations unmet at 2026-09-19; same audit, same bead.",
+  ],
+  [
+    "am-sr-07-field-equations-xxes",
+    "R2/R3 obligations unmet at 2026-09-19; same audit, same bead.",
+  ],
 ]);
 
 const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
-  ["avogadro-lab", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["bm-02", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 4 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["bm-03", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["bm-04", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["bm-06", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["bm-07", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["bm-08", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["light-thread", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["lq-01", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["lq-02", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 4 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["lq-03", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["lq-04", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["lq-05", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["lq-06", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["lq-07", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["lq-08", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["lq-09", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["me-01", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["me-03", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["shelf-fizeau", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["shelf-maxwell-galilean", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["shelf-michelson-morley", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-01", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-03", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-04", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-05", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-06", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-07", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-08", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-09", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-10", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-11", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-12", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
-  ["sr-13", "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot)."],
+  [
+    "avogadro-lab",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "bm-02",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 4 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "bm-03",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "bm-04",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "bm-06",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "bm-07",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "bm-08",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "light-thread",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "lq-01",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "lq-02",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 4 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "lq-03",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "lq-04",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "lq-05",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "lq-06",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "lq-07",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "lq-08",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "lq-09",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "me-01",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "me-03",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "shelf-fizeau",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "shelf-maxwell-galilean",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "shelf-michelson-morley",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-01",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-03",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-04",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-05",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-06",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-07",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-08",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-09",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-10",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-11",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-12",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
+  [
+    "sr-13",
+    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
+  ],
 ]);
 
 /**
@@ -183,7 +294,11 @@ function applyAuditExemptions(
     const reason = key === undefined ? undefined : exemptions.get(key);
     if (key !== undefined && reason !== undefined) {
       covered.add(key);
-      out.push({ ...finding, severity: "flag", message: `${finding.message} [recorded as not yet auditable: ${reason}]` });
+      out.push({
+        ...finding,
+        severity: "flag",
+        message: `${finding.message} [recorded as not yet auditable: ${reason}]`,
+      });
     } else {
       out.push(finding);
     }

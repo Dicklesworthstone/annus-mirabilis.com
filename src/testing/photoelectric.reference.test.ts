@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { resolveQuantityId } from "../content/quantities/resolveQuantityId.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
-import { withinTolerance } from "../units/tolerance.ts";
 import {
   cathodeLuminescenceMinimumPotential,
   collectorSweep,
@@ -30,6 +29,7 @@ import {
   thresholdFrequencyFromEv,
   visibleColor,
 } from "../physics/reference/photoelectric.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 
 describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () => {
   const set = getConstantSet("modern-si-2019");
@@ -452,14 +452,18 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(kEdge.status).toBe("value");
     if (kEdge.status === "value") {
       expect(kEdge.value).toBe(0);
-      expect(kEdge.note).toBe("zero maximum kinetic energy does not guarantee a measurable current");
+      expect(kEdge.note).toBe(
+        "zero maximum kinetic energy does not guarantee a measurable current",
+      );
     }
 
     const vsEdge = stoppingPotentialMagnitude(nu0, phiJ, set);
     expect(vsEdge.status).toBe("value");
     if (vsEdge.status === "value") {
       expect(vsEdge.value).toBe(0);
-      expect(vsEdge.note).toBe("zero maximum kinetic energy does not guarantee a measurable current");
+      expect(vsEdge.note).toBe(
+        "zero maximum kinetic energy does not guarantee a measurable current",
+      );
     }
   });
 
@@ -489,7 +493,9 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(rateRes.status).toBe("value");
     if (rateRes.status === "value") {
       expect(rateRes.value).toBe(0);
-      expect(rateRes.reason).toBe("frequency is below threshold (single-quantum model forces zero emission)");
+      expect(rateRes.reason).toBe(
+        "frequency is below threshold (single-quantum model forces zero emission)",
+      );
     }
   });
 
@@ -505,7 +511,9 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
       expect(kPartial.upperBound).toBeCloseTo(0.4814006, 6);
       expect(kPartial.bounds?.[0]).toBe(0);
       expect(kPartial.bounds?.[1]).toBeCloseTo(0.4814006, 6);
-      expect(kPartial.reason).toBe("a quantum may give only part of its energy to an electron; the printed relation is an upper bound");
+      expect(kPartial.reason).toBe(
+        "a quantum may give only part of its energy to an electron; the printed relation is an upper bound",
+      );
     }
 
     const vsPartial = stoppingPotentialMagnitude(nu, phiJ, set, { transferModel: "partial" });
@@ -514,7 +522,9 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
       expect(vsPartial.upperBound).toBeCloseTo(0.4814006, 6);
       expect(vsPartial.bounds?.[0]).toBe(0);
       expect(vsPartial.bounds?.[1]).toBeCloseTo(0.4814006, 6);
-      expect(vsPartial.reason).toBe("a quantum may give only part of its energy to an electron; the printed relation is an upper bound");
+      expect(vsPartial.reason).toBe(
+        "a quantum may give only part of its energy to an electron; the printed relation is an upper bound",
+      );
     }
 
     // Cathode luminescence minimum potential at 600 THz / 2 eV
@@ -792,9 +802,13 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
     expect(check.representationB.stoppingPotentialVoltsHistorical300).toBeCloseTo(4.308723, 4);
 
     // Suspected typographical error result-line policy
-    expect(check.suspectedTypographicalError.comparisonWitnessPrintedText).toBe("Π·10^7 = 4.3 Volt");
+    expect(check.suspectedTypographicalError.comparisonWitnessPrintedText).toBe(
+      "Π·10^7 = 4.3 Volt",
+    );
     expect(check.suspectedTypographicalError.numericalConventionVolts).toBe("Π·10^-8 V");
-    expect(check.suspectedTypographicalError.provenanceReference).toBe("docs/provenance/ap-17-132.md");
+    expect(check.suspectedTypographicalError.provenanceReference).toBe(
+      "docs/provenance/ap-17-132.md",
+    );
 
     // Modern equivalent line
     expect(check.readoutStatements.hypotheticalComparison.quantumEnergyEv).toBeCloseTo(4.259738, 5);

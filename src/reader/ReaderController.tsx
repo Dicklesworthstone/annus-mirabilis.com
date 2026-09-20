@@ -204,7 +204,8 @@ export function ReaderController(props: Props) {
           state = { ...state, anchor };
           save();
         }
-        if (openFromTrigger(document, control, control.dataset.clarificationOpen)) event.preventDefault();
+        if (openFromTrigger(document, control, control.dataset.clarificationOpen))
+          event.preventDefault();
       } else if (control.hasAttribute("data-foundation")) {
         const id = control.dataset.foundation;
         if (!id || !registry.foundations.includes(id)) return;

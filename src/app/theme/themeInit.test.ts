@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
 import {
   buildInlineScriptHashManifest,
   sha256Base64,
@@ -290,12 +290,18 @@ describe("theme script manifest registration (AC 7)", () => {
     const themeManifestEntry = manifest.scripts.find((s) => s.id === "theme");
     expect(themeManifestEntry).toBeDefined();
 
-    function verifyScriptHash(id: string, actualSource: string): { valid: boolean; reason?: string } {
+    function verifyScriptHash(
+      id: string,
+      actualSource: string,
+    ): { valid: boolean; reason?: string } {
       const entry = manifest.scripts.find((s) => s.id === id);
       if (!entry) return { valid: false, reason: "missing from manifest" };
       const actualHash = sha256Base64(actualSource);
       if (entry.sha256 !== actualHash) {
-        return { valid: false, reason: `hash mismatch: expected ${entry.sha256}, got ${actualHash}` };
+        return {
+          valid: false,
+          reason: `hash mismatch: expected ${entry.sha256}, got ${actualHash}`,
+        };
       }
       return { valid: true };
     }
@@ -387,4 +393,3 @@ describe("self-hosted typography wiring: font files, licenses, and @font-face de
     expect(auditFontFaceRule(badNoSwapRule).issue).toContain("font-display: swap");
   });
 });
-

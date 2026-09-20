@@ -1,1 +1,80 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-sr-clock-and-length","paper":"special-relativity","section":"s4","title":"Use the same measurement protocol","question":"What do a moving clock and rod actually report?","recap":"For an inertially moving clock, its own elapsed time is smaller than the coordinate interval between its ticks. A moving rod’s simultaneous coordinate length is smaller than its rest length; neither result is a photographic distortion.","review":"draft","premises":["Use an ideal clock and inertial rod, with the appropriate event pairs.","γ uses the relative inertial speed in the specified frame."],"limitations":["Reciprocal moving-clock rates compare different distant-clock procedures.","A single transformed event separation is not automatically a length or clock reading."],"citations":["ap-17-891"],"readings":{"overview":[{"kind":"paragraph","text":"For an inertially moving clock, its own elapsed time is smaller than the coordinate interval between its ticks. A moving rod’s simultaneous coordinate length is smaller than its rest length; neither result is a photographic distortion."}],"full":[{"kind":"formula","latex":"\\Delta t=\\gamma\\Delta\\tau,\\qquad L=\\frac{L_0}{\\gamma}","spoken":"Coordinate time between a moving clock’s ticks is gamma times its proper elapsed time; simultaneous moving-rod length is rest length over gamma."},{"kind":"paragraph","text":"At 0.6c, a clock experiences 0.8 seconds during a one-second coordinate interval. A rod of rest length 1 metre has simultaneous coordinate length 0.8 metre. Their shared factor follows from different event constraints."},{"kind":"paragraph","text":"For the clock, use ticks at the same place in its rest frame. For the rod, set the endpoint measurement times equal in the measuring frame. SR-03 and SR-05 let the reader inspect those constraints separately."},{"kind":"formula","latex":"1-\\frac{1}{\\gamma}\\approx\\frac{1}{2}\\frac{v^2}{c^2}","spoken":"At small speed, the clock’s fractional loss per coordinate second approaches one half v squared over c squared."},{"kind":"foundation","id":"frames-events","returnCaption":"Return to what do a moving clock and rod actually report."}],"steps":[{"kind":"steps","items":["Specify which clock supplies each time reading.","For a clock’s own ticks, use its worldline and the frame where it is locally at rest.","For a moving length, impose simultaneity in the measuring frame.","At 0.6c compute γ = 1.25 and its inverse 0.8.","Keep the exact loss 0.2 distinct from the second-order approximation 0.18 at that speed."]}],"margin":[{"kind":"paragraph","text":"The light clock is a later teaching construction. The printed second-order clock-loss approximation is not an exact formula at arbitrary speed."}]},"prerequisites":[{"id":"arg-sr-lorentz-map","edge":"premise"}],"help":{"why":"frames-events","missingStep":"frames-events","example":"frames-events"},"experiments":["sr-03","sr-05"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-sr-clock-and-length",
+  "paper": "special-relativity",
+  "section": "s4",
+  "title": "Use the same measurement protocol",
+  "question": "What do a moving clock and rod actually report?",
+  "recap": "For an inertially moving clock, its own elapsed time is smaller than the coordinate interval between its ticks. A moving rod’s simultaneous coordinate length is smaller than its rest length; neither result is a photographic distortion.",
+  "review": "draft",
+  "premises": [
+    "Use an ideal clock and inertial rod, with the appropriate event pairs.",
+    "γ uses the relative inertial speed in the specified frame."
+  ],
+  "limitations": [
+    "Reciprocal moving-clock rates compare different distant-clock procedures.",
+    "A single transformed event separation is not automatically a length or clock reading."
+  ],
+  "citations": ["ap-17-891"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "For an inertially moving clock, its own elapsed time is smaller than the coordinate interval between its ticks. A moving rod’s simultaneous coordinate length is smaller than its rest length; neither result is a photographic distortion."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "\\Delta t=\\gamma\\Delta\\tau,\\qquad L=\\frac{L_0}{\\gamma}",
+        "spoken": "Coordinate time between a moving clock’s ticks is gamma times its proper elapsed time; simultaneous moving-rod length is rest length over gamma."
+      },
+      {
+        "kind": "paragraph",
+        "text": "At 0.6c, a clock experiences 0.8 seconds during a one-second coordinate interval. A rod of rest length 1 metre has simultaneous coordinate length 0.8 metre. Their shared factor follows from different event constraints."
+      },
+      {
+        "kind": "paragraph",
+        "text": "For the clock, use ticks at the same place in its rest frame. For the rod, set the endpoint measurement times equal in the measuring frame. SR-03 and SR-05 let the reader inspect those constraints separately."
+      },
+      {
+        "kind": "formula",
+        "latex": "1-\\frac{1}{\\gamma}\\approx\\frac{1}{2}\\frac{v^2}{c^2}",
+        "spoken": "At small speed, the clock’s fractional loss per coordinate second approaches one half v squared over c squared."
+      },
+      {
+        "kind": "foundation",
+        "id": "frames-events",
+        "returnCaption": "Return to what do a moving clock and rod actually report."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Specify which clock supplies each time reading.",
+          "For a clock’s own ticks, use its worldline and the frame where it is locally at rest.",
+          "For a moving length, impose simultaneity in the measuring frame.",
+          "At 0.6c compute γ = 1.25 and its inverse 0.8.",
+          "Keep the exact loss 0.2 distinct from the second-order approximation 0.18 at that speed."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The light clock is a later teaching construction. The printed second-order clock-loss approximation is not an exact formula at arbitrary speed."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-sr-lorentz-map", "edge": "premise" }],
+  "help": { "why": "frames-events", "missingStep": "frames-events", "example": "frames-events" },
+  "experiments": ["sr-03", "sr-05"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

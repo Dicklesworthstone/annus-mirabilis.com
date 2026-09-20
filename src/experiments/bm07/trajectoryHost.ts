@@ -1,13 +1,13 @@
 import { getConstantSet } from "../../physics/reference/constants.ts";
+import { disjointPairsKnownNoiseInterval } from "../../physics/reference/inference/observation.ts";
 import {
   estimateIncrements,
   estimatorInterval,
   independentModelAdmission,
   invertToMolecularNumber,
 } from "../../physics/reference/inference.ts";
-import { disjointPairsKnownNoiseInterval } from "../../physics/reference/inference/observation.ts";
-import { analyzeCameraTrajectory } from "./trajectoryCamera.ts";
 import { analyzeTrajectory, type TrajectoryAssumptions } from "./trajectoryAnalysis.ts";
+import { analyzeCameraTrajectory } from "./trajectoryCamera.ts";
 import type { ImportedTrajectory } from "./trajectoryCsv.ts";
 
 const reference = {

@@ -33,8 +33,20 @@ export function JourneyInPreparation({
           The discovery journey for this paper has not yet been published. The critical reading
           edition and companion materials remain available.
         </p>
-        {paperId === "light-quanta" && <p><a className="button" href="/papers/light-quanta/#entry-light-quanta">Start with a counting example, no algebra required →</a></p>}
-        {paperId === "special-relativity" && <p><a className="button" href="/papers/special-relativity/#entry-special-relativity">Start with one flash and two clocks, no algebra required →</a></p>}
+        {paperId === "light-quanta" && (
+          <p>
+            <a className="button" href="/papers/light-quanta/#entry-light-quanta">
+              Start with a counting example, no algebra required →
+            </a>
+          </p>
+        )}
+        {paperId === "special-relativity" && (
+          <p>
+            <a className="button" href="/papers/special-relativity/#entry-special-relativity">
+              Start with one flash and two clocks, no algebra required →
+            </a>
+          </p>
+        )}
         {paperId === "mass-energy" && (
           <section aria-labelledby="mass-energy-investigation-link">
             <h3 id="mass-energy-investigation-link">Try the two-ledger argument workbench</h3>

@@ -1,1 +1,76 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-me-mass-change","paper":"mass-energy","section":"s0","title":"A decrease, a signed change, and a conversion","question":"What has the argument identified, and which way does the change point?","recap":"The positive mass lost is L/c²; the signed body-mass change is −L/c².","review":"draft","premises":["Positive emitted energy L.","The low-speed coefficient identification from the preceding step."],"limitations":["This calculation determines a change, not an absolute internal energy.","Printed and modern constants must not be mixed."],"citations":["ap-18-639"],"readings":{"overview":[{"kind":"paragraph","text":"The emitting body loses inertia. A positive amount lost and a negative signed change describe the same event. The wider claim about energy content goes beyond this particular symmetric-emission calculation."}],"full":[{"kind":"formula","latex":"m_0-m_1=\\frac{L}{c^2},\\qquad\\Delta m=m_1-m_0=-\\frac{L}{c^2}","spoken":"The mass before minus the mass after is positive L over c squared; the signed final-minus-initial change is negative L over c squared."},{"kind":"paragraph","text":"The conclusion here is a difference. It does not retroactively fill the unknown energy boxes with mc². The paper goes on to infer a broader relation between energy content and inertia; that generalization should remain distinguishable from the calculation that led to it."},{"kind":"paragraph","text":"Its numerical conversion uses a rounded light-speed-squared factor of 9 × 10²⁰ in centimetre-second units, so energy in erg gives mass in grams. ME-02 keeps that historical constant set separate from the modern SI value. A unit conversion changes the description of the result, not the physical event."}],"steps":[{"kind":"steps","items":["Use the kinetic-energy coefficient to identify the positive mass decrease.","For final minus initial mass, change the sign.","Keep L positive for energy emitted out of the body.","For the printed conversion, divide energy in erg by the printed factor 9 × 10²⁰ to obtain grams.","For modern SI, divide joules by c squared in metres-squared per second-squared to obtain kilograms.","Never combine an erg input with an SI denominator without converting the units.","Do not label a finite-speed proxy as the exact mass decrease."]}],"margin":[{"kind":"paragraph","text":"In modern theory invariant mass depends on the chosen system boundary; total energy also depends on the frame. The modern rest-energy relation is not used as a premise of this explanatory route."}]},"prerequisites":[{"id":"arg-me-small-speed","edge":"premise"}],"help":{"why":"bridge-scientific-notation-units","missingStep":"bridge-scientific-notation-units","example":"bridge-scientific-notation-units"},"experiments":["me-02","me-03"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-me-mass-change",
+  "paper": "mass-energy",
+  "section": "s0",
+  "title": "A decrease, a signed change, and a conversion",
+  "question": "What has the argument identified, and which way does the change point?",
+  "recap": "The positive mass lost is L/c²; the signed body-mass change is −L/c².",
+  "review": "draft",
+  "premises": [
+    "Positive emitted energy L.",
+    "The low-speed coefficient identification from the preceding step."
+  ],
+  "limitations": [
+    "This calculation determines a change, not an absolute internal energy.",
+    "Printed and modern constants must not be mixed."
+  ],
+  "citations": ["ap-18-639"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "The emitting body loses inertia. A positive amount lost and a negative signed change describe the same event. The wider claim about energy content goes beyond this particular symmetric-emission calculation."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "m_0-m_1=\\frac{L}{c^2},\\qquad\\Delta m=m_1-m_0=-\\frac{L}{c^2}",
+        "spoken": "The mass before minus the mass after is positive L over c squared; the signed final-minus-initial change is negative L over c squared."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The conclusion here is a difference. It does not retroactively fill the unknown energy boxes with mc². The paper goes on to infer a broader relation between energy content and inertia; that generalization should remain distinguishable from the calculation that led to it."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Its numerical conversion uses a rounded light-speed-squared factor of 9 × 10²⁰ in centimetre-second units, so energy in erg gives mass in grams. ME-02 keeps that historical constant set separate from the modern SI value. A unit conversion changes the description of the result, not the physical event."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Use the kinetic-energy coefficient to identify the positive mass decrease.",
+          "For final minus initial mass, change the sign.",
+          "Keep L positive for energy emitted out of the body.",
+          "For the printed conversion, divide energy in erg by the printed factor 9 × 10²⁰ to obtain grams.",
+          "For modern SI, divide joules by c squared in metres-squared per second-squared to obtain kilograms.",
+          "Never combine an erg input with an SI denominator without converting the units.",
+          "Do not label a finite-speed proxy as the exact mass decrease."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "In modern theory invariant mass depends on the chosen system boundary; total energy also depends on the frame. The modern rest-energy relation is not used as a premise of this explanatory route."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-me-small-speed", "edge": "premise" }],
+  "help": {
+    "why": "bridge-scientific-notation-units",
+    "missingStep": "bridge-scientific-notation-units",
+    "example": "bridge-scientific-notation-units"
+  },
+  "experiments": ["me-02", "me-03"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

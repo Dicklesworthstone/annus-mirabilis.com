@@ -11,8 +11,8 @@ import {
   Histogram,
   LinePlot,
   type RepresentationScale,
-  type ScaleFactRow,
   ScaleBar,
+  type ScaleFactRow,
   ScatterPlot,
   TimeLegend,
 } from "../../visuals/kit/index.ts";

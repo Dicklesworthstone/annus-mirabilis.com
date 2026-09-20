@@ -127,13 +127,7 @@ describe("Philox4x32-10 TypeScript Reference Port (am-fs-philox-ts-port-7kp)", (
 
     test("boundary indices (4294967295, 4294967296, 18446744073709551614) and boundary seeds (0, 1, ..., 18446744073709551615) match bitwise", () => {
       const boundaryIndices = new Set(["4294967295", "4294967296", "18446744073709551614"]);
-      const boundarySeeds = new Set([
-        "0",
-        "1",
-        "4294967295",
-        "4294967296",
-        "18446744073709551615",
-      ]);
+      const boundarySeeds = new Set(["0", "1", "4294967295", "4294967296", "18446744073709551615"]);
 
       let matchedBoundaryCases = 0;
       for (const pos of vectors.positions) {
@@ -448,9 +442,7 @@ describe("Philox4x32-10 TypeScript Reference Port (am-fs-philox-ts-port-7kp)", (
       expect(STREAM_SEMANTICS_VERSION).toBe(1);
       expect(STREAM_CHECKPOINT_VERSION).toBe(1);
       expect(STREAM_CHECKPOINT_MAGIC).toBe("FSRCKPT\0");
-      expect(STREAM_CHECKPOINT_IDENTITY_DOMAIN).toBe(
-        "org.frankensim.fs-rand.stream-checkpoint.v1",
-      );
+      expect(STREAM_CHECKPOINT_IDENTITY_DOMAIN).toBe("org.frankensim.fs-rand.stream-checkpoint.v1");
       expect(STREAM_CHECKPOINT_CANONICAL_LEN).toBe(83);
       expect(HOST_NORMAL_VERSION).toBe("philox-box-muller-host-v1");
       expect(U64_MAX).toBe(18446744073709551615n);

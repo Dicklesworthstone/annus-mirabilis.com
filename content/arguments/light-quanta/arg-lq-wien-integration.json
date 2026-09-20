@@ -1,1 +1,87 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-lq-wien-integration","paper":"light-quanta","section":"s4","title":"The constant cannot simply be dropped","question":"Why does the zero-radiation boundary condition matter?","recap":"Inverting Wien’s law and integrating gives the entropy density plus a frequency-dependent constant. Requiring zero entropy density at zero radiation fixes that constant; it does not cancel automatically.","review":"draft","premises":["The narrow spectral region obeys the Wien approximation.","At zero radiation density, radiation entropy density vanishes."],"limitations":["A positive inferred temperature alone is not a guarantee that the Wien approximation is accurate.","The spectral constants are not initially interpreted as particle energies."],"citations":["ap-17-132"],"readings":{"overview":[{"kind":"paragraph","text":"Inverting Wien’s law and integrating gives the entropy density plus a frequency-dependent constant. Requiring zero entropy density at zero radiation fixes that constant; it does not cancel automatically."}],"full":[{"kind":"formula","latex":"\\rho_\\nu=A\\nu^3\\exp(-B\\nu/T)","spoken":"Wien spectral energy density is A times frequency cubed times the exponential of minus B frequency over temperature."},{"kind":"paragraph","text":"Divide by Aν³ and take the natural logarithm. Its argument is dimensionless. Solving for inverse temperature turns the entropy derivative from §3 into an explicit function of density."},{"kind":"formula","latex":"\\frac{1}{T}=-\\frac{1}{B\\nu}\\ln\\frac{\\rho_\\nu}{A\\nu^3}","spoken":"Inverse temperature is minus one over B frequency times the natural logarithm of density over A frequency cubed."},{"kind":"formula","latex":"s_\\nu=-\\frac{\\rho_\\nu}{B\\nu}\\left[\\ln\\frac{\\rho_\\nu}{A\\nu^3}-1\\right]+C(\\nu)","spoken":"The integrated entropy density is minus density over B frequency times the bracketed logarithm minus one, plus a frequency-dependent constant."},{"kind":"paragraph","text":"As positive density approaches zero, ρ ln ρ tends to zero. The remaining limit is C(ν). The boundary condition sν → 0 therefore sets C(ν) = 0. Without this condition, the volume comparison in the next step has an extra term."},{"kind":"foundation","id":"logarithms","returnCaption":"Return to the logarithm, its dimensionless argument, and the zero-density limit."}],"steps":[{"kind":"steps","items":["Fix frequency and the positive spectral constants A and B.","Divide Wien’s law by Aν³, then take the natural logarithm.","Solve for 1/T and insert it into the entropy derivative.","Use the antiderivative of ln(ρ/a): ρ ln(ρ/a) − ρ.","Retain C(ν), since integration with respect to density can leave a frequency-dependent constant.","Evaluate the zero-density limit: the density-dependent terms vanish.","Apply the stated zero-radiation condition to fix C(ν), rather than asserting that an arbitrary constant cancels."]}],"margin":[{"kind":"paragraph","text":"This explanation uses natural logarithms and editorial A, B notation. The source prints lg. The interpretation of B as h/k_B belongs to the later comparison of coefficients."}]},"prerequisites":[{"id":"arg-lq-entropy-temperature","edge":"premise"}],"help":{"why":"logarithms","missingStep":"logarithms","example":"logarithms"},"experiments":["lq-04"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"approximation","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-wien-integration",
+  "paper": "light-quanta",
+  "section": "s4",
+  "title": "The constant cannot simply be dropped",
+  "question": "Why does the zero-radiation boundary condition matter?",
+  "recap": "Inverting Wien’s law and integrating gives the entropy density plus a frequency-dependent constant. Requiring zero entropy density at zero radiation fixes that constant; it does not cancel automatically.",
+  "review": "draft",
+  "premises": [
+    "The narrow spectral region obeys the Wien approximation.",
+    "At zero radiation density, radiation entropy density vanishes."
+  ],
+  "limitations": [
+    "A positive inferred temperature alone is not a guarantee that the Wien approximation is accurate.",
+    "The spectral constants are not initially interpreted as particle energies."
+  ],
+  "citations": ["ap-17-132"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Inverting Wien’s law and integrating gives the entropy density plus a frequency-dependent constant. Requiring zero entropy density at zero radiation fixes that constant; it does not cancel automatically."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "\\rho_\\nu=A\\nu^3\\exp(-B\\nu/T)",
+        "spoken": "Wien spectral energy density is A times frequency cubed times the exponential of minus B frequency over temperature."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Divide by Aν³ and take the natural logarithm. Its argument is dimensionless. Solving for inverse temperature turns the entropy derivative from §3 into an explicit function of density."
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{1}{T}=-\\frac{1}{B\\nu}\\ln\\frac{\\rho_\\nu}{A\\nu^3}",
+        "spoken": "Inverse temperature is minus one over B frequency times the natural logarithm of density over A frequency cubed."
+      },
+      {
+        "kind": "formula",
+        "latex": "s_\\nu=-\\frac{\\rho_\\nu}{B\\nu}\\left[\\ln\\frac{\\rho_\\nu}{A\\nu^3}-1\\right]+C(\\nu)",
+        "spoken": "The integrated entropy density is minus density over B frequency times the bracketed logarithm minus one, plus a frequency-dependent constant."
+      },
+      {
+        "kind": "paragraph",
+        "text": "As positive density approaches zero, ρ ln ρ tends to zero. The remaining limit is C(ν). The boundary condition sν → 0 therefore sets C(ν) = 0. Without this condition, the volume comparison in the next step has an extra term."
+      },
+      {
+        "kind": "foundation",
+        "id": "logarithms",
+        "returnCaption": "Return to the logarithm, its dimensionless argument, and the zero-density limit."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Fix frequency and the positive spectral constants A and B.",
+          "Divide Wien’s law by Aν³, then take the natural logarithm.",
+          "Solve for 1/T and insert it into the entropy derivative.",
+          "Use the antiderivative of ln(ρ/a): ρ ln(ρ/a) − ρ.",
+          "Retain C(ν), since integration with respect to density can leave a frequency-dependent constant.",
+          "Evaluate the zero-density limit: the density-dependent terms vanish.",
+          "Apply the stated zero-radiation condition to fix C(ν), rather than asserting that an arbitrary constant cancels."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "This explanation uses natural logarithms and editorial A, B notation. The source prints lg. The interpretation of B as h/k_B belongs to the later comparison of coefficients."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-lq-entropy-temperature", "edge": "premise" }],
+  "help": { "why": "logarithms", "missingStep": "logarithms", "example": "logarithms" },
+  "experiments": ["lq-04"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "approximation",
+    "executionStatus": "static-illustration"
+  }
+}

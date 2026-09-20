@@ -601,10 +601,7 @@ describe("OCR Orchestrator: Unit and Integration Tests", () => {
       // Diplomatic German orthography preservation
       assert.ok(content.includes("daß"), "Must mention preserving archaic spelling like 'daß'");
       assert.ok(content.includes("giebt"), "Must mention preserving archaic spelling like 'giebt'");
-      assert.ok(
-        content.includes("Do NOT modernize spelling"),
-        "Must forbid modernizing spelling",
-      );
+      assert.ok(content.includes("Do NOT modernize spelling"), "Must forbid modernizing spelling");
       assert.ok(
         content.includes(
           "Do NOT translate, summarize, normalize, paraphrase, or complete missing words",
@@ -784,7 +781,10 @@ Use [[MATH-REGION page=1]] and [[ILLEGIBLE]] when damaged.
       valid: boolean;
       missingClauses: string[];
     } {
-      const normalized = content.replace(/\s*\*\s*/g, " ").replace(/\s+/g, " ").toLowerCase();
+      const normalized = content
+        .replace(/\s*\*\s*/g, " ")
+        .replace(/\s+/g, " ")
+        .toLowerCase();
       const requiredClauses = [
         "hard resource policy",
         "never run ocr on this machine",

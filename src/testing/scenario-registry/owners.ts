@@ -82,16 +82,6 @@ import {
   waveEquationResidual,
 } from "../../physics/reference/shelfOptics.ts";
 import {
-  conductorFrameEmf,
-  fresnelDraggedIncrement,
-  halfScale,
-  magnetFrameEmf,
-  relativisticDraggedIncrement,
-  rootTwoScale,
-  timesTwoClosed,
-  timesTwoFromAdd,
-} from "../scenario-fixtures/evaluator.ts";
-import {
   aberration,
   aberrationAngleFromSpeedRatio,
   dopplerFactor,
@@ -103,6 +93,16 @@ import {
   movingMirror,
   secondOrderShift,
 } from "../../physics/reference/waves.ts";
+import {
+  conductorFrameEmf,
+  fresnelDraggedIncrement,
+  halfScale,
+  magnetFrameEmf,
+  relativisticDraggedIncrement,
+  rootTwoScale,
+  timesTwoClosed,
+  timesTwoFromAdd,
+} from "../scenario-fixtures/evaluator.ts";
 import { timesTwoWrapper } from "../scenario-fixtures/evaluatorWrapper.ts";
 
 export type OwnerContext = Readonly<{
@@ -1094,7 +1094,9 @@ const OWNERS: OwnerRecord[] = [
       const emittedEnergyJoules =
         ctx.inputs.emittedEnergyJoules ??
         ctx.inputs.emittedEnergy ??
-        (typeof ctx.inputs.emittedEnergyErg === "number" ? ctx.inputs.emittedEnergyErg / 1e7 : undefined);
+        (typeof ctx.inputs.emittedEnergyErg === "number"
+          ? ctx.inputs.emittedEnergyErg / 1e7
+          : undefined);
       if (emittedEnergyJoules === undefined) {
         throw new Error('Owner "mass-energy" requires emittedEnergyJoules or emittedEnergy input.');
       }
@@ -1118,9 +1120,13 @@ const OWNERS: OwnerRecord[] = [
       const emittedEnergyJoules =
         ctx.inputs.emittedEnergyJoules ??
         ctx.inputs.emittedEnergy ??
-        (typeof ctx.inputs.emittedEnergyErg === "number" ? ctx.inputs.emittedEnergyErg / 1e7 : undefined);
+        (typeof ctx.inputs.emittedEnergyErg === "number"
+          ? ctx.inputs.emittedEnergyErg / 1e7
+          : undefined);
       if (emittedEnergyJoules === undefined) {
-        throw new Error('Owner "massEnergy.printedFactor" requires emittedEnergyJoules or emittedEnergy input.');
+        throw new Error(
+          'Owner "massEnergy.printedFactor" requires emittedEnergyJoules or emittedEnergy input.',
+        );
       }
       const res = printedMassConversion({ emittedEnergyJoules });
       if (res.status !== "value") {

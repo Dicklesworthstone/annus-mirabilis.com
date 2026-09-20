@@ -7,6 +7,7 @@
  * am-ref-constants-xik, am-rt-u64-identities-7ce.
  */
 
+import { validateToleranceSpec } from "../../units/tolerance.ts";
 import {
   type InstrumentId,
   parseInstrumentId,
@@ -17,7 +18,6 @@ import {
 import type { SourceAssetRights } from "../provenance/receiptToSourceAsset.ts";
 import { type PaperDate, validatePaperDate } from "./dates.ts";
 import type { Citation } from "./source.ts";
-import { validateToleranceSpec } from "../../units/tolerance.ts";
 import { validateU64String } from "./u64String.ts";
 
 export class ExperimentValidationError extends Error {

@@ -15,8 +15,8 @@ import {
   KitchenInputs,
   KitchenObservationTable,
 } from "./KitchenControls.tsx";
-import { VideoTracker } from "./VideoTracker.tsx";
 import { KitchenResults } from "./KitchenResults.tsx";
+import { VideoTracker } from "./VideoTracker.tsx";
 
 export type KitchenPractice = Readonly<{ csv: string; sourceDigest: string }>;
 export function KitchenLab({
@@ -136,7 +136,7 @@ export function KitchenLab({
   function clear() {
     stop();
     session.clear();
-    setCaptureEpoch(n => n + 1);
+    setCaptureEpoch((n) => n + 1);
     setFile(null);
     if (fileInput.current) fileInput.current.value = "";
     setPaste("");
@@ -171,9 +171,9 @@ export function KitchenLab({
         sent to a server or placed in a share link.
       </p>
       <p className="fine">
-        CSV limit: 2 MiB and 20,000 rows. Capture coordinates from a local video below, or import
-        an existing observation file. Nothing is automatically saved: export observations before closing or reloading
-        the page.
+        CSV limit: 2 MiB and 20,000 rows. Capture coordinates from a local video below, or import an
+        existing observation file. Nothing is automatically saved: export observations before
+        closing or reloading the page.
       </p>
       <noscript>
         <p className="notice">
@@ -278,8 +278,9 @@ export function KitchenLab({
           {confirmClear && (
             <div className="notice">
               <p>
-                Clear observations and drafts, including unsaved video annotations, from this laboratory? This stops its worker and releases its video.
-                Downloaded files and the other laboratory are not deleted.
+                Clear observations and drafts, including unsaved video annotations, from this
+                laboratory? This stops its worker and releases its video. Downloaded files and the
+                other laboratory are not deleted.
               </p>
               <button type="button" onClick={clear}>
                 Confirm clear this laboratory
@@ -337,7 +338,9 @@ export function KitchenComparison({ practice }: { practice: KitchenPractice }) {
   const [second, setSecond] = useState(false);
   return (
     <>
-      <div id="local-video"><KitchenLab practice={practice} /></div>
+      <div id="local-video">
+        <KitchenLab practice={practice} />
+      </div>
       <div className="comparison-toggle">
         <button type="button" className="secondary" onClick={() => setSecond(!second)}>
           {second

@@ -8,10 +8,7 @@ import type { TrajectoryAnalysis, TrajectoryAssumptions } from "./trajectoryAnal
 import type { ImportedTrajectory } from "./trajectoryCsv.ts";
 import { selectTrajectoryFramePairs, type TrajectoryPairReport } from "./trajectoryPairs.ts";
 
-export type CameraTrajectoryReference = Pick<
-  typeof Observation,
-  "disjointPairsKnownNoiseInterval"
->;
+export type CameraTrajectoryReference = Pick<typeof Observation, "disjointPairsKnownNoiseInterval">;
 type CameraExecutionOutcome = Extract<
   ReturnType<CameraTrajectoryReference["disjointPairsKnownNoiseInterval"]>,
   { kind: "outcome" }
@@ -105,7 +102,9 @@ export function analyzeCameraTrajectory(
     !Number.isFinite(exposure) ||
     exposure < 0
   )
-    return unavailable("The camera noise or exposure cannot be represented at this numerical scale.");
+    return unavailable(
+      "The camera noise or exposure cannot be represented at this numerical scale.",
+    );
   const selected = selectTrajectoryFramePairs(trajectory);
   if (selected.kind === "unavailable") return unavailable(selected.message);
   // The selector has admitted dt; the guard also preserves static narrowing.

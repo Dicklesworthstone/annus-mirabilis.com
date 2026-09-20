@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { stokesEinsteinD } from "../../physics/reference/diffusion/distributions.ts";
 import { getLogger } from "../../testing/log/logger.ts";
 import { withinTolerance } from "../../units/tolerance.ts";
-import { checkTraceRowCount, checkTraceScenario } from "./traceValidation.ts";
 import {
   BM01_PRINTED_INPUTS,
   computeBm01StokesEinsteinTrace,
@@ -10,6 +9,7 @@ import {
   printedBrownianConstantSet,
   renderTraceMarkup,
 } from "./trace.ts";
+import { checkTraceRowCount, checkTraceScenario } from "./traceValidation.ts";
 import { KERNEL_BEAD_ID, MAX_TRACE_ROWS } from "./types.ts";
 
 const logger = getLogger("show-the-code");

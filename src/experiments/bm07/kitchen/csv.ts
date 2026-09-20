@@ -1,11 +1,11 @@
 import {
   KITCHEN_COLUMNS,
   KITCHEN_FRAME_COLUMNS,
-  type KitchenFrameStamp,
   KITCHEN_LIMITS,
   KITCHEN_METADATA_KEYS,
   KITCHEN_SCHEMA_VERSION,
   type KitchenDocument,
+  type KitchenFrameStamp,
   KitchenInputError,
   type KitchenPoint,
   kitchenNumber,
@@ -179,7 +179,8 @@ export function parseKitchenCsv(text: string): KitchenDocument {
     );
   const parsed = rows(text.slice(offset), firstLine);
   const header = parsed.shift();
-  const withFrames = header?.cells.join(",") === [...KITCHEN_COLUMNS, ...KITCHEN_FRAME_COLUMNS].join(",");
+  const withFrames =
+    header?.cells.join(",") === [...KITCHEN_COLUMNS, ...KITCHEN_FRAME_COLUMNS].join(",");
   if (!header || (!withFrames && header.cells.join(",") !== KITCHEN_COLUMNS.join(",")))
     throw new KitchenInputError(
       header?.line ?? firstLine,
@@ -204,7 +205,11 @@ export function parseKitchenCsv(text: string): KitchenDocument {
   };
   for (const { cells: c, line } of parsed) {
     if (c.length !== KITCHEN_COLUMNS.length + (withFrames ? KITCHEN_FRAME_COLUMNS.length : 0))
-      throw new KitchenInputError(line, "columns", "each row must have exactly the columns declared in its header.");
+      throw new KitchenInputError(
+        line,
+        "columns",
+        "each row must have exactly the columns declared in its header.",
+      );
     const [
       c0 = "",
       c1 = "",
@@ -301,24 +306,53 @@ export function parseKitchenCsv(text: string): KitchenDocument {
         "stationary and calibration rows must be measured, independent clicks.",
       );
     let capture: KitchenFrameStamp | undefined;
-    if (withFrames && c.slice(12).some(value => value !== "")) {
-      if (c.slice(12).length !== 4) throw new KitchenInputError(line, "capture", "incomplete frame stamp.");
+    if (withFrames && c.slice(12).some((value) => value !== "")) {
+      if (c.slice(12).length !== 4)
+        throw new KitchenInputError(line, "capture", "incomplete frame stamp.");
       const requestedTime = kitchenNumber(c[12] ?? "", "requested_time_s", line);
-      const timingSource = choice(c[13] ?? "", ["frame-callback", "frame-callback-adjusted", "declared-rate"] as const, "timing_source", line);
-      const presentedFrames = c[14] === "" ? null : kitchenNumber(c[14] ?? "", "presented_frames", line);
+      const timingSource = choice(
+        c[13] ?? "",
+        ["frame-callback", "frame-callback-adjusted", "declared-rate"] as const,
+        "timing_source",
+        line,
+      );
+      const presentedFrames =
+        c[14] === "" ? null : kitchenNumber(c[14] ?? "", "presented_frames", line);
       const frameId = kitchenNumber(c[15] ?? "", "frame_id", line);
-      if (requestedTime < 0 || requestedTime > KITCHEN_LIMITS.duration ||
-          !Number.isSafeInteger(frameId) || frameId < 1 || frameId > 2000 ||
-          (presentedFrames !== null && (!Number.isSafeInteger(presentedFrames) || presentedFrames < 1)) ||
-          (timingSource === "declared-rate") !== (presentedFrames === null))
-        throw new KitchenInputError(line, "capture", "invalid frame identity, time or timing provenance.");
-      const adjusted = Math.abs(time - requestedTime) > 0.5 / Number(admittedMetadata.frame_rate_hz);
-      if ((timingSource === "frame-callback" && adjusted) || (timingSource === "frame-callback-adjusted" && !adjusted) ||
-          (timingSource === "declared-rate" && admittedMetadata.timing_source !== "declared-rate"))
-        throw new KitchenInputError(line, "capture", "timing provenance disagrees with the actual/requested times or the file declaration.");
+      if (
+        requestedTime < 0 ||
+        requestedTime > KITCHEN_LIMITS.duration ||
+        !Number.isSafeInteger(frameId) ||
+        frameId < 1 ||
+        frameId > 2000 ||
+        (presentedFrames !== null &&
+          (!Number.isSafeInteger(presentedFrames) || presentedFrames < 1)) ||
+        (timingSource === "declared-rate") !== (presentedFrames === null)
+      )
+        throw new KitchenInputError(
+          line,
+          "capture",
+          "invalid frame identity, time or timing provenance.",
+        );
+      const adjusted =
+        Math.abs(time - requestedTime) > 0.5 / Number(admittedMetadata.frame_rate_hz);
+      if (
+        (timingSource === "frame-callback" && adjusted) ||
+        (timingSource === "frame-callback-adjusted" && !adjusted) ||
+        (timingSource === "declared-rate" && admittedMetadata.timing_source !== "declared-rate")
+      )
+        throw new KitchenInputError(
+          line,
+          "capture",
+          "timing provenance disagrees with the actual/requested times or the file declaration.",
+        );
       const signature = JSON.stringify([time, requestedTime, timingSource, presentedFrames]);
       if (frames.has(frameId) && frames.get(frameId) !== signature)
-        throw new KitchenInputError(line, "frame_id", "one acquired frame cannot have conflicting times or provenance.");
+        throw new KitchenInputError(
+          line,
+          "frame_id",
+          "one acquired frame cannot have conflicting times or provenance.",
+        );
       frames.set(frameId, signature);
       capture = Object.freeze({ requestedTime, timingSource, presentedFrames, frameId });
     }
@@ -351,7 +385,7 @@ export function exportKitchenCsv(document: KitchenDocument): string {
   const lines = KITCHEN_METADATA_KEYS.map((k) => `# ${k}=${protect(document.metadata[k])}`);
   if (lines.some((line) => /[\r\n]/.test(line)))
     throw new KitchenInputError(0, "metadata", "metadata values cannot contain newlines.");
-  const withFrames = document.points.some(point => point.capture);
+  const withFrames = document.points.some((point) => point.capture);
   lines.push([...KITCHEN_COLUMNS, ...(withFrames ? KITCHEN_FRAME_COLUMNS : [])].join(","));
   for (const p of document.points)
     lines.push(
@@ -368,8 +402,16 @@ export function exportKitchenCsv(document: KitchenDocument): string {
         protect(p.exclusionReason),
         protect(p.calibrationId),
         p.identityDecision,
-        ...(withFrames ? p.capture ? [String(p.capture.requestedTime), p.capture.timingSource,
-          p.capture.presentedFrames === null ? "" : String(p.capture.presentedFrames), String(p.capture.frameId)] : ["", "", "", ""] : []),
+        ...(withFrames
+          ? p.capture
+            ? [
+                String(p.capture.requestedTime),
+                p.capture.timingSource,
+                p.capture.presentedFrames === null ? "" : String(p.capture.presentedFrames),
+                String(p.capture.frameId),
+              ]
+            : ["", "", "", ""]
+          : []),
       ]
         .map(cell)
         .join(","),

@@ -297,8 +297,13 @@ export function segmentLedger(input: {
           const eqInner = line.replace(/^\$\$\s*/, "").replace(/\s*\$\$$/, "");
           let labelVal: string | undefined;
           // Check next line for [[EQ-LABEL ...]]
-          if (idx + 1 < lines.length && /^\[\[EQ-LABEL\s+([^\]]+)\]\]/.test(lines[idx + 1]?.trim() ?? "")) {
-            labelVal = lines[idx + 1]!.trim().match(/^\[\[EQ-LABEL\s+([^\]]+)\]\]/)?.[1]?.trim();
+          if (
+            idx + 1 < lines.length &&
+            /^\[\[EQ-LABEL\s+([^\]]+)\]\]/.test(lines[idx + 1]?.trim() ?? "")
+          ) {
+            labelVal = lines[idx + 1]!.trim()
+              .match(/^\[\[EQ-LABEL\s+([^\]]+)\]\]/)?.[1]
+              ?.trim();
             idx += 1;
           }
           equationCounter += 1;
@@ -325,8 +330,13 @@ export function segmentLedger(input: {
         inStandaloneEquation = false;
         const latexClean = (standaloneEqLatex + " " + line.replace(/\$\$$/, "")).trim();
         // Check next line for label
-        if (idx + 1 < lines.length && /^\[\[EQ-LABEL\s+([^\]]+)\]\]/.test(lines[idx + 1]?.trim() ?? "")) {
-          standaloneEqLabel = lines[idx + 1]!.trim().match(/^\[\[EQ-LABEL\s+([^\]]+)\]\]/)?.[1]?.trim();
+        if (
+          idx + 1 < lines.length &&
+          /^\[\[EQ-LABEL\s+([^\]]+)\]\]/.test(lines[idx + 1]?.trim() ?? "")
+        ) {
+          standaloneEqLabel = lines[idx + 1]!.trim()
+            .match(/^\[\[EQ-LABEL\s+([^\]]+)\]\]/)?.[1]
+            ?.trim();
           idx += 1;
         }
         equationCounter += 1;
@@ -451,19 +461,18 @@ export function germanAlignableIds(blocks: readonly ProposedBlock[]): readonly s
 }
 
 export {
-  validateSegmentation,
-  type SegmentationIssue,
-  type SegmentSpan,
-} from "./segmentSentences.ts";
-
-export {
-  reconcileManifest,
-  confirmAlias,
-  writeProposedBlocks,
-  type ManifestUnit,
-  type ReconcileInput,
   type ConfirmAliasOptions,
   type ConfirmAliasResult,
+  confirmAlias,
+  type ManifestUnit,
+  type ReconcileInput,
+  reconcileManifest,
   type WriteBlocksOptions,
   type WriteBlocksResult,
+  writeProposedBlocks,
 } from "./reconciliation.ts";
+export {
+  type SegmentationIssue,
+  type SegmentSpan,
+  validateSegmentation,
+} from "./segmentSentences.ts";

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { CoefficientComparison } from "../../../components/lab/CoefficientLab.tsx";
-import { validateMe02Parameters } from "../../../experiments/me02/parameters.ts";
-import example from "../../../generated/me02-example.json";
-import massEnergyEquations from "../../../generated/mass-energy-equations.json";
 import type { CompiledEquation } from "../../../equations/viewTypes.ts";
+import { validateMe02Parameters } from "../../../experiments/me02/parameters.ts";
+import massEnergyEquations from "../../../generated/mass-energy-equations.json";
+import example from "../../../generated/me02-example.json";
 
 export const metadata: Metadata = { title: "Inertia from the small-speed coefficient" };
 
@@ -23,16 +23,20 @@ export default function CoefficientPage() {
           at the same speed.
         </h1>
         <p className="lead">
-          Under the unchanged-offset premise, emitting energy L reduces energy of motion by L(γ − 1). What does that
-          drop tell you about the body&apos;s inertia, and why does the conclusion come from low
-          speeds rather than from a slogan assigned in advance?
+          Under the unchanged-offset premise, emitting energy L reduces energy of motion by L(γ −
+          1). What does that drop tell you about the body&apos;s inertia, and why does the
+          conclusion come from low speeds rather than from a slogan assigned in advance?
         </p>
         <p>
-          <a href="/papers/mass-energy/#arg-me-small-speed">Read the coefficient argument (explanatory preview) →</a>
+          <a href="/papers/mass-energy/#arg-me-small-speed">
+            Read the coefficient argument (explanatory preview) →
+          </a>
         </p>
       </header>
-      <CoefficientComparison example={{ ...example, parameters: checked.data }}
-        equations={massEnergyEquations.equations as readonly CompiledEquation[]} />
+      <CoefficientComparison
+        example={{ ...example, parameters: checked.data }}
+        equations={massEnergyEquations.equations as readonly CompiledEquation[]}
+      />
       <section className="reading" id="coefficient-argument">
         <p className="eyebrow">Open the coefficient argument</p>
         <h2>The exact drop, then the Newtonian coefficient</h2>
@@ -75,7 +79,9 @@ export default function CoefficientPage() {
           <a className="button" href="/papers/mass-energy/#arg-me-small-speed">
             Return to the small-speed argument →
           </a>
-          <a href="/papers/mass-energy/#entry-mass-energy">Compare two energy accounts without algebra</a>
+          <a href="/papers/mass-energy/#entry-mass-energy">
+            Compare two energy accounts without algebra
+          </a>
         </div>
       </section>
     </>

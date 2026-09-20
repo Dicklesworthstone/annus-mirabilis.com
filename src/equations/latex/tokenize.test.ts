@@ -10,7 +10,7 @@
  */
 
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import test from "node:test";
 import { LatexTokenizerError, tokenizeLatex } from "./tokenize.ts";
@@ -140,7 +140,10 @@ test("tokenize.test: import scan verifies tokenizeLatex is the only LaTeX tokeni
   const suspiciousFiles: string[] = [];
 
   for (const filePath of allSourceFiles) {
-    if (filePath.includes("src/equations/latex/tokenize.ts") || filePath.includes("tokenize.test.ts")) {
+    if (
+      filePath.includes("src/equations/latex/tokenize.ts") ||
+      filePath.includes("tokenize.test.ts")
+    ) {
       continue;
     }
     // Check if any other file declares a LaTeX tokenizer

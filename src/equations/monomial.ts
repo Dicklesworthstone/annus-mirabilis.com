@@ -11,14 +11,7 @@
  */
 
 import { ContentError } from "../content/compiler/json.ts";
-import {
-  type ExactScale,
-  type Expression,
-  children,
-  findNode,
-  nodeId,
-  walk,
-} from "./ast.ts";
+import { children, type ExactScale, type Expression, findNode, nodeId, walk } from "./ast.ts";
 
 export interface MonomialFactor {
   readonly termId: string;
@@ -267,20 +260,14 @@ export function validateCompositeGroup(
         const candidate = findNode(root, group.rootNodeId);
         if (candidate) {
           const leaves = symbolTermIdsUnder(candidate);
-          if (
-            leaves.size === group.termIds.length &&
-            group.termIds.every((id) => leaves.has(id))
-          ) {
+          if (leaves.size === group.termIds.length && group.termIds.every((id) => leaves.has(id))) {
             matchingSubtree = candidate;
           }
         }
       } else {
         for (const candidate of walk(root)) {
           const leaves = symbolTermIdsUnder(candidate);
-          if (
-            leaves.size === group.termIds.length &&
-            group.termIds.every((id) => leaves.has(id))
-          ) {
+          if (leaves.size === group.termIds.length && group.termIds.every((id) => leaves.has(id))) {
             matchingSubtree = candidate;
             break;
           }

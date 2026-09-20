@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  fromTracerDraft,
-  toTracerDraft,
-} from "../experiments/bm01/controls.ts";
+import { fromTracerDraft, toTracerDraft } from "../experiments/bm01/controls.ts";
 import { BM01_DEFAULTS } from "../experiments/bm01/definition.ts";
 import { decodeBm01Settings, encodeBm01Settings } from "../experiments/bm01/permalink.ts";
 import {
@@ -10,13 +7,10 @@ import {
   bm01Tile,
   streamAllocationRegistry,
 } from "../experiments/streams/allocation.ts";
-import {
-  recordTracers,
-  type TracerSetup,
-} from "../physics/reference/diffusion/tracers.ts";
-import { createBm01Recording, measureBm01 } from "../workers/operations/bm01.ts";
+import { recordTracers, type TracerSetup } from "../physics/reference/diffusion/tracers.ts";
 import { createPhiloxStream } from "../physics/reference/philox.ts";
 import { compareBitwise } from "../units/tolerance.ts";
+import { createBm01Recording, measureBm01 } from "../workers/operations/bm01.ts";
 
 /**
  * Stream Allocation and Tracer Invariant Tests for BM-01 (am-bm-01-tracer-ensemble-hdly):

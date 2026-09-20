@@ -3,8 +3,8 @@ import { renderToString } from "katex";
 import { canonical, quantityBindings } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
 import { navigationTree } from "./navigation.ts";
-import { teachingProfile } from "./teachingProfiles.ts";
 import { type EquationRecord, parseEquationRecord } from "./record.ts";
+import { teachingProfile } from "./teachingProfiles.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 export function compileEquation(input: EquationRecord): CompiledEquation {
   const eq = parseEquationRecord(input, input.id),

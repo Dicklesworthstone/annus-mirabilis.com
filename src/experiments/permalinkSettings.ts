@@ -24,7 +24,12 @@ export function settingNumber(params: URLSearchParams, key: string, fallback: nu
   return value;
 }
 
-export function settingChoice<T extends string>(params: URLSearchParams, key: string, choices: readonly T[], fallback: T): T {
+export function settingChoice<T extends string>(
+  params: URLSearchParams,
+  key: string,
+  choices: readonly T[],
+  fallback: T,
+): T {
   const value = params.get(key);
   if (value === null) return fallback;
   if (!choices.includes(value as T)) throw new Error(`Unknown value for ${key}: ${value}.`);

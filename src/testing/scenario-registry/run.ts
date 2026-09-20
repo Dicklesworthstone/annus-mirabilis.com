@@ -2,12 +2,12 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { isValidToleranceRationale, type Scenario } from "../../content/schemas/experiment.ts";
-import { validateToleranceSpec } from "../../units/tolerance.ts";
 import {
   type ConstantSet,
   createDeclaredConstantSet,
   getConstantSet,
 } from "../../physics/reference/constants.ts";
+import { validateToleranceSpec } from "../../units/tolerance.ts";
 import { newRunIdentity, TestLogger } from "../log/logger.ts";
 import { parsePrintedNumber } from "../scenario-fixtures/evaluator.ts";
 import { compareByKind } from "./compare.ts";

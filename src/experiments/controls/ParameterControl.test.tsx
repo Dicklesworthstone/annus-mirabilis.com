@@ -8,8 +8,8 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
-import { ParameterControl } from "./ParameterControl.tsx";
 import { ControlsPanel } from "./ControlsPanel.tsx";
+import { ParameterControl } from "./ParameterControl.tsx";
 import type { CommandClass, ResetOptions } from "./types.ts";
 
 const TEMPERATURE_SPEC: ParameterSpec = {

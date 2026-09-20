@@ -48,7 +48,9 @@ function main(argv: readonly string[]): number {
 
   if (check) {
     if (!existsSync(OUT_PATH)) {
-      console.error(`[quantity-labels] ${OUT_PATH} is missing; run bun scripts/generate-quantity-labels.ts`);
+      console.error(
+        `[quantity-labels] ${OUT_PATH} is missing; run bun scripts/generate-quantity-labels.ts`,
+      );
       return 1;
     }
     if (readFileSync(OUT_PATH, "utf8") !== rendered) {
@@ -62,9 +64,7 @@ function main(argv: readonly string[]): number {
 
   mkdirSync(dirname(OUT_PATH), { recursive: true });
   writeFileSync(OUT_PATH, rendered);
-  console.log(
-    JSON.stringify({ event: "quantity-labels-generated", quantities: pairs.length }),
-  );
+  console.log(JSON.stringify({ event: "quantity-labels-generated", quantities: pairs.length }));
   return 0;
 }
 

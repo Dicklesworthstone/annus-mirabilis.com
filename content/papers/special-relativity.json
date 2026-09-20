@@ -1,1 +1,65 @@
-{"schemaVersion":1,"kind":"paper","id":"special-relativity","title":"Special relativity: from clock operations to electrodynamics","germanTitle":"Zur Elektrodynamik bewegter Körper","description":"Follow the introduction and all ten sections, including field transformations, finite light complexes, moving mirrors, charge-current transformations, and the electron-force conventions.","citation":"ap-17-891","status":"explanation-preview","sourceStatus":"in-preparation","sourceNotice":"Newly authored explanatory preview in modern notation, with editorial and physics review pending. Both the kinematic and electrodynamic halves are treated, but this is not a German transcription, an aligned translation, or a complete critical edition. The source paragraphs, footnotes, acknowledgment, and date-lines are not claimed to be fully represented or reviewed here. Headings and argument units are editorial.","sections":[{"id":"s0","title":"Introduction · magnet, conductor, and the postulates","arguments":["arg-sr-magnet-conductor"]},{"id":"s1","title":"§1 · operational simultaneity","arguments":["arg-sr-synchronization"]},{"id":"s2","title":"§2 · lengths and measurement events","arguments":["arg-sr-rod-events"]},{"id":"s3","title":"§3 · deriving and inverting the coordinate map","arguments":["arg-sr-lorentz-map","arg-sr-transverse-and-inverse"]},{"id":"s4","title":"§4 · rods, clocks, and the limit of the model","arguments":["arg-sr-clock-and-length","arg-sr-transported-clock"]},{"id":"s5","title":"§5 · velocity composition","arguments":["arg-sr-velocity-composition"]},{"id":"s6","title":"§6 · field equations and field components","arguments":["arg-sr-field-derivatives","arg-sr-field-components"]},{"id":"s7","title":"§7 · Doppler shift and aberration","arguments":["arg-sr-doppler-aberration"]},{"id":"s8","title":"§8 · finite light energy and moving mirrors","arguments":["arg-sr-light-complex","arg-sr-moving-mirror"]},{"id":"s9","title":"§9 · charge and current","arguments":["arg-sr-charge-current"]},{"id":"s10","title":"§10 · electron force, work, and closing scope","arguments":["arg-sr-electron-conventions","arg-sr-electron-work"]}]}
+{
+  "schemaVersion": 1,
+  "kind": "paper",
+  "id": "special-relativity",
+  "title": "Special relativity: from clock operations to electrodynamics",
+  "germanTitle": "Zur Elektrodynamik bewegter Körper",
+  "description": "Follow the introduction and all ten sections, including field transformations, finite light complexes, moving mirrors, charge-current transformations, and the electron-force conventions.",
+  "citation": "ap-17-891",
+  "status": "explanation-preview",
+  "sourceStatus": "in-preparation",
+  "sourceNotice": "Newly authored explanatory preview in modern notation, with editorial and physics review pending. Both the kinematic and electrodynamic halves are treated, but this is not a German transcription, an aligned translation, or a complete critical edition. The source paragraphs, footnotes, acknowledgment, and date-lines are not claimed to be fully represented or reviewed here. Headings and argument units are editorial.",
+  "sections": [
+    {
+      "id": "s0",
+      "title": "Introduction · magnet, conductor, and the postulates",
+      "arguments": ["arg-sr-magnet-conductor"]
+    },
+    {
+      "id": "s1",
+      "title": "§1 · operational simultaneity",
+      "arguments": ["arg-sr-synchronization"]
+    },
+    {
+      "id": "s2",
+      "title": "§2 · lengths and measurement events",
+      "arguments": ["arg-sr-rod-events"]
+    },
+    {
+      "id": "s3",
+      "title": "§3 · deriving and inverting the coordinate map",
+      "arguments": ["arg-sr-lorentz-map", "arg-sr-transverse-and-inverse"]
+    },
+    {
+      "id": "s4",
+      "title": "§4 · rods, clocks, and the limit of the model",
+      "arguments": ["arg-sr-clock-and-length", "arg-sr-transported-clock"]
+    },
+    {
+      "id": "s5",
+      "title": "§5 · velocity composition",
+      "arguments": ["arg-sr-velocity-composition"]
+    },
+    {
+      "id": "s6",
+      "title": "§6 · field equations and field components",
+      "arguments": ["arg-sr-field-derivatives", "arg-sr-field-components"]
+    },
+    {
+      "id": "s7",
+      "title": "§7 · Doppler shift and aberration",
+      "arguments": ["arg-sr-doppler-aberration"]
+    },
+    {
+      "id": "s8",
+      "title": "§8 · finite light energy and moving mirrors",
+      "arguments": ["arg-sr-light-complex", "arg-sr-moving-mirror"]
+    },
+    { "id": "s9", "title": "§9 · charge and current", "arguments": ["arg-sr-charge-current"] },
+    {
+      "id": "s10",
+      "title": "§10 · electron force, work, and closing scope",
+      "arguments": ["arg-sr-electron-conventions", "arg-sr-electron-work"]
+    }
+  ]
+}

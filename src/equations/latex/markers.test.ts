@@ -9,14 +9,9 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  ALLOWED_ROLE_CLASSES,
-  katexMarkerTrust,
-  wrapHtmlClass,
-  wrapHtmlData,
-} from "./markers.ts";
-import { renderEquationLatex } from "./render.ts";
 import type { Expression } from "../ast.ts";
+import { ALLOWED_ROLE_CLASSES, katexMarkerTrust, wrapHtmlClass, wrapHtmlData } from "./markers.ts";
+import { renderEquationLatex } from "./render.ts";
 
 test("markers.test: ALLOWED_ROLE_CLASSES contains exactly the 5 enumerated roles", () => {
   const expectedRoles = [
@@ -59,10 +54,7 @@ test("markers.test: katexMarkerTrust strictly allows only valid term and op html
     katexMarkerTrust({ command: "\\htmlData", attributes: { "data-op": "eq-bm-04.op.variance" } }),
     true,
   );
-  assert.equal(
-    katexMarkerTrust({ command: "\\htmlData", attributes: { op: "op1" } }),
-    true,
-  );
+  assert.equal(katexMarkerTrust({ command: "\\htmlData", attributes: { op: "op1" } }), true);
 
   // Rejects foreign attributes
   assert.equal(

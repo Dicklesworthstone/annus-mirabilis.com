@@ -94,9 +94,7 @@ export function ShowTheCode({
     ...new Set([
       ...listings.flatMap((l) => l.identifierBindings.map((b) => b.quantityId)),
       ...listings.flatMap((l) =>
-        l.trace
-          ? l.trace.rows.map((r) => r.quantityId).filter((q): q is string => Boolean(q))
-          : [],
+        l.trace ? l.trace.rows.map((r) => r.quantityId).filter((q): q is string => Boolean(q)) : [],
       ),
     ]),
   ];

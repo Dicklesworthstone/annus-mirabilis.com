@@ -1,1 +1,91 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-lq-fixed-band-volume","paper":"light-quanta","section":"s4","title":"Compare two states, not a compression movie","question":"What is held fixed when volume changes?","recap":"For the same energy and narrow frequency band, Wien radiation gains entropy logarithmically with accessible volume. Both endpoint states must remain in the admitted regime.","review":"draft","premises":["Energy E, central frequency ν, and bandwidth Δν are fixed in both states.","The entropy-density constant has been fixed by the zero-radiation condition.","Both states satisfy the dilute Wien-regime and narrow-band assumptions."],"limitations":["A moving mirror generally changes frequency and energy, so it is not this held-fixed comparison.","The result is not valid merely because one of the two endpoint states is dilute."],"citations":["ap-17-132"],"readings":{"overview":[{"kind":"paragraph","text":"For the same energy and narrow frequency band, Wien radiation gains entropy logarithmically with accessible volume. Both endpoint states must remain in the admitted regime."}],"full":[{"kind":"paragraph","text":"Within a narrow band, write E = V Δν ρν and S = V Δν sν. Substitute ρν = E/(V Δν) into the integrated entropy density. Comparing V with V₀ at the same E and band removes terms independent of volume."},{"kind":"formula","latex":"S(V)-S(V_0)=\\frac{E}{B\\nu}\\ln\\frac{V}{V_0}","spoken":"The entropy difference is E over B frequency times the natural logarithm of the volume ratio."},{"kind":"paragraph","text":"E/(Bν) has entropy units. Only after identifying B = h/k_B can it be written k_B times the dimensionless coefficient E/(hν). This distinction matters when interpreting a displayed coefficient as a count."},{"kind":"formula","latex":"\\Delta S_C=\\Delta\\nu\\,C(\\nu)(V-V_0)","spoken":"An unfixed entropy-density constant would add bandwidth times C of frequency times the volume difference."},{"kind":"paragraph","text":"Doubling the accessible volume adds (E/(Bν)) ln 2 under the stated constraints. Doubling it again adds the same amount. LQ-04 compares those constrained states and exposes the otherwise hidden constant."},{"kind":"foundation","id":"partial-derivatives","returnCaption":"Return to keeping energy and the narrow band fixed."}],"steps":[{"kind":"steps","items":["Write the energy density in the initial state as E/(V₀ Δν).","Write the energy density in the final state as E/(V Δν).","Check the approximation at both densities before comparing them.","Multiply each spectral entropy density by its own V Δν to obtain total entropy.","Subtract the two total entropies; the logarithms leave ln(V/V₀).","Retaining C(ν) would leave Δν C(ν)(V − V₀), so fixing it was essential.","Do not replace this state comparison with an adiabatic moving-wall trajectory."]}],"margin":[{"kind":"paragraph","text":"A modern pointwise comparison gives relative spectral-density error exp(−hν/(k_B T)) for Wien versus Planck. That diagnostic is not, by itself, an error bound for the entire integrated entropy argument."}]},"prerequisites":[{"id":"arg-lq-wien-integration","edge":"premise"}],"help":{"why":"partial-derivatives","missingStep":"partial-derivatives","example":"partial-derivatives"},"experiments":["lq-04","lq-03"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"approximation","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-fixed-band-volume",
+  "paper": "light-quanta",
+  "section": "s4",
+  "title": "Compare two states, not a compression movie",
+  "question": "What is held fixed when volume changes?",
+  "recap": "For the same energy and narrow frequency band, Wien radiation gains entropy logarithmically with accessible volume. Both endpoint states must remain in the admitted regime.",
+  "review": "draft",
+  "premises": [
+    "Energy E, central frequency ν, and bandwidth Δν are fixed in both states.",
+    "The entropy-density constant has been fixed by the zero-radiation condition.",
+    "Both states satisfy the dilute Wien-regime and narrow-band assumptions."
+  ],
+  "limitations": [
+    "A moving mirror generally changes frequency and energy, so it is not this held-fixed comparison.",
+    "The result is not valid merely because one of the two endpoint states is dilute."
+  ],
+  "citations": ["ap-17-132"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "For the same energy and narrow frequency band, Wien radiation gains entropy logarithmically with accessible volume. Both endpoint states must remain in the admitted regime."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "Within a narrow band, write E = V Δν ρν and S = V Δν sν. Substitute ρν = E/(V Δν) into the integrated entropy density. Comparing V with V₀ at the same E and band removes terms independent of volume."
+      },
+      {
+        "kind": "formula",
+        "latex": "S(V)-S(V_0)=\\frac{E}{B\\nu}\\ln\\frac{V}{V_0}",
+        "spoken": "The entropy difference is E over B frequency times the natural logarithm of the volume ratio."
+      },
+      {
+        "kind": "paragraph",
+        "text": "E/(Bν) has entropy units. Only after identifying B = h/k_B can it be written k_B times the dimensionless coefficient E/(hν). This distinction matters when interpreting a displayed coefficient as a count."
+      },
+      {
+        "kind": "formula",
+        "latex": "\\Delta S_C=\\Delta\\nu\\,C(\\nu)(V-V_0)",
+        "spoken": "An unfixed entropy-density constant would add bandwidth times C of frequency times the volume difference."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Doubling the accessible volume adds (E/(Bν)) ln 2 under the stated constraints. Doubling it again adds the same amount. LQ-04 compares those constrained states and exposes the otherwise hidden constant."
+      },
+      {
+        "kind": "foundation",
+        "id": "partial-derivatives",
+        "returnCaption": "Return to keeping energy and the narrow band fixed."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Write the energy density in the initial state as E/(V₀ Δν).",
+          "Write the energy density in the final state as E/(V Δν).",
+          "Check the approximation at both densities before comparing them.",
+          "Multiply each spectral entropy density by its own V Δν to obtain total entropy.",
+          "Subtract the two total entropies; the logarithms leave ln(V/V₀).",
+          "Retaining C(ν) would leave Δν C(ν)(V − V₀), so fixing it was essential.",
+          "Do not replace this state comparison with an adiabatic moving-wall trajectory."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "A modern pointwise comparison gives relative spectral-density error exp(−hν/(k_B T)) for Wien versus Planck. That diagnostic is not, by itself, an error bound for the entire integrated entropy argument."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-lq-wien-integration", "edge": "premise" }],
+  "help": {
+    "why": "partial-derivatives",
+    "missingStep": "partial-derivatives",
+    "example": "partial-derivatives"
+  },
+  "experiments": ["lq-04", "lq-03"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "approximation",
+    "executionStatus": "static-illustration"
+  }
+}

@@ -1,1 +1,67 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-me-two-ledgers","paper":"mass-energy","section":"s0","title":"Two accounts of the same loss","question":"How can both accounts conserve energy while disagreeing about its amount?","recap":"The rest account loses L and the moving account loses γL; each balances internally.","review":"draft","premises":["No energy enters from outside during the emission.","The same body and the same emission are compared in both frames."],"limitations":["The accounts do not determine E₀, E₁, H₀, or H₁ separately."],"citations":["ap-18-639"],"readings":{"overview":[{"kind":"paragraph","text":"Each observer balances their own before-and-after account. One assigns the departing light 10 units, the other 12.5. There is no missing energy: the body’s energy decreases by the light total in each account."}],"full":[{"kind":"paragraph","text":"Let E₀ and E₁ stand for the body’s rest-frame energies before and after emission. H₀ and H₁ are the corresponding moving-frame energies. The symbols are unknown quantities, not covered-up values of mass times light speed squared."},{"kind":"formula","latex":"E_0=E_1+L,\\qquad H_0=H_1+\\gamma L","spoken":"The initial body energy equals its final energy plus the emitted light, separately in each frame."},{"kind":"paragraph","text":"The light is outside the body after emission. Both accounts conserve energy when body and emitted light are included. Different frame totals are compatible with conservation; conservation compares before and after within one frame, not the numerical energies of different frames."}],"steps":[{"kind":"steps","items":["Draw the boundary around the body alone.","Record its energy before and after in its rest frame; the loss is L.","Write a second before-and-after account for the same body in the traveler’s frame; the light loss is γL.","Do not solve for an unknown absolute energy. Only the changes have been specified.","Including the light in each account restores its original total. Changing the observer is not a source of extra energy."]}],"margin":[{"kind":"paragraph","text":"The four energies stay symbolic in the discovery ledger. An arbitrary display offset may illustrate cancellation, but it cannot be used as evidence for an absolute rest-energy formula."}]},"prerequisites":[{"id":"arg-me-symmetric-emission","edge":"premise"}],"help":{"why":"work-energy","missingStep":"work-energy","example":"work-energy"},"experiments":["me-01"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-me-two-ledgers",
+  "paper": "mass-energy",
+  "section": "s0",
+  "title": "Two accounts of the same loss",
+  "question": "How can both accounts conserve energy while disagreeing about its amount?",
+  "recap": "The rest account loses L and the moving account loses γL; each balances internally.",
+  "review": "draft",
+  "premises": [
+    "No energy enters from outside during the emission.",
+    "The same body and the same emission are compared in both frames."
+  ],
+  "limitations": ["The accounts do not determine E₀, E₁, H₀, or H₁ separately."],
+  "citations": ["ap-18-639"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Each observer balances their own before-and-after account. One assigns the departing light 10 units, the other 12.5. There is no missing energy: the body’s energy decreases by the light total in each account."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "Let E₀ and E₁ stand for the body’s rest-frame energies before and after emission. H₀ and H₁ are the corresponding moving-frame energies. The symbols are unknown quantities, not covered-up values of mass times light speed squared."
+      },
+      {
+        "kind": "formula",
+        "latex": "E_0=E_1+L,\\qquad H_0=H_1+\\gamma L",
+        "spoken": "The initial body energy equals its final energy plus the emitted light, separately in each frame."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The light is outside the body after emission. Both accounts conserve energy when body and emitted light are included. Different frame totals are compatible with conservation; conservation compares before and after within one frame, not the numerical energies of different frames."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Draw the boundary around the body alone.",
+          "Record its energy before and after in its rest frame; the loss is L.",
+          "Write a second before-and-after account for the same body in the traveler’s frame; the light loss is γL.",
+          "Do not solve for an unknown absolute energy. Only the changes have been specified.",
+          "Including the light in each account restores its original total. Changing the observer is not a source of extra energy."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The four energies stay symbolic in the discovery ledger. An arbitrary display offset may illustrate cancellation, but it cannot be used as evidence for an absolute rest-energy formula."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-me-symmetric-emission", "edge": "premise" }],
+  "help": { "why": "work-energy", "missingStep": "work-energy", "example": "work-energy" },
+  "experiments": ["me-01"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

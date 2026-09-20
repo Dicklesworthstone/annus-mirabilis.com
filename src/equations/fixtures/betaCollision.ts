@@ -165,11 +165,7 @@ const prod = (args: readonly Expression[], opId?: string): Expression => ({
   ...(opId ? { opId } : {}),
 });
 
-const quot = (
-  numerator: Expression,
-  denominator: Expression,
-  opId?: string,
-): Expression => ({
+const quot = (numerator: Expression, denominator: Expression, opId?: string): Expression => ({
   kind: "quotient",
   numerator,
   denominator,
@@ -235,10 +231,7 @@ export const paper1WienLawFixture: Expression = rel(
         neg(
           quot(
             prod(
-              [
-                sym("eq-s2-d1.t.beta", "wienConstantBeta"),
-                sym("eq-s2-d1.t.nuArg", "frequency"),
-              ],
+              [sym("eq-s2-d1.t.beta", "wienConstantBeta"), sym("eq-s2-d1.t.nuArg", "frequency")],
               "eq-s2-d1.op.betaNu",
             ),
             sym("eq-s2-d1.t.temperature", "temperature"),
@@ -297,4 +290,3 @@ export const paper3LorentzTauFixture: Expression = rel(
   ),
   "eq-s3-d1.op.rel",
 );
-

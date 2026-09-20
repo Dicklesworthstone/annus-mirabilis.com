@@ -85,4 +85,3 @@ describe("events.simultaneity: Simultaneity classification (am-ref-events-yvl)",
     expect(resNonfinite.status).toBe("outside-domain");
   });
 });
-

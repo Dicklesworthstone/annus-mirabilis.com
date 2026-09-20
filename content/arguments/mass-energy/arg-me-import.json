@@ -1,1 +1,75 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-me-import","paper":"mass-energy","section":"s0","title":"One result is borrowed, not rediscovered","question":"Where does the traveler’s account of the light come from?","recap":"The light-energy transformation is an input from relativity; the body’s mass change is not an input.","review":"draft","premises":["Energy conservation in each inertial frame.","The light-energy transformation imported from the relativity paper, §8."],"limitations":["This preview does not establish the imported transformation from first principles.","No absolute body energy or mass–energy formula is assigned."],"citations":["ap-18-639"],"readings":{"overview":[{"kind":"paragraph","text":"The same light can carry different energy in two observers’ accounts. We borrow the rule for that change from relativity, then ask what it implies for the body that sent the light."}],"full":[{"kind":"paragraph","text":"A frame is a way of assigning measurements with rods and clocks moving together. Here the body is at rest in one frame; the other frame moves uniformly relative to it. These are two accounts of one emission, not two experiments."},{"kind":"paragraph","text":"The argument imports a transformation of light energy. For a pulse of rest-frame energy e traveling at angle φ to the relative-motion axis, the other frame assigns the energy below. This is the admitted electromagnetic result, not a consequence of a mass loss already assumed."},{"kind":"formula","latex":"e'=e\\gamma(1-\\beta\\cos\\varphi),\\qquad\\beta=v/c,\\qquad\\gamma=\\frac{1}{\\sqrt{1-\\beta^2}}","spoken":"The transformed pulse energy is its original energy times gamma times one minus beta cosine phi; beta is speed divided by light speed."},{"kind":"foundation","id":"frames-events","returnCaption":"Return to the two descriptions of the same emission."}],"steps":[{"kind":"steps","items":["Specify the relative speed v, with magnitude smaller than light speed c.","Write β for v divided by c, and γ for one divided by the square root of one minus β squared. These are modern teaching symbols.","Measure the pulse direction in the body’s rest frame. Its cosine determines whether the traveler’s account assigns more or less energy.","Multiply the pulse energy by γ(1 − β cos φ). Do this for each pulse of the same emission.","Keep the body’s energies unspecified. A rule for light is not a measurement of the body’s absolute internal energy."]}],"margin":[{"kind":"paragraph","text":"The 1905 argument starts from electromagnetic theory and relativity, not the light-quantum hypothesis. Modern γ and β here are explanatory notation, not a transcription of paper 4’s printed glyphs. A later four-momentum derivation would be a different route."}]},"prerequisites":[],"help":{"why":"frames-events","missingStep":"frames-events","example":"frames-events"},"experiments":["me-01","sr-10"],"meaning":{"logicalRole":"assumption","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-me-import",
+  "paper": "mass-energy",
+  "section": "s0",
+  "title": "One result is borrowed, not rediscovered",
+  "question": "Where does the traveler’s account of the light come from?",
+  "recap": "The light-energy transformation is an input from relativity; the body’s mass change is not an input.",
+  "review": "draft",
+  "premises": [
+    "Energy conservation in each inertial frame.",
+    "The light-energy transformation imported from the relativity paper, §8."
+  ],
+  "limitations": [
+    "This preview does not establish the imported transformation from first principles.",
+    "No absolute body energy or mass–energy formula is assigned."
+  ],
+  "citations": ["ap-18-639"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "The same light can carry different energy in two observers’ accounts. We borrow the rule for that change from relativity, then ask what it implies for the body that sent the light."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "A frame is a way of assigning measurements with rods and clocks moving together. Here the body is at rest in one frame; the other frame moves uniformly relative to it. These are two accounts of one emission, not two experiments."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The argument imports a transformation of light energy. For a pulse of rest-frame energy e traveling at angle φ to the relative-motion axis, the other frame assigns the energy below. This is the admitted electromagnetic result, not a consequence of a mass loss already assumed."
+      },
+      {
+        "kind": "formula",
+        "latex": "e'=e\\gamma(1-\\beta\\cos\\varphi),\\qquad\\beta=v/c,\\qquad\\gamma=\\frac{1}{\\sqrt{1-\\beta^2}}",
+        "spoken": "The transformed pulse energy is its original energy times gamma times one minus beta cosine phi; beta is speed divided by light speed."
+      },
+      {
+        "kind": "foundation",
+        "id": "frames-events",
+        "returnCaption": "Return to the two descriptions of the same emission."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Specify the relative speed v, with magnitude smaller than light speed c.",
+          "Write β for v divided by c, and γ for one divided by the square root of one minus β squared. These are modern teaching symbols.",
+          "Measure the pulse direction in the body’s rest frame. Its cosine determines whether the traveler’s account assigns more or less energy.",
+          "Multiply the pulse energy by γ(1 − β cos φ). Do this for each pulse of the same emission.",
+          "Keep the body’s energies unspecified. A rule for light is not a measurement of the body’s absolute internal energy."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The 1905 argument starts from electromagnetic theory and relativity, not the light-quantum hypothesis. Modern γ and β here are explanatory notation, not a transcription of paper 4’s printed glyphs. A later four-momentum derivation would be a different route."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": { "why": "frames-events", "missingStep": "frames-events", "example": "frames-events" },
+  "experiments": ["me-01", "sr-10"],
+  "meaning": {
+    "logicalRole": "assumption",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

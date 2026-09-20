@@ -8,9 +8,9 @@
  */
 
 import { resolve } from "node:path";
+import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import type { WorkerChannel } from "../protocol/conformance.ts";
 import { loadDefaultManifest } from "../protocol/provenance.ts";
-import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import {
   type AcceptedResponse,
   type HelloMessage,
@@ -19,7 +19,12 @@ import {
   type RefusalResponse,
   type RequestMessage,
 } from "../protocol/schema.ts";
-import { type BundleLoadResult, type BundleLoadSuccess, loadBundle, type LoadBundleOptions } from "./loadBundle.ts";
+import {
+  type BundleLoadResult,
+  type BundleLoadSuccess,
+  type LoadBundleOptions,
+  loadBundle,
+} from "./loadBundle.ts";
 
 export const PINNED_WASM_DIGEST =
   "105d7ffc15414de5eccebcbcae942015b187fed0ea67a26ced5c50949593bb7b";
@@ -68,9 +73,7 @@ if (
 /**
  * Resolves default bundle loading options in Node / Bun test and worker contexts.
  */
-export function resolveDefaultBundleOptions(
-  options: LoadBundleOptions = {},
-): LoadBundleOptions {
+export function resolveDefaultBundleOptions(options: LoadBundleOptions = {}): LoadBundleOptions {
   if (options.manifestData && options.wasmUrl) {
     return options;
   }
@@ -110,7 +113,8 @@ export async function handleWasmWorkerMessageWithPost(
   bundlePromise: Promise<BundleLoadResult>,
 ): Promise<void> {
   if (!msg || typeof msg !== "object") return;
-  const kind = "messageKind" in msg ? (msg as { readonly messageKind?: unknown }).messageKind : undefined;
+  const kind =
+    "messageKind" in msg ? (msg as { readonly messageKind?: unknown }).messageKind : undefined;
 
   const bundleResult = await bundlePromise;
 
@@ -483,7 +487,9 @@ export async function createWasmWorkerChannel(
   const bundleResult = await loadBundle(resolvedOpts);
 
   if (bundleResult.kind === "refused") {
-    const error = new Error(`WASM bundle loading refused: [${bundleResult.outcome}] ${bundleResult.message}`);
+    const error = new Error(
+      `WASM bundle loading refused: [${bundleResult.outcome}] ${bundleResult.message}`,
+    );
     (error as unknown as { outcome: string }).outcome = bundleResult.outcome;
     throw error;
   }
@@ -532,7 +538,9 @@ export function handleWasmWorkerMessage(msg: unknown): void {
 
 // Setup listeners if in worker context
 if (typeof self !== "undefined") {
-  (self as unknown as { onmessage: (event: MessageEvent) => void }).onmessage = (event: MessageEvent) => {
+  (self as unknown as { onmessage: (event: MessageEvent) => void }).onmessage = (
+    event: MessageEvent,
+  ) => {
     handleWasmWorkerMessage(event.data);
   };
 } else {

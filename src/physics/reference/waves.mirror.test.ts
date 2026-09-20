@@ -239,7 +239,8 @@ describe("am-ref-waves-r53: waves.mirror.test.ts", () => {
       resultStatus: "value",
       outcome: "passed",
       durationMs: performance.now() - t0,
-      message: "movingMirrorHarmonizedResults correctly binds mirrorSpeed, reflectedFrequencyRatio, interceptedPower, radiationPressureMirror, radiationForce.",
+      message:
+        "movingMirrorHarmonizedResults correctly binds mirrorSpeed, reflectedFrequencyRatio, interceptedPower, radiationPressureMirror, radiationForce.",
     });
   });
 
@@ -284,4 +285,3 @@ describe("am-ref-waves-r53: waves.mirror.test.ts", () => {
     });
   });
 });
-

@@ -65,7 +65,9 @@ test("future or unknown shapes are refused by the same persisted-document valida
     assert.throws(() => mergeNotebook(document(), input));
 });
 test("merged entry count is bounded without truncation", () => {
-  const imported = document(Array.from({ length: NOTEBOOK_LIMITS.entries }, (_, i) => entry(`n${i}`)));
+  const imported = document(
+    Array.from({ length: NOTEBOOK_LIMITS.entries }, (_, i) => entry(`n${i}`)),
+  );
   assert.throws(() => mergeNotebook(document([entry("existing")]), imported));
   assert.equal(imported.entries.length, NOTEBOOK_LIMITS.entries);
 });

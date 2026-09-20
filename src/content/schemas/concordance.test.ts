@@ -61,7 +61,10 @@ test("Glyph: (concordance.ts:199) invalid-glyph rejected when raw is not an obje
 });
 
 test("Glyph: (concordance.ts:207) missing-glyph-unicode rejected when unicode is empty or missing, accepted with valid unicode", () => {
-  assertConcordanceRefusal(() => validateGlyph({ unicode: "   ", latex: "\\beta" }), "missing-glyph-unicode");
+  assertConcordanceRefusal(
+    () => validateGlyph({ unicode: "   ", latex: "\\beta" }),
+    "missing-glyph-unicode",
+  );
   assertConcordanceRefusal(() => validateGlyph({ latex: "\\beta" }), "missing-glyph-unicode");
 
   const accepted = validateGlyph({ unicode: "β", latex: "\\beta" });
@@ -69,7 +72,10 @@ test("Glyph: (concordance.ts:207) missing-glyph-unicode rejected when unicode is
 });
 
 test("Glyph: (concordance.ts:214) missing-glyph-latex rejected when latex is empty or missing, accepted with valid latex", () => {
-  assertConcordanceRefusal(() => validateGlyph({ unicode: "β", latex: "   " }), "missing-glyph-latex");
+  assertConcordanceRefusal(
+    () => validateGlyph({ unicode: "β", latex: "   " }),
+    "missing-glyph-latex",
+  );
   assertConcordanceRefusal(() => validateGlyph({ unicode: "β" }), "missing-glyph-latex");
 
   const accepted = validateGlyph({ unicode: "β", latex: "\\beta" });
@@ -320,9 +326,7 @@ const VALID_COLLISION = {
   kind: "cross-paper" as const,
   collidesWith: ["sr.beta.lorentz-factor"],
   firstUseAnchor: "s1-p2-s3",
-  firstUseBySection: [
-    { sectionId: "s1", anchor: "s1-p2-s3" },
-  ],
+  firstUseBySection: [{ sectionId: "s1", anchor: "s1-p2-s3" }],
 };
 
 test("Collision: (concordance.ts:446) invalid-collision rejected when raw is not an object, accepted with valid collision", () => {
@@ -475,8 +479,14 @@ test("ConcordanceEntry: (concordance.ts:540) invalid-entry rejected when raw is 
 });
 
 test("ConcordanceEntry: (concordance.ts:545) missing-id rejected when id is missing or empty, accepted with id", () => {
-  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, id: "" }), "missing-id");
-  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, id: "   " }), "missing-id");
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, id: "" }),
+    "missing-id",
+  );
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, id: "   " }),
+    "missing-id",
+  );
 
   const accepted = validateConcordanceEntry(VALID_ENTRY);
   assert.equal(accepted.id, "lq.beta.wien-constant");
@@ -497,16 +507,28 @@ test("ConcordanceEntry: (concordance.ts:550) invalid-concordance-id-grammar reje
 });
 
 test("ConcordanceEntry: (concordance.ts:558) missing-paper rejected when paper slug is empty or missing, accepted with paper slug", () => {
-  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, paper: "" }), "missing-paper");
-  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, paper: "   " }), "missing-paper");
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, paper: "" }),
+    "missing-paper",
+  );
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, paper: "   " }),
+    "missing-paper",
+  );
 
   const accepted = validateConcordanceEntry(VALID_ENTRY);
   assert.equal(accepted.paper, "light-quanta");
 });
 
 test("ConcordanceEntry: (concordance.ts:566) missing-scope rejected when scope is empty array or not array, accepted with non-empty array", () => {
-  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, scope: [] }), "missing-scope");
-  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, scope: null as any }), "missing-scope");
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, scope: [] }),
+    "missing-scope",
+  );
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, scope: null as any }),
+    "missing-scope",
+  );
 
   const accepted = validateConcordanceEntry(VALID_ENTRY);
   assert.equal(accepted.scope.length, 1);
@@ -527,8 +549,14 @@ test("ConcordanceEntry: (concordance.ts:574) invalid-scope-id rejected when a sc
 });
 
 test("ConcordanceEntry: (concordance.ts:586) missing-meaning rejected when meaning is missing or empty, accepted with plain words", () => {
-  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, meaning: "" }), "missing-meaning");
-  assertConcordanceRefusal(() => validateConcordanceEntry({ ...VALID_ENTRY, meaning: "   " }), "missing-meaning");
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, meaning: "" }),
+    "missing-meaning",
+  );
+  assertConcordanceRefusal(
+    () => validateConcordanceEntry({ ...VALID_ENTRY, meaning: "   " }),
+    "missing-meaning",
+  );
 
   const accepted = validateConcordanceEntry(VALID_ENTRY);
   assert.ok(accepted.meaning.length > 0);
@@ -602,7 +630,10 @@ test("ConcordanceEntry: (concordance.ts:639) missing-verification-date rejected 
 
 test("ModernOnlySymbol: (concordance.ts:688) invalid-modern-only-symbol rejected when raw is not an object, accepted with valid object", () => {
   assertConcordanceRefusal(() => validateModernOnlySymbol(null), "invalid-modern-only-symbol");
-  assertConcordanceRefusal(() => validateModernOnlySymbol("not-an-object"), "invalid-modern-only-symbol");
+  assertConcordanceRefusal(
+    () => validateModernOnlySymbol("not-an-object"),
+    "invalid-modern-only-symbol",
+  );
 
   const accepted = validateModernOnlySymbol(VALID_MODERN_ONLY);
   assert.equal(accepted.id, "modern.hbar");
@@ -624,7 +655,10 @@ test("ModernOnlySymbol: (concordance.ts:696) missing-modern-only-id rejected whe
 
 test("PaperConcordance: (concordance.ts:720) invalid-paper-concordance rejected when raw is not an object, accepted with valid object", () => {
   assertConcordanceRefusal(() => validatePaperConcordance(null), "invalid-paper-concordance");
-  assertConcordanceRefusal(() => validatePaperConcordance("not-an-object"), "invalid-paper-concordance");
+  assertConcordanceRefusal(
+    () => validatePaperConcordance("not-an-object"),
+    "invalid-paper-concordance",
+  );
 
   const accepted = validatePaperConcordance(VALID_PAPER_CONCORDANCE);
   assert.equal(accepted.paper, "light-quanta");
@@ -643,6 +677,3 @@ test("PaperConcordance: (concordance.ts:728) missing-paper rejected when paper s
   const accepted = validatePaperConcordance(VALID_PAPER_CONCORDANCE);
   assert.equal(accepted.paper, "light-quanta");
 });
-
-
-

@@ -325,7 +325,9 @@ export function ensembleMoments({
       meanSquareNorm,
       rmsNorm,
       ...(apparentSpeed !== undefined ? { apparentSpeed } : {}),
-      ...(insideCount !== undefined && outsideCount !== undefined ? { insideCount, outsideCount } : {}),
+      ...(insideCount !== undefined && outsideCount !== undefined
+        ? { insideCount, outsideCount }
+        : {}),
     },
   };
 }

@@ -1,11 +1,12 @@
-import { kitchenInputBox } from "./uncertainty.ts";
-import { allocateJointInputCoverage, cameraMolecularInputEnvelope } from "../../../physics/reference/inference/physicalUncertainty.ts";
-import type { KitchenUncertainty } from "./definition.ts";
 import { type ConstantSet, getConstantSet } from "../../../physics/reference/constants.ts";
 import {
   disjointPairsKnownNoiseInterval,
   stationaryClickNoiseEstimate,
 } from "../../../physics/reference/inference/observation.ts";
+import {
+  allocateJointInputCoverage,
+  cameraMolecularInputEnvelope,
+} from "../../../physics/reference/inference/physicalUncertainty.ts";
 import {
   type Assessment,
   estimateIncrements,
@@ -13,6 +14,7 @@ import {
   invertToMolecularNumber,
 } from "../../../physics/reference/inference.ts";
 import type { ScientificResult } from "../../results/types.ts";
+import type { KitchenUncertainty } from "./definition.ts";
 import {
   KITCHEN_OUTPUTS,
   type KitchenAnalysis,
@@ -20,6 +22,7 @@ import {
   type KitchenTrack,
 } from "./definition.ts";
 import { KITCHEN_LIMITS, type KitchenDocument, type KitchenPoint } from "./schema.ts";
+import { kitchenInputBox } from "./uncertainty.ts";
 
 export type { KitchenAnalysis, KitchenOptions, KitchenTrack } from "./definition.ts";
 export { KITCHEN_OPTIONS, KITCHEN_OUTPUTS } from "./definition.ts";
@@ -154,23 +157,38 @@ export function analyzeKitchen(
     warnings.push(
       "Timestamps are inferred from the declared frame rate. Per-frame presentation timing was not verified.",
     );
-  const captured = points.filter(p => p.capture);
+  const captured = points.filter((p) => p.capture);
   if (captured.length) {
-    warnings.push("Local video coordinates refer to the browser-oriented intrinsic image. Encoded orientation and pixel aspect were not independently verified; this tool applied no crop or additional rotation.");
-    const adjusted = captured.filter(p => p.capture?.timingSource === "frame-callback-adjusted").length;
-    if (adjusted) warnings.push(`${adjusted} annotated frames were farther than half a declared frame period from the requested time. Actual presentation times were retained, never replaced with requested times.`);
-    let skipped = 0, lastCounter: number | null = null;
+    warnings.push(
+      "Local video coordinates refer to the browser-oriented intrinsic image. Encoded orientation and pixel aspect were not independently verified; this tool applied no crop or additional rotation.",
+    );
+    const adjusted = captured.filter(
+      (p) => p.capture?.timingSource === "frame-callback-adjusted",
+    ).length;
+    if (adjusted)
+      warnings.push(
+        `${adjusted} annotated frames were farther than half a declared frame period from the requested time. Actual presentation times were retained, never replaced with requested times.`,
+      );
+    let skipped = 0,
+      lastCounter: number | null = null;
     for (const p of captured) {
       const counter = p.capture?.presentedFrames ?? null;
       if (counter !== null && lastCounter !== null) {
         skipped += Math.max(0, counter - lastCounter - 1);
-        if (counter <= lastCounter) intervalReasons.push("Frame presentation counters are not increasing along this particle track; timing provenance cannot support an interval.");
+        if (counter <= lastCounter)
+          intervalReasons.push(
+            "Frame presentation counters are not increasing along this particle track; timing provenance cannot support an interval.",
+          );
       }
       lastCounter = counter;
     }
     if (skipped) {
-      warnings.push(`The presentation counter passed ${skipped} additional frames between annotated particle frames. This is a compositor counter, not a count of every internally decoded frame.`);
-      intervalReasons.push("Presentation-counter gaps were recorded. This acquisition preview withholds interval coverage; inspect the actual frame times and missing observations.");
+      warnings.push(
+        `The presentation counter passed ${skipped} additional frames between annotated particle frames. This is a compositor counter, not a count of every internally decoded frame.`,
+      );
+      intervalReasons.push(
+        "Presentation-counter gaps were recorded. This acquisition preview withholds interval coverage; inspect the actual frame times and missing observations.",
+      );
     }
   }
   const calibrationIds = new Set(points.map((p) => p.calibrationId));
@@ -414,41 +432,84 @@ export function analyzeKitchen(
     }
   }
   const inputCoverage = m.physical_input_coverage ? Number(m.physical_input_coverage) : null;
-  let uncertainty: KitchenUncertainty = { state: "unavailable", scaleExponent: null,
-    inputCoverage, cameraCoverage: null, combinedCoverage: null };
-  let combinedIntervalReason = "No combined interval is reported: declare all physical input ranges, how the radius is calibrated, and a supported joint coverage for those inputs. Standard uncertainty and marginal ranges are not joint coverage.";
-  const box = set && scale !== null ? kitchenInputBox(document, axis, scaleSource, scale, set) : null;
+  let uncertainty: KitchenUncertainty = {
+    state: "unavailable",
+    scaleExponent: null,
+    inputCoverage,
+    cameraCoverage: null,
+    combinedCoverage: null,
+  };
+  let combinedIntervalReason =
+    "No combined interval is reported: declare all physical input ranges, how the radius is calibrated, and a supported joint coverage for those inputs. Standard uncertainty and marginal ranges are not joint coverage.";
+  const box =
+    set && scale !== null ? kitchenInputBox(document, axis, scaleSource, scale, set) : null;
   const defects = intervalReasons.length > 0 || Object.keys(lostPairs).length > 0;
   if (box?.kind === "accepted" && set && band && !defects) {
-    const envelope = cameraMolecularInputEnvelope(band, box.data, set, m.data_origin === "synthetic");
+    const envelope = cameraMolecularInputEnvelope(
+      band,
+      box.data,
+      set,
+      m.data_origin === "synthetic",
+    );
     if (envelope.kind === "accepted") {
       val("molecularInputRange", Float64Array.of(envelope.data.lower, envelope.data.upper));
-      uncertainty = { ...uncertainty, state: "sensitivity", scaleExponent: envelope.data.scaleExponent };
+      uncertainty = {
+        ...uncertainty,
+        state: "sensitivity",
+        scaleExponent: envelope.data.scaleExponent,
+      };
       const budget = allocateJointInputCoverage(options.coverage, inputCoverage);
       if (budget.kind !== "accepted") combinedIntervalReason = reason(budget);
       else if (noise?.kind === "accepted" && m.exposure_s) {
         uncertainty = { ...uncertainty, cameraCoverage: budget.data.cameraCoverage };
-        const combinedPairs = disjointPairsKnownNoiseInterval({ positions: Float64Array.from(paired),
-          dt, exposure: Number(m.exposure_s), d: 1, alpha: budget.data.alphaCamera,
-          noise: { kind: "stationary-clicks", estimate: noise.data } });
+        const combinedPairs = disjointPairsKnownNoiseInterval({
+          positions: Float64Array.from(paired),
+          dt,
+          exposure: Number(m.exposure_s),
+          d: 1,
+          alpha: budget.data.alphaCamera,
+          noise: { kind: "stationary-clicks", estimate: noise.data },
+        });
         if (combinedPairs.kind !== "accepted") combinedIntervalReason = reason(combinedPairs);
-        else if (combinedPairs.data.interval === null) combinedIntervalReason = "The allocated camera confidence set is empty. No positive combined interval is substituted.";
+        else if (combinedPairs.data.interval === null)
+          combinedIntervalReason =
+            "The allocated camera confidence set is empty. No positive combined interval is substituted.";
         else {
           const allocated = combinedPairs.data.interval;
           val("combinedSamplingInterval", Float64Array.of(allocated.lower, allocated.upper));
-          const combined = cameraMolecularInputEnvelope(allocated, box.data, set, m.data_origin === "synthetic");
+          const combined = cameraMolecularInputEnvelope(
+            allocated,
+            box.data,
+            set,
+            m.data_origin === "synthetic",
+          );
           if (combined.kind !== "accepted") combinedIntervalReason = reason(combined);
           else {
-            val("combinedMolecularInterval", Float64Array.of(combined.data.lower, combined.data.upper));
-            uncertainty = { ...uncertainty, state: "combined", combinedCoverage: budget.data.coverageLowerBound };
-            combinedIntervalReason = "Conservative combined coverage is conditional on the declared joint input-box coverage and the Gaussian camera model. No independence between input ranges is assumed, and the declaration is not independently verified.";
+            val(
+              "combinedMolecularInterval",
+              Float64Array.of(combined.data.lower, combined.data.upper),
+            );
+            uncertainty = {
+              ...uncertainty,
+              state: "combined",
+              combinedCoverage: budget.data.coverageLowerBound,
+            };
+            combinedIntervalReason =
+              "Conservative combined coverage is conditional on the declared joint input-box coverage and the Gaussian camera model. No independence between input ranges is assumed, and the declaration is not independently verified.";
           }
         }
       }
     } else combinedIntervalReason = reason(envelope);
-  } else if (defects) combinedIntervalReason = "No combined interval is reported for missing, lost, excluded or irregular observations. This procedure does not establish coverage after selection or censoring; inspect the retained-data estimates separately.";
-  else if (box && box.kind !== "accepted") combinedIntervalReason = `No combined interval: ${reason(box)}`;
-  for (const id of ["molecularInputRange", "combinedMolecularInterval", "combinedSamplingInterval"] as const)
+  } else if (defects)
+    combinedIntervalReason =
+      "No combined interval is reported for missing, lost, excluded or irregular observations. This procedure does not establish coverage after selection or censoring; inspect the retained-data estimates separately.";
+  else if (box && box.kind !== "accepted")
+    combinedIntervalReason = `No combined interval: ${reason(box)}`;
+  for (const id of [
+    "molecularInputRange",
+    "combinedMolecularInterval",
+    "combinedSamplingInterval",
+  ] as const)
     if (results.get(id)?.status !== "value") no(id, combinedIntervalReason);
   warnings.push(
     "The original diffusion and molecular-number intervals hold physical inputs fixed. The separately labeled input envelope propagates declared ranges; only a declared joint input coverage and a newly allocated camera interval can support combined coverage. Timing, exposure, model error and the applicability of stationary clicks remain conditional assumptions.",

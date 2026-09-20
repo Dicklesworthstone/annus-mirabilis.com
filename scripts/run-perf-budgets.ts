@@ -536,7 +536,9 @@ export async function runPerformanceBudgets(
     frameTimingResult.medianMs,
     "ms",
     `Median frame interval ${frameTimingResult.medianMs} ms, tail fraction ${(frameTimingResult.longFraction * 100).toFixed(1)}%; physics digest matched=${physicsCheck.matched}; intervals are synthetic, no frames were rendered`,
-    opts.plantViolationRow === 7 || opts.plantViolationPhysics ? undefined : ("not-available" as const),
+    opts.plantViolationRow === 7 || opts.plantViolationPhysics
+      ? undefined
+      : ("not-available" as const),
   );
 
   // -------------------------------------------------------------------------
@@ -551,7 +553,7 @@ export async function runPerformanceBudgets(
     "not-measured",
     "status",
     "Resource lifecycle is checked by am-plat-resource-stress-9zgu, which this process does not run or read. No verdict is reached here.",
-    ("not-available" as const),
+    "not-available" as const,
   );
 
   // -------------------------------------------------------------------------

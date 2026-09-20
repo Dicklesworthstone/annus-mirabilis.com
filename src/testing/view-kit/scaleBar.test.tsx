@@ -126,8 +126,6 @@ describe("ScaleBar (am-inst-2d-view-kit-u75r)", () => {
         0.5,
         "bm01-scale-fixture",
       ),
-    ).toThrow(
-      /\[View bm01-scale-fixture\] Scale bar length 80px disagrees with expected 100px/,
-    );
+    ).toThrow(/\[View bm01-scale-fixture\] Scale bar length 80px disagrees with expected 100px/);
   });
 });

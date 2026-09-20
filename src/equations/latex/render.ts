@@ -9,10 +9,10 @@
  * - Criterion 9: Loud missing notation scope or entry failure.
  */
 
+import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
+import type { AlternateForm } from "../alternateForms.ts";
 import { type Expression, nodeId } from "../ast.ts";
 import type { QuantityRegistry } from "../quantities.ts";
-import type { AlternateForm } from "../alternateForms.ts";
-import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { checkEquationGlyphCollisions } from "./collisions.ts";
 import { wrapHtmlClass, wrapHtmlData } from "./markers.ts";
 import { tryMergeMonomialQuotient } from "./monomial.ts";
@@ -331,9 +331,7 @@ export function extractSpansFromLatex(latex: string): {
  * - appliedOperations: Array of concordance and alternate operations applied.
  * - warnings: Review warnings (e.g. printed glyph collisions).
  */
-export function renderEquationLatex(
-  input: RenderEquationLatexInput,
-): RenderEquationLatexResult {
+export function renderEquationLatex(input: RenderEquationLatexInput): RenderEquationLatexResult {
   const { equation, form, color, registry } = input;
   let concordance = input.concordance;
   if (!concordance && equation.paper) {
@@ -360,18 +358,14 @@ export function renderEquationLatex(
   } else if (form.kind === "alternate") {
     const alt = equation.alternateForms?.find((a) => a.id === form.id);
     if (!alt) {
-      throw new Error(
-        `Alternate form "${form.id}" not found on equation "${equation.id}".`,
-      );
+      throw new Error(`Alternate form "${form.id}" not found on equation "${equation.id}".`);
     }
     targetTree = alt.tree;
     formRelation = alt.relation;
     perspective = "modern";
     activeAlternateForm = alt;
   } else {
-    throw new Error(
-      `Unknown form kind: ${(form as { kind: string }).kind}`,
-    );
+    throw new Error(`Unknown form kind: ${(form as { kind: string }).kind}`);
   }
 
   // Check glyph collisions
@@ -393,9 +387,7 @@ export function renderEquationLatex(
       equationId: equation.id,
       paper: equation.paper,
       scope: equation.sectionId ?? equation.anchor,
-      message:
-        errorDiag?.message ??
-        `Glyph collision in equation "${equation.id}".`,
+      message: errorDiag?.message ?? `Glyph collision in equation "${equation.id}".`,
     });
   }
 
@@ -427,9 +419,7 @@ export function renderEquationLatex(
 
   // Extract term and op spans
   const { termSpans, opSpans } =
-    color === "colorized"
-      ? extractSpansFromLatex(latex)
-      : { termSpans: [], opSpans: [] };
+    color === "colorized" ? extractSpansFromLatex(latex) : { termSpans: [], opSpans: [] };
 
   const appliedOperations: AppliedOperation[] = [];
   if (activeAlternateForm) {

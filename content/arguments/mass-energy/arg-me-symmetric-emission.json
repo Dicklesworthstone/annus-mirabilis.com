@@ -1,1 +1,68 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-me-symmetric-emission","paper":"mass-energy","section":"s0","title":"Choose the emission that removes recoil","question":"Why send equal amounts of light in opposite directions?","recap":"Symmetric emission keeps the body’s speed unchanged, isolating an energy change.","review":"draft","premises":["Two equal opposite pulses in the body’s rest frame.","The body remains at rest in that frame; both observers are inertial."],"limitations":["Unequal pulses or external forces require recoil and momentum bookkeeping."],"citations":["ap-18-639"],"readings":{"overview":[{"kind":"paragraph","text":"Send equal light in opposite directions. The body need not acquire a new velocity, so a changed energy of motion cannot be explained by a changed speed."}],"full":[{"kind":"paragraph","text":"A body sends half the total light energy each way. The choice is deliberate: the opposed emissions remove the recoil complication in the idealized experiment. The body stays at rest in its own frame, so the traveler assigns it the same speed before and after."},{"kind":"paragraph","text":"The two pulse energies need not be equal in the traveler’s frame. Reversing a direction reverses its cosine. The direction-dependent contributions therefore cancel when the two energies are added."},{"kind":"formula","latex":"\\frac{L}{2}\\gamma(1-\\beta\\cos\\varphi)+\\frac{L}{2}\\gamma(1+\\beta\\cos\\varphi)=\\gamma L","spoken":"The opposite-direction terms cancel, leaving total moving-frame light energy gamma times L."}],"steps":[{"kind":"steps","items":["Call the total emitted light energy in the body’s rest frame L.","Give each pulse energy L/2 in that frame.","Apply the same imported transformation to each pulse, with opposite signs of cos φ.","Add the two energies. The negative and positive angle terms cancel.","The sum is γL for every emission angle, although each pulse can change with angle.","The cancellation concerns the light totals. It does not assert any absolute energy for the body."]}],"margin":[{"kind":"paragraph","text":"Equal opposite radiation has zero total momentum in the body’s rest frame in the admitted model. A modern treatment with unequal pulses must follow recoil explicitly; it cannot reuse this same-speed comparison unchanged."}]},"prerequisites":[{"id":"arg-me-import","edge":"premise"}],"help":{"why":"work-energy","missingStep":"work-energy","example":"work-energy"},"experiments":["me-01"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-me-symmetric-emission",
+  "paper": "mass-energy",
+  "section": "s0",
+  "title": "Choose the emission that removes recoil",
+  "question": "Why send equal amounts of light in opposite directions?",
+  "recap": "Symmetric emission keeps the body’s speed unchanged, isolating an energy change.",
+  "review": "draft",
+  "premises": [
+    "Two equal opposite pulses in the body’s rest frame.",
+    "The body remains at rest in that frame; both observers are inertial."
+  ],
+  "limitations": ["Unequal pulses or external forces require recoil and momentum bookkeeping."],
+  "citations": ["ap-18-639"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Send equal light in opposite directions. The body need not acquire a new velocity, so a changed energy of motion cannot be explained by a changed speed."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "A body sends half the total light energy each way. The choice is deliberate: the opposed emissions remove the recoil complication in the idealized experiment. The body stays at rest in its own frame, so the traveler assigns it the same speed before and after."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The two pulse energies need not be equal in the traveler’s frame. Reversing a direction reverses its cosine. The direction-dependent contributions therefore cancel when the two energies are added."
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{L}{2}\\gamma(1-\\beta\\cos\\varphi)+\\frac{L}{2}\\gamma(1+\\beta\\cos\\varphi)=\\gamma L",
+        "spoken": "The opposite-direction terms cancel, leaving total moving-frame light energy gamma times L."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Call the total emitted light energy in the body’s rest frame L.",
+          "Give each pulse energy L/2 in that frame.",
+          "Apply the same imported transformation to each pulse, with opposite signs of cos φ.",
+          "Add the two energies. The negative and positive angle terms cancel.",
+          "The sum is γL for every emission angle, although each pulse can change with angle.",
+          "The cancellation concerns the light totals. It does not assert any absolute energy for the body."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Equal opposite radiation has zero total momentum in the body’s rest frame in the admitted model. A modern treatment with unequal pulses must follow recoil explicitly; it cannot reuse this same-speed comparison unchanged."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-me-import", "edge": "premise" }],
+  "help": { "why": "work-energy", "missingStep": "work-energy", "example": "work-energy" },
+  "experiments": ["me-01"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

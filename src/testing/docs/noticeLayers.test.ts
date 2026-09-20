@@ -444,29 +444,46 @@ Annus Mirabilis attribution string.
     const decisionsContent = readFileSync(decisionsPath, "utf8");
     const noticesContent = readFileSync(join(rootDir, "THIRD_PARTY_NOTICES.md"), "utf8");
 
-    const cells = (line: string) => line.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+    const cells = (line: string) =>
+      line
+        .trim()
+        .replace(/^\||\|$/g, "")
+        .split("|")
+        .map((c) => c.trim());
     const bare = (s: string) => s.replace(/[`*]/g, "").trim();
 
     // Source 1: what the license-inventory gate actually emitted.
     const emitted = new Map<string, { version: string; license: string }>();
     for (const line of noticesContent.split("\n")) {
-      if (!line.startsWith("|") || line.startsWith("|---") || line.includes("Package / Asset")) continue;
+      if (!line.startsWith("|") || line.startsWith("|---") || line.includes("Package / Asset"))
+        continue;
       const c = cells(line);
-      if (c.length >= 3 && c[0]) emitted.set(bare(c[0]), { version: c[1] ?? "", license: c[2] ?? "" });
+      if (c.length >= 3 && c[0])
+        emitted.set(bare(c[0]), { version: c[1] ?? "", license: c[2] ?? "" });
     }
-    assert.ok(emitted.size > 20, `THIRD_PARTY_NOTICES.md parsed only ${emitted.size} entries; the parser or the file shape changed`);
+    assert.ok(
+      emitted.size > 20,
+      `THIRD_PARTY_NOTICES.md parsed only ${emitted.size} entries; the parser or the file shape changed`,
+    );
 
     // Source 2: section 3's own account of what the one-time compatibility probe exercised.
     const probeSentence = decisionsContent.match(
       /The probe exercised \*\*\d+ of the \d+ locked items\*\*:([\s\S]+?)\. Two locked versions/,
     );
-    assert.ok(probeSentence?.[1], "Section 3 must still state which locked items the probe exercised");
+    assert.ok(
+      probeSentence?.[1],
+      "Section 3 must still state which locked items the probe exercised",
+    );
     const probed = new Set<string>([
       ...[...probeSentence[1].matchAll(/`([^`]+)`/g)].map((m) => m[1] as string),
-      ...[...decisionsContent.matchAll(/`([a-z0-9@/._-]+)` is locked at/g)].map((m) => m[1] as string),
+      ...[...decisionsContent.matchAll(/`([a-z0-9@/._-]+)` is locked at/g)].map(
+        (m) => m[1] as string,
+      ),
     ]);
 
-    const header = decisionsContent.split("\n").findIndex((l) => l.startsWith("| Category | Package / Tool"));
+    const header = decisionsContent
+      .split("\n")
+      .findIndex((l) => l.startsWith("| Category | Package / Tool"));
     assert.ok(header > -1, "The locked version inventory table must exist");
     assert.ok(
       decisionsContent.split("\n")[header]?.includes("| Evidence |"),
@@ -486,23 +503,36 @@ Annus Mirabilis attribution string.
       const expected = hit ? "collector" : probed.has(name) ? "probe-only" : "unchecked";
       counts[expected] = (counts[expected] ?? 0) + 1;
       if (declaredClass !== expected) {
-        wrong.push(`${name}: row declares \`${declaredClass}\` but the evidence makes it \`${expected}\``);
+        wrong.push(
+          `${name}: row declares \`${declaredClass}\` but the evidence makes it \`${expected}\``,
+        );
       }
       // A `collector` claim is only true if the cells agree with what the collector emitted.
       // Licence notation is normalised: the table writes a dual licence "MIT / Apache-2.0" where
       // the collector emits the SPDX expression "MIT OR Apache-2.0". Same expression, same terms.
       if (hit) {
-        const spdx = (s: string) => bare(s).replace(/\s*\/\s*/g, " OR ").replace(/\s+/g, " ");
+        const spdx = (s: string) =>
+          bare(s)
+            .replace(/\s*\/\s*/g, " OR ")
+            .replace(/\s+/g, " ");
         if (bare(c[2] ?? "") !== hit.version) {
-          mismatched.push(`${name}: table version ${bare(c[2] ?? "")}, collector emitted ${hit.version}`);
+          mismatched.push(
+            `${name}: table version ${bare(c[2] ?? "")}, collector emitted ${hit.version}`,
+          );
         }
         if (spdx(c[3] ?? "") !== spdx(hit.license)) {
-          mismatched.push(`${name}: table licence ${bare(c[3] ?? "")}, collector emitted ${hit.license}`);
+          mismatched.push(
+            `${name}: table licence ${bare(c[3] ?? "")}, collector emitted ${hit.license}`,
+          );
         }
       }
     }
 
-    assert.deepEqual(wrong, [], `Evidence classes disagree with the evidence:\n  ${wrong.join("\n  ")}`);
+    assert.deepEqual(
+      wrong,
+      [],
+      `Evidence classes disagree with the evidence:\n  ${wrong.join("\n  ")}`,
+    );
     assert.deepEqual(
       mismatched,
       [],
@@ -515,7 +545,10 @@ Annus Mirabilis attribution string.
       const stated = decisionsContent.match(
         new RegExp(`\\*\\*\`${klass.replace("-", "-")}\`\\*\\* \\((\\d+) rows\\)`),
       )?.[1];
-      assert.ok(stated, `The Evidence legend must describe the \`${klass}\` class with a row count`);
+      assert.ok(
+        stated,
+        `The Evidence legend must describe the \`${klass}\` class with a row count`,
+      );
       assert.equal(
         Number(stated),
         n,

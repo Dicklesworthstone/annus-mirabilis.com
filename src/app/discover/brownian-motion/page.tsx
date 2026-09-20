@@ -266,7 +266,11 @@ export default function BrownianEncounter() {
           process. You can read every step without running a simulation.
         </p>
       </header>
-      <p className="reading"><a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">Why the mean square is tractable: inspect the cross-term step →</a></p>
+      <p className="reading">
+        <a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
+          Why the mean square is tractable: inspect the cross-term step →
+        </a>
+      </p>
       <section>
         <p className="step-number">01 / Choose a quantity</p>
         <h2>Averages can hide motion.</h2>

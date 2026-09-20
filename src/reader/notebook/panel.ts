@@ -167,7 +167,10 @@ export function mountNotebookPanel(
   let renderedEntries: readonly NotebookEntry[] | null = null;
   const replays: (() => void)[] = [];
   let replayGeneration = 0;
-  function clearReplays() { replayGeneration++; for (const dispose of replays.splice(0)) dispose(); }
+  function clearReplays() {
+    replayGeneration++;
+    for (const dispose of replays.splice(0)) dispose();
+  }
   const urls = new Map<string, ReturnType<typeof setTimeout>>();
   let disposed = false,
     importGeneration = 0;
@@ -309,12 +312,27 @@ export function mountNotebookPanel(
         if (entry.kind === "replay") {
           const evidenceHost = node("div");
           const inspect = button("Open saved evidence and replay", () => {
-            const request = replayGeneration; inspect.disabled = true;
-            void Promise.all([import("./replayView.ts"), import("./replayCurrent.ts")]).then(([view, current]) => {
-              if (disposed || request !== replayGeneration || !dialog.open) return;
-              const mounted = view.mountReplayView(evidenceHost, entry, store, current.replayEnvironment(entry.replay));
-              replays.push(mounted.dispose); inspect.hidden = true;
-            }).catch(() => { if (!disposed && request === replayGeneration) { inspect.disabled = false; error.textContent = "Could not open the replay view. Your entry is preserved and can be exported."; } });
+            const request = replayGeneration;
+            inspect.disabled = true;
+            void Promise.all([import("./replayView.ts"), import("./replayCurrent.ts")])
+              .then(([view, current]) => {
+                if (disposed || request !== replayGeneration || !dialog.open) return;
+                const mounted = view.mountReplayView(
+                  evidenceHost,
+                  entry,
+                  store,
+                  current.replayEnvironment(entry.replay),
+                );
+                replays.push(mounted.dispose);
+                inspect.hidden = true;
+              })
+              .catch(() => {
+                if (!disposed && request === replayGeneration) {
+                  inspect.disabled = false;
+                  error.textContent =
+                    "Could not open the replay view. Your entry is preserved and can be exported.";
+                }
+              });
           });
           inspect.dataset.replayInspect = entry.id;
           article.append(inspect, evidenceHost);

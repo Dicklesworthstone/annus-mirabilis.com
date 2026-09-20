@@ -107,7 +107,9 @@ export default function TwoLedgersPage() {
           <a className="button" href="/lab/me-02/">
             Explore the small-speed coefficient (ME-02) &rarr;
           </a>
-          <a href="/papers/mass-energy/#entry-mass-energy">Start with two concrete energy accounts</a>
+          <a href="/papers/mass-energy/#entry-mass-energy">
+            Start with two concrete energy accounts
+          </a>
         </div>
       </section>
     </>

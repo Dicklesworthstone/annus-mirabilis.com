@@ -7,8 +7,8 @@ import { parsePresetId } from "../content/ids.ts";
 import { validateExperiment } from "../content/schemas/experiment.ts";
 import { strictParse } from "../content/schemas/strictParse.ts";
 import { evaluatePerrinSummary } from "../experiments/bm07/historical.ts";
-import { isValidTapeId, validateControlTape } from "../experiments/tapes/schema.ts";
 import { validateTapeCompatibility } from "../experiments/tapes/replayer.ts";
+import { isValidTapeId, validateControlTape } from "../experiments/tapes/schema.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
 import { chiSquareQuantile } from "../physics/reference/diffusion.ts";
 import {

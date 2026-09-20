@@ -1,15 +1,18 @@
 "use client";
 import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { EquationScope } from "../../equations/EquationScope.tsx";
+import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
+import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import {
   ME02_CAPTION,
   ME02_MODEL,
-  ME02_OUTPUTS,
   ME02_NOT_MODELED,
+  ME02_OUTPUTS,
   ME02_PREDICT_PROMPT,
   type Me02Parameters,
 } from "../../experiments/me02/definition.ts";
-import { decodeMe02Settings, encodeMe02Settings } from "../../experiments/me02/permalink.ts";
 import { validateMe02Parameters } from "../../experiments/me02/parameters.ts";
+import { decodeMe02Settings, encodeMe02Settings } from "../../experiments/me02/permalink.ts";
 import { createMe02Session, type PreparedMe02Example } from "../../experiments/me02/session.ts";
 import {
   amendAfterReveal,
@@ -20,13 +23,10 @@ import {
   skipPrediction,
   submitPrediction,
 } from "../../experiments/predict/predictState.ts";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { parseResult } from "../../experiments/results/codec.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
-import { EquationScope } from "../../equations/EquationScope.tsx";
-import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
-import type { CompiledEquation } from "../../equations/viewTypes.ts";
-import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { PredictPanel } from "./PredictPanel.tsx";
 import { display, identity, result } from "./presentation.ts";
 
@@ -187,7 +187,8 @@ export function CoefficientLab({
     if (linkLoaded.current) return;
     linkLoaded.current = true;
     const linked = restoreSettings ? decodeMe02Settings(window.location.search) : null;
-    if (linked?.kind === "invalid") setError(`${linked.message} The prepared example is unchanged.`);
+    if (linked?.kind === "invalid")
+      setError(`${linked.message} The prepared example is unchanged.`);
     if (linked?.kind === "settings") {
       const outcome = session.apply(linked.parameters);
       if (outcome.kind === "accepted") setDraft(linked.parameters);
@@ -228,10 +229,18 @@ export function CoefficientLab({
   const find = (outputs: ReturnType<typeof parseResult>[], quantityId: string) =>
     outputs.find((item) => item.quantityId === quantityId);
   const printed = example.printedConversion;
-  const execution = deriveHostExecution(view, ME02_OUTPUTS, example.sourceDigest,
-    snapshot === session.getServerSnapshot().accepted);
-  const boundEquations = equations.filter(equation => equation.paper === "mass-energy" &&
-    equation.bindings.length > 0 && equation.bindings.every(binding => binding.experimentId === "me-02"));
+  const execution = deriveHostExecution(
+    view,
+    ME02_OUTPUTS,
+    example.sourceDigest,
+    snapshot === session.getServerSnapshot().accepted,
+  );
+  const boundEquations = equations.filter(
+    (equation) =>
+      equation.paper === "mass-energy" &&
+      equation.bindings.length > 0 &&
+      equation.bindings.every((binding) => binding.experimentId === "me-02"),
+  );
   return (
     <section
       className="laboratory"
@@ -356,9 +365,17 @@ export function CoefficientLab({
               />{" "}
               Show the naive evaluation of gamma minus one (diagnostic only)
             </label>
-            <p className="fine">Changing the input unit reinterprets the entered number and creates a new setup. Physical outputs use joules and kilograms; normalized mode uses c = 1 and normalized energy and mass units.</p>
+            <p className="fine">
+              Changing the input unit reinterprets the entered number and creates a new setup.
+              Physical outputs use joules and kilograms; normalized mode uses c = 1 and normalized
+              energy and mass units.
+            </p>
             <button type="submit">Apply settings</button>
-            <p><a data-settings-permalink href={encodeMe02Settings(p)}>Permalink to the accepted configuration</a></p>
+            <p>
+              <a data-settings-permalink href={encodeMe02Settings(p)}>
+                Permalink to the accepted configuration
+              </a>
+            </p>
             {error ? (
               <p id={`${id}-error`} className="notice" role="alert">
                 {error}
@@ -380,7 +397,9 @@ export function CoefficientLab({
             <table>
               <caption>
                 Outputs from the host calculation. Presentation does not recompute them.
-                {p.energyUnit === "normalized" ? " Normalized energy and mass units (c = 1)." : " Energy in joules; mass in kilograms. Erg inputs are converted to SI before calculation."}
+                {p.energyUnit === "normalized"
+                  ? " Normalized energy and mass units (c = 1)."
+                  : " Energy in joules; mass in kilograms. Erg inputs are converted to SI before calculation."}
               </caption>
               <tbody>
                 <tr>
@@ -475,30 +494,51 @@ export function CoefficientLab({
           </div>
         </div>
       </div>
-      {boundEquations.length > 0 && <section id={restoreSettings ? "coefficient-equations" : `${id}-equations`}
-        aria-labelledby={`${id}-equations-title`} data-coefficient-equations>
-        <h3 id={`${id}-equations-title`}>Explore the accepted result, term by term</h3>
-        <p>Only declared result terms read this laboratory's accepted snapshot. Body energies,
-          the unknown offset and unbound inputs stay symbolic. A draft edit does not change these values.</p>
-        {p.energyUnit === "normalized" && <p className="notice" data-equation-unit-notice>
-          The current example uses normalized units (c = 1). These SI equations remain symbolic.
-          Choose joule or erg and apply settings to attach physical-unit results.
-        </p>}
-        <EquationScope scope={`me02-${id}`}
-          slots={[{ slot: "primary", experimentId: "me-02", view, execution }]}>
-          {boundEquations.map(equation => <details key={equation.id}>
-            <summary>{equation.title}</summary>
-            <SemanticEquation equation={equation} />
-          </details>)}
-        </EquationScope>
-        <p><a href="/papers/mass-energy/#arg-me-constant-premise">Return to the unchanged-offset premise →</a></p>
-      </section>}
+      {boundEquations.length > 0 && (
+        <section
+          id={restoreSettings ? "coefficient-equations" : `${id}-equations`}
+          aria-labelledby={`${id}-equations-title`}
+          data-coefficient-equations
+        >
+          <h3 id={`${id}-equations-title`}>Explore the accepted result, term by term</h3>
+          <p>
+            Only declared result terms read this laboratory's accepted snapshot. Body energies, the
+            unknown offset and unbound inputs stay symbolic. A draft edit does not change these
+            values.
+          </p>
+          {p.energyUnit === "normalized" && (
+            <p className="notice" data-equation-unit-notice>
+              The current example uses normalized units (c = 1). These SI equations remain symbolic.
+              Choose joule or erg and apply settings to attach physical-unit results.
+            </p>
+          )}
+          <EquationScope
+            scope={`me02-${id}`}
+            slots={[{ slot: "primary", experimentId: "me-02", view, execution }]}
+          >
+            {boundEquations.map((equation) => (
+              <details key={equation.id}>
+                <summary>{equation.title}</summary>
+                <SemanticEquation equation={equation} />
+              </details>
+            ))}
+          </EquationScope>
+          <p>
+            <a href="/papers/mass-energy/#arg-me-constant-premise">
+              Return to the unchanged-offset premise →
+            </a>
+          </p>
+        </section>
+      )}
       <p className="fine">Not modeled: {ME02_NOT_MODELED.join("; ")}.</p>
     </section>
   );
 }
 
-export function CoefficientComparison({ example, equations = [] }: {
+export function CoefficientComparison({
+  example,
+  equations = [],
+}: {
   example: PreparedMe02Example;
   equations?: readonly CompiledEquation[];
 }) {

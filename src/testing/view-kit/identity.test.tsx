@@ -139,7 +139,10 @@ describe("visual kit identity attributes (am-inst-2d-view-kit-u75r)", () => {
                 ...identity,
               }),
               createElement(LinePlot, {
-                data: [{ x: 1, y: 1 }, { x: 2, y: 2 }],
+                data: [
+                  { x: 1, y: 1 },
+                  { x: 2, y: 2 },
+                ],
                 xProjector: xProj,
                 yProjector: yProj,
                 ...identity,

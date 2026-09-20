@@ -136,7 +136,15 @@ export function FieldFrameChangePlot({
           </marker>
         </defs>
 
-        <rect x="10" y="10" width="320" height="200" rx="8" fill="var(--panel)" stroke="var(--line)" />
+        <rect
+          x="10"
+          y="10"
+          width="320"
+          height="200"
+          rx="8"
+          fill="var(--panel)"
+          stroke="var(--line)"
+        />
 
         {/* Axes */}
         <line x1="30" y1={cy} x2="310" y2={cy} stroke="var(--line)" strokeDasharray="3 3" />

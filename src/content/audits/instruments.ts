@@ -280,14 +280,20 @@ export function loadLiveInstrumentRows(
           }
           if (Array.isArray(parsed.presets)) {
             presets = parsed.presets
-              .map((p: unknown) => (typeof p === "string" ? p : (p as { presetId?: string })?.presetId))
+              .map((p: unknown) =>
+                typeof p === "string" ? p : (p as { presetId?: string })?.presetId,
+              )
               .filter(Boolean)
               .map(String);
           }
-          const predMode = parsed.predictMode as { enabled?: boolean; exemptionReason?: string; prompts?: unknown[] } | undefined;
+          const predMode = parsed.predictMode as
+            | { enabled?: boolean; exemptionReason?: string; prompts?: unknown[] }
+            | undefined;
           if (predMode?.prompts && Array.isArray(predMode.prompts)) {
             predictPrompts = predMode.prompts
-              .map((p: unknown) => (typeof p === "string" ? p : (p as { promptId?: string })?.promptId))
+              .map((p: unknown) =>
+                typeof p === "string" ? p : (p as { promptId?: string })?.promptId,
+              )
               .filter(Boolean)
               .map(String);
           }
@@ -298,7 +304,9 @@ export function loadLiveInstrumentRows(
               .map(String);
           }
           predictEnabled = predMode?.enabled === true;
-          predictExemptionReason = predMode?.exemptionReason ? String(predMode.exemptionReason) : undefined;
+          predictExemptionReason = predMode?.exemptionReason
+            ? String(predMode.exemptionReason)
+            : undefined;
           embeddable = parsed.embeddable === true;
           if (Array.isArray(parsed.actionContracts)) {
             actionContracts = parsed.actionContracts.length;

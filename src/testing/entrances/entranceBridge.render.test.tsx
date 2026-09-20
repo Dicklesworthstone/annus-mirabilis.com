@@ -134,4 +134,3 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     expect(html).toContain("Root-mean-square displacement (RMS) = √20 ≈ 4.472 units.");
   });
 });
-

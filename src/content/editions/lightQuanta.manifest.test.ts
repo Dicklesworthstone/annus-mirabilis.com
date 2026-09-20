@@ -695,7 +695,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     const beta = 4.866e-11;
     const R = 8.31e7;
     const L = 3.0e10;
-    const factor = (8 * Math.PI * R) / Math.pow(L, 3);
+    const factor = (8 * Math.PI * R) / L ** 3;
 
     // 1. N for alpha = 6.10e-57 (relative 1e-4 against 6.1705e23)
     const alpha1 = 6.1e-57;

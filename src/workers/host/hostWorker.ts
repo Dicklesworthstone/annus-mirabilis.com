@@ -78,7 +78,8 @@ export function handleHostWorkerMessageWithPost(
   post: (msg: unknown, transfer?: Transferable[]) => void,
 ): void {
   if (!msg || typeof msg !== "object") return;
-  const kind = "messageKind" in msg ? (msg as { readonly messageKind?: unknown }).messageKind : undefined;
+  const kind =
+    "messageKind" in msg ? (msg as { readonly messageKind?: unknown }).messageKind : undefined;
 
   if (kind === "hello") {
     post(HOST_WORKER_HELLO);
@@ -449,7 +450,9 @@ export function createHostWorkerChannel(): WorkerChannel {
 
 // Setup listeners if in worker context
 if (typeof self !== "undefined") {
-  (self as unknown as { onmessage: (event: MessageEvent) => void }).onmessage = (event: MessageEvent) => {
+  (self as unknown as { onmessage: (event: MessageEvent) => void }).onmessage = (
+    event: MessageEvent,
+  ) => {
     handleHostWorkerMessage(event.data);
   };
 } else {

@@ -9,11 +9,11 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { Expression } from "../ast.ts";
-import type { AlternateForm } from "../alternateForms.ts";
 import { parseAlternateFormId } from "../../content/ids.ts";
-import { BROWNIAN_QUANTITIES } from "../quantities.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
+import type { AlternateForm } from "../alternateForms.ts";
+import type { Expression } from "../ast.ts";
+import { BROWNIAN_QUANTITIES } from "../quantities.ts";
 import { renderEquationLatex } from "./render.ts";
 
 const sym = (termId: string, quantityId: string = termId): Expression => ({
@@ -36,7 +36,12 @@ const root2 = (radicand: Expression): Expression => ({
   radicand,
   degree: 2,
 });
-const rel = (operator: "=" | "approx", left: Expression, right: Expression, opId?: string): Expression => ({
+const rel = (
+  operator: "=" | "approx",
+  left: Expression,
+  right: Expression,
+  opId?: string,
+): Expression => ({
   kind: "relation",
   operator,
   left,
@@ -81,7 +86,12 @@ test("render.golden.test: Paper 2 diffusion relation matches pinned goldens", ()
       ),
       quot(
         num("1"),
-        prod(num("6"), { kind: "constant", name: "pi" }, sym("eq-bm.t.k", "viscosity"), sym("eq-bm.t.p", "particleRadius")),
+        prod(
+          num("6"),
+          { kind: "constant", name: "pi" },
+          sym("eq-bm.t.k", "viscosity"),
+          sym("eq-bm.t.p", "particleRadius"),
+        ),
       ),
     ),
     "eq-bm.op.rel",
@@ -131,11 +141,7 @@ test("render.golden.test: Paper 2 RMS displacement matches pinned goldens", () =
     "=",
     sym("eq-bm.t.lambda", "rmsDisplacement1d"),
     root2(
-      prod(
-        num("2"),
-        sym("eq-bm.t.D", "diffusionCoefficient"),
-        sym("eq-bm.t.t", "elapsedTime"),
-      ),
+      prod(num("2"), sym("eq-bm.t.D", "diffusionCoefficient"), sym("eq-bm.t.t", "elapsedTime")),
     ),
     "eq-bm.op.rel",
   );
@@ -176,10 +182,11 @@ test("render.golden.test: Paper 3 boost coordinate matches pinned goldens", () =
           sym("eq-sr.t.t", "coordinateTimeStationary"),
           neg(
             prod(
-              quot(
-                sym("eq-sr.t.v", "frameSpeed"),
-                { kind: "power", base: sym("eq-sr.t.V", "speedOfLight"), exponent: { num: 2, den: 1 } },
-              ),
+              quot(sym("eq-sr.t.v", "frameSpeed"), {
+                kind: "power",
+                base: sym("eq-sr.t.V", "speedOfLight"),
+                exponent: { num: 2, den: 1 },
+              }),
               sym("eq-sr.t.x", "coordinatePositionStationary"),
             ),
           ),

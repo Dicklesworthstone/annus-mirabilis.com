@@ -65,7 +65,11 @@ describe("Heavy laboratory concurrency limits and LRU suspension", () => {
 
   test("resumed laboratory achieves bitwise identical scientific digest to un-suspended reference run", () => {
     // 1. Run reference lab continuously for 20 steps
-    const refLab = new HeavyFixtureLaboratory({ id: "ref-run", seed: "42000000", particleCount: 50 });
+    const refLab = new HeavyFixtureLaboratory({
+      id: "ref-run",
+      seed: "42000000",
+      particleCount: 50,
+    });
     refLab.mount();
     refLab.step(20);
     const expectedFinalState = refLab.serializeState();
@@ -75,7 +79,11 @@ describe("Heavy laboratory concurrency limits and LRU suspension", () => {
     const manager = new HeavyLaboratoryManager(1); // limit 1
     let savedStateHolder: ReplayableLabState | null = null;
 
-    const testLab = new HeavyFixtureLaboratory({ id: "test-run", seed: "42000000", particleCount: 50 });
+    const testLab = new HeavyFixtureLaboratory({
+      id: "test-run",
+      seed: "42000000",
+      particleCount: 50,
+    });
     testLab.mount();
 
     manager.register(
@@ -94,7 +102,11 @@ describe("Heavy laboratory concurrency limits and LRU suspension", () => {
     expect(midState.simulatedTime).toBeCloseTo(0.1, 5);
 
     // Introduce another lab to trigger suspension of testLab
-    const otherLab = new HeavyFixtureLaboratory({ id: "other-lab", seed: "999", particleCount: 10 });
+    const otherLab = new HeavyFixtureLaboratory({
+      id: "other-lab",
+      seed: "999",
+      particleCount: 10,
+    });
     otherLab.mount();
     manager.register(
       otherLab.id,

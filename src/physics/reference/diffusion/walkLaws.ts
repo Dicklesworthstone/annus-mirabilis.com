@@ -127,7 +127,9 @@ export function kernelMoments(kernel: StepKernel): Readonly<{
       !offsets.every(Number.isFinite) ||
       !weights.every((w) => Number.isFinite(w) && w >= 0)
     ) {
-      return bad("Tabulated offsets and non-negative weights of equal positive length are required.");
+      return bad(
+        "Tabulated offsets and non-negative weights of equal positive length are required.",
+      );
     }
     const totalWeight = weights.reduce((sum, w) => sum + w, 0);
     if (totalWeight <= 0) {

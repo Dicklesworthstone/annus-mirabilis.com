@@ -1,7 +1,12 @@
 import { BM01_COMPARISON } from "../../experiments/bm01/comparison.ts";
 import { comparisonDisplay } from "../../experiments/compare/comparisonStatement.ts";
 import { REPLAY_PREDICTIONS } from "./replayEntry.ts";
-import { type NotebookDocument, type NotebookReplayEntry, notebookFrameHref, parseNotebookDocument } from "./schema.ts";
+import {
+  type NotebookDocument,
+  type NotebookReplayEntry,
+  notebookFrameHref,
+  parseNotebookDocument,
+} from "./schema.ts";
 
 export function exportNotebookJson(document: NotebookDocument): string {
   return `${JSON.stringify(parseNotebookDocument(document), null, 2)}\n`;
@@ -15,15 +20,24 @@ function escapeHtml(value: string): string {
     .replaceAll("'", "&#39;");
 }
 function replayHtml(entry: NotebookReplayEntry): string {
-  const replay = entry.replay, prediction = replay.tape.predictions?.[0];
-  const candidate = prediction?.form === "candidate" && "candidateId" in prediction.payload ? prediction.payload.candidateId : "";
-  const rows = BM01_COMPARISON.outputs.map((spec) => {
-    const a = replay.baseline.outputs[spec.id], b = replay.variant.outputs[spec.id];
-    function value(output: typeof a) { return output?.value === null || !output
-      ? `${output?.status ?? "missing"}: ${output?.reason ?? "No numeric value"}`
-      : comparisonDisplay(output.value, spec.displayFactor); }
-    return `<tr><th scope="row">${escapeHtml(spec.label)}</th><td>${escapeHtml(spec.displayUnit)}</td><td>${escapeHtml(value(a))}</td><td>${escapeHtml(value(b))}</td></tr>`;
-  }).join("");
+  const replay = entry.replay,
+    prediction = replay.tape.predictions?.[0];
+  const candidate =
+    prediction?.form === "candidate" && "candidateId" in prediction.payload
+      ? prediction.payload.candidateId
+      : "";
+  const rows = BM01_COMPARISON.outputs
+    .map((spec) => {
+      const a = replay.baseline.outputs[spec.id],
+        b = replay.variant.outputs[spec.id];
+      function value(output: typeof a) {
+        return output?.value === null || !output
+          ? `${output?.status ?? "missing"}: ${output?.reason ?? "No numeric value"}`
+          : comparisonDisplay(output.value, spec.displayFactor);
+      }
+      return `<tr><th scope="row">${escapeHtml(spec.label)}</th><td>${escapeHtml(spec.displayUnit)}</td><td>${escapeHtml(value(a))}</td><td>${escapeHtml(value(b))}</td></tr>`;
+    })
+    .join("");
   return `<section><h3>What you saw on ${escapeHtml(entry.createdAt)} (model ${escapeHtml(replay.baseline.identity.modelVersion)})</h3>
 <p>Saved synthetic scalar readouts, not current results or a complete trajectory archive. This table uses five significant digits; the saved display precision was ${replay.displaySignificantDigits}. Full-precision values are retained below.</p>
 <p>Prediction: ${escapeHtml(Object.hasOwn(REPLAY_PREDICTIONS, candidate) ? REPLAY_PREDICTIONS[candidate as keyof typeof REPLAY_PREDICTIONS] : "None recorded before this request")}</p>

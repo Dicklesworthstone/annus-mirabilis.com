@@ -2,11 +2,11 @@
  * Types and interfaces for LaTeX generation (am-eq-latex-generation-hc3).
  */
 
+import type { SourceManifestIndex } from "../../content/notation/types.ts";
+import type { PaperConcordance } from "../../content/schemas/concordance.ts";
+import type { AlternateForm } from "../alternateForms.ts";
 import type { Expression } from "../ast.ts";
 import type { QuantityRegistry } from "../quantities.ts";
-import type { PaperConcordance } from "../../content/schemas/concordance.ts";
-import type { SourceManifestIndex } from "../../content/notation/types.ts";
-import type { AlternateForm } from "../alternateForms.ts";
 
 export type RenderPerspective = "source" | "modern";
 export type RenderMode = "plain" | "colorized";

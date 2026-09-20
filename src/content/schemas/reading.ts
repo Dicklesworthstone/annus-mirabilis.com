@@ -61,7 +61,12 @@ export type Argument = Header &
     help: Readonly<{ why: string; missingStep: string; example: string }>;
     experiments: readonly string[];
     meaning: Readonly<{
-      logicalRole: "definition" | "assumption" | "derivation" | "heuristic-inference" | "qualification";
+      logicalRole:
+        | "definition"
+        | "assumption"
+        | "derivation"
+        | "heuristic-inference"
+        | "qualification";
       historicalStatus: "pedagogical-reconstruction";
       modelStatus: "exact-within-model" | "approximation";
       executionStatus: "static-illustration";
@@ -350,7 +355,13 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
       "modelStatus",
       "executionStatus",
     ]);
-    choice(m.logicalRole, path, ["definition", "assumption", "derivation", "heuristic-inference", "qualification"]);
+    choice(m.logicalRole, path, [
+      "definition",
+      "assumption",
+      "derivation",
+      "heuristic-inference",
+      "qualification",
+    ]);
     choice(m.historicalStatus, path, ["pedagogical-reconstruction"]);
     choice(m.modelStatus, path, ["exact-within-model", "approximation"]);
     choice(m.executionStatus, path, ["static-illustration"]);

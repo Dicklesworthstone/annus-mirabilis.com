@@ -5,10 +5,10 @@
  * states the live tree cannot be asked to hold on demand.
  */
 
-import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -192,10 +192,7 @@ describe("tracked imports (am-zm52)", () => {
   // which is 120c67e7's shape, and `git check-ignore` genuinely decides the
   // third arm.
   test("end to end against a real index: present-and-untracked is red, tracked is green, ignored is green", () => {
-    const repo = join(
-      tmpdir(),
-      `zm52-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    );
+    const repo = join(tmpdir(), `zm52-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
     mkdirSync(join(repo, "src/editions"), { recursive: true });
     const git = (...args: string[]): void => {
       execFileSync("git", args, { cwd: repo, encoding: "utf8", stdio: "pipe" });

@@ -1,1 +1,70 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-me-scope","paper":"mass-energy","section":"s0","title":"The light has left the body, not vanished","question":"Does the combined isolated system lose energy when the body emits?","recap":"The body’s loss is the radiation’s gain; distinguish a calculation, a broader inference, and an experimental test.","review":"draft","premises":["For the combined account, include the body and all emitted light.","No energy crosses that larger boundary."],"limitations":["A successful model calculation is not an observed experimental confirmation.","The 1906 box argument and modern four-momentum are separate extensions."],"citations":["ap-18-639"],"readings":{"overview":[{"kind":"paragraph","text":"Draw a larger boundary around the body and its light. What left the body remains inside that larger system. The result calls for a test; the calculation itself does not supply one."}],"full":[{"kind":"paragraph","text":"An account of the body alone loses the emitted energy. An account including the body and both pulses retains its total energy in each frame. Losing energy from one subsystem does not mean energy has disappeared from the isolated whole."},{"kind":"paragraph","text":"The paper closes by proposing systems with strongly varying energy content, such as radium salts, as possible tests, and leaves the physical claim conditional on agreement with facts. This preview supplies neither a new experiment nor a reviewed transcription of those sentences."},{"kind":"paragraph","text":"ME-03 lets you distinguish the body, radiation, and combined-system boundaries. Its modern invariant-mass interpretation and dated 1906 box extension are additional explanations, not steps secretly inserted into the 1905 inference."}],"steps":[{"kind":"steps","items":["Choose a boundary before interpreting any reported change.","Body only: energy L has crossed outward in the rest frame.","Radiation only: the emitted energy is present in the departing pulses.","Body and all light: no energy has crossed the larger isolated boundary.","Separate the conditional prediction from an independently calibrated observation.","Return to the subtraction and name its two essential ingredients: the imported transformation and the unchanged-offset premise, followed by the low-speed identification."]}],"margin":[{"kind":"paragraph","text":"Two oppositely directed light pulses can have nonzero invariant mass as a combined system even though individual photons have zero rest mass. That statement uses modern energy–momentum accounting; it is not a premise of the 1905 two-ledger route."}]},"prerequisites":[{"id":"arg-me-mass-change","edge":"premise"}],"help":{"why":"work-energy","missingStep":"work-energy","example":"work-energy"},"experiments":["me-03"],"meaning":{"logicalRole":"qualification","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-me-scope",
+  "paper": "mass-energy",
+  "section": "s0",
+  "title": "The light has left the body, not vanished",
+  "question": "Does the combined isolated system lose energy when the body emits?",
+  "recap": "The body’s loss is the radiation’s gain; distinguish a calculation, a broader inference, and an experimental test.",
+  "review": "draft",
+  "premises": [
+    "For the combined account, include the body and all emitted light.",
+    "No energy crosses that larger boundary."
+  ],
+  "limitations": [
+    "A successful model calculation is not an observed experimental confirmation.",
+    "The 1906 box argument and modern four-momentum are separate extensions."
+  ],
+  "citations": ["ap-18-639"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Draw a larger boundary around the body and its light. What left the body remains inside that larger system. The result calls for a test; the calculation itself does not supply one."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "An account of the body alone loses the emitted energy. An account including the body and both pulses retains its total energy in each frame. Losing energy from one subsystem does not mean energy has disappeared from the isolated whole."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The paper closes by proposing systems with strongly varying energy content, such as radium salts, as possible tests, and leaves the physical claim conditional on agreement with facts. This preview supplies neither a new experiment nor a reviewed transcription of those sentences."
+      },
+      {
+        "kind": "paragraph",
+        "text": "ME-03 lets you distinguish the body, radiation, and combined-system boundaries. Its modern invariant-mass interpretation and dated 1906 box extension are additional explanations, not steps secretly inserted into the 1905 inference."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Choose a boundary before interpreting any reported change.",
+          "Body only: energy L has crossed outward in the rest frame.",
+          "Radiation only: the emitted energy is present in the departing pulses.",
+          "Body and all light: no energy has crossed the larger isolated boundary.",
+          "Separate the conditional prediction from an independently calibrated observation.",
+          "Return to the subtraction and name its two essential ingredients: the imported transformation and the unchanged-offset premise, followed by the low-speed identification."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Two oppositely directed light pulses can have nonzero invariant mass as a combined system even though individual photons have zero rest mass. That statement uses modern energy–momentum accounting; it is not a premise of the 1905 two-ledger route."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-me-mass-change", "edge": "premise" }],
+  "help": { "why": "work-energy", "missingStep": "work-energy", "example": "work-energy" },
+  "experiments": ["me-03"],
+  "meaning": {
+    "logicalRole": "qualification",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

@@ -457,10 +457,10 @@ export function MeasuredTrajectoryLab() {
               </div>
             )}
             <p className="fine">
-              Diffusion alone cannot determine molecular number independently of particle radius. With
-              modern SI constants, the optional inverse result is a consistency check, not an
-              independent count of molecules. Its interval holds all declared physical inputs and the
-              calibration exact.
+              Diffusion alone cannot determine molecular number independently of particle radius.
+              With modern SI constants, the optional inverse result is a consistency check, not an
+              independent count of molecules. Its interval holds all declared physical inputs and
+              the calibration exact.
             </p>
           </fieldset>
         )}
@@ -508,9 +508,9 @@ export function MeasuredTrajectoryLab() {
             Accepted estimator:{" "}
             {isCameraTrajectoryAnalysis(a)
               ? "Disjoint frame pairs · fitted common drift"
-              : estimatorNames[a.assumptions.estimator]}. Requested coverage:{" "}
-            {(a.assumptions.coverage * 100).toFixed(1)}%. Input units: {a.trajectory.units.time},{" "}
-            {a.trajectory.units.position}
+              : estimatorNames[a.assumptions.estimator]}
+            . Requested coverage: {(a.assumptions.coverage * 100).toFixed(1)}%. Input units:{" "}
+            {a.trajectory.units.time}, {a.trajectory.units.position}
             {a.trajectory.units.position === "px"
               ? `; ${a.trajectory.units.micrometresPerPixel} μm per pixel`
               : ""}

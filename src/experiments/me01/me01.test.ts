@@ -13,9 +13,9 @@ import {
   ME01_QUESTION,
   type Me01Parameters,
 } from "./definition.ts";
+import { prepareMassEnergyScenario } from "./entranceScenario.ts";
 import { decodeMe01Settings, encodeMe01Settings } from "./permalink.ts";
 import { createMe01Session } from "./session.ts";
-import { prepareMassEnergyScenario } from "./entranceScenario.ts";
 
 const root = process.cwd();
 

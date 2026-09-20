@@ -361,8 +361,7 @@ export function StudioKernelChips({
                     <span
                       style={{
                         fontWeight: "normal",
-                        color:
-                          tone === "warn" || tone === "hot" ? "var(--accent)" : "var(--muted)",
+                        color: tone === "warn" || tone === "hot" ? "var(--accent)" : "var(--muted)",
                       }}
                     >
                       {" "}

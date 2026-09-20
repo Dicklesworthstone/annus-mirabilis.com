@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { BrownianComparisonLab } from "../../../../components/lab/BrownianComparisonLab.tsx";
-import replayCatalogue from "../../../../generated/notebook-replay.json";
 import example from "../../../../generated/bm01-comparison.json";
+import replayCatalogue from "../../../../generated/notebook-replay.json";
 
 export const metadata: Metadata = {
   title: "Hold something fixed: a controlled Brownian comparison",
@@ -29,7 +29,10 @@ export default function BrownianComparisonPage() {
           </a>
         </div>
       </header>
-      <BrownianComparisonLab example={example} passage={replayCatalogue.passages["arg-bm-observable"]} />
+      <BrownianComparisonLab
+        example={example}
+        passage={replayCatalogue.passages["arg-bm-observable"]}
+      />
     </>
   );
 }

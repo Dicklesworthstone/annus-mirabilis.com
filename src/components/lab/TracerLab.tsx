@@ -533,7 +533,10 @@ export function TracerLab({
                   <th scope="row">Signed mean (sample)</th>
                   <td data-output="sampleMean">
                     {display(scalar(snapshot, "sampleMean"), 1e6)} μm{" "}
-                    <span className="fine constant-set-annotation" data-constant-set-id={constantSetId}>
+                    <span
+                      className="fine constant-set-annotation"
+                      data-constant-set-id={constantSetId}
+                    >
                       ({constantSetId})
                     </span>
                   </td>
@@ -542,7 +545,10 @@ export function TracerLab({
                   <th scope="row">Mean absolute coordinate displacement</th>
                   <td>
                     {display(scalar(snapshot, "sampleMeanAbsolute"), 1e6)} μm{" "}
-                    <span className="fine constant-set-annotation" data-constant-set-id={constantSetId}>
+                    <span
+                      className="fine constant-set-annotation"
+                      data-constant-set-id={constantSetId}
+                    >
                       ({constantSetId})
                     </span>
                   </td>
@@ -558,7 +564,10 @@ export function TracerLab({
                     <span data-quantity-id="rmsDisplacement1d">
                       {display(scalar(snapshot, "rmsDisplacement1d"), 1e6)} μm
                     </span>{" "}
-                    <span className="fine constant-set-annotation" data-constant-set-id={constantSetId}>
+                    <span
+                      className="fine constant-set-annotation"
+                      data-constant-set-id={constantSetId}
+                    >
                       ({constantSetId})
                     </span>
                   </td>
@@ -568,7 +577,10 @@ export function TracerLab({
                   <td>
                     {display(scalar(snapshot, "sampleMeanNorm"), 1e6)} /{" "}
                     {display(scalar(snapshot, "modelMeanNorm"), 1e6)} μm{" "}
-                    <span className="fine constant-set-annotation" data-constant-set-id={constantSetId}>
+                    <span
+                      className="fine constant-set-annotation"
+                      data-constant-set-id={constantSetId}
+                    >
                       ({constantSetId})
                     </span>
                   </td>

@@ -112,9 +112,7 @@ describe("TermAnnotation unit and face integration", () => {
     expect(trigger?.getAttribute("data-term-expanded")).toBe("true");
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
 
-    const popover = container.querySelector<HTMLElement>(
-      '[data-term-popover="term-verschiebung"]',
-    );
+    const popover = container.querySelector<HTMLElement>('[data-term-popover="term-verschiebung"]');
     expect(popover).not.toBeNull();
     expect(popover?.getAttribute("role")).toBe("dialog");
     expect(popover?.textContent).toContain(definitionText);

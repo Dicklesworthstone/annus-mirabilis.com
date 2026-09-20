@@ -298,13 +298,28 @@ export function BrownianFirstEncounter({
                 const idx = item.index;
                 const leftPercent = Math.max(0, Math.min(100, ((pos + 8) / 16) * 100));
                 const particleStyles = [
-                  { background: "var(--panel)", color: "var(--ink)", border: "2px solid var(--accent)" },
-                  { background: "var(--wash)", color: "var(--ink)", border: "2px solid var(--line)" },
-                  { background: "var(--accent)", color: "var(--paper)", border: "2px solid var(--accent)" },
-                  { background: "var(--ink)", color: "var(--paper)", border: "2px solid var(--ink)" },
+                  {
+                    background: "var(--panel)",
+                    color: "var(--ink)",
+                    border: "2px solid var(--accent)",
+                  },
+                  {
+                    background: "var(--wash)",
+                    color: "var(--ink)",
+                    border: "2px solid var(--line)",
+                  },
+                  {
+                    background: "var(--accent)",
+                    color: "var(--paper)",
+                    border: "2px solid var(--accent)",
+                  },
+                  {
+                    background: "var(--ink)",
+                    color: "var(--paper)",
+                    border: "2px solid var(--ink)",
+                  },
                 ];
-                const markerStyle =
-                  particleStyles[idx % particleStyles.length] ??
+                const markerStyle = particleStyles[idx % particleStyles.length] ??
                   particleStyles[0] ?? {
                     background: "var(--panel)",
                     color: "var(--ink)",
@@ -576,7 +591,8 @@ export function BrownianFirstEncounter({
           <p>
             A signed total of zero tells us that the average endpoint has not shifted. It does not
             mean every particle remained at rest. In the authored example all four particles have
-            nonzero displacements; after your edits the displayed totals describe your chosen endpoints.
+            nonzero displacements; after your edits the displayed totals describe your chosen
+            endpoints.
           </p>
         </section>
 
@@ -638,7 +654,8 @@ export function BrownianFirstEncounter({
           <h4>Step 8 · Why the mean square has a simple additive rule</h4>
           <p>
             Both proposals measure spread. The mean square has a useful property when independent,
-            zero-mean displacements are added. This is a pedagogical bridge, not the paper’s printed calculation.
+            zero-mean displacements are added. This is a pedagogical bridge, not the paper’s printed
+            calculation.
           </p>
           <p>
             First expand the square of a sum. This algebra holds without an independence assumption:
@@ -654,10 +671,10 @@ export function BrownianFirstEncounter({
           </div>
           <p>
             Now assume the displacements over the chosen time intervals are independent and each has
-            zero mean. Independence makes the average product equal the product of the averages,
-            so the cross term vanishes on averaging—not in every outcome. Equal finite step mean
-            squares then add in proportion to the number of intervals. This coarse-grained assumption
-            is not a claim about molecular motion at arbitrarily short times.
+            zero mean. Independence makes the average product equal the product of the averages, so
+            the cross term vanishes on averaging—not in every outcome. Equal finite step mean
+            squares then add in proportion to the number of intervals. This coarse-grained
+            assumption is not a claim about molecular motion at arbitrarily short times.
           </p>
           <p>
             Absolute values do not possess this mathematical linearity when steps are added
@@ -669,9 +686,9 @@ export function BrownianFirstEncounter({
           <h4>Step 9 · Mean absolute displacement is not a wrong answer</h4>
           <p>
             Mean absolute displacement is <strong>not</strong> an incorrect calculation. It answers
-            a slightly different question about the average absolute net displacement from the starting point and, in the
-            ideal Gaussian distribution, it scales directly with the square root of time
-            (equal to √(4Dt/π) along one coordinate).
+            a slightly different question about the average absolute net displacement from the
+            starting point and, in the ideal Gaussian distribution, it scales directly with the
+            square root of time (equal to √(4Dt/π) along one coordinate).
           </p>
         </section>
       </div>
@@ -713,9 +730,11 @@ export function BrownianFirstEncounter({
         )}
       </div>
 
-      <p><a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
-        Why do the cross terms vanish? Open the exact missing step →
-      </a></p>
+      <p>
+        <a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
+          Why do the cross terms vanish? Open the exact missing step →
+        </a>
+      </p>
 
       {/* Step 10 · The Bridge */}
       <footer

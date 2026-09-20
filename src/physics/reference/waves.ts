@@ -414,7 +414,6 @@ export function lightComplexMaterialContractionCountermodel(
   });
 }
 
-
 /**
  * Cancellation-free second-order Doppler shift:
  * (nu_mean / nu_0) - 1 = gamma - 1
@@ -602,7 +601,6 @@ export function movingMirrorHarmonizedResults(
     }),
   ]);
 }
-
 
 /**
  * Mirror-frame energy and force ledger (SR-11 observer change).

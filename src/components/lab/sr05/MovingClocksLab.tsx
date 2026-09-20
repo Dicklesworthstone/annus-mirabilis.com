@@ -59,10 +59,7 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
   const dailyLossSpeedBeta = numberOf(outputs, "dailyLossSpeedBeta");
 
   return (
-    <div
-      className="lab-surface moving-clocks-lab"
-      data-testid="moving-clocks-lab"
-    >
+    <div className="lab-surface moving-clocks-lab" data-testid="moving-clocks-lab">
       <section aria-label="Named scenarios">
         <h2>Choose a scenario</h2>
         <p className="fine">

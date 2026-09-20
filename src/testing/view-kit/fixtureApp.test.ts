@@ -2,7 +2,10 @@ import { afterAll, describe, expect, test } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { bundleFixtureApp, fixtureBundlePath } from "../../../scripts/e2e/fixtures/bundleFixtures.ts";
+import {
+  bundleFixtureApp,
+  fixtureBundlePath,
+} from "../../../scripts/e2e/fixtures/bundleFixtures.ts";
 import {
   FIXTURE_APP_REGISTRY,
   validateFixtureAppRegistry,

@@ -234,12 +234,22 @@ export async function compileContent(
       }
     }
   }
-  const argumentIds = [...rawRecords.values()].flatMap(record => {
-    if (record && typeof record === "object" && "kind" in record && record.kind === "argument" && "id" in record && typeof record.id === "string") return [record.id];
+  const argumentIds = [...rawRecords.values()].flatMap((record) => {
+    if (
+      record &&
+      typeof record === "object" &&
+      "kind" in record &&
+      record.kind === "argument" &&
+      "id" in record &&
+      typeof record.id === "string"
+    )
+      return [record.id];
     return [];
   });
   for (const diagnostic of checkMissingStepContent(files, argumentIds))
-    addIssue("error", diagnostic.code, diagnostic.path, diagnostic.message, {family: "structural"});
+    addIssue("error", diagnostic.code, diagnostic.path, diagnostic.message, {
+      family: "structural",
+    });
   // Preview readings may point only to instruments in the implemented catalogue.
   // Enforce this even when a caller supplies a custom plugin-check registry.
   for (const record of rawRecords.values()) {
@@ -247,8 +257,13 @@ export async function compileContent(
     if (argument?.kind !== "argument" || !Array.isArray(argument.experiments)) continue;
     for (const id of argument.experiments) {
       if (!(REGISTERED_IDS as readonly string[]).includes(id)) {
-        addIssue("error", "unavailable-experiment", argument.id ?? "argument",
-          `No implemented preview route for ${id}.`, { family: "structural" });
+        addIssue(
+          "error",
+          "unavailable-experiment",
+          argument.id ?? "argument",
+          `No implemented preview route for ${id}.`,
+          { family: "structural" },
+        );
       }
     }
   }

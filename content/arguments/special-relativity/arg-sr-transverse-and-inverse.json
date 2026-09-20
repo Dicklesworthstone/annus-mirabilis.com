@@ -1,1 +1,83 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-sr-transverse-and-inverse","paper":"special-relativity","section":"s3","title":"The sideways step needs its own condition","question":"Why do the transverse coordinates stay unchanged?","recap":"The longitudinal light constraints do not alone determine transverse scale. Enforcing the isotropic light-speed condition on transverse propagation, together with the inverse and positive identity limit, completes the map.","review":"draft","premises":["Use the scale fixed in the longitudinal transformation.","Light has the same speed in all spatial directions, not only along x."],"limitations":["Checking a single axial ray cannot test transverse normalization.","Matrix determinants and interval checks verify this result but do not replace its stated physical premises."],"citations":["ap-17-891"],"readings":{"overview":[{"kind":"paragraph","text":"The longitudinal light constraints do not alone determine transverse scale. Enforcing the isotropic light-speed condition on transverse propagation, together with the inverse and positive identity limit, completes the map."}],"full":[{"kind":"paragraph","text":"Write y′ = b(v)y for a transverse axis. On a ray with x = 0, y = ct, the already determined longitudinal map gives x′ = −γvt and t′ = γt. Requiring the transformed ray’s speed to be c gives γ²v² + b²c² = γ²c², hence b² = 1."},{"kind":"paragraph","text":"The positive, identity-connected choice gives y′ = y and likewise z′ = z. The inverse map replaces v with −v and exchanges primed and unprimed quantities."},{"kind":"formula","latex":"x=\\gamma(x'+vt'),\\qquad t=\\gamma\\left(t'+\\frac{vx'}{c^2}\\right)","spoken":"The inverse transformation uses plus v and exchanges the two frames."},{"kind":"paragraph","text":"At v = 0.6c, γ = 1.25. In units where c = 1, the event (t, x) = (2, 1) becomes (1.75, −0.25); the inverse returns (2, 1). SR-04 can check the same map from either direction."},{"kind":"foundation","id":"bridge-squaring-square-roots","returnCaption":"Return to why do the transverse coordinates stay unchanged."}],"steps":[{"kind":"steps","items":["Introduce an independent transverse scale rather than assuming it is one.","Transform a ray originally perpendicular to the boost.","Require the full transformed speed, including its longitudinal component, to equal c.","Solve for the transverse scale and select the positive identity-connected branch.","Apply the inverse to a complete event, not just its spatial coordinate."]}],"margin":[{"kind":"paragraph","text":"Modern verification may check c²t² − x² − y² − z² or the matrix determinant. Those checks are labeled as consequences of this map, not imported as the historical derivation’s starting point."}]},"prerequisites":[{"id":"arg-sr-lorentz-map","edge":"premise"}],"help":{"why":"bridge-squaring-square-roots","missingStep":"bridge-squaring-square-roots","example":"bridge-squaring-square-roots"},"experiments":["sr-04"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-sr-transverse-and-inverse",
+  "paper": "special-relativity",
+  "section": "s3",
+  "title": "The sideways step needs its own condition",
+  "question": "Why do the transverse coordinates stay unchanged?",
+  "recap": "The longitudinal light constraints do not alone determine transverse scale. Enforcing the isotropic light-speed condition on transverse propagation, together with the inverse and positive identity limit, completes the map.",
+  "review": "draft",
+  "premises": [
+    "Use the scale fixed in the longitudinal transformation.",
+    "Light has the same speed in all spatial directions, not only along x."
+  ],
+  "limitations": [
+    "Checking a single axial ray cannot test transverse normalization.",
+    "Matrix determinants and interval checks verify this result but do not replace its stated physical premises."
+  ],
+  "citations": ["ap-17-891"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "The longitudinal light constraints do not alone determine transverse scale. Enforcing the isotropic light-speed condition on transverse propagation, together with the inverse and positive identity limit, completes the map."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "Write y′ = b(v)y for a transverse axis. On a ray with x = 0, y = ct, the already determined longitudinal map gives x′ = −γvt and t′ = γt. Requiring the transformed ray’s speed to be c gives γ²v² + b²c² = γ²c², hence b² = 1."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The positive, identity-connected choice gives y′ = y and likewise z′ = z. The inverse map replaces v with −v and exchanges primed and unprimed quantities."
+      },
+      {
+        "kind": "formula",
+        "latex": "x=\\gamma(x'+vt'),\\qquad t=\\gamma\\left(t'+\\frac{vx'}{c^2}\\right)",
+        "spoken": "The inverse transformation uses plus v and exchanges the two frames."
+      },
+      {
+        "kind": "paragraph",
+        "text": "At v = 0.6c, γ = 1.25. In units where c = 1, the event (t, x) = (2, 1) becomes (1.75, −0.25); the inverse returns (2, 1). SR-04 can check the same map from either direction."
+      },
+      {
+        "kind": "foundation",
+        "id": "bridge-squaring-square-roots",
+        "returnCaption": "Return to why do the transverse coordinates stay unchanged."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Introduce an independent transverse scale rather than assuming it is one.",
+          "Transform a ray originally perpendicular to the boost.",
+          "Require the full transformed speed, including its longitudinal component, to equal c.",
+          "Solve for the transverse scale and select the positive identity-connected branch.",
+          "Apply the inverse to a complete event, not just its spatial coordinate."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Modern verification may check c²t² − x² − y² − z² or the matrix determinant. Those checks are labeled as consequences of this map, not imported as the historical derivation’s starting point."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-sr-lorentz-map", "edge": "premise" }],
+  "help": {
+    "why": "bridge-squaring-square-roots",
+    "missingStep": "bridge-squaring-square-roots",
+    "example": "bridge-squaring-square-roots"
+  },
+  "experiments": ["sr-04"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

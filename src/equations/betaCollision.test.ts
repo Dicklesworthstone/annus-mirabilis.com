@@ -22,11 +22,7 @@ import { expressionLatex } from "./latex.ts";
 
 describe("AC2: Beta Collision Fixture Pair and Glyph Independence", () => {
   test("validates both fixtures through parseExpression against the beta collision registry", () => {
-    const parsedWien = parseExpression(
-      paper1WienLawFixture,
-      "eq-s2-d1",
-      BETA_COLLISION_REGISTRY,
-    );
+    const parsedWien = parseExpression(paper1WienLawFixture, "eq-s2-d1", BETA_COLLISION_REGISTRY);
     expect(parsedWien).toBeDefined();
 
     const parsedLorentz = parseExpression(

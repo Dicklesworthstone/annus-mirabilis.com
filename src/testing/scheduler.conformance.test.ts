@@ -10,12 +10,12 @@
  */
 
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
-import { runProtocolConformance } from "../workers/protocol/conformance.ts";
-import { createHostWorkerChannel } from "../workers/host/hostWorker.ts";
-import { createWasmWorkerChannel } from "../workers/wasm/wasmWorker.ts";
-import { loadDefaultManifest } from "../workers/protocol/provenance.ts";
 import { resolve } from "node:path";
+import { describe, it } from "node:test";
+import { createHostWorkerChannel } from "../workers/host/hostWorker.ts";
+import { runProtocolConformance } from "../workers/protocol/conformance.ts";
+import { loadDefaultManifest } from "../workers/protocol/provenance.ts";
+import { createWasmWorkerChannel } from "../workers/wasm/wasmWorker.ts";
 
 describe("scheduler.conformance", () => {
   it("runs full protocol conformance suite against hostWorker and passes all 12 steps", async () => {
@@ -176,4 +176,3 @@ describe("scheduler.conformance", () => {
     assert.match(kernelResp.refusal?.message ?? "", /Kernel 9 is unsupported/);
   });
 });
-

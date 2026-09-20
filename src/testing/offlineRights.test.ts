@@ -4,11 +4,8 @@ import {
   type PublicationDecision,
   renderOfflineAsset,
 } from "../platform/offline/assets.ts";
-import {
-  type OfflineChapterInput,
-  packageOfflineChapter,
-} from "../platform/offline/chapter.ts";
 import { chapterFixture, fixtureMath } from "../platform/offline/chapter.test.mjs";
+import { type OfflineChapterInput, packageOfflineChapter } from "../platform/offline/chapter.ts";
 
 describe("offlineRights: publicationDecision filtering and embedding", () => {
   const dummyBytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]); // PNG header
@@ -33,7 +30,9 @@ describe("offlineRights: publicationDecision filtering and embedding", () => {
     expect(rendered.html).toContain('<figure id="fig-apparatus" class="offline-figure">');
     expect(rendered.html).toContain('<img src="data:image/png;base64,');
     expect(rendered.html).toContain('alt="Experimental Apparatus"');
-    expect(rendered.html).toContain("<figcaption>Figure 1: Schematic of the observation cell.</figcaption>");
+    expect(rendered.html).toContain(
+      "<figcaption>Figure 1: Schematic of the observation cell.</figcaption>",
+    );
     expect(rendered.html).not.toContain("cited-asset");
   });
 
@@ -57,7 +56,9 @@ describe("offlineRights: publicationDecision filtering and embedding", () => {
     expect(rendered.html).toContain("Hand-drawn Notebook Sketch");
     expect(rendered.html).toContain("Archive MS 34, p. 12");
     expect(rendered.html).toContain('href="https://example.org/archive/ms34"');
-    expect(rendered.html).toContain("Excluded from offline edition; rights designation: pin-local-only.");
+    expect(rendered.html).toContain(
+      "Excluded from offline edition; rights designation: pin-local-only.",
+    );
   });
 
   test("a reference-only scan is excluded and replaced by a citation reference", () => {
@@ -80,7 +81,9 @@ describe("offlineRights: publicationDecision filtering and embedding", () => {
     expect(rendered.html).toContain("Annalen der Physik Volume 17 Page 549 Scan");
     expect(rendered.html).toContain("Ann. Phys. (4) 17, 549 (1905)");
     expect(rendered.html).toContain('href="https://example.org/scans/ap-17-549"');
-    expect(rendered.html).toContain("Excluded from offline edition; rights designation: reference-only.");
+    expect(rendered.html).toContain(
+      "Excluded from offline edition; rights designation: reference-only.",
+    );
   });
 
   test("invalid or unknown publicationDecision fails with TypeError", () => {
@@ -152,12 +155,18 @@ describe("offlineRights: publicationDecision filtering and embedding", () => {
 
     // 'pin-local-only' and 'reference-only' appear as citations, not imgs
     expect(pkg.html).toContain('<figure id="fig-pin" class="cited-asset">');
-    expect(pkg.html).toContain("Excluded from offline edition; rights designation: pin-local-only.");
+    expect(pkg.html).toContain(
+      "Excluded from offline edition; rights designation: pin-local-only.",
+    );
     expect(pkg.html).toContain('<figure id="scan-ref" class="cited-asset">');
-    expect(pkg.html).toContain("Excluded from offline edition; rights designation: reference-only.");
+    expect(pkg.html).toContain(
+      "Excluded from offline edition; rights designation: reference-only.",
+    );
 
     // Footer notice acknowledges embedded figures and citations
-    expect(pkg.html).toContain("Figures with publication rights are embedded as offline data URIs.");
+    expect(pkg.html).toContain(
+      "Figures with publication rights are embedded as offline data URIs.",
+    );
   });
 
   test("chapter with only non-publish assets contains zero data: URIs and retains default footer notice", () => {

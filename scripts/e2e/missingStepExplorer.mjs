@@ -8,32 +8,46 @@ const base = process.env.AM_BASE_URL ?? "http://127.0.0.1:3000";
 const output = resolve("artifacts/browser/missing-step-explorer");
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true });
-const errors = [], checks = [];
-const route = "/papers/brownian-motion/s4/?detail=2&lens=modern&retained=1#arg-bm-independent-steps";
+const errors = [],
+  checks = [];
+const route =
+  "/papers/brownian-motion/s4/?detail=2&lens=modern&retained=1#arg-bm-independent-steps";
 let page;
 try {
-  const context = await browser.newContext({ viewport: { width: 1100, height: 850 }, reducedMotion: "reduce" });
+  const context = await browser.newContext({
+    viewport: { width: 1100, height: 850 },
+    reducedMotion: "reduce",
+  });
   await context.addInitScript(() => {
     const NativeWorker = window.Worker;
     window.missingStepWorkerCount = 0;
     window.Worker = class extends NativeWorker {
-      constructor(...args) { super(...args); window.missingStepWorkerCount++; }
+      constructor(...args) {
+        super(...args);
+        window.missingStepWorkerCount++;
+      }
     };
   });
   page = await context.newPage();
   page.setDefaultTimeout(15000);
-  page.on("pageerror", error => errors.push(String(error)));
+  page.on("pageerror", (error) => errors.push(String(error)));
   await page.goto(new URL(route, base).href);
-  await page.waitForFunction(() => document.querySelector("[data-reader-root]")?.getAttribute("data-enhanced") === "true");
+  await page.waitForFunction(
+    () => document.querySelector("[data-reader-root]")?.getAttribute("data-enhanced") === "true",
+  );
   await page.evaluate(() => document.fonts.ready);
   const lab = page.locator('section[data-instrument-id="bm-01"]').first();
-  const identity = await lab.evaluate(el => [el.dataset.instanceId, el.dataset.runId, el.dataset.snapshotVersion]);
+  const identity = await lab.evaluate((el) => [
+    el.dataset.instanceId,
+    el.dataset.runId,
+    el.dataset.snapshotVersion,
+  ]);
   const workerCount = await page.evaluate(() => window.missingStepWorkerCount);
   const trigger = page.locator("#open-bm-variance-cross");
   const dialog = page.locator("[data-instrument-clarification-dialog]");
   await trigger.scrollIntoViewIfNeeded();
   await trigger.focus();
-  const y = await trigger.evaluate(el => el.getBoundingClientRect().top);
+  const y = await trigger.evaluate((el) => el.getBoundingClientRect().top);
   const historyLength = await page.evaluate(() => history.length);
   await page.keyboard.press("Enter");
   await dialog.waitFor({ state: "visible" });
@@ -43,16 +57,27 @@ try {
   assert.ok((await dialog.innerText()).includes("The increments A and B are independent."));
   assert.ok((await dialog.innerText()).includes("Each increment has mean zero."));
   assert.equal(new URL(page.url()).searchParams.get("retained"), "1");
-  checks.push("keyboard descent, exact highlights, premises, one history entry, unrelated query retained");
+  checks.push(
+    "keyboard descent, exact highlights, premises, one history entry, unrelated query retained",
+  );
   await dialog.locator("[data-compass-return]").click();
   await dialog.waitFor({ state: "hidden" });
   await page.waitForFunction(() => document.activeElement?.id === "open-bm-variance-cross");
-  assert.ok(Math.abs((await trigger.evaluate(el => el.getBoundingClientRect().top)) - y) < 5);
+  assert.ok(Math.abs((await trigger.evaluate((el) => el.getBoundingClientRect().top)) - y) < 5);
   assert.equal(await page.evaluate(() => document.documentElement.dataset.detail), "2");
   assert.equal(await page.evaluate(() => document.documentElement.dataset.lens), "modern");
-  assert.deepEqual(await lab.evaluate(el => [el.dataset.instanceId, el.dataset.runId, el.dataset.snapshotVersion]), identity);
+  assert.deepEqual(
+    await lab.evaluate((el) => [
+      el.dataset.instanceId,
+      el.dataset.runId,
+      el.dataset.snapshotVersion,
+    ]),
+    identity,
+  );
   assert.equal(await page.evaluate(() => window.missingStepWorkerCount), workerCount);
-  checks.push("return restores focus, viewport position, reading preferences and accepted laboratory identity without workers");
+  checks.push(
+    "return restores focus, viewport position, reading preferences and accepted laboratory identity without workers",
+  );
   await trigger.click();
   await dialog.waitFor({ state: "visible" });
   await page.keyboard.press("Escape");
@@ -69,20 +94,34 @@ try {
   const bounds = await dialog.boundingBox();
   assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= 320);
   await dialog.getByText("Always the same direction", { exact: true }).click();
-  assert.ok((await dialog.innerText()).includes("Removing independence makes the cross contribution positive."));
+  assert.ok(
+    (await dialog.innerText()).includes(
+      "Removing independence makes the cross contribution positive.",
+    ),
+  );
   await page.screenshot({ path: resolve(output, "cross-term-320.png") });
   checks.push("narrow dialog fits and correlated example is keyboard-readable");
-  await page.goto(new URL(route.replace("?detail=2", "?open=derivation-step:bm-variance-cross&detail=2"), base).href);
+  await page.goto(
+    new URL(route.replace("?detail=2", "?open=derivation-step:bm-variance-cross&detail=2"), base)
+      .href,
+  );
   await dialog.waitFor({ state: "visible" });
   await dialog.locator("[data-compass-return]").click();
   await dialog.waitFor({ state: "hidden" });
   assert.equal(new URL(page.url()).searchParams.has("open"), false);
   assert.equal(new URL(page.url()).hash, "#arg-bm-independent-steps");
-  await page.goto(new URL("/papers/brownian-motion/s4/?open=derivation-step:not-a-step", base).href);
-  await page.waitForFunction(() => document.querySelector("[data-reader-root]")?.getAttribute("data-enhanced") === "true");
+  await page.goto(
+    new URL("/papers/brownian-motion/s4/?open=derivation-step:not-a-step", base).href,
+  );
+  await page.waitForFunction(
+    () => document.querySelector("[data-reader-root]")?.getAttribute("data-enhanced") === "true",
+  );
   assert.equal(await page.locator("[data-instrument-clarification-dialog][open]").count(), 0);
   checks.push("direct link returns within the passage and unknown targets remain unopened");
-  const noScript = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 900 } });
+  const noScript = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 320, height: 900 },
+  });
   const staticPage = await noScript.newPage();
   await staticPage.goto(new URL("/papers/brownian-motion/s4/", base).href);
   const bridge = staticPage.locator("#bm-variance-worked-bridge");
@@ -93,11 +132,21 @@ try {
   assert.equal(await cross.locator("table").count(), 3);
   assert.ok((await cross.innerText()).includes("not the paper’s printed calculation"));
   await staticPage.screenshot({ path: resolve(output, "static-cross-term-320.png") });
-  checks.push("JavaScript-disabled route contains identical mathematics, premises and all three distributions");
+  checks.push(
+    "JavaScript-disabled route contains identical mathematics, premises and all three distributions",
+  );
   assert.deepEqual(errors, []);
-  await writeFile(resolve(output, "results.json"), JSON.stringify({ outcome: "pass", scope: "actual HTTP application", checks, errors }, null, 2));
+  await writeFile(
+    resolve(output, "results.json"),
+    JSON.stringify({ outcome: "pass", scope: "actual HTTP application", checks, errors }, null, 2),
+  );
 } catch (error) {
   if (page) await page.screenshot({ path: resolve(output, "failure.png") }).catch(() => {});
-  await writeFile(resolve(output, "failure.json"), JSON.stringify({ outcome: "fail", checks, errors, error: String(error) }, null, 2));
+  await writeFile(
+    resolve(output, "failure.json"),
+    JSON.stringify({ outcome: "fail", checks, errors, error: String(error) }, null, 2),
+  );
   throw error;
-} finally { await browser.close(); }
+} finally {
+  await browser.close();
+}

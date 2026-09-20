@@ -21,20 +21,40 @@ test("both initial states are native uncontrolled checkboxes, usable without a c
 });
 
 test("hydrated controls update only their own face and leave source content in place", async () => {
-  const container = createContainer(), root = createRoot(container);
+  const container = createContainer(),
+    root = createRoot(container);
   try {
-    await act(async () => { root.render(<>
-      <article className="gloss-face" data-reasoning-words="off"><GlossReasoningToggle /><p data-source>Unchanged source</p></article>
-      <article className="gloss-face" data-reasoning-words="on"><GlossReasoningToggle initiallyChecked /><p data-source>Other source</p></article>
-    </>); });
+    await act(async () => {
+      root.render(
+        <>
+          <article className="gloss-face" data-reasoning-words="off">
+            <GlossReasoningToggle />
+            <p data-source>Unchanged source</p>
+          </article>
+          <article className="gloss-face" data-reasoning-words="on">
+            <GlossReasoningToggle initiallyChecked />
+            <p data-source>Other source</p>
+          </article>
+        </>,
+      );
+    });
     const faces = container.querySelectorAll<HTMLElement>("article");
     const source = faces[0]!.querySelector("[data-source]");
-    await act(async () => { faces[0]!.querySelector<HTMLInputElement>("input")!.click(); });
+    await act(async () => {
+      faces[0]!.querySelector<HTMLInputElement>("input")!.click();
+    });
     expect(faces[0]!.dataset.reasoningWords).toBe("on");
     expect(faces[1]!.dataset.reasoningWords).toBe("on");
     expect(faces[0]!.querySelector("[data-source]")).toBe(source);
-    await act(async () => { faces[1]!.querySelector<HTMLInputElement>("input")!.click(); });
+    await act(async () => {
+      faces[1]!.querySelector<HTMLInputElement>("input")!.click();
+    });
     expect(faces[0]!.dataset.reasoningWords).toBe("on");
     expect(faces[1]!.dataset.reasoningWords).toBe("off");
-  } finally { await act(async () => { root.unmount(); }); removeContainer(container); }
+  } finally {
+    await act(async () => {
+      root.unmount();
+    });
+    removeContainer(container);
+  }
 });

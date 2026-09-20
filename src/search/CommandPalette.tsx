@@ -19,13 +19,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 
 function SearchIcon({ style }: { readonly style?: React.CSSProperties }) {
   return (
-    <svg
-      style={style}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -38,13 +32,7 @@ function SearchIcon({ style }: { readonly style?: React.CSSProperties }) {
 
 function XIcon({ style }: { readonly style?: React.CSSProperties }) {
   return (
-    <svg
-      style={style}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
   );
@@ -52,13 +40,7 @@ function XIcon({ style }: { readonly style?: React.CSSProperties }) {
 
 function CompassIcon({ style }: { readonly style?: React.CSSProperties }) {
   return (
-    <svg
-      style={style}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
+    <svg style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <circle cx="12" cy="12" r="10" strokeWidth={2} />
       <polygon
         points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
@@ -411,7 +393,15 @@ export function CommandPalette({
                     minHeight: "auto",
                   }}
                 >
-                  <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: "0.125rem" }}>
+                  <div
+                    style={{
+                      minWidth: 0,
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.125rem",
+                    }}
+                  >
                     <div
                       style={{
                         fontFamily: "var(--font-serif)",
@@ -459,7 +449,15 @@ export function CommandPalette({
               );
             })
           ) : (
-            <div style={{ padding: "2rem", textAlign: "center", display: "flex", flexDirection: "column", gap: "0.375rem" }}>
+            <div
+              style={{
+                padding: "2rem",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.375rem",
+              }}
+            >
               <p
                 style={{
                   fontFamily: "var(--font-serif)",
@@ -502,10 +500,14 @@ export function CommandPalette({
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <CompassIcon style={{ width: "0.875rem", height: "0.875rem", color: "var(--accent)" }} />
+            <CompassIcon
+              style={{ width: "0.875rem", height: "0.875rem", color: "var(--accent)" }}
+            />
             <span>Annus Mirabilis Critical Edition</span>
           </div>
-          <div style={{ fontSize: "0.6875rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <div
+            style={{ fontSize: "0.6875rem", display: "flex", alignItems: "center", gap: "0.5rem" }}
+          >
             <span>↑↓ Navigate</span>
             <span>•</span>
             <span>↵ Select</span>

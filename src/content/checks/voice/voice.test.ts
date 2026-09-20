@@ -285,8 +285,14 @@ describe("theater", () => {
   // still catching prose that dresses a reader's activity up as a game.
   it("am-a33s: technical points compounds pass in every context that scores theater as an error", () => {
     // The original false positive, verbatim from TableToPlotBuilder.tsx:81 before ef5e69a reworded it.
-    assert.equal(has(checkVoice("Plot all data points", { context: "ui-label" }), "theater"), false);
-    assert.equal(has(checkVoice("connect the plot points", { context: "prose" }), "theater"), false);
+    assert.equal(
+      has(checkVoice("Plot all data points", { context: "ui-label" }), "theater"),
+      false,
+    );
+    assert.equal(
+      has(checkVoice("connect the plot points", { context: "prose" }), "theater"),
+      false,
+    );
     assert.equal(
       has(checkVoice("sample points along the curve", { context: "prose" }), "theater"),
       false,
@@ -335,7 +341,11 @@ describe("theater", () => {
     // Guards against a fix that widened the allowlist mechanism itself rather than this one word.
     assert.equal(has(checkVoice("points", { context: "ui-label" }), "theater", "error"), true);
     assert.equal(
-      has(checkVoice("earn points for each passage", { context: "task-feedback" }), "theater", "error"),
+      has(
+        checkVoice("earn points for each passage", { context: "task-feedback" }),
+        "theater",
+        "error",
+      ),
       true,
     );
     assert.equal(has(checkVoice("a streak of three", { context: "prose" }), "theater"), true);
@@ -343,10 +353,7 @@ describe("theater", () => {
       has(checkVoice("Your score so far", { context: "reader-progress" }), "theater", "error"),
       true,
     );
-    assert.equal(
-      has(checkVoice("climb the leaderboard", { context: "prose" }), "theater"),
-      true,
-    );
+    assert.equal(has(checkVoice("climb the leaderboard", { context: "prose" }), "theater"), true);
   });
   it('gamification "points" fails in task-feedback and reader-progress, flags in prose', () => {
     const feedback = checkVoice("You earned 10 points!", { context: "task-feedback" });

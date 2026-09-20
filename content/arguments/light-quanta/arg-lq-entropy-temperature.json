@@ -1,1 +1,84 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-lq-entropy-temperature","paper":"light-quanta","section":"s3","title":"A spectrum can determine an entropy derivative","question":"How does equilibrium temperature constrain radiation entropy?","recap":"At fixed volume and frequency, the entropy increase per added energy is 1/T. Inverting an admitted spectrum therefore determines an entropy derivative, but not yet its integration constant.","review":"draft","premises":["Use equilibrium thermodynamics and additive spectral energy and entropy densities.","Vary the energy distribution at fixed volume and fixed total energy."],"limitations":["This is a thermodynamic comparison, not a microscopic account of every exchange.","Integrating the derivative requires a boundary condition."],"citations":["ap-17-132"],"readings":{"overview":[{"kind":"paragraph","text":"At fixed volume and frequency, the entropy increase per added energy is 1/T. Inverting an admitted spectrum therefore determines an entropy derivative, but not yet its integration constant."}],"full":[{"kind":"paragraph","text":"Let ρν be energy per volume per frequency interval and sν the corresponding entropy density. At fixed volume, equilibrium maximizes entropy while keeping total energy fixed. Moving a small amount of energy from one spectral interval to another must give no first-order entropy gain at equilibrium."},{"kind":"paragraph","text":"Consequently the derivatives of entropy with respect to spectral energy density have the same value across the equilibrium spectrum. The thermodynamic identity dS/dE = 1/T, with other constraints fixed, identifies that common value."},{"kind":"formula","latex":"\\left(\\frac{\\partial s_\\nu}{\\partial\\rho_\\nu}\\right)_\\nu=\\frac{1}{T}","spoken":"At fixed frequency, the partial derivative of spectral entropy density with respect to spectral energy density is inverse temperature."},{"kind":"paragraph","text":"Einstein attributes this thermodynamic reasoning to Wien. The next step is to express 1/T as a function of density by using Wien’s spectral law, not by assuming particles of light in advance."},{"kind":"foundation","id":"entropy-temperature","returnCaption":"Return to recovering the entropy derivative from temperature."}],"steps":[{"kind":"steps","items":["Describe total entropy as volume times the integral of spectral entropy density.","Describe total energy with the same volume and frequency measure.","Transfer equal and opposite small energies between two bands, preserving the total.","At maximum entropy the first-order change is zero; both bands have the same entropy derivative.","Identify that common derivative with inverse absolute temperature.","Hold frequency fixed when integrating with respect to density."]}],"margin":[{"kind":"paragraph","text":"The variational calculation assumes that the radiation entropy can be represented by a function of spectral density and frequency. That is a stated thermodynamic assumption, not a derivation of a microscopic state-counting model."}]},"prerequisites":[],"help":{"why":"entropy-temperature","missingStep":"entropy-temperature","example":"entropy-temperature"},"experiments":["lq-04"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-entropy-temperature",
+  "paper": "light-quanta",
+  "section": "s3",
+  "title": "A spectrum can determine an entropy derivative",
+  "question": "How does equilibrium temperature constrain radiation entropy?",
+  "recap": "At fixed volume and frequency, the entropy increase per added energy is 1/T. Inverting an admitted spectrum therefore determines an entropy derivative, but not yet its integration constant.",
+  "review": "draft",
+  "premises": [
+    "Use equilibrium thermodynamics and additive spectral energy and entropy densities.",
+    "Vary the energy distribution at fixed volume and fixed total energy."
+  ],
+  "limitations": [
+    "This is a thermodynamic comparison, not a microscopic account of every exchange.",
+    "Integrating the derivative requires a boundary condition."
+  ],
+  "citations": ["ap-17-132"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "At fixed volume and frequency, the entropy increase per added energy is 1/T. Inverting an admitted spectrum therefore determines an entropy derivative, but not yet its integration constant."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "Let ρν be energy per volume per frequency interval and sν the corresponding entropy density. At fixed volume, equilibrium maximizes entropy while keeping total energy fixed. Moving a small amount of energy from one spectral interval to another must give no first-order entropy gain at equilibrium."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Consequently the derivatives of entropy with respect to spectral energy density have the same value across the equilibrium spectrum. The thermodynamic identity dS/dE = 1/T, with other constraints fixed, identifies that common value."
+      },
+      {
+        "kind": "formula",
+        "latex": "\\left(\\frac{\\partial s_\\nu}{\\partial\\rho_\\nu}\\right)_\\nu=\\frac{1}{T}",
+        "spoken": "At fixed frequency, the partial derivative of spectral entropy density with respect to spectral energy density is inverse temperature."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Einstein attributes this thermodynamic reasoning to Wien. The next step is to express 1/T as a function of density by using Wien’s spectral law, not by assuming particles of light in advance."
+      },
+      {
+        "kind": "foundation",
+        "id": "entropy-temperature",
+        "returnCaption": "Return to recovering the entropy derivative from temperature."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Describe total entropy as volume times the integral of spectral entropy density.",
+          "Describe total energy with the same volume and frequency measure.",
+          "Transfer equal and opposite small energies between two bands, preserving the total.",
+          "At maximum entropy the first-order change is zero; both bands have the same entropy derivative.",
+          "Identify that common derivative with inverse absolute temperature.",
+          "Hold frequency fixed when integrating with respect to density."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The variational calculation assumes that the radiation entropy can be represented by a function of spectral density and frequency. That is a stated thermodynamic assumption, not a derivation of a microscopic state-counting model."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": {
+    "why": "entropy-temperature",
+    "missingStep": "entropy-temperature",
+    "example": "entropy-temperature"
+  },
+  "experiments": ["lq-04"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

@@ -114,7 +114,8 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
   },
   // Equations
   {
-    pattern: /^(?:content\/)?equations\/((?!derivations\/)[a-z0-9-]+)\/([a-z0-9-]+)\.(json|yaml|yml)$/,
+    pattern:
+      /^(?:content\/)?equations\/((?!derivations\/)[a-z0-9-]+)\/([a-z0-9-]+)\.(json|yaml|yml)$/,
     kind: "equation",
     schema: "Equation",
     format: "json",

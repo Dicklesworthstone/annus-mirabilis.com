@@ -18,7 +18,11 @@ const KEYS: readonly { key: keyof Sr01Parameters; param: string }[] = [
 
 export function decodeSr01Settings(search: string): Sr01PermalinkResult {
   if (!search || search === "?") return { kind: "none" };
-  const invalid = (): Sr01PermalinkResult => ({ kind: "invalid", message: "The link settings are incomplete, ambiguous, or outside the model domain. The prepared example is unchanged." });
+  const invalid = (): Sr01PermalinkResult => ({
+    kind: "invalid",
+    message:
+      "The link settings are incomplete, ambiguous, or outside the model domain. The prepared example is unchanged.",
+  });
   if (search.length > 4096) return invalid();
   const params = new URLSearchParams(search);
   if (!KEYS.some(({ param }) => params.has(param))) return { kind: "none" };
@@ -28,7 +32,11 @@ export function decodeSr01Settings(search: string): Sr01PermalinkResult {
   for (const { key, param } of KEYS) {
     const raw = params.get(param);
     if (raw !== null) {
-      if (params.getAll(param).length !== 1 || !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw.trim())) return invalid();
+      if (
+        params.getAll(param).length !== 1 ||
+        !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw.trim())
+      )
+        return invalid();
       mutable[key] = Number(raw);
     }
   }

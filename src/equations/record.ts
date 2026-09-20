@@ -1,7 +1,11 @@
 import { ContentError } from "../content/compiler/json.ts";
 import { type Expression, nodeId, parseExpression, record, walk } from "./ast.ts";
 import { checkDimensions } from "./dimensions.ts";
-import { teachingProfile, type TeachingExperiment, type TeachingPaper } from "./teachingProfiles.ts";
+import {
+  type TeachingExperiment,
+  type TeachingPaper,
+  teachingProfile,
+} from "./teachingProfiles.ts";
 export type EquationNote = Readonly<{
   nodeId: string;
   title: string;
@@ -71,7 +75,10 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
     o.notation !== "modern-pedagogical" ||
     o.unitSystem !== "si"
   )
-    fail(path, "Only registered modern teaching papers in SI are admitted; source or review status is not inferred.");
+    fail(
+      path,
+      "Only registered modern teaching papers in SI are admitted; source or review status is not inferred.",
+    );
   for (const k of ["id", "argument", "title", "spoken", "explanation"]) text(o[k], path);
   if (
     !/^eq-model-[a-z0-9-]+$/.test(String(o.id)) ||

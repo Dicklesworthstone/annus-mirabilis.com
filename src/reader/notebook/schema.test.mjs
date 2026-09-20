@@ -60,7 +60,11 @@ test("future and unknown notebook fields are refused, not stripped", () => {
 test("duplicate ids and oversized entry collections are refused", () => {
   assert.throws(() => parseNotebookDocument(document([entry(), entry()])));
   assert.throws(() =>
-    parseNotebookDocument(document(Array.from({ length: NOTEBOOK_LIMITS.entries + 1 }, (_, i) => entry({ id: `n-${i}` })))),
+    parseNotebookDocument(
+      document(
+        Array.from({ length: NOTEBOOK_LIMITS.entries + 1 }, (_, i) => entry({ id: `n-${i}` })),
+      ),
+    ),
   );
 });
 test("bounded text accepts the exact limit and rejects one character more", () => {

@@ -10,9 +10,9 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { Expression } from "../ast.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import type { PaperConcordance } from "../../content/schemas/concordance.ts";
+import type { Expression } from "../ast.ts";
 import { checkEquationGlyphCollisions } from "./collisions.ts";
 import { renderEquationLatex } from "./render.ts";
 import { NotationScopeError } from "./types.ts";
@@ -88,7 +88,9 @@ test("collisions.test: Paper 3 §3 auxiliary coordinate x' vs xi", () => {
   });
 
   assert.equal(resultFail.ok, false, "Collision between auxiliary x' and xi must fail");
-  assert.ok(resultFail.diagnostics.some((d) => d.kind === "error" && d.rule === "modern-glyph-collision"));
+  assert.ok(
+    resultFail.diagnostics.some((d) => d.kind === "error" && d.rule === "modern-glyph-collision"),
+  );
   assert.ok(resultFail.diagnostics[0]?.quantityIds.includes("auxiliaryGalileanCoordinate"));
   assert.ok(resultFail.diagnostics[0]?.quantityIds.includes("coordinatePositionMoving"));
 });

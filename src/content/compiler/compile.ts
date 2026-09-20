@@ -7,8 +7,8 @@
  */
 
 import { checkMissingStepContent } from "../../equations/missingStep/contentCheck.ts";
-import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 import type { EquationRecord } from "../../equations/record.ts";
+import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 import { validateEntranceRecord } from "../entrances/entranceRecord.ts";
 import {
   type Argument,
@@ -341,8 +341,10 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
 
   for (const id of records.keys()) visit(id);
 
-  for (const diagnostic of checkMissingStepContent(files,
-    [...records.values()].filter(record => record.kind === "argument").map(record => record.id)))
+  for (const diagnostic of checkMissingStepContent(
+    files,
+    [...records.values()].filter((record) => record.kind === "argument").map((record) => record.id),
+  ))
     issue(diagnostic.code, diagnostic.path, diagnostic.message);
 
   const papers: PaperPayload[] = [];

@@ -1,6 +1,11 @@
 import type { ReactElement } from "react";
 import { optionalIdentityAttributes } from "./identity.ts";
-import type { OptionalViewIdentityProps, PlotSeriesClass, Projector, ReferenceLine } from "./types.ts";
+import type {
+  OptionalViewIdentityProps,
+  PlotSeriesClass,
+  Projector,
+  ReferenceLine,
+} from "./types.ts";
 
 export interface DataPoint {
   readonly x: number;

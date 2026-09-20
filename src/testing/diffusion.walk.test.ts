@@ -52,7 +52,11 @@ describe("brownianFrames reference walk generator (am-ref-diffusion-lr3 AC 15)",
       for (let seriesIdx = 0; seriesIdx < 5; seriesIdx++) {
         // Individual generation using Philox stream directly at the same tile
         const streamKernel = BM05_ALLOCATION.streamKernelId;
-        const rng = createPhiloxStream({ seed: defaultParams.seed, kernel: streamKernel, tile: seriesIdx });
+        const rng = createPhiloxStream({
+          seed: defaultParams.seed,
+          kernel: streamKernel,
+          tile: seriesIdx,
+        });
         const s = Math.sqrt(2 * defaultParams.diffusion * defaultParams.dt);
         let x = 0;
         expect(ensemble.data[seriesIdx * stride]).toBe(0);
@@ -133,7 +137,7 @@ describe("brownianFrames reference walk generator (am-ref-diffusion-lr3 AC 15)",
         let x = 0;
         for (let step = 1; step <= 5; step++) {
           let inc = 0;
-          if (k === 0) inc = (rng.nextU64() >> 63n) ? s : -s;
+          if (k === 0) inc = rng.nextU64() >> 63n ? s : -s;
           else if (k === 1) inc = (2 * rng.nextF64() - 1) * h;
           else if (k === 2) inc = rng.nextNormal();
           else if (k === 3) inc = rng.nextNormal() * s;

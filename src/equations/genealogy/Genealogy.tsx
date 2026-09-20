@@ -12,7 +12,12 @@ import type React from "react";
 import { useState } from "react";
 import type { PremiseEdgeType } from "../../content/schemas/meanings.ts";
 import { layoutGenealogyGraph } from "./layoutLayers.ts";
-import type { GenealogyEdge, GenealogyGraph, GenealogyLayoutResult, GenealogyNode } from "./types.ts";
+import type {
+  GenealogyEdge,
+  GenealogyGraph,
+  GenealogyLayoutResult,
+  GenealogyNode,
+} from "./types.ts";
 
 export interface GenealogyProps {
   readonly graph: GenealogyGraph;
@@ -134,10 +139,7 @@ export function handleGenealogyKeyDown(
 /**
  * Formats a PremiseEdgeType into an accessible human-readable label.
  */
-export function formatEdgeTypeLabel(
-  edgeType: PremiseEdgeType,
-  crossPaper?: boolean,
-): string {
+export function formatEdgeTypeLabel(edgeType: PremiseEdgeType, crossPaper?: boolean): string {
   if (crossPaper || edgeType === "cross-reference") {
     return "Cross-Paper Reference";
   }

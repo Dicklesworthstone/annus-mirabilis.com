@@ -5,32 +5,47 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { Formula } from "../components/edition/Formula.tsx";
 import { JourneyInPreparation } from "../discovery/JourneyInPreparation.tsx";
 import { MassEnergyArgumentWorkbench } from "../discovery/MassEnergyArgumentWorkbench.tsx";
-import { ARGUMENT_STEPS, WORKED_ARGUMENT, decodeArgument, encodeArgument } from "../discovery/massEnergyArgument.ts";
+import {
+  ARGUMENT_STEPS,
+  decodeArgument,
+  encodeArgument,
+  WORKED_ARGUMENT,
+} from "../discovery/massEnergyArgument.ts";
 import { createContainer, installDom, removeContainer, uninstallDom } from "./reactDom.ts";
 
 beforeEach(installDom);
 afterEach(uninstallDom);
 
-const equations = Object.fromEntries(ARGUMENT_STEPS.map(card => [card.id, <Formula key={card.id} latex={card.latex} />]));
+const equations = Object.fromEntries(
+  ARGUMENT_STEPS.map((card) => [card.id, <Formula key={card.id} latex={card.latex} />]),
+);
 
 async function mounted(check: (container: HTMLElement) => Promise<void>) {
   const container = createContainer();
   const root = createRoot(container);
   try {
-    await act(async () => { root.render(<MassEnergyArgumentWorkbench equations={equations} />); });
+    await act(async () => {
+      root.render(<MassEnergyArgumentWorkbench equations={equations} />);
+    });
     await check(container);
   } finally {
-    await act(async () => { root.unmount(); });
+    await act(async () => {
+      root.unmount();
+    });
     removeContainer(container);
   }
 }
 
 async function click(container: HTMLElement, label: string) {
-  const button = Array.from(container.querySelectorAll<HTMLButtonElement>("button"))
-    .find(element => element.getAttribute("aria-label") === label || element.textContent?.trim() === label);
+  const button = Array.from(container.querySelectorAll<HTMLButtonElement>("button")).find(
+    (element) =>
+      element.getAttribute("aria-label") === label || element.textContent?.trim() === label,
+  );
   expect(button).toBeDefined();
   expect(button?.disabled).toBe(false);
-  await act(async () => { button?.click(); });
+  await act(async () => {
+    button?.click();
+  });
 }
 
 function outcome(container: HTMLElement) {
@@ -47,7 +62,9 @@ describe("mass-energy argument reading and interaction", () => {
     const shell = document.createElement("div");
     shell.innerHTML = html;
     expect(shell.querySelectorAll(".argument-deck > li").length).toBe(16);
-    expect(Array.from(shell.querySelectorAll("button")).every(button => button.disabled)).toBe(true);
+    expect(Array.from(shell.querySelectorAll("button")).every((button) => button.disabled)).toBe(
+      true,
+    );
     expect(shell.querySelectorAll(".argument-deck math").length).toBe(16);
   });
 
@@ -57,11 +74,14 @@ describe("mass-energy argument reading and interaction", () => {
       expect(outcome(container)).toBe("inertia-derived");
       await click(container, "Remove: Admit the unchanged-offset premise");
       expect(outcome(container)).toBe("offset-unresolved");
-      expect(document.activeElement?.getAttribute("aria-label")).toBe("Add: Admit the unchanged-offset premise");
+      expect(document.activeElement?.getAttribute("aria-label")).toBe(
+        "Add: Admit the unchanged-offset premise",
+      );
       await click(container, "Add: Admit the unchanged-offset premise");
       // Appending a premise cannot retroactively support earlier algebra.
       expect(outcome(container)).toBe("offset-unresolved");
-      for (let i = 0; i < 4; i++) await click(container, "Move earlier: Admit the unchanged-offset premise");
+      for (let i = 0; i < 4; i++)
+        await click(container, "Move earlier: Admit the unchanged-offset premise");
       expect(outcome(container)).toBe("inertia-derived");
       await click(container, "Move later: Admit the unchanged-offset premise");
       expect(outcome(container)).toBe("offset-unresolved");
@@ -72,7 +92,11 @@ describe("mass-energy argument reading and interaction", () => {
     await mounted(async (container) => {
       await click(container, "Explore the assumed-rest-energy route");
       expect(outcome(container)).toBe("consistency-check");
-      expect(container.querySelector('[data-card-id="rest-energy-check"]')?.getAttribute("data-step-status")).toBe("consistency-only");
+      expect(
+        container
+          .querySelector('[data-card-id="rest-energy-check"]')
+          ?.getAttribute("data-step-status"),
+      ).toBe("consistency-only");
       await click(container, "Clear selected cards");
       expect(outcome(container)).toBe("incomplete");
       expect(container.querySelectorAll(".argument-selection > li").length).toBe(0);
@@ -80,7 +104,11 @@ describe("mass-energy argument reading and interaction", () => {
   });
 
   test("shared state is restored and recomputed, never trusted as an assessment", async () => {
-    window.history.replaceState({}, "", `/discover/mass-energy/investigate/${encodeArgument(WORKED_ARGUMENT)}&outcome=consistency-check`);
+    window.history.replaceState(
+      {},
+      "",
+      `/discover/mass-energy/investigate/${encodeArgument(WORKED_ARGUMENT)}&outcome=consistency-check`,
+    );
     await mounted(async (container) => {
       expect(outcome(container)).toBe("inertia-derived");
       expect(container.querySelectorAll(".argument-selection > li").length).toBe(14);
@@ -89,7 +117,11 @@ describe("mass-energy argument reading and interaction", () => {
   });
 
   test("invalid shared state leaves an usable empty workbench with an explanation", async () => {
-    window.history.replaceState({}, "", "/discover/mass-energy/investigate/?proof=2&steps=inertia-loss");
+    window.history.replaceState(
+      {},
+      "",
+      "/discover/mass-energy/investigate/?proof=2&steps=inertia-loss",
+    );
     await mounted(async (container) => {
       expect(outcome(container)).toBe("incomplete");
       expect(container.textContent).toContain("No shared cards were applied");
@@ -99,7 +131,11 @@ describe("mass-energy argument reading and interaction", () => {
   });
 
   test("share links discard unrelated query fields and are invalidated by edits", async () => {
-    window.history.replaceState({}, "", "/discover/mass-energy/investigate/?note=private&other=discard");
+    window.history.replaceState(
+      {},
+      "",
+      "/discover/mass-energy/investigate/?note=private&other=discard",
+    );
     await mounted(async (container) => {
       await click(container, "Load the two-ledger route");
       await click(container, "Create a share link without the note");
@@ -118,7 +154,14 @@ describe("mass-energy argument reading and interaction", () => {
   });
 
   test("front-door link does not publish an unreviewed Journey IV", () => {
-    const render = (paperId: string) => renderToStaticMarkup(<JourneyInPreparation paperId={paperId} germanTitle="Source title" englishTitle="Working title" />);
+    const render = (paperId: string) =>
+      renderToStaticMarkup(
+        <JourneyInPreparation
+          paperId={paperId}
+          germanTitle="Source title"
+          englishTitle="Working title"
+        />,
+      );
     const mass = render("mass-energy");
     expect(mass).toContain('href="/discover/mass-energy/investigate/"');
     expect(mass).toContain("data-journey-in-preparation");

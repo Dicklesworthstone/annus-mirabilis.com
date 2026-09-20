@@ -6,6 +6,7 @@
 import { randomBytes } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { registerEditionReviewState } from "../src/content/checks/review/editionReviewState.ts";
 import {
   type AlignmentComponent,
   type AlignmentIssue,
@@ -33,7 +34,6 @@ import { inspectLedgerPresence } from "../src/content/editions/ledgerPresence.ts
 import { getReviewStateCheck } from "../src/content/editions/reviewState.ts";
 import { germanAlignableIds, segmentLedger } from "../src/content/editions/segmentLedger.ts";
 import { parseRouteSlug, type RouteSlug } from "../src/content/ids.ts";
-import { registerEditionReviewState } from "../src/content/checks/review/editionReviewState.ts";
 
 registerEditionReviewState();
 

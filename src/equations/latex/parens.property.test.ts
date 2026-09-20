@@ -16,9 +16,9 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
+import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import type { Expression } from "../ast.ts";
 import { printAuthoring } from "../tree/printAuthoring.ts";
-import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import { renderLatex } from "./render.ts";
 
 /**
@@ -658,10 +658,7 @@ function normalizeOriginal(node: any): any {
     if (normArg.kind === "product" && normArg.args.length > 0) {
       return {
         kind: "product",
-        args: [
-          { kind: "negate", argument: normArg.args[0] },
-          ...normArg.args.slice(1),
-        ],
+        args: [{ kind: "negate", argument: normArg.args[0] }, ...normArg.args.slice(1)],
       };
     }
     return {
@@ -756,10 +753,7 @@ function normalizeParsed(node: any): any {
     if (normArg.kind === "product" && normArg.args.length > 0) {
       return {
         kind: "product",
-        args: [
-          { kind: "negate", argument: normArg.args[0] },
-          ...normArg.args.slice(1),
-        ],
+        args: [{ kind: "negate", argument: normArg.args[0] }, ...normArg.args.slice(1)],
       };
     }
     return {

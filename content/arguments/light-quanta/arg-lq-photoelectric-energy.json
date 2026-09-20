@@ -1,1 +1,87 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-lq-photoelectric-energy","paper":"light-quanta","section":"s8","title":"More electrons is not more energy per electron","question":"What changes when frequency rises, and what changes when power rises?","recap":"In the one-quantum model, frequency sets the maximum electron energy after paying the escape cost. Increasing power at fixed frequency can increase the number emitted without increasing that maximum.","review":"draft","premises":["One electron can receive one quantum of energy hν.","Escape requires positive work Φ, with any additional loss nonnegative.","Keep frequency, work function, and yield assumptions fixed when comparing power."],"limitations":["The threshold and linear relation are programmed assumptions and consequences, not independent experimental proof.","The work function used in a hypothetical example is not a sourced value for a named metal.","Real collection and emission rates require additional material and apparatus assumptions."],"citations":["ap-17-132"],"readings":{"overview":[{"kind":"paragraph","text":"In the one-quantum model, frequency sets the maximum electron energy after paying the escape cost. Increasing power at fixed frequency can increase the number emitted without increasing that maximum."}],"full":[{"kind":"paragraph","text":"The most energetic electron receives a complete quantum and escapes with the least modeled energy loss. Subtracting the escape work Φ gives the maximum kinetic energy, provided emission is energetically allowed."},{"kind":"formula","latex":"K_{\\mathrm{max}}=h\\nu-\\Phi,\\qquad\\nu_0=\\frac{\\Phi}{h}","spoken":"Maximum kinetic energy equals h frequency minus escape work, with threshold frequency Phi over h."},{"kind":"paragraph","text":"For a hypothetical work function of 2 electron volts and a frequency of 600 terahertz, the maximum is about 0.4814 electron volts using modern SI constants. Doubling optical power while retaining that frequency and escape work leaves the maximum unchanged."},{"kind":"paragraph","text":"Power is energy arriving per second. At fixed frequency, dividing it by hν gives the incoming quantum rate. Under a fixed yield, twice the power can therefore produce twice the electron count per second. Below threshold, negative hν − Φ is an energy deficit, not a negative kinetic energy of an emitted electron."},{"kind":"foundation","id":"functions-graphs","returnCaption":"Return to the slope, threshold, and the distinction between energy and count."}],"steps":[{"kind":"steps","items":["Choose frequency and escape work independently of optical power.","Calculate the energy hν available to one electron under the one-quantum hypothesis.","Subtract the escape work; an additional loss only lowers the outgoing kinetic energy.","If the budget is below zero, report no energetically allowed emission, not a negative emitted-electron energy.","At fixed frequency, divide optical power by hν to obtain the incoming quantum rate.","Vary power without altering hν or Φ, then compare energy and rate in separate readouts.","A real experiment can test the model; repeating its own programmed equation cannot independently confirm it."]}],"margin":[{"kind":"paragraph","text":"The source discusses the potential attained by an illuminated body; a later collector apparatus is a distinct arrangement. Later measurements such as Millikan’s 1916 work are not premises available in 1905, and agreement with the energy relation alone does not prove the complete light-quantum picture."}]},"prerequisites":[{"id":"arg-lq-entropy-correspondence","edge":"premise"}],"help":{"why":"functions-graphs","missingStep":"functions-graphs","example":"functions-graphs"},"experiments":["lq-08"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-photoelectric-energy",
+  "paper": "light-quanta",
+  "section": "s8",
+  "title": "More electrons is not more energy per electron",
+  "question": "What changes when frequency rises, and what changes when power rises?",
+  "recap": "In the one-quantum model, frequency sets the maximum electron energy after paying the escape cost. Increasing power at fixed frequency can increase the number emitted without increasing that maximum.",
+  "review": "draft",
+  "premises": [
+    "One electron can receive one quantum of energy hν.",
+    "Escape requires positive work Φ, with any additional loss nonnegative.",
+    "Keep frequency, work function, and yield assumptions fixed when comparing power."
+  ],
+  "limitations": [
+    "The threshold and linear relation are programmed assumptions and consequences, not independent experimental proof.",
+    "The work function used in a hypothetical example is not a sourced value for a named metal.",
+    "Real collection and emission rates require additional material and apparatus assumptions."
+  ],
+  "citations": ["ap-17-132"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "In the one-quantum model, frequency sets the maximum electron energy after paying the escape cost. Increasing power at fixed frequency can increase the number emitted without increasing that maximum."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "The most energetic electron receives a complete quantum and escapes with the least modeled energy loss. Subtracting the escape work Φ gives the maximum kinetic energy, provided emission is energetically allowed."
+      },
+      {
+        "kind": "formula",
+        "latex": "K_{\\mathrm{max}}=h\\nu-\\Phi,\\qquad\\nu_0=\\frac{\\Phi}{h}",
+        "spoken": "Maximum kinetic energy equals h frequency minus escape work, with threshold frequency Phi over h."
+      },
+      {
+        "kind": "paragraph",
+        "text": "For a hypothetical work function of 2 electron volts and a frequency of 600 terahertz, the maximum is about 0.4814 electron volts using modern SI constants. Doubling optical power while retaining that frequency and escape work leaves the maximum unchanged."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Power is energy arriving per second. At fixed frequency, dividing it by hν gives the incoming quantum rate. Under a fixed yield, twice the power can therefore produce twice the electron count per second. Below threshold, negative hν − Φ is an energy deficit, not a negative kinetic energy of an emitted electron."
+      },
+      {
+        "kind": "foundation",
+        "id": "functions-graphs",
+        "returnCaption": "Return to the slope, threshold, and the distinction between energy and count."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Choose frequency and escape work independently of optical power.",
+          "Calculate the energy hν available to one electron under the one-quantum hypothesis.",
+          "Subtract the escape work; an additional loss only lowers the outgoing kinetic energy.",
+          "If the budget is below zero, report no energetically allowed emission, not a negative emitted-electron energy.",
+          "At fixed frequency, divide optical power by hν to obtain the incoming quantum rate.",
+          "Vary power without altering hν or Φ, then compare energy and rate in separate readouts.",
+          "A real experiment can test the model; repeating its own programmed equation cannot independently confirm it."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The source discusses the potential attained by an illuminated body; a later collector apparatus is a distinct arrangement. Later measurements such as Millikan’s 1916 work are not premises available in 1905, and agreement with the energy relation alone does not prove the complete light-quantum picture."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-lq-entropy-correspondence", "edge": "premise" }],
+  "help": {
+    "why": "functions-graphs",
+    "missingStep": "functions-graphs",
+    "example": "functions-graphs"
+  },
+  "experiments": ["lq-08"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

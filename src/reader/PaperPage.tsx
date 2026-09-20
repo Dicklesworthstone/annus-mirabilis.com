@@ -1,19 +1,19 @@
-import clockEntranceRaw from "../../content/arguments/special-relativity/entrance-special-relativity.json";
-import { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
-import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-light-quanta.json";
-import { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
 import { notFound } from "next/navigation";
-import { ArgumentEquations } from "./ArgumentEquations.tsx";
-import { getModalityClasses } from "../content/schemas/glossConventions.ts";
+import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-light-quanta.json";
+import clockEntranceRaw from "../../content/arguments/special-relativity/entrance-special-relativity.json";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
+import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { loadPaper } from "../content/server.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
 import entranceExample from "../generated/mass-energy-entrance.json";
 import missingSteps from "../generated/missing-steps.json";
+import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { FoundationBody, ReadingBlocks } from "./Blocks.tsx";
+import { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
+import { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
 import { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
 import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
 import { FaceFallback } from "./FaceFallback.tsx";
@@ -85,11 +85,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             />
           );
         }
-        if (
-          resolved.face === "parallel" &&
-          edition.blocks.length > 0 &&
-          edition.units.length > 0
-        ) {
+        if (resolved.face === "parallel" && edition.blocks.length > 0 && edition.units.length > 0) {
           return (
             <ParallelFace
               paper={edition.paper}
@@ -143,9 +139,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   const entrance =
     paper.id === "mass-energy" ? validateEntranceRecord(entranceExample.record) : null;
-  const lightEntrance = paper.id === "light-quanta" ? validateEntranceRecord(lightQuantaEntrance) : null;
-  const clockEntrance = paper.id === "special-relativity" ? validateEntranceRecord(clockEntranceRaw) : null;
-  const entryAnchor = clockEntrance ? "entry-special-relativity" : lightEntrance ? "entry-light-quanta" : entrance ? "entry-mass-energy" : null;
+  const lightEntrance =
+    paper.id === "light-quanta" ? validateEntranceRecord(lightQuantaEntrance) : null;
+  const clockEntrance =
+    paper.id === "special-relativity" ? validateEntranceRecord(clockEntranceRaw) : null;
+  const entryAnchor = clockEntrance
+    ? "entry-special-relativity"
+    : lightEntrance
+      ? "entry-light-quanta"
+      : entrance
+        ? "entry-mass-energy"
+        : null;
   const anchors = [
     ...(entryAnchor && (!sectionId || entrance) ? [entryAnchor] : []),
     ...args.map((a) => a.id),
@@ -170,7 +174,13 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           {paper.sourceNotice}
         </p>
         {sectionId ? <a href={paperPath(paper.id)}>Read the whole available argument →</a> : null}
-        {entryAnchor && <p><a href={`${paperPath(paper.id)}#${entryAnchor}`}>Show me one example before the notation →</a></p>}
+        {entryAnchor && (
+          <p>
+            <a href={`${paperPath(paper.id)}#${entryAnchor}`}>
+              Show me one example before the notation →
+            </a>
+          </p>
+        )}
       </header>
       <ReaderController registry={registry} titles={titles} questions={questions} />
       <div className="reader-layout">
@@ -200,7 +210,15 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         <div className="reader-body">
           {lightEntrance && !sectionId && <LightQuantaFirstEncounter record={lightEntrance} />}
           {clockEntrance && !sectionId && <ClockFirstEncounter record={clockEntrance} />}
-          {(lightEntrance || clockEntrance) && !sectionId && <noscript><p>The worked examples above are complete without JavaScript. Configuration links load their selected settings when JavaScript runs in the laboratory; its static page otherwise shows the prepared default.</p></noscript>}
+          {(lightEntrance || clockEntrance) && !sectionId && (
+            <noscript>
+              <p>
+                The worked examples above are complete without JavaScript. Configuration links load
+                their selected settings when JavaScript runs in the laboratory; its static page
+                otherwise shows the prepared default.
+              </p>
+            </noscript>
+          )}
           {entrance && (
             <MassEnergyFirstEncounter
               record={entrance}

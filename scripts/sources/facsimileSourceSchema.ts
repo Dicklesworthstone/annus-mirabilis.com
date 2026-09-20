@@ -472,9 +472,9 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
   const key = typeof c.key === "string" ? c.key : "unknown";
 
   // 1. Locate anchor
-  const ap = (c.articlePages && typeof c.articlePages === "object"
-    ? c.articlePages
-    : null) as Record<string, unknown> | null;
+  const ap = (
+    c.articlePages && typeof c.articlePages === "object" ? c.articlePages : null
+  ) as Record<string, unknown> | null;
   const rawAnchor = (c.verifiedAnchor ?? ap?.verifiedAnchor) as
     | Record<string, unknown>
     | null
@@ -508,11 +508,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
     };
   }
 
-  if (
-    typeof printedPage !== "number" ||
-    !Number.isInteger(printedPage) ||
-    printedPage < 1
-  ) {
+  if (typeof printedPage !== "number" || !Number.isInteger(printedPage) || printedPage < 1) {
     return {
       valid: false,
       errors: [
@@ -525,9 +521,7 @@ export function validateFacsimileAnchor(config: unknown): AnchorValidationResult
   if (typeof verifiedBy !== "string" || verifiedBy.trim().length === 0) {
     return {
       valid: false,
-      errors: [
-        `Config '${key}' verifiedAnchor.verifiedBy must be a non-empty string`,
-      ],
+      errors: [`Config '${key}' verifiedAnchor.verifiedBy must be a non-empty string`],
       refusalCode: "INVALID_CONFIG",
     };
   }

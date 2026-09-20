@@ -9,7 +9,7 @@
 import type { SpokenFormLintFinding, SpokenFormLintResult } from "./types.ts";
 
 const RAW_LATEX_PATTERN = /\\[a-zA-Z]+|\\[0-9]+/g;
-const DOLLAR_DELIMITER_PATTERN = /\$|\\[\(\)\[\]]/g;
+const DOLLAR_DELIMITER_PATTERN = /\$|\\[()[\]]/g;
 const HTML_TAG_PATTERN = /<\/?[a-zA-Z][^>]*>/g;
 const D_OVER_DT_PATTERN =
   /\b(?:d|partial)\s+over\s+(?:d|partial)\s*[a-zA-Z]\b|\b(?:d|partial)\s+over\s+[a-zA-Z]\b/i;

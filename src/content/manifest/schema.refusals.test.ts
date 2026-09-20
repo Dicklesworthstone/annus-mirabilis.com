@@ -28,7 +28,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { ManifestSchemaError, validateSourceManifest } from "./schema.ts";
 
-function assertManifestError(err: unknown, expectedCode: string): asserts err is ManifestSchemaError {
+function assertManifestError(
+  err: unknown,
+  expectedCode: string,
+): asserts err is ManifestSchemaError {
   if (!(err instanceof ManifestSchemaError)) {
     assert.fail(`Expected ManifestSchemaError, got ${String(err)}`);
   }

@@ -181,14 +181,30 @@ export function createNotebookStore(storage: NotebookStorage) {
         ),
       });
     },
-    updateReplayWords(id: string, words: Readonly<{ before: string; after: string; notes: string }>): NotebookChange {
+    updateReplayWords(
+      id: string,
+      words: Readonly<{ before: string; after: string; notes: string }>,
+    ): NotebookChange {
       open();
       const entry = state.document.entries.find((item) => item.id === id);
-      if (!entry || entry.kind !== "replay") return { ok: false, message: "That saved comparison no longer exists." };
-      return commit({ ...state.document, entries: state.document.entries.map((item) => item.id !== id ? item : {
-        ...entry, text: words.notes,
-        replay: { ...entry.replay, explanationBefore: words.before, explanationAfter: words.after },
-      }) });
+      if (!entry || entry.kind !== "replay")
+        return { ok: false, message: "That saved comparison no longer exists." };
+      return commit({
+        ...state.document,
+        entries: state.document.entries.map((item) =>
+          item.id !== id
+            ? item
+            : {
+                ...entry,
+                text: words.notes,
+                replay: {
+                  ...entry.replay,
+                  explanationBefore: words.before,
+                  explanationAfter: words.after,
+                },
+              },
+        ),
+      });
     },
     remove(id: string): NotebookChange {
       open();

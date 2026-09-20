@@ -1,1 +1,28 @@
-{"schemaVersion":1,"kind":"paper","id":"mass-energy","title":"Mass and energy: two accounts, one subtraction","germanTitle":"Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?","description":"Follow the light-energy input, the two balances, the unchanged-offset premise, and the low-speed coefficient without assigning an absolute rest energy in advance.","citation":"ap-18-639","status":"explanation-preview","sourceStatus":"in-preparation","sourceNotice":"Newly authored explanatory preview in modern notation; editorial and physics review are pending. This is not a German source transcription, this edition’s English translation, or a complete critical edition. The source faces and pinned facsimile remain in preparation. The paper has no numbered sections: s0 is an editorial route identifier, and the headings below organize this explanation, not a verified printed inventory.","sections":[{"id":"s0","title":"The unsectioned argument · explanatory reading","arguments":["arg-me-import","arg-me-symmetric-emission","arg-me-two-ledgers","arg-me-subtraction","arg-me-constant-premise","arg-me-small-speed","arg-me-mass-change","arg-me-scope"]}]}
+{
+  "schemaVersion": 1,
+  "kind": "paper",
+  "id": "mass-energy",
+  "title": "Mass and energy: two accounts, one subtraction",
+  "germanTitle": "Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?",
+  "description": "Follow the light-energy input, the two balances, the unchanged-offset premise, and the low-speed coefficient without assigning an absolute rest energy in advance.",
+  "citation": "ap-18-639",
+  "status": "explanation-preview",
+  "sourceStatus": "in-preparation",
+  "sourceNotice": "Newly authored explanatory preview in modern notation; editorial and physics review are pending. This is not a German source transcription, this edition’s English translation, or a complete critical edition. The source faces and pinned facsimile remain in preparation. The paper has no numbered sections: s0 is an editorial route identifier, and the headings below organize this explanation, not a verified printed inventory.",
+  "sections": [
+    {
+      "id": "s0",
+      "title": "The unsectioned argument · explanatory reading",
+      "arguments": [
+        "arg-me-import",
+        "arg-me-symmetric-emission",
+        "arg-me-two-ledgers",
+        "arg-me-subtraction",
+        "arg-me-constant-premise",
+        "arg-me-small-speed",
+        "arg-me-mass-change",
+        "arg-me-scope"
+      ]
+    }
+  ]
+}

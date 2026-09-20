@@ -33,6 +33,30 @@ import {
   U64ValidationError,
 } from "../src/experiments/identity/u64.ts";
 import { encodeU64QueryParams, getU64QueryParam } from "../src/experiments/identity/urlCodec.ts";
+import { HeavyLaboratoryManager } from "../src/experiments/lifecycle/concurrency.ts";
+import {
+  computeFullEnsembleMoments,
+  evaluateVisualDetailPolicy,
+} from "../src/experiments/lifecycle/degradation.ts";
+import { lifecycleDiagnostics } from "../src/experiments/lifecycle/diagnostics.ts";
+import {
+  decodeStreamCheckpoint,
+  encodeStreamCheckpoint,
+  evaluateCheckpointRecovery,
+  handleLaboratoryCrashOrContextLoss,
+} from "../src/experiments/lifecycle/recovery.ts";
+import {
+  BufferTransferRefusedError,
+  OwnedBuffer,
+  SnapshotBufferPool,
+} from "../src/experiments/memory/buffers.ts";
+import {
+  copyOutF64,
+  TrackedWasmView,
+  verifyGlueReturnsCopy,
+  WasmMemoryStaleViewError,
+  WasmMemoryTracker,
+} from "../src/experiments/memory/wasmViews.ts";
 import { decodeOutcome, decodeRefusal, decodeResult } from "../src/experiments/results/codec.ts";
 import {
   containsIdentifierLeak,
@@ -83,6 +107,7 @@ import {
   ANALYTIC_OWNER_ID,
   ANALYTIC_QUANTITY_ID,
 } from "../src/testing/runtime-fixtures/fixtureAnalytic.ts";
+import { HeavyFixtureLaboratory } from "../src/testing/runtime-fixtures/heavyFixture.ts";
 import {
   createSeededWalkFixture,
   generateBaseLatentPath,
@@ -108,31 +133,6 @@ import {
   probeTransportCapabilities,
   SharedMemoryDisabledError,
 } from "../src/workers/transport.ts";
-import { HeavyLaboratoryManager } from "../src/experiments/lifecycle/concurrency.ts";
-import {
-  computeFullEnsembleMoments,
-  evaluateVisualDetailPolicy,
-} from "../src/experiments/lifecycle/degradation.ts";
-import { lifecycleDiagnostics } from "../src/experiments/lifecycle/diagnostics.ts";
-import {
-  decodeStreamCheckpoint,
-  encodeStreamCheckpoint,
-  evaluateCheckpointRecovery,
-  handleLaboratoryCrashOrContextLoss,
-} from "../src/experiments/lifecycle/recovery.ts";
-import {
-  BufferTransferRefusedError,
-  OwnedBuffer,
-  SnapshotBufferPool,
-} from "../src/experiments/memory/buffers.ts";
-import {
-  copyOutF64,
-  TrackedWasmView,
-  verifyGlueReturnsCopy,
-  WasmMemoryStaleViewError,
-  WasmMemoryTracker,
-} from "../src/experiments/memory/wasmViews.ts";
-import { HeavyFixtureLaboratory } from "../src/testing/runtime-fixtures/heavyFixture.ts";
 
 interface CliOptions {
   suite: string;
@@ -3564,8 +3564,12 @@ async function runMemoryE2E(logRunId: string, verbose: boolean): Promise<boolean
       manager.register(
         lab1.id,
         () => lab1.serializeState(),
-        () => { lab1Suspended = true; },
-        () => { lab1Suspended = false; },
+        () => {
+          lab1Suspended = true;
+        },
+        () => {
+          lab1Suspended = false;
+        },
       );
       manager.register(
         lab2.id,
@@ -3706,7 +3710,8 @@ async function runMemoryE2E(logRunId: string, verbose: boolean): Promise<boolean
         logRunId,
         outcome: "passed",
         durationMs: Date.now() - startTime,
-        message: "100 mount/unmount cycles returned all lifecycle counters to baseline with zero leaks.",
+        message:
+          "100 mount/unmount cycles returned all lifecycle counters to baseline with zero leaks.",
         extra: {
           liveWorkers: lifecycleDiagnostics.liveWorkers,
           webglContexts: lifecycleDiagnostics.activeWebGLContexts,

@@ -1,11 +1,8 @@
-import { createHash } from "node:crypto";
 import { describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { INLINE_SCRIPT_REGISTRY } from "../app/inline-scripts/registry.ts";
-import {
-  type OfflineChapterInput,
-  packageOfflineChapter,
-} from "../platform/offline/chapter.ts";
 import { chapterFixture, fixtureMath } from "../platform/offline/chapter.test.mjs";
+import { type OfflineChapterInput, packageOfflineChapter } from "../platform/offline/chapter.ts";
 import { OFFLINE_DETAIL_SOURCE } from "../platform/offline/detail.inline.ts";
 
 function fixtureInput(): OfflineChapterInput {
@@ -13,9 +10,7 @@ function fixtureInput(): OfflineChapterInput {
 }
 
 describe("offlineInlineScript: script immutability, registry matching, and CSP enforcement", () => {
-  const expectedHash = createHash("sha256")
-    .update(OFFLINE_DETAIL_SOURCE, "utf8")
-    .digest("base64");
+  const expectedHash = createHash("sha256").update(OFFLINE_DETAIL_SOURCE, "utf8").digest("base64");
 
   test("offline-detail is registered in the inline script registry with exact source", () => {
     const entry = INLINE_SCRIPT_REGISTRY.find((s) => s.id === "offline-detail");
@@ -62,9 +57,7 @@ describe("offlineInlineScript: script immutability, registry matching, and CSP e
 
   test("a modified script source produces a hash mismatch that fails verification", () => {
     const tamperedScript = `${OFFLINE_DETAIL_SOURCE}\n/* unauthorized tampering */`;
-    const tamperedHash = createHash("sha256")
-      .update(tamperedScript, "utf8")
-      .digest("base64");
+    const tamperedHash = createHash("sha256").update(tamperedScript, "utf8").digest("base64");
 
     expect(tamperedHash).not.toBe(expectedHash);
 
@@ -74,7 +67,9 @@ describe("offlineInlineScript: script immutability, registry matching, and CSP e
 
     const files = [{ scriptHash: tamperedHash }];
     const hasMismatch = files.some(
-      (file) => file.scriptHash !== createHash("sha256").update(detailScript!.source, "utf8").digest("base64"),
+      (file) =>
+        file.scriptHash !==
+        createHash("sha256").update(detailScript!.source, "utf8").digest("base64"),
     );
 
     expect(hasMismatch).toBe(true);

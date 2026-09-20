@@ -132,7 +132,9 @@ describe("bm01.multiInstance: Multi-Instance Non-Interference (AC 4)", () => {
       const snapAAfterBMutation = sessionA.getSnapshot();
       expect(snapAAfterBMutation.accepted?.snapshotVersion).toBe(2);
       expect((snapAAfterBMutation.accepted?.parameters as Bm01Parameters).interval).toBe(4);
-      expect((snapAAfterBMutation.accepted?.parameters as Bm01Parameters).eta).toBe(BM01_DEFAULTS.eta);
+      expect((snapAAfterBMutation.accepted?.parameters as Bm01Parameters).eta).toBe(
+        BM01_DEFAULTS.eta,
+      );
     } finally {
       sessionA.disconnect();
       sessionB.disconnect();

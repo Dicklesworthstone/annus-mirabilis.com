@@ -100,7 +100,9 @@ export function RodStripPlot({
             {measuredLength !== null ? `${measuredLength.toFixed(2)} ls` : "refused"}]
           </span>
         ) : (
-          <span style={{ color: "var(--accent)" }}>[Non-simultaneous: length measurement refused]</span>
+          <span style={{ color: "var(--accent)" }}>
+            [Non-simultaneous: length measurement refused]
+          </span>
         )}
       </div>
 

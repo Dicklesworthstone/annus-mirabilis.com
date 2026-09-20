@@ -1,7 +1,7 @@
-import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
 import { mkdir, readFile, stat, utimes, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
+import { tmpdir } from "node:os";
 import { extname, resolve } from "node:path";
 import test, { type TestContext } from "node:test";
 import { writeCalculusLog } from "./foundCalculus.logger.ts";
@@ -296,5 +296,3 @@ test("foundCalculus.e2e: planted negative - stale build directory with outdated 
     "startStaticServer must refuse to serve a stale build directory with outdated mtime",
   );
 });
-
-

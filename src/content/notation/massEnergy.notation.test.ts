@@ -286,7 +286,10 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
   test("Bindings: generic K binds kineticEnergy; L renders as E_emit, not bare E", () => {
     const file = loadConcordanceForPaper(paper);
     const k = resolveGlyph(paper, "me-s0-p7", "K", emptyManifestIndex, file);
-    assert.ok(k.ok, "generic K must resolve in the H - E = K + C paragraph (s0-p7 after the 2026-09-19 merges)");
+    assert.ok(
+      k.ok,
+      "generic K must resolve in the H - E = K + C paragraph (s0-p7 after the 2026-09-19 merges)",
+    );
     assert.ok("quantityId" in k.entry.binding);
     assert.equal(k.entry.binding.quantityId, "kineticEnergy");
 

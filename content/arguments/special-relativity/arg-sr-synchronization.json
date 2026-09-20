@@ -1,1 +1,80 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-sr-synchronization","paper":"special-relativity","section":"s1","title":"Time at a distant clock is an operation","question":"How can clocks at different places share a time coordinate?","recap":"Exchange a light signal, assign the distant reflection the midpoint of the departure and return times, and state the equal-travel-time convention. The event time is not the time its image reaches an observer.","review":"draft","premises":["The clocks and endpoints are at rest in one inertial frame.","The light-based convention assigns equal outward and return travel times."],"limitations":["One round-trip clock reading alone does not independently measure both one-way travel times.","Synchronizing clocks is distinct from moving them or changing their rates."],"citations":["ap-17-891"],"readings":{"overview":[{"kind":"paragraph","text":"Exchange a light signal, assign the distant reflection the midpoint of the departure and return times, and state the equal-travel-time convention. The event time is not the time its image reaches an observer."}],"full":[{"kind":"formula","latex":"t_B-t_A=t_{A,\\mathrm{return}}-t_B","spoken":"The outward assigned travel time equals the return assigned travel time."},{"kind":"formula","latex":"t_B=\\frac{t_A+t_{A,\\mathrm{return}}}{2}","spoken":"The assigned reflection time is the midpoint of departure and return times."},{"kind":"paragraph","text":"If A sends at time 0 and receives the reflected signal at time 10, the convention assigns time 5 at the reflection event at B. A later reception of a photograph of B is another event, not a replacement for that time assignment."},{"kind":"paragraph","text":"SR-01 retains departure, reflection, reception, and clock-reading records separately. The equal-time rule defines a coordinate procedure in the chosen rest frame."},{"kind":"foundation","id":"frames-events","returnCaption":"Return to how can clocks at different places share a time coordinate."}],"steps":[{"kind":"steps","items":["Record departure and return on the same clock at A.","Identify the intervening reflection event at B.","Assign its clock reading the arithmetic midpoint.","Check the assigned outward and return intervals.","Keep the time of a remote event separate from reception of its signal."]}],"margin":[{"kind":"paragraph","text":"Einstein’s synchronization rule is operational and conventional in its equal-one-way-time assignment. It is not an assertion that every frame shares the resulting distant simultaneity."}]},"prerequisites":[],"help":{"why":"frames-events","missingStep":"frames-events","example":"frames-events"},"experiments":["sr-01"],"meaning":{"logicalRole":"definition","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-sr-synchronization",
+  "paper": "special-relativity",
+  "section": "s1",
+  "title": "Time at a distant clock is an operation",
+  "question": "How can clocks at different places share a time coordinate?",
+  "recap": "Exchange a light signal, assign the distant reflection the midpoint of the departure and return times, and state the equal-travel-time convention. The event time is not the time its image reaches an observer.",
+  "review": "draft",
+  "premises": [
+    "The clocks and endpoints are at rest in one inertial frame.",
+    "The light-based convention assigns equal outward and return travel times."
+  ],
+  "limitations": [
+    "One round-trip clock reading alone does not independently measure both one-way travel times.",
+    "Synchronizing clocks is distinct from moving them or changing their rates."
+  ],
+  "citations": ["ap-17-891"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Exchange a light signal, assign the distant reflection the midpoint of the departure and return times, and state the equal-travel-time convention. The event time is not the time its image reaches an observer."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "t_B-t_A=t_{A,\\mathrm{return}}-t_B",
+        "spoken": "The outward assigned travel time equals the return assigned travel time."
+      },
+      {
+        "kind": "formula",
+        "latex": "t_B=\\frac{t_A+t_{A,\\mathrm{return}}}{2}",
+        "spoken": "The assigned reflection time is the midpoint of departure and return times."
+      },
+      {
+        "kind": "paragraph",
+        "text": "If A sends at time 0 and receives the reflected signal at time 10, the convention assigns time 5 at the reflection event at B. A later reception of a photograph of B is another event, not a replacement for that time assignment."
+      },
+      {
+        "kind": "paragraph",
+        "text": "SR-01 retains departure, reflection, reception, and clock-reading records separately. The equal-time rule defines a coordinate procedure in the chosen rest frame."
+      },
+      {
+        "kind": "foundation",
+        "id": "frames-events",
+        "returnCaption": "Return to how can clocks at different places share a time coordinate."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Record departure and return on the same clock at A.",
+          "Identify the intervening reflection event at B.",
+          "Assign its clock reading the arithmetic midpoint.",
+          "Check the assigned outward and return intervals.",
+          "Keep the time of a remote event separate from reception of its signal."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Einstein’s synchronization rule is operational and conventional in its equal-one-way-time assignment. It is not an assertion that every frame shares the resulting distant simultaneity."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": { "why": "frames-events", "missingStep": "frames-events", "example": "frames-events" },
+  "experiments": ["sr-01"],
+  "meaning": {
+    "logicalRole": "definition",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

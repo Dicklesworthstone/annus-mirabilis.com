@@ -78,8 +78,12 @@
    padding plus radius plus font-weight 600, is doing most of the work on a dark
    page. If the pill should stay hue-legible in the dark themes it wants a
    deliberate colour, which is that bead's call, not a derivation. */
-[data-theme="kramgasse-night"] .genealogy-cross-paper-pill { background: #252325; }
-[data-theme="slate"] .genealogy-cross-paper-pill { background: #1c1b18; }
+[data-theme="kramgasse-night"] .genealogy-cross-paper-pill {
+  background: #252325;
+}
+[data-theme="slate"] .genealogy-cross-paper-pill {
+  background: #1c1b18;
+}
 
 .genealogy-graph-wrapper {
   width: 100%;

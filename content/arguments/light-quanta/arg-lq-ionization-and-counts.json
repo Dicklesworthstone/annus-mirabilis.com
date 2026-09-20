@@ -1,1 +1,92 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-lq-ionization-and-counts","paper":"light-quanta","section":"s9","title":"A threshold does not specify a yield","question":"What can energy conservation say about gas ionization?","recap":"Under a one-quantum ionization assumption, a quantum must meet the required ionization energy. Absorbed energy bounds the count; equality requires that every absorbed quantum causes exactly one counted ionization.","review":"draft","premises":["One quantum supplies the ionization energy in the stated idealization.","Use absorbed energy, not automatically all incident energy.","A count equality requires one counted ionization per absorbed quantum."],"limitations":["A threshold is a necessary energy condition, not a material cross-section or a guaranteed event.","An unknown absorbed fraction or conversion yield cannot be replaced by 100 percent without saying so.","The energy budget does not predict recombination, collisions, or avalanche multiplication."],"citations":["ap-17-132"],"readings":{"overview":[{"kind":"paragraph","text":"Under a one-quantum ionization assumption, a quantum must meet the required ionization energy. Absorbed energy bounds the count; equality requires that every absorbed quantum causes exactly one counted ionization."}],"full":[{"kind":"paragraph","text":"Let I be the required energy for the specified ionization channel. A single quantum can pay this cost only when hν is at least I. A smaller quantum leaves an energy deficit; a larger quantum makes the event energetically possible, not certain."},{"kind":"formula","latex":"h\\nu\\ge I","spoken":"One-quantum ionization requires quantum energy at least equal to the specified ionization energy."},{"kind":"paragraph","text":"For monochromatic absorbed energy E_abs, the number of absorbed quanta is represented by E_abs/(hν). With at most one counted ionization per quantum this gives an upper bound. It becomes an equality only when all absorbed quanta each produce one counted ionization."},{"kind":"formula","latex":"n_{\\mathrm{ions}}\\le\\frac{E_{\\mathrm{abs}}}{h\\nu}","spoken":"The ionization count is at most absorbed energy divided by quantum energy, under the at-most-one-ionization assumption."},{"kind":"paragraph","text":"LQ-09 separates incident energy, absorbed fraction, threshold, and conversion assumptions. Its historical checks use their own stated units; this explanation does not infer a new gas species or a real-material yield from a threshold slider."},{"kind":"foundation","id":"bridge-scientific-notation-units","returnCaption":"Return to the energy threshold and the separately conditioned count bound."}],"steps":[{"kind":"steps","items":["Specify the ionization channel and its required energy.","Compare hν with that energy before trying to assign an event rate.","Determine the absorbed energy or keep the absorbed fraction unknown.","Divide monochromatic absorbed energy by hν to obtain the available quantum count.","Under an at-most-one-ionization assumption, treat that count as an upper bound.","Use equality only after declaring that every absorbed quantum produces one counted ionization.","Keep real rates, lost charges, and recombination outside this idealized budget unless independently modeled."]}],"margin":[{"kind":"paragraph","text":"The closing of the 1905 paper belongs to the source edition, including its date-line and qualifications. This explanatory preview neither supplies a diplomatic transcription nor claims that every source sentence has been aligned and reviewed."}]},"prerequisites":[{"id":"arg-lq-entropy-correspondence","edge":"premise"}],"help":{"why":"bridge-scientific-notation-units","missingStep":"bridge-scientific-notation-units","example":"bridge-scientific-notation-units"},"experiments":["lq-09"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-ionization-and-counts",
+  "paper": "light-quanta",
+  "section": "s9",
+  "title": "A threshold does not specify a yield",
+  "question": "What can energy conservation say about gas ionization?",
+  "recap": "Under a one-quantum ionization assumption, a quantum must meet the required ionization energy. Absorbed energy bounds the count; equality requires that every absorbed quantum causes exactly one counted ionization.",
+  "review": "draft",
+  "premises": [
+    "One quantum supplies the ionization energy in the stated idealization.",
+    "Use absorbed energy, not automatically all incident energy.",
+    "A count equality requires one counted ionization per absorbed quantum."
+  ],
+  "limitations": [
+    "A threshold is a necessary energy condition, not a material cross-section or a guaranteed event.",
+    "An unknown absorbed fraction or conversion yield cannot be replaced by 100 percent without saying so.",
+    "The energy budget does not predict recombination, collisions, or avalanche multiplication."
+  ],
+  "citations": ["ap-17-132"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Under a one-quantum ionization assumption, a quantum must meet the required ionization energy. Absorbed energy bounds the count; equality requires that every absorbed quantum causes exactly one counted ionization."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "Let I be the required energy for the specified ionization channel. A single quantum can pay this cost only when hν is at least I. A smaller quantum leaves an energy deficit; a larger quantum makes the event energetically possible, not certain."
+      },
+      {
+        "kind": "formula",
+        "latex": "h\\nu\\ge I",
+        "spoken": "One-quantum ionization requires quantum energy at least equal to the specified ionization energy."
+      },
+      {
+        "kind": "paragraph",
+        "text": "For monochromatic absorbed energy E_abs, the number of absorbed quanta is represented by E_abs/(hν). With at most one counted ionization per quantum this gives an upper bound. It becomes an equality only when all absorbed quanta each produce one counted ionization."
+      },
+      {
+        "kind": "formula",
+        "latex": "n_{\\mathrm{ions}}\\le\\frac{E_{\\mathrm{abs}}}{h\\nu}",
+        "spoken": "The ionization count is at most absorbed energy divided by quantum energy, under the at-most-one-ionization assumption."
+      },
+      {
+        "kind": "paragraph",
+        "text": "LQ-09 separates incident energy, absorbed fraction, threshold, and conversion assumptions. Its historical checks use their own stated units; this explanation does not infer a new gas species or a real-material yield from a threshold slider."
+      },
+      {
+        "kind": "foundation",
+        "id": "bridge-scientific-notation-units",
+        "returnCaption": "Return to the energy threshold and the separately conditioned count bound."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Specify the ionization channel and its required energy.",
+          "Compare hν with that energy before trying to assign an event rate.",
+          "Determine the absorbed energy or keep the absorbed fraction unknown.",
+          "Divide monochromatic absorbed energy by hν to obtain the available quantum count.",
+          "Under an at-most-one-ionization assumption, treat that count as an upper bound.",
+          "Use equality only after declaring that every absorbed quantum produces one counted ionization.",
+          "Keep real rates, lost charges, and recombination outside this idealized budget unless independently modeled."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The closing of the 1905 paper belongs to the source edition, including its date-line and qualifications. This explanatory preview neither supplies a diplomatic transcription nor claims that every source sentence has been aligned and reviewed."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-lq-entropy-correspondence", "edge": "premise" }],
+  "help": {
+    "why": "bridge-scientific-notation-units",
+    "missingStep": "bridge-scientific-notation-units",
+    "example": "bridge-scientific-notation-units"
+  },
+  "experiments": ["lq-09"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

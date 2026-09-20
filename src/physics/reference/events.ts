@@ -396,8 +396,7 @@ export function classifySimultaneity(
   // Case 2 & 3: number overloads
   if (typeof b !== "number") {
     const deltaT = a as number;
-    const tol =
-      typeof b === "object" && b !== null && "absolute" in b ? (b.absolute ?? 0) : 0;
+    const tol = typeof b === "object" && b !== null && "absolute" in b ? (b.absolute ?? 0) : 0;
     if (tol > 0 && Math.abs(deltaT) <= tol && deltaT !== 0) {
       return "indeterminate";
     }

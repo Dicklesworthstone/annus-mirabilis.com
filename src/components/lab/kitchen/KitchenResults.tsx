@@ -209,33 +209,71 @@ export function KitchenResults({ accepted }: { accepted: KitchenAccepted }) {
       </p>
       <section data-kitchen-uncertainty={r.uncertainty.state}>
         <h3>Calibration and physical-input uncertainty</h3>
-        <p>Input-range envelope (mol⁻¹): <Interval snapshot={s} id="molecularInputRange" />.</p>
-        <p>This envelope varies all declared physical inputs across the original conditional
-          camera interval. Without a joint coverage declaration it is a sensitivity envelope,
-          not a combined confidence interval.</p>
-        {r.uncertainty.scaleExponent !== null && <p data-calibration-dependence>
-          The selected {r.options.axis}-axis scale is propagated with power {r.uncertainty.scaleExponent}
-          {r.uncertainty.scaleExponent === -3 ? ": radius and displacement share this ruler." : ": radius is an independently measured physical length."}
-          {" "}The scale here is length per source pixel, the inverse of the entered pixels per micrometre.
-        </p>}
+        <p>
+          Input-range envelope (mol⁻¹): <Interval snapshot={s} id="molecularInputRange" />.
+        </p>
+        <p>
+          This envelope varies all declared physical inputs across the original conditional camera
+          interval. Without a joint coverage declaration it is a sensitivity envelope, not a
+          combined confidence interval.
+        </p>
+        {r.uncertainty.scaleExponent !== null && (
+          <p data-calibration-dependence>
+            The selected {r.options.axis}-axis scale is propagated with power{" "}
+            {r.uncertainty.scaleExponent}
+            {r.uncertainty.scaleExponent === -3
+              ? ": radius and displacement share this ruler."
+              : ": radius is an independently measured physical length."}{" "}
+            The scale here is length per source pixel, the inverse of the entered pixels per
+            micrometre.
+          </p>
+        )}
         <h4>Combined camera and physical-input interval</h4>
-        <p data-kitchen-combined><Interval snapshot={s} id="combinedMolecularInterval" />.</p>
+        <p data-kitchen-combined>
+          <Interval snapshot={s} id="combinedMolecularInterval" />.
+        </p>
         <p className="notice">{r.combinedIntervalReason}</p>
         <dl>
-          <dt>Supplied joint input coverage</dt><dd>{r.uncertainty.inputCoverage === null ? "Not declared" : `${display(r.uncertainty.inputCoverage, 100)}%`}</dd>
-          <dt>Allocated camera coverage</dt><dd>{r.uncertainty.cameraCoverage === null ? "Not allocated" : `${display(r.uncertainty.cameraCoverage, 100)}%`}</dd>
-          <dt>Conservative combined coverage</dt><dd data-kitchen-combined-coverage>{r.uncertainty.combinedCoverage === null ? "Not claimed" : `At least ${r.options.coverage * 100}%, conditional on the declared inputs and model`}</dd>
+          <dt>Supplied joint input coverage</dt>
+          <dd>
+            {r.uncertainty.inputCoverage === null
+              ? "Not declared"
+              : `${display(r.uncertainty.inputCoverage, 100)}%`}
+          </dd>
+          <dt>Allocated camera coverage</dt>
+          <dd>
+            {r.uncertainty.cameraCoverage === null
+              ? "Not allocated"
+              : `${display(r.uncertainty.cameraCoverage, 100)}%`}
+          </dd>
+          <dt>Conservative combined coverage</dt>
+          <dd data-kitchen-combined-coverage>
+            {r.uncertainty.combinedCoverage === null
+              ? "Not claimed"
+              : `At least ${r.options.coverage * 100}%, conditional on the declared inputs and model`}
+          </dd>
         </dl>
-        <details><summary>Inspect the uncertainty calculation and its limits</summary>
-          <p>Recalculated camera interval at the nominal scale (μm²/s): <Interval snapshot={s} id="combinedSamplingInterval" factor={1e12} />.</p>
-          <p>Declared range/coverage source: {d.metadata.physical_input_provenance || "Not supplied"}.</p>
-          <p>The gas-constant interpretation above is unchanged. Modern SI remains a consistency
+        <details>
+          <summary>Inspect the uncertainty calculation and its limits</summary>
+          <p>
+            Recalculated camera interval at the nominal scale (μm²/s):{" "}
+            <Interval snapshot={s} id="combinedSamplingInterval" factor={1e12} />.
+          </p>
+          <p>
+            Declared range/coverage source: {d.metadata.physical_input_provenance || "Not supplied"}
+            .
+          </p>
+          <p>
+            The gas-constant interpretation above is unchanged. Modern SI remains a consistency
             check, synthetic data remain synthetic, and an independently sourced radius is still
-            required. This is not a measurement of radius from Brownian displacement.</p>
-          <p>Timing, exposure, the stationary-feature error model, wall effects, particle shape and
-            optical blur remain model assumptions. No coverage is supplied for censored or
-            manually selected pairs. A camera set reaching zero cannot produce a finite upper
-            molecular-number bound.</p>
+            required. This is not a measurement of radius from Brownian displacement.
+          </p>
+          <p>
+            Timing, exposure, the stationary-feature error model, wall effects, particle shape and
+            optical blur remain model assumptions. No coverage is supplied for censored or manually
+            selected pairs. A camera set reaching zero cannot produce a finite upper
+            molecular-number bound.
+          </p>
         </details>
       </section>
       <details open={r.intervalReasons.length > 0}>

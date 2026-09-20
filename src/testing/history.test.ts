@@ -347,4 +347,3 @@ describe("face-switch ordering during open clarification (am-read-return-stack-o
     expect(stackAfterSecondBack?.frames).toHaveLength(0);
   });
 });
-

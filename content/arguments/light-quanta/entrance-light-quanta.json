@@ -1,1 +1,44 @@
-{"id":"entrance-light-quanta","paper":"light-quanta","question":"How often can everything end up in the left part?","story":"Imagine a box divided into equal parts. Each labeled token lands in any part with the same chance. First let tokens land on their own. Then keep them together in the same part. Does adding another token change the chance that all of them land in the left part?","sourceAnchor":"#entry-light-quanta","helpEntries":[{"obstacle":"Are these measurements of light?","clarification":"No. These are counting examples, not measurements. Counting tokens helps us understand a pattern; it is not evidence that light is made of dots."},{"obstacle":"What does keeping tokens together mean?","clarification":"They are required to land in the same part every time. There is only one shared choice, however many labels the group carries. A real short string near a boundary need not meet this ideal rule."},{"obstacle":"Why label the tokens?","clarification":"The first token on the left and the second on the right is a different arrangement from the first on the right and the second on the left."}],"bridge":{"id":"bridge-light-quanta-entrance","kind":"bridge","title":"The next step, in words","concreteOperation":"Count all the ways tokens can land, and distinguish several independent choices from a single choice shared by a group.","compactExplanation":"Section 5 turns this counting pattern into an entropy comparison. Section 6 then finds the same pattern in dilute light of a single color, as if its energy came in independent pieces.","textualEquivalent":"Count all the ways tokens can land, and distinguish several independent choices from a single choice shared by a group.","stoppingPoint":"Continue to the explanatory argument, without treating the example as a measurement.","readinessSign":"Count all the ways tokens can land, and distinguish several independent choices from a single choice shared by a group.","returnCaptions":[{"callingAnchor":"entry-light-quanta","caption":"Back to this first encounter."}],"newSkill":"Count all the ways tokens can land, and distinguish several independent choices from a single choice shared by a group.","whyUsefulHere":"Section 5 turns this counting pattern into an entropy comparison. Section 6 then finds the same pattern in dilute light of a single color, as if its energy came in independent pieces.","continueWith":[{"route":"more-guidance","targetId":"foundation:bridge-fractions-ratios"},{"route":"less-guidance","targetId":"instrument:lq-05"}],"authorship":{"draftedBy":[{"id":"agent:chatgpt","kind":"model","modelId":"gpt-6-astra-pro"}]},"reviewState":"draft"}}
+{
+  "id": "entrance-light-quanta",
+  "paper": "light-quanta",
+  "question": "How often can everything end up in the left part?",
+  "story": "Imagine a box divided into equal parts. Each labeled token lands in any part with the same chance. First let tokens land on their own. Then keep them together in the same part. Does adding another token change the chance that all of them land in the left part?",
+  "sourceAnchor": "#entry-light-quanta",
+  "helpEntries": [
+    {
+      "obstacle": "Are these measurements of light?",
+      "clarification": "No. These are counting examples, not measurements. Counting tokens helps us understand a pattern; it is not evidence that light is made of dots."
+    },
+    {
+      "obstacle": "What does keeping tokens together mean?",
+      "clarification": "They are required to land in the same part every time. There is only one shared choice, however many labels the group carries. A real short string near a boundary need not meet this ideal rule."
+    },
+    {
+      "obstacle": "Why label the tokens?",
+      "clarification": "The first token on the left and the second on the right is a different arrangement from the first on the right and the second on the left."
+    }
+  ],
+  "bridge": {
+    "id": "bridge-light-quanta-entrance",
+    "kind": "bridge",
+    "title": "The next step, in words",
+    "concreteOperation": "Count all the ways tokens can land, and distinguish several independent choices from a single choice shared by a group.",
+    "compactExplanation": "Section 5 turns this counting pattern into an entropy comparison. Section 6 then finds the same pattern in dilute light of a single color, as if its energy came in independent pieces.",
+    "textualEquivalent": "Count all the ways tokens can land, and distinguish several independent choices from a single choice shared by a group.",
+    "stoppingPoint": "Continue to the explanatory argument, without treating the example as a measurement.",
+    "readinessSign": "Count all the ways tokens can land, and distinguish several independent choices from a single choice shared by a group.",
+    "returnCaptions": [
+      { "callingAnchor": "entry-light-quanta", "caption": "Back to this first encounter." }
+    ],
+    "newSkill": "Count all the ways tokens can land, and distinguish several independent choices from a single choice shared by a group.",
+    "whyUsefulHere": "Section 5 turns this counting pattern into an entropy comparison. Section 6 then finds the same pattern in dilute light of a single color, as if its energy came in independent pieces.",
+    "continueWith": [
+      { "route": "more-guidance", "targetId": "foundation:bridge-fractions-ratios" },
+      { "route": "less-guidance", "targetId": "instrument:lq-05" }
+    ],
+    "authorship": {
+      "draftedBy": [{ "id": "agent:chatgpt", "kind": "model", "modelId": "gpt-6-astra-pro" }]
+    },
+    "reviewState": "draft"
+  }
+}

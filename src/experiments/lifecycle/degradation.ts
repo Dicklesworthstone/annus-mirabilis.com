@@ -97,7 +97,8 @@ export function evaluateVisualDetailPolicy(
     return {
       requestedParticleCount,
       displayedParticleCount: Math.min(requestedParticleCount, minDisplayed),
-      renderDecimationRatio: requestedParticleCount / Math.min(requestedParticleCount, minDisplayed),
+      renderDecimationRatio:
+        requestedParticleCount / Math.min(requestedParticleCount, minDisplayed),
       isPaused: true,
       explanation: `Rendering paused: measured frame time (${measuredFrameTimeMs.toFixed(1)}ms) exceeds 4x budget (${targetFrameTimeMs.toFixed(1)}ms). Scientific state and tape are preserved.`,
     };

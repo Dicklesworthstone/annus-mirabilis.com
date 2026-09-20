@@ -1,1 +1,75 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-me-constant-premise","paper":"mass-energy","section":"s0","title":"The premise that the subtraction needs","question":"When may we call the difference a loss of energy of motion?","recap":"The kinetic interpretation assumes that the additive energy offset is unchanged during emission.","review":"draft","premises":["For each body state, H − E equals K plus an additive offset.","The same offset C applies before and after emission."],"limitations":["Without the unchanged-offset premise, the kinetic-energy drop is underdetermined."],"citations":["ap-18-639"],"readings":{"overview":[{"kind":"paragraph","text":"The traveler’s account contains the rest account plus energy of motion and an offset. The paper asserts that this offset does not change during emission. Only with that premise can the subtraction isolate the change in energy of motion."}],"full":[{"kind":"formula","latex":"H_0-E_0=K_0+C,\\qquad H_1-E_1=K_1+C","spoken":"Each frame-energy difference equals the corresponding kinetic energy plus the same additive constant C."},{"kind":"paragraph","text":"Because the same C occurs twice, it cancels. The kinetic-energy drop is then L(γ − 1), even though the body’s speed is unchanged. The unchanged offset is an asserted premise of this route, not something the subtraction independently measured."},{"kind":"formula","latex":"K_0-K_1=L(\\gamma-1)","spoken":"The kinetic energy before minus the kinetic energy after equals L times gamma minus one."},{"kind":"foundation","id":"work-energy","returnCaption":"Return to energy of motion at the same speed."}],"steps":[{"kind":"steps","items":["Before emission write the moving account as the rest account plus energy of motion plus C₀.","After emission write the corresponding relation with C₁.","The subtraction gives (K₀ − K₁) + (C₀ − C₁) = L(γ − 1).","Admit C₀ = C₁ to cancel the offsets and identify the kinetic-energy drop.","Relax that premise in ME-01: the light totals and algebraic subtraction remain known, but the kinetic interpretation becomes underdetermined."]}],"margin":[{"kind":"paragraph","text":"This is a productive conditional argument, not a premise-free theorem about arbitrary interacting extended systems. The paper’s comparison with the electron kinetic energy from relativity §10 is a comparison, not an additional premise used here."}]},"prerequisites":[{"id":"arg-me-subtraction","edge":"premise"}],"help":{"why":"work-energy","missingStep":"work-energy","example":"work-energy"},"experiments":["me-01"],"meaning":{"logicalRole":"assumption","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-me-constant-premise",
+  "paper": "mass-energy",
+  "section": "s0",
+  "title": "The premise that the subtraction needs",
+  "question": "When may we call the difference a loss of energy of motion?",
+  "recap": "The kinetic interpretation assumes that the additive energy offset is unchanged during emission.",
+  "review": "draft",
+  "premises": [
+    "For each body state, H − E equals K plus an additive offset.",
+    "The same offset C applies before and after emission."
+  ],
+  "limitations": [
+    "Without the unchanged-offset premise, the kinetic-energy drop is underdetermined."
+  ],
+  "citations": ["ap-18-639"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "The traveler’s account contains the rest account plus energy of motion and an offset. The paper asserts that this offset does not change during emission. Only with that premise can the subtraction isolate the change in energy of motion."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "H_0-E_0=K_0+C,\\qquad H_1-E_1=K_1+C",
+        "spoken": "Each frame-energy difference equals the corresponding kinetic energy plus the same additive constant C."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Because the same C occurs twice, it cancels. The kinetic-energy drop is then L(γ − 1), even though the body’s speed is unchanged. The unchanged offset is an asserted premise of this route, not something the subtraction independently measured."
+      },
+      {
+        "kind": "formula",
+        "latex": "K_0-K_1=L(\\gamma-1)",
+        "spoken": "The kinetic energy before minus the kinetic energy after equals L times gamma minus one."
+      },
+      {
+        "kind": "foundation",
+        "id": "work-energy",
+        "returnCaption": "Return to energy of motion at the same speed."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Before emission write the moving account as the rest account plus energy of motion plus C₀.",
+          "After emission write the corresponding relation with C₁.",
+          "The subtraction gives (K₀ − K₁) + (C₀ − C₁) = L(γ − 1).",
+          "Admit C₀ = C₁ to cancel the offsets and identify the kinetic-energy drop.",
+          "Relax that premise in ME-01: the light totals and algebraic subtraction remain known, but the kinetic interpretation becomes underdetermined."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "This is a productive conditional argument, not a premise-free theorem about arbitrary interacting extended systems. The paper’s comparison with the electron kinetic energy from relativity §10 is a comparison, not an additional premise used here."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-me-subtraction", "edge": "premise" }],
+  "help": { "why": "work-energy", "missingStep": "work-energy", "example": "work-energy" },
+  "experiments": ["me-01"],
+  "meaning": {
+    "logicalRole": "assumption",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

@@ -25,9 +25,9 @@ test("authored.test: valid authored exception converts to HTML markup", () => {
     },
   });
 
-  assert.ok(result.latex.includes('\\htmlData{term=t_E}{\\htmlClass{am-role-result}{\\lambda_x}}'));
-  assert.ok(result.latex.includes('\\htmlData{term=t_D}{\\htmlClass{am-role-constant}{D}}'));
-  assert.ok(result.latex.includes('\\htmlData{term=t_t}{\\htmlClass{am-role-input}{t}}'));
+  assert.ok(result.latex.includes("\\htmlData{term=t_E}{\\htmlClass{am-role-result}{\\lambda_x}}"));
+  assert.ok(result.latex.includes("\\htmlData{term=t_D}{\\htmlClass{am-role-constant}{D}}"));
+  assert.ok(result.latex.includes("\\htmlData{term=t_t}{\\htmlClass{am-role-input}{t}}"));
   assert.deepEqual(result.termIds, ["t_E", "t_D", "t_t"]);
 });
 

@@ -212,7 +212,7 @@ export function kMax(
 ): PhotoelectricResult<number> {
   const transferModel: EnergyTransferMode =
     typeof transferModelOrOptions === "object" && transferModelOrOptions !== null
-      ? transferModelOrOptions.transferModel ?? "complete"
+      ? (transferModelOrOptions.transferModel ?? "complete")
       : transferModelOrOptions;
 
   if (!Number.isFinite(nu)) {
@@ -321,7 +321,7 @@ export function stoppingPotentialMagnitude(
 ): PhotoelectricResult<number> {
   const transferModel: EnergyTransferMode =
     typeof transferModelOrOptions === "object" && transferModelOrOptions !== null
-      ? transferModelOrOptions.transferModel ?? "complete"
+      ? (transferModelOrOptions.transferModel ?? "complete")
       : transferModelOrOptions;
   const kResult = kMax(nu, workFunctionJoules, set, transferModel);
   if (kResult.status === "underdetermined") {
@@ -731,7 +731,7 @@ export function stoppingLine(
   const e = getElementaryCharge(set);
   const slope = h / e;
   const intercept = -workFunctionJoules / e;
-  const printedSlopeVsPerHz = (8.31e7 * 4.866e-11 / 9.6e3) * 1e-8; // 4.21213125e-15 V s
+  const printedSlopeVsPerHz = ((8.31e7 * 4.866e-11) / 9.6e3) * 1e-8; // 4.21213125e-15 V s
   const historicalSlopeLabel = "historical";
 
   const threshRes = thresholdFrequency(workFunctionJoules, set);
@@ -802,7 +802,11 @@ export function cathodeLuminescenceMinimumPotential(
     return outsideDomain("invalid-frequency", "physical", "Frequency must be strictly positive.");
   }
   if (!Number.isFinite(workFunctionJoules) || workFunctionJoules < 0) {
-    return outsideDomain("invalid-work-function", "physical", "Work function must be non-negative.");
+    return outsideDomain(
+      "invalid-work-function",
+      "physical",
+      "Work function must be non-negative.",
+    );
   }
   const h = getPlanckConstant(set);
   const e = getElementaryCharge(set);
@@ -915,7 +919,11 @@ export function metalCard(card: MetalCard): PhotoelectricResult<MetalCard> {
     );
   }
   if (!Number.isFinite(card.workFunctionEv) || card.workFunctionEv <= 0) {
-    return outsideDomain("invalid-work-function", "physical", "Work function must be strictly positive.");
+    return outsideDomain(
+      "invalid-work-function",
+      "physical",
+      "Work function must be strictly positive.",
+    );
   }
   return ok(Object.freeze({ ...card, label: "cited" as const }));
 }
@@ -942,7 +950,11 @@ export function gasCard(card: GasCard): PhotoelectricResult<GasCard> {
   }
   const ie = card.ionizationEnergyPerMoleculeEv ?? card.ionizationEnergyEv ?? 0;
   if (!Number.isFinite(ie) || ie <= 0) {
-    return outsideDomain("invalid-ionization-energy", "physical", "Ionization energy must be strictly positive.");
+    return outsideDomain(
+      "invalid-ionization-energy",
+      "physical",
+      "Ionization energy must be strictly positive.",
+    );
   }
   return ok(Object.freeze({ ...card, label: "cited" as const }));
 }
@@ -1545,7 +1557,8 @@ export function fluorescenceRates(input: FluorescenceRatesInput): FluorescenceRa
       dissipatedHeatWatts: 0,
       quantumYield: Number.isFinite(quantumYield) ? quantumYield : 0,
       energyEfficiency: 0,
-      reason: "Absorbed power must be non-negative, frequencies positive finite, and quantum yield Y must lie in [0, 1].",
+      reason:
+        "Absorbed power must be non-negative, frequencies positive finite, and quantum yield Y must lie in [0, 1].",
     });
   }
 
@@ -2201,4 +2214,3 @@ export function einsteinPrintedIonizationChecks(): Readonly<{
 
 export const maximumKineticEnergy = kMax;
 export const maximumKineticEnergyEv = kMaxEv;
-

@@ -1,1 +1,187 @@
-{"schemaVersion":1,"kind":"equation","id":"eq-model-me-raw-subtraction","paper":"mass-energy","argument":"arg-me-subtraction","title":"Subtract the rest account from the moving account","spoken":"H before minus H after, less E before minus E after, equals gamma L minus L.","explanation":"Subtract the whole rest-frame conservation relation from the moving-frame relation. Keep parentheses so the second minus sign also reverses the after-emission term.","review":"draft","notation":"modern-pedagogical","unitSystem":"si","assumptions":["Two equal, opposite light pulses remove total positive energy L; their symmetry removes recoil in the body’s rest frame.","The two inertial descriptions refer to the same emission and the same body boundary; |v| < c.","These are authored modern teaching equations, not a reviewed transcription or printed-notation concordance."],"tree":{"kind":"relation","opId":"eq-model-me-raw-subtraction.op.relation","left":{"kind":"sum","opId":"eq-model-me-raw-subtraction.op.subtractAccounts","args":[{"kind":"sum","opId":"eq-model-me-raw-subtraction.op.movingDrop","args":[{"kind":"symbol","termId":"eq-model-me-raw-subtraction.t.bodyEnergyMovingBefore","quantityId":"bodyEnergyMovingBefore"},{"kind":"negate","argument":{"kind":"symbol","termId":"eq-model-me-raw-subtraction.t.bodyEnergyMovingAfter","quantityId":"bodyEnergyMovingAfter"}}]},{"kind":"negate","argument":{"kind":"sum","opId":"eq-model-me-raw-subtraction.op.restDrop","args":[{"kind":"symbol","termId":"eq-model-me-raw-subtraction.t.bodyEnergyRestBefore","quantityId":"bodyEnergyRestBefore"},{"kind":"negate","argument":{"kind":"symbol","termId":"eq-model-me-raw-subtraction.t.bodyEnergyRestAfter","quantityId":"bodyEnergyRestAfter"}}]}}]},"right":{"kind":"sum","opId":"eq-model-me-raw-subtraction.op.subtractLight","args":[{"kind":"product","opId":"eq-model-me-raw-subtraction.op.movingLight","args":[{"kind":"symbol","termId":"eq-model-me-raw-subtraction.t.lorentzFactor","quantityId":"lorentzFactor"},{"kind":"symbol","termId":"eq-model-me-raw-subtraction.t.movingL","quantityId":"emittedEnergyRestFrame"}]},{"kind":"negate","argument":{"kind":"symbol","termId":"eq-model-me-raw-subtraction.t.restL","quantityId":"emittedEnergyRestFrame"}}]},"operator":"="},"notes":[{"nodeId":"eq-model-me-raw-subtraction.t.bodyEnergyMovingBefore","title":"Moving-frame account before","explanation":"H₀ is the same body’s pre-emission energy described by the moving observer, not a second physical emission.","foundation":"frames-events"},{"nodeId":"eq-model-me-raw-subtraction.t.bodyEnergyMovingAfter","title":"Moving-frame account after","explanation":"H₁ is the body’s post-emission energy in that same moving frame. The observer speed is unchanged between the two accounts.","foundation":"frames-events"},{"nodeId":"eq-model-me-raw-subtraction.op.movingDrop","title":"Subtract the whole expression","explanation":"The negative sign applies to every term in the second expression. Both accounts use the same body boundary.","foundation":"work-energy"},{"nodeId":"eq-model-me-raw-subtraction.t.bodyEnergyRestBefore","title":"Rest-frame account before","explanation":"E₀ is the body’s pre-emission energy in its rest description. Its absolute value remains unknown: no formula involving an assigned rest mass is inserted.","foundation":"work-energy"},{"nodeId":"eq-model-me-raw-subtraction.t.bodyEnergyRestAfter","title":"Rest-frame account after","explanation":"E₁ is the body’s remaining energy in the same rest description after both pulses leave. Before and after refer to the same body boundary.","foundation":"work-energy"},{"nodeId":"eq-model-me-raw-subtraction.op.restDrop","title":"Subtract the whole expression","explanation":"The negative sign applies to every term in the second expression. Both accounts use the same body boundary.","foundation":"work-energy"},{"nodeId":"eq-model-me-raw-subtraction.op.subtractAccounts","title":"Subtract the whole expression","explanation":"The negative sign applies to every term in the second expression. Both accounts use the same body boundary.","foundation":"work-energy"},{"nodeId":"eq-model-me-raw-subtraction.t.lorentzFactor","title":"Modern Lorentz factor","explanation":"γ depends on the observer speed. In this modern teaching notation γ is the factor, not the speed ratio v/c. The transformation of the light energy is imported from relativity, not derived from these energy accounts.","foundation":"frames-events"},{"nodeId":"eq-model-me-raw-subtraction.t.movingL","title":"Emitted energy L","explanation":"Total energy of both opposite pulses, in the body’s rest frame. It is not the body’s unknown total energy.","foundation":"work-energy"},{"nodeId":"eq-model-me-raw-subtraction.op.movingLight","title":"Moving-frame emitted energy","explanation":"Use the imported light-energy transformation.","foundation":"work-energy"},{"nodeId":"eq-model-me-raw-subtraction.t.restL","title":"Emitted energy L","explanation":"Total energy of both opposite pulses, in the body’s rest frame. It is not the body’s unknown total energy.","foundation":"work-energy"},{"nodeId":"eq-model-me-raw-subtraction.op.subtractLight","title":"Subtract the whole expression","explanation":"The negative sign applies to every term in the second expression. Both accounts use the same body boundary.","foundation":"work-energy"},{"nodeId":"eq-model-me-raw-subtraction.op.relation","title":"Subtract the rest account from the moving account","explanation":"Subtract the whole rest-frame conservation relation from the moving-frame relation. Keep parentheses so the second minus sign also reverses the after-emission term.","foundation":"work-energy"}],"bindings":[],"sentence":[{"text":"H before minus H after, less E before minus E after, equals gamma L minus L.","nodeId":"eq-model-me-raw-subtraction.op.relation"}]}
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-raw-subtraction",
+  "paper": "mass-energy",
+  "argument": "arg-me-subtraction",
+  "title": "Subtract the rest account from the moving account",
+  "spoken": "H before minus H after, less E before minus E after, equals gamma L minus L.",
+  "explanation": "Subtract the whole rest-frame conservation relation from the moving-frame relation. Keep parentheses so the second minus sign also reverses the after-emission term.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Two equal, opposite light pulses remove total positive energy L; their symmetry removes recoil in the body’s rest frame.",
+    "The two inertial descriptions refer to the same emission and the same body boundary; |v| < c.",
+    "These are authored modern teaching equations, not a reviewed transcription or printed-notation concordance."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-raw-subtraction.op.relation",
+    "left": {
+      "kind": "sum",
+      "opId": "eq-model-me-raw-subtraction.op.subtractAccounts",
+      "args": [
+        {
+          "kind": "sum",
+          "opId": "eq-model-me-raw-subtraction.op.movingDrop",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-me-raw-subtraction.t.bodyEnergyMovingBefore",
+              "quantityId": "bodyEnergyMovingBefore"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "symbol",
+                "termId": "eq-model-me-raw-subtraction.t.bodyEnergyMovingAfter",
+                "quantityId": "bodyEnergyMovingAfter"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "sum",
+            "opId": "eq-model-me-raw-subtraction.op.restDrop",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-me-raw-subtraction.t.bodyEnergyRestBefore",
+                "quantityId": "bodyEnergyRestBefore"
+              },
+              {
+                "kind": "negate",
+                "argument": {
+                  "kind": "symbol",
+                  "termId": "eq-model-me-raw-subtraction.t.bodyEnergyRestAfter",
+                  "quantityId": "bodyEnergyRestAfter"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-me-raw-subtraction.op.subtractLight",
+      "args": [
+        {
+          "kind": "product",
+          "opId": "eq-model-me-raw-subtraction.op.movingLight",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-me-raw-subtraction.t.lorentzFactor",
+              "quantityId": "lorentzFactor"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-me-raw-subtraction.t.movingL",
+              "quantityId": "emittedEnergyRestFrame"
+            }
+          ]
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-me-raw-subtraction.t.restL",
+            "quantityId": "emittedEnergyRestFrame"
+          }
+        }
+      ]
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-raw-subtraction.t.bodyEnergyMovingBefore",
+      "title": "Moving-frame account before",
+      "explanation": "H₀ is the same body’s pre-emission energy described by the moving observer, not a second physical emission.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.t.bodyEnergyMovingAfter",
+      "title": "Moving-frame account after",
+      "explanation": "H₁ is the body’s post-emission energy in that same moving frame. The observer speed is unchanged between the two accounts.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.op.movingDrop",
+      "title": "Subtract the whole expression",
+      "explanation": "The negative sign applies to every term in the second expression. Both accounts use the same body boundary.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.t.bodyEnergyRestBefore",
+      "title": "Rest-frame account before",
+      "explanation": "E₀ is the body’s pre-emission energy in its rest description. Its absolute value remains unknown: no formula involving an assigned rest mass is inserted.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.t.bodyEnergyRestAfter",
+      "title": "Rest-frame account after",
+      "explanation": "E₁ is the body’s remaining energy in the same rest description after both pulses leave. Before and after refer to the same body boundary.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.op.restDrop",
+      "title": "Subtract the whole expression",
+      "explanation": "The negative sign applies to every term in the second expression. Both accounts use the same body boundary.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.op.subtractAccounts",
+      "title": "Subtract the whole expression",
+      "explanation": "The negative sign applies to every term in the second expression. Both accounts use the same body boundary.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.t.lorentzFactor",
+      "title": "Modern Lorentz factor",
+      "explanation": "γ depends on the observer speed. In this modern teaching notation γ is the factor, not the speed ratio v/c. The transformation of the light energy is imported from relativity, not derived from these energy accounts.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.t.movingL",
+      "title": "Emitted energy L",
+      "explanation": "Total energy of both opposite pulses, in the body’s rest frame. It is not the body’s unknown total energy.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.op.movingLight",
+      "title": "Moving-frame emitted energy",
+      "explanation": "Use the imported light-energy transformation.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.t.restL",
+      "title": "Emitted energy L",
+      "explanation": "Total energy of both opposite pulses, in the body’s rest frame. It is not the body’s unknown total energy.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.op.subtractLight",
+      "title": "Subtract the whole expression",
+      "explanation": "The negative sign applies to every term in the second expression. Both accounts use the same body boundary.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-raw-subtraction.op.relation",
+      "title": "Subtract the rest account from the moving account",
+      "explanation": "Subtract the whole rest-frame conservation relation from the moving-frame relation. Keep parentheses so the second minus sign also reverses the after-emission term.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "H before minus H after, less E before minus E after, equals gamma L minus L.",
+      "nodeId": "eq-model-me-raw-subtraction.op.relation"
+    }
+  ]
+}

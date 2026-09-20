@@ -72,10 +72,14 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
     };
 
     // 1. Model version mutation
-    const mutModel = evaluateCheckpointRecovery("run-100", {
-      ...baseEnvelope,
-      modelVersion: "bm-01.v2",
-    }, expected);
+    const mutModel = evaluateCheckpointRecovery(
+      "run-100",
+      {
+        ...baseEnvelope,
+        modelVersion: "bm-01.v2",
+      },
+      expected,
+    );
     expect(mutModel.action).toBe("new-run");
     if (mutModel.action === "new-run") {
       expect(mutModel.mismatchField).toBe("modelVersion");
@@ -83,30 +87,42 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
     }
 
     // 2. Protocol version mutation
-    const mutProto = evaluateCheckpointRecovery("run-100", {
-      ...baseEnvelope,
-      protocolVersion: 2,
-    }, expected);
+    const mutProto = evaluateCheckpointRecovery(
+      "run-100",
+      {
+        ...baseEnvelope,
+        protocolVersion: 2,
+      },
+      expected,
+    );
     expect(mutProto.action).toBe("new-run");
     if (mutProto.action === "new-run") {
       expect(mutProto.mismatchField).toBe("protocolVersion");
     }
 
     // 3. Tape schema version mutation
-    const mutTape = evaluateCheckpointRecovery("run-100", {
-      ...baseEnvelope,
-      tapeSchemaVersion: 3,
-    }, expected);
+    const mutTape = evaluateCheckpointRecovery(
+      "run-100",
+      {
+        ...baseEnvelope,
+        tapeSchemaVersion: 3,
+      },
+      expected,
+    );
     expect(mutTape.action).toBe("new-run");
     if (mutTape.action === "new-run") {
       expect(mutTape.mismatchField).toBe("tapeSchemaVersion");
     }
 
     // 4. Parameter digest mutation
-    const mutParam = evaluateCheckpointRecovery("run-100", {
-      ...baseEnvelope,
-      parameterDigest: "digest-different-456",
-    }, expected);
+    const mutParam = evaluateCheckpointRecovery(
+      "run-100",
+      {
+        ...baseEnvelope,
+        parameterDigest: "digest-different-456",
+      },
+      expected,
+    );
     expect(mutParam.action).toBe("new-run");
     if (mutParam.action === "new-run") {
       expect(mutParam.mismatchField).toBe("parameterDigest");
@@ -114,7 +130,11 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
 
     // 5. Seed mutation
     const bytesMutSeed = encodeStreamCheckpoint({ ...validParams, seed: 999999n });
-    const mutSeed = evaluateCheckpointRecovery("run-100", { ...baseEnvelope, checkpointBytes: bytesMutSeed }, expected);
+    const mutSeed = evaluateCheckpointRecovery(
+      "run-100",
+      { ...baseEnvelope, checkpointBytes: bytesMutSeed },
+      expected,
+    );
     expect(mutSeed.action).toBe("new-run");
     if (mutSeed.action === "new-run") {
       expect(mutSeed.mismatchField).toBe("seed");
@@ -122,7 +142,11 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
 
     // 6. Stream kernel id mutation
     const bytesMutKernel = encodeStreamCheckpoint({ ...validParams, kernel: 0x19050002 });
-    const mutKernel = evaluateCheckpointRecovery("run-100", { ...baseEnvelope, checkpointBytes: bytesMutKernel }, expected);
+    const mutKernel = evaluateCheckpointRecovery(
+      "run-100",
+      { ...baseEnvelope, checkpointBytes: bytesMutKernel },
+      expected,
+    );
     expect(mutKernel.action).toBe("new-run");
     if (mutKernel.action === "new-run") {
       expect(mutKernel.mismatchField).toBe("kernel");
@@ -130,7 +154,11 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
 
     // 7. Tile mutation
     const bytesMutTile = encodeStreamCheckpoint({ ...validParams, tile: 99 });
-    const mutTile = evaluateCheckpointRecovery("run-100", { ...baseEnvelope, checkpointBytes: bytesMutTile }, expected);
+    const mutTile = evaluateCheckpointRecovery(
+      "run-100",
+      { ...baseEnvelope, checkpointBytes: bytesMutTile },
+      expected,
+    );
     expect(mutTile.action).toBe("new-run");
     if (mutTile.action === "new-run") {
       expect(mutTile.mismatchField).toBe("tile");
@@ -138,7 +166,11 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
 
     // 8. Next index mutation
     const bytesMutIndex = encodeStreamCheckpoint({ ...validParams, nextIndex: 2000n });
-    const mutIndex = evaluateCheckpointRecovery("run-100", { ...baseEnvelope, checkpointBytes: bytesMutIndex }, expected);
+    const mutIndex = evaluateCheckpointRecovery(
+      "run-100",
+      { ...baseEnvelope, checkpointBytes: bytesMutIndex },
+      expected,
+    );
     expect(mutIndex.action).toBe("new-run");
     if (mutIndex.action === "new-run") {
       expect(mutIndex.mismatchField).toBe("index");
@@ -146,7 +178,11 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
 
     // 9. Checkpoint version mutation
     const bytesMutCpVer = encodeStreamCheckpoint({ ...validParams, checkpointVersion: 2 });
-    const mutCpVer = evaluateCheckpointRecovery("run-100", { ...baseEnvelope, checkpointBytes: bytesMutCpVer }, expected);
+    const mutCpVer = evaluateCheckpointRecovery(
+      "run-100",
+      { ...baseEnvelope, checkpointBytes: bytesMutCpVer },
+      expected,
+    );
     expect(mutCpVer.action).toBe("new-run");
     if (mutCpVer.action === "new-run") {
       expect(mutCpVer.mismatchField).toBe("checkpointVersion");
@@ -154,7 +190,11 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
 
     // 10. Stream semantics version mutation
     const bytesMutSemVer = encodeStreamCheckpoint({ ...validParams, streamSemanticsVersion: 2 });
-    const mutSemVer = evaluateCheckpointRecovery("run-100", { ...baseEnvelope, checkpointBytes: bytesMutSemVer }, expected);
+    const mutSemVer = evaluateCheckpointRecovery(
+      "run-100",
+      { ...baseEnvelope, checkpointBytes: bytesMutSemVer },
+      expected,
+    );
     expect(mutSemVer.action).toBe("new-run");
     if (mutSemVer.action === "new-run") {
       expect(mutSemVer.mismatchField).toBe("streamSemanticsVersion");
@@ -163,7 +203,11 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
     // 11. Magic mutation
     const bytesMutMagic = new Uint8Array(encodeStreamCheckpoint(validParams));
     bytesMutMagic[0] = 0x58; // 'X' instead of 'F'
-    const mutMagic = evaluateCheckpointRecovery("run-100", { ...baseEnvelope, checkpointBytes: bytesMutMagic }, expected);
+    const mutMagic = evaluateCheckpointRecovery(
+      "run-100",
+      { ...baseEnvelope, checkpointBytes: bytesMutMagic },
+      expected,
+    );
     expect(mutMagic.action).toBe("new-run");
     if (mutMagic.action === "new-run") {
       expect(mutMagic.mismatchField).toBe("magic");
@@ -172,7 +216,11 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
     // 12. Domain mutation
     const bytesMutDomain = new Uint8Array(encodeStreamCheckpoint(validParams));
     bytesMutDomain[10] = 0x58; // corrupt domain
-    const mutDomain = evaluateCheckpointRecovery("run-100", { ...baseEnvelope, checkpointBytes: bytesMutDomain }, expected);
+    const mutDomain = evaluateCheckpointRecovery(
+      "run-100",
+      { ...baseEnvelope, checkpointBytes: bytesMutDomain },
+      expected,
+    );
     expect(mutDomain.action).toBe("new-run");
     if (mutDomain.action === "new-run") {
       expect(mutDomain.mismatchField).toBe("domain");
@@ -182,7 +230,11 @@ describe("StreamCheckpoint encoding, decoding, and fail-closed validation", () =
     const trailingBytes = new Uint8Array(84);
     trailingBytes.set(encodeStreamCheckpoint(validParams));
     trailingBytes[83] = 0x00;
-    const mutTrailing = evaluateCheckpointRecovery("run-100", { ...baseEnvelope, checkpointBytes: trailingBytes }, expected);
+    const mutTrailing = evaluateCheckpointRecovery(
+      "run-100",
+      { ...baseEnvelope, checkpointBytes: trailingBytes },
+      expected,
+    );
     expect(mutTrailing.action).toBe("new-run");
     if (mutTrailing.action === "new-run") {
       expect(mutTrailing.mismatchField).toBe("trailing-bytes");

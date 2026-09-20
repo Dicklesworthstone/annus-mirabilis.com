@@ -88,15 +88,34 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
           <rect x={517} y={75} width={8} height={100} fill="var(--plot)" rx="2" />
 
           {/* Box label */}
-          <text x={320} y={105} fontSize="11" textAnchor="middle" fill="var(--plot)" fontWeight="600">
+          <text
+            x={320}
+            y={105}
+            fontSize="11"
+            textAnchor="middle"
+            fill="var(--plot)"
+            fontWeight="600"
+          >
             Box (mass M = {boxMass} kg, length ℓ = {boxLength} m)
           </text>
 
           {/* Light pulse wavepacket traveling right */}
           <g transform="translate(300, 125)">
             <circle cx="0" cy="0" r="8" fill="var(--accent)" opacity="0.8" />
-            <path d="M -12 0 Q -6 -6 0 0 T 12 0" fill="none" stroke="var(--accent)" strokeWidth="2" />
-            <text x="0" y="18" fontSize="10" textAnchor="middle" fill="var(--accent)" fontWeight="600">
+            <path
+              d="M -12 0 Q -6 -6 0 0 T 12 0"
+              fill="none"
+              stroke="var(--accent)"
+              strokeWidth="2"
+            />
+            <text
+              x="0"
+              y="18"
+              fontSize="10"
+              textAnchor="middle"
+              fill="var(--accent)"
+              fontWeight="600"
+            >
               Pulse E = {pulseEnergy} J
             </text>
           </g>
@@ -105,7 +124,14 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
           <g transform="translate(100, 125)">
             <line x1="10" y1="0" x2="-25" y2="0" stroke="var(--accent)" strokeWidth="2" />
             <polygon points="-25,0 -17,-4 -17,4" fill="var(--accent)" />
-            <text x="-30" y="4" fontSize="10" textAnchor="end" fill="var(--accent)" fontWeight="bold">
+            <text
+              x="-30"
+              y="4"
+              fontSize="10"
+              textAnchor="end"
+              fill="var(--accent)"
+              fontWeight="bold"
+            >
               v_recoil
             </text>
           </g>

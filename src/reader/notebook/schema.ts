@@ -39,8 +39,10 @@ type NotebookEntryBase = Readonly<{
   text: string;
   createdAt: string;
 }>;
-export type NotebookTextEntry = NotebookEntryBase & Readonly<{ kind: Exclude<NotebookKind, "replay"> }>;
-export type NotebookReplayEntry = NotebookEntryBase & Readonly<{ kind: "replay"; replay: ComparisonReplay }>;
+export type NotebookTextEntry = NotebookEntryBase &
+  Readonly<{ kind: Exclude<NotebookKind, "replay"> }>;
+export type NotebookReplayEntry = NotebookEntryBase &
+  Readonly<{ kind: "replay"; replay: ComparisonReplay }>;
 export type NotebookEntry = NotebookTextEntry | NotebookReplayEntry;
 export type LastPlace = Readonly<{
   frame: NotebookFrame;
@@ -113,9 +115,19 @@ export function parseNotebookFrame(input: unknown): NotebookFrame {
   }) as NotebookFrame;
 }
 export function parseNotebookEntry(input: unknown): NotebookEntry {
-  const isReplay = input !== null && typeof input === "object" &&
+  const isReplay =
+    input !== null &&
+    typeof input === "object" &&
     Object.getOwnPropertyDescriptor(input, "kind")?.value === "replay";
-  const e = record(input, ["id", "kind", "frame", "title", "text", "createdAt", ...(isReplay ? ["replay"] : [])]);
+  const e = record(input, [
+    "id",
+    "kind",
+    "frame",
+    "title",
+    "text",
+    "createdAt",
+    ...(isReplay ? ["replay"] : []),
+  ]);
   const id = text(e.id, 80),
     createdAt = text(e.createdAt, 32);
   if (

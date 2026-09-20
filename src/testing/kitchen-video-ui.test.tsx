@@ -4,11 +4,17 @@ import { VideoTracker } from "../components/lab/kitchen/VideoTracker.tsx";
 
 test("the static capture entrance opens no video, has no uploaded media and starts no analysis", () => {
   let analysis = 0;
-  const html = renderToStaticMarkup(<VideoTracker onAnalyze={() => { analysis++; }} />);
+  const html = renderToStaticMarkup(
+    <VideoTracker
+      onAnalyze={() => {
+        analysis++;
+      }}
+    />,
+  );
   expect(analysis).toBe(0);
   expect(html).toContain('preload="none"');
   expect(html).not.toContain('src="blob:');
-  expect(html).not.toContain('autoplay');
+  expect(html).not.toContain("autoplay");
   expect(html).toContain("Nothing is saved automatically");
   expect(html).toContain("Exposure duration (seconds; blank means unknown)");
   expect(html).toContain("Verified pixel aspect ratio (blank means unknown)");

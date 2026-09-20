@@ -96,7 +96,8 @@ describe("Frame Timing Evaluation", () => {
 
     test("fails when throttled profile modifies model, sample, or diffusivity", () => {
       const unthrottled = "sha256:4f53c299e01c8c4f6aec55aeacf40dd459b976b67d2889c3a7900932b91153c";
-      const throttledAltered = "sha256:ba5e000000000000000000000000000000000000000000000000000000000000";
+      const throttledAltered =
+        "sha256:ba5e000000000000000000000000000000000000000000000000000000000000";
       const result = verifyThrottledPhysicsDigest({
         stepIndex: 100,
         unthrottledDigest: unthrottled,

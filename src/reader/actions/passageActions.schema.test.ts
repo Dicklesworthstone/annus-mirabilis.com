@@ -245,7 +245,8 @@ describe("validatePassageActions refusal throw sites (am-muyh)", () => {
 
     // Reject: whitespace-only label
     assertPassageActionsRefusal(
-      () => validatePassageActions({ hard: false, tryIt: { staticExampleId: "ex-1", label: "   " } }),
+      () =>
+        validatePassageActions({ hard: false, tryIt: { staticExampleId: "ex-1", label: "   " } }),
       "invalid-try-it",
       "PassageActions.tryIt.label",
     );

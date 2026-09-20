@@ -37,7 +37,9 @@ export function selectTrajectoryFramePairs(
   if (d !== 1 && d !== 2)
     return unavailable("The camera reference owner admits one or two coordinates, not three.");
   if (trajectory.dt === null || !Number.isFinite(trajectory.dt) || trajectory.dt <= 0)
-    return unavailable(trajectory.timingIssue ?? "A common positive sampling interval is required.");
+    return unavailable(
+      trajectory.timingIssue ?? "A common positive sampling interval is required.",
+    );
   // Separate bounded owner input; the public CSV reader is stricter still.
   if (trajectory.points.length * d > 20_000)
     return unavailable("The camera pairing request exceeds 20000 position coordinates.");
@@ -70,9 +72,7 @@ export function selectTrajectoryFramePairs(
       continue;
     }
     positions.push(...first.coordinates, ...point.coordinates);
-    pairs.push(
-      Object.freeze({ track: point.track, firstRow: first.row, secondRow: point.row }),
-    );
+    pairs.push(Object.freeze({ track: point.track, firstRow: first.row, secondRow: point.row }));
     contributingTracks.add(point.track);
     pending.delete(point.track);
   }

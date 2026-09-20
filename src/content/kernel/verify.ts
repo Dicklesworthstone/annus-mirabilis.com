@@ -82,7 +82,8 @@ export function gitExec(root: string, args: readonly string[]): string {
       stdio: "pipe",
     });
   } catch (err: unknown) {
-    const code = err && typeof err === "object" && "code" in err ? (err as { code?: string }).code : undefined;
+    const code =
+      err && typeof err === "object" && "code" in err ? (err as { code?: string }).code : undefined;
     if (code === "EBADF") {
       if (args[0] === "show" && typeof args[1] === "string" && args[1].startsWith("HEAD:")) {
         const rel = args[1].slice("HEAD:".length);
@@ -141,7 +142,13 @@ export function verifySliceKernels(options: {
     shouldCheckCommitted
       ? checkCleanCommittedSource(
           options.root,
-          [...new Set(SLICE_KERNEL_CATALOG.map((e) => e.kernel.module).filter((m): m is string => typeof m === "string"))],
+          [
+            ...new Set(
+              SLICE_KERNEL_CATALOG.map((e) => e.kernel.module).filter(
+                (m): m is string => typeof m === "string",
+              ),
+            ),
+          ],
           runGit,
         )
       : [],

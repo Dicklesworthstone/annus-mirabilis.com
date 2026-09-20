@@ -1,22 +1,92 @@
-.me-entrance { margin-block: 2rem; padding: clamp(.75rem, 3vw, 1.5rem); border: 1px solid currentColor; border-radius: .5rem; overflow-wrap: anywhere; }
-.me-entrance fieldset { min-width: 0; margin-block: 1rem; }
-.me-ledgers { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
-.me-ledgers article { padding: 1rem; border: 1px solid currentColor; border-radius: .25rem; }
-.me-ledgers[data-accounts-aligned="true"] article { border-style: double; border-width: 3px; }
-.me-entrance [data-body-energy] { display: block; padding: .5rem; border: 1px dashed currentColor; }
-.me-align-target, .me-premise, .me-bridge { margin-block: 1rem; padding: .75rem; border: 1px solid currentColor; }
-.me-subtraction-steps li { margin-block: .75rem; }
-.me-table { max-width: 100%; overflow-x: auto; margin-block: 1rem; }
-.me-table table { min-width: 30rem; width: 100%; border-collapse: collapse; }
-.me-table th, .me-table td { padding: .6rem; border: 1px solid currentColor; text-align: start; }
-.me-entrance details { margin-block: .75rem; }
-.me-static-solution { margin-block: 1rem; padding: .75rem; border: 1px solid currentColor; border-radius: .25rem; }
-.me-static-solution summary { cursor: pointer; font-weight: 600; }
-.me-entrance :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.me-entrance {
+  margin-block: 2rem;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.me-entrance fieldset {
+  min-width: 0;
+  margin-block: 1rem;
+}
+.me-ledgers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+}
+.me-ledgers article {
+  padding: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+}
+.me-ledgers[data-accounts-aligned="true"] article {
+  border-style: double;
+  border-width: 3px;
+}
+.me-entrance [data-body-energy] {
+  display: block;
+  padding: 0.5rem;
+  border: 1px dashed currentColor;
+}
+.me-align-target,
+.me-premise,
+.me-bridge {
+  margin-block: 1rem;
+  padding: 0.75rem;
+  border: 1px solid currentColor;
+}
+.me-subtraction-steps li {
+  margin-block: 0.75rem;
+}
+.me-table {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 1rem;
+}
+.me-table table {
+  min-width: 30rem;
+  width: 100%;
+  border-collapse: collapse;
+}
+.me-table th,
+.me-table td {
+  padding: 0.6rem;
+  border: 1px solid currentColor;
+  text-align: start;
+}
+.me-entrance details {
+  margin-block: 0.75rem;
+}
+.me-static-solution {
+  margin-block: 1rem;
+  padding: 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+}
+.me-static-solution summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.me-entrance :focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
 @media print {
-  .me-entrance button, .me-entrance fieldset, .me-align-target { display: none; }
-  .me-table { overflow: visible; }
-  .me-table table { min-width: 0; }
-  .me-subtraction-steps li[hidden] { display: list-item; }
-  .me-static-solution > * { display: block; }
+  .me-entrance button,
+  .me-entrance fieldset,
+  .me-align-target {
+    display: none;
+  }
+  .me-table {
+    overflow: visible;
+  }
+  .me-table table {
+    min-width: 0;
+  }
+  .me-subtraction-steps li[hidden] {
+    display: list-item;
+  }
+  .me-static-solution > * {
+    display: block;
+  }
 }

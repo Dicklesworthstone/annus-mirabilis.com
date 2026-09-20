@@ -184,4 +184,3 @@ describe("RepresentationScale: five independent fields (am-inst-2d-view-kit-u75r
     );
   });
 });
-

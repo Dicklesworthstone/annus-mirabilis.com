@@ -122,7 +122,9 @@ export function frequencyHzToWavelengthNm(nuHz: number): number {
  */
 export function wavelengthNmToFrequencyTHz(wavelengthNm: number): number {
   if (wavelengthNm <= 0 || !Number.isFinite(wavelengthNm)) {
-    throw new RangeError(`Wavelength must be a positive finite number in nm, received: ${wavelengthNm}`);
+    throw new RangeError(
+      `Wavelength must be a positive finite number in nm, received: ${wavelengthNm}`,
+    );
   }
   return SPEED_OF_LIGHT_KM_PER_S / wavelengthNm;
 }
@@ -133,7 +135,9 @@ export function wavelengthNmToFrequencyTHz(wavelengthNm: number): number {
  */
 export function wavelengthNmToFrequencyHz(wavelengthNm: number): number {
   if (wavelengthNm <= 0 || !Number.isFinite(wavelengthNm)) {
-    throw new RangeError(`Wavelength must be a positive finite number in nm, received: ${wavelengthNm}`);
+    throw new RangeError(
+      `Wavelength must be a positive finite number in nm, received: ${wavelengthNm}`,
+    );
   }
   return SPEED_OF_LIGHT_M_PER_S / (wavelengthNm * 1e-9);
 }
@@ -200,7 +204,9 @@ export function resolveSpectralColor(input: SpectralInput): SpectralColorResult 
   if ("frequencyHz" in input) {
     return spectralColorFromFrequencyHz(input.frequencyHz);
   }
-  throw new TypeError("Invalid spectral input: must specify wavelengthNm, frequencyTHz, or frequencyHz");
+  throw new TypeError(
+    "Invalid spectral input: must specify wavelengthNm, frequencyTHz, or frequencyHz",
+  );
 }
 
 /**
@@ -212,7 +218,16 @@ export interface SpectralAnchor {
   readonly symbol: string;
   readonly wavelengthNm: number;
   readonly frequencyTHz: number;
-  readonly nominalBand: "ultraviolet" | "violet" | "blue" | "cyan" | "green" | "yellow" | "orange" | "red" | "infrared";
+  readonly nominalBand:
+    | "ultraviolet"
+    | "violet"
+    | "blue"
+    | "cyan"
+    | "green"
+    | "yellow"
+    | "orange"
+    | "red"
+    | "infrared";
   readonly citation: string;
   readonly description: string;
 }
@@ -235,7 +250,8 @@ export const PHYSICAL_SPECTRAL_ANCHORS = Object.freeze({
     wavelengthNm: 588.995,
     frequencyTHz: 508.99,
     nominalBand: "yellow",
-    citation: "NIST Atomic Spectra Database (Na I, 3s 2S1/2 - 3p 2P3/2, 588.995 nm air); Fraunhofer (1817)",
+    citation:
+      "NIST Atomic Spectra Database (Na I, 3s 2S1/2 - 3p 2P3/2, 588.995 nm air); Fraunhofer (1817)",
     description: "Principal yellow emission line of sodium doublet at 589.00 nm in standard air.",
   }),
   sodiumD1: Object.freeze<SpectralAnchor>({
@@ -245,7 +261,8 @@ export const PHYSICAL_SPECTRAL_ANCHORS = Object.freeze({
     wavelengthNm: 589.592,
     frequencyTHz: 508.48,
     nominalBand: "yellow",
-    citation: "NIST Atomic Spectra Database (Na I, 3s 2S1/2 - 3p 2P1/2, 589.592 nm air); Fraunhofer (1817)",
+    citation:
+      "NIST Atomic Spectra Database (Na I, 3s 2S1/2 - 3p 2P1/2, 589.592 nm air); Fraunhofer (1817)",
     description: "Secondary yellow emission line of sodium doublet at 589.59 nm in standard air.",
   }),
   sodiumDMean: Object.freeze<SpectralAnchor>({
@@ -255,7 +272,8 @@ export const PHYSICAL_SPECTRAL_ANCHORS = Object.freeze({
     wavelengthNm: 589.3,
     frequencyTHz: 508.73,
     nominalBand: "yellow",
-    citation: "NIST ASD standard unresolved centroid; CRC Handbook of Chemistry and Physics (104th ed.)",
+    citation:
+      "NIST ASD standard unresolved centroid; CRC Handbook of Chemistry and Physics (104th ed.)",
     description: "Standard spectroscopic centroid of unresolved sodium D doublet (589.3 nm).",
   }),
 
@@ -272,8 +290,10 @@ export const PHYSICAL_SPECTRAL_ANCHORS = Object.freeze({
     wavelengthNm: 656.28,
     frequencyTHz: 456.81,
     nominalBand: "red",
-    citation: "Balmer (1885), Ann. Phys. 261, 80; Fraunhofer C line; NIST ASD (H I 2p - 3d, 656.279 nm air)",
-    description: "Prominent deep red emission line from n=3 to n=2 transition in hydrogen (Fraunhofer C line).",
+    citation:
+      "Balmer (1885), Ann. Phys. 261, 80; Fraunhofer C line; NIST ASD (H I 2p - 3d, 656.279 nm air)",
+    description:
+      "Prominent deep red emission line from n=3 to n=2 transition in hydrogen (Fraunhofer C line).",
   }),
   hydrogenBeta: Object.freeze<SpectralAnchor>({
     id: "hydrogen-beta",
@@ -282,8 +302,10 @@ export const PHYSICAL_SPECTRAL_ANCHORS = Object.freeze({
     wavelengthNm: 486.13,
     frequencyTHz: 616.69,
     nominalBand: "cyan",
-    citation: "Balmer (1885), Ann. Phys. 261, 80; Fraunhofer F line; NIST ASD (H I 2p - 4d, 486.133 nm air)",
-    description: "Cyan/blue-green emission line from n=4 to n=2 transition in hydrogen (Fraunhofer F line).",
+    citation:
+      "Balmer (1885), Ann. Phys. 261, 80; Fraunhofer F line; NIST ASD (H I 2p - 4d, 486.133 nm air)",
+    description:
+      "Cyan/blue-green emission line from n=4 to n=2 transition in hydrogen (Fraunhofer F line).",
   }),
   hydrogenGamma: Object.freeze<SpectralAnchor>({
     id: "hydrogen-gamma",
@@ -292,8 +314,10 @@ export const PHYSICAL_SPECTRAL_ANCHORS = Object.freeze({
     wavelengthNm: 434.05,
     frequencyTHz: 690.69,
     nominalBand: "violet",
-    citation: "Balmer (1885), Ann. Phys. 261, 80; Fraunhofer G' line; NIST ASD (H I 2p - 5d, 434.046 nm air)",
-    description: "Violet/blue-violet emission line from n=5 to n=2 transition in hydrogen (Fraunhofer G' line).",
+    citation:
+      "Balmer (1885), Ann. Phys. 261, 80; Fraunhofer G' line; NIST ASD (H I 2p - 5d, 434.046 nm air)",
+    description:
+      "Violet/blue-violet emission line from n=5 to n=2 transition in hydrogen (Fraunhofer G' line).",
   }),
   hydrogenDelta: Object.freeze<SpectralAnchor>({
     id: "hydrogen-delta",
@@ -302,8 +326,10 @@ export const PHYSICAL_SPECTRAL_ANCHORS = Object.freeze({
     wavelengthNm: 410.17,
     frequencyTHz: 730.89,
     nominalBand: "violet",
-    citation: "Balmer (1885), Ann. Phys. 261, 80; Fraunhofer h line; NIST ASD (H I 2p - 6d, 410.174 nm air)",
-    description: "Violet emission line near the optical UV edge from n=6 to n=2 transition in hydrogen (Fraunhofer h line).",
+    citation:
+      "Balmer (1885), Ann. Phys. 261, 80; Fraunhofer h line; NIST ASD (H I 2p - 6d, 410.174 nm air)",
+    description:
+      "Violet emission line near the optical UV edge from n=6 to n=2 transition in hydrogen (Fraunhofer h line).",
   }),
 
   /**
@@ -318,8 +344,10 @@ export const PHYSICAL_SPECTRAL_ANCHORS = Object.freeze({
     wavelengthNm: 546.07,
     frequencyTHz: 548.99,
     nominalBand: "green",
-    citation: "NIST Atomic Spectra Database (Hg I 546.074 nm air); BIPM primary wavelength standard",
-    description: "Primary green optical line in mercury discharge lamps, standard benchmark for optical metrology.",
+    citation:
+      "NIST Atomic Spectra Database (Hg I 546.074 nm air); BIPM primary wavelength standard",
+    description:
+      "Primary green optical line in mercury discharge lamps, standard benchmark for optical metrology.",
   }),
 
   /**
@@ -335,7 +363,8 @@ export const PHYSICAL_SPECTRAL_ANCHORS = Object.freeze({
     frequencyTHz: 510.23,
     nominalBand: "yellow",
     citation: "Lockyer (1868), Proc. Roy. Soc. 17; NIST ASD (He I 587.562 nm air)",
-    description: "Historic solar chromospheric line leading to the discovery of helium before terrestrial isolation.",
+    description:
+      "Historic solar chromospheric line leading to the discovery of helium before terrestrial isolation.",
   }),
 });
 

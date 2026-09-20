@@ -89,8 +89,14 @@ describe("verify-content kernel binding audit (am-inst-show-the-code-4brv)", () 
     const bm01Raw = readFileSync(resolve(root, "content/experiments/bm-01.yaml"), "utf8");
     // Remove all diffusionCoefficient bindings (from rmsDisplacement and apparentSpeed)
     const plantedText = bm01Raw
-      .replace('    - kernelFunction: rmsDisplacement\n      identifier: "D"\n      quantityId: diffusionCoefficient\n', "")
-      .replace('    - kernelFunction: apparentSpeed\n      identifier: "D"\n      quantityId: diffusionCoefficient\n', "");
+      .replace(
+        '    - kernelFunction: rmsDisplacement\n      identifier: "D"\n      quantityId: diffusionCoefficient\n',
+        "",
+      )
+      .replace(
+        '    - kernelFunction: apparentSpeed\n      identifier: "D"\n      quantityId: diffusionCoefficient\n',
+        "",
+      );
 
     const readingFiles = await loadReadingFiles(root);
     const result = await compileContent([
@@ -109,8 +115,8 @@ describe("verify-content kernel binding audit (am-inst-show-the-code-4brv)", () 
   test("planted dangling independent reference fails with dangling-independent-reference", async () => {
     const bm01Raw = readFileSync(resolve(root, "content/experiments/bm-01.yaml"), "utf8");
     const plantedText = bm01Raw.replace(
-      "      exportName: \"stokesEinsteinD\"\n      independentReferences: []",
-      "      exportName: \"stokesEinsteinD\"\n      independentReferences:\n        - experimentId: bm-01\n          quantityId: nonExistentVerificationRecord",
+      '      exportName: "stokesEinsteinD"\n      independentReferences: []',
+      '      exportName: "stokesEinsteinD"\n      independentReferences:\n        - experimentId: bm-01\n          quantityId: nonExistentVerificationRecord',
     );
 
     const readingFiles = await loadReadingFiles(root);
@@ -138,7 +144,10 @@ describe("verify-content kernel binding audit (am-inst-show-the-code-4brv)", () 
       closures: livePins.closures,
     };
 
-    const report = auditKernelBindings(root, "workspace", { pins: modifiedPins, checkCommitted: false });
+    const report = auditKernelBindings(root, "workspace", {
+      pins: modifiedPins,
+      checkCommitted: false,
+    });
     expect(report.ok).toBe(false);
     expect(report.findings.some((f) => f.check === "kernel-hash-drift")).toBe(true);
     const drift = report.findings.find((f) => f.check === "kernel-hash-drift");
@@ -148,15 +157,20 @@ describe("verify-content kernel binding audit (am-inst-show-the-code-4brv)", () 
 
   test("planted missing kernel pin fails audit with kernel-pin-missing", () => {
     const livePins = loadPins(resolve(root, "src/content/kernel/pins.json"));
-    const { "stokesEinsteinD@src/physics/reference/diffusion/distributions.ts": _, ...otherFunctions } =
-      livePins.functions;
+    const {
+      "stokesEinsteinD@src/physics/reference/diffusion/distributions.ts": _,
+      ...otherFunctions
+    } = livePins.functions;
     const modifiedPins: KernelPinFile = {
       schemaVersion: 1,
       functions: otherFunctions,
       closures: livePins.closures,
     };
 
-    const report = auditKernelBindings(root, "workspace", { pins: modifiedPins, checkCommitted: false });
+    const report = auditKernelBindings(root, "workspace", {
+      pins: modifiedPins,
+      checkCommitted: false,
+    });
     expect(report.ok).toBe(false);
     expect(report.findings.some((f) => f.check === "kernel-pin-missing")).toBe(true);
     const missing = report.findings.find((f) => f.check === "kernel-pin-missing");

@@ -1152,7 +1152,11 @@ export const fixtureStepCrossReferenceTarget: DerivationChain = Object.freeze({
       changedSubexpressionIds: ["A"],
       rule: {
         kind: "substitute" as const,
-        params: { targetId: "A", replacement: sym("B"), citedEquality: "Navigation cross-reference" },
+        params: {
+          targetId: "A",
+          replacement: sym("B"),
+          citedEquality: "Navigation cross-reference",
+        },
       },
       reasonKind: "algebra" as const,
       reasons: {
@@ -1230,4 +1234,3 @@ export const fixtureEntryAssumptionCrossReferenceTarget: DerivationChain = Objec
     },
   ]),
 });
-

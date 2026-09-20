@@ -1,1 +1,79 @@
-{"schemaVersion":1,"kind":"argument","id":"arg-sr-charge-current","paper":"special-relativity","section":"s9","title":"Neutrality and current belong to a frame","question":"How can a neutral current acquire charge density?","recap":"Charge density and longitudinal current mix under a frame change. Zero charge density with nonzero current is allowed; it cannot be handled by dividing current by charge density to invent one charge velocity.","review":"draft","premises":["Use a physical charge-current distribution and a boost along x.","Track the same isolated body when comparing its total charge."],"limitations":["Charge density is not total charge.","A neutral two-species current need not have a single common velocity."],"citations":["ap-17-891"],"readings":{"overview":[{"kind":"paragraph","text":"Charge density and longitudinal current mix under a frame change. Zero charge density with nonzero current is allowed; it cannot be handled by dividing current by charge density to invent one charge velocity."}],"full":[{"kind":"formula","latex":"\\rho'=\\gamma\\left(\\rho-\\frac{vJ_x}{c^2}\\right),\\qquad J_x'=\\gamma(J_x-v\\rho)","spoken":"Primed charge density is gamma times rho minus v J x over c squared; primed longitudinal current is gamma times J x minus v rho."},{"kind":"paragraph","text":"The transverse current components remain unchanged for this aligned boost. For ρ = 0 and J_x nonzero, ρ′ generally is not zero. The individual charged species must be transformed consistently rather than treating J/ρ as meaningful at neutrality."},{"kind":"paragraph","text":"Charge conservation requires density and current to satisfy the continuity equation together. SR-12 compares these quantities and the total charge of a specified body. Integrating the same body over each frame’s simultaneous slice preserves its total charge; arbitrary open spatial boxes are a different comparison."},{"kind":"foundation","id":"flux-continuity","returnCaption":"Return to how can a neutral current acquire charge density."}],"steps":[{"kind":"steps","items":["Record both charge density and all current components.","Transform rho and J_x as a coupled pair.","Keep J_y and J_z unchanged for the aligned boost.","Do not divide by rho when the original system is neutral.","Check continuity and the boundary of the same charge-carrying body before comparing total charge."]}],"margin":[{"kind":"paragraph","text":"The source’s convection-current discussion is not silently rewritten as a universal single-fluid formula. A modern four-current is a useful verification language, explicitly distinct from the historical presentation."}]},"prerequisites":[{"id":"arg-sr-lorentz-map","edge":"premise"}],"help":{"why":"flux-continuity","missingStep":"flux-continuity","example":"flux-continuity"},"experiments":["sr-12"],"meaning":{"logicalRole":"derivation","historicalStatus":"pedagogical-reconstruction","modelStatus":"exact-within-model","executionStatus":"static-illustration"}}
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-sr-charge-current",
+  "paper": "special-relativity",
+  "section": "s9",
+  "title": "Neutrality and current belong to a frame",
+  "question": "How can a neutral current acquire charge density?",
+  "recap": "Charge density and longitudinal current mix under a frame change. Zero charge density with nonzero current is allowed; it cannot be handled by dividing current by charge density to invent one charge velocity.",
+  "review": "draft",
+  "premises": [
+    "Use a physical charge-current distribution and a boost along x.",
+    "Track the same isolated body when comparing its total charge."
+  ],
+  "limitations": [
+    "Charge density is not total charge.",
+    "A neutral two-species current need not have a single common velocity."
+  ],
+  "citations": ["ap-17-891"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Charge density and longitudinal current mix under a frame change. Zero charge density with nonzero current is allowed; it cannot be handled by dividing current by charge density to invent one charge velocity."
+      }
+    ],
+    "full": [
+      {
+        "kind": "formula",
+        "latex": "\\rho'=\\gamma\\left(\\rho-\\frac{vJ_x}{c^2}\\right),\\qquad J_x'=\\gamma(J_x-v\\rho)",
+        "spoken": "Primed charge density is gamma times rho minus v J x over c squared; primed longitudinal current is gamma times J x minus v rho."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The transverse current components remain unchanged for this aligned boost. For ρ = 0 and J_x nonzero, ρ′ generally is not zero. The individual charged species must be transformed consistently rather than treating J/ρ as meaningful at neutrality."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Charge conservation requires density and current to satisfy the continuity equation together. SR-12 compares these quantities and the total charge of a specified body. Integrating the same body over each frame’s simultaneous slice preserves its total charge; arbitrary open spatial boxes are a different comparison."
+      },
+      {
+        "kind": "foundation",
+        "id": "flux-continuity",
+        "returnCaption": "Return to how can a neutral current acquire charge density."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "steps",
+        "items": [
+          "Record both charge density and all current components.",
+          "Transform rho and J_x as a coupled pair.",
+          "Keep J_y and J_z unchanged for the aligned boost.",
+          "Do not divide by rho when the original system is neutral.",
+          "Check continuity and the boundary of the same charge-carrying body before comparing total charge."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The source’s convection-current discussion is not silently rewritten as a universal single-fluid formula. A modern four-current is a useful verification language, explicitly distinct from the historical presentation."
+      }
+    ]
+  },
+  "prerequisites": [{ "id": "arg-sr-lorentz-map", "edge": "premise" }],
+  "help": {
+    "why": "flux-continuity",
+    "missingStep": "flux-continuity",
+    "example": "flux-continuity"
+  },
+  "experiments": ["sr-12"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}

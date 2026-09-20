@@ -28,7 +28,9 @@ describe("Performance degradation policy and scientific ensemble integrity", () 
     expect(degraded.displayedParticleCount).toBeLessThan(totalParticles);
     expect(degraded.displayedParticleCount).toBeGreaterThanOrEqual(50);
     expect(degraded.explanation).toContain("Visual detail degraded under budget");
-    expect(degraded.explanation).toContain("Statistical ensemble and inference moments remain full size");
+    expect(degraded.explanation).toContain(
+      "Statistical ensemble and inference moments remain full size",
+    );
 
     // 3. Severely starved: 75ms measured (> 4x budget)
     const starved = evaluateVisualDetailPolicy(totalParticles, {

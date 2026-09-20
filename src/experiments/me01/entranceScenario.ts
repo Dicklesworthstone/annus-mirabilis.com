@@ -4,8 +4,9 @@
  * Sits behind the experiments seam to evaluate reference physics owners (ME-01 and ME-02)
  * for entrance reader scenarios without violating the architectural import boundary.
  */
-import type { ScientificResult } from "../results/types.ts";
+
 import { evaluateMe01, evaluateMe02 } from "../../physics/reference/massEnergy.ts";
+import type { ScientificResult } from "../results/types.ts";
 
 export type EntranceScalar = Readonly<{
   value: number;
@@ -34,8 +35,14 @@ export type MassEnergyEntranceScenario = Readonly<{
 }>;
 
 export function scalar(result: ScientificResult): EntranceScalar {
-  if (result.status !== "value" || typeof result.value !== "number" || !Number.isFinite(result.value)) {
-    throw new Error(`Entrance requires a finite ${result.quantityId}; owner returned ${result.status}.`);
+  if (
+    result.status !== "value" ||
+    typeof result.value !== "number" ||
+    !Number.isFinite(result.value)
+  ) {
+    throw new Error(
+      `Entrance requires a finite ${result.quantityId}; owner returned ${result.status}.`,
+    );
   }
   return Object.freeze({
     value: result.value,
@@ -65,7 +72,8 @@ export function prepareMassEnergyScenario(id: "fast" | "slow"): MassEnergyEntran
     ledger.movingBodyBefore,
     ledger.movingBodyAfter,
   ].map((result) => {
-    if (result.status !== "symbolic") throw new Error("An entrance body energy must remain unspecified.");
+    if (result.status !== "symbolic")
+      throw new Error("An entrance body energy must remain unspecified.");
     return result;
   });
   if (relaxed.kineticEnergyDifference.status !== "underdetermined") {

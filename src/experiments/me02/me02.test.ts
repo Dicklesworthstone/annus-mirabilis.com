@@ -4,22 +4,16 @@ import { join } from "node:path";
 import { validateActionContract } from "../../accessibility/actionContracts.ts";
 import {
   auditReadings,
-  type ReadingTarget,
   type ReadingsOwnerEntry,
+  type ReadingTarget,
 } from "../../content/audits/readings.ts";
 import { parsePredictPromptId } from "../../content/ids.ts";
-import {
-  ExperimentValidationError,
-  validateExperiment,
-} from "../../content/schemas/experiment.ts";
+import { ExperimentValidationError, validateExperiment } from "../../content/schemas/experiment.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
-import {
-  evaluateMe02,
-  printedMassConversion,
-} from "../../physics/reference/massEnergy.ts";
+import { evaluateMe02, printedMassConversion } from "../../physics/reference/massEnergy.ts";
 import { parseResult } from "../results/codec.ts";
 import { TapeValidationError, validateControlTape } from "../tapes/schema.ts";
-import { ME02_CAPTION, ME02_DEFAULTS, type Me02Parameters, ME02_QUESTION } from "./definition.ts";
+import { ME02_CAPTION, ME02_DEFAULTS, ME02_QUESTION, type Me02Parameters } from "./definition.ts";
 import { validateMe02Parameters } from "./parameters.ts";
 import { decodeMe02Settings, encodeMe02Settings } from "./permalink.ts";
 import { createMe02Session } from "./session.ts";
@@ -358,7 +352,9 @@ describe("ME-02 instrument contract", () => {
     const ref06 = evaluateMe02({ beta: 0.6, emittedEnergy: 1, speedOfLight: 1 });
     const parsedResults = rawExample.results.map((r: string) => parseResult(r));
     const exactResult = parsedResults.find((r: any) => r.quantityId === "kineticEnergyDifference");
-    const quadResult = parsedResults.find((r: any) => r.quantityId === "quadraticKineticDifference");
+    const quadResult = parsedResults.find(
+      (r: any) => r.quantityId === "quadraticKineticDifference",
+    );
     const proxyResult = parsedResults.find((r: any) => r.quantityId === "finiteSpeedMassProxy");
     const limitResult = parsedResults.find((r: any) => r.quantityId === "inertialMassDecrease");
 
@@ -366,7 +362,10 @@ describe("ME-02 instrument contract", () => {
     expect(val(quadResult as any)).toBeCloseTo(val(ref06.quadraticApproximation), 10);
     expect(val(proxyResult as any)).toBeCloseTo(val(ref06.finiteSpeedProxy), 6);
     expect(limitResult?.status).toBe("analytic-limit");
-    if (limitResult?.status === "analytic-limit" && limitResult.representation.kind === "coefficient") {
+    if (
+      limitResult?.status === "analytic-limit" &&
+      limitResult.representation.kind === "coefficient"
+    ) {
       expect(limitResult.representation.value).toBe(1);
     }
 
@@ -385,7 +384,9 @@ describe("ME-02 instrument contract", () => {
     const refConversion = printedMassConversion({ emittedEnergyErg: 9e20 });
     expect(rawExample.printedConversion.emittedEnergyErg).toBe(9e20);
     expect(rawExample.printedConversion.printedGrams).toBe(refConversion.printed.value);
-    expect(rawExample.printedConversion.printedConstantSetId).toBe("einstein-1905-mass-energy-printed");
+    expect(rawExample.printedConversion.printedConstantSetId).toBe(
+      "einstein-1905-mass-energy-printed",
+    );
     expect(rawExample.printedConversion.modernGrams).toBeCloseTo(refConversion.modern.value, 6);
     expect(rawExample.printedConversion.modernConstantSetId).toBe("modern-si-2019");
     expect(rawExample.printedConversion.wording).toBe(refConversion.comparison.wording);

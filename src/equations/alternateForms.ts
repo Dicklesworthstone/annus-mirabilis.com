@@ -14,11 +14,7 @@
 
 import { ContentError } from "../content/compiler/json.ts";
 import { type AlternateFormId, parseAlternateFormId } from "../content/ids.ts";
-import {
-  type ExactScale,
-  type Expression,
-  walk,
-} from "./ast.ts";
+import { type ExactScale, type Expression, walk } from "./ast.ts";
 import type { CompositeGroup } from "./monomial.ts";
 
 export type AlternateFormRelation = "unit-conversion" | "modernization";
@@ -148,20 +144,13 @@ export function isTreeEquivalentUpToRenames(
 
   switch (a.kind) {
     case "symbol": {
-      return (
-        b.kind === "symbol" &&
-        a.quantityId === b.quantityId &&
-        scaleEqual(a.scale, b.scale)
-      );
+      return b.kind === "symbol" && a.quantityId === b.quantityId && scaleEqual(a.scale, b.scale);
     }
     case "constant": {
       return b.kind === "constant" && a.name === b.name;
     }
     case "number": {
-      return (
-        b.kind === "number" &&
-        (a.value === b.value || Number(a.value) === Number(b.value))
-      );
+      return b.kind === "number" && (a.value === b.value || Number(a.value) === Number(b.value));
     }
     case "sum":
     case "product": {
@@ -198,10 +187,7 @@ export function isTreeEquivalentUpToRenames(
     case "negate":
     case "average":
     case "group": {
-      return (
-        b.kind === a.kind &&
-        isTreeEquivalentUpToRenames(a.argument, b.argument, options)
-      );
+      return b.kind === a.kind && isTreeEquivalentUpToRenames(a.argument, b.argument, options);
     }
     case "function": {
       return (
@@ -493,11 +479,7 @@ export function parseAlternateForm(
 ): AlternateForm {
   const result = validateAlternateForm(input, primaryTree, equationId, options);
   if (!result.valid) {
-    throw new ContentError(
-      result.rule,
-      `${equationId}.${result.formId ?? "alt"}`,
-      result.error,
-    );
+    throw new ContentError(result.rule, `${equationId}.${result.formId ?? "alt"}`, result.error);
   }
   return result.form;
 }
@@ -513,11 +495,7 @@ export function parseAlternateForms(
 ): readonly AlternateForm[] {
   const res = validateAlternateForms(input, primaryTree, equationId, options);
   if (!res.valid) {
-    throw new ContentError(
-      res.rule,
-      `${equationId}.${res.formId ?? "alt"}`,
-      res.error,
-    );
+    throw new ContentError(res.rule, `${equationId}.${res.formId ?? "alt"}`, res.error);
   }
   return res.forms;
 }

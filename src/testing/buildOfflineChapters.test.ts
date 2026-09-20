@@ -1,19 +1,16 @@
-import { createHash } from "node:crypto";
 import { describe, expect, test } from "bun:test";
-import { GET } from "../app/offline/[paper]/[file]/route.ts";
+import { createHash } from "node:crypto";
 import { INLINE_SCRIPT_REGISTRY } from "../app/inline-scripts/registry.ts";
-import { OfflineChapterLinks } from "../platform/offline/OfflineChapterLinks.tsx";
+import { GET } from "../app/offline/[paper]/[file]/route.ts";
+import { chapterFixture } from "../platform/offline/chapter.test.mjs";
 import {
   collectChapterFoundations,
   type OfflineChapterInput,
   packageOfflineChapter,
 } from "../platform/offline/chapter.ts";
-import { chapterFixture } from "../platform/offline/chapter.test.mjs";
 import { OFFLINE_DETAIL_SOURCE } from "../platform/offline/detail.inline.ts";
-import {
-  loadOfflineChapter,
-  loadOfflineManifest,
-} from "../platform/offline/server.ts";
+import { OfflineChapterLinks } from "../platform/offline/OfflineChapterLinks.tsx";
+import { loadOfflineChapter, loadOfflineManifest } from "../platform/offline/server.ts";
 
 function mockRenderMath(latex: string): string {
   return `<span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>${latex}</mi></mrow></semantics></math></span>`;
@@ -49,12 +46,9 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
       expect(entry!.bytes).toBe(actualBytes);
       expect(chapter!.entry.bytes).toBe(actualBytes);
 
-      const response = await GET(
-        new Request(`https://annus-mirabilis.com${entry!.path}`),
-        {
-          params: Promise.resolve({ paper: entry!.paper, file: fileName }),
-        },
-      );
+      const response = await GET(new Request(`https://annus-mirabilis.com${entry!.path}`), {
+        params: Promise.resolve({ paper: entry!.paper, file: fileName }),
+      });
       expect(response.status).toBe(200);
       expect(response.headers.get("Content-Length")).toBe(String(actualBytes));
       expect(response.headers.get("Content-Length")).toBe(String(entry!.bytes));
@@ -148,7 +142,7 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
 
     // Controls present
     expect(pkg.html).toContain("<select data-offline-detail");
-    expect(pkg.html).toContain("<input type=\"checkbox\" data-offline-modern");
+    expect(pkg.html).toContain('<input type="checkbox" data-offline-modern');
 
     // Noscript notice informs user full explanation is readable
     expect(pkg.html).toContain("<noscript><p>JavaScript is off.");
@@ -201,9 +195,11 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
 
     const pkg = packageOfflineChapter(inputWithFigures, mockRenderMath);
     expect(pkg.html).toContain('class="offline-figure"');
-    expect(pkg.html).toContain('data:image/png;base64,AQIDBA==');
+    expect(pkg.html).toContain("data:image/png;base64,AQIDBA==");
     expect(pkg.html).toContain('class="cited-asset"');
-    expect(pkg.html).toContain("Excluded from offline edition; rights designation: reference-only.");
+    expect(pkg.html).toContain(
+      "Excluded from offline edition; rights designation: reference-only.",
+    );
   });
 
   test("AC4: inline script hash matches registry entry and CSP meta tag authorizes it", () => {
@@ -214,7 +210,9 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
     expect(registryEntry).toBeDefined();
     expect(registryEntry?.source).toBe(OFFLINE_DETAIL_SOURCE);
 
-    const expectedHash = createHash("sha256").update(OFFLINE_DETAIL_SOURCE, "utf8").digest("base64");
+    const expectedHash = createHash("sha256")
+      .update(OFFLINE_DETAIL_SOURCE, "utf8")
+      .digest("base64");
     expect(pkg.scriptHash).toBe(expectedHash);
     expect(pkg.html).toContain(`script-src &#39;sha256-${expectedHash}&#39;`);
     expect(pkg.html).toContain(`<script>${OFFLINE_DETAIL_SOURCE}</script>`);

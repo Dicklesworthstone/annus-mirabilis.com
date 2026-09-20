@@ -83,7 +83,13 @@ export function DensityProfilePlot({
         {/* Shaded area */}
         <path d={areaPath} fill="rgba(41, 128, 185, 0.15)" />
         {/* Osmotic equilibrium theoretical curve */}
-        <path d={osmoticPath} fill="none" stroke="var(--accent)" strokeWidth="2" strokeDasharray="4 3" />
+        <path
+          d={osmoticPath}
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="2"
+          strokeDasharray="4 3"
+        />
         {/* Current density curve */}
         <path d={densityPath} fill="none" stroke="var(--plot)" strokeWidth="2.5" />
         {/* Axes */}
