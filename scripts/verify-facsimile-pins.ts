@@ -230,6 +230,10 @@ export interface ContentIdentityInput {
   readonly parentLastHash: string;
   /** Parent index the extract's own first page implies, when the folio consensus could locate it. */
   readonly extractImpliedFirstIndex?: number | null | undefined;
+  /** The printed page the config says this pin starts at, for stating the defect in a reader's terms. */
+  readonly printedFirst?: number | null | undefined;
+  /** parentPageIndex - printedPage for this parent, from the folio consensus. */
+  readonly folioOffset?: number | null | undefined;
 }
 
 /**
@@ -239,9 +243,23 @@ export interface ContentIdentityInput {
  */
 export function evaluateContentIdentity(input: ContentIdentityInput): readonly PinFinding[] {
   const findings: PinFinding[] = [];
+  // am-cf6m. A hash pair and two parent indices are a true statement that no reader can act on.
+  // The defect that prompted this gate was a pin whose first page is printed 508 by L. Hermann
+  // where printed 549 by Einstein was expected, and "extract a1b2... != parent c3d4..." never
+  // said so. Where the folio consensus can place the pinned bytes, say which printed page the
+  // reader is actually served and which one they should have been - that is the sentence that
+  // ends the ambiguity, and it is in the same units the config and the citation use.
   const located =
     typeof input.extractImpliedFirstIndex === "number"
       ? ` The pinned extract's first page carries the folio of parent page ${input.extractImpliedFirstIndex}, which is where these bytes were cut from.`
+      : "";
+  const servedPrinted =
+    typeof input.extractImpliedFirstIndex === "number" && typeof input.folioOffset === "number"
+      ? input.extractImpliedFirstIndex - input.folioOffset
+      : null;
+  const inReadersTerms =
+    servedPrinted !== null && typeof input.printedFirst === "number"
+      ? ` A reader opening this facsimile is served printed page ${servedPrinted}, not printed page ${input.printedFirst}.`
       : "";
 
   if (input.extractFirstHash !== input.parentFirstHash) {
@@ -252,7 +270,7 @@ export function evaluateContentIdentity(input: ContentIdentityInput): readonly P
         `Config '${input.key}': the pinned extract's first page does not render identically to ` +
         `parent page ${input.declaredFirstIndex}, the first index the config declares ` +
         `(extract ${input.extractFirstHash.slice(0, 16)}, parent ${input.parentFirstHash.slice(0, 16)}). ` +
-        `The pinned PDF was not produced from the config as it now stands.${located}`,
+        `The pinned PDF was not produced from the config as it now stands.${inReadersTerms}${located}`,
     });
   }
 
@@ -809,6 +827,8 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
       parentFirstHash,
       parentLastHash,
       extractImpliedFirstIndex,
+      printedFirst,
+      folioOffset: coverage.consensus?.offset ?? null,
     });
     findings.push(...identity);
 

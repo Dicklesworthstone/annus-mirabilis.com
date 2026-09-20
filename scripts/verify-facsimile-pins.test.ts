@@ -10,7 +10,6 @@ import {
   evaluateContentIdentity,
   evaluateDeclaredAnchor,
   evaluateFolioCoverage,
-  folioCandidatesOfPage,
   folioObservations,
   formatPinReport,
   getDefaultRepoRoot,
@@ -394,12 +393,32 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.notEqual(renderPageHash(pinned132, 1), renderPageHash(pinned132, 2));
     });
 
-    test("the pinned ap-19-289 extract's own text layer carries folio 303, not the declared 289", () => {
+    test("the pinned ap-19-289 extract starts on the article's OPENING page, not a later one", () => {
       // Read from the text layer the Internet Archive scan already carries. No recognition
       // process is started here; AGENTS.md forbids running OCR on this machine and none runs.
-      const candidates = folioCandidatesOfPage(pdfPageTexts(pinned19)[0] ?? "");
-      assert.ok(candidates.includes(303), `must contain ${String(303)}`);
-      assert.ok(!candidates.includes(289), `must not contain ${String(289)}`);
+      //
+      // am-cf6m, twice corrected. This first asserted that the extract's first page carries
+      // folio 303 and not 289 - a witness to the stale pin, falsified when the pin was
+      // repaired. Inverting it to "carries 289" then failed too, and measuring showed why:
+      // folioCandidatesOfPage returns [] for pages 1 and 2 of the corrected extract, whose
+      // text layer renders the header as "2 3 Eine neue Bestimmung der Molekül-". A single
+      // page's folio is not a sound measurement, which is the reason this gate votes an offset
+      // across the whole parent instead of trusting any one page.
+      //
+      // What one page CAN support is whether it is the article's opening. The byline appears
+      // only there: the corrected extract's first page carries "von A. Einstein." and the
+      // retired one, cut from parent 97, carries the running head "Neue Bestimmung der
+      // Moleküldimensionen. 303" and no byline. Measured on both files.
+      const firstPageText = (pdfPageTexts(pinned19)[0] ?? "").replace(/\s+/g, " ");
+      assert.ok(/von A/.test(firstPageText), "the first page must carry the article's byline");
+      assert.ok(
+        firstPageText.includes("Bestimmung") && firstPageText.includes("Molekül"),
+        "the first page must be the Moleküldimensionen article",
+      );
+      assert.ok(
+        !firstPageText.includes("303"),
+        "a first page carrying folio 303 is the retired extract, cut from parent 97",
+      );
     });
   });
 
@@ -470,9 +489,33 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
     // as though the pins had been examined and found wanting.
     const emptyRoot = path.join(REPO_ROOT, "artifacts", "test-tmp", "pins-no-sources");
 
+    /**
+     * The config-defect half of this test used to be carried by the real ap-17-549, ap-19-289
+     * and ap-34-591, which all failed config arithmetic. am-cf6m repaired all three, and this
+     * test failed - not because the split broke, but because its fixture was the defect and the
+     * defect was fixed. A test that depends on the corpus staying broken cannot survive the
+     * corpus being mended, so the defect is now planted here instead: a copy of a real config
+     * with its first declared index moved away from its verified anchor. Both halves now hold
+     * whatever the real configs say.
+     */
+    function configDirWithOnePlantedDefect(): string {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pins-split-"));
+      const realDir = path.join(REPO_ROOT, "scripts", "sources", "facsimile-sources");
+      for (const name of fs.readdirSync(realDir).filter((f) => f.endsWith(".yaml"))) {
+        fs.copyFileSync(path.join(realDir, name), path.join(dir, name));
+      }
+      const planted = path.join(dir, "ap-17-549.yaml");
+      const text = fs.readFileSync(planted, "utf8");
+      const moved = text.replace("    - 173\n", "    - 132\n");
+      assert.notEqual(moved, text, "the planted defect did not apply; the fixture proves nothing");
+      fs.writeFileSync(planted, moved);
+      return dir;
+    }
+
     test("pins that cannot be compared are classed as unmeasurable, not as refused on evidence", () => {
       fs.mkdirSync(emptyRoot, { recursive: true });
-      const report = verifyFacsimilePins({ repoRoot: emptyRoot });
+      const configDir = configDirWithOnePlantedDefect();
+      const report = verifyFacsimilePins({ repoRoot: emptyRoot, configDir });
 
       // Reachability first: the state under test has to actually occur.
       assert.ok(report.results.length > 0, "no configs were read, so this proves nothing");
@@ -490,12 +533,12 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       // predicate. Comparing isUnmeasurable() to a filter over the same set would
       // be true whatever either contained.
       //
-      // ap-17-891 and ap-18-639 have sound anchors, so with no files present there
-      // is nothing left but environment: unmeasurable. ap-19-289, ap-34-591 and
-      // ap-17-549 fail config arithmetic, which needs no files and is just as true
-      // in CI as here, so they are NOT unmeasurable and must still be reported.
+      // Every config that is sound has nothing left but environment when no files are
+      // present: unmeasurable. The one carrying the planted arithmetic defect fails on
+      // the config alone, which needs no files and is just as true in CI as here, so it
+      // is NOT unmeasurable and must still be reported.
       const byKey = new Map(report.results.map((r) => [r.key, r]));
-      for (const key of ["ap-17-891", "ap-18-639", "ap-17-132"]) {
+      for (const key of ["ap-17-891", "ap-18-639", "ap-17-132", "ap-19-289", "ap-34-591"]) {
         const result = byKey.get(key);
         assert.notEqual(result, undefined, `${key} was not read`);
         assert.equal(
@@ -505,7 +548,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
             `${(result?.findings ?? []).map((f) => f.code).join(", ")}`,
         );
       }
-      for (const key of ["ap-19-289", "ap-34-591", "ap-17-549"]) {
+      for (const key of ["ap-17-549"]) {
         const result = byKey.get(key);
         assert.notEqual(result, undefined, `${key} was not read`);
         assert.equal(
