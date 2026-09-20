@@ -407,7 +407,7 @@ test("Real provenance receipt docs/provenance/ap-17-549.md passes checkReceipt a
   const scan = result.receipt?.frontMatter.scan;
   assert.ok(scan);
   assert.equal(scan.publicationDecision, "publish");
-  assert.equal(scan.sha256, "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f");
+  assert.equal(scan.sha256, "0192ff57013a2adc564d98f9e4256e65d1595634c1e0b30ae38313c415dd3507");
   assert.equal(scan.pageCount, 12);
   assert.equal(scan.path, "public/papers/pdfs/ap-17-549.pdf");
 
@@ -457,7 +457,7 @@ test("loadProvenanceReceipts loads docs/provenance and emits SourceAsset and Pin
   assert.ok(bmReceipt.sourceAsset, "sourceAsset must be emitted");
   assert.equal(
     bmReceipt.sourceAsset.sha256,
-    "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f",
+    "0192ff57013a2adc564d98f9e4256e65d1595634c1e0b30ae38313c415dd3507",
   );
   assert.equal(bmReceipt.sourceAsset.publicationDecision, "publish");
   assert.equal(bmReceipt.sourceAsset.rights.reuseTerms, "source-terms");

@@ -35,12 +35,13 @@ articlePages:
     - 97
     - 98
     - 99
+    - 100
   verifiedAnchor:
-  parentPageIndex: 83
-  printedPage: 303
-  verifiedBy: "agent:TanElk"
-  verifiedDate: "2026-09-19"
-  notes: "Audit 2026-09-19: parent page 83 is printed 303 (running head 'Neue Bestimmung der Molekueldimensionen'), not 289"
+    parentPageIndex: 83
+    printedPage: 289
+    verifiedBy: agent:BrightIsland
+    verifiedDate: '2026-09-20'
+    notes: 'am-cf6m: rendered parent page 83 of sources/parents/1c1a54f9...pdf at 110dpi and read it: printed 289, ''3. Eine neue Bestimmung der Molekueldimensionen; von A. Einstein.'' This REPLACES a prior record that asserted parent 83 is printed 303, which was false and whose fields were de-indented so nothing ever read them. Parent 69 was also read and is printed 275, giving a consistent folio offset of 206.'
 rights:
   rightsStatus: scan-open-terms
   publicationDecision: publish
@@ -48,7 +49,7 @@ rights:
   cloudProcessingBasis: Historical public domain dissertation scan hosted on Internet Archive; terms permit open access reuse.
 pinned:
   path: public/papers/pdfs/ap-19-289.pdf
-  sha256: 2c23406a8f74891b6030dc3e1e2004e1b779929c7e79e92c15390ff76de62eb9
+  sha256: 41cc49db4c4e232dba7a3f3d2339f866c46652f34ace3f354e712b5e338a1cf3
   pageCount: 18
   mimeType: application/pdf
   acquisitionDate: '2026-09-18'
@@ -85,3 +86,10 @@ pinned:
     name: annus-mirabilis-pdf
     version: 1.0.0
   toolRunId: 20260918T021548Z-01a12978
+supersededPins:
+  - sha256: 2c23406a8f74891b6030dc3e1e2004e1b779929c7e79e92c15390ff76de62eb9
+    retiredPath: public/papers/pdfs/retired/ap-19-289-2c23406a8f74.pdf
+    retiredOn: '2026-09-20'
+    reason: 'The pinned extract served pages from a different article. Established by render: ap-17-549 p1 was printed 508 (L. Hermann, Leyden jars); ap-19-289 ran printed 303-320 with 14 of 18 pages by A. Batschinski; ap-34-591 held printed 567-568 by K. Settnik. Re-extracted from the retained parent scans.'
+    authorizedBy: jemanuel
+    authorizationText: Authorize re-extract + re-pin

@@ -1,5 +1,11 @@
 configVersion: 1
 key: ap-34-591
+verifiedAnchor:
+  parentPageIndex: 219
+  printedPage: 591
+  verifiedBy: agent:BrightIsland
+  verifiedDate: '2026-09-20'
+  notes: 'am-cf6m: rendered parent page 219 of sources/parents/9b89b04d...pdf at 110dpi and read it: printed 591, ''11. Berichtigung zu meiner Arbeit: Eine neue Bestimmung der Molekueldimensionen; von A. Einstein.'' The config''s declared window was already correct; the pinned extract was cut from parent 195 and held printed 567-568 by K. Settnik.'
 candidates:
   - url: https://archive.org/download/sim_annalen-der-physik_1911_34_3/sim_annalen-der-physik_1911_34_3.pdf
     kind: whole-issue
@@ -27,7 +33,7 @@ rights:
   cloudProcessingBasis: Historical public domain correction note scan hosted on Internet Archive; terms permit open access reuse.
 pinned:
   path: public/papers/pdfs/ap-34-591.pdf
-  sha256: cf1c5d25c3685c00ebfae7a4291f9cc3cb0752d38327235c0e0527127bf746f8
+  sha256: 9fc1fa2fecc9ecab14204f1c1cd8bdb498c5d6041b083396a6a3eef602539798
   pageCount: 2
   mimeType: application/pdf
   acquisitionDate: '2026-09-18'
@@ -48,3 +54,10 @@ pinned:
     name: annus-mirabilis-pdf
     version: 1.0.0
   toolRunId: 20260918T021558Z-316feb47
+supersededPins:
+  - sha256: cf1c5d25c3685c00ebfae7a4291f9cc3cb0752d38327235c0e0527127bf746f8
+    retiredPath: public/papers/pdfs/retired/ap-34-591-cf1c5d25c368.pdf
+    retiredOn: '2026-09-20'
+    reason: 'The pinned extract served pages from a different article. Established by render: ap-17-549 p1 was printed 508 (L. Hermann, Leyden jars); ap-19-289 ran printed 303-320 with 14 of 18 pages by A. Batschinski; ap-34-591 held printed 567-568 by K. Settnik. Re-extracted from the retained parent scans.'
+    authorizedBy: jemanuel
+    authorizationText: Authorize re-extract + re-pin

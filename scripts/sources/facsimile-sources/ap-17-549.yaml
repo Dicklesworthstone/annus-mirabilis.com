@@ -27,18 +27,18 @@ articlePages:
   printedFirst: 549
   printedLast: 560
   parentPageIndices:
-    - 132
-    - 133
-    - 134
-    - 135
-    - 136
-    - 137
-    - 138
-    - 139
-    - 140
-    - 141
-    - 142
-    - 143
+    - 173
+    - 174
+    - 175
+    - 176
+    - 177
+    - 178
+    - 179
+    - 180
+    - 181
+    - 182
+    - 183
+    - 184
 rights:
   rightsStatus: scan-open-terms
   publicationDecision: publish
@@ -46,7 +46,7 @@ rights:
   cloudProcessingBasis: Historical public domain journal scan hosted on Internet Archive; terms permit open access reuse.
 pinned:
   path: public/papers/pdfs/ap-17-549.pdf
-  sha256: c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f
+  sha256: 0192ff57013a2adc564d98f9e4256e65d1595634c1e0b30ae38313c415dd3507
   pageCount: 12
   mimeType: application/pdf
   acquisitionDate: '2026-09-17'
@@ -63,19 +63,26 @@ pinned:
     pageCount: 215
     path: sources/parents/2c2e9e595a77338d7c4846242fbaa0c26e6ee03e8ebe3686b080a3ced078945a.pdf
     parentPageIndices:
-      - 132
-      - 133
-      - 134
-      - 135
-      - 136
-      - 137
-      - 138
-      - 139
-      - 140
-      - 141
-      - 142
-      - 143
+      - 173
+      - 174
+      - 175
+      - 176
+      - 177
+      - 178
+      - 179
+      - 180
+      - 181
+      - 182
+      - 183
+      - 184
   pdfLibrary:
     name: annus-mirabilis-pdf
     version: 1.0.0
   toolRunId: 20260917T132112Z-36939b75
+supersededPins:
+  - sha256: c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f
+    retiredPath: public/papers/pdfs/retired/ap-17-549-c42f9ac27828.pdf
+    retiredOn: '2026-09-20'
+    reason: 'The pinned extract served pages from a different article. Established by render: ap-17-549 p1 was printed 508 (L. Hermann, Leyden jars); ap-19-289 ran printed 303-320 with 14 of 18 pages by A. Batschinski; ap-34-591 held printed 567-568 by K. Settnik. Re-extracted from the retained parent scans.'
+    authorizedBy: jemanuel
+    authorizationText: Authorize re-extract + re-pin

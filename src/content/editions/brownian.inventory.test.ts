@@ -139,11 +139,16 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
     }).toThrow(InventoryHonestyError);
   });
 
+  // am-cf6m: this digest moved on 2026-09-20. The pin it replaced was cut from parent pages
+  // 132-143 and its first page was printed 508 by L. Hermann, not printed 549 by Einstein; the
+  // superseded bytes are retained at public/papers/pdfs/retired/ap-17-549-c42f9ac27828.pdf.
+  // This is not a regenerated golden: the pinned document changed, under the owner's written
+  // authorization, and the new digest is the 12-page extract from parent pages 173-184.
   test("verifyBrownianFacsimilePin verifies genuine pinned PDF hash against receipt", () => {
     const verification = verifyBrownianFacsimilePin();
     expect(verification.pinned).toBe(true);
     expect(verification.sha256).toBe(
-      "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f",
+      "0192ff57013a2adc564d98f9e4256e65d1595634c1e0b30ae38313c415dd3507",
     );
     expect(verification.failure).toBeUndefined();
   });
@@ -162,7 +167,7 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
     // Corrupt the receipt's sha256 to all zeros
     const realReceipt = readFileSync("docs/provenance/ap-17-549.md", "utf8");
     const corruptedReceipt = realReceipt.replace(
-      'sha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"',
+      'sha256: "0192ff57013a2adc564d98f9e4256e65d1595634c1e0b30ae38313c415dd3507"',
       'sha256: "0000000000000000000000000000000000000000000000000000000000000000"',
     );
     writeFileSync(join(tempRoot, "docs/provenance/ap-17-549.md"), corruptedReceipt);
@@ -202,7 +207,7 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
     expect(verification.failure).toEqual({
       kind: "digest-mismatch",
       expected: "0000000000000000000000000000000000000000000000000000000000000000",
-      actual: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f",
+      actual: "0192ff57013a2adc564d98f9e4256e65d1595634c1e0b30ae38313c415dd3507",
     });
 
     const inventory = loadBrownianInventory(tempRoot);
@@ -210,7 +215,7 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
     expect(inventory.facsimilePinFailure).toEqual({
       kind: "digest-mismatch",
       expected: "0000000000000000000000000000000000000000000000000000000000000000",
-      actual: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f",
+      actual: "0192ff57013a2adc564d98f9e4256e65d1595634c1e0b30ae38313c415dd3507",
     });
   });
 
