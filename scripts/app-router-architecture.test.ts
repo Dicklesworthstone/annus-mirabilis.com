@@ -367,13 +367,40 @@ describe("App Router Architecture Gate", () => {
         loadAllowlist({
           "README.md": "",
         });
-      }, /must have a valid non-empty reason/);
+      }, /must have a valid reason/);
 
       assert.throws(() => {
         loadAllowlist({
           "README.md": "   ",
         });
-      }, /must have a valid non-empty reason/);
+      }, /must have a valid reason/);
+    });
+
+    // The rule-4 repair message says "add it with a reason". Until this bar existed, non-empty
+    // was the whole test, so "n/a" and "x" satisfied it and the gate prescribed a remedy it did
+    // not read past the first character. Same defect and same 20-character bar as e3f4881e on
+    // NOT_IN_PACKAGE_JSON.
+    it("rejects a token reason, which non-empty alone accepted", () => {
+      for (const reason of ["n/a", "x", "-", "TODO", "see bead"]) {
+        assert.throws(
+          () => loadAllowlist({ "scratch.txt": reason }),
+          /at least 20 characters/,
+          `"${reason}" is not a reason`,
+        );
+      }
+    });
+
+    it("the other half: every committed entry still loads, with margin", () => {
+      // A bar that refuses real entries would be an over-correction, so this asserts against the
+      // real file rather than a fixture. The shortest committed reason is "PostCSS plugin
+      // configuration" at 28 characters, so the bar clears every entry with room.
+      const loaded = loadAllowlist(join(process.cwd(), "scripts", "architecture-allowlist.json"));
+      const lengths = Object.values(loaded).map((r) => r.length);
+      assert.ok(Object.keys(loaded).length >= 30, "the real allowlist loaded");
+      assert.ok(
+        Math.min(...lengths) >= 20,
+        `shortest committed reason is ${Math.min(...lengths)} characters`,
+      );
     });
 
     it("supports wildcard matches", () => {

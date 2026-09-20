@@ -110,9 +110,17 @@ export function loadAllowlist(allowlistInput: string | Record<string, unknown>):
       reason = ((reasonValue as { reason: string }).reason || "").trim();
     }
 
-    if (!reason || reason.length === 0) {
+    // The repair message for rule-4 says "add it with a reason". Non-empty is not a reason:
+    // "n/a", "x", "-" and "TODO" all satisfied that test, so the gate prescribed a remedy it
+    // did not read past the first character. Same defect and same 20-character bar as
+    // e3f4881e on NOT_IN_PACKAGE_JSON. Every one of the 32 committed entries is 28 characters
+    // or longer, so this refuses nothing that exists; the shortest is "PostCSS plugin
+    // configuration".
+    const MINIMUM_REASON = 20;
+    if (reason.length < MINIMUM_REASON) {
       throw new Error(
-        `Allowlist entry '${pattern}' must have a valid non-empty reason explaining why it is permitted.`,
+        `Allowlist entry '${pattern}' must have a valid reason explaining why it is permitted, ` +
+          `of at least ${MINIMUM_REASON} characters. Found ${reason.length}: '${reason}'.`,
       );
     }
 
