@@ -465,14 +465,19 @@ records which paragraph contains it, so `eq-s5-d6 -> s5-p4` identifies `s5-p4` a
 introducing `U = (v+w)/(1+vw/V²)`, which is the flush "Es ist bemerkenswert" line. The containment
 chain, not a guess about ordering, fixed the mapping.
 
-**Why the earlier reading missed it, which is the transferable part.** The first crops of this page
-began at x = 0 and so included the dark gutter at the page edge. The gutter is ink, so it becomes
-the leftmost dark pixel on every row, and both a by-eye scan and an automated left-edge measurement
-then report the same column for a flush line and an indented one. The defect is invisible precisely
-because the measurement looks consistent. Re-cropping from x = 250, right of the gutter, separated
-the two columns immediately: flush at 125 px, indent at 250 px in the 250 percent crop.
+**What is and is not established about the earlier reading.** The crops behind the pass that
+recorded four starts here cannot be identified, so no cause is claimed for it. What IS measured
+is narrower and still worth recording: **31 of the corpus's 63 pages carry a dark gutter run at
+the page edge** (relativity 15 of 31, brownian 6 of 12, mass-energy 1 of 3, light-quanta 9 of
+17), and on such a page an automated left-edge measurement is useless, because the gutter is ink
+and becomes the leftmost dark pixel on every row. The probe run on p. 906 returned the same left
+column, 72, for flush and indented lines alike. A by-eye read of the same gutter-inclusive crop
+did give the right answer, the black band being obvious to a reader and not to a minimum, so
+gutter inclusion on its own is not evidence that a human call was wrong.
 
-**The rule this adds to the indent-versus-flush section: crop right of the gutter.** A window that
-starts at the physical page edge can defeat the discriminator on a verso whose text block sits far
-from the edge. Check that the window's left margin is white before trusting any left-edge reading,
-and prefer a window positioned on the text block over one positioned on the page.
+**The rule this adds to the indent-versus-flush section: crop right of the gutter, and never let a
+machine read the left edge on a gutter page.** Check that the window's left margin is white
+before trusting any left-edge number, and prefer a window positioned on the text block over one
+positioned on the page. The gutter pages, measured on 2026-09-19, are the even `page-NN` renders
+of relativity, `parent-174` to `parent-184` even of brownian, `page-2` of mass-energy, and the
+odd `page-NN` renders of light-quanta.

@@ -102,7 +102,7 @@ aliases:
     kind: merged
     replacementIds:
       - s5-p2
-    reason: "Not a printed paragraph. 'Es ist bemerkenswert, dass v und w in symmetrischer Weise' on p. 906 is FLUSH, resuming s5-p2 after eq-s5-d5; eq-s5-d6 now records containedIn: s5-p2. Found by the 2026-09-19 true-300-percent re-read of the twelve pages the 2.5x re-map never covered. The earlier reading of this page was made on a crop whose window included the dark gutter, which pulled the measured left edge to the page edge and made a flush line look like a start."
+    reason: "Not a printed paragraph. 'Es ist bemerkenswert, dass v und w in symmetrischer Weise' on p. 906 is FLUSH, resuming s5-p2 after eq-s5-d5; eq-s5-d6 now records containedIn: s5-p2. Found by the 2026-09-19 true-300-percent re-read of the twelve pages the 2.5x re-map never covered. Why the original reading recorded four starts here is NOT established: the crops behind that pass cannot be identified, so no cause is claimed."
     date: "2026-09-19"
     editor: "agent:pane30 (BrightIsland), am-edn-inventory-relativity-0u9"
   - retiredId: s5-p5
