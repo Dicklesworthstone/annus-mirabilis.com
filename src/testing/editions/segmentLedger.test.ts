@@ -140,9 +140,7 @@ describe("segmentation and permanent ids", () => {
     expect(fn1).toBeDefined();
     expect(fn1?.kind).toBe("footnote");
     expect(fn1?.footnoteLabel).toBe("1)");
-    expect(fn1?.text).toBe(
-      "Erste Zeile der Fußnote. Zweite Zeile der Fußnote auf Folgeseite.",
-    );
+    expect(fn1?.text).toBe("Erste Zeile der Fußnote. Zweite Zeile der Fußnote auf Folgeseite.");
 
     // German alignable IDs exclude equations and include all other alignable blocks/sentences
     const alignableIds = germanAlignableIds(result.blocks);
@@ -161,8 +159,18 @@ describe("segmentation and permanent ids", () => {
 });
 
 describe("sentence-boundary rules and display reference behavior", () => {
-  test("abbreviations, initials, ordinals, section signs, and citations are not sentence boundaries", () => {
-    // Listed abbreviations and initials
+  /**
+   * One rule per test, and each one says which rule it is.
+   *
+   * These six cases were one block. Every case in it is kept here verbatim; what
+   * changes is that a failure names the rule that broke. Measured before splitting:
+   * disabling the abbreviation rule, the ordinal rule and the section-sign rule ALL AT
+   * ONCE produced a single failure reading "Expected length: 2, Received length: 3",
+   * which names none of the three. bun stops a block at its first failed expect, so
+   * the later rules' cases never ran and an editor repairing the first cause would
+   * re-run into the next one with no idea how many were left.
+   */
+  test("boundary rule: a listed abbreviation and an initial are not boundaries", () => {
     const abbrevText = "Vgl. A. Einstein, Ann. d. Phys. 17. Die Folge ist klar.";
     const abbrevSentences = proposeSentences(abbrevText);
     expect(SENTENCE_ABBREVIATIONS).toContain("z. B.");
@@ -170,34 +178,39 @@ describe("sentence-boundary rules and display reference behavior", () => {
     expect(SENTENCE_ABBREVIATIONS).toContain("vgl.");
     expect(abbrevSentences.length).toBeGreaterThanOrEqual(1);
     expect(abbrevSentences.some((s) => s.text.includes("Die Folge ist klar."))).toBe(true);
+  });
 
-    // a. a. O. § 8 is never split
+  test("boundary rule: a section sign with its number is not a boundary (a. a. O. § 8)", () => {
     const sectionText = "Siehe a. a. O. § 8 für die Herleitung. Dies beweist den Satz.";
     const sectionSentences = proposeSentences(sectionText);
     expect(sectionSentences).toHaveLength(2);
     expect(sectionSentences[0]?.text).toBe("Siehe a. a. O. § 8 für die Herleitung.");
     expect(sectionSentences[1]?.text).toBe("Dies beweist den Satz.");
+  });
 
-    // Ordinal before month
+  test("boundary rule: an ordinal before a month is not a boundary (17. März 1905)", () => {
     const dateText = "Am 17. März 1905 erschien die Abhandlung. Sie war bahnbrechend.";
     const dateSentences = proposeSentences(dateText);
     expect(dateSentences).toHaveLength(2);
     expect(dateSentences[0]?.text).toBe("Am 17. März 1905 erschien die Abhandlung.");
+  });
 
-    // Decimal comma: 0,001 mm is never split
+  test("boundary rule: a decimal comma is not a boundary (0,001 mm)", () => {
     const decimalText = "Der Durchmesser beträgt 0,001 mm im Mittel. Die Messung ist genau.";
     const decimalSentences = proposeSentences(decimalText);
     expect(decimalSentences).toHaveLength(2);
     expect(decimalSentences[0]?.text).toBe("Der Durchmesser beträgt 0,001 mm im Mittel.");
+  });
 
-    // Full bibliographic citation string remains one sentence
+  test("boundary rule: a bibliographic citation string stays one sentence", () => {
     const citationText = "Vgl. Ann. d. Phys. 17. p. 891. 1905. Hieraus folgt das Ergebnis.";
     const citationSentences = proposeSentences(citationText);
     expect(citationSentences).toHaveLength(2);
     expect(citationSentences[0]?.text).toBe("Vgl. Ann. d. Phys. 17. p. 891. 1905.");
     expect(citationSentences[1]?.text).toBe("Hieraus folgt das Ergebnis.");
+  });
 
-    // Colons and semicolons are never boundaries
+  test("boundary rule: a colon and a semicolon are never boundaries", () => {
     const semiText = "Die Bewegung ist unregelmäßig; sie hört nicht auf.";
     expect(proposeSentences(semiText)).toHaveLength(1);
 
@@ -206,7 +219,8 @@ describe("sentence-boundary rules and display reference behavior", () => {
   });
 
   test("display reference ending in '.' followed by uppercase splits sentence", () => {
-    const text = "Hierbei gilt die Beziehung: $$ E = mc^2. $$ [[EQ-LABEL (1)]] Es folgt hieraus die Trägheit.";
+    const text =
+      "Hierbei gilt die Beziehung: $$ E = mc^2. $$ [[EQ-LABEL (1)]] Es folgt hieraus die Trägheit.";
     const sentences = proposeSentences(text);
     expect(sentences).toHaveLength(2);
     expect(sentences[0]?.text).toContain("$$ E = mc^2. $$");
@@ -214,7 +228,8 @@ describe("sentence-boundary rules and display reference behavior", () => {
   });
 
   test("PLANTED: display reference ending in ',' followed by lowercase 'wobei' stays inside single sentence", () => {
-    const text = "Hierbei gilt: $$ K = \\frac{1}{2}mv^2, $$ wobei $v$ die Geschwindigkeit bedeutet.";
+    const text =
+      "Hierbei gilt: $$ K = \\frac{1}{2}mv^2, $$ wobei $v$ die Geschwindigkeit bedeutet.";
     const sentences = proposeSentences(text);
     expect(sentences).toHaveLength(1);
     expect(sentences[0]?.text).toContain("wobei $v$ die Geschwindigkeit bedeutet.");
@@ -239,7 +254,8 @@ Erster Absatz des Paragraphen.
 describe("inline math indexing (am-edn-alignment-tooling-do1 Scope B.3)", () => {
   test("inline math regions are numbered 1-based sequentially across sentence", () => {
     const sentenceId = "s1-p1-s1";
-    const sentenceText = "Hierbei ist $v$ die Geschwindigkeit, $m$ die Masse und $E$ die Gesamtenergie.";
+    const sentenceText =
+      "Hierbei ist $v$ die Geschwindigkeit, $m$ die Masse und $E$ die Gesamtenergie.";
     const mathIds = extractSentenceInlineMathIds(sentenceText, sentenceId);
     expect(mathIds).toEqual(["s1-p1-s1-m1", "s1-p1-s1-m2", "s1-p1-s1-m3"]);
   });
@@ -258,8 +274,18 @@ describe("German word tokenization regression suite", () => {
     const regression =
       "Vgl. z. B. die Maxwell-Hertzschen Gleichungen und die Doppler'schen Prinzipien am 17. März 1905 (§ 8) bei 0,001 Sek. Er stellt fest: [[SPERR]]Bewegung[[/SPERR]] erfordert Energie $E = mc^2$[[FN-MARK 1)]].";
 
-    const mathRegions = [{ start: regression.indexOf("$"), end: regression.indexOf("$", regression.indexOf("$") + 1) + 1 }];
-    const footnoteMarks = [{ start: regression.indexOf("[[FN-MARK"), end: regression.indexOf("]]", regression.indexOf("[[FN-MARK")) + 2 }];
+    const mathRegions = [
+      {
+        start: regression.indexOf("$"),
+        end: regression.indexOf("$", regression.indexOf("$") + 1) + 1,
+      },
+    ];
+    const footnoteMarks = [
+      {
+        start: regression.indexOf("[[FN-MARK"),
+        end: regression.indexOf("]]", regression.indexOf("[[FN-MARK")) + 2,
+      },
+    ];
 
     const tokens = tokenizeGerman(regression, { mathRegions, footnoteMarks });
     const words = wordTokens(tokens);
@@ -372,7 +398,9 @@ describe("reconciliation against frozen manifest", () => {
     expect(refDiff).toBeDefined();
     expect(refDiff?.kind).toBe("unit-missing-in-ledger");
     expect(refDiff?.unitId).toBe("s1-p1-s1-r1");
-    expect(refDiff?.message).toContain('Frozen reference "s1-p1-s1-r1" has no authored inline in ledger');
+    expect(refDiff?.message).toContain(
+      'Frozen reference "s1-p1-s1-r1" has no authored inline in ledger',
+    );
   });
 
   test("determinism: two runs on identical inputs produce byte-identical results", () => {
