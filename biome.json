@@ -23,6 +23,24 @@
   },
   "formatter": {
     "enabled": true,
+    "includes": [
+      "**",
+      "!src/experiments/identity/u64.ts",
+      "!src/experiments/results/outcomes.ts",
+      "!src/experiments/results/refusalCodes.ts",
+      "!src/experiments/results/refusals.ts",
+      "!src/experiments/results/types.ts",
+      "!src/experiments/streams/allocation.ts",
+      "!src/physics/reference/constants.ts",
+      "!src/physics/reference/diffusion/distributions.ts",
+      "!src/physics/reference/diffusion/ftcs.ts",
+      "!src/physics/reference/diffusion/tracers.ts",
+      "!src/physics/reference/diffusion/walkLaws.ts",
+      "!src/physics/reference/diffusion/walks.ts",
+      "!src/physics/reference/philox.ts",
+      "!src/physics/reference/special/erf.ts",
+      "!src/units/tolerance.ts"
+    ],
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 100
