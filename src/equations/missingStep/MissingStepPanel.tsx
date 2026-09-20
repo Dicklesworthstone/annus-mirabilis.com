@@ -37,6 +37,15 @@ export function MissingStepPanel({
         ].map(([label, html]) => (
           <section key={label}>
             <h3>{label}</h3>
+            {/*
+              KEEP the tabIndex. This site renders many expressions and some are wider
+              than the box: measured over the built site, 4 of 16 instances overflow at
+              BOTH viewports (283/254 and 285/254 at 320px; 315/295 and 317/295 at
+              1280px). a11y/noNoninteractiveTabindex flags it and its FIXABLE fix deletes
+              the attribute, which would take the keyboard's only route into those four.
+              `missing-step-math` is NOT in AUDITED_SCROLL_CLASSES, so the scrollable
+              regions ratchet would not catch that removal either (am-6iz4, am-uj6w).
+            */}
             <section
               aria-label={`${label} mathematical expression`}
               tabIndex={0}
@@ -83,11 +92,14 @@ export function MissingStepPanel({
         <details key={item.result.dependence} open={index === 0} className="missing-step-case">
           <summary>{item.label}</summary>
           <p>{item.explanation}</p>
-          <section
-            aria-label={`${item.label}: outcome table`}
-            tabIndex={0}
-            className="missing-step-table"
-          >
+          {/*
+            No tabIndex. Measured against the built site over every instance it renders
+            there - 24 at 320px and 24 at 1280px, across /papers/brownian-motion/ and its
+            /s4/ section - and not one overflows: 254/254 and 606/606 scrollWidth over
+            clientWidth throughout. A tab stop here is a stop with nothing to scroll
+            (am-6iz4).
+          */}
+          <section aria-label={`${item.label}: outcome table`} className="missing-step-table">
             <table>
               <caption>
                 {item.result.denominator} equally likely outcomes. Squared columns use squared step
