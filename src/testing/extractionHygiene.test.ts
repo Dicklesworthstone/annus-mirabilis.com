@@ -12,6 +12,28 @@ function repoRoot(): string {
 }
 
 export const EXTRACTED_FILES = [
+  // The five carriers of the extraction header that no gate's list held (am-75t2). The
+  // three lists were drawn by KIND - runtime here, scripts, UI components - while the
+  // population is defined by the HEADER, so a file that is a test of an extracted module,
+  // or the ambient types an extracted module needs, fell between all three. Each is
+  // recorded with its reason rather than as a group:
+  //
+  //   colorPalette.test.ts             tests src/equations/colorPalette.ts (UI list)
+  //   valueFormatting.test.ts          tests src/equations/valueFormatting.ts (UI list)
+  //   pinnedPdfFacsimileState.test.ts  tests .../pinnedPdfFacsimileState.ts (UI list)
+  //   src/types/pdfjs-dist.d.ts        ambient types the facsimile viewer needs
+  //   src/types/three.d.ts             ambient types the Three studio scene needs
+  //
+  // They are here rather than in the UI list because a test file and an ambient
+  // declaration are not UI components, and this list already carries a non-runtime file
+  // (src/testing/wasm/artifactHelpers.ts). The durable fix is the bead's criterion (a),
+  // deriving the population from the header instead of hand-listing it at all; this
+  // closes the hole without pretending the three-list split is sound.
+  "src/equations/colorPalette.test.ts",
+  "src/equations/valueFormatting.test.ts",
+  "src/reader/facsimile/pinnedPdfFacsimileState.test.ts",
+  "src/types/pdfjs-dist.d.ts",
+  "src/types/three.d.ts",
   "src/experiments/tape/controlTape.ts",
   "src/experiments/scheduler/tickScheduler.ts",
   "src/workers/transport.ts",
@@ -78,6 +100,11 @@ export interface HeaderValidationResult {
  * scripts/extractedScriptsHygiene.test.ts's validateAttributionHeader (55b63a7) so the
  * two extraction hygiene gates use one checking shape, not two.
  */
+/**
+ * The donor's subject vocabulary as words, not substrings. See the note at its use site.
+ */
+export const DONOR_VOCABULARY = /\b(?:patent\w*|wright)\b/i;
+
 export function validateAttributionHeader(content: string): HeaderValidationResult {
   const errors: string[] = [];
   if (!content.startsWith("/**\n * Extracted from classic-patents.com\n")) {
@@ -162,12 +189,25 @@ export function scanCodeForHygiene(filePath: string, content: string): HygieneVi
       }
     }
 
-    // 4. Check for case-insensitive 'patent' or 'wright' (excluding allowed comments or identifiers)
-    const lower = line.toLowerCase();
-    if (lower.includes("patent") || lower.includes("wright")) {
-      // Find the token
-      const match = line.match(/(?:patent|wright)/i);
-      if (match) {
+    // 4. The donor's subject vocabulary, matched as WORDS rather than as substrings.
+    //
+    // This read `lower.includes("patent") || lower.includes("wright")`, and the comment
+    // above it promised "(excluding allowed comments or identifiers)" - a behaviour the
+    // code did not implement. `ArrowRight` contains "wright" and is an ordinary
+    // KeyboardEvent key name; `playwright` contains it too. Both are why a donor UI
+    // component could not be added to this gate's list without turning it red on a
+    // keyboard handler (am-75t2).
+    //
+    // A bare \b word rule over-corrects in the other direction: it loses `/patents/`,
+    // `patented` and `patentee`, and `/patents/` is one of the tokens AGENTS.md names
+    // explicitly. `patent\w*` keeps the donor's route and its inflections while
+    // `impatient` still has no word boundary before it. Verified over sixteen cases:
+    //   caught   patent, patents, /patents/, patented, patentee, classic-patents.com,
+    //            Wright, Wright Flyer, us-821393-wright-flyer
+    //   passed   ArrowRight, ArrowLeft, playwright, copyright, downright, impatient
+    const match = line.match(DONOR_VOCABULARY);
+    if (match) {
+      {
         const token = match[0];
         const startChar = Math.max(0, line.indexOf(token) - 30);
         violations.push({
