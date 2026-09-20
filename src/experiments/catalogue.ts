@@ -89,7 +89,7 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "shelf-fizeau": "in-preparation",
   "shelf-maxwell-galilean": "in-preparation",
   "avogadro-lab": "in-preparation",
-  "light-thread": "in-preparation",
+  "light-thread": "registered",
 });
 
 export const CATALOGUE_IDS: readonly CatalogueId[] = Object.freeze(
@@ -151,6 +151,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "How do the frequency, angle, amplitude, and radiation pressure of light transform when reflected by a moving mirror, and how does energy balance between the light and the mirror's mechanical work?",
   "sr-13":
     'What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different "transverse masses" appear?',
+  "light-thread":
+    "How do quantum energy, transformed light energy, and balanced emission connect without confusing the assumptions of the three papers?",
 });
 
 /** Runtime guard for an id read from a URL, permalink, or reader link: never assume the string is valid. */

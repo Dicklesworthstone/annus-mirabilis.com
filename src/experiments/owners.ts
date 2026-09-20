@@ -188,6 +188,11 @@ export const OWNER_BINDINGS: Readonly<Partial<Record<CatalogueId, OwnerBinding>>
     module: "src/experiments/me03/session.ts",
     function: "createMe03Session",
   }),
+  "light-thread": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/lightThread/session.ts",
+    function: "createLightThreadSession",
+  }),
 });
 
 export class MissingOwnerError extends Error {
