@@ -44,6 +44,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <a href="/papers/">The papers</a>
             <a href="/discover/brownian-motion/">Discover</a>
             <a href="/lab/bm-06/">Laboratory</a>
+            <a href="/connections/">Connections</a>
             <SearchLauncher />
             <NotebookLauncher />
           </nav>

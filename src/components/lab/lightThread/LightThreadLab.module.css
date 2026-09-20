@@ -1,0 +1,30 @@
+.tableWrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tableWrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableWrap th,
+.tableWrap td {
+  padding: 0.5rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.controls {
+  min-width: 0;
+}
+
+@media print {
+  .controls {
+    display: none;
+  }
+
+  .tableWrap {
+    overflow: visible;
+  }
+}
