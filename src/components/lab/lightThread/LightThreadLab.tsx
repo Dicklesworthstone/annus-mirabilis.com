@@ -131,15 +131,44 @@ export function LightThreadLab() {
     setAnnouncement("All three paper comparisons now use the same accepted settings.");
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const next = Object.fromEntries(
+  function draftParameters(): LightThreadParameters {
+    return Object.fromEntries(
       Object.entries(draft).map(([key, value]) => [
         key,
         value.trim() === "" ? Number.NaN : Number(value),
       ]),
     ) as LightThreadParameters;
-    apply(next);
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    apply(draftParameters());
+  }
+
+  /**
+   * The instrument answers an out-of-range setting, not the browser (am-fd1f).
+   *
+   * Every control carries min and max, so constraint validation ran FIRST and the
+   * form never submitted: `apply` was never called, the session never evaluated, and
+   * a reader who typed 1.5 for beta was told "Value must be less than or equal to
+   * 0.999999" by the widget. Measured in Chromium and WebKit; in both, the browser
+   * answered and the instrument never spoke.
+   *
+   * What the instrument says instead is editorial content rather than an error
+   * string: "beta must be a finite number between -0.999999 and 0.999999. These are
+   * this instrument's admission bounds." AGENTS.md draws exactly that line - the
+   * bounds are numerical admission limits, not claims of physical impossibility -
+   * and the page repeats it in its own model-limits disclosure. A widget message
+   * replaces the one sentence the edition wanted this reader to have.
+   *
+   * preventDefault suppresses the native bubble; it does NOT make the form valid, so
+   * the control still blocks the value and nothing out of range reaches the model.
+   * The refusal text comes from the same evaluator the submit path uses, so there is
+   * one source of truth for the wording and no second copy to drift.
+   */
+  function announceRefusal(event: { preventDefault: () => void }) {
+    event.preventDefault();
+    apply(draftParameters());
   }
 
   return (
@@ -192,6 +221,7 @@ export function LightThreadLab() {
                   max={LIGHT_THREAD_BOUNDS[key].max}
                   required
                   value={draft[key]}
+                  onInvalid={announceRefusal}
                   onChange={(event) =>
                     setDraft((previous) => ({ ...previous, [key]: event.target.value }))
                   }
