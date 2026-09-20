@@ -64,6 +64,7 @@ export type PinCheck = "artifact" | "anchor" | "content-identity" | "folio-cover
 export type PinRefusalCode =
   // artifact availability and identity
   | "RENDER_TOOL_UNAVAILABLE"
+  | "RENDER_TOOL_SPAWN_FAILED"
   | "PINNED_PDF_UNAVAILABLE"
   | "PARENT_PDF_UNAVAILABLE"
   | "PARENT_RECORD_MISSING"
@@ -396,15 +397,51 @@ export class PinMeasurementError extends Error {
   }
 }
 
+/**
+ * Refuses when `tool` cannot be run, and says WHICH failure it saw.
+ *
+ * This used to turn every spawnSync error into "'pdftoppm' is not available on
+ * PATH" (am-yf6h). On this host the real error is EBADF from posix_spawn
+ * '/opt/homebrew/bin/pdftoppm' - an absolute path, so PATH resolution had
+ * already SUCCEEDED and the sentence was checkably false. It sent an
+ * investigation after a missing binary that was installed all along, and it let
+ * "0 of 6 pins verified" be read as a verdict about the pins when it was a
+ * verdict about the runner. A refusal may not assert a cause it did not
+ * establish: ENOENT is absence, anything else is a failure to start.
+ */
+/** One sentence for a tool that was found and would not start, used by every spawn site. */
+function spawnFailureMessage(tool: string, error: unknown): string {
+  const e = error as NodeJS.ErrnoException;
+  return (
+    `'${tool}' was found but could not be started: ${e.code ?? "unknown error"} from ` +
+    `${e.syscall ?? "spawnSync"} (${e.message}). Nothing was measured here, so this is a ` +
+    `failure of the runner and not a finding about the pins.`
+  );
+}
+
 export function requireTool(tool: string): void {
   const probe = spawnSync(tool, ["-v"], { encoding: "utf8" });
-  if (probe.error) {
+  const error = probe.error as NodeJS.ErrnoException | undefined;
+  if (error === undefined) {
+    return;
+  }
+  const where = error.syscall ?? "spawnSync";
+  if (error.code === "ENOENT") {
     throw new PinMeasurementError(
       "RENDER_TOOL_UNAVAILABLE",
-      `'${tool}' is not available on PATH. The pinned facsimiles cannot be compared against ` +
-        `their parents without it, and an unverifiable pin is not a verified pin.`,
+      `'${tool}' is not available on PATH (ENOENT from ${where}). The pinned facsimiles ` +
+        `cannot be compared against their parents without it, and an unverifiable pin is ` +
+        `not a verified pin.`,
     );
   }
+  throw new PinMeasurementError(
+    "RENDER_TOOL_SPAWN_FAILED",
+    `'${tool}' was found but could not be started: ${error.code ?? "unknown error"} from ` +
+      `${where} (${error.message}). This is a failure of this process to launch the tool, ` +
+      `NOT evidence that the tool is missing and NOT a finding about the pins. Nothing was ` +
+      `measured, so no pin is verified or refused on this run. Run the gate directly ` +
+      `(bun scripts/verify-facsimile-pins.ts) or in the node lane.`,
+  );
 }
 
 export function sha256File(filePath: string): string {
@@ -452,6 +489,12 @@ export function renderPageHash(pdfPath: string, page: number): string {
       { encoding: "utf8" },
     );
     const rendered = `${root}.png`;
+    if (out.error) {
+      throw new PinMeasurementError(
+        "RENDER_TOOL_SPAWN_FAILED",
+        spawnFailureMessage("pdftoppm", out.error),
+      );
+    }
     if (out.status !== 0 || !fs.existsSync(rendered)) {
       throw new PinMeasurementError(
         "PAGE_RENDER_FAILED",
@@ -475,6 +518,12 @@ export function pdfPageTexts(pdfPath: string): string[] {
     encoding: "utf8",
     maxBuffer: 256 * 1024 * 1024,
   });
+  if (out.error) {
+    throw new PinMeasurementError(
+      "RENDER_TOOL_SPAWN_FAILED",
+      spawnFailureMessage("pdftotext", out.error),
+    );
+  }
   if (out.status !== 0) {
     throw new PinMeasurementError(
       "PAGE_RENDER_FAILED",

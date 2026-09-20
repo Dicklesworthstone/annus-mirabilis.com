@@ -1,5 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { describe, test } from "node:test";
 import { QUALITY_GATE_STEPS } from "./quality-gates/registry.ts";
 import {
   consensusOffsetFrom,
@@ -12,8 +15,10 @@ import {
   formatPinReport,
   getDefaultRepoRoot,
   locateExtractInParent,
+  PinMeasurementError,
   pdfPageTexts,
   renderPageHash,
+  requireTool,
   verifyFacsimilePins,
 } from "./verify-facsimile-pins.ts";
 
@@ -76,12 +81,15 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         },
       });
 
-      expect(anchorImpliedFirstIndex).toBe(173);
+      assert.equal(anchorImpliedFirstIndex, 173);
       const offsetFinding = findings.find((f) => f.code === "FACSIMILE_PAGE_OFFSET_MISMATCH");
-      expect(offsetFinding).toBeDefined();
-      expect(offsetFinding?.message).toContain("parentPageIndices[0] (132)");
-      expect(offsetFinding?.message).toContain("(173)");
-      expect(offsetFinding?.message).toContain("549");
+      assert.notEqual(offsetFinding, undefined);
+      assert.ok(
+        offsetFinding?.message.includes("parentPageIndices[0] (132)"),
+        `must contain ${String("parentPageIndices[0] (132)")}`,
+      );
+      assert.ok(offsetFinding?.message.includes("(173)"), `must contain ${String("(173)")}`);
+      assert.ok(offsetFinding?.message.includes("549"), `must contain ${String("549")}`);
     });
 
     test("ap-17-549's wrong config also refuses against the parent's own folio numbering", () => {
@@ -97,13 +105,22 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         observations: parentVoting(MEASURED_OFFSET["ap-17-549"], 380, 200),
       });
 
-      expect(result.consensus?.offset).toBe(-376);
-      expect(result.folioImpliedFirstIndex).toBe(173);
+      assert.equal(result.consensus?.offset, -376);
+      assert.equal(result.folioImpliedFirstIndex, 173);
       const finding = result.findings.find((f) => f.code === "PARENT_FOLIO_OFFSET_MISMATCH");
-      expect(finding).toBeDefined();
-      expect(finding?.message).toContain("declared first parent index 132");
-      expect(finding?.message).toContain("parent page 173");
-      expect(finding?.message).toContain("the config's implied offset is -417");
+      assert.notEqual(finding, undefined);
+      assert.ok(
+        finding?.message.includes("declared first parent index 132"),
+        `must contain ${String("declared first parent index 132")}`,
+      );
+      assert.ok(
+        finding?.message.includes("parent page 173"),
+        `must contain ${String("parent page 173")}`,
+      );
+      assert.ok(
+        finding?.message.includes("the config's implied offset is -417"),
+        `must contain ${String("the config's implied offset is -417")}`,
+      );
     });
 
     test("ap-19-289's stale extract refuses on content identity and names where it was cut from", () => {
@@ -120,10 +137,19 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         extractImpliedFirstIndex: 97,
       });
 
-      expect(findings.length).toBe(2);
-      expect(findings.every((f) => f.code === "STALE_PINNED_EXTRACT")).toBe(true);
-      expect(findings[0]?.message).toContain("parent page 83");
-      expect(findings[0]?.message).toContain("folio of parent page 97");
+      assert.equal(findings.length, 2);
+      assert.equal(
+        findings.every((f) => f.code === "STALE_PINNED_EXTRACT"),
+        true,
+      );
+      assert.ok(
+        findings[0]?.message.includes("parent page 83"),
+        `must contain ${String("parent page 83")}`,
+      );
+      assert.ok(
+        findings[0]?.message.includes("folio of parent page 97"),
+        `must contain ${String("folio of parent page 97")}`,
+      );
     });
 
     test("ap-34-591's stale extract refuses on content identity", () => {
@@ -139,10 +165,16 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         extractImpliedFirstIndex: 195,
       });
 
-      expect(findings.length).toBe(2);
-      expect(findings[0]?.code).toBe("STALE_PINNED_EXTRACT");
-      expect(findings[0]?.message).toContain("parent page 219");
-      expect(findings[0]?.message).toContain("folio of parent page 195");
+      assert.equal(findings.length, 2);
+      assert.equal(findings[0]?.code, "STALE_PINNED_EXTRACT");
+      assert.ok(
+        findings[0]?.message.includes("parent page 219"),
+        `must contain ${String("parent page 219")}`,
+      );
+      assert.ok(
+        findings[0]?.message.includes("folio of parent page 195"),
+        `must contain ${String("folio of parent page 195")}`,
+      );
     });
 
     test("ap-19-289's anchor written at the wrong nesting level is named, not ignored", () => {
@@ -161,9 +193,15 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         },
       });
 
-      expect(finding?.code).toBe("MALFORMED_VERIFIED_ANCHOR");
-      expect(finding?.message).toContain("articlePages");
-      expect(finding?.message).toContain("parentPageIndex");
+      assert.equal(finding?.code, "MALFORMED_VERIFIED_ANCHOR");
+      assert.ok(
+        finding?.message.includes("articlePages"),
+        `must contain ${String("articlePages")}`,
+      );
+      assert.ok(
+        finding?.message.includes("parentPageIndex"),
+        `must contain ${String("parentPageIndex")}`,
+      );
     });
 
     test("a pin whose printed pages are not inside its parent refuses with PRINTED_RANGE_OUTSIDE_PARENT", () => {
@@ -181,9 +219,9 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       });
 
       const finding = result.findings.find((f) => f.code === "PRINTED_RANGE_OUTSIDE_PARENT");
-      expect(finding).toBeDefined();
-      expect(finding?.message).toContain("591-592");
-      expect(finding?.message).toContain("207-445");
+      assert.notEqual(finding, undefined);
+      assert.ok(finding?.message.includes("591-592"), `must contain ${String("591-592")}`);
+      assert.ok(finding?.message.includes("207-445"), `must contain ${String("207-445")}`);
     });
 
     test("a missing anchor refuses instead of passing quietly", () => {
@@ -191,7 +229,10 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         key: "ap-34-591",
         articlePages: { printedFirst: 591, printedLast: 592, parentPageIndices: [219, 220] },
       });
-      expect(findings.some((f) => f.code === "MISSING_VERIFIED_ANCHOR")).toBe(true);
+      assert.equal(
+        findings.some((f) => f.code === "MISSING_VERIFIED_ANCHOR"),
+        true,
+      );
     });
 
     test("an inconclusive folio vote refuses instead of passing quietly", () => {
@@ -210,13 +251,13 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
           { pageIndex: 61, folio: 9 },
         ],
       });
-      expect(result.consensus).toBeNull();
-      expect(result.findings[0]?.code).toBe("FOLIO_CONSENSUS_UNAVAILABLE");
+      assert.equal(result.consensus, null);
+      assert.equal(result.findings[0]?.code, "FOLIO_CONSENSUS_UNAVAILABLE");
     });
 
     test("a folio vote without a clear winner refuses rather than picking one", () => {
       const contested = [...parentVoting(-206, 210, 40), ...parentVoting(-200, 210, 40)];
-      expect(consensusOffsetFrom(contested)).toBeNull();
+      assert.equal(consensusOffsetFrom(contested), null);
     });
   });
 
@@ -231,8 +272,8 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         },
         verifiedAnchor: { parentPageIndex: 144, printedPage: 132, verifiedBy: "agent:TanElk" },
       });
-      expect(anchor.findings.length).toBe(0);
-      expect(anchor.anchorImpliedFirstIndex).toBe(144);
+      assert.equal(anchor.findings.length, 0);
+      assert.equal(anchor.anchorImpliedFirstIndex, 144);
 
       const identity = evaluateContentIdentity({
         key: "ap-17-132",
@@ -243,7 +284,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         parentFirstHash: MEASURED.ap132Parent144,
         parentLastHash: "4c9eb782b0fce8ff0000000000000000000000000000000000000000deadbeef",
       });
-      expect(identity.length).toBe(0);
+      assert.equal(identity.length, 0);
 
       const coverage = evaluateFolioCoverage({
         key: "ap-17-132",
@@ -254,8 +295,8 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         parentPageCount: 211,
         observations: parentVoting(MEASURED_OFFSET["ap-17-132"], 1, 199),
       });
-      expect(coverage.findings.length).toBe(0);
-      expect(coverage.consensus?.offset).toBe(12);
+      assert.equal(coverage.findings.length, 0);
+      assert.equal(coverage.consensus?.offset, 12);
     });
 
     test("repairing a stale extract clears the content-identity refusal", () => {
@@ -269,17 +310,18 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         parentFirstHash: MEASURED.ap19Parent83,
         parentLastHash: MEASURED.ap19Parent99,
       });
-      expect(findings.length).toBe(0);
+      assert.equal(findings.length, 0);
     });
 
     test("a well-formed anchor is never reported as malformed", () => {
-      expect(
+      assert.equal(
         detectMalformedAnchor({
           key: "ap-17-132",
           verifiedAnchor: { parentPageIndex: 144, printedPage: 132, verifiedBy: "agent:TanElk" },
           articlePages: { printedFirst: 132, printedLast: 148, parentPageIndices: [144] },
         }),
-      ).toBeNull();
+        null,
+      );
     });
   });
 
@@ -298,7 +340,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         consensusOffset: -206,
         renderHash: (_p, page) => rendered[page] ?? "no-such-page",
       });
-      expect(located).toBe(97);
+      assert.equal(located, 97);
     });
 
     test("a folio that does not render to the extract's page is not reported as its origin", () => {
@@ -311,7 +353,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         consensusOffset: -206,
         renderHash: () => "some-other-page",
       });
-      expect(located).toBeNull();
+      assert.equal(located, null);
     });
 
     test("folio observations are read from the head and foot of each page", () => {
@@ -319,9 +361,20 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         ["591\n11. Berichtigung zu meiner Arbeit:", "* \n592      A, Einstein."],
         219,
       );
-      expect(observations).toContainEqual({ pageIndex: 219, folio: 591 });
-      expect(observations).toContainEqual({ pageIndex: 220, folio: 592 });
-      expect(consensusOffsetFrom([...observations, ...parentVoting(-372, 400, 30)])?.offset).toBe(
+      assert.ok(
+        observations.some(
+          (o) => JSON.stringify(o) === JSON.stringify({ pageIndex: 219, folio: 591 }),
+        ),
+        `must contain ${JSON.stringify({ pageIndex: 219, folio: 591 })}`,
+      );
+      assert.ok(
+        observations.some(
+          (o) => JSON.stringify(o) === JSON.stringify({ pageIndex: 220, folio: 592 }),
+        ),
+        `must contain ${JSON.stringify({ pageIndex: 220, folio: 592 })}`,
+      );
+      assert.equal(
+        consensusOffsetFrom([...observations, ...parentVoting(-372, 400, 30)])?.offset,
         -372,
       );
     });
@@ -332,41 +385,102 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
     const pinned19 = path.join(REPO_ROOT, "public/papers/pdfs/ap-19-289.pdf");
 
     test("the same page renders to the same hash twice", () => {
-      expect(renderPageHash(pinned132, 1)).toBe(renderPageHash(pinned132, 1));
+      assert.equal(renderPageHash(pinned132, 1), renderPageHash(pinned132, 1));
     });
 
     test("two different pages do not render to the same hash", () => {
-      expect(renderPageHash(pinned132, 1)).not.toBe(renderPageHash(pinned132, 2));
+      assert.notEqual(renderPageHash(pinned132, 1), renderPageHash(pinned132, 2));
     });
 
     test("the pinned ap-19-289 extract's own text layer carries folio 303, not the declared 289", () => {
       // Read from the text layer the Internet Archive scan already carries. No recognition
       // process is started here; AGENTS.md forbids running OCR on this machine and none runs.
       const candidates = folioCandidatesOfPage(pdfPageTexts(pinned19)[0] ?? "");
-      expect(candidates).toContain(303);
-      expect(candidates).not.toContain(289);
+      assert.ok(candidates.includes(303), `must contain ${String(303)}`);
+      assert.ok(!candidates.includes(289), `must not contain ${String(289)}`);
+    });
+  });
+
+  describe("4b. A tool refusal names the failure it saw (am-yf6h)", () => {
+    // The whole point of this block: requireTool used to answer every spawnSync
+    // error with "'pdftoppm' is not available on PATH". On this host the real
+    // error was EBADF from posix_spawn '/opt/homebrew/bin/pdftoppm' - an
+    // ABSOLUTE PATH, so resolution had already succeeded and the sentence was
+    // false in a way anybody could check. It cost several ticks of investigation
+    // and, worse, it let "0 of 6 pins verified" be reported as a verdict about
+    // the pins. Both states below are produced for real, not simulated.
+
+    function refusalOf(tool: string): PinMeasurementError {
+      try {
+        requireTool(tool);
+      } catch (err) {
+        assert.ok(
+          err instanceof PinMeasurementError,
+          `expected a typed refusal, got ${String(err)}`,
+        );
+        return err;
+      }
+      throw new Error(`requireTool('${tool}') did not refuse, so this fixture proves nothing`);
+    }
+
+    test("a genuinely absent tool is ENOENT and says so", () => {
+      const refusal = refusalOf("am-yf6h-no-such-tool-anywhere");
+      assert.equal(refusal.code, "RENDER_TOOL_UNAVAILABLE");
+      assert.ok(refusal.message.includes("ENOENT"), refusal.message);
+      assert.ok(refusal.message.includes("not available on PATH"), refusal.message);
+    });
+
+    test("a tool that is present but cannot start is NOT reported as missing", () => {
+      // A real non-ENOENT spawn failure: a file that exists and is not executable.
+      // EACCES stands in for the EBADF this host produces under `bun test`, which
+      // cannot be summoned on demand; what both share is the only thing under test,
+      // that the error is not ENOENT.
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "am-yf6h-"));
+      const notExecutable = path.join(dir, "pdftoppm");
+      fs.writeFileSync(notExecutable, "#!/bin/sh\necho hi\n", { mode: 0o644 });
+      try {
+        const refusal = refusalOf(notExecutable);
+        // Reachability, asserted before the claim: this must be the OTHER state.
+        assert.ok(
+          !refusal.message.includes("ENOENT"),
+          `the fixture produced an ENOENT after all, so it does not exercise the second branch: ${refusal.message}`,
+        );
+        assert.equal(refusal.code, "RENDER_TOOL_SPAWN_FAILED");
+        assert.ok(refusal.message.includes("EACCES"), refusal.message);
+        // The sentence that caused am-yf6h must not appear.
+        assert.ok(
+          !refusal.message.includes("not available on PATH"),
+          `a spawn failure that is not ENOENT must not assert the tool is missing: ${refusal.message}`,
+        );
+        assert.ok(
+          refusal.message.toLowerCase().includes("not a finding about the pins"),
+          "a runner failure must say it is not a verdict about the pins",
+        );
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true });
+      }
     });
   });
 
   describe("5. Quality gate registry", () => {
     test("QUALITY_GATE_STEPS registers facsimile-pins", () => {
       const step = QUALITY_GATE_STEPS.find((s) => s.id === "facsimile-pins");
-      expect(step).toBeDefined();
-      expect(step?.command).toEqual(["bun", "scripts/verify-facsimile-pins.ts"]);
-      expect(step?.family).toBe("fast");
-      expect(step?.owner).toBe("am-cf6m");
+      assert.notEqual(step, undefined);
+      assert.deepEqual(step?.command, ["bun", "scripts/verify-facsimile-pins.ts"]);
+      assert.equal(step?.family, "fast");
+      assert.equal(step?.owner, "am-cf6m");
       // The parent scans are not committed (/sources is git-ignored), so CI cannot run this
       // check; the release profiles run locally where the parents live and must require it.
-      expect(step?.requiredInCi).toBe(false);
-      expect(step?.requiredInProfiles).toContain("preview");
-      expect(step?.requiredInProfiles).toContain("launch");
-      expect(step?.availability.scriptPath).toBe("scripts/verify-facsimile-pins.ts");
-      expect(step?.availability.tool).toBe("pdftoppm");
+      assert.equal(step?.requiredInCi, false);
+      assert.ok(step?.requiredInProfiles.includes("preview"), `must contain ${String("preview")}`);
+      assert.ok(step?.requiredInProfiles.includes("launch"), `must contain ${String("launch")}`);
+      assert.equal(step?.availability.scriptPath, "scripts/verify-facsimile-pins.ts");
+      assert.equal(step?.availability.tool, "pdftoppm");
     });
   });
 
   describe("6. The pins on disk", () => {
-    test("every pinned facsimile verifies against its parent", () => {
+    test("every pinned facsimile verifies against its parent", { timeout: 180_000 }, () => {
       const report = verifyFacsimilePins();
       if (!report.valid) {
         // This is the deliverable red. Three pins carry wrong page windows (ap-17-549's
@@ -377,8 +491,8 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         // either: /sources is git-ignored, so run this where the parents were downloaded.
         throw new Error(`\n${formatPinReport(report)}`);
       }
-      expect(report.valid).toBe(true);
-      expect(report.refusedCount).toBe(0);
-    }, 180_000);
+      assert.equal(report.valid, true);
+      assert.equal(report.refusedCount, 0);
+    });
   });
 });

@@ -19,4 +19,5 @@ pathIgnorePatterns = [
   "src/testing/trackedImports.test.ts",
   "src/content/kernel/formatterExclusions.test.ts",
   "src/testing/docs/inventoryVersions.test.ts",
+  "scripts/verify-facsimile-pins.test.ts",
 ]
