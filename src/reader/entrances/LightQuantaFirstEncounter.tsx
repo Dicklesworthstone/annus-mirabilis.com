@@ -11,9 +11,17 @@ import {
 } from "./lightQuantaExample.ts";
 import "./countingEntrance.css";
 
+/**
+ * No tabIndex on the table container. Measured against the built site at every authored
+ * setup, including the widest one the controls reach (four tokens, three parts), it never
+ * overflows: 320px 288/288 and 1280px 780/780 scrollWidth over clientWidth.
+ * `encounter-table` is not one of the AUDITED_SCROLL_CLASSES in
+ * src/testing/a11y/scrollableRegions.test.ts, so this is a removal that satisfies both
+ * that ratchet and a11y/noNoninteractiveTabindex (am-6iz4).
+ */
 function OutcomeTable({ example }: { example: TokenExample }) {
   return (
-    <section className="encounter-table" aria-label="Complete list of arrangements" tabIndex={0}>
+    <section className="encounter-table" aria-label="Complete list of arrangements">
       <table>
         <caption>
           {example.favorable} of {example.total} equally likely arrangements put every token in the

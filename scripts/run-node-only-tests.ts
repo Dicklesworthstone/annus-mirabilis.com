@@ -10,11 +10,11 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { checkOutFreshness } from "../src/testing/outFreshness.ts";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { checkOutFreshness } from "../src/testing/outFreshness.ts";
 import {
   BUNFIG_RELATIVE_PATH,
   nodeOnlyTestArgs,

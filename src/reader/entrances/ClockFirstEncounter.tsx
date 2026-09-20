@@ -12,12 +12,18 @@ import {
 } from "./clockExample.ts";
 import "./countingEntrance.css";
 
+/**
+ * No tabIndex on the table container. Measured against the built site, it never overflows,
+ * so a tab stop here would be a stop with nothing to scroll: 320px 288/288 and 1280px
+ * 780/780 scrollWidth over clientWidth. `encounter-table` is not one of the
+ * AUDITED_SCROLL_CLASSES in src/testing/a11y/scrollableRegions.test.ts, so this is a
+ * removal that satisfies both that ratchet and a11y/noNoninteractiveTabindex (am-6iz4).
+ */
 function ClockTable({ example, agreed }: { example: ClockExample; agreed: boolean }) {
   return (
     <section
       className="encounter-table"
       aria-label="Clock readings and the distinct distant assignment"
-      tabIndex={0}
     >
       <table>
         <caption>
