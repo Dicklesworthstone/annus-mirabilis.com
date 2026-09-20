@@ -62,6 +62,20 @@ export const DIALOG_CONTAINER_SELECTORS = new Set([
 export interface NonOverflowingRecord {
   readonly file: string;
   readonly className: string;
+  /**
+   * The element's accessible name, when its file holds more than one element
+   * of the same class (am-bc6s).
+   *
+   * file-plus-class cannot separate two elements of one class, and
+   * RodSimultaneityLab.tsx holds exactly that: one `table-scroll` that
+   * overflows at 320px (325/216) and one that fits (216/216). Without a third
+   * component the key forces a false choice between recording a measurement
+   * nobody took for the overflowing one and leaving the fitting one focused.
+   * The accessible name is the discriminator because it is semantic, unique
+   * here, already required on these elements, and unlike a line number it
+   * survives an edit above it.
+   */
+  readonly ariaLabel?: string | undefined;
   readonly url: string;
   /** "320px: 254px/254px (diff 0); 1280px: 1150px/1150px (diff 0)" - parsed, not just stored. */
   readonly measurements: string;
@@ -69,9 +83,15 @@ export interface NonOverflowingRecord {
   readonly measuredBy: string;
 }
 
-/** The key a record is looked up by: one ELEMENT, not one class. */
-export function recordKey(file: string, className: string): string {
-  return `${file}::${className}`;
+/**
+ * The key a record is looked up by: one ELEMENT, not one class.
+ *
+ * The comment above said that before the key could do it. Omitting the
+ * accessible name keeps the existing single-element records keyed exactly as
+ * they were; supplying it separates two elements of one class in one file.
+ */
+export function recordKey(file: string, className: string, ariaLabel?: string): string {
+  return ariaLabel === undefined ? `${file}::${className}` : `${file}::${className}::${ariaLabel}`;
 }
 
 export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord> = new Map(
@@ -129,6 +149,16 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
         measurements: "320px: 288px/288px (diff 0); 1280px: 640px/640px (diff 0)",
         reason:
           'Reached only through the "Table & Numeric Inputs" tab of the step-1 interaction mode; the default tab renders the visual number line and this element is absent, so a measurement of the page as loaded finds nothing. Measured after clicking that tab, which is the only state in which a reader sees it. The table has four fixed columns of short signed numbers and does not grow with reader input. The file carries exactly one element of this class.',
+        measuredBy: "am-bc6s",
+      },
+      {
+        file: "src/components/lab/RodSimultaneityLab.tsx",
+        className: "table-scroll",
+        ariaLabel: "Accepted laboratory telemetry snapshot table",
+        url: "/lab/sr-03/",
+        measurements: "320px: 216px/216px (diff 0); 1280px: 1116px/1116px (diff 0)",
+        reason:
+          "This file holds TWO elements of class table-scroll and they differ: the spacetime-coordinates table at :688 overflows at 320px (325/216) and keeps its tabIndex, and this telemetry snapshot at :749 fits. Distinguished by accessible name because file-plus-class cannot tell them apart. Four short quantity-id columns that do not grow with reader input.",
         measuredBy: "am-bc6s",
       },
       {
@@ -195,7 +225,7 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
         measuredBy: "pane28, measured against the built site under am-6iz4",
       },
     ] satisfies readonly NonOverflowingRecord[]
-  ).map((r) => [recordKey(r.file, r.className), r]),
+  ).map((r) => [recordKey(r.file, r.className, r.ariaLabel), r]),
 );
 
 /** One recorded viewport measurement, after parsing. */
@@ -242,6 +272,9 @@ export function staleReason(
   }
   if (!src.includes(record.className)) {
     return `${recordKey(record.file, record.className)}: the file no longer carries that class, so the measurement is stale.`;
+  }
+  if (record.ariaLabel !== undefined && !src.includes(record.ariaLabel)) {
+    return `${recordKey(record.file, record.className, record.ariaLabel)}: the file no longer carries that accessible name, so the measurement describes an element that is gone or renamed.`;
   }
   return undefined;
 }
