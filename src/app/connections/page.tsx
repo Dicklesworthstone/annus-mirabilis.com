@@ -22,11 +22,15 @@ export default function ConnectionsPage() {
         <p className="eyebrow">Later modern synthesis</p>
         <h2>Light as the instrument</h2>
         <p>
-          Compare a pulse’s quantum-energy scale, its energy and frequency in another frame, and
-          the system boundary needed to discuss inertia. The interactive light thread keeps the
-          pulse fixed when only the observer changes.
+          Compare a pulse’s quantum-energy scale, its energy and frequency in another frame, and the
+          system boundary needed to discuss inertia. The interactive light thread keeps the pulse
+          fixed when only the observer changes.
         </p>
-        <p><a className="button" href="/lab/light-thread">Open the light-thread laboratory →</a></p>
+        <p>
+          <a className="button" href="/lab/light-thread">
+            Open the light-thread laboratory →
+          </a>
+        </p>
       </section>
       <section className="reading" id="energy-transformation">
         <p className="eyebrow">Uses this result</p>
@@ -38,7 +42,10 @@ export default function ConnectionsPage() {
           needed for this step.
         </p>
         <p>
-          <a href="/papers/special-relativity/#s8">Relativity §8</a> · <a href="/lab/sr-10">Finite light complex</a> · <a href="/papers/mass-energy/">Mass–energy paper</a> · <a href="/lab/me-01">Two energy ledgers</a>
+          <a href="/papers/special-relativity/#s8">Relativity §8</a> ·{" "}
+          <a href="/lab/sr-10">Finite light complex</a> ·{" "}
+          <a href="/papers/mass-energy/">Mass–energy paper</a> ·{" "}
+          <a href="/lab/me-01">Two energy ledgers</a>
         </p>
       </section>
       <section className="reading" id="counting">
@@ -46,12 +53,15 @@ export default function ConnectionsPage() {
         <h2>Counting possibilities without solving every motion</h2>
         <p>
           The light-quanta paper compares the volume dependence of dilute radiation entropy with
-          independent configurations. The Brownian paper’s statistical-mechanical argument obtains
-          a volume factor and an osmotic pressure. Independence, logarithms, and volume dependence
+          independent configurations. The Brownian paper’s statistical-mechanical argument obtains a
+          volume factor and an osmotic pressure. Independence, logarithms, and volume dependence
           connect the reasoning; they do not make light and suspended particles the same mechanism.
         </p>
         <p>
-          <a href="/papers/light-quanta/#s5">Light quanta §5</a> · <a href="/lab/lq-05">Independent configurations</a> · <a href="/papers/brownian-motion/#s2">Brownian motion §2</a> · <a href="/lab/bm-03">Configuration integral</a>
+          <a href="/papers/light-quanta/#s5">Light quanta §5</a> ·{" "}
+          <a href="/lab/lq-05">Independent configurations</a> ·{" "}
+          <a href="/papers/brownian-motion/#s2">Brownian motion §2</a> ·{" "}
+          <a href="/lab/bm-03">Configuration integral</a>
         </p>
       </section>
       <section className="reading">
@@ -62,7 +72,9 @@ export default function ConnectionsPage() {
           assumed photons, and a simulator that enforces a transformation law is not an experiment
           testing that law.
         </p>
-        <p><a href="/">Return to the four papers →</a></p>
+        <p>
+          <a href="/">Return to the four papers →</a>
+        </p>
       </section>
     </>
   );

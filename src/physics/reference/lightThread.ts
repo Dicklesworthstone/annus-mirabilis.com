@@ -35,18 +35,36 @@ export function validateLightThreadParameters(
   input: unknown,
 ): Readonly<{ kind: "accepted"; parameters: LightThreadParameters }> | LightThreadRefusal {
   if (typeof input !== "object" || input === null || Array.isArray(input)) {
-    return Object.freeze({ kind: "refused", parameterId: "parameters", reason: "Supply all four numeric settings." });
+    return Object.freeze({
+      kind: "refused",
+      parameterId: "parameters",
+      reason: "Supply all four numeric settings.",
+    });
   }
   const record = input as Record<string, unknown>;
   for (const key of Object.keys(record)) {
     if (!Object.hasOwn(LIGHT_THREAD_BOUNDS, key)) {
-      return Object.freeze({ kind: "refused", parameterId: key, reason: `Unknown light-thread setting: ${key}.` });
+      return Object.freeze({
+        kind: "refused",
+        parameterId: key,
+        reason: `Unknown light-thread setting: ${key}.`,
+      });
     }
   }
   for (const [key, bounds] of Object.entries(LIGHT_THREAD_BOUNDS)) {
     const value = record[key];
-    if (!Object.hasOwn(record, key) || typeof value !== "number" || !Number.isFinite(value) || value < bounds.min || value > bounds.max) {
-      return Object.freeze({ kind: "refused", parameterId: key, reason: `${key} must be a finite number between ${bounds.min} and ${bounds.max}. These are this instrument's admission bounds.` });
+    if (
+      !Object.hasOwn(record, key) ||
+      typeof value !== "number" ||
+      !Number.isFinite(value) ||
+      value < bounds.min ||
+      value > bounds.max
+    ) {
+      return Object.freeze({
+        kind: "refused",
+        parameterId: key,
+        reason: `${key} must be a finite number between ${bounds.min} and ${bounds.max}. These are this instrument's admission bounds.`,
+      });
     }
   }
   return Object.freeze({
@@ -70,9 +88,21 @@ export type LightThreadOwners = Readonly<{
 }>;
 
 export const LIGHT_THREAD_QUANTITIES = Object.freeze({
-  frequencyStationary: { label: "Frequency in the source frame", unit: "Hz", semanticKind: "frequency" },
-  frequencyMoving: { label: "Frequency in the moving frame", unit: "Hz", semanticKind: "frequency" },
-  energyStationary: { label: "Pulse energy in the source frame", unit: "J", semanticKind: "energy" },
+  frequencyStationary: {
+    label: "Frequency in the source frame",
+    unit: "Hz",
+    semanticKind: "frequency",
+  },
+  frequencyMoving: {
+    label: "Frequency in the moving frame",
+    unit: "Hz",
+    semanticKind: "frequency",
+  },
+  energyStationary: {
+    label: "Pulse energy in the source frame",
+    unit: "J",
+    semanticKind: "energy",
+  },
   energyMoving: { label: "Pulse energy in the moving frame", unit: "J", semanticKind: "energy" },
   quantumEnergyStationary: { label: "hν in the source frame", unit: "J", semanticKind: "energy" },
   quantumEnergyMoving: { label: "hν in the moving frame", unit: "J", semanticKind: "energy" },
@@ -80,13 +110,37 @@ export const LIGHT_THREAD_QUANTITIES = Object.freeze({
   quantumRatioMoving: { label: "E′/(hν′) in the moving frame", unit: "1", semanticKind: "ratio" },
   frequencyFactor: { label: "Frequency transformation factor", unit: "1", semanticKind: "ratio" },
   energyFactor: { label: "Energy transformation factor", unit: "1", semanticKind: "ratio" },
-  pulseEnergyEquivalent: { label: "Pulse energy divided by c² (not its rest mass)", unit: "kg", semanticKind: "mass" },
-  pulseInvariantMass: { label: "Invariant mass of a unidirectional light pulse", unit: "kg", semanticKind: "mass" },
-  oppositePulseEnergyMoving: { label: "Opposite equal pulse: moving-frame energy", unit: "J", semanticKind: "energy" },
-  pairEnergyStationary: { label: "Balanced pair: source-frame energy", unit: "J", semanticKind: "energy" },
-  pairEnergyMoving: { label: "Balanced pair: moving-frame energy", unit: "J", semanticKind: "energy" },
+  pulseEnergyEquivalent: {
+    label: "Pulse energy divided by c² (not its rest mass)",
+    unit: "kg",
+    semanticKind: "mass",
+  },
+  pulseInvariantMass: {
+    label: "Invariant mass of a unidirectional light pulse",
+    unit: "kg",
+    semanticKind: "mass",
+  },
+  oppositePulseEnergyMoving: {
+    label: "Opposite equal pulse: moving-frame energy",
+    unit: "J",
+    semanticKind: "energy",
+  },
+  pairEnergyStationary: {
+    label: "Balanced pair: source-frame energy",
+    unit: "J",
+    semanticKind: "energy",
+  },
+  pairEnergyMoving: {
+    label: "Balanced pair: moving-frame energy",
+    unit: "J",
+    semanticKind: "energy",
+  },
   pairInvariantMass: { label: "Balanced pair: invariant mass", unit: "kg", semanticKind: "mass" },
-  bodyMassLoss: { label: "Body's mass decrease for balanced emission", unit: "kg", semanticKind: "mass" },
+  bodyMassLoss: {
+    label: "Body's mass decrease for balanced emission",
+    unit: "kg",
+    semanticKind: "mass",
+  },
 });
 for (const quantity of Object.values(LIGHT_THREAD_QUANTITIES)) Object.freeze(quantity);
 
@@ -109,21 +163,36 @@ export type LightThreadEvaluation =
  * Its zero net source-frame momentum is essential to ΔM = 2E/c² without recoil.
  * E/(hν) is an energy ratio, not an inferred integer photon count.
  */
-export function evaluateLightThread(input: unknown, owners: LightThreadOwners): LightThreadEvaluation {
+export function evaluateLightThread(
+  input: unknown,
+  owners: LightThreadOwners,
+): LightThreadEvaluation {
   const checked = validateLightThreadParameters(input);
   if (checked.kind !== "accepted") return checked;
   const p = checked.parameters;
   const h = owners.planckConstant;
   const c = owners.speedOfLight;
-  if (owners.constantSetId !== "modern-si-2019" || !Number.isFinite(h) || h <= 0 || !Number.isFinite(c) || c <= 0) {
-    return Object.freeze({ kind: "unavailable", reason: "The light thread requires the registered modern SI constant set." });
+  if (
+    owners.constantSetId !== "modern-si-2019" ||
+    !Number.isFinite(h) ||
+    h <= 0 ||
+    !Number.isFinite(c) ||
+    c <= 0
+  ) {
+    return Object.freeze({
+      kind: "unavailable",
+      reason: "The light thread requires the registered modern SI constant set.",
+    });
   }
   const theta = (p.angleDeg / 180) * Math.PI;
   const qFrequency = owners.frequencyFactor(p.beta, theta);
   const qEnergy = owners.energyFactor(p.beta, theta);
   const qOpposite = owners.energyFactor(p.beta, Math.PI - theta);
   if (![qFrequency, qEnergy, qOpposite].every((q) => Number.isFinite(q) && q > 0)) {
-    return Object.freeze({ kind: "unavailable", reason: "The wave owner did not return finite positive transformation factors." });
+    return Object.freeze({
+      kind: "unavailable",
+      reason: "The wave owner did not return finite positive transformation factors.",
+    });
   }
   const frequencyMoving = p.frequencyHz * qFrequency;
   const energyMoving = p.pulseEnergyJ * qEnergy;
@@ -151,12 +220,26 @@ export function evaluateLightThread(input: unknown, owners: LightThreadOwners): 
     pairInvariantMass: 2 * pulseEnergyEquivalent,
     bodyMassLoss: 2 * pulseEnergyEquivalent,
   });
-  if (!Object.entries(values).every(([key, value]) => Number.isFinite(value) && (value > 0 || key === "pulseInvariantMass"))) {
-    return Object.freeze({ kind: "unavailable", reason: "This calculation exceeds the numerical representation; no partial snapshot was accepted." });
+  if (
+    !Object.entries(values).every(
+      ([key, value]) => Number.isFinite(value) && (value > 0 || key === "pulseInvariantMass"),
+    )
+  ) {
+    return Object.freeze({
+      kind: "unavailable",
+      reason:
+        "This calculation exceeds the numerical representation; no partial snapshot was accepted.",
+    });
   }
   return Object.freeze({
     kind: "accepted",
-    snapshot: Object.freeze({ parameters: p, constantSetId: owners.constantSetId, ownerId: "light-thread", execution: "host-calculation", values }),
+    snapshot: Object.freeze({
+      parameters: p,
+      constantSetId: owners.constantSetId,
+      ownerId: "light-thread",
+      execution: "host-calculation",
+      values,
+    }),
   });
 }
 
@@ -169,19 +252,25 @@ export function encodeLightThreadParameters(parameters: LightThreadParameters): 
   return query.toString();
 }
 
-export function decodeLightThreadParameters(query: string): ReturnType<typeof validateLightThreadParameters> {
-  const refuse = (reason: string): LightThreadRefusal => Object.freeze({ kind: "refused", parameterId: "permalink", reason });
+export function decodeLightThreadParameters(
+  query: string,
+): ReturnType<typeof validateLightThreadParameters> {
+  const refuse = (reason: string): LightThreadRefusal =>
+    Object.freeze({ kind: "refused", parameterId: "permalink", reason });
   if (query.length > 1024) return refuse("This light-thread bookmark is too long.");
   const search = new URLSearchParams(query);
-  if (search.getAll("lt").length !== 1 || search.get("lt") !== "1") return refuse("This bookmark uses an unsupported light-thread version.");
+  if (search.getAll("lt").length !== 1 || search.get("lt") !== "1")
+    return refuse("This bookmark uses an unsupported light-thread version.");
   for (const key of search.keys()) {
-    if (key !== "lt" && !Object.hasOwn(LIGHT_THREAD_BOUNDS, key)) return refuse(`Unknown bookmark setting: ${key}.`);
+    if (key !== "lt" && !Object.hasOwn(LIGHT_THREAD_BOUNDS, key))
+      return refuse(`Unknown bookmark setting: ${key}.`);
     if (search.getAll(key).length !== 1) return refuse(`Repeated bookmark setting: ${key}.`);
   }
   const parameters: Record<string, number> = {};
   for (const key of Object.keys(LIGHT_THREAD_BOUNDS)) {
     const raw = search.get(key);
-    if (raw === null || !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw)) return refuse(`Missing or invalid bookmark setting: ${key}.`);
+    if (raw === null || !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw))
+      return refuse(`Missing or invalid bookmark setting: ${key}.`);
     parameters[key] = Number(raw);
   }
   return validateLightThreadParameters(parameters);

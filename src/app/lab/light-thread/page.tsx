@@ -23,7 +23,9 @@ export default function LightThreadPage() {
           does not require quanta. This laboratory connects their consequences without turning one
           paper’s conclusion into another’s hidden premise.
         </p>
-        <p><a href="/connections">Explore the connections among the papers →</a></p>
+        <p>
+          <a href="/connections">Explore the connections among the papers →</a>
+        </p>
       </header>
       <LightThreadLab />
     </>

@@ -9,7 +9,13 @@ test("SSR retains every quantity, the model boundaries, and the primary-source e
   for (const id of Object.keys(LIGHT_THREAD_QUANTITIES)) {
     assert.ok(html.includes(`data-quantity-id="${id}"`), id);
   }
-  for (const href of ["/papers/light-quanta/#s6", "/papers/special-relativity/#s8", "/papers/mass-energy/", "/lab/me-01", "/lab/me-02"]) {
+  for (const href of [
+    "/papers/light-quanta/#s6",
+    "/papers/special-relativity/#s8",
+    "/papers/mass-energy/",
+    "/lab/me-01",
+    "/lab/me-02",
+  ]) {
     assert.ok(html.includes(`href="${href}"`), href);
   }
   assert.ok(html.includes("Ideal model, host calculation"));

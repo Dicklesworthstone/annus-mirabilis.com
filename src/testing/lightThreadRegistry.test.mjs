@@ -16,13 +16,19 @@ test("light thread is registered with its actual session and an authored questio
   });
   assert.ok(entry.question?.includes("assumptions"));
   assert.deepEqual(registryParityViolations(), []);
-  const source = readFileSync(new URL("../experiments/lightThread/session.ts", import.meta.url), "utf8");
+  const source = readFileSync(
+    new URL("../experiments/lightThread/session.ts", import.meta.url),
+    "utf8",
+  );
   assert.match(source, /export function createLightThreadSession\(/);
 });
 
 test("connections lead to the real laboratory route rather than an isolated catalogue entry", () => {
   const connections = readFileSync(new URL("../app/connections/page.tsx", import.meta.url), "utf8");
-  const laboratory = readFileSync(new URL("../app/lab/light-thread/page.tsx", import.meta.url), "utf8");
+  const laboratory = readFileSync(
+    new URL("../app/lab/light-thread/page.tsx", import.meta.url),
+    "utf8",
+  );
   const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
   assert.ok(connections.includes('href="/lab/light-thread"'));
   assert.ok(laboratory.includes("<LightThreadLab />"));

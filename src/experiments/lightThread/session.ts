@@ -34,29 +34,33 @@ const classes: Readonly<Record<keyof LightThreadParameters, ParameterClass>> = O
 });
 
 const outputs: Readonly<Record<string, OutputContract>> = Object.freeze(
-  Object.fromEntries(Object.entries(LIGHT_THREAD_QUANTITIES).map(([id, quantity]) => [
-    id,
-    Object.freeze({
-      unit: quantity.unit,
-      semanticKind: quantity.semanticKind,
-      ownerId: "light-thread",
-      statuses: Object.freeze(["value"] as const),
-    }),
-  ])),
+  Object.fromEntries(
+    Object.entries(LIGHT_THREAD_QUANTITIES).map(([id, quantity]) => [
+      id,
+      Object.freeze({
+        unit: quantity.unit,
+        semanticKind: quantity.semanticKind,
+        ownerId: "light-thread",
+        statuses: Object.freeze(["value"] as const),
+      }),
+    ]),
+  ),
 );
 
 function scientificResults(snapshot: LightThreadSnapshot): readonly ScientificResult[] {
-  return Object.freeze(Object.entries(snapshot.values).map(([quantityId, value]) => {
-    const quantity = LIGHT_THREAD_QUANTITIES[quantityId as keyof typeof LIGHT_THREAD_QUANTITIES];
-    return Object.freeze({
-      quantityId,
-      unit: quantity.unit,
-      semanticKind: quantity.semanticKind,
-      ownerId: "light-thread",
-      status: "value" as const,
-      value,
-    });
-  }));
+  return Object.freeze(
+    Object.entries(snapshot.values).map(([quantityId, value]) => {
+      const quantity = LIGHT_THREAD_QUANTITIES[quantityId as keyof typeof LIGHT_THREAD_QUANTITIES];
+      return Object.freeze({
+        quantityId,
+        unit: quantity.unit,
+        semanticKind: quantity.semanticKind,
+        ownerId: "light-thread",
+        status: "value" as const,
+        value,
+      });
+    }),
+  );
 }
 
 export function createLightThreadSession(
@@ -102,7 +106,9 @@ export function createLightThreadSession(
       if (!Object.keys(setup).length && !Object.keys(observer).length) {
         return Object.freeze({ kind: "accepted" as const, parameters: next });
       }
-      let token = Object.keys(setup).length ? store.issue("setup-change", setup as Parameters) : null;
+      let token = Object.keys(setup).length
+        ? store.issue("setup-change", setup as Parameters)
+        : null;
       if (Object.keys(observer).length) token = store.issue("observer-change", observer);
       if (!token) throw new Error("Changed light-thread settings produced no command.");
       const decision = store.publish({
@@ -112,7 +118,8 @@ export function createLightThreadSession(
         final: true,
         outputs: scientificResults(evaluated.snapshot),
       });
-      if (!decision.accepted) throw new Error(`Light-thread publication refused: ${decision.reason}`);
+      if (!decision.accepted)
+        throw new Error(`Light-thread publication refused: ${decision.reason}`);
       return Object.freeze({ kind: "accepted" as const, parameters: next });
     },
   });

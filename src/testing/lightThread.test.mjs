@@ -1,18 +1,29 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  LIGHT_THREAD_DEFAULTS as defaults,
-  LIGHT_THREAD_BOUNDS,
   decodeLightThreadParameters,
+  LIGHT_THREAD_DEFAULTS as defaults,
   encodeLightThreadParameters,
   evaluateLightThread,
+  LIGHT_THREAD_BOUNDS,
   validateLightThreadParameters,
 } from "../physics/reference/lightThread.ts";
 
 // Independent analytic oracle for the compositor. Production uses waves.ts owners.
 const q = (beta, theta) => (1 - beta * Math.cos(theta)) / Math.sqrt((1 - beta) * (1 + beta));
-const owners = { constantSetId: "modern-si-2019", planckConstant: 6.62607015e-34, speedOfLight: 299792458, frequencyFactor: q, energyFactor: q };
-const close = (actual, expected, tolerance = 2e-12) => assert.ok(Math.abs(actual - expected) <= tolerance * Math.max(Math.abs(actual), Math.abs(expected), Number.MIN_VALUE), `${actual} ≠ ${expected}`);
+const owners = {
+  constantSetId: "modern-si-2019",
+  planckConstant: 6.62607015e-34,
+  speedOfLight: 299792458,
+  frequencyFactor: q,
+  energyFactor: q,
+};
+const close = (actual, expected, tolerance = 2e-12) =>
+  assert.ok(
+    Math.abs(actual - expected) <=
+      tolerance * Math.max(Math.abs(actual), Math.abs(expected), Number.MIN_VALUE),
+    `${actual} ≠ ${expected}`,
+  );
 function run(p = defaults, dependencies = owners) {
   const result = evaluateLightThread(p, dependencies);
   assert.equal(result.kind, "accepted");
@@ -46,8 +57,8 @@ test("cross-frame invariants and balanced-pair energy across signed boosts and a
       const p = { ...defaults, beta, angleDeg };
       const { values: v } = run(p);
       close(v.quantumRatioMoving, v.quantumRatioStationary);
-      close(v.pairEnergyMoving, 2 * p.pulseEnergyJ / Math.sqrt((1 - beta) * (1 + beta)));
-      close(v.pairInvariantMass, 2 * p.pulseEnergyJ / owners.speedOfLight ** 2);
+      close(v.pairEnergyMoving, (2 * p.pulseEnergyJ) / Math.sqrt((1 - beta) * (1 + beta)));
+      close(v.pairInvariantMass, (2 * p.pulseEnergyJ) / owners.speedOfLight ** 2);
       const reversed = run({ ...p, beta: -beta, angleDeg: 180 - angleDeg });
       close(v.frequencyMoving, reversed.values.frequencyMoving, 2e-10);
     }
@@ -77,11 +88,17 @@ test("accepted snapshots detach inputs and are deeply frozen", () => {
   const snapshot = run(input);
   input.beta = 0;
   assert.equal(snapshot.parameters.beta, 0.6);
-  for (const value of [snapshot, snapshot.parameters, snapshot.values]) assert.ok(Object.isFrozen(value));
+  for (const value of [snapshot, snapshot.parameters, snapshot.values])
+    assert.ok(Object.isFrozen(value));
 });
 
 test("invalid settings are refused before numerical owners run", () => {
-  const bomb = { ...owners, frequencyFactor: () => { throw new Error("must not run"); } };
+  const bomb = {
+    ...owners,
+    frequencyFactor: () => {
+      throw new Error("must not run");
+    },
+  };
   for (const key of Object.keys(defaults)) {
     for (const invalid of [NaN, Infinity, -Infinity, "0", null, undefined]) {
       assert.equal(evaluateLightThread({ ...defaults, [key]: invalid }, bomb).kind, "refused");
@@ -90,14 +107,29 @@ test("invalid settings are refused before numerical owners run", () => {
     delete missing[key];
     assert.equal(validateLightThreadParameters(missing).kind, "refused");
   }
-  for (const input of [null, [], {}, "state", { ...defaults, extra: 1 }, { ...defaults, beta: 1 }, { ...defaults, pulseEnergyJ: 0 }, Object.create(defaults)]) {
+  for (const input of [
+    null,
+    [],
+    {},
+    "state",
+    { ...defaults, extra: 1 },
+    { ...defaults, beta: 1 },
+    { ...defaults, pulseEnergyJ: 0 },
+    Object.create(defaults),
+  ]) {
     assert.equal(evaluateLightThread(input, bomb).kind, "refused");
   }
 });
 
 test("numeric admission boundaries stay finite without clamping", () => {
-  for (const frequencyHz of [LIGHT_THREAD_BOUNDS.frequencyHz.min, LIGHT_THREAD_BOUNDS.frequencyHz.max]) {
-    for (const pulseEnergyJ of [LIGHT_THREAD_BOUNDS.pulseEnergyJ.min, LIGHT_THREAD_BOUNDS.pulseEnergyJ.max]) {
+  for (const frequencyHz of [
+    LIGHT_THREAD_BOUNDS.frequencyHz.min,
+    LIGHT_THREAD_BOUNDS.frequencyHz.max,
+  ]) {
+    for (const pulseEnergyJ of [
+      LIGHT_THREAD_BOUNDS.pulseEnergyJ.min,
+      LIGHT_THREAD_BOUNDS.pulseEnergyJ.max,
+    ]) {
       for (const beta of [LIGHT_THREAD_BOUNDS.beta.min, LIGHT_THREAD_BOUNDS.beta.max]) {
         for (const angleDeg of [0, 90, 180]) {
           const v = run({ frequencyHz, pulseEnergyJ, beta, angleDeg }).values;
@@ -110,7 +142,10 @@ test("numeric admission boundaries stay finite without clamping", () => {
 
 test("bad owner results are unavailable, not a fabricated scientific zero", () => {
   for (const value of [NaN, Infinity, 0, -1]) {
-    assert.equal(evaluateLightThread(defaults, { ...owners, energyFactor: () => value }).kind, "unavailable");
+    assert.equal(
+      evaluateLightThread(defaults, { ...owners, energyFactor: () => value }).kind,
+      "unavailable",
+    );
   }
   for (const planckConstant of [0, NaN, Infinity, Number.MIN_VALUE]) {
     assert.equal(evaluateLightThread(defaults, { ...owners, planckConstant }).kind, "unavailable");
@@ -123,7 +158,20 @@ test("bookmarks round-trip canonically and reject partial, duplicate, or hostile
   assert.equal(decoded.kind, "accepted");
   assert.deepEqual(decoded.parameters, defaults);
   assert.equal(encodeLightThreadParameters(decoded.parameters), encoded);
-  const queries = ["", "lt=2", `${encoded}&beta=0`, encoded.replace("lt=1", "lt=1&lt=1"), `${encoded}&evil=1`, encoded.replace("frequencyHz=500000000000000", "frequencyHz="), encoded.replace("beta=0.6", "beta=0x1"), encoded.replace("beta=0.6", "beta=Infinity"), encoded.replace("beta=0.6", "beta=%20"), encoded.replace("beta=0.6", "beta=1"), "x".repeat(1025)];
-  for (const query of queries) assert.equal(decodeLightThreadParameters(query).kind, "refused", query);
+  const queries = [
+    "",
+    "lt=2",
+    `${encoded}&beta=0`,
+    encoded.replace("lt=1", "lt=1&lt=1"),
+    `${encoded}&evil=1`,
+    encoded.replace("frequencyHz=500000000000000", "frequencyHz="),
+    encoded.replace("beta=0.6", "beta=0x1"),
+    encoded.replace("beta=0.6", "beta=Infinity"),
+    encoded.replace("beta=0.6", "beta=%20"),
+    encoded.replace("beta=0.6", "beta=1"),
+    "x".repeat(1025),
+  ];
+  for (const query of queries)
+    assert.equal(decodeLightThreadParameters(query).kind, "refused", query);
   assert.throws(() => encodeLightThreadParameters({ ...defaults, beta: 1 }), RangeError);
 });
