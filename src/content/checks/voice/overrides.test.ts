@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { findStaleOverrides, type VoiceOverrideEntry, validateOverrideEntry } from "./overrides.ts";
+import { isOverridden } from "./check.ts";
 
 describe("overrides: Validation & Staleness Rules", () => {
   it("validates a complete override entry", () => {
@@ -85,5 +86,28 @@ describe("overrides: Validation & Staleness Rules", () => {
     assert.equal(stale.length, 1);
     assert.equal(stale[0]?.entry.target, "arg-01");
     assert.equal(stale[0]?.reason, "matched-text-not-found");
+  });
+});
+
+describe("overrides: a target names exactly one record (am-s64j)", () => {
+  const entry = {
+    target: "text",
+    rule: "overclaim",
+    matchedText: "proves",
+    reason: "reviewed",
+    reviewer: "pane31",
+    date: "2026-09-20",
+  } as unknown as VoiceOverrideEntry;
+
+  it("an override does not travel to every record path ending in its target", () => {
+    // Before am-s64j the predicate also accepted target.endsWith(o.target), so an override
+    // declared for "text" suppressed readings.margin[0].text and every other record ending in it.
+    for (const recordId of ["readings.margin[0].text", "notes[6].explanation.text", "other.text"]) {
+      assert.equal(isOverridden([entry], recordId, "overclaim", "this proves it"), false);
+    }
+  });
+
+  it("an override still applies to the record id it names exactly", () => {
+    assert.equal(isOverridden([entry], "text", "overclaim", "this proves it"), true);
   });
 });

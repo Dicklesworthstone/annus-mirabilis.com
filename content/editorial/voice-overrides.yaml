@@ -4,7 +4,8 @@
 # whose "matchedText" no longer occurs in its "target" is flagged as stale.
 #
 # Format of one entry:
-#   - target: <record id or repository-relative file path>
+#   - target: <record id, matched EXACTLY - see am-s64j. A file path is not supported: the
+#             matcher only ever receives a record id, so a path target matches nothing.>
 #     rule: <the voice-rules.yaml rule id this overrides>
 #     matchedText: <the exact text the rule matched>
 #     reason: <why this specific text is allowed here>

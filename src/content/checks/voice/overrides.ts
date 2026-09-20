@@ -89,7 +89,7 @@ export interface StaleOverride {
 
 /**
  * Flags an override whose `matchedText` no longer occurs in its target's current text.
- * `lookupText` resolves a target (record id or file path) to its current text, or `undefined`
+ * `lookupText` resolves a target (a record id; see am-s64j) to its current text, or `undefined`
  * when the target cannot be resolved (which is reported separately by the caller, not as
  * staleness — a missing target is a stronger problem than a stale match).
  */

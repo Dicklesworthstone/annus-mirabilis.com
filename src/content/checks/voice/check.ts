@@ -94,7 +94,7 @@ export const EXCLUDED_FIELDS = new Set([
   "beadId",
 ]);
 
-function isOverridden(
+export function isOverridden(
   overrides: readonly VoiceOverrideEntry[],
   target: string,
   rule: string,
@@ -102,7 +102,13 @@ function isOverridden(
 ): boolean {
   return overrides.some(
     (o) =>
-      (o.target === target || target.endsWith(o.target) || o.target.endsWith(target)) &&
+      // am-s64j. This used to also accept target.endsWith(o.target) and the reverse, so an
+      // override declared for "text" suppressed every record path ending in "text", in both
+      // directions. The breadth decision recorded on that bead: a target is a RECORD ID, matched
+      // exactly. check.ts:131 passes recordId in every call, so a file-path target never reached
+      // this predicate anyway; the suffix disjuncts were compensating for a documented case the
+      // call site cannot supply. An exemption must name exactly what it exempts.
+      o.target === target &&
       o.rule === rule &&
       matchedText.toLowerCase().includes(o.matchedText.toLowerCase()),
   );
