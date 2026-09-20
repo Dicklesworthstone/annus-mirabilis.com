@@ -12,7 +12,7 @@
  *   6. (editionDeclaration.ts:84) missing-reconciliation-run
  * - brownianInventory.ts (4 sites):
  *   7. (brownianInventory.ts:246) invented-source-units
- *   8. (brownianInventory.ts:252) ids-frozen-without-facsimile
+ *   8. (brownianInventory.ts:301) ids-frozen-without-facsimile
  *   9. (brownianInventory.ts) alias admission: legitimate retirement vs defect
  *   10. (brownianInventory.ts:264) paper-overclaimed
  */
@@ -29,6 +29,7 @@ import {
   InventoryHonestyError,
   loadBrownianInventory,
   type PageMapMismatch,
+  verifyBrownianFacsimilePin,
 } from "./brownianInventory.ts";
 import { validateEditionDeclaration } from "./editionDeclaration.ts";
 import { validateSegmentation } from "./segmentSentences.ts";
@@ -313,17 +314,60 @@ describe("Editions Refusal Sites", () => {
       });
     });
 
-    // 8. (brownianInventory.ts:252) ids-frozen-without-facsimile
-    describe("Site (brownianInventory.ts:252): ids-frozen-without-facsimile", () => {
-      it("throws ids-frozen-without-facsimile when idsFrozenAt or snapshotIds are set (brownianInventory.ts:252)", () => {
-        const tempRoot = createTempBrownianFixture();
-
-        // Populate snapshotIds file
-        const snapshotPath = join(
-          tempRoot,
-          "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt",
+    // 8. (brownianInventory.ts:301) ids-frozen-without-facsimile
+    //
+    // The premise moved under this test and it has been red since. When it was
+    // written the guard was unconditional - `if (manifest.idsFrozenAt ||
+    // snapshotIds.length > 0)` - so populating the snapshot alone refused,
+    // whatever the facsimile's state, despite both the code name and the
+    // message saying "without facsimile". 760407b7 narrowed it with
+    // `&& !facsimilePinned`, in the same commit that froze the real manifest's
+    // ids and filled the real id snapshot; it had to, because the unconditional
+    // version would refuse the live inventory outright from that commit on. The
+    // test kept the old expectation, and since the fixture copies the real
+    // pinned PDF the second conjunct is false and the site is unreachable
+    // from it.
+    //
+    // Repaired here rather than in brownianInventory.ts. The narrowing was
+    // right and nothing below relaxes it: the fixture is driven to the state
+    // the guard actually names, frozen ids meeting an unpinned facsimile.
+    describe("Site (brownianInventory.ts:301): ids-frozen-without-facsimile", () => {
+      /**
+       * Breaks a fixture's facsimile pin by digest mismatch.
+       *
+       * The receipt keeps its pinned `scan.sha256` and the PDF's bytes change,
+       * which the verifier reports as `digest-mismatch`. Nothing is removed: an
+       * absent PDF is a different typed failure, and using it would leave which
+       * one these tests drive in doubt.
+       */
+      const unpinFacsimile = (tempRoot: string): void => {
+        writeFileSync(
+          join(tempRoot, "public/papers/pdfs/ap-17-549.pdf"),
+          "%PDF-1.4 not the pinned scan\n",
         );
-        writeFileSync(snapshotPath, "bm-s1-p1\nbm-s1-p2\n");
+        const verification = verifyBrownianFacsimilePin(tempRoot);
+        assert.equal(verification.pinned, false);
+        assert.equal(verification.failure?.kind, "digest-mismatch");
+      };
+
+      /** Empties the manifest's units, keeping `idsFrozenAt` as the fixture has it. */
+      const emptyUnits = (tempRoot: string): void => {
+        const manifestPath = join(tempRoot, "content/source-blocks/brownian-motion/manifest.yaml");
+        const manifest = yaml.load(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
+        assert.ok(
+          manifest.idsFrozenAt,
+          "the fixture manifest must be frozen, or there is nothing frozen to refuse",
+        );
+        writeFileSync(manifestPath, yaml.dump({ ...manifest, units: [] }));
+      };
+
+      it("throws ids-frozen-without-facsimile when frozen ids meet an unpinned facsimile (brownianInventory.ts:301)", () => {
+        const tempRoot = createTempBrownianFixture();
+        // The units must be empty, or `invented-source-units` - which sits
+        // above this guard and shares the !facsimilePinned conjunct - answers
+        // first and this arm would credit the wrong site.
+        emptyUnits(tempRoot);
+        unpinFacsimile(tempRoot);
 
         assert.throws(
           () => loadBrownianInventory(tempRoot),
@@ -336,10 +380,45 @@ describe("Editions Refusal Sites", () => {
         );
       });
 
-      it("does not throw ids-frozen-without-facsimile when IDs are not frozen (brownianInventory.ts:252)", () => {
+      // The discriminator. Same frozen manifest, same emptied units, pin left
+      // intact: a different site answers. So it is the missing pin that selects
+      // this refusal and not the emptied units, and an implementation that
+      // dropped the `!facsimilePinned` conjunct again would fail here.
+      it("answers ids-frozen-without-units, not ids-frozen-without-facsimile, while the pin holds (brownianInventory.ts:301)", () => {
         const tempRoot = createTempBrownianFixture();
+        emptyUnits(tempRoot);
+        assert.equal(verifyBrownianFacsimilePin(tempRoot).pinned, true);
+
+        assert.throws(
+          () => loadBrownianInventory(tempRoot),
+          (err: unknown) => {
+            assert.ok(err instanceof InventoryHonestyError);
+            assert.equal(err.code, "ids-frozen-without-units");
+            return true;
+          },
+        );
+      });
+
+      // The accept arm, renamed to what it now demonstrates. Its old name said
+      // "when IDs are not frozen", which stopped being true at 760407b7: the
+      // fixture's ids ARE frozen and its snapshot IS populated today, and the
+      // reason nothing is refused is that the facsimile is pinned. A green arm
+      // whose stated premise is false proves nothing about the guard.
+      it("admits frozen ids while the facsimile is pinned (brownianInventory.ts:301)", () => {
+        const tempRoot = createTempBrownianFixture();
+        const manifestPath = join(tempRoot, "content/source-blocks/brownian-motion/manifest.yaml");
+        const manifest = yaml.load(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
+        assert.ok(manifest.idsFrozenAt, "the fixture's ids must be frozen, or this admits nothing");
+        const snapshot = readFileSync(
+          join(tempRoot, "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt"),
+          "utf8",
+        );
+        assert.ok(snapshot.trim().length > 0, "the fixture's id snapshot must be populated");
+        assert.equal(verifyBrownianFacsimilePin(tempRoot).pinned, true);
+
         const inv = loadBrownianInventory(tempRoot);
         assert.equal(inv.paper, "brownian-motion");
+        assert.equal(inv.facsimilePinned, true);
       });
     });
 
