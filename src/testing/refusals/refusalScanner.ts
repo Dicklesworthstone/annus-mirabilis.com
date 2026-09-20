@@ -20,6 +20,7 @@
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, normalize, relative } from "node:path";
+import * as ts from "typescript";
 
 export interface RefusalThrowSite {
   readonly file: string;
@@ -462,21 +463,89 @@ export interface BareThrowSite {
   readonly enclosingTakesUnknown: boolean;
 }
 
-/** A function declaration or arrow assignment, for finding the enclosing signature. */
-const ENCLOSING_FN =
-  /(?:export\s+)?(?:async\s+)?function\s+[A-Za-z_$][\w$]*\s*\(|(?:const|let)\s+[A-Za-z_$][\w$]*\s*[:=][^=]*?=\s*(?:async\s*)?\(/;
-
-/** How far back to look for the enclosing signature before giving up. */
-const ENCLOSING_LOOKBACK = 60;
-
-function enclosingTakesUnknownParam(lines: readonly string[], lineIndex: number): boolean {
-  for (let i = lineIndex; i >= Math.max(0, lineIndex - ENCLOSING_LOOKBACK); i--) {
-    if (!ENCLOSING_FN.test(lines[i] ?? "")) continue;
-    const signature = lines.slice(i, i + 6).join(" ");
-    const params = /\(([^)]*)\)/.exec(signature)?.[1] ?? "";
-    return /:\s*unknown\b/.test(params);
+/**
+ * Does this parameter's declared type say `unknown` at the top level?
+ *
+ * Deliberately strict. `Record<string, unknown>` and `unknown[]` say the
+ * VALUES are unvouched while the shape is known, which is weaker evidence,
+ * and counting them would loosen a figure whose whole purpose is to be a
+ * bound nobody has to argue about. A type alias that resolves to `unknown`
+ * is missed: that would need the type checker rather than the parser, and is
+ * a known residual rather than an oversight.
+ */
+function declaresUnknown(type: ts.TypeNode | undefined): boolean {
+  if (!type) return false;
+  if (type.kind === ts.SyntaxKind.UnknownKeyword) return true;
+  if (ts.isUnionTypeNode(type) || ts.isIntersectionTypeNode(type)) {
+    return type.types.some((member) => member.kind === ts.SyntaxKind.UnknownKeyword);
   }
+  if (ts.isParenthesizedTypeNode(type)) return declaresUnknown(type.type);
   return false;
+}
+
+/**
+ * Lines holding a `throw` that sits inside a function taking an
+ * `unknown`-typed parameter, found by parsing rather than by matching text.
+ *
+ * The first version of this walked backwards over source lines with a regex
+ * for a signature. Compared against the parser over the whole tree it had no
+ * false positives and missed 59 of 193 sites, 31%: multi-line signatures,
+ * methods, nested and arrow functions, and destructured parameters. A regex
+ * cannot see lexical scope, which is the thing being asked about.
+ */
+function unknownParamThrowLines(source: string, relPath: string): ReadonlySet<number> {
+  const lines = new Set<number>();
+  let file: ts.SourceFile;
+  try {
+    file = ts.createSourceFile(
+      relPath,
+      source,
+      ts.ScriptTarget.Latest,
+      true,
+      relPath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    );
+  } catch {
+    // UNREACHABLE in practice, and recorded as such rather than left looking
+    // tested. ts.createSourceFile is error-tolerant: it reports malformed
+    // input as parse diagnostics on the returned SourceFile and does not
+    // throw. Checked against `function (((`, `class { {{{`, NUL bytes, a
+    // truncated call and pure punctuation -- every one returned a SourceFile.
+    //
+    // A planted negative for this branch therefore PASSES, which is the
+    // vacuous-plant shape: a claim whose falsifying case never occurs. The
+    // guard stays because "TypeScript will never throw here" is not mine to
+    // promise across versions, but nobody should write a test for it, and
+    // nobody should read its absence as an oversight.
+    //
+    // If it ever does fire: yielding no evidence keeps the count a lower
+    // bound, which is the safe direction. It must never yield a claim that
+    // these sites are NOT refusals.
+    return lines;
+  }
+
+  const enclosing: boolean[] = [];
+  const visit = (node: ts.Node): void => {
+    const isFunctionLike =
+      ts.isFunctionDeclaration(node) ||
+      ts.isFunctionExpression(node) ||
+      ts.isArrowFunction(node) ||
+      ts.isMethodDeclaration(node) ||
+      ts.isConstructorDeclaration(node) ||
+      ts.isGetAccessorDeclaration(node) ||
+      ts.isSetAccessorDeclaration(node);
+    if (isFunctionLike) {
+      enclosing.push(
+        (node as ts.SignatureDeclarationBase).parameters.some((p) => declaresUnknown(p.type)),
+      );
+    }
+    if (ts.isThrowStatement(node) && enclosing.some(Boolean)) {
+      lines.add(file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1);
+    }
+    ts.forEachChild(node, visit);
+    if (isFunctionLike) enclosing.pop();
+  };
+  visit(file);
+  return lines;
 }
 
 /** `throw new X(` on one line. A bare `throw err;` re-throw is not a site. */
@@ -488,6 +557,7 @@ const THROW_NEW = /\bthrow\s+new\s+[A-Za-z_$][\w$]*\s*\(/;
  */
 export function scanBareThrowSites(source: string, relPath: string): BareThrowSite[] {
   const coded = new Set(scanRefusalThrowSites(source, relPath).map((s) => s.line));
+  const unknownLines = unknownParamThrowLines(source, relPath);
   const out: BareThrowSite[] = [];
   const lines = source.split("\n");
   for (let i = 0; i < lines.length; i++) {
@@ -501,7 +571,7 @@ export function scanBareThrowSites(source: string, relPath: string): BareThrowSi
       snippet: line.trim(),
       errorClass: cls,
       projectDefinedClass: cls.length > 0 && !BUILTIN_ERROR_CLASSES.has(cls),
-      enclosingTakesUnknown: enclosingTakesUnknownParam(lines, i),
+      enclosingTakesUnknown: unknownLines.has(i + 1),
     });
   }
   return out;

@@ -292,6 +292,69 @@ describe("bare throw ratchet (am-muyh)", () => {
     assert.equal(scan.byRoot.size, BARE_THROW_ROOTS.length, "every declared root is entered");
   });
 
+  it("finds the unknown-typed parameter through shapes a regex cannot see", () => {
+    // The signal was first written as a backwards line scan for a signature.
+    // Against the parser over the whole tree it had no false positives and
+    // missed 59 of 193 sites, 31%. These are the shapes it missed. Each is a
+    // separate file so a single parse failure cannot silently pass them all.
+    const root = mkdtempSync(join(tmpdir(), "bare-throw-shapes-"));
+    mkdirSync(join(root, "src"), { recursive: true });
+    mkdirSync(join(root, "scripts"), { recursive: true });
+
+    const shapes: readonly (readonly [string, string])[] = [
+      [
+        "multiline.ts",
+        "export function parse(\n  value: unknown,\n  path: string,\n): void {\n" +
+          '  if (!value) throw new TypeError("no");\n}\n',
+      ],
+      [
+        "method.ts",
+        "export class Reader {\n  admit(value: unknown): void {\n" +
+          '    if (!value) throw new TypeError("no");\n  }\n}\n',
+      ],
+      [
+        "arrow.ts",
+        "export const check = (value: unknown): void => {\n" +
+          '  if (!value) throw new TypeError("no");\n};\n',
+      ],
+      [
+        "nested.ts",
+        "export function outer(name: string): void {\n" +
+          "  const inner = (value: unknown): void => {\n" +
+          '    if (!value) throw new TypeError("no");\n  };\n  inner(name);\n}\n',
+      ],
+      [
+        "union.ts",
+        "export function fromUnion(value: unknown | null): void {\n" +
+          '  if (!value) throw new TypeError("no");\n}\n',
+      ],
+    ];
+    for (const [name, body] of shapes) writeFileSync(join(root, "src", name), body);
+
+    // The negative that keeps this from being a test that everything counts:
+    // a throw in a function whose parameter is NOT unknown must not count,
+    // and neither must a throw outside any function.
+    writeFileSync(
+      join(root, "src/typed.ts"),
+      'export function typed(value: string): void {\n  if (!value) throw new TypeError("no");\n}\n',
+    );
+    writeFileSync(join(root, "src/toplevel.ts"), 'throw new TypeError("no");\n');
+
+    const scan = scanBareThrows(root);
+
+    assert.equal(scan.totalBare, shapes.length + 2, "every fixture file contributes one bare site");
+    assert.equal(
+      scan.unknownParamLowerBound,
+      shapes.length,
+      "each shape must be recognised; a regex over signature text found only some of these",
+    );
+    assert.equal(
+      scan.unreachedByEitherSignal,
+      2,
+      "the string-typed parameter and the top-level throw are correctly NOT counted",
+    );
+  });
+
   it("no file exceeds its recorded bare throw count, and no count is slack", () => {
     const baseline = readBaseline();
     const scan = scanBareThrows(ROOT);
