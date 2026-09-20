@@ -74,6 +74,14 @@ function main(): void {
     .filter((f) => f.endsWith(".yaml"))
     .sort();
   const loadedSets: ConstantSet[] = [];
+  /**
+   * The parsed YAML record beside the TypeScript set of the same id (am-rpf2).
+   *
+   * Check 1 validated `raw` and then dropped it, pushing only `getConstantSet(...)`
+   * onward. Every later check therefore read the TypeScript copy, and the records
+   * were checked for SHAPE alone. Keeping the pair is what makes check 1b possible.
+   */
+  const recordPairs: { file: string; raw: unknown; set: ConstantSet }[] = [];
 
   console.log("Loading constant set records from content/quantities/constant-sets/...\n");
 
@@ -86,6 +94,7 @@ function main(): void {
       validateConstantSet(raw, file);
       const set = getConstantSet(file.replace(/\.ya?ml$/, ""));
       loadedSets.push(set);
+      recordPairs.push({ file, raw, set });
 
       logs.push({
         timestamp: new Date().toISOString(),
@@ -120,6 +129,86 @@ function main(): void {
         message,
       });
     }
+  }
+
+  // 1b. Join each YAML record to the TypeScript constant set of the same id (am-rpf2).
+  //
+  // The constants exist twice: seven records under content/quantities/constant-sets/
+  // and the same numbers written out in src/physics/reference/constants.ts, which is
+  // what getConstantSet returns and what the physics actually uses. Nothing compared
+  // them. Check 1 validated the records' shape; check 3 asserted R = N_A * k_B against
+  // the TypeScript. So a wrong value in the record an editor edits passed at exit 0,
+  // measured both directions on this bead before the join existed.
+  //
+  // This adds no new physical invariant. It joins two copies that already claim to be
+  // the same numbers, which is why it lands green: all 33 entries across 7 sets agree
+  // today. Its whole value is failing on the first divergence.
+  for (const { file, raw, set } of recordPairs) {
+    const start = Date.now();
+    const record = raw as { entries?: { quantityId?: string; value?: unknown }[] };
+    const recordEntries = record.entries ?? [];
+    const tsById = new Map(set.entries.map((entry) => [entry.quantityId, entry]));
+    const seen = new Set<string>();
+    let mismatches = 0;
+
+    for (const entry of recordEntries) {
+      const quantityId = String(entry.quantityId);
+      seen.add(quantityId);
+      const counterpart = tsById.get(quantityId);
+      if (counterpart === undefined) {
+        mismatches += 1;
+        failures.push({
+          recordPath: `content/quantities/constant-sets/${file}`,
+          field: quantityId,
+          expected: "a constant of this id in src/physics/reference/constants.ts",
+          actual: "absent from the TypeScript set, so the record's value is used by nothing",
+          reproductionCommand: `bun -e 'import { getConstantSet } from "./src/physics/reference/constants.ts"; console.log(getConstantSet("${set.id}").entries.map((e) => e.quantityId));'`,
+        });
+        continue;
+      }
+      if (typeof entry.value === "number" && entry.value !== counterpart.value) {
+        mismatches += 1;
+        failures.push({
+          recordPath: `content/quantities/constant-sets/${file}`,
+          field: quantityId,
+          expected: `${counterpart.value} (src/physics/reference/constants.ts, the value the physics uses)`,
+          actual: `${entry.value} (the YAML record)`,
+          reproductionCommand: `bun -e 'import { getConstantSet, constantValue } from "./src/physics/reference/constants.ts"; console.log(constantValue(getConstantSet("${set.id}"), "${quantityId}").value);'`,
+        });
+      }
+    }
+
+    // The other direction: a constant the physics uses and the record does not
+    // record is equally a divergence, and it is the one a reader of the record
+    // cannot see at all.
+    for (const entry of set.entries) {
+      if (seen.has(entry.quantityId)) continue;
+      mismatches += 1;
+      failures.push({
+        recordPath: `content/quantities/constant-sets/${file}`,
+        field: entry.quantityId,
+        expected: "an entry for this id in the YAML record",
+        actual:
+          "present only in src/physics/reference/constants.ts, so the record understates the set",
+        reproductionCommand: `bun -e 'import { getConstantSet } from "./src/physics/reference/constants.ts"; console.log(getConstantSet("${set.id}").entries.map((e) => e.quantityId));'`,
+      });
+    }
+
+    logs.push({
+      timestamp: new Date().toISOString(),
+      suite: "constant-sets",
+      logRunId,
+      testId: `record-matches-typescript-${set.id}`,
+      beadId: "am-rpf2",
+      constantSetId: set.id,
+      check: "record-matches-typescript",
+      outcome: mismatches === 0 ? "passed" : "failed",
+      durationMs: Date.now() - start,
+      message:
+        mismatches === 0
+          ? `${recordEntries.length} entries agree with src/physics/reference/constants.ts`
+          : `${mismatches} entr${mismatches === 1 ? "y" : "ies"} disagree with src/physics/reference/constants.ts`,
+    });
   }
 
   // 2. Run checkPrintedConsistency on loaded sets
