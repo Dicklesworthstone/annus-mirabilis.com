@@ -42,11 +42,16 @@
 }
 
 /* The scanned sheet itself stays white regardless of theme: it is a photograph of paper, not a
-   surface the theme owns. */
+   surface the theme owns. It must therefore declare its own ink as well. The class is worn by an
+   <Image> with alt text (PinnedPdfFacsimile.tsx:148) and by the <canvas>; when the image fails to
+   load the browser paints that alt text inside this box, and inheriting --ink would put near-white
+   words on white paper in Kramgasse Night and Slate. Same fix, same reason, as
+   .facsimile-page-preview in src/reader/reader.css. */
 .facsimile-page {
   max-width: 100%;
   height: auto;
   background: #ffffff;
+  color: #1a1916;
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 30%);
   transition: opacity 150ms ease;
 }
@@ -98,10 +103,16 @@
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 30%);
 }
 
+/* Both icons below inherit the surrounding ink rather than the accent. --accent is the
+   meaning-bearing token, which AGENTS.md reserves for emphasis and the move step; a spinner and a
+   file glyph are decoration beside their own label, so tinting them with it made colour the only
+   channel for a distinction they were not drawing. The words are in the markup either way:
+   <span>{loadingLabel}</span> under role="status" for the spinner, and .facsimile-title-text for
+   the title icon. */
 .facsimile-spinner {
   width: 1rem;
   height: 1rem;
-  color: var(--accent);
+  color: var(--ink);
   animation: facsimile-spin 1s linear infinite;
 }
 
@@ -144,7 +155,7 @@
 .facsimile-title-icon {
   width: 1rem;
   height: 1rem;
-  color: var(--accent);
+  color: var(--ink);
 }
 
 .facsimile-title-text {
