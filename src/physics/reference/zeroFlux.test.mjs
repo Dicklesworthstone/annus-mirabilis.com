@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { readFileSync } from "node:fs";
 import {
   REFERENCE_ZERO_FLUX_BUDGET,
   zeroFluxEvolution,
@@ -175,3 +176,13 @@ test("repeated runs have byte-identical outputs and metadata in the same environ
   const input = [1, 8, 2, 7, 3, 6, 4, 5];
   for (const t of [0.5, 17, 1000]) assert.deepEqual(accepted(input, t), accepted(input, t));
 });
+
+const fixtures = JSON.parse(readFileSync(new URL("./zeroFlux.fixtures.json", import.meta.url), "utf8"));
+for (const fixture of fixtures.cases) {
+  test(`independent symmetric-matrix fixture n=${fixture.n}, tau=${fixture.time}`, () => {
+    const actual = accepted(fixture.initial, fixture.time).values;
+    const error = Array.from(actual, (value, i) => Math.abs(value - fixture.expected[i]))
+      .reduce((a, b) => a + b, 0) / mass(fixture.initial);
+    assert.ok(error <= fixtures.normalizedL1Tolerance, String(error));
+  });
+}
