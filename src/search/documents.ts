@@ -116,7 +116,16 @@ function blocksText(blocks: readonly Block[]): string {
  * that span papers. Joining to the parser means a newly declared instrument cannot take
  * the build down again: `avogadro-lab` was one registration away from the same outage.
  */
-function familyPaper(id: string): string | null {
+/**
+ * The paper a registered instrument belongs to, or null when its id does not map.
+ *
+ * Exported for am-14js. documentsFromCompiled THROWS when this returns null, and on 2026-09-20 a
+ * newly registered instrument whose id does not parse - light-thread - took typecheck, the bun test
+ * lane and the production build down for an hour with a stack trace. The invariant is cheap to
+ * assert directly; it was only expensive because the sole thing asserting it was a generator 5 of
+ * 34 deep in the prepare chain.
+ */
+export function familyPaper(id: string): string | null {
   const parsed = parseInstrumentId(id);
   if (!parsed.ok) return null;
   if (parsed.kind !== "core") return "cross-paper";

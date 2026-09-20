@@ -72,6 +72,23 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   },
   // 2. Typecheck (TypeScript compiler)
   {
+    // am-14js criterion 5. The `typecheck` gate below runs 34 generators before tsc, so its exit
+    // code cannot tell "the chain broke" from "the types broke" - in the light-thread outage it
+    // exited 1 having printed no `error TS` line at all. This lane runs the two checks separately,
+    // names which failed, and costs about two seconds, so an agent can run it before committing.
+    id: "typecheck-lane",
+    title: "Typecheck lane: types and the instrument registry, separately named",
+    command: ["bun", "scripts/typecheck-lane.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/typecheck-lane.ts",
+    },
+    owner: "am-14js",
+  },
+  {
     id: "typecheck",
     title: "TypeScript typecheck (noEmit)",
     command: ["bun", "run", "typecheck"],
