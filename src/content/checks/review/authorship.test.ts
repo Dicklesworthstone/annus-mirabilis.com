@@ -216,4 +216,75 @@ describe("authorship checks", () => {
       true,
     );
   });
+
+  // am-yvf3 / am-o44v. b0efcd5a removed `reviewerId.includes("gpt")` and
+  // `...includes("claude")`, correctly: a human reviewer named Claude was being
+  // classified as a model. Its stated justification is that a model is still caught
+  // three other ways, and ONE OF THOSE - registry membership - is what actually
+  // stops a bare model name like "grok-4.6", which carries no namespace and no
+  // vendor word.
+  //
+  // That justification is load-bearing and was untested. These names are pinned
+  // explicitly so the removal can never be widened silently: if someone later
+  // relaxes the registry check to admit an unknown reviewer, this fails and names
+  // the model that walked in. Verified by execution, not by reading - without the
+  // registry check every one of these produced ZERO issues.
+  it("am-yvf3: a bare model name is refused by registry membership, with no namespace to catch it", () => {
+    for (const modelName of [
+      "grok-4.6", // a live agent on this project
+      "gemini-3.8-flash-high", // a live agent on this project
+      "opus-5",
+      "llama-4",
+      "o3",
+      "gpt-4o", // no longer caught by a vendor word, and must not need to be
+      "claude-opus-5",
+    ]) {
+      assert.throws(
+        () =>
+          validateReviewRecord(
+            {
+              id: "rev-model-01",
+              reviewType: "german-source",
+              reviewer: modelName,
+              date: "2026-09-16",
+              result: "accepted",
+              scope: [{ recordId: "bm-s1-p1", translationRevision: 1 }],
+            },
+            { ownersRegistry: registry },
+          ),
+        /not found in docs\/OWNERS\.md/,
+        `"${modelName}" must be refused: no model is in the owners registry`,
+      );
+    }
+  });
+
+  it("am-yvf3 the other half: a HUMAN named Claude is not refused for their name", () => {
+    // The fail-closed direction b0efcd5a fixed. Claude is an ordinary French given
+    // name and this project recruits German-source reviewers from named people, so
+    // this half has to stay proven or the vendor-word sniff can creep back.
+    const humanRegistry = parseOwners(
+      `${FIXTURE_OWNERS}| claude-bernard | Claude Bernard | german-source-reviewer | brownian-motion | assigned | yes | jemanuel | 2026-09-16 |\n`,
+    );
+    const review = validateReviewRecord(
+      {
+        id: "rev-human-01",
+        reviewType: "german-source",
+        reviewer: "claude-bernard",
+        date: "2026-09-16",
+        result: "accepted",
+        scope: [{ recordId: "bm-s1-p1", translationRevision: 1 }],
+      },
+      { ownersRegistry: humanRegistry },
+    );
+    const issues = validateReviewAuthorship(
+      { id: "bm-s1-p1", translator: { id: "translator-alice", kind: "human" } },
+      review,
+      humanRegistry,
+    );
+    assert.equal(
+      issues.some((i) => i.code === "model-reviewer"),
+      false,
+      "a human named Claude is not a model",
+    );
+  });
 });
