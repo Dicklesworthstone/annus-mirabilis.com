@@ -537,7 +537,17 @@ export function assertEditionContract(
   if (options.ledgerClean === undefined) {
     if (presence.presence === "present") {
       try {
-        const validation = validateLedger(join(root, presence.path), { content: text });
+        // The receipt that governs this ledger is the one in the root under test.
+        // validateLedger resolves it from process.cwd() when none is given, so a contract
+        // call against another root reconciled page counts against a receipt describing a
+        // different document and reported ledger-not-clean for a clean ledger. Found on
+        // 2026-09-19 while wiring the edition pipeline's ledger stage, which had the same
+        // defect.
+        const receiptPath = join(root, `docs/provenance/${PAPER_BIB_KEYS[slug]}.md`);
+        const validation = validateLedger(join(root, presence.path), {
+          content: text,
+          ...(existsSync(receiptPath) ? { receiptPath } : {}),
+        });
         ledgerFindings = validation.errors.map(
           (finding) => `${finding.code ?? "error"}: ${finding.message}`,
         );
