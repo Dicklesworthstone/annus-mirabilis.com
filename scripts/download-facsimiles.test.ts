@@ -769,6 +769,67 @@ describe("15. Quality gate checkAllConfigs and planted bad input refusal", () =>
     expect(entry(results, "ap-17-549.yaml").valid).toBe(true);
   });
 
+  // am-xgf9: the missing-anchor rule used to be gated on the anchor being present.
+  //
+  // validateConfig ran validateFacsimileAnchor only inside
+  //   if (c.verifiedAnchor !== undefined || c.articlePages.verifiedAnchor !== undefined)
+  // so rule 1 of that function - "Missing anchor must FAIL loudly" - was
+  // unreachable from --check-config, the gate people actually run while editing
+  // configs. It looked like it worked because ap-19-289 WAS caught: that file
+  // writes `verifiedAnchor:` with its fields de-indented to sibling level, so
+  // YAML parses the key as present with a null value and the guard let the rule
+  // run. ap-34-591 omits the key entirely and was reported valid while the pin
+  // gate refused it. Two configs failing the same way, opposite verdicts.
+  //
+  // These two cases are that exact pair, in the two shapes that decided it.
+  function configWithoutAnchor(extra: Record<string, unknown>): Record<string, unknown> {
+    return {
+      configVersion: 1,
+      key: "ap-99-777",
+      candidates: [
+        {
+          url: "https://archive.org/download/item/ap-99-777.pdf",
+          kind: "article",
+          institution: "Internet Archive",
+          hostItemId: "test-item",
+          hostFileName: "ap-99-777.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 4 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [1, 2], ...extra },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "test",
+      },
+    };
+  }
+
+  test("a config with NO verifiedAnchor key is refused (the ap-34-591 shape)", () => {
+    const res = validateConfig(configWithoutAnchor({}));
+    expect(res.valid).toBe(false);
+    expect(res.refusalCode).toBe("MISSING_VERIFIED_ANCHOR");
+  });
+
+  test("a config whose verifiedAnchor key is present but null is refused too (the ap-19-289 shape)", () => {
+    // The state that used to be the ONLY one caught. Keeping both means the next
+    // reader can see that the verdict no longer depends on which way the file broke.
+    const res = validateConfig(configWithoutAnchor({ verifiedAnchor: null }));
+    expect(res.valid).toBe(false);
+    expect(res.refusalCode).toBe("MISSING_VERIFIED_ANCHOR");
+  });
+
+  test("control: the same config WITH an anchor is accepted, so this refuses nothing it should admit", () => {
+    const res = validateConfig({
+      ...configWithoutAnchor({}),
+      verifiedAnchor: { parentPageIndex: 1, printedPage: 1, verifiedBy: "test-fixture" },
+    });
+    expect(res.valid).toBe(true);
+  });
+
   test("fails quality gate on a planted bad config (publisher under subscription license)", () => {
     const tempDir = path.join(REPO_ROOT, "artifacts", "test-tmp", "bad-configs", newToolRunId());
     fs.mkdirSync(tempDir, { recursive: true });
@@ -855,9 +916,34 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     fs.mkdirSync(path.join(testRoot, "sources", "pinned"), { recursive: true });
   });
 
+  /**
+   * Writes a fixture config, supplying the verified anchor and parent-page
+   * mapping every config must now carry (am-xgf9).
+   *
+   * --check-config used to run the anchor rule only when a verifiedAnchor key
+   * was already present, so these fixtures never had to satisfy a rule the pin
+   * gate has always applied. They are download-lifecycle fixtures, not
+   * page-mapping fixtures: the defaults below are the identity mapping (parent
+   * page n is printed page n), and a test that cares supplies its own.
+   */
   function writeTestConfig(key: string, cfg: Record<string, unknown>): string {
     const filePath = path.join(configDir, `${key}.yaml`);
-    fs.writeFileSync(filePath, yaml.dump(cfg, { indent: 2, lineWidth: -1 }), "utf8");
+    const ap = { ...((cfg.articlePages as Record<string, unknown>) ?? {}) };
+    const first = typeof ap.printedFirst === "number" ? ap.printedFirst : 1;
+    const last = typeof ap.printedLast === "number" ? ap.printedLast : first;
+    if (ap.parentPageIndices === undefined) {
+      ap.parentPageIndices = Array.from({ length: last - first + 1 }, (_, i) => first + i);
+    }
+    const complete = {
+      ...cfg,
+      articlePages: ap,
+      verifiedAnchor: cfg.verifiedAnchor ?? {
+        parentPageIndex: (ap.parentPageIndices as number[])[0],
+        printedPage: first,
+        verifiedBy: "test-fixture",
+      },
+    };
+    fs.writeFileSync(filePath, yaml.dump(complete, { indent: 2, lineWidth: -1 }), "utf8");
     return filePath;
   }
 
@@ -1773,7 +1859,9 @@ describe("18. Configuration immutability and atomic updates (test 7 from spec)",
           expectedPageCountRange: { min: 1, max: 5 },
         },
       ],
-      articlePages: { printedFirst: 1, printedLast: 2 },
+      articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [1, 2] },
+      // Required of every config since am-xgf9; identity mapping, as above.
+      verifiedAnchor: { parentPageIndex: 1, printedPage: 1, verifiedBy: "test-fixture" },
       rights: {
         rightsStatus: "scan-open-terms",
         publicationDecision: "publish",
@@ -1797,7 +1885,9 @@ describe("18. Configuration immutability and atomic updates (test 7 from spec)",
           expectedPageCountRange: { min: 1, max: 5 },
         },
       ],
-      articlePages: { printedFirst: 1, printedLast: 2 },
+      articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [1, 2] },
+      // Required of every config since am-xgf9; identity mapping, as above.
+      verifiedAnchor: { parentPageIndex: 1, printedPage: 1, verifiedBy: "test-fixture" },
       rights: {
         rightsStatus: "scan-open-terms",
         publicationDecision: "publish",
@@ -1929,7 +2019,9 @@ describe("20. CLI main entrypoint argument parsing and mockFetch dispatch", () =
           expectedPageCountRange: { min: 1, max: 5 },
         },
       ],
-      articlePages: { printedFirst: 1, printedLast: 2 },
+      articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [1, 2] },
+      // Required of every config since am-xgf9; identity mapping, as above.
+      verifiedAnchor: { parentPageIndex: 1, printedPage: 1, verifiedBy: "test-fixture" },
       rights: {
         rightsStatus: "scan-open-terms",
         publicationDecision: "publish",

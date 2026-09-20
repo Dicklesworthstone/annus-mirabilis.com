@@ -414,19 +414,30 @@ export function validateConfig(config: unknown): ValidationResult {
     }
   }
 
-  // Verified anchor validation (if present)
-  if (
-    c.verifiedAnchor !== undefined ||
-    (isRecord(c.articlePages) && c.articlePages.verifiedAnchor !== undefined)
-  ) {
-    const anchorRes = validateFacsimileAnchor(c);
-    if (!anchorRes.valid) {
-      return {
-        valid: false,
-        errors: anchorRes.errors,
-        refusalCode: anchorRes.refusalCode,
-      };
-    }
+  // Verified anchor validation, ALWAYS (am-xgf9).
+  //
+  // This used to run only when a verifiedAnchor key was already present, which
+  // gated the one rule whose whole job is to catch a MISSING anchor on the
+  // anchor not being missing. Rule 1 of validateFacsimileAnchor - "Missing
+  // anchor must FAIL loudly" - was therefore unreachable from --check-config.
+  //
+  // It looked like it worked because ap-19-289 was caught: that file writes
+  // `verifiedAnchor:` with its fields de-indented to sibling level, so YAML
+  // parses the key as present with a null value, the guard passed, and the rule
+  // ran. ap-34-591 omits the key entirely, so the same defect was reported
+  // valid. Two configs failing the same way, opposite verdicts, decided by
+  // whether a broken file happened to leave a key behind.
+  //
+  // --check-config is the gate people run while editing configs; the pin gate
+  // needs the parent scans, which are git-ignored and absent in CI. The
+  // always-available gate was the permissive one.
+  const anchorRes = validateFacsimileAnchor(c);
+  if (!anchorRes.valid) {
+    return {
+      valid: false,
+      errors: anchorRes.errors,
+      refusalCode: anchorRes.refusalCode,
+    };
   }
 
   if (errors.length > 0) {
