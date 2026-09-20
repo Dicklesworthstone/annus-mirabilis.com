@@ -402,7 +402,6 @@ export function BrownianFirstEncounter({
         <section
           className="table-scroll"
           style={{ marginBottom: "1.5rem" }}
-          tabIndex={0}
           aria-label="Particle displacements and squares table"
         >
           <table>

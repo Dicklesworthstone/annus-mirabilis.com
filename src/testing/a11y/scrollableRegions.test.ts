@@ -105,6 +105,15 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
         measuredBy: "am-6iz4",
       },
       {
+        file: "src/reader/entrances/BrownianFirstEncounter.tsx",
+        className: "table-scroll",
+        url: "/papers/brownian-motion/",
+        measurements: "320px: 288px/288px (diff 0); 1280px: 640px/640px (diff 0)",
+        reason:
+          'Reached only through the "Table & Numeric Inputs" tab of the step-1 interaction mode; the default tab renders the visual number line and this element is absent, so a measurement of the page as loaded finds nothing. Measured after clicking that tab, which is the only state in which a reader sees it. The table has four fixed columns of short signed numbers and does not grow with reader input. The file carries exactly one element of this class.',
+        measuredBy: "am-bc6s",
+      },
+      {
         file: "src/components/lab/TracerLab.tsx",
         className: "lab-bottom",
         url: "/lab/bm-01/",
@@ -411,6 +420,27 @@ export function countUnreachableScrollRegions(
   return count;
 }
 
+/**
+ * Parses one recorded measurement string into its two viewport readings.
+ *
+ * The map's own documentation says the measurements are "PARSED AND CHECKED,
+ * not merely stored", and the field comment repeats it. Until this function
+ * existed nothing read the string: a recorded measurement could say
+ * "320px: 288px/300px (diff 12)" and the suite stayed green, which I verified
+ * by planting exactly that. A record nobody parses is not evidence, and the
+ * whole point of this map is that it stands in for a measurement.
+ */
+export function parseRecordedMeasurements(
+  measurements: string,
+): readonly { viewport: number; scrollWidth: number; clientWidth: number; diff: number }[] {
+  return [...measurements.matchAll(/(\d+)px:\s*(\d+)px\/(\d+)px \(diff (\d+)\)/g)].map((m) => ({
+    viewport: Number(m[1]),
+    scrollWidth: Number(m[2]),
+    clientWidth: Number(m[3]),
+    diff: Number(m[4]),
+  }));
+}
+
 describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
   test("no file exceeds its recorded baseline, and no new file introduces unreachable scrolling regions", () => {
     const tsxFiles = findFiles(join(ROOT, "src"), ".tsx");
@@ -590,5 +620,35 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
 
     const nonAudited = '<div className="some-other-class">content</div>';
     assert.equal(countUnreachableScrollRegions(nonAudited), 0);
+  });
+});
+
+describe("the recorded measurements are read, not merely stored (am-uj6w)", () => {
+  test("every entry parses into both viewports and its own numbers agree", () => {
+    for (const [key, record] of RECORDED_NON_OVERFLOWING) {
+      const readings = parseRecordedMeasurements(record.measurements);
+      assert.equal(
+        readings.length,
+        2,
+        `${key}: measurements must record both 320px and 1280px, got "${record.measurements}"`,
+      );
+      assert.deepEqual(
+        readings.map((r) => r.viewport).sort((a, b) => a - b),
+        [320, 1280],
+        `${key}: the two viewports must be 320px and 1280px`,
+      );
+      for (const r of readings) {
+        assert.equal(
+          r.scrollWidth,
+          r.clientWidth,
+          `${key} @${r.viewport}px: recorded as non-overflowing but scrollWidth ${r.scrollWidth} != clientWidth ${r.clientWidth}`,
+        );
+        assert.equal(
+          r.diff,
+          0,
+          `${key} @${r.viewport}px: recorded diff is ${r.diff}, so this element overflows and must keep its tabIndex`,
+        );
+      }
+    }
   });
 });
