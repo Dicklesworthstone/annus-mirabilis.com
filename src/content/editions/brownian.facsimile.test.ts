@@ -329,8 +329,18 @@ describe("brownian facsimile verification (am-src-facsimile-brownian-mox)", () =
   test("planted negative: corrupted digest triggers failed outcome and evidence retention", () => {
     const logRunId = newRunIdentity();
     const fakeCorruptedDigest = "0000000000000000000000000000000000000000000000000000000000000000";
-    const genuineExpected = "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f";
+    // Read the genuine digest from the receipt rather than repeating it here. The
+    // literal that stood here was c42f9ac2..., which am-cf6m superseded on 2026-09-20
+    // when three facsimiles were re-extracted and re-pinned: this test went on calling a
+    // RETIRED artefact "genuine" and still passed, because the only assertion was that
+    // two different strings differ, which is true of any two strings. A planted negative
+    // that cannot notice a re-pin is not evidence about the pin.
+    const { fm } = loadReceiptFrontMatter(receiptPath);
+    const genuineExpected = fm.scan.sha256;
 
+    // And the receipt is checked against the bytes, so "genuine" is a measurement here
+    // rather than a label: if the pin moves again, this line moves with it or fails.
+    expect(genuineExpected).toBe(computePdfDigest(readFileSync(fm.scan.path)));
     expect(fakeCorruptedDigest).not.toBe(genuineExpected);
 
     const evidenceDir = retainFailureEvidence(logRunId, {

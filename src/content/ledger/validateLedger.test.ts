@@ -349,10 +349,23 @@ test("Receipt digest validation: source digest mismatch and ledger digest stale 
 
   // 1. ledgerSourcePdfSha256 differing from scan.sha256 raises receipt-source-digest-mismatch in both modes
   {
+    // The digest below is a FIXTURE value, not the live pin. am-cf6m superseded
+    // c42f9ac2... as the real ap-17-549 pin on 2026-09-20, and a sweep that "updates"
+    // this fixture to the new digest would make the replace() below match nothing: the
+    // mutation would silently not happen and this test would keep passing while
+    // proving nothing. The fixtures under src/testing/fixtures/ledgers/ are
+    // self-contained and are deliberately NOT swept. The assertion guards it either way.
+    const staleDigestLine =
+      'ledgerSourcePdfSha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"';
+    assert.ok(
+      baseReceiptContent.includes(staleDigestLine),
+      "the fixture receipt no longer contains the line this mutation replaces, so the mutation below would silently not happen",
+    );
     const mutatedReceipt = baseReceiptContent.replace(
-      'ledgerSourcePdfSha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"',
+      staleDigestLine,
       'ledgerSourcePdfSha256: "0000000000000000000000000000000000000000000000000000000000000000"',
     );
+    assert.notEqual(mutatedReceipt, baseReceiptContent, "the mutation did not apply");
 
     const res = validateLedger(ledgerPath, {
       receiptPath,
