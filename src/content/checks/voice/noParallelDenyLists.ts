@@ -37,11 +37,20 @@ export function collectDenyListVocabulary(): readonly string[] {
   return [...new Set(words.map((w) => w.toLowerCase()))];
 }
 
+/**
+ * Excludes a file by its own path, or a directory by path segment (am-f6hr).
+ *
+ * A third clause, a bare `relativePath.startsWith(glob)`, used to sit here. With
+ * no separator it subsumed both other clauses and excused every path that merely
+ * BEGAN with the glob, so the exclusion "src/content/checks/voice", meant to be
+ * this gate's own directory, also covered src/content/checks/voiceRules.ts,
+ * voice2/ and voiceOverrides/ - in the gate whose file comment says its own scan
+ * is the only proof that no second copy of the vocabulary exists. Nothing was
+ * escaping through it; it was a fail-open waiting for a plausible filename.
+ */
 function isExcluded(relativePath: string, excludeGlobs: readonly string[]): boolean {
-  return excludeGlobs.some(
-    (glob) =>
-      relativePath === glob || relativePath.startsWith(`${glob}/`) || relativePath.startsWith(glob),
-  );
+  const normalized = relativePath.split(path.sep).join("/");
+  return excludeGlobs.some((glob) => normalized === glob || normalized.startsWith(`${glob}/`));
 }
 
 function listFiles(root: string, cwd: string, excludeGlobs: readonly string[]): string[] {

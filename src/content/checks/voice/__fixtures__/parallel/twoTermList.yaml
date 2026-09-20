@@ -1,0 +1,6 @@
+# Planted fixture for noParallelDenyLists.test.ts (am-f6hr).
+# Exactly two vocabulary terms, the lower side of MIN_MATCHING_TERMS.
+# dangerousWords.yaml beside it carries three and is the upper side.
+mockery_terms:
+  - "foolish"
+  - "silly"
