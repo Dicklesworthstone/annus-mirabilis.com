@@ -71,3 +71,8 @@
     break-inside: avoid;
   }
 }
+
+.low-speed-table { overflow-x: auto; max-width: 100%; }
+.low-speed-table table { width: 100%; border-collapse: collapse; }
+.low-speed-table th, .low-speed-table td { text-align: left; padding: 0.4rem; border-bottom: 1px solid currentColor; }
+@media print { .low-speed-table { overflow: visible; } }

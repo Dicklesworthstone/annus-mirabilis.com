@@ -284,6 +284,7 @@ export function LinearProofExplorer({
         </button>
       </div>
       <p>
+        <a href="/papers/mass-energy/#me-low-speed-derivation">Continue through the checked low-speed limit →</a>{" "}
         <a href="/lab/me-02/#coefficient-equations">
           Continue to the low-speed coefficient laboratory →
         </a>{" "}

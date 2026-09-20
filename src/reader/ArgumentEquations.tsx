@@ -2,6 +2,7 @@ import { EquationScope } from "../equations/EquationScope.tsx";
 import { SemanticEquation } from "../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
 import massEnergy from "../generated/mass-energy-equations.json";
+import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 
 /** Server-composed, passage-local disclosure: the worked text is never gated by hydration. */
@@ -35,6 +36,7 @@ export function ArgumentEquations({
           </a>
         </p>
       </details>
+      {paperId === "mass-energy" && argumentId === "arg-me-small-speed" && <MassEnergyLowSpeed />}
       {paperId === "mass-energy" && argumentId === "arg-me-constant-premise" && (
         <MassEnergyDerivation />
       )}

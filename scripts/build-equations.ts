@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
 import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
+import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
+import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
 import { compileEquation } from "../src/equations/render.ts";
 import { loadReadingFiles } from "./build-content.ts";
 
@@ -14,6 +16,7 @@ for (const step of elimination.steps) {
   if (!result.foundations.some((f) => f.id === step.foundation))
     throw new Error(`Missing derivation foundation ${step.foundation}.`);
 }
+const lowSpeed = buildMassEnergyLowSpeed(massEnergyPaper.equations);
 const equations = result.papers.flatMap((p) => p.equations.map(compileEquation));
 const sourcePaths = [
   "src/equations/render.ts",
@@ -28,6 +31,9 @@ const sourcePaths = [
   "src/experiments/me02/definition.ts",
   "src/equations/navigation.ts",
   "src/equations/derivations/exactPolynomial.ts",
+  "src/equations/derivations/exactSeries.ts",
+  "src/equations/derivations/massEnergyLowSpeed.ts",
+  "src/equations/derivations/renderLowSpeed.ts",
   "src/equations/derivations/linearCertificate.ts",
   "src/equations/derivations/massEnergyElimination.ts",
   "src/content/dimensions/rational.ts",
@@ -86,6 +92,10 @@ await writeFile(
   "src/generated/mass-energy-elimination.json",
   JSON.stringify({ ...elimination, equations: proofEquations, sourceDigest }, null, 2) + "\n",
 );
+const lowSpeedView = renderLowSpeedProof(lowSpeed, equations);
+const lowSpeedDigest = `sha256:${createHash("sha256").update(JSON.stringify({ rendererDigest, lowSpeedView })).digest("hex")}`;
+await writeFile("src/generated/mass-energy-low-speed.json",
+  JSON.stringify({ ...lowSpeedView, sourceDigest: lowSpeedDigest }, null, 2) + "\n");
 console.log(
   JSON.stringify({ event: "equations-compiled", count: equations.length, rendererDigest }),
 );

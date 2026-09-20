@@ -45,6 +45,8 @@ jobs:
         run: bun test --isolate src/testing/mass-energy-equation-ui.test.tsx src/reader/faces/GlossFace.render.test.tsx src/reader/faces/GlossPair.render.test.tsx src/testing/gloss-reasoning-toggle.test.tsx
       - name: Exercise the checked mass-energy derivation
         run: bun test --isolate src/testing/mass-energy-elimination-ui.test.tsx
+      - name: Exercise the checked low-speed limit and physical-premise separation
+        run: bun test --isolate src/testing/mass-energy-low-speed-ui.test.tsx
       - name: Exercise the local video capture entrance
         run: bun test --isolate src/testing/kitchen-video-ui.test.tsx
       - name: Exercise combined camera and physical-input uncertainty
