@@ -280,13 +280,44 @@ export function parseMeasurements(text: string): ParsedMeasurement[] {
  * is not seen. That is why the staleness check below fails CLOSED - an element
  * this cannot find is reported as missing rather than assumed present.
  */
+/**
+ * A CSS-module reference names a class as surely as a string literal does.
+ *
+ * am-bc6s. The walker read only the string forms, so `className={styles.tableWrap}` yielded
+ * no element at all: `accessibleNamesForClass(src, "tableWrap")` returned [] and
+ * `countUnreachableScrollRegions` returned 0 for a file whose scroll region has no tab stop.
+ * Meanwhile deriveScrollClassesFromCss reads `.tableWrap { overflow-x: auto }` straight out of
+ * the module stylesheet, so the coverage half of this gate saw the class and the element half
+ * could not. Listing such a class in AUDITED_SCROLL_CLASSES would have been a vacuous audit -
+ * the counter cannot reach the element, so it reports 0 whatever the markup says.
+ *
+ * Only a brace expression that actually mentions `styles` is read, so an arbitrary call
+ * (`className={cx(a, b)}`) still yields nothing rather than contributing `cx` as a class name.
+ */
+const CSS_MODULE_CLASS_REFERENCE =
+  /\bstyles\s*(?:\.\s*([A-Za-z_$][\w$]*)|\[\s*["']([^"']+)["']\s*\])/g;
+
+export function classTokens(raw: string): string[] {
+  const normalised = raw.replace(
+    CSS_MODULE_CLASS_REFERENCE,
+    (_match, dotted?: string, bracketed?: string) => ` ${dotted ?? bracketed ?? ""} `,
+  );
+  return normalised
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter((token) => /^[A-Za-z_-][\w-]*$/.test(token));
+}
+
 function* elementsWithClasses(source: string): Generator<{ attrs: string; classes: string[] }> {
   for (const match of source.matchAll(/<([a-zA-Z0-9_-]+)\b([^>]*?)>/gs)) {
     const attrs = match[2] ?? "";
-    const classAttrMatch = attrs.match(/className\s*=\s*(?:\{`([^`]+)`\}|"([^"]+)"|'([^']+)')/s);
+    const classAttrMatch = attrs.match(
+      /className\s*=\s*(?:\{`([^`]+)`\}|"([^"]+)"|'([^']+)'|\{([^{}]*\bstyles\s*[.[][^{}]*)\})/s,
+    );
     if (!classAttrMatch) continue;
-    const classStr = classAttrMatch[1] ?? classAttrMatch[2] ?? classAttrMatch[3] ?? "";
-    yield { attrs, classes: classStr.split(/\s+/).filter(Boolean) };
+    const classStr =
+      classAttrMatch[1] ?? classAttrMatch[2] ?? classAttrMatch[3] ?? classAttrMatch[4] ?? "";
+    yield { attrs, classes: classTokens(classStr) };
   }
 }
 
@@ -363,6 +394,11 @@ export const AUDITED_SCROLL_CLASSES = [
   "show-the-code-scroll",
   "kernel-trace-wrap",
   "comparison-scroll",
+  // am-bc6s. The first CSS-module class to reach this list. It is a real audit and not a
+  // listing: classTokens above now reads `className={styles.tableWrap}`, so the counter
+  // reaches the element. Verified by watching this entry take the counter from 0 to 1 while
+  // the wrapper still had no tab stop, before the tab stop was added.
+  "tableWrap",
 ];
 
 /**

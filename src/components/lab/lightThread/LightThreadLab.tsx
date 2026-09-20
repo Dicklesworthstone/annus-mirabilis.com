@@ -40,7 +40,12 @@ function QuantityTable({ snapshot, ids, caption }: {
   caption: string;
 }) {
   return (
-    <div className={styles.tableWrap}>
+    <section
+      className={styles.tableWrap}
+      aria-label={caption}
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+      tabIndex={0}
+    >
       <table>
         <caption>{caption}</caption>
         <thead><tr><th scope="col">Quantity</th><th scope="col">Value</th><th scope="col">Unit</th></tr></thead>
@@ -52,7 +57,7 @@ function QuantityTable({ snapshot, ids, caption }: {
           </tr>
         ))}</tbody>
       </table>
-    </div>
+    </section>
   );
 }
 
