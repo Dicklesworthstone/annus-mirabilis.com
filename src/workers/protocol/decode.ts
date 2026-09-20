@@ -26,7 +26,6 @@ import {
   findUnknownKeys,
   HELLO_ALLOWED_KEYS,
   type HelloMessage,
-  isFiniteNumber,
   isPlainObject,
   OUTCOME_ALLOWED_KEYS,
   type OutcomeResponse,
@@ -194,18 +193,12 @@ export function decode(message: unknown, context: DecodeContext): DecodeResult {
       };
     }
 
-    const {
-      protocolVersion,
-      experimentId,
-      instanceId,
-      runId,
-      actionIndex,
-      revisions,
-      parameters,
-      seedPolicy,
-      operation,
-      workBudget,
-    } = message;
+    // Only the cross-cutting fields are read here. experimentId, revisions, operation and
+    // workBudget are validated by the per-instrument request tokens in bm01.ts, bm04.ts,
+    // bm05.ts and their siblings, which know which instrument id is legal and which
+    // revision keys exist; a generic decoder cannot. Destructuring them here read as
+    // validation that this layer does not perform.
+    const { protocolVersion, instanceId, runId, actionIndex, parameters, seedPolicy } = message;
 
     const expectedVersion = context.expectedProtocolVersion ?? PROTOCOL_VERSION;
     if (protocolVersion !== expectedVersion) {

@@ -10,7 +10,7 @@
  * - execution outcomes (protocol mismatch, budget exhausted, etc.)
  */
 
-import { type U64String, validateU64String } from "../../experiments/identity/u64.ts";
+import type { U64String } from "../../experiments/identity/u64.ts";
 import type { ExecutionOutcome } from "../../experiments/results/outcomes.ts";
 import type { RequestRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
