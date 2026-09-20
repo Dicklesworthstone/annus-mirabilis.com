@@ -10,6 +10,7 @@
  */
 
 import { spawnSync } from "node:child_process";
+import { checkOutFreshness } from "../src/testing/outFreshness.ts";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -117,6 +118,32 @@ export function runNodeOnlyTests(root: string = process.cwd()): number {
   const args = nodeOnlyTestArgs(bunfigText, root);
   const command = nodeOnlyTestCommand(args);
   console.log(`▶ ${command}`);
+
+  // am-6v4k. The node lane went red roughly hourly with 7 to 9 failures, always the same cause:
+  // out/ stale against HEAD. checkOutFreshness already diagnosed it correctly, but only from
+  // inside foundCalculus.e2e, foundCalculus.browser and accessibleNamesBrowser, so the answer
+  // arrived seven times, after each expensive browser or E2E test had paid to rediscover it.
+  // Asking once, before anything spawns, costs a stat and a git call.
+  //
+  // This lane deliberately does NOT rebuild. A test lane that silently mutates out/ hides the
+  // staleness it exists to expose, and makes every later result depend on whether it rebuilt
+  // first. An absent out/ is NOT a failure either: the tests that need it skip when it is
+  // missing, and failing here would break any clean checkout that has not built yet.
+  const freshness = checkOutFreshness("out", root);
+  if (freshness.present && !freshness.fresh) {
+    console.error(
+      [
+        "",
+        "✖ out/ is stale, run bun run build",
+        `  ${freshness.reason ?? "no reason recorded"}`,
+        "",
+        "  Refusing to start the node lane. Seven browser and E2E tests would each rediscover",
+        "  this one fact. This lane never rebuilds out/ for you, on purpose.",
+        "",
+      ].join("\n"),
+    );
+    return 1;
+  }
 
   const beforeSnapshot = snapshotGeneratedContent(root);
 
