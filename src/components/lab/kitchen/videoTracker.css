@@ -1,0 +1,12 @@
+.video-tracker { margin-block: 2rem; border-block: 1px solid currentColor; padding-block: 1rem; }
+.video-tracker fieldset { display: flex; flex-wrap: wrap; gap: .8rem; margin-block: 1rem; min-width: 0; }
+.video-tracker fieldset p { flex-basis: 100%; }
+.video-tracker label { display: grid; gap: .3rem; max-width: 100%; }
+.video-tracker input, .video-tracker select { max-width: 100%; }
+.video-decoder { display: block; width: 160px; max-width: 100%; margin-block: .5rem; }
+.video-frame-wrap { position: relative; max-width: 960px; }
+.video-frame-wrap canvas { display: block; width: 100%; height: auto; max-height: none; }
+.video-frame-wrap canvas[width="1"] { width: 1px; }
+.video-frame-wrap svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.video-observation-scroll { overflow-x: auto; }
+@media print { .video-tracker fieldset, .video-tracker button, .video-decoder { display: none; } }

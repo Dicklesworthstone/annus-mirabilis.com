@@ -40,7 +40,7 @@ export default function KitchenObservationPage() {
           experiment.
         </p>
         <p>
-          Local video annotation and automatic session saving are not included in this preview. A
+          Local video annotation is available above; automatic session saving is not. Browser-reported orientation and frame timing are not an independent camera calibration. A
           CSV export preserves the accepted observations for later import; an analysis export
           records the result and its assumptions.
         </p>

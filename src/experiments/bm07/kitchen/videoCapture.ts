@@ -83,6 +83,8 @@ export function appendVideoPoint(state: VideoCapture, frame: CapturedFrame, mark
     return captureRefusal("Choose a declared observation kind and loss or identity decision.", "kind");
   if (mark !== "particle" && (loss || identityDecision)) return captureRefusal("Loss and reacquisition decisions belong to particle observations only.", "kind");
   const kind = mark === "particle" || mark === "stationary" ? mark : "calibration";
+  if (kind === "particle" && !state.calibration.x && !state.calibration.y)
+    return captureRefusal("Calibrate at least one axis before starting a particle track.", "calibration");
   if (kind === "calibration" && state.points.some(p => p.kind === "particle"))
     return captureRefusal("Calibration is locked after tracking begins. Export this session and start a separate calibrated session rather than rescaling earlier evidence.", "calibration");
   if (!loss && (![x, y].every(Number.isFinite) || x < 0 || y < 0 || x > state.geometry.width || y > state.geometry.height))
@@ -90,7 +92,11 @@ export function appendVideoPoint(state: VideoCapture, frame: CapturedFrame, mark
   if (typeof objectId !== "string" || !objectId.trim() || objectId.length > 80 || /[\u0000-\u001f\u007f]/.test(objectId))
     return captureRefusal("Use a nonempty particle label of at most 80 characters with no control codes.", "objectId");
   const id = kind === "particle" ? objectId : kind === "stationary" ? "stationary-feature" : `mark-${mark}`;
-  const previous = state.points.findLast(p => p.kind === kind && p.objectId === id);
+  let previous: KitchenPoint | undefined;
+  for (let i = state.points.length - 1; i >= 0; i--) {
+    const point = state.points[i]!;
+    if (point.kind === kind && point.objectId === id) { previous = point; break; }
+  }
   if (previous && (frame.time < previous.time || (kind === "particle" && frame.time === previous.time)))
     return captureRefusal("Use a later frame for this particle. Repeated stationary-feature and calibration clicks may share one actual frame time.", "time");
   if ((previous?.status === "lost" && !loss) !== (identityDecision !== ""))

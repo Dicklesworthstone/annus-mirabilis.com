@@ -45,6 +45,8 @@ jobs:
         run: bun test --isolate src/testing/mass-energy-equation-ui.test.tsx src/reader/faces/GlossFace.render.test.tsx src/reader/faces/GlossPair.render.test.tsx src/testing/gloss-reasoning-toggle.test.tsx
       - name: Exercise the checked mass-energy derivation
         run: bun test --isolate src/testing/mass-energy-elimination-ui.test.tsx
+      - name: Exercise the local video capture entrance
+        run: bun test --isolate src/testing/kitchen-video-ui.test.tsx
       - run: bun run typecheck
       - name: Build the complete production preview
         shell: bash
@@ -58,6 +60,8 @@ jobs:
           name: laboratory-static-preview
           path: artifacts/review/site.tar
       - run: bunx playwright install --with-deps chromium
+      - name: Exercise local video annotation through the real decoder and inference worker
+        run: bun scripts/test-kitchen-video-browser.mjs
       - run: bun run test:browser
       - name: Upload browser evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

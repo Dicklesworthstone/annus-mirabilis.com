@@ -15,6 +15,7 @@ import {
   KitchenInputs,
   KitchenObservationTable,
 } from "./KitchenControls.tsx";
+import { VideoTracker } from "./VideoTracker.tsx";
 import { KitchenResults } from "./KitchenResults.tsx";
 
 export type KitchenPractice = Readonly<{ csv: string; sourceDigest: string }>;
@@ -40,7 +41,8 @@ export function KitchenLab({
     [paste, setPaste] = useState(""),
     [error, setError] = useState(""),
     [reading, setReading] = useState(false),
-    [confirmClear, setConfirmClear] = useState(false);
+    [confirmClear, setConfirmClear] = useState(false),
+    [captureEpoch, setCaptureEpoch] = useState(0);
   const fileInput = useRef<HTMLInputElement>(null),
     fileGeneration = useRef(0),
     downloads = useRef(new Set<string>());
@@ -134,6 +136,7 @@ export function KitchenLab({
   function clear() {
     stop();
     session.clear();
+    setCaptureEpoch(n => n + 1);
     setFile(null);
     if (fileInput.current) fileInput.current.value = "";
     setPaste("");
@@ -168,8 +171,8 @@ export function KitchenLab({
         sent to a server or placed in a share link.
       </p>
       <p className="fine">
-        CSV limit: 2 MiB and 20,000 rows. This version accepts already recorded coordinates, not
-        video files. Nothing is automatically saved: export observations before closing or reloading
+        CSV limit: 2 MiB and 20,000 rows. Capture coordinates from a local video below, or import
+        an existing observation file. Nothing is automatically saved: export observations before closing or reloading
         the page.
       </p>
       <noscript>
@@ -178,6 +181,7 @@ export function KitchenLab({
           remain available without it.
         </p>
       </noscript>
+      <VideoTracker key={captureEpoch} disabled={!ready || busy} onAnalyze={load} />
       <div className="kitchen-import">
         <div className="input-field">
           <label htmlFor={`${id}-file`}>Observation CSV</label>
@@ -274,7 +278,7 @@ export function KitchenLab({
           {confirmClear && (
             <div className="notice">
               <p>
-                Clear observations and drafts from this laboratory? This stops its worker.
+                Clear observations and drafts, including unsaved video annotations, from this laboratory? This stops its worker and releases its video.
                 Downloaded files and the other laboratory are not deleted.
               </p>
               <button type="button" onClick={clear}>
@@ -333,7 +337,7 @@ export function KitchenComparison({ practice }: { practice: KitchenPractice }) {
   const [second, setSecond] = useState(false);
   return (
     <>
-      <KitchenLab practice={practice} />
+      <div id="local-video"><KitchenLab practice={practice} /></div>
       <div className="comparison-toggle">
         <button type="button" className="secondary" onClick={() => setSecond(!second)}>
           {second
