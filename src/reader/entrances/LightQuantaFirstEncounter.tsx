@@ -28,7 +28,7 @@ function OutcomeTable({ example }: { example: TokenExample }) {
         </thead>
         <tbody>
           {example.arrangements.map((row, i) => (
-            <tr key={i}>
+            <tr key={`arrangement-${row.parts.join("-")}`}>
               <th scope="row">{i + 1}</th>
               <td>
                 {row.parts
@@ -193,8 +193,11 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
         For three or four tokens, try counting the arrangements before opening the table. No
         prediction is required.
       </p>
-      {TOKEN_WORKED_EXAMPLES.map((item, i) => (
-        <details key={i} data-token-worked>
+      {TOKEN_WORKED_EXAMPLES.map((item) => (
+        <details
+          key={`${item.setup.tokens}-${item.setup.parts}-${item.setup.locked ? "locked" : "free"}`}
+          data-token-worked
+        >
           <summary>
             {item.setup.tokens} {item.setup.locked ? "tokens kept together" : "independent tokens"}{" "}
             in {item.setup.parts} equal parts

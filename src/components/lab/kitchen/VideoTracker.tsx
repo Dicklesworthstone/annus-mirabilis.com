@@ -717,8 +717,8 @@ export function VideoTracker({
                 </tr>
               </thead>
               <tbody>
-                {capture.points.slice(-30).map((p, i) => (
-                  <tr key={counts - 30 + i}>
+                {capture.points.slice(-30).map((p) => (
+                  <tr key={`${p.kind}-${p.objectId}-${p.time}`}>
                     <td>
                       {p.kind} / {p.objectId}
                     </td>
