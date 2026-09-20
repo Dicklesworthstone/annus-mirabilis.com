@@ -39,7 +39,8 @@
       "!src/physics/reference/diffusion/walks.ts",
       "!src/physics/reference/philox.ts",
       "!src/physics/reference/special/erf.ts",
-      "!src/units/tolerance.ts"
+      "!src/units/tolerance.ts",
+      "!src/physics/reference/philox.vectors.json"
     ],
     "indentStyle": "space",
     "indentWidth": 2,
