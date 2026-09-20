@@ -4,6 +4,8 @@
 
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test, { describe } from "node:test";
 import {
   GeneratedSectionError,
@@ -12,7 +14,8 @@ import {
 } from "./writeGeneratedSection.ts";
 
 describe("writeGeneratedSection refusal throw sites (am-muyh)", () => {
-  const validTemplate = "Header\n<!-- generated:test-sec:start -->\nold content\n<!-- generated:test-sec:end -->\nFooter";
+  const validTemplate =
+    "Header\n<!-- generated:test-sec:start -->\nold content\n<!-- generated:test-sec:end -->\nFooter";
 
   test("refusal (writeGeneratedSection.ts:47): missing-start-marker rejects template missing start marker", () => {
     // Accept: valid start and end markers
@@ -21,7 +24,12 @@ describe("writeGeneratedSection refusal throw sites (am-muyh)", () => {
 
     // Reject: missing start marker
     assert.throws(
-      () => replaceGeneratedContent("Header\nold content\n<!-- generated:test-sec:end -->\nFooter", "test-sec", "new content"),
+      () =>
+        replaceGeneratedContent(
+          "Header\nold content\n<!-- generated:test-sec:end -->\nFooter",
+          "test-sec",
+          "new content",
+        ),
       (err: unknown) => {
         assert.ok(err instanceof GeneratedSectionError);
         assert.equal((err as GeneratedSectionError).code, "missing-start-marker");
@@ -36,7 +44,8 @@ describe("writeGeneratedSection refusal throw sites (am-muyh)", () => {
     assert.ok(accepted.updatedText.includes("new content"));
 
     // Reject: duplicate start marker
-    const duplicateStart = "<!-- generated:test-sec:start -->\n<!-- generated:test-sec:start -->\n<!-- generated:test-sec:end -->";
+    const duplicateStart =
+      "<!-- generated:test-sec:start -->\n<!-- generated:test-sec:start -->\n<!-- generated:test-sec:end -->";
     assert.throws(
       () => replaceGeneratedContent(duplicateStart, "test-sec", "new content"),
       (err: unknown) => {
@@ -70,7 +79,8 @@ describe("writeGeneratedSection refusal throw sites (am-muyh)", () => {
     assert.ok(accepted.updatedText.includes("new content"));
 
     // Reject: duplicate end marker
-    const duplicateEnd = "<!-- generated:test-sec:start -->\n<!-- generated:test-sec:end -->\n<!-- generated:test-sec:end -->";
+    const duplicateEnd =
+      "<!-- generated:test-sec:start -->\n<!-- generated:test-sec:end -->\n<!-- generated:test-sec:end -->";
     assert.throws(
       () => replaceGeneratedContent(duplicateEnd, "test-sec", "new content"),
       (err: unknown) => {
@@ -99,10 +109,17 @@ describe("writeGeneratedSection refusal throw sites (am-muyh)", () => {
   });
 
   test("refusal (writeGeneratedSection.ts:106): file-not-found rejects non-existent file path", () => {
-    // Accept: existing file path with section markers succeeds
-    const scratchDir = "/home/agent/.gemini/antigravity-cli/brain/29d4e82d-bbc6-4302-b8e7-83061e8e17fb/scratch";
-    const scratchFile = `${scratchDir}/test-writeGeneratedSectionSync.md`;
-    fs.mkdirSync(scratchDir, { recursive: true });
+    // Accept: existing file path with section markers succeeds.
+    //
+    // The temp directory comes from the OS, which every machine has. This line
+    // previously named an absolute path in a home directory: first
+    // /Users/jemanuel/..., which existed here and on no runner, and then
+    // /home/agent/... after am-yhus rewrote the username. The second form
+    // exists NOWHERE, including here, so the substitution did not fix the test
+    // - it broke it everywhere instead of only on CI, and this file was
+    // 5 pass 1 fail locally until this change.
+    const scratchDir = fs.mkdtempSync(join(tmpdir(), "am-write-generated-section-"));
+    const scratchFile = join(scratchDir, "test-writeGeneratedSectionSync.md");
     fs.writeFileSync(scratchFile, validTemplate, "utf8");
 
     const accepted = writeGeneratedSectionSync(scratchFile, "test-sec", "written content");
