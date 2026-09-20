@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   CATALOGUE_IDS,
   CATALOGUE_QUESTIONS,
@@ -10,14 +12,41 @@ import { assertOwnerBinding, MissingOwnerError, OWNER_BINDINGS } from "../experi
 import { REGISTRY, registryEntry, registryParityViolations } from "../experiments/registry.ts";
 
 describe("owners: every registered id names exactly one real binding", () => {
-  test("all 33 registered ids bind to a reference-evaluator naming their real session module", () => {
-    expect(Object.keys(OWNER_BINDINGS).length).toBe(33);
+  /**
+   * THE NAME CARRIES NO NUMBER, deliberately. It used to read "all 33 registered ids ..." with 33
+   * hardcoded in the assertion beside it, and registering light-thread made the tree 34: the test
+   * failed, and its NAME was a second place the number had to be corrected. A count in a test name
+   * is a fact about the tree stored where nothing checks it - had only the assertion been updated,
+   * the name would have gone on claiming 33 forever.
+   *
+   * The assertion is now the relation it always meant: the bound ids and the registered ids are the
+   * same set. That cannot drift when an instrument is added, and it says more than a count did -
+   * a count of 34 is equally satisfied by 34 bindings for 30 registered ids and four strays.
+   *
+   * The floors keep it from being vacuous: the set must be non-empty, and it must be a proper
+   * subset of the catalogue, so a registry that registered everything - or nothing - fails here
+   * rather than passing an equality between two empty sets. This is the same derive-do-not-hardcode
+   * move the MissingOwnerError test below already documents, applied to the count.
+   */
+  test("the ids with an owner binding are exactly the registered ids", () => {
+    const bound = new Set(Object.keys(OWNER_BINDINGS));
+    const registered = new Set<string>(REGISTERED_IDS);
+    expect(bound).toEqual(registered);
+    expect(registered.size).toBeGreaterThan(0);
+    expect(registered.size).toBeLessThan(CATALOGUE_IDS.length);
     for (const [id, binding] of Object.entries(OWNER_BINDINGS)) {
-      const directoryId = id.replace("-", "");
+      // `light-thread` -> `lightThread`. The old rule was id.replace("-", ""), which gives
+      // "lightthread" and matched nothing on disk; it had never been reached, because the
+      // hardcoded count above failed first and aborted the test before the loop. A count that
+      // fails early hides every assertion after it.
+      const directoryId = id.replace(/-([a-z0-9])/g, (_, c: string) => c.toUpperCase());
       expect(binding?.kind).toBe("reference-evaluator");
       if (binding?.kind === "reference-evaluator") {
         expect(binding.module).toBe(`src/experiments/${directoryId}/session.ts`);
-        expect(binding.function.toLowerCase()).toContain(directoryId);
+        expect(binding.function.toLowerCase()).toContain(directoryId.toLowerCase());
+        // "naming their real session module" is a claim about the filesystem, so it is checked
+        // against the filesystem rather than against a second copy of the naming rule.
+        expect(existsSync(resolve(process.cwd(), binding.module))).toBe(true);
       }
     }
   });
@@ -126,7 +155,10 @@ describe("resolveExperimentDispatch: the pure resolution contract, no React requ
     if (withQuestion.kind === "in-preparation") expect(withQuestion.question).toBeUndefined();
   });
 
-  test("all 33 registered core ids resolve to 'registered' with their real owner bindings", () => {
+  test("every registered core id resolves to 'registered' with its real owner binding", () => {
+    // Same reason as above: the loop already covers whatever REGISTERED_IDS holds, so a count in
+    // the name only creates a second place for the number to be wrong.
+    expect(REGISTERED_IDS.length).toBeGreaterThan(0);
     for (const id of REGISTERED_IDS) {
       const state = resolveExperimentDispatch(id);
       expect(state.kind).toBe("registered");
