@@ -181,6 +181,10 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
         rule: "noApproximativeNumericConstant",
         mustContain: "0.70711",
       },
+      "src/reader/entrances/LightQuantaFirstEncounter.tsx": {
+        rule: "noArrayIndexKey",
+        mustContain: "<g key={token}>",
+      },
     };
     const isTestScope = (glob: string) =>
       glob.includes(".test.") || glob.includes("__fixtures__") || glob.startsWith("src/testing/");

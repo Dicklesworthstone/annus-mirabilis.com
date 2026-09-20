@@ -92,6 +92,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["src/reader/entrances/LightQuantaFirstEncounter.tsx"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noArrayIndexKey": "off"
+          }
+        }
+      }
     }
   ]
 }

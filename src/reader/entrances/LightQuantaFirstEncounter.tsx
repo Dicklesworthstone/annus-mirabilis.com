@@ -144,11 +144,12 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
             </g>
           ))}
           {/*
-            A token has no identity beyond its position in the arrangement. A
-            composite key naming the position was tried and the rule still
-            flagged it, so the plain ordinal stays rather than leaving a longer
-            key that buys nothing. The list is a static diagram of one
-            arrangement and is never reordered.
+            The index is this token's identity, not a stand-in for one: the
+            circle is labeled `token + 1`, the aria-label calls it "Token n",
+            and the caption says the labels are what distinguish tokens. A
+            composite key would dress the same ordinal up as something else.
+            noArrayIndexKey is refused for this file in biome.json, and
+            formatterExclusions.test.ts fails if this site stops existing.
           */}
           {row.parts.map((part, token) => (
             <g key={token}>
