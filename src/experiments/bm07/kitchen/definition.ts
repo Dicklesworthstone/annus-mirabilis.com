@@ -60,3 +60,18 @@ export type KitchenAnalysis = Readonly<{
   numberMeaning: NumberMeaning | "unavailable";
   combinedIntervalReason: string;
 }>;
+
+/** Editorial acquisition budgets, not statements about Brownian physics.
+ * Browsers do not expose how many frames an internal decoder visits on a seek.
+ * frameReads bounds our requested acquisitions; internal decoding is not claimed bounded.
+ */
+export const KITCHEN_VIDEO_LIMITS = Object.freeze({
+  fileBytes: 256 * 1024 * 1024,
+  durationSeconds: 600,
+  sourceEdge: 4096,
+  canvasEdge: 1920,
+  frameReads: 2000,
+  warningFraction: 0.8,
+  stepMilliseconds: 2000,
+});
+export type KitchenVideoLimits = typeof KITCHEN_VIDEO_LIMITS;
