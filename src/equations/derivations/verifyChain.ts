@@ -77,6 +77,48 @@ export function hasPaperSegment(id: string, marker: "me" | "sr"): boolean {
   return marker === "sr" && spelled.some((word) => segments.includes(word));
 }
 
+/**
+ * am-qiv8. AGENTS.md line 231 forbids deriving mass-energy equivalence from a body-energy formula
+ * that already assumes it. This used to enforce that by matching five SPELLINGS of mc²: "mc2",
+ * "mc²", "γmc²", "gamma mc", "gammamc". So `E_0 = M c^2`, written in ordinary notation with a
+ * space and a caret, matched none of them and passed. So did m*c^2, c^2 M, and \gamma M c^2.
+ * The check that guards the project's central circularity failed open on a space.
+ *
+ * Adding spellings cannot fix that, for the same reason guessing a reviewer's name from the
+ * letters cannot: the space of ways to write a product is not enumerable. This normalises the
+ * notation and then compares STRUCTURE - is the right-hand side a product whose factors are a
+ * mass and c squared, optionally with a Lorentz factor - which is the claim AGENTS.md actually
+ * prohibits.
+ */
+export function citesForbiddenBodyEnergy(citedEquality: string): boolean {
+  const normalised = citedEquality
+    .toLowerCase()
+    .replace(/\\left|\\right|\\!|\\,|\\;/g, "")
+    .replace(/\\gamma/g, "γ")
+    .replace(/\\cdot|\\times/g, "*")
+    .replace(/²/g, "^2")
+    .replace(/[{}]/g, "")
+    .replace(/\s+/g, "");
+
+  const sides = normalised.split("=");
+  if (sides.length < 2) return false;
+
+  // The left of the equality must name an energy. Without this a mass definition such as
+  // M = E_0/c^2, which is the legitimate direction, would be caught by the factor test below.
+  const left = sides[0] ?? "";
+  if (!/e0|e_0|\be\b|energy/.test(left) && !left.endsWith("e")) return false;
+
+  for (const side of sides.slice(1)) {
+    // Take the leading run of factor tokens, so trailing prose ("… at start") does not defeat it.
+    const run = side.match(/^(?:γ|\*|m|c\^2)+/)?.[0];
+    if (!run) continue;
+    const hasMass = /m/.test(run);
+    const hasCSquared = run.includes("c^2");
+    if (hasMass && hasCSquared) return true;
+  }
+  return false;
+}
+
 export function verifyChain(
   chain: DerivationChain,
   options: VerifyChainOptions = {},
@@ -209,15 +251,7 @@ export function verifyChain(
         }
       }
       if (step.rule.params && typeof step.rule.params.citedEquality === "string") {
-        const eqLower = step.rule.params.citedEquality.toLowerCase();
-        if (
-          (eqLower.includes("e0") || eqLower.includes("e =") || eqLower.includes("energy")) &&
-          (eqLower.includes("mc2") ||
-            eqLower.includes("mc²") ||
-            eqLower.includes("γmc²") ||
-            eqLower.includes("gamma mc") ||
-            eqLower.includes("gammamc"))
-        ) {
+        if (citesForbiddenBodyEnergy(step.rule.params.citedEquality)) {
           errors.push(
             `mass-energy derivation step "${step.id}" initializes body energy with Mc² or γMc² via equality "${step.rule.params.citedEquality}"; rest energy must remain symbolic or arbitrary.`,
           );

@@ -15,7 +15,7 @@ import {
   fixtureEntryAssumptionCrossReferenceTarget,
   fixtureStepCrossReferenceTarget,
 } from "../../equations/derivations/fixtures.ts";
-import { verifyChain } from "../../equations/derivations/verifyChain.ts";
+import { citesForbiddenBodyEnergy, verifyChain } from "../../equations/derivations/verifyChain.ts";
 
 test("adversarial.test: integration without constant or boundary condition fails", () => {
   const report = verifyChain(adversarialIntegrationNoConstantOrBc);
@@ -101,4 +101,38 @@ test("adversarial.test: entry assumption citing chain.target with edgeType 'cros
   const report = verifyChain(fixtureEntryAssumptionCrossReferenceTarget);
   assert.equal(report.passed, true);
   assert.equal(report.errors.length, 0);
+});
+
+// am-qiv8. The guard used to match five spellings of mc², so `E_0 = M c^2` in ordinary notation
+// passed the check that exists to stop the derivation assuming what it proves. These two lock in
+// both halves: the ordinary spelling is refused, and a genuinely symbolic rest energy is not.
+test("adversarial.test: E_0 = M c^2 in ordinary notation is refused, not only the mc² spelling", () => {
+  for (const spelling of [
+    "Assume E_0 = M c^2 at start",
+    "E0 = m*c^2",
+    "E_0 = c^2 M",
+    "E_0 = \\gamma M c^2",
+    "E_0 = M \\cdot c^{2}",
+  ]) {
+    assert.equal(
+      citesForbiddenBodyEnergy(spelling),
+      true,
+      `"${spelling}" initializes body energy with a mass times c squared and must be refused`,
+    );
+  }
+});
+
+test("adversarial.test: a symbolic rest energy and the mass definition still pass", () => {
+  for (const legitimate of [
+    "E_0 - E_1 = L(1/sqrt(1-v^2/c^2) - 1)",
+    "M = E_0/c^2",
+    "E_1 = E_0 - L",
+    "K_0 - K_1 = L",
+  ]) {
+    assert.equal(
+      citesForbiddenBodyEnergy(legitimate),
+      false,
+      `"${legitimate}" does not assume mass-energy equivalence and must not be refused`,
+    );
+  }
 });
