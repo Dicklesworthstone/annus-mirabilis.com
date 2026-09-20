@@ -44,10 +44,22 @@ export interface FileRefusalAnalysis {
   readonly untestedBreakdown: readonly RefusalCodeBreakdown[];
 }
 
+export interface RootScanTally {
+  readonly files: number;
+  readonly sites: number;
+  readonly untested: number;
+}
+
 export interface FullRefusalScanResult {
   readonly analyses: Map<string, FileRefusalAnalysis>;
   readonly totalUntested: number;
   readonly totalSites: number;
+  /**
+   * One entry per declared scan root, present even when the root contributes
+   * nothing. A root that appears only when it has sites is a root whose silence
+   * cannot be told from its absence, which is the defect am-kfkw names.
+   */
+  readonly byRoot: Map<string, RootScanTally>;
 }
 
 const KEBAB_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)+$/;
@@ -61,16 +73,40 @@ export function isRefusalCode(candidate: string): boolean {
 }
 
 /**
+ * Roots the coded scan reads.
+ *
+ * `src` alone was the original scope, which left every refusal under `scripts/`
+ * absent from the analysis rather than measured as zero. An absent class is the
+ * defect am-kfkw exists to name, so the roots are a declared constant and the
+ * ratchet reports each one even when it contributes nothing.
+ */
+export const CODED_SCAN_ROOTS = ["src", "scripts"] as const;
+
+export interface SourceFileScanOptions {
+  /**
+   * Whether to descend into `testing` directories.
+   *
+   * The original walk skipped them, on the reasoning that test infrastructure is
+   * not product code. But a refusal thrown by a harness is still a refusal that
+   * no test exercises, and skipping the directory made that population invisible
+   * rather than small. Files whose NAME marks them as tests or fixtures stay
+   * excluded either way: those are the tests, not the things under test.
+   */
+  readonly includeTestingDirs?: boolean;
+}
+
+/**
  * Recursively locates non-test TypeScript source files under dir.
  */
-export function findSourceFiles(dir: string): string[] {
+export function findSourceFiles(dir: string, options: SourceFileScanOptions = {}): string[] {
   const out: string[] = [];
   if (!existsSync(dir)) return out;
+  const includeTesting = options.includeTestingDirs === true;
 
   function walk(d: string): void {
     for (const entry of readdirSync(d)) {
-      if (entry === "node_modules" || entry === ".next" || entry === ".git" || entry === "testing")
-        continue;
+      if (entry === "node_modules" || entry === ".next" || entry === ".git") continue;
+      if (!includeTesting && entry === "testing") continue;
       const full = join(d, entry);
       const stat = statSync(full);
       if (stat.isDirectory()) {
@@ -80,7 +116,7 @@ export function findSourceFiles(dir: string): string[] {
         !entry.includes(".test.") &&
         !entry.includes(".cases.") &&
         !entry.includes(".fixture.") &&
-        !full.includes("/testing/")
+        (includeTesting || !full.includes("/testing/"))
       ) {
         out.push(full);
       }
@@ -214,19 +250,28 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
  * Runs full repository analysis comparing detected refusal throw sites against test suites.
  */
 export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult {
-  const srcFiles = findSourceFiles(join(rootDir, "src"));
   const testFiles = findTestFiles([join(rootDir, "src"), join(rootDir, "scripts")]);
 
-  // 1. Scan all refusal throw sites per file
+  // 1. Scan all refusal throw sites per file, tallying each declared root
+  // separately so none of them can go quiet.
   const sitesByFile = new Map<string, RefusalThrowSite[]>();
+  const rootTallies = new Map<string, { files: number; sites: number; untested: number }>();
+  const rootOf = new Map<string, string>();
   let totalSites = 0;
-  for (const sf of srcFiles) {
-    const rel = relative(rootDir, sf);
-    const content = readFileSync(sf, "utf8");
-    const sites = scanRefusalThrowSites(content, rel);
-    if (sites.length > 0) {
-      sitesByFile.set(rel, sites);
-      totalSites += sites.length;
+  for (const root of CODED_SCAN_ROOTS) {
+    const tally = { files: 0, sites: 0, untested: 0 };
+    rootTallies.set(root, tally);
+    for (const sf of findSourceFiles(join(rootDir, root), { includeTestingDirs: true })) {
+      const rel = relative(rootDir, sf);
+      const content = readFileSync(sf, "utf8");
+      const sites = scanRefusalThrowSites(content, rel);
+      tally.files += 1;
+      if (sites.length > 0) {
+        sitesByFile.set(rel, sites);
+        rootOf.set(rel, root);
+        tally.sites += sites.length;
+        totalSites += sites.length;
+      }
     }
   }
 
@@ -387,9 +432,11 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
       untestedBreakdown: breakdown,
     });
     totalUntested += fileUntested;
+    const tally = rootTallies.get(rootOf.get(file) ?? "");
+    if (tally) tally.untested += fileUntested;
   }
 
-  return { analyses, totalUntested, totalSites };
+  return { analyses, totalUntested, totalSites, byRoot: rootTallies };
 }
 
 /* ------------------------------------------------------------------------- *

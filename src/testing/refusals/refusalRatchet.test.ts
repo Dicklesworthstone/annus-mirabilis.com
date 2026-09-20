@@ -5,6 +5,8 @@ import { describe, test } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   analyzeUntestedRefusals,
+  CODED_SCAN_ROOTS,
+  findSourceFiles,
   type RefusalCodeBreakdown,
   scanRefusalThrowSites,
 } from "./refusalScanner.ts";
@@ -86,7 +88,17 @@ describe("untested refusal throw site ratchet (am-muyh)", () => {
   test("no file exceeds its recorded baseline and no baseline is slack (enforced tightening pawl)", () => {
     const baselineRaw = JSON.parse(readFileSync(BASELINE_PATH, "utf8")) as Record<string, number>;
     const baseline = new Map<string, number>(Object.entries(baselineRaw));
-    const { analyses, totalUntested } = analyzeUntestedRefusals(ROOT);
+    const { analyses, totalUntested, byRoot } = analyzeUntestedRefusals(ROOT);
+
+    // Printed every run, every root, whether or not it carries debt. Until this
+    // was widened the scan read `src` alone, so `scripts/` was ABSENT from the
+    // analysis rather than measured as zero, and nothing said so. A class that
+    // vanishes from a report is worse than one reported as zero.
+    console.log(
+      `[refusal census] ${[...byRoot]
+        .map(([root, t]) => `${root}: ${t.sites} coded in ${t.files} files, ${t.untested} untested`)
+        .join(" | ")}`,
+    );
 
     const allRegressions: string[] = [];
     const allSlack: string[] = [];
@@ -251,5 +263,54 @@ export function check(x: number) {
     assert.equal(result.slack.length, 1);
     assert.ok(result.slack[0]?.includes("below baseline 20"));
     assert.ok(result.replacementUpdates[0]?.includes('"src/content/ledger/validateLedger.ts": 16'));
+  });
+
+  // The pawl on the SCOPE, not on the counts. Every gate here measures what the
+  // scanner is pointed at, so narrowing where it points silently empties the
+  // gate without failing anything - which is exactly how `scripts/` stayed
+  // invisible. These assertions turn a narrowing red.
+  test("every declared scan root is walked and reported, so a narrowed scope fails instead of going quiet", () => {
+    const declared = CODED_SCAN_ROOTS as readonly string[];
+    assert.ok(declared.includes("src"), "src must remain a declared scan root");
+    assert.ok(
+      declared.includes("scripts"),
+      "scripts must remain a declared scan root: its refusals were absent from this gate, not clean",
+    );
+
+    // Walking, not site-finding: a root with no refusal today must still be
+    // walked, or its silence and its absence become the same reading again.
+    for (const root of declared) {
+      const walked = findSourceFiles(join(ROOT, root), { includeTestingDirs: true });
+      assert.ok(walked.length > 0, `declared scan root "${root}" walked no source files`);
+    }
+
+    // Descending into `testing` directories is part of the scope. The original
+    // walk skipped them by name, so a harness refusal that no test exercised was
+    // unreachable by this gate.
+    const withTesting = findSourceFiles(join(ROOT, "src"), { includeTestingDirs: true });
+    const withoutTesting = findSourceFiles(join(ROOT, "src"));
+    assert.ok(
+      withTesting.length > withoutTesting.length,
+      "including testing directories must reach files the default walk skips",
+    );
+
+    // And the report carries one row per declared root, present even when empty.
+    // The file counts are compared against the walk rather than merely checked
+    // for being positive: asserting the WALK reaches testing/ says nothing about
+    // whether the ANALYSIS asked it to. A plant that left findSourceFiles intact
+    // and dropped the flag at the analyzer's call site passed the earlier
+    // version of this test, and only the slack-baseline pawl caught it.
+    const { byRoot } = analyzeUntestedRefusals(ROOT);
+    for (const root of declared) {
+      const tally = byRoot.get(root);
+      assert.ok(tally, `the census must carry a row for declared root "${root}"`);
+      assert.ok(tally.files > 0, `the census row for "${root}" counted no files`);
+      assert.equal(
+        tally.files,
+        findSourceFiles(join(ROOT, root), { includeTestingDirs: true }).length,
+        `the analysis of "${root}" read a different file set than the declared walk`,
+      );
+    }
+    assert.equal(byRoot.size, declared.length);
   });
 });
