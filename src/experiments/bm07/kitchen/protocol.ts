@@ -283,7 +283,9 @@ export function decodeKitchenResponse(
       output.unit !== c.unit ||
       output.semanticKind !== c.semanticKind
     )
-      throw new TypeError("Mismatched observation quantity.");
+      throw new TypeError("Mismatched observation quantity.", {
+        cause: { code: "mismatched-observation-quantity" },
+      });
     if (output.status !== "value") continue;
     const length = ["pairs", "pairTimes"].includes(output.quantityId)
       ? 2 * a.counts.retainedPairs
@@ -295,13 +297,17 @@ export function decodeKitchenResponse(
         ? typeof output.value !== "number"
         : !(output.value instanceof Float64Array) || output.value.length !== length
     )
-      throw new TypeError("Malformed observation buffer.");
+      throw new TypeError("Malformed observation buffer.", {
+        cause: { code: "malformed-observation-buffer" },
+      });
     if (
       (output.quantityId === "pairCount" && output.value !== a.counts.retainedPairs) ||
       (output.quantityId === "pairDegrees" &&
         output.value !== Math.max(0, a.counts.retainedPairs - 1))
     )
-      throw new TypeError("Wrong pair degrees of freedom.");
+      throw new TypeError("Wrong pair degrees of freedom.", {
+        cause: { code: "wrong-pair-degrees-of-freedom" },
+      });
     if (["diffusionInterval", "molecularInterval", "molecularInputRange", "combinedMolecularInterval", "combinedSamplingInterval"].includes(output.quantityId)) {
       const b = output.value as Float64Array;
       const lower = b[0];
@@ -313,25 +319,33 @@ export function decodeKitchenResponse(
         lower < 0 ||
         lower > upper
       )
-        throw new TypeError("Inadmissible confidence set.");
+        throw new TypeError("Inadmissible confidence set.", {
+          cause: { code: "inadmissible-confidence-set" },
+        });
     }
     if (
       ["molecularNumber", "molecularInterval", "molecularInputRange", "combinedMolecularInterval"].includes(output.quantityId) &&
       document.metadata.radius_provenance !== "independent"
     )
-      throw new TypeError("Circular or undeclared radius.");
+      throw new TypeError("Circular or undeclared radius.", {
+        cause: { code: "circular-or-undeclared-radius" },
+      });
   }
   if (u.state === "combined") {
     const camera = outputs.find(o => o.quantityId === "combinedSamplingInterval");
     if (camera?.status !== "value" || !(camera.value instanceof Float64Array) || !(camera.value[0]! > 0))
-      throw new TypeError("A zero-containing diffusion set has no finite upper molecular-number bound.");
+      throw new TypeError("A zero-containing diffusion set has no finite upper molecular-number bound.", {
+        cause: { code: "zero-containing-diffusion-set" },
+      });
   }
   const hasValue = (id: string) => outputs.some(o => o.quantityId === id && o.status === "value");
   if (hasValue("combinedMolecularInterval") !== (u.state === "combined") ||
       hasValue("molecularInputRange") !== (u.state !== "unavailable") ||
       (hasValue("combinedSamplingInterval") && u.cameraCoverage === null) ||
       (u.state === "combined" && (!hasValue("combinedSamplingInterval") || Object.keys(a.lostPairs).length > 0)))
-    throw new TypeError("Uncertainty results and coverage report disagree.");
+    throw new TypeError("Uncertainty results and coverage report disagree.", {
+      cause: { code: "uncertainty-coverage-disagreement" },
+    });
   return {
     message: {
       ...input,
