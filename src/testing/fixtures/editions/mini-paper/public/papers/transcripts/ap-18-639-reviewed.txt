@@ -2,9 +2,7 @@
 [[ANNALEN-PAGE 639]]
 [[ARTICLE-NUMBER 13.]] [[TITLE]]Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?[[/TITLE]] [[AUTHOR]]von A. Einstein[[/AUTHOR]]
 
-[[HEADING s1]]§ 1. Einleitung[[FN-MARK 1)]]
-
-[[FN 1)]] Vgl. Ann. d. Phys. 17. p. 891. 1905.
+[[HEADING s1]]§ 1. Einleitung
 
 [[DATELINE]]Bern, den 27. September 1905.[[DATELINE]]
 [[ACK]]Herrn M. Besso sei für seine Ratschläge gedankt.[[ACK]]

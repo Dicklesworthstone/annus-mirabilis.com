@@ -1,0 +1,9 @@
+# Mini-paper fixture id snapshot (am-edn-alignment-tooling-do1 Unit 1)
+# Block-level units only; no paragraph sentences, so nothing here anticipates am-xz2d.
+# Unit ids in printed order
+masthead-title
+masthead-author
+s1
+closing-dateline
+closing-ack
+closing-received

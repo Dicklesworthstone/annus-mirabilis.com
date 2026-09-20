@@ -1,0 +1,7 @@
+# Mini-paper fixture alias file (am-edn-alignment-tooling-do1 Unit 1).
+# Empty by construction: this corpus has never had an id retired, so check 6 exercises the
+# no-alias path. A retirement fixture belongs with the mutation fixtures, not here.
+paper: mass-energy
+idsFrozenAt: "2026-09-20T00:00:00Z"
+frozenBy: am-edn-alignment-tooling-do1
+aliases: []

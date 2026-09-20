@@ -1,0 +1,79 @@
+# Mini-paper fixture manifest (am-edn-alignment-tooling-do1 Unit 1).
+#
+# BLOCK-LEVEL UNITS ONLY, deliberately. Requirement A of the bead makes masthead, section
+# headings, part headings, footnotes and closings align at block level, and says a gloss
+# unit may address any alignable unit, "not only a paragraph sentence". So this corpus
+# exercises the fifteen checks without a single paragraph sentence in it, and therefore
+# without anticipating the am-xz2d sentence-unit ruling in any direction.
+#
+# NO FOOTNOTE, AND THAT IS A NAMED BLOCKER RATHER THAN A CHOICE. The Test Plan asks for a
+# gloss unit on a footnote, and a footnote cannot be put here without taking a position on
+# am-xz2d. Measured: validateLedger raises `fn-text-orphan` for a `[[FN 1)]]` whose
+# `[[FN-MARK 1)]]` sits on a heading, and does not raise it when the same mark sits in a
+# paragraph - so a footnote mark is only recognised inside paragraph text. A paragraph
+# brings `s<n>-p<m>-s<k>` sentence units with it, which is exactly the decision am-xz2d
+# holds open. The manifest side has an escape (`unmarked: true` with a reason); the ledger
+# side has none. Reported rather than worked around.
+paper: mass-energy
+document: ap-18-639
+figures: none
+status: in-preparation
+scope: full-document
+pageCount: 1
+pageRange: [639, 639]
+idsFrozenAt: "2026-09-20T00:00:00Z"
+frozenBy: am-edn-alignment-tooling-do1
+units:
+  - id: masthead-title
+    kind: masthead-title
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: masthead-title
+      notes:
+        - "Article title as printed"
+
+  - id: masthead-author
+    kind: masthead-author
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: masthead-author
+      notes:
+        - "Author line as printed"
+
+  - id: s1
+    kind: heading
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: s1
+      notes:
+        - "Numbered section heading; s0 is the unnumbered introduction and has no heading block"
+
+  - id: closing-dateline
+    kind: closing
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: closing-dateline
+      notes:
+        - "Date line as printed"
+
+  - id: closing-ack
+    kind: closing
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: closing-ack
+      notes:
+        - "Acknowledgment as printed"
+
+  - id: closing-received
+    kind: closing
+    locators:
+      - page: 639
+    destination:
+      editionBlockId: closing-received
+      notes:
+        - "Journal receipt line as printed"
