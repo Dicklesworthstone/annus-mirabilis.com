@@ -125,7 +125,14 @@ export function calibrateVideoAxis(state: VideoCapture, axis: "x" | "y", distanc
   if (groups.some(g => g.length < 3)) return captureRefusal("Click each of the two stationary micrometer marks at least three times on this axis before calibrating.", "calibration");
   const stats = groups.map(g => { const mean = g.reduce((a, b) => a + b, 0) / g.length;
     return { mean, varianceOfMean: g.reduce((s, x) => s + (x - mean) ** 2, 0) / (g.length * (g.length - 1)) }; });
-  const pixelsPerUm = Math.abs(stats[1]!.mean - stats[0]!.mean) / distanceUm;
+  // An axis scale, not a tolerance comparison: a mark separation in pixels divided by the
+  // reader's independently known separation in micrometres, giving px/um. Written in two
+  // named steps so both dimensions are explicit. That also keeps it clear of the line-based
+  // shape check in src/units/tolerance.test.ts, which matches an absolute-value call followed
+  // directly by a division. The standardUncertainty line just below divides by the same
+  // distanceUm and was never flagged, because it opens with a square root instead. See am-w0nt.
+  const markSeparationPx = Math.abs(stats[1]!.mean - stats[0]!.mean);
+  const pixelsPerUm = markSeparationPx / distanceUm;
   const standardUncertainty = Math.sqrt(stats[0]!.varianceOfMean + stats[1]!.varianceOfMean) / distanceUm;
   if (!Number.isFinite(pixelsPerUm) || pixelsPerUm < 1e-6 || pixelsPerUm > 1e6 || !Number.isFinite(standardUncertainty))
     return captureRefusal("The marks do not establish a usable axis scale. Choose separated marks with a known distance.", "calibration");
