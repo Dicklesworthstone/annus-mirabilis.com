@@ -1,5 +1,5 @@
 import { exportKitchenCsv, parseKitchenCsv } from "./csv.ts";
-import type { KitchenDocument, KitchenPoint } from "./schema.ts";
+import { KITCHEN_UNCERTAINTY_KEYS, type KitchenDocument, type KitchenPoint } from "./schema.ts";
 
 /** An exclusion is a reversible label, never deletion, interpolation or a coordinate edit. */
 export function setKitchenExclusion(
@@ -31,6 +31,7 @@ export function setKitchenExclusion(
 }
 
 export const KITCHEN_EDITABLE_INPUTS = Object.freeze([
+  ...KITCHEN_UNCERTAINTY_KEYS,
   "pixels_per_um_x",
   "pixels_per_um_y",
   "pixels_per_um_x_uncertainty",
