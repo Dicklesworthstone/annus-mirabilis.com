@@ -17,16 +17,24 @@
  *     reason, and nobody would notice;
  *   - a pinned path missing from the list is unprotected, which is the defect that put
  *     the pins red in the first place.
+ * WHICH LANE THIS RUNS IN. The override pawl below spawns biome to measure whether a
+ * suppressed rule still fires, and a subprocess-spawning test cannot run under `bun test`
+ * on this host. The file is therefore listed in bunfig.toml pathIgnorePatterns and runs
+ * under `bun run test:node`, which is why it uses node:test and assert rather than
+ * bun:test and expect. Run it alone with:
+ *   node --experimental-strip-types --test src/content/kernel/formatterExclusions.test.ts
+ *
  * The truth is computed from pins.json and its real import graph, never from the list
  * being checked.
  *
  * Bead: am-inst-show-the-code-4brv.
  */
 
-import { describe, expect, test } from "bun:test";
+import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, test } from "node:test";
 import { evaluatorSources } from "./sourceDigest.ts";
 
 const ROOT = process.cwd();
@@ -108,13 +116,21 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
     const missing = mustNotBeFormatted().filter((f) => !formatterExclusions().includes(f));
     // A pinned file the formatter may still touch is one repo-wide format away from
     // drifting its pin, which is exactly how d373e025 broke three of them.
-    expect(missing).toEqual([]);
+    assert.deepEqual(
+      missing,
+      [],
+      `Pinned files the formatter may still touch: ${missing.join(", ")}`,
+    );
   });
 
   test("a stale exclusion fails: nothing is excluded that no pin depends on", () => {
     const protectedFiles = mustNotBeFormatted();
     const stale = formatterExclusions().filter((file) => !protectedFiles.includes(file));
-    expect(stale).toEqual([]);
+    assert.deepEqual(
+      stale,
+      [],
+      `Excluded from formatting but no pin depends on them: ${stale.join(", ")}`,
+    );
   });
 
   test("the exclusion is formatter-only, so lint still reaches pinned code", () => {
@@ -129,7 +145,10 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
         .filter((entry) => entry.startsWith("!"))
         .map((entry) => entry.slice(1));
       for (const file of pinned) {
-        expect(excluded).not.toContain(file);
+        assert.ok(
+          !excluded.includes(file),
+          `${file} is a pinned path but is excluded from lint scope, not only from formatting.`,
+        );
       }
     }
   });
@@ -138,10 +157,19 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
     const addressed = contentAddressedData();
     // If this ever reaches zero the derivation has stopped working, and the assertions
     // above would pass over an empty set without noticing.
-    expect(addressed.length).toBeGreaterThan(0);
-    expect(addressed).toContain("src/physics/reference/philox.vectors.json");
+    assert.ok(
+      addressed.length > 0,
+      "No content-addressed JSON found: the derivation has stopped working.",
+    );
+    assert.ok(
+      addressed.includes("src/physics/reference/philox.vectors.json"),
+      "philox.vectors.json is no longer detected as content-addressed.",
+    );
     for (const file of addressed) {
-      expect(formatterExclusions()).toContain(file);
+      assert.ok(
+        formatterExclusions().includes(file),
+        `${file} hashes its own text but the formatter may still reformat it.`,
+      );
     }
   });
 
@@ -166,7 +194,10 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
       overrides?: { includes?: string[]; linter?: { rules?: Record<string, unknown> } }[];
     };
     const lintOverrides = (biome.overrides ?? []).filter((o) => o.linter?.rules);
-    expect(lintOverrides.length).toBeGreaterThan(0);
+    assert.ok(
+      lintOverrides.length > 0,
+      "No lint overrides found, so this pawl would pass vacuously.",
+    );
 
     // What each override is justified by. Adding an override means adding its evidence
     // here, which is the point: an override with no recorded reason fails this test.
@@ -221,19 +252,31 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
       for (const file of override.includes ?? []) {
         if (file.includes("*")) {
           const scope = classEvidence[file];
-          expect(
-            scope,
+          assert.ok(
+            scope !== undefined,
             `Class-wide lint override is not on the allowlist, so it may reach product code: ${file}`,
-          ).toBeDefined();
+          );
           if (!scope) continue;
-          expect(JSON.stringify(override.linter?.rules)).toContain(scope.rule);
+          assert.ok(
+            JSON.stringify(override.linter?.rules).includes(scope.rule),
+            `The class override on ${file} does not relax ${scope.rule}.`,
+          );
           continue;
         }
         const known = fileEvidence[file];
-        expect(known, `No recorded justification for the lint override on ${file}`).toBeDefined();
+        assert.ok(
+          known !== undefined,
+          `No recorded justification for the lint override on ${file}`,
+        );
         if (!known) continue;
-        expect(existsSync(join(ROOT, file))).toBe(true);
-        expect(JSON.stringify(override.linter?.rules)).toContain(known.rule);
+        assert.ok(
+          existsSync(join(ROOT, file)),
+          `The lint override names a file that does not exist: ${file}`,
+        );
+        assert.ok(
+          JSON.stringify(override.linter?.rules).includes(known.rule),
+          `The override on ${file} does not relax ${known.rule}.`,
+        );
         // Ask biome whether the rule still fires here, with `--only` forcing it back on
         // over this very override. A suppression that no longer suppresses anything is
         // dead config, and dead config is how a rule gets turned off for a file that has
@@ -243,17 +286,23 @@ describe("formatter exclusions for pinned kernel sources (am-inst-show-the-code-
           ["check", `--only=${known.group}/${known.rule}`, file],
           { cwd: ROOT, encoding: "utf8" },
         );
-        expect(probe.error, `Could not run biome to check the override on ${file}`).toBeUndefined();
-        expect(
+        assert.ok(
+          probe.error === undefined,
+          `Could not run biome to check the override on ${file}`,
+        );
+        assert.ok(
           `${probe.stdout}${probe.stderr}`.includes(`lint/${known.group}/${known.rule}`),
           `The lint override on ${file} is stale: biome no longer reports ${known.rule} there, so the suppression is dead config.`,
-        ).toBe(true);
+        );
       }
     }
   });
 
   test("the list is not empty, so a deleted section cannot pass as a clean one", () => {
-    expect(mustNotBeFormatted().length).toBeGreaterThan(0);
-    expect(formatterExclusions().length).toBe(mustNotBeFormatted().length);
+    assert.ok(
+      mustNotBeFormatted().length > 0,
+      "The protected set is empty, so every assertion above is vacuous.",
+    );
+    assert.equal(formatterExclusions().length, mustNotBeFormatted().length);
   });
 });
