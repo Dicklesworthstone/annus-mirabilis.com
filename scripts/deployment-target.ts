@@ -163,7 +163,12 @@ export function assertDeploymentReadyAndAliased(
 ): ParsedDeploymentInspect {
   const parsed = parseDeploymentInspect(inspectOutput);
 
-  if (!parsed.status.toLowerCase().includes("ready")) {
+  // am-o44v. This asked whether the status CONTAINS "ready", which is a substring test standing
+  // in for a category test, on the gate that moves production aliases. "already" contains "ready",
+  // so a status of ALREADY_PROMOTED passed it, and status is parsed from free text (/^status (.+)$/)
+  // so the whole rest of the line is matched. The category test is equality with the one status
+  // that means ready.
+  if (parsed.status.trim().toUpperCase() !== "READY") {
     throw new Error(
       `Deployment is not Ready (current status: "${parsed.status || "unknown"}", url: "${parsed.url || "unknown"}"). ` +
         `Refusing release promotion.`,
