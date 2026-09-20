@@ -496,6 +496,73 @@ function breakPaletteShortcut(rewritten: { count: number }) {
   };
 }
 
+test("am-8w0x: identical theme radios render identically in both engines", async (t) => {
+  if (!existsSync(join(OUT_DIR, "index.html"))) {
+    t.skip("out/index.html is absent: not-available, not a pass.");
+    return;
+  }
+  const { baseUrl, server } = await startStaticServer();
+  const report: string[] = [];
+  try {
+    for (const engine of ENGINES) {
+      const browser = await engine.launcher.launch();
+      try {
+        const context = await browser.newContext({ viewport: { ...VIEWPORT } });
+        const page = await context.newPage();
+        await page.goto(baseUrl, { waitUntil: "load", timeout: 20_000 });
+        const boxes = await page.evaluate(() =>
+          [...document.querySelectorAll("fieldset.theme-toggle input")].map((input) => {
+            const rect = input.getBoundingClientRect();
+            return {
+              label: (input.closest("label")?.textContent ?? "").trim(),
+              width: Math.round(rect.width),
+              height: Math.round(rect.height),
+            };
+          }),
+        );
+
+        // Reachability before any claim: four controls, or "they all match" is true
+        // of an empty list and of a page that renders no toggle at all.
+        assert.equal(
+          boxes.length,
+          4,
+          `${engine.name}: expected four theme radios, found ${boxes.length}`,
+        );
+        for (const box of boxes) {
+          report.push(`${engine.name} "${box.label}": ${box.width}x${box.height}`);
+        }
+
+        // Equality, not merely nonzero. A nonzero check would have passed Chromium
+        // while it drew the same control at 13, 51, 13 and 58 pixels wide, and only
+        // caught WebKit's collapse to 0. These are four instances of one control;
+        // rendering them at different sizes is the defect, and zero is its worst case.
+        const widths = new Set(boxes.map((box) => box.width));
+        const heights = new Set(boxes.map((box) => box.height));
+        assert.equal(
+          widths.size,
+          1,
+          `${engine.name}: four identical radios rendered at different widths - ${boxes
+            .map((b) => `${b.label}=${b.width}`)
+            .join(
+              ", ",
+            )}. globals.css once sized every input at width:100% with min-width:0, which collapsed the short-labelled ones to nothing in WebKit and stretched the long-labelled ones in Chromium (am-8w0x).`,
+        );
+        assert.equal(heights.size, 1, `${engine.name}: radios rendered at different heights`);
+        assert.ok(
+          (boxes[0]?.width ?? 0) > 0 && (boxes[0]?.height ?? 0) > 0,
+          `${engine.name}: the radios are uniform but have no area, so there is nothing to click`,
+        );
+        await context.close();
+      } finally {
+        await browser.close();
+      }
+    }
+  } finally {
+    await new Promise<void>((done) => server.close(() => done()));
+  }
+  console.log(`theme radio boxes:\n  ${report.join("\n  ")}`);
+});
+
 test("am-ahyb planted negative: removing the shortcut fails the palette check only", async (t) => {
   if (!existsSync(join(OUT_DIR, "index.html"))) {
     t.skip("out/index.html is absent: not-available, not a pass.");
