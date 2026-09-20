@@ -103,7 +103,7 @@ Every runtime library, build tool, and runtime environment is pinned to an exact
 
 | Category | Package / Tool | Locked Version | License | Scope | Selection Rationale |
 |---|---|---|---|---|---|
-| **Runtime** | `node` | `22.13.4` (LTS) | MIT | Build / Server | Node LTS matching `@types/node: ^22.13.4`; used by `next build` and Next CLI locally, in CI, and on Vercel. Recorded in `package.json:engines.node`. |
+| **Runtime** | `node` | `22.13.1` (LTS) | MIT | Build / Server | Node 22 LTS ("Jod"), released 2025-01-21; the latest release in the 22.13 line, which ends at 22.13.1. Used by `next build` and Next CLI locally, in CI, and on Vercel. Recorded in `package.json:engines.node`, which is the authority for this cell. The separate `@types/node` pin is `22.13.4`; types-package versions do not track Node releases, and this row previously carried that number by mistake (corrected 2026-09-19, `am-g8zs`). |
 | **Runtime** | `bun` | `1.4.0` | MIT | Test / Script | Pinned in `packageManager: "bun@1.4.0"`. Executes tests, data pipelines, and verified scripts with native `--isolate` support. |
 | **Framework** | `next` | `15.5.25` | MIT | App Core | Next.js 15 App Router (`output: 'export'` / static pre-rendering). Version 15.5.25 patches 34 security advisories present in 15.2.0 (including RCE GHSA-9qr9-h5gf-34mp and RSC DoS CVEs). |
 | **Framework** | `react` | `19.0.0` | MIT | Client / UI | Matched to Next.js 15.5 App Router core. Zero client-side hydration drift. |
@@ -189,7 +189,7 @@ A dedicated compatibility probe was constructed in the session scratch directory
   - `pdfjs-dist` is locked at **6.3.289** but the probe ran **4.10.38**. The `lazy_pdfjs_and_streaming_wasm_worker` check therefore validates pdf.js 4.x, not the locked 6.x. pdf.js changed its worker and API surface between those majors, so this check must be re-run under 6.3.289 before the facsimile lane relies on it. **RE-PROBED AND RESOLVED 2026-09-15 — see §3.1 below; it passes, but it is NOT a drop-in upgrade.**
   - `zod` is locked at **4.4.3** but the probe ran **3.24.2**. Zod 3 to 4 is a breaking-change boundary; no probe evidence covers the locked major. **RE-PROBED AND RESOLVED 2026-09-15 — see §3.1 below.**
   - The remaining items were absent from the probe entirely: `three`, `@types/three`, `lucide-react`, `fflate`, `js-yaml`, `marked`, `minisearch`, `@biomejs/biome`, `@axe-core/playwright`, `ubs`, `fonttools`, `bun`, `node` and `vercel`. The CLI tools are not npm dependencies of the probe app; the runtime libraries simply were not installed in it. Their versions are chosen, not probed.
-- **Runtime the probe actually ran on:** Node **`v25.9.0`** (Homebrew, `/opt/homebrew/Cellar/node/25.9.0_3/bin/node`, arm64 Darwin), **not** the locked `22.13.4`. Node 22 is not installed on this host: `brew info node@22` reports "Not installed", `/opt/homebrew/opt/node@22/bin/node` does not exist, and no `nvm`, `fnm` or `volta` is present to supply it. **A reader must not treat the 14 Chromium and WebKit checks above as validation of locked Node `22.13.4`.** The checks validate the browser, CSP and WASM behaviour of the candidate stack; they say nothing about the Node runtime version. Re-running the probe under `22.13.4` before that version is relied upon is left to the bead that installs it.
+- **Runtime the probe actually ran on:** Node **`v25.9.0`** (Homebrew, `/opt/homebrew/Cellar/node/25.9.0_3/bin/node`, arm64 Darwin), **not** the locked `22.13.1`. Node 22 is not installed on this host: `brew info node@22` reports "Not installed", `/opt/homebrew/opt/node@22/bin/node` does not exist, and no `nvm`, `fnm` or `volta` is present to supply it. **A reader must not treat the 14 Chromium and WebKit checks above as validation of locked Node `22.13.1`.** The checks validate the browser, CSP and WASM behaviour of the candidate stack; they say nothing about the Node runtime version. Re-running the probe under `22.13.1` before that version is relied upon is left to the bead that installs it.
 
 #### Test Execution Summary
 
@@ -227,7 +227,7 @@ The two major-version gaps above were closed by re-running the probe with the **
 **Recorded as NOT proven, to avoid overclaiming:**
 
 - `next.config.js` gained `transpilePackages: ['pdfjs-dist', 'zod']`, but the first 6.x build was run *with* the flag and succeeded. There was no failing build without it, so this is a precaution, not a measured requirement.
-- The runtime caveat is unchanged: this run also executed on Node **v25.9.0**, not the locked 22.13.4.
+- The runtime caveat is unchanged: this run also executed on Node **v25.9.0**, not the locked 22.13.1.
 - The remaining locked items listed above are still unprobed. Re-probing the two majors did not widen coverage beyond them.
 
 ---
@@ -369,7 +369,7 @@ To prevent dependency drift, security regressions, and framework churn from dist
    - The Playwright cross-browser acceptance suite in Chromium and WebKit
    - KaTeX MathML regression checks
    - Build-size and performance budget assertions
-4. **Toolchain Alignment:** The Node.js version (`22.13.4`), Bun version (`1.4.0`), and Vercel CLI version (`59.10.0`) are documented as the canonical toolchain. Local developers, CI pipelines, and Vercel project settings must align to these versions.
+4. **Toolchain Alignment:** The Node.js version (`22.13.1`), Bun version (`1.4.0`), and Vercel CLI version (`59.10.0`) are documented as the canonical toolchain. Local developers, CI pipelines, and Vercel project settings must align to these versions.
 
 ---
 
@@ -414,7 +414,7 @@ Engines named here are the two the compatibility probe actually ran. Command run
 python3 -c '...count browsers in artifacts/test-logs/stack-probe/run-1789500358874.jsonl...'
 ```
 
-Result actually printed: `n 14`, `Counter({'chromium': 7, 'webkit': 7})`, `Counter({'pass': 12, 'fail': 2})`. File `stat`: 4772 bytes, mtime epoch 1789500369. The JSONL records do not contain browser version strings. Version strings come from `docs/DECISIONS.md` line 154, which records the same log run id `run-1789500358874` against headless Chromium (153.0.8010.12) and WebKit (26.6). The probe ran on Node v25.9.0 (`node --version` this session printed `v25.9.0`). That is not the locked Node 22.13.4; do not treat the 14 checks as a Node 22 result.
+Result actually printed: `n 14`, `Counter({'chromium': 7, 'webkit': 7})`, `Counter({'pass': 12, 'fail': 2})`. File `stat`: 4772 bytes, mtime epoch 1789500369. The JSONL records do not contain browser version strings. Version strings come from `docs/DECISIONS.md` line 154, which records the same log run id `run-1789500358874` against headless Chromium (153.0.8010.12) and WebKit (26.6). The probe ran on Node v25.9.0 (`node --version` this session printed `v25.9.0`). That is not the locked Node 22.13.1; do not treat the 14 checks as a Node 22 result.
 
 | Profile id | Represents | Emulation |
 |---|---|---|

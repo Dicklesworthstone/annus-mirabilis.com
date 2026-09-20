@@ -388,4 +388,51 @@ Annus Mirabilis attribution string.
       "D-2026-09-16-license-and-rider records delegated provenance, not a fabricated ratification",
     );
   });
+
+  // am-g8zs. The inventory row for `node` names package.json:engines.node as its own record, and
+  // carried 22.13.4 while that file said 22.13.1. 22.13.4 is not a Node release at all; the 22.13
+  // line ends at 22.13.1. The number had been copied from the `@types/node` pin, which is a
+  // types-package version and does not track Node releases. This reads both files and compares the
+  // extracted strings rather than asserting a literal, so a later edit to either side is caught.
+  it("the node version in DECISIONS.md agrees with package.json:engines.node", () => {
+    const decisionsContent = readFileSync(decisionsPath, "utf8");
+    const manifest = JSON.parse(readFileSync(join(rootDir, "package.json"), "utf8"));
+    const declared = manifest.engines?.node;
+    assert.ok(
+      typeof declared === "string" && /^\d+\.\d+\.\d+$/.test(declared),
+      `package.json:engines.node must be an exact version, found ${JSON.stringify(declared)}`,
+    );
+
+    const row = decisionsContent
+      .split("\n")
+      .find((line) => line.startsWith("| **Runtime** |") && line.includes("`node`"));
+    assert.ok(row, "DECISIONS.md must carry a Runtime row for `node` in the version inventory");
+    const recorded = row.split("|")[3]?.match(/`([^`]+)`/)?.[1];
+    assert.equal(
+      recorded,
+      declared,
+      `docs/DECISIONS.md records node ${recorded} but package.json:engines.node says ${declared}. ` +
+        "The row cites that file as its record, so the two cannot disagree. Do not reconcile by " +
+        "copying the `@types/node` pin, which is a types-package version, not a Node release.",
+    );
+
+    // Every other mention of the locked runtime in the document must move with the row, or the
+    // caveats in section 3 end up naming a version nothing pins.
+    const stale = [...decisionsContent.matchAll(/locked (?:Node )?`?(\d+\.\d+\.\d+)`?/g)]
+      .map((m) => m[1])
+      .filter((v): v is string => typeof v === "string")
+      .filter((v) => v !== declared && v.startsWith(`${declared.split(".")[0]}.`));
+    assert.deepEqual(
+      stale,
+      [],
+      `These "locked" runtime mentions disagree with package.json:engines.node (${declared}): ${stale.join(", ")}`,
+    );
+
+    logCheck(
+      "decisions-node-version-agrees",
+      "governance",
+      "passed",
+      `DECISIONS.md and package.json:engines.node both record node ${declared}`,
+    );
+  });
 });
