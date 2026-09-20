@@ -89,7 +89,7 @@
   "src/reader/faces/results/resultsProjection.ts": 0,
   "src/reader/misconceptions/types.ts": 0,
   "src/reader/paperRoutes.ts": 0,
-  "src/testing/scenario-registry/datasetInference.ts": 2,
+  "src/testing/scenario-registry/datasetInference.ts": 0,
   "src/units/adapters.ts": 0,
   "src/units/tolerance.ts": 0,
   "src/visuals/kit/viewGuard.ts": 0,
