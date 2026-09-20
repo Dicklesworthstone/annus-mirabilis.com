@@ -101,48 +101,66 @@ date, evidence, beads unblocked, and revisit trigger.
 
 Every runtime library, build tool, and runtime environment is pinned to an exact version. Floating ranges (`^` or `~`) are prohibited in `package.json`.
 
-| Category | Package / Tool | Locked Version | License | Scope | Selection Rationale |
-|---|---|---|---|---|---|
-| **Runtime** | `node` | `22.13.1` (LTS) | MIT | Build / Server | Node 22 LTS ("Jod"), released 2025-01-21; the latest release in the 22.13 line, which ends at 22.13.1. Used by `next build` and Next CLI locally, in CI, and on Vercel. Recorded in `package.json:engines.node`, which is the authority for this cell. The separate `@types/node` pin is `22.13.4`; types-package versions do not track Node releases, and this row previously carried that number by mistake (corrected 2026-09-19, `am-g8zs`). |
-| **Runtime** | `bun` | `1.4.0` | MIT | Test / Script | Pinned in `packageManager: "bun@1.4.0"`. Executes tests, data pipelines, and verified scripts with native `--isolate` support. |
-| **Framework** | `next` | `15.5.25` | MIT | App Core | Next.js 15 App Router (`output: 'export'` / static pre-rendering). Version 15.5.25 patches 34 security advisories present in 15.2.0 (including RCE GHSA-9qr9-h5gf-34mp and RSC DoS CVEs). |
-| **Framework** | `react` | `19.0.0` | MIT | Client / UI | Matched to Next.js 15.5 App Router core. Zero client-side hydration drift. |
-| **Framework** | `react-dom` | `19.0.0` | MIT | Client / UI | DOM renderer for React 19. |
-| **Language** | `typescript` | `5.7.3` | Apache-2.0 | Development | Strict TypeScript compiler for build validation and CI `tsc --noEmit`. |
-| **Styling** | `tailwindcss` | `3.4.17` | MIT | Build | Tailwind v3 CSS token architecture. Keeps root `tailwind.config.ts` allowlisted in architecture gate without v4 breaking configuration changes. |
-| **Styling** | `postcss` | `8.5.26` | MIT | Build | PostCSS processor; pinned via override to 8.5.26 to eliminate source map path traversal CVEs (GHSA-r28c-9q8g-f849). |
-| **Styling** | `autoprefixer` | `10.4.20` | MIT | Build | Vendor prefixing for cross-browser CSS rules. |
-| **Icons** | `lucide-react` | `0.475.0` | ISC | Client / UI | Lightweight, tree-shakeable iconography for UI chrome and laboratory controls. |
-| **Math** | `katex` | `0.18.4` | MIT | Build / Client | Static KaTeX rendering HTML plus MathML at build time; restricted trust callback for interactive tokens (`\htmlClass`, `\htmlData`). |
-| **3D Engine** | `three` | `0.185.1` | MIT | Client (Lazy) | Direct Three.js only where 2D projections lose spatial information. React Three Fiber is explicitly omitted (Discrepancy 7.1). |
-| **Types** | `@types/three` | `0.185.4` | MIT | Development | Type definitions for direct Three.js scene graphs. |
-| **Facsimile** | `pdfjs-dist` | `6.3.289` | Apache-2.0 | Client (Lazy) | Primary facsimile viewer engine; worker loaded lazily from same-origin `/pdf.worker.min.mjs` under strict CSP. |
-| **Schemas** | `zod` | `4.4.3` | MIT | Build / Data | Declarative schema validation for content compiler and provenance receipts. Build-time execution avoids runtime `unsafe-eval` JIT compilation. |
-| **Archive** | `fflate` | `0.8.3` | MIT | Build / Scripts | Fast, zero-dependency zip/decompression utility for bundle and asset scripts. |
-| **Content** | `js-yaml` | `4.1.0` | MIT | Build / Content | Strict YAML parser for declarative content records under `content/`. |
-| **Content** | `marked` | `15.0.7` | MIT | Build / Content | Constrained Markdown parser enforcing closed node allowlist (no raw HTML, no executable MDX). |
-| **Search** | `minisearch` | `7.1.2` | MIT | Build / Client | Lightweight (under 8 kB gzipped) client-side search indexing engine over build-time pre-indexed paper tokens. Chosen over FlexSearch due to deterministic serialization and zero memory leak profile. |
-| **Font Tool** | `fonttools` (`pyftsubset`) | `4.56.0` | MIT | Build / Scripts | Reproducible subsetting of Newsreader, Plus Jakarta Sans, and JetBrains Mono fonts without omitting German diacritics, Greek letters, or mathematical notation. |
-| **Linter** | `@biomejs/biome` | `2.5.8` | MIT / Apache-2.0 | Development | High-speed linting, code formatting, and syntax verification. |
-| **Testing** | `playwright` | `1.62.1` | Apache-2.0 | Testing | Browser automation harness driving headless Chromium, WebKit, and Firefox acceptance suites. |
-| **Testing** | `@axe-core/playwright` | `4.10.1` | MPL-2.0 | Testing | Automated WCAG AA accessibility compliance verification in end-to-end tests. |
-| **Scanner** | `ubs` | `3.0.0` | MIT | Development | Ultimate Bug Scanner; local static analysis gate. **Version and licence UNVERIFIED and known to disagree with the installed binary — read the verification note below this table before relying on this row.** |
-| **Deployment** | `vercel` | `59.10.0` | Apache-2.0 | Deployment | Vercel CLI driving candidate-then-promote deployment pipeline (`vercel build`, `vercel deploy --prebuilt`). |
+**The Evidence column, added 2026-09-19 (`am-niyd`).** These rows are not all evidenced the same
+way, and a licence review must not read the table as uniformly machine-checked. Each row declares
+what stands behind its version and licence cells:
 
-**Verification status of this table (added 2026-09-19, `am-niyd`).** The rows are not all
-evidenced the same way, and a reader should not treat the table as uniformly machine-checked.
-§3 below already records which versions were *probed* and which were *chosen, not probed*. This
-note adds the separate question of which rows anything currently *checks*.
+- **`collector`** (10 rows) — the `license-inventory` gate reads this package from the manifests on
+  disk and emits it into `THIRD_PARTY_NOTICES.md`. The version and licence recorded here are
+  compared against that output, and a disagreement fails the gate.
+- **`probe-only`** (4 rows) — exercised once by the 2026-09-15 compatibility probe recorded in §3
+  below, and by nothing since. That probe ran in a session scratch directory that no longer
+  exists, so no standing check reads these rows. All four are also absent from `package.json`:
+  they are pinned for capabilities not yet adopted.
+- **`unchecked`** (11 rows) — neither. Hand-maintained, and nothing in this repository verifies the
+  version or the licence. Five of them (`node`, `bun`, `fonttools`, `ubs`, `vercel`) are local
+  binaries or runtimes that the collectors cannot reach at all, because the collectors read npm
+  manifests and a local CLI has none.
 
-- The npm, font, vendored, WASM and donor rows are covered by the `license-inventory` gate
-  (`scripts/license-inventory/`, `requiredInCi: true`), which collects them from the manifests
-  on disk.
-- **`ubs` is covered by none of those five collectors**, because it is a local binary rather
+The column is itself checked. `src/testing/docs/noticeLayers.test.ts` recomputes every row's class
+from `THIRD_PARTY_NOTICES.md` and from §3's own probe sentence, and fails when a declared class
+disagrees with the evidence that actually exists.
+
+A class states what evidence exists, not whether a row is right. `unchecked` does not mean wrong,
+and `collector` does not mean the dependency is appropriate: only that the version and licence in
+the row match what the collector found on disk.
+
+| Category | Package / Tool | Locked Version | License | Evidence | Scope | Selection Rationale |
+|---|---|---|---|---|---|---|
+| **Runtime** | `node` | `22.13.1` (LTS) | MIT | `unchecked` | Build / Server | Node 22 LTS ("Jod"), released 2025-01-21; the latest release in the 22.13 line, which ends at 22.13.1. Used by `next build` and Next CLI locally, in CI, and on Vercel. Recorded in `package.json:engines.node`, which is the authority for this cell. The separate `@types/node` pin is `22.13.4`; types-package versions do not track Node releases, and this row previously carried that number by mistake (corrected 2026-09-19, `am-g8zs`). |
+| **Runtime** | `bun` | `1.4.0` | MIT | `unchecked` | Test / Script | Pinned in `packageManager: "bun@1.4.0"`. Executes tests, data pipelines, and verified scripts with native `--isolate` support. |
+| **Framework** | `next` | `15.5.25` | MIT | `collector` | App Core | Next.js 15 App Router (`output: 'export'` / static pre-rendering). Version 15.5.25 patches 34 security advisories present in 15.2.0 (including RCE GHSA-9qr9-h5gf-34mp and RSC DoS CVEs). |
+| **Framework** | `react` | `19.0.0` | MIT | `collector` | Client / UI | Matched to Next.js 15.5 App Router core. Zero client-side hydration drift. |
+| **Framework** | `react-dom` | `19.0.0` | MIT | `collector` | Client / UI | DOM renderer for React 19. |
+| **Language** | `typescript` | `5.7.3` | Apache-2.0 | `collector` | Development | Strict TypeScript compiler for build validation and CI `tsc --noEmit`. |
+| **Styling** | `tailwindcss` | `3.4.17` | MIT | `probe-only` | Build | Tailwind v3 CSS token architecture. Keeps root `tailwind.config.ts` allowlisted in architecture gate without v4 breaking configuration changes. |
+| **Styling** | `postcss` | `8.5.26` | MIT | `collector` | Build | PostCSS processor; pinned via override to 8.5.26 to eliminate source map path traversal CVEs (GHSA-r28c-9q8g-f849). |
+| **Styling** | `autoprefixer` | `10.4.20` | MIT | `probe-only` | Build | Vendor prefixing for cross-browser CSS rules. |
+| **Icons** | `lucide-react` | `0.475.0` | ISC | `unchecked` | Client / UI | Lightweight, tree-shakeable iconography for UI chrome and laboratory controls. |
+| **Math** | `katex` | `0.18.4` | MIT | `collector` | Build / Client | Static KaTeX rendering HTML plus MathML at build time; restricted trust callback for interactive tokens (`\htmlClass`, `\htmlData`). |
+| **3D Engine** | `three` | `0.185.1` | MIT | `unchecked` | Client (Lazy) | Direct Three.js only where 2D projections lose spatial information. React Three Fiber is explicitly omitted (Discrepancy 7.1). |
+| **Types** | `@types/three` | `0.185.4` | MIT | `unchecked` | Development | Type definitions for direct Three.js scene graphs. |
+| **Facsimile** | `pdfjs-dist` | `6.3.289` | Apache-2.0 | `probe-only` | Client (Lazy) | Primary facsimile viewer engine; worker loaded lazily from same-origin `/pdf.worker.min.mjs` under strict CSP. |
+| **Schemas** | `zod` | `4.4.3` | MIT | `probe-only` | Build / Data | Declarative schema validation for content compiler and provenance receipts. Build-time execution avoids runtime `unsafe-eval` JIT compilation. |
+| **Archive** | `fflate` | `0.8.3` | MIT | `unchecked` | Build / Scripts | Fast, zero-dependency zip/decompression utility for bundle and asset scripts. |
+| **Content** | `js-yaml` | `4.1.0` | MIT | `collector` | Build / Content | Strict YAML parser for declarative content records under `content/`. |
+| **Content** | `marked` | `15.0.7` | MIT | `unchecked` | Build / Content | Constrained Markdown parser enforcing closed node allowlist (no raw HTML, no executable MDX). |
+| **Search** | `minisearch` | `7.1.2` | MIT | `unchecked` | Build / Client | Lightweight (under 8 kB gzipped) client-side search indexing engine over build-time pre-indexed paper tokens. Chosen over FlexSearch due to deterministic serialization and zero memory leak profile. |
+| **Font Tool** | `fonttools` (`pyftsubset`) | `4.56.0` | MIT | `unchecked` | Build / Scripts | Reproducible subsetting of Newsreader, Plus Jakarta Sans, and JetBrains Mono fonts without omitting German diacritics, Greek letters, or mathematical notation. |
+| **Linter** | `@biomejs/biome` | `2.5.8` | MIT / Apache-2.0 | `collector` | Development | High-speed linting, code formatting, and syntax verification. |
+| **Testing** | `playwright` | `1.62.1` | Apache-2.0 | `collector` | Testing | Browser automation harness driving headless Chromium, WebKit, and Firefox acceptance suites. |
+| **Testing** | `@axe-core/playwright` | `4.10.1` | MPL-2.0 | `collector` | Testing | Automated WCAG AA accessibility compliance verification in end-to-end tests. |
+| **Scanner** | `ubs` | `3.0.0` | MIT | `unchecked` | Development | Ultimate Bug Scanner; local static analysis gate. **Version and licence UNVERIFIED and known to disagree with the installed binary — read the verification note below this table before relying on this row.** |
+| **Deployment** | `vercel` | `59.10.0` | Apache-2.0 | `unchecked` | Deployment | Vercel CLI driving candidate-then-promote deployment pipeline (`vercel build`, `vercel deploy --prebuilt`). |
+
+**The `ubs` row specifically (added 2026-09-19, `am-niyd`).** The Evidence column above marks this
+row `unchecked`. What follows is why that matters more here than for the other ten, and what a
+reconciler must not do.
+
+- **`ubs` is covered by none of the five collectors**, because it is a local binary rather
   than an npm dependency. It appears zero times in every
-  `artifacts/test-logs/license-inventory/*.jsonl` and `license-notice/*.jsonl` run.
-  `scripts/license-inventory/` contains no reference to this document, and the only test that
-  reads this file (`src/testing/docs/noticeLayers.test.ts`) asserts a decision heading exists
-  and never reads this table. So this row is hand-maintained and unvalidated.
+  `artifacts/test-logs/license-inventory/*.jsonl` and `license-notice/*.jsonl` run, and
+  `scripts/license-inventory/` contains no reference to this document.
 - **The recorded version is known to disagree with the installed tool.** This table records
   `3.0.0`; `ubs --version` on the reference machine reports `UBS Meta-Runner v5.0.3`. Two major
   versions apart. Which one is the project's pin is **not decided here** and must not be guessed:

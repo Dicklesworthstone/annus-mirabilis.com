@@ -435,4 +435,99 @@ Annus Mirabilis attribution string.
       `DECISIONS.md and package.json:engines.node both record node ${declared}`,
     );
   });
+
+  // am-niyd. The version inventory used to present 25 rows identically, while only 10 were checked
+  // by anything. A licence reviewer could not tell a collector-backed row from a hand-typed one.
+  // Each row now declares an Evidence class, and this recomputes that class from the two sources
+  // that actually carry the evidence, so the column is checked rather than annotated.
+  it("every inventory row's Evidence class matches the evidence that exists", () => {
+    const decisionsContent = readFileSync(decisionsPath, "utf8");
+    const noticesContent = readFileSync(join(rootDir, "THIRD_PARTY_NOTICES.md"), "utf8");
+
+    const cells = (line: string) => line.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+    const bare = (s: string) => s.replace(/[`*]/g, "").trim();
+
+    // Source 1: what the license-inventory gate actually emitted.
+    const emitted = new Map<string, { version: string; license: string }>();
+    for (const line of noticesContent.split("\n")) {
+      if (!line.startsWith("|") || line.startsWith("|---") || line.includes("Package / Asset")) continue;
+      const c = cells(line);
+      if (c.length >= 3 && c[0]) emitted.set(bare(c[0]), { version: c[1] ?? "", license: c[2] ?? "" });
+    }
+    assert.ok(emitted.size > 20, `THIRD_PARTY_NOTICES.md parsed only ${emitted.size} entries; the parser or the file shape changed`);
+
+    // Source 2: section 3's own account of what the one-time compatibility probe exercised.
+    const probeSentence = decisionsContent.match(
+      /The probe exercised \*\*\d+ of the \d+ locked items\*\*:([\s\S]+?)\. Two locked versions/,
+    );
+    assert.ok(probeSentence?.[1], "Section 3 must still state which locked items the probe exercised");
+    const probed = new Set<string>([
+      ...[...probeSentence[1].matchAll(/`([^`]+)`/g)].map((m) => m[1] as string),
+      ...[...decisionsContent.matchAll(/`([a-z0-9@/._-]+)` is locked at/g)].map((m) => m[1] as string),
+    ]);
+
+    const header = decisionsContent.split("\n").findIndex((l) => l.startsWith("| Category | Package / Tool"));
+    assert.ok(header > -1, "The locked version inventory table must exist");
+    assert.ok(
+      decisionsContent.split("\n")[header]?.includes("| Evidence |"),
+      "The inventory table must carry an Evidence column",
+    );
+
+    const rows = decisionsContent.split("\n").slice(header + 2);
+    const counts: Record<string, number> = { collector: 0, "probe-only": 0, unchecked: 0 };
+    const wrong: string[] = [];
+    const mismatched: string[] = [];
+    for (const line of rows) {
+      if (!line.startsWith("|")) break;
+      const c = cells(line);
+      const name = bare(c[1] ?? "").split(" ")[0] as string;
+      const declaredClass = bare(c[4] ?? "");
+      const hit = emitted.get(name);
+      const expected = hit ? "collector" : probed.has(name) ? "probe-only" : "unchecked";
+      counts[expected] = (counts[expected] ?? 0) + 1;
+      if (declaredClass !== expected) {
+        wrong.push(`${name}: row declares \`${declaredClass}\` but the evidence makes it \`${expected}\``);
+      }
+      // A `collector` claim is only true if the cells agree with what the collector emitted.
+      // Licence notation is normalised: the table writes a dual licence "MIT / Apache-2.0" where
+      // the collector emits the SPDX expression "MIT OR Apache-2.0". Same expression, same terms.
+      if (hit) {
+        const spdx = (s: string) => bare(s).replace(/\s*\/\s*/g, " OR ").replace(/\s+/g, " ");
+        if (bare(c[2] ?? "") !== hit.version) {
+          mismatched.push(`${name}: table version ${bare(c[2] ?? "")}, collector emitted ${hit.version}`);
+        }
+        if (spdx(c[3] ?? "") !== spdx(hit.license)) {
+          mismatched.push(`${name}: table licence ${bare(c[3] ?? "")}, collector emitted ${hit.license}`);
+        }
+      }
+    }
+
+    assert.deepEqual(wrong, [], `Evidence classes disagree with the evidence:\n  ${wrong.join("\n  ")}`);
+    assert.deepEqual(
+      mismatched,
+      [],
+      `Rows marked \`collector\` must match what the collector emitted:\n  ${mismatched.join("\n  ")}`,
+    );
+
+    // The legend states the counts. If it drifts from the table it misleads exactly the reader it
+    // exists for, so it is checked too.
+    for (const [klass, n] of Object.entries(counts)) {
+      const stated = decisionsContent.match(
+        new RegExp(`\\*\\*\`${klass.replace("-", "-")}\`\\*\\* \\((\\d+) rows\\)`),
+      )?.[1];
+      assert.ok(stated, `The Evidence legend must describe the \`${klass}\` class with a row count`);
+      assert.equal(
+        Number(stated),
+        n,
+        `The Evidence legend says ${stated} \`${klass}\` rows; the table actually has ${n}`,
+      );
+    }
+
+    logCheck(
+      "decisions-evidence-classes",
+      "governance",
+      "passed",
+      `Evidence classes recomputed from sources: ${counts.collector} collector, ${counts["probe-only"]} probe-only, ${counts.unchecked} unchecked`,
+    );
+  });
 });
