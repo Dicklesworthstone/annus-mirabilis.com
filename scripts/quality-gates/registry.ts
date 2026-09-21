@@ -471,8 +471,31 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
   },
   {
     id: "browser-acceptance",
+    // THE COMMAND CARRIED NO SELECTION FLAG, so this gate could not run at all: the harness
+    // requires exactly one of --paper / --changed / --all / --fixtures / --smoke and exits 2 on
+    // a usage error without it. Measured through this runner before the change:
+    // `bun scripts/quality-gates.ts --only browser-acceptance --family browser` reported
+    // FAILED, 0 passed, 1 failed, in 141ms, having reached neither a preflight nor a browser.
+    //
+    // WHY THIS JOURNEY AND NOT THE PAPER SLICES THE TITLE NAMES. Both candidates were run.
+    // `--all` exits 1 on preflight because the chain starts no Next server, and behind that the
+    // harness itself records "Paper vertical-slice scenarios are not wired in yet; see
+    // am-test-e2e-harness-bqmh", so it cannot pass until that bead builds the paper lanes.
+    // `--fixtures --journey runtime-conformance` exits 0 today over nine live-class assertions
+    // in real Chromium, three of them planted negatives that must fail.
+    //
+    // So the title now overstates the scope, and that is left visible rather than quietly
+    // retitled: which artifact IS the browser gate - this registry entry or the different
+    // command in .github/workflows/browser-acceptance.yml - is a decision, and am-xyxk item 2
+    // puts it to the owner. This change only stops the entry claiming a gate that cannot run.
     title: "Browser acceptance E2E vertical slices",
-    command: ["bun", "scripts/e2e-paper-vertical-slices.ts"],
+    command: [
+      "bun",
+      "scripts/e2e-paper-vertical-slices.ts",
+      "--fixtures",
+      "--journey",
+      "runtime-conformance",
+    ],
     family: "browser",
     cadence: "every-run",
     requiredInCi: true,

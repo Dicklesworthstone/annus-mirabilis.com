@@ -131,10 +131,14 @@ describe("runtime-conformance modules are reachable, or recorded as not (am-xyxk
 
   test("the conformance run is INVOKED from a lane that runs, not merely imported", () => {
     // The property the directory's own tests cannot have. run.ts's nine assertions are carried
-    // today by one unconditional call in live.test.ts, reached through the node lane. Nothing
-    // declares that route: the registered browser-acceptance gate exits 2 on a usage error
-    // before reaching it, and .github/workflows/browser-acceptance.yml runs a glob that excludes
-    // this directory. Deleting that one call would silently retire nine live-class assertions.
+    // in CI by one unconditional call in live.test.ts, reached through the node lane, and
+    // deleting that one call would silently retire nine live-class assertions.
+    //
+    // The registered browser-acceptance gate now names this journey too (am-xyxk item 1; before
+    // that it exited 2 on a usage error), but it is NOT a second CI route: its family is
+    // "browser" and no workflow runs --family browser, while .github/workflows/
+    // browser-acceptance.yml runs a glob that excludes this directory. So the node lane remains
+    // the only route that executes these assertions in CI, and this test keys on it.
     //
     // A call token, not an import. `import { runRuntimeConformance }` does not match; only
     // `runRuntimeConformance(` does, which is what distinguishes "wired" from "named".
@@ -158,7 +162,7 @@ describe("runtime-conformance modules are reachable, or recorded as not (am-xyxk
 
     expect(
       callers,
-      "No file in the node lane CALLS runRuntimeConformance. The nine live-class runtime-conformance assertions are then reachable from nothing that runs: the registered browser-acceptance gate exits 2 on a usage error, and the browser-acceptance workflow's glob excludes scripts/e2e/runtime-conformance. Restore the call, or declare the new route here (am-xyxk).",
+      "No file in the node lane CALLS runRuntimeConformance. The nine live-class runtime-conformance assertions are then reachable from nothing CI runs: the registered browser-acceptance gate names this journey but its family is 'browser' and no workflow runs that family, and the browser-acceptance workflow's glob excludes scripts/e2e/runtime-conformance. Restore the call, or declare the new route here (am-xyxk).",
     ).not.toEqual([]);
   });
 });
