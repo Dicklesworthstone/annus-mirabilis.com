@@ -1366,7 +1366,12 @@ describe("the six undriven refusal sites", () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "am-r3qt-notexec-"));
     const tool = path.join(dir, "pretend-pdftoppm");
     fs.writeFileSync(tool, "#!/bin/sh\necho hi\n", { mode: 0o644 });
-    assert.equal(spawnSync(tool, ["-v"], { encoding: "utf8" }).error?.code, "EACCES");
+    // Narrowed rather than cast: spawnSync types error as Error, and the errno code is what the
+    // site under test branches on, so the test has to establish it is really there.
+    const probeError = spawnSync(tool, ["-v"], { encoding: "utf8" }).error as
+      | NodeJS.ErrnoException
+      | undefined;
+    assert.equal(probeError?.code, "EACCES");
 
     assert.throws(
       () => requireTool(tool),
