@@ -55,6 +55,51 @@ function loadManifest() {
 }
 
 describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
+  /**
+   * Frozen and pinned are different, and both artifacts must say which is which.
+   *
+   * idsFrozenAt covers the 87 block-level ids frozen on 2026-09-19. The 90 sentence ids were cut
+   * on 2026-09-21 and are PINNED by the id snapshot, which the equality check below already
+   * enforces, but they are NOT frozen: the segmentation rule that produced them was corrected once
+   * after the plate contradicted it, and ap-17-132 is only the second paper that rule has met.
+   * Freezing is irreversible under RULE 1, so the cheap state is the honest one.
+   *
+   * This test exists because the two artifacts previously disagreed by omission: the snapshot
+   * pinned 177 ids while the header described a freeze of 87, and nothing said so. Prose in a
+   * header drifts; an assertion does not.
+   */
+  test("sentence ids are pinned by the snapshot and explicitly NOT frozen", () => {
+    const manifestPath = join(ROOT, "content/source-blocks/brownian-motion/manifest.yaml");
+    const raw = parseYaml(readFileSync(manifestPath, "utf8")) as {
+      idsFrozenAt?: string;
+      pinnedNotFrozenUnitKinds?: Array<{ kind?: string; freezeCondition?: string }>;
+      units: Array<{ id: string; kind: string }>;
+    };
+
+    // The stamp still describes the block-level freeze and has NOT been moved to cover sentences.
+    expect(raw.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
+
+    const declared = raw.pinnedNotFrozenUnitKinds ?? [];
+    const sentenceEntry = declared.find((e) => e.kind === "sentence");
+    expect(sentenceEntry).toBeDefined();
+    expect(sentenceEntry?.freezeCondition ?? "").toContain("ap-17-132");
+
+    // Pinned: every sentence unit appears in the committed snapshot, so none can drift silently.
+    const snapshotIds = new Set(
+      parseIdSnapshot(
+        readFileSync(
+          join(ROOT, "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt"),
+          "utf8",
+        ),
+      ),
+    );
+    const sentenceIds = raw.units.filter((u) => u.kind === "sentence").map((u) => u.id);
+    expect(sentenceIds.length).toBe(90);
+    for (const id of sentenceIds) {
+      expect(snapshotIds.has(id)).toBe(true);
+    }
+  });
+
   test("manifest schema, headers, frozen status, and validator pass with 0 errors and absent derived statuses", () => {
     const { manifest } = loadManifest();
 

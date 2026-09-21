@@ -189,6 +189,35 @@ that had been recorded on `s4-p8`. The displays that hung off retired units were
 paragraphs to **87 units and 32 paragraphs**, and the per-page start counts for 553, 554 and 557 are
 now 3, 3 and 2.
 
+### Sentence ids are pinned, not frozen (2026-09-21)
+
+`manifest.yaml` declares `pinnedNotFrozenUnitKinds` for `kind: sentence`, and the two words mean
+different things.
+
+- **Pinned.** All 90 sentence ids sit in `manifest.ids.snapshot.txt`, and the suite asserts the
+  snapshot equals the manifest's ids in order. None can drift, disappear or be renumbered silently.
+- **Not frozen.** `idsFrozenAt` still reads `2026-09-19T04:30:00Z` and covers the 87 block-level
+  ids only. A sentence id may still be re-cut without a retirement record or an alias.
+
+**Why the asymmetry.** The segmentation rule that produced these ids was corrected once already,
+on 2026-09-21, after the plate contradicted it: an enumerated item indented to paragraph depth is a
+continuation, not a paragraph. That correction reached the finished ledger too (`d18eb810`, p. 555,
+the paper from 53 paragraphs to 51). A rule corrected in its first week is still under test, and
+`ap-17-132` is only the second paper it has met. Freezing is irreversible under RULE 1 and the id
+scheme mandates alias retirement, so a wrong frozen id costs a permanent record for every future
+reader, while leaving these unfrozen costs an edit to two files.
+
+**The condition for freezing them.** Freeze when `ap-17-132` is completely transcribed and no
+further segmentation exception has appeared - the rule surviving a second paper set by the same
+compositor. If light-quanta turns up a fourth exception class it will likely apply retroactively to
+this paper; re-cut before freezing rather than retire aliases afterwards.
+
+**A constraint on editing that header.** Values in `manifest.yaml` must stay SHORT. `js-yaml`
+re-emits a long string as a `>-` folded scalar and the project's own parser
+(`src/content/provenance/yaml.ts`) cannot read one, so a long value breaks every path that
+round-trips the manifest through `yaml.dump` - which the refusal fixtures in
+`editions.refusals.test.ts` do. Prose belongs here, not there.
+
 ### Indent versus flush: how a paragraph break is identified in this printing
 
 **Apply this before adding or splitting any paragraph unit in this paper.** It is recorded because

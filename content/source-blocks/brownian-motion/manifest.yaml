@@ -7,6 +7,24 @@ pageCount: 12
 pageRange: [549, 560]
 idsFrozenAt: "2026-09-19T04:30:00Z"
 frozenBy: am-edn-inventory-brownian-slg
+# idsFrozenAt above covers the BLOCK-LEVEL ids only, as frozen on 2026-09-19. The 90 sentence ids
+# were cut on 2026-09-21 from plate reads of all twelve pages and are a different case: they are
+# PINNED by manifest.ids.snapshot.txt, which the suite asserts equals this file's ids, so they
+# cannot drift by accident - and they are NOT frozen, so they may still be re-cut without a
+# retirement record. Declared rather than left implicit, because two artifacts disagreeing about
+# what is permanent is how a permanent mistake gets made.
+# SHORT VALUES ONLY BELOW. js-yaml re-emits a long string as a >- folded scalar, and the project's
+# own parser (src/content/provenance/yaml.ts) cannot read one, so any long value here breaks every
+# path that round-trips this file through yaml.dump - which the refusal fixtures do. The reasoning
+# lives in the comment above and in docs/editorial/brownian-motion-difficulties.md.
+pinnedNotFrozenUnitKinds:
+  - kind: sentence
+    idGrammar: "s<n>-p<m>-s<k>"
+    cutAt: "2026-09-21"
+    pinnedBy: manifest.ids.snapshot.txt
+    freezeCondition: "ap-17-132-transcribed-and-no-new-exception"
+    rationale: docs/editorial/brownian-motion-difficulties.md
+
 units:
   - id: masthead-title
     kind: masthead-title

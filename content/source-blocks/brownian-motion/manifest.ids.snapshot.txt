@@ -1,4 +1,10 @@
 # Brownian motion source-id snapshot (am-edn-inventory-brownian-slg)
+# THIS FILE PINS 177 IDS AND FREEZES 87 OF THEM. The block-level ids were frozen on 2026-09-19
+# (manifest.yaml idsFrozenAt). The 90 sentence ids were cut on 2026-09-21 and are pinned here
+# against accidental drift but are NOT frozen: see pinnedNotFrozenUnitKinds in manifest.yaml for
+# the reason and the condition for freezing them. Ids appear in manifest order, so a sentence sits
+# beside its paragraph and the two sets cannot be separated into sections without breaking the
+# order equality the suite checks.
 masthead-title
 masthead-author
 s0-p1
