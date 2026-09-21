@@ -394,6 +394,11 @@ export const AUDITED_SCROLL_CLASSES = [
   "show-the-code-scroll",
   "kernel-trace-wrap",
   "comparison-scroll",
+  // am-bc6s. Its element already carries tabIndex={0}, role="region" and an aria-label -
+  // LightQuantaInvestigation.tsx:585-589 - so this is a listing of markup that was already
+  // correct, not a repair. Verified non-vacuous the same way as tableWrap: removing the tab
+  // stop takes countUnreachableScrollRegions from 0 to 1 for that file.
+  "light-table-scroll",
   // am-bc6s. The first CSS-module class to reach this list. It is a real audit and not a
   // listing: classTokens above now reads `className={styles.tableWrap}`, so the counter
   // reaches the element. Verified by watching this entry take the counter from 0 to 1 while
