@@ -64,7 +64,12 @@ describe("brownian source-manifest report CLI (am-edn-inventory-brownian-slg)", 
       units: Array<{ id: string; destination?: unknown; locators: Array<{ page: number }> }>;
     };
 
-    assert.equal(manifest.units.length, 87); // 92 until the 2026-09-19 boundary audit retired five units
+    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus the 90
+    // sentence units of sections 0-5 cut on 2026-09-21. This is a roster at mixed granularity: a
+    // paragraph and each of its sentences both appear. The page check below is deliberately a
+    // presence test (>= 1 unit per page), which extra granularity cannot break; anything that
+    // RECONCILES counts against the page map must collapse to block granularity first.
+    assert.equal(manifest.units.length, 177);
     for (const unit of manifest.units) {
       assert.ok(unit.destination, `Unit ${unit.id} must have a destination`);
     }
