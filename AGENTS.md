@@ -107,6 +107,39 @@ still ran.
 
 ---
 
+## A Count Used As Evidence Is Anchored, And Names Its Denominator
+
+A number offered as proof carries two obligations, not one. The denominator rule is
+already law here. This is its other half: **the pattern that produced the count must
+be anchored to the thing being counted.**
+
+Four independent instances in a single session, in four different measurements:
+
+- `grep -ciE "MIT"` matched **`Emit`** in a comment, so a file with no licence header
+  read as having one.
+- `sort -u -t: -k2` deduped by the COUNT field, silently deleting 14 of 23 files from
+  a per-file inventory that was then used to assign work.
+- An unanchored `id:` regex reported 40 sentence ids where an anchored one found 37
+  distinct and no duplicates — nearly raising a false id collision on frozen ids.
+- `blockCoversCode` used `includes`, which cannot tell a string literal in executable
+  code from the same literal inside a comment, so a note saying a site was untestable
+  credited that site as tested.
+
+The direction is never random. An unanchored pattern fails toward whatever text is
+most common near the thing you are measuring, and in a codebase that is usually the
+prose ABOUT it — comments, gap-notes, documentation — which correlates with absence.
+So the error reliably inflates coverage and deflates debt.
+
+Practically: anchor with `^`, `$`, `\b` and multi-word forms rather than bare tokens;
+`sort -u` only on a whole line or dedupe in python by the identifying field; print the
+matched tokens, not just the count, so a false positive is visible; and where a tool
+already computes the number correctly, use it instead of re-deriving the number with a
+grep. A count that will be reported, or used to assign work, is built keyed by its
+identity and states its item count beside its total — `23 files / 87 sites` fails
+loudly in a way `136` does not.
+
+---
+
 ## Branch Policy
 
 - The primary branch is `main`.
