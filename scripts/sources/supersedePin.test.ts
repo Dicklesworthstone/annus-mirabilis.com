@@ -8,6 +8,7 @@
  */
 
 import { describe, expect, test } from "bun:test";
+import { FacsimileError } from "./facsimileSourceSchema.ts";
 import {
   assertSupersedeAuthorized,
   retiredPinPath,
@@ -23,18 +24,40 @@ const GOOD: SupersedeAuthorization = {
     "The pinned extract's first page is printed 508 by L. Hermann, not printed 549 by Einstein.",
 };
 
-function refusalFor(key: string, auth: SupersedeAuthorization | undefined): string {
+/**
+ * The refusal itself, code and message together.
+ *
+ * am-muyh. These five sites all throw `pinned-digest-conflict` and the tests below have always told
+ * them apart by MESSAGE, which is the only thing that distinguishes them: five throws in one
+ * function, one code. The refusal ratchet credits a site when a test names the QUOTED CODE, so it
+ * credited none of this file - five genuinely discriminated sites, scored zero - while a single
+ * `expect(err.code).toBe("pinned-digest-conflict")` that distinguishes nothing would have credited
+ * all nine sites in this module.
+ *
+ * Both assertions are made from here on: the code so the measurement can see the coverage, the
+ * message because it is the assertion that would fail if the wrong throw fired. Deleting any one of
+ * these five refusals fails the test that drives it, which the code assertion alone would not do.
+ */
+function refusal(
+  key: string,
+  auth: SupersedeAuthorization | undefined,
+): { code: string; message: string } {
   try {
     assertSupersedeAuthorized(key, auth);
   } catch (err) {
-    return err instanceof Error ? err.message : String(err);
+    if (err instanceof FacsimileError) return { code: err.code, message: err.message };
+    return {
+      code: "not-a-FacsimileError",
+      message: err instanceof Error ? err.message : String(err),
+    };
   }
-  return "";
+  return { code: "no-refusal", message: "" };
 }
 
 describe("superseding a pinned facsimile refuses by default (am-cf6m)", () => {
   test("no authorization at all is refused, and says why", () => {
-    const message = refusalFor("ap-17-549", undefined);
+    const { code, message } = refusal("ap-17-549", undefined);
+    expect(code).toBe("pinned-digest-conflict");
     expect(message).toContain("requires an authorization record");
     expect(message).toContain("Rule 1");
   });
@@ -42,28 +65,41 @@ describe("superseding a pinned facsimile refuses by default (am-cf6m)", () => {
   test("an authorization for a DIFFERENT key does not reach this one", () => {
     // The real hazard: one authorization was granted for ap-17-549 and conditionally for two
     // others. An authorization for one facsimile is not an authorization for another.
-    const message = refusalFor("ap-19-289", GOOD);
+    const { code, message } = refusal("ap-19-289", GOOD);
+    expect(code).toBe("pinned-digest-conflict");
     expect(message).toContain("does not reach 'ap-19-289'");
   });
 
   test("a summary instead of the authorizing words is refused", () => {
-    const message = refusalFor("ap-17-549", { ...GOOD, authorizationText: "approved" });
+    const { code, message } = refusal("ap-17-549", { ...GOOD, authorizationText: "approved" });
+    expect(code).toBe("pinned-digest-conflict");
     expect(message).toContain("quoted verbatim");
   });
 
   test("an empty authorization text is refused and reports that it got nothing", () => {
-    const message = refusalFor("ap-17-549", { ...GOOD, authorizationText: "   " });
-    expect(message).toContain("quoted verbatim");
+    // Both branches of this one throw's message, which is the only thing distinguishing it from
+    // the four other pinned-digest-conflict refusals in the same function. Whitespace trims to
+    // zero characters; an empty string is falsy and reports having got nothing at all.
+    const whitespace = refusal("ap-17-549", { ...GOOD, authorizationText: "   " });
+    expect(whitespace.code).toBe("pinned-digest-conflict");
+    expect(whitespace.message).toContain("quoted verbatim");
+    expect(whitespace.message).toContain("0 characters");
+
+    const { code, message } = refusal("ap-17-549", { ...GOOD, authorizationText: "" });
+    expect(code).toBe("pinned-digest-conflict");
+    expect(message).toContain("nothing");
   });
 
   test("an unnamed authorizer is refused", () => {
-    expect(refusalFor("ap-17-549", { ...GOOD, authorizedBy: "" })).toContain(
-      "requires naming who authorized it",
-    );
+    const { code, message } = refusal("ap-17-549", { ...GOOD, authorizedBy: "" });
+    expect(code).toBe("pinned-digest-conflict");
+    expect(message).toContain("requires naming who authorized it");
   });
 
   test("a supersede with no checkable reason is refused", () => {
-    expect(refusalFor("ap-17-549", { ...GOOD, reason: "" })).toContain("requires a reason");
+    const { code, message } = refusal("ap-17-549", { ...GOOD, reason: "" });
+    expect(code).toBe("pinned-digest-conflict");
+    expect(message).toContain("requires a reason");
   });
 
   test("the genuine authorization passes, so the negatives above are not vacuous", () => {
