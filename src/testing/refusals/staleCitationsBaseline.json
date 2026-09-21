@@ -9,7 +9,7 @@
   "src/content/compiler/compiler.ts": 6,
   "src/content/dimensions/runtimeMapping.ts": 2,
   "src/content/editions/brownianInventory.ts": 25,
-  "src/content/editions/editionDeclaration.ts": 17,
+  "src/content/editions/editionDeclaration.ts": 0,
   "src/content/editions/reconciliation.ts": 50,
   "src/content/editions/segmentSentences.ts": 10,
   "src/content/kernel/verify.ts": 1,
