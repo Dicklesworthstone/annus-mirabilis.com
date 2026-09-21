@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import {
+  allPaperCoverage,
   coverageReport,
   coverageReportIsHonest,
   coverageReportJson,
@@ -21,31 +22,64 @@ import { SENTENCE_ABBREVIATIONS } from "../../content/editions/segmentSentences.
  */
 describe("coverage report honesty", () => {
   test("a real report is honest, and the predicate is not the only witness", () => {
-    const report = coverageReport({ slug: "special-relativity" });
-    const md = coverageReportMarkdown(report);
-    const json = coverageReportJson(report);
+    // Every paper of the production export, not one hand-picked specimen.
+    //
+    // This pinned a single paper whose ledger was absent, and asserted that verdict as a guard on
+    // the fixture. The guard drifted twice in one day: light-quanta left the absent state when its
+    // ledger landed, the test was re-pointed to special-relativity, and 30ab1df0 put a ledger on
+    // disk for that paper too. Nothing between the braces below ever depended on the ledger state -
+    // these assertions are about the predicate agreeing with two witnesses it does not compute -
+    // so the guard was pinning an incidental fact and buying a subscription to every future ledger.
+    // Running the whole corpus covers every ledger state that exists without naming which paper
+    // holds which, so the next ledger to land cannot break it.
+    const reports = allPaperCoverage();
+    // The denominator, keyed by identity rather than counted: a paper added or removed stops here
+    // and is revisited, and an empty corpus cannot pass vacuously.
+    expect([...reports].map((r) => r.slug).sort()).toEqual([
+      "brownian-motion",
+      "light-quanta",
+      "mass-energy",
+      "molecular-dimensions",
+      "special-relativity",
+    ]);
 
-    expect(coverageReportIsHonest(md, json)).toBe(true);
-    // Asserted independently of the predicate, so a weakened predicate cannot carry the test.
-    expect(md.includes("%")).toBe(false);
-    for (const key of Object.keys(JSON.parse(json) as Record<string, unknown>)) {
-      expect(/percent|completeness|score/i.test(key)).toBe(false);
+    for (const report of reports) {
+      const md = coverageReportMarkdown(report);
+      const json = coverageReportJson(report);
+
+      expect(coverageReportIsHonest(md, json)).toBe(true);
+      // Asserted independently of the predicate, so a weakened predicate cannot carry the test.
+      expect(md.includes("%")).toBe(false);
+      for (const key of Object.keys(JSON.parse(json) as Record<string, unknown>)) {
+        expect(/percent|completeness|score/i.test(key)).toBe(false);
+      }
     }
-    // The specimen must be a paper with NO ledger, which is the verdict being asserted.
-    // It was light-quanta until 2026-09-21, when a skeleton put a file on disk and the
-    // honest verdict there became not-applicable-partial-ledger. Re-pointed rather than
-    // widened: this test is about the absent case specifically.
-    expect(report.translation).toBe("not-applicable-no-ledger");
   });
 
   test("prose that denies scoring is honest: the report may say it does not score", () => {
-    // These are the real report's own notes. A vocabulary ban would refuse them.
-    const md = coverageReportMarkdown(coverageReport({ slug: "light-quanta" }));
-    expect(md).toContain("This is not completeness.");
-    expect(md).toContain("not as a score");
-    expect(
-      coverageReportIsHonest(md, coverageReportJson(coverageReport({ slug: "light-quanta" }))),
-    ).toBe(true);
+    // These are the real reports' own notes. A vocabulary ban would refuse them.
+    //
+    // This pinned one exact sentence, "This is not completeness.", from light-quanta. That sentence
+    // is emitted by the absent and partial ledger notes only; light-quanta's ledger became covering
+    // at 22cd5562 and its note moved to the third arm, which denies completeness in different words.
+    // The thesis is the vocabulary, not the sentence - every arm denies completeness, and the gloss
+    // note denies scoring unconditionally - so it is asserted over every paper and therefore over
+    // every ledger state the corpus is in.
+    const reports = allPaperCoverage();
+    expect([...reports].map((r) => r.slug).sort()).toEqual([
+      "brownian-motion",
+      "light-quanta",
+      "mass-energy",
+      "molecular-dimensions",
+      "special-relativity",
+    ]);
+
+    for (const report of reports) {
+      const md = coverageReportMarkdown(report);
+      expect(md).toMatch(/not completeness/);
+      expect(md).toContain("not as a score");
+      expect(coverageReportIsHonest(md, coverageReportJson(report))).toBe(true);
+    }
   });
 
   test("REJECT: a percent sign in the Markdown is not honest", () => {
