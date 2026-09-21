@@ -66,6 +66,41 @@ $$
 --- REVIEWED TRANSCRIPTION PAGE 5 OF 12 ---
 [[ANNALEN-PAGE 553]]
 
+wobei
+$$
+d x_1 d y_1 \ldots d z_n = d x'_1 d y'_1 \ldots d z'_n.
+$$
+Es ist also:
+$$
+\frac{d B}{d B'} = \frac{J}{J'}.
+$$
+
+Aus der in den zitierten Arbeiten gegebenen molekularen Theorie der Wärme läßt sich aber leicht folgern[[FN-MARK 1)]], daß $d B/B$ bez. $d B'/B$ gleich ist der Wahrscheinlichkeit dafür, daß sich in einem beliebig herausgegriffenen Zeitpunkte die Teilchenschwerpunkte in den Gebieten $(d x_1 \ldots d z_n)$ bez. in den Gebieten $(d x'_1 \ldots d z'_n)$ befinden. Sind nun die Bewegungen der einzelnen Teilchen (mit genügender Annäherung) voneinander unabhängig, ist die Flüssigkeit homogen und wirken auf die Teilchen keine Kräfte, so müssen bei gleicher Größe der Gebiete die den beiden Gebietssystemen zukommenden Wahrscheinlichkeiten einander gleich sein, so daß gilt:
+$$
+\frac{d B}{B} = \frac{d B'}{B}.
+$$
+Aus dieser und aus der zuletzt gefundenen Gleichung folgt aber
+$$
+J = J'.
+$$
+
+Es ist somit erwiesen, daß $J$ weder von $V^*$ noch von $x_1, y_1 \ldots z_n$ abhängig ist. Durch Integration erhält man
+$$
+B = \int J d x_1 \ldots d z_n = J V^{*n}
+$$
+und daraus
+$$
+F = -\frac{R T}{N} \{ \lg J + n \lg V^* \}
+$$
+und
+$$
+p = -\frac{\partial F}{\partial V^*} = \frac{R T}{V^*} \frac{n}{N} = \frac{R T}{N} \nu.
+$$
+
+Durch diese Betrachtung ist gezeigt, daß die Existenz des osmotischen Druckes eine Konsequenz der molekularkinetischen Theorie der Wärme ist, und daß nach dieser Theorie gelöste Moleküle und suspendierte Körper von gleicher Anzahl sich in bezug auf osmotischen Druck bei großer Verdünnung vollkommen gleich verhalten.
+
+[[FN 1)]] [[SPERR]]A. Einstein[[/SPERR]], Ann. d. Phys. 11. p. 170. 1903.
+
 --- REVIEWED TRANSCRIPTION PAGE 6 OF 12 ---
 [[ANNALEN-PAGE 554]]
 

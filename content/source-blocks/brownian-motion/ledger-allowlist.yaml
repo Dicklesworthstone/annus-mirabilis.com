@@ -1,0 +1,39 @@
+# Acknowledged validator warnings for the ap-17-549 ledger.
+#
+# An entry here says an editor looked at a warning and judged the LEDGER correct. It does
+# not silence anything: each entry names the exact line by fingerprint, so it goes stale
+# the moment that line changes, and the validator then reports it as a stale entry.
+#
+# Every entry below is acknowledged by agent:LilacValley, which is NOT a human editor.
+# These are machine-draft acknowledgements and a German source reviewer should re-judge
+# them alongside the text; docs/OWNERS.md still lists open-german-source-brownian-motion
+# as "open: recruiting".
+#
+# THE WARNING BEING ACKNOWLEDGED, and why it is a false positive here. `short-line` exists
+# to catch a real defect named in AGENTS.md: "sentences broken into one-word lines", the
+# OCR fragmentation where a column wrap shreds prose into stubs. On page 553 Einstein
+# prints genuine one- and two-word connectives between consecutive display equations -
+# "wobei", "und daraus" - and LEDGER_FORMAT.md requires `$$` to open its own line, so a
+# short connective introducing a display has nowhere else to go. Reflowing them into a
+# neighbouring sentence would be inventing text to quiet a heuristic, which is the one
+# thing a diplomatic transcription may never do.
+#
+# NOTE ON FORMAT: reasons are single-line because the provenance YAML reader
+# (src/content/provenance/yaml.ts) is hand-rolled and does not support folded block
+# scalars. A `>-` reason parses under the `yaml` package and fails here.
+
+- ledgerKey: ap-17-549
+  code: short-line
+  ledgerPage: 5
+  lineFingerprint: ad6f70890a12d8f2
+  reason: "Printed connective 'wobei' standing alone between two display equations on page 553. Source text, not an OCR line fragment; the format requires the following $$ to begin its own line, so the word cannot share a line with the equation it introduces."
+  editor: "agent:LilacValley"
+  date: "2026-09-20"
+
+- ledgerKey: ap-17-549
+  code: short-line
+  ledgerPage: 5
+  lineFingerprint: 8383d78b3282cfeb
+  reason: "Printed connective 'und daraus' standing alone between the integrated B and the free energy F on page 553. Source text, same reasoning as the 'wobei' entry above."
+  editor: "agent:LilacValley"
+  date: "2026-09-20"
