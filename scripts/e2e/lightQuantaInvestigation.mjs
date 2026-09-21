@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { chromium } from "playwright";
+import { decodeLightInvestigationSettings } from "../../src/discovery/lightQuanta/transfer.ts";
 
 // Real built route only. No DOM substitute is allowed for a navigation failure.
 const base = process.env.BASE_URL ?? "http://127.0.0.1:3000";
@@ -55,6 +56,42 @@ try {
       assert.equal(await root.locator('[data-comparison-quantity="photocurrent"] td').last().locator('[data-result-status="underdetermined"]').count(),1);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
       assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);
+      await frequency.fill("660");
+      await root.getByRole("button",{name:"Apply investigation settings",exact:true}).click();
+      const sourceCount=Number(await value("effectiveIndependentCount",1));
+      const handoff=await root.locator("[data-coefficient-handoff]").getAttribute("href");
+      // Unapplied edits must not leak into either share format.
+      await frequency.fill("999");
+      await page.evaluate(()=>Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async()=>{throw new Error("clipboard blocked");}}}));
+      await root.getByRole("button",{name:"Share accepted investigation settings",exact:true}).click();
+      const sharedHref=await root.getByLabel(/Settings link for snapshot/).inputValue();
+      const linked=decodeLightInvestigationSettings(new URL(sharedHref).search);
+      assert.equal(linked.kind,"settings");assert.equal(linked.parameters.frequency,660e12);
+      const downloadPromise=page.waitForEvent("download");
+      await root.getByRole("button",{name:"Export accepted comparison as JSON",exact:true}).click();
+      const downloaded=await downloadPromise;
+      const evidence=JSON.parse(await readFile(await downloaded.path(),"utf8"));
+      assert.equal(evidence.current.parameters.frequency,660e12);
+      assert.equal(evidence.privateNotesIncluded,false);
+      assert.equal(JSON.stringify(evidence).includes("Power changes rate"),false);
+      const restore=await context.newPage();
+      try {
+        await restore.goto(sharedHref,{waitUntil:"networkidle"});
+        const restored=restore.locator("[data-light-investigation]");
+        await restore.waitForFunction(()=>document.querySelector("[data-light-investigation]")?.getAttribute("data-dirty")==="true");
+        assert.equal(await restored.getByLabel("Frequency (THz)",{exact:true}).inputValue(),"660");
+        assert.equal(await restored.getAttribute("data-snapshot-version"),"1");
+        await restored.getByRole("button",{name:"Apply investigation settings",exact:true}).click();
+        assert.equal(await restored.getAttribute("data-dirty"),"false");
+        await restore.goto(new URL(handoff,base).href,{waitUntil:"networkidle"});
+        const entry=restore.locator("[data-coefficient-shared-settings]");
+        assert.equal(await entry.isVisible(),true);
+        await entry.getByRole("button",{name:"Apply linked coefficient settings",exact:true}).click();
+        assert.equal(await entry.count(),0);
+        const countText=await restore.locator('tr[data-quantity-id="effectiveIndependentCount"] td').last().innerText();
+        assert.equal(countText,sourceCount.toExponential(6));
+      } finally {await restore.close();}
+      assert.deepEqual(requests,[]);
       await page.screenshot({path:resolve(directory,`investigation-${width}.png`),fullPage:true});
       results.push({width,passed:true});
     } catch(error) {

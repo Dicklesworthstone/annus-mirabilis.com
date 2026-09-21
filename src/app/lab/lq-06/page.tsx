@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
-import { CoefficientMatchComparison } from "../../../components/lab/lq06/CoefficientMatchLab.tsx";
+import { CoefficientMatchEntry } from "../../../components/lab/lq06/CoefficientMatchEntry.tsx";
 import type { PreparedLq06Example } from "../../../experiments/lq06/session.ts";
 import example from "../../../generated/lq06-example.json";
 
@@ -29,7 +29,7 @@ export default function CoefficientMatchPage() {
         </p>
       </header>
 
-      <CoefficientMatchComparison example={example as unknown as PreparedLq06Example} />
+      <CoefficientMatchEntry example={example as unknown as PreparedLq06Example} />
 
       <section className="reading" id="the-move-theory">
         <p className="eyebrow">The Physical Argument</p>

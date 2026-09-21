@@ -31,6 +31,9 @@ describe("Connected light investigation: real stores and server-rendered reading
     expect(html).toContain('data-quantity-id="effectiveIndependentCount" data-result-status="value"');
     expect(html).toContain('href="/papers/light-quanta/view/facsimile/"');
     expect(html).toContain("hypothetical surface");
+    expect(html).toContain("Share accepted investigation settings");
+    expect(html).toContain("Export accepted comparison as JSON");
+    expect(html).toContain("data-coefficient-handoff");
   });
   test("renders real KaTeX plus MathML and links all nine specialist instruments", () => {
     expect(html).toContain('class="katex"');expect(html).toContain("<math");

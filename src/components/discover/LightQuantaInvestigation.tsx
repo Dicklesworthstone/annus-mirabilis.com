@@ -19,6 +19,8 @@ import { ExperimentRuntimeError } from "../../experiments/refusal.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { display, identity, result } from "../lab/presentation.ts";
+import { InvestigationTransfer } from "./InvestigationTransfer.tsx";
+import { decodeLightInvestigationSettings } from "../../discovery/lightQuanta/transfer.ts";
 
 const COMPARISON_ROWS = [
   ["radiationEnergy", "Radiation energy held fixed during a volume comparison", 1e9, "nJ"],
@@ -84,7 +86,17 @@ export function LightQuantaInvestigation({ example, equations, anchorPrefix }: {
   const changes = changedInvestigationInputs(baseline, snapshot);
   const entropy = result(snapshot, "radiationEntropy");
 
-  useEffect(() => { setReady(true); }, []);
+  useEffect(() => {
+    setReady(true);
+    const linked = decodeLightInvestigationSettings(window.location.search);
+    if (linked.kind === "settings") {
+      setDraft(lightInvestigationDraft(linked.parameters));
+      setDirty(true);
+      setAnnouncement(linked.sourceDigest === example.sourceDigest
+        ? "Shared settings are in the form. Choose Apply investigation settings; the worked example is still displayed."
+        : "This link names a different source revision. Its settings are in the form; applying them uses this build, not a claimed replay of the older results.");
+    } else if (linked.kind === "invalid") setError(linked.message);
+  }, [example.sourceDigest]);
 
   function apply(parameters: LightInvestigationParameters, compareWith?: AcceptedSnapshot) {
     const outcome = session.apply(parameters);
@@ -277,6 +289,8 @@ export function LightQuantaInvestigation({ example, equations, anchorPrefix }: {
         <a href="/lab/lq-08/">Open the photoelectric bench and its model limits</a>
       </details>
     </section>
+
+    <InvestigationTransfer baseline={baseline} current={snapshot} sourceDigest={example.sourceDigest} />
 
     <section aria-labelledby={`${id}-comparison`}>
       <h2 id={`${id}-comparison`}>Pinned baseline and current accepted result</h2>
