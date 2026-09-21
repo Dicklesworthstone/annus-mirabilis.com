@@ -132,7 +132,7 @@ test("Skeleton fixture behavior across structural vs completeness modes", () => 
   assert.equal(closingErrors.length, 2); // dateline and received
 });
 
-test("Mutation matrix: each single mutation raises exactly its code and no unrelated code (validateLedger.ts:957)", () => {
+test("Mutation matrix: each single mutation raises exactly its code and no unrelated code (validateLedger.ts:962)", () => {
   const baseContent = loadFixture("two-page-valid.txt");
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
@@ -745,7 +745,7 @@ test("validateLedger: (validateLedger.ts:778) anchor-duplicate raised when same 
   assert.ok(!validRes.errors.some((e) => e.code === "anchor-duplicate"));
 });
 
-test("validateLedger: (validateLedger.ts:975) forbidden-token raised for machine confidence JSON output", () => {
+test("validateLedger: (validateLedger.ts:980) forbidden-token raised for machine confidence JSON output", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -769,7 +769,7 @@ test("validateLedger: (validateLedger.ts:975) forbidden-token raised for machine
   assert.ok(!validRes.errors.some((e) => e.code === "forbidden-token"));
 });
 
-test("validateLedger: (validateLedger.ts:1092) heading-order raised when section heading number is non-monotonic", () => {
+test("validateLedger: (validateLedger.ts:1097) heading-order raised when section heading number is non-monotonic", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -795,7 +795,7 @@ test("validateLedger: (validateLedger.ts:1092) heading-order raised when section
   assert.ok(!validRes.errors.some((e) => e.code === "heading-order"));
 });
 
-test("validateLedger: (validateLedger.ts:1115) heading-order raised when part heading number is non-monotonic", () => {
+test("validateLedger: (validateLedger.ts:1120) heading-order raised when part heading number is non-monotonic", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -821,7 +821,7 @@ test("validateLedger: (validateLedger.ts:1115) heading-order raised when part he
   assert.ok(!validRes.errors.some((e) => e.code === "heading-order"));
 });
 
-test("validateLedger: (validateLedger.ts:1247) unclosed-tag raised when closing emphasis tag lacks opening tag", () => {
+test("validateLedger: (validateLedger.ts:1253) unclosed-tag raised when closing emphasis tag lacks opening tag", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -865,7 +865,7 @@ test("validateLedger: (validateLedger.ts:1264) math-unbalanced raised when line 
   assert.ok(!validRes.errors.some((e) => e.code === "math-unbalanced"));
 });
 
-test("validateLedger: (validateLedger.ts:1445) unclosed-tag raised when opening emphasis tag is unclosed at EOF", () => {
+test("validateLedger: (validateLedger.ts:1451) unclosed-tag raised when opening emphasis tag is unclosed at EOF", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -887,7 +887,7 @@ test("validateLedger: (validateLedger.ts:1445) unclosed-tag raised when opening 
   assert.ok(!validRes.errors.some((e) => e.code === "unclosed-tag"));
 });
 
-test("validateLedger: (validateLedger.ts:1523) fn-continuation-orphan raised when page has FN-CONT but prior page lacks FN-CONTINUES", () => {
+test("validateLedger: (validateLedger.ts:1529) fn-continuation-orphan raised when page has FN-CONT but prior page lacks FN-CONTINUES", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -913,7 +913,7 @@ test("validateLedger: (validateLedger.ts:1523) fn-continuation-orphan raised whe
   assert.ok(!validRes.errors.some((e) => e.code === "fn-continuation-orphan"));
 });
 
-test("validateLedger: (validateLedger.ts:1554) continues-orphan raised when text follows CONTINUES on the same page", () => {
+test("validateLedger: (validateLedger.ts:1560) continues-orphan raised when text follows CONTINUES on the same page", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -992,6 +992,18 @@ test("A footnote mark printed in a SECTION HEADING is seen (LEDGER_FORMAT 4.6)",
 });
 
 /**
+ * CITATIONS REPOINTED +6 ON 2026-09-21, WITHIN AN HOUR OF BEING WRITTEN. A colleague
+ * landed ac6809ca, "continues-orphan fired on a correctly formatted page", an ordinary
+ * and correct ledger fix that added six lines above line 957. Every citation below that
+ * point stopped naming its site, this file went from 0 owed back to 10, and nothing
+ * reported it. Nobody did anything wrong: that is simply what a line number does when a
+ * file is edited above it.
+ *
+ * Every repointing was re-derived by PLANTING against their version - rename one site's
+ * code, see which single test reddens - never by adding six. The uniform offset is what
+ * the answer turned out to be, not how it was obtained, and next time the offset may not
+ * be uniform.
+ *
  * am-r3qt. Three refusal sites in validateLedger that nothing drove, plus the six
  * citations above that had drifted off their sites (+21 and +9 in two bands) and were
  * silently crediting nothing.
@@ -1040,7 +1052,7 @@ test("validateLedger: (validateLedger.ts:569) first-marker raised when the page-
   assert.equal(clean.valid, true);
 });
 
-test("validateLedger: (validateLedger.ts:1507) fn-continuation-orphan raised when FN-CONTINUES has no FN-CONT after it", () => {
+test("validateLedger: (validateLedger.ts:1513) fn-continuation-orphan raised when FN-CONTINUES has no FN-CONT after it", () => {
   // The mirror of the site at 1523, which catches an FN-CONT with no FN-CONTINUES before
   // it. A footnote promised to continue and then dropped loses text silently, which is
   // why both directions are separate refusals rather than one symmetry check.
@@ -1065,7 +1077,7 @@ test("validateLedger: (validateLedger.ts:1507) fn-continuation-orphan raised whe
   );
 });
 
-test("validateLedger: (validateLedger.ts:1542) continues-orphan raised when CONTINUES sits on the last page", () => {
+test("validateLedger: (validateLedger.ts:1548) continues-orphan raised when CONTINUES sits on the last page", () => {
   // A CONTINUES tag says the paragraph runs onto the next page. On the final page there
   // is no next page, so the tag is either a transcription that stopped early or a marker
   // copied from elsewhere. Distinct from the site at 1554, which catches text following
