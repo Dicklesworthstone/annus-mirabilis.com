@@ -49,18 +49,20 @@ describe("no ledger present is never complete", () => {
     expect(contract.checks.find((c) => c.checkNumber === 14)?.outcome).toBe("not-available");
   });
 
-  test("the four ledgerless papers have no ledger; a fake unit count still is not complete", () => {
-    // Two changes on 2026-09-20, in opposite directions, and neither is a relaxation.
-    // mass-energy LEFT: it became the first paper in the project with a ledger, so its
-    // absence is no longer a fact to assert. brownian-motion JOINED: it had no ledger and
-    // was not listed, so none of the assertions below had ever run for it. The pawl above
-    // found that by checking membership against the disk in both directions.
-    expect(PAPERS_WAITING_ON_CLOUD_OCR).toEqual([
-      "light-quanta",
-      "brownian-motion",
-      "special-relativity",
-      "molecular-dimensions",
-    ]);
+  test("every ledgerless paper has no ledger; a fake unit count still is not complete", () => {
+    // Three membership changes so far, in both directions, none of them a relaxation.
+    // mass-energy LEFT on 2026-09-20 on gaining a ledger; brownian-motion JOINED the same day
+    // because it had none and was not listed, so nothing below had ever run for it; and
+    // brownian-motion LEFT on 2026-09-21 on gaining ap-17-549-reviewed.txt. The pawl above found
+    // the second and the third by checking membership against the disk in both directions.
+    //
+    // THE LITERAL LIST THAT USED TO SIT HERE IS GONE, and its absence is the point. It restated
+    // PAPERS_WAITING_ON_CLOUD_OCR a second time, so every membership change broke this test for a
+    // reason that was not a defect, and the count was in the test's NAME as well - a third place
+    // to edit. The pawl above already derives the whole list from the disk: it asserts, for every
+    // paper, that listed === !present. Pinning the literal beside it added no guarantee and two
+    // more places to be wrong.
+    expect(PAPERS_WAITING_ON_CLOUD_OCR.length).toBeGreaterThan(0);
     for (const slug of PAPERS_WAITING_ON_CLOUD_OCR) {
       const record = inspectLedgerPresence(slug);
       expect(record.presence).toBe("absent");

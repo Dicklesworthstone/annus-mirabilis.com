@@ -39,10 +39,19 @@ export const PAPER_BIB_KEYS: Readonly<Record<RouteSlug, string>> = Object.freeze
  * disk and the validator reports it clean. Having a ledger is also not having a REVIEWED
  * ledger: mass-energy's is a machine draft with hand correction, its receipt says so, and
  * `open-german-source-mass-energy` is still unfilled in docs/OWNERS.md.
+ *
+ * `brownian-motion` LEFT on 2026-09-21, for the reason the paragraph above allows and no other:
+ * public/papers/transcripts/ap-17-549-reviewed.txt exists on disk. The pawl in
+ * ledgerAbsence.test.ts is what reported it, firing in the opposite direction from the one it was
+ * written for - it was added to catch a paper MISSING from this list, and it caught a paper that
+ * should no longer be in it. Membership checked against the disk in both directions is why the same
+ * assertion covered both cases.
+ *
+ * Leaving this list is still not a claim of review. ap-17-549 is a machine draft with hand
+ * correction, its receipt records ledgerStatus in-progress, and no reviewer is assigned.
  */
 export const PAPERS_WAITING_ON_CLOUD_OCR = [
   "light-quanta",
-  "brownian-motion",
   "special-relativity",
   "molecular-dimensions",
 ] as const satisfies readonly RouteSlug[];
