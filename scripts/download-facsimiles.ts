@@ -1435,9 +1435,11 @@ export async function main(
     console.log(
       "\nWhat a green here does NOT mean: a digest check proves the bytes are the ones " +
         "recorded, not that the recorded bytes are the right pages. --verify was green " +
-        "all night while three pins served the wrong article. Parent-scan comparison is " +
-        "in facsimile-pins (requiredInCi false, needs the git-ignored /sources); the " +
-        "text-layer folio check is blocked on the pdftotext denylist ruling.",
+        "all night while three pins served the wrong article. Nor does it prove the " +
+        "parent scan was the right VOLUME: a digest binds these bytes to this record, " +
+        "not this record to Annalen 17. Parent-scan comparison is in facsimile-pins " +
+        "(requiredInCi false, needs the git-ignored /sources); the text-layer folio " +
+        "check is blocked on the pdftotext denylist ruling.",
     );
     if (!allOk) {
       console.error(

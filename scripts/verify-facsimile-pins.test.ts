@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -21,6 +23,7 @@ import {
   requireTool,
   UNMEASURABLE_CODES,
   verifyFacsimilePins,
+  verifyPin,
 } from "./verify-facsimile-pins.ts";
 
 const REPO_ROOT = getDefaultRepoRoot();
@@ -583,6 +586,119 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.ok(step?.requiredInProfiles.includes("launch"), `must contain ${String("launch")}`);
       assert.equal(step?.availability.scriptPath, "scripts/verify-facsimile-pins.ts");
       assert.equal(step?.availability.tool, "pdftoppm");
+    });
+  });
+
+  describe("5b. Every artifact refusal, driven by the condition that raises it (am-muyh)", () => {
+    // Eight coded refusals in verifyPin had no test. Each is reached here by building
+    // the state it exists for, against a temp root with no PDFs, so none of them needs
+    // a tool, a parent scan, or the network. The point is not coverage arithmetic: an
+    // untested refusal is a sentence nobody has ever seen the code produce, and three
+    // of these fire on exactly the conditions that made this gate red all evening.
+    const tempRoot = (name: string): string => {
+      const dir = path.join(REPO_ROOT, "artifacts", "test-tmp", "pin-refusals", name);
+      fs.mkdirSync(dir, { recursive: true });
+      return dir;
+    };
+
+    const baseConfig = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+      key: "ap-99-001",
+      articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [10, 11] },
+      verifiedAnchor: { parentPageIndex: 10, printedPage: 1, verifiedBy: "test-fixture" },
+      pinned: {
+        path: "public/papers/pdfs/ap-99-001.pdf",
+        sha256: "a".repeat(64),
+        pageCount: 2,
+        parent: { path: "sources/parents/ap-99-001-parent.pdf", sha256: "b".repeat(64) },
+      },
+      ...overrides,
+    });
+
+    // Qualified by check, not by code alone. My first version of this block matched on
+    // the code only, and the invalid-config arm passed against the ANCHOR check's
+    // invalid-config while the artifact one had been renamed away - a green that proved
+    // nothing. Two checks legitimately share that code, so the pair is the identity.
+    const codesFrom = (config: unknown, root: string): string[] =>
+      verifyPin(config, root)
+        .findings.filter((finding) => finding.check === "artifact")
+        .map((finding) => finding.code);
+
+    // The two digest refusals sit BELOW requireTool inside verifyPin, so on a host with
+    // no poppler they are unreachable and an assertion about them would go red for the
+    // wrong reason. They are skipped by name there rather than quietly passing: a
+    // refusal nobody could reach is not-measured, and saying so is the honest answer.
+    const toolGated =
+      ["pdftoppm", "pdftotext", "pdfinfo"].every(
+        (tool) => spawnSync(tool, ["-v"], { encoding: "utf8" }).error === undefined,
+      ) === true
+        ? false
+        : "poppler is not on PATH here, so the refusals below requireTool were not measured";
+
+    function writePdf(root: string, relative: string, bytes: Buffer): void {
+      const full = path.join(root, relative);
+      fs.mkdirSync(path.dirname(full), { recursive: true });
+      fs.writeFileSync(full, bytes);
+    }
+
+    test("a config with no pinned artifact at all", () => {
+      const config = baseConfig();
+      delete (config as { pinned?: unknown }).pinned;
+      assert.ok(codesFrom(config, tempRoot("no-pinned")).includes("pinned-pdf-unavailable"));
+    });
+
+    test("a pinned artifact with no parent record", () => {
+      const config = baseConfig();
+      delete ((config as { pinned: Record<string, unknown> }).pinned as { parent?: unknown })
+        .parent;
+      assert.ok(codesFrom(config, tempRoot("no-parent-record")).includes("parent-record-missing"));
+    });
+
+    test("a config declaring no printed range or parent page indices", () => {
+      const config = baseConfig({ articlePages: {} });
+      assert.ok(codesFrom(config, tempRoot("no-range")).includes("invalid-config"));
+    });
+
+    test("a pinned PDF that is not on disk", () => {
+      // The temp root is empty, so the recorded path resolves to nothing.
+      assert.ok(
+        codesFrom(baseConfig(), tempRoot("absent-extract")).includes("pinned-pdf-unavailable"),
+      );
+    });
+
+    test("a parent scan that is not on disk", () => {
+      // The extract exists and the parent does not: this is the CI condition, and it
+      // must name the parent rather than the extract.
+      const root = tempRoot("absent-parent");
+      writePdf(root, "public/papers/pdfs/ap-99-001.pdf", Buffer.from("%PDF-1.4\n"));
+      const codes = codesFrom(baseConfig(), root);
+      assert.ok(codes.includes("parent-pdf-unavailable"), codes.join(", "));
+      assert.ok(
+        !codes.includes("pinned-pdf-unavailable"),
+        "the extract is present and must not be blamed",
+      );
+    });
+
+    test("a pinned PDF whose bytes are not the recorded digest", { skip: toolGated }, () => {
+      const root = tempRoot("extract-digest");
+      writePdf(root, "public/papers/pdfs/ap-99-001.pdf", Buffer.from("not the pinned bytes"));
+      writePdf(root, "sources/parents/ap-99-001-parent.pdf", Buffer.from("not the parent bytes"));
+      assert.ok(codesFrom(baseConfig(), root).includes("pinned-digest-conflict"));
+    });
+
+    test("a parent scan whose bytes are not the recorded digest", { skip: toolGated }, () => {
+      // The extract's digest is made to match so the parent is the only conflict left,
+      // otherwise this arm would pass on the extract's failure.
+      const root = tempRoot("parent-digest");
+      const extractBytes = Buffer.from("the pinned bytes");
+      writePdf(root, "public/papers/pdfs/ap-99-001.pdf", extractBytes);
+      writePdf(root, "sources/parents/ap-99-001-parent.pdf", Buffer.from("not the parent bytes"));
+      const config = baseConfig();
+      (config as { pinned: Record<string, unknown> }).pinned.sha256 = createHash("sha256")
+        .update(extractBytes)
+        .digest("hex");
+      const codes = codesFrom(config, root);
+      assert.ok(codes.includes("parent-digest-conflict"), codes.join(", "));
+      assert.ok(!codes.includes("pinned-digest-conflict"), "the extract digest was made to match");
     });
   });
 
