@@ -25,7 +25,7 @@
   "src/content/schemas/reading.ts": 1,
   "src/content/schemas/source.ts": 57,
   "src/equations/alternateForms.ts": 0,
-  "src/equations/latex/authored.ts": 4,
+  "src/equations/latex/authored.ts": 0,
   "src/equations/latex/collisions.ts": 1,
   "src/equations/latex/notation.ts": 2,
   "src/equations/latex/render.ts": 2,
@@ -39,5 +39,5 @@
   "src/reader/notebook/replayEntry.ts": 2,
   "src/workers/protocol/buffers.ts": 9,
   "src/workers/protocol/decode.ts": 2,
-  "src/workers/protocol/provenance.ts": 9
+  "src/workers/protocol/provenance.ts": 0
 }

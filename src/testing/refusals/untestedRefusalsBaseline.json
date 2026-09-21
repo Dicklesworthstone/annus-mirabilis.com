@@ -98,7 +98,7 @@
   "src/equations/derivations/lowSpeedState.ts": 1,
   "src/equations/derivations/renderLowSpeed.ts": 1,
   "src/equations/genealogy/consistency.ts": 4,
-  "src/equations/latex/authored.ts": 5,
+  "src/equations/latex/authored.ts": 0,
   "src/equations/latex/collisions.ts": 2,
   "src/equations/latex/notation.ts": 2,
   "src/equations/latex/render.ts": 0,
@@ -125,7 +125,7 @@
   "src/experiments/permalink/compatibility.ts": 0,
   "src/experiments/permalink/schema.ts": 0,
   "src/experiments/shelf/definition.ts": 1,
-  "src/experiments/shelf/session.ts": 5,
+  "src/experiments/shelf/session.ts": 3,
   "src/experiments/shelf/settings.ts": 2,
   "src/experiments/tapes/replayer.ts": 0,
   "src/experiments/weave/pointerVoice.ts": 2,
@@ -164,6 +164,6 @@
   "src/workers/protocol/buffers.ts": 2,
   "src/workers/protocol/decode.ts": 1,
   "src/workers/protocol/lq01.ts": 0,
-  "src/workers/protocol/provenance.ts": 5,
+  "src/workers/protocol/provenance.ts": 0,
   "src/workers/protocol/sr03.ts": 0
 }
