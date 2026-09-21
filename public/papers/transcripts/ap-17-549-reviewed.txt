@@ -179,6 +179,30 @@ Der Diffusionskoeffizient der suspendierten Substanz hängt also[[CONTINUES]]
 --- REVIEWED TRANSCRIPTION PAGE 8 OF 12 ---
 [[ANNALEN-PAGE 556]]
 
+außer von universellen Konstanten und der absoluten Temperatur nur vom Reibungskoeffizienten der Flüssigkeit und von der Größe der suspendierten Teilchen ab.
+
+[[HEADING s4]]§ 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion.
+
+Wir gehen nun dazu über, die ungeordneten Bewegungen genauer zu untersuchen, welche, von der Molekularbewegung der Wärme hervorgerufen, Anlaß zu der im letzten Paragraphen untersuchten Diffusion geben.
+
+Es muß offenbar angenommen werden, daß jedes einzelne Teilchen eine Bewegung ausführe, welche unabhängig ist von der Bewegung aller anderen Teilchen; es werden auch die Bewegungen eines und desselben Teilchens in verschiedenen Zeitintervallen als voneinander unabhängige Vorgänge aufzufassen sein, solange wir diese Zeitintervalle nicht zu klein gewählt denken.
+
+Wir führen ein Zeitintervall $\tau$ in die Betrachtung ein, welches sehr klein sei gegen die beobachtbaren Zeitintervalle, aber doch so groß, daß die in zwei aufeinanderfolgenden Zeitintervallen $\tau$ von einem Teilchen ausgeführten Bewegungen als voneinander unabhängige Ereignisse aufzufassen sind.
+
+Seien nun in einer Flüssigkeit im ganzen $n$ suspendierte Teilchen vorhanden. In einem Zeitintervall $\tau$ werden sich die $X$-Koordinaten der einzelnen Teilchen um $\Delta$ vergrößern, wobei $\Delta$ für jedes Teilchen einen anderen (positiven oder negativen) Wert hat. Es wird für $\Delta$ ein gewisses Häufigkeitsgesetz gelten; die Anzahl $d n$ der Teilchen, welche in dem Zeitintervall $\tau$ eine Verschiebung erfahren, welche zwischen $\Delta$ und $\Delta + d \Delta$ liegt, wird durch eine Gleichung von der Form
+$$
+d n = n \varphi(\Delta) d \Delta
+$$
+ausdrückbar sein, wobei
+$$
+\int_{-\infty}^{+\infty} \varphi(\Delta) d \Delta = 1
+$$
+und $\varphi$ nur für sehr kleine Werte von $\Delta$ von Null verschieden ist und die Bedingung
+$$
+\varphi(\Delta) = \varphi(-\Delta)
+$$
+erfüllt.
+
 --- REVIEWED TRANSCRIPTION PAGE 9 OF 12 ---
 [[ANNALEN-PAGE 557]]
 
