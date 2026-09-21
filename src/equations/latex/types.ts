@@ -99,20 +99,27 @@ export class NotationScopeError extends Error {
   readonly scope?: string | undefined;
   readonly kind: NotationScopeErrorKind;
 
-  constructor(options: {
-    message: string;
-    kind: NotationScopeErrorKind;
-    equationId?: string | undefined;
-    symbol?: string | undefined;
-    paper?: string | undefined;
-    scope?: string | undefined;
-  }) {
-    super(options.message);
+  /**
+   * The code is the FIRST argument, as a kebab-case string literal, per the am-p465 ruling.
+   * The structured locators stay in a trailing options object: they are evidence about the
+   * refusal, not its identity, and only the identity has to be readable by construction.
+   */
+  constructor(
+    kind: NotationScopeErrorKind,
+    message: string,
+    details?: {
+      equationId?: string | undefined;
+      symbol?: string | undefined;
+      paper?: string | undefined;
+      scope?: string | undefined;
+    },
+  ) {
+    super(message);
     this.name = "NotationScopeError";
-    this.kind = options.kind;
-    this.equationId = options.equationId;
-    this.symbol = options.symbol;
-    this.paper = options.paper;
-    this.scope = options.scope;
+    this.kind = kind;
+    this.equationId = details?.equationId;
+    this.symbol = details?.symbol;
+    this.paper = details?.paper;
+    this.scope = details?.scope;
   }
 }

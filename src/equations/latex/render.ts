@@ -385,13 +385,15 @@ export function renderEquationLatex(input: RenderEquationLatexInput): RenderEqua
 
   if (!collisionResult.ok) {
     const errorDiag = collisionResult.diagnostics.find((d) => d.kind === "error");
-    throw new NotationScopeError({
-      kind: "glyph-collision",
-      equationId: equation.id,
-      paper: equation.paper,
-      scope: equation.sectionId ?? equation.anchor,
-      message: errorDiag?.message ?? `Glyph collision in equation "${equation.id}".`,
-    });
+    throw new NotationScopeError(
+      "glyph-collision",
+      errorDiag?.message ?? `Glyph collision in equation "${equation.id}".`,
+      {
+        equationId: equation.id,
+        paper: equation.paper,
+        scope: equation.sectionId ?? equation.anchor,
+      },
+    );
   }
 
   const warnings = collisionResult.diagnostics

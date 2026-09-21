@@ -38,15 +38,12 @@ export class LatexTokenizerError extends Error {
   readonly kind: LatexTokenizerErrorKind;
   readonly offset: number;
 
-  constructor(options: {
-    message: string;
-    kind: LatexTokenizerErrorKind;
-    offset: number;
-  }) {
-    super(options.message);
+  /** The code is the FIRST argument, as a kebab-case string literal, per the am-p465 ruling. */
+  constructor(kind: LatexTokenizerErrorKind, message: string, offset: number) {
+    super(message);
     this.name = "LatexTokenizerError";
-    this.kind = options.kind;
-    this.offset = options.offset;
+    this.kind = kind;
+    this.offset = offset;
   }
 }
 
@@ -87,11 +84,11 @@ export function tokenizeLatex(input: string): readonly LatexToken[] {
 
     if (ch === "}") {
       if (depth === 0 || braceStack.length === 0) {
-        throw new LatexTokenizerError({
-          kind: "unbalanced-close-brace",
-          offset: i,
-          message: `Extra or unbalanced closing brace '}' at offset ${i}.`,
-        });
+        throw new LatexTokenizerError(
+          "unbalanced-close-brace",
+          `Extra or unbalanced closing brace '}' at offset ${i}.`,
+          i,
+        );
       }
       depth--;
       braceStack.pop();
@@ -146,11 +143,11 @@ export function tokenizeLatex(input: string): readonly LatexToken[] {
       i++; // consume backslash
 
       if (i >= len) {
-        throw new LatexTokenizerError({
-          kind: "trailing-backslash",
-          offset: start,
-          message: `Trailing lone backslash at offset ${start}.`,
-        });
+        throw new LatexTokenizerError(
+          "trailing-backslash",
+          `Trailing lone backslash at offset ${start}.`,
+          start,
+        );
       }
 
       const nextChar = input[i] ?? "";
@@ -201,11 +198,11 @@ export function tokenizeLatex(input: string): readonly LatexToken[] {
               // word === "end"
               const openEnv = envStack.pop();
               if (!openEnv || openEnv.name !== envName) {
-                throw new LatexTokenizerError({
-                  kind: "mismatched-environment",
-                  offset: start,
-                  message: `Mismatched environment: expected \\end{${openEnv?.name ?? "none"}}, got \\end{${envName}} at offset ${start}.`,
-                });
+                throw new LatexTokenizerError(
+                  "mismatched-environment",
+                  `Mismatched environment: expected \\end{${openEnv?.name ?? "none"}}, got \\end{${envName}} at offset ${start}.`,
+                  start,
+                );
               }
               tokens.push({
                 kind: "environment-end",
@@ -253,21 +250,21 @@ export function tokenizeLatex(input: string): readonly LatexToken[] {
 
   if (braceStack.length > 0) {
     const unclosedOffset = braceStack[braceStack.length - 1] ?? 0;
-    throw new LatexTokenizerError({
-      kind: "unbalanced-open-brace",
-      offset: unclosedOffset,
-      message: `Unbalanced open brace '{' at offset ${unclosedOffset} (unterminated before end of input).`,
-    });
+    throw new LatexTokenizerError(
+      "unbalanced-open-brace",
+      `Unbalanced open brace '{' at offset ${unclosedOffset} (unterminated before end of input).`,
+      unclosedOffset,
+    );
   }
 
   if (envStack.length > 0) {
     const unclosedEnv = envStack[envStack.length - 1];
     if (unclosedEnv) {
-      throw new LatexTokenizerError({
-        kind: "unterminated-environment",
-        offset: unclosedEnv.offset,
-        message: `Unterminated environment \\begin{${unclosedEnv.name}} opened at offset ${unclosedEnv.offset}.`,
-      });
+      throw new LatexTokenizerError(
+        "unterminated-environment",
+        `Unterminated environment \\begin{${unclosedEnv.name}} opened at offset ${unclosedEnv.offset}.`,
+        unclosedEnv.offset,
+      );
     }
   }
 

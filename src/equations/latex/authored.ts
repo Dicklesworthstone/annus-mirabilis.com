@@ -21,15 +21,12 @@ export class AuthoredLatexError extends Error {
   readonly kind: AuthoredLatexErrorKind;
   readonly offset?: number | undefined;
 
-  constructor(options: {
-    message: string;
-    kind: AuthoredLatexErrorKind;
-    offset?: number | undefined;
-  }) {
-    super(options.message);
+  /** The code is the FIRST argument, as a kebab-case string literal, per the am-p465 ruling. */
+  constructor(kind: AuthoredLatexErrorKind, message: string, offset?: number | undefined) {
+    super(message);
     this.name = "AuthoredLatexError";
-    this.kind = options.kind;
-    this.offset = options.offset;
+    this.kind = kind;
+    this.offset = offset;
   }
 }
 
@@ -57,11 +54,11 @@ export function convertAuthoredLatex(
   const rawHtmlMatch = /\\(htmlData|htmlClass)(?![a-zA-Z])/.exec(input);
   if (rawHtmlMatch) {
     const cmd = `\\${rawHtmlMatch[1]}`;
-    throw new AuthoredLatexError({
-      kind: "raw-htmldata-forbidden",
-      offset: rawHtmlMatch.index,
-      message: `Raw "${cmd}" is strictly forbidden in authored LaTeX at offset ${rawHtmlMatch.index}. Use \\amterm or \\amop instead.`,
-    });
+    throw new AuthoredLatexError(
+      "raw-htmldata-forbidden",
+      `Raw "${cmd}" is strictly forbidden in authored LaTeX at offset ${rawHtmlMatch.index}. Use \\amterm or \\amop instead.`,
+      rawHtmlMatch.index,
+    );
   }
 
   // Parse \amterm{id}{content} and \amop{id}{content}
@@ -85,47 +82,47 @@ export function convertAuthoredLatex(
 
       // First brace: {id}
       if (p >= len || input[p] !== "{") {
-        throw new AuthoredLatexError({
-          kind: "malformed-marker-payload",
-          offset: markerOffset,
-          message: `Expected '{id}' after ${isTerm ? "\\amterm" : "\\amop"} at offset ${markerOffset}.`,
-        });
+        throw new AuthoredLatexError(
+          "malformed-marker-payload",
+          `Expected '{id}' after ${isTerm ? "\\amterm" : "\\amop"} at offset ${markerOffset}.`,
+          markerOffset,
+        );
       }
 
       const idStart = p + 1;
       const idEnd = input.indexOf("}", idStart);
       if (idEnd === -1) {
-        throw new AuthoredLatexError({
-          kind: "malformed-marker-payload",
-          offset: idStart,
-          message: `Unterminated '{id}' at offset ${idStart}.`,
-        });
+        throw new AuthoredLatexError(
+          "malformed-marker-payload",
+          `Unterminated '{id}' at offset ${idStart}.`,
+          idStart,
+        );
       }
 
       const id = input.slice(idStart, idEnd).trim();
       if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
-        throw new AuthoredLatexError({
-          kind: "malformed-marker-payload",
-          offset: idStart,
-          message: `Marker ID "${id}" contains extra payload or invalid characters at offset ${idStart}.`,
-        });
+        throw new AuthoredLatexError(
+          "malformed-marker-payload",
+          `Marker ID "${id}" contains extra payload or invalid characters at offset ${idStart}.`,
+          idStart,
+        );
       }
 
       if (seenIds.has(id)) {
-        throw new AuthoredLatexError({
-          kind: "duplicate-marker",
-          offset: idStart,
-          message: `Duplicate marker ID "${id}" encountered at offset ${idStart}.`,
-        });
+        throw new AuthoredLatexError(
+          "duplicate-marker",
+          `Duplicate marker ID "${id}" encountered at offset ${idStart}.`,
+          idStart,
+        );
       }
       seenIds.add(id);
 
       if (options.allowedIds && !options.allowedIds.has(id)) {
-        throw new AuthoredLatexError({
-          kind: "unknown-id",
-          offset: idStart,
-          message: `Unknown marker ID "${id}" at offset ${idStart}. Not in allowed ID set.`,
-        });
+        throw new AuthoredLatexError(
+          "unknown-id",
+          `Unknown marker ID "${id}" at offset ${idStart}. Not in allowed ID set.`,
+          idStart,
+        );
       }
 
       p = idEnd + 1;
@@ -133,11 +130,11 @@ export function convertAuthoredLatex(
 
       // Second brace: {content}
       if (p >= len || input[p] !== "{") {
-        throw new AuthoredLatexError({
-          kind: "malformed-marker-payload",
-          offset: p,
-          message: `Expected '{content}' for marker "${id}" at offset ${p}.`,
-        });
+        throw new AuthoredLatexError(
+          "malformed-marker-payload",
+          `Expected '{content}' for marker "${id}" at offset ${p}.`,
+          p,
+        );
       }
 
       const contentStart = p + 1;
@@ -156,11 +153,11 @@ export function convertAuthoredLatex(
       }
 
       if (braceDepth !== 0) {
-        throw new AuthoredLatexError({
-          kind: "malformed-marker-payload",
-          offset: contentStart,
-          message: `Unterminated '{content}' for marker "${id}" at offset ${contentStart}.`,
-        });
+        throw new AuthoredLatexError(
+          "malformed-marker-payload",
+          `Unterminated '{content}' for marker "${id}" at offset ${contentStart}.`,
+          contentStart,
+        );
       }
 
       const content = input.slice(contentStart, contentEnd);
@@ -194,10 +191,10 @@ export function convertAuthoredLatex(
   if (options.expectedTermIds) {
     for (const expected of options.expectedTermIds) {
       if (!seenIds.has(expected)) {
-        throw new AuthoredLatexError({
-          kind: "unmarked-bound-glyph",
-          message: `Expected bound term "${expected}" was not marked in authored LaTeX.`,
-        });
+        throw new AuthoredLatexError(
+          "unmarked-bound-glyph",
+          `Expected bound term "${expected}" was not marked in authored LaTeX.`,
+        );
       }
     }
   }

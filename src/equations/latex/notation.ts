@@ -52,27 +52,27 @@ export function resolveSymbolGlyph(
         concordance = loadConcordanceForPaper(paper);
       } catch (err) {
         if (strict) {
-          throw new NotationScopeError({
-            kind: "unknown-paper",
-            equationId: options.equationId,
-            symbol: node.termId || node.quantityId,
-            paper,
-            scope,
-            message: `Equation "${options.equationId ?? "unknown"}" references unknown paper "${paper}": ${(err as Error).message}`,
-          });
+          throw new NotationScopeError(
+            "unknown-paper",
+            `Equation "${options.equationId ?? "unknown"}" references unknown paper "${paper}": ${(err as Error).message}`,
+            {
+              equationId: options.equationId,
+              symbol: node.termId || node.quantityId,
+              paper: paper,
+              scope: scope,
+            },
+          );
         }
       }
     }
 
     if (concordance) {
       if (!scope && strict) {
-        throw new NotationScopeError({
-          kind: "missing-scope",
-          equationId: options.equationId,
-          symbol: node.termId || node.quantityId,
-          paper,
-          message: `Equation "${options.equationId ?? "unknown"}" is missing notation scope (sectionId or anchor) for paper "${paper}".`,
-        });
+        throw new NotationScopeError(
+          "missing-scope",
+          `Equation "${options.equationId ?? "unknown"}" is missing notation scope (sectionId or anchor) for paper "${paper}".`,
+          { equationId: options.equationId, symbol: node.termId || node.quantityId, paper: paper },
+        );
       }
 
       const normScope = scope ? normalizeSectionId(scope) : undefined;
@@ -169,14 +169,16 @@ export function resolveSymbolGlyph(
         }
 
         if (strict) {
-          throw new NotationScopeError({
-            kind: "missing-entry",
-            equationId: options.equationId,
-            symbol: node.termId || node.quantityId,
-            paper,
-            scope,
-            message: `Equation "${options.equationId ?? "unknown"}" symbol "${node.termId || node.quantityId}" has no concordance entry in scope "${scope}" for paper "${paper}".`,
-          });
+          throw new NotationScopeError(
+            "missing-entry",
+            `Equation "${options.equationId ?? "unknown"}" symbol "${node.termId || node.quantityId}" has no concordance entry in scope "${scope}" for paper "${paper}".`,
+            {
+              equationId: options.equationId,
+              symbol: node.termId || node.quantityId,
+              paper: paper,
+              scope: scope,
+            },
+          );
         }
       } else {
         // Entry found in scope
@@ -230,12 +232,11 @@ export function resolveSymbolGlyph(
 
   // Fallback when paper is not specified
   if (!registryEntry && strict) {
-    throw new NotationScopeError({
-      kind: "missing-entry",
-      equationId: options.equationId,
-      symbol: node.termId || node.quantityId,
-      message: `Equation "${options.equationId ?? "unknown"}" symbol "${node.termId || node.quantityId}" has no notation binding in registry.`,
-    });
+    throw new NotationScopeError(
+      "missing-entry",
+      `Equation "${options.equationId ?? "unknown"}" symbol "${node.termId || node.quantityId}" has no notation binding in registry.`,
+      { equationId: options.equationId, symbol: node.termId || node.quantityId },
+    );
   }
 
   return {
