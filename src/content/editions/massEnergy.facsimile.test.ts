@@ -356,8 +356,40 @@ describe("mass-energy facsimile verification (am-src-facsimile-mass-energy-cat)"
     expect(ids).toContain("watch-footnotes");
     expect(ids).toContain("watch-emc2-absence");
 
+    // An all-pending assertion encodes "nobody has checked anything yet" as an INVARIANT,
+    // so it fails on progress: the first watch item resolved from a plate turns a passing
+    // test red without anything being wrong. That is the third instance of this shape in
+    // this session; lightQuanta.facsimile.test.ts carried it until 09120261 and
+    // brownian.facsimile.test.ts was repaired the same way.
+    //
+    // What the list is actually for is re-checkability, so that is what is asserted: every
+    // result is a DECLARED value, and anything that is no longer pending records what
+    // settled it and cites a printed page a reviewer can turn to. The pending items keep
+    // their teeth - they are simply not required to stay pending forever.
+    const DECLARED_RESULTS = new Set([
+      "pending",
+      "confirmed-on-plate",
+      "confirmed-absent",
+      "plate-reading-recorded-ruling-open",
+      "corrected-in-ledger",
+    ]);
+    // And the list must not be settled by emptying it.
+    expect(fm.watchList.length).toBeGreaterThanOrEqual(10);
     for (const item of fm.watchList) {
-      expect(item.result).toBe("pending");
+      expect(
+        DECLARED_RESULTS.has(item.result),
+        `${item.id}: result "${item.result}" is not a declared value`,
+      ).toBe(true);
+      if (item.result === "pending") continue;
+      const notes = item.notes ?? "";
+      expect(
+        notes.length,
+        `${item.id} is settled but records nothing about what settled it`,
+      ).toBeGreaterThan(120);
+      expect(
+        /\bpages?\s+\d{3}\b|\bp\.\s*\d{3}\b/.test(notes),
+        `${item.id} is settled but cites no printed page, so a reviewer cannot re-check it`,
+      ).toBe(true);
     }
   });
 
