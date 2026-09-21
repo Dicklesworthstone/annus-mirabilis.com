@@ -39,6 +39,7 @@ import {
   releaseKeyClaim,
   restorePin,
   sha256File,
+  updatePinnedRecord,
   validateConfig,
   validatePdf,
   verifyHostChecksums,
@@ -2314,27 +2315,151 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
   // it is attribution by citation everywhere, a note about a code must not spell it.
   const PARSE_FAILED = ["pdf", "parse", "failed"].join("-");
 
-  test("21.8 the four refusals this block does NOT cover, and why, in the code", () => {
-    // A gap nobody can see is a gap nobody fixes. Four of this script's fourteen
-    // untested refusal sites are not tested above, and three of them cannot be:
+  test("21.9 a config that no longer validates once the pinned record is written (download-facsimiles.ts:632)", async () => {
+    // updatePinnedRecord loads with yaml.load and does NOT validate, then writes, reloads
+    // and validates before the atomic rename. So a config that was already invalid on disk
+    // is caught HERE rather than silently gaining a pinned record. The temp file is left
+    // where it is: the refusal fires before the rename, which is the property under test.
+    const key = "ap-99-209";
+    const filePath = path.join(configDir, `${key}.yaml`);
+    const cfg = yaml.load(fs.readFileSync(writeConfig(key), "utf8")) as Record<string, unknown>;
+    // Remove a field validateConfig requires, so the roundtrip check is the one that fails.
+    delete cfg.rights;
+    fs.writeFileSync(filePath, yaml.dump(cfg, { indent: 2, lineWidth: -1 }), "utf8");
+
+    const error = await refusalFrom(() =>
+      updatePinnedRecord(filePath, {
+        path: `public/papers/pdfs/${key}.pdf`,
+        sha256: "f".repeat(64),
+        pageCount: 2,
+        mimeType: "application/pdf",
+        acquisitionDate: "2026-09-21",
+        originUrl: "https://archive.org/download/item/x.pdf",
+        finalUrl: "https://archive.org/download/item/x.pdf",
+        candidateIndex: 0,
+        hostFileSource: "original",
+        hostChecksumsVerified: [],
+        embeddedTextLayer: "unknown",
+        toolRunId: "20260921T000000Z-abcdef01",
+      } as never),
+    );
+    expect(error.code).toBe("invalid-config");
+    expect(error.message).toContain("Failed to validate updated config");
+    // The original file must be untouched, or a refusal would have corrupted the config.
+    const onDisk = yaml.load(fs.readFileSync(filePath, "utf8")) as Record<string, unknown>;
+    expect(onDisk.pinned).toBeUndefined();
+  });
+
+  test("21.10 a whole-issue candidate with no parent page indices", async () => {
+    // A whole-issue scan is only usable if the config says which of its pages the article
+    // occupies. Without them there is nothing to extract, and pinning the whole volume
+    // under an article's key would be the wrong pin rather than a missing one.
     //
-    //   the parse-failure trio (lines 357, 402, 435) - each guards an index into a regex
-    //     match whose capture group is not optional in the pattern. Under
-    //     noUncheckedIndexedAccess the compiler cannot see that, so the throw exists to
-    //     satisfy the type, not to catch a scan. If the pattern matches, the group is
-    //     there; no input reaches the throw.
-    //   http-not-https (line 1115) - unreachable, for the reason recorded in 21.7.
+    // WHAT THIS DOES NOT PROVE, found by planting, and the SECOND dead duplicate in this
+    // file after 1115. downloadFacsimile has its own copy of this check for whole-volume
+    // and whole-issue candidates (line 1210), and it is unreachable: validateConfig
+    // already refuses an empty parentPageIndices for EVERY config with the same code
+    // (facsimileSourceSchema.ts:586), and downloadFacsimile loads through loadConfig.
+    // Renaming 1210's code leaves this arm green. The property below is real and worth
+    // holding; the site that enforces it is the schema. See am-okw3.
+    const key = "ap-99-210";
+    const issueBuf = fs.readFileSync(path.join(FIXTURES_DIR, "whole-issue-4page.pdf"));
+    writeConfig(key, {
+      candidates: [
+        {
+          url: "https://archive.org/download/item/issue.pdf",
+          kind: "whole-issue",
+          institution: "Internet Archive",
+          hostItemId: "unseen-10",
+          hostFileName: "issue.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 8 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [] },
+      verifiedAnchor: { parentPageIndex: 1, printedPage: 1, verifiedBy: "test-fixture" },
+    });
+
+    const error = await refusalFrom(() =>
+      downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: async (_input, init) =>
+          init?.method === "HEAD"
+            ? new Response(null, {
+                status: 200,
+                headers: {
+                  "Content-Type": "application/pdf",
+                  "Content-Length": String(issueBuf.length),
+                },
+              })
+            : new Response(issueBuf, {
+                status: 200,
+                headers: { "Content-Type": "application/pdf" },
+              }),
+      }),
+    );
+    // Assembled, not spelled: the scanner credits a site per test block that NAMES a code,
+    // and spelling it here credited the unreachable 1210 as covered.
+    expect(error.code).toBe(["parent", "page", "index", "missing"].join("-"));
+    expect(error.message).toContain("non-empty array");
+  });
+
+  test("21.11 an extraction whose dependency object has an empty body (download-facsimiles.ts:526)", () => {
+    // The dependency arm of extraction-error, and the only one of the two that any input
+    // can reach. The page arm above it (line 510) cannot: an id is in selectedPageIds only
+    // because its body matched /Type /Page, so that body is never empty and its idMap entry
+    // is built from the same list.
     //
-    // The fourth, invalid-config at line 633 in updatePinnedRecord, IS reachable: it
-    // fires when a written config fails to re-validate on reload. It is not tested here
-    // because reaching it means writing a config that loads, accepts a pinned record,
-    // and then fails validation, and that fixture belongs with the immutability suite
-    // in section 18 rather than bolted on here. Recorded rather than quietly skipped.
+    // This one is different. collectReferences admits a referenced object whose body is
+    // undefined-free but EMPTY - `targetBody !== undefined` is true for "" - so an object
+    // written as `5 0 obj endobj` reaches the dependency loop, where the guard is `!body`.
+    const pdf = [
+      "%PDF-1.4",
+      "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
+      "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj",
+      "3 0 obj << /Type /Page /Parent 2 0 R /Contents 5 0 R >> endobj",
+      // The empty object: present in the table, falsy as a body.
+      "5 0 obj endobj",
+      "trailer << /Root 1 0 R >>",
+      "%%EOF",
+    ].join("\n");
+
+    let caught: unknown;
+    try {
+      extractArticle(Buffer.from(pdf, "latin1"), [1], "a".repeat(64));
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(FacsimileError);
+    expect((caught as FacsimileError).code).toBe("extraction-error");
+    expect((caught as FacsimileError).message).toContain("dependency object");
+  });
+
+  test("21.8 the six refusals nothing can reach, and why, asserted in the code", () => {
+    // Every REACHABLE refusal in this script is now driven by an arm above. The six that
+    // remain are unreachable, and this records why so the gap is a finding, not a silence.
+    // Only four of the six show on the ratchet, because two are credited by the mention
+    // heuristic am-ksl3 describes rather than by any test driving them:
     //
-    // This test asserts the first claim rather than restating it: every parse-failure
-    // throw must sit behind an `=== undefined` check on a regex capture. If one ever
-    // guards something else, this fails and the "unreachable" note above stops being
-    // true without anyone noticing.
+    //   the parse-failure trio (357, 402, 435) - each guards an index into a regex match
+    //     whose capture group is not optional in the pattern. Under noUncheckedIndexedAccess
+    //     the compiler cannot see that, so the throw exists to satisfy the type. If the
+    //     pattern matches, the group is there.
+    //   extraction-error (510) - the PAGE arm. An id reaches selectedPageIds only because
+    //     its body matched /Type /Page, so that body is never empty, and its idMap entry is
+    //     built from the same list. Its sibling at 526 IS reachable and 21.11 drives it,
+    //     because a referenced object CAN have an empty body.
+    //   http-not-https (1115) - the dry-run protocol check, which loadConfig's own refusal
+    //     makes unreachable. See 21.7 and am-okw3.
+    //   parent-page-index-missing (1210) - the whole-volume check, unreachable for the same
+    //     reason: validateConfig refuses an empty parentPageIndices for every config with
+    //     the same code (facsimileSourceSchema.ts:586). See 21.10.
+    //
+    // The first claim is asserted rather than restated: every parse-failure throw must sit
+    // behind an `=== undefined` check on a regex capture. If one ever guards something
+    // else, this fails and "unreachable" stops being true without anyone noticing.
     const source = fs.readFileSync(
       path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"),
       "utf8",
