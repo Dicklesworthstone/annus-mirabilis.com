@@ -25,6 +25,27 @@ Vom Standpunkte der molekularkinetischen Wärmetheorie aus kommt man aber zu ein
 
 --- REVIEWED TRANSCRIPTION PAGE 3 OF 12 ---
 [[ANNALEN-PAGE 551]]
+$$
+p = \frac{R T}{V^*} \frac{n}{N} = \frac{R T}{N} \cdot \nu,
+$$
+wobei $N$ die Anzahl der in einem Gramm-Molekül enthaltenen wirklichen Moleküle bedeutet. Im nächsten Paragraph soll gezeigt werden, daß die molekularkinetische Theorie der Wärme wirklich zu dieser erweiterten Auffassung des osmotischen Druckes führt.
+
+[[HEADING s2]]§ 2. Der osmotische Druck vom Standpunkte der molekularkinetischen Theorie der Wärme.[[FN-MARK 1)]]
+
+Sind $p_1 p_2 \ldots p_l$ Zustandsvariable eines physikalischen Systems, welche den momentanen Zustand desselben vollkommen bestimmen (z. B. die Koordinaten und Geschwindigkeitskomponenten aller Atome des Systems) und ist das vollständige System der Veränderungsgleichungen dieser Zustandsvariabeln von der Form
+$$
+\frac{\partial p_\nu}{\partial t} = \varphi_\nu(p_1 \ldots p_l) \quad (\nu = 1, 2 \ldots l)
+$$
+gegeben, wobei $\sum \frac{\partial \varphi_\nu}{\partial p_\nu} = 0$, so ist die Entropie des Systems durch den Ausdruck gegeben:
+$$
+S = \frac{E}{T} + 2 \varkappa \lg \int e^{-\frac{E}{2 \varkappa T}} d p_1 \ldots d p_l.
+$$
+Hierbei bedeutet $T$ die absolute Temperatur, $E$ die Energie des Systems, $E$ die Energie als Funktion der $p_\nu$. Das Integral ist über alle mit den Bedingungen des Problems vereinbaren Wertekombinationen der $p_\nu$ zu erstrecken. $\varkappa$ ist mit der oben erwähnten Konstanten $N$ durch die Relation $2 \varkappa N = R$ verbunden. Für die freie Energie $F$ erhalten wir daher:
+$$
+F = -\frac{R}{N} T \lg \int e^{-\frac{E N}{R T}} d p_1 \ldots d p_l = -\frac{R T}{N} \lg B.
+$$
+
+[[FN 1)]] In diesem Paragraph sind die Arbeiten des Verfassers über die Grundlagen der Thermodynamik als bekannt vorausgesetzt (vgl. Ann. d. Phys. 9. p. 417. 1902; 11. p. 170. 1903). Für das Verständnis der Resultate der vorliegenden Arbeit ist die Kenntnis jener Arbeiten sowie dieses Paragraphen der vorliegenden Arbeit entbehrlich.
 
 --- REVIEWED TRANSCRIPTION PAGE 4 OF 12 ---
 [[ANNALEN-PAGE 552]]
