@@ -341,7 +341,11 @@ function sha256(text: string): string {
 
 function reconstructionHolds(ledgerText: string, editionText: string): boolean {
   const stripped = ledgerText
-    .replace(/---\s*REVIEWED\s+TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---/g, " ")
+    // Status-agnostic, like every other place that REMOVES or DETECTS a marker rather than
+    // deciding whether one is legal. am-wisq made drafts open MACHINE DRAFT; a stripper that
+    // enumerates statuses leaves the new marker in the reconstruction and the whole check fails
+    // for a reason that has nothing to do with the edition.
+    .replace(/---\s*[A-Z][A-Z\s]*\s+TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---/g, " ")
     .replace(/\[\[[^\]]+\]\]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -358,7 +362,12 @@ function reconstructionHolds(ledgerText: string, editionText: string): boolean {
  * anchor a diplomatic transcription, and the emphasis spans that record typography.
  */
 const LEDGER_FURNITURE: readonly { readonly name: string; readonly pattern: RegExp }[] = [
-  { name: "page marker", pattern: /---\s*REVIEWED\s+TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---/g },
+  // Status-agnostic for the same reason: this one CATCHES furniture that leaked into the edition,
+  // and a detector that enumerates goes blind the instant a new status word starts leaking.
+  {
+    name: "page marker",
+    pattern: /---\s*[A-Z][A-Z\s]*\s+TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---/g,
+  },
   { name: "emphasis span", pattern: /\[\[[^\]]+\]\]/g },
 ];
 

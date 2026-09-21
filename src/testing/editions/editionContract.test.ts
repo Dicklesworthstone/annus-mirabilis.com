@@ -79,7 +79,10 @@ const BROWNIAN_PRINTED_PAGES = brownianPrintedPages();
  */
 const LEDGER = `${BROWNIAN_PRINTED_PAGES.map(
   (printed, i) =>
-    `--- REVIEWED TRANSCRIPTION PAGE ${i + 1} OF ${BROWNIAN_PRINTED_PAGES.length} ---\n` +
+    // MACHINE DRAFT, because this synthetic ledger has no reviewer: its receipt carries no named
+    // editor, and under am-wisq the REVIEWED header is refused without one. The header now matches
+    // what the fixture actually is.
+    `--- MACHINE DRAFT TRANSCRIPTION PAGE ${i + 1} OF ${BROWNIAN_PRINTED_PAGES.length} ---\n` +
     `[[ANNALEN-PAGE ${printed}]]\n\n` +
     (i === 0
       ? "Die Bewegung ist unregelmäßig. Sie hört nicht auf.\n"
@@ -870,7 +873,7 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
 });
 
 /**
- * (editionContract.ts:806) invalid-route-slug.
+ * (editionContract.ts:815) invalid-route-slug.
  *
  * The line was established by planting, not by adding the drift: renaming that site's code turns
  * exactly the two tests below red and nothing else in the file. My first draft cited 802, from a
@@ -883,7 +886,7 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
  * string and had nothing to branch on.
  */
 describe("assertEditionContract refuses a slug that is not a route", () => {
-  test("(editionContract.ts:806) a non-route slug is refused with a code, naming the legal slugs", () => {
+  test("(editionContract.ts:815) a non-route slug is refused with a code, naming the legal slugs", () => {
     let caught: unknown;
     try {
       assertEditionContract("brownian");

@@ -28,9 +28,13 @@ import { compareDateIntervals, type DateInterval } from "./dateIntervals.ts";
 
 export const STRUCTURAL_BEAD_ID = "am-cm-checks-structural-lq0";
 
-// Ledger scan page marker patterns
+// Ledger scan page marker patterns. STATUS-AGNOSTIC on purpose, and the asymmetry with
+// ledgerTokenizer's grammar is deliberate: the tokenizer decides what IS a legal header and so
+// must be fail-closed, enumerating the statuses it accepts; this one DETECTS a marker that leaked
+// into the edition, so it must survive the next status word nobody has invented yet. Enumerating
+// here would make the detector go blind at the same instant a new token starts leaking.
 export const LEDGER_PAGE_MARKER_REGEX =
-  /---\s*REVIEWED\s+TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---|---\s*REVIEWED\s+TRANSCRIPTION\s+PAGE/i;
+  /---\s*[A-Z][A-Z\s]*\s+TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---|---\s*[A-Z][A-Z\s]*\s+TRANSCRIPTION\s+PAGE/i;
 
 /**
  * Parses a split translation unit ID into base and suffix.

@@ -1,4 +1,4 @@
---- REVIEWED TRANSCRIPTION PAGE 1 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 1 OF 12 ---
 [[ANNALEN-PAGE 549]]
 [[TITLE]]Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen;[[/TITLE]]
 [[AUTHOR]]von A. Einstein.[[/AUTHOR]]
@@ -11,7 +11,7 @@ Wenn sich die hier zu behandelnde Bewegung samt den für sie zu erwartenden Gese
 
 Im Teilvolumen $V^*$ einer Flüssigkeit vom Gesamtvolumen $V$ seien $z$-Gramm-Moleküle eines Nichtelektrolyten gelöst. Ist das Volumen $V^*$ durch eine für das Lösungsmittel, nicht aber für die gelöste Substanz durchlässige Wand vom reinen Lösungsmittel[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 2 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 2 OF 12 ---
 [[ANNALEN-PAGE 550]]
 
 getrennt, so wirkt auf diese Wand der sogenannte osmotische Druck, welcher bei genügend großen Werten von $V^*/z$ der Gleichung genügt:
@@ -23,7 +23,7 @@ Sind hingegen statt der gelösten Substanz in dem Teilvolumen $V^*$ der Flüssig
 
 Vom Standpunkte der molekularkinetischen Wärmetheorie aus kommt man aber zu einer anderen Auffassung. Nach dieser Theorie unterscheidet sich ein gelöstes Molekül von einem suspendierten Körper [[EM]]lediglich[[/EM]] durch die Größe, und man sieht nicht ein, warum einer Anzahl suspendierter Körper nicht derselbe osmotische Druck entsprechen sollte, wie der nämlichen Anzahl gelöster Moleküle. Man wird anzunehmen haben, daß die suspendierten Körper infolge der Molekularbewegung der Flüssigkeit eine wenn auch sehr langsame ungeordnete Bewegung in der Flüssigkeit ausführen; werden sie durch die Wand verhindert, das Volumen $V^*$ zu verlassen, so werden sie auf die Wand Kräfte ausüben, ebenso wie gelöste Moleküle. Sind also $n$ suspendierte Körper im Volumen $V^*$, also $n/V^* = \nu$ in der Volumeneinheit vorhanden, und sind benachbarte unter ihnen genügend weit voneinander entfernt, so wird ihnen ein osmotischer Druck $p$ entsprechen von der Größe:[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 3 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 3 OF 12 ---
 [[ANNALEN-PAGE 551]]
 $$
 p = \frac{R T}{V^*} \frac{n}{N} = \frac{R T}{N} \cdot \nu,
@@ -47,7 +47,7 @@ $$
 
 [[FN 1)]] In diesem Paragraph sind die Arbeiten des Verfassers über die Grundlagen der Thermodynamik als bekannt vorausgesetzt (vgl. Ann. d. Phys. 9. p. 417. 1902; 11. p. 170. 1903). Für das Verständnis der Resultate der vorliegenden Arbeit ist die Kenntnis jener Arbeiten sowie dieses Paragraphen der vorliegenden Arbeit entbehrlich.
 
---- REVIEWED TRANSCRIPTION PAGE 4 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 4 OF 12 ---
 [[ANNALEN-PAGE 552]]
 
 Wir denken uns nun eine in dem Volumen $V$ eingeschlossene Flüssigkeit; in dem Teilvolumen $V^*$ von $V$ mögen sich $n$ gelöste Moleküle bez. suspendierte Körper befinden, welche im Volumen $V^*$ durch eine semipermeabele Wand festgehalten seien; es werden hierdurch die Integrationsgrenzen des in den Ausdrücken für $S$ und $F$ auftretenden Integrales $B$ beeinflußt. Das Gesamtvolumen der gelösten Moleküle bez. suspendierten Körper sei klein gegen $V^*$. Dies System werde im Sinne der erwähnten Theorie durch die Zustandsvariabeln $p_1 \ldots p_l$ vollständig dargestellt.
@@ -63,7 +63,7 @@ $$
 d B' = d x'_1 d y'_1 \ldots d z'_n \cdot J',
 $$
 
---- REVIEWED TRANSCRIPTION PAGE 5 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 5 OF 12 ---
 [[ANNALEN-PAGE 553]]
 
 wobei
@@ -101,7 +101,7 @@ Durch diese Betrachtung ist gezeigt, daß die Existenz des osmotischen Druckes e
 
 [[FN 1)]] [[SPERR]]A. Einstein[[/SPERR]], Ann. d. Phys. 11. p. 170. 1903.
 
---- REVIEWED TRANSCRIPTION PAGE 6 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 6 OF 12 ---
 [[ANNALEN-PAGE 554]]
 [[HEADING s3]]§ 3. Theorie der Diffusion kleiner suspendierter Kugeln.
 
@@ -135,7 +135,7 @@ Die letzte Gleichung sagt aus, daß der Kraft $K$ durch osmotische Druckkräfte 
 
 Die Gleichung (1) benutzen wir, um den Diffusionskoeffizienten der suspendierten Substanz zu ermitteln. Wir können den eben betrachteten dynamischen Gleichgewichtszustand als[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 7 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 7 OF 12 ---
 [[ANNALEN-PAGE 555]]
 
 die Superposition zweier in umgekehrtem Sinne verlaufender Prozesse auffassen, nämlich 1. einer Bewegung der suspendierten Substanz unter der Wirkung der auf jedes einzelne suspendierte Teilchen wirkenden Kraft $K$, 2. eines Diffusionsvorganges, welcher als Folge der ungeordneten Bewegungen der Teilchen infolge der Molekularbewegung der Wärme aufzufassen ist.
@@ -172,7 +172,7 @@ Der Diffusionskoeffizient der suspendierten Substanz hängt also[[CONTINUES]]
 
 [[FN 1)]] Vgl. z. B. [[SPERR]]G. Kirchhoff[[/SPERR]], Vorlesungen über Mechanik, 26. Vorlesung § 4.
 
---- REVIEWED TRANSCRIPTION PAGE 8 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 8 OF 12 ---
 [[ANNALEN-PAGE 556]]
 
 außer von universellen Konstanten und der absoluten Temperatur nur vom Reibungskoeffizienten der Flüssigkeit und von der Größe der suspendierten Teilchen ab.
@@ -199,7 +199,7 @@ $$
 $$
 erfüllt.
 
---- REVIEWED TRANSCRIPTION PAGE 9 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 9 OF 12 ---
 [[ANNALEN-PAGE 557]]
 
 Wir untersuchen nun, wie der Diffusionskoeffizient von $\varphi$ abhängt, wobei wir uns wieder auf den Fall beschränken, daß die Anzahl $\nu$ der Teilchen pro Volumeneinheit nur von $x$ und $t$ abhängt.
@@ -232,7 +232,7 @@ $$
 \int_{-\infty}^{+\infty} \varphi(\Delta) d \Delta = 1,
 $$
 
---- REVIEWED TRANSCRIPTION PAGE 10 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 10 OF 12 ---
 [[ANNALEN-PAGE 558]]
 
 und indem wir
@@ -258,7 +258,7 @@ $$
 
 Die Häufigkeitsverteilung der in einer beliebigen Zeit $t$ erfolgten Lagenänderungen ist also dieselbe wie die der zufälligen[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 11 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 11 OF 12 ---
 [[ANNALEN-PAGE 559]]
 
 fälligen Fehler, was zu vermuten war. Von Bedeutung aber ist, wie die Konstante im Exponenten mit dem Diffusionskoeffizienten zusammenhängt. Wir berechnen nun mit Hilfe dieser Gleichung die Verrückung $\lambda_x$ in Richtung der $X$-Achse, welche ein Teilchen im Mittel erfährt, oder — genauer ausgedrückt — die Wurzel aus dem arithmetischen Mittel der Quadrate der Verrückungen in Richtung der $X$-Achse; es ist:
@@ -294,7 +294,7 @@ $$
 
 Die mittlere Verschiebung in 1 Min. wäre also ca. 6 Mikron.
 
---- REVIEWED TRANSCRIPTION PAGE 12 OF 12 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 12 OF 12 ---
 [[ANNALEN-PAGE 560]]
 
 Umgekehrt läßt sich die gefundene Beziehung zur Bestimmung von $N$ benutzen. Man erhält:

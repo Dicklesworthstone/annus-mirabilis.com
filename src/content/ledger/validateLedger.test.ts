@@ -9,6 +9,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
+import { FORBIDDEN_SUBSTRINGS } from "./ledgerTokenizer.ts";
 import { validateLedger } from "./validateLedger.ts";
 
 /**
@@ -132,7 +133,7 @@ test("Skeleton fixture behavior across structural vs completeness modes", () => 
   assert.equal(closingErrors.length, 2); // dateline and received
 });
 
-test("Mutation matrix: each single mutation raises exactly its code and no unrelated code (validateLedger.ts:962)", () => {
+test("Mutation matrix: each single mutation raises exactly its code and no unrelated code", () => {
   const baseContent = loadFixture("two-page-valid.txt");
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
@@ -582,7 +583,7 @@ Hierbei bedeutet $N$ die Molekülzahl und $x < V$ die Raumbedingung.
   });
 });
 
-test("validateLedger: (validateLedger.ts:338) config-key-missing raised when multi-ledger slug lacks config and complete defaults", () => {
+test("validateLedger: (validateLedger.ts:369) config-key-missing raised when multi-ledger slug lacks config and complete defaults", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const res = validateLedger(ledgerPath, {
@@ -601,7 +602,7 @@ test("validateLedger: (validateLedger.ts:338) config-key-missing raised when mul
   assert.ok(!validRes.errors.some((e) => e.code === "config-key-missing"));
 });
 
-test("validateLedger: (validateLedger.ts:446) allowlist-entry-invalid raised when allowlist entry lacks required fields", () => {
+test("validateLedger: (validateLedger.ts:477) allowlist-entry-invalid raised when allowlist entry lacks required fields", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const res = validateLedger(ledgerPath, {
@@ -619,7 +620,7 @@ test("validateLedger: (validateLedger.ts:446) allowlist-entry-invalid raised whe
   assert.ok(!validRes.errors.some((e) => e.code === "allowlist-entry-invalid"));
 });
 
-test("validateLedger: (validateLedger.ts:581) first-marker raised when first line is not a page marker at all", () => {
+test("validateLedger: (validateLedger.ts:628) first-marker raised when first line is not a page marker at all", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -641,7 +642,7 @@ test("validateLedger: (validateLedger.ts:581) first-marker raised when first lin
   assert.ok(!validRes.errors.some((e) => e.code === "first-marker"));
 });
 
-test("validateLedger: (validateLedger.ts:659) short-paragraph warning raised for paragraph with two or fewer words", () => {
+test("validateLedger: (validateLedger.ts:729) short-paragraph warning raised for paragraph with two or fewer words", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -661,7 +662,7 @@ test("validateLedger: (validateLedger.ts:659) short-paragraph warning raised for
   assert.ok(!validRes.warnings.some((w) => w.code === "short-paragraph"));
 });
 
-test("validateLedger: (validateLedger.ts:675) short-line warning raised for non-terminal line with two or fewer words", () => {
+test("validateLedger: (validateLedger.ts:745) short-line warning raised for non-terminal line with two or fewer words", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -685,7 +686,7 @@ test("validateLedger: (validateLedger.ts:675) short-line warning raised for non-
   assert.ok(!validRes.warnings.some((w) => w.code === "short-line"));
 });
 
-test("validateLedger: (validateLedger.ts:700) trailing-whitespace warning raised when line ends with whitespace", () => {
+test("validateLedger: (validateLedger.ts:770) trailing-whitespace warning raised when line ends with whitespace", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -705,7 +706,7 @@ test("validateLedger: (validateLedger.ts:700) trailing-whitespace warning raised
   assert.ok(!validRes.warnings.some((w) => w.code === "trailing-whitespace"));
 });
 
-test("validateLedger: (validateLedger.ts:758) anchor-missing raised when page marker is not followed by ANNALEN-PAGE", () => {
+test("validateLedger: (validateLedger.ts:844) anchor-missing raised when page marker is not followed by ANNALEN-PAGE", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -725,7 +726,7 @@ test("validateLedger: (validateLedger.ts:758) anchor-missing raised when page ma
   assert.ok(!validRes.errors.some((e) => e.code === "anchor-missing"));
 });
 
-test("validateLedger: (validateLedger.ts:778) anchor-duplicate raised when same printed page anchor is repeated", () => {
+test("validateLedger: (validateLedger.ts:864) anchor-duplicate raised when same printed page anchor is repeated", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -745,7 +746,7 @@ test("validateLedger: (validateLedger.ts:778) anchor-duplicate raised when same 
   assert.ok(!validRes.errors.some((e) => e.code === "anchor-duplicate"));
 });
 
-test("validateLedger: (validateLedger.ts:980) forbidden-token raised for machine confidence JSON output", () => {
+test("validateLedger: (validateLedger.ts:1062) forbidden-token raised for machine confidence JSON output", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -769,7 +770,7 @@ test("validateLedger: (validateLedger.ts:980) forbidden-token raised for machine
   assert.ok(!validRes.errors.some((e) => e.code === "forbidden-token"));
 });
 
-test("validateLedger: (validateLedger.ts:1097) heading-order raised when section heading number is non-monotonic", () => {
+test("validateLedger: (validateLedger.ts:1179) heading-order raised when section heading number is non-monotonic", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -795,7 +796,7 @@ test("validateLedger: (validateLedger.ts:1097) heading-order raised when section
   assert.ok(!validRes.errors.some((e) => e.code === "heading-order"));
 });
 
-test("validateLedger: (validateLedger.ts:1120) heading-order raised when part heading number is non-monotonic", () => {
+test("validateLedger: (validateLedger.ts:1202) heading-order raised when part heading number is non-monotonic", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -821,7 +822,7 @@ test("validateLedger: (validateLedger.ts:1120) heading-order raised when part he
   assert.ok(!validRes.errors.some((e) => e.code === "heading-order"));
 });
 
-test("validateLedger: (validateLedger.ts:1253) unclosed-tag raised when closing emphasis tag lacks opening tag", () => {
+test("validateLedger: (validateLedger.ts:1335) unclosed-tag raised when closing emphasis tag lacks opening tag", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -845,7 +846,7 @@ test("validateLedger: (validateLedger.ts:1253) unclosed-tag raised when closing 
   assert.ok(!validRes.errors.some((e) => e.code === "unclosed-tag"));
 });
 
-test("validateLedger: (validateLedger.ts:1264) math-unbalanced raised when line has odd number of dollar delimiters", () => {
+test("validateLedger: (validateLedger.ts:1361) math-unbalanced raised when line has odd number of dollar delimiters", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -865,7 +866,7 @@ test("validateLedger: (validateLedger.ts:1264) math-unbalanced raised when line 
   assert.ok(!validRes.errors.some((e) => e.code === "math-unbalanced"));
 });
 
-test("validateLedger: (validateLedger.ts:1451) unclosed-tag raised when opening emphasis tag is unclosed at EOF", () => {
+test("validateLedger: (validateLedger.ts:1533) unclosed-tag raised when opening emphasis tag is unclosed at EOF", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -887,7 +888,7 @@ test("validateLedger: (validateLedger.ts:1451) unclosed-tag raised when opening 
   assert.ok(!validRes.errors.some((e) => e.code === "unclosed-tag"));
 });
 
-test("validateLedger: (validateLedger.ts:1529) fn-continuation-orphan raised when page has FN-CONT but prior page lacks FN-CONTINUES", () => {
+test("validateLedger: (validateLedger.ts:1611) fn-continuation-orphan raised when page has FN-CONT but prior page lacks FN-CONTINUES", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -913,7 +914,7 @@ test("validateLedger: (validateLedger.ts:1529) fn-continuation-orphan raised whe
   assert.ok(!validRes.errors.some((e) => e.code === "fn-continuation-orphan"));
 });
 
-test("validateLedger: (validateLedger.ts:1560) continues-orphan raised when text follows CONTINUES on the same page", () => {
+test("validateLedger: (validateLedger.ts:1642) continues-orphan raised when text follows CONTINUES on the same page", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -1018,7 +1019,7 @@ test("A footnote mark printed in a SECTION HEADING is seen (LEDGER_FORMAT 4.6)",
  * stack cannot have a dead successor, and all ten of its owed sites turned out live.
  */
 
-test("validateLedger: (validateLedger.ts:569) first-marker raised when the page-1 marker is present but malformed", () => {
+test("validateLedger: (validateLedger.ts:616) first-marker raised when the page-1 marker is present but malformed", () => {
   // The discriminating case. A ledger with no marker at all is a different refusal; this
   // one fires when line 1 CONTAINS the marker text and does not START with the page-1
   // form, which is what a stray leading space or a ledger beginning at page 2 produces.
@@ -1052,7 +1053,7 @@ test("validateLedger: (validateLedger.ts:569) first-marker raised when the page-
   assert.equal(clean.valid, true);
 });
 
-test("validateLedger: (validateLedger.ts:1513) fn-continuation-orphan raised when FN-CONTINUES has no FN-CONT after it", () => {
+test("validateLedger: (validateLedger.ts:1595) fn-continuation-orphan raised when FN-CONTINUES has no FN-CONT after it", () => {
   // The mirror of the site at 1523, which catches an FN-CONT with no FN-CONTINUES before
   // it. A footnote promised to continue and then dropped loses text silently, which is
   // why both directions are separate refusals rather than one symmetry check.
@@ -1077,7 +1078,7 @@ test("validateLedger: (validateLedger.ts:1513) fn-continuation-orphan raised whe
   );
 });
 
-test("validateLedger: (validateLedger.ts:1548) continues-orphan raised when CONTINUES sits on the last page", () => {
+test("validateLedger: (validateLedger.ts:1630) continues-orphan raised when CONTINUES sits on the last page", () => {
   // A CONTINUES tag says the paragraph runs onto the next page. On the final page there
   // is no next page, so the tag is either a transcription that stopped early or a marker
   // copied from elsewhere. Distinct from the site at 1554, which catches text following
@@ -1105,5 +1106,164 @@ test("validateLedger: (validateLedger.ts:1548) continues-orphan raised when CONT
   assert.ok(
     result.errors.some((e) => e.code === "continues-orphan"),
     `expected continues-orphan, got ${result.errors.map((e) => e.code).join(", ")}`,
+  );
+});
+
+/**
+ * am-wisq. The owner ruled on 2026-09-21, verbatim "Header states real status": a draft opens
+ * MACHINE DRAFT, and REVIEWED becomes available only once a human signs off.
+ *
+ * Before this, validateLedger refused any first line but the REVIEWED one, so every machine draft
+ * asserted human review BY CONSTRUCTION - the author could not have written anything else. Three
+ * ledgers in this repository opened with a word nobody had earned, while their own receipts said
+ * machine-draft-with-hand-correction.
+ *
+ * The second test below is the whole ruling. Accepting a second token is not the fix: without the
+ * receipt gate the format has merely gained a synonym, and a machine draft can still call itself
+ * reviewed by typing a different word.
+ */
+test("validateLedger: a MACHINE DRAFT transcript validates", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "fixture-skeleton-reviewed.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "fixture-skeleton.md");
+  const content = loadFixture("fixture-skeleton-reviewed.txt");
+  assert.ok(content.startsWith("--- MACHINE DRAFT TRANSCRIPTION PAGE 1 OF "));
+
+  const result = validateLedger(ledgerPath, { content, receiptPath, paper: "brownian-motion" });
+  assert.equal(
+    result.errors.some((e) => e.code === "first-marker"),
+    false,
+    `MACHINE DRAFT must be a legal header, got ${result.errors.map((e) => e.code).join(", ")}`,
+  );
+  assert.equal(
+    result.errors.some((e) => e.code === "reviewed-without-named-reviewer"),
+    false,
+    "a draft that does not claim review must not trip the reviewer gate",
+  );
+});
+
+test("validateLedger: (validateLedger.ts:648) REVIEWED with no named human reviewer in the receipt is REFUSED", () => {
+  // fixture-skeleton's receipt carries editors: [] - the exact state of all three real ledgers,
+  // measured 2026-09-21. Give its transcript the REVIEWED header and nothing else changes.
+  const ledgerPath = path.join(FIXTURES_DIR, "fixture-skeleton-reviewed.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "fixture-skeleton.md");
+  const claiming = mutate(
+    loadFixture("fixture-skeleton-reviewed.txt"),
+    "--- MACHINE DRAFT TRANSCRIPTION PAGE 1 OF 3 ---",
+    "--- REVIEWED TRANSCRIPTION PAGE 1 OF 3 ---",
+  );
+
+  const result = validateLedger(ledgerPath, {
+    content: claiming,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.equal(result.valid, false);
+  const refusal = result.errors.find((e) => e.code === "reviewed-without-named-reviewer");
+  assert.ok(
+    refusal,
+    `expected reviewed-without-named-reviewer, got ${result.errors.map((e) => e.code).join(", ")}`,
+  );
+  assert.match(refusal.message, /no named human reviewer/);
+  // Every refusal carries a repair; asserting it exists is part of the contract, not a cast.
+  assert.ok(refusal.repair, "refusal must carry a repair");
+  assert.match(refusal.repair, /transcription\.editors/);
+});
+
+test("validateLedger: THE CONTROL - a receipt that names a human accepts REVIEWED", () => {
+  // two-page-valid's receipt carries editors with name "Test Editor". Same header, opposite
+  // verdict, and the only difference is the receipt. Without this the test above would pass over a
+  // validator that refused REVIEWED unconditionally, which is not what was ruled.
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const content = loadFixture("two-page-valid.txt");
+  assert.ok(content.startsWith("--- REVIEWED TRANSCRIPTION PAGE 1 OF "));
+
+  const result = validateLedger(ledgerPath, { content, receiptPath, paper: "brownian-motion" });
+  assert.equal(
+    result.errors.some((e) => e.code === "reviewed-without-named-reviewer"),
+    false,
+    `a named reviewer must permit REVIEWED, got ${result.errors.map((e) => e.code).join(", ")}`,
+  );
+});
+
+test("validateLedger: (validateLedger.ts:792) a transcript may not change its declared status mid-file", () => {
+  // Page 1 opens MACHINE DRAFT, so the receipt gate is satisfied and never looks again. Page 2
+  // then claims REVIEWED. Without this check that file passes, and the gate is defeated by moving
+  // the claim one page down.
+  const ledgerPath = path.join(FIXTURES_DIR, "fixture-skeleton-reviewed.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "fixture-skeleton.md");
+  const mixed = mutate(
+    loadFixture("fixture-skeleton-reviewed.txt"),
+    "--- MACHINE DRAFT TRANSCRIPTION PAGE 2 OF 3 ---",
+    "--- REVIEWED TRANSCRIPTION PAGE 2 OF 3 ---",
+  );
+
+  const result = validateLedger(ledgerPath, {
+    content: mixed,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.equal(result.valid, false);
+  const refusal = result.errors.find((e) => e.code === "marker-status-mixed");
+  assert.ok(
+    refusal,
+    `expected marker-status-mixed, got ${result.errors.map((e) => e.code).join(", ")}`,
+  );
+  assert.match(refusal.message, /page 2 declares REVIEWED/i);
+
+  // And the unmutated fixture is clean of it, so this is about the mixing and not the fixture.
+  const clean = validateLedger(ledgerPath, {
+    content: loadFixture("fixture-skeleton-reviewed.txt"),
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.equal(
+    clean.errors.some((e) => e.code === "marker-status-mixed"),
+    false,
+  );
+});
+
+/**
+ * (validateLedger.ts:1044) forbidden-token, the FORBIDDEN_SUBSTRINGS site.
+ *
+ * Two sites share this code. The machine-confidence JSON one at :1053 already had a test; this one
+ * was reachable only through the table-driven mutation matrix, which names no code literally and so
+ * cannot carry a verifiable citation - the stale-citation ratchet reports such a citation as
+ * code-mismatched with no hint, which is how this gap surfaced.
+ */
+test("validateLedger: (validateLedger.ts:1044) forbidden-token raised for each OCR residue substring", () => {
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const anchor = "Es liegt die Vermutung nahe";
+
+  // Every member of FORBIDDEN_SUBSTRINGS, not one representative: the site loops the list, so a
+  // test using only "TODO" would leave the rest of the list unexercised and a deletion from it
+  // would go unnoticed.
+  for (const forbidden of FORBIDDEN_SUBSTRINGS) {
+    const mutated = baseContent.replace(anchor, `${forbidden} ${anchor}`);
+    assert.notEqual(mutated, baseContent, `anchor ${anchor} should appear in the fixture`);
+    const result = validateLedger(ledgerPath, {
+      content: mutated,
+      receiptPath,
+      paper: "brownian-motion",
+    });
+    const refusal = result.errors.find(
+      (e) => e.code === "forbidden-token" && e.message.includes(forbidden),
+    );
+    assert.ok(refusal, `expected forbidden-token naming ${JSON.stringify(forbidden)}`);
+    assert.ok(refusal.repair, "refusal must carry a repair");
+    assert.match(refusal.repair, /Remove/);
+  }
+
+  // The acceptance half: without the residue the same fixture raises no forbidden-token at all.
+  const clean = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.equal(
+    clean.errors.some((e) => e.code === "forbidden-token"),
+    false,
   );
 });

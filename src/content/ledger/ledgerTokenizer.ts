@@ -106,10 +106,47 @@ export const KNOWN_TAG_NAMES = new Set([
   "ILLEGIBLE",
 ]);
 
+/**
+ * What a transcript declares itself to be, on every page marker.
+ *
+ * The owner ruled on am-wisq (2026-09-21, verbatim "Header states real status") that a draft must
+ * open MACHINE DRAFT and that REVIEWED becomes available only once a human signs off. Before that
+ * the grammar admitted one token, so every machine draft asserted human review by construction:
+ * the validator refused any other first line, and three ledgers opened with a word no one had
+ * earned. The owner declined adding a status line beneath the header, on the ground that line 1 is
+ * the line that gets quoted.
+ */
+export type LedgerReviewStatus = "reviewed" | "machine-draft";
+
+/** The token each status writes into its markers. */
+export const LEDGER_STATUS_TOKEN: Readonly<Record<LedgerReviewStatus, string>> = Object.freeze({
+  reviewed: "REVIEWED",
+  "machine-draft": "MACHINE DRAFT",
+});
+
+/**
+ * THE grammar. structural.ts keeps its own regex for the marker-in-edition check and
+ * ledgerGrammar.test.ts asserts the two accept exactly the same strings, because two statements of
+ * one rule drift apart and this one has three readers.
+ */
+const PAGE_MARKER =
+  /^---\s*(REVIEWED|MACHINE DRAFT)\s+TRANSCRIPTION\s+PAGE\s+(\d+)\s+OF\s+(\d+)\s*---$/;
+
+/** Builds the marker a transcript of this status must carry. One writer, so no format drifts. */
+export function pageMarkerLine(
+  status: LedgerReviewStatus,
+  pageNumber: number,
+  totalPages: number,
+): string {
+  return `--- ${LEDGER_STATUS_TOKEN[status]} TRANSCRIPTION PAGE ${pageNumber} OF ${totalPages} ---`;
+}
+
 export type PageMarkerToken = Readonly<{
   kind: "PAGE_MARKER";
   pageNumber: number;
   totalPages: number;
+  /** Which status this marker declares. Every marker in one file must agree. */
+  status: LedgerReviewStatus;
   raw: string;
 }>;
 
@@ -129,14 +166,15 @@ export type TagToken = Readonly<{
 }>;
 
 export function parsePageMarker(line: string): PageMarkerToken | null {
-  const match = line.match(/^---\s*REVIEWED\s+TRANSCRIPTION\s+PAGE\s+(\d+)\s+OF\s+(\d+)\s*---$/);
-  if (!match || match[1] === undefined || match[2] === undefined) {
+  const match = line.match(PAGE_MARKER);
+  if (!match || match[2] === undefined || match[3] === undefined) {
     return null;
   }
   return {
     kind: "PAGE_MARKER",
-    pageNumber: Number.parseInt(match[1], 10),
-    totalPages: Number.parseInt(match[2], 10),
+    status: match[1] === "MACHINE DRAFT" ? "machine-draft" : "reviewed",
+    pageNumber: Number.parseInt(match[2], 10),
+    totalPages: Number.parseInt(match[3], 10),
     raw: line,
   };
 }

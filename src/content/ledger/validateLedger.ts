@@ -1,4 +1,24 @@
 /**
+ * Does the receipt record a NAMED HUMAN REVIEWER?
+ *
+ * This is the gate that makes REVIEWED a claim rather than a second spelling of the same header.
+ * An entry counts only if it carries a non-empty name that is not an `agent:` identity - the
+ * project's convention for relayed agent attribution - because an agent signing off the draft it
+ * produced is precisely the state am-wisq exists to refuse. Measured 2026-09-21: all three
+ * existing ledgers have `editors: []`, so all three are machine drafts under this test and none
+ * can carry the REVIEWED token.
+ */
+export function hasNamedHumanReviewer(frontMatter: unknown): boolean {
+  const transcription = (frontMatter as { transcription?: unknown } | null)?.transcription;
+  const editors = (transcription as { editors?: unknown } | null | undefined)?.editors;
+  if (!Array.isArray(editors)) return false;
+  return editors.some((editor) => {
+    const name = (editor as { name?: unknown } | null)?.name;
+    return typeof name === "string" && name.trim().length > 0 && !name.trim().startsWith("agent:");
+  });
+}
+
+/**
  * Reviewed Diplomatic German Ledger Validator.
  * Governed by bead am-edn-ledger-validator-edv and docs/editorial/LEDGER_FORMAT.md.
  */
@@ -18,6 +38,8 @@ import {
   FORBIDDEN_SUBSTRINGS,
   findHtmlOutsideMath,
   KNOWN_TAG_NAMES,
+  type LedgerReviewStatus,
+  pageMarkerLine,
   parseAnnalenPage,
   parsePageMarker,
 } from "./ledgerTokenizer.ts";
@@ -159,12 +181,21 @@ export function validateLedger(
   let ledgerKey = options.ledgerKey;
   if (!ledgerKey) {
     const filename = path.basename(ledgerPath);
-    const keyMatch = filename.match(/^([a-z0-9-]+)-reviewed\.txt$/);
+    // Both status suffixes, since am-wisq made the filename follow the review status. Matching
+    // only -reviewed.txt meant every renamed ledger fell through to the hard-coded default below
+    // and was validated against ANOTHER paper's receipt: after the rename all three reported 12
+    // pages, which is Brownian's page count, and mass-energy gained nine imaginary skeleton pages.
+    const keyMatch = filename.match(/^([a-z0-9-]+?)-(?:reviewed|machine-draft)\.txt$/);
     if (keyMatch?.[1]) {
       ledgerKey = keyMatch[1];
     } else if (options.receiptPath) {
       ledgerKey = path.basename(options.receiptPath, ".md");
     } else {
+      // A SILENT FALLBACK TO ANOTHER PAPER'S RECEIPT. Left as it was because changing it is a
+      // refusal-behaviour change nobody has ruled on, but recorded because the rename above
+      // demonstrated exactly what it does: an unrecognised ledger filename is validated against
+      // ap-17-549's page map and reports that paper's page count as its own. AGENTS.md's rule for
+      // unknown ids is that they fail explicitly rather than fall back to another paper's model.
       ledgerKey = "ap-17-549"; // Default reference key
     }
   }
@@ -562,9 +593,25 @@ export function validateLedger(
     lines.pop(); // Remove final empty line after LF
   }
 
-  // Check first line
-  if (lines.length === 0 || !lines[0]?.startsWith("--- REVIEWED TRANSCRIPTION PAGE 1 OF ")) {
-    if (lines.length > 0 && lines[0]?.includes("--- REVIEWED TRANSCRIPTION PAGE")) {
+  // Check first line, and read the status the transcript declares about itself.
+  //
+  // am-wisq: until 2026-09-21 this accepted exactly one token, so every machine draft opened with
+  // the word REVIEWED because the validator refused anything else. The owner ruled that a draft
+  // opens MACHINE DRAFT and that REVIEWED is earned. Both tokens are now valid HERE; what makes
+  // REVIEWED a claim rather than a synonym is the receipt gate below.
+  // NOT trimmed, deliberately. The first line must BEGIN with the marker: a leading space is page
+  // furniture corruption and the original check caught it. Trimming here made a stray space parse
+  // cleanly, which one of this file's own tests caught within the minute.
+  const firstMarker = lines.length > 0 ? parsePageMarker(lines[0] ?? "") : null;
+  const declaredStatus: LedgerReviewStatus = firstMarker?.status ?? "machine-draft";
+  // Two sites, not one, and deliberately so: "line 1 looks like a marker but is malformed" and
+  // "line 1 is not a marker at all" are different faults with different repairs, and this file has
+  // a test for each. Merging them into one push with a conditional message compiled and passed
+  // both tests while quietly halving the refusal surface - nothing would then fail if a later edit
+  // dropped one branch.
+  if (firstMarker?.pageNumber !== 1) {
+    const repair = `Replace first line with "${pageMarkerLine("machine-draft", 1, expectedTotalPages)}", or the REVIEWED form once a named human reviewer is recorded in the receipt.`;
+    if ((lines[0] ?? "").includes("TRANSCRIPTION PAGE")) {
       errors.push({
         code: "first-marker",
         severity: "error",
@@ -572,8 +619,8 @@ export function validateLedger(
         ledgerPage: 1,
         pdfPageIndex: 1,
         printedPage: null,
-        message: `First line must be "--- REVIEWED TRANSCRIPTION PAGE 1 OF ${expectedTotalPages} ---"`,
-        repair: `Replace first line with "--- REVIEWED TRANSCRIPTION PAGE 1 OF ${expectedTotalPages} ---"`,
+        message: `First line must be "${pageMarkerLine("machine-draft", 1, expectedTotalPages)}" or its REVIEWED form.`,
+        repair,
         excerpt: lines[0] ?? "",
       });
     } else {
@@ -585,12 +632,31 @@ export function validateLedger(
         pdfPageIndex: 1,
         printedPage: null,
         message: "First line of ledger file is not a page marker.",
-        repair: `Ensure first line is "--- REVIEWED TRANSCRIPTION PAGE 1 OF ${expectedTotalPages} ---"`,
+        repair,
         excerpt: lines[0] ?? "",
       });
     }
   }
 
+  // THE GATE, and it is the whole of the ruling. Without it the format has merely gained a synonym
+  // and a machine draft can still call itself reviewed by typing a different word. A named human
+  // reviewer is an entry in the receipt's transcription.editors with a name that is not an agent
+  // identity; `agent:<name>` is the project's convention for relayed agent attribution and an agent
+  // signing off its own draft is exactly what this refuses.
+  if (firstMarker?.status === "reviewed" && !hasNamedHumanReviewer(frontMatter)) {
+    errors.push({
+      code: "reviewed-without-named-reviewer",
+      severity: "error",
+      ledgerLine: 1,
+      ledgerPage: 1,
+      pdfPageIndex: 1,
+      printedPage: null,
+      message:
+        "Transcript declares REVIEWED but its receipt records no named human reviewer in transcription.editors.",
+      repair: `Record the reviewer in the receipt's transcription.editors, or open the transcript "${pageMarkerLine("machine-draft", 1, expectedTotalPages)}".`,
+      excerpt: lines[0] ?? "",
+    });
+  }
   // State
   let currentLedgerPage = 0;
   let expectedPage = 1;
@@ -718,6 +784,22 @@ export function validateLedger(
     if (marker) {
       endParagraph();
       lastLineWasDisplayEnd = false;
+
+      // One file, one declared status. Without this a transcript could open MACHINE DRAFT, pass
+      // the receipt gate on line 1, and switch to REVIEWED on page 2 - where the gate never looks.
+      if (marker.status !== declaredStatus) {
+        errors.push({
+          code: "marker-status-mixed",
+          severity: "error",
+          ledgerLine: lineNumber,
+          ledgerPage: marker.pageNumber,
+          pdfPageIndex: marker.pageNumber,
+          printedPage: currentPrintedPage,
+          message: `Page ${marker.pageNumber} declares ${marker.status.toUpperCase()} but the transcript opened ${declaredStatus.toUpperCase()}.`,
+          repair: `Make every page marker declare the same status as page 1, "${pageMarkerLine(declaredStatus, marker.pageNumber, marker.totalPages)}".`,
+          excerpt: trimmed,
+        });
+      }
 
       currentLedgerPage = marker.pageNumber;
       if (marker.pageNumber !== expectedPage) {

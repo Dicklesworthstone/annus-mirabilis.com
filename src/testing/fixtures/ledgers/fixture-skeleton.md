@@ -96,7 +96,7 @@ witnesses: []
 transcription:
   ocrRuns: []
   ledgerPath: "src/testing/fixtures/ledgers/fixture-skeleton-reviewed.txt"
-  ledgerSha256: "12f8dc3715187284c75b75b6bc3c0fa6799c89033df3720a358404fa4cf1b83c"
+  ledgerSha256: "7a6ff0bbc6f351f4eaa65c94c0f2411ff3850baae162a62a740b9571fe5dbb1a"
   ledgerSourcePdfSha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"
   ledgerStatus: in-progress
   editors: []

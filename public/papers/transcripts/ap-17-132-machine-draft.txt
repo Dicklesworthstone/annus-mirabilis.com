@@ -1,4 +1,4 @@
---- REVIEWED TRANSCRIPTION PAGE 1 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 1 OF 17 ---
 [[ANNALEN-PAGE 132]]
 [[TITLE]]Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt;[[/TITLE]]
 [[AUTHOR]]von A. Einstein.[[/AUTHOR]]
@@ -7,7 +7,7 @@ Zwischen den theoretischen Vorstellungen, welche sich die Physiker über die Gas
 
 Die mit kontinuierlichen Raumfunktionen operierende Undulationstheorie des Lichtes hat sich zur Darstellung der rein optischen Phänomene vortrefflich bewährt und wird wohl nie durch eine andere Theorie ersetzt werden. Es ist jedoch im Auge zu behalten, daß sich die optischen Beobachtungen auf zeitliche Mittelwerte, nicht aber auf Momentanwerte beziehen, und es ist trotz der vollständigen Bestätigung der Theorie der Beugung, Reflexion, Brechung, Dispersion etc. durch das[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 2 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 2 OF 17 ---
 [[ANNALEN-PAGE 133]]
 
 Experiment wohl denkbar, daß die mit kontinuierlichen Raumfunktionen operierende Theorie des Lichtes zu Widersprüchen mit der Erfahrung führt, wenn man sie auf die Erscheinungen der Lichterzeugung und Lichtverwandlung anwendet.
@@ -22,7 +22,7 @@ Wir stellen uns zunächst auf den Standpunkt der [[SPERR]]Maxwell[[/SPERR]]schen
 
 [[FN 1)]] Diese Annahme ist gleichbedeutend mit der Voraussetzung, daß die mittleren kinetischen Energien von Gasmolekülen und Elektronen bei Temperaturgleichgewicht einander gleich seien. Mit Hilfe letzterer Voraussetzung hat Hr. [[SPERR]]Drude[[/SPERR]] bekanntlich das Verhältnis von thermischem und elektrischem Leitungsvermögen der Metalle auf theoretischem Wege abgeleitet.
 
---- REVIEWED TRANSCRIPTION PAGE 3 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 3 OF 17 ---
 [[ANNALEN-PAGE 134]]
 
 Elektronen sei ferner an voneinander weit entfernte Punkte des Raumes gekettet durch nach diesen Punkten gerichtete, den Elongationen proportionale Kräfte. Auch diese Elektronen sollen mit den freien Molekülen und Elektronen in konservative Wechselwirkung treten, wenn ihnen letztere sehr nahe kommen. Wir nennen die an Raumpunkte geketteten Elektronen „Resonatoren“; sie senden elektromagnetische Wellen bestimmter Periode aus und absorbieren solche.
@@ -35,7 +35,7 @@ $$
 $$
 wobei $R$ die absolute Gaskonstante, $N$ die Anzahl der „wirklichen Moleküle“ in einem Grammäquivalent und $T$ die absolute Temperatur bedeutet. Die Energie $\overline{E}$ ist nämlich wegen der Gleichheit der zeitlichen Mittelwerte von kinetischer und potentieller Energie des Resonators $2/3$ mal so groß wie die lebendige Kraft eines freien, einatomigen Gasmoleküles. Würde nun durch irgend eine Ursache — in unserem Falle durch Strahlungsvorgänge — bewirkt, daß die Energie eines Resonators einen größeren oder kleineren zeitlichen Mittelwert als $\overline{E}$ besitzt, so würden die Zusammenstöße mit den freien Elektronen[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 4 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 4 OF 17 ---
 [[ANNALEN-PAGE 135]]
 
 tronen und Molekülen zu einer im Mittel von Null verschiedenen Energieabgabe an das Gas bez. Energieaufnahme von dem Gas führen. Es ist also in dem von uns betrachteten Falle dynamisches Gleichgewicht nur dann möglich, wenn jeder Resonator die mittlere Energie $\overline{E}$ besitzt.
@@ -61,7 +61,7 @@ f(A_1, A_2 \ldots \alpha_1, \alpha_2 \ldots) = F_1(A_1) F_2(A_2) \ldots f_1(\alp
 $$
 d. h. wenn die Wahrscheinlichkeit eines bestimmten Wertes einer der Größen $A$ bez. $\alpha$ von den Werten, welche die anderen Größen $A$ bez. $\alpha$ besitzen, unabhängig ist. Mit je größerer Annäherung die Bedingung erfüllt ist, daß die einzelnen Paare von Größen $A_\nu$ und $\alpha_\nu$ von Emissions- und Absorptionsprozessen [[EM]]besonderer[[/EM]] Gruppen abhängen, mit desto größerer Annäherung wird also in dem von uns betrachteten Falle die Strahlung als eine „denkbar ungeordnetste“ anzusehen sein.
 
---- REVIEWED TRANSCRIPTION PAGE 5 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 5 OF 17 ---
 [[ANNALEN-PAGE 136]]
 
 Soll die Strahlungsenergie von der Frequenz $\nu$ nicht beständig im Ganzen weder vermindert noch vermehrt werden, so muß gelten:
@@ -100,7 +100,7 @@ $$
 
 [[FN 1)]] M. [[SPERR]]Planck[[/SPERR]], Ann. d. Phys. 4. p. 561. 1901.
 
---- REVIEWED TRANSCRIPTION PAGE 6 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 6 OF 17 ---
 [[ANNALEN-PAGE 137]]
 
 Man erkennt, daß diese Formel mit der in § 1 aus der [[SPERR]]Maxwell[[/SPERR]]schen und der Elektronentheorie entwickelten übereinstimmt. Durch Gleichsetzung der Koeffizienten beider Formeln erhält man:
@@ -129,7 +129,7 @@ darstellbar, wobei $\varphi$ eine Funktion der Variabeln $\varrho$ und $\nu$[[CO
 
 [[FN 1)]] Diese Annahme ist eine willkürliche. Man wird naturgemäß an dieser einfachsten Annahme so lange festhalten, als nicht das Experiment dazu zwingt, sie zu verlassen.
 
---- REVIEWED TRANSCRIPTION PAGE 7 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 7 OF 17 ---
 [[ANNALEN-PAGE 138]]
 
 bedeutet. Es kann $\varphi$ auf eine Funktion von nur einer Variabeln reduziert werden durch Formulierung der Aussage, daß durch adiabatische Kompression einer Strahlung zwischen spiegelnden Wänden, deren Entropie nicht geändert wird. Wir wollen jedoch hierauf nicht eintreten, sondern sogleich untersuchen, wie die Funktion $\varphi$ aus dem Strahlungsgesetz des schwarzen Körpers ermittelt werden kann.
@@ -166,7 +166,7 @@ $$
 $$
 Dies ist das Gesetz der schwarzen Strahlung. Man kann also[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 8 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 8 OF 17 ---
 [[ANNALEN-PAGE 139]]
 
 aus der Funktion $\varphi$ das Gesetz der schwarzen Strahlung und umgekehrt aus letzterem die Funktion $\varphi$ durch Integration bestimmen mit Rücksicht darauf, daß $\varphi$ für $\varrho = 0$ verschwindet.
@@ -199,7 +199,7 @@ $$
 
 Diese Gleichung zeigt, daß die Entropie einer monochromatischen Strahlung von genügend kleiner Dichte nach dem gleichen Gesetze mit dem Volumen variiert wie die Entropie eines idealen Gases oder die einer verdünnten Lösung. Die[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 9 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 9 OF 17 ---
 [[ANNALEN-PAGE 140]]
 
 soeben gefundene Gleichung soll im folgenden interpretiert werden unter Zugrundelegung des von Hrn. [[SPERR]]Boltzmann[[/SPERR]] in die Physik eingeführten Prinzips, nach welchem die Entropie eines Systems eine Funktion der Wahrscheinlichkeit seines Zustandes ist.
@@ -225,7 +225,7 @@ W = W_1 \cdot W_2.
 $$
 [[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 10 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 10 OF 17 ---
 [[ANNALEN-PAGE 141]]
 
 Die letztere Beziehung sagt aus, daß die Zustände der beiden Systeme voneinander unabhängige Ereignisse sind.
@@ -251,7 +251,7 @@ Wir behandeln zunächst folgenden Spezialfall. In einem Volumen $v_0$ sei eine A
 
 Dem betrachteten System, welches z. B. ein ideales Gas oder eine verdünnte Lösung sein kann, kommt eine gewisse Entropie $S_0$ zu. Wir denken uns einen Teil des Volumens $v_0$ von der Größe $v$ und alle $n$ beweglichen Punkte in das Volumen $v$ versetzt, ohne daß an dem System sonst etwas geändert wird. Diesem Zustand kommt offenbar ein anderer Wert der Entropie $(S)$ zu, und wir wollen nun die Entropiedifferenz mit Hilfe des [[SPERR]]Boltzmann[[/SPERR]]schen Prinzips bestimmen.
 
---- REVIEWED TRANSCRIPTION PAGE 11 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 11 OF 17 ---
 [[ANNALEN-PAGE 142]]
 
 Wir fragen: Wie groß ist die Wahrscheinlichkeit des letzterwähnten Zustandes relativ zum ursprünglichen? Oder: Wie groß ist die Wahrscheinlichkeit dafür, daß sich in einem zufällig herausgegriffenen Zeitmoment alle $n$ in einem gegebenen Volumen $v_0$ unabhängig voneinander beweglichen Punkte (zufällig) in dem Volumen $v$ befinden?
@@ -288,7 +288,7 @@ $$
 p v = R \frac{n}{N} T.
 $$
 
---- REVIEWED TRANSCRIPTION PAGE 12 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 12 OF 17 ---
 [[ANNALEN-PAGE 143]]
 
 und vergleicht man sie mit der allgemeinen, das [[SPERR]]Boltzmann[[/SPERR]]sche Prinzip ausdrückenden Formel
@@ -313,17 +313,45 @@ $$
 
 Wenn sich nun monochromatische Strahlung (von hinreichend kleiner Dichte) bezüglich der Abhängigkeit der Entropie vom Volumen wie ein diskontinuierliches Medium verhält, welches aus Energiequanten von der Größe $R \beta \nu / N$ besteht, so liegt es nahe, zu untersuchen, ob auch die Gesetze der[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 13 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 13 OF 17 ---
 [[ANNALEN-PAGE 144]]
 
---- REVIEWED TRANSCRIPTION PAGE 14 OF 17 ---
+Erzeugung und Verwandlung des Lichtes so beschaffen sind, wie wenn das Licht aus derartigen Energiequanten bestünde. Mit dieser Frage wollen wir uns im folgenden beschäftigen.
+
+[[HEADING s7]]§ 7. Über die [[SPERR]]Stokes[[/SPERR]]sche Regel.
+
+Es werde monochromatisches Licht durch Photolumineszenz in Licht anderer Frequenz verwandelt und gemäß dem eben erlangten Resultat angenommen, daß sowohl das erzeugende wie das erzeugte Licht aus Energiequanten von der Größe $(R/N) \beta \nu$ bestehe, wobei $\nu$ die betreffende Frequenz bedeutet. Der Verwandlungsprozeß wird dann folgendermaßen zu deuten sein. Jedes erzeugende Energiequant von der Frequenz $\nu_1$ wird absorbiert und gibt — wenigstens bei genügend kleiner Verteilungsdichte der erzeugenden Energiequanten — für sich allein Anlaß zur Entstehung eines Lichtquants von der Frequenz $\nu_2$; eventuell können bei der Absorption des erzeugenden Lichtquants auch gleichzeitig Lichtquanten von den Frequenzen $\nu_3$, $\nu_4$ etc. sowie Energie anderer Art (z. B. Wärme) entstehen. Unter Vermittelung von was für Zwischenprozessen dies Endresultat zustande kommt, ist gleichgültig. Wenn die photolumineszierende Substanz nicht als eine beständige Quelle von Energie anzusehen ist, so kann nach dem Energieprinzip die Energie eines erzeugten Energiequants nicht größer sein als die eines erzeugenden Lichtquants; es muß also die Bezeichnung gelten:
+$$
+\frac{R}{N} \beta \nu_2 \leqq \frac{R}{N} \beta \nu_1
+$$
+oder
+$$
+\nu_2 \leqq \nu_1 .
+$$
+Dies ist die bekannte [[SPERR]]Stokes[[/SPERR]]sche Regel.
+
+Besonders hervorzuheben ist, daß bei schwacher Belichtung die erzeugte Lichtmenge der erregenden unter sonst gleichen Umständen nach unserer Auffassung der erregenden Lichtstärke proportional sein muß, da jedes erregende Energiequant einen Elementarprozeß von der oben angedeuteten Art verursachen wird, unabhängig von der Wirkung der anderen erregenden Energiequanten. Insbesondere wird es keine untere Grenze für die Intensität des erregenden Lichtes geben, unterhalb welcher das Licht unfähig wäre, lichterregend zu wirken.
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 14 OF 17 ---
 [[ANNALEN-PAGE 145]]
 
---- REVIEWED TRANSCRIPTION PAGE 15 OF 17 ---
+Abweichungen von der [[SPERR]]Stokes[[/SPERR]]schen Regel sind nach der dargelegten Auffassung der Phänomene in folgenden Fällen denkbar: 1. wenn die Anzahl der gleichzeitig in Umwandlung begriffenen Energiequanten pro Volumeneinheit so groß ist, daß ein Energiequant des erzeugten Lichtes seine Energie von mehreren erzeugenden Energiequanten erhalten kann; 2. wenn das erzeugende (oder erzeugte) Licht nicht von derjenigen energetischen Beschaffenheit ist, die einer „schwarzen Strahlung“ aus dem Gültigkeitsbereich des [[SPERR]]Wien[[/SPERR]]schen Gesetzes zukommt, wenn also z. B. das erregende Licht von einem Körper so hoher Temperatur erzeugt ist, daß für die in Betracht kommende Wellenlänge das [[SPERR]]Wien[[/SPERR]]sche Gesetz nicht mehr gilt.
+
+Die letztgenannte Möglichkeit verdient besonderes Interesse. Nach der entwickelten Auffassung ist es nämlich nicht ausgeschlossen, daß eine „nicht [[SPERR]]Wien[[/SPERR]]sche Strahlung“ auch in großer Verdünnung sich in energetischer Beziehung anders verhält als eine „schwarze Strahlung“ aus dem Gültigkeitsbereich des [[SPERR]]Wien[[/SPERR]]schen Gesetzes.
+
+[[HEADING s8]]§ 8. Über die Erzeugung von Kathodenstrahlen durch Belichtung fester Körper.
+
+Die übliche Auffassung, daß die Energie des Lichtes kontinuierlich über den durchstrahlten Raum verteilt sei, findet bei dem Versuch, die lichtelektrischen Erscheinungen zu erklären, besonders große Schwierigkeiten, welche in einer bahnbrechenden Arbeit von Hrn. [[SPERR]]Lenard[[/SPERR]] dargelegt sind.[[FN-MARK 1)]]
+
+Nach der Auffassung, daß das erregende Licht aus Energiequanten von der Energie $(R/N) \beta \nu$ bestehe, läßt sich die Erzeugung von Kathodenstrahlen durch Licht folgendermaßen auffassen. In die oberflächliche Schicht des Körpers dringen Energiequanten ein, und deren Energie verwandelt sich wenigstens zum Teil in kinetische Energie von Elektronen. Die einfachste Vorstellung ist die, daß ein Lichtquant seine ganze Energie an ein einziges Elektron abgibt; wir wollen annehmen, daß dies vorkomme. Es soll jedoch nicht ausgeschlossen sein, daß Elektronen die Energie von Lichtquanten nur teilweise aufnehmen. Ein im Innern des Körpers mit kinetischer Energie[[CONTINUES]]
+
+[[FN 1)]] P. [[SPERR]]Lenard[[/SPERR]], Ann. d. Phys. 8. p. 169 u. 170. 1902.
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 15 OF 17 ---
 [[ANNALEN-PAGE 146]]
 
---- REVIEWED TRANSCRIPTION PAGE 16 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 16 OF 17 ---
 [[ANNALEN-PAGE 147]]
 
---- REVIEWED TRANSCRIPTION PAGE 17 OF 17 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 17 OF 17 ---
 [[ANNALEN-PAGE 148]]

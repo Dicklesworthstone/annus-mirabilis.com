@@ -19,7 +19,7 @@ import { PIPELINE_STAGES, runEditionPipeline } from "./e2e-edition-pipeline.ts";
 const REPO = process.cwd();
 const LEDGER_FIXTURE = join(REPO, "src/testing/fixtures/ledgers/fixture-clean-reviewed.txt");
 const RECEIPT_FIXTURE = join(REPO, "src/testing/fixtures/ledgers/fixture-clean.md");
-const LEDGER_REL = "public/papers/transcripts/ap-17-549-reviewed.txt";
+const LEDGER_REL = "public/papers/transcripts/ap-17-549-machine-draft.txt";
 const RECEIPT_REL = "docs/provenance/ap-17-549.md";
 
 /**

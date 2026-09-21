@@ -1,4 +1,4 @@
---- REVIEWED TRANSCRIPTION PAGE 1 OF 3 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 1 OF 3 ---
 [[ANNALEN-PAGE 639]]
 [[TITLE]]Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?[[/TITLE]]
 [[AUTHOR]]von A. Einstein[[/AUTHOR]]
@@ -20,7 +20,7 @@ wobei $V$ die Lichtgeschwindigkeit bedeutet. Von diesem Resultat machen wir im f
 [[FN 1)]] [[SPERR]]A. Einstein[[/SPERR]], Ann. d. Phys. 17. p. 891. 1905.
 [[FN 2)]] Das dort benutzte Prinzip der Konstanz der Lichtgeschwindigkeit ist natürlich in den [[SPERR]]Maxwellschen[[/SPERR]] Gleichungen enthalten.
 
---- REVIEWED TRANSCRIPTION PAGE 2 OF 3 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 2 OF 3 ---
 [[ANNALEN-PAGE 640]]
 
 Es befinde sich nun im System $(x, y, z)$ ein ruhender Körper, dessen Energie — auf das System $(x, y, z)$ bezogen — $E_0$ sei. Relativ zu dem wie oben mit der Geschwindigkeit $v$ bewegten System $(\xi, \eta, \zeta)$ sei die Energie des Körpers $H_0$.
@@ -41,7 +41,7 @@ $$
 $$
 Die beiden in diesem Ausdruck auftretenden Differenzen von der Form $H - E$ haben einfache physikalische Bedeutungen. $H$ und $E$ sind Energiewerte desselben Körpers, bezogen auf zwei relativ zueinander bewegte Koordinatensysteme, wobei der Körper in dem einen System (System $(x, y, z)$) ruht. Es ist also klar, daß die Differenz $H - E$ sich von der kinetischen Energie $K$ des Körpers in bezug auf das andere System (System $(\xi, \eta, \zeta)$) nur durch eine additive Konstante $C$ unterscheiden kann, welche von der Wahl der willkürlichen additiven[[CONTINUES]]
 
---- REVIEWED TRANSCRIPTION PAGE 3 OF 3 ---
+--- MACHINE DRAFT TRANSCRIPTION PAGE 3 OF 3 ---
 [[ANNALEN-PAGE 641]]
 
 Konstanten der Energien $H$ und $E$ abhängt. Wir können also setzen:

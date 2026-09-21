@@ -33,15 +33,15 @@ const TRANSCRIPTS = join(ROOT, "public", "papers", "transcripts");
  */
 const LEDGERS_NOT_YET_REACHABLE: ReadonlyMap<string, string> = new Map([
   [
-    "ap-18-639-reviewed.txt",
+    "ap-18-639-machine-draft.txt",
     "Mass-energy machine draft with hand correction (docs/provenance/ap-18-639.md: ledgerStatus in-progress, role machine-draft-with-hand-correction). The /papers/mass-energy/view/german route already ships and renders 'not yet available' because nothing emits a bilingual-edition payload. Delete this entry when a content module reads the ledger, which waits on the owner ruling of am-dl4n criterion 2 and am-wisq.",
   ],
   [
-    "ap-17-132-reviewed.txt",
+    "ap-17-132-machine-draft.txt",
     "Light-quanta machine draft with hand correction, in progress: 2 of 17 pages transcribed at the time of this entry (docs/provenance/ap-17-132.md: ledgerStatus in-progress, role machine-draft-with-hand-correction). Same state and same owner ruling as the other two. It is the sharpest instance of am-dl4n criterion 1 - a ledger whose coverage is a tenth of the paper - and inspectLedgerPresence now classifies it 'partial' rather than 'present' for exactly that reason. Delete this entry when a content module reads the ledger.",
   ],
   [
-    "ap-17-549-reviewed.txt",
+    "ap-17-549-machine-draft.txt",
     "Brownian machine draft with hand correction, same state and same owner ruling as the mass-energy ledger. Longer and still partial, so it is also the case am-dl4n criterion 1 asks about: what a reader is shown for a paper whose ledger covers only some pages. Delete this entry when a content module reads the ledger.",
   ],
 ]);

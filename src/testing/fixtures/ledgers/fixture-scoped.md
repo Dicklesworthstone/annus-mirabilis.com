@@ -86,7 +86,7 @@ witnesses: []
 transcription:
   ocrRuns: []
   ledgerPath: "src/testing/fixtures/ledgers/fixture-scoped-reviewed.txt"
-  ledgerSha256: "6f45e7ca981df412a0a5f481fafeb136b8b3c683de78f7b7ad756bf52866325a"
+  ledgerSha256: "965eaed0a5d4977c8ff7b14dd2fa17113349bd9dcd871c9ee3068332b974f93e"
   ledgerSourcePdfSha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"
   ledgerScopePages:
     - 1

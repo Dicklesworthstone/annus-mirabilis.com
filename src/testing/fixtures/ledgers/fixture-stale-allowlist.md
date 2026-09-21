@@ -89,7 +89,7 @@ witnesses: []
 transcription:
   ocrRuns: []
   ledgerPath: "src/testing/fixtures/ledgers/fixture-stale-allowlist-reviewed.txt"
-  ledgerSha256: "86fdb373b45101bcea32d7311812ac47de028cc4fc80ee9e0d2a93f3f9fb8f3b"
+  ledgerSha256: "9896b3599ece46de6a910a6574b49353421107fd6232f0680aedb6238ef3b181"
   ledgerSourcePdfSha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"
   ledgerStatus: in-progress
   editors: []

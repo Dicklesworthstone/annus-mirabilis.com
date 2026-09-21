@@ -26,7 +26,7 @@ import {
 function draftTranscription(overrides: Partial<Transcription> = {}): Transcription {
   return {
     ocrRuns: [],
-    ledgerPath: "public/papers/transcripts/ap-18-639-reviewed.txt",
+    ledgerPath: "public/papers/transcripts/ap-18-639-machine-draft.txt",
     ledgerStatus: "in-progress",
     editors: [],
     ...overrides,

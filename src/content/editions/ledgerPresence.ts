@@ -8,6 +8,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROUTE_SLUGS, type RouteSlug } from "../ids.ts";
+import { parsePageMarker } from "../ledger/ledgerTokenizer.ts";
 
 export const PAPER_BIB_KEYS: Readonly<Record<RouteSlug, string>> = Object.freeze({
   "light-quanta": "ap-17-132",
@@ -41,7 +42,7 @@ export const PAPER_BIB_KEYS: Readonly<Record<RouteSlug, string>> = Object.freeze
  * `open-german-source-mass-energy` is still unfilled in docs/OWNERS.md.
  *
  * `brownian-motion` LEFT on 2026-09-21, for the reason the paragraph above allows and no other:
- * public/papers/transcripts/ap-17-549-reviewed.txt exists on disk. The pawl in
+ * public/papers/transcripts/ap-17-549-machine-draft.txt exists on disk (named -reviewed.txt until am-wisq). The pawl in
  * ledgerAbsence.test.ts is what reported it, firing in the opposite direction from the one it was
  * written for - it was added to catch a paper MISSING from this list, and it caught a paper that
  * should no longer be in it. Membership checked against the disk in both directions is why the same
@@ -89,9 +90,23 @@ export type LedgerPresence = "absent" | "partial" | "complete";
  * without importing it: that module parses receipts and is far too heavy for a helper called
  * in loops. The duplication is a drift risk and is answered by a test that asserts the two
  * agree on every real ledger, so the copy cannot quietly diverge from the original.
+ *
+ * THE PAGE SPLIT NO LONGER CARRIES ITS OWN COPY OF THE MARKER GRAMMAR. It used to split on the
+ * literal `--- REVIEWED TRANSCRIPTION PAGE n OF N ---`, which was the fifth place that string was
+ * written down. When am-wisq changed drafts to open MACHINE DRAFT, this split silently found zero
+ * pages and every real ledger degraded from complete to partial - a coverage verdict quietly
+ * wrong, with no error anywhere. It now asks ledgerTokenizer, which owns the grammar and is
+ * dependency-free, so the next status word cannot break it.
  */
 export function classifyLedgerCoverage(text: string): "partial" | "complete" {
-  const pages = text.split(/^--- REVIEWED TRANSCRIPTION PAGE \d+ OF \d+ ---$/m).slice(1);
+  const pages: string[] = [];
+  for (const line of text.split("\n")) {
+    if (parsePageMarker(line) !== null) {
+      pages.push("");
+      continue;
+    }
+    if (pages.length > 0) pages[pages.length - 1] += `${line}\n`;
+  }
   if (pages.length === 0) return "partial";
   for (const page of pages) {
     const covered = page
@@ -110,15 +125,40 @@ export type LedgerPresenceRecord = Readonly<{
   presence: LedgerPresence;
 }>;
 
-export function ledgerRelativePath(slug: RouteSlug): string {
-  return `public/papers/transcripts/${PAPER_BIB_KEYS[slug]}-reviewed.txt`;
+/**
+ * Where a ledger of each review status lives.
+ *
+ * The owner ruled on am-wisq (2026-09-21, verbatim "Header states real status") that the filename
+ * follows the status, so there are two names and only one of them may exist for a paper. A draft is
+ * `-machine-draft.txt`; `-reviewed.txt` is earned, and validateLedger refuses the REVIEWED header
+ * unless the receipt records a named human reviewer.
+ */
+export function ledgerCandidatePaths(slug: RouteSlug): readonly string[] {
+  const key = PAPER_BIB_KEYS[slug];
+  return Object.freeze([
+    `public/papers/transcripts/${key}-machine-draft.txt`,
+    `public/papers/transcripts/${key}-reviewed.txt`,
+  ]);
+}
+
+/**
+ * The ledger this paper actually has, or the draft name when it has none.
+ *
+ * Returning the draft name for an absent ledger is deliberate: the fallback should be the state a
+ * paper is actually in before anyone has reviewed it, so a caller that reports the path of a
+ * missing ledger names something a human could go and create rather than a file that would be a
+ * false claim the moment it existed.
+ */
+export function ledgerRelativePath(slug: RouteSlug, root: string = process.cwd()): string {
+  const candidates = ledgerCandidatePaths(slug);
+  return candidates.find((candidate) => existsSync(join(root, candidate))) ?? candidates[0] ?? "";
 }
 
 export function inspectLedgerPresence(
   slug: RouteSlug,
   root: string = process.cwd(),
 ): LedgerPresenceRecord {
-  const relative = ledgerRelativePath(slug);
+  const relative = ledgerRelativePath(slug, root);
   const absolute = join(root, relative);
   const presence: LedgerPresence = existsSync(absolute)
     ? classifyLedgerCoverage(readFileSync(absolute, "utf8"))

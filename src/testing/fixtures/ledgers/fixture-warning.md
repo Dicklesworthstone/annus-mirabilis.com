@@ -89,7 +89,7 @@ witnesses: []
 transcription:
   ocrRuns: []
   ledgerPath: "src/testing/fixtures/ledgers/fixture-warning-reviewed.txt"
-  ledgerSha256: "d7ed664ffcb02dad598fe765925ebce252296e8a94f06bfa4a52aba94c19032b"
+  ledgerSha256: "d46de9893e76b3bf465acbcde4b4a1c791da00b0dae89ca414069f8c68501595"
   ledgerSourcePdfSha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"
   ledgerStatus: in-progress
   editors: []

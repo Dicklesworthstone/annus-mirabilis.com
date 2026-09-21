@@ -55,7 +55,7 @@ function expectSite(reports: CheckReportItem[], path: string, messageOpening: st
 }
 
 describe("duplicate-id: the source-block site, not the twelve that already had tests", () => {
-  test("(structural.ts:156) two source blocks share an id inside one paper", () => {
+  test("(structural.ts:160) two source blocks share an id inside one paper", () => {
     const records = {
       a: { kind: "source-block", id: "s1-p1", paper: "brownian-motion", file: "a.json" },
       b: { kind: "source-block", id: "s1-p1", paper: "brownian-motion", file: "b.json" },
@@ -73,7 +73,7 @@ describe("duplicate-id: the source-block site, not the twelve that already had t
 });
 
 describe("missing-source-block: the two sites that were not driven", () => {
-  test("(structural.ts:406) a paper's orderedBlockIds names a block that does not exist", () => {
+  test("(structural.ts:410) a paper's orderedBlockIds names a block that does not exist", () => {
     const records = {
       p: {
         kind: "paper",
@@ -95,7 +95,7 @@ describe("missing-source-block: the two sites that were not driven", () => {
     expect(run(checkMissingSourceBlock, complete)).toHaveLength(0);
   });
 
-  test("(structural.ts:472) an alignment edge points at a source block that does not exist", () => {
+  test("(structural.ts:476) an alignment edge points at a source block that does not exist", () => {
     const records = {
       b: { kind: "source-block", id: "s1-p1", paper: "brownian-motion" },
       al: {
@@ -145,7 +145,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     text: "In this paper it will be shown.",
   };
 
-  test("(structural.ts:666) an edge names a sentence that is not a span of its own block", () => {
+  test("(structural.ts:670) an edge names a sentence that is not a span of its own block", () => {
     const records = {
       b: block,
       t: tu,
@@ -168,7 +168,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     );
   });
 
-  test("(structural.ts:699) an edge targets a translation unit that is missing in its paper", () => {
+  test("(structural.ts:703) an edge targets a translation unit that is missing in its paper", () => {
     const records = {
       b: block,
       t: tu,
@@ -191,7 +191,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     );
   });
 
-  test("(structural.ts:714) an edge's target range runs past the end of the translation text", () => {
+  test("(structural.ts:718) an edge's target range runs past the end of the translation text", () => {
     const makeRecords = (range: { start: number; end: number }) => ({
       b: block,
       t: tu,
@@ -224,7 +224,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
   const dateLine = d("date-line", "1905-05-01");
   const received = d("received", "1905-05-11");
 
-  test("(structural.ts:1029) received is strictly after issue publication", () => {
+  test("(structural.ts:1033) received is strictly after issue publication", () => {
     const records = {
       p: {
         kind: "paper",
@@ -250,7 +250,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
     expect(run(checkImpossibleDateOrder, ordered)).toHaveLength(0);
   });
 
-  test("(structural.ts:1046) issue publication is strictly after a later edition", () => {
+  test("(structural.ts:1050) issue publication is strictly after a later edition", () => {
     const records = {
       p: {
         kind: "paper",
@@ -276,7 +276,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
 });
 
 describe("the four single sites", () => {
-  test("(structural.ts:1142) germanLatex and englishLatex differ byte for byte", () => {
+  test("(structural.ts:1146) germanLatex and englishLatex differ byte for byte", () => {
     const records = {
       e: {
         kind: "equation",
@@ -306,7 +306,7 @@ describe("the four single sites", () => {
     expect(run(checkEquationNotIdentical, identical)).toHaveLength(0);
   });
 
-  test("(structural.ts:1236) a paper is complete while one of its blocks is still a draft", () => {
+  test("(structural.ts:1240) a paper is complete while one of its blocks is still a draft", () => {
     const records = {
       p: { kind: "paper", id: "brownian-motion", status: "complete" },
       b: {
@@ -352,7 +352,7 @@ describe("the four single sites", () => {
     expect(run(checkCompleteWhileMissing, inProgress)).toHaveLength(0);
   });
 
-  test("(structural.ts:1321) a hero quote's anchor resolves to no edition record at all", () => {
+  test("(structural.ts:1325) a hero quote's anchor resolves to no edition record at all", () => {
     const records = {
       b: {
         kind: "source-block",
@@ -394,7 +394,7 @@ describe("the four single sites", () => {
     ).toHaveLength(0);
   });
 
-  test("(structural.ts:1499) an edge's SOURCE span digest disagrees with the block text", () => {
+  test("(structural.ts:1503) an edge's SOURCE span digest disagrees with the block text", () => {
     const text = "In dieser Arbeit soll gezeigt werden.";
     const records = {
       "s1-p1": { kind: "source-block", id: "s1-p1", paper: "brownian-motion", text },
@@ -454,7 +454,7 @@ describe("the four single sites", () => {
  * executing. These drive them directly.
  */
 describe("the two sites only the node-lane e2e reached", () => {
-  test("(structural.ts:178) two source blocks in one paper declare the same sentence span id", () => {
+  test("(structural.ts:182) two source blocks in one paper declare the same sentence span id", () => {
     const records = {
       a: {
         kind: "source-block",
@@ -497,7 +497,7 @@ describe("the two sites only the node-lane e2e reached", () => {
     expect(run(checkDuplicateId, otherPaper)).toHaveLength(0);
   });
 
-  test("(structural.ts:1179) an aligned English equation differs by bytes from its German block", () => {
+  test("(structural.ts:1183) an aligned English equation differs by bytes from its German block", () => {
     const records = {
       g: {
         kind: "source-block",

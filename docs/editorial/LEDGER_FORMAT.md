@@ -13,11 +13,20 @@ This document defines the normative file format, markup vocabulary, structural c
 
 Ledgers reside in the repository under:
 ```
-public/papers/transcripts/<key>-reviewed.txt
+public/papers/transcripts/<key>-machine-draft.txt     a draft, not yet reviewed by a human
+public/papers/transcripts/<key>-reviewed.txt          a named human reviewer has signed off
 ```
 where `<key>` is the bibliographic key of the paper (e.g., `ap-17-132`, `ap-17-549`, `ap-17-891`, `ap-18-639`, `ap-19-289`, `ap-34-591`).
 
-The reviewed ledger is a faithful, diplomatic transcription of the printed German source pages as witnessed in the pinned primary facsimile scan. It mirrors the exact structure, orthography, and printed features of the original historical artifact while establishing clean, semantic boundaries for automated alignment, translation pairing, notation concordance, and laboratory verification.
+**The filename follows the status, and so does the header.** Owner ruling on am-wisq, 2026-09-21,
+selected verbatim as "Header states real status": a draft opens `MACHINE DRAFT` and `REVIEWED`
+becomes available only once a human signs off. Before that ruling the format admitted one token and
+the validator refused every other first line, so a machine draft asserted human review by
+construction - three ledgers in this repository opened with a word nobody had earned. The
+alternative of keeping `REVIEWED` on line 1 and adding a status line beneath it was put to the owner
+and declined, on the ground that line 1 is the line that gets quoted.
+
+A ledger is a faithful, diplomatic transcription of the printed German source pages as witnessed in the pinned primary facsimile scan. It mirrors the exact structure, orthography, and printed features of the original historical artifact while establishing clean, semantic boundaries for automated alignment, translation pairing, notation concordance, and laboratory verification.
 
 ---
 
@@ -40,13 +49,23 @@ A ledger document is organized into consecutive pages corresponding directly to 
 
 ### 3.1 Page Markers
 
-Each page begins with an uppercase page marker on its own physical line:
+Each page begins with an uppercase page marker on its own physical line, carrying the transcript's
+declared review status:
 ```
+--- MACHINE DRAFT TRANSCRIPTION PAGE <m> OF <N> ---
 --- REVIEWED TRANSCRIPTION PAGE <m> OF <N> ---
 ```
 - `<m>` is the 1-based sequential ledger page number ($1 \le m \le N$).
 - `<N>` is the total number of ledger pages in the document.
-- The first line of the file must be `--- REVIEWED TRANSCRIPTION PAGE 1 OF <N> ---`.
+- The first line of the file must be the page-1 marker in one of the two forms above. A leading
+  space is not permitted: the line must BEGIN with the marker (`first-marker`).
+- **`REVIEWED` is a gate, not a spelling.** A transcript may declare `REVIEWED` only when its
+  receipt records a named human reviewer in `transcription.editors` - an entry with a non-empty
+  `name` that is not an `agent:` identity, because an agent signing off the draft it produced is
+  the state this refuses. Otherwise `reviewed-without-named-reviewer`.
+- **Every marker in one file declares the same status** (`marker-status-mixed`). Without this a
+  transcript could open `MACHINE DRAFT`, satisfy the receipt gate on line 1, and claim `REVIEWED`
+  on page 2, where the gate never looks.
 - Page numbers must be strictly sequential with no gaps, no duplicates, and no reversals ($1, 2, \dots, N$). Any violation raises `marker-sequence`.
 - `<N>` must match the expected page count declared in the paper's provenance receipt (`page-count-mismatch`):
   - For full-document ledgers: `<N>` equals the length of `pageMap` in `docs/provenance/<key>.md`.

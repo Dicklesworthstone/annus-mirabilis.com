@@ -148,7 +148,7 @@ describe("mini-paper fixture contract (am-edn-alignment-tooling-do1)", () => {
     // becomes indistinguishable from a pass over the real facsimile.
     expect(c?.message).toContain("edition.yaml");
     expect(c?.message).toContain("mini-paper");
-    expect(c?.message).toContain("ap-18-639-reviewed.txt");
+    expect(c?.message).toContain("ap-18-639-machine-draft.txt");
     expect(c?.message).toContain("ap-18-639.pdf");
     expect(c?.message).toMatch(/sha256 [0-9a-f]{12}/);
   });
@@ -225,7 +225,7 @@ describe("mini-paper fixture contract (am-edn-alignment-tooling-do1)", () => {
     // set if it were ever removed: nothing German, nothing English, no edges is "could not
     // run", not "failed". Reached by emptying the ledger the German ids are segmented from.
     const root = mutatedFixture(
-      "public/papers/transcripts/ap-18-639-reviewed.txt",
+      "public/papers/transcripts/ap-18-639-machine-draft.txt",
       () => "--- REVIEWED TRANSCRIPTION PAGE 1 OF 1 ---\n",
     );
     const c = outcomeOf(root, 8);
