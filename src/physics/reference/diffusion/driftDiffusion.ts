@@ -40,19 +40,24 @@ function integer(v: number, min = 0): boolean {
   return Number.isSafeInteger(v) && v >= min;
 }
 
-function bernoulli(z: number): number {
-  if (z === 0) return 1;
-  const az = Math.abs(z);
-  if (az < 1e-3) {
+/** SG transport speeds without exp(Pe) overflow or an infinity-times-zero product. */
+function transportSpeeds(D: number, u: number, dx: number) {
+  if (D === 0) return { right: Math.max(u, 0), left: Math.max(-u, 0) };
+  const diffusionSpeed = D / dx;
+  const speed = Math.abs(u);
+  const z = speed / diffusionSpeed;
+  let againstDrift: number;
+  if (speed === 0) againstDrift = diffusionSpeed;
+  else if (z < 1e-3) {
     const z2 = z * z;
-    return 1 - z / 2 + z2 / 12 - (z2 * z2) / 720;
-  }
-  return z / Math.expm1(z);
-}
-
-function peCothHalf(pe: number): number {
-  if (Math.abs(pe) < 1e-8) return 2 + (pe * pe) / 6;
-  return (pe * (Math.exp(pe) + 1)) / Math.expm1(pe);
+    againstDrift = diffusionSpeed * (1 - z / 2 + z2 / 12 - (z2 * z2) / 720);
+  } else if (z > 50) {
+    const tail = Math.exp(-z);
+    againstDrift = (speed * tail) / (1 - tail);
+  } else againstDrift = speed / Math.expm1(z);
+  return u >= 0
+    ? { right: speed + againstDrift, left: againstDrift }
+    : { right: againstDrift, left: speed + againstDrift };
 }
 
 function invalid(parameterIds: readonly string[], details: string): Computation<never> {
@@ -105,6 +110,12 @@ export function driftDiffusionFrames1d(
   const D = kickDiffusivity;
   const u = mobility * force;
   const dx = width / cells;
+  if (!Number.isFinite(u) || !Number.isFinite(1 / dx) || dx <= 0) {
+    return invalid(
+      ["width", "cells", "mobility", "force"],
+      "The drift speed and cell scale must be representable.",
+    );
+  }
   const work = cells * (frames - 1) * stepsPerFrame;
   if (work > budget.workUnits || cells * frames * 8 > budget.allocationBytes) {
     return {
@@ -118,78 +129,69 @@ export function driftDiffusionFrames1d(
       },
     };
   }
-  if (D === 0) {
-    const courant = (Math.abs(u) * dt) / dx;
-    if (courant > 1) {
-      const dtMax = dx / Math.abs(u);
-      return {
-        kind: "refused",
-        refusal: makeRefusal(
-          "drift-cfl-exceeded",
-          { parameterIds: ["dt", "force"], capabilityId: "diffusion.driftDiffusionFrames1d" },
-          {
-            details: { courant, limit: 1, dtMax },
-            rankedRepairs: [
-              {
-                label: "Reduce the time step to the Courant limit.",
-                action: { parameterId: "dt", value: dtMax },
-              },
-              {
-                label: "Use a coarser spatial grid.",
-                action: { parameterId: "cells", value: Math.max(3, Math.floor(cells / 2)) },
-              },
-              { label: "Use a weaker force.", action: { parameterId: "force", value: force / 2 } },
-            ],
-          },
-        ),
-      };
-    }
-  } else {
-    const pe = (u * dx) / D;
-    const sigma = ((D * dt) / (dx * dx)) * peCothHalf(pe);
-    if (sigma > 1) {
-      const dtMax = (dx * dx) / (D * peCothHalf(pe));
-      return {
-        kind: "refused",
-        refusal: makeRefusal(
-          "drift-diffusion-unstable",
-          { parameterIds: ["dt"], capabilityId: "diffusion.driftDiffusionFrames1d" },
-          {
-            details: { ratio: sigma, limit: 1, dtMax },
-            rankedRepairs: [
-              {
-                label: "Reduce the time step to the explicit scheme's positivity limit.",
-                action: { parameterId: "dt", value: dtMax },
-              },
-              {
-                label: "Use a coarser spatial grid.",
-                action: { parameterId: "cells", value: Math.max(3, Math.floor(cells / 2)) },
-              },
-            ],
-          },
-        ),
-      };
-    }
+  const speeds = transportSpeeds(D, u, dx);
+  const rate = (speeds.right + speeds.left) / dx;
+  const sigma = dt * rate;
+  if (!Number.isFinite(rate) || !Number.isFinite(sigma)) {
+    return invalid(
+      ["dt", "width", "kickDiffusivity", "force"],
+      "The explicit transport rate must be finite.",
+    );
+  }
+  if (sigma > 1) {
+    const dtMax = 1 / rate;
+    const driftOnly = D === 0;
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        driftOnly ? "drift-cfl-exceeded" : "drift-diffusion-unstable",
+        {
+          parameterIds: driftOnly ? ["dt", "force"] : ["dt"],
+          capabilityId: "diffusion.driftDiffusionFrames1d",
+        },
+        {
+          details: driftOnly
+            ? { courant: sigma, limit: 1, dtMax }
+            : { ratio: sigma, limit: 1, dtMax },
+          rankedRepairs: [
+            {
+              label: "Reduce the time step to the explicit scheme's positivity limit.",
+              action: { parameterId: "dt", value: dtMax },
+            },
+            {
+              label: "Use a coarser spatial grid.",
+              action: { parameterId: "cells", value: Math.max(3, Math.floor(cells / 2)) },
+            },
+            ...(driftOnly
+              ? [{ label: "Use a weaker force.", action: { parameterId: "force", value: force / 2 } }]
+              : []),
+          ],
+        },
+      ),
+    };
   }
   const field = initialProfile(cells, dx, width, D, u, force, temperature, profile, set);
-  if (!field) return invalid(["profile"], "Unknown initial profile.");
+  if (!field) {
+    return invalid(
+      ["profile"],
+      "The initial profile must have a finite, positive, representable mass.",
+    );
+  }
   const values = new Float64Array(cells * frames);
   values.set(field);
-  let faces: FaceFlux[] = Array.from({ length: cells + 1 }, () => ({
-    total: 0,
-    drift: 0,
-    diffusion: 0,
-  }));
+  // Reuse numerical buffers. Face objects are needed only for the accepted final frame.
+  const flux = new Float64Array(cells + 1);
+  const next = new Float64Array(cells);
   for (let frame = 1; frame < frames; frame++) {
     for (let s = 0; s < stepsPerFrame; s++) {
-      const step = advance(field, dx, dt, D, u);
+      const step = advance(field, flux, next, dx, dt, speeds);
       if (step.kind === "refused") return step;
-      faces = step.faces;
     }
     values.set(field, frame * cells);
   }
-  const pe = D === 0 ? (u === 0 ? 0 : Number.POSITIVE_INFINITY) : (u * dx) / D;
-  const sigma = D === 0 ? (Math.abs(u) * dt) / dx : ((D * dt) / (dx * dx)) * peCothHalf(pe);
+  const pe = D === 0
+    ? (u === 0 ? 0 : Math.sign(u) * Number.POSITIVE_INFINITY)
+    : u / (D / dx);
   return {
     kind: "accepted",
     data: Object.freeze({
@@ -199,7 +201,8 @@ export function driftDiffusionFrames1d(
       peclet: pe,
       sigma,
       driftVelocity: u,
-      faceFlux: Object.freeze(faces),
+      // Diagnostics describe this frame, not the field before its last time step.
+      faceFlux: Object.freeze(faceFlux(field, speeds, D, u)),
       boundary: "zero-flux",
       ownerId: "diffusion.driftDiffusionFrames1d",
       modelIdentity: D === 0 ? DRIFT_ONLY_NO_KICKS : "drift-diffusion",
@@ -220,79 +223,79 @@ function initialProfile(
 ): Float64Array | null {
   const field = new Float64Array(cells);
   if (profile === "uniform") field.fill(1);
-  else if (profile === "spike" || profile === 0) field[Math.floor(cells / 2)] = 1 / dx;
+  else if (profile === "spike" || profile === 0) field[Math.floor(cells / 2)] = 1;
   else if (profile === "step" || profile === 1) field.fill(1, 0, Math.floor(cells / 2));
   else if (profile === 2) {
-    field[Math.floor(cells / 4)] = 0.5 / dx;
-    field[Math.floor((3 * cells) / 4)] = 0.5 / dx;
+    field[Math.floor(cells / 4)] = 0.5;
+    field[Math.floor((3 * cells) / 4)] = 0.5;
   } else if (profile === "equilibrium") {
     if (D > 0) {
-      const pe = (u * dx) / D;
-      let mass = 0;
+      const pe = u / (D / dx);
+      // Subtract the largest log weight before exponentiating. This also handles
+      // a grid Peclet number beyond binary64 as a wall-supported limiting profile.
       for (let i = 0; i < cells; i++) {
-        const density = Math.exp(pe * (i + 0.5));
-        field[i] = density;
-        mass += density;
-      }
-      if (mass > 0) {
-        const scale = mass * dx;
-        for (let i = 0; i < cells; i++) {
-          const current = field[i];
-          if (current !== undefined) field[i] = current / scale;
-        }
+        const offset = u >= 0 ? i - (cells - 1) : i;
+        field[i] = offset === 0 ? 1 : Math.exp(pe * offset);
       }
     } else {
-      const total = 1;
       for (let i = 0; i < cells; i++) {
         const x = (i + 0.5) * dx;
-        const n = osmoticEquilibriumProfile(x, width, force, temperature, total, set);
-        if (n.result.status !== "value") return null;
-        field[i] = n.result.value as number;
+        const n = osmoticEquilibriumProfile(x, width, force, temperature, 1, set);
+        if (n.result.status !== "value" || typeof n.result.value !== "number") return null;
+        field[i] = n.result.value;
       }
     }
   } else return null;
+  // Every selectable profile is a coordinate probability density. Comparing a
+  // unit-height step with a unit-mass reference would change the particle count.
+  let weight = 0;
+  for (const density of field) {
+    if (!Number.isFinite(density) || density < 0) return null;
+    weight += density;
+  }
+  if (!(weight > 0) || !Number.isFinite(weight)) return null;
+  for (let i = 0; i < cells; i++) {
+    const density = ((field[i] ?? 0) / weight) / dx;
+    if (!Number.isFinite(density)) return null;
+    field[i] = density;
+  }
   return field;
+}
+
+type TransportSpeeds = ReturnType<typeof transportSpeeds>;
+
+function faceFlux(
+  field: Float64Array,
+  speeds: TransportSpeeds,
+  D: number,
+  u: number,
+): FaceFlux[] {
+  const faces: FaceFlux[] = Array.from({ length: field.length + 1 }, () => ({
+    total: 0, drift: 0, diffusion: 0,
+  }));
+  for (let i = 0; i < field.length - 1; i++) {
+    const ni = field[i] ?? 0;
+    const nj = field[i + 1] ?? 0;
+    const total = speeds.right * ni - speeds.left * nj;
+    const drift = D === 0 ? total : u * (ni / 2 + nj / 2);
+    faces[i + 1] = { total, drift, diffusion: total - drift };
+  }
+  return faces;
 }
 
 function advance(
   field: Float64Array,
+  flux: Float64Array,
+  next: Float64Array,
   dx: number,
   dt: number,
-  D: number,
-  u: number,
-): { kind: "accepted"; faces: FaceFlux[] } | { kind: "refused"; refusal: RequestRefusal } {
-  const n = field.length;
-  const faces: FaceFlux[] = Array.from({ length: n + 1 }, () => ({
-    total: 0,
-    drift: 0,
-    diffusion: 0,
-  }));
-  faces[0] = { total: 0, drift: 0, diffusion: 0 };
-  faces[n] = { total: 0, drift: 0, diffusion: 0 };
-  const at = (arr: Float64Array, i: number): number => arr[i] ?? 0;
-  if (D === 0) {
-    for (let i = 0; i < n - 1; i++) {
-      const total = u >= 0 ? u * at(field, i) : u * at(field, i + 1);
-      faces[i + 1] = { total, drift: total, diffusion: 0 };
-    }
-  } else {
-    const pe = (u * dx) / D;
-    const bp = bernoulli(pe);
-    const bm = bernoulli(-pe);
-    const coeff = D / dx;
-    for (let i = 0; i < n - 1; i++) {
-      const ni = at(field, i);
-      const nj = at(field, i + 1);
-      const total = coeff * (bm * ni - bp * nj);
-      const drift = (u * (ni + nj)) / 2;
-      faces[i + 1] = { total, drift, diffusion: total - drift };
-    }
+  speeds: TransportSpeeds,
+): { kind: "accepted" } | { kind: "refused"; refusal: RequestRefusal } {
+  for (let i = 0; i < field.length - 1; i++) {
+    flux[i + 1] = speeds.right * (field[i] ?? 0) - speeds.left * (field[i + 1] ?? 0);
   }
-  const next = new Float64Array(n);
-  for (let i = 0; i < n; i++) {
-    const jR = faces[i + 1]?.total ?? 0;
-    const jL = faces[i]?.total ?? 0;
-    const updated = at(field, i) - (dt / dx) * (jR - jL);
+  for (let i = 0; i < field.length; i++) {
+    const updated = (field[i] ?? 0) - (dt / dx) * ((flux[i + 1] ?? 0) - (flux[i] ?? 0));
     if (!Number.isFinite(updated) || updated < -1e-15) {
       return {
         kind: "refused",
@@ -306,5 +309,5 @@ function advance(
     next[i] = Math.max(0, updated);
   }
   field.set(next);
-  return { kind: "accepted", faces };
+  return { kind: "accepted" };
 }
