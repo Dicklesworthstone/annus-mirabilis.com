@@ -101,7 +101,7 @@ export function findRenameSurvivors(root: string): {
 
   // The code set is NOT just throw sites. Most refusals in this codebase are RETURNED - a
   // validator hands back { refusalCode } or { code } rather than throwing - and a first version
-  // of this check collected only `throw new XError("kebab")`. Planting the old form back into
+  // of this check collected only the thrown form with a literal code. Planting the old form back into
   // verify-facsimile-pins.ts left it GREEN, because "missing-verified-anchor" is returned and
   // never thrown, so the check was not looking for MISSING_VERIFIED_ANCHOR at all. A rename
   // check that covers a minority of the codes is worse than none: it reports a clean tree.

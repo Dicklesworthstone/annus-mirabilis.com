@@ -17,7 +17,12 @@ export function encodeShelfSettings(id: ShelfId, mode: ShelfMode, input: Paramet
     throw new ExperimentRuntimeError("settings-rejected", checked.message, "shelf");
   const payload = { version: 1, instrument: id, mode, parameters: checked.parameters };
   const url = `${shelfPath(id, mode)}?${new URLSearchParams({ shelf: JSON.stringify(payload) })}`;
-  if (url.length > SHELF_SETTINGS_LIMIT) throw new RangeError("This settings link is too large.");
+  if (url.length > SHELF_SETTINGS_LIMIT)
+    throw new ExperimentRuntimeError(
+      "settings-link-too-large",
+      "This settings link is too large.",
+      "shelf",
+    );
   return url;
 }
 
