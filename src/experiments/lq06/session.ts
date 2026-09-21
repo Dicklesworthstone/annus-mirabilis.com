@@ -114,7 +114,19 @@ export function createLq06Session(instanceId: string, example?: PreparedLq06Exam
     initialParameters: initialParams,
     parameterClasses: LQ06_CLASSES,
     outputs: LQ06_OUTPUTS,
-    allowPartial: false,
+    // The manifest already admits a non-value here, and this declaration contradicted
+    // it. LQ06_OUTPUTS declares correspondenceVerdict as ["value", "not-applicable"]
+    // (definition.ts:110); allowPartial: false forbids a batch that MIXES value and
+    // non-value outputs (results/codec.ts:349). At the default parameters
+    // selectedSubexpression is "none", so the verdict is legitimately not-applicable
+    // while the other sixteen outputs are values - a mixed batch by construction, and
+    // impossible to publish. Both declarations arrived together in 70fe7616.
+    //
+    // This is not the store learning to accept whatever is emitted. The per-output
+    // status rule is untouched and still refuses any status the manifest does not
+    // list, and partialOutputs.test.mjs pins WHICH output may be non-value and why,
+    // so an unexpected partial still fails.
+    allowPartial: true,
   });
   const initial = store.issue("setup-change");
   const first = store.publish({
