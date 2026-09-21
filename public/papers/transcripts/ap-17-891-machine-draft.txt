@@ -11,6 +11,20 @@ Beispiele ähnlicher Art, sowie die mißlungenen Versuche, eine Bewegung der Erd
 --- MACHINE DRAFT TRANSCRIPTION PAGE 2 OF 31 ---
 [[ANNALEN-PAGE 892]]
 
+Voraussetzung einführen, daß sich das Licht im leeren Raume stets mit einer bestimmten, vom Bewegungszustande des emittierenden Körpers unabhängigen Geschwindigkeit $V$ fortpflanze. Diese beiden Voraussetzungen genügen, um zu einer einfachen und widerspruchsfreien Elektrodynamik bewegter Körper zu gelangen unter Zugrundelegung der [[SPERR]]Maxwell[[/SPERR]]schen Theorie für ruhende Körper. Die Einführung eines „Lichtäthers“ wird sich insofern als überflüssig erweisen, als nach der zu entwickelnden Auffassung weder ein mit besonderen Eigenschaften ausgestatteter „absolut ruhender Raum“ eingeführt, noch einem Punkte des leeren Raumes, in welchem elektromagnetische Prozesse stattfinden, ein Geschwindigkeitsvektor zugeordnet wird.
+
+Die zu entwickelnde Theorie stützt sich — wie jede andere Elektrodynamik — auf die Kinematik der starren Körper, da die Aussagen einer jeden Theorie Beziehungen zwischen starren Körpern (Koordinatensystemen), Uhren und elektromagnetischen Prozessen betreffen. Die nicht genügende Berücksichtigung dieses Umstandes ist die Wurzel der Schwierigkeiten, mit denen die Elektrodynamik bewegter Körper gegenwärtig zu kämpfen hat.
+
+[[PART-HEADING part-1]]I. Kinematischer Teil.
+
+[[HEADING s1]]§ 1. Definition der Gleichzeitigkeit.
+
+Es liege ein Koordinatensystem vor, in welchem die [[SPERR]]Newton[[/SPERR]]schen mechanischen Gleichungen gelten. Wir nennen dies Koordinatensystem zur sprachlichen Unterscheidung von später einzuführenden Koordinatensystemen und zur Präzisierung der Vorstellung das „ruhende System“.
+
+Ruht ein materieller Punkt relativ zu diesem Koordinatensystem, so kann seine Lage relativ zu letzterem durch starre Maßstäbe unter Benutzung der Methoden der euklidischen Geometrie bestimmt und in kartesischen Koordinaten ausgedrückt werden.
+
+Wollen wir die [[EM]]Bewegung[[/EM]] eines materiellen Punktes beschreiben, so geben wir die Werte seiner Koordinaten in Funktion der Zeit. Es ist nun wohl im Auge zu behalten, daß eine derartige mathematische Beschreibung erst dann einen physikalischen Sinn hat, wenn man sich vorher darüber klar geworden ist, was hier unter „Zeit“ verstanden wird.[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 3 OF 31 ---
 [[ANNALEN-PAGE 893]]
 
