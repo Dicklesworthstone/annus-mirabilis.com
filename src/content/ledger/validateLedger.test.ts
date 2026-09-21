@@ -161,7 +161,11 @@ test("Mutation matrix: each single mutation raises exactly its code and no unrel
 
   // 3. a page 2 marker duplicated
   {
-    const mutated = mutate(baseContent, "--- REVIEWED TRANSCRIPTION PAGE 2 OF 2 ---", "--- REVIEWED TRANSCRIPTION PAGE 2 OF 2 ---\n--- REVIEWED TRANSCRIPTION PAGE 2 OF 2 ---");
+    const mutated = mutate(
+      baseContent,
+      "--- REVIEWED TRANSCRIPTION PAGE 2 OF 2 ---",
+      "--- REVIEWED TRANSCRIPTION PAGE 2 OF 2 ---\n--- REVIEWED TRANSCRIPTION PAGE 2 OF 2 ---",
+    );
     const res = runMutation(mutated);
     assert.ok(res.errors.some((e) => e.code === "marker-sequence"));
   }
@@ -210,7 +214,11 @@ test("Mutation matrix: each single mutation raises exactly its code and no unrel
 
   // 10. a label on a line not following a display
   {
-    const mutated = mutate(baseContent, "[[EQ-LABEL (1)]]", "Ein Zwischensatz ohne Formel.\n[[EQ-LABEL (1)]]");
+    const mutated = mutate(
+      baseContent,
+      "[[EQ-LABEL (1)]]",
+      "Ein Zwischensatz ohne Formel.\n[[EQ-LABEL (1)]]",
+    );
     const res = runMutation(mutated);
     assert.ok(res.errors.some((e) => e.code === "eq-label-orphan"));
   }
@@ -218,12 +226,20 @@ test("Mutation matrix: each single mutation raises exactly its code and no unrel
   // 11. same label twice in s4 vs in s3 and s4
   {
     // Twice in s4
-    const inS4 = mutate(mutate(baseContent, "[[HEADING s1]]", "[[HEADING s4]]"), "$$", "$$\n\\lambda_1 = 1\n$$\n[[EQ-LABEL (1)]]\n$$\n\\lambda_2 = 2\n$$\n[[EQ-LABEL (1)]]\n$$");
+    const inS4 = mutate(
+      mutate(baseContent, "[[HEADING s1]]", "[[HEADING s4]]"),
+      "$$",
+      "$$\n\\lambda_1 = 1\n$$\n[[EQ-LABEL (1)]]\n$$\n\\lambda_2 = 2\n$$\n[[EQ-LABEL (1)]]\n$$",
+    );
     const resS4 = runMutation(inS4);
     assert.ok(resS4.errors.some((e) => e.code === "eq-label-duplicate-in-section"));
 
     // Across s3 and s4: produces informational eq-label-repeats-across-sections
-    const crossSections = mutate(baseContent, "[[HEADING s1]]", "[[HEADING s3]]\n$$\n\\lambda_1 = 1\n$$\n[[EQ-LABEL (1)]]\n\n[[HEADING s4]]");
+    const crossSections = mutate(
+      baseContent,
+      "[[HEADING s1]]",
+      "[[HEADING s3]]\n$$\n\\lambda_1 = 1\n$$\n[[EQ-LABEL (1)]]\n\n[[HEADING s4]]",
+    );
     const resCross = runMutation(crossSections);
     assert.ok(resCross.info.some((i) => i.code === "eq-label-repeats-across-sections"));
   }
@@ -252,14 +268,22 @@ test("Mutation matrix: each single mutation raises exactly its code and no unrel
 
   // 15. [[CONTINUES]] mid-page
   {
-    const midPageContinues = mutate(baseContent, "keine äußeren Kräfte wirken[[CONTINUES]]", "keine äußeren Kräfte wirken[[CONTINUES]]\n\nEin weiterer Absatz auf derselben Seite.");
+    const midPageContinues = mutate(
+      baseContent,
+      "keine äußeren Kräfte wirken[[CONTINUES]]",
+      "keine äußeren Kräfte wirken[[CONTINUES]]\n\nEin weiterer Absatz auf derselben Seite.",
+    );
     const resMidPage = runMutation(midPageContinues);
     assert.ok(resMidPage.errors.some((e) => e.code === "continues-orphan"));
   }
 
   // 16. [[MATH-REGION, U+FFFD, and unknown [[BOX]] tag
   {
-    const forbiddenSubstrings = mutate(baseContent, "wobei $x < V$ gilt.", "wobei [[MATH-REGION 1]] \uFFFD [[BOX]] gilt.");
+    const forbiddenSubstrings = mutate(
+      baseContent,
+      "wobei $x < V$ gilt.",
+      "wobei [[MATH-REGION 1]] \uFFFD [[BOX]] gilt.",
+    );
     const resForbidden = runMutation(forbiddenSubstrings);
     assert.ok(resForbidden.errors.some((e) => e.code === "forbidden-token"));
     assert.ok(resForbidden.errors.some((e) => e.code === "unknown-tag"));
@@ -274,7 +298,11 @@ test("Mutation matrix: each single mutation raises exactly its code and no unrel
 
   // 18. nested [[SPERR]][[EM]]
   {
-    const nestedEmp = mutate(baseContent, "[[SPERR]]osmotischer Druck[[/SPERR]]", "[[SPERR]]osmotischer [[EM]]Druck[[/EM]][[/SPERR]]");
+    const nestedEmp = mutate(
+      baseContent,
+      "[[SPERR]]osmotischer Druck[[/SPERR]]",
+      "[[SPERR]]osmotischer [[EM]]Druck[[/EM]][[/SPERR]]",
+    );
     const resNested = runMutation(nestedEmp);
     assert.ok(resNested.errors.some((e) => e.code === "nested-emphasis"));
   }
@@ -288,7 +316,23 @@ test("Mutation matrix: each single mutation raises exactly its code and no unrel
 
   // 20. Warnings triggers: W ä r m e, dass, A. Einstein., 1O5, straight quotes, double space
   {
-    const withWarnings = mutate(mutate(mutate(mutate(mutate(mutate(baseContent, "Wärmebewegung", "W ä r m e Bewegung"), "daß", "dass"), "[[OTHER-ARTICLE-OMITTED]]", "A. Einstein."), "Radius $P$", 'Radius "P"'), "identisch sei.", "identisch  sei."), "1905", "1O5");
+    const withWarnings = mutate(
+      mutate(
+        mutate(
+          mutate(
+            mutate(mutate(baseContent, "Wärmebewegung", "W ä r m e Bewegung"), "daß", "dass"),
+            "[[OTHER-ARTICLE-OMITTED]]",
+            "A. Einstein.",
+          ),
+          "Radius $P$",
+          'Radius "P"',
+        ),
+        "identisch sei.",
+        "identisch  sei.",
+      ),
+      "1905",
+      "1O5",
+    );
 
     const resWarn = runMutation(withWarnings);
     const warnCodes = resWarn.warnings.map((w) => w.code);
@@ -394,7 +438,11 @@ test("Receipt digest validation: source digest mismatch and ledger digest stale 
     assert.equal(resModified.ledgerSha256, computedExpectedDigest);
 
     // 3. In structural mode: stale ledger digest raises receipt-ledger-digest-stale (info)
-    const structuralReceipt = mutate(mutate(baseReceiptContent, "ledgerStatus: corrected", "ledgerStatus: in-progress"), 'ledgerSha256: "86fdb373b45101bcea32d7311812ac47de028cc4fc80ee9e0d2a93f3f9fb8f3b"', 'ledgerSha256: "0000000000000000000000000000000000000000000000000000000000000000"');
+    const structuralReceipt = mutate(
+      mutate(baseReceiptContent, "ledgerStatus: corrected", "ledgerStatus: in-progress"),
+      'ledgerSha256: "86fdb373b45101bcea32d7311812ac47de028cc4fc80ee9e0d2a93f3f9fb8f3b"',
+      'ledgerSha256: "0000000000000000000000000000000000000000000000000000000000000000"',
+    );
     const resStructural = validateLedger(ledgerPath, {
       content: loadFixture("two-page-valid.txt"),
       receiptPath,
@@ -418,7 +466,11 @@ test("Scoped ledger behavior (N = 2 over a 3-page pageMap)", () => {
   assert.equal(res.stats.pages, 2);
 
   // Anchor for excluded page (page 2 in pageMap has printedPage 550)
-  const excludedAnchorContent = mutate(loadFixture("fixture-scoped-reviewed.txt"), "[[ANNALEN-PAGE 551]]", "[[ANNALEN-PAGE 550]]");
+  const excludedAnchorContent = mutate(
+    loadFixture("fixture-scoped-reviewed.txt"),
+    "[[ANNALEN-PAGE 551]]",
+    "[[ANNALEN-PAGE 550]]",
+  );
   const resExcluded = validateLedger(ledgerPath, {
     content: excludedAnchorContent,
     receiptPath,
@@ -427,7 +479,11 @@ test("Scoped ledger behavior (N = 2 over a 3-page pageMap)", () => {
   assert.ok(resExcluded.errors.some((e) => e.code === "anchor-mapping"));
 
   // Decreasing anchors
-  const decreasingAnchorContent = mutate(loadFixture("fixture-scoped-reviewed.txt"), "[[ANNALEN-PAGE 551]]", "[[ANNALEN-PAGE 548]]");
+  const decreasingAnchorContent = mutate(
+    loadFixture("fixture-scoped-reviewed.txt"),
+    "[[ANNALEN-PAGE 551]]",
+    "[[ANNALEN-PAGE 548]]",
+  );
   const resDecreasing = validateLedger(ledgerPath, {
     content: decreasingAnchorContent,
     receiptPath,
@@ -610,7 +666,11 @@ test("validateLedger: (validateLedger.ts:675) short-line warning raised for non-
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
   const res = validateLedger(ledgerPath, {
-    content: mutate(baseContent, "[[OTHER-ARTICLE-OMITTED]]", "Ein Wort\nund hier geht der Absatz weiter mit vielen weiteren Worten auf dieser Seite.\n\n"),
+    content: mutate(
+      baseContent,
+      "[[OTHER-ARTICLE-OMITTED]]",
+      "Ein Wort\nund hier geht der Absatz weiter mit vielen weiteren Worten auf dieser Seite.\n\n",
+    ),
     receiptPath,
     paper: "brownian-motion",
   });
@@ -714,7 +774,11 @@ test("validateLedger: (validateLedger.ts:1071) heading-order raised when section
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
   const res = validateLedger(ledgerPath, {
-    content: mutate(baseContent, "[[OTHER-ARTICLE-OMITTED]]", "[[HEADING s1]] Neuer Abschnitt mit doppelter Nummer\n\n"),
+    content: mutate(
+      baseContent,
+      "[[OTHER-ARTICLE-OMITTED]]",
+      "[[HEADING s1]] Neuer Abschnitt mit doppelter Nummer\n\n",
+    ),
     receiptPath,
     paper: "brownian-motion",
   });
@@ -736,7 +800,11 @@ test("validateLedger: (validateLedger.ts:1094) heading-order raised when part he
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
   const res = validateLedger(ledgerPath, {
-    content: mutate(baseContent, "[[OTHER-ARTICLE-OMITTED]]", "[[PART-HEADING part-2]] Teil Zwei\n\n[[PART-HEADING part-1]] Teil Eins\n\n"),
+    content: mutate(
+      baseContent,
+      "[[OTHER-ARTICLE-OMITTED]]",
+      "[[PART-HEADING part-2]] Teil Zwei\n\n[[PART-HEADING part-1]] Teil Eins\n\n",
+    ),
     receiptPath,
     paper: "brownian-motion",
   });
@@ -850,7 +918,11 @@ test("validateLedger: (validateLedger.ts:1545) continues-orphan raised when text
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
   const res = validateLedger(ledgerPath, {
-    content: mutate(baseContent, "wirken[[CONTINUES]]", "wirken[[CONTINUES]]\nEin weiterer Satz auf derselben Seite vor dem Umbruch."),
+    content: mutate(
+      baseContent,
+      "wirken[[CONTINUES]]",
+      "wirken[[CONTINUES]]\nEin weiterer Satz auf derselben Seite vor dem Umbruch.",
+    ),
     receiptPath,
     paper: "brownian-motion",
   });
@@ -865,4 +937,56 @@ test("validateLedger: (validateLedger.ts:1545) continues-orphan raised when text
     paper: "brownian-motion",
   });
   assert.ok(!validRes.errors.some((e) => e.code === "continues-orphan"));
+});
+
+test("A footnote mark printed in a SECTION HEADING is seen (LEDGER_FORMAT 4.6)", () => {
+  // LEDGER_FORMAT.md 4.6 places [[FN-MARK <label>]] "inline at the point of reference in
+  // text, headings, or equations". Until 2026-09-20 the heading branches in
+  // validateLedger.ts ran `continue` before the mark scan, so a mark printed in a heading
+  // was invisible and surfaced as fn-text-orphan against the footnote TEXT - blaming a
+  // line that was correct. Found transcribing ap-17-549, where Einstein attaches footnote
+  // 1 to the section 2 heading itself; the only ways to pass were to drop a printed mark
+  // or move it to a sentence that does not carry it, and both falsify the source.
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const base = loadFixture("two-page-valid.txt");
+
+  const bodyMark = "übereinstimmt.[[FN-MARK 1)]]";
+  const headingLine =
+    "[[HEADING s1]]§ 1. Über den den suspendierten Teilchen zuzuschreibenden osmotischen Druck";
+  assert.ok(base.includes(bodyMark), "fixture no longer carries the body mark this test moves");
+  assert.ok(base.includes(headingLine), "fixture no longer carries the heading this test marks");
+
+  // ACCEPT: the mark moved OUT of the body and INTO the heading is still found.
+  const inHeading = base
+    .replace(bodyMark, "übereinstimmt.")
+    .replace(headingLine, `${headingLine}[[FN-MARK 1)]]`);
+  assert.notEqual(inHeading, base, "the mutation did not apply");
+  const moved = validateLedger(ledgerPath, {
+    receiptPath,
+    content: inHeading,
+    paper: "brownian-motion",
+  });
+  const movedOrphans = moved.errors.filter(
+    (f) => f.code === "fn-text-orphan" || f.code === "fn-mark-orphan",
+  );
+  assert.deepEqual(
+    movedOrphans.map((f) => f.code),
+    [],
+    "a mark in a heading must satisfy the footnote text on that page",
+  );
+
+  // REJECT: with the mark nowhere at all, the orphan is still reported. Without this half,
+  // a change that simply stopped reporting orphans would pass the accept half above.
+  const noMark = base.replace(bodyMark, "übereinstimmt.");
+  assert.notEqual(noMark, base, "the removal did not apply");
+  const missing = validateLedger(ledgerPath, {
+    receiptPath,
+    content: noMark,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    missing.errors.some((f) => f.code === "fn-text-orphan"),
+    "footnote text with no mark anywhere must still be an orphan",
+  );
 });

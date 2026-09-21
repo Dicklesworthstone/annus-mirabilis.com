@@ -1061,6 +1061,27 @@ export function validateLedger(
     }
 
     // Headings
+    // Footnote marks are collected BEFORE the heading branches, because LEDGER_FORMAT.md
+    // section 4.6 places `[[FN-MARK <label>]]` "inline at the point of reference in text,
+    // headings, or equations" - and the heading branches below `continue`, so a mark
+    // printed in a heading was never seen. It surfaced as `fn-text-orphan` against the
+    // footnote TEXT, blaming the wrong line entirely.
+    //
+    // Found transcribing ap-17-549: Einstein attaches footnote 1 to the section 2 heading
+    // itself ("...Theorie der Wärme.1)"), so the only ways to pass were to drop a printed
+    // mark or to move it into a sentence that does not carry it. Both falsify the source,
+    // which is the one thing a diplomatic transcription may never do.
+    const fnMarkRegex = /\[\[FN-MARK\s+([\s\S]*?)\]\]/g;
+    let fnMarkMatch: RegExpExecArray | null;
+    while (true) {
+      fnMarkMatch = fnMarkRegex.exec(rawLine);
+      if (!fnMarkMatch) break;
+      const mLabel = (fnMarkMatch[1] ?? "").trim();
+      const pageMarks = pageFnMarks.get(currentLedgerPage) ?? [];
+      pageMarks.push({ label: mLabel, line: lineNumber });
+      pageFnMarks.set(currentLedgerPage, pageMarks);
+    }
+
     const headingMatch = rawLine.match(/^\[\[HEADING\s+s(\d+)\]\]\s*([\s\S]*)$/);
     if (headingMatch?.[1]) {
       endParagraph();
@@ -1105,18 +1126,6 @@ export function validateLedger(
       currentPart = pNum;
       seenParts.add(pNum);
       continue;
-    }
-
-    // Footnotes
-    const fnMarkRegex = /\[\[FN-MARK\s+([\s\S]*?)\]\]/g;
-    let fnMarkMatch: RegExpExecArray | null;
-    while (true) {
-      fnMarkMatch = fnMarkRegex.exec(rawLine);
-      if (!fnMarkMatch) break;
-      const mLabel = (fnMarkMatch[1] ?? "").trim();
-      const pageMarks = pageFnMarks.get(currentLedgerPage) ?? [];
-      pageMarks.push({ label: mLabel, line: lineNumber });
-      pageFnMarks.set(currentLedgerPage, pageMarks);
     }
 
     const fnTextMatch = rawLine.match(/^\[\[FN\s+([\s\S]*?)\]\]\s*([\s\S]*)$/);
