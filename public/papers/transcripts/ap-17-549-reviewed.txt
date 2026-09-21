@@ -138,6 +138,44 @@ Die Gleichung (1) benutzen wir, um den Diffusionskoeffizienten der suspendierten
 --- REVIEWED TRANSCRIPTION PAGE 7 OF 12 ---
 [[ANNALEN-PAGE 555]]
 
+die Superposition zweier in umgekehrtem Sinne verlaufender Prozesse auffassen, nämlich
+
+1. einer Bewegung der suspendierten Substanz unter der Wirkung der auf jedes einzelne suspendierte Teilchen wirkenden Kraft $K$,
+
+2. eines Diffusionsvorganges, welcher als Folge der ungeordneten Bewegungen der Teilchen infolge der Molekularbewegung der Wärme aufzufassen ist.
+
+Haben die suspendierten Teilchen Kugelform (Kugelradius $P$) und besitzt die Flüssigkeit den Reibungskoeffizienten $k$, so erteilt die Kraft $K$ dem einzelnen Teilchen die Geschwindigkeit[[FN-MARK 1)]]
+$$
+\frac{K}{6 \pi k P},
+$$
+und es treten durch die Querschnittseinheit pro Zeiteinheit
+$$
+\frac{\nu K}{6 \pi k P}
+$$
+Teilchen hindurch.
+
+Bezeichnet ferner $D$ den Diffusionskoeffizienten der suspendierten Substanz und $\mu$ die Masse eines Teilchens, so treten pro Zeiteinheit infolge der Diffusion
+$$
+-D \frac{\partial (\mu \nu)}{\partial x} \quad \text{Gramm}
+$$
+oder
+$$
+-D \frac{\partial \nu}{\partial x}
+$$
+Teilchen durch die Querschnittseinheit. Da dynamisches Gleichgewicht herrschen soll, so muß sein:
+$$
+\frac{\nu K}{6 \pi k P} - D \frac{\partial \nu}{\partial x} = 0.
+$$
+[[EQ-LABEL (2)]]
+
+Aus den beiden für das dynamische Gleichgewicht gefundenen Bedingungen (1) und (2) kann man den Diffusionskoeffizienten berechnen. Man erhält:
+$$
+D = \frac{R T}{N} \frac{1}{6 \pi k P}.
+$$
+Der Diffusionskoeffizient der suspendierten Substanz hängt also[[CONTINUES]]
+
+[[FN 1)]] Vgl. z. B. [[SPERR]]G. Kirchhoff[[/SPERR]], Vorlesungen über Mechanik, 26. Vorlesung § 4.
+
 --- REVIEWED TRANSCRIPTION PAGE 8 OF 12 ---
 [[ANNALEN-PAGE 556]]
 

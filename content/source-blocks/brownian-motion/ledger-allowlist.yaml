@@ -37,3 +37,11 @@
   reason: "Printed connective 'und daraus' standing alone between the integrated B and the free energy F on page 553. Source text, same reasoning as the 'wobei' entry above."
   editor: "agent:LilacValley"
   date: "2026-09-20"
+
+- ledgerKey: ap-17-549
+  code: short-line
+  ledgerPage: 7
+  lineFingerprint: b81d9593a3f6c4f7
+  reason: "Printed connective 'oder' standing alone between the Gramm form and the Teilchen form of the same diffusion flux on page 555. Source text, same reasoning as the page 553 entries. The identical word on page 554 raises no warning, because a preceding [[EQ-LABEL]] closes the paragraph there and makes it a final line rather than an interior one."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
