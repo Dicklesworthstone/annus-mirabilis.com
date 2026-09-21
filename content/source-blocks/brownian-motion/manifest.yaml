@@ -44,6 +44,31 @@ units:
       argumentObligations:
         - arg:brownian-introduction-conditional
 
+  - id: s0-p1-s1
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-s0-p1-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-introduction-conditional
+
+  - id: s0-p1-s2
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-s0-p1-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-introduction-conditional
   - id: s0-p2
     kind: paragraph
     section: s0
@@ -56,6 +81,31 @@ units:
       argumentObligations:
         - arg:brownian-introduction-conditional
 
+  - id: s0-p2-s1
+    kind: sentence
+    section: s0
+    containedIn: s0-p2
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-s0-p2-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-introduction-conditional
+
+  - id: s0-p2-s2
+    kind: sentence
+    section: s0
+    containedIn: s0-p2
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-s0-p2-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-introduction-conditional
   - id: s1
     kind: heading
     section: s1
@@ -82,6 +132,32 @@ units:
       argumentObligations:
         - arg:brownian-osmotic-pressure
 
+  - id: s1-p1-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p1
+    locators:
+      - page: 549
+    destination:
+      editionBlockId: de-brownian-motion-s1-p1-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s1-p1-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p1
+    locators:
+      - page: 549
+      - page: 550
+    destination:
+      editionBlockId: de-brownian-motion-s1-p1-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
   - id: eq-s1-d1
     kind: display-equation
     section: s1
@@ -108,6 +184,31 @@ units:
       argumentObligations:
         - arg:brownian-osmotic-pressure
 
+  - id: s1-p2-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p2
+    locators:
+      - page: 550
+    destination:
+      editionBlockId: de-brownian-motion-s1-p2-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s1-p2-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p2
+    locators:
+      - page: 550
+    destination:
+      editionBlockId: de-brownian-motion-s1-p2-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
   - id: s1-p3
     kind: paragraph
     section: s1
@@ -121,6 +222,71 @@ units:
       argumentObligations:
         - arg:brownian-osmotic-pressure
 
+  - id: s1-p3-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 550
+    destination:
+      editionBlockId: de-brownian-motion-s1-p3-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s1-p3-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 550
+    destination:
+      editionBlockId: de-brownian-motion-s1-p3-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s1-p3-s3
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 550
+    destination:
+      editionBlockId: de-brownian-motion-s1-p3-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s1-p3-s4
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 550
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s1-p3-s4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
+
+  - id: s1-p3-s5
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s1-p3-s5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-osmotic-pressure
   - id: eq-s1-d2
     kind: display-equation
     section: s1
@@ -187,6 +353,70 @@ units:
       argumentObligations:
         - arg:brownian-statistical-mechanics
 
+  - id: s2-p1-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s2-p1-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p1-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s2-p1-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p1-s3
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s2-p1-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p1-s4
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s2-p1-s4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p1-s5
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 551
+    destination:
+      editionBlockId: de-brownian-motion-s2-p1-s5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
   - id: eq-s2-d1
     kind: display-equation
     section: s2
@@ -241,6 +471,44 @@ units:
       argumentObligations:
         - arg:brownian-statistical-mechanics
 
+  - id: s2-p2-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p2-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p2-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p2-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p2-s3
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p2-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
   - id: s2-p3
     kind: paragraph
     section: s2
@@ -253,6 +521,31 @@ units:
       argumentObligations:
         - arg:brownian-statistical-mechanics
 
+  - id: s2-p3-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p3
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p3-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p3-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p3
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p3-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
   - id: s2-p4
     kind: paragraph
     section: s2
@@ -266,6 +559,71 @@ units:
       argumentObligations:
         - arg:brownian-statistical-mechanics
 
+  - id: s2-p4-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p4
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p4-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p4-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p4
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p4-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p4-s3
+    kind: sentence
+    section: s2
+    containedIn: s2-p4
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p4-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p4-s4
+    kind: sentence
+    section: s2
+    containedIn: s2-p4
+    locators:
+      - page: 552
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p4-s4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p4-s5
+    kind: sentence
+    section: s2
+    containedIn: s2-p4
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p4-s5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
   - id: eq-s2-d4
     kind: display-equation
     section: s2
@@ -336,6 +694,44 @@ units:
       notes:
         - "Runs on flush after eq-s2-d8; absorbed the retired s2-p6 in the 2026-09-19 boundary audit."
 
+  - id: s2-p5-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p5
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p5-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p5-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p5
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p5-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p5-s3
+    kind: sentence
+    section: s2
+    containedIn: s2-p5
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p5-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
   - id: s2-fn2
     kind: footnote
     section: s2
@@ -397,6 +793,31 @@ units:
       argumentObligations:
         - arg:brownian-statistical-mechanics
 
+  - id: s2-p7-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p7
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p7-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+
+  - id: s2-p7-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p7
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p7-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
   - id: eq-s2-d10
     kind: display-equation
     section: s2
@@ -451,6 +872,18 @@ units:
       argumentObligations:
         - arg:brownian-statistical-mechanics
 
+  - id: s2-p8-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p8
+    locators:
+      - page: 553
+    destination:
+      editionBlockId: de-brownian-motion-s2-p8-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
   - id: s3
     kind: heading
     section: s3
@@ -476,6 +909,44 @@ units:
       argumentObligations:
         - arg:brownian-stokes-diffusion
 
+  - id: s3-p1-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p1
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p1-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p1-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p1
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p1-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p1-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p1
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p1-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
   - id: s3-p2
     kind: paragraph
     section: s3
@@ -490,6 +961,83 @@ units:
       notes:
         - "Runs on flush after eq-s3-d1 through the equilibrium condition; absorbed the retired s3-p3 and s3-p4 in the 2026-09-19 boundary audit."
 
+  - id: s3-p2-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p2-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p2-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p2-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p2-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p2-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p2-s4
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p2-s4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p2-s5
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p2-s5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p2-s6
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p2-s6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
   - id: eq-s3-d1
     kind: display-equation
     section: s3
@@ -580,6 +1128,32 @@ units:
       argumentObligations:
         - arg:brownian-stokes-diffusion
 
+  - id: s3-p5-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p5
+    locators:
+      - page: 554
+    destination:
+      editionBlockId: de-brownian-motion-s3-p5-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p5-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p5
+    locators:
+      - page: 554
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p5-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
   - id: s3-p6
     kind: paragraph
     section: s3
@@ -592,6 +1166,18 @@ units:
       argumentObligations:
         - arg:brownian-stokes-diffusion
 
+  - id: s3-p6-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p6
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p6-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
   - id: eq-s3-d5
     kind: display-equation
     section: s3
@@ -653,6 +1239,31 @@ units:
       argumentObligations:
         - arg:brownian-stokes-diffusion
 
+  - id: s3-p7-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p7
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p7-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p7-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p7
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p7-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
   - id: eq-s3-d7
     kind: display-equation
     section: s3
@@ -721,6 +1332,71 @@ units:
       argumentObligations:
         - arg:brownian-stokes-diffusion
 
+  - id: s3-p8-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p8
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p8-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p8-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p8
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p8-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p8-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p8
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p8-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p8-s4
+    kind: sentence
+    section: s3
+    containedIn: s3-p8
+    locators:
+      - page: 555
+    destination:
+      editionBlockId: de-brownian-motion-s3-p8-s4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
+
+  - id: s3-p8-s5
+    kind: sentence
+    section: s3
+    containedIn: s3-p8
+    locators:
+      - page: 555
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s3-p8-s5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-stokes-diffusion
   - id: eq-s3-d9
     kind: display-equation
     section: s3

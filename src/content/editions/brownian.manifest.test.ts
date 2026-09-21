@@ -68,9 +68,10 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(manifest.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
     expect(manifest.frozenBy).toBe("am-edn-inventory-brownian-slg");
 
-    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus the 37
-    // sentence units of sections 4-5 cut on 2026-09-21 once the sentence kind existed.
-    expect(manifest.units.length).toBe(124);
+    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus 90
+    // sentence units: 37 for sections 4-5 and 53 for sections 0-3, all cut on 2026-09-21 against
+    // plate reads of every page rather than the ledger's text shape.
+    expect(manifest.units.length).toBe(177);
 
     const idSet = new Set<string>();
     for (const unit of manifest.units) {
@@ -543,7 +544,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     const snapshotText = readFileSync(snapshotPath, "utf8");
     const snapshotIds = parseIdSnapshot(snapshotText);
 
-    expect(snapshotIds.length).toBe(124);
+    expect(snapshotIds.length).toBe(177);
 
     const manifestIds = manifest.units.map((u) => u.id);
     expect(snapshotIds).toEqual(manifestIds);

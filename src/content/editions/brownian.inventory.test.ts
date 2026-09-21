@@ -28,13 +28,13 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
     expect(inventory.sourceStatus).toBe("in-preparation");
     const byLayer = Object.fromEntries(inventory.layers.map((l) => [l.layer, l]));
     expect(byLayer["source-units"]?.existence).toBe("authored");
-    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus the 37
-    // sentence units of sections 4-5 cut on 2026-09-21. This layer is every unit in the manifest
+    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus the 90
+    // sentence units of sections 0-5 cut on 2026-09-21. This layer is every unit in the manifest
     // - brownianInventory.ts builds it as manifest.units.map(u => u.id), with no filter by kind -
     // so it counts units at MIXED granularity: a paragraph and each of its sentences both appear.
     // It is a roster, not a count of distinct text spans, and nothing may use it as a coverage
     // denominator without collapsing to one granularity first.
-    expect(byLayer["source-units"]?.ids.length).toBe(124);
+    expect(byLayer["source-units"]?.ids.length).toBe(177);
     expect(byLayer.translation?.existence).toBe("absent");
     expect(byLayer.arguments?.existence).toBe("authored");
     expect(byLayer.arguments?.reviewClaim).toBe("pending");
