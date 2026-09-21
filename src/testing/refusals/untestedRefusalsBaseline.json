@@ -1,7 +1,7 @@
 {
   "scripts/a11y/checks.ts": 4,
   "scripts/align-editions.ts": 2,
-  "scripts/app-router-architecture.ts": 6,
+  "scripts/app-router-architecture.ts": 0,
   "scripts/backfill-review-records.ts": 1,
   "scripts/build-content.ts": 2,
   "scripts/check-receipts.ts": 0,
@@ -91,7 +91,7 @@
   "src/discovery/checks/journeyChecks.ts": 1,
   "src/discovery/checks/moveSummaryGuard.ts": 0,
   "src/discovery/lightQuanta/controls.ts": 1,
-  "src/discovery/lightQuanta/investigation.ts": 6,
+  "src/discovery/lightQuanta/investigation.ts": 3,
   "src/discovery/lightQuanta/transfer.ts": 4,
   "src/equations/alternateForms.ts": 1,
   "src/equations/ast.ts": 0,
