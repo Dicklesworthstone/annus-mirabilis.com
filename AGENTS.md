@@ -81,6 +81,32 @@ a commit is not scoped by who wrote what — it is scoped by what is staged.
 
 ---
 
+## A Gate's Own Test Must Not Live Only In The Lane That Gate Controls
+
+If the only test proving a gate works runs in the lane that gate gates, the test
+disappears at exactly the moment the gate fails open. The failure is
+self-concealing: nothing reports the gate is broken, because the thing that would
+report it is downstream of the break.
+
+This is not hypothetical. `bun run test:node` refused to start for 49 commits and
+12.5 hours, taking 48 test files with it, because its preflight also refused on a
+condition that is permanently true in a shared checkout. It read like diligence
+and nobody noticed. When it was repaired, the first pawl written to guard it was
+itself vacuous and green.
+
+So: when you write or repair a gate, keep a version of its proof in a DIFFERENT
+lane from the one it controls. Where a fixture can only exist in the gated lane —
+a real-git fixture for a git-aware preflight, for instance — write the
+lane-independent half anyway, however coarse, and say in the comment which half
+is watching which.
+
+The same reasoning applies to a gate's refusal text. A well-written refusal is a
+reason to check separately that the gate ever reaches a verdict, not a reason to
+trust it: persuasive wording is what kept anyone from asking whether this one
+still ran.
+
+---
+
 ## Branch Policy
 
 - The primary branch is `main`.
