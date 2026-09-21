@@ -174,7 +174,7 @@ test("foundCalculus.records: prerequisites and dependency graph are properly con
   });
 });
 
-test("foundCalculus.records: prerequisite typing (cross-link vs proof-edge, missing kind rejected)", () => {
+test("foundCalculus.records: prerequisite typing (cross-link vs proof-edge, missing kind rejected) (argument.ts:2084) (argument.ts:2092)", () => {
   const validAuthorship = {
     draftedBy: [{ id: "jemanuel", name: "Jeffrey Emanuel", kind: "human" as const }],
   };

@@ -1708,7 +1708,7 @@ test("argument.refusals: validateMisconception rejects missing id (argument.ts:2
   }, "missing-id");
 });
 
-test("argument.refusals: validateMisconception rejects missing paper (argument.ts:2359)", () => {
+test("argument.refusals: validateMisconception rejects missing paper (argument.ts:2365)", () => {
   // Accept path
   assert.ok(validateMisconception(validMisconception));
 
@@ -1718,7 +1718,7 @@ test("argument.refusals: validateMisconception rejects missing paper (argument.t
   }, "missing-paper");
 });
 
-test("argument.refusals: validateMisconception rejects missing whyTempting (argument.ts:2400)", () => {
+test("argument.refusals: validateMisconception rejects missing whyTempting (argument.ts:2407)", () => {
   // Accept path
   assert.ok(validateMisconception(validMisconception));
 
@@ -1738,7 +1738,7 @@ test("argument.refusals: validateMisconception rejects missing whatIsTrue (argum
   }, "missing-what-is-true");
 });
 
-test("argument.refusals: validateMisconception rejects missing intervention object (argument.ts:2441)", () => {
+test("argument.refusals: validateMisconception rejects missing intervention object (argument.ts:2451)", () => {
   // Accept path
   assert.ok(validateMisconception(validMisconception));
 
@@ -1748,7 +1748,7 @@ test("argument.refusals: validateMisconception rejects missing intervention obje
   }, "missing-intervention");
 });
 
-test("argument.refusals: validateMisconception rejects invalid language tag (argument.ts:2484)", () => {
+test("argument.refusals: validateMisconception rejects invalid language tag (argument.ts:2494)", () => {
   // Accept path
   assert.ok(validateMisconception({ ...validMisconception, lang: "de" }));
 
@@ -1758,7 +1758,7 @@ test("argument.refusals: validateMisconception rejects invalid language tag (arg
   }, "invalid-language-tag");
 });
 
-test("argument.refusals: validateMisconception rejects invalid direction (argument.ts:2498)", () => {
+test("argument.refusals: validateMisconception rejects invalid direction (argument.ts:2508)", () => {
   // Accept path
   assert.ok(validateMisconception({ ...validMisconception, dir: "ltr" }));
 
@@ -1768,7 +1768,7 @@ test("argument.refusals: validateMisconception rejects invalid direction (argume
   }, "invalid-direction");
 });
 
-test("argument.refusals: validateReadingSet rejects non-object record (argument.ts:2562)", () => {
+test("argument.refusals: validateReadingSet rejects non-object record (argument.ts:2573)", () => {
   // Accept path
   assert.ok(validateReadingSet(validReadingSet));
 
@@ -1778,7 +1778,7 @@ test("argument.refusals: validateReadingSet rejects non-object record (argument.
   }, "invalid-record");
 });
 
-test("argument.refusals: validateReadingSet rejects non-boolean essentialForPrint (argument.ts:2572)", () => {
+test("argument.refusals: validateReadingSet rejects non-boolean essentialForPrint (argument.ts:2583)", () => {
   // Accept path
   assert.ok(validateReadingSet({ ...validReadingSet, essentialForPrint: true }));
 
@@ -1788,7 +1788,7 @@ test("argument.refusals: validateReadingSet rejects non-boolean essentialForPrin
   }, "invalid-essential-for-print");
 });
 
-test("argument.refusals: validateReadingSet rejects missing targetId (argument.ts:2581)", () => {
+test("argument.refusals: validateReadingSet rejects missing targetId (argument.ts:2592)", () => {
   // Accept path
   assert.ok(validateReadingSet(validReadingSet));
 
@@ -1798,7 +1798,7 @@ test("argument.refusals: validateReadingSet rejects missing targetId (argument.t
   }, "missing-target-id");
 });
 
-test("argument.refusals: validateReadingSet rejects invalid reading target kind (argument.ts:2599)", () => {
+test("argument.refusals: validateReadingSet rejects invalid reading target kind (argument.ts:2602) (argument.ts:2610)", () => {
   // Accept path
   assert.ok(validateReadingSet(validReadingSet));
 
@@ -1808,7 +1808,7 @@ test("argument.refusals: validateReadingSet rejects invalid reading target kind 
   }, "invalid-reading-target-kind");
 });
 
-test("argument.refusals: validateReadingSet rejects invalid footnote targetId grammar (argument.ts:2629)", () => {
+test("argument.refusals: validateReadingSet rejects invalid footnote targetId grammar (argument.ts:2631)", () => {
   // Accept path
   assert.ok(
     validateReadingSet({ ...validReadingSet, targetKind: "footnote" as const, targetId: "s3-fn1" }),
@@ -1824,7 +1824,7 @@ test("argument.refusals: validateReadingSet rejects invalid footnote targetId gr
   }, "invalid-target-id-for-kind");
 });
 
-test("argument.refusals: validateReadingSet rejects invalid closing targetId grammar (argument.ts:2638)", () => {
+test("argument.refusals: validateReadingSet rejects invalid closing targetId grammar (argument.ts:2640)", () => {
   // Accept path
   assert.ok(
     validateReadingSet({
@@ -1900,7 +1900,7 @@ test("argument.refusals: validateReadingSet rejects invalid instrument-caption t
   }, "invalid-target-id-for-kind");
 });
 
-test("argument.refusals: validateReadingSet rejects invalid language tag (argument.ts:2688)", () => {
+test("argument.refusals: validateReadingSet rejects invalid language tag (argument.ts:2699)", () => {
   // Accept path
   assert.ok(validateReadingSet({ ...validReadingSet, lang: "de" }));
 
@@ -1910,7 +1910,7 @@ test("argument.refusals: validateReadingSet rejects invalid language tag (argume
   }, "invalid-language-tag");
 });
 
-test("argument.refusals: validateReadingSet rejects invalid direction (argument.ts:2702)", () => {
+test("argument.refusals: validateReadingSet rejects invalid direction (argument.ts:2713)", () => {
   // Accept path
   assert.ok(validateReadingSet({ ...validReadingSet, dir: "ltr" }));
 
@@ -1920,7 +1920,7 @@ test("argument.refusals: validateReadingSet rejects invalid direction (argument.
   }, "invalid-direction");
 });
 
-test("argument.refusals: validateAuthoringContract rejects non-object record (argument.ts:2751)", () => {
+test("argument.refusals: validateAuthoringContract rejects non-object record (argument.ts:2762)", () => {
   // Accept path
   assert.ok(validateAuthoringContract(validAuthoringContract));
 
@@ -1930,7 +1930,7 @@ test("argument.refusals: validateAuthoringContract rejects non-object record (ar
   }, "invalid-record");
 });
 
-test("argument.refusals: validateAuthoringContract rejects essentialForPrint field (argument.ts:2761)", () => {
+test("argument.refusals: validateAuthoringContract rejects essentialForPrint field (argument.ts:2772)", () => {
   // Accept path
   assert.ok(validateAuthoringContract(validAuthoringContract));
 
@@ -1940,7 +1940,7 @@ test("argument.refusals: validateAuthoringContract rejects essentialForPrint fie
   }, "essential-for-print-rejected");
 });
 
-test("argument.refusals: validateAuthoringContract rejects missing question (argument.ts:2770)", () => {
+test("argument.refusals: validateAuthoringContract rejects missing question (argument.ts:2781)", () => {
   // Accept path
   assert.ok(validateAuthoringContract(validAuthoringContract));
 
@@ -1950,7 +1950,7 @@ test("argument.refusals: validateAuthoringContract rejects missing question (arg
   }, "missing-question");
 });
 
-test("argument.refusals: validateAuthoringContract rejects missing conclusionSupported (argument.ts:2777)", () => {
+test("argument.refusals: validateAuthoringContract rejects missing conclusionSupported (argument.ts:2788)", () => {
   // Accept path
   assert.ok(validateAuthoringContract(validAuthoringContract));
 
@@ -1960,7 +1960,7 @@ test("argument.refusals: validateAuthoringContract rejects missing conclusionSup
   }, "missing-conclusion");
 });
 
-test("argument.refusals: validateAuthoringContract rejects missing bridge (argument.ts:2784)", () => {
+test("argument.refusals: validateAuthoringContract rejects missing bridge (argument.ts:2795)", () => {
   // Accept path
   assert.ok(validateAuthoringContract(validAuthoringContract));
 
@@ -1989,7 +1989,7 @@ test("argument.refusals: validateAuthoringContract rejects malformed qualificati
   }, "invalid-qualification");
 });
 
-test("argument.refusals: validateObstacleResponses rejects non-object record (argument.ts:2861)", () => {
+test("argument.refusals: validateObstacleResponses rejects non-object record (argument.ts:2872)", () => {
   // Accept path
   assert.ok(validateObstacleResponses(validObstacleResponses));
 
@@ -1999,7 +1999,7 @@ test("argument.refusals: validateObstacleResponses rejects non-object record (ar
   }, "invalid-record");
 });
 
-test("argument.refusals: validateObstacleResponses rejects essentialForPrint field (argument.ts:2871)", () => {
+test("argument.refusals: validateObstacleResponses rejects essentialForPrint field (argument.ts:2882)", () => {
   // Accept path
   assert.ok(validateObstacleResponses(validObstacleResponses));
 

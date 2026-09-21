@@ -126,7 +126,7 @@ describe("discrimination scenarios", () => {
     ).toThrow("discrimination-indistinguishable-stored-residual");
   });
 
-  test("AC 24: discrimination scenario requires tolerance block", () => {
+  test("AC 24: discrimination scenario requires tolerance block (experiment.ts:2265)", () => {
     const baseValid = {
       id: "test-discrimination-ac24",
       kind: "discrimination" as const,
@@ -172,7 +172,7 @@ describe("discrimination scenarios", () => {
     ).not.toThrow();
   });
 
-  test("AC 26: discrimination scenario id matching registered preset id fails", () => {
+  test("AC 26: discrimination scenario id matching registered preset id fails (experiment.ts:2214)", () => {
     const colliding = {
       id: "sr-02-apparatus", // Matches registered preset id from content/experiments/sr-02.yaml
       kind: "discrimination" as const,
@@ -215,7 +215,7 @@ describe("discrimination scenarios", () => {
     ).not.toThrow();
   });
 
-  test("AC 27: tolerance without rationale fails; rationale naming apparatus resolution, numerical bound, or observational uncertainty passes", () => {
+  test("AC 27: tolerance without rationale fails; rationale naming apparatus resolution, numerical bound, or observational uncertainty passes (experiment.ts:2277)", () => {
     const makeWithRationale = (rationale?: unknown) => ({
       id: "test-tolerance-rationale",
       kind: "discrimination" as const,

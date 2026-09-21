@@ -281,7 +281,7 @@ describe("scenario schema", () => {
     }
   });
 
-  test("discrimination tolerance spec that fails validateToleranceSpec is rejected, accepted with valid spec", () => {
+  test("discrimination tolerance spec that fails validateToleranceSpec is rejected, accepted with valid spec (experiment.ts:2289)", () => {
     const validDiscrimination = {
       id: "schema-discrimination-tolerance",
       kind: "discrimination" as const,

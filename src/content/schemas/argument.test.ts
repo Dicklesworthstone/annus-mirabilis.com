@@ -93,7 +93,7 @@ test("Meanings: Planted Negative - missing any of the four fields fails", () => 
   });
 });
 
-test("Meanings: Planted Negative - invalid enum value fails", () => {
+test("Meanings: Planted Negative - invalid enum value fails (argument.ts:158)", () => {
   const start = Date.now();
   const invalidRole = {
     logicalRole: "magical-inference",
@@ -543,7 +543,7 @@ test("ArgumentNode: Planted Negative - empty recap string is rejected", () => {
   });
 });
 
-test("ArgumentNode: Planted Negative - edgeType 'proof' or bare prerequisite is rejected", () => {
+test("ArgumentNode: Planted Negative - edgeType 'proof' or bare prerequisite is rejected (argument.ts:925) (argument.ts:941)", () => {
   const start = Date.now();
   const base = {
     id: "arg-bm-test-edges",
@@ -1338,7 +1338,7 @@ test("ReadingSet: Planted Negative - targetKind 'caption' or mismatched targetId
   });
 });
 
-test("ReadingSet: validates all 7 targetKinds and rejects mismatched targetIds", () => {
+test("ReadingSet: validates all 7 targetKinds and rejects mismatched targetIds (argument.ts:2622) (argument.ts:2649) (argument.ts:2658) (argument.ts:2668) (argument.ts:2678)", () => {
   const start = Date.now();
   const baseReadingSet = {
     r0: "Level 0 reading text.",
@@ -1474,7 +1474,7 @@ test("ReadingSet: validates all 7 targetKinds and rejects mismatched targetIds",
   });
 });
 
-test("essentialForPrint: optional on ReadingSet and Misconception, rejected on all other entities", () => {
+test("essentialForPrint: optional on ReadingSet and Misconception, rejected on all other entities (argument.ts:141) (argument.ts:2347)", () => {
   const start = Date.now();
 
   // ReadingSet: optional, boolean accepted, absent defaults to undefined

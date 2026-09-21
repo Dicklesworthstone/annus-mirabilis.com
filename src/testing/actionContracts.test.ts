@@ -56,7 +56,7 @@ describe("Accessibility Action Contracts (am-a11y-action-contracts-82f1)", () =>
     }
   });
 
-  it("Planted Negative: a drag-only action where equivalent also requires drag fails", () => {
+  it("Planted Negative: a drag-only action where equivalent also requires drag fails (experiment.ts:291)", () => {
     const invalid = {
       ...validMe03Action,
       visualAffordance: "Drag a boundary around objects",
@@ -71,7 +71,7 @@ describe("Accessibility Action Contracts (am-a11y-action-contracts-82f1)", () =>
     }
   });
 
-  it("Planted Negative: identical visual drag affordance used as equivalent fails", () => {
+  it("Planted Negative: identical visual drag affordance used as equivalent fails (experiment.ts:300)", () => {
     const invalid = {
       ...validMe03Action,
       visualAffordance: "Drag the slider to set temperature",
