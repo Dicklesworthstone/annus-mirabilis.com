@@ -7,18 +7,42 @@
 import type { Receipt, ReceiptBodySection, ReceiptFrontMatter } from "./receiptSchema.ts";
 import { parseYaml, YamlParseError } from "./yaml.ts";
 
-export const REQUIRED_RECEIPT_HEADINGS = [
-  "## Identity",
-  "## Scan and rights",
-  "## Page map",
-  "## Comparison witnesses",
-  "## Transcription method",
-  "## Translation credits",
-  "## Editorial boundaries",
-  "## Suspected historical typographical errors",
-  "## Transcription watch list",
-  "## Editorial acceptance",
+/**
+ * The declared level-2 headings of a receipt, in order, each marked required or permitted.
+ *
+ * WHY A DECLARED SET AND NOT A COUNT. This rule used to be "exactly N level-2 headings", which
+ * cannot say WHICH headings a receipt has: a receipt could drop "## Scan and rights", add
+ * anything at all in its place, and still pass at the same count. The count also refused any new
+ * section outright, so the first receipt to carry a reviewer handoff failed the gate for having
+ * MORE provenance rather than less, and the pressure was to delete the section or demote it below
+ * level 2 - which is loosening the receipt to satisfy the checker.
+ *
+ * Naming the set admits the new section by DECLARING it and is strictly stronger than the count
+ * it replaces: a missing heading is now named, an undeclared heading is now named, and neither
+ * can hide behind an arithmetic coincidence.
+ *
+ * `required: false` means permitted, not optional-in-quality. A receipt without a reviewer
+ * handoff is complete; one that has it must put it here, under this exact name.
+ */
+export const RECEIPT_HEADING_SEQUENCE = [
+  { title: "## Identity", required: true },
+  { title: "## Scan and rights", required: true },
+  { title: "## Page map", required: true },
+  { title: "## Comparison witnesses", required: true },
+  { title: "## Transcription method", required: true },
+  { title: "## Translation credits", required: true },
+  { title: "## Editorial boundaries", required: true },
+  { title: "## Suspected historical typographical errors", required: true },
+  { title: "## Transcription watch list", required: true },
+  { title: "## Open questions for the German source reviewer", required: false },
+  { title: "## Editorial acceptance", required: true },
 ] as const;
+
+export const REQUIRED_RECEIPT_HEADINGS = RECEIPT_HEADING_SEQUENCE.filter((h) => h.required).map(
+  (h) => h.title,
+);
+
+const DECLARED_RECEIPT_HEADINGS: readonly string[] = RECEIPT_HEADING_SEQUENCE.map((h) => h.title);
 
 export type ParseDiagnostic = Readonly<{
   rule: string;
@@ -95,28 +119,42 @@ export function parseReceipt(markdownText: string, filePath: string): ParsedRece
   }
 
   // 4. Validate heading presence and order
-  if (foundHeadings.length !== REQUIRED_RECEIPT_HEADINGS.length) {
+  const foundTitles = foundHeadings.map((h) => h.title);
+  const missing = REQUIRED_RECEIPT_HEADINGS.filter((h) => !foundTitles.includes(h));
+  const undeclared = foundTitles.filter((h) => !DECLARED_RECEIPT_HEADINGS.includes(h));
+  const duplicated = foundTitles.filter((h, i) => foundTitles.indexOf(h) !== i);
+
+  if (missing.length > 0 || undeclared.length > 0 || duplicated.length > 0) {
+    const parts: string[] = [];
+    if (missing.length > 0) parts.push(`missing ${missing.join(", ")}`);
+    if (undeclared.length > 0) parts.push(`undeclared ${undeclared.join(", ")}`);
+    if (duplicated.length > 0) parts.push(`duplicated ${[...new Set(duplicated)].join(", ")}`);
     err(
       "receipt-headings-mismatch",
       "body.headings",
-      `Expected exactly ${REQUIRED_RECEIPT_HEADINGS.length} level-2 headings, found ${foundHeadings.length}.`,
-      REQUIRED_RECEIPT_HEADINGS.join(", "),
-      foundHeadings.map((h) => h.title).join(", "),
+      `Receipt headings do not match the declared set: ${parts.join("; ")}.`,
+      DECLARED_RECEIPT_HEADINGS.join(", "),
+      foundTitles.join(", "),
     );
   } else {
-    for (let i = 0; i < REQUIRED_RECEIPT_HEADINGS.length; i++) {
-      const expected = REQUIRED_RECEIPT_HEADINGS[i];
-      if (!expected) continue;
-      const actual = foundHeadings[i]?.title;
-      if (actual !== expected) {
+    // Every found heading is declared and unique, so the order check is a subsequence test
+    // against the declared order; a permitted heading that is absent simply advances past.
+    let cursor = 0;
+    for (let i = 0; i < foundTitles.length; i++) {
+      const actual = foundTitles[i];
+      if (!actual) continue;
+      const at = DECLARED_RECEIPT_HEADINGS.indexOf(actual, cursor);
+      if (at < 0) {
         err(
           "receipt-headings-order",
           `body.headings[${i}]`,
-          `Heading ${i + 1} mismatch: expected "${expected}" but found "${actual || "missing"}".`,
-          expected,
-          actual,
+          `Heading ${i + 1} "${actual}" appears out of the declared order.`,
+          DECLARED_RECEIPT_HEADINGS.join(", "),
+          foundTitles.join(", "),
         );
+        break;
       }
+      cursor = at + 1;
     }
   }
 

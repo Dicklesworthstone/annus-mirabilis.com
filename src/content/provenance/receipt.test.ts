@@ -41,6 +41,28 @@ test("ap-17-549.md valid Brownian motion receipt with month-precision date-line 
   assert.equal(result.receipt?.frontMatter.paper.journal.pages.last, 560);
 });
 
+/**
+ * The acceptance arm of the declared-heading set (am-p465).
+ *
+ * A fix that only demonstrated the new refusals would be satisfied by a rule that rejected every
+ * receipt. This fixture is the valid receipt plus the reviewer-handoff section, and it must PASS:
+ * the section is admitted because it is declared, which is the whole point of replacing the count
+ * rather than relaxing it. The three receipts in the repository that carry no handoff still pass
+ * too, because the heading is declared as permitted rather than required.
+ */
+test("valid-reviewer-questions.md passes: a declared handoff section is admitted", () => {
+  const filePath = path.join(FIXTURES_DIR, "valid-reviewer-questions.md");
+  const content = fs.readFileSync(filePath, "utf8");
+  const result = checkReceipt(content, filePath, { configDir: CONFIG_DIR });
+
+  assert.equal(result.ok, true, `Expected ok=true, got errors: ${JSON.stringify(result.errors)}`);
+  assert.equal(
+    result.errors.filter((e) => e.rule.startsWith("receipt-headings")).length,
+    0,
+    "the declared handoff heading must not raise a headings diagnostic",
+  );
+});
+
 test("ap-99-001-refined.md refined page map passes and resolves equation ID to page", () => {
   const filePath = path.join(FIXTURES_DIR, "ap-99-001-refined.md");
   const content = fs.readFileSync(filePath, "utf8");
@@ -168,6 +190,16 @@ const errorTestCases = [
   { file: "err-pagemap-index-invalid.md", rule: "receipt-pagemap-index" },
   { file: "err-pagemap-printed-page-range.md", rule: "receipt-pagemap-printed-page-range" },
   { file: "err-pagemap-printed-page-missing.md", rule: "receipt-pagemap-printed-page" },
+  // The declared-heading set, both refusals. The rule this replaced was "exactly N level-2
+  // headings", which could not say WHICH heading was wrong: dropping one required section and
+  // adding anything in its place passed at the same count. These two fixtures are that pair.
+  { file: "err-headings-missing-declared.md", rule: "receipt-headings-mismatch" },
+  { file: "err-headings-undeclared.md", rule: "receipt-headings-mismatch" },
+  // THE ONE THAT PROVES THE REPLACEMENT. This receipt drops a required section and puts an
+  // arbitrary one in its place, so the heading COUNT is unchanged and the old rule passed it
+  // outright. Only a named set can see it. Restoring the count turns exactly this case and the
+  // acceptance test green-to-red in opposite directions.
+  { file: "err-headings-swapped-same-count.md", rule: "receipt-headings-mismatch" },
 ];
 
 for (const tc of errorTestCases) {
