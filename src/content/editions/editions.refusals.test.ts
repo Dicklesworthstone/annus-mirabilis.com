@@ -2,9 +2,11 @@
  * Refusal site coverage for src/content/editions (am-muyh).
  *
  * Covers 10 refusal sites across three files in src/content/editions/:
- * - segmentSentences.ts (2 sites):
- *   1. (segmentSentences.ts:195) non-contiguous-segmentation (dropped middle text)
- *   2. (segmentSentences.ts:210) non-contiguous-segmentation (dropped trailing text)
+ * - segmentSentences.ts (2 of its 5 sites; 327, 342 and 358 are driven from
+ *   src/testing/editions/segmentLedger.test.ts, which also records what the module's four
+ *   same-coded sites are and how their lines were measured):
+ *   1. (segmentSentences.ts:369) non-contiguous-segmentation (dropped middle text)
+ *   2. (segmentSentences.ts:386) non-contiguous-segmentation (dropped trailing text)
  * - editionDeclaration.ts (9 of its 11 sites; 73 and 130 are driven from editionContract.test.ts
  *   and from the not-assigned test below, and their codes emit once each):
  *   3. (editionDeclaration.ts:53) unknown-paper, the not-an-object early return
@@ -129,9 +131,9 @@ describe("Editions Refusal Sites", () => {
   // segmentSentences.ts (2 sites)
   // ==========================================
   describe("segmentSentences.ts refusal sites", () => {
-    // 1. (segmentSentences.ts:195) non-contiguous-segmentation (gap in middle)
-    describe("Site (segmentSentences.ts:195): non-contiguous-segmentation (gap in middle)", () => {
-      it("reports non-contiguous-segmentation when text between segments is dropped (segmentSentences.ts:195)", () => {
+    // 1. (segmentSentences.ts:369) non-contiguous-segmentation (gap in middle)
+    describe("Site (segmentSentences.ts:369): non-contiguous-segmentation (gap in middle)", () => {
+      it("reports non-contiguous-segmentation when text between segments is dropped (segmentSentences.ts:369)", () => {
         // "Hello dropped world." -> segment 1 is "Hello", segment 2 is "world." ("dropped " is omitted)
         const text = "Hello dropped world.";
         const segments = [
@@ -147,7 +149,7 @@ describe("Editions Refusal Sites", () => {
         assert.ok(issue.message.includes("dropped"));
       });
 
-      it("accepts contiguous segmentation without middle gap (segmentSentences.ts:195)", () => {
+      it("accepts contiguous segmentation without middle gap (segmentSentences.ts:369)", () => {
         const text = "Hello world.";
         const segments = [
           { id: "s1", start: 0, end: 5 },
@@ -162,9 +164,9 @@ describe("Editions Refusal Sites", () => {
       });
     });
 
-    // 2. (segmentSentences.ts:210) non-contiguous-segmentation (trailing text dropped)
-    describe("Site (segmentSentences.ts:210): non-contiguous-segmentation (trailing text)", () => {
-      it("reports non-contiguous-segmentation when trailing text after last segment is dropped (segmentSentences.ts:210)", () => {
+    // 2. (segmentSentences.ts:386) non-contiguous-segmentation (trailing text dropped)
+    describe("Site (segmentSentences.ts:386): non-contiguous-segmentation (trailing text)", () => {
+      it("reports non-contiguous-segmentation when trailing text after last segment is dropped (segmentSentences.ts:386)", () => {
         const text = "Hello world extra.";
         const segments = [{ id: "s1", start: 0, end: 11 }];
         const issues = validateSegmentation(text, segments);
@@ -178,7 +180,7 @@ describe("Editions Refusal Sites", () => {
         assert.ok(issue.message.includes("extra."));
       });
 
-      it("accepts segmentation covering entire string to the end (segmentSentences.ts:210)", () => {
+      it("accepts segmentation covering entire string to the end (segmentSentences.ts:386)", () => {
         const text = "Hello world.";
         const segments = [{ id: "s1", start: 0, end: 12 }];
         const issues = validateSegmentation(text, segments);

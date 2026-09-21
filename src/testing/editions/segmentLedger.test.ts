@@ -416,6 +416,23 @@ describe("reconciliation against frozen manifest", () => {
   });
 });
 
+/**
+ * The four non-contiguous-segmentation sites are told apart by LINE, not collected under one
+ * assertion, because they share a code and the scanner cannot otherwise credit them separately
+ * (am-ksl3). Lines measured by planting on 2026-09-21: each site's code literal was replaced
+ * with a sentinel one at a time and this file plus editions.refusals.test.ts were run.
+ *
+ * TWO THINGS FOUND WHILE MEASURING, both reported rather than repaired here:
+ *
+ * 1. validateSegmentation HAS NO PRODUCTION CALL SITE. segmentLedger.ts re-exports it and never
+ *    invokes it, and no other module in src or scripts calls it; every call in the tree is from
+ *    a test. So the cut that froze Brownian's sentence ids was not checked by this function at
+ *    the time it ran. Adding a call to the freeze path is a behaviour change and belongs to
+ *    whoever owns that path, not to a coverage pass.
+ * 2. The cut is nevertheless clean. Measured over the real corpus rather than argued: all four
+ *    ledgers in public/papers/transcripts were segmented and every block's proposals fed through
+ *    validateSegmentation - 323 blocks with text, 0 issues of either code.
+ */
 describe("segmentation validation: contiguity and non-overlap", () => {
   test("proposed sentences form contiguous non-overlapping segments", () => {
     const paragraph = "Die Bewegung ist unregelmäßig. Sie hört nicht auf.";
@@ -438,7 +455,7 @@ describe("segmentation validation: contiguity and non-overlap", () => {
     expect(issue?.end).toBe(30);
   });
 
-  test("PLANTED: non-contiguous segmentation dropping intermediate text is refused", () => {
+  test("PLANTED: non-contiguous segmentation dropping intermediate text is refused (segmentSentences.ts:369)", () => {
     const paragraph = "Die Bewegung ist unregelmäßig. Sie hört nicht auf.";
     const gapped = [
       { start: 0, end: 12, text: "Die Bewegung" },
@@ -451,7 +468,7 @@ describe("segmentation validation: contiguity and non-overlap", () => {
     expect(issue?.message).toContain("ist unregelmäßig.");
   });
 
-  test("PLANTED: segmentation dropping leading or trailing text is refused", () => {
+  test("PLANTED: segmentation dropping LEADING text is refused (segmentSentences.ts:342)", () => {
     const paragraph = "Anfang. Die Bewegung ist unregelmäßig. Ende.";
     const dropLeading = [{ start: 8, end: 38, text: "Die Bewegung ist unregelmäßig." }];
     const leadingIssues = validateSegmentation(paragraph, dropLeading);
@@ -460,7 +477,16 @@ describe("segmentation validation: contiguity and non-overlap", () => {
         (i) => i.code === "non-contiguous-segmentation" && i.message.includes("Anfang."),
       ),
     ).toBe(true);
+    // The leading site reports the span it dropped, and it starts at 0. A guard that reported
+    // the first segment's own span instead would still name the code and still pass a
+    // code-only check, while telling an editor to look in the wrong place.
+    const leading = leadingIssues.find((i) => i.message.includes("Anfang."));
+    expect(leading?.start).toBe(0);
+    expect(leading?.end).toBe(8);
+  });
 
+  test("PLANTED: segmentation dropping TRAILING text is refused (segmentSentences.ts:386)", () => {
+    const paragraph = "Anfang. Die Bewegung ist unregelmäßig. Ende.";
     const dropTrailing = [{ start: 0, end: 38, text: "Anfang. Die Bewegung ist unregelmäßig." }];
     const trailingIssues = validateSegmentation(paragraph, dropTrailing);
     expect(
@@ -468,6 +494,36 @@ describe("segmentation validation: contiguity and non-overlap", () => {
         (i) => i.code === "non-contiguous-segmentation" && i.message.includes("Ende."),
       ),
     ).toBe(true);
+    const trailing = trailingIssues.find((i) => i.message.includes("Ende."));
+    expect(trailing?.start).toBe(38);
+    expect(trailing?.end).toBe(paragraph.length);
+  });
+
+  test("PLANTED: NO segments at all is refused, and whitespace-only text is not (segmentSentences.ts:327)", () => {
+    // The fourth site, and the one nothing drove. It is the whole-text-dropped case: a caller
+    // hands the validator an empty segment list for text that has content.
+    //
+    // It is NOT reachable from this module's own proposeSentences. Measured, not assumed:
+    // 26,612 mutants derived from the real corpus - every prefix and suffix up to 40 characters
+    // of all 323 ledger blocks, plus whitespace wraps, a letters-stripped form and a
+    // punctuation-only form - produced zero cases of empty proposals on non-empty trimmed text.
+    // proposeSentences pushes a proposal whenever the remaining text is non-empty, so the only
+    // way in is a caller that builds the segment list itself, and validateSegmentation is
+    // exported, so that caller is admissible.
+    const paragraph = "Die Bewegung ist unregelmäßig.";
+    const issues = validateSegmentation(paragraph, []);
+    expect(issues.length).toBe(1);
+    expect(issues[0]?.code).toBe("non-contiguous-segmentation");
+    expect(issues[0]?.message).toContain("entire text was dropped");
+    expect(issues[0]?.start).toBe(0);
+    expect(issues[0]?.end).toBe(paragraph.length);
+
+    // The negative, and the reason the guard reads `text.trim()` rather than `text`: an empty
+    // segment list for text that is only whitespace has dropped nothing. A guard written on
+    // text.length would refuse every blank line in a ledger and make the check unusable.
+    for (const blank of ["", "   ", "\n\n", "\t \n"]) {
+      expect(validateSegmentation(blank, []), JSON.stringify(blank)).toEqual([]);
+    }
   });
 });
 
