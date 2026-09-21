@@ -165,6 +165,21 @@ describe("Automated Accessibility Checks Bun Suite (am-a11y-baseline-1cg5)", () 
       expect(violations.length).toBe(2);
       expect(violations.some((v) => v.message.includes("empty"))).toBe(true);
       expect(violations.some((v) => v.message.includes("Duplicate"))).toBe(true);
+
+      // WHICH RULE each violation is reported under, which these assertions did not check.
+      // A count and a message substring pass unchanged if a violation is emitted under the
+      // wrong rule id, and the rule id is the whole product here: these feed a WCAG report
+      // where "2.4.2" is the claim being made. Both sites carry page-titled, so neither could
+      // be credited by mention alone.
+      const empty = violations.find((v) => v.message.includes("empty"));
+      expect(empty?.rule).toBe("page-titled"); // (checks.ts:173)
+      expect(empty?.criterion).toBe("2.4.2");
+      const duplicate = violations.find((v) => v.message.includes("Duplicate"));
+      expect(duplicate?.rule).toBe("page-titled"); // (checks.ts:185)
+      expect(duplicate?.criterion).toBe("2.4.2");
+      // And they are two distinct routes, so one violation is not answering for both.
+      expect(empty?.elementId).toBe("/c");
+      expect(duplicate?.elementId).toBe("/b");
     });
   });
 
@@ -191,6 +206,19 @@ describe("Automated Accessibility Checks Bun Suite (am-a11y-baseline-1cg5)", () 
       expect(violations.length).toBe(3);
       expect(violations.some((v) => v.message.includes("no accessible name"))).toBe(true);
       expect(violations.some((v) => v.message.includes("vague"))).toBe(true);
+
+      // Same gap as the page-title case: the rule id was never asserted. The two sites are a
+      // missing name and a vague name, which are different failures for an author to fix -
+      // one link has no text at all, the other has text that says nothing.
+      const missingName = violations.find((v) => v.message.includes("no accessible name"));
+      expect(missingName?.rule).toBe("link-purpose"); // (checks.ts:214)
+      expect(missingName?.criterion).toBe("2.4.4");
+      expect(missingName?.elementId).toBe("/glossary");
+      const vague = violations.find((v) => v.message.includes("vague"));
+      expect(vague?.rule).toBe("link-purpose"); // (checks.ts:222)
+      expect(vague?.criterion).toBe("2.4.4");
+      // Both vague links are reported, not just the first one matched.
+      expect(violations.filter((v) => v.message.includes("vague")).length).toBe(2);
     });
   });
 
