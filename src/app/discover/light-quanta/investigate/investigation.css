@@ -1,0 +1,30 @@
+.light-investigation-page { max-width: 72rem; margin-inline: auto; }
+.light-investigation { min-width: 0; }
+.light-investigation section { margin-block: 2.5rem; scroll-margin-top: 2rem; }
+.light-investigation fieldset { min-width: 0; border: 1px solid var(--line); padding: 1rem; }
+.light-input-group h3 { font-size: 1rem; }
+.light-input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 1rem; }
+.light-input-grid label { display: grid; gap: .3rem; font-size: .9rem; }
+.light-input-grid input, .light-investigation textarea { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; padding: .6rem; color: var(--ink); background: var(--panel); border: 1px solid var(--line); font: inherit; }
+.light-readouts, .light-settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
+.light-readouts > div, .light-settings > div { min-width: 0; padding: .8rem; background: var(--wash); border: 1px solid var(--line); }
+.light-investigation dt { font-weight: 600; }
+.light-investigation dd { margin: .4rem 0 0; overflow-wrap: anywhere; }
+.light-fork label { display: flex; align-items: baseline; gap: .5rem; margin-block: .7rem; }
+.light-investigation .actions, .light-investigation-page nav.actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
+.light-investigation button { max-width: 100%; white-space: normal; }
+.light-table-scroll { overflow-x: auto; max-width: 100%; }
+.light-table-scroll table { width: 100%; border-collapse: collapse; }
+.light-table-scroll th, .light-table-scroll td { padding: .75rem; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+.light-table-scroll [data-result-status="outside-domain"], .light-table-scroll [data-result-status="underdetermined"] { display: block; min-width: 12rem; }
+.light-digest, .light-investigation code { overflow-wrap: anywhere; }
+.light-investigation details { margin-block: 1rem; }
+.light-investigation summary { cursor: pointer; }
+@media (max-width: 480px) {
+  .light-investigation fieldset { padding: .65rem; }
+  .light-table-scroll th, .light-table-scroll td { padding: .5rem; font-size: .875rem; }
+}
+@media print {
+  .light-investigation form, .light-investigation button, .light-investigation textarea { display: none; }
+  .light-table-scroll { overflow: visible; }
+}

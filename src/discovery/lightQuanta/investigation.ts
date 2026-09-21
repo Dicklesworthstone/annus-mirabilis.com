@@ -36,7 +36,7 @@ export const LIGHT_INVESTIGATION_DEFAULTS = Object.freeze({
   quantumEfficiency: 0.1,
   collectorPotential: 0,
 });
-export type LightInvestigationParameters = typeof LIGHT_INVESTIGATION_DEFAULTS;
+export type LightInvestigationParameters = { readonly [K in keyof typeof LIGHT_INVESTIGATION_DEFAULTS]: number };
 export type LightInvestigationKey = keyof LightInvestigationParameters;
 const KEYS = Object.keys(LIGHT_INVESTIGATION_DEFAULTS) as LightInvestigationKey[];
 

@@ -171,3 +171,16 @@ test("generated static example covers the real owner graph and replays determini
   const s=createLightInvestigationSession("built",first);
   assert.ok(s.getServerSnapshot().accepted.final);
 });
+test("all user-facing display units round-trip accepted parameters without changing the model", async () => {
+  const { lightInvestigationDraft, parseLightInvestigationDraft } = await import("../discovery/lightQuanta/controls.ts");
+  for(const parameters of [DEFAULTS,{...DEFAULTS,frequency:611234567891234,incidentPower:0.00123456789123456,referenceVolume:0.0123456789012345}])
+    assert.deepEqual(parseLightInvestigationDraft(lightInvestigationDraft(parameters)),parameters);
+  const draft=lightInvestigationDraft(DEFAULTS);
+  assert.equal(draft.frequency,"600");assert.equal(draft.incidentPower,"1");assert.equal(draft.referenceVolume,"1");
+});
+test("display controls refuse empty, hexadecimal and nonfinite entries", async () => {
+  const { lightInvestigationDraft, parseLightInvestigationDraft } = await import("../discovery/lightQuanta/controls.ts");
+  const draft=lightInvestigationDraft(DEFAULTS);
+  for(const invalid of [""," ","NaN","Infinity","0x258","1e10000","6e-9999"])
+    assert.throws(()=>parseLightInvestigationDraft({...draft,frequency:invalid}));
+});

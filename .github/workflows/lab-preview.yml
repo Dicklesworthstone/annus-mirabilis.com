@@ -53,6 +53,8 @@ jobs:
         run: bun test --isolate src/testing/kitchen-uncertainty-ui.test.tsx
       - name: Exercise admitted source faces and no-JavaScript page directories
         run: bun test --isolate src/reader/facsimile/FacsimilePanel.test.tsx src/reader/facsimile/FaceFallback.integration.test.tsx
+      - name: Exercise the connected light-quanta investigation and static reading
+        run: bun test --isolate src/testing/light-quanta-investigation-ui.test.tsx
       - run: bun run typecheck
       - name: Build the complete production preview
         shell: bash
@@ -80,6 +82,7 @@ jobs:
             sleep 0.25
           done
           BASE_URL=http://127.0.0.1:4318 node --experimental-strip-types scripts/e2e/facsimile.mjs
+          BASE_URL=http://127.0.0.1:4318 node --experimental-strip-types scripts/e2e/lightQuantaInvestigation.mjs
       - name: Upload browser evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
