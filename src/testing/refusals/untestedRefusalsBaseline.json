@@ -50,7 +50,7 @@
   "src/content/editions/editionDeclaration.ts": 0,
   "src/content/editions/reconciliation.ts": 2,
   "src/content/editions/reviewState.ts": 0,
-  "src/content/editions/segmentSentences.ts": 4,
+  "src/content/editions/segmentSentences.ts": 0,
   "src/content/entrances/entranceRecord.ts": 0,
   "src/content/foundations/registry.ts": 0,
   "src/content/ids.ts": 0,
