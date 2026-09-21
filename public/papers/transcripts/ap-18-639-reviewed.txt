@@ -1,5 +1,24 @@
 --- REVIEWED TRANSCRIPTION PAGE 1 OF 3 ---
 [[ANNALEN-PAGE 639]]
+[[TITLE]]Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?[[/TITLE]]
+[[AUTHOR]]von A. Einstein[[/AUTHOR]]
+
+Die Resultate einer jüngst in diesen Annalen von mir publizierten elektrodynamischen Untersuchung[[FN-MARK 1)]] führen zu einer sehr interessanten Folgerung, die hier abgeleitet werden soll.
+
+Ich legte dort die [[SPERR]]Maxwell-Hertzschen[[/SPERR]] Gleichungen für den leeren Raum nebst dem [[SPERR]]Maxwellschen[[/SPERR]] Ausdruck für die elektromagnetische Energie des Raumes zugrunde und außerdem das Prinzip:
+
+Die Gesetze, nach denen sich die Zustände der physikalischen Systeme ändern, sind unabhängig davon, auf welches von zwei relativ zueinander in gleichförmiger Parallel-Translationsbewegung befindlichen Koordinatensystemen diese Zustandsänderungen bezogen werden (Relativitätsprinzip).
+
+Gestützt auf diese Grundlagen[[FN-MARK 2)]] leitete ich unter anderem das nachfolgende Resultat ab (l. c. § 8):
+
+Ein System von ebenen Lichtwellen besitze, auf das Koordinatensystem $(x, y, z)$ bezogen, die Energie $l$; die Strahlrichtung (Wellennormale) bilde den Winkel $\varphi$ mit der $x$-Achse des Systems. Führt man ein neues, gegen das System $(x, y, z)$ in gleichförmiger Paralleltranslation begriffenes Koordinatensystem $(\xi, \eta, \zeta)$ ein, dessen Ursprung sich mit der Geschwindigkeit $v$ längs der $x$-Achse bewegt, so besitzt die genannte Lichtmenge — im System $(\xi, \eta, \zeta)$ gemessen — die Energie:
+$$
+l^* = l \frac{1 - \frac{v}{V} \cos \varphi}{\sqrt{1 - \left(\frac{v}{V}\right)^2}}
+$$
+wobei $V$ die Lichtgeschwindigkeit bedeutet. Von diesem Resultat machen wir im folgenden Gebrauch.
+
+[[FN 1)]] [[SPERR]]A. Einstein[[/SPERR]], Ann. d. Phys. 17. p. 891. 1905.
+[[FN 2)]] Das dort benutzte Prinzip der Konstanz der Lichtgeschwindigkeit ist natürlich in den [[SPERR]]Maxwellschen[[/SPERR]] Gleichungen enthalten.
 
 --- REVIEWED TRANSCRIPTION PAGE 2 OF 3 ---
 [[ANNALEN-PAGE 640]]
