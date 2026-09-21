@@ -26,6 +26,47 @@ function hasDisallowedControlCharacter(value: string): boolean {
   return false;
 }
 
+/**
+ * Messages held here rather than inline at their throws. The refusal scanner pairs a throw with the
+ * first refusal code within eight lines BELOW it, so a code argument the formatter pushes onto its
+ * own line can be read as belonging to the preceding throw. Keeping each throw to one line, with
+ * its code first, is what keeps the pairing unambiguous.
+ */
+const TAPE_TOO_LARGE = "Replay tape exceeds the bounded recipe size. Nothing was truncated.";
+const UNSUPPORTED_RECIPE = "This replay recipe version is not supported.";
+
+/**
+ * A bounds refusal from an imported replay entry, carrying a code.
+ *
+ * It extends RangeError deliberately: every existing caller and test that treats a bounds failure as
+ * a RangeError keeps working, while the constructor named at the throw is a project class, which is
+ * the only signal the bare-throw scanner has that a reader was refused rather than an internal
+ * invariant tripped. A bounded size is a security boundary here - the notebook accepts imported
+ * data - so this refusal is one a reader should be able to branch on.
+ */
+export class ReplayBoundsError extends RangeError {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "ReplayBoundsError";
+    this.code = code;
+  }
+}
+
+/**
+ * A shape refusal from an imported replay entry. Extends TypeError for the same reason
+ * ReplayBoundsError extends RangeError: existing callers and tests that match on TypeError keep
+ * working, and nothing about the refusal changes except that it can now be named.
+ */
+export class ReplayRecipeError extends TypeError {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "ReplayRecipeError";
+    this.code = code;
+  }
+}
+
 export const REPLAY_LIMITS = Object.freeze({ bytes: 65536, text: 10000, tapeBytes: 1400 });
 export const REPLAY_PREDICTIONS = Object.freeze({
   smaller: "The coordinate RMS will be smaller",
@@ -204,11 +245,11 @@ function cloneTape(raw: unknown): TapeV2 {
     tape.mode !== "bm-01:default" ||
     tape.modelIdentity.modelVersion !== 1
   )
-    throw new TypeError("This replay recipe version is not supported.");
+    throw new ReplayRecipeError("unsupported-replay-recipe-version", UNSUPPORTED_RECIPE);
   // This one-change tape fits even the raw (uncompressed) 2048-character permalink form.
   // It stays private; the notebook never actually creates a tape URL.
   if (new TextEncoder().encode(JSON.stringify(raw)).length > REPLAY_LIMITS.tapeBytes)
-    throw new RangeError("Replay tape exceeds the bounded recipe size.");
+    throw new ReplayBoundsError("replay-tape-too-large", TAPE_TOO_LARGE);
   return freeze(JSON.parse(JSON.stringify(tape))) as TapeV2;
 }
 function freeze(value: unknown): unknown {

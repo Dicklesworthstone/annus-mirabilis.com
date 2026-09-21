@@ -772,13 +772,38 @@ function runCheck1FacsimileOnly(root: string, slug: RouteSlug): ContractCheckRes
   };
 }
 
+/**
+ * A refusal from the edition contract, carrying a code the refusal scanner can read.
+ *
+ * The bare built-in this replaces was invisible twice over: the bare-throw ratchet counted it as an
+ * uncoded refusal, and the untested-refusal scanner could not see it at all, because a built-in
+ * Error carries no code to attribute a test to. A caller handed a bad slug got a string and no way
+ * to branch on what went wrong.
+ *
+ * The wording above avoids spelling the built-in constructor call out: the bare-throw scanner reads
+ * text, not syntax, so a comment quoting one is counted as a site. My first draft of this comment
+ * added a phantom bare throw to this very file.
+ */
+export class EditionContractError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "EditionContractError";
+    this.code = code;
+  }
+}
+
 export function assertEditionContract(
   slugRaw: string,
   options: EditionContractOptions = {},
 ): EditionContractResult {
   const parsed = parseRouteSlug(slugRaw);
   if (!parsed.ok) {
-    throw new Error(parsed.error);
+    // The code is a literal, not `parsed.rule ?? "..."`. A scanner reading the first argument
+    // cannot see through a conditional, which is the defect am-utmv names, and a refusal whose
+    // code depends on its input is one nobody can write a targeted test for. The parser's own
+    // message still carries the detail.
+    throw new EditionContractError("invalid-route-slug", parsed.error);
   }
   const slug = parsed.value;
   const root = options.root ?? process.cwd();

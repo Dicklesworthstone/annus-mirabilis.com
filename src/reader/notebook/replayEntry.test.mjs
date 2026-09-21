@@ -6,6 +6,8 @@ import { replayCompatibility } from "./replayCompatibility.ts";
 import {
   captureComparisonReplay,
   parseComparisonReplay,
+  ReplayBoundsError,
+  ReplayRecipeError,
   verifyReplayEvidence,
 } from "./replayEntry.ts";
 
@@ -151,4 +153,68 @@ test("revised and unresolved passages are not claimed unchanged", () => {
   };
   assert.equal(replayCompatibility(replay, "current", cat).passageChanged, true);
   assert.equal(replayCompatibility(replay, "missing", cat).anchor, null);
+});
+
+/**
+ * The two refusals in cloneTape that used to be built-in throws. Both now carry a code, so the
+ * refusal scanner can see them and this file can name which one fired; both still extend the
+ * built-in they replaced, so every caller that matched on TypeError or RangeError is unaffected.
+ *
+ * Why they were converted together rather than one at a time: the scanner pairs a throw with the
+ * first refusal code within eight lines below it, and coding only the size check made the
+ * recipe-version throw above it read as coded too. The bare count would have fallen by two for one
+ * repair - the gate satisfied without the second refusal being improved at all.
+ */
+test("reject: (replayEntry.ts:248) an unsupported recipe version is refused by code, and is still a TypeError", () => {
+  for (const mutate of [
+    (r) => (r.tape.modelIdentity.modelVersion = 2),
+    (r) => (r.tape.experimentId = "bm-05"),
+    (r) => (r.tape.mode = "bm-01:apparatus"),
+  ]) {
+    const r = clone();
+    mutate(r);
+    assert.throws(
+      () => parseComparisonReplay(r),
+      (err) =>
+        err instanceof ReplayRecipeError &&
+        err instanceof TypeError &&
+        err.code === "unsupported-replay-recipe-version" &&
+        err.name === "ReplayRecipeError" &&
+        err.message === "This replay recipe version is not supported.",
+    );
+  }
+  // The saved recipe is accepted unchanged, so each refusal above is about its own mutation.
+  assert.equal(parseComparisonReplay(clone()).kind, "bm01-comparison");
+});
+
+test("reject: (replayEntry.ts:252) a tape over the bounded recipe size is refused by code, and is still a RangeError", () => {
+  const r = clone();
+  // The tape can only GROW by lengthening a string: record() pins the exact key set at every level
+  // and caps events and predictions at one each, so padding an id is the only route to an oversized
+  // tape that still validates. The saved tape is 932 bytes of the 1400 bound.
+  r.tape.modelIdentity.modelId += "x".repeat(600);
+  assert.ok(new TextEncoder().encode(JSON.stringify(r.tape)).length > 1400);
+  assert.throws(
+    () => parseComparisonReplay(r),
+    (err) =>
+      err instanceof ReplayBoundsError &&
+      err instanceof RangeError &&
+      err.code === "replay-tape-too-large" &&
+      err.name === "ReplayBoundsError" &&
+      err.message === "Replay tape exceeds the bounded recipe size. Nothing was truncated.",
+  );
+
+  // NOT "any large tape is refused here". Padding the checkpoint digest is also oversized and is
+  // refused EARLIER, by the tape schema, with its own code - so this site is reached only by a tape
+  // that is otherwise valid, which is the window it exists to guard.
+  const digestPadded = clone();
+  digestPadded.tape.acceptedCheckpoint.digest += "x".repeat(600);
+  assert.throws(
+    () => parseComparisonReplay(digestPadded),
+    (err) => err.code === "tape-invalid-checkpoint-digest",
+  );
+
+  // And the saved tape is under the bound and parses, so this test would not pass for a bound of 0.
+  assert.ok(new TextEncoder().encode(JSON.stringify(clone().tape)).length <= 1400);
+  assert.equal(parseComparisonReplay(clone()).kind, "bm01-comparison");
 });

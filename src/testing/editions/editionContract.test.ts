@@ -7,6 +7,7 @@ import { load as parseYaml } from "js-yaml";
 import {
   assertEditionContract,
   CONTRACT_CHECKS_SPEC,
+  EditionContractError,
   validateSpanRevisionCurrency,
 } from "../../content/editions/editionContract.ts";
 import { validateEditionDeclaration } from "../../content/editions/editionDeclaration.ts";
@@ -865,5 +866,54 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
     for (const check of [check4, check5, check6]) {
       expect(check?.outcome).not.toBe("passed");
     }
+  });
+});
+
+/**
+ * (editionContract.ts:802) invalid-route-slug.
+ *
+ * This refusal was `throw new Error(parsed.error)` until 2026-09-21: invisible to the bare-throw
+ * ratchet as an uncoded refusal, and invisible to the untested-refusal scanner entirely, because a
+ * built-in Error carries no code to attribute a test to. A caller handed a bad slug received a
+ * string and had nothing to branch on.
+ */
+describe("assertEditionContract refuses a slug that is not a route", () => {
+  test("(editionContract.ts:802) a non-route slug is refused with a code, naming the legal slugs", () => {
+    let caught: unknown;
+    try {
+      assertEditionContract("brownian");
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(EditionContractError);
+    const error = caught as EditionContractError;
+    expect(error.code).toBe("invalid-route-slug");
+    expect(error.name).toBe("EditionContractError");
+    // The message carries the parser's own detail, so the code did not cost the reader the reason.
+    expect(error.message).toContain("brownian");
+    expect(error.message).toContain("brownian-motion");
+
+    // Still an Error, so any caller catching Error keeps working.
+    expect(caught).toBeInstanceOf(Error);
+  });
+
+  test("the code is a LITERAL, so it cannot vary with the input that produced it", () => {
+    // Three different bad slugs, one code. Written because the obvious repair here was
+    // `parsed.rule ?? "..."`, which a scanner reading the first argument cannot see through and
+    // which no targeted test can pin (am-utmv).
+    for (const slug of ["brownian", "", "../etc/passwd"]) {
+      let code: unknown;
+      try {
+        assertEditionContract(slug);
+      } catch (err) {
+        code = (err as EditionContractError).code;
+      }
+      expect(code).toBe("invalid-route-slug");
+    }
+  });
+
+  test("a real route slug does NOT reach this refusal", () => {
+    // Without this the test above would pass over a function that refused everything.
+    expect(() => assertEditionContract("brownian-motion", {})).not.toThrow();
   });
 });
