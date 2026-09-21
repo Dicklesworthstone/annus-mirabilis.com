@@ -343,7 +343,7 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
       expect(disabledRuleRes.ok).toBe(true);
     });
 
-    test("Planted Negative 2: Terms in a sum fail rule 'composite-group-monomial-mismatch'", () => {
+    test("Planted Negative 2 (monomial.ts:301): Terms in a sum fail rule 'composite-group-monomial-mismatch'", () => {
       // Terms from different parts of a sum: (x + y) * z
       const sumExpr: Expression = prod([
         sum([sym("eq-test.t.x", "coordinateX"), sym("eq-test.t.y", "coordinateY")]),
@@ -461,7 +461,20 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
       expect((thrown as ContentError).code).toBe("monomial-invalid-node");
     });
 
-    test("refusal (monomial.ts:324): composite-group-monomial-mismatch rejects term missing from factor set", () => {
+    /**
+     * THIS TEST'S TITLE WAS WRONG IN THREE WAYS, and all three survived because
+     * composite-group-monomial-mismatch has three sites that emit the same rule string.
+     *
+     * It cited monomial.ts:324, which holds composite-group-EXPONENTS-mismatch, a different
+     * code. It said "term missing from factor set", which is the site at :311. And the input
+     * it builds reaches neither: 't.notInFactorSet' is nowhere in the tree, so
+     * findInnermostContainingNode returns null and the refusal comes from :290, "no common
+     * containing expression". Planting :290 reddens it; planting :311 does not.
+     *
+     * Retitled to what it actually drives. The :311 case it was reaching for is the test
+     * below, which needed a different tree to get there at all.
+     */
+    test("refusal (monomial.ts:290): composite-group-monomial-mismatch rejects terms with no common containing expression", () => {
       // Accept: term is a factor
       const accepted = validateCompositeGroup(
         {
@@ -474,7 +487,8 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
       );
       expect(accepted.ok).toBe(true);
 
-      // Reject: with checkTermsExist false, term not in factor set triggers monomial-mismatch
+      // Reject: with checkTermsExist false, a term absent from the tree entirely has no
+      // containing node, which is :290 rather than the factor-set membership check.
       const rejected = validateCompositeGroup(
         {
           id: "grp-1",
@@ -488,6 +502,48 @@ describe("Monomial Factor-Set Binding and Dual View", () => {
       expect(rejected.ok).toBe(false);
       if (!rejected.ok) {
         expect(rejected.rule).toBe("composite-group-monomial-mismatch");
+        // The message is what separates this site from its two siblings, which all emit the
+        // same rule. Without it the assertion above cannot tell which of the three fired.
+        expect(rejected.error).toContain("no common containing expression");
+      }
+    });
+
+    test("refusal (monomial.ts:311): composite-group-monomial-mismatch rejects a term that is present but is not a factor", () => {
+      // The site the test above was reaching for, and could not reach.
+      //
+      // Getting here is narrower than it looks. findInnermostContainingNode and
+      // extractMonomialFactorSet walk the SAME symbols, so any term inside a valid monomial is
+      // normally in its factor set and this check cannot fire. My first attempt nested a term
+      // under a sum, which only reached :301, because a sum is not a monomial at all.
+      //
+      // The one way through is CANCELLATION: extractMonomialFactorSet drops factors whose
+      // exponent came out zero (monomial.ts:128), so a term appearing once in a numerator and
+      // once in a denominator is present in the tree and absent from the factor set. Here t.a
+      // cancels, and asking for t.a, t.x and t.d together forces the innermost containing node
+      // up to the quotient, which is where the cancellation is visible.
+      const root = quot(
+        prod([sym("t.a", "qa"), sym("t.x", "qx")]),
+        prod([sym("t.a", "qa"), sym("t.d", "qd")]),
+      );
+
+      // Accept: terms that survive with a nonzero exponent.
+      const accepted = validateCompositeGroup(
+        { id: "grp-ok", quantityId: "q", kind: "monomial", termIds: ["t.x", "t.d"] },
+        root,
+      );
+      expect(accepted.ok).toBe(true);
+
+      // Reject: t.a is in the tree twice, cancels to exponent zero, and is not a factor.
+      const rejected = validateCompositeGroup(
+        { id: "grp-1", quantityId: "q", kind: "monomial", termIds: ["t.a", "t.x", "t.d"] },
+        root,
+      );
+      expect(rejected.ok).toBe(false);
+      if (!rejected.ok) {
+        expect(rejected.rule).toBe("composite-group-monomial-mismatch");
+        // Distinguishes :311 from :290 and :301, which share the rule.
+        expect(rejected.error).toContain("is not a factor of the monomial factor set");
+        expect(rejected.error).toContain("t.a");
       }
     });
 
