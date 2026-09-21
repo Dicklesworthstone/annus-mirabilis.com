@@ -67,7 +67,24 @@ function contract(
   return Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
 }
 
-export const BM04_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
+/**
+ * The index signature is load-bearing and so is the declared key, for different consumers.
+ *
+ * `BM04_OUTPUTS[quantityId]` is indexed with an UNTRUSTED runtime id at
+ * workers/operations/bm04.ts:39 and again in workers/protocol/bm04.ts, so the string index
+ * signature stays: it is a trust boundary, not looseness to be tidied away.
+ *
+ * `pecletNumber` is also read by LITERAL key in bm04/diagnostics.ts. Under
+ * noUncheckedIndexedAccess a literal read on a bare Record is `OutputContract | undefined`, which
+ * forced a runtime guard at that call site refusing "missing-output-contract" - a refusal no
+ * caller could ever fire, because only editing this object can remove the key. Declaring the key
+ * here moves that guarantee from a runtime check nothing can reach to one the type checker
+ * enforces on this file. Delete the key from this type and the literal read stops compiling,
+ * which is the check the runtime guard was standing in for.
+ */
+export const BM04_OUTPUTS: Readonly<Record<string, OutputContract>> & {
+  readonly pecletNumber: OutputContract;
+} = Object.freeze({
   densityProfile: contract("1/m", "coordinate-density", "diffusion.driftDiffusionFrames1d", [
     "value",
     "outside-domain",

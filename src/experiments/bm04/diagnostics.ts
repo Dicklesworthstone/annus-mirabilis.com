@@ -5,12 +5,6 @@ import { BM04_OUTPUTS } from "./definition.ts";
 /** Preserve the distinction between an absent diffusion scale and a failed computation. */
 export function bm04PecletResult(kickDiffusivity: number, peclet: number): ScientificResult {
   const contract = BM04_OUTPUTS.pecletNumber;
-  if (!contract)
-    throw new ExperimentRuntimeError(
-      "missing-output-contract",
-      "Missing BM-04 Peclet output contract.",
-      "bm-04",
-    );
   const identity = {
     quantityId: "pecletNumber",
     unit: contract.unit,

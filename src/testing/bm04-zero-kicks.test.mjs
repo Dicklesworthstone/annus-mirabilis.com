@@ -79,12 +79,18 @@ for (const [name, preset] of Object.entries(BM04_PRESETS)) {
  * The owner ruled "Positional code argument", so these two sites lost their builtin
  * TypeError/RangeError and now throw ExperimentRuntimeError with a kebab code first.
  *
- * diagnostics.ts:9 IS NOT DRIVEN AND IS LEFT COUNTED. It refuses a missing BM-04 Peclet output
- * contract, and BM04_OUTPUTS.pecletNumber is a frozen module constant of definition.ts that is
- * always present; nothing a caller passes can remove it. It guards a future edit to the
- * definition, which is a reason to keep it and not a reason to claim it is tested.
+ * diagnostics.ts:9 IS GONE, AND IT WAS NOT DELETED ON AN ARGUMENT. This note used to say the
+ * missing-output-contract refusal was left counted because nothing a caller passes could remove
+ * BM04_OUTPUTS.pecletNumber. That was right about the reachability and wrong about the remedy: the
+ * guard existed only because noUncheckedIndexedAccess makes a literal read on a bare Record return
+ * `T | undefined`, so it was a type-checker artefact wearing a refusal's clothes. definition.ts
+ * now declares the key in the type while keeping the string index signature the two worker
+ * consumers need, which makes the literal read total and the guard unreachable in the type system
+ * rather than merely in practice. The protection did not go away, it moved: remove pecletNumber
+ * from that object and check:types fails at definition.ts, which is the file the mistake would be
+ * made in. Measured both ways before the change and planted after it.
  */
-test("the Peclet diagnostic refuses invalid inputs by code (diagnostics.ts:21)", () => {
+test("the Peclet diagnostic refuses invalid inputs by code (diagnostics.ts:15)", () => {
   for (const [kickDiffusivity, peclet] of [
     [-1, 2],
     [Number.NaN, 2],
