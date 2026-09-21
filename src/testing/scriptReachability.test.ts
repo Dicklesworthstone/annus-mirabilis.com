@@ -80,7 +80,19 @@ describe("check-shaped scripts are reachable from some runner (am-unwired-audits
     (f) => f.endsWith(".ts") && !f.endsWith(".test.ts") && CHECK_SHAPED.test(f),
   );
 
-  const registry = readIfPresent(join(SCRIPTS, "quality-gates", "registry.ts"));
+  const registryText = readIfPresent(join(SCRIPTS, "quality-gates", "registry.ts"));
+  /**
+   * Only the COMMAND arrays count as an invocation.
+   *
+   * This used to test `registryText.includes("scripts/<name>")`, and a gate entry names its script
+   * twice: once in `command`, which runs it, and once in `availability.scriptPath`, which only says
+   * the file exists. Planting a gate whose command pointed elsewhere while scriptPath still named
+   * the script left this test GREEN - a mention standing in for an invocation, which is the defect
+   * this file exists to catch, inside the file itself.
+   */
+  const registry = [...registryText.matchAll(/command:\s*\[([^\]]*)\]/g)]
+    .map((m) => m[1] ?? "")
+    .join("\n");
   const packageScripts = JSON.stringify(
     JSON.parse(readIfPresent(join(ROOT, "package.json")) || "{}").scripts ?? {},
   );
@@ -99,7 +111,9 @@ describe("check-shaped scripts are reachable from some runner (am-unwired-audits
 
   test("the census still finds the scripts it is meant to inspect", () => {
     expect(scriptNames.length).toBeGreaterThan(10);
-    expect(registry).toContain("QUALITY_GATE_STEPS");
+    expect(registryText).toContain("QUALITY_GATE_STEPS");
+    // the command census must be non-empty, or every script would look unreachable
+    expect(registry.length).toBeGreaterThan(0);
     expect(testSources.length).toBeGreaterThan(50);
   });
 

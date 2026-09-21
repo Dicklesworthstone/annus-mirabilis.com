@@ -70,6 +70,25 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-scaf-architecture-gate-l1p",
   },
+  {
+    // am-unwired-audits-uwot. Added by d05ea5a8 and invoked by nothing: a check-shaped script with
+    // a real failure path that no runner could fire. It exits 0 today - 1241 kebab codes thrown,
+    // 54 old-form mentions, all classified as documentation, 0 surviving code references - so it is
+    // wired rather than excused. Its own header says it "runs after each batch"; wiring it means a
+    // batch that leaves one side of a rename behind reddens the chain, which is what it is for.
+    id: "renamed-refusal-codes",
+    title: "Renamed refusal codes: both sides of every equality moved",
+    command: ["bun", "scripts/check-renamed-refusal-codes.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/check-renamed-refusal-codes.ts",
+    },
+    owner: "am-p465",
+  },
+
   // 2. Typecheck (TypeScript compiler)
   {
     // am-14js criterion 5. The `typecheck` gate below runs 34 generators before tsc, so its exit
