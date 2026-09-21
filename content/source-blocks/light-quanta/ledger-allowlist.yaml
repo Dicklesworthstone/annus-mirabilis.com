@@ -48,3 +48,11 @@
   reason: "Printed connective 'wenn' standing alone between the two variational conditions on page 138 - the entropy maximum and the energy constraint it is subject to. Source text, and load-bearing: it is the word that makes the second display a CONDITION on the first rather than a second independent statement."
   editor: "agent:LilacValley"
   date: "2026-09-21"
+
+- ledgerKey: ap-17-132
+  code: short-paragraph
+  ledgerPage: 11
+  lineFingerprint: bb8c8605c55dcc2d
+  reason: "Printed connective 'also' standing alone between the two display equations INSIDE footnote 1) on page 142, where Einstein derives p v = R (n/N) T from the entropy expression. Same class as the wobei/oder/wenn entries and the same reasoning, with one difference worth recording: it is reported as short-paragraph rather than short-line because a footnote's connective opens its own block, so a reviewer looking only for short-line will not find it."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
