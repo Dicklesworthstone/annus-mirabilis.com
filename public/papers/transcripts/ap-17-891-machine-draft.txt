@@ -235,6 +235,33 @@ Wir haben nun zu beweisen, daß jeder Lichtstrahl sich, im bewegten System gemes
 --- MACHINE DRAFT TRANSCRIPTION PAGE 11 OF 31 ---
 [[ANNALEN-PAGE 901]]
 
+System der Fall ist; denn wir haben den Beweis dafür noch nicht geliefert, daß das Prinzip der Konstanz der Lichtgeschwindigkeit mit dem Relativitätsprinzip vereinbar sei.
+
+Zur Zeit $t = \tau = 0$ werde von dem zu dieser Zeit gemeinsamen Koordinatenursprung beider Systeme aus eine Kugelwelle ausgesandt, welche sich im System $K$ mit der Geschwindigkeit $V$ ausbreitet. Ist $(x, y, z)$ ein eben von dieser Welle ergriffener Punkt, so ist also
+$$
+x^2 + y^2 + z^2 = V^2 t^2 .
+$$
+
+Diese Gleichung transformieren wir mit Hilfe unserer Transformationsgleichungen und erhalten nach einfacher Rechnung:
+$$
+\xi^2 + \eta^2 + \zeta^2 = V^2 \tau^2 .
+$$
+
+Die betrachtete Welle ist also auch im bewegten System betrachtet eine Kugelwelle von der Ausbreitungsgeschwindigkeit $V$. Hiermit ist gezeigt, daß unsere beiden Grundprinzipien miteinander vereinbar sind.
+
+In den entwickelten Transformationsgleichungen tritt noch eine unbekannte Funktion $\varphi$ von $v$ auf, welche wir nun bestimmen wollen.
+
+Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem $K'$ ein, welches relativ zum System $k$ derart in Paralleltranslationsbewegung parallel zur $\Xi$-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit $-v$ auf der $\Xi$-Achse bewege. Zur Zeit $t = 0$ mögen alle drei Koordinatenanfangspunkte zusammenfallen und es sei für $t = x = y = z = 0$ die Zeit $t'$ des Systems $K'$ gleich Null. Wir nennen $x'$, $y'$, $z'$ die Koordinaten, im System $K'$ gemessen, und erhalten durch zweimalige Anwendung unserer Transformationsgleichungen:
+$$
+\begin{aligned}
+t' &= \varphi(-v) \beta(-v) \left\{ \tau + \frac{v}{V^2} \xi \right\} &&= \varphi(v) \varphi(-v) t , \\
+x' &= \varphi(-v) \beta(-v) \{ \xi + v \tau \} &&= \varphi(v) \varphi(-v) x , \\
+y' &= \varphi(-v) \eta &&= \varphi(v) \varphi(-v) y , \\
+z' &= \varphi(-v) \zeta &&= \varphi(v) \varphi(-v) z .
+\end{aligned}
+$$
+Da die Beziehungen zwischen $x'$, $y'$, $z'$ und $x$, $y$, $z$ die Zeit $t$ nicht enthalten, so ruhen die Systeme $K$ und $K'$ gegeneinander,[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 12 OF 31 ---
 [[ANNALEN-PAGE 902]]
 
