@@ -68,7 +68,9 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(manifest.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
     expect(manifest.frozenBy).toBe("am-edn-inventory-brownian-slg");
 
-    expect(manifest.units.length).toBe(87); // 92 until the 2026-09-19 boundary audit retired five units
+    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus the 37
+    // sentence units of sections 4-5 cut on 2026-09-21 once the sentence kind existed.
+    expect(manifest.units.length).toBe(124);
 
     const idSet = new Set<string>();
     for (const unit of manifest.units) {
@@ -541,7 +543,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     const snapshotText = readFileSync(snapshotPath, "utf8");
     const snapshotIds = parseIdSnapshot(snapshotText);
 
-    expect(snapshotIds.length).toBe(87);
+    expect(snapshotIds.length).toBe(124);
 
     const manifestIds = manifest.units.map((u) => u.id);
     expect(snapshotIds).toEqual(manifestIds);
@@ -719,10 +721,12 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
 
     // All 36 units of §§4-5 exist
     const s4Units = manifest.units.filter((u) => u.section === "s4");
-    expect(s4Units.length).toBe(24); // heading, 10 paragraphs, 13 displays (12 unnumbered + 1 numbered)
+    // heading, 10 paragraphs, 13 displays (12 unnumbered + 1 numbered), 27 sentences
+    expect(s4Units.length).toBe(51);
 
     const s5Units = manifest.units.filter((u) => u.section === "s5");
-    expect(s5Units.length).toBe(10); // heading, 4 paragraphs, 5 displays
+    // heading, 4 paragraphs, 5 displays, 10 sentences
+    expect(s5Units.length).toBe(20);
 
     // Introduction conditional statements are segmented into separate sentence IDs
     expect(unitMap.has("s0-p1")).toBe(true);

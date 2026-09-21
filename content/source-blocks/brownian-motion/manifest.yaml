@@ -760,6 +760,18 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
+  - id: s4-p1-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p1
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p1-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: s4-p2
     kind: paragraph
     section: s4
@@ -772,6 +784,18 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
+  - id: s4-p2-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p2
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p2-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: s4-p3
     kind: paragraph
     section: s4
@@ -784,6 +808,18 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
+  - id: s4-p3-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p3
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p3-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: s4-p4
     kind: paragraph
     section: s4
@@ -796,6 +832,44 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
+  - id: s4-p4-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p4
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p4-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p4-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p4
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p4-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p4-s3
+    kind: sentence
+    section: s4
+    containedIn: s4-p4
+    locators:
+      - page: 556
+    destination:
+      editionBlockId: de-brownian-motion-s4-p4-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: eq-s4-d1
     kind: display-equation
     section: s4
@@ -850,6 +924,18 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
+  - id: s4-p5-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p5
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p5-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: s4-p6
     kind: paragraph
     section: s4
@@ -865,6 +951,97 @@ units:
       notes:
         - "Runs on flush after eq-s4-d6 and crosses to page 558; absorbed the retired s4-p7 and s4-p8 in the 2026-09-19 boundary audit."
 
+  - id: s4-p6-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p6-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p6-s3
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p6-s4
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6-s4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p6-s5
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6-s5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p6-s6
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6-s6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p6-s7
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 557
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6-s7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: eq-s4-d4
     kind: display-equation
     section: s4
@@ -975,6 +1152,18 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
+  - id: s4-p9-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p9
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p9-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: s4-p10
     kind: paragraph
     section: s4
@@ -994,6 +1183,96 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
+  - id: s4-p10-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p10
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p10-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p10-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p10
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p10-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p10-s3
+    kind: sentence
+    section: s4
+    containedIn: s4-p10
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p10-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p10-s4
+    kind: sentence
+    section: s4
+    containedIn: s4-p10
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p10-s4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p10-s5
+    kind: sentence
+    section: s4
+    containedIn: s4-p10
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p10-s5
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p10-s6
+    kind: sentence
+    section: s4
+    containedIn: s4-p10
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p10-s6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p10-s7
+    kind: sentence
+    section: s4
+    containedIn: s4-p10
+    locators:
+      - page: 558
+    destination:
+      editionBlockId: de-brownian-motion-s4-p10-s7
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: eq-s4-d10
     kind: display-equation
     section: s4
@@ -1035,6 +1314,45 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
+  - id: s4-p11-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p11
+    locators:
+      - page: 558
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s4-p11-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p11-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p11
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s4-p11-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p11-s3
+    kind: sentence
+    section: s4
+    containedIn: s4-p11
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s4-p11-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: eq-s4-d12
     kind: display-equation
     section: s4
@@ -1061,6 +1379,31 @@ units:
       argumentObligations:
         - arg:brownian-random-walk-diffusion
 
+  - id: s4-p12-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p12
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s4-p12-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+
+  - id: s4-p12-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p12
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s4-p12-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
   - id: s5
     kind: heading
     section: s5
@@ -1099,6 +1442,57 @@ units:
       argumentObligations:
         - arg:brownian-displacement-scale
 
+  - id: s5-p1-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p1
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s5-p1-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p1-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p1
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s5-p1-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p1-s3
+    kind: sentence
+    section: s5
+    containedIn: s5-p1
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s5-p1-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p1-s4
+    kind: sentence
+    section: s5
+    containedIn: s5-p1
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s5-p1-s4
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
   - id: eq-s5-d1
     kind: display-equation
     section: s5
@@ -1153,6 +1547,44 @@ units:
       argumentObligations:
         - arg:brownian-displacement-scale
 
+  - id: s5-p2-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s5-p2-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p2-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s5-p2-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p2-s3
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 559
+    destination:
+      editionBlockId: de-brownian-motion-s5-p2-s3
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
   - id: eq-s5-d4
     kind: display-equation
     section: s5
@@ -1179,6 +1611,31 @@ units:
       argumentObligations:
         - arg:brownian-displacement-scale
 
+  - id: s5-p3-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p3
+    locators:
+      - page: 560
+    destination:
+      editionBlockId: de-brownian-motion-s5-p3-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
+
+  - id: s5-p3-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p3
+    locators:
+      - page: 560
+    destination:
+      editionBlockId: de-brownian-motion-s5-p3-s2
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-displacement-scale
   - id: eq-s5-d5
     kind: display-equation
     section: s5
@@ -1205,6 +1662,18 @@ units:
       argumentObligations:
         - arg:brownian-closing-outlook
 
+  - id: s5-p4-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p4
+    locators:
+      - page: 560
+    destination:
+      editionBlockId: de-brownian-motion-s5-p4-s1
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-closing-outlook
   - id: closing-dateline
     kind: closing-dateline
     section: closing
