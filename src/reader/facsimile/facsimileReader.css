@@ -1,4 +1,6 @@
-.facsimile-reader { min-width: 0; }
+.facsimile-reader {
+  min-width: 0;
+}
 .facsimile-reader iframe {
   display: block;
   width: 100%;
@@ -22,8 +24,14 @@
   align-items: center;
   gap: 0.75rem;
 }
-.facsimile-reader-buttons input { width: 7rem; max-width: 100%; }
-.facsimile-reader [data-facsimile-share-url] { width: 100%; min-width: 0; }
+.facsimile-reader-buttons input {
+  width: 7rem;
+  max-width: 100%;
+}
+.facsimile-reader [data-facsimile-share-url] {
+  width: 100%;
+  min-width: 0;
+}
 .facsimile-reader-page-links a {
   padding: 0.5rem;
   min-width: 2.75rem;
@@ -35,25 +43,66 @@
   outline: 2px solid currentColor;
   outline-offset: 1px;
 }
-.facsimile-reader-provenance { margin-block: 1.5rem; }
-.facsimile-reader-provenance dd { margin-inline-start: 0; margin-block-end: 0.75rem; }
-.facsimile-reader-provenance dt { font-weight: 700; }
-.facsimile-reader code,
-.facsimile-reader a,
-.facsimile-reader li { overflow-wrap: anywhere; }
-.facsimile-reader-page { border-top: 1px solid var(--line); padding-block: 1rem; }
-.facsimile-reader-page h3 { display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; }
-.facsimile-reader-units { padding-inline-start: 1.5rem; }
-.facsimile-reader-units li { padding-block: 0.25rem; }
-.facsimile-reader-anchor { display: block; }
-.facsimile-reader :target { scroll-margin-top: 5rem; }
-@media print {
-  .facsimile-reader iframe,
-  .facsimile-reader-toolbar { display: none; }
-  .facsimile-reader-page { break-inside: avoid; }
+/* The direct-PDF fallback beneath the viewer: the route a reader takes when the embedded
+   facsimile cannot render. am-vw1o - the class was written in FacsimilePanel.tsx with no rule,
+   so the ratchet counted it undeclared. */
+.facsimile-reader-recovery {
+  margin-block: 0.75rem;
 }
 
-.inline-facsimile-panel { min-width: 0; margin-block: 1.5rem; }
+.facsimile-reader-provenance {
+  margin-block: 1.5rem;
+}
+.facsimile-reader-provenance dd {
+  margin-inline-start: 0;
+  margin-block-end: 0.75rem;
+}
+.facsimile-reader-provenance dt {
+  font-weight: 700;
+}
+.facsimile-reader code,
+.facsimile-reader a,
+.facsimile-reader li {
+  overflow-wrap: anywhere;
+}
+.facsimile-reader-page {
+  border-top: 1px solid var(--line);
+  padding-block: 1rem;
+}
+.facsimile-reader-page h3 {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.facsimile-reader-units {
+  padding-inline-start: 1.5rem;
+}
+.facsimile-reader-units li {
+  padding-block: 0.25rem;
+}
+.facsimile-reader-anchor {
+  display: block;
+}
+.facsimile-reader :target {
+  scroll-margin-top: 5rem;
+}
+@media print {
+  .facsimile-reader iframe,
+  .facsimile-reader-toolbar {
+    display: none;
+  }
+  .facsimile-reader-page {
+    break-inside: avoid;
+  }
+}
+
+.inline-facsimile-panel {
+  min-width: 0;
+  margin-block: 1.5rem;
+}
 /* Hide only the superseded explanatory/source-status panels, never unmount their owners. */
 .reader-root[data-facsimile-inline-active] .reader-section,
-.reader-root[data-facsimile-inline-active] .page-intro [data-source-status] { display: none; }
+.reader-root[data-facsimile-inline-active] .page-intro [data-source-status] {
+  display: none;
+}
