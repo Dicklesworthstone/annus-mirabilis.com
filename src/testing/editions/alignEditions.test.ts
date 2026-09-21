@@ -3,17 +3,51 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { runAlignEditions } from "../../../scripts/align-editions.ts";
 import { coverageReportIsHonest } from "../../content/editions/coverageReport.ts";
+import { inspectLedgerPresence } from "../../content/editions/ledgerPresence.ts";
 import {
   registerReviewStateCheck,
   resetReviewStateCheck,
 } from "../../content/editions/reviewState.ts";
+import type { RouteSlug } from "../../content/ids.ts";
+import { PAPER_SLUGS } from "../../content/schemas/source.pure.ts";
+
+/**
+ * A paper with no ledger, DERIVED rather than named.
+ *
+ * Three tests here used "brownian-motion" as their absent-ledger example. It gained
+ * public/papers/transcripts/ap-17-549-reviewed.txt on 2026-09-21 and they broke - a fixture keyed
+ * on a specific id standing in for a property, which is the same substitution this repository keeps
+ * finding in gates. The property is what the tests want, so the property is what they ask for.
+ */
+function aLedgerlessPaper(): RouteSlug {
+  const found = PAPER_SLUGS.find((slug) => inspectLedgerPresence(slug).presence === "absent");
+  if (!found) {
+    // Not a pass. If every paper has a ledger, these tests have no subject and must say so.
+    throw new Error(
+      "No paper lacks a ledger, so the absent-ledger tests below have nothing to exercise. Rewrite them against a fixture root rather than deleting them.",
+    );
+  }
+  return found;
+}
 
 describe("scripts/align-editions.ts runner and CLI guards", () => {
-  test("happy path: absent ledger paper validates with exit code 0", () => {
-    const result = runAlignEditions({ slug: "brownian-motion" });
-    expect(result.ok).toBe(true);
-    expect(result.exitCode).toBe(0);
+  test("a paper with no ledger reports not-available, not a pass, and still exits 0", () => {
+    // This was named "happy path: absent ledger paper validates with exit code 0" and asserted
+    // ok === true. THAT WAS THE DRIFT. With no ledger there is nothing to align, so there are no
+    // issues and ok is true - the runner reported success about a paper it could not judge, while
+    // editionContract.ts reported not-available for the same paper and the report JSON this runner
+    // writes said "No ledger present. This is not completeness." Three layers, one fact, two truths.
+    const result = runAlignEditions({ slug: aLedgerlessPaper() });
+    expect(result.outcome).toBe("not-available");
     expect(result.issues).toHaveLength(0);
+    // the exit code is unchanged: an absent ledger is a known state here, not a failure
+    expect(result.exitCode).toBe(0);
+    // and a paper WITH a ledger is judged rather than excused, so not-available is not universal
+    const withLedger = PAPER_SLUGS.find(
+      (slug) => inspectLedgerPresence(slug).presence === "present",
+    );
+    if (withLedger)
+      expect(runAlignEditions({ slug: withLedger }).outcome).not.toBe("not-available");
   });
 
   test("PLANTED: --require-reviewed refuses with unit-not-reviewed when no reviewed units exist", () => {
@@ -74,7 +108,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
       return { ok: false, code: "review-records-not-available", message: "denied" };
     });
     const result = runAlignEditions({
-      slug: "brownian-motion",
+      slug: aLedgerlessPaper(),
       requireReviewed: true,
       reviewUnits: [
         {
@@ -119,7 +153,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
 
   test("--report writes honest coverage JSON and Markdown files to artifacts", () => {
     const result = runAlignEditions({
-      slug: "brownian-motion",
+      slug: aLedgerlessPaper(),
       report: true,
     });
     expect(result.ok).toBe(true);
@@ -139,6 +173,18 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
     expect(md.includes("%")).toBe(false);
     expect(json).not.toMatch(/"score"/i);
     expect(json).not.toMatch(/"percent"/i);
+
+    // THE CLAIM IN THE NAME. Everything above is a NEGATIVE: no percent sign, no score key, no
+    // percent key. A report over an empty collection satisfies every one of them and this test
+    // would pass having written a file with nothing in it - the pass-on-an-empty-set shape, in a
+    // test whose name asserts honesty. So the report is also required to contain something.
+    const parsed = JSON.parse(json) as { layers?: readonly { layer: string; note?: string }[] };
+    expect(parsed.layers?.length ?? 0).toBeGreaterThan(0);
+    const ledgerLayer = parsed.layers?.find((l) => l.layer === "ledger");
+    expect(ledgerLayer).toBeDefined();
+    // and for the ledgerless paper this test runs on, the layer SAYS SO rather than reporting zero
+    expect(ledgerLayer?.note).toContain("not completeness");
+    expect(md.trim().length).toBeGreaterThan(0);
   });
 });
 

@@ -60,8 +60,23 @@ export type AlignEditionsOptions = Readonly<{
   derivedInput?: DerivedStatusInput | undefined;
 }>;
 
+/**
+ * What the run established, which is not the same as whether it found violations.
+ *
+ * `ok` answers "were there issues". For a paper with NO LEDGER there is nothing to align, so there
+ * are no issues and ok was true - the runner reported success about a paper it could not judge,
+ * while src/content/editions/editionContract.ts reported `not-available` for the same paper and the
+ * report JSON this runner writes said "No ledger present. This is not completeness." Three layers,
+ * one fact, and only two of them told the truth.
+ *
+ * `outcome` is the honest third state. The exit code is unchanged - an absent ledger is a known
+ * state of this project, not a failure, and reddening a lane for it would be wrong.
+ */
+export type AlignEditionsOutcome = "passed" | "failed" | "not-available";
+
 export type AlignEditionsResult = Readonly<{
   ok: boolean;
+  outcome: AlignEditionsOutcome;
   exitCode: number;
   slug: RouteSlug;
   layers: readonly string[];
@@ -228,6 +243,8 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
   const ok = issues.length === 0;
   return Object.freeze({
     ok,
+    // An absent ledger means the run had nothing to align, so "no issues" is not a pass.
+    outcome: presence.presence === "absent" ? "not-available" : ok ? "passed" : "failed",
     exitCode: ok ? 0 : 1,
     slug,
     layers: Object.freeze([...layers]),
