@@ -206,6 +206,36 @@ erfüllt.
 --- REVIEWED TRANSCRIPTION PAGE 9 OF 12 ---
 [[ANNALEN-PAGE 557]]
 
+Wir untersuchen nun, wie der Diffusionskoeffizient von $\varphi$ abhängt, wobei wir uns wieder auf den Fall beschränken, daß die Anzahl $\nu$ der Teilchen pro Volumeneinheit nur von $x$ und $t$ abhängt.
+
+Es sei $\nu = f(x, t)$ die Anzahl der Teilchen pro Volumeneinheit, wir berechnen die Verteilung der Teilchen zur Zeit $t + \tau$ aus deren Verteilung zur Zeit $t$. Aus der Definition der Funktion $\varphi(\Delta)$ ergibt sich leicht die Anzahl der Teilchen, welche sich zur Zeit $t + \tau$ zwischen zwei zur $X$-Achse senkrechten Ebenen mit den Abszissen $x$ und $x + d x$ befinden. Man erhält:
+$$
+f(x, t + \tau) d x = d x \cdot \int_{\Delta = -\infty}^{\Delta = +\infty} f(x + \Delta) \varphi(\Delta) d \Delta.
+$$
+
+Nun können wir aber, da $\tau$ sehr klein ist, setzen:
+$$
+f(x, t + \tau) = f(x, t) + \tau \frac{\partial f}{\partial t}.
+$$
+
+Ferner entwickeln wir $f(x + \Delta, t)$ nach Potenzen von $\Delta$:
+$$
+f(x + \Delta, t) = f(x, t) + \Delta \frac{\partial f(x, t)}{\partial x} + \frac{\Delta^2}{2!} \frac{\partial^2 f(x, t)}{\partial x^2} + \cdots \text{ in inf.}
+$$
+
+Diese Entwicklung können wir unter dem Integral vornehmen, da zu letzterem nur sehr kleine Werte von $\Delta$ etwas beitragen. Wir erhalten:
+$$
+\begin{aligned}
+f + \frac{\partial f}{\partial t} \cdot \tau = f \cdot \int_{-\infty}^{+\infty} \varphi(\Delta) d \Delta &+ \frac{\partial f}{\partial x} \int_{-\infty}^{+\infty} \Delta \varphi(\Delta) d \Delta \\
+&+ \frac{\partial^2 f}{\partial x^2} \int_{-\infty}^{+\infty} \frac{\Delta^2}{2} \varphi(\Delta) d \Delta \cdots
+\end{aligned}
+$$
+
+Auf der rechten Seite verschwindet wegen $\varphi(x) = \varphi(-x)$ das zweite, vierte etc. Glied, während von dem ersten, dritten, fünften etc. Gliede jedes folgende gegen das vorhergehende sehr klein ist. Wir erhalten aus dieser Gleichung, indem wir berücksichtigen, daß
+$$
+\int_{-\infty}^{+\infty} \varphi(\Delta) d \Delta = 1,
+$$
+
 --- REVIEWED TRANSCRIPTION PAGE 10 OF 12 ---
 [[ANNALEN-PAGE 558]]
 
