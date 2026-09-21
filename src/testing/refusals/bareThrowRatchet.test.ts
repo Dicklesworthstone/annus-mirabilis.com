@@ -360,11 +360,31 @@ describe("bare throw ratchet (am-muyh)", () => {
     const scan = scanBareThrows(ROOT);
 
     const regressions: string[] = [];
+    const unrecorded: string[] = [];
     const slack: string[] = [];
     const replacements: string[] = [];
 
     for (const [file, sites] of scan.byFile) {
-      const allowed = baseline.get(file) ?? 0;
+      // A file WITH an entry that grew and a file with NO entry at all are different
+      // states, and `?? 0` collapsed them: a brand-new file was reported as
+      // "increased ... recorded 0", which reads as a regression against a measured
+      // zero. It never had a baseline. The remedy differs too - "lower an existing
+      // bare throw in the same file" is not advice you can follow in a file that has
+      // no recorded throws to lower. Both still fail; only the label and the remedy
+      // change.
+      const recorded = baseline.get(file);
+      if (recorded === undefined) {
+        unrecorded.push(
+          `${file}: ${sites.length} bare throw site(s), NOT IN THE BASELINE.\n` +
+            `    ${sites.map((site) => `${site.line}: ${site.snippet}`).join("\n    ")}\n` +
+            "    This file has never been recorded, so this is undeclared debt rather " +
+            "than a regression against a measured count. Either give these refusals " +
+            "typed codes, or add the file to the baseline in this same commit and say " +
+            "in the message why the debt is being recorded rather than paid.",
+        );
+        continue;
+      }
+      const allowed = recorded;
       if (sites.length > allowed) {
         const added = sites.slice(allowed).map((s) => `${s.line}: ${s.snippet}`);
         regressions.push(
@@ -388,8 +408,16 @@ describe("bare throw ratchet (am-muyh)", () => {
     const messages: string[] = [];
     if (regressions.length > 0) {
       messages.push(
-        `[REGRESSION] Bare throw sites increased in ${regressions.length} file(s):\n` +
+        `[REGRESSION] Bare throw sites increased above a recorded count in ${regressions.length} file(s):\n` +
           regressions.join("\n"),
+      );
+    }
+    if (unrecorded.length > 0) {
+      messages.push(
+        `[NOT BASELINED] ${unrecorded.length} file(s) carry bare throws and have no baseline entry:\n` +
+          `${unrecorded.join("\n")}\n` +
+          "These are not regressions. A file absent from the baseline was never measured, " +
+          "and reporting it as an increase from zero invents a measurement nobody took.",
       );
     }
     if (slack.length > 0) {
