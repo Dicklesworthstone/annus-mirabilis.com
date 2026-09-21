@@ -1,7 +1,7 @@
 {
   "scripts/download-facsimiles.ts": 1,
   "scripts/sources/facsimileSourceSchema.ts": 2,
-  "scripts/sources/supersedePin.ts": 1,
+  "scripts/sources/supersedePin.ts": 0,
   "scripts/verify-facsimile-pins.ts": 0,
   "src/content/anchors.ts": 7,
   "src/content/checks/structural/structural.ts": 14,
