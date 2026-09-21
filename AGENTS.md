@@ -43,6 +43,36 @@ This explicitly includes pinned facsimile PDFs, reviewed ledgers, content record
 
 ---
 
+## Committing In A Shared Working Tree
+
+Several agents edit this one checkout at the same time. The index is shared, so
+a commit is not scoped by who wrote what — it is scoped by what is staged.
+
+1. **A pathspec limits files, not hunks.** `git commit -F msg -- <paths>` is
+   still required, and it is still not sufficient. If the file you name is
+   already dirty with a peer's uncommitted edits, those edits go into YOUR
+   commit under YOUR message. This has happened twice.
+2. **Read the file's diff before you stage it.** `git status <file>` and
+   `git diff <file>`. If it carries hunks you did not write, you have three
+   honest options, in order: commit only your own file(s) and leave that one
+   alone; hand your change to the pane that owns the file; or, if the change is
+   one or two lines, say so and let them carry it. Never stage a file whose
+   diff you have not read.
+3. **Do not repair a contaminated commit by reverting it.** Reverting deletes a
+   peer's work from HEAD to fix a commit message, which is a deletion-shaped
+   action on code that is not yours, and RULE 1 governs. Leave the commit,
+   report it to the orchestrator, and tell the owning pane so their next diff
+   does not surprise them. Wrong metadata is much cheaper than lost work.
+4. **Commit as soon as your unit verifies.** Work left staged or uncommitted in
+   a shared tree will eventually be swept into someone else's commit. Speed is
+   the mitigation, not care.
+5. **Gate, test, and validator changes commit alone.** A diff that touches a
+   ratchet, baseline, validator, or test helper never rides inside a feature
+   commit, because bundled gate changes are unreviewable and are the exact
+   shape a weakened gate hides in.
+
+---
+
 ## Branch Policy
 
 - The primary branch is `main`.
