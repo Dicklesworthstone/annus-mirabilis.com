@@ -46,6 +46,37 @@ export function setBilingualEditionTestOverride(fn: TestOverrideFn | null): void
  * Returns the loaded edition if content is present, or null if the paper's
  * source layers are in-preparation/empty.
  */
+/**
+ * A file sitting in `content/source-blocks/<paper>/` is not automatically a source block.
+ *
+ * The directory scan below admits every .json/.yaml/.yml file whose name does not begin
+ * with "manifest", and then accepted anything for which `typeof data === "object"`. In
+ * JavaScript an ARRAY satisfies that, so a YAML sequence in the same directory was pushed
+ * into `blocks` whole and the loader began returning a bilingual edition built from it.
+ *
+ * That is not hypothetical. `validateLedger` REQUIRES its warning allowlist at exactly
+ * `content/source-blocks/<slug>/ledger-allowlist.yaml`, so the moment ap-17-549 acquired
+ * one, the reader's bilingual face for brownian-motion was served a list of validator
+ * acknowledgements as though it were authored German source. Two components disagreed
+ * about what that directory means, and the disagreement reached a reader face.
+ *
+ * The test is a positive one on purpose. Adding "ledger-allowlist" to the name denylist
+ * beside "manifest" would fix this file and none of the next ones; a source block must
+ * look like a source block - a plain object carrying a string id - and anything else in
+ * the directory is somebody else's record.
+ */
+/** Applied to source blocks, translation units and gloss units: all three scanned the
+ * same way and accepted an array the same way. */
+function isSourceBlockShaped(data: unknown): boolean {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    !Array.isArray(data) &&
+    typeof (data as { id?: unknown }).id === "string" &&
+    (data as { id: string }).id.length > 0
+  );
+}
+
 export async function loadBilingualEdition(
   paperId: string,
   rootDir: string = process.cwd(),
@@ -129,7 +160,7 @@ export async function loadBilingualEdition(
         const data = file.endsWith(".json")
           ? JSON.parse(raw)
           : (parseYaml(raw) as Record<string, unknown>);
-        if (data && typeof data === "object") {
+        if (isSourceBlockShaped(data)) {
           blocks.push(data as SourceBlock);
         }
       }
@@ -149,7 +180,7 @@ export async function loadBilingualEdition(
       const data = file.endsWith(".json")
         ? JSON.parse(raw)
         : (parseYaml(raw) as Record<string, unknown>);
-      if (data && typeof data === "object") {
+      if (isSourceBlockShaped(data)) {
         units.push(data as TranslationUnit);
       }
     }
@@ -168,7 +199,7 @@ export async function loadBilingualEdition(
       const data = file.endsWith(".json")
         ? JSON.parse(raw)
         : (parseYaml(raw) as Record<string, unknown>);
-      if (data && typeof data === "object") {
+      if (isSourceBlockShaped(data)) {
         glossUnits.push(data as GlossUnit);
       }
     }
