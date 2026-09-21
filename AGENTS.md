@@ -66,7 +66,15 @@ a commit is not scoped by who wrote what — it is scoped by what is staged.
 4. **Commit as soon as your unit verifies.** Work left staged or uncommitted in
    a shared tree will eventually be swept into someone else's commit. Speed is
    the mitigation, not care.
-5. **Gate, test, and validator changes commit alone.** A diff that touches a
+5. **When your change and a peer's heavy edit share one file, ask the
+   orchestrator to sequence the commits.** Rules 1 and 2 have no good answer
+   here on their own: waiting means your verified work is swept into their
+   commit, and committing means you carry their work under your message. Both
+   branches lose, so do not choose between them silently. The orchestrator polls
+   every pane and can tell the peer to commit first and you to follow, which
+   costs one tick and yields two clean commits. Say which file and how many
+   lines are not yours.
+6. **Gate, test, and validator changes commit alone.** A diff that touches a
    ratchet, baseline, validator, or test helper never rides inside a feature
    commit, because bundled gate changes are unreviewable and are the exact
    shape a weakened gate hides in.
