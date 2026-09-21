@@ -1230,6 +1230,16 @@ html:is(
   user-select: none;
 }
 
+/* The German draft face's footnote block. The CONTAINER carries only the separation
+   from the preceding text: each .source-footnote below draws its own top rule, which is
+   the source-face convention and differs from .reader-footnotes, where the container
+   carries the rule and the items do not. Repeating border-top here would double the line
+   above the first footnote. Declared because GermanDraftFace.tsx shipped this class with
+   no rule at all from abb5de96 until now, on all three German draft pages. */
+.source-footnotes {
+  margin-top: 3rem;
+}
+
 .source-footnote {
   font-size: 0.9rem;
   color: var(--muted);
