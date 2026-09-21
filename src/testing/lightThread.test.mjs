@@ -173,5 +173,29 @@ test("bookmarks round-trip canonically and reject partial, duplicate, or hostile
   ];
   for (const query of queries)
     assert.equal(decodeLightThreadParameters(query).kind, "refused", query);
-  assert.throws(() => encodeLightThreadParameters({ ...defaults, beta: 1 }), RangeError);
+  // The encode guard refuses a CODED refusal now, not a bare RangeError. 0f54101b
+  // replaced `throw new RangeError(checked.reason)` with
+  // `throw new ExperimentRuntimeError("parameters-rejected", checked.reason,
+  // "light-thread")` under am-p465, which is the migration working: an untyped throw
+  // carrying only prose became one the coded-refusal scanner reads by construction.
+  //
+  // So this assertion is tightened rather than relaxed to fit. Asserting the class
+  // alone would pass for any coded refusal from anywhere in the file; it now requires
+  // the code, the experiment id, and the authored sentence, and would fail again if
+  // the throw regressed to a bare Error or lost its bound from the message.
+  assert.throws(
+    () => encodeLightThreadParameters({ ...defaults, beta: 1 }),
+    (error) => {
+      assert.equal(
+        error.name,
+        "ExperimentRuntimeError",
+        "the encode guard must throw a coded refusal",
+      );
+      assert.equal(error.code, "parameters-rejected");
+      assert.equal(error.experimentId, "light-thread");
+      assert.match(error.message, /between -0\.999999 and 0\.999999/);
+      assert.match(error.message, /admission bounds/);
+      return true;
+    },
+  );
 });
