@@ -50,6 +50,19 @@ $$
 --- REVIEWED TRANSCRIPTION PAGE 4 OF 12 ---
 [[ANNALEN-PAGE 552]]
 
+Wir denken uns nun eine in dem Volumen $V$ eingeschlossene Flüssigkeit; in dem Teilvolumen $V^*$ von $V$ mögen sich $n$ gelöste Moleküle bez. suspendierte Körper befinden, welche im Volumen $V^*$ durch eine semipermeabele Wand festgehalten seien; es werden hierdurch die Integrationsgrenzen des in den Ausdrücken für $S$ und $F$ auftretenden Integrales $B$ beeinflußt. Das Gesamtvolumen der gelösten Moleküle bez. suspendierten Körper sei klein gegen $V^*$. Dies System werde im Sinne der erwähnten Theorie durch die Zustandsvariabeln $p_1 \ldots p_l$ vollständig dargestellt.
+
+Wäre nun auch das molekulare Bild bis in alle Einzelheiten festgelegt, so böte doch die Ausrechnung des Integrales $B$ solche Schwierigkeiten, daß an eine exakte Berechnung von $F$ kaum gedacht werden könnte. Wir brauchen jedoch hier nur zu wissen, wie $F$ von der Größe des Volumens $V^*$ abhängt, in welchem alle gelösten Moleküle bez. suspendierten Körper (im folgenden kurz „Teilchen“ genannt) enthalten sind.
+
+Wir nennen $x_1, y_1, z_1$ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, $x_2, y_2, z_2$ die des zweiten etc., $x_n, y_n, z_n$ die des letzten Teilchens und geben für die Schwerpunkte der Teilchen die unendlich kleinen parallelepipedförmigen Gebiete $d x_1 d y_1 d z_1, d x_2 d y_2 d z_2 \ldots d x_n d y_n d z_n$, welche alle in $V^*$ gelegen seien. Gesucht sei der Wert des im Ausdruck für $B$ auftretenden Integrales mit der Beschränkung, daß die Teilchenschwerpunkte in den ihnen soeben zugewiesenen Gebieten liegen. Dies Integral läßt sich jedenfalls auf die Form
+$$
+d B = d x_1 d y_1 \ldots d z_n \cdot J
+$$
+bringen, wobei $J$ von $d x_1 d y_1$ etc., sowie von $V^*$, d. h. von der Lage der semipermeabeln Wand, unabhängig ist. $J$ ist aber auch unabhängig von der speziellen Wahl [[EM]]der Lagen[[/EM]] der Schwerpunktsgebiete und von dem Werte von $V^*$, wie sogleich gezeigt werden soll. Sei nämlich ein zweites System von unendlich kleinen Gebieten für die Teilchenschwerpunkte gegeben und bezeichnet durch $d x'_1 d y'_1 d z'_1, d x'_2 d y'_2 d z'_2 \ldots d x'_n d y'_n d z'_n$, welche Gebiete sich von den ursprünglich gegebenen nur durch ihre Lage, nicht aber durch ihre Größe unterscheiden mögen und ebenfalls alle in $V^*$ enthalten seien, so gilt analog:
+$$
+d B' = d x'_1 d y'_1 \ldots d z'_n \cdot J',
+$$
+
 --- REVIEWED TRANSCRIPTION PAGE 5 OF 12 ---
 [[ANNALEN-PAGE 553]]
 
