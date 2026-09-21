@@ -147,7 +147,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       expect(res.offset).toBe(10);
     });
 
-    test("invalid verifiedAnchor types reject with INVALID_CONFIG", () => {
+    test("invalid verifiedAnchor types reject with INVALID_CONFIG (facsimileSourceSchema.ts:518)", () => {
       // Non-integer parentPageIndex
       const res1 = validateFacsimileAnchor({
         ...validBaseConfig,
@@ -188,7 +188,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       expect(res.errors[0]).toContain("not contiguous at index 2");
     });
 
-    test("length mismatch between parentPageIndices and printed range refuses with FACSIMILE_PAGE_OFFSET_MISMATCH", () => {
+    test("length mismatch between parentPageIndices and printed range refuses with FACSIMILE_PAGE_OFFSET_MISMATCH (facsimileSourceSchema.ts:610)", () => {
       const cfg: FacsimileSourceConfig = {
         ...validBaseConfig,
         articlePages: {
@@ -203,7 +203,7 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       expect(res.errors[0]).toContain("length (2) does not match expected page count (3)");
     });
 
-    test("parentPageIndices starting at wrong offset refuses with FACSIMILE_PAGE_OFFSET_MISMATCH", () => {
+    test("parentPageIndices starting at wrong offset refuses with FACSIMILE_PAGE_OFFSET_MISMATCH (facsimileSourceSchema.ts:645)", () => {
       const cfg: FacsimileSourceConfig = {
         ...validBaseConfig,
         articlePages: {

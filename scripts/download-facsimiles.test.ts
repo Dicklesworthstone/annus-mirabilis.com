@@ -305,7 +305,7 @@ describe("8. Rights vocabulary refusals", () => {
     expect(res.refusalCode).toBe("reference-only-not-pinnable");
   });
 
-  test("scan-terms-restrict-redistribution with publish refuses with RIGHTS_VOCABULARY_INVALID", () => {
+  test("scan-terms-restrict-redistribution with publish refuses with RIGHTS_VOCABULARY_INVALID (facsimileSourceSchema.ts:272)", () => {
     const cfg = {
       ...baseConfig,
       rights: {
@@ -319,7 +319,7 @@ describe("8. Rights vocabulary refusals", () => {
     expect(res.refusalCode).toBe("rights-vocabulary-invalid");
   });
 
-  test("cloudProcessing with no cloudProcessingBasis refuses with RIGHTS_VOCABULARY_INVALID", () => {
+  test("cloudProcessing with no cloudProcessingBasis refuses with RIGHTS_VOCABULARY_INVALID (facsimileSourceSchema.ts:299)", () => {
     const cfg = {
       ...baseConfig,
       rights: {

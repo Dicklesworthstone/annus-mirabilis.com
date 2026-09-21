@@ -12,7 +12,7 @@
   "scripts/license-inventory/index.ts": 0,
   "scripts/license-inventory/logger.ts": 0,
   "scripts/lint-voice.ts": 1,
-  "scripts/sources/facsimileSourceSchema.ts": 15,
+  "scripts/sources/facsimileSourceSchema.ts": 1,
   "scripts/sources/supersedePin.ts": 4,
   "scripts/verify-facsimile-anchors.ts": 3,
   "scripts/verify-facsimile-pins.ts": 6,
