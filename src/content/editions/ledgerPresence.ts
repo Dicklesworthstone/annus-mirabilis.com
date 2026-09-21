@@ -195,7 +195,19 @@ export type TranslationCompleteness =
   | "complete"
   | "incomplete"
   | "not-applicable-no-ledger"
-  | "not-applicable-partial-ledger";
+  | "not-applicable-partial-ledger"
+  /**
+   * A ledger covers the paper, but no German alignable units have been counted, so there is
+   * nothing for a translation to be complete AGAINST.
+   *
+   * This used to answer "not-applicable-no-ledger", which made a production export state a
+   * falsehood: allPaperCoverage() calls coverageReport without germanUnitCount, so the count
+   * defaults to 0 and light-quanta, brownian-motion and mass-energy each reported ledger=complete
+   * beside translation=not-applicable-no-ledger. That is exactly the error the comment below
+   * forbids for the partial case - replacing one false statement with another - so it gets its own
+   * name for the same reason.
+   */
+  | "not-applicable-no-german-units";
 
 export function translationCompleteness(input: {
   ledger: LedgerPresence;
@@ -207,7 +219,7 @@ export function translationCompleteness(input: {
   // Reported under its own name: calling a partial ledger "no ledger" would replace one
   // false statement with another.
   if (input.ledger === "partial") return "not-applicable-partial-ledger";
-  if (input.germanAlignableCount === 0) return "not-applicable-no-ledger";
+  if (input.germanAlignableCount === 0) return "not-applicable-no-german-units";
   if (input.translationUnitCount >= input.germanAlignableCount && input.translationUnitCount > 0) {
     return "complete";
   }

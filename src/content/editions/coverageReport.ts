@@ -105,9 +105,13 @@ export function coverageReport(input: {
       note:
         completeness === "not-applicable-no-ledger"
           ? "Translation completeness is not applicable without a ledger."
-          : completeness === "complete"
-            ? "Every German alignable has an English unit."
-            : "Translation units are missing for some German alignables.",
+          : completeness === "not-applicable-partial-ledger"
+            ? "Translation completeness is not applicable while the ledger does not cover the paper."
+            : completeness === "not-applicable-no-german-units"
+              ? "Translation completeness is not applicable until German alignable units are counted; the ledger's own state is reported on its own row."
+              : completeness === "complete"
+                ? "Every German alignable has an English unit."
+                : "Translation units are missing for some German alignables.",
     },
     {
       layer: "alignment",
