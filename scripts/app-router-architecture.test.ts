@@ -12,6 +12,22 @@
  * - Added allowlist validation tests and structured evidence logging tests.
  */
 
+/**
+ * am-r3qt. Six refusal sites in the architecture gate were reported untested, and every
+ * one of them was already DRIVEN by a test in this file.
+ *
+ * They read as untested because `rule-2-second-app-root` has four sites and
+ * `rule-4-root-allowlist` two, and under the am-ksl3 ruling an uncited site sharing a
+ * code is never credited. Nothing here needed a new assertion: each of the six citations
+ * was established by planting one site and observing which single test went red, never by
+ * reading the test names and matching them up.
+ *
+ * That distinction matters more in this file than in most. This gate enforces AGENTS.md
+ * RULE 2, whose stated penalty is immediate instance termination, and a gate whose
+ * refusals are reported as undriven invites someone to "add coverage" by writing a second
+ * set of tests beside the ones that already work.
+ */
+
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -145,7 +161,7 @@ describe("App Router Architecture Gate", () => {
   });
 
   describe("Rule 2: Second App Router root and special files", () => {
-    it("rejects root-level app/page.tsx", () => {
+    it("rejects root-level app/page.tsx (app-router-architecture.ts:204)", () => {
       const entries: RepoEntry[] = [{ path: "app/page.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.ok(violations.length >= 1);
@@ -154,7 +170,7 @@ describe("App Router Architecture Gate", () => {
       );
     });
 
-    it("rejects src/other/layout.tsx", () => {
+    it("rejects src/other/layout.tsx (app-router-architecture.ts:217)", () => {
       const entries: RepoEntry[] = [{ path: "src/other/layout.tsx", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
@@ -171,7 +187,7 @@ describe("App Router Architecture Gate", () => {
       assert.equal(at(violations, 0).path, "src/reader/route.ts");
     });
 
-    it("rejects docs/site/next.config.mjs", () => {
+    it("rejects docs/site/next.config.mjs (app-router-architecture.ts:228)", () => {
       const entries: RepoEntry[] = [{ path: "docs/site/next.config.mjs", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
@@ -190,7 +206,7 @@ describe("App Router Architecture Gate", () => {
       assert.deepEqual(violations, []);
     });
 
-    it("rejects pages directory under ios/ (e.g. ios/App/pages/index.swift)", () => {
+    it("rejects pages directory under ios/ (e.g. ios/App/pages/index.swift) (app-router-architecture.ts:240)", () => {
       const entries: RepoEntry[] = [{ path: "ios/App/pages/index.swift", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
@@ -226,7 +242,7 @@ describe("App Router Architecture Gate", () => {
   });
 
   describe("Rule 4: Root allowlist", () => {
-    it("fails on unignored root scratch.ts", () => {
+    it("fails on unignored root scratch.ts (app-router-architecture.ts:277)", () => {
       const entries: RepoEntry[] = [{ path: "scratch.ts", kind: "file" }];
       const violations = checkArchitecture(entries, () => false, BASE_ALLOWLIST);
       assert.equal(violations.length, 1);
@@ -277,7 +293,7 @@ describe("App Router Architecture Gate", () => {
       assert.deepEqual(violationsAfter, []);
     });
 
-    it("handles root sources/ directory: passes when ignored, fails when not ignored", () => {
+    it("handles root sources/ directory: passes when ignored, fails when not ignored (app-router-architecture.ts:265)", () => {
       const entries: RepoEntry[] = [{ path: "sources", kind: "directory" }];
 
       // Ignored: passes

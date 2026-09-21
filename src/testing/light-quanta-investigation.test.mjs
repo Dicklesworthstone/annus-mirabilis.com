@@ -1,3 +1,38 @@
+/**
+ * THE THREE REFUSALS IN investigation.ts THAT ARE NOT PAID HERE, AND WHY NOT.
+ *
+ * Six coded refusal sites in src/discovery/lightQuanta/investigation.ts were owed. Three are
+ * now asserted by code below. The other three were each planted - their code renamed, the
+ * suites re-run - and each left all 44 tests green, so the next person to look will find them
+ * still owed and should not spend the afternoon rediscovering this. They are unreachable, and
+ * the reason is structural in each case rather than a gap in these tests:
+ *
+ *   investigation.ts:56  missing-output-contract
+ *     `existing()` is module-private and every one of its five call sites passes an id drawn
+ *     from the module's own constant arrays (ENTROPY_FIELDS, MATCH_FIELDS, PHOTO_FIELDS) or a
+ *     literal. It fires only if the module's tables disagree with each other, which no caller
+ *     can arrange. It guards a build-time invariant, not an input.
+ *
+ *   investigation.ts:201 publication-refused
+ *     Its predecessor at :193 is strictly stronger. equivalentPreparedResults requires equal
+ *     length and byte-equal non-value fields, so any prepared example that survives :193 is
+ *     field-for-field identical to the evaluated outputs bar values within 1e-12 - and publish()
+ *     denies on shape, unit, semanticKind and ownerId, none of which can still differ.
+ *
+ *   investigation.ts:212 publication-refused
+ *     `apply()` builds the publication from the store's own token. setup-change ALWAYS forks a
+ *     new runId and increments actionIndex (instanceStore.ts:285, :298), so `non-monotone-step`
+ *     cannot fire; issue() sets view.requested, so `no-request` cannot; the outputs carry the
+ *     module's own contracts, so the unit/kind/owner check cannot. Every denial channel is
+ *     closed by construction.
+ *
+ * Reaching any of these needs the source changed, not a test added. Writing a test that drove
+ * them by reaching inside the module would assert that the module can be broken, which is not
+ * what the refusal is for. Recorded rather than fabricated.
+ *
+ * This file is deliberately NOT reformatted: biome rewrites 113 of its pre-existing lines and
+ * would bury a forty-line change in a diff nobody can review.
+ */
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
@@ -28,6 +63,20 @@ const scalar = (rows, id) => {
   assert.equal(typeof r.value, "number"); return r.value;
 };
 const near = (x, y) => assert.ok(Math.abs(x-y) <= 1e-12*Math.max(Math.abs(x), Math.abs(y), 1e-300), `${x} != ${y}`);
+const refuses = (fn, code, site) => {
+  // Assert WHICH refusal fired, not merely that something threw. Every call below was a bare
+  // `assert.throws` before this helper, and a bare `assert.throws` is satisfied by any throw at
+  // all, including one from the wrong guard. Not hypothetical here: "perturbations refuse at
+  // widget limits" asserted a throw from a call that can refuse for two quite different
+  // reasons, so a typo in the `double-power` case label would have fallen through to the
+  // dispatch default and kept the test green under a name claiming the widget limit had held.
+  // Each site was established by planting its code and seeing which test reddened.
+  assert.throws(fn, err => {
+    assert.equal(err.name, "ExperimentRuntimeError", `${site}: ${err.name} is not a typed refusal`);
+    assert.equal(err.code, code, `${site}: refused with ${err.code}, not ${code}`);
+    return true;
+  }, `${site} did not refuse`);
+};
 const prepared = () => ({ modelId: LIGHT_INVESTIGATION_MODEL,
   constantSetId: LIGHT_INVESTIGATION_CONSTANTS, sourceDigest: `source:sha256:${"a".repeat(64)}`,
   parameters: DEFAULTS, results: results().map(encodeResult) });
@@ -119,14 +168,20 @@ test("photoelectric outputs are the existing owner outputs, not recomputed in th
 test("invalid edits cannot advance a request or replace accepted evidence", () => {
   const session=createLightInvestigationSession("invalid"), before=session.getSnapshot();
   for(const patch of [{frequency:NaN},{pointCount:1.5},{volumeRatio:2},{incidentPower:-1},{unknown:1}]) {
-    assert.equal(session.apply({...DEFAULTS,...patch}).kind,"refused");
+    const refusal = session.apply({...DEFAULTS,...patch});
+    assert.equal(refusal.kind,"refused");
+    // apply() catches the typed refusal and returns a message, so the code is asserted through
+    // the message it carries (investigation.ts:86). Without this, an unrelated throw inside
+    // apply's try block would reach the reader as a rejected edit.
+    assert.match(refusal.message,/\(parameters-rejected\)$/,JSON.stringify(patch));
     assert.equal(session.getSnapshot(),before);
   }
 });
 test("accessor properties never execute at the input boundary", () => {
   let reads=0; const bad={...DEFAULTS};
   Object.defineProperty(bad,"frequency",{enumerable:true,get(){reads++;return DEFAULTS.frequency;}});
-  assert.throws(()=>validateLightInvestigation(bad)); assert.equal(reads,0);
+  refuses(()=>validateLightInvestigation(bad),"parameters-rejected","investigation.ts:86");
+  assert.equal(reads,0);
 });
 test("atomic publications and comparison metadata identify every changed field", () => {
   const session=createLightInvestigationSession("changes"), before=session.getSnapshot().accepted;
@@ -147,9 +202,11 @@ test("two placements do not share state and retained baselines remain immutable"
 test("prepared examples reject changed models, output values, and invalid digests", () => {
   createLightInvestigationSession("prepared",prepared());
   for(const patch of [{modelId:"old"},{sourceDigest:"missing"},{results:[]}])
-    assert.throws(()=>createLightInvestigationSession("bad",{...prepared(),...patch}));
+    refuses(()=>createLightInvestigationSession("bad",{...prepared(),...patch}),
+      "prepared-example-mismatch","investigation.ts:193");
   const p=prepared(), edited=JSON.parse(p.results[0]);edited.value*=2;p.results[0]=JSON.stringify(edited);
-  assert.throws(()=>createLightInvestigationSession("changed",p));
+  refuses(()=>createLightInvestigationSession("changed",p),
+    "prepared-example-mismatch","investigation.ts:193");
 });
 test("prepared results preserve admitted server values within cross-engine rounding tolerance", () => {
   const p=prepared(), edited=JSON.parse(p.results[0]);edited.value*=1+Number.EPSILON;
@@ -158,8 +215,12 @@ test("prepared results preserve admitted server values within cross-engine round
   assert.equal(s.outputs[0].value,edited.value);
 });
 test("perturbations refuse at widget limits instead of silently clamping a comparison", () => {
-  assert.throws(()=>perturbInvestigation({...DEFAULTS,incidentPower:0.01},"double-power"));
-  assert.throws(()=>perturbInvestigation(DEFAULTS,"unknown"));
+  // These two refuse for DIFFERENT reasons and the distinction is the test's whole claim: the
+  // first must fail the widget limit after a real dispatch, the second must fail the dispatch.
+  refuses(()=>perturbInvestigation({...DEFAULTS,incidentPower:0.01},"double-power"),
+    "parameters-rejected","investigation.ts:86");
+  refuses(()=>perturbInvestigation(DEFAULTS,"unknown"),
+    "unknown-perturbation","investigation.ts:225");
 });
 test("generated static example covers the real owner graph and replays deterministically", async () => {
   const { prepareLightInvestigation, investigationSources } = await import("../../scripts/generate-light-quanta-investigation.mjs");
