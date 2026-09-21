@@ -683,32 +683,46 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       fs.writeFileSync(full, bytes);
     }
 
-    test("a config with no pinned artifact at all (verify-facsimile-pins.ts:700)", () => {
+    test("a config with no pinned artifact at all (verify-facsimile-pins.ts:859)", () => {
       const config = baseConfig();
       delete (config as { pinned?: unknown }).pinned;
-      assert.ok(codesFrom(config, tempRoot("no-pinned")).includes("pinned-pdf-unavailable"));
+      const root = tempRoot("no-pinned");
+      assert.ok(codesFrom(config, root).includes("pinned-pdf-unavailable"));
+      // The code alone does not identify the site: :894 emits it too. Asserting THIS site's
+      // message is what makes the citation above a claim about one line rather than two.
+      const mine = verifyPin(config, root).findings.filter(
+        (f) => f.code === "pinned-pdf-unavailable",
+      );
+      assert.equal(mine.length, 1);
+      assert.match(String(mine[0]?.message), /records no pinned artifact/);
     });
 
-    test("a pinned artifact with no parent record (verify-facsimile-pins.ts:708)", () => {
+    test("a pinned artifact with no parent record (verify-facsimile-pins.ts:867)", () => {
       const config = baseConfig();
       delete ((config as { pinned: Record<string, unknown> }).pinned as { parent?: unknown })
         .parent;
       assert.ok(codesFrom(config, tempRoot("no-parent-record")).includes("parent-record-missing"));
     });
 
-    test("a config declaring no printed range or parent page indices (verify-facsimile-pins.ts:723)", () => {
+    test("a config declaring no printed range or parent page indices (verify-facsimile-pins.ts:882)", () => {
       const config = baseConfig({ articlePages: {} });
       assert.ok(codesFrom(config, tempRoot("no-range")).includes("invalid-config"));
     });
 
-    test("a pinned PDF that is not on disk (verify-facsimile-pins.ts:735)", () => {
+    test("a pinned PDF that is not on disk (verify-facsimile-pins.ts:894)", () => {
       // The temp root is empty, so the recorded path resolves to nothing.
-      assert.ok(
-        codesFrom(baseConfig(), tempRoot("absent-extract")).includes("pinned-pdf-unavailable"),
+      const root = tempRoot("absent-extract");
+      assert.ok(codesFrom(baseConfig(), root).includes("pinned-pdf-unavailable"));
+      // Same code as :859, so the message is the identity. Without this the test passes when the
+      // no-record site fires instead, which is the state it is meant to distinguish from.
+      const mine = verifyPin(baseConfig(), root).findings.filter(
+        (f) => f.code === "pinned-pdf-unavailable",
       );
+      assert.equal(mine.length, 1);
+      assert.match(String(mine[0]?.message), /is not on disk/);
     });
 
-    test("a parent scan that is not on disk (verify-facsimile-pins.ts:742)", () => {
+    test("a parent scan that is not on disk (verify-facsimile-pins.ts:901)", () => {
       // The extract exists and the parent does not: this is the CI condition, and it
       // must name the parent rather than the extract.
       const root = tempRoot("absent-parent");
@@ -721,7 +735,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       );
     });
 
-    test("a pinned PDF whose bytes are not the recorded digest (verify-facsimile-pins.ts:762)", {
+    test("a pinned PDF whose bytes are not the recorded digest (verify-facsimile-pins.ts:921)", {
       skip: toolGated,
     }, () => {
       const root = tempRoot("extract-digest");
@@ -730,7 +744,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.ok(codesFrom(baseConfig(), root).includes("pinned-digest-conflict"));
     });
 
-    test("a parent scan whose bytes are not the recorded digest (verify-facsimile-pins.ts:772)", {
+    test("a parent scan whose bytes are not the recorded digest (verify-facsimile-pins.ts:931)", {
       skip: toolGated,
     }, () => {
       // The extract's digest is made to match so the parent is the only conflict left,
@@ -1232,5 +1246,185 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.equal(report.valid, true);
       assert.equal(report.refusedCount, 0);
     });
+  });
+});
+
+/**
+ * The six sites in this file that survived deletion (am-r3qt / the owed queue).
+ *
+ * Four of them were already DRIVEN and simply not distinguishable. evaluateContentIdentity emits
+ * stale-pinned-extract from two sites and the existing fixtures trip both at once, asserting
+ * `findings.length === 2`; verifyPin emits pinned-pdf-unavailable from two sites. Under am-ksl3 an
+ * uncited site sharing a code with another is never credited, and rightly: a test that fires both
+ * cannot tell you which one it proves. Each arm below isolates ONE site by making the other
+ * condition hold.
+ */
+describe("the six undriven refusal sites", () => {
+  const hashes = {
+    a: "a".repeat(64),
+    b: "b".repeat(64),
+    c: "c".repeat(64),
+  };
+
+  test("(verify-facsimile-pins.ts:277) only the FIRST page differs, so only the first site speaks", () => {
+    const findings = evaluateContentIdentity({
+      key: "ap-99-001",
+      declaredFirstIndex: 83,
+      declaredLastIndex: 99,
+      extractFirstHash: hashes.a,
+      parentFirstHash: hashes.b, // differs -> site 277
+      extractLastHash: hashes.c,
+      parentLastHash: hashes.c, // identical -> site 289 stays silent
+      extractImpliedFirstIndex: null,
+    });
+
+    assert.equal(findings.length, 1);
+    assert.equal(findings[0]?.code, "stale-pinned-extract");
+    assert.match(String(findings[0]?.message), /first page does not render identically/);
+    assert.match(String(findings[0]?.message), /parent page 83/);
+  });
+
+  test("(verify-facsimile-pins.ts:289) only the LAST page differs, so only the second site speaks", () => {
+    const findings = evaluateContentIdentity({
+      key: "ap-99-001",
+      declaredFirstIndex: 83,
+      declaredLastIndex: 99,
+      extractFirstHash: hashes.a,
+      parentFirstHash: hashes.a, // identical -> site 277 stays silent
+      extractLastHash: hashes.b,
+      parentLastHash: hashes.c, // differs -> site 289
+      extractImpliedFirstIndex: null,
+    });
+
+    assert.equal(findings.length, 1);
+    assert.equal(findings[0]?.code, "stale-pinned-extract");
+    assert.match(String(findings[0]?.message), /last page does not render identically/);
+    assert.match(String(findings[0]?.message), /parent page 99/);
+
+    // And both identical is silent, so the pair above is about the hashes and not the shape.
+    assert.equal(
+      evaluateContentIdentity({
+        key: "ap-99-001",
+        declaredFirstIndex: 83,
+        declaredLastIndex: 99,
+        extractFirstHash: hashes.a,
+        parentFirstHash: hashes.a,
+        extractLastHash: hashes.c,
+        parentLastHash: hashes.c,
+        extractImpliedFirstIndex: null,
+      }).length,
+      0,
+    );
+  });
+
+  test("(verify-facsimile-pins.ts:387) the parent's own text layer contradicts the declared first index", () => {
+    // 200 folio observations at a uniform offset of 9 put printed page 1 at parent page 10. The
+    // config declares 11, so the parent's own text layer and the config disagree about where the
+    // same printed page is. The vote count has to clear extractVoteFloor or the consensus is
+    // unavailable and this site never runs - which is what my first version of this test hit.
+    const result = evaluateFolioCoverage({
+      key: "ap-99-001",
+      printedFirst: 1,
+      printedLast: 4,
+      declaredFirstIndex: 11,
+      // The LAST index is deliberately correct (printed 4 at offset 9 is parent 13). There is a
+      // sibling site for the last index sharing this code; leaving it wrong fires both and the
+      // pair proves neither.
+      declaredLastIndex: 13,
+      parentPageCount: 400,
+      observations: parentVoting(9, 1, 200),
+    });
+
+    assert.equal(result.consensus?.offset, 9);
+    assert.equal(result.folioImpliedFirstIndex, 10);
+    const mine = result.findings.filter((f) => f.code === "parent-folio-offset-mismatch");
+    assert.equal(mine.length, 1, `got ${result.findings.map((f) => f.code).join(", ")}`);
+    assert.match(String(mine[0]?.message), /declared first parent index 11/);
+    assert.match(String(mine[0]?.message), /parent page 10/);
+
+    // Declaring the index the folios imply is silent, so this site compares the two rather than
+    // objecting to the presence of observations at all.
+    const agreeing = evaluateFolioCoverage({
+      key: "ap-99-001",
+      printedFirst: 1,
+      printedLast: 4,
+      declaredFirstIndex: 10,
+      declaredLastIndex: 13,
+      parentPageCount: 400,
+      observations: parentVoting(9, 1, 200),
+    });
+    assert.equal(
+      agreeing.findings.some((f) => f.code === "parent-folio-offset-mismatch"),
+      false,
+    );
+  });
+
+  test("(verify-facsimile-pins.ts:637) a tool that exists but cannot be started is NOT reported as missing", () => {
+    // A real EACCES, not a mock: a file that exists and is not executable. The distinction this
+    // site exists for is that "the tool is absent" and "this process could not launch it" are
+    // different facts, and only the first is evidence about the host's toolchain.
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "am-r3qt-notexec-"));
+    const tool = path.join(dir, "pretend-pdftoppm");
+    fs.writeFileSync(tool, "#!/bin/sh\necho hi\n", { mode: 0o644 });
+    assert.equal(spawnSync(tool, ["-v"], { encoding: "utf8" }).error?.code, "EACCES");
+
+    assert.throws(
+      () => requireTool(tool),
+      (err: unknown) =>
+        err instanceof PinMeasurementError &&
+        err.code === "render-tool-spawn-failed" &&
+        /could not be started/.test(err.message) &&
+        /NOT evidence that the tool is missing/.test(err.message),
+    );
+
+    // The sibling site: a path that does not exist at all IS the missing-tool refusal.
+    assert.throws(
+      () => requireTool(path.join(dir, "no-such-tool-at-all")),
+      (err: unknown) =>
+        err instanceof PinMeasurementError && err.code === "render-tool-unavailable",
+    );
+  });
+
+  test("(verify-facsimile-pins.ts:859) a config with no pinned record has nothing to verify", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "am-r3qt-nopin-"));
+    const result = verifyPin(
+      {
+        key: "ap-99-001",
+        articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [10, 11] },
+      },
+      root,
+    );
+    const mine = result.findings.filter((f) => f.code === "pinned-pdf-unavailable");
+    assert.equal(mine.length, 1, `got ${result.findings.map((f) => f.code).join(", ")}`);
+    assert.match(String(mine[0]?.message), /records no pinned artifact/);
+  });
+
+  test("(verify-facsimile-pins.ts:894) a pinned record whose PDF is not on disk names the path", () => {
+    // Distinguished from :859 by the message, because the two sites share a code: this one has a
+    // pinned record and the file is missing, that one has no record at all.
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "am-r3qt-nofile-"));
+    const result = verifyPin(
+      {
+        key: "ap-99-001",
+        articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [10, 11] },
+        verifiedAnchor: { parentPageIndex: 10, printedPage: 1, verifiedBy: "test-fixture" },
+        pinned: {
+          path: "public/papers/pdfs/ap-99-001.pdf",
+          sha256: "a".repeat(64),
+          pageCount: 2,
+          parent: { path: "sources/parents/ap-99-001-parent.pdf", sha256: "b".repeat(64) },
+        },
+      },
+      root,
+    );
+    const mine = result.findings.filter((f) => f.code === "pinned-pdf-unavailable");
+    assert.equal(mine.length, 1, `got ${result.findings.map((f) => f.code).join(", ")}`);
+    assert.match(String(mine[0]?.message), /is not on disk/);
+    assert.match(String(mine[0]?.message), /ap-99-001\.pdf/);
+    assert.equal(
+      /records no pinned artifact/.test(String(mine[0]?.message)),
+      false,
+      "this is the on-disk site, not the no-record one",
+    );
   });
 });
