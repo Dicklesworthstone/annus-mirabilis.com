@@ -183,10 +183,13 @@ describe("Worker protocol provenance refusal sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 5: (provenance.ts:249) unadmitted-digest return type union
-  // Site 6: (provenance.ts:258) unadmitted-digest in validateProvenanceRecord
+  // Site 5: (provenance.ts:271) unadmitted-digest return type union
+  // Site 6: (provenance.ts:263) unadmitted-digest in validateProvenanceRecord is NOT driven
+  //         from this file. It is driven by protocol.provenance.test.ts's "malformed
+  //         provenance refuses rather than throwing" pair, which now carries the citation.
+  //         Measured by planting: renaming :263's code reddens those two tests and no test here.
   // ==========================================================================
-  test("site (provenance.ts:249) unadmitted-digest: return type and validation rejection on unadmitted WASM digest", () => {
+  test("site (provenance.ts:271) unadmitted-digest: return type and validation rejection on unadmitted WASM digest", () => {
     registerAdmittedManifest(VALID_MANIFEST);
 
     // Accept case: valid frankensim provenance record
@@ -207,9 +210,9 @@ describe("Worker protocol provenance refusal sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 7: (provenance.ts:266) unadmitted-capability in validateProvenanceRecord
+  // Site 7: (provenance.ts:279) unadmitted-capability in validateProvenanceRecord
   // ==========================================================================
-  test("site (provenance.ts:266) unadmitted-capability: rejects frankensim provenance with unadmitted capabilityId, accepts admitted", () => {
+  test("site (provenance.ts:279) unadmitted-capability: rejects frankensim provenance with unadmitted capabilityId, accepts admitted", () => {
     registerAdmittedManifest(VALID_MANIFEST);
 
     // Accept case: capability admitted
@@ -230,9 +233,9 @@ describe("Worker protocol provenance refusal sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 8: (provenance.ts:278) unadmitted-evaluator for host-reference
+  // Site 8: (provenance.ts:291) unadmitted-evaluator for host-reference
   // ==========================================================================
-  test("site (provenance.ts:278) unadmitted-evaluator: rejects unadmitted host evaluator in validateProvenanceRecord, accepts admitted", () => {
+  test("site (provenance.ts:291) unadmitted-evaluator: rejects unadmitted host evaluator in validateProvenanceRecord, accepts admitted", () => {
     registerAdmittedEvaluators({ [TEST_EVALUATOR_ID]: TEST_EVALUATOR_HASH });
 
     // Accept case: admitted evaluator and matching hash
@@ -253,9 +256,9 @@ describe("Worker protocol provenance refusal sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 9: (provenance.ts:287) unadmitted-evaluator for unknown ownerKind
+  // Site 9: (provenance.ts:300) unadmitted-evaluator for unknown ownerKind
   // ==========================================================================
-  test("site (provenance.ts:287) unadmitted-evaluator: rejects unknown ownerKind in validateProvenanceRecord, accepts known kinds", () => {
+  test("site (provenance.ts:300) unadmitted-evaluator: rejects unknown ownerKind in validateProvenanceRecord, accepts known kinds", () => {
     registerAdmittedManifest(VALID_MANIFEST);
 
     // Accept cases: known ownerKind "frankensim" or "host-reference"

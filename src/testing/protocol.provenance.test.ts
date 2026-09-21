@@ -180,7 +180,7 @@ describe("malformed provenance refuses rather than throwing", () => {
     issuedActionIndices: new Set([1]),
   } as never;
 
-  it("an ownerKind of frankensim with no artifactDigest is a typed refusal", () => {
+  it("an ownerKind of frankensim with no artifactDigest is a typed refusal (provenance.ts:263)", () => {
     const result = decode(acceptedWith({ ownerKind: "frankensim" }), context);
     assert.equal(result.ok, false);
     if (result.ok) return;
