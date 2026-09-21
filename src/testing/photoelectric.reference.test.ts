@@ -1188,7 +1188,7 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
   });
 
   describe("photoelectric refusal throw sites (am-muyh)", () => {
-    it("refusal (photoelectric.ts:1271): nonfinite-frequency rejects non-finite frequency in fluorescenceBudget", () => {
+    it("refusal (photoelectric.ts:1283): nonfinite-frequency rejects non-finite frequency in fluorescenceBudget", () => {
       // Accept: finite frequency
       const accepted = fluorescenceBudget({ nu1: 850e12, nu2: 800e12, set });
       expect(accepted.status).toBe("value");
@@ -1199,7 +1199,7 @@ describe("Photoelectric Reference Evaluator (am-lq-08-photoelectric-va5a)", () =
       expect(rejected.refusalCode).toBe("nonfinite-frequency");
     });
 
-    it("refusal (photoelectric.ts:1291): nonpositive-frequency rejects non-positive frequency in fluorescenceBudget", () => {
+    it("refusal (photoelectric.ts:1303): nonpositive-frequency rejects non-positive frequency in fluorescenceBudget", () => {
       // Accept: positive frequency
       const accepted = fluorescenceBudget({ nu1: 850e12, nu2: 800e12, set });
       expect(accepted.status).toBe("value");
