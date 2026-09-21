@@ -1,10 +1,16 @@
 import { loadPaper } from "../content/server.ts";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
+import { FacsimilePanel } from "./facsimile/FacsimilePanel.tsx";
+import { loadFacsimileDocument } from "./facsimile/server.ts";
 import { FACE_FALLBACK_IDS, type FaceFallbackId, faceLinkHref, paperPath } from "./paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
 import "./reader.css";
 
 const SOURCE_FACES = new Set<FaceId>(["german", "english", "gloss", "parallel", "facsimile"]);
+
+export interface FaceFallbackOptions {
+  readonly facsimileLoader?: typeof loadFacsimileDocument;
+}
 
 export async function FaceFallback({
   paperId,
@@ -14,12 +20,16 @@ export async function FaceFallback({
   paperId: string;
   section?: string;
   face: FaceFallbackId;
-}) {
+}, options: FaceFallbackOptions = {}) {
   const payload = await loadPaper(paperId);
   const { paper } = payload;
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   const label = FACE_REGISTRY[face].label;
+  // Only the explicit source face reads the PDF; ordinary reading remains static and light.
+  const facsimile = face === "facsimile"
+    ? await (options.facsimileLoader ?? loadFacsimileDocument)(paperId, paper.citation)
+    : null;
   return (
     <div data-reader-root data-ready="true" data-view={face} className="reader-root">
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
@@ -31,7 +41,11 @@ export async function FaceFallback({
         <h1>{section ? sections[0]?.title : paper.title}</h1>
         <p className="lead">{paper.description}</p>
         <p className="notice" data-source-status>
-          {paper.sourceNotice}
+          {face === "facsimile"
+            ? facsimile?.kind === "available"
+              ? "This is the pinned original journal scan. A scan is not this edition’s transcription or translation, and does not certify their review status."
+              : "The source scan is unavailable in this build. The explanation remains readable, but does not stand in for the original."
+            : paper.sourceNotice}
         </p>
       </header>
       <nav className="reader-controls" aria-label="Reading face">
@@ -49,6 +63,15 @@ export async function FaceFallback({
           </a>
         ))}
       </nav>
+      {facsimile?.kind === "available" && (
+        <FacsimilePanel
+          document={facsimile.document}
+          title={paper.germanTitle ?? paper.title}
+          faceHref={faceLinkHref(paperId, "facsimile", section)}
+          explanationHref={paperPath(paperId, section)}
+          section={section}
+        />
+      )}
       {face === "split" ? (
         <div className="reader-split" data-split="">
           <div
@@ -91,11 +114,13 @@ export async function FaceFallback({
           ))}
         </div>
       ) : null}
-      {SOURCE_FACES.has(face) ? (
+      {SOURCE_FACES.has(face) && facsimile?.kind !== "available" ? (
         <div data-face-source>
-          <p className="notice">
-            The {label.toLowerCase()} for this paper is not yet available. The explanation does not
-            stand in for that source layer.
+          <p className="notice" {...(facsimile?.kind === "unavailable" ? { "data-refusal-code": facsimile.code } : {})}>
+            {facsimile?.kind === "unavailable"
+              ? facsimile.message
+              : <>The {label.toLowerCase()} for this paper is not yet available. The explanation does not
+                stand in for that source layer.</>}
           </p>
           <p>
             <a href={paperPath(paperId, section)}>Read the explanation instead →</a>
