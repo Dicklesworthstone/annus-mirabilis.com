@@ -1423,7 +1423,27 @@ export async function main(
         console.error(`❌ ${k}: MISSING file at ${r.path}`);
       }
     }
+    // What this gate's green does NOT cover, stated by the gate itself (am-xoxn).
+    // A digest check proves the bytes are the ones recorded, not that the recorded
+    // bytes are the right pages: --verify was green all night while three pins served
+    // the wrong article - ap-17-549 page 1 was L. Hermann on Leyden jars. Reading a
+    // pinned extract's own text layer would catch that and needs no parent scan, but
+    // it runs pdftotext, which is on the OCR denylist, so it waits on that ruling
+    // rather than being smuggled into CI. The parent-scan comparison that also catches
+    // it lives in facsimile-pins, which is requiredInCi false because /sources is
+    // git-ignored.
+    console.log(
+      "\nWhat a green here does NOT mean: a digest check proves the bytes are the ones " +
+        "recorded, not that the recorded bytes are the right pages. --verify was green " +
+        "all night while three pins served the wrong article. Parent-scan comparison is " +
+        "in facsimile-pins (requiredInCi false, needs the git-ignored /sources); the " +
+        "text-layer folio check is blocked on the pdftotext denylist ruling.",
+    );
     if (!allOk) {
+      console.error(
+        "A digest mismatch means the file on disk is not the file that was pinned. " +
+          "Do not repin to make this pass: establish which of the two is wrong first.",
+      );
       return finish(2);
     }
     return finish(0);

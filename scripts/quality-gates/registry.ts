@@ -395,6 +395,25 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-src-receipt-format-npo5",
   },
   {
+    id: "facsimile-digests",
+    title: "Pinned facsimile bytes match their recorded digests",
+    command: ["bun", "scripts/download-facsimiles.ts", "--verify"],
+    family: "fast",
+    cadence: "every-run",
+    // Runnable in CI because it needs only ONE side of the comparison. The pinned
+    // extracts are tracked; only the parent scans are git-ignored, and a missing
+    // parent is reported not-available rather than failing unless --require-local is
+    // passed, which it is not. Before this, three facsimile gates were required in CI
+    // and NONE of them read a pinned PDF: a green certified that the configs agreed
+    // with each other (am-xoxn).
+    requiredInCi: true,
+    requiredInProfiles: ["preview", "launch"],
+    availability: {
+      scriptPath: "scripts/download-facsimiles.ts",
+    },
+    owner: "am-xoxn",
+  },
+  {
     id: "facsimile-config",
     title: "Facsimile scan configuration check",
     command: ["bun", "scripts/download-facsimiles.ts", "--check-config"],
