@@ -21,14 +21,14 @@
  *    - (structural.ts:563) argument cross-paper reference unresolved
  * 3. broken-alignment (5 sites):
  *    - (structural.ts:737) German sentence without alignment edge
- *    - (structural.ts:759) German block-level alignable unit without alignment edge
- *    - (structural.ts:773) English translation unit without incoming alignment edge
- *    - (structural.ts:800) Suffixed translation unit without sibling split unit
- *    - (structural.ts:809) Unsuffixed translation unit exists beside suffixed units
+ *    - (structural.ts:764) German block-level alignable unit without alignment edge
+ *    - (structural.ts:778) English translation unit without incoming alignment edge
+ *    - (structural.ts:805) Suffixed translation unit without sibling split unit
+ *    - (structural.ts:814) Unsuffixed translation unit exists beside suffixed units
  * 4. hero-quote-unresolved (1 site):
- *    - (structural.ts:1353) Hero quote text not matching anchor text
+ *    - (structural.ts:1358) Hero quote text not matching anchor text
  * 5. span-digest-mismatch (1 site):
- *    - (structural.ts:1529) Alignment edge target translation unit digest mismatch
+ *    - (structural.ts:1534) Alignment edge target translation unit digest mismatch
  *
  * Each test cites its explicit throw site (structural.ts:<line>) and provides both an accept
  * path and a reject path exercising the exact structural boundary condition.
@@ -508,7 +508,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:759) broken-alignment rejects German block-level alignable unit with no alignment edge, accepts aligned block", () => {
+  test("checkBrokenAlignment: (structural.ts:764) broken-alignment rejects German block-level alignable unit with no alignment edge, accepts aligned block", () => {
     // Reject: German heading s1-h1 has no alignment edge
     const reject = createMockContext({
       s1h1: {
@@ -554,7 +554,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:773) broken-alignment rejects English translation unit with no incoming alignment edge, accepts targeted translation unit", () => {
+  test("checkBrokenAlignment: (structural.ts:778) broken-alignment rejects English translation unit with no incoming alignment edge, accepts targeted translation unit", () => {
     // Reject: tu-2 has no incoming alignment edge
     const reject = createMockContext({
       s1p1: {
@@ -621,7 +621,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:800) broken-alignment rejects suffixed translation unit with no sibling split unit, accepts paired split units", () => {
+  test("checkBrokenAlignment: (structural.ts:805) broken-alignment rejects suffixed translation unit with no sibling split unit, accepts paired split units", () => {
     // Reject: s3-p2-s1a exists without sibling split unit (only 1 suffix)
     const reject = createMockContext({
       s3p2s1: {
@@ -692,7 +692,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:809) broken-alignment rejects unsuffixed translation unit existing beside suffixed units, accepts isolated splits", () => {
+  test("checkBrokenAlignment: (structural.ts:814) broken-alignment rejects unsuffixed translation unit existing beside suffixed units, accepts isolated splits", () => {
     // Reject: unsuffixed s3-p2-s1 exists beside suffixed units s3-p2-s1a and s3-p2-s1b
     const reject = createMockContext({
       s3p2s1Block: {
@@ -783,7 +783,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
 });
 
 describe("checkHeroQuoteUnresolved Refusals (structural.ts)", () => {
-  test("checkHeroQuoteUnresolved: (structural.ts:1353) hero-quote-unresolved rejects quote text not resolving exactly at anchor, accepts matching text", () => {
+  test("checkHeroQuoteUnresolved: (structural.ts:1358) hero-quote-unresolved rejects quote text not resolving exactly at anchor, accepts matching text", () => {
     // Reject: hero quote text does not resolve exactly at anchor s1-p1
     const reject = createMockContext({
       s1p1: {
@@ -831,7 +831,7 @@ describe("checkHeroQuoteUnresolved Refusals (structural.ts)", () => {
 });
 
 describe("checkSpanDigestMismatch Refusals (structural.ts)", () => {
-  test("checkSpanDigestMismatch: (structural.ts:1529) span-digest-mismatch rejects alignment edge target translation unit digest mismatch, accepts matching digest", () => {
+  test("checkSpanDigestMismatch: (structural.ts:1534) span-digest-mismatch rejects alignment edge target translation unit digest mismatch, accepts matching digest", () => {
     const tuContent = "English translation text for digest check.";
     const validDigest = spanTextDigest(tuContent);
 

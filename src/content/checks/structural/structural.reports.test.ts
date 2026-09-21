@@ -55,7 +55,7 @@ function expectSite(reports: CheckReportItem[], path: string, messageOpening: st
 }
 
 describe("duplicate-id: the source-block site, not the twelve that already had tests", () => {
-  test("(structural.ts:155) two source blocks share an id inside one paper", () => {
+  test("(structural.ts:156) two source blocks share an id inside one paper", () => {
     const records = {
       a: { kind: "source-block", id: "s1-p1", paper: "brownian-motion", file: "a.json" },
       b: { kind: "source-block", id: "s1-p1", paper: "brownian-motion", file: "b.json" },
@@ -73,7 +73,7 @@ describe("duplicate-id: the source-block site, not the twelve that already had t
 });
 
 describe("missing-source-block: the two sites that were not driven", () => {
-  test("(structural.ts:405) a paper's orderedBlockIds names a block that does not exist", () => {
+  test("(structural.ts:406) a paper's orderedBlockIds names a block that does not exist", () => {
     const records = {
       p: {
         kind: "paper",
@@ -95,7 +95,7 @@ describe("missing-source-block: the two sites that were not driven", () => {
     expect(run(checkMissingSourceBlock, complete)).toHaveLength(0);
   });
 
-  test("(structural.ts:471) an alignment edge points at a source block that does not exist", () => {
+  test("(structural.ts:472) an alignment edge points at a source block that does not exist", () => {
     const records = {
       b: { kind: "source-block", id: "s1-p1", paper: "brownian-motion" },
       al: {
@@ -145,7 +145,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     text: "In this paper it will be shown.",
   };
 
-  test("(structural.ts:665) an edge names a sentence that is not a span of its own block", () => {
+  test("(structural.ts:666) an edge names a sentence that is not a span of its own block", () => {
     const records = {
       b: block,
       t: tu,
@@ -168,7 +168,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     );
   });
 
-  test("(structural.ts:698) an edge targets a translation unit that is missing in its paper", () => {
+  test("(structural.ts:699) an edge targets a translation unit that is missing in its paper", () => {
     const records = {
       b: block,
       t: tu,
@@ -191,7 +191,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     );
   });
 
-  test("(structural.ts:713) an edge's target range runs past the end of the translation text", () => {
+  test("(structural.ts:714) an edge's target range runs past the end of the translation text", () => {
     const makeRecords = (range: { start: number; end: number }) => ({
       b: block,
       t: tu,
@@ -224,7 +224,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
   const dateLine = d("date-line", "1905-05-01");
   const received = d("received", "1905-05-11");
 
-  test("(structural.ts:1028) received is strictly after issue publication", () => {
+  test("(structural.ts:1029) received is strictly after issue publication", () => {
     const records = {
       p: {
         kind: "paper",
@@ -250,7 +250,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
     expect(run(checkImpossibleDateOrder, ordered)).toHaveLength(0);
   });
 
-  test("(structural.ts:1045) issue publication is strictly after a later edition", () => {
+  test("(structural.ts:1046) issue publication is strictly after a later edition", () => {
     const records = {
       p: {
         kind: "paper",
@@ -276,7 +276,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
 });
 
 describe("the four single sites", () => {
-  test("(structural.ts:1141) germanLatex and englishLatex differ byte for byte", () => {
+  test("(structural.ts:1142) germanLatex and englishLatex differ byte for byte", () => {
     const records = {
       e: {
         kind: "equation",
@@ -306,7 +306,7 @@ describe("the four single sites", () => {
     expect(run(checkEquationNotIdentical, identical)).toHaveLength(0);
   });
 
-  test("(structural.ts:1235) a paper is complete while one of its blocks is still a draft", () => {
+  test("(structural.ts:1236) a paper is complete while one of its blocks is still a draft", () => {
     const records = {
       p: { kind: "paper", id: "brownian-motion", status: "complete" },
       b: {
@@ -352,7 +352,7 @@ describe("the four single sites", () => {
     expect(run(checkCompleteWhileMissing, inProgress)).toHaveLength(0);
   });
 
-  test("(structural.ts:1320) a hero quote's anchor resolves to no edition record at all", () => {
+  test("(structural.ts:1321) a hero quote's anchor resolves to no edition record at all", () => {
     const records = {
       b: {
         kind: "source-block",
@@ -394,7 +394,7 @@ describe("the four single sites", () => {
     ).toHaveLength(0);
   });
 
-  test("(structural.ts:1498) an edge's SOURCE span digest disagrees with the block text", () => {
+  test("(structural.ts:1499) an edge's SOURCE span digest disagrees with the block text", () => {
     const text = "In dieser Arbeit soll gezeigt werden.";
     const records = {
       "s1-p1": { kind: "source-block", id: "s1-p1", paper: "brownian-motion", text },
@@ -441,5 +441,102 @@ describe("the four single sites", () => {
     expect(
       run(checkSpanDigestMismatch, good).filter((r) => r.path?.includes("edges[0].source.range")),
     ).toHaveLength(0);
+  });
+});
+
+/**
+ * The last two sites in this file, and the reason they are here rather than cited elsewhere.
+ *
+ * Planting each of the 45 sites in turn and running only the bun-lane tests left exactly these two
+ * green. They are driven today only by structural.e2e.test.ts, which reaches the checks through a
+ * spawned CLI and lives in the node lane - so until this week they were covered by a test that could
+ * not run at all, and a citation pointing at that file would have credited a gate nobody was
+ * executing. These drive them directly.
+ */
+describe("the two sites only the node-lane e2e reached", () => {
+  test("(structural.ts:178) two source blocks in one paper declare the same sentence span id", () => {
+    const records = {
+      a: {
+        kind: "source-block",
+        id: "s1-p1",
+        paper: "brownian-motion",
+        file: "a.json",
+        sentenceSpans: [{ id: "s1-p1-s1" }],
+      },
+      b: {
+        kind: "source-block",
+        id: "s1-p2",
+        paper: "brownian-motion",
+        file: "b.json",
+        sentenceSpans: [{ id: "s1-p1-s1" }],
+      },
+    };
+    expectSite(
+      run(checkDuplicateId, records),
+      "s1-p2.sentenceSpans.s1-p1-s1",
+      'Duplicate sentence span id "s1-p1-s1"',
+    );
+
+    // The block ids differ, so this is NOT the block-id site at :156. Sentence ids are a separate
+    // namespace inside the paper and this site is what keeps them one.
+    expect(
+      run(checkDuplicateId, records).filter((r) => r.message.includes("Duplicate source block id")),
+    ).toHaveLength(0);
+
+    // Distinct span ids in the same paper are silent, and the SAME span id in a different paper is
+    // legal, which is the per-paper scoping this site shares with its block-id sibling.
+    const distinct = {
+      a: { ...records.a },
+      b: { ...records.b, sentenceSpans: [{ id: "s1-p2-s1" }] },
+    };
+    expect(run(checkDuplicateId, distinct)).toHaveLength(0);
+    const otherPaper = {
+      a: { ...records.a },
+      b: { ...records.b, paper: "light-quanta" },
+    };
+    expect(run(checkDuplicateId, otherPaper)).toHaveLength(0);
+  });
+
+  test("(structural.ts:1179) an aligned English equation differs by bytes from its German block", () => {
+    const records = {
+      g: {
+        kind: "source-block",
+        id: "eq-1",
+        paper: "brownian-motion",
+        latex: "\\lambda_x = \\sqrt{2Dt}",
+      },
+      e: {
+        kind: "translation-unit",
+        id: "eq-1-en",
+        paper: "brownian-motion",
+        latex: "\\lambda_x = \\sqrt{2 D t}",
+      },
+      al: {
+        kind: "alignment",
+        id: "al-1",
+        paper: "brownian-motion",
+        edges: [{ source: { blockId: "eq-1" }, target: { translationUnitId: "eq-1-en" } }],
+      },
+    };
+    expectSite(
+      run(checkEquationNotIdentical, records),
+      "alignments.al-1.edges[0]",
+      'English translation equation block "eq-1-en" differs by bytes from aligned German block "eq-1"',
+    );
+
+    // NOT the site at :1142. That one compares germanLatex and englishLatex carried on ONE record;
+    // this one compares two records joined by an alignment edge. Neither record here has both
+    // fields, so only this site can be speaking.
+    expect(
+      run(checkEquationNotIdentical, records).filter((r) => r.path === "equations.eq-1"),
+    ).toHaveLength(0);
+
+    // Byte-identical across the edge is silent. Notation is not translated, so the English face
+    // carries the German bytes and the two spaces above are a real difference, not a formatting one.
+    const identical = {
+      ...records,
+      e: { ...records.e, latex: "\\lambda_x = \\sqrt{2Dt}" },
+    };
+    expect(run(checkEquationNotIdentical, identical)).toHaveLength(0);
   });
 });
