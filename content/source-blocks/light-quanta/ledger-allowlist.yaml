@@ -56,3 +56,11 @@
   reason: "Printed connective 'also' standing alone between the two display equations INSIDE footnote 1) on page 142, where Einstein derives p v = R (n/N) T from the entropy expression. Same class as the wobei/oder/wenn entries and the same reasoning, with one difference worth recording: it is reported as short-paragraph rather than short-line because a footnote's connective opens its own block, so a reviewer looking only for short-line will not find it."
   editor: "agent:LilacValley"
   date: "2026-09-21"
+
+- ledgerKey: ap-17-132
+  code: short-line
+  ledgerPage: 13
+  lineFingerprint: b81d9593a3f6c4f7
+  reason: "Printed connective 'oder' standing alone between the two forms of the Stokes-rule inequality on page 144 - the energy form and the frequency form it reduces to. Source text, same reasoning as the earlier entries. NOTE for whoever maintains this file: this fingerprint is byte-identical to the page 6 'oder' entry because computeLineFingerprint hashes the line TEXT alone, so ledgerPage is the only thing distinguishing the two entries; a one-word line's fingerprint pins what the line says and not which line it is."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
