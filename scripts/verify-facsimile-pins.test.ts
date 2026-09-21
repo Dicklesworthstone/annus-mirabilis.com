@@ -20,6 +20,7 @@ import {
   isUnmeasurable,
   locateExtractInParent,
   PinMeasurementError,
+  pdfPageCount,
   pdfPageTexts,
   renderPageHash,
   requireTool,
@@ -228,6 +229,40 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.notEqual(finding, undefined);
       assert.ok(finding?.message.includes("591-592"), `must contain ${String("591-592")}`);
       assert.ok(finding?.message.includes("207-445"), `must contain ${String("207-445")}`);
+    });
+
+    test("a declared LAST index that disagrees while the first agrees (verify-facsimile-pins.ts:400)", () => {
+      // The two parent-folio-offset-mismatch sites are separate arms and only one had a
+      // test. They differ in what a reader has to do about them: a wrong FIRST index means
+      // the window starts in the wrong place, and a wrong LAST index with a right first
+      // means the declared window is the wrong LENGTH - the config claims more or fewer
+      // printed pages than the article has. A config can have the second without the first,
+      // and until now that config passed this check.
+      //
+      // Measured numbers: ap-17-549's parent sits at offset MEASURED_OFFSET["ap-17-549"],
+      // and the article is printed 549-560. This declares the correct first index and a
+      // last index one page long, as a config that mis-transcribed 560 as 561 would.
+      const offset = MEASURED_OFFSET["ap-17-549"];
+      const result = evaluateFolioCoverage({
+        key: "planted-long-window",
+        printedFirst: 549,
+        printedLast: 560,
+        declaredFirstIndex: 549 + offset,
+        declaredLastIndex: 561 + offset,
+        parentPageCount: 700,
+        observations: parentVoting(offset, 540, 200),
+      });
+
+      const mismatches = result.findings.filter((f) => f.code === "parent-folio-offset-mismatch");
+      assert.equal(
+        mismatches.length,
+        1,
+        `only the last-index arm should fire; got ${mismatches.map((f) => f.message).join(" | ")}`,
+      );
+      // Named, so this cannot pass on the first-index arm's message if the arms are merged.
+      assert.match(mismatches[0]?.message ?? "", /declared last parent index/);
+      assert.ok((mismatches[0]?.message ?? "").includes(String(561 + offset)));
+      assert.ok((mismatches[0]?.message ?? "").includes(String(560 + offset)));
     });
 
     test("a missing anchor refuses instead of passing quietly", () => {
@@ -932,6 +967,215 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         source,
         /cannot tell a correct extract of the right pages from the WRONG VOLUME/,
       );
+    });
+  });
+
+  describe("5d. The measurement layer's own refusals (am-muyh)", () => {
+    // Seven refusals that only fire when poppler misbehaves or is handed something that is
+    // not a PDF. None had a test, so the gate's entire failure vocabulary for a broken
+    // runner was unexercised - which is how am-yf6h shipped a message asserting a cause it
+    // had never established. Each is reached here by producing the condition, not by
+    // mocking the function that reports it.
+    //
+    // The two spawn-failure arms manipulate PATH for the duration of one call, because
+    // renderPageHash and pdfPageTexts name their tools as bare words and resolve them
+    // through PATH. That is the only way to make a present-but-unrunnable tool, and it is
+    // the state am-yf6h was actually in.
+
+    const scratch = (name: string): string => {
+      const dir = path.join(REPO_ROOT, "artifacts", "test-tmp", "measurement-refusals", name);
+      fs.mkdirSync(dir, { recursive: true });
+      return dir;
+    };
+
+    /** A file that is unmistakably not a PDF, which is what poppler has to refuse. */
+    function notAPdf(name: string): string {
+      const file = path.join(scratch(name), "not-a-pdf.pdf");
+      fs.writeFileSync(file, "This is plain text with a .pdf extension.\n");
+      return file;
+    }
+
+    /**
+     * Runs `body` with PATH set to `dir` ALONE, and restores PATH however it ends.
+     *
+     * Prefixing is not enough and the first version of these arms did prefix. execvp
+     * treats a non-executable match as EACCES and KEEPS SEARCHING the rest of PATH, so
+     * the real /opt/homebrew/bin/pdftoppm ran anyway and the arms measured a render
+     * failure while claiming to measure a spawn failure. Replacing PATH is what makes the
+     * unrunnable file the only candidate.
+     */
+    function withOnlyPath<T>(dir: string, body: () => T): T {
+      const original = process.env.PATH;
+      process.env.PATH = dir;
+      try {
+        return body();
+      } finally {
+        process.env.PATH = original;
+      }
+    }
+
+    /** Asserts the call refuses with a typed code, and says what came back if it does not. */
+    function refusalFrom(run: () => unknown): PinMeasurementError {
+      try {
+        run();
+      } catch (error) {
+        assert.ok(
+          error instanceof PinMeasurementError,
+          `expected a typed PinMeasurementError, got ${String(error)}`,
+        );
+        return error;
+      }
+      throw new Error("the measurement succeeded where it was required to refuse");
+    }
+
+    test("pdfinfo refusing a file that is not a PDF (verify-facsimile-pins.ts:654)", () => {
+      const refusal = refusalFrom(() => pdfPageCount(notAPdf("pdfinfo-nonpdf")));
+      assert.equal(refusal.code, "page-render-failed");
+      assert.match(refusal.message, /pdfinfo failed/);
+    });
+
+    test("pdfinfo succeeding without reporting a page count (verify-facsimile-pins.ts:661)", () => {
+      // A separate arm from the one above and unreachable through a real pdfinfo, which
+      // always prints Pages: on success. A stub that exits 0 silently is the only way to
+      // produce it, and the arm exists because "exit 0" is not the same as "answered".
+      const dir = scratch("pdfinfo-silent");
+      const stub = path.join(dir, "pdfinfo");
+      fs.writeFileSync(stub, "#!/bin/sh\nexit 0\n", { mode: 0o755 });
+      const refusal = withOnlyPath(dir, () =>
+        refusalFrom(() => pdfPageCount(path.join(dir, "anything.pdf"))),
+      );
+      assert.equal(refusal.code, "page-render-failed");
+      assert.match(refusal.message, /did not report a page count/);
+    });
+
+    test("pdftoppm present but not runnable (verify-facsimile-pins.ts:693)", () => {
+      // Present and not executable: a spawn error that is NOT ENOENT. This is the state
+      // am-yf6h was in, and the refusal must not claim the tool is missing.
+      const dir = scratch("pdftoppm-unrunnable");
+      fs.writeFileSync(path.join(dir, "pdftoppm"), "#!/bin/sh\nexit 0\n", { mode: 0o644 });
+      const refusal = withOnlyPath(dir, () =>
+        refusalFrom(() => renderPageHash(path.join(dir, "anything.pdf"), 1)),
+      );
+      assert.equal(refusal.code, "render-tool-spawn-failed");
+      assert.ok(
+        !refusal.message.includes("not available on PATH"),
+        `an unrunnable tool is not a missing tool: ${refusal.message}`,
+      );
+    });
+
+    test("pdftoppm running and producing no page (verify-facsimile-pins.ts:699)", () => {
+      const refusal = refusalFrom(() => renderPageHash(notAPdf("pdftoppm-nonpdf"), 1));
+      assert.equal(refusal.code, "page-render-failed");
+      assert.match(refusal.message, /could not render page 1/);
+    });
+
+    test("pdftotext present but not runnable (verify-facsimile-pins.ts:722)", () => {
+      const dir = scratch("pdftotext-unrunnable");
+      fs.writeFileSync(path.join(dir, "pdftotext"), "#!/bin/sh\nexit 0\n", { mode: 0o644 });
+      const refusal = withOnlyPath(dir, () =>
+        refusalFrom(() => pdfPageTexts(path.join(dir, "anything.pdf"))),
+      );
+      assert.equal(refusal.code, "render-tool-spawn-failed");
+      assert.ok(!refusal.message.includes("not available on PATH"), refusal.message);
+    });
+
+    test("pdftotext refusing a file that is not a PDF (verify-facsimile-pins.ts:728)", () => {
+      const refusal = refusalFrom(() => pdfPageTexts(notAPdf("pdftotext-nonpdf")));
+      assert.equal(refusal.code, "page-render-failed");
+      assert.match(refusal.message, /pdftotext failed/);
+    });
+
+    test("a pinned PDF holding a different number of pages than the record says (verify-facsimile-pins.ts:943)", () => {
+      // A real PDF with correct digests and a wrong page count: the one artifact check
+      // that needs the tools AND a genuine file, so it could not be reached from the
+      // synthetic configs in 5b. ap-34-591 is used because it is the smallest pin.
+      const root = scratch("page-count");
+      const source = path.join(REPO_ROOT, "public", "papers", "pdfs", "ap-34-591.pdf");
+      const extract = path.join(root, "public", "papers", "pdfs", "ap-99-943.pdf");
+      const parent = path.join(root, "sources", "parents", "ap-99-943-parent.pdf");
+      fs.mkdirSync(path.dirname(extract), { recursive: true });
+      fs.mkdirSync(path.dirname(parent), { recursive: true });
+      fs.copyFileSync(source, extract);
+      fs.copyFileSync(source, parent);
+      const digest = createHash("sha256").update(fs.readFileSync(source)).digest("hex");
+      const truePages = pdfPageCount(extract);
+
+      const codes = verifyPin(
+        {
+          key: "ap-99-943",
+          articlePages: {
+            printedFirst: 1,
+            printedLast: truePages,
+            parentPageIndices: [1, truePages],
+          },
+          verifiedAnchor: { parentPageIndex: 1, printedPage: 1, verifiedBy: "test-fixture" },
+          pinned: {
+            path: "public/papers/pdfs/ap-99-943.pdf",
+            sha256: digest,
+            // The defect: the record claims more pages than the bytes hold.
+            pageCount: truePages + 5,
+            parent: { path: "sources/parents/ap-99-943-parent.pdf", sha256: digest },
+          },
+        },
+        root,
+      ).findings.map((finding) => finding.code);
+
+      assert.ok(codes.includes("pinned-page-count-mismatch"), codes.join(", "));
+      // Reachability, asserted: the digests must have PASSED, or this arm would be
+      // measuring a digest conflict and never reach the page-count check at all.
+      assert.ok(!codes.includes("pinned-digest-conflict"), codes.join(", "));
+      assert.ok(!codes.includes("parent-digest-conflict"), codes.join(", "));
+    });
+
+    test("a measurement that fails for a reason the gate has no code for (verify-facsimile-pins.ts:1009)", () => {
+      // The catch-all. Everything above produces a typed PinMeasurementError; this arm is
+      // what happens when something else throws inside the measurement block, and without
+      // it an unreadable file would surface as an untyped crash rather than a finding.
+      // An unreadable extract does it: the file exists, so the availability check passes,
+      // and reading it for a digest raises EACCES, which is a plain Error.
+      const root = scratch("unreadable");
+      const extract = path.join(root, "public", "papers", "pdfs", "ap-99-1009.pdf");
+      const parent = path.join(root, "sources", "parents", "ap-99-1009-parent.pdf");
+      fs.mkdirSync(path.dirname(extract), { recursive: true });
+      fs.mkdirSync(path.dirname(parent), { recursive: true });
+      fs.writeFileSync(extract, "%PDF-1.4\n");
+      fs.writeFileSync(parent, "%PDF-1.4\n");
+      fs.chmodSync(extract, 0o000);
+
+      const findings = verifyPin(
+        {
+          key: "ap-99-1009",
+          articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [1, 2] },
+          verifiedAnchor: { parentPageIndex: 1, printedPage: 1, verifiedBy: "test-fixture" },
+          pinned: {
+            path: "public/papers/pdfs/ap-99-1009.pdf",
+            sha256: "d".repeat(64),
+            pageCount: 2,
+            parent: { path: "sources/parents/ap-99-1009-parent.pdf", sha256: "e".repeat(64) },
+          },
+        },
+        root,
+      ).findings;
+
+      const caught = findings.find((finding) => finding.code === "page-render-failed");
+      assert.ok(caught, findings.map((f) => f.code).join(", "));
+      assert.match(caught.message, /measurement failed/);
+      assert.match(caught.message, /EACCES|permission denied/i);
+      // Restored so a later run of this suite is not blocked by its own fixture.
+      fs.chmodSync(extract, 0o644);
+    });
+
+    test("the two arms are told apart, not merged into one message", () => {
+      // Reachability for the pair above: if a later edit collapsed spawn failure and
+      // render failure into one code, every arm above would still pass on the survivor.
+      // This asserts the two conditions really do produce different codes.
+      const dir = scratch("arms-differ");
+      fs.writeFileSync(path.join(dir, "pdftotext"), "#!/bin/sh\nexit 0\n", { mode: 0o644 });
+      const spawnFailure = withOnlyPath(dir, () =>
+        refusalFrom(() => pdfPageTexts(path.join(dir, "anything.pdf"))),
+      );
+      const renderFailure = refusalFrom(() => pdfPageTexts(notAPdf("arms-differ-nonpdf")));
+      assert.notEqual(spawnFailure.code, renderFailure.code);
     });
   });
 
