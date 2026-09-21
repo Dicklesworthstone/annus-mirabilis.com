@@ -38,6 +38,29 @@ wobei $R$ die absolute Gaskonstante, $N$ die Anzahl der „wirklichen Moleküle�
 --- REVIEWED TRANSCRIPTION PAGE 4 OF 17 ---
 [[ANNALEN-PAGE 135]]
 
+tronen und Molekülen zu einer im Mittel von Null verschiedenen Energieabgabe an das Gas bez. Energieaufnahme von dem Gas führen. Es ist also in dem von uns betrachteten Falle dynamisches Gleichgewicht nur dann möglich, wenn jeder Resonator die mittlere Energie $\overline{E}$ besitzt.
+
+Eine ähnliche Überlegung machen wir jetzt bezüglich der Wechselwirkung der Resonatoren und der im Raume vorhandenen Strahlung. Hr. [[SPERR]]Planck[[/SPERR]] hat für diesen Fall die Bedingung des dynamischen Gleichgewichtes abgeleitet[[FN-MARK 1)]] unter der Voraussetzung, daß die Strahlung als ein denkbar ungeordnetster Prozeß[[FN-MARK 2)]] betrachtet werden kann. Er fand:
+$$
+\overline{E}_\nu = \frac{L^3}{8 \pi \nu^2} \varrho_\nu.
+$$
+$\overline{E}_\nu$ ist hierbei die mittlere Energie eines Resonators von der Eigenfrequenz $\nu$ (pro Schwingungskomponente), $L$ die Lichtgeschwindigkeit, $\nu$ die Frequenz und $\varrho_\nu d \nu$ die Energie pro Volumeneinheit desjenigen Teiles der Strahlung, dessen Schwingungszahl zwischen $\nu$ und $\nu + d \nu$ liegt.
+
+[[FN 1)]] M. [[SPERR]]Planck[[/SPERR]], Ann. d. Phys. 1. p. 99. 1900.
+[[FN 2)]] Diese Voraussetzung läßt sich folgendermaßen formulieren. Wir entwickeln die $Z$-Komponente der elektrischen Kraft $(Z)$ in einem beliebigen Punkte des betreffenden Raumes zwischen den Zeitgrenzen $t = 0$ und $t = T$ (wobei $T$ eine relativ zu allen in Betracht zu ziehenden Schwingungsdauern sehr große Zeit bedeute) in eine [[SPERR]]Fourier[[/SPERR]]sche Reihe
+$$
+Z = \sum_{\nu = 1}^{\nu = \infty} A_\nu \sin\left(2 \pi \nu \frac{t}{T} + \alpha_\nu\right)
+$$
+wobei $A_\nu \geq 0$ und $0 \leq \alpha_\nu \leq 2 \pi$. Denkt man sich in demselben Raumpunkte eine solche Entwickelung beliebig oft bei zufällig gewählten Anfangspunkten der Zeit ausgeführt, so wird man für die Größen $A_\nu$ und $\alpha_\nu$ verschiedene Wertesysteme erhalten. Es existieren dann für die Häufigkeit der verschiedenen Wertekombinationen der Größen $A_\nu$ und $\alpha_\nu$ (statistische) Wahrscheinlichkeiten $d W$ von der Form:
+$$
+d W = f(A_1, A_2 \ldots \alpha_1, \alpha_2 \ldots) d A_1 d A_2 \ldots d \alpha_1 d \alpha_2 \ldots
+$$
+Die Strahlung ist dann eine denkbar ungeordnete, wenn
+$$
+f(A_1, A_2 \ldots \alpha_1, \alpha_2 \ldots) = F_1(A_1) F_2(A_2) \ldots f_1(\alpha_1) f_2(\alpha_2) \ldots
+$$
+d. h. wenn die Wahrscheinlichkeit eines bestimmten Wertes einer der Größen $A$ bez. $\alpha$ von den Werten, welche die anderen Größen $A$ bez. $\alpha$ besitzen, unabhängig ist. Mit je größerer Annäherung die Bedingung erfüllt ist, daß die einzelnen Paare von Größen $A_\nu$ und $\alpha_\nu$ von Emissions- und Absorptionsprozessen [[EM]]besonderer[[/EM]] Gruppen abhängen, mit desto größerer Annäherung wird also in dem von uns betrachteten Falle die Strahlung als eine „denkbar ungeordnetste“ anzusehen sein.
+
 --- REVIEWED TRANSCRIPTION PAGE 5 OF 17 ---
 [[ANNALEN-PAGE 136]]
 
