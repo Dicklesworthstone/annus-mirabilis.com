@@ -1,0 +1,99 @@
+--- MACHINE DRAFT TRANSCRIPTION PAGE 1 OF 31 ---
+[[ANNALEN-PAGE 891]]
+
+[[TITLE]]Zur Elektrodynamik bewegter Körper;[[/TITLE]]
+[[AUTHOR]]von A. Einstein.[[/AUTHOR]]
+
+Daß die Elektrodynamik [[SPERR]]Maxwell[[/SPERR]]s — wie dieselbe gegenwärtig aufgefaßt zu werden pflegt — in ihrer Anwendung auf bewegte Körper zu Asymmetrien führt, welche den Phänomenen nicht anzuhaften scheinen, ist bekannt. Man denke z. B. an die elektrodynamische Wechselwirkung zwischen einem Magneten und einem Leiter. Das beobachtbare Phänomen hängt hier nur ab von der Relativbewegung von Leiter und Magnet, während nach der üblichen Auffassung die beiden Fälle, daß der eine oder der andere dieser Körper der bewegte sei, streng voneinander zu trennen sind. Bewegt sich nämlich der Magnet und ruht der Leiter, so entsteht in der Umgebung des Magneten ein elektrisches Feld von gewissem Energiewerte, welches an den Orten, wo sich Teile des Leiters befinden, einen Strom erzeugt. Ruht aber der Magnet und bewegt sich der Leiter, so entsteht in der Umgebung des Magneten kein elektrisches Feld, dagegen im Leiter eine elektromotorische Kraft, welcher an sich keine Energie entspricht, die aber — Gleichheit der Relativbewegung bei den beiden ins Auge gefaßten Fällen vorausgesetzt — zu elektrischen Strömen von derselben Größe und demselben Verlaufe Veranlassung gibt, wie im ersten Falle die elektrischen Kräfte.
+
+Beispiele ähnlicher Art, sowie die mißlungenen Versuche, eine Bewegung der Erde relativ zum „Lichtmedium“ zu konstatieren, führen zu der Vermutung, daß dem Begriffe der absoluten Ruhe nicht nur in der Mechanik, sondern auch in der Elektrodynamik keine Eigenschaften der Erscheinungen entsprechen, sondern daß vielmehr für alle Koordinatensysteme, für welche die mechanischen Gleichungen gelten, auch die gleichen elektrodynamischen und optischen Gesetze gelten, wie dies für die Größen erster Ordnung bereits erwiesen ist. Wir wollen diese Vermutung (deren Inhalt im folgenden „Prinzip der Relativität“ genannt werden wird) zur Voraussetzung erheben und außerdem die mit ihm nur scheinbar unverträgliche[[CONTINUES]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 2 OF 31 ---
+[[ANNALEN-PAGE 892]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 3 OF 31 ---
+[[ANNALEN-PAGE 893]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 4 OF 31 ---
+[[ANNALEN-PAGE 894]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 5 OF 31 ---
+[[ANNALEN-PAGE 895]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 6 OF 31 ---
+[[ANNALEN-PAGE 896]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 7 OF 31 ---
+[[ANNALEN-PAGE 897]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 8 OF 31 ---
+[[ANNALEN-PAGE 898]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 9 OF 31 ---
+[[ANNALEN-PAGE 899]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 10 OF 31 ---
+[[ANNALEN-PAGE 900]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 11 OF 31 ---
+[[ANNALEN-PAGE 901]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 12 OF 31 ---
+[[ANNALEN-PAGE 902]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 13 OF 31 ---
+[[ANNALEN-PAGE 903]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 14 OF 31 ---
+[[ANNALEN-PAGE 904]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 15 OF 31 ---
+[[ANNALEN-PAGE 905]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 16 OF 31 ---
+[[ANNALEN-PAGE 906]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 17 OF 31 ---
+[[ANNALEN-PAGE 907]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 18 OF 31 ---
+[[ANNALEN-PAGE 908]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 19 OF 31 ---
+[[ANNALEN-PAGE 909]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 20 OF 31 ---
+[[ANNALEN-PAGE 910]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 21 OF 31 ---
+[[ANNALEN-PAGE 911]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 22 OF 31 ---
+[[ANNALEN-PAGE 912]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 23 OF 31 ---
+[[ANNALEN-PAGE 913]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 24 OF 31 ---
+[[ANNALEN-PAGE 914]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 25 OF 31 ---
+[[ANNALEN-PAGE 915]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 26 OF 31 ---
+[[ANNALEN-PAGE 916]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 27 OF 31 ---
+[[ANNALEN-PAGE 917]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 28 OF 31 ---
+[[ANNALEN-PAGE 918]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 29 OF 31 ---
+[[ANNALEN-PAGE 919]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 30 OF 31 ---
+[[ANNALEN-PAGE 920]]
+
+--- MACHINE DRAFT TRANSCRIPTION PAGE 31 OF 31 ---
+[[ANNALEN-PAGE 921]]
