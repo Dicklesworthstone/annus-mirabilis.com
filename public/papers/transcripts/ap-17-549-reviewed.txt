@@ -103,6 +103,37 @@ Durch diese Betrachtung ist gezeigt, daß die Existenz des osmotischen Druckes e
 
 --- REVIEWED TRANSCRIPTION PAGE 6 OF 12 ---
 [[ANNALEN-PAGE 554]]
+[[HEADING s3]]§ 3. Theorie der Diffusion kleiner suspendierter Kugeln.
+
+In einer Flüssigkeit seien suspendierte Teilchen regellos verteilt. Wir wollen den dynamischen Gleichgewichtszustand derselben untersuchen unter der Voraussetzung, daß auf die einzelnen Teilchen eine Kraft $K$ wirkt, welche vom Orte, nicht aber von der Zeit abhängt. Der Einfachheit halber werde angenommen, daß die Kraft überall die Richtung der $X$-Achse habe.
+
+Es sei $\nu$ die Anzahl der suspendierten Teilchen pro Volumeneinheit, so ist im Falle des thermodynamischen Gleichgewichtes $\nu$ eine solche Funktion von $x$, daß für eine beliebige virtuelle Verrückung $\delta x$ der suspendierten Substanz die Variation der freien Energie verschwindet. Man hat also:
+$$
+\delta F = \delta E - T \delta S = 0.
+$$
+
+Es werde angenommen, daß die Flüssigkeit senkrecht zur $X$-Achse den Querschnitt 1 habe und durch die Ebenen $x = 0$ und $x = l$ begrenzt sei. Man hat dann:
+$$
+\delta E = -\int_0^l K \nu \delta x d x
+$$
+und
+$$
+\delta S = \int_0^l R \frac{\nu}{N} \frac{\partial \delta x}{\partial x} d x = -\frac{R}{N} \int_0^l \frac{\partial \nu}{\partial x} \delta x d x.
+$$
+
+Die gesuchte Gleichgewichtsbedingung ist also:
+$$
+-K \nu + \frac{R T}{N} \frac{\partial \nu}{\partial x} = 0
+$$
+[[EQ-LABEL (1)]]
+oder
+$$
+K \nu - \frac{\partial p}{\partial x} = 0.
+$$
+
+Die letzte Gleichung sagt aus, daß der Kraft $K$ durch osmotische Druckkräfte das Gleichgewicht geleistet wird.
+
+Die Gleichung (1) benutzen wir, um den Diffusionskoeffizienten der suspendierten Substanz zu ermitteln. Wir können den eben betrachteten dynamischen Gleichgewichtszustand als[[CONTINUES]]
 
 --- REVIEWED TRANSCRIPTION PAGE 7 OF 12 ---
 [[ANNALEN-PAGE 555]]
