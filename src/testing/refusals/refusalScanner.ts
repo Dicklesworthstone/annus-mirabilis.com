@@ -315,8 +315,141 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
  * appears only in a template-literal form, so admitting one would widen the rule
  * without covering anything (am-he9s).
  */
+/**
+ * Removes the text of a block that cannot assert anything: comments, and the bodies of skipped
+ * tests.
+ *
+ * WHY THIS EXISTS. The rule above reasons carefully about string literals and then measured
+ * coverage with `includes`, which cannot tell a quoted code in executable source from the same
+ * quoted code inside a comment. So a comment SAYING a site is untestable credited that site as
+ * tested, and the facsimile pane hit it by accident (defcd5d5): its own note explaining why three
+ * parse-failure sites could not be driven spelled the codes in quotes, and the gate marked all
+ * three covered. A sentence admitting a gap closed the gap. That is a coverage gate running
+ * exactly backwards, and it is a worse fail-open than the substring disjunct the docstring above
+ * removed, because it is triggered by the honest act of writing down what is not covered.
+ *
+ * Skipped tests are removed for the same reason - a body that never runs asserts nothing - but
+ * that arm is precautionary rather than remedial: no test file under the scan roots used a skip
+ * form when this landed.
+ *
+ * The scan is string-aware in both directions. It never strips a `//` or a comment opener that
+ * sits inside a string literal, and it never keeps a quoted code that sits inside a comment. A
+ * block is a fragment cut out of a file by the split above, so it can begin inside a construct it
+ * does not open; the scan starts in code state, which is the same assumption the rest of this
+ * function has always made.
+ */
+const SKIP_CALL = /(?:\b(?:x(?:it|test)|(?:it|test|describe)\s*\.\s*(?:skip|todo|failing)))\s*\($/;
+
+// Index of a comment-closer reached in code state, or -1. Strings are skipped, so a closer
+// sitting inside a string literal is not one.
+function strayCommentClose(block: string): number {
+  let i = 0;
+  const n = block.length;
+  while (i < n) {
+    const c = block[i];
+    const next = block[i + 1];
+    if (c === "/" && next === "/") {
+      while (i < n && block[i] !== "\n") i++;
+      continue;
+    }
+    if (c === "/" && next === "*") return -1;
+    if (c === "*" && next === "/") return i;
+    if (c === '"' || c === "'" || c === "`") {
+      const quote = c;
+      i++;
+      while (i < n) {
+        if (block[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (block[i] === quote) break;
+        i++;
+      }
+    }
+    i++;
+  }
+  return -1;
+}
+
+export function stripNonAssertingText(block: string): string {
+  // A fragment can BEGIN inside a block comment, because the split above has no word boundary and
+  // cuts on any "test(" or "it(" - including the ones inside English prose ("a unit (", "so it
+  // (") in a doc comment. Such a fragment carries the comment's closing */ without its opener, and
+  // scanning it as code would credit any quoted code in the comment's tail. A */ reached in code
+  // state is exactly that signal, so everything up to it is comment text.
+  const stray = strayCommentClose(block);
+  if (stray >= 0) return stripNonAssertingText(block.slice(stray + 2));
+  let out = "";
+  let i = 0;
+  const n = block.length;
+  while (i < n) {
+    const c = block[i];
+    const next = block[i + 1];
+    if (c === "/" && next === "/") {
+      while (i < n && block[i] !== "\n") i++;
+      continue;
+    }
+    if (c === "/" && next === "*") {
+      i += 2;
+      while (i < n && !(block[i] === "*" && block[i + 1] === "/")) i++;
+      i += 2;
+      continue;
+    }
+    if (c === '"' || c === "'" || c === "`") {
+      const quote = c;
+      let literal = c;
+      i++;
+      while (i < n) {
+        const ch = block[i];
+        if (ch === "\\") {
+          literal += block.slice(i, i + 2);
+          i += 2;
+          continue;
+        }
+        literal += ch;
+        i++;
+        if (ch === quote) break;
+      }
+      out += literal;
+      continue;
+    }
+    out += c;
+    i++;
+    // A skipped test's body never runs, so it asserts nothing. Drop the whole call, INCLUDING the
+    // opening paren: leaving it behind makes the strip non-idempotent, and a residual `test.skip(`
+    // would swallow the next statement on any second pass.
+    if (c === "(" && SKIP_CALL.test(out)) {
+      out = out.slice(0, -1);
+      let depth = 1;
+      while (i < n && depth > 0) {
+        const ch = block[i];
+        if (ch === '"' || ch === "'" || ch === "`") {
+          const quote = ch;
+          i++;
+          while (i < n) {
+            if (block[i] === "\\") {
+              i += 2;
+              continue;
+            }
+            if (block[i] === quote) break;
+            i++;
+          }
+        } else if (ch === "(") depth++;
+        else if (ch === ")") depth--;
+        i++;
+      }
+    }
+  }
+  return out;
+}
+
+/** The literal test, applied to text the strip has already reduced to what can assert. */
+function containsCodeLiteral(asserting: string, code: string): boolean {
+  return asserting.includes(`"${code}"`) || asserting.includes(`'${code}'`);
+}
+
 export function blockCoversCode(block: string, code: string): boolean {
-  return block.includes(`"${code}"`) || block.includes(`'${code}'`);
+  return containsCodeLiteral(stripNonAssertingText(block), code);
 }
 
 export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult {
@@ -415,7 +548,10 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     }
 
     // Count test blocks asserting codes
-    const blocks = content.split(/(?:test|it)\s*\(/);
+    // Strip once per block, not once per (block, code). The predicate below runs inside a loop
+    // over every imported file's codes, so stripping in there re-scanned the same text hundreds
+    // of times and pushed the scan past the ratchet's timeout.
+    const blocks = content.split(/(?:test|it)\s*\(/).map(stripNonAssertingText);
     for (const srcRel of importedFiles) {
       let codeMap = testBlocksByFileAndCode.get(srcRel);
       if (!codeMap) {
@@ -429,7 +565,7 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
         let blockCount = 0;
         for (let b = 1; b < blocks.length; b++) {
           const block = blocks[b] ?? "";
-          if (blockCoversCode(block, code)) {
+          if (containsCodeLiteral(block, code)) {
             blockCount++;
           }
         }
