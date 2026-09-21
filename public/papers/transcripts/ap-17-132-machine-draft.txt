@@ -377,5 +377,27 @@ Ist die abgeleitete Formel richtig, so muß $\Pi$, als Funktion der Frequenz des
 --- MACHINE DRAFT TRANSCRIPTION PAGE 16 OF 17 ---
 [[ANNALEN-PAGE 147]]
 
+Mit den von Hrn. [[SPERR]]Lenard[[/SPERR]] beobachteten Eigenschaften der lichtelektrischen Wirkung steht unsere Auffassung, soweit ich sehe, nicht im Widerspruch. Wenn jedes Energiequant des erregenden Lichtes unabhängig von allen übrigen seine Energie an Elektronen abgibt, so wird die Geschwindigkeitsverteilung der Elektronen, d. h. die Qualität der erzeugten Kathodenstrahlung von der Intensität des erregenden Lichtes unabhängig sein; andererseits wird die Anzahl der den Körper verlassenden Elektronen der Intensität des erregenden Lichtes unter sonst gleichen Umständen proportional sein.[[FN-MARK 1)]]
+
+Über die mutmaßlichen Gültigkeitsgrenzen der erwähnten Gesetzmäßigkeiten wären ähnliche Bemerkungen zu machen wie bezüglich der mutmaßlichen Abweichungen von der [[SPERR]]Stokes[[/SPERR]]schen Regel.
+
+Im vorstehenden ist angenommen, daß die Energie wenigstens eines Teiles der Energiequanten des erzeugenden Lichtes je an ein einziges Elektron vollständig abgegeben werde. Macht man diese naheliegende Voraussetzung nicht, so erhält man statt obiger Gleichung die folgende:
+$$
+\Pi E + P' \leqq R \beta \nu .
+$$
+
+Für die Kathodenlumineszenz, welche den inversen Vorgang zu dem eben betrachteten bildet, erhält man durch eine der durchgeführten analoge Betrachtung:
+$$
+\Pi E + P' \geqq R \beta \nu .
+$$
+Bei den von Hrn. [[SPERR]]Lenard[[/SPERR]] untersuchten Substanzen ist $P E$ stets bedeutend größer als $R \beta \nu$, da die Spannung, welche die Kathodenstrahlen durchlaufen haben müssen, um eben sichtbares Licht erzeugen zu können, in einigen Fällen einige Hundert, in anderen Tausende von Volts beträgt.[[FN-MARK 2)]] Es ist also anzunehmen, daß die kinetische Energie eines Elektrons zur Erzeugung vieler Lichtenergiequanten verwendet wird.
+
+[[HEADING s9]]§ 9. Über die Ionisierung der Gase durch ultraviolettes Licht.
+
+Wir werden anzunehmen haben, daß bei der Ionisierung eines Gases durch ultraviolettes Licht je ein absorbiertes Lichtenergiequant[[CONTINUES]]
+
+[[FN 1)]] P. [[SPERR]]Lenard[[/SPERR]], l. c. p. 150 und p. 166—168.
+[[FN 2)]] P. [[SPERR]]Lenard[[/SPERR]], Ann. d. Phys. 12. p. 469. 1903.
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 17 OF 17 ---
 [[ANNALEN-PAGE 148]]
