@@ -12,10 +12,31 @@ export const LEDGER_KATEX_SETTINGS = Object.freeze({
   throwOnError: true,
   strict: "error" as const,
   trust: false,
-  macros: Object.freeze({}),
   maxExpand: 1000,
   maxSize: 20,
 });
+
+/**
+ * A FRESH, WRITABLE macros object per call. KaTeX writes its own bookkeeping into this
+ * object when it processes an environment - `\begin{aligned}` among them - so a frozen or
+ * shared one is not a stricter setting, it is a broken one.
+ *
+ * `macros: Object.freeze({})` stood here until 2026-09-20 and made KaTeX throw
+ * "Attempting to define property on object that is not extensible", which the ledger
+ * validator then reported as `math-parse` - a code that reads as "the editor mistyped the
+ * LaTeX". Measured: `\begin{aligned}...\end{aligned}` fails with the frozen object and
+ * passes with a plain one, while an ordinary equation passes with either. It was found
+ * transcribing ap-18-639, whose page 641 prints a two-line aligned pair of equations that
+ * no faithful transcription can express without an alignment environment.
+ *
+ * NOTHING IS LOOSENED BY THIS. The prohibition on macros is enforced by
+ * MACRO_DEFINITION_PATTERN below, which refuses the source text before KaTeX ever runs,
+ * and no macro is predefined here. Freezing an empty object never protected anything; it
+ * only stopped KaTeX from doing its own internal bookkeeping.
+ */
+function freshMacros(): Record<string, string> {
+  return {};
+}
 
 export type LedgerMathCode = "math-macro-definition" | "math-parse";
 
@@ -47,6 +68,7 @@ export function parseLedgerMath(math: string, displayMode: boolean = false): Led
     // KaTeX public API: renderToString with output discarded
     renderToString(math, {
       ...LEDGER_KATEX_SETTINGS,
+      macros: freshMacros(),
       displayMode,
     });
     return { ok: true };
