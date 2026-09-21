@@ -10,12 +10,18 @@
  * absent from every test file in the repository, yet NINE sites survive deletion. So six sites have
  * their code written down in a test that never drives them.
  *
- * The sharpest case is `invalid-ids-frozen-at`, which has two sites. schema.refusals.test.ts heads
- * itself "20. (schema.ts:585) invalid-ids-frozen-at (and schema.ts:577)", claiming both. Only one is
- * real: the Date.parse site dies when deleted, the non-empty-string site above it does not, because
- * no test ever passes an empty or whitespace idsFrozenAt. A comment that claims a gap is covered is
- * worth less than no comment, and the pair below is separated by message rather than by code for
- * exactly that reason - the code cannot tell them apart.
+ * The sharpest case is `invalid-ids-frozen-at`, which has two sites. schema.refusals.test.ts headed
+ * itself with a single line-585 citation that claimed BOTH that site and the one above it, and only
+ * one was real: the Date.parse site dies when deleted, the non-empty-string site does not, because
+ * no test ever passed an empty or whitespace idsFrozenAt. (Those two line numbers are written out
+ * rather than in citation form on purpose. A quotation of a wrong citation is still a citation to
+ * the scanner, and this one outlived the file it quoted: both numbers had drifted by 2026-09-21,
+ * when the whole file's citations were re-derived by planting and the real sites turned out to be
+ * 639 and 648.)
+ *
+ * A comment that claims a gap is covered is worth less than no comment, and the pair below is
+ * separated by message rather than by code for exactly that reason - the code cannot tell them
+ * apart.
  */
 
 import assert from "node:assert/strict";

@@ -2,25 +2,25 @@
  * Refusal throw site coverage for src/content/manifest/schema.ts (am-muyh).
  *
  * Provides dedicated accept/reject test pairs for all 20 refusal throw sites in schema.ts:
- * 1.  (schema.ts:47)  invalid-manifest-object
- * 2.  (schema.ts:84)  missing-document
- * 3.  (schema.ts:93)  invalid-bib-key
- * 4.  (schema.ts:113) invalid-status
- * 5.  (schema.ts:122) invalid-page-count
- * 6.  (schema.ts:147) page-count-mismatch
- * 7.  (schema.ts:220) invalid-mark-page
- * 8.  (schema.ts:242) missing-unit-id
- * 9.  (schema.ts:259) missing-unit-kind
- * 10. (schema.ts:268) missing-unit-locators
- * 11. (schema.ts:290) invalid-locator-page
- * 12. (schema.ts:359) invalid-reference
- * 13. (schema.ts:486) invalid-export
- * 14. (schema.ts:499) missing-export-statement
- * 15. (schema.ts:506) missing-export-printedform
- * 16. (schema.ts:531) invalid-import
- * 17. (schema.ts:541) missing-import-paper
- * 18. (schema.ts:548) missing-import-resultid
- * 19. (schema.ts:555) import-use-missing
+ * 1.  (schema.ts:48)  invalid-manifest-object
+ * 2.  (schema.ts:85)  missing-document
+ * 3.  (schema.ts:94)  invalid-bib-key
+ * 4.  (schema.ts:114) invalid-status
+ * 5.  (schema.ts:123) invalid-page-count
+ * 6.  (schema.ts:148) page-count-mismatch
+ * 7.  (schema.ts:221) invalid-mark-page
+ * 8.  (schema.ts:243) missing-unit-id
+ * 9.  (schema.ts:260) missing-unit-kind
+ * 10. (schema.ts:331) missing-unit-locators
+ * 11. (schema.ts:353) invalid-locator-page
+ * 12. (schema.ts:422) invalid-reference
+ * 13. (schema.ts:549) invalid-export
+ * 14. (schema.ts:562) missing-export-statement
+ * 15. (schema.ts:569) missing-export-printedform
+ * 16. (schema.ts:594) invalid-import
+ * 17. (schema.ts:604) missing-import-paper
+ * 18. (schema.ts:611) missing-import-resultid
+ * 19. (schema.ts:618) import-use-missing
  * 20. (schema.ts:648) invalid-ids-frozen-at (and schema.ts:639)
  */
 
@@ -60,9 +60,9 @@ function createValidManifest(overrides?: Record<string, unknown>): Record<string
 }
 
 describe("Manifest Schema Refusals (schema.ts)", () => {
-  // 1. (schema.ts:47) invalid-manifest-object
-  describe("Site (schema.ts:47): invalid-manifest-object", () => {
-    it("rejects non-object or null input with code invalid-manifest-object (schema.ts:47)", () => {
+  // 1. (schema.ts:48) invalid-manifest-object
+  describe("Site (schema.ts:48): invalid-manifest-object", () => {
+    it("rejects non-object or null input with code invalid-manifest-object (schema.ts:48)", () => {
       assert.throws(
         () => validateSourceManifest(null),
         (err: unknown) => {
@@ -79,16 +79,16 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts a well-formed manifest object (schema.ts:47)", () => {
+    it("accepts a well-formed manifest object: no invalid-manifest-object (schema.ts:48)", () => {
       const result = validateSourceManifest(createValidManifest());
       assert.equal(result.paper, "light-quanta");
       assert.equal(result.document, "ap-17-132");
     });
   });
 
-  // 2. (schema.ts:84) missing-document
-  describe("Site (schema.ts:84): missing-document", () => {
-    it("rejects missing or empty document with code missing-document (schema.ts:84)", () => {
+  // 2. (schema.ts:85) missing-document
+  describe("Site (schema.ts:85): missing-document", () => {
+    it("rejects missing or empty document with code missing-document (schema.ts:85)", () => {
       assert.throws(
         () => validateSourceManifest(createValidManifest({ document: "   " })),
         (err: unknown) => {
@@ -98,15 +98,15 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts a non-empty document bibKey string (schema.ts:84)", () => {
+    it("accepts a non-empty document bibKey string: no missing-document (schema.ts:85)", () => {
       const result = validateSourceManifest(createValidManifest({ document: "ap-17-132" }));
       assert.equal(result.document, "ap-17-132");
     });
   });
 
-  // 3. (schema.ts:93) invalid-bib-key
-  describe("Site (schema.ts:93): invalid-bib-key", () => {
-    it("rejects malformed bibKey with code invalid-bib-key (schema.ts:93)", () => {
+  // 3. (schema.ts:94) invalid-bib-key
+  describe("Site (schema.ts:94): invalid-bib-key", () => {
+    it("rejects malformed bibKey with code invalid-bib-key (schema.ts:94)", () => {
       assert.throws(
         () => validateSourceManifest(createValidManifest({ document: "invalid-bibkey-syntax" })),
         (err: unknown) => {
@@ -116,15 +116,15 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts valid bibKey (schema.ts:93)", () => {
+    it("accepts valid bibKey: no invalid-bib-key (schema.ts:94)", () => {
       const result = validateSourceManifest(createValidManifest({ document: "ap-17-549" }));
       assert.equal(result.document, "ap-17-549");
     });
   });
 
-  // 4. (schema.ts:113) invalid-status
-  describe("Site (schema.ts:113): invalid-status", () => {
-    it("rejects unknown status with code invalid-status (schema.ts:113)", () => {
+  // 4. (schema.ts:114) invalid-status
+  describe("Site (schema.ts:114): invalid-status", () => {
+    it("rejects unknown status with code invalid-status (schema.ts:114)", () => {
       assert.throws(
         () => validateSourceManifest(createValidManifest({ status: "unapproved-status" })),
         (err: unknown) => {
@@ -134,7 +134,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts recognized status values complete, in-preparation, and scoped (schema.ts:113)", () => {
+    it("accepts recognized status values complete, in-preparation, and scoped: no invalid-status (schema.ts:114)", () => {
       const complete = validateSourceManifest(createValidManifest({ status: "complete" }));
       assert.equal(complete.status, "complete");
       const inPrep = validateSourceManifest(createValidManifest({ status: "in-preparation" }));
@@ -144,9 +144,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 5. (schema.ts:122) invalid-page-count
-  describe("Site (schema.ts:122): invalid-page-count", () => {
-    it("rejects non-positive integer pageCount with code invalid-page-count (schema.ts:122)", () => {
+  // 5. (schema.ts:123) invalid-page-count
+  describe("Site (schema.ts:123): invalid-page-count", () => {
+    it("rejects non-positive integer pageCount with code invalid-page-count (schema.ts:123)", () => {
       assert.throws(
         () => validateSourceManifest(createValidManifest({ pageCount: 0 })),
         (err: unknown) => {
@@ -170,7 +170,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts positive integer pageCount matching pageRange (schema.ts:122)", () => {
+    it("accepts positive integer pageCount matching pageRange: no invalid-page-count (schema.ts:123)", () => {
       const result = validateSourceManifest(
         createValidManifest({ pageCount: 2, pageRange: [132, 133] }),
       );
@@ -178,9 +178,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 6. (schema.ts:147) page-count-mismatch
-  describe("Site (schema.ts:147): page-count-mismatch", () => {
-    it("rejects pageCount not matching pageRange span with code page-count-mismatch (schema.ts:147)", () => {
+  // 6. (schema.ts:148) page-count-mismatch
+  describe("Site (schema.ts:148): page-count-mismatch", () => {
+    it("rejects pageCount not matching pageRange span with code page-count-mismatch (schema.ts:148)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -196,7 +196,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts pageCount exactly matching endPage - startPage + 1 (schema.ts:147)", () => {
+    it("accepts pageCount exactly matching endPage - startPage + 1: no page-count-mismatch (schema.ts:148)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           pageCount: 3,
@@ -208,9 +208,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 7. (schema.ts:220) invalid-mark-page
-  describe("Site (schema.ts:220): invalid-mark-page", () => {
-    it("rejects non-positive or non-integer markPage with code invalid-mark-page (schema.ts:220)", () => {
+  // 7. (schema.ts:221) invalid-mark-page
+  describe("Site (schema.ts:221): invalid-mark-page", () => {
+    it("rejects non-positive or non-integer markPage with code invalid-mark-page (schema.ts:221)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -251,7 +251,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts positive integer markPage on unit (schema.ts:220)", () => {
+    it("accepts positive integer markPage on unit: no invalid-mark-page (schema.ts:221)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           units: [
@@ -268,9 +268,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 8. (schema.ts:242) missing-unit-id
-  describe("Site (schema.ts:242): missing-unit-id", () => {
-    it("rejects unit with missing or empty string id with code missing-unit-id (schema.ts:242)", () => {
+  // 8. (schema.ts:243) missing-unit-id
+  describe("Site (schema.ts:243): missing-unit-id", () => {
+    it("rejects unit with missing or empty string id with code missing-unit-id (schema.ts:243)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -291,7 +291,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts unit with valid id string (schema.ts:242)", () => {
+    it("accepts unit with valid id string: no missing-unit-id (schema.ts:243)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           units: [
@@ -307,9 +307,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 9. (schema.ts:259) missing-unit-kind
-  describe("Site (schema.ts:259): missing-unit-kind", () => {
-    it("rejects unit with missing or empty kind with code missing-unit-kind (schema.ts:259)", () => {
+  // 9. (schema.ts:260) missing-unit-kind
+  describe("Site (schema.ts:260): missing-unit-kind", () => {
+    it("rejects unit with missing or empty kind with code missing-unit-kind (schema.ts:260)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -330,7 +330,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts unit with non-empty kind string (schema.ts:259)", () => {
+    it("accepts unit with non-empty kind string: no missing-unit-kind (schema.ts:260)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           units: [
@@ -346,9 +346,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 10. (schema.ts:268) missing-unit-locators
-  describe("Site (schema.ts:268): missing-unit-locators", () => {
-    it("rejects unit with empty locators array with code missing-unit-locators (schema.ts:268)", () => {
+  // 10. (schema.ts:331) missing-unit-locators
+  describe("Site (schema.ts:331): missing-unit-locators", () => {
+    it("rejects unit with empty locators array with code missing-unit-locators (schema.ts:331)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -369,7 +369,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts unit with at least one locator (schema.ts:268)", () => {
+    it("accepts unit with at least one locator: no missing-unit-locators (schema.ts:331)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           units: [
@@ -385,9 +385,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 11. (schema.ts:290) invalid-locator-page
-  describe("Site (schema.ts:290): invalid-locator-page", () => {
-    it("rejects locator with non-positive or non-integer page with code invalid-locator-page (schema.ts:290)", () => {
+  // 11. (schema.ts:353) invalid-locator-page
+  describe("Site (schema.ts:353): invalid-locator-page", () => {
+    it("rejects locator with non-positive or non-integer page with code invalid-locator-page (schema.ts:353)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -426,7 +426,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts locator with positive integer page (schema.ts:290)", () => {
+    it("accepts locator with positive integer page: no invalid-locator-page (schema.ts:353)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           units: [
@@ -442,9 +442,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 12. (schema.ts:359) invalid-reference
-  describe("Site (schema.ts:359): invalid-reference", () => {
-    it("rejects non-object reference entry with code invalid-reference (schema.ts:359)", () => {
+  // 12. (schema.ts:422) invalid-reference
+  describe("Site (schema.ts:422): invalid-reference", () => {
+    it("rejects non-object reference entry with code invalid-reference (schema.ts:422)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -485,7 +485,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts valid reference object entry (schema.ts:359)", () => {
+    it("accepts valid reference object entry: no invalid-reference (schema.ts:422)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           units: [
@@ -509,9 +509,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 13. (schema.ts:486) invalid-export
-  describe("Site (schema.ts:486): invalid-export", () => {
-    it("rejects non-object export entry with code invalid-export (schema.ts:486)", () => {
+  // 13. (schema.ts:549) invalid-export
+  describe("Site (schema.ts:549): invalid-export", () => {
+    it("rejects non-object export entry with code invalid-export (schema.ts:549)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -538,7 +538,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts valid export object (schema.ts:486)", () => {
+    it("accepts valid export object: no invalid-export (schema.ts:549)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           exports: [
@@ -555,9 +555,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 14. (schema.ts:499) missing-export-statement
-  describe("Site (schema.ts:499): missing-export-statement", () => {
-    it("rejects export with missing or empty statement with code missing-export-statement (schema.ts:499)", () => {
+  // 14. (schema.ts:562) missing-export-statement
+  describe("Site (schema.ts:562): missing-export-statement", () => {
+    it("rejects export with missing or empty statement with code missing-export-statement (schema.ts:562)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -578,7 +578,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts export with non-empty statement (schema.ts:499)", () => {
+    it("accepts export with non-empty statement: no missing-export-statement (schema.ts:562)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           exports: [
@@ -594,9 +594,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 15. (schema.ts:506) missing-export-printedform
-  describe("Site (schema.ts:506): missing-export-printedform", () => {
-    it("rejects export with missing or empty printedForm with code missing-export-printedform (schema.ts:506)", () => {
+  // 15. (schema.ts:569) missing-export-printedform
+  describe("Site (schema.ts:569): missing-export-printedform", () => {
+    it("rejects export with missing or empty printedForm with code missing-export-printedform (schema.ts:569)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -617,7 +617,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts export with non-empty printedForm (schema.ts:506)", () => {
+    it("accepts export with non-empty printedForm: no missing-export-printedform (schema.ts:569)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           exports: [
@@ -633,9 +633,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 16. (schema.ts:531) invalid-import
-  describe("Site (schema.ts:531): invalid-import", () => {
-    it("rejects non-object import entry with code invalid-import (schema.ts:531)", () => {
+  // 16. (schema.ts:594) invalid-import
+  describe("Site (schema.ts:594): invalid-import", () => {
+    it("rejects non-object import entry with code invalid-import (schema.ts:594)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -662,7 +662,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts valid import object (schema.ts:531)", () => {
+    it("accepts valid import object: no invalid-import (schema.ts:594)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           importedResults: [
@@ -679,9 +679,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 17. (schema.ts:541) missing-import-paper
-  describe("Site (schema.ts:541): missing-import-paper", () => {
-    it("rejects import with missing paper with code missing-import-paper (schema.ts:541)", () => {
+  // 17. (schema.ts:604) missing-import-paper
+  describe("Site (schema.ts:604): missing-import-paper", () => {
+    it("rejects import with missing paper with code missing-import-paper (schema.ts:604)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -702,7 +702,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts import with valid paper identifier (schema.ts:541)", () => {
+    it("accepts import with valid paper identifier: no missing-import-paper (schema.ts:604)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           importedResults: [
@@ -718,9 +718,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 18. (schema.ts:548) missing-import-resultid
-  describe("Site (schema.ts:548): missing-import-resultid", () => {
-    it("rejects import with missing resultId with code missing-import-resultid (schema.ts:548)", () => {
+  // 18. (schema.ts:611) missing-import-resultid
+  describe("Site (schema.ts:611): missing-import-resultid", () => {
+    it("rejects import with missing resultId with code missing-import-resultid (schema.ts:611)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -741,7 +741,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts import with valid resultId (schema.ts:548)", () => {
+    it("accepts import with valid resultId: no missing-import-resultid (schema.ts:611)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           importedResults: [
@@ -757,9 +757,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 19. (schema.ts:555) import-use-missing
-  describe("Site (schema.ts:555): import-use-missing", () => {
-    it("rejects import with unrecognized or missing use with code import-use-missing (schema.ts:555)", () => {
+  // 19. (schema.ts:618) import-use-missing
+  describe("Site (schema.ts:618): import-use-missing", () => {
+    it("rejects import with unrecognized or missing use with code import-use-missing (schema.ts:618)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -780,7 +780,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts import with use: premise or use: comparison (schema.ts:555)", () => {
+    it("accepts import with use: premise or use: comparison: no import-use-missing (schema.ts:618)", () => {
       const resPremise = validateSourceManifest(
         createValidManifest({
           importedResults: [
@@ -844,7 +844,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts valid ISO date timestamp for idsFrozenAt (schema.ts:648)", () => {
+    it("accepts valid ISO date timestamp for idsFrozenAt: no invalid-ids-frozen-at (schema.ts:648)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           idsFrozenAt: "2026-09-16T12:34:56Z",
