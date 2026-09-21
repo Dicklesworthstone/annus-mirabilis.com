@@ -1,5 +1,15 @@
 --- REVIEWED TRANSCRIPTION PAGE 1 OF 12 ---
 [[ANNALEN-PAGE 549]]
+[[TITLE]]Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen;[[/TITLE]]
+[[AUTHOR]]von A. Einstein.[[/AUTHOR]]
+
+In dieser Arbeit soll gezeigt werden, daß nach der molekularkinetischen Theorie der Wärme in Flüssigkeiten suspendierte Körper von mikroskopisch sichtbarer Größe infolge der Molekularbewegung der Wärme Bewegungen von solcher Größe ausführen müssen, daß diese Bewegungen leicht mit dem Mikroskop nachgewiesen werden können. Es ist möglich, daß die hier zu behandelnden Bewegungen mit der sogenannten „Brownschen Molekularbewegung“ identisch sind; die mir erreichbaren Angaben über letztere sind jedoch so ungenau, daß ich mir hierüber kein Urteil bilden konnte.
+
+Wenn sich die hier zu behandelnde Bewegung samt den für sie zu erwartenden Gesetzmäßigkeiten wirklich beobachten läßt, so ist die klassische Thermodynamik schon für mikroskopisch unterscheidbare Räume nicht mehr als genau gültig anzusehen und es ist dann eine exakte Bestimmung der wahren Atomgröße möglich. Erwiese sich umgekehrt die Voraussage dieser Bewegung als unzutreffend, so wäre damit ein schwerwiegendes Argument gegen die molekularkinetische Auffassung der Wärme gegeben.
+
+[[HEADING s1]]§ 1. Über den suspendierten Teilchen zuzuschreibenden osmotischen Druck.
+
+Im Teilvolumen $V^*$ einer Flüssigkeit vom Gesamtvolumen $V$ seien $z$-Gramm-Moleküle eines Nichtelektrolyten gelöst. Ist das Volumen $V^*$ durch eine für das Lösungsmittel, nicht aber für die gelöste Substanz durchlässige Wand vom reinen Lösungsmittel[[CONTINUES]]
 
 --- REVIEWED TRANSCRIPTION PAGE 2 OF 12 ---
 [[ANNALEN-PAGE 550]]
