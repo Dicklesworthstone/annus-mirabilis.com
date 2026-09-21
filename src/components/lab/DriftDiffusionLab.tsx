@@ -2,6 +2,7 @@
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { createBm04BrowserChannel } from "../../experiments/bm04/browser.ts";
 import { BM04_FIELDS, fromBm04Draft, toBm04Draft } from "../../experiments/bm04/controls.ts";
+import { bm04DataCsv } from "../../experiments/bm04/dataExport.ts";
 import {
   BM04_MODEL,
   BM04_PRESETS,
@@ -17,6 +18,13 @@ import {
 } from "./DriftDiffusionPlots.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
+
+type ForceComparison = Readonly<{
+  parameters: Bm04Parameters;
+  diffusion: number;
+  drift: number;
+  identity: ReturnType<typeof identity>;
+}>;
 
 export function DriftDiffusionLab({
   example,
@@ -47,6 +55,8 @@ export function DriftDiffusionLab({
   const [linkNote, setLinkNote] = useState("");
   const [sharedUrl, setSharedUrl] = useState("");
   const [prediction, setPrediction] = useState("");
+  const [comparison, setComparison] = useState<ForceComparison | null>(null);
+  const [exportNote, setExportNote] = useState("");
 
   useEffect(() => {
     setReady(true);
@@ -76,6 +86,7 @@ export function DriftDiffusionLab({
     setError("");
     setDirty(false);
     setLinkNote("");
+    setExportNote("");
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -105,9 +116,57 @@ export function DriftDiffusionLab({
     }
   }
 
+  function compareForce() {
+    setComparison({
+      parameters: { ...p },
+      diffusion: scalar(snapshot, "diffusionCoefficient"),
+      drift: scalar(snapshot, "driftVelocity"),
+      identity: identity(snapshot),
+    });
+    const next = { ...p, F: p.F * 2 };
+    setDraft(toBm04Draft(next));
+    setDirty(true);
+    // Submit the accepted SI parameters directly: a display-unit round trip must
+    // not change temperature, radius or viscosity in a one-variable comparison.
+    apply(next);
+  }
+
+  function downloadData() {
+    let url: string | undefined;
+    try {
+      const csv = bm04DataCsv(snapshot, example.sourceDigest);
+      url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "bm-04-accepted-data.csv";
+      document.body.append(link);
+      try {
+        link.click();
+      } finally {
+        link.remove();
+      }
+      setExportNote(
+        "CSV prepared from the displayed accepted run, including every cell, its parameters and provenance.",
+      );
+    } catch (e) {
+      setExportNote(e instanceof Error ? e.message : "The accepted data could not be exported.");
+    } finally {
+      if (url) {
+        const objectUrl = url;
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      }
+    }
+  }
+
   const primaryResult = result(snapshot, "densityProfile");
   const diffCoeff = scalar(snapshot, "diffusionCoefficient");
   const steadyState = scalar(snapshot, "steadyState");
+  const drift = scalar(snapshot, "driftVelocity");
+  const selectedPrediction = BM04_PROMPT.candidates.find((candidate) => candidate.id === prediction);
+  const isComparison = comparison !== null &&
+    (Object.keys(comparison.parameters) as (keyof Bm04Parameters)[]).every((key) =>
+      key === "F" ? p.F === comparison.parameters.F * 2 : p[key] === comparison.parameters[key],
+    );
 
   const announcement = view.pending
     ? "Calculating the requested drift-diffusion balance. The last accepted result remains below."
@@ -158,7 +217,6 @@ export function DriftDiffusionLab({
         whether force drops out of the quotient, or turn kicks off to inspect Nägeli’s hypothesis.
       </p>
 
-      {/* Predict Mode Prompt */}
       <section className="predict-mode-box" aria-label="Predict before calculating">
         <h3>Predict before calculating</h3>
         <p className="predict-question">{BM04_PROMPT.question}</p>
@@ -178,6 +236,77 @@ export function DriftDiffusionLab({
             </label>
           ))}
         </div>
+        <details>
+          <summary>Show the explanation and test the prediction</summary>
+          {selectedPrediction && (
+            <p>Your prediction: <strong>{selectedPrediction.label}</strong>.</p>
+          )}
+          <p>
+            At fixed temperature, viscosity and particle radius, the thermal diffusion coefficient
+            stays unchanged. A stronger force changes directed drift, not the thermal diffusivity.
+            The equilibrium length becomes shorter, but that is not a smaller diffusion coefficient.
+          </p>
+          <p>
+            The accepted run has thermal D = {display(diffCoeff, 1e12)} μm²/s and drift velocity
+            {" "}{display(drift, 1e6)} μm/s. With mismatched kicks, the chosen kick strength is a
+            separate model assumption; a transient profile is not an equilibrium measurement.
+          </p>
+          <button
+            type="button"
+            className="secondary"
+            onClick={compareForce}
+            disabled={!ready || view.pending || p.F === 0 || !Number.isFinite(p.F * 2)}
+          >
+            Calculate with twice the accepted force
+          </button>
+          {p.F === 0 && (
+            <p>First apply a nonzero force: doubling zero does not create a comparison.</p>
+          )}
+          {comparison && (
+            <div {...identity(snapshot)} data-baseline-run-id={comparison.identity["data-run-id"]}>
+              {isComparison ? (
+                <div className="table-wrapper">
+                  <table className="data-table">
+                    <caption>Two accepted runs; only the applied force changed</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Baseline</th>
+                        <th scope="col">Double force</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Force (fN)</th>
+                        <td>{display(comparison.parameters.F, 1e15)}</td>
+                        <td>{display(p.F, 1e15)}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Thermal D (μm²/s)</th>
+                        <td>{display(comparison.diffusion, 1e12)}</td>
+                        <td>{display(diffCoeff, 1e12)}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Drift velocity (μm/s)</th>
+                        <td>{display(comparison.drift, 1e6)}</td>
+                        <td>{display(drift, 1e6)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p>
+                  The comparison appears when the doubled-force run is accepted. A refusal keeps
+                  the baseline unchanged; changing another parameter invalidates this comparison.
+                </p>
+              )}
+            </div>
+          )}
+          <p>
+            The explanation is available with or without a prediction. These are model
+            consequences, not experimental proof.
+          </p>
+        </details>
       </section>
 
       <div className="lab-columns">
@@ -188,7 +317,6 @@ export function DriftDiffusionLab({
         >
           <fieldset disabled={!ready}>
             <legend>Set up the experiment</legend>
-
             <div className="preset-list">
               {Object.entries(BM04_PRESETS).map(([key, item]) => (
                 <button
@@ -201,7 +329,6 @@ export function DriftDiffusionLab({
                 </button>
               ))}
             </div>
-
             <div className="input-grid">
               {BM04_FIELDS.map((field) => (
                 <div className="input-field" key={field.key}>
@@ -221,7 +348,6 @@ export function DriftDiffusionLab({
                   />
                 </div>
               ))}
-
               <div className="input-field">
                 <label htmlFor={`${id}-profile`}>Initial profile</label>
                 <select
@@ -229,10 +355,7 @@ export function DriftDiffusionLab({
                   name="profile"
                   value={draft.profile}
                   onChange={(event) => {
-                    setDraft({
-                      ...draft,
-                      profile: event.target.value as Bm04Parameters["profile"],
-                    });
+                    setDraft({ ...draft, profile: event.target.value as Bm04Parameters["profile"] });
                     setDirty(true);
                   }}
                 >
@@ -243,11 +366,8 @@ export function DriftDiffusionLab({
                 </select>
               </div>
             </div>
-
             <div className="button-row">
-              <button type="submit" disabled={!dirty && !error}>
-                Apply settings
-              </button>
+              <button type="submit" disabled={!dirty && !error}>Apply settings</button>
               <button
                 type="button"
                 className="secondary"
@@ -259,16 +379,9 @@ export function DriftDiffusionLab({
               >
                 Reset to defaults
               </button>
-              <button type="button" className="secondary" onClick={share}>
-                Share settings
-              </button>
+              <button type="button" className="secondary" onClick={share}>Share settings</button>
             </div>
-
-            {error && (
-              <p id={`${id}-error`} className="form-error" role="alert">
-                {error}
-              </p>
-            )}
+            {error && <p id={`${id}-error`} className="form-error" role="alert">{error}</p>}
             {linkNote && <p className="form-note">{linkNote}</p>}
             {sharedUrl && (
               <input
@@ -281,12 +394,8 @@ export function DriftDiffusionLab({
             )}
           </fieldset>
         </form>
-
         <div className="lab-results">
-          <div aria-live="polite" className="sr-only">
-            {announcement}
-          </div>
-
+          <p role="status" className="notice">{announcement}</p>
           <DensityProfilePlot snapshot={snapshot} widthMicrons={p.W * 1e6} />
           <FluxBalancePlot snapshot={snapshot} />
           <ForceCancellationPanel
@@ -297,48 +406,58 @@ export function DriftDiffusionLab({
         </div>
       </div>
 
-      {/* Accessible Data Table */}
-      <section className="lab-table-section" aria-label="Tabular concentration and flux data">
-        <h3>Discretized Channel Profile Table</h3>
+      <section
+        className="lab-table-section"
+        aria-label="Accepted concentration data"
+        {...identity(snapshot)}
+      >
+        <h3>Inspect and export the accepted dataset</h3>
         <p>
-          Discrete cell averages across the {p.cells} spatial cells (cell width Δx ={" "}
-          {display(dx, 1)} μm).
+          All {cells} cells are available below (cell width Δx = {display(dx, 1)} μm).
+          The numerical profile is a normalized coordinate probability density; its cell masses
+          sum to one. The osmotic reference is evaluated at cell centers.
         </p>
-        <div className="table-wrapper">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th scope="col">Cell #</th>
-                <th scope="col">Position x (μm)</th>
-                <th scope="col">Numerical Density n (m⁻¹)</th>
-                <th scope="col">Osmotic Density n_osm (m⁻¹)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: Math.min(10, cells) }, (_, i) => {
-                const x = (i + 0.5) * dx;
-                const cellKey = `pos-${(x * 100).toFixed(0)}`;
-                return (
-                  <tr key={cellKey}>
-                    <td>{i + 1}</td>
-                    <td>{display(x, 1)}</td>
-                    <td>{display(densityArray.at(i), 1)}</td>
-                    <td>{display(osmoticArray.at(i), 1)}</td>
-                  </tr>
-                );
-              })}
-              {cells > 10 && (
+        {(dirty || view.pending) && (
+          <p className="notice">
+            The table and export use the displayed accepted result, not unapplied or pending settings.
+          </p>
+        )}
+        <button type="button" className="secondary" disabled={!ready} onClick={downloadData}>
+          Download accepted data (CSV)
+        </button>
+        {exportNote && <p role="status" className="form-note">{exportNote}</p>}
+        <details>
+          <summary>Full cell dataset ({cells} rows)</summary>
+          <div className="table-wrapper">
+            <table className="data-table">
+              <caption>
+                Accepted numerical density and thermodynamic reference, including every spatial cell
+              </caption>
+              <thead>
                 <tr>
-                  <td colSpan={4} className="table-ellipsis">
-                    ... ({cells - 10} additional interior cells evaluated in worker) ...
-                  </td>
+                  <th scope="col">Cell</th>
+                  <th scope="col">Position x (μm)</th>
+                  <th scope="col">Numerical density (m⁻¹)</th>
+                  <th scope="col">Osmotic density (m⁻¹)</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {Array.from({ length: cells }, (_, i) => {
+                  const x = (i + 0.5) * dx;
+                  return (
+                    <tr key={x}>
+                      <td>{i + 1}</td>
+                      <td>{display(x, 1)}</td>
+                      <td>{display(densityArray.at(i), 1)}</td>
+                      <td>{display(osmoticArray.at(i), 1)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </details>
       </section>
-
       <ShowTheCode listings={[]} />
     </section>
   );
