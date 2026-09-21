@@ -641,3 +641,80 @@ test("null is refused", () => {
     );
   });
 });
+
+describe("a code in a TYPE is not a refusal site (am-r3qt)", () => {
+  // Eleven phantom sites were recorded across the tree: union members and interface
+  // properties whose code is a string literal TYPE. Those lines are erased before
+  // anything runs, so no test could ever drive them, and a site nobody can pay stays in
+  // the baseline forever and invites a meaningless test written to move a number.
+
+  const TYPE_ONLY = `
+export type Outcome =
+  | Readonly<{ ok: true }>
+  | Readonly<{
+      ok: false;
+      code: "widget-refused";
+      reason: string;
+    }>;
+
+export interface Diagnostic {
+  readonly recordId: string;
+  readonly rule: "length-exceeded" | "overflow";
+}
+`;
+
+  const VALUE_FORM = `
+export function check(input: unknown) {
+  if (input === null) {
+    return { ok: false, code: "widget-refused", reason: "null input" };
+  }
+  return { ok: true };
+}
+`;
+
+  const THROW_FORM = `
+export type Outcome = Readonly<{ ok: false; code: "widget-refused" }>;
+export function check(input: unknown) {
+  if (input === null) {
+    throw new WidgetError("widget-refused", "null input");
+  }
+  return input;
+}
+`;
+
+  test("a string-literal code in a type declaration records NO site", () => {
+    const sites = scanRefusalThrowSites(TYPE_ONLY, "src/fixture/types.ts");
+    assert.deepEqual(
+      sites.map((s) => `${s.code}@${s.line}`),
+      [],
+      "a type member is not a refusal anyone can drive",
+    );
+  });
+
+  test("THE CONTROL: the same text as a VALUE still records a site", () => {
+    // Without this the arm above is satisfied by a scanner that records nothing at all,
+    // which would silently zero the whole ratchet.
+    const sites = scanRefusalThrowSites(VALUE_FORM, "src/fixture/value.ts");
+    assert.equal(sites.length, 1, JSON.stringify(sites));
+    assert.equal(sites[0]?.code, "widget-refused");
+  });
+
+  test("a throw is untouched even when a type beside it declares the same code", () => {
+    // Pattern 1 deliberately does not consult the exclusion: a throw is a statement and
+    // cannot occur inside a type, so nothing it matches can be type-level. This pins
+    // that, because the cheap way to implement the exclusion is to apply it everywhere
+    // and that would start dropping real throws whose file happens to declare a union.
+    const sites = scanRefusalThrowSites(THROW_FORM, "src/fixture/throw.ts");
+    assert.equal(sites.length, 1, JSON.stringify(sites));
+    assert.match(sites[0]?.snippet ?? "", /throw new WidgetError/);
+  });
+
+  test("an optional code member is excluded too, since `code?:` is still a type", () => {
+    const optional = `
+export interface Maybe {
+  readonly code?: "widget-refused";
+}
+`;
+    assert.deepEqual(scanRefusalThrowSites(optional, "src/fixture/optional.ts"), []);
+  });
+});

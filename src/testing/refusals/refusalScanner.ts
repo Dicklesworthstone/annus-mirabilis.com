@@ -217,12 +217,61 @@ function passOutcomeRecordLines(source: string): Set<number> {
 }
 
 /**
+ * Lines occupied by a TYPE member rather than a value.
+ *
+ * A phantom site is worse than an untested one. An untested site is honest debt somebody
+ * can pay; a phantom site CANNOT be paid, because there is nothing to test, so it sits in
+ * the baseline forever and eventually invites a meaningless test written to move a number.
+ * That failure mode already occurred tonight in another costume, in a test whose own
+ * comment admitted the site was untestable and which asserted a case refused elsewhere.
+ *
+ * Eleven such sites existed when this was written, every one of them inspected. They are
+ * union members and interface properties of the shape
+ *
+ *     | Readonly<{ ok: false; code: <kebab-code>; reason: string }>
+ *
+ * with the code written as a string literal TYPE. The scanner read the literal and
+ * recorded a site. Those lines are erased before anything runs, so no test can drive them
+ * and none ever could.
+ *
+ * The discriminator is exact rather than a heuristic, and it is the one TypeScript itself
+ * draws: a code property in a VALUE is a PropertyAssignment, and in a TYPE it is a
+ * PropertySignature. Nothing is inferred from indentation, from unions or from the
+ * `readonly` keyword, all of which appear in both worlds often enough to be wrong in both
+ * directions.
+ *
+ * The example above is written with a placeholder on purpose. Spelled as a real quoted
+ * code it would be scanned out of THIS file and recorded as two more phantom sites, which
+ * is exactly what happened on the first attempt.
+ *
+ * Only the property forms consult this, for the same reason passOutcomeRecordLines does:
+ * a `throw` is a statement and cannot appear inside a type, so pattern 1 is untouched.
+ */
+function typeMemberLines(source: string): Set<number> {
+  const lines = new Set<number>();
+  // Nothing to parse unless a type could plausibly carry a code member.
+  if (!/(?:code|rule|refusalCode|errorCode)\s*(?:\?)?\s*:/.test(source)) return lines;
+  const file = ts.createSourceFile("types.ts", source, ts.ScriptTarget.Latest, true);
+  const visit = (node: ts.Node): void => {
+    if (ts.isPropertySignature(node)) {
+      const first = file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1;
+      const last = file.getLineAndCharacterOfPosition(node.getEnd()).line + 1;
+      for (let line = first; line <= last; line++) lines.add(line);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  return lines;
+}
+
+/**
  * Scans source file text for refusal throw sites.
  */
 export function scanRefusalThrowSites(source: string, relPath: string): RefusalThrowSite[] {
   const sites: RefusalThrowSite[] = [];
   const lines = source.split("\n");
   const passOutcomeLines = passOutcomeRecordLines(source);
+  const typeLines = typeMemberLines(source);
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
@@ -265,7 +314,12 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
       /(?:rule|refusalCode|errorCode)\s*:\s*["']([a-zA-Z0-9_-]+)["']/,
     );
     const refCode = refPropMatch?.[1];
-    if (refCode && isRefusalCode(refCode) && !passOutcomeLines.has(lineNum)) {
+    if (
+      refCode &&
+      isRefusalCode(refCode) &&
+      !passOutcomeLines.has(lineNum) &&
+      !typeLines.has(lineNum)
+    ) {
       sites.push({
         file: relPath,
         line: lineNum,
@@ -278,7 +332,12 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
     // Pattern 3: code: "..." in refusal, error, or diagnostic contexts
     const codeMatch = line.match(/code\s*:\s*["']([a-zA-Z0-9_-]+)["']/);
     const candidateCode = codeMatch?.[1];
-    if (candidateCode && isRefusalCode(candidateCode) && !passOutcomeLines.has(lineNum)) {
+    if (
+      candidateCode &&
+      isRefusalCode(candidateCode) &&
+      !passOutcomeLines.has(lineNum) &&
+      !typeLines.has(lineNum)
+    ) {
       const contextWindow = lines
         .slice(Math.max(0, i - 4), Math.min(lines.length, i + 5))
         .join("\n");
