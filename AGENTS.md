@@ -404,12 +404,36 @@ Written **before** editorial copy. Required fields:
 
 **NEVER RUN OCR ON THIS MACHINE.** Local OCR has already caused severe performance degradation, slowed an entire multi-agent campaign, and wasted substantial time in the donor project. This prohibition is permanent and has no convenience, deadline, fallback, or "small batch" exception.
 
-- Delegate every OCR or machine-transcription job to a cloud **GPT-5.6 Luna worker**. This includes `focr`, Tesseract, OCRmyPDF, vision transcription loops, and any other process whose purpose is to recognize text from page pixels.
+**The rule is about what is EXECUTED on this host, not about what may be READ.** Those two were
+written as one sentence until 2026-09-20 and the distinction now carries weight, so it is stated
+plainly in both directions below.
+
+- **Never execute an OCR process here.** Delegate every OCR or machine-transcription *run* to a
+  cloud **GPT-5.6 Luna worker**. This covers `focr`, Tesseract, OCRmyPDF, EasyOCR, PaddleOCR, and
+  any other program invoked in order to recognize text from page pixels, in every call form.
 - Do not install, invoke, benchmark, resume, or monitor a local OCR engine or daemon in this repository or elsewhere on this host. Do not use local CPU, GPU, NPU, or memory for OCR.
 - If a Luna worker or the cloud execution path is unavailable, pause the OCR portion and report the blocker. **Do not fall back to local OCR.**
 - Give cloud workers bounded, checkpointed page ranges. Preserve partial results after every chunk; never create one monolithic all-papers or all-pages batch. Limit concurrency so results remain reviewable.
 - Local agents may inspect a pinned PDF, review already-produced page renders or OCR drafts, and hand-correct or author the ledger and editions. Those activities never authorize starting a local OCR process.
-- Cloud OCR output is research evidence only.
+- **An agent may read the facsimile's own embedded text layer and the pinned page images.** The
+  owner ruled on this on 2026-09-20, selecting verbatim **"Both layer and pixels"** from three
+  options, having been told in the option itself that choosing it "means amending that sentence,
+  not working around it". So: extracting the OCR layer a host embedded in a pinned PDF (produced
+  off this machine, before we ever saw it) is permitted, and **reading the page image to correct
+  what that layer got wrong is permitted** - that is how `Trdgheit` becomes `Trägheit`, which the
+  layer's own text can never reveal because it is mechanically valid ASCII.
+- **And in the same breath, because the two must never be confused again:** that permission
+  changes what an agent may LOOK AT. It changes nothing about what may be EXECUTED. The denylisted
+  engines stay denylisted in every call form, and the OCR guard's denylist and call-form coverage
+  are untouched by the ruling. Proposing to relax that guard on the strength of this paragraph is
+  out of scope and goes back to the owner.
+- Cloud OCR output is research evidence only. **So is an embedded text layer, and so is a ledger
+  drafted from one.** A ledger produced under this permission is a **machine draft with hand
+  correction**: it satisfies no acceptance criterion that requires human review. Measured on
+  2026-09-20, `docs/OWNERS.md` holds **one named human (`jemanuel`) and 54 slots marked
+  `open: recruiting`**, among them `open-german-source-mass-energy` - so for every paper, the
+  reviewer who would turn such a draft into a reviewed ledger does not yet exist. A draft says
+  that in its own receipt, not only in a commit message.
 
 **The 1905 typesetting** (roman body, italic mathematics, Greek, fractions, letter-spaced emphasis) defeats naive recognition. **Mathematics is retyped by the editor and compared directly with page images. Parsed PDF text is frequently unreliable for these sources and is never accepted for an equation.**
 
