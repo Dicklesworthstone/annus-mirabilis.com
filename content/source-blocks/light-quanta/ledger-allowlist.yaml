@@ -32,3 +32,11 @@
   reason: "Printed connective 'wobei' standing alone between the Planck radiation formula and the two constant values that follow it on page 136. Source text, not an OCR line fragment; the format requires the following $$ to begin its own line, so the word cannot share a line with the display it introduces."
   editor: "agent:LilacValley"
   date: "2026-09-21"
+
+- ledgerKey: ap-17-132
+  code: short-line
+  ledgerPage: 6
+  lineFingerprint: b81d9593a3f6c4f7
+  reason: "Printed connective 'oder' standing alone between the coefficient identity and the value of N on page 137. Source text, same reasoning as the 'wobei' entry: the format requires the following $$ to begin its own line."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
