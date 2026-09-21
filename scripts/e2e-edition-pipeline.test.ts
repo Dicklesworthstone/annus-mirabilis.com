@@ -257,3 +257,41 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
     expect(existsSync(run.logPath as string)).toBe(true);
   });
 });
+
+/**
+ * The corpus-empty refusal, driven by name (am-p465, am-kd9h).
+ *
+ * The owner ruled "Positional code argument" on am-p465, so this site gained a code:
+ * `throw new EmptyCorpusError("corpus-empty")` where it previously threw with no arguments at all.
+ * Coding it moved the site out of the bare-throw population and into the untested-coded one
+ * against a RECORDED baseline of 0, so it is a regression against a measured count rather than new
+ * debt, and it is paid here rather than recorded.
+ *
+ * The refusal is not observable as a thrown error: the pipeline catches EmptyCorpusError and
+ * surfaces it as a stage result, which is the point of the class. What a caller sees is the
+ * compile stage reporting `not-available` with `content-corpus-absent` instead of blaming the
+ * compiler for a corpus that was never there. Deleting the throw does not leave that result
+ * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
+ */
+describe("edition pipeline: an absent corpus is not a compiler failure", () => {
+  test("compile reports content-corpus-absent on a root with no content directory (e2e-edition-pipeline.ts:295)", async () => {
+    const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
+    const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
+
+    const compileStages = run.stages.filter((stage) => stage.stage === "compile");
+    expect(compileStages).toHaveLength(1);
+    expect(compileStages[0]?.outcome).toBe("not-available");
+    expect(compileStages[0]?.code).toBe("content-corpus-absent");
+
+    // THIS IS THE ASSERTION THE REFUSAL OWNS, and the reason the three above are not enough: the
+    // push() that records content-corpus-absent runs BEFORE the throw, so it stands whether or
+    // not the refusal is there. What the throw does is ABORT, so the compiler is never asked to
+    // read a corpus that is absent and never blamed for it. Delete it and execution falls through
+    // to loadReadingFiles, which adds a SECOND compile entry with outcome "failed" and turns the
+    // run red. Measured both ways.
+    expect(
+      run.stages.some((stage) => stage.stage === "compile" && stage.outcome === "failed"),
+    ).toBe(false);
+    expect(run.exitCode).toBe(0);
+  });
+});
