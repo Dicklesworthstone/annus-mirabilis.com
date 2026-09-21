@@ -65,6 +65,26 @@ Wesentlich ist, daß wir die Zeit mittels im ruhenden System[[CONTINUES]]
 --- MACHINE DRAFT TRANSCRIPTION PAGE 5 OF 31 ---
 [[ANNALEN-PAGE 895]]
 
+ruhender Uhren definiert haben; wir nennen die eben definierte Zeit wegen dieser Zugehörigkeit zum ruhenden System „die Zeit des ruhenden Systems“.
+
+[[HEADING s2]]§ 2. Über die Relativität von Längen und Zeiten.
+
+Die folgenden Überlegungen stützen sich auf das Relativitätsprinzip und auf das Prinzip der Konstanz der Lichtgeschwindigkeit, welche beiden Prinzipien wir folgendermaßen definieren.
+
+1. Die Gesetze, nach denen sich die Zustände der physikalischen Systeme ändern, sind unabhängig davon, auf welches von zwei relativ zueinander in gleichförmiger Translationsbewegung befindlichen Koordinatensystemen diese Zustandsänderungen bezogen werden.
+
+2. Jeder Lichtstrahl bewegt sich im „ruhenden“ Koordinatensystem mit der bestimmten Geschwindigkeit $V$, unabhängig davon, ob dieser Lichtstrahl von einem ruhenden oder bewegten Körper emittiert ist. Hierbei ist
+$$
+\text{Geschwindigkeit} = \frac{\text{Lichtweg}}{\text{Zeitdauer}} ,
+$$
+wobei „Zeitdauer“ im Sinne der Definition des § 1 aufzufassen ist.
+
+Es sei ein ruhender starrer Stab gegeben; derselbe besitze, mit einem ebenfalls ruhenden Maßstabe gemessen, die Länge $l$. Wir denken uns nun die Stabachse in die $X$-Achse des ruhenden Koordinatensystems gelegt und dem Stabe hierauf eine gleichförmige Paralleltranslationsbewegung (Geschwindigkeit $v$) längs der $X$-Achse im Sinne der wachsenden $x$ erteilt. Wir fragen nun nach der Länge des [[EM]]bewegten[[/EM]] Stabes, welche wir uns durch folgende zwei Operationen ermittelt denken:
+
+a) Der Beobachter bewegt sich samt dem vorher genannten Maßstabe mit dem auszumessenden Stabe und mißt direkt durch Anlegen des Maßstabes die Länge des Stabes, ebenso, wie wenn sich auszumessender Stab, Beobachter und Maßstab in Ruhe befänden.
+
+b) Der Beobachter ermittelt mittels im ruhenden Systeme aufgestellter, gemäß § 1 synchroner, ruhender Uhren, in welchen Punkten des ruhenden Systems sich Anfang und Ende des auszumessenden Stabes zu einer bestimmten Zeit $t$ befinden.
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 6 OF 31 ---
 [[ANNALEN-PAGE 896]]
 
