@@ -1013,17 +1013,11 @@ In multi-agent sessions:
 
 ## Code Quality & Verification
 
-After substantial code changes, once the scaffold exists:
-
-```bash
-bun run typecheck
-bun run lint
-bun run format
-bun run test
-bun run build
-ubs --diff
-ubs --staged
-```
+The commands live in one place: **Verification Commands**, above, which states which are yours
+before committing and which are central verify's. This section used to restate five of them without
+that split, so it told you to run `typecheck`, `lint`, `test` and `build` after your own changes
+while the other section says those four are the orchestrator's. Two statements of one rule drift
+apart, and these two already had.
 
 Fix failures at the source. A green result establishes software integrity only; record editorial acceptance, numerical validation, and accessibility results separately.
 
