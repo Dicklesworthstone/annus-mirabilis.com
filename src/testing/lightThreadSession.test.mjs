@@ -6,6 +6,7 @@ import {
 } from "../experiments/lightThread/session.ts";
 import {
   evaluateLightThread,
+  LIGHT_THREAD_BOUNDS,
   LIGHT_THREAD_DEFAULTS,
   LIGHT_THREAD_QUANTITIES,
 } from "../physics/reference/lightThread.ts";
@@ -159,4 +160,76 @@ test("every subset of the four settings publishes, so no change is left without 
       assert.ok(after.snapshotVersion > before.snapshotVersion, `${label} did not publish`);
     }
   }
+});
+
+/**
+ * THE SESSION'S REMAINING THREE REFUSALS CANNOT FIRE, AND THIS IS THE MEASUREMENT.
+ *
+ *   :90  publication-refused    the initial publish
+ *   :121 no-command-for-change  no command issued for a changed setting
+ *   :134 publication-refused    the publish inside apply()
+ *
+ * :121 is dead by the eleven lines above it. apply() returns early when both the setup and
+ * observer patches are empty, so by the time the token is checked at least one of them has a
+ * key - and each non-empty patch issues its own command. There is no third bucket that could
+ * be non-empty without issuing anything.
+ *
+ * :90 and :134 publish against a token the store has just issued, with stepIndex and
+ * simulationTime fixed at 0 and final true. Every channel publish() can deny on - unknown
+ * message keys, stale revisions, a non-monotone step, a parameter mismatch, no outstanding
+ * request - is settled by construction at the call site, so the refusal has no input that
+ * reaches it.
+ *
+ * Kept as a test rather than a comment so that it stops being true LOUDLY. If a later change
+ * makes any of the three reachable, this goes red, and whoever made it reachable is the person
+ * who should drive it. Verified to be a working pawl rather than a decorative one: deleting
+ * the early return above :121 turns this test red.
+ */
+test("light-thread session: :90, :121 and :134 cannot fire across the admitted envelope", () => {
+  const observed = new Set();
+  let sessions = 0;
+  let applies = 0;
+  const keys = Object.keys(LIGHT_THREAD_DEFAULTS);
+
+  // Three points per axis, taken from the declared admission bounds rather than invented.
+  const samples = {};
+  for (const key of keys) {
+    const { min, max } = LIGHT_THREAD_BOUNDS[key];
+    samples[key] = [min, LIGHT_THREAD_DEFAULTS[key], max];
+  }
+
+  for (const startKey of keys) {
+    for (const start of samples[startKey]) {
+      const base = { ...LIGHT_THREAD_DEFAULTS, [startKey]: start };
+      if (evaluateLightThread(base, LIGHT_THREAD_OWNERS).kind !== "accepted") continue;
+      sessions += 1;
+      const session = createLightThreadSession(`lt-${startKey}-${start}`, base);
+
+      // Every single-axis move, including the observer axis on its own, which is the one
+      // that reaches :121's token check by a different route from the setup axes.
+      for (const key of keys) {
+        for (const target of samples[key]) {
+          applies += 1;
+          try {
+            session.apply({ ...base, [key]: target });
+          } catch (err) {
+            observed.add(`apply(${key}):${err?.code}`);
+          }
+        }
+      }
+      // And a no-change apply, which is the case the early return owns.
+      applies += 1;
+      try {
+        session.apply({ ...base });
+      } catch (err) {
+        observed.add(`apply(nochange):${err?.code}`);
+      }
+    }
+  }
+
+  // Reachability before the claim: without these, an envelope that produced no sessions at
+  // all would report "nothing refuses" forever.
+  assert.ok(sessions >= 8, `expected the admitted envelope to build sessions, got ${sessions}`);
+  assert.ok(applies >= 100, `expected the whole single-axis space, got ${applies} apply calls`);
+  assert.deepEqual([...observed], [], "no refusal fires anywhere in the admitted envelope");
 });
