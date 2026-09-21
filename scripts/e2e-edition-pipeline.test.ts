@@ -99,15 +99,32 @@ describe("edition pipeline: no ledger", () => {
 
   test("--require-stage ledger exits non-zero for a paper with no ledger", async () => {
     // The specimen must be a paper with NO ledger, which is what this test is about. It was
-    // light-quanta until 2026-09-21, when a skeleton put a file on disk; re-pointed rather
-    // than widened, because the subject is the require-stage behaviour and the paper is only
-    // the specimen that exhibits it.
+    // light-quanta until 2026-09-21, when a skeleton put a file on disk; then special-relativity,
+    // which acquired its own skeleton in 30ab1df0 the same day and now reports
+    // not-applicable-PARTIAL-ledger. Re-pointed rather than widened, because the subject is the
+    // require-stage behaviour and the paper is only the specimen that exhibits it.
+    //
+    // THIS IS THE LAST LEDGERLESS PAPER. molecular-dimensions is the only slug left with no
+    // transcript at all, so when it gets one there is no specimen in the real corpus and this
+    // test must be rewritten against a constructed root - a manifest with no transcripts
+    // directory beside it, which is what the sibling test in editionContract.test.ts now does.
+    // Do not widen the assertion to accept partial: "no ledger" and "a ledger that does not yet
+    // cover the paper" are different states and this test is about the first.
     const result = await runEditionPipeline({
-      slug: "special-relativity",
+      slug: "molecular-dimensions",
       requireStage: "ledger",
     });
     expect(result.exitCode).toBe(1);
     expect(result.translationCompleteness).toBe("not-applicable-no-ledger");
+
+    // The distinction the paragraph above turns on, asserted rather than described: a paper with
+    // a PARTIAL ledger also exits non-zero, and says something different about why.
+    const partial = await runEditionPipeline({
+      slug: "special-relativity",
+      requireStage: "ledger",
+    });
+    expect(partial.exitCode).toBe(1);
+    expect(partial.translationCompleteness).toBe("not-applicable-partial-ledger");
   });
 });
 

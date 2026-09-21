@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, sep } from "node:path";
 import { load as parseYaml } from "js-yaml";
 import {
   assertEditionContract,
@@ -381,28 +381,23 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     // the ledgerless paper while passing on the other, and is therefore visible rather than
     // uniform.
     //
-    // The ledgerless specimen was brownian-motion until 2026-09-21, then light-quanta. Both
-    // acquired transcripts and stopped spanning anything; light-quanta was transcribed end to
-    // end the same day and its ledger now COVERS all seventeen pages. This is the second
-    // RE-POINT and it follows the instruction the previous one left: the subject of this test
-    // is the two checks' independence from the ledger, the papers are only the specimens that
-    // demonstrate it, so the fix is to choose a specimen that still has the property rather
-    // than to compute one.
+    // THE REAL-CORPUS SPECIMEN RAN OUT, exactly as the previous re-point said it would, and
+    // within the hour. brownian-motion held this role until it was transcribed; then
+    // light-quanta, until ap-17-132 was finished; then special-relativity, which acquired a
+    // skeleton in 30ab1df0 minutes later and is now partial and still moving.
+    // molecular-dimensions is the only paper left with no ledger and it has NO MANIFEST, so
+    // checks 5 and 6 report not-available there and cannot show they judge a real manifest.
     //
-    // It is now special-relativity, chosen by measurement rather than by being next on the
-    // list: molecular-dimensions is also ledgerless but has no manifest at all, so checks 5
-    // and 6 report not-available there and it cannot demonstrate that they judge a real
-    // manifest. special-relativity has 208 units and both checks pass on it.
+    // So this stops chasing a specimen. The pair is now a real paper, to prove the checks judge
+    // real authored bytes, and one CONSTRUCTED root evaluated twice - with and without its
+    // transcripts directory - to prove the verdict does not depend on the ledger.
     //
-    // WHEN SPECIAL-RELATIVITY IS TRANSCRIBED, the standing instruction still holds and is now
-    // nearly due: molecular-dimensions cannot replace it, so at that point there is no paper
-    // with both properties left, and the "WHETHER OR NOT" in this name stops being
-    // demonstrable against the real corpus. Rewrite it against a constructed root then.
-    // Do not quietly drop it and do not re-point it at a paper whose checks decline.
-    for (const [slug, units, ledger] of [
-      ["mass-energy", 25, "complete"],
-      ["special-relativity", 208, "absent"],
-    ] as const) {
+    // The constructed half is the stronger demonstration and would have been the better test
+    // all along: same manifest, same unit count, the ledger as the ONLY variable. Two different
+    // papers differ in a hundred ways, so a pair drawn from the corpus could never say which
+    // difference the checks were responding to. Nothing is deleted to build it: the copy is
+    // taken with a filter that never copies the transcripts directory in the first place.
+    for (const [slug, units, ledger] of [["mass-energy", 25, "complete"]] as const) {
       const r = assertEditionContract(slug, {});
       expect(r.ledger, `${slug}'s ledger state changed; this pair must span both`).toBe(ledger);
       const five = r.checks.find((c) => c.checkNumber === 5);
@@ -411,6 +406,33 @@ describe("15-check composition with owner attribution (AC 5)", () => {
       expect(five?.message).toContain(`${units} unit(s) validated`);
       expect(six?.outcome, `check 6 must judge ${slug}'s real id snapshot`).toBe("passed");
     }
+
+    // The same root twice. Only the ledger differs.
+    const withLedger = "src/testing/fixtures/editions/mini-paper";
+    const withoutLedger = mkdtempSync(join(tmpdir(), "am-06x1-noledger-"));
+    cpSync(withLedger, withoutLedger, {
+      recursive: true,
+      filter: (src) => !src.includes(`${sep}transcripts`),
+    });
+
+    const unitCounts = new Set<string | undefined>();
+    for (const [label, root, ledger] of [
+      ["with its ledger", withLedger, "complete"],
+      ["with no transcripts directory", withoutLedger, "absent"],
+    ] as const) {
+      const r = assertEditionContract("mass-energy", { root });
+      expect(r.ledger, `${label}: the pair must span both ledger states`).toBe(ledger);
+      const five = r.checks.find((c) => c.checkNumber === 5);
+      const six = r.checks.find((c) => c.checkNumber === 6);
+      expect(five?.outcome, `check 5 must judge the manifest ${label}`).toBe("passed");
+      expect(six?.outcome, `check 6 must judge the id snapshot ${label}`).toBe("passed");
+      unitCounts.add(/(\d+) unit\(s\) validated/.exec(String(five?.message))?.[1]);
+    }
+    // The controlled variable, asserted. Both runs validated the SAME number of units, so the
+    // ledger changed and the manifest verdict did not. Without this the pair could pass while
+    // the two roots disagreed about what they were judging.
+    expect(unitCounts.size, `both runs must judge one manifest, got ${[...unitCounts]}`).toBe(1);
+    expect([...unitCounts][0]).toBe("6");
   });
 });
 
