@@ -132,17 +132,29 @@ describe("PaperPage", () => {
     expect(missingFromMarkup).toEqual([]);
   });
 
-  test("face route fallback branch: paper with no source blocks renders honest fallback notice (the live condition today)", async () => {
+  test("face route branch: the German face now serves the draft transcript, the other three still fall back", async () => {
+    // THE GERMAN ASSERTION CHANGED ON 2026-09-21 AND THE CHANGE IS THE DELIVERABLE, not a
+    // relaxation. This test was named "(the live condition today)" and pinned an absence:
+    // brownian-motion's German face said "not yet available" because nothing emitted a
+    // source payload. am-dl4n criterion 2 is that payload, under the owner's ruling "Show
+    // it, labelled a draft", so the absence is gone because the content shipped.
+    //
+    // EVERY ASSERTION THAT IS STILL TRUE IS KEPT, and that is what makes this an update
+    // rather than a weakening: the English, parallel and gloss faces still fall back,
+    // because a ledger provides no translation units and claiming otherwise would be the
+    // real regression. Those three are now the control on the German one.
     const paperId = "brownian-motion";
     const germanMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "german" }));
 
-    // Fallback notice is present
-    expect(germanMarkup).toContain("The german source for this paper is not yet available");
-    expect(germanMarkup).toContain('data-face-source="true"');
+    // The German face serves the transcript, labelled.
+    expect(germanMarkup).not.toContain("The german source for this paper is not yet available");
     expect(germanMarkup).toContain('data-view="german"');
-    expect(germanMarkup).toContain("Read the explanation instead");
+    expect(germanMarkup).toContain('data-face-source="true"');
+    expect(germanMarkup).toContain("Machine draft, not reviewed");
+    expect(germanMarkup).toMatch(/[äöüßÄÖÜ]/);
 
-    // Real source blocks are absent
+    // The compiled bilingual edition is still absent, so the blocks a reader sees come
+    // from the ledger rather than from source-block records.
     expect(germanMarkup).not.toContain("source-blocks-list");
     expect(germanMarkup).not.toContain('id="bm-s4-p1"');
 

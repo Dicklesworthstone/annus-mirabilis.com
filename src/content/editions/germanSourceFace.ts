@@ -18,6 +18,23 @@
  * believe. An absent ledgerPath is a different thing and is NOT an error: it means no
  * ledger has been made for that paper, which is true of three of the five.
  *
+ * THESE ARE NOT SourceBlock RECORDS AND MUST NOT BE PRESENTED AS THEM. A SourceBlock
+ * carries a facsimile locator - a PDF page index and a printed page - because a source
+ * block is anchored evidence, and the schema requires at least one. The ledger segmenter
+ * strips page markers before segmenting, so a proposed block has none.
+ *
+ * I tried to recover them by finding each block's text back in the raw ledger and reading
+ * the nearest preceding page anchor. It resolves 233 of 245 blocks across the three
+ * papers and fails on twelve, mostly equations whose text is normalised during
+ * segmentation. Filling those twelve with a guess would be manufacturing provenance, and
+ * a locator pointing at the wrong page is worse than no locator at all: it is a false
+ * citation of the facsimile.
+ *
+ * So the draft face renders this text WITHOUT per-block locators and does not pretend to
+ * be the anchored source layer. Anchoring it properly means teaching segmentLedger to
+ * carry page markers through segmentation, which is a change to the editions pane's
+ * module and is follow-on work, not something to fake here.
+ *
  * NOTICE AND BLOCKS ARE ONE VALUE ON PURPOSE. `notice` is not optional on the returned
  * type, so no caller can obtain the German text without also holding the sentence that
  * qualifies it. That is requirement 3 expressed in the type rather than in a convention;

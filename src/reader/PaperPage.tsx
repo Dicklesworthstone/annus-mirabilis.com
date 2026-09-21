@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-light-quanta.json";
 import clockEntranceRaw from "../../content/arguments/special-relativity/entrance-special-relativity.json";
+import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
+import type { RouteSlug } from "../content/ids.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { loadPaper } from "../content/server.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
@@ -19,6 +21,7 @@ import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.t
 import { FaceFallback } from "./FaceFallback.tsx";
 import { type BilingualEdition, loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { EnglishFace } from "./faces/EnglishFace.tsx";
+import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
 import { GermanFace } from "./faces/GermanFace.tsx";
 import { GlossFace } from "./faces/GlossFace.tsx";
 import { ParallelFace } from "./faces/ParallelFace.tsx";
@@ -60,6 +63,25 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           : options?.editionLoader
             ? await options.editionLoader(resolved.paperId)
             : await loadBilingualEdition(resolved.paperId);
+
+      // A paper with no compiled bilingual payload may still have a reviewed-or-draft
+      // ledger on disk. Before falling through to "not yet available", ask the receipt.
+      // This is checked BEFORE the edition branch only for the German face, because the
+      // English, parallel and gloss faces need translation units that no ledger provides
+      // and would be claiming more than exists.
+      if (resolved.face === "german" && (!edition || edition.blocks.length === 0)) {
+        const draft = loadGermanSourceFace(resolved.paperId as RouteSlug);
+        if (draft && draft.blocks.length > 0) {
+          const paperRecord = await loadPaper(resolved.paperId);
+          return (
+            <GermanDraftFace
+              face={draft}
+              paperTitle={paperRecord.paper.title}
+              sectionId={resolved.section}
+            />
+          );
+        }
+      }
 
       if (edition) {
         if (resolved.face === "german" && edition.blocks.length > 0) {

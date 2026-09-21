@@ -35,7 +35,7 @@
  */
 
 import assert from "node:assert/strict";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -69,16 +69,30 @@ interface LedgerOnDisk {
 }
 
 function ledgersOnDisk(): LedgerOnDisk[] {
-  if (!existsSync(TRANSCRIPTS)) return [];
-  const slugOf = new Map(Object.entries(PAPER_BIB_KEYS).map(([slug, key]) => [key, slug]));
+  // DISCOVERED THROUGH THE RECEIPTS, NOT BY GLOBBING A FILENAME.
+  //
+  // This globbed `*-reviewed.txt` until am-wisq renamed the transcripts to
+  // `*-machine-draft.txt`. The glob then matched nothing, and this test failed on its own
+  // reachability assertion rather than passing vacuously - which is the guard working,
+  // and is also exactly the coupling the receipt-keyed modules were built to avoid. The
+  // guard was the one place I had not applied the same rule.
+  //
+  // `transcription.ledgerPath` is the receipt's own record of where its ledger is, so the
+  // next rename carries this with it.
   const found: LedgerOnDisk[] = [];
-  for (const entry of readdirSync(TRANSCRIPTS)) {
-    const match = entry.match(/^(.+)-reviewed\.txt$/);
-    if (!match) continue;
-    const bibKey = match[1] as string;
-    const slug = slugOf.get(bibKey);
-    if (slug === undefined) continue;
-    found.push({ bibKey, slug, path: join(TRANSCRIPTS, entry) });
+  for (const [slug, bibKey] of Object.entries(PAPER_BIB_KEYS)) {
+    const receiptPath = join(REPO_ROOT, "docs", "provenance", `${bibKey}.md`);
+    if (!existsSync(receiptPath)) continue;
+    const receipt = readFileSync(receiptPath, "utf8");
+    const status = /^\s*ledgerStatus:\s*(\S+)/m.exec(receipt)?.[1];
+    // A paper whose ledger has not been started records an aspirational path. It has no
+    // ledger to reach a reader, and asserting on it would be asserting on a plan.
+    if (status === undefined || status === "not-started") continue;
+    const relative = /^\s*ledgerPath:\s*"?([^"\n]+)"?\s*$/m.exec(receipt)?.[1]?.trim();
+    if (!relative) continue;
+    const path = join(REPO_ROOT, relative);
+    if (!existsSync(path)) continue;
+    found.push({ bibKey, slug, path });
   }
   return found;
 }
@@ -111,7 +125,7 @@ test("every reviewed ledger on disk reaches a reader through its built German pa
   // would keep passing after the first one landed. It must say so instead.
   assert.ok(
     ledgers.length > 0,
-    `no reviewed ledger was found under ${TRANSCRIPTS}, so this proves nothing. ` +
+    `no ledger was found through any provenance receipt, so this proves nothing. ` +
       "If ledgers have moved, this test must move with them.",
   );
 
