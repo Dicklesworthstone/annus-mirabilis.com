@@ -793,7 +793,7 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
-  it("planted negative: draft reference string format fails draft-reference-format with unitId, rule, and repair", () => {
+  it("refusal (schema.ts:412): draft reference string format fails draft-reference-format with unitId, rule, and repair", () => {
     const raw = {
       paper: "mini-paper",
       document: "ap-17-132",
@@ -830,7 +830,7 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
-  it("planted negative: draft reference object using citation property fails draft-reference-format with unitId, rule, and repair", () => {
+  it("refusal (schema.ts:440): draft reference object using citation property fails draft-reference-format with unitId, rule, and repair", () => {
     const raw = {
       paper: "mini-paper",
       document: "ap-17-132",
@@ -867,7 +867,7 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
-  it("planted negative: draft generic reference id ref-1 fails draft-reference-format with unitId, rule, and repair", () => {
+  it("refusal (schema.ts:463): draft generic reference id ref-1 fails draft-reference-format with unitId, rule, and repair", () => {
     const raw = {
       paper: "mini-paper",
       document: "ap-17-132",
@@ -1277,7 +1277,7 @@ describe("Source Manifest & Locator Validator Suite", () => {
     );
   });
 
-  it("planted negative: idsFrozenAt with invalid ISO timestamp fails invalid-ids-frozen-at with rule and repair", () => {
+  it("refusal (schema.ts:648): idsFrozenAt with invalid ISO timestamp fails invalid-ids-frozen-at with rule and repair", () => {
     const raw = {
       paper: "mini-paper",
       document: "ap-17-132",

@@ -21,7 +21,7 @@
  * 17. (schema.ts:541) missing-import-paper
  * 18. (schema.ts:548) missing-import-resultid
  * 19. (schema.ts:555) import-use-missing
- * 20. (schema.ts:585) invalid-ids-frozen-at (and schema.ts:577)
+ * 20. (schema.ts:648) invalid-ids-frozen-at (and schema.ts:639)
  */
 
 import assert from "node:assert/strict";
@@ -809,9 +809,9 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
     });
   });
 
-  // 20. (schema.ts:585) invalid-ids-frozen-at (and schema.ts:577)
-  describe("Site (schema.ts:585): invalid-ids-frozen-at", () => {
-    it("rejects non-ISO timestamp idsFrozenAt with code invalid-ids-frozen-at (schema.ts:585)", () => {
+  // 20. (schema.ts:648) invalid-ids-frozen-at (and schema.ts:639)
+  describe("Site (schema.ts:648): invalid-ids-frozen-at", () => {
+    it("rejects non-ISO timestamp idsFrozenAt with code invalid-ids-frozen-at (schema.ts:648)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -828,7 +828,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("rejects empty string idsFrozenAt with code invalid-ids-frozen-at (schema.ts:577)", () => {
+    it("rejects empty string idsFrozenAt with code invalid-ids-frozen-at (schema.ts:639)", () => {
       assert.throws(
         () =>
           validateSourceManifest(
@@ -844,7 +844,7 @@ describe("Manifest Schema Refusals (schema.ts)", () => {
       );
     });
 
-    it("accepts valid ISO date timestamp for idsFrozenAt (schema.ts:585)", () => {
+    it("accepts valid ISO date timestamp for idsFrozenAt (schema.ts:648)", () => {
       const result = validateSourceManifest(
         createValidManifest({
           idsFrozenAt: "2026-09-16T12:34:56Z",
