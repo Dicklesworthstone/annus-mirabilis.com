@@ -170,7 +170,7 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
     expect(crossErrors.length).toBe(0);
   });
 
-  test("negative plant: Paper 3 with 0 cross-paper edges fails validation", () => {
+  test("refusal (consistency.ts:234): Paper 3 with 0 cross-paper edges fails validation", () => {
     const graph: GenealogyGraph = {
       paper: "special-relativity",
       perspective: "historical",
@@ -217,7 +217,7 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
     expect(crossErrors[0]?.message).toContain("found 0");
   });
 
-  test("negative plant: Paper 3 with extra / spurious cross-paper edge fails validation", () => {
+  test("refusal (consistency.ts:240): Paper 3 with extra / spurious cross-paper edge fails validation", () => {
     const customEdges: GenealogyEdge[] = [
       {
         from: "premise-sr-light-energy-transformation",
@@ -502,6 +502,101 @@ describe("am-eq-genealogy-hmm: validateGenealogyConsistency", () => {
       ],
       crossPaperEdges: [],
     };
+
+    test("refusal (consistency.ts:115): missing-premise-edge reports a missing ENTRY ASSUMPTION edge", () => {
+      // Nothing drove this site. Planting it left all 11 tests green, while planting :135,
+      // :149 and :166 reddened one each, so the harness was working and this one arm was
+      // simply absent. The existing "detects missing premise edges" test cannot stand in for
+      // it: it asserts `missing.length > 0` and reads missing[0], which any of the four sites
+      // satisfies.
+      //
+      // The four share one code and differ only in message, so the assertion below keys on
+      // "entry assumption", which is the phrase unique to this site. The other three say
+      // "sequential step", "cites premise" and "target connection".
+      if (!sampleChains || sampleChains.length === 0) {
+        throw new Error("sampleChains must be defined and non-empty");
+      }
+      const chain = sampleChains[0];
+      if (!chain) {
+        throw new Error("chain at index 0 must be defined");
+      }
+
+      // Accept: the entry assumption edges are present, so the site stays silent.
+      const passDiags = validateGenealogyConsistency(baseGraph, [], [chain], { isPaper3: false });
+      expect(
+        passDiags.some(
+          (d) => d.code === "missing-premise-edge" && d.message.includes("entry assumption"),
+        ),
+      ).toBe(false);
+
+      // Reject: the same graph with the entry assumption edges removed.
+      const withoutEntryEdges: GenealogyGraph = { ...baseGraph, edges: [] };
+      const failDiags = validateGenealogyConsistency(withoutEntryEdges, [], [chain], {
+        isPaper3: false,
+      });
+      const missing = failDiags.find(
+        (d) =>
+          d.code === "missing-premise-edge" &&
+          d.edge?.from === "premise-relativity-principle" &&
+          d.edge?.to === "sr-ped-step-1",
+      );
+      expect(missing).toBeDefined();
+      expect(missing?.message).toContain("cites entry assumption");
+      // perspective is "historical" and the edgeType is pedagogical-reconstruction rather than
+      // modern-verification-oracle, so the oracle exemption above the site does not apply. If
+      // it did, this arm would pass for the wrong reason.
+      expect(baseGraph.perspective).toBe("historical");
+    });
+
+    test("refusal (consistency.ts:249): invalid-cross-paper-edge-set reports one edge aimed at the wrong paper", () => {
+      // The third arm of the Paper 3 invariant. :234 covers zero outgoing edges and :240
+      // covers more than one; this covers exactly one that leaves for somewhere other than
+      // Paper 4, which is the case that looks correct by count and is wrong by destination.
+      const graphWith = (targetPaper: string): GenealogyGraph => ({
+        paper: "special-relativity",
+        perspective: "historical",
+        nodes: [
+          {
+            id: "premise-sr-light-energy-transformation",
+            paper: "special-relativity",
+            label: "Light energy transformation",
+            type: "premise",
+            isRoot: true,
+            isNumberedResult: false,
+          },
+        ],
+        edges: [
+          {
+            from: "premise-sr-light-energy-transformation",
+            to: "me-step-1",
+            edgeType: "historical-derivation",
+            isPremise: true,
+            crossPaper: true,
+            targetPaper,
+          },
+        ],
+        roots: ["premise-sr-light-energy-transformation"],
+        crossPaperEdges: [],
+      });
+
+      // Accept: exactly one outgoing edge, aimed at Paper 4.
+      const passDiags = validateGenealogyConsistency(graphWith("mass-energy"), [], [], {
+        isPaper3: true,
+      });
+      expect(passDiags.some((d) => d.code === "invalid-cross-paper-edge-set")).toBe(false);
+
+      // Reject: exactly one outgoing edge, aimed elsewhere.
+      const failDiags = validateGenealogyConsistency(graphWith("brownian-motion"), [], [], {
+        isPaper3: true,
+      });
+      const wrongTarget = failDiags.find((d) => d.code === "invalid-cross-paper-edge-set");
+      expect(wrongTarget).toBeDefined();
+      expect(wrongTarget?.message).toContain("must target Paper 4");
+      expect(wrongTarget?.message).toContain("brownian-motion");
+      // Not the count arms: this must not be the "found 0" or "found N edges" message.
+      expect(wrongTarget?.message).not.toContain("found 0");
+      expect(wrongTarget?.edge?.from).toBe("premise-sr-light-energy-transformation");
+    });
 
     test("refusal (consistency.ts:135): missing-premise-edge reports missing sequential step edge", () => {
       if (!sampleChains || sampleChains.length === 0) {
