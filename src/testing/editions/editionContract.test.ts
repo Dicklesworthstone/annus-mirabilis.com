@@ -870,7 +870,12 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
 });
 
 /**
- * (editionContract.ts:802) invalid-route-slug.
+ * (editionContract.ts:806) invalid-route-slug.
+ *
+ * The line was established by planting, not by adding the drift: renaming that site's code turns
+ * exactly the two tests below red and nothing else in the file. My first draft cited 802, from a
+ * scan taken before I reworded a comment four lines above it - which is the drift this whole class
+ * of citation keeps producing, committed by me an hour after I reported it.
  *
  * This refusal was `throw new Error(parsed.error)` until 2026-09-21: invisible to the bare-throw
  * ratchet as an uncoded refusal, and invisible to the untested-refusal scanner entirely, because a
@@ -878,7 +883,7 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
  * string and had nothing to branch on.
  */
 describe("assertEditionContract refuses a slug that is not a route", () => {
-  test("(editionContract.ts:802) a non-route slug is refused with a code, naming the legal slugs", () => {
+  test("(editionContract.ts:806) a non-route slug is refused with a code, naming the legal slugs", () => {
     let caught: unknown;
     try {
       assertEditionContract("brownian");
