@@ -265,6 +265,43 @@ Da die Beziehungen zwischen $x'$, $y'$, $z'$ und $x$, $y$, $z$ die Zeit $t$ nich
 --- MACHINE DRAFT TRANSCRIPTION PAGE 12 OF 31 ---
 [[ANNALEN-PAGE 902]]
 
+und es ist klar, daß die Transformation von $K$ auf $K'$ die identische Transformation sein muß. Es ist also:
+$$
+\varphi(v) \varphi(-v) = 1 .
+$$
+
+Wir fragen nun nach der Bedeutung von $\varphi(v)$. Wir fassen das Stück der $H$-Achse des Systems $k$ ins Auge, das zwischen $\xi = 0$, $\eta = 0$, $\zeta = 0$ und $\xi = 0$, $\eta = l$, $\zeta = 0$ gelegen ist. Dieses Stück der $H$-Achse ist ein relativ zum System $K$ mit der Geschwindigkeit $v$ senkrecht zu seiner Achse bewegter Stab, dessen Enden in $K$ die Koordinaten besitzen:
+$$
+x_1 = v t, \quad y_1 = \frac{l}{\varphi(v)}, \quad z_1 = 0
+$$
+und
+$$
+x_2 = v t, \quad y_2 = 0, \quad z_2 = 0 .
+$$
+
+Die Länge des Stabes, in $K$ gemessen, ist also $l/\varphi(v)$; damit ist die Bedeutung der Funktion $\varphi$ gegeben. Aus Symmetriegründen ist nun einleuchtend, daß die im ruhenden System gemessene Länge eines bestimmten Stabes, welcher senkrecht zu seiner Achse bewegt ist, nur von der Geschwindigkeit, nicht aber von der Richtung und dem Sinne der Bewegung abhängig sein kann. Es ändert sich also die im ruhenden System gemessene Länge des bewegten Stabes nicht, wenn $v$ mit $-v$ vertauscht wird. Hieraus folgt:
+$$
+\frac{l}{\varphi(v)} = \frac{l}{\varphi(-v)} ,
+$$
+oder
+$$
+\varphi(v) = \varphi(-v) .
+$$
+
+Aus dieser und der vorhin gefundenen Relation folgt, daß $\varphi(v) = 1$ sein muß, so daß die gefundenen Transformationsgleichungen übergehen in:
+$$
+\begin{aligned}
+\tau &= \beta\left( t - \frac{v}{V^2} x \right), \\
+\xi &= \beta(x - v t), \\
+\eta &= y, \\
+\zeta &= z,
+\end{aligned}
+$$
+wobei
+$$
+\beta = \frac{1}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} ,
+$$
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 13 OF 31 ---
 [[ANNALEN-PAGE 903]]
 
