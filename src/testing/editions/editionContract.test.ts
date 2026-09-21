@@ -22,9 +22,50 @@ import { getLogger } from "../log/logger.ts";
 const logger = getLogger("editions");
 const BEAD = "am-edn-alignment-tooling-do1";
 
-const LEDGER = `--- REVIEWED TRANSCRIPTION PAGE 1 OF 1 ---
-Die Bewegung ist unregelmäßig. Sie hört nicht auf.
-`;
+/**
+ * The fixture ledger, built to the SHAPE the pinned artifact declares rather than to a
+ * number typed here.
+ *
+ * It read `PAGE 1 OF 1` until 2026-09-21 while `assertEditionContract("brownian-motion")`
+ * validates it against docs/provenance/ap-17-549.md, which declares twelve. The fixture
+ * and the receipt had contradicted each other since the fixture was written; nothing
+ * reported it because check 2 declined `ledger-absent` for a paper with no ledger on disk
+ * and therefore never ran. The first real ap-17-549 ledger made the check run and the
+ * contradiction surfaced immediately as `page-count-mismatch`.
+ *
+ * GROUND TRUTH IS THE PINNED PDF, and twelve is what six independent readings of it give:
+ *   public/papers/pdfs/ap-17-549.pdf, sha256 0192ff57013a2adc...415dd3507
+ *     poppler `pdfinfo` .................................. Pages: 12
+ *     the repo's own countPdfPages (/Type /Page on those bytes) ...... 12
+ *     receipt scan.pageCount ......................................... 12
+ *     receipt pageMap entries ........................................ 12
+ *     receipt printed range 549-560 .................................. 12
+ *     the real ledger's marker sequence .............................. 12
+ * So the receipt was the correct side of the disagreement and the fixture was the wrong
+ * one. The count below is now READ OFF the receipt's page map at test time, so a fixture
+ * can never again quietly disagree with the artifact it claims to transcribe.
+ */
+function brownianPrintedPages(): readonly number[] {
+  const receipt = readFileSync(join(process.cwd(), "docs/provenance/ap-17-549.md"), "utf8");
+  const pages = [...receipt.matchAll(/^\s*printedPage:\s*(\d+)\s*$/gm)].map((m) => Number(m[1]));
+  if (pages.length === 0) {
+    throw new Error(
+      "docs/provenance/ap-17-549.md yielded no printedPage entries; the fixture below would " +
+        "otherwise be built from an empty page map and assert nothing.",
+    );
+  }
+  return pages;
+}
+
+const BROWNIAN_PRINTED_PAGES = brownianPrintedPages();
+
+/** Page 1 carries the sentence the reconstruction checks read; the rest are skeleton pages. */
+const LEDGER = `${BROWNIAN_PRINTED_PAGES.map(
+  (printed, i) =>
+    `--- REVIEWED TRANSCRIPTION PAGE ${i + 1} OF ${BROWNIAN_PRINTED_PAGES.length} ---\n` +
+    `[[ANNALEN-PAGE ${printed}]]\n` +
+    (i === 0 ? "\nDie Bewegung ist unregelmäßig. Sie hört nicht auf.\n" : ""),
+).join("\n")}`;
 
 describe("assertEditionContract", () => {
   test("a present ledger with matching reconstruction and id-edges passes", () => {
@@ -223,8 +264,11 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     // current", "valid" and "are current" anyway. They now decline, and are named here with
     // their codes for the same reason the first three were: so a change that turns one back
     // into an unconditional pass fails here rather than reading as progress.
+    // Check 2 LEFT this map on 2026-09-21 and that is not a relaxation. It declined
+    // `ledger-not-on-disk` while brownian-motion had no transcript; ap-17-549 now has one,
+    // so check 2 validates the ledger this fixture supplies and reports a real verdict.
+    // It is asserted below with the substance of that verdict rather than dropped.
     const notAvailable = new Map<number, string>([
-      [2, "ledger-not-on-disk"],
       [9, "english-face-absent"],
       [12, "hero-quote-not-declared"],
       [10, "inline-math-atoms-population-empty"],
@@ -237,6 +281,12 @@ describe("15-check composition with owner attribution (AC 5)", () => {
       expect(outcomeOf(checkNumber)).toBe("not-available");
       expect(codeOf(checkNumber)).toBe(code);
     }
+
+    // Check 2's real verdict, pinned so it cannot decay into an unconditional pass: it
+    // must have examined a ledger of the page count the receipt declares.
+    expect(outcomeOf(2)).toBe("passed");
+    expect(BROWNIAN_PRINTED_PAGES.length).toBeGreaterThan(1);
+    expect(LEDGER).toContain(`PAGE 1 OF ${BROWNIAN_PRINTED_PAGES.length} ---`);
     for (const spec of CONTRACT_CHECKS_SPEC) {
       if (notAvailable.has(spec.checkNumber)) continue;
       expect(outcomeOf(spec.checkNumber)).toBe("passed");
@@ -289,15 +339,23 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     // manifest and the id snapshot, not the ledger, so they must judge either way.
     //
     // This test wrote `expect(r.ledger).toBe("absent")` until 2026-09-20, which pinned the
-    // absence as well as the property - so the first real ledger in the project broke it,
-    // even though its own comment said "if a ledger ever lands this keeps passing". The
-    // absence assertion is gone and the ledger state is now asserted PER PAPER, which
-    // makes the pair strictly stronger than before: mass-energy has a ledger and
-    // brownian-motion does not, so a regression that re-gated these checks behind the
-    // ledger would now fail on brownian while passing on mass-energy, and be visible.
+    // absence as well as the property. Ledger state is now asserted PER PAPER so the pair
+    // SPANS both states: a regression that re-gated these checks behind the ledger fails on
+    // the ledgerless paper while passing on the other, and is therefore visible rather than
+    // uniform.
+    //
+    // The ledgerless specimen was brownian-motion until 2026-09-21, when ap-17-549 acquired
+    // a transcript and the pair stopped spanning anything. It is now light-quanta, which is
+    // still in PAPERS_WAITING_ON_CLOUD_OCR. This is a RE-POINT, not a derivation: the
+    // subject of this test is the two checks' independence from the ledger, and the papers
+    // are only the specimens that demonstrate it, so the fix is to choose a specimen that
+    // still has the property rather than to compute one. When light-quanta is transcribed,
+    // whoever does it re-points this at whichever paper is ledgerless then - and if none is
+    // left, the "WHETHER OR NOT" in the name is no longer demonstrable here and this test
+    // should be rewritten against a constructed root instead of quietly dropped.
     for (const [slug, units, ledger] of [
       ["mass-energy", 25, "present"],
-      ["brownian-motion", 87, "absent"],
+      ["light-quanta", 128, "absent"],
     ] as const) {
       const r = assertEditionContract(slug, {});
       expect(r.ledger, `${slug}'s ledger state changed; this pair must span both`).toBe(ledger);
