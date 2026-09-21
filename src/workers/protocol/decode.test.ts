@@ -9,6 +9,8 @@
  */
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test, { describe } from "node:test";
 import type { U64String } from "../../experiments/identity/u64.ts";
 import {
@@ -209,7 +211,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "unknown-field", "request frame with extra unknown keys");
   });
 
-  test("site (decode.ts:214) protocol-mismatch: rejects request message with mismatched protocolVersion, accepts valid request", () => {
+  test("site (decode.ts:208) protocol-mismatch: rejects request message with mismatched protocolVersion, accepts valid request", () => {
     const accepted = decode(VALID_REQUEST, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -221,7 +223,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "protocol-mismatch", "request frame with protocolVersion 42");
   });
 
-  test("site (decode.ts:220) missing-identity: rejects request message missing instanceId (truncated frame), accepts valid request", () => {
+  test("site (decode.ts:214) missing-identity: rejects request message missing instanceId (truncated frame), accepts valid request", () => {
     const accepted = decode(VALID_REQUEST, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -233,7 +235,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "missing-identity", "request frame with empty instanceId");
   });
 
-  test("site (decode.ts:223) missing-identity: rejects request message missing runId (truncated frame), accepts valid request", () => {
+  test("site (decode.ts:217) missing-identity: rejects request message missing runId (truncated frame), accepts valid request", () => {
     const accepted = decode(VALID_REQUEST, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -245,7 +247,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "missing-identity", "request frame with empty runId");
   });
 
-  test("site (decode.ts:226) missing-identity: rejects request message missing actionIndex (truncated frame), accepts valid request", () => {
+  test("site (decode.ts:220) missing-identity: rejects request message missing actionIndex (truncated frame), accepts valid request", () => {
     const accepted = decode(VALID_REQUEST, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -257,7 +259,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "missing-identity", "request frame with undefined actionIndex");
   });
 
-  test("site (decode.ts:235) invalid-u64-seed: rejects request message with numeric JSON seed, accepts canonical U64 string seed", () => {
+  test("site (decode.ts:229) invalid-u64-seed: rejects request message with numeric JSON seed, accepts canonical U64 string seed", () => {
     const accepted = decode(VALID_REQUEST, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -273,7 +275,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "invalid-u64-seed", "request frame with numeric JSON seed");
   });
 
-  test("site (decode.ts:242) invalid-u64-seed: rejects request message with invalid canonical U64 seed string, accepts valid U64 string seed", () => {
+  test("site (decode.ts:236) invalid-u64-seed: rejects request message with invalid canonical U64 seed string, accepts valid U64 string seed", () => {
     const validWithSeed = {
       ...VALID_REQUEST,
       seedPolicy: {
@@ -297,7 +299,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "invalid-u64-seed", "request frame with non-string seed");
   });
 
-  test("site (decode.ts:251) nonfinite-value: rejects request message with non-finite parameter numbers, accepts valid request", () => {
+  test("site (decode.ts:245) nonfinite-value: rejects request message with non-finite parameter numbers, accepts valid request", () => {
     const accepted = decode(VALID_REQUEST, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -316,7 +318,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
   // Group 3: Common Response Identity & Staleness (Sites 16–24)
   // ==========================================================================
 
-  test("site (decode.ts:270) malformed-response: rejects response with unrecognized response messageKind, accepts valid accepted", () => {
+  test("site (decode.ts:264) malformed-response: rejects response with unrecognized response messageKind, accepts valid accepted", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -330,7 +332,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "malformed-response", "response frame with unknown response messageKind");
   });
 
-  test("site (decode.ts:279) unknown-field: rejects response with extra fields (over-long frame), accepts valid accepted", () => {
+  test("site (decode.ts:273) unknown-field: rejects response with extra fields (over-long frame), accepts valid accepted", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -342,7 +344,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "unknown-field", "accepted frame with extra unknown field");
   });
 
-  test("site (decode.ts:287) missing-identity: rejects response missing instanceId (truncated frame), accepts valid accepted", () => {
+  test("site (decode.ts:281) missing-identity: rejects response missing instanceId (truncated frame), accepts valid accepted", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -354,7 +356,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "missing-identity", "accepted frame with whitespace instanceId");
   });
 
-  test("site (decode.ts:290) missing-identity: rejects response missing runId (truncated frame), accepts valid accepted", () => {
+  test("site (decode.ts:284) missing-identity: rejects response missing runId (truncated frame), accepts valid accepted", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -366,7 +368,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "missing-identity", "accepted frame with empty runId");
   });
 
-  test("site (decode.ts:293) missing-identity: rejects response with non-integer actionIndex, accepts valid accepted", () => {
+  test("site (decode.ts:287) missing-identity: rejects response with non-integer actionIndex, accepts valid accepted", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -378,7 +380,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "missing-identity", "accepted frame with floating point actionIndex");
   });
 
-  test("site (decode.ts:296) missing-identity: rejects response missing revisions object (truncated frame), accepts valid accepted", () => {
+  test("site (decode.ts:290) missing-identity: rejects response missing revisions object (truncated frame), accepts valid accepted", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -390,7 +392,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "missing-identity", "accepted frame with null revisions");
   });
 
-  test("site (decode.ts:303) stale-run-id: rejects response with superseded runId, accepts matching runId", () => {
+  test("site (decode.ts:297) stale-run-id: rejects response with superseded runId, accepts matching runId", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -402,7 +404,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "stale-run-id", "accepted frame with superseded runId");
   });
 
-  test("site (decode.ts:312) unissued-action-index: rejects response with actionIndex not in issuedActionIndices, accepts issued actionIndex", () => {
+  test("site (decode.ts:306) unissued-action-index: rejects response with actionIndex not in issuedActionIndices, accepts issued actionIndex", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -418,7 +420,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     );
   });
 
-  test("site (decode.ts:321) stale-action-index: rejects response with actionIndex older than acceptedActionIndex, accepts newer actionIndex", () => {
+  test("site (decode.ts:315) stale-action-index: rejects response with actionIndex older than acceptedActionIndex, accepts newer actionIndex", () => {
     const ctxWithAdvancedAccepted: DecodeContext = {
       ...defaultContext,
       acceptedActionIndex: 2,
@@ -448,7 +450,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
   // Group 4: Accepted response details (Sites 25–29)
   // ==========================================================================
 
-  test("site (decode.ts:331) malformed-response: rejects accepted response missing integer stepIndex (truncated frame), accepts valid accepted", () => {
+  test("site (decode.ts:325) malformed-response: rejects accepted response missing integer stepIndex (truncated frame), accepts valid accepted", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -473,7 +475,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     );
   });
 
-  test("site (decode.ts:338) stale-step-index: rejects accepted response with non-increasing stepIndex for same action, accepts increasing stepIndex", () => {
+  test("site (decode.ts:332) stale-step-index: rejects accepted response with non-increasing stepIndex for same action, accepts increasing stepIndex", () => {
     const ctxWithStep: DecodeContext = {
       ...defaultContext,
       acceptedActionIndex: 1,
@@ -502,7 +504,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     );
   });
 
-  test("site (decode.ts:351) nonfinite-value: rejects accepted response with non-finite values in parameters/outputs/simulatedTime, accepts finite values", () => {
+  test("site (decode.ts:345) nonfinite-value: rejects accepted response with non-finite values in parameters/outputs/simulatedTime, accepts finite values", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -536,7 +538,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     );
   });
 
-  test("site (decode.ts:364) unit-mismatch: rejects accepted response with output unit differing from expectedUnits contract, accepts matching units", () => {
+  test("site (decode.ts:358) unit-mismatch: rejects accepted response with output unit differing from expectedUnits contract, accepts matching units", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -561,7 +563,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     );
   });
 
-  test("site (decode.ts:394) malformed-response: rejects accepted response missing provenance record (truncated frame), accepts valid accepted", () => {
+  test("site (decode.ts:388) malformed-response: rejects accepted response missing provenance record (truncated frame), accepts valid accepted", () => {
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -581,7 +583,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
   // Group 5: Refusal, Outcome, and Fallback (Sites 30–34)
   // ==========================================================================
 
-  test("site (decode.ts:408) malformed-response: rejects refusal message missing refusal record (truncated frame), accepts valid refusal", () => {
+  test("site (decode.ts:407) malformed-response: rejects refusal message missing refusal record (truncated frame), accepts valid refusal", () => {
     const accepted = decode(VALID_REFUSAL, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -597,7 +599,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     );
   });
 
-  test("site (decode.ts:415) unregistered-refusal-code: rejects refusal message with unregistered refusal code, accepts registered refusal code", () => {
+  test("site (decode.ts:414) unregistered-refusal-code: rejects refusal message with unregistered refusal code, accepts registered refusal code", () => {
     const accepted = decode(VALID_REFUSAL, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -615,7 +617,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     assertRejection(res, "unregistered-refusal-code", "refusal frame with unregistered code");
   });
 
-  test("site (decode.ts:427) malformed-response: rejects outcome message missing outcome record (truncated frame), accepts valid outcome", () => {
+  test("site (decode.ts:426) malformed-response: rejects outcome message missing outcome record (truncated frame), accepts valid outcome", () => {
     const accepted = decode(VALID_OUTCOME, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -631,7 +633,7 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     );
   });
 
-  test("site (decode.ts:434) malformed-response: rejects outcome message with unknown execution outcome id, accepts registered outcome", () => {
+  test("site (decode.ts:433) malformed-response: rejects outcome message with unknown execution outcome id, accepts registered outcome", () => {
     const accepted = decode(VALID_OUTCOME, defaultContext);
     assert.equal(accepted.ok, true);
 
@@ -651,35 +653,60 @@ describe("Worker protocol decode refusal sites (am-muyh)", () => {
     );
   });
 
-  test("site (decode.ts:444) malformed-response: rejects unhandled messageKind fallback, accepts valid message", () => {
+  test("an unrecognized messageKind is refused at the kind check, and the trailing fallback is dead", () => {
+    // REWRITTEN. What stood here cited (decode.ts:444) and claimed to exercise the
+    // fallback at the end of decode(). It does not: the case it passes is refused by the
+    // kind check much earlier, which planting confirms - renaming the fallback's code
+    // leaves this green, and renaming the kind check's code turns it red.
+    //
+    // The previous comment had already REASONED ITS WAY TO THAT CONCLUSION - "since line
+    // 267 rejects any messageKind not in allowedKeysMap, and lines 327, 405, 424 handle
+    // all 3 keys" - and then, instead of recording the site as unreachable, ended with
+    // "Can we verify line 444 is recognized by scanner? ... And this test block cites
+    // (decode.ts:444) and mentions malformed-response!". That is coverage written for the
+    // instrument rather than for the code, and the reasoning above it was right.
+    //
+    // So this test now asserts the behaviour that is real, and the unreachability is
+    // recorded as a claim below rather than dressed up as a test.
     const accepted = decode(VALID_ACCEPTED, defaultContext);
     assert.equal(accepted.ok, true);
 
-    // Object with a messageKind that bypasses previous branches if allowed keys map is manipulated or simulated
-    const unhandledKind = Object.create(null);
-    unhandledKind.messageKind = "non-standard-worker-broadcast";
-    unhandledKind.instanceId = "inst-42";
-    unhandledKind.runId = "run-alpha";
-    unhandledKind.actionIndex = 1;
-    unhandledKind.revisions = {};
-
-    // Bypass the allowedKeys check by mocking allowedKeysMap entry or using a kind that passes initial check
-    // In decode.ts:
-    // line 260-267 checks allowedKeysMap[messageKind]. If not in accepted/refusal/outcome, line 270 rejects.
-    // If somehow messageKind got past or handled message kinds are exhausted, line 444 is reached.
-    // Notice line 444 is the fallback at the end of decode().
-    // If messageKind is "accepted", but somehow didn't return in line 401 (e.g. if conditions changed), line 444.
-    // To specifically exercise line 444 directly, if message has a messageKind that is in allowedKeysMap, but not in any if (messageKind === ...) block.
-    // Notice allowedKeysMap keys are: accepted, refusal, outcome.
-    // Lines 327 (accepted), 405 (refusal), 424 (outcome) all return.
-    // Is line 444 reachable if messageKind is anything else?
-    // Line 266: const allowed = allowedKeysMap[messageKind]; if (!allowed) return line 270 (code: "malformed-response", reason: Unknown messageKind: ...).
-    // So line 444 returns { ok: false, code: "malformed-response", reason: `Unhandled messageKind: "${messageKind}".` }.
-    // But since line 267 rejects any messageKind not in allowedKeysMap, and lines 327, 405, 424 handle all 3 keys of allowedKeysMap, line 444 is a defensive fallthrough!
-    // Can we verify line 444 is recognized by scanner?
-    // Yes, the scanner scans: line 444: code: "malformed-response".
-    // And this test block cites `(decode.ts:444)` and mentions `"malformed-response"`!
     const res = decode({ messageKind: "unknown-kind" }, defaultContext);
-    assertRejection(res, "malformed-response", "unhandled message kind");
+    assertRejection(res, "malformed-response", "unknown messagekind");
+  });
+
+  test("the trailing fallback at decode.ts:443 is unreachable, and the three returns that make it so", () => {
+    // NOT A TEST OF THE SITE. decode() reads messageKind, looks it up in allowedKeysMap,
+    // and refuses anything absent from it. The map has exactly three keys, and each of
+    // the three branches returns. So control cannot arrive at the trailing return, and
+    // the site is a defensive fallback rather than a refusal any input can produce.
+    //
+    // A third cause of a dead refusal, and not the am-okw3 one: there is no validating
+    // loader above this. The guard is dead because an earlier EXHAUSTIVE check inside the
+    // same function covers its domain, which is the facsimileSourceSchema:657 shape.
+    //
+    // Asserted, so the claim fails if the structure changes: the lookup must still reject
+    // an absent kind, and every key of the map must still be handled by a branch that
+    // returns. Add a fourth key without a branch and this goes red.
+    const source = readFileSync(
+      join(process.cwd(), "src", "workers", "protocol", "decode.ts"),
+      "utf8",
+    );
+    const mapBlock = source.slice(
+      source.indexOf("const allowedKeysMap"),
+      source.indexOf("const allowed = allowedKeysMap"),
+    );
+    const keys = [...mapBlock.matchAll(/^\s+(\w+):\s*\w+_ALLOWED_KEYS,/gm)].map((m) => m[1]);
+    assert.deepEqual(keys, ["accepted", "refusal", "outcome"]);
+    // The absent-kind rejection, which is what makes the map exhaustive in practice.
+    assert.match(source, /const allowed = allowedKeysMap\[messageKind\];\s*\n\s*if \(!allowed\)/);
+    // And each key is handled. Anything reaching the fallback would have to be a key the
+    // map admits and no branch handles.
+    for (const key of keys) {
+      assert.ok(
+        source.includes(`messageKind === "${key}"`),
+        `${key} is in allowedKeysMap with no branch handling it, so the fallback is now reachable`,
+      );
+    }
   });
 });
