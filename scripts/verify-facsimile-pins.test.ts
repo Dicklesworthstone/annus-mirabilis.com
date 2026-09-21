@@ -1138,6 +1138,12 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       const parent = path.join(root, "sources", "parents", "ap-99-1009-parent.pdf");
       fs.mkdirSync(path.dirname(extract), { recursive: true });
       fs.mkdirSync(path.dirname(parent), { recursive: true });
+      // Restore before writing, not only after. The first version restored the mode on
+      // the last line, so any run that failed earlier - a plant, a timeout - left an
+      // unwritable file behind and every later run died in setup with EACCES from
+      // writeFileSync instead of measuring anything. A fixture that can block its own
+      // next run is a fixture that reports a false red. This one heals itself.
+      if (fs.existsSync(extract)) fs.chmodSync(extract, 0o644);
       fs.writeFileSync(extract, "%PDF-1.4\n");
       fs.writeFileSync(parent, "%PDF-1.4\n");
       fs.chmodSync(extract, 0o000);
@@ -1157,12 +1163,14 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         root,
       ).findings;
 
-      const caught = findings.find((finding) => finding.code === "page-render-failed");
-      assert.ok(caught, findings.map((f) => f.code).join(", "));
-      assert.match(caught.message, /measurement failed/);
-      assert.match(caught.message, /EACCES|permission denied/i);
-      // Restored so a later run of this suite is not blocked by its own fixture.
-      fs.chmodSync(extract, 0o644);
+      try {
+        const caught = findings.find((finding) => finding.code === "page-render-failed");
+        assert.ok(caught, findings.map((f) => f.code).join(", "));
+        assert.match(caught.message, /measurement failed/);
+        assert.match(caught.message, /EACCES|permission denied/i);
+      } finally {
+        fs.chmodSync(extract, 0o644);
+      }
     });
 
     test("the two arms are told apart, not merged into one message", () => {
