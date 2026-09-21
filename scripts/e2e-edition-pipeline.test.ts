@@ -267,7 +267,14 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * against a RECORDED baseline of 0, so it is a regression against a measured count rather than new
  * debt, and it is paid here rather than recorded.
  *
- * THE CITATION THIS TEST CARRIED HAS BEEN REMOVED, and the plant is why. It cited
+ * THE CITATION IS BACK, AND NOW IT IS BACKED. The catch at the end of the compile stage used to
+ * discard the abort's code entirely - it discriminated by class and never read `err.code` - so no
+ * test could assert it and the citation below was a claim about a code nothing observed. The
+ * orchestrator approved recording it on the defect's own merits (a catch that keeps less than it
+ * caught), and the assertion on `aborted-by: corpus-empty` is what makes the citation checkable.
+ * Renaming that site's code now turns this test red, which it did not before.
+ *
+ * WHAT THE EARLIER REMOVAL WAS FOR, kept because the reasoning still governs. It cited
  * e2e-edition-pipeline.ts:295, and the stale-citation ratchet refused it as code-mismatched. The
  * gate's rule is to plant before repointing, so I renamed that site's code to
  * "corpus-empty-planted" and ran this suite: 12 pass, 0 fail. The citation was a claim I had not
@@ -286,7 +293,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("compile reports content-corpus-absent on a root with no content directory", async () => {
+  test("the abort records its own code and spares the compiler (e2e-edition-pipeline.ts:295)", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
@@ -294,6 +301,10 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     expect(compileStages).toHaveLength(1);
     expect(compileStages[0]?.outcome).toBe("not-available");
     expect(compileStages[0]?.code).toBe("content-corpus-absent");
+
+    // The abort's OWN code, which the catch used to discard. This is what backs the citation
+    // above: rename the code at that site and this assertion is the one that goes red.
+    expect(compileStages[0]?.evidence ?? []).toContain("aborted-by: corpus-empty");
 
     // THIS IS THE ASSERTION THE REFUSAL OWNS, and the reason the three above are not enough: the
     // push() that records content-corpus-absent runs BEFORE the throw, so it stands whether or

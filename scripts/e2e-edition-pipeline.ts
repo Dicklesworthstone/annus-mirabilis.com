@@ -319,7 +319,24 @@ export async function runEditionPipeline(options: {
       );
     }
   } catch (err: unknown) {
-    if (!(err instanceof EmptyCorpusError)) {
+    if (err instanceof EmptyCorpusError) {
+      // RECORD THE ABORT'S OWN CODE RATHER THAN DISCARDING IT. This catch used to swallow the
+      // refusal whole: it discriminated the deliberate abort by class and never read `err.code`,
+      // so the code existed for no reader. That is the flattened-refusal class - a catch that
+      // keeps less than it caught - and it is the same defect as a catch collapsing several named
+      // conditions into one generic code, just smaller.
+      //
+      // The stage already pushed says WHY the corpus is absent. This says WHICH refusal stopped
+      // the stage, and it amends that record rather than adding a second one, because the abort's
+      // whole purpose is that the compiler is never asked and never blamed twice.
+      const last = stages.at(-1);
+      if (last?.stage === "compile") {
+        stages[stages.length - 1] = {
+          ...last,
+          evidence: [...(last.evidence ?? []), `aborted-by: ${err.code}`],
+        };
+      }
+    } else {
       push("compile", "failed", `The content compiler threw: ${String(err)}`, {
         code: "compile-threw",
       });
