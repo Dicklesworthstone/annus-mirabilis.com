@@ -640,6 +640,10 @@ export function validateLedger(
   const pageFootnotesCount = new Map<number, number>();
 
   let inParagraph = false;
+  // True while inside a multi-line [[FN ...]] block. Only the FIRST line of a footnote
+  // starts with "[[FN", so a bare connective printed between two displays inside a footnote
+  // (e.g. "also") is otherwise indistinguishable from body text.
+  let inFootnoteBlock = false;
   let currentParaWordCount = 0;
   let currentParaStartLine = 0;
   let currentParaLines: { lineNum: number; words: number }[] = [];
@@ -842,6 +846,7 @@ export function validateLedger(
     // Blank line
     if (trimmed === "") {
       endParagraph();
+      inFootnoteBlock = false;
       continue;
     }
 
@@ -1188,6 +1193,7 @@ export function validateLedger(
     if (rawLine.includes("[[AUTHOR]]")) hasAuthor = true;
 
     // Track text line on page
+    if (trimmed.startsWith("[[FN")) inFootnoteBlock = true;
     const isSpecialLine =
       trimmed.startsWith("[[FN") ||
       trimmed.startsWith("[[OTHER-ARTICLE-OMITTED") ||
@@ -1200,7 +1206,7 @@ export function validateLedger(
 
       // Check if this body line is after [[CONTINUES]] on the same page
       const pCont = pageContinues.get(currentLedgerPage);
-      if (pCont && lineNumber > pCont.line) {
+      if (pCont && lineNumber > pCont.line && !inFootnoteBlock) {
         pCont.textAfterCount++;
       }
 
