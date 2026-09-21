@@ -46,6 +46,9 @@ export const ACCEPTED_COLLISIONS: ReadonlyMap<string, string> = new Map([
   ],
 ]);
 
+/** The only excluded file: the one whose job is to name old forms. See the loop below. */
+const SELF = "scripts/check-renamed-refusal-codes.ts";
+
 export interface RenameSurvivor {
   readonly file: string;
   readonly line: number;
@@ -127,6 +130,12 @@ export function findRenameSurvivors(root: string): {
     const oldForm = kebab.toUpperCase().replace(/-/g, "_");
     const pattern = new RegExp(`\\b${oldForm}\\b`, "g");
     for (const [file, source] of sources) {
+      // This file names old forms for a living: ACCEPTED_COLLISIONS keys are
+      // "<path>:<OLD_FORM>" and the reasons quote the code they excuse. Scanning it reports
+      // the check's own allowlist as three survivors, which is how this exclusion was found.
+      // It is the only file excluded, and it is excluded because naming old forms is its
+      // purpose rather than because its hits were inconvenient.
+      if (file === SELF) continue;
       if (!source.includes(oldForm)) continue;
       const comments = commentRanges(source);
       const titles = titleRanges(source);
