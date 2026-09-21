@@ -53,11 +53,38 @@ test("E2E: check-receipts CLI exits 0 on valid single receipt", () => {
   assert.equal(errors.length, 0);
 });
 
+/**
+ * A literal count here was a time bomb, and this is the relation it was standing in for.
+ *
+ * It asserted `passEntries.length === 4` over the live docs/provenance/survey directory. That
+ * passes today and goes stale the moment ap-19-289's survey lands - at which point it fails in
+ * whoever writes that survey, who has no reason to connect their work to a number in an e2e test
+ * four papers away. It is also in a node-only file, so it would not fail until the node lane ran.
+ *
+ * The relation the count meant is: every survey record in the directory passes. That is asserted
+ * directly, and it does not go stale - a fifth survey simply adds a fifth pass. The four papers
+ * that have surveys today are then named individually, so the test cannot pass vacuously on an
+ * empty directory the way a bare "no failures" check would.
+ */
 test("E2E: check-receipts CLI exits 0 with --surveys on valid survey directory", () => {
   const { code, jsonl } = runCli(["--surveys-dir", "docs/provenance/survey", "--surveys"]);
   assert.equal(code, 0);
-  const passEntries = jsonl.filter((e) => e.outcome === "pass");
-  assert.equal(passEntries.length, 4); // 4 survey files in docs/provenance/survey
+
+  const surveyEntries = jsonl.filter(
+    (e) => typeof e.testId === "string" && e.testId.startsWith("survey-"),
+  );
+  const notPassed = surveyEntries.filter((e) => e.outcome !== "pass");
+  assert.deepEqual(
+    notPassed.map((e) => e.key),
+    [],
+    "every survey record in docs/provenance/survey must pass",
+  );
+
+  // The floor, by identity rather than by count. Adding ap-19-289's survey does not break this.
+  const passedKeys = new Set(surveyEntries.map((e) => e.key));
+  for (const key of ["ap-17-132", "ap-17-549", "ap-17-891", "ap-18-639"]) {
+    assert.ok(passedKeys.has(key), `survey ${key} must be checked and pass`);
+  }
 });
 
 test("E2E: check-receipts CLI exits 1 on fixture directory containing errors", () => {
