@@ -1,15 +1,23 @@
+import { ExperimentRuntimeError } from "../refusal.ts";
 import type { Command, Parameters } from "../store/instanceStore.ts";
 import { LQ06_CLASSES, type Lq06Parameters } from "./definition.ts";
 
 /** Apply every changed class, in revision order, then publish only the last token. */
 export function lq06Changes(previous: Lq06Parameters, next: Lq06Parameters) {
   const groups: Record<string, Record<string, number | string | boolean>> = {
-    input: {}, measurement: {}, presentation: {},
+    input: {},
+    measurement: {},
+    presentation: {},
   };
   for (const key of Object.keys(next) as (keyof Lq06Parameters)[]) {
     if (!Object.is(previous[key], next[key])) {
       const group = groups[LQ06_CLASSES[key]];
-      if (!group) throw new TypeError(`Unsupported LQ-06 parameter class for ${key}.`);
+      if (!group)
+        throw new ExperimentRuntimeError(
+          "unsupported-parameter-class",
+          `Unsupported LQ-06 parameter class for ${key}.`,
+          "lq-06",
+        );
       group[key] = next[key];
     }
   }
@@ -20,7 +28,8 @@ export function lq06Changes(previous: Lq06Parameters, next: Lq06Parameters) {
     ["presentation", "presentation-change"],
   ] as const) {
     const patch = groups[cls];
-    if (patch && Object.keys(patch).length) changes.push(Object.freeze({ command, patch: Object.freeze(patch) }));
+    if (patch && Object.keys(patch).length)
+      changes.push(Object.freeze({ command, patch: Object.freeze(patch) }));
   }
   return Object.freeze(changes);
 }

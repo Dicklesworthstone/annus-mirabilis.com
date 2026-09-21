@@ -3,6 +3,7 @@
  * Composes the registered wave owners; does not reimplement their boost law.
  * The quantum comparison is a modern synthesis, never a premise of September 1905.
  */
+import { ExperimentRuntimeError } from "../../experiments/refusal.ts";
 export type LightThreadParameters = Readonly<{
   frequencyHz: number;
   pulseEnergyJ: number;
@@ -246,7 +247,8 @@ export function evaluateLightThread(
 /** A versioned, bounded, deterministic bookmark; never admits unknown or duplicate fields. */
 export function encodeLightThreadParameters(parameters: LightThreadParameters): string {
   const checked = validateLightThreadParameters(parameters);
-  if (checked.kind !== "accepted") throw new RangeError(checked.reason);
+  if (checked.kind !== "accepted")
+    throw new ExperimentRuntimeError("parameters-rejected", checked.reason, "light-thread");
   const query = new URLSearchParams({ lt: "1" });
   for (const [key, value] of Object.entries(checked.parameters)) query.set(key, String(value));
   return query.toString();

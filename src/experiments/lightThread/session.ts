@@ -8,6 +8,7 @@ import {
   type LightThreadSnapshot,
 } from "../../physics/reference/lightThread.ts";
 import { dopplerFactor, lightComplexFactors } from "../../physics/reference/waves.ts";
+import { ExperimentRuntimeError } from "../refusal.ts";
 import type { ScientificResult } from "../results/types.ts";
 import {
   createInstanceStore,
@@ -68,7 +69,8 @@ export function createLightThreadSession(
   initialParameters: LightThreadParameters = LIGHT_THREAD_DEFAULTS,
 ) {
   const initial = evaluateLightThread(initialParameters, LIGHT_THREAD_OWNERS);
-  if (initial.kind !== "accepted") throw new Error(initial.reason);
+  if (initial.kind !== "accepted")
+    throw new ExperimentRuntimeError("parameters-rejected", initial.reason, "light-thread");
   const store = createInstanceStore({
     experimentId: "light-thread",
     instanceId,
@@ -84,7 +86,12 @@ export function createLightThreadSession(
     final: true,
     outputs: scientificResults(initial.snapshot),
   });
-  if (!published.accepted) throw new Error(`Light-thread publication refused: ${published.reason}`);
+  if (!published.accepted)
+    throw new ExperimentRuntimeError(
+      "publication-refused",
+      `Light-thread publication refused: ${published.reason}`,
+      "light-thread",
+    );
   const serverSnapshot = store.getSnapshot();
 
   return Object.freeze({
@@ -110,7 +117,12 @@ export function createLightThreadSession(
         ? store.issue("setup-change", setup as Parameters)
         : null;
       if (Object.keys(observer).length) token = store.issue("observer-change", observer);
-      if (!token) throw new Error("Changed light-thread settings produced no command.");
+      if (!token)
+        throw new ExperimentRuntimeError(
+          "no-command-for-change",
+          "Changed light-thread settings produced no command.",
+          "light-thread",
+        );
       const decision = store.publish({
         ...token,
         stepIndex: 0,
@@ -119,7 +131,11 @@ export function createLightThreadSession(
         outputs: scientificResults(evaluated.snapshot),
       });
       if (!decision.accepted)
-        throw new Error(`Light-thread publication refused: ${decision.reason}`);
+        throw new ExperimentRuntimeError(
+          "publication-refused",
+          `Light-thread publication refused: ${decision.reason}`,
+          "light-thread",
+        );
       return Object.freeze({ kind: "accepted" as const, parameters: next });
     },
   });
