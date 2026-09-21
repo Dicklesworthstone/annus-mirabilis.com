@@ -18,14 +18,32 @@ export const PAPER_BIB_KEYS: Readonly<Record<RouteSlug, string>> = Object.freeze
 });
 
 /**
- * Papers 1, 3, 4, and 5 have no reviewed ledger until cloud OCR lands
- * (`am-src-ocr-dispatch-interface-m1ur`). Their translations do not exist.
- * Completeness is not defined for this set.
+ * Papers with no ledger at all. Their translations do not exist and completeness is not
+ * defined for them.
+ *
+ * `mass-energy` left this list on 2026-09-20. It was the first paper in the project to get
+ * a ledger, and it did not arrive the way this constant's name predicts: under the owner's
+ * am-1hv0 decision-1 ruling it was drafted from the OCR text layer already embedded in the
+ * pinned scan and corrected against the page images, so it never waited on
+ * `am-src-ocr-dispatch-interface-m1ur` at all. That route remains the right one for the
+ * three long papers, which is why the name still fits them.
+ *
+ * `brownian-motion` JOINED this list on the same day, and it was never a relaxation
+ * either - it was a hole. It had no ledger and was not listed, so the property below was
+ * never asserted for it at all. The pawl in ledgerAbsence.test.ts found that on its first
+ * run by checking membership against the disk in both directions.
+ *
+ * REMOVING A PAPER FROM THIS LIST IS NOT A RELAXATION AND MUST NEVER BE USED AS ONE. The
+ * property it guards - that an absent ledger is never completeness - is unchanged and is
+ * still asserted over every remaining member. A paper leaves only when a ledger exists on
+ * disk and the validator reports it clean. Having a ledger is also not having a REVIEWED
+ * ledger: mass-energy's is a machine draft with hand correction, its receipt says so, and
+ * `open-german-source-mass-energy` is still unfilled in docs/OWNERS.md.
  */
 export const PAPERS_WAITING_ON_CLOUD_OCR = [
   "light-quanta",
+  "brownian-motion",
   "special-relativity",
-  "mass-energy",
   "molecular-dimensions",
 ] as const satisfies readonly RouteSlug[];
 

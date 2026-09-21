@@ -20,11 +20,45 @@ const logger = getLogger("editions");
 const BEAD = "am-edn-alignment-tooling-do1";
 
 describe("no ledger present is never complete", () => {
-  test("papers 1, 3, 4, and 5 have no ledger; a fake unit count still is not complete", () => {
+  // THE PAWL. Shortening PAPERS_WAITING_ON_CLOUD_OCR is how this ratchet would be
+  // released quietly: drop a paper, and every assertion above simply stops running for
+  // it. So membership is checked against the disk in both directions.
+  test("a paper may leave the ledgerless list ONLY when a ledger really exists", () => {
+    for (const slug of ROUTE_SLUGS) {
+      const present = inspectLedgerPresence(slug).presence === "present";
+      const listed = (PAPERS_WAITING_ON_CLOUD_OCR as readonly string[]).includes(slug);
+      expect(
+        listed,
+        present
+          ? `${slug} has a ledger on disk and must NOT be listed as ledgerless`
+          : `${slug} has NO ledger on disk and must be listed as ledgerless, or its absence stops being checked`,
+      ).toBe(!present);
+    }
+  });
+
+  test("mass-energy has a ledger, and its contract judges instead of declining ledger-absent", () => {
+    // The concrete gain of 2026-09-20, pinned so it cannot silently regress to a decline.
+    expect(inspectLedgerPresence("mass-energy").presence).toBe("present");
+    const contract = assertEditionContract("mass-energy", {});
+    expect(contract.ledger).toBe("present");
+    expect(contract.checks.some((c) => c.code === "ledger-absent")).toBe(false);
+    // Checks 2 and 4 read the ledger and now reach a real verdict on real material.
+    expect(contract.checks.find((c) => c.checkNumber === 2)?.outcome).toBe("passed");
+    expect(contract.checks.find((c) => c.checkNumber === 4)?.outcome).toBe("passed");
+    // And it is still NOT a reviewed ledger: no check that needs a human has passed.
+    expect(contract.checks.find((c) => c.checkNumber === 14)?.outcome).toBe("not-available");
+  });
+
+  test("the four ledgerless papers have no ledger; a fake unit count still is not complete", () => {
+    // Two changes on 2026-09-20, in opposite directions, and neither is a relaxation.
+    // mass-energy LEFT: it became the first paper in the project with a ledger, so its
+    // absence is no longer a fact to assert. brownian-motion JOINED: it had no ledger and
+    // was not listed, so none of the assertions below had ever run for it. The pawl above
+    // found that by checking membership against the disk in both directions.
     expect(PAPERS_WAITING_ON_CLOUD_OCR).toEqual([
       "light-quanta",
+      "brownian-motion",
       "special-relativity",
-      "mass-energy",
       "molecular-dimensions",
     ]);
     for (const slug of PAPERS_WAITING_ON_CLOUD_OCR) {

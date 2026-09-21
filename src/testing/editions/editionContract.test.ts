@@ -284,17 +284,23 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     }
   });
 
-  test("with real manifests and no ledger, checks 5 and 6 reach a real verdict", () => {
-    // The point of the change above, asserted against the REAL repository rather than a
-    // fixture: no reviewed ledger exists for any paper, and these two still judge real
-    // material. If a ledger ever lands this keeps passing; if someone re-gates them behind
-    // the ledger, it fails.
-    for (const [slug, units] of [
-      ["mass-energy", 25],
-      ["brownian-motion", 87],
+  test("checks 5 and 6 judge real manifests WHETHER OR NOT a ledger is present", () => {
+    // Asserted against the REAL repository rather than a fixture: these two read the
+    // manifest and the id snapshot, not the ledger, so they must judge either way.
+    //
+    // This test wrote `expect(r.ledger).toBe("absent")` until 2026-09-20, which pinned the
+    // absence as well as the property - so the first real ledger in the project broke it,
+    // even though its own comment said "if a ledger ever lands this keeps passing". The
+    // absence assertion is gone and the ledger state is now asserted PER PAPER, which
+    // makes the pair strictly stronger than before: mass-energy has a ledger and
+    // brownian-motion does not, so a regression that re-gated these checks behind the
+    // ledger would now fail on brownian while passing on mass-energy, and be visible.
+    for (const [slug, units, ledger] of [
+      ["mass-energy", 25, "present"],
+      ["brownian-motion", 87, "absent"],
     ] as const) {
       const r = assertEditionContract(slug, {});
-      expect(r.ledger).toBe("absent");
+      expect(r.ledger, `${slug}'s ledger state changed; this pair must span both`).toBe(ledger);
       const five = r.checks.find((c) => c.checkNumber === 5);
       const six = r.checks.find((c) => c.checkNumber === 6);
       expect(five?.outcome, `check 5 must judge ${slug}'s real manifest`).toBe("passed");
