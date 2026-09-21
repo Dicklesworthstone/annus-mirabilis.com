@@ -28,6 +28,16 @@ Wollen wir die [[EM]]Bewegung[[/EM]] eines materiellen Punktes beschreiben, so g
 --- MACHINE DRAFT TRANSCRIPTION PAGE 3 OF 31 ---
 [[ANNALEN-PAGE 893]]
 
+Wir haben zu berücksichtigen, daß alle unsere Urteile, in welchen die Zeit eine Rolle spielt, immer Urteile über [[EM]]gleichzeitige Ereignisse[[/EM]] sind. Wenn ich z. B. sage: „Jener Zug kommt hier um 7 Uhr an,“ so heißt dies etwa: „Das Zeigen des kleinen Zeigers meiner Uhr auf 7 und das Ankommen des Zuges sind gleichzeitige Ereignisse.“[[FN-MARK 1)]]
+
+Es könnte scheinen, daß alle die Definition der „Zeit“ betreffenden Schwierigkeiten dadurch überwunden werden könnten, daß ich an Stelle der „Zeit“ die „Stellung des kleinen Zeigers meiner Uhr“ setze. Eine solche Definition genügt in der Tat, wenn es sich darum handelt, eine Zeit zu definieren ausschließlich für den Ort, an welchem sich die Uhr eben befindet; die Definition genügt aber nicht mehr, sobald es sich darum handelt, an verschiedenen Orten stattfindende Ereignisreihen miteinander zeitlich zu verknüpfen, oder — was auf dasselbe hinausläuft — Ereignisse zeitlich zu werten, welche in von der Uhr entfernten Orten stattfinden.
+
+Wir könnten uns allerdings damit begnügen, die Ereignisse dadurch zeitlich zu werten, daß ein samt der Uhr im Koordinatenursprung befindlicher Beobachter jedem von einem zu wertenden Ereignis Zeugnis gebenden, durch den leeren Raum zu ihm gelangenden Lichtzeichen die entsprechende Uhrzeigerstellung zuordnet. Eine solche Zuordnung bringt aber den Übelstand mit sich, daß sie vom Standpunkte des mit der Uhr versehenen Beobachters nicht unabhängig ist, wie wir durch die Erfahrung wissen. Zu einer weit praktischeren Festsetzung gelangen wir durch folgende Betrachtung.
+
+Befindet sich im Punkte $A$ des Raumes eine Uhr, so kann ein in $A$ befindlicher Beobachter die Ereignisse in der unmittelbaren Umgebung von $A$ zeitlich werten durch Aufsuchen der mit diesen Ereignissen gleichzeitigen Uhrzeigerstellungen. Befindet sich auch im Punkte $B$ des Raumes eine Uhr — wir wollen hinzufügen, „eine Uhr von genau derselben Beschaffenheit wie die in $A$ befindliche“ — so ist auch eine zeitliche Wertung der Ereignisse in der unmittelbaren Umgebung von[[CONTINUES]]
+
+[[FN 1)]] Die Ungenauigkeit, welche in dem Begriffe der Gleichzeitigkeit zweier Ereignisse an (annähernd) demselben Orte steckt und gleichfalls durch eine Abstraktion überbrückt werden muß, soll hier nicht erörtert werden.
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 4 OF 31 ---
 [[ANNALEN-PAGE 894]]
 
