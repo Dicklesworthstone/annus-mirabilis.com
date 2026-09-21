@@ -81,7 +81,7 @@
   "src/content/schemas/reading.ts": 0,
   "src/content/schemas/review.ts": 1,
   "src/content/schemas/rightsVocabulary.ts": 1,
-  "src/content/schemas/source.ts": 43,
+  "src/content/schemas/source.ts": 0,
   "src/content/schemas/spans.ts": 0,
   "src/content/schemas/strictParse.ts": 0,
   "src/design/spectralMapping.ts": 0,
