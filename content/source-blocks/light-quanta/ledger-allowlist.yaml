@@ -40,3 +40,11 @@
   reason: "Printed connective 'oder' standing alone between the coefficient identity and the value of N on page 137. Source text, same reasoning as the 'wobei' entry: the format requires the following $$ to begin its own line."
   editor: "agent:LilacValley"
   date: "2026-09-21"
+
+- ledgerKey: ap-17-132
+  code: short-line
+  ledgerPage: 7
+  lineFingerprint: 4da271bb37e5a8c6
+  reason: "Printed connective 'wenn' standing alone between the two variational conditions on page 138 - the entropy maximum and the energy constraint it is subject to. Source text, and load-bearing: it is the word that makes the second display a CONDITION on the first rather than a second independent statement."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
