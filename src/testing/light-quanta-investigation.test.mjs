@@ -30,6 +30,10 @@
  * them by reaching inside the module would assert that the module can be broken, which is not
  * what the refusal is for. Recorded rather than fabricated.
  *
+ * THE RECORD IS NOW A TEST, at the end of this file, because a comment stops being true
+ * silently. It is a working pawl rather than a decorative one: making the publish deniable
+ * turns it red, and so does removing a single entry from the outputs table.
+ *
  * This file is deliberately NOT reformatted: biome rewrites 113 of its pre-existing lines and
  * would bury a forty-line change in a diff nobody can review.
  */
@@ -244,4 +248,68 @@ test("display controls refuse empty, hexadecimal and nonfinite entries", async (
   const draft=lightInvestigationDraft(DEFAULTS);
   for(const invalid of [""," ","NaN","Infinity","0x258","1e10000","6e-9999"])
     assert.throws(()=>parseLightInvestigationDraft({...draft,frequency:invalid}));
+});
+
+test("investigation: :56, :201 and :212 cannot fire across the admitted envelope", () => {
+  // The measurement the header comment rests on. Kept as a test so that if a later change
+  // makes any of the three reachable, this goes red and whoever made it reachable is the
+  // person who should drive it.
+  //
+  // :56  missing-output-contract is a LOAD-TIME invariant, stronger than "no caller reaches
+  //      it". LIGHT_INVESTIGATION_OUTPUTS is itself built by calling existing() over the
+  //      module's own field arrays, so tables that disagreed would throw on import and no
+  //      test in this file would run at all. What is asserted here is the observable half:
+  //      every quantityId the evaluator emits has a contract in that table.
+  // :201 and :212 publish against a token the store has just issued, with stepIndex and
+  //      simulationTime fixed at 0 and final true, so every channel publish() denies on is
+  //      settled by construction at the call site.
+  const axes = {
+    frequency: [3e14, DEFAULTS.frequency, 1.2e15],
+    referenceTemperature: [1200, DEFAULTS.referenceTemperature, 10000],
+    volumeRatio: [0.0001, DEFAULTS.volumeRatio, 1],
+    pointCount: [1, DEFAULTS.pointCount, 60],
+    incidentPower: [0, DEFAULTS.incidentPower, 0.01],
+    workFunction: [0, DEFAULTS.workFunction, 6],
+  };
+  const contracts = new Set(Object.keys(LIGHT_INVESTIGATION_OUTPUTS));
+  const observed = new Set();
+  const uncontracted = new Set();
+  let sessions = 0;
+  let applies = 0;
+
+  for (const [startKey, points] of Object.entries(axes)) {
+    for (const start of points) {
+      const base = { ...DEFAULTS, [startKey]: start };
+      let session;
+      try {
+        session = createLightInvestigationSession(`env-${startKey}-${start}`);
+      } catch (err) {
+        observed.add(`create:${err?.code}`);
+        continue;
+      }
+      sessions += 1;
+      // The evaluator's own output identities, which is what :56 guards.
+      for (const row of evaluateLightInvestigation(base)) {
+        if (!contracts.has(row.quantityId)) uncontracted.add(row.quantityId);
+      }
+      for (const [key, targets] of Object.entries(axes)) {
+        for (const target of targets) {
+          applies += 1;
+          const outcome = session.apply({ ...base, [key]: target });
+          // A refused EDIT is a validation refusal and expected at the bounds; a THROW is
+          // what these three sites would do, and apply() does not catch those.
+          if (outcome.kind !== "accepted" && outcome.kind !== "refused") {
+            observed.add(`apply(${key}):${outcome.kind}`);
+          }
+        }
+      }
+    }
+  }
+
+  // Reachability before the claim: an envelope that built nothing would otherwise report
+  // "nothing refuses" forever.
+  assert.ok(sessions >= 12, `expected the admitted envelope to build sessions, got ${sessions}`);
+  assert.ok(applies >= 300, `expected the whole single-axis space, got ${applies} apply calls`);
+  assert.deepEqual([...uncontracted], [], "every emitted quantityId has a declared contract");
+  assert.deepEqual([...observed], [], "no refusal throws anywhere in the admitted envelope");
 });
