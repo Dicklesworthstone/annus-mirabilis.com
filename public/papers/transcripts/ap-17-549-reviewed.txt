@@ -239,6 +239,29 @@ $$
 --- REVIEWED TRANSCRIPTION PAGE 10 OF 12 ---
 [[ANNALEN-PAGE 558]]
 
+und indem wir
+$$
+\frac{1}{\tau} \int_{-\infty}^{+\infty} \frac{\Delta^2}{2} \varphi(\Delta) d \Delta = D
+$$
+setzen und nur das erste und dritte Glied der rechten Seite berücksichtigen:
+$$
+\frac{\partial f}{\partial t} = D \frac{\partial^2 f}{\partial x^2}
+$$
+[[EQ-LABEL (1)]]
+
+Dies ist die bekannte Differentialgleichung der Diffusion, und man erkennt, daß $D$ der Diffusionskoeffizient ist.
+
+An diese Entwicklung läßt sich noch eine wichtige Überlegung anknüpfen. Wir haben angenommen, daß die einzelnen Teilchen alle auf dasselbe Koordinatensystem bezogen seien. Dies ist jedoch nicht nötig, da die Bewegungen der einzelnen Teilchen voneinander unabhängig sind. Wir wollen nun die Bewegung jedes Teilchens auf ein Koordinatensystem beziehen, dessen Ursprung mit der Lage des Schwerpunktes des betreffenden Teilchens zur Zeit $t = 0$ zusammenfällt, mit dem Unterschiede, daß jetzt $f(x, t) d x$ die Anzahl der Teilchen bedeutet, deren $X$-Koordinaten von der Zeit $t = 0$ bis zur Zeit $t = t$ um eine Größe [[EM]]gewachsen[[/EM]] ist, welche zwischen $x$ und $x + d x$ liegt. Auch in diesem Falle ändert sich also die Funktion $f$ gemäß Gleichung (1). Ferner muß offenbar für $x \gtrless 0$ und $t = 0$
+$$
+f(x, t) = 0 \quad \text{und} \quad \int_{-\infty}^{+\infty} f(x, t) d x = n
+$$
+sein. Das Problem, welches mit dem Problem der Diffusion von einem Punkte aus (unter Vernachlässigung der Wechselwirkung der diffundierenden Teilchen) übereinstimmt, ist nun mathematisch vollkommen bestimmt; seine Lösung ist:
+$$
+f(x, t) = \frac{n}{\sqrt{4 \pi D}} \frac{e^{-\frac{x^2}{4 D t}}}{\sqrt{t}}
+$$
+
+Die Häufigkeitsverteilung der in einer beliebigen Zeit $t$ erfolgten Lagenänderungen ist also dieselbe wie die der zufälligen[[CONTINUES]]
+
 --- REVIEWED TRANSCRIPTION PAGE 11 OF 12 ---
 [[ANNALEN-PAGE 559]]
 
