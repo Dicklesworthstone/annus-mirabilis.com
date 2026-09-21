@@ -88,6 +88,24 @@ b) Der Beobachter ermittelt mittels im ruhenden Systeme aufgestellter, gemäß �
 --- MACHINE DRAFT TRANSCRIPTION PAGE 6 OF 31 ---
 [[ANNALEN-PAGE 896]]
 
+Die Entfernung dieser beiden Punkte, gemessen mit dem schon benutzten, in diesem Falle ruhenden Maßstabe ist ebenfalls eine Länge, welche man als „Länge des Stabes“ bezeichnen kann.
+
+Nach dem Relativitätsprinzip muß die bei der Operation a) zu findende Länge, welche wir „die Länge des Stabes im bewegten System“ nennen wollen, gleich der Länge $l$ des ruhenden Stabes sein.
+
+Die bei der Operation b) zu findende Länge, welche wir „die Länge des (bewegten) Stabes im ruhenden System“ nennen wollen, werden wir unter Zugrundelegung unserer beiden Prinzipien bestimmen und finden, daß sie von $l$ verschieden ist.
+
+Die allgemein gebrauchte Kinematik nimmt stillschweigend an, daß die durch die beiden erwähnten Operationen bestimmten Längen einander genau gleich seien, oder mit anderen Worten, daß ein bewegter starrer Körper in der Zeitepoche $t$ in geometrischer Beziehung vollständig durch [[EM]]denselben[[/EM]] Körper, wenn er in bestimmter Lage [[EM]]ruht[[/EM]], ersetzbar sei.
+
+Wir denken uns ferner an den beiden Stabenden ($A$ und $B$) Uhren angebracht, welche mit den Uhren des ruhenden Systems synchron sind, d. h. deren Angaben jeweilen der „Zeit des ruhenden Systems“ an den Orten, an welchen sie sich gerade befinden, entsprechen; diese Uhren sind also „synchron im ruhenden System“.
+
+Wir denken uns ferner, daß sich bei jeder Uhr ein mit ihr bewegter Beobachter befinde, und daß diese Beobachter auf die beiden Uhren das im § 1 aufgestellte Kriterium für den synchronen Gang zweier Uhren anwenden. Zur Zeit[[FN-MARK 1)]] $t_A$ gehe ein Lichtstrahl von $A$ aus, werde zur Zeit $t_B$ in $B$ reflektiert und gelange zur Zeit $t'_A$ nach $A$ zurück. Unter Berücksichtigung des Prinzipes von der Konstanz der Lichtgeschwindigkeit finden wir:
+$$
+t_B - t_A = \frac{r_{AB}}{V - v}
+$$
+[[CONTINUES]]
+
+[[FN 1)]] „Zeit“ bedeutet hier „Zeit des ruhenden Systems“ und zugleich „Zeigerstellung der bewegten Uhr, welche sich an dem Orte, von dem die Rede ist, befindet“.
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 7 OF 31 ---
 [[ANNALEN-PAGE 897]]
 
