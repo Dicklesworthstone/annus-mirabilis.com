@@ -20,4 +20,5 @@ pathIgnorePatterns = [
   "src/content/kernel/formatterExclusions.test.ts",
   "src/testing/docs/inventoryVersions.test.ts",
   "scripts/verify-facsimile-pins.test.ts",
+  "src/testing/outFreshness.fixture.test.ts",
 ]

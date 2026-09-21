@@ -11,6 +11,12 @@ export interface OutFreshnessResult {
   readonly expectedDigest?: string | undefined;
   readonly outMtimeMs?: number | undefined;
   readonly headCommitMs?: number | undefined;
+  /**
+   * Static sources modified in the WORKING TREE since the last commit, and therefore not in
+   * out/. Reported, never a staleness verdict: see the note on the working-tree probe below for
+   * why this stopped being a failure on 2026-09-21.
+   */
+  readonly dirtyStaticSources?: readonly string[] | undefined;
 }
 
 /**
@@ -27,6 +33,28 @@ const MAX_BUILD_AGE_VS_HEAD_MS = 2 * 60 * 60 * 1000;
 const MAX_COMMITS_SINCE_BUILD = 50;
 
 /**
+ * How this module reaches git. Injectable for ONE reason, recorded because it looks like
+ * over-engineering: the test that proves this file is not an off switch must not itself stop
+ * running when this file switches something off. A fixture built with real `git` spawns a
+ * subprocess, `bun test` cannot spawn on this host (EBADF, the reason bunfig has a node lane at
+ * all), so that test can only live in the node lane - the lane whose preflight calls this
+ * function. The scripted runner breaks the circle; the real-git fixture still exists beside it in
+ * outFreshness.fixture.test.ts for the higher proof class.
+ *
+ * Returns trimmed stdout. Throws exactly as execFileSync does when git is absent or fails.
+ */
+export type GitRunner = (args: readonly string[]) => string;
+
+function defaultGitRunner(baseDir: string): GitRunner {
+  return (args: readonly string[]) =>
+    execFileSync("git", [...args], {
+      cwd: baseDir,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+}
+
+/**
  * Checks whether the static export directory (typically `out/`) exists and is fresh
  * against the current repository state (HEAD commit and build digests).
  *
@@ -39,15 +67,18 @@ const MAX_COMMITS_SINCE_BUILD = 50;
  *         changed in git since out/ build. If modified, out/ is stale.
  *    b. Fallback when no buildDigest is recorded: compares out/ mtime against git HEAD commit
  *       timestamp (mtime must not predate HEAD).
- *    c. Checks whether static-site sources (src/app, src/components, content) have been committed
- *       or modified in working tree since out/ build.
+ *    c. Checks whether static-site sources (src/app, src/components, content) were COMMITTED
+ *       since the commit out/ was built from. Working-tree modifications are a separate,
+ *       reported state (`dirtyStaticSources`) and are NOT staleness; see the probe below.
  *    d. Temporal backstop: Even with a matching buildDigest, out/ cannot be older than 2 hours.
  * 3. Refuses stale builds so static tests never silently report green against an outdated site.
  */
 export function checkOutFreshness(
   rootDir: string = "out",
   baseDir: string = process.cwd(),
+  gitRunner?: GitRunner,
 ): OutFreshnessResult {
+  const git = gitRunner ?? defaultGitRunner(baseDir);
   const targetDir = resolve(baseDir, rootDir);
   if (!existsSync(targetDir)) {
     return { present: false, fresh: false, reason: `Directory not found: ${rootDir}` };
@@ -81,22 +112,11 @@ export function checkOutFreshness(
   let headCommitMs: number | undefined;
   let headCommitSha: string | undefined;
   try {
-    const headCommitSec = parseInt(
-      execFileSync("git", ["log", "-1", "--format=%ct", "HEAD"], {
-        cwd: baseDir,
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      }).trim(),
-      10,
-    );
+    const headCommitSec = parseInt(git(["log", "-1", "--format=%ct", "HEAD"]), 10);
     if (Number.isFinite(headCommitSec)) {
       headCommitMs = headCommitSec * 1000;
     }
-    headCommitSha = execFileSync("git", ["rev-parse", "HEAD"], {
-      cwd: baseDir,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
+    headCommitSha = git(["rev-parse", "HEAD"]);
   } catch {
     // Git not available in this environment
   }
@@ -146,11 +166,7 @@ export function checkOutFreshness(
     if (currentBuildDigest !== null && outBuildDigest !== currentBuildDigest) {
       try {
         const outMtimeSec = Math.floor(outMtimeMs / 1000) - 2;
-        const contentLog = execFileSync(
-          "git",
-          ["log", `--since=${outMtimeSec}`, "--oneline", "--", "content"],
-          { cwd: baseDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-        ).trim();
+        const contentLog = git(["log", `--since=${outMtimeSec}`, "--oneline", "--", "content"]);
         if (contentLog.length > 0) {
           return {
             present: true,
@@ -186,23 +202,16 @@ export function checkOutFreshness(
   }
 
   // 2. Check if static source files (src/app, src/components, content) changed in git since the build
+  let dirtyStaticSources: readonly string[] = [];
   if (headCommitSha && headCommitMs !== undefined) {
     try {
       // Find commit at or immediately before out/ mtime
       const outMtimeIso = new Date(outMtimeMs + 5000).toISOString();
-      const buildCommit = execFileSync(
-        "git",
-        ["log", "-1", `--before=${outMtimeIso}`, "--format=%H"],
-        { cwd: baseDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-      ).trim();
+      const buildCommit = git(["log", "-1", `--before=${outMtimeIso}`, "--format=%H"]);
 
       if (buildCommit && buildCommit !== headCommitSha) {
         // Check commit count distance
-        const commitCountStr = execFileSync(
-          "git",
-          ["rev-list", "--count", `${buildCommit}..HEAD`],
-          { cwd: baseDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-        ).trim();
+        const commitCountStr = git(["rev-list", "--count", `${buildCommit}..HEAD`]);
         const commitCount = parseInt(commitCountStr, 10);
         if (Number.isFinite(commitCount) && commitCount > MAX_COMMITS_SINCE_BUILD) {
           return {
@@ -217,19 +226,15 @@ export function checkOutFreshness(
         }
 
         // Check if static site source files changed between build commit and HEAD
-        const diffFiles = execFileSync(
-          "git",
-          [
-            "diff",
-            "--name-only",
-            `${buildCommit}..HEAD`,
-            "--",
-            "src/app",
-            "src/components",
-            "content",
-          ],
-          { cwd: baseDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-        ).trim();
+        const diffFiles = git([
+          "diff",
+          "--name-only",
+          `${buildCommit}..HEAD`,
+          "--",
+          "src/app",
+          "src/components",
+          "content",
+        ]);
 
         if (diffFiles.length > 0) {
           const files = diffFiles.split("\n").filter(Boolean);
@@ -245,23 +250,38 @@ export function checkOutFreshness(
         }
       }
 
-      // Check for uncommitted working tree modifications in static source directories
-      const uncommitted = execFileSync(
-        "git",
-        ["diff", "--name-only", "HEAD", "--", "src/app", "src/components", "content"],
-        { cwd: baseDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-      ).trim();
+      // Static sources dirty in the WORKING TREE. Reported, not refused, and the distinction is
+      // the whole of the 2026-09-21 correction to this file.
+      //
+      // I wrote this as a refusal and it became an off switch. In a four-pane shared tree four
+      // agents always have uncommitted work, so this condition is permanently true, so
+      // scripts/run-node-only-tests.ts refused to start for 49 commits and 48 test files stopped
+      // running - while the refusal text read like diligence. A condition that cannot be false is
+      // not a strict gate. It is the same error as a check that passes over an empty population,
+      // one step further along: this one never executed at all.
+      //
+      // The two facts it used to conflate:
+      //   out/ stale against the commit it was BUILT from -> a real fault, fixed by rebuilding,
+      //                                                      and still a failure everywhere above.
+      //   a peer has an unsaved edit to a page component  -> a fact about someone else's in-flight
+      //                                                      work. It says nothing about whether
+      //                                                      out/ matches its own build.
+      //
+      // The accepted residual risk, recorded by the orchestrator on am-6v4k rather than left for a
+      // later reader to rediscover as a defect: a green now means "the built artefact passes", not
+      // "the working tree passes". That is what a lane over a build directory can honestly claim
+      // anyway. Callers report these names; they never suppress them.
+      const uncommitted = git([
+        "diff",
+        "--name-only",
+        "HEAD",
+        "--",
+        "src/app",
+        "src/components",
+        "content",
+      ]);
       if (uncommitted.length > 0) {
-        const files = uncommitted.split("\n").filter(Boolean);
-        return {
-          present: true,
-          fresh: false,
-          buildDigest: outBuildDigest ?? undefined,
-          expectedDigest: currentBuildDigest ?? undefined,
-          outMtimeMs,
-          headCommitMs,
-          reason: `Uncommitted modifications in static source files: ${files.slice(0, 3).join(", ")}`,
-        };
+        dirtyStaticSources = uncommitted.split("\n").filter(Boolean);
       }
     } catch {
       // Git command failed; fall through to temporal backstop
@@ -278,6 +298,7 @@ export function checkOutFreshness(
       outMtimeMs,
       headCommitMs,
       reason: `Directory ${rootDir} mtime (${new Date(outMtimeMs).toISOString()}) is more than 2 hours older than git HEAD commit (${new Date(headCommitMs).toISOString()})`,
+      dirtyStaticSources,
     };
   }
 
@@ -288,6 +309,7 @@ export function checkOutFreshness(
     expectedDigest: currentBuildDigest ?? undefined,
     outMtimeMs,
     headCommitMs,
+    dirtyStaticSources,
   };
 }
 
