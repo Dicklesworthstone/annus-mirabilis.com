@@ -440,7 +440,7 @@ test("Receipt digest validation: source digest mismatch and ledger digest stale 
 
     // 3. In structural mode: stale ledger digest raises receipt-ledger-digest-stale (info)
     const structuralReceipt = mutate(
-      mutate(baseReceiptContent, "ledgerStatus: corrected", "ledgerStatus: in-progress"),
+      mutate(baseReceiptContent, "ledgerStatus: reviewed", "ledgerStatus: in-progress"),
       'ledgerSha256: "86fdb373b45101bcea32d7311812ac47de028cc4fc80ee9e0d2a93f3f9fb8f3b"',
       'ledgerSha256: "0000000000000000000000000000000000000000000000000000000000000000"',
     );
@@ -620,7 +620,7 @@ test("validateLedger: (validateLedger.ts:477) allowlist-entry-invalid raised whe
   assert.ok(!validRes.errors.some((e) => e.code === "allowlist-entry-invalid"));
 });
 
-test("validateLedger: (validateLedger.ts:628) first-marker raised when first line is not a page marker at all", () => {
+test("validateLedger: (validateLedger.ts:653) first-marker raised when first line is not a page marker at all", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -1019,7 +1019,7 @@ test("A footnote mark printed in a SECTION HEADING is seen (LEDGER_FORMAT 4.6)",
  * stack cannot have a dead successor, and all ten of its owed sites turned out live.
  */
 
-test("validateLedger: (validateLedger.ts:616) first-marker raised when the page-1 marker is present but malformed", () => {
+test("validateLedger: (validateLedger.ts:641) first-marker raised when the page-1 marker is present but malformed", () => {
   // The discriminating case. A ledger with no marker at all is a different refusal; this
   // one fires when line 1 CONTAINS the marker text and does not START with the page-1
   // form, which is what a stray leading space or a ledger beginning at page 2 produces.
@@ -1265,5 +1265,68 @@ test("validateLedger: (validateLedger.ts:1044) forbidden-token raised for each O
   assert.equal(
     clean.errors.some((e) => e.code === "forbidden-token"),
     false,
+  );
+});
+
+test("validateLedger: (validateLedger.ts:621) REVIEWED is refused unless the receipt records it", () => {
+  // am-wisq. The format used to COMPEL this claim: the validator accepted exactly one first-line
+  // token, so every machine draft opened with the word REVIEWED because nothing else was legal.
+  // The token split fixed the vocabulary, but the check that makes REVIEWED mean something did
+  // not exist - declaredStatus was compared only against other page markers, never against the
+  // receipt - while a comment in the validator said a receipt gate was there.
+  const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
+  const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
+  const baseContent = loadFixture("two-page-valid.txt");
+  const baseReceipt = readFileSync(receiptPath, "utf8");
+
+  assert.ok(
+    baseContent.startsWith("--- REVIEWED TRANSCRIPTION PAGE 1 OF "),
+    "this fixture must OPEN with the reviewed token or neither case below proves anything",
+  );
+
+  // CONTROL: a genuinely reviewed pair validates, and does so without the gate firing.
+  const control = validateLedger(ledgerPath, {
+    content: baseContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.equal(control.valid, true);
+  assert.ok(!control.errors.some((e) => e.code === "declared-review-unearned"));
+
+  // PLANTED NEGATIVE: the same transcript, still declaring REVIEWED, against a receipt walked
+  // back to a status no human has signed. in-progress is the state ap-18-639 is actually in
+  // today, so this fixture is the real artefact's shape and not an invented one.
+  for (const status of ["in-progress", "corrected"]) {
+    const receiptContent = mutate(baseReceipt, "ledgerStatus: reviewed", `ledgerStatus: ${status}`);
+    const res = validateLedger(ledgerPath, {
+      content: baseContent,
+      receiptPath,
+      receiptContent,
+      paper: "brownian-motion",
+    });
+    assert.equal(res.valid, false, `a REVIEWED transcript must not validate against ${status}`);
+    assert.ok(
+      res.errors.some((e) => e.code === "declared-review-unearned"),
+      `expected declared-review-unearned for ${status}, got ${res.errors.map((e) => e.code).join(", ")}`,
+    );
+  }
+
+  // THE GATE IS ONE-DIRECTIONAL, and this is the half a naive implementation gets wrong.
+  // A transcript claiming LESS than its receipt supports is not making a false claim, so a
+  // MACHINE DRAFT opening against a reviewed receipt must pass the gate. Refusing it would force
+  // an edit to the artefact every time a reviewer signed off.
+  const humbleContent = baseContent.replaceAll(
+    "REVIEWED TRANSCRIPTION",
+    "MACHINE DRAFT TRANSCRIPTION",
+  );
+  assert.notEqual(humbleContent, baseContent, "the humble-claim mutation did not apply");
+  const humble = validateLedger(ledgerPath, {
+    content: humbleContent,
+    receiptPath,
+    paper: "brownian-motion",
+  });
+  assert.ok(
+    !humble.errors.some((e) => e.code === "declared-review-unearned"),
+    "claiming less than the receipt supports is not a false claim",
   );
 });

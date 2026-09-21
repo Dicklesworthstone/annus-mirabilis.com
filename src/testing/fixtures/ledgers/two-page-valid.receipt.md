@@ -91,7 +91,11 @@ transcription:
   ledgerPath: "src/testing/fixtures/ledgers/two-page-valid.txt"
   ledgerSha256: "86fdb373b45101bcea32d7311812ac47de028cc4fc80ee9e0d2a93f3f9fb8f3b"
   ledgerSourcePdfSha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"
-  ledgerStatus: corrected
+  # REVIEWED, and coherently so: this fixture opens "--- REVIEWED TRANSCRIPTION ---" and the
+  # receipt gate in validateLedger now refuses that claim unless ledgerStatus is reviewed. It was
+  # `corrected` while the token was the only one the validator accepted, so the pair asserted a
+  # review the receipt did not record. A named editor was already present below.
+  ledgerStatus: reviewed
   editors:
     - name: "Test Editor"
       role: "Reviewer"

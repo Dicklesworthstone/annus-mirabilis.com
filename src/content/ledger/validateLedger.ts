@@ -604,6 +604,31 @@ export function validateLedger(
   // cleanly, which one of this file's own tests caught within the minute.
   const firstMarker = lines.length > 0 ? parsePageMarker(lines[0] ?? "") : null;
   const declaredStatus: LedgerReviewStatus = firstMarker?.status ?? "machine-draft";
+
+  // THE RECEIPT GATE. The comment above has promised this since the tokens were split, and until
+  // now it did not exist: declaredStatus was compared only against OTHER PAGE MARKERS, never
+  // against the receipt, so any transcript could open REVIEWED and the validator would agree with
+  // it. A format that compels a claim and then checks only that the string is present is the
+  // defect am-wisq was raised for; a comment promising a check nothing runs is the same defect
+  // one layer up.
+  //
+  // The rule is ONE-DIRECTIONAL on purpose. Declaring MACHINE DRAFT is always permitted, including
+  // when the receipt has advanced past it: a transcript claiming LESS than its receipt supports is
+  // not a false claim, and refusing it would force an edit to the artefact every time a reviewer
+  // signed off. Only REVIEWED asserts human activity, so only REVIEWED has to be earned.
+  if (declaredStatus === "reviewed" && ledgerStatus !== "reviewed") {
+    errors.push({
+      code: "declared-review-unearned",
+      severity: "error",
+      ledgerLine: 1,
+      ledgerPage: 1,
+      pdfPageIndex: 1,
+      printedPage: null,
+      message: `Transcript opens REVIEWED but the receipt records transcription.ledgerStatus: ${ledgerStatus}.`,
+      repair: `Open the transcript with "${pageMarkerLine("machine-draft", 1, expectedTotalPages)}", or advance the receipt's ledgerStatus to reviewed once a named human reviewer is recorded in it.`,
+      excerpt: lines[0] ?? "",
+    });
+  }
   // Two sites, not one, and deliberately so: "line 1 looks like a marker but is malformed" and
   // "line 1 is not a marker at all" are different faults with different repairs, and this file has
   // a test for each. Merging them into one push with a conditional message compiled and passed
