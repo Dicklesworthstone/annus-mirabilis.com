@@ -56,7 +56,17 @@ function loadManifest() {
 
 describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
   /**
-   * Frozen and pinned are different, and both artifacts must say which is which.
+   * The 90 sentence ids are FROZEN, and this test records the moment they became so.
+   *
+   * It asserted the opposite until 2026-09-21: sentence ids pinned by the snapshot and explicitly
+   * not frozen, because the segmentation rule that produced them had been corrected once and had
+   * met only one paper. The orchestrator authorised the freeze when the condition it named was
+   * met - ap-17-132 completely transcribed (22cd5562, seventeen pages, validator exit 0, its 52
+   * display ids and 13 footnote marks agreeing with an independently authored page map) and no
+   * fourth segmentation exception, asked explicitly and answered no.
+   *
+   * The assertions are inverted rather than deleted so the transition is legible: what this file
+   * once guaranteed was NOT frozen, it now guarantees IS.
    *
    * idsFrozenAt covers the 87 block-level ids frozen on 2026-09-19. The 90 sentence ids were cut
    * on 2026-09-21 and are PINNED by the id snapshot, which the equality check below already
@@ -68,7 +78,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
    * pinned 177 ids while the header described a freeze of 87, and nothing said so. Prose in a
    * header drifts; an assertion does not.
    */
-  test("sentence ids are pinned by the snapshot and explicitly NOT frozen", () => {
+  test("sentence ids are frozen by the stamp and pinned by the snapshot", () => {
     const manifestPath = join(ROOT, "content/source-blocks/brownian-motion/manifest.yaml");
     const raw = parseYaml(readFileSync(manifestPath, "utf8")) as {
       idsFrozenAt?: string;
@@ -76,13 +86,12 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       units: Array<{ id: string; kind: string }>;
     };
 
-    // The stamp still describes the block-level freeze and has NOT been moved to cover sentences.
-    expect(raw.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
+    // The stamp now covers every id in the file, sentences included.
+    expect(raw.idsFrozenAt).toBeDefined();
+    expect(Date.parse(raw.idsFrozenAt ?? "")).toBeGreaterThan(Date.parse("2026-09-19T04:30:00Z"));
 
-    const declared = raw.pinnedNotFrozenUnitKinds ?? [];
-    const sentenceEntry = declared.find((e) => e.kind === "sentence");
-    expect(sentenceEntry).toBeDefined();
-    expect(sentenceEntry?.freezeCondition ?? "").toContain("ap-17-132");
+    // The provisional marking is gone: nothing may claim these ids are unfrozen.
+    expect(raw.pinnedNotFrozenUnitKinds).toBeUndefined();
 
     // Pinned: every sentence unit appears in the committed snapshot, so none can drift silently.
     const snapshotIds = new Set(
@@ -110,7 +119,13 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(manifest.figures).toBe("none");
     expect(manifest.pageCount).toBe(12);
     expect(manifest.pageRange).toEqual([549, 560]);
-    expect(manifest.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
+    // The stamp moved on 2026-09-21 when the 90 sentence ids were frozen; it is asserted as a
+    // property rather than a literal so the freeze date is not re-pinned by hand on every change,
+    // while still refusing an absent or earlier stamp.
+    expect(manifest.idsFrozenAt).toBeDefined();
+    expect(Date.parse(manifest.idsFrozenAt ?? "")).toBeGreaterThan(
+      Date.parse("2026-09-19T04:30:00Z"),
+    );
     expect(manifest.frozenBy).toBe("am-edn-inventory-brownian-slg");
 
     // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus 90

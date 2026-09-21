@@ -189,10 +189,11 @@ that had been recorded on `s4-p8`. The displays that hung off retired units were
 paragraphs to **87 units and 32 paragraphs**, and the per-page start counts for 553, 554 and 557 are
 now 3, 3 and 2.
 
-### Sentence ids are pinned, not frozen (2026-09-21)
+### Sentence ids are frozen (2026-09-21)
 
-`manifest.yaml` declares `pinnedNotFrozenUnitKinds` for `kind: sentence`, and the two words mean
-different things.
+All 177 ids in `manifest.ids.snapshot.txt` are frozen, the 90 sentence ids included. This section
+recorded the opposite until the freeze landed, and the transition is kept rather than overwritten
+because the reasoning is what a later reader needs.
 
 - **Pinned.** All 90 sentence ids sit in `manifest.ids.snapshot.txt`, and the suite asserts the
   snapshot equals the manifest's ids in order. None can drift, disappear or be renumbered silently.
@@ -207,10 +208,22 @@ the paper from 53 paragraphs to 51). A rule corrected in its first week is still
 scheme mandates alias retirement, so a wrong frozen id costs a permanent record for every future
 reader, while leaving these unfrozen costs an edit to two files.
 
-**The condition for freezing them.** Freeze when `ap-17-132` is completely transcribed and no
-further segmentation exception has appeared - the rule surviving a second paper set by the same
-compositor. If light-quanta turns up a fourth exception class it will likely apply retroactively to
-this paper; re-cut before freezing rather than retire aliases afterwards.
+**The condition was met and the freeze is done.** `ap-17-132` is completely transcribed at
+`22cd5562` - seventeen pages, validator exit 0, and its 52 display ids and 13 footnote marks agree
+with a page map authored separately under `am-edn-inventory-light-quanta-skp`, two counts that were
+never summed against each other. No fourth segmentation exception appeared: page 145's enumerated
+list was the third class, settled by the grammar, and pages 146-148 produced none. The printer's
+signature marks on 145 and 147 were ruled page-foot furniture, which never creates, moves or merges
+a paragraph boundary and so cannot change a sentence id.
+
+**What the freeze rests on, and what it does not.** It rests on the 400 dpi plate readings. An
+automated indent sweep run to re-check them produced a false negative on the first page it touched,
+placing p146's "Ist der Körper zum positiven Potential Π" at the baseline as a continuation when
+the zoom shows it plainly indented. That instrument was examined and found wrong; the plates stand.
+
+**What this now costs.** Under RULE 1 and `am-cm-id-scheme-8bn` every one of these ids is
+permanent. A sentence id that later proves wrong is retired through an alias in
+`content/aliases/brownian-motion.yaml` and can never be reused.
 
 **A constraint on editing that header.** Values in `manifest.yaml` must stay SHORT. `js-yaml`
 re-emits a long string as a `>-` folded scalar and the project's own parser
