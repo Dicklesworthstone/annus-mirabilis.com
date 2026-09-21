@@ -49,7 +49,7 @@ describe("am-disc-knowledge-cards-iw8j: publication gate verification", () => {
     [unverifiedCard.id, unverifiedCard],
   ]);
 
-  test("production profile fails when citing an unverified card", () => {
+  test("production profile fails when citing an unverified card (publicationGate.ts:66)", () => {
     const start = Date.now();
     const citations = [
       {
@@ -79,7 +79,7 @@ describe("am-disc-knowledge-cards-iw8j: publication gate verification", () => {
     });
   });
 
-  test("preview profile fails when citing an unverified card", () => {
+  test("preview profile fails when citing an unverified card (publicationGate.ts:66)", () => {
     const start = Date.now();
     const citations = [
       {
@@ -106,7 +106,7 @@ describe("am-disc-knowledge-cards-iw8j: publication gate verification", () => {
     });
   });
 
-  test("draft profile permits unverified card with warning marker", () => {
+  test("draft profile permits unverified card with warning marker (publicationGate.ts:76)", () => {
     const start = Date.now();
     const citations = [
       {
@@ -121,6 +121,12 @@ describe("am-disc-knowledge-cards-iw8j: publication gate verification", () => {
     assert.equal(result.diagnostics.length, 1);
     assert.equal(result.diagnostics[0]?.severity, "warning");
     assert.ok(result.diagnostics[0]?.message.includes(UNVERIFIED_RESEARCH_MARKER));
+    // WHICH rule, which this asserted only by severity. :66 and :76 emit the same rule and
+    // differ in severity alone, so severity without the rule and rule without the severity
+    // each leave half the distinction unguarded - and the half that matters is that a
+    // production blocker must not arrive as a draft warning.
+    assert.equal(result.diagnostics[0]?.rule, "card-unverified-in-production");
+    assert.notEqual(result.diagnostics[0]?.severity, "error");
 
     globalKnowledgeCardsLogger.log({
       testId: "gate-draft-permits-unverified-with-marker",
@@ -133,6 +139,50 @@ describe("am-disc-knowledge-cards-iw8j: publication gate verification", () => {
       durationMs: Date.now() - start,
       message: "Draft profile permitted unverified card with research marker.",
     });
+  });
+
+  test("a citation naming a card that is not in the index is an error in EVERY profile (publicationGate.ts:52)", () => {
+    // Nothing drove this site: planting its rule left 5 pass 0 fail and a marker on it was
+    // never reached. It is the third site of card-unverified-in-production, and it is a
+    // different failure from the other two - the card is not unverified, it is ABSENT, so
+    // there is nothing to verify and no verification that could repair it.
+    //
+    // It sits above the profile branch, which is the property worth pinning: the draft
+    // profile downgrades an unverified card to a warning, and must NOT downgrade a missing
+    // one. A citation to a card that does not exist is a broken reference in any build.
+    const citations = [
+      {
+        cardId: "no-such-card",
+        citedBy: "stage-bm-01",
+        sourceType: "journey-stage" as const,
+      },
+    ];
+
+    for (const profile of ["production", "preview", "draft"] as const) {
+      const result = checkPublicationGate(cardsMap, citations, profile);
+      assert.equal(result.ok, false, `${profile} must not pass a citation to a missing card`);
+      const diagnostic = result.diagnostics.find((d) => d.cardId === "no-such-card");
+      assert.ok(diagnostic, `${profile} produced no diagnostic for the missing card`);
+      assert.equal(diagnostic?.rule, "card-unverified-in-production");
+      // Error even in draft. This is what separates :52 from :76.
+      assert.equal(diagnostic?.severity, "error");
+      assert.ok(
+        diagnostic?.message.includes("could not be found"),
+        `${profile} message did not name the absence: ${diagnostic?.message}`,
+      );
+      // And not the unverified-card wording, which is the neighbouring site.
+      assert.equal(diagnostic?.message.includes(UNVERIFIED_RESEARCH_MARKER), false);
+    }
+
+    // Control: the same call with a card that IS in the index does not produce this
+    // diagnostic, so the assertions above are about the absence and not about the profile.
+    const present = checkPublicationGate(
+      cardsMap,
+      [{ cardId: "verified-card-1", citedBy: "stage-bm-01", sourceType: "journey-stage" as const }],
+      "production",
+    );
+    assert.equal(present.ok, true);
+    assert.equal(present.diagnostics.length, 0);
   });
 
   test("verified cited card passes under all profiles without diagnostics and HTML contains no marker", () => {
