@@ -267,6 +267,18 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * against a RECORDED baseline of 0, so it is a regression against a measured count rather than new
  * debt, and it is paid here rather than recorded.
  *
+ * THE CITATION THIS TEST CARRIED HAS BEEN REMOVED, and the plant is why. It cited
+ * e2e-edition-pipeline.ts:295, and the stale-citation ratchet refused it as code-mismatched. The
+ * gate's rule is to plant before repointing, so I renamed that site's code to
+ * "corpus-empty-planted" and ran this suite: 12 pass, 0 fail. The citation was a claim I had not
+ * verified and could not.
+ *
+ * WHY IT CANNOT BE VERIFIED, which is a finding about the site rather than about this test. The
+ * catch at the end of the compile stage reads `if (!(err instanceof EmptyCorpusError))` - it
+ * discriminates the deliberate abort BY CLASS and never reads `err.code`. The code string is
+ * therefore inert at this site: nothing observes it, so no test can assert it. What this test does
+ * verify, and what the plant above confirmed, is the throw's EFFECT.
+ *
  * The refusal is not observable as a thrown error: the pipeline catches EmptyCorpusError and
  * surfaces it as a stage result, which is the point of the class. What a caller sees is the
  * compile stage reporting `not-available` with `content-corpus-absent` instead of blaming the
@@ -274,7 +286,7 @@ describe("PLANT: the ledger-present branch measures instead of announcing", () =
  * standing - execution falls through to loadReadingFiles, which throws ENOENT and fails the stage.
  */
 describe("edition pipeline: an absent corpus is not a compiler failure", () => {
-  test("compile reports content-corpus-absent on a root with no content directory (e2e-edition-pipeline.ts:295)", async () => {
+  test("compile reports content-corpus-absent on a root with no content directory", async () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "am-edition-no-corpus-"));
     const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyRoot });
 
