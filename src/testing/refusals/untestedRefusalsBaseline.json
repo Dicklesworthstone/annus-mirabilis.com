@@ -61,7 +61,7 @@
   "src/content/kernel/traceValidation.ts": 0,
   "src/content/kernel/verify.ts": 2,
   "src/content/ledger/ledgerMathSettings.ts": 0,
-  "src/content/ledger/validateLedger.ts": 10,
+  "src/content/ledger/validateLedger.ts": 0,
   "src/content/manifest/check.ts": 0,
   "src/content/manifest/schema.ts": 4,
   "src/content/notation/validation.ts": 3,
