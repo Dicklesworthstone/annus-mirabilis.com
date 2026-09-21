@@ -265,5 +265,38 @@ Die Häufigkeitsverteilung der in einer beliebigen Zeit $t$ erfolgten Lagenände
 --- REVIEWED TRANSCRIPTION PAGE 11 OF 12 ---
 [[ANNALEN-PAGE 559]]
 
+fälligen Fehler, was zu vermuten war. Von Bedeutung aber ist, wie die Konstante im Exponenten mit dem Diffusionskoeffizienten zusammenhängt. Wir berechnen nun mit Hilfe dieser Gleichung die Verrückung $\lambda_x$ in Richtung der $X$-Achse, welche ein Teilchen im Mittel erfährt, oder — genauer ausgedrückt — die Wurzel aus dem arithmetischen Mittel der Quadrate der Verrückungen in Richtung der $X$-Achse; es ist:
+$$
+\lambda_x = \sqrt{\overline{x^2}} = \sqrt{2 D t}.
+$$
+
+Die mittlere Verschiebung ist also proportional der Quadratwurzel aus der Zeit. Man kann leicht zeigen, daß die Wurzel aus dem Mittelwert der Quadrate der [[EM]]Gesamtverschiebungen[[/EM]] der Teilchen den Wert $\lambda_x \sqrt{3}$ besitzt.
+
+[[HEADING s5]]§ 5. Formel für die mittlere Verschiebung suspendierter Teilchen. Eine neue Methode zur Bestimmung der wahren Größe der Atome.
+
+In § 3 haben wir für den Diffusionskoeffizienten $D$ eines in einer Flüssigkeit in Form von kleinen Kugeln vom Radius $P$ suspendierten Stoffes den Wert gefunden:
+$$
+D = \frac{R T}{N} \frac{1}{6 \pi k P}.
+$$
+
+Ferner fanden wir in § 4 für den Mittelwert der Verschiebungen der Teilchen in Richtung der $X$-Achse in der Zeit $t$:
+$$
+\lambda_x = \sqrt{2 D t}.
+$$
+
+Durch Eliminieren von $D$ erhalten wir:
+$$
+\lambda_x = \sqrt{t} \cdot \sqrt{\frac{R T}{N} \frac{1}{3 \pi k P}}.
+$$
+
+Diese Gleichung läßt erkennen, wie $\lambda_x$ von $T$, $k$ und $P$ abhängen muß.
+
+Wir wollen berechnen, wie groß $\lambda_x$ für eine Sekunde ist, wenn $N$ gemäß den Resultaten der kinetischen Gastheorie $6 \cdot 10^{23}$ gesetzt wird; es sei als Flüssigkeit Wasser von 17° C. gewählt ($k = 1{,}35 \cdot 10^{-2}$) und der Teilchendurchmesser sei 0,001 mm. Man erhält:
+$$
+\lambda_x = 8 \cdot 10^{-5} \, \text{cm} = 0{,}8 \, \text{Mikron}.
+$$
+
+Die mittlere Verschiebung in 1 Min. wäre also ca. 6 Mikron.
+
 --- REVIEWED TRANSCRIPTION PAGE 12 OF 12 ---
 [[ANNALEN-PAGE 560]]
