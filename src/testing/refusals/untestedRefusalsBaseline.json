@@ -86,7 +86,7 @@
   "src/content/schemas/strictParse.ts": 0,
   "src/design/spectralMapping.ts": 0,
   "src/discovery/cards/cardRules.ts": 0,
-  "src/discovery/cards/publicationGate.ts": 3,
+  "src/discovery/cards/publicationGate.ts": 0,
   "src/discovery/cards/verificationQueue.ts": 0,
   "src/discovery/checks/journeyChecks.ts": 1,
   "src/discovery/checks/moveSummaryGuard.ts": 0,
