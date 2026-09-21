@@ -284,25 +284,38 @@ test("light-thread: a refused setting alerts and leaves the accepted example dis
         await beta.fill("2");
         await page.getByRole("button", { name: "Apply settings" }).click();
 
-        const alerted = await page
-          .locator("[role='alert']")
-          .first()
-          .isVisible()
-          .catch(() => false);
+        // THE INSTRUMENT MUST ANSWER, not the widget (am-fd1f). This assertion used
+        // to accept either, because either was what happened: every control carries
+        // min and max, so constraint validation ran first, the form never submitted,
+        // and the reader was told "Value must be less than or equal to 0.999999" by
+        // the browser in BOTH engines. The instrument's own sentence - "These are
+        // this instrument's admission bounds" - was authored, unit-tested and
+        // unreachable. AGENTS.md draws that line: the bounds are numerical admission
+        // limits, not claims of physical impossibility, and a widget cannot say so.
+        const alert = page.locator("section.laboratory [role='alert']").first();
+        await alert.waitFor({ state: "visible", timeout: 10_000 });
+        const refusalText = (await alert.textContent()) ?? "";
+        assert.ok(
+          refusalText.includes("admission bounds"),
+          `${engine.name}: the page refused but not in the instrument's words, got "${refusalText}"`,
+        );
+        assert.ok(
+          refusalText.includes("beta"),
+          `${engine.name}: the refusal must name the setting it refused, got "${refusalText}"`,
+        );
+
+        // The control's protection is not traded away for the instrument's voice:
+        // suppressing the native bubble does not make the form valid, so the value
+        // must still never reach the model.
         const nativeMessage = await beta.evaluate(
           (node) => (node as HTMLInputElement).validationMessage,
         );
-        assert.ok(
-          alerted || nativeMessage !== "",
-          `${engine.name}: an out-of-bounds beta was neither refused in the page nor blocked by the control`,
+        assert.notEqual(
+          nativeMessage,
+          "",
+          `${engine.name}: the control stopped enforcing the bound; the instrument speaking must not replace that`,
         );
-        // Which one answered matters for the report: if the native control blocks
-        // the submit, the page's own typed refusal never runs and its wording is
-        // unreachable through the interface, however well tested it is in units.
-        refusalRoute.push(
-          `${engine.name}: ${alerted ? "the page's own alert" : "the browser's control validation"}` +
-            `${nativeMessage === "" ? "" : ` ("${nativeMessage}")`}`,
-        );
+        refusalRoute.push(`${engine.name}: "${refusalText.slice(0, 72)}"`);
 
         // The claim that matters either way: the last accepted worked example is
         // still on screen. A refusal that blanks the readings, or one that quietly
@@ -323,6 +336,78 @@ test("light-thread: a refused setting alerts and leaves the accepted example dis
   }
   console.log(`light-thread refusal answered by:\n  ${refusalRoute.join("\n  ")}`);
   assert.equal(refusalRoute.length, 2, "both engines must have been asked");
+});
+
+test("light-thread planted negative: without the invalid handler the widget answers again", async (t) => {
+  if (missingBuild(t)) return;
+  const { baseUrl, server } = await startStaticServer();
+  try {
+    for (const engine of ENGINES) {
+      const browser = await engine.launcher.launch();
+      try {
+        const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+        const page = await context.newPage();
+
+        // The wiring removed from the SHIPPED chunk, not from source: a source plant
+        // is invisible to a test that reads out/, and rebuilding to plant is not
+        // available here because the panes share one .next. Stripping `onInvalid:M,`
+        // from the served bytes reproduces exactly the state am-fd1f recorded.
+        const rewritten = { count: 0 };
+        await page.route("**/_next/static/chunks/**/*.js", async (route) => {
+          const response = await route.fetch();
+          const body = await response.text();
+          if (!body.includes("onInvalid:")) {
+            await route.fulfill({ response, body });
+            return;
+          }
+          rewritten.count += 1;
+          await route.fulfill({
+            response,
+            body: body.replace(/onInvalid:[A-Za-z_$][\w$]*,/g, ""),
+          });
+        });
+
+        await page.goto(`${baseUrl}${ROUTE}`, { waitUntil: "load", timeout: 20_000 });
+        await page
+          .locator("form[aria-label='Light-thread settings'] fieldset:not([disabled])")
+          .waitFor({ timeout: 10_000 });
+
+        // Reachability before the claim: the rewrite must have hit something, or
+        // "the instrument stays silent" is true of a plant that changed nothing.
+        assert.ok(
+          rewritten.count > 0,
+          `${engine.name}: no served chunk carried an onInvalid binding, so this plant changed nothing`,
+        );
+
+        await page.locator("input[name='beta']").fill("2");
+        await page.getByRole("button", { name: "Apply settings" }).click();
+
+        const alerted = await page
+          .locator("section.laboratory [role='alert']")
+          .first()
+          .isVisible()
+          .catch(() => false);
+        assert.equal(
+          alerted,
+          false,
+          `${engine.name}: the instrument answered without its handler, so the assertion above is not testing the wiring`,
+        );
+        const nativeMessage = await page
+          .locator("input[name='beta']")
+          .evaluate((node) => (node as HTMLInputElement).validationMessage);
+        assert.notEqual(
+          nativeMessage,
+          "",
+          `${engine.name}: with the handler gone the browser must be the one answering`,
+        );
+        await context.close();
+      } finally {
+        await browser.close();
+      }
+    }
+  } finally {
+    await new Promise<void>((done) => server.close(() => done()));
+  }
 });
 
 test("light-thread: the three table-scroll regions, measured at 320 and 1280", async (t) => {
