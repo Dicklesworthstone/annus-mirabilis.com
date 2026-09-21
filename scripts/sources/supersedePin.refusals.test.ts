@@ -29,6 +29,17 @@
  * :220, :277 and :295 are defensive guards against corruption and against a future caller, which
  * is a reason to keep them, not a reason to claim they are tested.
  *
+ * RE-VERIFIED 2026-09-21, after the scanner's positional-attribution fix changed this file's
+ * reported residue from 3 to 4. The 4 is not a regression and the paragraphs above are not stale
+ * prose: all four sites were planted again, one at a time, against supersedePin.test.ts, this
+ * file and verify-facsimile-pins.test.ts, and none of them reddened anything. The premises were
+ * re-read at the same time rather than taken on trust - supersedePin.ts:183 still computes
+ * newSha256 as sha256File(extracted) over the buffer that :216 then writes, so :220's two digests
+ * are still taken over the same bytes; and writeSupersededConfig is still not exported, so :277
+ * and :295 are still reachable only through supersedePin, which found a pinned record in that
+ * same directory moments earlier. Nothing was added here, deliberately: a case that cannot reach
+ * its site would raise the covered count without covering anything.
+ *
  * The fixtures are left on disk. Each case builds a fresh mkdtemp directory under the system
  * temporary directory and never removes it, because AGENTS.md Rule 1 has no exception for files a
  * test created. Nothing accumulates inside the repository.
@@ -172,6 +183,13 @@ describe("supersedePin.ts refusals: the authorization", () => {
     const err = refusalFrom(() =>
       assertSupersedeAuthorized(KEY, { ...AUTH, authorizationText: "" }),
     );
+    // The code as well as the wording. This case asserted only the message, so it cited a site
+    // whose code it never named, and a block that does not name its site's code cannot credit
+    // that site at all (am-ksl3). It is also the stronger assertion: an absent authorization
+    // has to arrive as
+    // the SAME refusal as a too-short one, not as some other failure that happens to phrase
+    // itself the same way.
+    expect(err.code).toBe("pinned-digest-conflict");
     expect(err.message).toContain("Got nothing.");
   });
 
