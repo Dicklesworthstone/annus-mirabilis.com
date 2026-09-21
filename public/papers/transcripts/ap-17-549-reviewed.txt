@@ -300,3 +300,13 @@ Die mittlere Verschiebung in 1 Min. wäre also ca. 6 Mikron.
 
 --- REVIEWED TRANSCRIPTION PAGE 12 OF 12 ---
 [[ANNALEN-PAGE 560]]
+
+Umgekehrt läßt sich die gefundene Beziehung zur Bestimmung von $N$ benutzen. Man erhält:
+$$
+N = \frac{t}{\lambda_x^2} \cdot \frac{R T}{3 \pi k P}.
+$$
+
+Möge es bald einem Forscher gelingen, die hier aufgeworfene, für die Theorie der Wärme wichtige Frage zu entscheiden!
+
+[[DATELINE]]Bern, Mai 1905.[[/DATELINE]]
+[[RECEIVED]](Eingegangen 11. Mai 1905.)[[/RECEIVED]]
