@@ -325,14 +325,26 @@ describe("brownian facsimile verification (am-src-facsimile-brownian-mox)", () =
     // test fail exactly when the work it tracks got done - a ratchet pointing the wrong way.
     // The watch list exists to be settled; what is worth guarding is that a settled entry
     // SAYS WHAT WAS SEEN rather than merely changing state.
-    const LEGAL = new Set(["pending", "confirmed-on-plate", "confirmed-absent"]);
+    const LEGAL = new Set([
+      "pending",
+      "confirmed-on-plate",
+      "confirmed-absent",
+      "plate-reading-recorded-ruling-open",
+    ]);
     for (const item of fm.watchList) {
       expect(LEGAL.has(item.result), `${item.id}: unknown result "${item.result}"`).toBe(true);
       if (item.result !== "pending") {
+        const notes = item.notes ?? "";
         expect(
-          (item.notes ?? "").length,
+          notes.length,
           `${item.id} is settled but its notes do not record what was read on the plate`,
         ).toBeGreaterThan(80);
+        // Parity with lightQuanta.facsimile.test.ts: a settled entry with no page reference
+        // is a claim a reviewer cannot re-check, and re-checkability is the point of the list.
+        expect(
+          /\bpages?\s+\d{3}\b|\bp\.\s*\d{3}\b/.test(notes),
+          `${item.id} is settled but cites no printed page, so a reviewer cannot re-check it`,
+        ).toBe(true);
       }
     }
     // And the list must not be settled by emptying it.

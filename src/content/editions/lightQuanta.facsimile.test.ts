@@ -335,8 +335,40 @@ describe("light quanta facsimile verification (am-src-facsimile-light-quanta-t4n
     expect(ids).toContain("watch-entropy-density-glyph");
     expect(ids).toContain("watch-dateline-chronology");
 
+    // This asserted `result === "pending"` for every item until 2026-09-21, which encoded
+    // "nothing has been checked yet" as an invariant. It was true while light-quanta had no
+    // transcription and became false the moment the paper acquired ANSWERS - a test that
+    // fails on progress is measuring the wrong thing. Resolving these entries is the goal.
+    //
+    // What is worth protecting is that no item carries an invented or undocumented result.
+    // So: every result must be one of the declared values, and anything NOT pending must
+    // cite the plate that settled it. "confirmed-on-plate" with no page reference is a claim
+    // a reviewer cannot re-check, and re-checkability is the entire purpose of a watch list.
+    //
+    // The still-pending items keep their teeth: they are not skipped, and the count below
+    // refuses a list that has been "settled" by being emptied.
+    const DECLARED_RESULTS = new Set([
+      "pending",
+      "confirmed-on-plate",
+      "confirmed-absent",
+      "plate-reading-recorded-ruling-open",
+    ]);
+    expect(fm.watchList.length).toBeGreaterThanOrEqual(10);
     for (const item of fm.watchList) {
-      expect(item.result).toBe("pending");
+      expect(
+        DECLARED_RESULTS.has(item.result),
+        `${item.id}: result "${item.result}" is not a declared value`,
+      ).toBe(true);
+      if (item.result === "pending") continue;
+      const notes = item.notes ?? "";
+      expect(
+        notes.length,
+        `${item.id} is settled but records nothing about what settled it`,
+      ).toBeGreaterThan(120);
+      expect(
+        /\bpages?\s+\d{3}\b|\bp\.\s*\d{3}\b/.test(notes),
+        `${item.id} is settled but cites no printed page, so a reviewer cannot re-check it`,
+      ).toBe(true);
     }
   });
 
