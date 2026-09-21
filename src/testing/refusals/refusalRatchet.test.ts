@@ -106,6 +106,95 @@ export function auditFileRefusalCount(
 }
 
 describe("untested refusal throw site ratchet (am-muyh)", () => {
+  /**
+   * The scope this gate declares to whoever reads a failure. Hoisted into a constant so the
+   * test below can assert it is actually USED by the failure message: an earlier version
+   * searched this file for the prose and matched its own assertion line, so stripping the note
+   * from the message changed nothing and the check was vacuous. Planting found that; reading
+   * did not.
+   */
+  /**
+   * The tail of every regression failure, as a function so the scope test can CALL it rather
+   * than search this file for its text. Two earlier versions of that check were vacuous: the
+   * first matched the prose in its own assertion line, the second counted occurrences of the
+   * constant and counted its own references. Asserting the produced STRING is the only form
+   * that cannot see itself. Planting found both; reading found neither.
+   */
+  const regressionMessage = (): string =>
+    `\nEvery refusal THROW site must be exercised by a test. See am-muyh.\n${THROW_SCOPE_NOTE}`;
+
+  const THROW_SCOPE_NOTE =
+    "SCOPE: this ratchet counts `throw new SomeError('kebab-code')` sites only. A validator" +
+    " that ACCUMULATES refusals - pushing a coded diagnostic into a findings array instead of" +
+    " throwing - is not counted here and never has been, so a file with no entry above may" +
+    " still carry untested refusals. See am-qyys.";
+
+  /**
+   * WHAT THIS RATCHET DOES NOT COVER, measured rather than asserted (am-qyys).
+   *
+   * The name says "throw site" and that is exactly what it counts. A validator that
+   * ACCUMULATES refusals - pushing a coded diagnostic into a findings array rather than
+   * throwing - is invisible to it. checkReceipt.ts is the measured instance: more than eighty
+   * addError/addFlag calls whose first argument is a refusal code, no throw site at all, and
+   * absent from the baseline entirely rather than recorded as zero. Four refusal codes shipped
+   * there with no targeted test and nothing reported it, because nothing was looking.
+   *
+   * THE RATCHET WAS NOT WIDENED, and the reason is the measurement. The accumulator population
+   * cannot be defined syntactically with acceptable precision. Three predicates were run
+   * against all 1393 source files and each failed in a DIFFERENT direction:
+   *
+   *   callee matching /^(add|push|record|...)/     caught classList.add("eq-term-active")
+   *                                                and a refcount's addRef("fixture-mount")
+   *   callee required to contain "error"/"flag"    missed validate.ts's report(rule, ...)
+   *   any pushing function taking a code literal   caught recordMetric("interaction-latency-p75"),
+   *                                                where the kebab string is a METRIC ID
+   *
+   * A throw carries its own semantic marker: `throw new XError(...)` says what it is. An
+   * accumulator call does not, and isRefusalCode is only a kebab-case regex - so a widened
+   * ratchet would count "kebab string handed to a pushing function", which includes metric
+   * ids, section ids and CSS class names. A baseline generated from that predicate is a record
+   * of whatever the predicate happens to match, which is the opposite of a pawl.
+   *
+   * So the gate declares its scope, in its name and in its failure message, and this test holds
+   * the declaration to a measurement rather than to a comment. If the scanner is ever widened,
+   * this goes red and whoever widened it must update what the gate claims about itself.
+   */
+  test("the declared scope is true: an accumulating validator is invisible to this ratchet (am-qyys)", () => {
+    const relPath = "src/content/provenance/checkReceipt.ts";
+    const source = readFileSync(join(ROOT, relPath), "utf8");
+
+    // Not a vacuous fixture: it really does carry many coded accumulator refusals.
+    const coded = source.match(/\b(?:addError|addFlag)\s*\(\s*"[a-z][a-z0-9]*(?:-[a-z0-9]+)+"/g) ?? [];
+    assert.ok(coded.length > 50, `expected many coded accumulator refusals, found ${coded.length}`);
+
+    // And the scanner sees none of them.
+    assert.equal(
+      scanRefusalThrowSites(source, relPath).length,
+      0,
+      "checkReceipt.ts now has a throw site, so the scope note above is stale",
+    );
+
+    // Which is why it is absent from the baseline rather than recorded as zero.
+    const baseline = JSON.parse(readFileSync(BASELINE_PATH, "utf8"));
+    assert.equal(
+      Object.hasOwn(baseline, relPath),
+      false,
+      "checkReceipt.ts is in the baseline now, so the scanner can see it and this note is stale",
+    );
+
+    // The failure message must SAY so, or the gate measures a subset of its own name.
+    //
+    // Asserted through the IDENTIFIER rather than the prose. The first version of this searched
+    // the file for the sentence and found it in its own assertion line, so removing the note
+    // from the message left the test green - a check that could only ever pass. Counting uses
+    // of the constant cannot match itself that way: the definition is one occurrence and the
+    // failure message must supply another.
+    const message = regressionMessage();
+    assert.match(message, /ACCUMULATES refusals/);
+    assert.match(message, /throw new SomeError/);
+    assert.match(message, /am-qyys/);
+  });
+
   test("no file exceeds its recorded baseline and no baseline is slack (enforced tightening pawl)", () => {
     const baselineRaw = JSON.parse(readFileSync(BASELINE_PATH, "utf8")) as Record<string, number>;
     const baseline = new Map<string, number>(Object.entries(baselineRaw));
@@ -174,7 +263,7 @@ describe("untested refusal throw site ratchet (am-muyh)", () => {
       failureMessages.push(
         `[REGRESSION] Untested refusal throw sites ${headline}:\n` +
           allRegressions.join("\n") +
-          "\nEvery refusal throw site must be exercised by a test. See am-muyh.",
+          regressionMessage(),
       );
     }
 
