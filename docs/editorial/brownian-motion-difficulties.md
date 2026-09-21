@@ -204,8 +204,12 @@ units: the per-page totals stayed self-consistent while the boundaries were wron
 - A line that **continues across a page break** is likewise flush.
 - Printed **numbered or lettered list items** (`1.`, `2.`, `a)`, `b)`) are indented but are *not*
   separate paragraphs: they fold into the sentence that introduces them. See
-  `flag:segmentation:numbered-list-items-folded` above, and the sibling rule recorded for
-  light-quanta.
+  `flag:segmentation:numbered-list-items-folded`, whose own section is in
+  `special-relativity-difficulties.md`; the sibling rule in `light-quanta-difficulties.md`; and the
+  cross-paper statement under "Paragraph Boundaries" in `docs/editorial/SEGMENTATION.md`, added
+  2026-09-21 because that document had no paragraph rule at all. Worked instance for this paper:
+  p. 555 carries five indents against three recorded paragraphs, examined at a true 300% and
+  recorded in the receipt's page map rather than reconciled by adding units.
 
 Worked contrast on p. 554, which is where two of the five errors were made: "In einer Flüssigkeit
 seien suspendierte Teilchen" and "Es sei ν die Anzahl der suspendierten Teilchen" are indented and

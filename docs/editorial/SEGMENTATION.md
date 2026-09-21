@@ -35,6 +35,30 @@ When an English translation splits a single German sentence or block into multip
 - A split requires at least two parts (`missing-split-sibling`).
 - An unsuffixed base unit cannot exist beside suffixed splits (`invalid-split-suffix`).
 
+### Paragraph Boundaries: Indentation Is Not Sufficient
+
+A paragraph unit corresponds to a printed paragraph, identified on the plate by an **indented first
+line**; a line set **flush to the left margin** continues the paragraph above it, however much prose
+follows. A resumption after a displayed equation is flush, and so is a continuation across a page
+break. Read the left margin at 300% or more, and compare a line against flush and indented lines
+**on the same page**: the text block sits at a different offset on rectos and versos, so a
+measurement from one page is never evidence about another.
+
+**An indent alone does not make a paragraph.** The 1905 compositor indents a printed numbered or
+lettered list item (`1.`, `2.`, `a)`, `b)`) to the same depth as a paragraph first line. Such an
+item is a **continuation unless the grammar says otherwise**: where the introducing sentence runs
+into the items - typically ending in `nämlich`, `folgendes` or a colon, with the items separated by
+commas and only the last closed by a full stop - the items complete that sentence and fold into the
+paragraph that introduces them. Promoting them would split one sentence across several paragraph
+units, which is incoherent in a model where sentence units live inside paragraph units.
+
+Worked case, Brownian `ap-17-549` p. 555: the plate carries FIVE lines indented to paragraph depth
+where the manifest records THREE paragraph starts. The two extra are the items `1. einer Bewegung…`
+and `2. eines Diffusionsvorganges…` of the list introduced on p. 554 by `…auffassen, nämlich`; item
+1 ends in a comma and item 2 in a full stop, so both belong to `s3-p5`. The same rule is recorded
+per paper in the difficulties files as
+`flag:segmentation:numbered-list-items-folded`.
+
 ---
 
 ## 2. Display Equations and the Display-Reference Model
