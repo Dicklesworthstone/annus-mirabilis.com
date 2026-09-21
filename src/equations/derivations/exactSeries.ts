@@ -41,13 +41,15 @@ export type TaylorJet = Readonly<{
   scope: "local-series-not-finite-error-bound";
 }>;
 export class SeriesRefusal extends Error {
-  constructor(message: string) {
+  readonly code: string;
+  constructor(code: string, message: string) {
     super(message);
+    this.code = code;
     this.name = "SeriesRefusal";
   }
 }
-const fail = (message: string): never => {
-  throw new SeriesRefusal(message);
+const fail = (code: string, message: string): never => {
+  throw new SeriesRefusal(code, message);
 };
 const ZERO = rational(0n),
   ONE = rational(1n);
@@ -58,25 +60,31 @@ export function exactSeriesAtZero(request: SeriesRequest): TaylorJet {
   const { order, variable, registry, equationId } = request;
   record(variable, "series.variable", ["numerator", "denominator"]);
   if (!Number.isSafeInteger(order) || order < 0 || order > SERIES_LIMITS.order)
-    fail("Taylor order exceeds the supported range 0–12.");
+    fail("taylor-order-out-of-range", "Taylor order exceeds the supported range 0–12.");
   if (
     !variable ||
     variable.numerator === variable.denominator ||
     !Object.hasOwn(registry, variable.numerator) ||
     !Object.hasOwn(registry, variable.denominator)
   )
-    fail("Declare a ratio of two distinct registered quantities.");
+    fail("ratio-quantities-invalid", "Declare a ratio of two distinct registered quantities.");
   if (
     !sameDimension(
       dimension(registry[variable.numerator]!.dimension),
       dimension(registry[variable.denominator]!.dimension),
     )
   )
-    fail("The declared series variable must be dimensionless.");
+    fail(
+      "series-variable-not-dimensionless",
+      "The declared series variable must be dimensionless.",
+    );
   const expression = parseExpression(request.expression, equationId, registry);
   const dimensions = checkDimensions(expression, registry);
   if (dimensions.status !== "consistent" || !isDimensionless(dimensions.dimension))
-    fail("Normalize dimensions explicitly before expanding in a dimensionless ratio.");
+    fail(
+      "dimensions-not-normalized",
+      "Normalize dimensions explicitly before expanding in a dimensionless ratio.",
+    );
   let work = 0;
   function bounded(value: Rational): Rational {
     if (
@@ -84,7 +92,10 @@ export function exactSeriesAtZero(request: SeriesRequest): TaylorJet {
       value.num.toString(2).length > SERIES_LIMITS.bits ||
       value.den.toString(2).length > SERIES_LIMITS.bits
     )
-      fail("Exact series arithmetic exceeds the work or coefficient budget.");
+      fail(
+        "series-budget-exceeded",
+        "Exact series arithmetic exceeds the work or coefficient budget.",
+      );
     return value;
   }
   const plus = (a: Rational, b: Rational) => bounded(add(a, b));
@@ -104,7 +115,10 @@ export function exactSeriesAtZero(request: SeriesRequest): TaylorJet {
   }
   function quotient(a: readonly Rational[], b: readonly Rational[]): Rational[] {
     if (b[0]!.num === 0n)
-      fail("Division by a zero-at-origin expression needs a separate removable-limit check.");
+      fail(
+        "removable-limit-required",
+        "Division by a zero-at-origin expression needs a separate removable-limit check.",
+      );
     const result: Rational[] = [];
     for (let k = 0; k <= order; k++) {
       let rest = ZERO;
@@ -115,7 +129,7 @@ export function exactSeriesAtZero(request: SeriesRequest): TaylorJet {
   }
   function power(base: readonly Rational[], exponent: Rational): Rational[] {
     if (exponent.den > 16n || exponent.num > 16n || exponent.num < -16n)
-      fail("Power exceeds the supported exact series budget.");
+      fail("power-budget-exceeded", "Power exceeds the supported exact series budget.");
     if (exponent.den === 1n) {
       let value = scalar(ONE);
       const count = Number(exponent.num < 0n ? -exponent.num : exponent.num);
@@ -123,7 +137,10 @@ export function exactSeriesAtZero(request: SeriesRequest): TaylorJet {
       return exponent.num < 0n ? quotient(scalar(ONE), value) : value;
     }
     if (base[0]!.num !== base[0]!.den)
-      fail("A fractional power requires base(0) = 1 and the real identity-connected branch.");
+      fail(
+        "fractional-power-branch-invalid",
+        "A fractional power requires base(0) = 1 and the real identity-connected branch.",
+      );
     const u = [...base];
     u[0] = ZERO;
     let term = scalar(ONE),
@@ -179,7 +196,10 @@ export function exactSeriesAtZero(request: SeriesRequest): TaylorJet {
           rational(BigInt(node.exponent.num), BigInt(node.exponent.den)),
         );
       default:
-        return fail("Unsupported operation or unbound quantity; no local series was inferred.");
+        return fail(
+          "series-not-inferable",
+          "Unsupported operation or unbound quantity; no local series was inferred.",
+        );
     }
   }
   const coefficients = visit(expression).map(formatRational);
@@ -198,10 +218,16 @@ export function exactSeriesAtZero(request: SeriesRequest): TaylorJet {
  */
 export function monomialQuotientLimit(request: SeriesRequest, power: number) {
   if (!Number.isSafeInteger(power) || power < 1 || power > request.order)
-    fail("The division order must be positive and within the calculated jet.");
+    fail(
+      "division-order-out-of-jet",
+      "The division order must be positive and within the calculated jet.",
+    );
   const jet = exactSeriesAtZero(request);
   if (jet.coefficients.slice(0, power).some((coefficient) => parseRational(coefficient).num !== 0n))
-    fail("A lower-order coefficient survives. There is no finite two-sided removable limit.");
+    fail(
+      "no-removable-limit",
+      "A lower-order coefficient survives. There is no finite two-sided removable limit.",
+    );
   return Object.freeze({
     status: "analytic-limit" as const,
     limit: jet.coefficients[power]!,

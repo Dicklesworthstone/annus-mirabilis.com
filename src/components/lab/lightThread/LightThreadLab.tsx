@@ -11,6 +11,7 @@ import {
   type LightThreadQuantityId,
 } from "../../../experiments/lightThread/definition.ts";
 import { createLightThreadSession } from "../../../experiments/lightThread/session.ts";
+import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { display, identity, result } from "../presentation.ts";
 import styles from "./LightThreadLab.module.css";
@@ -34,7 +35,11 @@ function draftOf(p: LightThreadParameters): Record<keyof LightThreadParameters, 
 function Reading({ snapshot, id }: { snapshot: AcceptedSnapshot; id: LightThreadQuantityId }) {
   const item = result(snapshot, id);
   if (item.status !== "value" || typeof item.value !== "number") {
-    throw new Error(`Light-thread snapshot has no scalar ${id}.`);
+    throw new ExperimentRuntimeError(
+      "snapshot-missing-scalar",
+      `Light-thread snapshot has no scalar ${id}.`,
+      "light-thread",
+    );
   }
   return <span data-quantity-id={id}>{display(item.value)}</span>;
 }
@@ -93,7 +98,12 @@ export function LightThreadLab() {
   const [error, setError] = useState("");
   const [announcement, setAnnouncement] = useState("");
   const snapshot = view.accepted;
-  if (!snapshot) throw new Error("The light thread requires an accepted snapshot.");
+  if (!snapshot)
+    throw new ExperimentRuntimeError(
+      "no-accepted-snapshot",
+      "The light thread requires an accepted snapshot.",
+      "light-thread",
+    );
   const accepted = snapshot.parameters as LightThreadParameters;
 
   useEffect(() => {

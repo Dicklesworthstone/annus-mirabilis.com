@@ -1,4 +1,5 @@
 import type { LowSpeedCertificate } from "./massEnergyLowSpeed.ts";
+import { LowSpeedProofError } from "./massEnergyLowSpeed.ts";
 
 /** Browser-side dependency projection only; no symbolic algebra or physics. */
 type Dependencies = Pick<LowSpeedCertificate, "premises" | "requirements">;
@@ -11,7 +12,10 @@ export function assessLowSpeed(proof: Dependencies, selection: LowSpeedSelection
     new Set(selection.selected).size !== selection.selected.length ||
     selection.selected.some((id) => !known.includes(id))
   )
-    throw new RangeError("Invalid low-speed premise selection or approximation order.");
+    throw new LowSpeedProofError(
+      "premise-selection-invalid",
+      "Invalid low-speed premise selection or approximation order.",
+    );
   return proof.requirements.map((step) => {
     const missing = step.premises.filter((id) => !selection.selected.includes(id));
     return {

@@ -29,13 +29,15 @@ const quotient = (numerator: Expression, denominator: Expression): Expression =>
 const ratio = () => quotient(q("frameSpeed"), q("speedOfLight"));
 const prefix = "eq-model-me-low-speed-check";
 export class LowSpeedProofError extends Error {
-  constructor(message: string) {
+  readonly code: string;
+  constructor(code: string, message: string) {
     super(message);
+    this.code = code;
     this.name = "LowSpeedProofError";
   }
 }
-function fail(message: string): never {
-  throw new LowSpeedProofError(message);
+function fail(code: string, message: string): never {
+  throw new LowSpeedProofError(code, message);
 }
 
 /** Strip only rendering identity; scales and scientific quantity IDs survive. */
@@ -88,7 +90,7 @@ function energyDegree(node: Expression): Rational {
     case "sum": {
       const degrees = node.args.map(energyDegree);
       if (degrees.some((d) => d.num !== degrees[0]!.num || d.den !== degrees[0]!.den))
-        fail("Energy normalization is not homogeneous.");
+        fail("energy-normalization-inhomogeneous", "Energy normalization is not homogeneous.");
       return degrees[0]!;
     }
     case "quotient":
@@ -101,13 +103,16 @@ function energyDegree(node: Expression): Rational {
     case "root":
       return divide(energyDegree(node.radicand), rational(BigInt(node.degree)));
     default:
-      return fail("Unsupported energy normalization operation.");
+      return fail(
+        "energy-normalization-unsupported",
+        "Unsupported energy normalization operation.",
+      );
   }
 }
 function normalizeEnergy(tree: Expression): Expression {
   const degree = energyDegree(tree);
   if (degree.num !== 1n || degree.den !== 1n)
-    fail("The energy drop must be linear in the fixed emitted energy.");
+    fail("energy-drop-not-linear", "The energy drop must be linear in the fixed emitted energy.");
   return rewrite(tree, (node) =>
     node.kind === "symbol" && node.quantityId === "emittedEnergyRestFrame"
       ? node.scale
@@ -129,7 +134,7 @@ export function buildMassEnergyLowSpeed(source: readonly EquationRecord[]) {
   function equation(name: string) {
     const eq = records.get(`eq-model-me-${name}`);
     if (!eq || eq.paper !== "mass-energy" || eq.tree.kind !== "relation")
-      fail(`Missing semantic equation ${name}.`);
+      fail("missing-semantic-equation", `Missing semantic equation ${name}.`);
     return { ...eq, tree: eq.tree };
   }
   const factor = equation("lorentz-factor"),
@@ -145,9 +150,12 @@ export function buildMassEnergyLowSpeed(source: readonly EquationRecord[]) {
     !sameShape(factor.tree.left, q("lorentzFactor")) ||
     !sameShape(factor.tree.right, expectedFactor)
   )
-    fail("The Lorentz source must retain the declared positive reciprocal radical.");
+    fail(
+      "lorentz-radical-lost",
+      "The Lorentz source must retain the declared positive reciprocal radical.",
+    );
   if (!sameShape(exact.tree.left, q("kineticEnergyDifference")))
-    fail("The kinetic drop changed identity.");
+    fail("kinetic-drop-identity-changed", "The kinetic drop changed identity.");
   const normalized = rewrite(normalizeEnergy(exact.tree.right), (node) =>
     node.kind === "symbol" && node.quantityId === "lorentzFactor"
       ? node.scale
@@ -165,10 +173,14 @@ export function buildMassEnergyLowSpeed(source: readonly EquationRecord[]) {
   const drop = exactSeriesAtZero(request);
   const expected = ["0", "0", "1/2", "0", "3/8", "0", "5/16", "0", "35/128"];
   if (canonical(drop.coefficients) !== canonical(expected))
-    fail("The source no longer establishes the stated low-speed expansion.");
+    fail(
+      "low-speed-expansion-lost",
+      "The source no longer establishes the stated low-speed expansion.",
+    );
   const numerator = rewrite(product(n("2"), normalized), () => null);
   const limit = monomialQuotientLimit({ ...request, expression: numerator }, 2);
-  if (limit.limit !== "1") fail("The mass proxy no longer has the claimed dimensionless limit.");
+  if (limit.limit !== "1")
+    fail("mass-proxy-limit-lost", "The mass proxy no longer has the claimed dimensionless limit.");
 
   const normalizedApproximation = normalizeEnergy(approximation.tree.right);
   // Complete polynomial comparison, not just matching eight coefficients: a
@@ -184,6 +196,7 @@ export function buildMassEnergyLowSpeed(source: readonly EquationRecord[]) {
     )
   )
     fail(
+      "quadratic-term-not-retained",
       "The approximation record must retain exactly the quadratic term and its approximation sign.",
     );
 
@@ -202,7 +215,10 @@ export function buildMassEnergyLowSpeed(source: readonly EquationRecord[]) {
       !equalPolynomials(exactPolynomial(eq.tree.right.numerator), exactPolynomial(numerator)) ||
       !equalPolynomials(exactPolynomial(eq.tree.right.denominator), exactPolynomial(denominator))
     )
-      fail(`The ${name} equation does not match its checked coefficient role.`);
+      fail(
+        "proof-step-refused",
+        `The ${name} equation does not match its checked coefficient role.`,
+      );
     return eq;
   }
   const proxy = checkRatio(

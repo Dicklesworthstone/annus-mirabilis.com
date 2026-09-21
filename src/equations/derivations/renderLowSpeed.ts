@@ -3,6 +3,7 @@ import { parseRational } from "../../content/dimensions/rational.ts";
 import type { CompiledEquation } from "../viewTypes.ts";
 import type { LowSpeedFormula, LowSpeedProofView } from "./lowSpeedView.ts";
 import type { LowSpeedCertificate } from "./massEnergyLowSpeed.ts";
+import { LowSpeedProofError } from "./massEnergyLowSpeed.ts";
 
 /** All TeX is composed here from checked rational coefficients or fixed text;
  * no user-authored TeX or browser calculation enters the payload.
@@ -34,7 +35,11 @@ export function renderLowSpeedProof(
   const { normalizedTree: _tree, ...certificate } = checked;
   const used = certificate.equationIds.map((id) => {
     const record = equations.find((e) => e.id === id);
-    if (!record) throw new Error(`Missing low-speed equation ${id}.`);
+    if (!record)
+      throw new LowSpeedProofError(
+        "missing-low-speed-equation",
+        `Missing low-speed equation ${id}.`,
+      );
     const { title, spoken, html, mathml, plainLatex, treeDigest } = record;
     return { id, title, spoken, html, mathml, plainLatex, treeDigest };
   });
