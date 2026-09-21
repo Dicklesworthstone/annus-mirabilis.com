@@ -2115,3 +2115,250 @@ describe("20. CLI main entrypoint argument parsing and mockFetch dispatch", () =
     expect(caught.exitCode).toBe(2);
   });
 });
+
+describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
+  // Seven coded refusals in this script had no test. Each is reached below by the
+  // condition it exists for, not by a fixture shaped to walk past everything else.
+  // Three more - the pdf-parse-failed trio - are NOT here, and the comment at the end
+  // of this block says why rather than leaving the gap unexplained.
+  const testRoot = path.join(REPO_ROOT, "artifacts", "test-tmp", "unseen-refusals", newToolRunId());
+  const configDir = path.join(testRoot, "configs");
+
+  beforeAll(() => {
+    fs.mkdirSync(configDir, { recursive: true });
+  });
+
+  /** A config complete enough to load, so a refusal below is the one being tested. */
+  function writeConfig(key: string, overrides: Record<string, unknown> = {}): string {
+    const cfg = {
+      configVersion: 1,
+      key,
+      candidates: [
+        {
+          url: "https://archive.org/download/item/x.pdf",
+          kind: "article",
+          institution: "Internet Archive",
+          hostItemId: "unseen-01",
+          hostFileName: "x.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 4 },
+        },
+      ],
+      articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [1, 2] },
+      verifiedAnchor: { parentPageIndex: 1, printedPage: 1, verifiedBy: "test-fixture" },
+      rights: {
+        rightsStatus: "scan-open-terms",
+        publicationDecision: "publish",
+        cloudProcessing: "permitted",
+        cloudProcessingBasis: "Public domain open terms",
+      },
+      ...overrides,
+    };
+    const filePath = path.join(configDir, `${key}.yaml`);
+    fs.writeFileSync(filePath, yaml.dump(cfg, { indent: 2, lineWidth: -1 }), "utf8");
+    return filePath;
+  }
+
+  /** Runs the call and returns the FacsimileError it must raise, or fails naming what came back. */
+  async function refusalFrom(run: () => unknown | Promise<unknown>): Promise<FacsimileError> {
+    try {
+      await run();
+    } catch (error) {
+      if (error instanceof FacsimileError) return error;
+      throw new Error(`expected a FacsimileError, got ${String(error)}`);
+    }
+    throw new Error("the call succeeded where it was required to refuse");
+  }
+
+  test("21.1 restoring a key that was never pinned (download-facsimiles.ts:805)", async () => {
+    const key = "ap-99-201";
+    writeConfig(key);
+    const error = await refusalFrom(() => restorePin(key, { configDir, repoRoot: testRoot }));
+    expect(error.code).toBe("invalid-config");
+    expect(error.message).toContain(key);
+  });
+
+  test("21.2 a pinned record whose origin URL is plain HTTP (download-facsimiles.ts:832)", async () => {
+    // Not loopback, so the NODE_ENV=test exemption for 127.0.0.1 does not apply: this
+    // is the real refusal, not the test-harness path around it.
+    const key = "ap-99-202";
+    writeConfig(key, {
+      pinned: {
+        path: `public/papers/pdfs/${key}.pdf`,
+        sha256: "c".repeat(64),
+        pageCount: 2,
+        mimeType: "application/pdf",
+        acquisitionDate: "2026-09-21",
+        originUrl: "http://archive.org/download/item/x.pdf",
+        finalUrl: "http://archive.org/download/item/x.pdf",
+        candidateIndex: 0,
+        hostFileSource: "original",
+        hostChecksumsVerified: [],
+        embeddedTextLayer: "unknown",
+        toolRunId: "20260921T000000Z-abcdef01",
+      },
+    });
+    const error = await refusalFrom(() => restorePin(key, { configDir, repoRoot: testRoot }));
+    expect(error.code).toBe("http-not-https");
+    expect(error.message).toContain("http://archive.org");
+  });
+
+  test("21.3 fetching from a plain HTTP URL with no redirect behind it (download-facsimiles.ts:911)", async () => {
+    // The redirect case has its own code (redirect-to-http), so the empty chain is what
+    // distinguishes this refusal from that one.
+    const error = await refusalFrom(() =>
+      fetchToStaging("http://example.org/scan.pdf", path.join(testRoot, "staging", "a.pdf"), {
+        fetchFn: async () => new Response(Buffer.alloc(8), { status: 200 }),
+      }),
+    );
+    expect(error.code).toBe("http-not-https");
+    expect(error.message).not.toContain("Redirect");
+  });
+
+  test("21.4 an HTTP status that is neither success nor worth retrying (download-facsimiles.ts:950)", async () => {
+    // 404 is terminal: 429 and 5xx retry, and exhausting those retries is a different
+    // code (network-retries-exhausted). A single call must be enough to reach this one.
+    let calls = 0;
+    const error = await refusalFrom(() =>
+      fetchToStaging("https://example.org/scan.pdf", path.join(testRoot, "staging", "b.pdf"), {
+        fetchFn: async () => {
+          calls++;
+          return new Response(null, { status: 404 });
+        },
+      }),
+    );
+    expect(error.code).toBe("http-status");
+    expect(error.message).toContain("404");
+    expect(calls).toBe(1);
+  });
+
+  test("21.5 a redirect chain that runs out of attempts still holding a redirect (download-facsimiles.ts:972)", async () => {
+    // A different site from 21.4 and reached differently: with no retries left the loop
+    // exits still holding the 302, so the check after the loop is what refuses. Without
+    // it the function would go on to read a body that was never fetched.
+    const error = await refusalFrom(() =>
+      fetchToStaging("https://example.org/scan.pdf", path.join(testRoot, "staging", "c.pdf"), {
+        maxRetries: 0,
+        fetchFn: async () =>
+          new Response(null, {
+            status: 302,
+            headers: { Location: "https://example.org/elsewhere.pdf" },
+          }),
+      }),
+    );
+    expect(error.code).toBe("http-status");
+    expect(error.message).toContain("Failed to retrieve 200 OK");
+  });
+
+  test("21.6 a candidate index the config does not have (download-facsimiles.ts:1095)", async () => {
+    const key = "ap-99-206";
+    writeConfig(key);
+    const error = await refusalFrom(() =>
+      downloadFacsimile(key, { configDir, repoRoot: testRoot, candidateIndex: 7 }),
+    );
+    expect(error.code).toBe("invalid-config");
+    expect(error.message).toContain("index 7");
+  });
+
+  test("21.7 a dry run refuses an insecure candidate before it reaches the network", async () => {
+    // WHAT THIS DOES NOT PROVE, found by planting: the dry-run branch has its own copy
+    // of the protocol check (download-facsimiles.ts:1115) and that copy is UNREACHABLE.
+    // downloadFacsimile loads through loadConfig, and validateConfig already refuses a
+    // non-HTTPS candidate with the same code (facsimileSourceSchema.ts:364) under the
+    // same loopback exemption, so the later check can never be the one that fires. My
+    // first version of this test claimed that site and passed on the schema's refusal
+    // instead. The property below is still worth holding - a dry run must not fetch an
+    // insecure URL - but the site that enforces it is the schema, and 1115 stays on the
+    // untested-refusal list because it is dead rather than because nobody tried.
+    const key = "ap-99-207";
+    writeConfig(key, {
+      candidates: [
+        {
+          url: "http://archive.org/download/item/x.pdf",
+          kind: "article",
+          institution: "Internet Archive",
+          hostItemId: "unseen-07",
+          hostFileName: "x.pdf",
+          hostFileSource: "original",
+          termsStatementUrls: ["https://example.org/terms"],
+          expectedPageCountRange: { min: 1, max: 4 },
+        },
+      ],
+    });
+    let fetched = 0;
+    const error = await refusalFrom(() =>
+      downloadFacsimile(key, {
+        configDir,
+        repoRoot: testRoot,
+        dryRun: true,
+        fetchFn: async () => {
+          fetched++;
+          return new Response(null, { status: 200 });
+        },
+      }),
+    );
+    // Assembled for the same reason as PARSE_FAILED below: this arm genuinely asserts
+    // the code, but the site that raises it lives in facsimileSourceSchema.ts, and
+    // spelling it here credited the unreachable dry-run site at 1115 by mention alone.
+    expect(error.code).toBe(["http", "not", "https"].join("-"));
+    expect(fetched).toBe(0);
+    // Named so the next reader does not have to re-derive which site answered.
+    expect(error.message).toContain("HTTPS protocol");
+  });
+
+  // Assembled rather than written out. The refusal scanner counts test blocks that
+  // MENTION a code and credits that many sites, so the literal string in a comment
+  // explaining why these three are untestable credited all three as tested - the note
+  // silently took the gate down by three. Attribution by mention is the defect; until
+  // it is attribution by citation everywhere, a note about a code must not spell it.
+  const PARSE_FAILED = ["pdf", "parse", "failed"].join("-");
+
+  test("21.8 the four refusals this block does NOT cover, and why, in the code", () => {
+    // A gap nobody can see is a gap nobody fixes. Four of this script's fourteen
+    // untested refusal sites are not tested above, and three of them cannot be:
+    //
+    //   the parse-failure trio (lines 357, 402, 435) - each guards an index into a regex
+    //     match whose capture group is not optional in the pattern. Under
+    //     noUncheckedIndexedAccess the compiler cannot see that, so the throw exists to
+    //     satisfy the type, not to catch a scan. If the pattern matches, the group is
+    //     there; no input reaches the throw.
+    //   http-not-https (line 1115) - unreachable, for the reason recorded in 21.7.
+    //
+    // The fourth, invalid-config at line 633 in updatePinnedRecord, IS reachable: it
+    // fires when a written config fails to re-validate on reload. It is not tested here
+    // because reaching it means writing a config that loads, accepts a pinned record,
+    // and then fails validation, and that fixture belongs with the immutability suite
+    // in section 18 rather than bolted on here. Recorded rather than quietly skipped.
+    //
+    // This test asserts the first claim rather than restating it: every parse-failure
+    // throw must sit behind an `=== undefined` check on a regex capture. If one ever
+    // guards something else, this fails and the "unreachable" note above stops being
+    // true without anyone noticing.
+    const source = fs.readFileSync(
+      path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"),
+      "utf8",
+    );
+    const lines = source.split("\n");
+    const parseFailedLines = lines
+      .map((line, index) => ({ line, index }))
+      .filter(({ line }) => line.includes(`"${PARSE_FAILED}"`));
+
+    // Four sites carry the code; the fourth (line 322) is a reachable validatePdf
+    // result for a PDF with no pages and is already covered by section 1. The three
+    // this note is about are the ones raised as a throw.
+    const thrown = parseFailedLines.filter(({ index }) =>
+      lines
+        .slice(Math.max(0, index - 1), index + 1)
+        .join(" ")
+        .includes("throw new FacsimileError"),
+    );
+    expect(parseFailedLines.length).toBe(4);
+    expect(thrown.length).toBe(3);
+    for (const { index } of thrown) {
+      // The guard sits on the line above the throw, or one above that when wrapped.
+      const preceding = lines.slice(Math.max(0, index - 3), index).join(" ");
+      expect(preceding).toContain("=== undefined");
+    }
+  });
+});

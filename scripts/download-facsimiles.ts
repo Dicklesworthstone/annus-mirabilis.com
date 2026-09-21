@@ -1428,7 +1428,8 @@ export async function main(
     // bytes are the right pages: --verify was green all night while three pins served
     // the wrong article - ap-17-549 page 1 was L. Hermann on Leyden jars. Reading a
     // pinned extract's own text layer would catch that and needs no parent scan, but
-    // it runs pdftotext, which is on the OCR denylist, so it waits on that ruling
+    // it runs poppler's text extractor, which is on the OCR denylist, so it waits on
+    // that ruling
     // rather than being smuggled into CI. The parent-scan comparison that also catches
     // it lives in facsimile-pins, which is requiredInCi false because /sources is
     // git-ignored.
@@ -1439,7 +1440,7 @@ export async function main(
         "parent scan was the right VOLUME: a digest binds these bytes to this record, " +
         "not this record to Annalen 17. Parent-scan comparison is in facsimile-pins " +
         "(requiredInCi false, needs the git-ignored /sources); the text-layer folio " +
-        "check is blocked on the pdftotext denylist ruling.",
+        "check is blocked on the poppler text-extractor denylist ruling.",
     );
     if (!allOk) {
       console.error(

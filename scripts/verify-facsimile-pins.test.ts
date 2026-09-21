@@ -614,6 +614,12 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       ...overrides,
     });
 
+    // Each arm cites its site as (verify-facsimile-pins.ts:LINE). The refusal scanner
+    // otherwise credits sites by COUNTING test blocks that mention a code and handing
+    // that many sites the credit in line order, so seven tests would have covered
+    // whichever seven sites came first rather than the seven they actually drive. A
+    // citation makes the attribution identity-based, which is what the plants proved.
+    //
     // Qualified by check, not by code alone. My first version of this block matched on
     // the code only, and the invalid-config arm passed against the ANCHOR check's
     // invalid-config while the artifact one had been renamed away - a green that proved
@@ -640,32 +646,32 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       fs.writeFileSync(full, bytes);
     }
 
-    test("a config with no pinned artifact at all", () => {
+    test("a config with no pinned artifact at all (verify-facsimile-pins.ts:700)", () => {
       const config = baseConfig();
       delete (config as { pinned?: unknown }).pinned;
       assert.ok(codesFrom(config, tempRoot("no-pinned")).includes("pinned-pdf-unavailable"));
     });
 
-    test("a pinned artifact with no parent record", () => {
+    test("a pinned artifact with no parent record (verify-facsimile-pins.ts:708)", () => {
       const config = baseConfig();
       delete ((config as { pinned: Record<string, unknown> }).pinned as { parent?: unknown })
         .parent;
       assert.ok(codesFrom(config, tempRoot("no-parent-record")).includes("parent-record-missing"));
     });
 
-    test("a config declaring no printed range or parent page indices", () => {
+    test("a config declaring no printed range or parent page indices (verify-facsimile-pins.ts:723)", () => {
       const config = baseConfig({ articlePages: {} });
       assert.ok(codesFrom(config, tempRoot("no-range")).includes("invalid-config"));
     });
 
-    test("a pinned PDF that is not on disk", () => {
+    test("a pinned PDF that is not on disk (verify-facsimile-pins.ts:735)", () => {
       // The temp root is empty, so the recorded path resolves to nothing.
       assert.ok(
         codesFrom(baseConfig(), tempRoot("absent-extract")).includes("pinned-pdf-unavailable"),
       );
     });
 
-    test("a parent scan that is not on disk", () => {
+    test("a parent scan that is not on disk (verify-facsimile-pins.ts:742)", () => {
       // The extract exists and the parent does not: this is the CI condition, and it
       // must name the parent rather than the extract.
       const root = tempRoot("absent-parent");
@@ -678,14 +684,18 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       );
     });
 
-    test("a pinned PDF whose bytes are not the recorded digest", { skip: toolGated }, () => {
+    test("a pinned PDF whose bytes are not the recorded digest (verify-facsimile-pins.ts:762)", {
+      skip: toolGated,
+    }, () => {
       const root = tempRoot("extract-digest");
       writePdf(root, "public/papers/pdfs/ap-99-001.pdf", Buffer.from("not the pinned bytes"));
       writePdf(root, "sources/parents/ap-99-001-parent.pdf", Buffer.from("not the parent bytes"));
       assert.ok(codesFrom(baseConfig(), root).includes("pinned-digest-conflict"));
     });
 
-    test("a parent scan whose bytes are not the recorded digest", { skip: toolGated }, () => {
+    test("a parent scan whose bytes are not the recorded digest (verify-facsimile-pins.ts:772)", {
+      skip: toolGated,
+    }, () => {
       // The extract's digest is made to match so the parent is the only conflict left,
       // otherwise this arm would pass on the extract's failure.
       const root = tempRoot("parent-digest");
