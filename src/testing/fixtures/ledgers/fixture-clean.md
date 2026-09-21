@@ -91,7 +91,13 @@ transcription:
   ledgerPath: "src/testing/fixtures/ledgers/fixture-clean-reviewed.txt"
   ledgerSha256: "86fdb373b45101bcea32d7311812ac47de028cc4fc80ee9e0d2a93f3f9fb8f3b"
   ledgerSourcePdfSha256: "c42f9ac278283bdaaee83b2c4ec0154645d4e4adc4249f8a62c45ed2e51c135f"
-  ledgerStatus: corrected
+  # REVIEWED, and coherently so - the second of exactly two fixtures that open
+  # "--- REVIEWED TRANSCRIPTION ---". Its pair is two-page-valid, repaired in ea3923a8; this one is
+  # consumed from scripts/, so running src/content/ledger/ could never have surfaced it and the
+  # central lane caught it instead. `corrected` contradicted the receipt's own editor block below,
+  # which was already present and already named a Reviewer, so advancing the status makes the
+  # record agree with itself rather than with the gate.
+  ledgerStatus: reviewed
   editors:
     - name: "Test Editor"
       role: "Reviewer"

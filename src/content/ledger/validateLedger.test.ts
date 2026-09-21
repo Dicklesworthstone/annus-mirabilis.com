@@ -642,7 +642,7 @@ test("validateLedger: (validateLedger.ts:653) first-marker raised when first lin
   assert.ok(!validRes.errors.some((e) => e.code === "first-marker"));
 });
 
-test("validateLedger: (validateLedger.ts:729) short-paragraph warning raised for paragraph with two or fewer words", () => {
+test("validateLedger: (validateLedger.ts:754) short-paragraph warning raised for paragraph with two or fewer words", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -662,7 +662,7 @@ test("validateLedger: (validateLedger.ts:729) short-paragraph warning raised for
   assert.ok(!validRes.warnings.some((w) => w.code === "short-paragraph"));
 });
 
-test("validateLedger: (validateLedger.ts:745) short-line warning raised for non-terminal line with two or fewer words", () => {
+test("validateLedger: (validateLedger.ts:770) short-line warning raised for non-terminal line with two or fewer words", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -686,7 +686,7 @@ test("validateLedger: (validateLedger.ts:745) short-line warning raised for non-
   assert.ok(!validRes.warnings.some((w) => w.code === "short-line"));
 });
 
-test("validateLedger: (validateLedger.ts:770) trailing-whitespace warning raised when line ends with whitespace", () => {
+test("validateLedger: (validateLedger.ts:795) trailing-whitespace warning raised when line ends with whitespace", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -706,7 +706,7 @@ test("validateLedger: (validateLedger.ts:770) trailing-whitespace warning raised
   assert.ok(!validRes.warnings.some((w) => w.code === "trailing-whitespace"));
 });
 
-test("validateLedger: (validateLedger.ts:844) anchor-missing raised when page marker is not followed by ANNALEN-PAGE", () => {
+test("validateLedger: (validateLedger.ts:869) anchor-missing raised when page marker is not followed by ANNALEN-PAGE", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -726,7 +726,7 @@ test("validateLedger: (validateLedger.ts:844) anchor-missing raised when page ma
   assert.ok(!validRes.errors.some((e) => e.code === "anchor-missing"));
 });
 
-test("validateLedger: (validateLedger.ts:864) anchor-duplicate raised when same printed page anchor is repeated", () => {
+test("validateLedger: (validateLedger.ts:889) anchor-duplicate raised when same printed page anchor is repeated", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -746,7 +746,7 @@ test("validateLedger: (validateLedger.ts:864) anchor-duplicate raised when same 
   assert.ok(!validRes.errors.some((e) => e.code === "anchor-duplicate"));
 });
 
-test("validateLedger: (validateLedger.ts:1062) forbidden-token raised for machine confidence JSON output", () => {
+test("validateLedger: (validateLedger.ts:1087) forbidden-token raised for machine confidence JSON output", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -770,7 +770,7 @@ test("validateLedger: (validateLedger.ts:1062) forbidden-token raised for machin
   assert.ok(!validRes.errors.some((e) => e.code === "forbidden-token"));
 });
 
-test("validateLedger: (validateLedger.ts:1179) heading-order raised when section heading number is non-monotonic", () => {
+test("validateLedger: (validateLedger.ts:1204) heading-order raised when section heading number is non-monotonic", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -796,7 +796,7 @@ test("validateLedger: (validateLedger.ts:1179) heading-order raised when section
   assert.ok(!validRes.errors.some((e) => e.code === "heading-order"));
 });
 
-test("validateLedger: (validateLedger.ts:1202) heading-order raised when part heading number is non-monotonic", () => {
+test("validateLedger: (validateLedger.ts:1227) heading-order raised when part heading number is non-monotonic", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -822,7 +822,7 @@ test("validateLedger: (validateLedger.ts:1202) heading-order raised when part he
   assert.ok(!validRes.errors.some((e) => e.code === "heading-order"));
 });
 
-test("validateLedger: (validateLedger.ts:1335) unclosed-tag raised when closing emphasis tag lacks opening tag", () => {
+test("validateLedger: (validateLedger.ts:1360) unclosed-tag raised when closing emphasis tag lacks opening tag", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -846,7 +846,7 @@ test("validateLedger: (validateLedger.ts:1335) unclosed-tag raised when closing 
   assert.ok(!validRes.errors.some((e) => e.code === "unclosed-tag"));
 });
 
-test("validateLedger: (validateLedger.ts:1361) math-unbalanced raised when line has odd number of dollar delimiters", () => {
+test("validateLedger: (validateLedger.ts:1386) math-unbalanced raised when line has odd number of dollar delimiters", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -866,7 +866,7 @@ test("validateLedger: (validateLedger.ts:1361) math-unbalanced raised when line 
   assert.ok(!validRes.errors.some((e) => e.code === "math-unbalanced"));
 });
 
-test("validateLedger: (validateLedger.ts:1533) unclosed-tag raised when opening emphasis tag is unclosed at EOF", () => {
+test("validateLedger: (validateLedger.ts:1558) unclosed-tag raised when opening emphasis tag is unclosed at EOF", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -888,7 +888,7 @@ test("validateLedger: (validateLedger.ts:1533) unclosed-tag raised when opening 
   assert.ok(!validRes.errors.some((e) => e.code === "unclosed-tag"));
 });
 
-test("validateLedger: (validateLedger.ts:1611) fn-continuation-orphan raised when page has FN-CONT but prior page lacks FN-CONTINUES", () => {
+test("validateLedger: (validateLedger.ts:1636) fn-continuation-orphan raised when page has FN-CONT but prior page lacks FN-CONTINUES", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -914,7 +914,7 @@ test("validateLedger: (validateLedger.ts:1611) fn-continuation-orphan raised whe
   assert.ok(!validRes.errors.some((e) => e.code === "fn-continuation-orphan"));
 });
 
-test("validateLedger: (validateLedger.ts:1642) continues-orphan raised when text follows CONTINUES on the same page", () => {
+test("validateLedger: (validateLedger.ts:1667) continues-orphan raised when text follows CONTINUES on the same page", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
@@ -1053,7 +1053,7 @@ test("validateLedger: (validateLedger.ts:641) first-marker raised when the page-
   assert.equal(clean.valid, true);
 });
 
-test("validateLedger: (validateLedger.ts:1595) fn-continuation-orphan raised when FN-CONTINUES has no FN-CONT after it", () => {
+test("validateLedger: (validateLedger.ts:1620) fn-continuation-orphan raised when FN-CONTINUES has no FN-CONT after it", () => {
   // The mirror of the site at 1523, which catches an FN-CONT with no FN-CONTINUES before
   // it. A footnote promised to continue and then dropped loses text silently, which is
   // why both directions are separate refusals rather than one symmetry check.
@@ -1078,7 +1078,7 @@ test("validateLedger: (validateLedger.ts:1595) fn-continuation-orphan raised whe
   );
 });
 
-test("validateLedger: (validateLedger.ts:1630) continues-orphan raised when CONTINUES sits on the last page", () => {
+test("validateLedger: (validateLedger.ts:1655) continues-orphan raised when CONTINUES sits on the last page", () => {
   // A CONTINUES tag says the paragraph runs onto the next page. On the final page there
   // is no next page, so the tag is either a transcription that stopped early or a marker
   // copied from elsewhere. Distinct from the site at 1554, which catches text following
@@ -1141,7 +1141,7 @@ test("validateLedger: a MACHINE DRAFT transcript validates", () => {
   );
 });
 
-test("validateLedger: (validateLedger.ts:648) REVIEWED with no named human reviewer in the receipt is REFUSED", () => {
+test("validateLedger: (validateLedger.ts:673) REVIEWED with no named human reviewer in the receipt is REFUSED", () => {
   // fixture-skeleton's receipt carries editors: [] - the exact state of all three real ledgers,
   // measured 2026-09-21. Give its transcript the REVIEWED header and nothing else changes.
   const ledgerPath = path.join(FIXTURES_DIR, "fixture-skeleton-reviewed.txt");
@@ -1186,7 +1186,7 @@ test("validateLedger: THE CONTROL - a receipt that names a human accepts REVIEWE
   );
 });
 
-test("validateLedger: (validateLedger.ts:792) a transcript may not change its declared status mid-file", () => {
+test("validateLedger: (validateLedger.ts:817) a transcript may not change its declared status mid-file", () => {
   // Page 1 opens MACHINE DRAFT, so the receipt gate is satisfied and never looks again. Page 2
   // then claims REVIEWED. Without this check that file passes, and the gate is defeated by moving
   // the claim one page down.
@@ -1224,14 +1224,14 @@ test("validateLedger: (validateLedger.ts:792) a transcript may not change its de
 });
 
 /**
- * (validateLedger.ts:1044) forbidden-token, the FORBIDDEN_SUBSTRINGS site.
+ * (validateLedger.ts:1069) forbidden-token, the FORBIDDEN_SUBSTRINGS site.
  *
  * Two sites share this code. The machine-confidence JSON one at :1053 already had a test; this one
  * was reachable only through the table-driven mutation matrix, which names no code literally and so
  * cannot carry a verifiable citation - the stale-citation ratchet reports such a citation as
  * code-mismatched with no hint, which is how this gap surfaced.
  */
-test("validateLedger: (validateLedger.ts:1044) forbidden-token raised for each OCR residue substring", () => {
+test("validateLedger: (validateLedger.ts:1069) forbidden-token raised for each OCR residue substring", () => {
   const ledgerPath = path.join(FIXTURES_DIR, "two-page-valid.txt");
   const receiptPath = path.join(FIXTURES_DIR, "two-page-valid.receipt.md");
   const baseContent = loadFixture("two-page-valid.txt");
