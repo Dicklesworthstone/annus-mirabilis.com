@@ -109,6 +109,22 @@ $$
 --- MACHINE DRAFT TRANSCRIPTION PAGE 7 OF 31 ---
 [[ANNALEN-PAGE 897]]
 
+und
+$$
+t'_A - t_B = \frac{r_{AB}}{V + v} ,
+$$
+wobei $r_{AB}$ die Länge des bewegten Stabes — im ruhenden System gemessen — bedeutet. Mit dem bewegten Stabe bewegte Beobachter würden also die beiden Uhren nicht synchron gehend finden, während im ruhenden System befindliche Beobachter die Uhren als synchron laufend erklären würden.
+
+Wir sehen also, daß wir dem Begriffe der Gleichzeitigkeit keine [[EM]]absolute[[/EM]] Bedeutung beimessen dürfen, sondern daß zwei Ereignisse, welche, von einem Koordinatensystem aus betrachtet, gleichzeitig sind, von einem relativ zu diesem System bewegten System aus betrachtet, nicht mehr als gleichzeitige Ereignisse aufzufassen sind.
+
+[[HEADING s3]]§ 3. Theorie der Koordinaten- und Zeittransformation von dem ruhenden auf ein relativ zu diesem in gleichförmiger Translationsbewegung befindliches System.
+
+Seien im „ruhenden“ Raume zwei Koordinatensysteme, d. h. zwei Systeme von je drei von einem Punkte ausgehenden, aufeinander senkrechten starren materiellen Linien, gegeben. Die $X$-Achsen beider Systeme mögen zusammenfallen, ihre $Y$- und $Z$-Achsen bezüglich parallel sein. Jedem Systeme sei ein starrer Maßstab und eine Anzahl Uhren beigegeben, und es seien beide Maßstäbe sowie alle Uhren beider Systeme einander genau gleich.
+
+Es werde nun dem Anfangspunkte des einen der beiden Systeme ($k$) eine (konstante) Geschwindigkeit $v$ in Richtung der wachsenden $x$ des anderen, ruhenden Systems ($K$) erteilt, welche sich auch den Koordinatenachsen, dem betreffenden Maßstabe sowie den Uhren mitteilen möge. Jeder Zeit $t$ des ruhenden Systems $K$ entspricht dann eine bestimmte Lage der Achsen des bewegten Systems und wir sind aus Symmetriegründen befugt anzunehmen, daß die Bewegung von $k$ so beschaffen sein kann, daß die Achsen des bewegten Systems zur Zeit $t$ (es ist mit „$t$“ immer eine Zeit des ruhenden Systems bezeichnet) den Achsen des ruhenden Systems parallel seien.
+
+Wir denken uns nun den Raum sowohl vom ruhenden System $K$ aus mittels des ruhenden Maßstabes als auch vom[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 8 OF 31 ---
 [[ANNALEN-PAGE 898]]
 

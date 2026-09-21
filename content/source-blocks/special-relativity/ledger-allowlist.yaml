@@ -1,0 +1,31 @@
+# Acknowledged validator warnings for the ap-17-891 ledger.
+#
+# An entry says an editor looked at a warning and judged the LEDGER correct. It silences
+# nothing: each names its line by fingerprint, so it goes stale the moment that line changes
+# and the validator reports it as a stale entry.
+#
+# Every entry is acknowledged by agent:LilacValley, which is NOT a human editor. These are
+# machine-draft acknowledgements and a German source reviewer should re-judge them with the
+# text; docs/OWNERS.md still lists open-german-source-relativity as "open: recruiting".
+#
+# THE WARNING BEING ACKNOWLEDGED. `short-line` exists to catch a real defect named in
+# AGENTS.md - "sentences broken into one-word lines", the OCR fragmentation that shreds
+# prose into stubs. Einstein prints genuine one-word connectives between consecutive display
+# equations, and LEDGER_FORMAT.md requires `$$` to open its own line, so a short connective
+# introducing a display has nowhere else to sit. Reflowing it into a neighbouring sentence
+# would be inventing text to quiet a heuristic.
+#
+# NOTE ON FORMAT: reasons are single-line because the provenance YAML reader
+# (src/content/provenance/yaml.ts) is hand-rolled and does not support folded block scalars.
+#
+# NOTE ON FINGERPRINTS: computeLineFingerprint hashes the line TEXT alone, so two identical
+# one-word lines share a fingerprint and only ledgerPage distinguishes their entries. A
+# one-word line's fingerprint pins what the line says, not which line it is.
+
+- ledgerKey: ap-17-891
+  code: short-line
+  ledgerPage: 7
+  lineFingerprint: 856cc99d87343400
+  reason: "Printed connective 'und' standing alone at the head of page 897, joining the two light-time equations of the synchrony argument across the page break: page 896 ends with t_B - t_A = r_AB/(V - v) and 897 opens with this 'und' and then t'_A - t_B = r_AB/(V + v). Source text, and load-bearing: the word is what makes the second equation a conjunct of the first rather than a separate statement, which is the step the section 2 conclusion rests on."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
