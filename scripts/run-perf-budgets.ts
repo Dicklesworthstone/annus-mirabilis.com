@@ -303,11 +303,33 @@ export async function runPerformanceBudgets(
   // "<p>Einstein 1905 Brownian motion paper text</p>".repeat(500) - 500 copies of one
   // sentence, which gzips to 203 bytes against a 250,000 byte budget and can never
   // fail. The real Brownian face is 246,244 bytes gzipped, 98% of budget (am-uxh9).
-  const readingFaceDir = resolve(root, ".next/server/app/papers");
+  //
+  // THE ROW LOOKED IN THE WRONG PLACE AND SO MEASURED NOTHING. It read
+  // `.next/server/app/papers` for `*.html` at the top level. next.config sets `output: "export"`,
+  // so the build emits static HTML to `out/`, and `.next/server/app` holds no .html at all -
+  // measured: zero, anywhere beneath it. The row therefore took its "no built reading face" branch
+  // on every run and failed. Failing was the honest response to an unmeasured budget, and it is why
+  // this gate was red; but the budget itself went unevaluated, and the comment above quoting
+  // 246,244 bytes describes a measurement this code has not been able to take.
+  //
+  // The faces are `out/papers/<paper>/index.html`. The per-section pages beneath them
+  // (`out/papers/<paper>/s4/index.html`) are not the reading face and are not measured.
+  //
+  // STALENESS IS DELIBERATELY NOT CHECKED HERE. out/ can describe an older commit, and a first
+  // draft of this fix called checkOutFreshness to refuse that. It was backed out: the same call
+  // returned fresh under `bun test` and stale under a direct invocation, so the gate's verdict
+  // depended on its runner, which is a worse failure than the one it was meant to prevent. out/
+  // freshness is already enforced separately in the node lane (src/testing/outFreshness.ts).
+  const readingFaceDir = resolve(root, "out/papers");
   const builtReadingFaces = existsSync(readingFaceDir)
-    ? readdirSync(readingFaceDir)
-        .filter((name) => name.endsWith(".html"))
-        .map((name) => ({ name, html: readFileSync(join(readingFaceDir, name), "utf8") }))
+    ? readdirSync(readingFaceDir, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => join(readingFaceDir, entry.name, "index.html"))
+        .filter((facePath) => existsSync(facePath))
+        .map((facePath) => ({
+          name: relative(root, facePath),
+          html: readFileSync(facePath, "utf8"),
+        }))
     : [];
 
   if (opts.plantViolationRow === 2) {
