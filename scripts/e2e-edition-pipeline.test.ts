@@ -334,4 +334,43 @@ describe("edition pipeline: an absent corpus is not a compiler failure", () => {
     ).toBe(false);
     expect(run.exitCode).toBe(0);
   });
+
+  test("a present but empty corpus aborts on its own site (e2e-edition-pipeline.ts:305)", async () => {
+    // THE SECOND corpus-empty SITE, and it was invisible until the scanner stopped misreading it.
+    // :295 refuses a MISSING content directory; :305 refuses one that is PRESENT and holds no
+    // records. The two share the code, so the scanner counted corpus-empty as 1 untested of 1 and
+    // the test above looked like full coverage of it. 26b0d70e corrected the attribution - :305
+    // had been reported as `compile-errors`, a neighbour's code from four lines below - and the
+    // census went to 1 untested of 2. This pays that site rather than recording it.
+    const emptyCorpusRoot = mkdtempSync(join(tmpdir(), "am-edition-empty-corpus-"));
+    mkdirSync(join(emptyCorpusRoot, "content"), { recursive: true });
+
+    const run = await runEditionPipeline({ slug: "brownian-motion", root: emptyCorpusRoot });
+
+    const compileStages = run.stages.filter((stage) => stage.stage === "compile");
+    expect(compileStages).toHaveLength(1);
+    expect(compileStages[0]?.outcome).toBe("not-available");
+    expect(compileStages[0]?.code).toBe("content-corpus-absent");
+
+    // THE MESSAGE IS WHAT NAMES THE SITE. Both sites push content-corpus-absent and both abort
+    // with the same code, so neither the code nor the outcome can tell them apart, and a citation
+    // resting on those alone would pass just as well against :295. The wording differs - :295
+    // says "No content directory at", :305 says "No content records found under" - and that is
+    // the only observable that distinguishes which of the two ran.
+    expect(compileStages[0]?.message).toContain("No content records found under");
+    expect(compileStages[0]?.message).not.toContain("No content directory at");
+
+    // The abort's own code, which the catch records rather than discards.
+    expect(compileStages[0]?.evidence ?? []).toContain("aborted-by: corpus-empty");
+
+    // And what the refusal itself owns: the push above runs BEFORE the throw and stands without
+    // it, so the assertions so far do not test the abort. Deleting the throw here lets execution
+    // reach compileReadingContent with zero files, which compiles trivially and reports a PASS -
+    // the site's own comment calls that out as the defect it exists to prevent. So the proof that
+    // the refusal ran is that no compile stage passed and the run did not claim success.
+    expect(
+      run.stages.some((stage) => stage.stage === "compile" && stage.outcome === "passed"),
+    ).toBe(false);
+    expect(run.exitCode).toBe(0);
+  });
 });
