@@ -115,7 +115,7 @@ test("authored.test: raw \\htmlData inside \\text{} is rejected", () => {
   );
 });
 
-test("authored.test: marker body with extra payload is rejected", () => {
+test("authored.test: marker body with extra payload is rejected (authored.ts:107)", () => {
   const input = "\\amterm{t1 extra payload}{x}";
   assert.throws(
     () => convertAuthoredLatex(input),
@@ -128,7 +128,7 @@ test("authored.test: marker body with extra payload is rejected", () => {
   );
 });
 
-test("authored.test: malformed marker missing '{id}' brace is rejected (authored.ts:90)", () => {
+test("authored.test: malformed marker missing '{id}' brace is rejected (authored.ts:88)", () => {
   // Rejection: missing open brace before ID (balanced braces in content)
   const invalid = "\\amterm x{content}";
   assert.throws(
@@ -147,7 +147,7 @@ test("authored.test: malformed marker missing '{id}' brace is rejected (authored
   assert.ok(res.latex.includes("\\htmlData{term=t1}"));
 });
 
-test("authored.test: malformed marker unterminated '{id}' is rejected (authored.ts:100)", () => {
+test("authored.test: malformed marker unterminated '{id}' is rejected (authored.ts:98)", () => {
   // Rejection: missing closing brace on ID
   const invalid = "\\amterm{t1";
   assert.throws(
@@ -166,7 +166,7 @@ test("authored.test: malformed marker unterminated '{id}' is rejected (authored.
   assert.ok(res.latex.includes("\\htmlData{term=t1}"));
 });
 
-test("authored.test: malformed marker missing '{content}' brace is rejected (authored.ts:138)", () => {
+test("authored.test: malformed marker missing '{content}' brace is rejected (authored.ts:136)", () => {
   // Rejection: missing open brace before content
   const invalid = "\\amterm{t1} x";
   assert.throws(
@@ -185,7 +185,7 @@ test("authored.test: malformed marker missing '{content}' brace is rejected (aut
   assert.ok(res.latex.includes("\\htmlData{term=t1}"));
 });
 
-test("authored.test: malformed marker unterminated '{content}' is rejected (authored.ts:161)", () => {
+test("authored.test: malformed marker unterminated '{content}' is rejected (authored.ts:159)", () => {
   // Rejection: missing closing brace on content
   const invalid = "\\amterm{t1}{x";
   assert.throws(
