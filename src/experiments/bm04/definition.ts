@@ -125,7 +125,11 @@ export const BM04_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "value",
     "not-applicable",
   ]),
-  pecletNumber: contract("1", "grid-peclet-number", "diffusion.driftDiffusionFrames1d", ["value"]),
+  pecletNumber: contract("1", "grid-peclet-number", "diffusion.driftDiffusionFrames1d", [
+    "value",
+    "not-applicable",
+    "outside-domain",
+  ]),
   stabilityRatio: contract("1", "explicit-positivity-number", "diffusion.driftDiffusionFrames1d", [
     "value",
   ]),

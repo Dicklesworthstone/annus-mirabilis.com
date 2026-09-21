@@ -1,4 +1,5 @@
 import { BM04_BUDGET, BM04_OUTPUTS } from "../../experiments/bm04/definition.ts";
+import { bm04PecletResult } from "../../experiments/bm04/diagnostics.ts";
 import { validateBm04Parameters } from "../../experiments/bm04/parameters.ts";
 import { decodeResult } from "../../experiments/results/codec.ts";
 import {
@@ -196,7 +197,7 @@ export async function evaluateBm04(
       value("diffusionFlux", avgDiffusionFlux),
       value("totalFlux", avgDriftFlux + avgDiffusionFlux),
       value("steadyState", steadyStateReached ? 1 : 0),
-      value("pecletNumber", framesResult.data.peclet),
+      bm04PecletResult(D_kicks, framesResult.data.peclet),
       value("stabilityRatio", framesResult.data.sigma),
     ];
 
