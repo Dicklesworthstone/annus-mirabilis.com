@@ -128,6 +128,27 @@ Wir denken uns nun den Raum sowohl vom ruhenden System $K$ aus mittels des ruhen
 --- MACHINE DRAFT TRANSCRIPTION PAGE 8 OF 31 ---
 [[ANNALEN-PAGE 898]]
 
+bewegten System $k$ mittels des mit ihm bewegten Maßstabes ausgemessen und so die Koordinaten $x$, $y$, $z$ bez. $\xi$, $\eta$, $\zeta$ ermittelt. Es werde ferner mittels der im ruhenden System befindlichen ruhenden Uhren durch Lichtsignale in der in § 1 angegebenen Weise die Zeit $t$ des ruhenden Systems für alle Punkte des letzteren bestimmt, in denen sich Uhren befinden; ebenso werde die Zeit $\tau$ des bewegten Systems für alle Punkte des bewegten Systems, in welchen sich relativ zu letzterem ruhende Uhren befinden, bestimmt durch Anwendung der in § 1 genannten Methode der Lichtsignale zwischen den Punkten, in denen sich die letzteren Uhren befinden.
+
+Zu jedem Wertsystem $x$, $y$, $z$, $t$, welches Ort und Zeit eines Ereignisses im ruhenden System vollkommen bestimmt, gehört ein jenes Ereignis relativ zum System $k$ festlegendes Wertsystem $\xi$, $\eta$, $\zeta$, $\tau$, und es ist nun die Aufgabe zu lösen, das diese Größen verknüpfende Gleichungssystem zu finden.
+
+Zunächst ist klar, daß die Gleichungen [[EM]]linear[[/EM]] sein müssen wegen der Homogenitätseigenschaften, welche wir Raum und Zeit beilegen.
+
+Setzen wir $x' = x - v t$, so ist klar, daß einem im System $k$ ruhenden Punkte ein bestimmtes, von der Zeit unabhängiges Wertsystem $x'$, $y$, $z$ zukommt. Wir bestimmen zuerst $\tau$ als Funktion von $x'$, $y$, $z$ und $t$. Zu diesem Zwecke haben wir in Gleichungen auszudrücken, daß $\tau$ nichts anderes ist als der Inbegriff der Angaben von im System $k$ ruhenden Uhren, welche nach der im § 1 gegebenen Regel synchron gemacht worden sind.
+
+Vom Anfangspunkt des Systems $k$ aus werde ein Lichtstrahl zur Zeit $\tau_0$ längs der $X$-Achse nach $x'$ gesandt und von dort zur Zeit $\tau_1$ nach dem Koordinatenursprung reflektiert, wo er zur Zeit $\tau_2$ anlange; so muß dann sein:
+$$
+\frac{1}{2}(\tau_0 + \tau_2) = \tau_1
+$$
+oder, indem man die Argumente der Funktion $\tau$ beifügt und das Prinzip der Konstanz der Lichtgeschwindigkeit im ruhenden Systeme anwendet:
+$$
+\begin{aligned}
+&\frac{1}{2}\left[ \tau(0,0,0,t) + \tau\left( 0,0,0,\left\{ t + \frac{x'}{V-v} + \frac{x'}{V+v} \right\} \right) \right] \\
+&= \tau\left( x',0,0,t + \frac{x'}{V-v} \right).
+\end{aligned}
+$$
+[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 9 OF 31 ---
 [[ANNALEN-PAGE 899]]
 
