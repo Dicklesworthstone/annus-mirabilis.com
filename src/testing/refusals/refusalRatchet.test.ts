@@ -718,3 +718,178 @@ export interface Maybe {
     assert.deepEqual(scanRefusalThrowSites(optional, "src/fixture/optional.ts"), []);
   });
 });
+
+/**
+ * Stale-citation ratchet (am-ksl3).
+ *
+ * WHAT A GREEN HERE PROVES, AND WHAT IT DOES NOT. This check proves the cited line holds
+ * a site with that code. It does NOT prove the citation names the site the test actually
+ * drives, because a neighbouring site sharing the code passes identically. Only running
+ * the test against a mutated site establishes that, and no static check can. A green is
+ * not evidence that attribution is correct.
+ *
+ * THE THREAT MODEL IS ACCURACY AND WASTE, NOT INFLATED COVERAGE. The scanner iterates
+ * SITES and asks whether each site's line is cited, so a citation pointing at a line with
+ * no site matches nothing and credits nothing. A rotted citation therefore OVER-reports
+ * debt. It cannot hide debt. What it costs is real work: panes re-testing sites that
+ * already had tests, because the citation naming them decayed when lines moved above it.
+ * Measured at 577 findings across 41 files when this landed.
+ *
+ * A RATCHET, NOT A HARD GATE, because 577 cannot be repaired in one commit and a gate
+ * nobody can make green gets routed around, which is how the node lane became an off
+ * switch for fifty commits.
+ *
+ * THE PAWL IS NOT GAMEABLE BY DELETING CITATIONS, and the reason is the coupling asserted
+ * below rather than good intentions: deleting a stale citation lowers this count and
+ * RAISES the untested count, because the site it named loses its credit.
+ */
+describe("stale citation ratchet (am-ksl3)", () => {
+  const CITE_BASELINE_PATH = join(ROOT, "src/testing/refusals/staleCitationsBaseline.json");
+
+  test("no file exceeds its recorded stale-citation baseline, and no baseline is slack", () => {
+    const raw = JSON.parse(readFileSync(CITE_BASELINE_PATH, "utf8")) as Record<string, number>;
+    const baseline = new Map<string, number>(Object.entries(raw));
+    const { citationFindings } = analyzeUntestedRefusals(ROOT);
+
+    const perFile = new Map<string, typeof citationFindings>();
+    for (const finding of citationFindings) {
+      perFile.set(finding.source, [...(perFile.get(finding.source) ?? []), finding]);
+    }
+
+    const regressions: string[] = [];
+    const slack: string[] = [];
+    for (const [file, findings] of perFile) {
+      const allowed = baseline.get(file) ?? 0;
+      if (findings.length <= allowed) continue;
+      // Named, never counted. A count of 577 tells whoever has to fix them nothing; the
+      // hint is the lines holding a site whose code the citing block DOES name, which in
+      // a uniformly drifted file is the answer rather than a clue.
+      const detail = findings
+        .slice(0, 12)
+        .map(
+          (f) =>
+            `${f.testFile} cites ${f.source}:${f.citedLine} (${f.kind}${
+              f.siteCode ? `, the site there is ${f.siteCode}` : ", no site there"
+            }); sites for codes that block names: ${f.hint.join(",") || "none"}`,
+        )
+        .join("\n    ");
+      regressions.push(
+        `${file}: ${findings.length} citation(s) do not check out, baseline ${allowed}.\n    ${detail}` +
+          (findings.length > 12 ? `\n    ... and ${findings.length - 12} more` : ""),
+      );
+    }
+    for (const [file, allowed] of baseline) {
+      const actual = perFile.get(file)?.length ?? 0;
+      if (actual < allowed) {
+        slack.push(`  "${file}": ${actual},   (was ${allowed})`);
+      }
+    }
+
+    assert.deepEqual(
+      regressions,
+      [],
+      `Citations that do not check out increased:\n${regressions.join("\n")}\n\n` +
+        "Repoint a citation only after PLANTING: rename that one site's code and confirm " +
+        "exactly the citing test goes red. Never repoint by adding the drift - a drifted " +
+        "citation is a claim nobody has re-checked, and re-pointing it silently is the " +
+        "laundering this ratchet exists to stop.\n" +
+        "This check proves the cited line holds a site with that code. It does NOT prove " +
+        "the citation names the site the test actually drives: a neighbouring site sharing " +
+        "the code passes identically. (See am-ksl3)",
+    );
+    assert.deepEqual(
+      slack,
+      [],
+      `Stale citations improved below baseline. Tighten staleCitationsBaseline.json:\n${slack.join("\n")}`,
+    );
+  });
+
+  test("THE COUPLING: deleting a citation lowers this count and RAISES untested", () => {
+    // The only thing standing between this ratchet and the cheapest way to green it.
+    // Asserted on a fixture rather than trusted.
+    const base = mkdtempSync(join(tmpdir(), "refusal-coupling-"));
+    const SOURCE = `
+export class WidgetError extends Error {
+  constructor(readonly code: string, message: string) {
+    super(message);
+  }
+}
+export function check(input: unknown, mode: string) {
+  if (input === null) {
+    throw new WidgetError("widget-refused", "first site");
+  }
+  if (mode === "bad") {
+    throw new WidgetError("widget-refused", "second site");
+  }
+  return input;
+}
+`;
+    const withCitation = `
+import test from "node:test";
+import { check } from "../widget/validate.ts";
+test("null is refused (validate.ts:9)", () => {
+  try { check(null, "ok"); } catch (err) {
+    if ((err as { code?: string }).code !== "widget-refused") throw err;
+  }
+});
+`;
+    const build = (suffix: string, body: string): string => {
+      const root = join(base, `coupling-${suffix}`);
+      mkdirSync(join(root, "src/widget"), { recursive: true });
+      mkdirSync(join(root, "src/elsewhere"), { recursive: true });
+      writeFileSync(join(root, "src/widget/validate.ts"), SOURCE);
+      writeFileSync(join(root, "src/elsewhere/coverage.test.ts"), body);
+      return root;
+    };
+
+    const cited = analyzeUntestedRefusals(build("cited", withCitation));
+    const citedOwed = cited.analyses.get("src/widget/validate.ts")?.untestedSitesCount ?? -1;
+
+    // Reachability before the claim: the citation must actually be crediting something,
+    // or "removing it raises untested" is true of a fixture where it never counted.
+    assert.equal(citedOwed, 1, "one of the two sites is credited by the citation");
+    assert.deepEqual(cited.citationFindings, [], "and that citation checks out");
+
+    const deleted = analyzeUntestedRefusals(
+      build("deleted", withCitation.replace(" (validate.ts:9)", "")),
+    );
+    const deletedOwed = deleted.analyses.get("src/widget/validate.ts")?.untestedSitesCount ?? -1;
+    assert.equal(deletedOwed, 2, "deleting the citation must cost a credit, not buy silence");
+    assert.deepEqual(deleted.citationFindings, [], "and it removes nothing from this ratchet");
+  });
+
+  test("a code named inside a test title counts as named, and a longer code does not", () => {
+    // The predicate behind code-mismatched. My first version required the exact quoted
+    // literal and reported 236 mismatches against 59 real ones, because a block usually
+    // names its code inside a larger string. The boundaries are what stop `tag` being
+    // satisfied by `unknown-tag`.
+    const source = `
+export function f(x: unknown) {
+  if (x === 1) return { ok: false, code: "unknown-tag", reason: "a" };
+  if (x === 2) return { ok: false, code: "unclosed-tag", reason: "b" };
+  return { ok: true };
+}
+`;
+    const base = mkdtempSync(join(tmpdir(), "refusal-token-"));
+    const root = join(base, "token");
+    mkdirSync(join(root, "src/w"), { recursive: true });
+    mkdirSync(join(root, "src/e"), { recursive: true });
+    writeFileSync(join(root, "src/w/f.ts"), source);
+    writeFileSync(
+      join(root, "src/e/f.test.ts"),
+      `
+import test from "node:test";
+import { f } from "../w/f.ts";
+test("an unknown-tag is refused, named only in this title (f.ts:3)", () => {
+  f(1);
+});
+`,
+    );
+    const result = analyzeUntestedRefusals(root);
+    assert.deepEqual(
+      result.citationFindings.map((c) => `${c.kind}@${c.citedLine}`),
+      [],
+      "a code named in a title is named; requiring a quoted literal would flag this",
+    );
+  });
+});

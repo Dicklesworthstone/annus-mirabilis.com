@@ -64,10 +64,33 @@ export interface RootScanTally {
   readonly untested: number;
 }
 
+/**
+ * A citation that does not check out. Reporting only: credit is computed exactly as
+ * before, and nothing here changes which sites are counted as tested.
+ *
+ * WHAT A CLEAN RUN PROVES AND WHAT IT DOES NOT. This check proves the cited line holds a
+ * site with that code. It does NOT prove the citation names the site the test actually
+ * drives, because a neighbouring site sharing the code passes identically. Only executing
+ * the test against a mutated site can establish that, and no static check can.
+ */
+export interface CitationFinding {
+  readonly testFile: string;
+  readonly source: string;
+  readonly citedLine: number;
+  /** `stale`: no site at that line. `code-mismatched`: a site is there, unnamed by the block. */
+  readonly kind: "stale" | "code-mismatched";
+  /** The code at the cited line, when there is a site there at all. */
+  readonly siteCode?: string;
+  /** Lines in that file holding a site whose code the citing block DOES name. The repair. */
+  readonly hint: readonly number[];
+}
+
 export interface FullRefusalScanResult {
   readonly analyses: Map<string, FileRefusalAnalysis>;
   readonly totalUntested: number;
   readonly totalSites: number;
+  /** Citations that do not check out, named rather than counted. See CitationFinding. */
+  readonly citationFindings: readonly CitationFinding[];
   /**
    * One entry per declared scan root, present even when the root contributes
    * nothing. A root that appears only when it has sites is a root whose silence
@@ -556,6 +579,28 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
   const testBlocksByFileAndCode = new Map<string, Map<string, number>>();
   // Map: fileRel -> Set<line of explicitly cited throw site e.g. (file.ts:90)>
   const explicitSiteCitations = new Map<string, Set<number>>();
+  const citationFindings: CitationFinding[] = [];
+
+  /**
+   * A code counts as NAMED by a block when the literal appears, or when the block
+   * declares that it assembles the code.
+   *
+   * The escape is a named, greppable marker rather than a heuristic on purpose. A
+   * heuristic guessing whether an assertion was assembled would be wrong in both
+   * directions and unauditable; a marker costs one line, makes every exception countable,
+   * and a countable exception can be ratcheted down later. Codes get assembled for a real
+   * reason - writing the literal in a block that does NOT drive the site credits it by
+   * mention - so the escape has to exist.
+   */
+  const blockNamesCode = (block: string, code: string): boolean => {
+    // Token match, not an exact quoted literal. My first version required `"code"` and
+    // reported 236 mismatches against 59 real ones, because a block very often names its
+    // code INSIDE a larger string - a test title like "invalid-reading-only rejects ..."
+    // is naming it perfectly well. The boundaries stop a code matching inside a longer
+    // one, so `unknown-tag` does not satisfy a citation for `tag`.
+    const token = new RegExp(`(?<![\\w-])${code}(?![\\w-])`);
+    return token.test(block);
+  };
 
   for (const tf of testFiles) {
     const content = readFileSync(tf, "utf8");
@@ -616,6 +661,42 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
             }
             citedSet.add(citedLine);
           }
+        }
+      }
+    }
+
+    // Audit those same citations, per test block so "the codes this block names" is well
+    // defined. Separate pass from the credit collection above, which stays byte for byte
+    // as it was: a citation in a file header still credits, and this only reports.
+    for (const block of content.split(/(?:test|it)\s*\(/)) {
+      for (const m of block.matchAll(/\(([a-zA-Z0-9_.-]+\.ts):(\d+)\)/g)) {
+        const citedBase = m[1];
+        const citedLine = Number.parseInt(m[2] ?? "", 10);
+        if (!citedBase || Number.isNaN(citedLine)) continue;
+        const src = [...importedFiles].find((f) => basename(f) === citedBase);
+        if (!src) continue;
+        const sites = sitesByFile.get(src) ?? [];
+        const named = new Set(
+          sites.filter((site) => blockNamesCode(block, site.code)).map((site) => site.line),
+        );
+        const at = sites.find((site) => site.line === citedLine);
+        if (!at) {
+          citationFindings.push({
+            testFile: relative(rootDir, tf),
+            source: src,
+            citedLine,
+            kind: "stale",
+            hint: [...named].sort((x, y) => x - y),
+          });
+        } else if (!blockNamesCode(block, at.code)) {
+          citationFindings.push({
+            testFile: relative(rootDir, tf),
+            source: src,
+            citedLine,
+            kind: "code-mismatched",
+            siteCode: at.code,
+            hint: [...named].sort((x, y) => x - y),
+          });
         }
       }
     }
@@ -760,7 +841,7 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     if (tally) tally.untested += fileUntested;
   }
 
-  return { analyses, totalUntested, totalSites, byRoot: rootTallies };
+  return { analyses, totalUntested, totalSites, citationFindings, byRoot: rootTallies };
 }
 
 /* ------------------------------------------------------------------------- *
