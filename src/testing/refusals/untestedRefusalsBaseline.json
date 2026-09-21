@@ -42,7 +42,7 @@
   "src/content/compiler/quantities.ts": 0,
   "src/content/corrections/graph.ts": 0,
   "src/content/coverage/ledger.ts": 0,
-  "src/content/datasets/loader.ts": 5,
+  "src/content/datasets/loader.ts": 0,
   "src/content/dimensions/runtimeMapping.ts": 0,
   "src/content/editions/alignment.ts": 2,
   "src/content/editions/brownianInventory.ts": 1,
