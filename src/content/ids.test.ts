@@ -38,6 +38,7 @@ import {
   parseSectionId,
   parseSentenceId,
   parseTapeId,
+  parseTermId,
   parseTranslationUnitId,
   validateSlug,
 } from "./ids.ts";
@@ -269,7 +270,7 @@ describe("source structure ids", () => {
     if (!r.ok) expect(r.rule).toBe("german-sentence-no-suffix");
   });
 
-  test("footnotes are block-level (no sentence sub-id) and section-sequential", () => {
+  test("footnotes are block-level (no sentence sub-id) and section-sequential (ids.ts:470)", () => {
     expectAccept(parseFootnoteId("s3-fn1"), "s3-fn1");
     expectAccept(parseFootnoteId("s3-fn2"), "s3-fn2");
     const r = parseFootnoteId("s3-fn1-s1");
@@ -1014,5 +1015,73 @@ describe("refusal coverage: slugs, bib keys, and paper codes (ids.ts throw sites
     }
     const pass = parseGenericRecordId("generic-record-id");
     expect(pass.ok).toBe(true);
+  });
+});
+
+describe("am-r3qt: five refusal sites in ids.ts that nothing drove", () => {
+  // ids.ts is the best-maintained file I have audited tonight: 52 of its 65 sites carry a
+  // citation and NOT ONE of those citations has drifted, against 594 dead citations
+  // elsewhere in the tree. So these five are ordinary gaps rather than attribution damage,
+  // and three of its other owed sites needed only a citation on a test that already
+  // drives them.
+  //
+  // Read with python rather than grep: ids.ts contains two NUL bytes, so grep treats it as
+  // binary and returns nothing for content that is plainly there.
+
+  test("PLANTED: section zero has no heading block and says so (ids.ts:416)", () => {
+    // Not a generic grammar failure. s0 is a WELL-FORMED section id that has no heading
+    // block, because the unnumbered introductions of papers 1 to 3 use s0 and headings
+    // start at s1. The message has to say that, or an author will keep trying to spell it
+    // differently, so the message is asserted and not only the rule.
+    const res = parseHeadingId("s0");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("heading-id-grammar");
+      expect(res.error).toContain("part-1");
+    }
+    // The acceptance half: s1 and the part headings must still parse, or this arm would be
+    // asserting that heading ids are rejected in general.
+    expect(parseHeadingId("s1").ok).toBe(true);
+    expect(parseHeadingId("part-1").ok).toBe(true);
+  });
+
+  test("PLANTED: an empty term ID refuses with term-id-grammar (ids.ts:773)", () => {
+    // The first of four sites sharing this code, and they are four different faults. This
+    // one is absence.
+    for (const raw of ["", null, undefined, 7]) {
+      const res = parseTermId(raw as unknown as string);
+      expect(res.ok).toBe(false);
+      if (!res.ok) expect(res.rule).toBe("term-id-grammar");
+    }
+    expect(parseTermId("eq-s3-d4.t.viscosity").ok).toBe(true);
+  });
+
+  test("PLANTED: a term ID whose equation base is not an equation refuses (ids.ts:789)", () => {
+    // The discriminating site. The shape '<something>.t.<name>' is satisfied, so the
+    // pattern arm above it passes and this one has to catch a base that is not an
+    // equation. Asserting the message is what separates the two, since both carry
+    // term-id-grammar.
+    const res = parseTermId("not-an-equation.t.viscosity");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.rule).toBe("term-id-grammar");
+      expect(res.error).toContain("not a valid equation base");
+    }
+  });
+
+  test("PLANTED: an empty alternate form ID refuses with alternate-form-id-grammar (ids.ts:842)", () => {
+    for (const raw of ["", null]) {
+      const res = parseAlternateFormId(raw as unknown as string);
+      expect(res.ok).toBe(false);
+      if (!res.ok) expect(res.rule).toBe("alternate-form-id-grammar");
+    }
+  });
+
+  test("PLANTED: an empty qualified ID refuses with qualified-id-grammar (ids.ts:877)", () => {
+    for (const raw of ["", null]) {
+      const res = parseQualifiedId(raw as unknown as string);
+      expect(res.ok).toBe(false);
+      if (!res.ok) expect(res.rule).toBe("qualified-id-grammar");
+    }
   });
 });

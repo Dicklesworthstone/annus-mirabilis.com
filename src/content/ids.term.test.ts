@@ -55,7 +55,7 @@ describe("Equation Term, Operation, Alternate-Form, and Qualified ID Grammar", (
   });
 
   describe("Rejection test vectors (AC1)", () => {
-    test("rejects uppercase initial letter in name: eq-s3-d4.t.Viscosity", () => {
+    test("rejects uppercase initial letter in name: eq-s3-d4.t.Viscosity (ids.ts:796)", () => {
       const res = parseTermId("eq-s3-d4.t.Viscosity");
       expect(res.ok).toBe(false);
       if (!res.ok) {
@@ -85,7 +85,7 @@ describe("Equation Term, Operation, Alternate-Form, and Qualified ID Grammar", (
       }
     });
 
-    test("rejects empty name: eq-s3-d4.t.", () => {
+    test("rejects empty name: eq-s3-d4.t. (ids.ts:780)", () => {
       const res = parseTermId("eq-s3-d4.t.");
       expect(res.ok).toBe(false);
       if (!res.ok) {
