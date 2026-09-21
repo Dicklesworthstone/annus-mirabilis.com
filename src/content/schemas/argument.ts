@@ -2355,6 +2355,12 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
   if (typeof o.id !== "string" || !o.id.trim()) {
     throw new ArgumentSchemaError("missing-id", "id is required.", "Misconception", `${path}.id`);
   }
+  // Bound here rather than read again at the return. `o` is Record<string, unknown>, so the
+  // narrowing from the guard above does not survive the four hundred lines and the intervening
+  // calls between it and the object literal, and `next build` rejected `id: o.id` as unknown while
+  // `tsc --noEmit` accepted it. Binding is the repair that keeps the validation: a cast would have
+  // compiled while asserting the very thing this function exists to establish.
+  const id = o.id;
   if (typeof o.paper !== "string" || !o.paper.trim()) {
     throw new ArgumentSchemaError(
       "missing-paper",
@@ -2363,6 +2369,7 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
       `${path}.paper`,
     );
   }
+  const paper = o.paper;
 
   // Plural temptingClaims validation
   if ("temptingClaim" in o) {
@@ -2405,6 +2412,8 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
     );
   }
 
+  const whyTempting = o.whyTempting;
+
   if (typeof o.whereItIsTrue !== "string" || !o.whereItIsTrue.trim()) {
     throw new ArgumentSchemaError(
       "missing-where-it-is-true",
@@ -2413,6 +2422,7 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
       `${path}.whereItIsTrue`,
     );
   }
+  const whereItIsTrue = o.whereItIsTrue;
 
   if (!o.whatIsTrue) {
     throw new ArgumentSchemaError(
@@ -2508,11 +2518,12 @@ export function validateMisconception(raw: unknown, path = "Misconception"): Mis
   const reviewState = (o.reviewState as string) || "draft";
 
   return {
-    id: o.id,
-    paper: o.paper,
+    id,
+    paper,
     temptingClaims,
-    whyTempting: o.whyTempting,
-    whereItIsTrue: o.whereItIsTrue,
+    whyTempting,
+    whereItIsTrue,
+    // whatIsTrue is declared `unknown` on Misconception, so it passes through as it always has.
     whatIsTrue: o.whatIsTrue,
     instrumentIds: hasInstruments ? (o.instrumentIds as string[]) : undefined,
     staticTreatment: hasStatic ? (o.staticTreatment as { reason: string }) : undefined,
