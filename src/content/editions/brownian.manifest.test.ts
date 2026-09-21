@@ -425,7 +425,10 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       replacementIds: ["s2-p5"],
       reason: "flush resumption, not a printed paragraph break",
       date: "2026-09-19",
-      editor: "test",
+      // Cites the bead that retired the id: the owner's am-xz2d ruling, enforced at the file
+      // boundary by aliasEntryCitesBead. This fixture asserts a record IS admitted, so under the
+      // new criterion it has to be an admissible record; arm 5 below is the one that must not be.
+      editor: "agent:pane30, am-edn-inventory-brownian-slg",
     };
     const live = ["s2-p5", "s3-p2", "s4-p6"];
 
@@ -445,6 +448,14 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(() =>
       admitAliasRecords([dangling], { idsFrozenAt: "2026-09-19T04:30:00Z", liveIds: live }),
     ).toThrow(/not a live manifest id/);
+
+    // 5. THE PROVENANCE ARM (owner ruling am-xz2d). An entry whose editor names a person but no
+    //    bead is refused: the criterion is that every entry cites the bead that retired the id.
+    //    The acceptance arm is the `good` record above, which differs only in citing one.
+    const uncited = { ...good, editor: "an editor with no bead named" };
+    expect(() =>
+      admitAliasRecords([uncited], { idsFrozenAt: "2026-09-19T04:30:00Z", liveIds: live }),
+    ).toThrow(/cites no bead/);
 
     // 3. Reusing a retired id as a live unit is refused: retired ids are never reused.
     expect(() =>

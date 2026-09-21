@@ -11,7 +11,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { validateAliasRecord } from "../aliases.ts";
+import { aliasEntryCitesBead, validateAliasRecord } from "../aliases.ts";
 import { compileReadingContent } from "../compiler/compile.ts";
 import { parseIdSnapshot } from "../frozenIds.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
@@ -237,6 +237,14 @@ export function admitAliasRecords(
       throw new InventoryHonestyError(
         "alias-record-invalid",
         `Invalid alias record: ${parsed.error}`,
+      );
+    }
+    // Owner ruling am-xz2d, verbatim "Reword to require provenance": an entry in a committed
+    // alias file cites the bead that retired the id. `replacementIds` below is the other half.
+    if (!aliasEntryCitesBead(parsed.value)) {
+      throw new InventoryHonestyError(
+        "alias-editor-bead-citation",
+        `Alias for '${parsed.value.retiredId}' has editor '${parsed.value.editor}', which cites no bead; every entry names the bead that retired the id.`,
       );
     }
     if (live.has(parsed.value.retiredId)) {

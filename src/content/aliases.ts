@@ -24,6 +24,31 @@ export const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 /**
  * Validates the structure and constraints of an alias record.
  */
+/** A tracker id as this repository writes them: the `am` prefix and hyphenated lowercase parts. */
+const BEAD_ID_PATTERN = /\bam-[a-z0-9]+(?:-[a-z0-9]+)*\b/;
+
+/**
+ * Does this alias entry cite the bead that retired the id?
+ *
+ * THE CRITERION THIS ENFORCES. The owner ruled on am-xz2d, verbatim "Reword to require
+ * provenance", replacing an acceptance line the mandated repair had made unsatisfiable with:
+ * every alias entry cites the bead that retired it AND the unit it supersedes. Half of that was
+ * already enforced - `replacementIds` is required above, with cardinality rules per kind. The
+ * retiring bead was named only inside the free text of `editor`, and no code read it, so
+ * `editor: "someone"` satisfied the written criterion while citing nothing.
+ *
+ * WHY THIS IS SEPARATE FROM validateAliasRecord AND NOT INSIDE IT. The criterion is about entries
+ * in a committed alias FILE, which is where provenance is claimed. validateAliasRecord also
+ * validates records constructed inline by tests, and 57 such fixtures across six files name a
+ * person rather than a bead. Folding the rule into the schema check would have forced those 57 to
+ * be rewritten to fit a validator written an hour earlier - which is how a gate ends up proven
+ * against edited data instead of against the data it governs. None of the 34 real entries was
+ * touched, and none needed to be: all 34 already cite a bead.
+ */
+export function aliasEntryCitesBead(record: { readonly editor: string }): boolean {
+  return BEAD_ID_PATTERN.test(record.editor);
+}
+
 export function validateAliasRecord(raw: unknown): ParseResult<AliasRecord> {
   if (!raw || typeof raw !== "object") {
     return { ok: false, error: "Alias record must be an object", rule: "alias-schema" };
