@@ -59,6 +59,27 @@ and `2. eines Diffusionsvorganges…` of the list introduced on p. 554 by `…au
 per paper in the difficulties files as
 `flag:segmentation:numbered-list-items-folded`.
 
+Second continuation specimen, light-quanta `ap-17-132` p. 145: `…in folgenden Fällen denkbar:` runs
+into `1. wenn die Anzahl…erhalten kann;` and `2. wenn das erzeugende…nicht mehr gilt.`, both indented
+to full paragraph depth. Each item opens with the subordinating `wenn`, item 1 closes on a semicolon
+and item 2 on the full stop, so the two complete the single sentence the colon introduces. The page
+reports FOUR paragraph starts, not six.
+
+**The `unless` clause is not decorative, and the discriminator is not the enumerator.** Relativity
+`ap-17-891` p. 894 is the first plate in this edition on which the grammar says otherwise. The
+introducing sentence ends `…daß also allgemein die Beziehungen gelten:`, and each item is a
+**complete, independent sentence** of the form `1. Wenn die Uhr in B synchron mit der Uhr in A läuft,
+so läuft die Uhr in A synchron mit der Uhr in B.` Each stands alone, so each is a paragraph, and the
+page reports SEVEN paragraph starts. Here indentation and grammar agree for the first time on a
+list: both items sit at the same depth as the surrounding paragraph first lines, with their own
+runover lines flush.
+
+So the test is **whether the item can stand alone as a sentence**, not whether it carries an
+enumerator and not how it is indented. A reader who has seen only the folded cases above could
+reasonably conclude that numbered items are always continuations; p. 894 is the counter-specimen
+that shows they are not. Record which way each instance resolved, with its evidence, rather than
+recording that a list was found.
+
 ---
 
 ## 2. Display Equations and the Display-Reference Model
