@@ -310,22 +310,46 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
         /throw\s+new\s+[A-Za-z0-9_]*Error\s*\(\s*["']([a-zA-Z0-9_-]+)["']/,
       );
 
-      const propCode = propMatch?.[1];
-      if (propCode && isRefusalCode(propCode)) {
-        sites.push({
-          file: relPath,
-          line: lineNum,
-          code: propCode,
-          snippet: line.trim(),
-        });
-        continue;
-      }
+      // THE POSITIONAL FORM WINS, AND THE ORDER IS THE WHOLE POINT.
+      //
+      // strArgMatch is anchored: its pattern starts at the throw keyword itself and the window
+      // opens on the line holding it, so the literal it captures is THIS site's own first
+      // argument. propMatch is anchored to nothing - it takes the first kind, code or rule
+      // property found anywhere in eight lines, which may belong to a statement BELOW the
+      // refusal and have nothing to do with it.
+      //
+      // Checking the property first therefore let a neighbour outrank a site's own code. At
+      // tokenize.ts:201 an environment-end token property in an unrelated push, seven lines
+      // down, was reported as the refusal code; 5 of 1434 positional sites across src and
+      // scripts read that way, among them argument.ts:925 and :2084, reported as proof-edge
+      // when the site says invalid-prerequisite-shape, and e2e-edition-pipeline.ts:305,
+      // reported as compile-errors when the site says corpus-empty. The damage runs both ways,
+      // as citation rot does: the real code looks untested while a neighbouring code collects a
+      // site that does not exist.
+      //
+      // Genuine options-object sites are unaffected, because strArgMatch needs a quoted literal
+      // immediately after the open parenthesis and those sites have a brace there, so the
+      // property check below still answers for them.
+      //
+      // This comment is written without the two-word throw form and without a quoted
+      // property literal on purpose. The scanner scans its own source, and an earlier draft of
+      // this note created a phantom site at this very line by containing both.
       const strCode = strArgMatch?.[1];
       if (strCode && isRefusalCode(strCode)) {
         sites.push({
           file: relPath,
           line: lineNum,
           code: strCode,
+          snippet: line.trim(),
+        });
+        continue;
+      }
+      const propCode = propMatch?.[1];
+      if (propCode && isRefusalCode(propCode)) {
+        sites.push({
+          file: relPath,
+          line: lineNum,
+          code: propCode,
           snippet: line.trim(),
         });
         continue;

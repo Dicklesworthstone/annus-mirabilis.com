@@ -17,7 +17,7 @@
   "src/content/ledger/validateLedger.ts": 0,
   "src/content/manifest/schema.ts": 0,
   "src/content/revisions.ts": 7,
-  "src/content/schemas/argument.ts": 8,
+  "src/content/schemas/argument.ts": 7,
   "src/content/schemas/authorship.ts": 3,
   "src/content/schemas/dates.ts": 2,
   "src/content/schemas/dimensionBasis.ts": 3,

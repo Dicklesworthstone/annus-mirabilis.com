@@ -216,6 +216,52 @@ export function validateInput(val: unknown) {
     assert.equal(first.line, 4);
   });
 
+  test("a neighbouring property does not outrank a site's own first argument (planted negative)", () => {
+    // THE REAL SHAPE, not a synthetic one. This is src/equations/latex/tokenize.ts:201 reduced:
+    // a positional refusal whose eight-line window contains an unrelated token property below it.
+    // Before the priority was corrected the scanner reported this site as "environment-end",
+    // a token kind from the push six lines down, and 5 of 1434 positional sites in the tree read
+    // that way. The two codes here are BOTH valid refusal codes, so nothing but the priority
+    // decides which one is returned.
+    const neighbourSource = `
+export function readToken(word: string, stack: string[], tokens: unknown[]) {
+  if (word === "end") {
+    const open = stack.pop();
+    if (!open) {
+      throw new TokenizerError(
+        "mismatched-environment",
+        \`Mismatched environment at \${word}.\`,
+        0,
+      );
+    }
+    tokens.push({
+      kind: "environment-end",
+      value: word,
+    });
+  }
+}
+`;
+    const sites = scanRefusalThrowSites(neighbourSource, "src/dummy/neighbour.ts");
+    assert.equal(sites.length, 1);
+    const site = sites[0];
+    assert.ok(site);
+    assert.equal(site.code, "mismatched-environment");
+    assert.notEqual(site.code, "environment-end");
+
+    // And the correction is not a trade: a genuine options-object refusal, which has a brace
+    // where the positional form has a quoted literal, still answers with its property code.
+    const optionsSource = `
+export function readOther(word: string) {
+  if (!word) {
+    throw new TokenizerError({ kind: "unbalanced-open-brace", offset: 0 });
+  }
+}
+`;
+    const optionsSites = scanRefusalThrowSites(optionsSource, "src/dummy/options.ts");
+    assert.equal(optionsSites.length, 1);
+    assert.equal(optionsSites[0]?.code, "unbalanced-open-brace");
+  });
+
   test("the detector enforces throw-site unit of measure against multi-site code laundering (planted negative)", () => {
     // Calibration case: 3 throw sites emitting the SAME refusal code
     const multiSiteSource = `
