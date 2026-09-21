@@ -45,10 +45,29 @@ test("malformed, incomplete, duplicate and unsupported links do not produce sett
   }
   assert.equal(decode(`${good}&x=${"a".repeat(5000)}`).kind,"invalid");
 });
+/**
+ * Assert WHICH refusal fired, at WHICH site.
+ *
+ * All four coded sites in transfer.ts were driven before this helper existed and not one was
+ * asserted: planting each code in turn left 13 pass 0 fail every time, because every arm was a
+ * bare assert.throws. Two of the four share the code `source-digest-invalid`, so nothing could
+ * tell the encode-side digest check from the export-side one either.
+ *
+ * Sites were established by marking one at a time and running each test by name, not by reading
+ * the test titles and matching them up.
+ */
+const refuses = (fn, code, site) => {
+  assert.throws(fn, err => {
+    assert.equal(err.name, "ExperimentRuntimeError", `${site}: ${err.name} is not a typed refusal`);
+    assert.equal(err.code, code, `${site}: refused with ${err.code}, not ${code}`);
+    return true;
+  }, `${site} did not refuse`);
+};
+
 test("a source revision is retained rather than hidden by the decoder",()=>{
   const other=`source:sha256:${"b".repeat(64)}`;
   assert.equal(decode(encode(defaults,other)).sourceDigest,other);
-  assert.throws(()=>encode(defaults,"no-digest"));
+  refuses(()=>encode(defaults,"no-digest"),"source-digest-invalid","(transfer.ts:30)");
 });
 test("exports preserve both accepted columns, typed output contracts and changed fields",()=>{
   const s=session(),before=s.getSnapshot().accepted;
@@ -76,14 +95,32 @@ test("exporting or constructing links neither issues a request nor changes a sna
   assert.equal(s.getSnapshot(),before);assert.equal(notifications,0);
 });
 test("cross-instance, partial, malformed and owner-mismatched evidence is refused",()=>{
+  // Three refusals in one test, and they are NOT interchangeable. A mismatched instance, a
+  // snapshot that is not exportable, and a malformed digest are different findings for the
+  // reader, and the digest check at :82 runs BEFORE the instance check at :83 - so a valid
+  // digest is what lets the first assertion reach the instance guard at all.
   const a=session().getSnapshot().accepted,b=createLightInvestigationSession("other").getSnapshot().accepted;
-  assert.throws(()=>exportEvidence(a,b,digest));
+  refuses(()=>exportEvidence(a,b,digest),"evidence-instance-mismatch","(transfer.ts:83)");
   for(const patch of [{final:false},{snapshotVersion:0},{experimentId:"wrong"},{outputs:a.outputs.slice(1)},
       {outputs:[a.outputs[0],...a.outputs.slice(0,-1)]},
-      {outputs:a.outputs.map((o,i)=>i===0?{...o,value:Infinity}:o)},
       {outputs:a.outputs.map((o,i)=>i===0?{...o,ownerId:"pretend-owner"}:o)}])
-    assert.throws(()=>exportEvidence(a,{...a,...patch},digest));
-  assert.throws(()=>exportEvidence(a,a,"not-a-digest"));
+    refuses(()=>exportEvidence(a,{...a,...patch},digest),"evidence-snapshot-invalid","(transfer.ts:60)");
+
+  // A NONFINITE VALUE IS REFUSED BY A DIFFERENT LAYER, and this test could not previously say
+  // so. It sat in the list above under a bare assert.throws, so it read as one more case of the
+  // snapshot guard at :60 refusing malformed evidence. It is not: the result codec rejects the
+  // nonfinite value first and throws ResultDecodeError, which carries no refusal code at all.
+  //
+  // That is defensible behaviour - the codec is the right place to reject Infinity, and the
+  // export never sees it - but it is a different claim from "transfer.ts refuses this", and the
+  // distinction is the sort the typed-result rules exist to keep. Asserted as what it is.
+  const nonfinite={...a,outputs:a.outputs.map((o,i)=>i===0?{...o,value:Infinity}:o)};
+  assert.throws(()=>exportEvidence(a,nonfinite,digest),err=>{
+    assert.equal(err.name,"ResultDecodeError","a nonfinite value is refused by the codec, not by transfer.ts");
+    assert.equal(err.code,undefined,"ResultDecodeError carries no refusal code");
+    return true;
+  });
+  refuses(()=>exportEvidence(a,a,"not-a-digest"),"source-digest-invalid","(transfer.ts:82)");
 });
 test("coefficient handoff reaches the real existing codec with exact accepted energy",()=>{
   const s=session();s.apply({...defaults,frequency:660000000000000,volumeRatio:0.3,pointCount:5});
