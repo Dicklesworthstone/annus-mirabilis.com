@@ -325,11 +325,16 @@ describe("brownian facsimile verification (am-src-facsimile-brownian-mox)", () =
     // test fail exactly when the work it tracks got done - a ratchet pointing the wrong way.
     // The watch list exists to be settled; what is worth guarding is that a settled entry
     // SAYS WHAT WAS SEEN rather than merely changing state.
+    // "corrected-in-ledger" was added on 2026-09-21 and is a genuinely distinct state: the
+    // watch item was found TRUE, the ledger was WRONG, and the ledger has been corrected.
+    // That is different from confirmed-on-plate, where the transcription was already right,
+    // and from confirmed-absent, where the thing looked for is not there.
     const LEGAL = new Set([
       "pending",
       "confirmed-on-plate",
       "confirmed-absent",
       "plate-reading-recorded-ruling-open",
+      "corrected-in-ledger",
     ]);
     for (const item of fm.watchList) {
       expect(LEGAL.has(item.result), `${item.id}: unknown result "${item.result}"`).toBe(true);

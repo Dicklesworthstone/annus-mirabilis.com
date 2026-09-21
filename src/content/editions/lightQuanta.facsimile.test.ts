@@ -347,11 +347,16 @@ describe("light quanta facsimile verification (am-src-facsimile-light-quanta-t4n
     //
     // The still-pending items keep their teeth: they are not skipped, and the count below
     // refuses a list that has been "settled" by being emptied.
+    // "corrected-in-ledger" was added on 2026-09-21 and is a genuinely distinct state: the
+    // watch item was found TRUE, the ledger was WRONG, and the ledger has been corrected.
+    // That is different from confirmed-on-plate, where the transcription was already right,
+    // and from confirmed-absent, where the thing looked for is not there.
     const DECLARED_RESULTS = new Set([
       "pending",
       "confirmed-on-plate",
       "confirmed-absent",
       "plate-reading-recorded-ruling-open",
+      "corrected-in-ledger",
     ]);
     expect(fm.watchList.length).toBeGreaterThanOrEqual(10);
     for (const item of fm.watchList) {
