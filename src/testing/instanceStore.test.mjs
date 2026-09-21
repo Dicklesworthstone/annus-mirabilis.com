@@ -355,3 +355,97 @@ test("observer, measurement, and estimator changes report the run's own parentRu
   assert.equal(observed.parentRunId, second.parentRunId);
   assert.equal(observed.parentRunId, first.runId);
 });
+
+/**
+ * am-ltg9. A caught throw is attributed to what actually threw, not flattened.
+ *
+ * publish(), refuse() and fail() each wrapped their body in a catch that returned the single
+ * code "malformed-publication" - which is ALSO the code for three conditions the store really
+ * does check. So the refusal asserted a cause it had never established. On 2026-09-20 the
+ * emitted text was "LQ-06 initial publication failed: malformed-publication" while the real
+ * error was a ResultDecodeError from results/codec.ts about partial results; recovering it
+ * needed expression-level instrumentation of the store, and the orchestrator meanwhile
+ * inferred a cause from commit adjacency and paused an unrelated migration on the guess.
+ */
+
+/** Two declared outputs, both admitting a non-value status, so a mixed batch is well-formed. */
+function mixedStatusOptions(allowPartial) {
+  const contract = {
+    statuses: ["value", "not-applicable"],
+    unit: "1/m",
+    semanticKind: "coordinate-density",
+    ownerId: "diffusion.ftcs1d",
+  };
+  return {
+    experimentId: "BM06",
+    instanceId: "paper2/section4/mixed",
+    initialParameters: { D: 1 },
+    parameterClasses: { D: "input" },
+    outputs: { density: contract, flux: contract },
+    ...(allowPartial === undefined ? {} : { allowPartial }),
+  };
+}
+const mixedBatch = (token) => ({
+  ...token,
+  stepIndex: 0,
+  simulationTime: 0,
+  final: true,
+  outputs: [
+    { quantityId: "density", unit: "1/m", semanticKind: "coordinate-density", ownerId: "diffusion.ftcs1d", status: "value", value: 1 },
+    { quantityId: "flux", unit: "1/m", semanticKind: "coordinate-density", ownerId: "diffusion.ftcs1d", status: "not-applicable", reason: "No flux is defined for this model at the initial step." },
+  ],
+});
+
+test("am-ltg9 REACHABILITY: the mixed batch is one flag away from valid, so the fixture reaches the codec", () => {
+  // Before asserting what the refusal says, prove the fixture can arrive at the planted state
+  // at all. With allowPartial the SAME batch is accepted, so it is well-formed in every other
+  // respect - the contracts match, both statuses are admitted, no declared output is missing.
+  // Without this, a batch that failed for some unrelated reason would produce a refusal that
+  // looked like proof.
+  const permissive = createInstanceStore(mixedStatusOptions(true));
+  expectAccepted(permissive.publish(mixedBatch(permissive.issue("setup-change"))));
+});
+
+test("am-ltg9: a ResultDecodeError from the codec is named, not reported as malformed-publication", () => {
+  // The 2026-09-20 outage exactly: allowPartial defaults false, the batch mixes a value with a
+  // non-value, and codec.ts refuses it.
+  const store = createInstanceStore(mixedStatusOptions(undefined));
+  const decision = store.publish(mixedBatch(store.issue("setup-change")));
+
+  assert.equal(decision.accepted, false);
+  // The defect: this was "malformed-publication", a cause the store never established.
+  assert.notEqual(decision.reason, "malformed-publication");
+  // What it must say instead: the error it actually caught, that error's own message, and
+  // where the error came from rather than where it was caught.
+  assert.match(decision.reason, /^unattributed-throw: publish\(\) caught ResultDecodeError: /);
+  assert.match(decision.reason, /partial results not admitted by the manifest/);
+  assert.match(decision.reason, /results\/codec\.ts:\d+/);
+  assert.equal(decision.reason.includes("store/instanceStore.ts"), false);
+  // And the honesty clause: an unattributed cause says so.
+  assert.match(decision.reason, /did not establish/);
+});
+
+test("am-ltg9 CONTROL: the three declared conditions still report malformed-publication", () => {
+  // This is not a rename. A condition the store genuinely checks keeps its code, or the change
+  // would blur the very distinction it exists to draw.
+  const unknownKey = createInstanceStore(options("ltg9/unknown-key"));
+  const a = unknownKey.issue("setup-change");
+  assert.equal(
+    unknownKey.publish({ ...publication(a), unexpectedKey: 1 }).reason,
+    "malformed-publication",
+  );
+
+  const badStep = createInstanceStore(options("ltg9/bad-step"));
+  const b = badStep.issue("setup-change");
+  assert.equal(badStep.publish({ ...publication(b), stepIndex: -1 }).reason, "malformed-publication");
+
+  const badContract = createInstanceStore(options("ltg9/bad-contract"));
+  const c = badContract.issue("setup-change");
+  assert.equal(
+    badContract.publish({
+      ...publication(c),
+      outputs: [{ ...output(1), unit: "furlongs" }],
+    }).reason,
+    "malformed-publication",
+  );
+});

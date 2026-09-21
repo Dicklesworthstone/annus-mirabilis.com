@@ -66,7 +66,8 @@ export type ExperimentView = Readonly<{
   refusal: RequestRefusal | null;
   outcome: ExecutionOutcome | null;
 }>;
-export type PublicationReason =
+/** Conditions this store checks for itself and can therefore name as a cause. */
+export type DeclaredPublicationReason =
   | "wrong-instance"
   | "no-request"
   | "superseded-run"
@@ -77,6 +78,30 @@ export type PublicationReason =
   | "completed-action"
   | "non-monotone-step"
   | "malformed-publication";
+
+/**
+ * A declared condition, or a throw the store caught and did NOT diagnose (am-ltg9).
+ *
+ * Until now every throw inside publish, refuse and fail was flattened into
+ * "malformed-publication", which is also the code for three conditions the store really does
+ * check. The refusal therefore asserted a cause it had never established. During the
+ * 2026-09-20 lq-06 outage the emitted text was "LQ-06 initial publication failed:
+ * malformed-publication", and the actual error was a ResultDecodeError from
+ * results/codec.ts about partial results not admitted by the manifest - a different failure,
+ * in a different file, about a different rule. Recovering it needed expression-level
+ * instrumentation of this store, and the orchestrator meanwhile inferred a cause from commit
+ * adjacency and paused an unrelated migration on the guess.
+ *
+ * So a caught throw now reports `unattributed-throw: ...` carrying the error's own name,
+ * message and first repository stack frame, and says plainly that the store did not establish
+ * it. The template literal keeps the type closed: the detail rides inside the reason string,
+ * so the twelve existing call sites that interpolate `decision.reason` print the cause without
+ * any of them changing.
+ *
+ * The three genuine malformed-publication returns are untouched. This separates a diagnosis
+ * from a shrug; it does not rename either.
+ */
+export type PublicationReason = DeclaredPublicationReason | `unattributed-throw: ${string}`;
 export type PublicationDecision = Readonly<
   { accepted: true } | { accepted: false; reason: PublicationReason }
 >;
@@ -149,6 +174,38 @@ function published(result: ScientificResult): PublishedResult {
 }
 const denied = (reason: PublicationReason): PublicationDecision =>
   Object.freeze({ accepted: false, reason });
+
+/** The first repository frame in a stack, so a caught throw says WHERE and not only what. */
+const REPO_FRAME = /(?:^|[(\s])(?:.*?\/)?((?:src|scripts)\/[^\s():]+\.[a-z]+:\d+):\d+/;
+function originOf(error: unknown): string | null {
+  const stack = error instanceof Error ? error.stack : null;
+  if (typeof stack !== "string") return null;
+  for (const line of stack.split("\n").slice(1)) {
+    const frame = REPO_FRAME.exec(line)?.[1];
+    // Skip this file: the store is where the throw was CAUGHT, never where it came from.
+    if (frame && !frame.endsWith("store/instanceStore.ts")) return frame;
+  }
+  return null;
+}
+
+/**
+ * A throw the store caught without diagnosing (am-ltg9).
+ *
+ * Modelled on requireTool at d771b9e6: branch on the real error, name the code actually seen,
+ * and say plainly when the cause is not one you can attribute. An honest "unattributed" beats
+ * a confident wrong code, which is the whole finding here.
+ */
+function unattributed(error: unknown, operation: string): PublicationDecision {
+  const name = error instanceof Error ? error.name : typeof error;
+  const message = error instanceof Error ? error.message : String(error);
+  const origin = originOf(error);
+  // One template literal, not a concatenation: `+` widens the result to `string` and the
+  // closed PublicationReason type would no longer accept it.
+  const where = origin === null ? "" : ` (${origin})`;
+  return denied(
+    `unattributed-throw: ${operation}() caught ${name}: ${message}${where}. The store caught this and did not establish it; it is NOT one of the declared conditions and NOT evidence that the publication was malformed.`,
+  );
+}
 
 /** Pure per-placement store. Worker scheduling, React bindings and route lifetime are separate owners. */
 export function createInstanceStore(options: {
@@ -416,8 +473,8 @@ export function createInstanceStore(options: {
         outcome: null,
       });
       return { accepted: true };
-    } catch {
-      return denied("malformed-publication");
+    } catch (error) {
+      return unattributed(error, "publish");
     }
   }
   function refuse(token: RequestToken, refusal: unknown): PublicationDecision {
@@ -428,8 +485,8 @@ export function createInstanceStore(options: {
       completed = true;
       emit({ ...view, status: "refused", pending: false, refusal: decoded, outcome: null });
       return { accepted: true };
-    } catch {
-      return denied("malformed-publication");
+    } catch (error) {
+      return unattributed(error, "refuse");
     }
   }
   function fail(token: RequestToken, outcome: unknown): PublicationDecision {
@@ -440,8 +497,8 @@ export function createInstanceStore(options: {
       completed = true;
       emit({ ...view, status: "unavailable", pending: false, refusal: null, outcome: decoded });
       return { accepted: true };
-    } catch {
-      return denied("malformed-publication");
+    } catch (error) {
+      return unattributed(error, "fail");
     }
   }
   return Object.freeze({
