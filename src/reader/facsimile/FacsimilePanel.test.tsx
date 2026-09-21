@@ -1,32 +1,71 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { FacsimilePanel } from "./FacsimilePanel.tsx";
 import { projectFacsimileDocument } from "./document.ts";
+import { FacsimilePanel } from "./FacsimilePanel.tsx";
 
-const document = projectFacsimileDocument("mass-energy", "ap-18-639", {
-  configVersion: 1, key: "ap-18-639",
-  verifiedAnchor: { parentPageIndex: 233, printedPage: 639, verifiedBy: "test fixture" },
-  articlePages: { printedFirst: 639, printedLast: 641, parentPageIndices: [233, 234, 235] },
-  rights: { publicationDecision: "publish", rightsStatus: "scan-open-terms" },
-  pinned: { path: "public/papers/pdfs/ap-18-639.pdf", sha256: "a".repeat(64), pageCount: 3,
-    mimeType: "application/pdf", acquisitionDate: "2026-09-18", originUrl: "https://archive.org/example.pdf" },
-}, {
-  paper: "mass-energy", document: "ap-18-639", pageCount: 3, pageRange: [639, 641], status: "in-preparation",
-  units: [
-    { id: "s0-p1", kind: "paragraph", locators: [{ page: 639 }] },
-    { id: "s1-p1", kind: "paragraph", locators: [{ page: 640 }, { page: 641 }], destination: { editionBlockId: "de-example" } },
-    { id: "eq-s1-d1", kind: "display-equation", locators: [{ page: 641 }], destination: { editionBlockId: "de-example" } },
-  ],
-});
+const document = projectFacsimileDocument(
+  "mass-energy",
+  "ap-18-639",
+  {
+    configVersion: 1,
+    key: "ap-18-639",
+    verifiedAnchor: { parentPageIndex: 233, printedPage: 639, verifiedBy: "test fixture" },
+    articlePages: { printedFirst: 639, printedLast: 641, parentPageIndices: [233, 234, 235] },
+    rights: { publicationDecision: "publish", rightsStatus: "scan-open-terms" },
+    pinned: {
+      path: "public/papers/pdfs/ap-18-639.pdf",
+      sha256: "a".repeat(64),
+      pageCount: 3,
+      mimeType: "application/pdf",
+      acquisitionDate: "2026-09-18",
+      originUrl: "https://archive.org/example.pdf",
+    },
+  },
+  {
+    paper: "mass-energy",
+    document: "ap-18-639",
+    pageCount: 3,
+    pageRange: [639, 641],
+    status: "in-preparation",
+    units: [
+      { id: "s0-p1", kind: "paragraph", locators: [{ page: 639 }] },
+      {
+        id: "s1-p1",
+        kind: "paragraph",
+        locators: [{ page: 640 }, { page: 641 }],
+        destination: { editionBlockId: "de-example" },
+      },
+      {
+        id: "eq-s1-d1",
+        kind: "display-equation",
+        locators: [{ page: 641 }],
+        destination: { editionBlockId: "de-example" },
+      },
+    ],
+  },
+);
 function panel(section?: string, inline = false) {
   if (!document) throw new Error("facsimile-fixture-not-admitted");
-  return <FacsimilePanel document={document} title="Original paper" section={section} inline={inline}
-    faceHref="/papers/mass-energy/view/facsimile/" explanationHref="/papers/mass-energy/" />;
+  return (
+    <FacsimilePanel
+      document={document}
+      title="Original paper"
+      section={section}
+      inline={inline}
+      faceHref="/papers/mass-energy/view/facsimile/"
+      explanationHref="/papers/mass-energy/"
+    />
+  );
 }
 
 describe("FacsimilePanel static source face", () => {
   test("inline source ids never collide with the mounted explanation's section anchors", () => {
-    const html = renderToStaticMarkup(<><section id="s1" />{panel("s1", true)}</>);
+    const html = renderToStaticMarkup(
+      <>
+        <section id="s1" />
+        {panel("s1", true)}
+      </>,
+    );
     expect(html.match(/id="s1"/g)?.length).toBe(1);
     expect(html).not.toContain('id="s1-p1"');
     expect(html).toContain('data-facsimile-target="s1-p1"');
@@ -40,7 +79,14 @@ describe("FacsimilePanel static source face", () => {
     expect(html).toContain("<noscript>");
     expect(html).toContain("download=");
     expect(html).toContain('href="/papers/mass-energy/"');
-    expect(html).toContain('data-facsimile-controls="" disabled=""');
+    // The property is that the controls are INERT before hydration, not how React
+    // spells a valueless data attribute. `<fieldset data-facsimile-controls disabled>`
+    // is `data-facsimile-controls={true}`, which React serialises as
+    // `data-facsimile-controls="true"`, so the concatenated string this used to expect
+    // could never match and the assertion tested the serialiser rather than the panel.
+    // Matching the marker and the disabled state separately says what is meant and
+    // survives a change in how the marker is written.
+    expect(html).toMatch(/<fieldset[^>]*\bdata-facsimile-controls\b[^>]*\bdisabled\b/);
     expect(html).not.toContain("pdfjs");
     expect(html).not.toContain("<canvas");
   });
@@ -61,8 +107,13 @@ describe("FacsimilePanel static source face", () => {
     expect(html).toContain("No source-page map is recorded for this section yet");
   });
   test("multiple viewers have unique form ids rather than the donor's global page-input id", () => {
-    const html = renderToStaticMarkup(<>{panel()}{panel()}</>);
-    const inputIds = [...html.matchAll(/<input id="([^"]+)"/g)].map(match => match[1]);
+    const html = renderToStaticMarkup(
+      <>
+        {panel()}
+        {panel()}
+      </>,
+    );
+    const inputIds = [...html.matchAll(/<input id="([^"]+)"/g)].map((match) => match[1]);
     expect(inputIds.length).toBe(4);
     expect(new Set(inputIds).size).toBe(4);
   });
