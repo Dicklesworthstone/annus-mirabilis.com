@@ -88,12 +88,11 @@ test("BM-04 CSV rejects nonfinite, negative, and invalid-grid data", () => {
  * these paths by MESSAGE; what was missing was the code and the line citation the scanner reads,
  * so a converted site did not count as tested.
  *
- * dataExport.ts:8 IS NOT DRIVEN AND IS LEFT COUNTED. It guards a nonfinite number inside the
- * private cell() formatter, and nothing outside can reach it: every accepted density is refused
- * first at :82, the grid at :24, and each of the seven metadata parameters (F, m, T, eta, a, dt,
- * steps) set to Infinity is ACCEPTED - measured, one at a time - because metadata is stringified
- * before it reaches cell(). It is a defensive guard, which is a reason to keep it and not a reason
- * to claim it is tested.
+ * A CORRECTION TO WHAT THIS FILE SAID IN fce8f69c. It recorded dataExport.ts:8 as unreachable on
+ * the evidence that all seven metadata PARAMETERS set to Infinity are accepted. That measurement
+ * was real but its denominator was wrong: cell() also formats `snapshot.snapshotVersion` and
+ * `snapshot.revisions.input`, which no guard covers, and either one nonfinite reaches the site.
+ * The claim was under-measured, not mistaken about what it checked, and it is driven below.
  */
 const refusal = (fn) => {
   try {
@@ -104,7 +103,7 @@ const refusal = (fn) => {
   throw new Error("The export was accepted when it should have been refused.");
 };
 
-test("BM-04 export refusals carry their codes (dataExport.ts:24, 42, 82)", () => {
+test("BM-04 export refusals carry their codes (dataExport.ts:8, 24, 42, 82)", () => {
   // dataExport.ts:82 - a nonfinite accepted density
   const density = fixture();
   density.outputs[0].value[2] = NaN;
@@ -125,4 +124,16 @@ test("BM-04 export refusals carry their codes (dataExport.ts:24, 42, 82)", () =>
   const profileErr = refusal(() => bm04DataCsv(profile, "sha"));
   assert.equal(profileErr.code, "profile-grid-mismatch");
   assert.match(profileErr.message, /match the accepted spatial grid/);
+
+  // dataExport.ts:8 - a nonfinite snapshot identity field, which cell() formats and no guard covers
+  const version = fixture();
+  version.snapshotVersion = Number.POSITIVE_INFINITY;
+  const versionErr = refusal(() => bm04DataCsv(version, "sha"));
+  assert.equal(versionErr.code, "nonfinite-export-value");
+  assert.match(versionErr.message, /Nonfinite data cannot be exported/);
+
+  const revision = fixture();
+  revision.revisions.input = Number.NaN;
+  const revisionErr = refusal(() => bm04DataCsv(revision, "sha"));
+  assert.equal(revisionErr.code, "nonfinite-export-value");
 });
