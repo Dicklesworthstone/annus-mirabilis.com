@@ -59,7 +59,12 @@ import {
   validateFacsimileAnchor,
 } from "./sources/facsimileSourceSchema.ts";
 
-export type PinCheck = "artifact" | "anchor" | "content-identity" | "folio-coverage";
+export type PinCheck =
+  | "artifact"
+  | "anchor"
+  | "content-identity"
+  | "folio-coverage"
+  | "extract-folio";
 
 export type PinRefusalCode =
   // artifact availability and identity
@@ -83,7 +88,11 @@ export type PinRefusalCode =
   // folio coverage
   | "folio-consensus-unavailable"
   | "parent-folio-offset-mismatch"
-  | "printed-range-outside-parent";
+  | "printed-range-outside-parent"
+  // extract folio: what the PINNED BYTES say about themselves
+  | "extract-folio-consensus-unavailable"
+  | "extract-folio-mismatch"
+  | "extract-page-count-mismatch";
 
 export interface PinFinding {
   readonly check: PinCheck;
@@ -305,8 +314,19 @@ export interface FolioConsensus {
  * to carry the document: in the six parents measured here the winning offset took 102 to 146
  * votes against a runner-up of 4 to 25.
  */
+export interface ConsensusThresholds {
+  readonly minVotes: number;
+  readonly minDominance: number;
+}
+
 export function consensusOffsetFrom(
   observations: readonly FolioObservation[],
+  // Defaulted to the parent-scan calibration this function was written for, so every
+  // existing caller keeps exactly the thresholds it had. Extracts pass their own.
+  thresholds: ConsensusThresholds = {
+    minVotes: MIN_CONSENSUS_VOTES,
+    minDominance: MIN_CONSENSUS_DOMINANCE,
+  },
 ): FolioConsensus | null {
   const tally = new Map<number, number>();
   for (const observation of observations) {
@@ -319,7 +339,7 @@ export function consensusOffsetFrom(
     return null;
   }
   const runnerUpVotes = ranked[1]?.[1] ?? 0;
-  if (winner[1] < MIN_CONSENSUS_VOTES || winner[1] < runnerUpVotes * MIN_CONSENSUS_DOMINANCE) {
+  if (winner[1] < thresholds.minVotes || winner[1] < runnerUpVotes * thresholds.minDominance) {
     return null;
   }
   return { offset: winner[0], votes: winner[1], runnerUpVotes };
@@ -400,6 +420,145 @@ export function evaluateFolioCoverage(input: FolioCoverageInput): FolioCoverageR
   }
 
   return { findings, consensus, folioImpliedFirstIndex };
+}
+
+/**
+ * What the pinned bytes say about THEMSELVES.
+ *
+ * Every check above this one compares the extract with a parent scan, so none of them can
+ * run where the parent is not on disk - which is CI, because /sources is git-ignored. That
+ * is how ap-17-549 shipped for a night with page 1 showing L. Hermann on Leyden jars: the
+ * digest was right, the parent comparison was the only thing that would have caught it, and
+ * the parent was not there to compare against.
+ *
+ * This check needs no parent. A pinned extract of Annalen 17 pages 549 to 560 carries those
+ * folio numbers in its own text layer, and if it does not, the pin is wrong no matter whose
+ * bytes they are. It is a pure function over page texts so that the decision is testable
+ * without a PDF, a tool, or a network; the caller supplies the observations.
+ *
+ * WHAT IT CANNOT DO, so that a green is not overread. A scan with no text layer yields no
+ * observations and the result is `extract-folio-consensus-unavailable`, which is
+ * not-measured and NOT a pass - every facsimile here is a photograph of a page, and whether
+ * a usable text layer exists is a property of the scanning institution, not of the pin. It
+ * also cannot tell a correct extract of the right pages from the WRONG VOLUME printed with
+ * the same page numbers: Annalen 17 and Annalen 18 both have a page 549. Only the parent
+ * comparison binds a record to a volume.
+ */
+/**
+ * The vote floor an EXTRACT's text layer has to clear, which is not the parent's.
+ *
+ * MIN_CONSENSUS_VOTES = 20 is calibrated for parent scans of several hundred pages, where
+ * the winning offset took 102 to 146 votes. An extract of twelve pages cannot produce
+ * twenty folio reads however good its text layer is, so the parent's floor rejects every
+ * extract in this corpus by arithmetic rather than by evidence. Measured on all six pinned
+ * extracts, 2026-09-21, with the numbers as they came out:
+ *
+ *   key         pages  winner (votes)  runner-up  expected  verdict under this floor
+ *   ap-17-132     17   -131 (9)            2       -131     measured, correct
+ *   ap-17-549     12   -548 (6)            1       -548     measured, correct
+ *   ap-17-891     31   -890 (16)           1       -890     measured, correct
+ *   ap-19-289     18   -288 (9)            2       -288     measured, correct
+ *   ap-18-639      3   -1902 (2)           1       -638     UNMEASURED, and must be
+ *   ap-34-591      2   -590 (2)            1       -590     unmeasured, correct but thin
+ *
+ * ap-18-639 is why a floor exists at all rather than none: its three-page text layer's most
+ * popular offset is WRONG, off by more than a thousand, and a gate that acted on it would
+ * accuse a correct pin of holding pages 1903-1905.
+ *
+ * WHAT MEASUREMENT ACTUALLY SHOWED, against my first account of it. The floor and
+ * MIN_CONSENSUS_DOMINANCE reject ap-18-639 INDEPENDENTLY - with the floor at 1 dominance
+ * still rejects it (2 votes against 1 is under 4x), and with dominance at 1 the floor still
+ * does (2 votes is under 3). Setting either alone to its weakest value changes no verdict on
+ * any of the six. I wrote this comment first claiming the floor was decisive there; it is not.
+ *
+ * The floor's own, non-redundant job is the case dominance cannot see: a thin text layer
+ * whose noise is ONE-SIDED. With a single wrong offset read twice and no competing read at
+ * all, runner-up is zero, `winner < runnerUp * dominance` is `2 < 0`, and dominance admits
+ * it. Only a vote floor refuses. That case is constructible from a two-page extract, which
+ * is ap-34-591's shape, so it is not hypothetical for this corpus.
+ *
+ * The parent's thresholds are NOT changed. This is a separate floor for a separate
+ * population, chosen from the measurement above.
+ */
+export function extractVoteFloor(extractPageCount: number): number {
+  return Math.max(3, Math.ceil(extractPageCount / 4));
+}
+
+export interface ExtractFolioInput {
+  readonly key: string;
+  readonly printedFirst: number;
+  readonly printedLast: number;
+  readonly extractPageCount: number;
+  /** pageIndex is 1-based WITHIN THE EXTRACT, not within the parent. */
+  readonly observations: readonly FolioObservation[];
+}
+
+export interface ExtractFolioResult {
+  readonly findings: readonly PinFinding[];
+  readonly consensus: FolioConsensus | null;
+  /** The printed range the extract's own text layer says it holds, when it says anything. */
+  readonly observedPrintedRange: { readonly first: number; readonly last: number } | null;
+}
+
+export function evaluateExtractFolios(input: ExtractFolioInput): ExtractFolioResult {
+  const findings: PinFinding[] = [];
+
+  // Page count first, and reported even when the text layer is unreadable: it needs no text
+  // at all, so an extract with no text layer still gets one real check rather than none.
+  const declaredPageSpan = input.printedLast - input.printedFirst + 1;
+  if (input.extractPageCount !== declaredPageSpan) {
+    findings.push({
+      check: "extract-folio",
+      code: "extract-page-count-mismatch",
+      message:
+        `Config '${input.key}': the config declares printed pages ${input.printedFirst}-` +
+        `${input.printedLast}, which is ${declaredPageSpan} page(s), but the pinned extract ` +
+        `holds ${input.extractPageCount}. The bytes cannot be the article the record names.`,
+    });
+  }
+
+  const floor = extractVoteFloor(input.extractPageCount);
+  const consensus = consensusOffsetFrom(input.observations, {
+    minVotes: floor,
+    minDominance: MIN_CONSENSUS_DOMINANCE,
+  });
+  if (!consensus) {
+    findings.push({
+      check: "extract-folio",
+      code: "extract-folio-consensus-unavailable",
+      message:
+        `Config '${input.key}': the pinned extract's own text layer did not yield a dominant ` +
+        `folio offset (needs at least ${floor} vote(s) for ${input.extractPageCount} page(s) ` +
+        `and ${MIN_CONSENSUS_DOMINANCE}x the runner-up). This is NOT-MEASURED, not a pass: many ` +
+        `of these scans are photographs with a thin or absent text layer, and an extract that ` +
+        `cannot state its own page numbers has not corroborated anything.`,
+    });
+    return { findings, consensus: null, observedPrintedRange: null };
+  }
+
+  // In an extract, page 1 IS printedFirst, so the only admissible offset is 1 - printedFirst.
+  const expectedOffset = 1 - input.printedFirst;
+  const observedFirst = 1 - consensus.offset;
+  const observedLast = input.extractPageCount - consensus.offset;
+
+  if (consensus.offset !== expectedOffset) {
+    findings.push({
+      check: "extract-folio",
+      code: "extract-folio-mismatch",
+      message:
+        `Config '${input.key}': the record says this extract is printed pages ` +
+        `${input.printedFirst}-${input.printedLast}, but the extract's own text layer reads ` +
+        `${observedFirst}-${observedLast} (offset ${consensus.offset} on ${consensus.votes} ` +
+        `votes against ${consensus.runnerUpVotes}; the record implies ${expectedOffset}). ` +
+        `The pinned bytes are a different part of the volume from the one the record names.`,
+    });
+  }
+
+  return {
+    findings,
+    consensus,
+    observedPrintedRange: { first: observedFirst, last: observedLast },
+  };
 }
 
 // ---------------------------------------------------------------------------

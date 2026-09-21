@@ -11,7 +11,9 @@ import {
   detectMalformedAnchor,
   evaluateContentIdentity,
   evaluateDeclaredAnchor,
+  evaluateExtractFolios,
   evaluateFolioCoverage,
+  extractVoteFloor,
   folioObservations,
   formatPinReport,
   getDefaultRepoRoot,
@@ -709,6 +711,227 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       const codes = codesFrom(config, root);
       assert.ok(codes.includes("parent-digest-conflict"), codes.join(", "));
       assert.ok(!codes.includes("pinned-digest-conflict"), "the extract digest was made to match");
+    });
+  });
+
+  describe("5c. What the pinned bytes say about themselves (am-jz7p)", () => {
+    // The one check in this file that needs no parent scan, and therefore the only one
+    // that could ever run in CI. Driven entirely through fixtures so the decision is
+    // testable without a PDF: the measurement half (reading a real text layer) is a
+    // separate, blocked piece, and mixing them would make this untestable until it lands.
+    //
+    // The numbers below are ap-17-549's: printed 549-560, twelve pages. The failure it
+    // exists for is the real one - the pin that served L. Hermann on Leyden jars.
+
+    /** Text-layer votes for an extract that really does hold printedFirst..printedLast. */
+    function honestObservations(printedFirst: number, pages: number, votesPerPage = 12) {
+      const observations: { pageIndex: number; folio: number }[] = [];
+      for (let page = 1; page <= pages; page++) {
+        for (let vote = 0; vote < votesPerPage; vote++) {
+          observations.push({ pageIndex: page, folio: printedFirst + page - 1 });
+        }
+      }
+      return observations;
+    }
+
+    const codesOf = (result: { findings: readonly { code: string }[] }): string[] =>
+      result.findings.map((finding) => finding.code);
+
+    test("an extract that holds the pages it claims raises nothing", () => {
+      // Reachability before the claim: without this, every arm below is satisfied by an
+      // evaluator that refuses everything, and the three failures would prove nothing.
+      const result = evaluateExtractFolios({
+        key: "ap-17-549",
+        printedFirst: 549,
+        printedLast: 560,
+        extractPageCount: 12,
+        observations: honestObservations(549, 12),
+      });
+      assert.deepEqual(codesOf(result), []);
+      assert.deepEqual(result.observedPrintedRange, { first: 549, last: 560 });
+    });
+
+    test("the wrong part of the volume, which is the defect this exists for (verify-facsimile-pins.ts:extract-folio-mismatch)", () => {
+      // Twelve pages, right count, right digest, wrong article: the extract's own text
+      // layer reads 137-148 while the record says 549-560. No parent scan involved.
+      const result = evaluateExtractFolios({
+        key: "ap-17-549",
+        printedFirst: 549,
+        printedLast: 560,
+        extractPageCount: 12,
+        observations: honestObservations(137, 12),
+      });
+      assert.ok(codesOf(result).includes("extract-folio-mismatch"), codesOf(result).join(", "));
+      assert.deepEqual(result.observedPrintedRange, { first: 137, last: 148 });
+      const message = result.findings[0]?.message ?? "";
+      // The report must name both ranges, or a reader cannot tell which one to trust.
+      assert.ok(message.includes("549-560"), message);
+      assert.ok(message.includes("137-148"), message);
+    });
+
+    test("a page count that cannot be the declared range", () => {
+      const result = evaluateExtractFolios({
+        key: "ap-17-549",
+        printedFirst: 549,
+        printedLast: 560,
+        extractPageCount: 3,
+        observations: honestObservations(549, 3),
+      });
+      assert.ok(codesOf(result).includes("extract-page-count-mismatch"));
+    });
+
+    test("the page count is checked even when there is no text layer to read", () => {
+      // The ordering matters. A photograph with no text layer is the common case here, and
+      // if the count check sat below the consensus return, the commonest extract in the
+      // corpus would get no check at all while reporting only "not measured".
+      const result = evaluateExtractFolios({
+        key: "ap-17-549",
+        printedFirst: 549,
+        printedLast: 560,
+        extractPageCount: 3,
+        observations: [],
+      });
+      const codes = codesOf(result);
+      assert.ok(codes.includes("extract-page-count-mismatch"), codes.join(", "));
+      assert.ok(codes.includes("extract-folio-consensus-unavailable"), codes.join(", "));
+    });
+
+    test("no text layer is NOT-MEASURED, and the message has to say so", () => {
+      const result = evaluateExtractFolios({
+        key: "ap-17-549",
+        printedFirst: 549,
+        printedLast: 560,
+        extractPageCount: 12,
+        observations: [],
+      });
+      assert.deepEqual(codesOf(result), ["extract-folio-consensus-unavailable"]);
+      assert.equal(result.observedPrintedRange, null);
+      // A caller that reads an empty findings list as a pass would be wrong here, so the
+      // text has to refuse that reading in words, not only in a code.
+      assert.match(result.findings[0]?.message ?? "", /NOT-MEASURED, not a pass/);
+    });
+
+    test("a mangled text layer that cannot outvote its own noise stays unmeasured", () => {
+      // Microfilm mangles numerals. Scattered disagreeing reads must not be promoted to a
+      // verdict: the consensus rule needs votes AND dominance, and this has neither.
+      const noisy = [
+        { pageIndex: 1, folio: 549 },
+        { pageIndex: 2, folio: 55 },
+        { pageIndex: 3, folio: 5 },
+        { pageIndex: 4, folio: 902 },
+      ];
+      const result = evaluateExtractFolios({
+        key: "ap-17-549",
+        printedFirst: 549,
+        printedLast: 560,
+        extractPageCount: 12,
+        observations: noisy,
+      });
+      assert.ok(codesOf(result).includes("extract-folio-consensus-unavailable"));
+    });
+
+    test("the real ap-18-639 text layer, whose most popular offset is WRONG", () => {
+      // NOT a synthetic fixture. These are the numbers pdftotext actually produced for the
+      // pinned ap-18-639 extract on 2026-09-21: four folio reads over three pages, the
+      // winner offset -1902 on two votes against a runner-up of one, where the true offset
+      // is -638. The pin is CORRECT; its text layer is three pages of microfilm and cannot
+      // support a verdict.
+      //
+      // CORRECTED AFTER PLANTING, because my first rationale for this arm was wrong. I
+      // wrote that the vote floor is what saves this pin. It is not: the floor and the
+      // dominance rule reject it INDEPENDENTLY, and dropping either to its weakest value
+      // leaves this arm green. Planting both is how that came out, not reading.
+      //
+      // The arm is still worth its place - a correct pin must never be accused on a text
+      // layer this thin, and this is the only real corpus member where that could happen -
+      // but the guard it evidences is the pair, not the floor. The floor's own job is the
+      // one-sided case in the arm below, where dominance is blind.
+      const real = [
+        { pageIndex: 1, folio: 1903 },
+        { pageIndex: 2, folio: 1904 },
+        { pageIndex: 2, folio: 43 },
+        { pageIndex: 3, folio: 27 },
+      ];
+      const result = evaluateExtractFolios({
+        key: "ap-18-639",
+        printedFirst: 639,
+        printedLast: 641,
+        extractPageCount: 3,
+        observations: real,
+      });
+      assert.deepEqual(codesOf(result), ["extract-folio-consensus-unavailable"]);
+      assert.ok(
+        !codesOf(result).includes("extract-folio-mismatch"),
+        "a correct pin must never be accused on a text layer this thin",
+      );
+    });
+
+    test("one-sided noise, which dominance cannot see and only the floor refuses", () => {
+      // The floor's non-redundant job, and the reason it is not deleted as duplicated by
+      // dominance. Two reads of one WRONG offset and no competing read at all: runner-up is
+      // zero, so `winner < runnerUp * dominance` is `2 < 0` and dominance admits it. A
+      // two-page extract is exactly this shape, and ap-34-591 is a two-page extract.
+      //
+      // Planted to confirm: with extractVoteFloor returning 1, this arm goes RED and the
+      // gate reports extract-folio-mismatch against a pin nothing is wrong with.
+      const oneSided = [
+        { pageIndex: 1, folio: 1903 },
+        { pageIndex: 2, folio: 1904 },
+      ];
+      const result = evaluateExtractFolios({
+        key: "ap-18-639",
+        printedFirst: 639,
+        printedLast: 641,
+        extractPageCount: 3,
+        observations: oneSided,
+      });
+      assert.ok(
+        codesOf(result).includes("extract-folio-consensus-unavailable"),
+        `two unanimous wrong reads must not become a verdict; got ${codesOf(result).join(", ")}`,
+      );
+      assert.ok(
+        !codesOf(result).includes("extract-folio-mismatch"),
+        "and they must certainly not become an accusation",
+      );
+    });
+
+    test("the floor scales with the extract, because the parent's floor is arithmetic here", () => {
+      // MIN_CONSENSUS_VOTES = 20 is calibrated for parents of several hundred pages. A
+      // twelve-page extract cannot produce twenty folio reads at all, so the parent's floor
+      // rejects every extract in this corpus by arithmetic rather than by evidence - all
+      // six measured unmeasurable before this existed. The parent's own thresholds are
+      // unchanged; this asserts the extract floor stays BELOW what the real extracts
+      // supply and ABOVE what the thin ones do.
+      assert.equal(extractVoteFloor(12), 3); // ap-17-549 supplied 6
+      assert.equal(extractVoteFloor(31), 8); // ap-17-891 supplied 16
+      assert.equal(extractVoteFloor(3), 3); // ap-18-639 supplied 2, correctly short
+      assert.equal(extractVoteFloor(2), 3); // ap-34-591 supplied 2, correctly short
+      // And it never collapses to "any single read wins", which is the failure above.
+      assert.ok(extractVoteFloor(1) >= 3);
+      assert.ok(extractVoteFloor(400) >= 20, "a large extract is held to at least the parent bar");
+    });
+
+    test("this check cannot tell one volume from another, and the code says so", () => {
+      // Annalen 17 and 18 both have a page 549. An extract of the WRONG VOLUME'S 549-560
+      // passes here, and must, because nothing in the bytes distinguishes them. The claim
+      // is asserted rather than left in a comment so that a later author who thinks this
+      // check subsumes the parent comparison finds out here.
+      const wrongVolume = evaluateExtractFolios({
+        key: "ap-18-549-hypothetical",
+        printedFirst: 549,
+        printedLast: 560,
+        extractPageCount: 12,
+        observations: honestObservations(549, 12),
+      });
+      assert.deepEqual(codesOf(wrongVolume), []);
+      const source = fs.readFileSync(
+        path.join(REPO_ROOT, "scripts", "verify-facsimile-pins.ts"),
+        "utf8",
+      );
+      assert.match(
+        source,
+        /cannot tell a correct extract of the right pages from the WRONG VOLUME/,
+      );
     });
   });
 
