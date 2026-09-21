@@ -64,6 +64,41 @@ d. h. wenn die Wahrscheinlichkeit eines bestimmten Wertes einer der Größen $A$
 --- REVIEWED TRANSCRIPTION PAGE 5 OF 17 ---
 [[ANNALEN-PAGE 136]]
 
+Soll die Strahlungsenergie von der Frequenz $\nu$ nicht beständig im Ganzen weder vermindert noch vermehrt werden, so muß gelten:
+$$
+\frac{R}{N} T = \overline{E} = \overline{E}_\nu = \frac{L^3}{8 \pi \nu^2} \varrho_\nu,
+$$
+$$
+\varrho_\nu = \frac{R}{N} \frac{8 \pi \nu^2}{L^3} T.
+$$
+
+Diese als Bedingung des dynamischen Gleichgewichtes gefundene Beziehung entbehrt nicht nur der Übereinstimmung mit der Erfahrung, sondern sie besagt auch, daß in unserem Bilde von einer bestimmten Energieverteilung zwischen Äther und Materie nicht die Rede sein kann. Je weiter nämlich der Schwingungszahlenbereich der Resonatoren gewählt wird, desto größer wird die Strahlungsenergie des Raumes, und wir erhalten in der Grenze
+$$
+\int_0^\infty \varrho_\nu d \nu = \frac{R}{N} \frac{8 \pi}{L^3} T \int_0^\infty \nu^2 d \nu = \infty.
+$$
+
+[[HEADING s2]]§ 2. Über die [[SPERR]]Planck[[/SPERR]]sche Bestimmung der Elementarquanta.
+
+Wir wollen im folgenden zeigen, daß die von Hrn. [[SPERR]]Planck[[/SPERR]] gegebene Bestimmung der Elementarquanta von der von ihm aufgestellten Theorie der „schwarzen Strahlung“ bis zu einem gewissen Grade unabhängig ist.
+
+Die allen bisherigen Erfahrungen genügende [[SPERR]]Planck[[/SPERR]]sche Formel[[FN-MARK 1)]] für $\varrho_\nu$ lautet
+$$
+\varrho_\nu = \frac{\alpha \nu^3}{e^{\frac{\beta \nu}{T}} - 1},
+$$
+wobei
+$$
+\alpha = 6{,}10 \cdot 10^{-56},
+$$
+$$
+\beta = 4{,}866 \cdot 10^{-11}.
+$$
+Für große Werte von $T/\nu$, d. h. für große Wellenlängen und Strahlungsdichten geht diese Formel in der Grenze in folgende über:
+$$
+\varrho_\nu = \frac{\alpha}{\beta} \nu^2 T.
+$$
+
+[[FN 1)]] M. [[SPERR]]Planck[[/SPERR]], Ann. d. Phys. 4. p. 561. 1901.
+
 --- REVIEWED TRANSCRIPTION PAGE 6 OF 17 ---
 [[ANNALEN-PAGE 137]]
 
