@@ -53,9 +53,29 @@ export function summarize(
 ): AuditReport {
   const errorCount = findings.filter((f) => f.severity === "error").length;
   const flagCount = findings.filter((f) => f.severity === "flag").length;
+
+  /**
+   * An audit that judged nothing has not passed (am-1hst).
+   *
+   * `ok` used to be `errorCount === 0` alone, so a declared population of zero produced a
+   * clean verdict: no records, therefore no findings, therefore no errors, therefore ok. The
+   * prose was already honest about it - populationLine says "no records to judge." - so the
+   * two halves of the same report DISAGREED. A person reading the printed line saw the truth
+   * and a script reading `ok` never saw that sentence at all. The prose is correct and is not
+   * touched here; the defect was entirely in the boolean.
+   *
+   * THE undefined BRANCH IS DELIBERATELY UNCHANGED, because it is a different proposition.
+   * An audit that declares NO population has made no claim about how much it looked at, and
+   * most of them do not: twelve of the fourteen callers pass no population at all. An audit
+   * that declares a population OF ZERO has made a claim, and the claim is that it judged
+   * nothing. Only the second is a failed audit. Treating them alike would turn every
+   * population-free audit red and would be a rewrite rather than a fix.
+   */
+  const declaredNothingToJudge = population !== undefined && population.total === 0;
+
   return Object.freeze({
     audit,
-    ok: errorCount === 0,
+    ok: errorCount === 0 && !declaredNothingToJudge,
     errorCount,
     flagCount,
     findings,
