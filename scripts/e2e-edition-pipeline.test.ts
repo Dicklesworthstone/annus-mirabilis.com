@@ -62,7 +62,7 @@ const stageOf = (run: { stages: readonly { stage: string }[] }, stage: string) =
     | undefined;
 
 describe("edition pipeline: no ledger", () => {
-  test("papers 1, 3, 4, and 5 never report complete when no ledger is present", async () => {
+  test("every paper on the ledgerless list never reports complete", async () => {
     // The list means NOT COVERED from 2026-09-21, which is absent OR partial: ap-17-132
     // acquired a skeleton while being transcribed and stayed listed, as it must. The
     // INVARIANT holds for every member whatever its coverage; the ledger-absent MECHANISM

@@ -381,18 +381,27 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     // the ledgerless paper while passing on the other, and is therefore visible rather than
     // uniform.
     //
-    // The ledgerless specimen was brownian-motion until 2026-09-21, when ap-17-549 acquired
-    // a transcript and the pair stopped spanning anything. It is now light-quanta, which is
-    // still in PAPERS_WAITING_ON_CLOUD_OCR. This is a RE-POINT, not a derivation: the
-    // subject of this test is the two checks' independence from the ledger, and the papers
-    // are only the specimens that demonstrate it, so the fix is to choose a specimen that
-    // still has the property rather than to compute one. When light-quanta is transcribed,
-    // whoever does it re-points this at whichever paper is ledgerless then - and if none is
-    // left, the "WHETHER OR NOT" in the name is no longer demonstrable here and this test
-    // should be rewritten against a constructed root instead of quietly dropped.
+    // The ledgerless specimen was brownian-motion until 2026-09-21, then light-quanta. Both
+    // acquired transcripts and stopped spanning anything; light-quanta was transcribed end to
+    // end the same day and its ledger now COVERS all seventeen pages. This is the second
+    // RE-POINT and it follows the instruction the previous one left: the subject of this test
+    // is the two checks' independence from the ledger, the papers are only the specimens that
+    // demonstrate it, so the fix is to choose a specimen that still has the property rather
+    // than to compute one.
+    //
+    // It is now special-relativity, chosen by measurement rather than by being next on the
+    // list: molecular-dimensions is also ledgerless but has no manifest at all, so checks 5
+    // and 6 report not-available there and it cannot demonstrate that they judge a real
+    // manifest. special-relativity has 208 units and both checks pass on it.
+    //
+    // WHEN SPECIAL-RELATIVITY IS TRANSCRIBED, the standing instruction still holds and is now
+    // nearly due: molecular-dimensions cannot replace it, so at that point there is no paper
+    // with both properties left, and the "WHETHER OR NOT" in this name stops being
+    // demonstrable against the real corpus. Rewrite it against a constructed root then.
+    // Do not quietly drop it and do not re-point it at a paper whose checks decline.
     for (const [slug, units, ledger] of [
       ["mass-energy", 25, "complete"],
-      ["light-quanta", 128, "partial"],
+      ["special-relativity", 208, "absent"],
     ] as const) {
       const r = assertEditionContract(slug, {});
       expect(r.ledger, `${slug}'s ledger state changed; this pair must span both`).toBe(ledger);

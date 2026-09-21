@@ -50,9 +50,21 @@ export const PAPER_BIB_KEYS: Readonly<Record<RouteSlug, string>> = Object.freeze
  *
  * Leaving this list is still not a claim of review. ap-17-549 is a machine draft with hand
  * correction, its receipt records ledgerStatus in-progress, and no reviewer is assigned.
+ *
+ * `light-quanta` LEFT on 2026-09-21, and the reason is COVERAGE rather than existence.
+ * ap-17-132-machine-draft.txt has seventeen pages and the validator reports zero skeleton pages,
+ * so classifyLedgerCoverage returns "complete". That is the property ab2b5e65 installed after a
+ * skeleton ledger flipped a paper's presence with nothing written behind it: a file on disk is not
+ * a ledger that covers its paper. Until this hour light-quanta had the file and five bare pages,
+ * and it stayed on this list exactly as it should have.
+ *
+ * The pawl in ledgerAbsence.test.ts reported the change rather than a human noticing it, for the
+ * third time now, and that remains the reason this list is a declaration checked against disk
+ * rather than a hand-maintained fact. It is still not a claim of review: ap-17-132 is a machine
+ * draft, its receipt records ledgerStatus in-progress, and open-german-source-light-quanta is
+ * unfilled in docs/OWNERS.md.
  */
 export const PAPERS_WAITING_ON_CLOUD_OCR = [
-  "light-quanta",
   "special-relativity",
   "molecular-dimensions",
 ] as const satisfies readonly RouteSlug[];
