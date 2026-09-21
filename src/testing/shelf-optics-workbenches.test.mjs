@@ -2,18 +2,27 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  SHELF_IDS, shelfDefaults, shelfFields, shelfPath, validateShelfInput,
+  SHELF_IDS,
+  shelfDefaults,
+  shelfFields,
+  shelfPath,
+  validateShelfInput,
 } from "../experiments/shelf/definition.ts";
-import { createShelfSession } from "../experiments/shelf/session.ts";
+import { createShelfSession, evaluateShelf } from "../experiments/shelf/session.ts";
 import { decodeShelfSettings, encodeShelfSettings } from "../experiments/shelf/settings.ts";
-import { constantValue, getConstantSet, withMode1904Guard } from "../physics/reference/constants.ts";
-import { michelsonMorleyFringeShift, fizeauFringeShift } from "../physics/reference/shelfOptics.ts";
+import {
+  constantValue,
+  getConstantSet,
+  withMode1904Guard,
+} from "../physics/reference/constants.ts";
+import { fizeauFringeShift, michelsonMorleyFringeShift } from "../physics/reference/shelfOptics.ts";
 
 const MM = "shelf-michelson-morley";
 const FZ = "shelf-fizeau";
 const MW = "shelf-maxwell-galilean";
 const c = constantValue(getConstantSet("modern-si-2019"), "speedOfLight").value;
-const create = (id, mode = "full", patch = {}) => createShelfSession(id, mode, `${id}-${mode}`, { ...shelfDefaults(id, mode), ...patch });
+const create = (id, mode = "full", patch = {}) =>
+  createShelfSession(id, mode, `${id}-${mode}`, { ...shelfDefaults(id, mode), ...patch });
 function output(session, id) {
   const item = session.getSnapshot().accepted?.outputs.find((item) => item.quantityId === id);
   assert.ok(item, `Missing ${id}`);
@@ -27,41 +36,58 @@ function value(session, id) {
   return item.value;
 }
 function near(actual, expected, relative = 1e-12) {
-  assert.ok(Math.abs(actual - expected) <= relative * Math.max(Math.abs(expected), 1e-300), `${actual} != ${expected}`);
+  assert.ok(
+    Math.abs(actual - expected) <= relative * Math.max(Math.abs(expected), 1e-300),
+    `${actual} != ${expected}`,
+  );
 }
-for (const id of SHELF_IDS) for (const mode of ["full", "1904"]) {
-  test(`${id} ${mode}: all declared readings are accepted, finite, and immutable`, () => {
-    const session = create(id, mode);
-    const snapshot = session.getSnapshot().accepted;
-    assert.ok(snapshot);
-    assert.equal(snapshot.outputs.length, session.readings.length);
-    assert.ok(snapshot.outputs.length >= 8);
-    assert.equal(new Set(snapshot.outputs.map((r) => r.quantityId)).size, snapshot.outputs.length);
-    for (const reading of session.readings) {
-      value(session, reading.id);
-      assert.equal(output(session, reading.id).unit, reading.unit);
-      assert.equal(output(session, reading.id).ownerId, "shelf-optics");
-    }
-    assert.ok(Object.isFrozen(snapshot));
-    assert.ok(Object.isFrozen(snapshot.parameters));
-  });
-  test(`${id} ${mode}: settings round-trip and refuse foreign modes, extra fields, duplicates`, () => {
-    const p = shelfDefaults(id, mode);
-    const url = encodeShelfSettings(id, mode, p);
-    assert.ok(url.startsWith(shelfPath(id, mode)));
-    const search = new URL(url, "https://example.test").search;
-    assert.deepEqual(decodeShelfSettings(id, mode, search), { kind: "settings", parameters: p });
-    assert.equal(decodeShelfSettings(id, mode === "full" ? "1904" : "full", search).kind, "invalid");
-    assert.equal(decodeShelfSettings(id, mode, `${search}&shelf=duplicate`).kind, "invalid");
-    assert.equal(decodeShelfSettings(id, mode, `${search}&note=private`).kind, "invalid");
-    assert.equal(decodeShelfSettings(id, mode, `?shelf=${"x".repeat(2048)}`).kind, "invalid");
-    assert.throws(() => encodeShelfSettings(id, mode, { ...p, privateNote: "not part of an experiment" }));
-  });
-}
+for (const id of SHELF_IDS)
+  for (const mode of ["full", "1904"]) {
+    test(`${id} ${mode}: all declared readings are accepted, finite, and immutable`, () => {
+      const session = create(id, mode);
+      const snapshot = session.getSnapshot().accepted;
+      assert.ok(snapshot);
+      assert.equal(snapshot.outputs.length, session.readings.length);
+      assert.ok(snapshot.outputs.length >= 8);
+      assert.equal(
+        new Set(snapshot.outputs.map((r) => r.quantityId)).size,
+        snapshot.outputs.length,
+      );
+      for (const reading of session.readings) {
+        value(session, reading.id);
+        assert.equal(output(session, reading.id).unit, reading.unit);
+        assert.equal(output(session, reading.id).ownerId, "shelf-optics");
+      }
+      assert.ok(Object.isFrozen(snapshot));
+      assert.ok(Object.isFrozen(snapshot.parameters));
+    });
+    test(`${id} ${mode}: settings round-trip and refuse foreign modes, extra fields, duplicates`, () => {
+      const p = shelfDefaults(id, mode);
+      const url = encodeShelfSettings(id, mode, p);
+      assert.ok(url.startsWith(shelfPath(id, mode)));
+      const search = new URL(url, "https://example.test").search;
+      assert.deepEqual(decodeShelfSettings(id, mode, search), { kind: "settings", parameters: p });
+      assert.equal(
+        decodeShelfSettings(id, mode === "full" ? "1904" : "full", search).kind,
+        "invalid",
+      );
+      assert.equal(decodeShelfSettings(id, mode, `${search}&shelf=duplicate`).kind, "invalid");
+      assert.equal(decodeShelfSettings(id, mode, `${search}&note=private`).kind, "invalid");
+      assert.equal(decodeShelfSettings(id, mode, `?shelf=${"x".repeat(2048)}`).kind, "invalid");
+      assert.throws(() =>
+        encodeShelfSettings(id, mode, { ...p, privateNote: "not part of an experiment" }),
+      );
+    });
+  }
 test("Michelson full mode reproduces the independent modern-computation fixture and owner bytes", () => {
   const s = create(MM);
   near(value(s, "etherShift"), 0.4005540251931628);
-  const owner = michelsonMorleyFringeShift({ length: 11, wavelength: 550e-9, windSpeed: 30000, contraction: false });
+  const owner = michelsonMorleyFringeShift({
+    length: 11,
+    wavelength: 550e-9,
+    windSpeed: 30000,
+    contraction: false,
+  });
   assert.equal(value(s, "etherShift"), owner.fringeShift.value);
   assert.equal(value(s, "contractedShift"), 0);
   assert.equal(value(s, "contractedParallel"), value(s, "contractedPerpendicular"));
@@ -75,7 +101,7 @@ test("Michelson 1904 uses only declared ratios; very small speeds do not cancel 
     assert.equal(value(s, "contractedShift"), 0);
   });
   const tiny = create(MM, "full", { windSpeed: 1e-8 * c });
-  near(value(tiny, "etherDelay"), 11 / c * 1e-16, 1e-9);
+  near(value(tiny, "etherDelay"), (11 / c) * 1e-16, 1e-9);
   assert.ok(value(tiny, "etherDelay") > 0);
 });
 test("presentation changes preserve the run, input revision, and scientific values", () => {
@@ -86,7 +112,10 @@ test("presentation changes preserve the run, input revision, and scientific valu
   const after = s.getSnapshot().accepted;
   assert.equal(after.runId, before.runId);
   assert.equal(after.revisions.input, before.revisions.input);
-  assert.deepEqual(after.outputs.map((r) => r.value), before.outputs.map((r) => r.value));
+  assert.deepEqual(
+    after.outputs.map((r) => r.value),
+    before.outputs.map((r) => r.value),
+  );
   assert.equal(s.getServerSnapshot(), server);
   assert.ok(after.snapshotVersion > before.snapshotVersion);
 });
@@ -113,9 +142,18 @@ test("Fizeau compares no, complete, and partial drag on exactly the same inputs"
   const s = create(FZ);
   assert.ok(value(s, "no-drag-shift") === 0);
   near(value(s, "fresnel-drag-shift"), 0.20711824200702383);
-  near(value(s, "full-drag-shift"), 2 * 3 * 1.333 ** 2 * 7.06 / (530e-9 * c));
-  near(value(s, "full-drag-leading") / value(s, "fresnel-drag-leading"), 1.333 ** 2 / (1.333 ** 2 - 1));
-  const owner = fizeauFringeShift({ waterPathPerBeam: 3, wavelength: 530e-9, waterSpeed: 7.06, refractiveIndex: 1.333, dragHypothesis: "fresnel-drag" });
+  near(value(s, "full-drag-shift"), (2 * 3 * 1.333 ** 2 * 7.06) / (530e-9 * c));
+  near(
+    value(s, "full-drag-leading") / value(s, "fresnel-drag-leading"),
+    1.333 ** 2 / (1.333 ** 2 - 1),
+  );
+  const owner = fizeauFringeShift({
+    waterPathPerBeam: 3,
+    wavelength: 530e-9,
+    waterSpeed: 7.06,
+    refractiveIndex: 1.333,
+    dragHypothesis: "fresnel-drag",
+  });
   assert.equal(value(s, "fresnel-drag-shift"), owner.fringeShift.value);
   s.apply({ ...s.getSnapshot().accepted.parameters, reversal: true });
   near(value(s, "fresnel-drag-shift"), 2 * owner.fringeShift.value);
@@ -142,9 +180,16 @@ test("1904 snapshots, field sets, and settings contain no later comparison or mo
   withMode1904Guard(() => {
     for (const id of SHELF_IDS) {
       const s = create(id, "1904");
-      const encoded = JSON.stringify({ snapshot: s.getSnapshot().accepted, readings: s.readings,
-        fields: shelfFields(id, "1904"), url: encodeShelfSettings(id, "1904", s.getSnapshot().accepted.parameters) });
-      assert.doesNotMatch(encoded, /299792458|modern-si-2019|modern-codata|Laue|1907|laterSpeed|showLater/);
+      const encoded = JSON.stringify({
+        snapshot: s.getSnapshot().accepted,
+        readings: s.readings,
+        fields: shelfFields(id, "1904"),
+        url: encodeShelfSettings(id, "1904", s.getSnapshot().accepted.parameters),
+      });
+      assert.doesNotMatch(
+        encoded,
+        /299792458|modern-si-2019|modern-codata|Laue|1907|laterSpeed|showLater/,
+      );
       assert.ok(s.getSnapshot().accepted.outputs.every((r) => r.unit !== "s" && r.unit !== "m/s"));
     }
   });
@@ -158,8 +203,14 @@ test("1904 rejects metre-per-second input rather than converting silently", () =
   assert.equal(s.getSnapshot(), before);
 });
 test("physical domain refusals retain output identities and units and reach the accepted snapshot", () => {
-  for (const [id, mode, patch] of [[MM,"1904",{ beta: 1 }], [MM,"full",{length: -1}],
-    [FZ,"full",{refractiveIndex: 0.9}], [FZ,"1904",{wavelengthNm:0}], [MW,"1904",{beta:1}], [MW,"full",{wavenumber:0}]]) {
+  for (const [id, mode, patch] of [
+    [MM, "1904", { beta: 1 }],
+    [MM, "full", { length: -1 }],
+    [FZ, "full", { refractiveIndex: 0.9 }],
+    [FZ, "1904", { wavelengthNm: 0 }],
+    [MW, "1904", { beta: 1 }],
+    [MW, "full", { wavenumber: 0 }],
+  ]) {
     const s = create(id, mode);
     assert.equal(s.apply({ ...s.getSnapshot().accepted.parameters, ...patch }).kind, "accepted");
     for (const item of s.getSnapshot().accepted.outputs) {
@@ -192,7 +243,10 @@ test("invalid controls leave every part of the accepted state untouched", () => 
     assert.equal(s.apply({ ...before.accepted.parameters, beta }).kind, "refused");
     assert.equal(s.getSnapshot(), before);
   }
-  assert.equal(validateShelfInput(MM, "1904", Object.create({ ...before.accepted.parameters })).kind, "refused");
+  assert.equal(
+    validateShelfInput(MM, "1904", Object.create({ ...before.accepted.parameters })).kind,
+    "refused",
+  );
   assert.throws(() => shelfFields("shelf-unknown", "1904"));
   assert.throws(() => shelfFields(MM, "unknown"));
 });
@@ -204,4 +258,93 @@ test("separate placements and mode guards do not leak scientific state", () => {
   assert.equal(right.getSnapshot(), before);
   assert.notEqual(left.getSnapshot().accepted.instanceId, right.getSnapshot().accepted.instanceId);
   assert.equal(getConstantSet("modern-si-2019").id, "modern-si-2019");
+});
+
+/**
+ * The five refusal sites in shelf/session.ts (am-r3qt), and only two of them can fire.
+ *
+ * Measured, not argued: every shelf id in both modes, and every single-field change across every
+ * parameter class - 6 combinations and 34 apply() calls - raises no refusal at all. Two sites are
+ * reachable with INVALID input and are driven below. The other three are guards behind guards, and
+ * the last of them cannot fire at any input:
+ *
+ *   :74  missing-numeric-setting   evaluate() reads its settings through a helper that refuses a
+ *                                  non-number, but evaluateShelf validates first, so by the time
+ *                                  the helper runs every key it reads is a number. It fires only
+ *                                  if shelfFields and evaluate disagree about which keys exist.
+ *   :330 publication-refused       the session issues a token and publishes against it on the very
+ *                                  next line, so the store's denial paths (stale token, mixed
+ *                                  revisions, parameter mismatch) are unreachable from here.
+ *   :371 no-command-for-change     DEAD. Eleven lines above it the function returns early when all
+ *                                  three patches are empty, so at least one store.issue() runs,
+ *                                  and issue() returns RequestToken - not nullable. `!token` is
+ *                                  never true.
+ */
+test("shelf session: (session.ts:281) evaluateShelf refuses parameters the definition rejects", () => {
+  const d = shelfDefaults(MM, "full");
+  assert.throws(
+    () => evaluateShelf(MM, "full", { ...d, windSpeed: "not a number" }),
+    (err) => err?.code === "parameters-rejected" && /finite number/.test(err.message),
+  );
+  // A key the definition does not declare is the same refusal, reached by a different route.
+  const missing = { ...d };
+  delete missing.windSpeed;
+  assert.throws(
+    () => evaluateShelf(MM, "full", missing),
+    (err) => err?.code === "parameters-rejected",
+  );
+  // The defaults evaluate, so each refusal above is about its own delta.
+  assert.ok(evaluateShelf(MM, "full", d));
+});
+
+test("shelf session: (session.ts:295) createShelfSession refuses bad initial parameters", () => {
+  const d = shelfDefaults(MM, "full");
+  assert.throws(
+    () => createShelfSession(MM, "full", "mm-bad-initial", { ...d, windSpeed: "not a number" }),
+    (err) => err?.code === "parameters-rejected",
+  );
+  // Same code as :281 and a different site: this one refuses before a session exists at all, so
+  // nothing is constructed. The session built from defaults is the control.
+  assert.ok(createShelfSession(MM, "full", "mm-good-initial", d).getSnapshot().accepted);
+});
+
+test("shelf session: :74, :330 and :371 cannot fire across the whole valid input space", () => {
+  // This is the measurement the comment above rests on, kept as a test so it stops being true
+  // loudly. If a later change makes any of the three reachable, this goes red and whoever made it
+  // reachable is the person who should drive it.
+  const observed = new Set();
+  let combos = 0;
+  let applies = 0;
+  for (const id of SHELF_IDS) {
+    for (const mode of ["full", "1904"]) {
+      combos += 1;
+      const d = shelfDefaults(id, mode);
+      // :74 fires only if shelfFields and evaluate disagree about which keys exist. Evaluating the
+      // declared defaults for every id and mode is exactly that agreement, asserted.
+      try {
+        evaluateShelf(id, mode, d);
+      } catch (err) {
+        observed.add(`evaluate:${err?.code}`);
+      }
+      const session = createShelfSession(id, mode, `${id}-${mode}-reach`, d);
+      for (const field of shelfFields(id, mode)) {
+        const value = d[field.id];
+        applies += 1;
+        try {
+          session.apply({ ...d, [field.id]: typeof value === "number" ? value + 1 : value });
+        } catch (err) {
+          observed.add(`apply(${field.parameterClass}):${err?.code}`);
+        }
+      }
+      applies += 1;
+      try {
+        session.apply({ ...d });
+      } catch (err) {
+        observed.add(`apply(nochange):${err?.code}`);
+      }
+    }
+  }
+  assert.equal(combos, 6, "every shelf id in both modes");
+  assert.ok(applies >= 30, `expected the whole field space, got ${applies} apply calls`);
+  assert.deepEqual([...observed], [], "no refusal fires anywhere in the valid space");
 });
