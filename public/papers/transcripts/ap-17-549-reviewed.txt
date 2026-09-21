@@ -138,11 +138,7 @@ Die Gleichung (1) benutzen wir, um den Diffusionskoeffizienten der suspendierten
 --- REVIEWED TRANSCRIPTION PAGE 7 OF 12 ---
 [[ANNALEN-PAGE 555]]
 
-die Superposition zweier in umgekehrtem Sinne verlaufender Prozesse auffassen, nämlich
-
-1. einer Bewegung der suspendierten Substanz unter der Wirkung der auf jedes einzelne suspendierte Teilchen wirkenden Kraft $K$,
-
-2. eines Diffusionsvorganges, welcher als Folge der ungeordneten Bewegungen der Teilchen infolge der Molekularbewegung der Wärme aufzufassen ist.
+die Superposition zweier in umgekehrtem Sinne verlaufender Prozesse auffassen, nämlich 1. einer Bewegung der suspendierten Substanz unter der Wirkung der auf jedes einzelne suspendierte Teilchen wirkenden Kraft $K$, 2. eines Diffusionsvorganges, welcher als Folge der ungeordneten Bewegungen der Teilchen infolge der Molekularbewegung der Wärme aufzufassen ist.
 
 Haben die suspendierten Teilchen Kugelform (Kugelradius $P$) und besitzt die Flüssigkeit den Reibungskoeffizienten $k$, so erteilt die Kraft $K$ dem einzelnen Teilchen die Geschwindigkeit[[FN-MARK 1)]]
 $$
