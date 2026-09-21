@@ -34,6 +34,7 @@ import {
   extractArticle,
   fetchToStaging,
   getRepoRoot,
+  loadConfig,
   main,
   pinFile,
   releaseKeyClaim,
@@ -72,7 +73,7 @@ describe("1. validatePdf structural verification", () => {
     expect(res.pageCount).toBe(2);
   });
 
-  test("rejects html-named.pdf with NOT_A_PDF", () => {
+  test("rejects html-named.pdf with NOT_A_PDF (download-facsimiles.ts:285)", () => {
     const buf = fs.readFileSync(path.join(FIXTURES_DIR, "html-named.pdf"));
     const res = validatePdf(buf);
     expect(res.valid).toBe(false);
@@ -221,7 +222,7 @@ describe("6. pinFile sequence and PINNED_DIGEST_CONFLICT", () => {
     fs.writeFileSync(stagedPath, content);
   });
 
-  test("pins to empty destination, then noops on identical bytes, then refuses on conflicting bytes", () => {
+  test("pins to empty destination, then noops on identical bytes, then refuses on conflicting bytes (download-facsimiles.ts:589)", () => {
     const sha = sha256File(stagedPath);
 
     // Initial pin
@@ -429,7 +430,7 @@ describe("10. Key claims exclusion and release", () => {
     fs.mkdirSync(testLocksDir, { recursive: true });
   });
 
-  test("second acquisition while claim is held fails with LOCK_HELD, and release rewrites without deletion", () => {
+  test("second acquisition while claim is held fails with LOCK_HELD, and release rewrites without deletion (download-facsimiles.ts:166)", () => {
     const key = "ap-99-test";
     const claim1 = acquireKeyClaim(key, toolRunId1, { locksDir: testLocksDir });
     expect(claim1.acquired).toBe(true);
@@ -1205,7 +1206,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     expect(fs.statSync(dest).mtimeMs).toBe(preMtime);
   });
 
-  test("17.5 refusal: conflicting pinned record in config refuses with PINNED_DIGEST_CONFLICT (exit 2)", async () => {
+  test("17.5 refusal: conflicting pinned record in config refuses with PINNED_DIGEST_CONFLICT (download-facsimiles.ts:1235) (exit 2)", async () => {
     const key = "ap-99-106";
     const conflictSha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     writeTestConfig(key, {
@@ -1671,7 +1672,7 @@ describe("17. Complete downloadFacsimile engine lifecycle, parent reuse, and ref
     expect(caughtError.exitCode).toBe(4);
   });
 
-  test("17.14 refusal: network retries exhausted on persistent 503 (exit 4)", async () => {
+  test("17.14 refusal: network retries exhausted on persistent 503 (download-facsimiles.ts:943) (exit 4)", async () => {
     const key = "ap-99-115";
     writeTestConfig(key, {
       configVersion: 1,
@@ -1947,7 +1948,7 @@ describe("19. Stale lock detection, age reporting, and take-over-stale", () => {
     fs.mkdirSync(testLocksDir, { recursive: true });
   });
 
-  test("stale claim (dead PID) requires explicit --take-over-stale to supersede without deleting", () => {
+  test("stale claim (dead PID) requires explicit --take-over-stale to supersede without deleting (download-facsimiles.ts:181)", () => {
     const key = "ap-99-301";
     const keyLocksDir = path.join(testLocksDir, key);
     fs.mkdirSync(keyLocksDir, { recursive: true });
@@ -2264,7 +2265,13 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
 
   test("21.7 a dry run refuses an insecure candidate before it reaches the network", async () => {
     // WHAT THIS DOES NOT PROVE, found by planting: the dry-run branch has its own copy
-    // of the protocol check (download-facsimiles.ts:1115) and that copy is UNREACHABLE.
+    // of the protocol check, at line 1115, and that copy is UNREACHABLE.
+    //
+    // The line is written out longhand on purpose. Written in the (file.ts:LINE) form it
+    // was a CITATION: the scanner reads that pattern from anywhere in the test file, not
+    // only from a test name, so this comment - whose entire content is that the site can
+    // never fire - was crediting the site as tested and keeping it off the untested list.
+    // That is the am-ksl3 defect in its citation form, and I introduced it here myself.
     // downloadFacsimile loads through loadConfig, and validateConfig already refuses a
     // non-HTTPS candidate with the same code (facsimileSourceSchema.ts:364) under the
     // same loopback exemption, so the later check can never be the one that fires. My
@@ -2437,29 +2444,257 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     expect((caught as FacsimileError).message).toContain("dependency object");
   });
 
-  test("21.8 the six refusals nothing can reach, and why, asserted in the code", () => {
-    // Every REACHABLE refusal in this script is now driven by an arm above. The six that
-    // remain are unreachable, and this records why so the gap is a finding, not a silence.
-    // Only four of the six show on the ratchet, because two are credited by the mention
-    // heuristic am-ksl3 describes rather than by any test driving them:
+  // -------------------------------------------------------------------------
+  // 22. The sites the am-ksl3 tightening exposed (am-r3qt)
+  //
+  // These were reported as covered while the scanner credited sites positionally.
+  // Six of the twenty-four were already driven by existing tests and needed only a
+  // citation, which is recorded on those tests rather than duplicated here. These
+  // twelve were driven by nothing at all. Each was established by planting: renaming
+  // the site's code produced NO failure before these arms existed.
+  // -------------------------------------------------------------------------
+
+  test("22.1 a config key with no file behind it (download-facsimiles.ts:72)", async () => {
+    const error = await refusalFrom(() => loadConfig("ap-99-nonexistent", configDir));
+    expect(error.code).toBe("invalid-config");
+    expect(error.message).toContain("Configuration file not found");
+  });
+
+  test("22.2 a config directory that does not exist (download-facsimiles.ts:99)", () => {
+    // Not a refusal thrown but a refusal RETURNED, so the gate can report every config
+    // rather than stopping at the first. The code still has to be the right one.
+    const missing = path.join(testRoot, "no-such-config-dir");
+    const { valid, results } = checkAllConfigs(missing);
+    expect(valid).toBe(false);
+    expect(entry(results, missing).refusalCode).toBe("invalid-config");
+  });
+
+  test("22.3 a config file that is not parseable YAML (download-facsimiles.ts:123)", () => {
+    // Distinct from 22.2 and from a schema failure: the file exists and is not YAML, so
+    // nothing downstream can even look at it. A parse failure reported as a schema
+    // failure would send an author looking for a missing field that is not the problem.
+    const dir = path.join(testRoot, "unparseable", newToolRunId());
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "ap-99-220.yaml"), "key: [unclosed\n  - bad: :\n", "utf8");
+    const { valid, results } = checkAllConfigs(dir);
+    expect(valid).toBe(false);
+    const result = entry(results, "ap-99-220.yaml");
+    expect(result.refusalCode).toBe("invalid-config");
+    expect(result.errors.join(" ")).toContain("Failed to parse YAML");
+  });
+
+  test("22.4 a file with no %PDF- header in its first kilobyte (download-facsimiles.ts:296)", () => {
+    // The sibling of the HTML and JSON sniffs, and a different site: this is a file that
+    // looks like nothing in particular, where the earlier arms catch a server error page.
+    const filler = Buffer.alloc(2048, 0x41);
+    const result = validatePdf(filler);
+    expect(result.valid).toBe(false);
+    expect(result.errorCode).toBe("not-a-pdf");
+    expect(result.message).toContain("Missing %PDF- header");
+  });
+
+  test("22.5 a PDF header with no page objects behind it (download-facsimiles.ts:322)", () => {
+    // Reaches the page count only because the header check PASSES, which is what makes
+    // this the parse arm and not the header arm above.
+    const headerOnly = Buffer.from("%PDF-1.4\ntrailer << /Root 1 0 R >>\n%%EOF\n", "latin1");
+    const result = validatePdf(headerOnly);
+    expect(result.valid).toBe(false);
+    expect(result.errorCode).toBe(["pdf", "parse", "failed"].join("-"));
+    expect(result.message).toContain("/Type /Page");
+  });
+
+  test("22.6 a parent page index past the end of the parent (download-facsimiles.ts:416)", () => {
+    // The LIVE parent-page-index site. Its sibling at 1210 is unreachable (see 21.10),
+    // so this is the one that ever fires: a config naming page 5 of a one-page scan.
+    const onePage = [
+      "%PDF-1.4",
+      "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
+      "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj",
+      "3 0 obj << /Type /Page /Parent 2 0 R >> endobj",
+      "trailer << /Root 1 0 R >>",
+      "%%EOF",
+    ].join("\n");
+    let caught: unknown;
+    try {
+      extractArticle(Buffer.from(onePage, "latin1"), [5], "a".repeat(64));
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(FacsimileError);
+    expect((caught as FacsimileError).code).toBe("parent-page-index-missing");
+    expect((caught as FacsimileError).message).toContain("does not exist");
+  });
+
+  test("22.7 a staged copy whose bytes are not the digest they were promised as (download-facsimiles.ts:601)", async () => {
+    // The verify-after-copy arm, distinct from the existing-destination arm that the
+    // pinFile sequence test already drives. This one catches a copy that went wrong, so
+    // it must be reached with the destination ABSENT or it would refuse earlier.
+    const dir = path.join(testRoot, "staged-digest", newToolRunId());
+    fs.mkdirSync(dir, { recursive: true });
+    const staged = path.join(dir, "staged.pdf");
+    fs.writeFileSync(staged, "%PDF-1.4 real bytes\n");
+    const dest = path.join(dir, "out", "pinned.pdf");
+    expect(fs.existsSync(dest)).toBe(false);
+
+    const error = await refusalFrom(() => pinFile(staged, dest, "b".repeat(64)));
+    expect(error.code).toBe("pinned-digest-conflict");
+    expect(error.message).toContain("staged copy");
+  });
+
+  test("22.8 re-pinning a config that already names a different digest (download-facsimiles.ts:616)", async () => {
+    // updatePinnedRecord refuses to overwrite one pin with another. The facsimile is
+    // immutable once pinned, so this is the rule that stops a surprising reading being
+    // "fixed" by swapping the bytes underneath the record.
+    const key = "ap-99-228";
+    const filePath = writeConfig(key, {
+      pinned: {
+        path: `public/papers/pdfs/${key}.pdf`,
+        sha256: "1".repeat(64),
+        pageCount: 2,
+        mimeType: "application/pdf",
+        acquisitionDate: "2026-09-21",
+        originUrl: "https://archive.org/download/item/x.pdf",
+        finalUrl: "https://archive.org/download/item/x.pdf",
+        candidateIndex: 0,
+        hostFileSource: "original",
+        hostChecksumsVerified: [],
+        embeddedTextLayer: "unknown",
+        toolRunId: "20260921T000000Z-abcdef01",
+      },
+    });
+    const error = await refusalFrom(() =>
+      updatePinnedRecord(filePath, {
+        path: `public/papers/pdfs/${key}.pdf`,
+        sha256: "2".repeat(64),
+        pageCount: 2,
+        mimeType: "application/pdf",
+        acquisitionDate: "2026-09-21",
+        originUrl: "https://archive.org/download/item/x.pdf",
+        finalUrl: "https://archive.org/download/item/x.pdf",
+        candidateIndex: 0,
+        hostFileSource: "original",
+        hostChecksumsVerified: [],
+        embeddedTextLayer: "unknown",
+        toolRunId: "20260921T000000Z-abcdef01",
+      } as never),
+    );
+    expect(error.code).toBe("pinned-digest-conflict");
+    expect(error.message).toContain("already pinned");
+  });
+
+  test("22.9 restoring over a file whose bytes are not the pinned ones (download-facsimiles.ts:821)", async () => {
+    // Restore never touches an existing conflicting file. Overwriting here would destroy
+    // whatever is actually on disk to satisfy a record that may itself be the wrong one.
+    const key = "ap-99-229";
+    writeConfig(key, {
+      pinned: {
+        path: `public/papers/pdfs/${key}.pdf`,
+        sha256: "3".repeat(64),
+        pageCount: 2,
+        mimeType: "application/pdf",
+        acquisitionDate: "2026-09-21",
+        originUrl: "https://archive.org/download/item/x.pdf",
+        finalUrl: "https://archive.org/download/item/x.pdf",
+        candidateIndex: 0,
+        hostFileSource: "original",
+        hostChecksumsVerified: [],
+        embeddedTextLayer: "unknown",
+        toolRunId: "20260921T000000Z-abcdef01",
+      },
+    });
+    const dest = path.join(testRoot, "public", "papers", "pdfs", `${key}.pdf`);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, "different bytes entirely\n");
+
+    const error = await refusalFrom(() => restorePin(key, { configDir, repoRoot: testRoot }));
+    expect(error.code).toBe("pinned-digest-conflict");
+    expect(error.message).toContain("will not touch an existing conflicting file");
+  });
+
+  test("22.10 a restore download that does not return 200 (download-facsimiles.ts:844)", async () => {
+    // restorePin's own status check, which is a different site from fetchToStaging's:
+    // this one has no retry ladder behind it, so one non-200 is terminal.
+    const key = "ap-99-230";
+    writeConfig(key, {
+      pinned: {
+        path: `public/papers/pdfs/${key}.pdf`,
+        sha256: "4".repeat(64),
+        pageCount: 2,
+        mimeType: "application/pdf",
+        acquisitionDate: "2026-09-21",
+        originUrl: "https://archive.org/download/item/gone.pdf",
+        finalUrl: "https://archive.org/download/item/gone.pdf",
+        candidateIndex: 0,
+        hostFileSource: "original",
+        hostChecksumsVerified: [],
+        embeddedTextLayer: "unknown",
+        toolRunId: "20260921T000000Z-abcdef01",
+      },
+    });
+    const error = await refusalFrom(() =>
+      restorePin(key, {
+        configDir,
+        repoRoot: testRoot,
+        fetchFn: async () => new Response(null, { status: 410 }),
+      }),
+    );
+    expect(error.code).toBe("http-status");
+    expect(error.message).toContain("410");
+  });
+
+  test("22.11 a redirect with no Location to follow (download-facsimiles.ts:924)", async () => {
+    // A 3xx is only usable if it says where to go. Without a Location there is nothing
+    // to follow, and treating it as a retry would hammer the host for no reason.
+    const error = await refusalFrom(() =>
+      fetchToStaging("https://example.org/scan.pdf", path.join(testRoot, "staging", "d.pdf"), {
+        fetchFn: async () => new Response(null, { status: 302 }),
+      }),
+    );
+    expect(error.code).toBe("http-status");
+    expect(error.message).toContain("missing Location header");
+  });
+
+  test("22.12 a transport that keeps throwing until the retries run out (download-facsimiles.ts:964)", async () => {
+    // The catch-side exhaustion arm. Its sibling at 943 exhausts on repeated 5xx
+    // RESPONSES and is driven by 17.14; this one is the transport never answering at
+    // all, which is a different failure for an operator to read.
+    let attempts = 0;
+    const error = await refusalFrom(() =>
+      fetchToStaging("https://example.org/scan.pdf", path.join(testRoot, "staging", "e.pdf"), {
+        maxRetries: 2,
+        baseDelayMs: 0,
+        fetchFn: async () => {
+          attempts++;
+          throw new Error("ECONNRESET");
+        },
+      }),
+    );
+    expect(error.code).toBe(["network", "retries", "exhausted"].join("-"));
+    expect(error.message).toContain("ECONNRESET");
+    expect(attempts).toBeGreaterThan(1);
+  });
+
+  test("21.8 the seven refusals nothing can reach, and why, asserted in the code", () => {
+    // EVERY REACHABLE REFUSAL IN THIS SCRIPT IS NOW DRIVEN. The seven that remain on the
+    // untested list are unreachable, and this records why so the gap is a finding rather
+    // than a silence. Three causes:
     //
     //   the parse-failure trio (357, 402, 435) - each guards an index into a regex match
     //     whose capture group is not optional in the pattern. Under noUncheckedIndexedAccess
     //     the compiler cannot see that, so the throw exists to satisfy the type. If the
     //     pattern matches, the group is there.
-    //   extraction-error (510) - the PAGE arm. An id reaches selectedPageIds only because
-    //     its body matched /Type /Page, so that body is never empty, and its idMap entry is
-    //     built from the same list. Its sibling at 526 IS reachable and 21.11 drives it,
-    //     because a referenced object CAN have an empty body.
-    //   http-not-https (1115) - the dry-run protocol check, which loadConfig's own refusal
-    //     makes unreachable. See 21.7 and am-okw3.
-    //   parent-page-index-missing (1210) - the whole-volume check, unreachable for the same
-    //     reason: validateConfig refuses an empty parentPageIndices for every config with
-    //     the same code (facsimileSourceSchema.ts:586). See 21.10.
+    //   extraction-error (452 and 510) - both look up a PAGE body by an id taken from
+    //     selectedPageIds, and an id reaches that list only because its body matched
+    //     /Type /Page. The body is therefore never empty and the idMap entry is built
+    //     from the same list. Their DEPENDENCY sibling at 528 is reachable, because a
+    //     referenced object can have an empty body, and 21.11 drives it.
+    //   http-not-https (1115) and parent-page-index-missing (1210) - guards duplicated
+    //     below a validating loader. validateConfig refuses both conditions with the same
+    //     codes first (facsimileSourceSchema.ts:364 and :586) and downloadFacsimile loads
+    //     through loadConfig, so neither copy can fire. See 21.7, 21.10 and am-okw3.
     //
-    // The first claim is asserted rather than restated: every parse-failure throw must sit
-    // behind an `=== undefined` check on a regex capture. If one ever guards something
-    // else, this fails and "unreachable" stops being true without anyone noticing.
+    // Both structural claims are ASSERTED below rather than restated, so "unreachable by
+    // construction" goes red if it stops being true.
     const source = fs.readFileSync(
       path.join(REPO_ROOT, "scripts", "download-facsimiles.ts"),
       "utf8",
@@ -2485,5 +2720,23 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
       const preceding = lines.slice(Math.max(0, index - 3), index).join(" ");
       expect(preceding).toContain("=== undefined");
     }
+
+    // The extraction claim, asserted where it actually lives rather than as a count.
+    // Each of the two PAGE arms must sit inside a loop over selectedPageIds, which is
+    // the list whose membership guarantees a non-empty body. Counting the loops would
+    // have been wrong anyway - there are three, and the middle one builds the id map.
+    const pageArms = lines
+      .map((line, index) => ({ line, index }))
+      .filter(({ line }) => line.includes("Missing page object"));
+    expect(pageArms.length).toBe(2);
+    for (const { index } of pageArms) {
+      const enclosing = lines.slice(Math.max(0, index - 6), index).join(" ");
+      expect(enclosing).toContain("of selectedPageIds");
+    }
+    // And the membership rule the argument rests on: an id enters pageObjIds only behind
+    // a /Type /Page test, which is what makes its body non-empty.
+    const pageIdPush = lines.findIndex((line) => line.includes("pageObjIds.push(id)"));
+    expect(pageIdPush).toBeGreaterThan(-1);
+    expect(lines.slice(Math.max(0, pageIdPush - 2), pageIdPush).join(" ")).toContain("/Type");
   });
 });

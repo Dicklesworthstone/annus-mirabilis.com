@@ -5,7 +5,7 @@
   "scripts/backfill-review-records.ts": 1,
   "scripts/build-content.ts": 2,
   "scripts/check-receipts.ts": 0,
-  "scripts/download-facsimiles.ts": 24,
+  "scripts/download-facsimiles.ts": 7,
   "scripts/e2e-edition-pipeline.ts": 0,
   "scripts/extract-kernel-source.ts": 0,
   "scripts/license-inventory/evaluatePolicy.ts": 0,
