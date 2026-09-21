@@ -14,6 +14,25 @@
 
 import { inflateSync } from "node:zlib";
 
+/**
+ * A coded refusal from the decoder, in the form the refusal scanner reads by
+ * construction: `throw new <X>Error("kebab-code", …)` (am-p465, am-muyh).
+ *
+ * These five throws were bare when this file landed, and the bare-throw ratchet
+ * reported the whole file as undeclared debt. A test utility's refusals are still
+ * refusals: every one of them is a real input this decoder will not accept, and
+ * "it is only a test helper" is how a denominator starts drifting.
+ */
+export class PngDecodeError extends Error {
+  readonly code: string;
+
+  constructor(code: string, message: string) {
+    super(`${message} (${code})`);
+    this.name = "PngDecodeError";
+    this.code = code;
+  }
+}
+
 export interface DecodedPng {
   readonly width: number;
   readonly height: number;
@@ -24,7 +43,7 @@ export interface DecodedPng {
 export function decodePng(buffer: Buffer): DecodedPng {
   const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
   if (!buffer.subarray(0, 8).equals(signature)) {
-    throw new Error("not a PNG: the signature does not match");
+    throw new PngDecodeError("png-signature-invalid", "not a PNG: the signature does not match");
   }
 
   let position = 8;
@@ -53,10 +72,16 @@ export function decodePng(buffer: Buffer): DecodedPng {
     position += 12 + length;
   }
 
-  if (bitDepth !== 8) throw new Error(`unsupported PNG bit depth ${bitDepth}`);
-  if (interlace !== 0) throw new Error("unsupported interlaced PNG");
+  if (bitDepth !== 8)
+    throw new PngDecodeError("png-bit-depth-unsupported", `unsupported PNG bit depth ${bitDepth}`);
+  if (interlace !== 0)
+    throw new PngDecodeError("png-interlace-unsupported", "unsupported interlaced PNG");
   const channels = colourType === 6 ? 4 : colourType === 2 ? 3 : 0;
-  if (channels === 0) throw new Error(`unsupported PNG colour type ${colourType}`);
+  if (channels === 0)
+    throw new PngDecodeError(
+      "png-colour-type-unsupported",
+      `unsupported PNG colour type ${colourType}`,
+    );
 
   const raw = inflateSync(Buffer.concat(idat));
   const stride = width * channels;
@@ -86,7 +111,10 @@ export function decodePng(buffer: Buffer): DecodedPng {
         const dUpLeft = Math.abs(p - upLeft);
         value += dLeft <= dUp && dLeft <= dUpLeft ? left : dUp <= dUpLeft ? up : upLeft;
       } else if (filter !== 0) {
-        throw new Error(`unsupported PNG filter type ${filter} on row ${y}`);
+        throw new PngDecodeError(
+          "png-filter-unsupported",
+          `unsupported PNG filter type ${filter} on row ${y}`,
+        );
       }
       current[x] = value & 0xff;
     }
