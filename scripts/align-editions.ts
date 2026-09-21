@@ -98,7 +98,7 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
   let englishIds = options.englishIds ? [...options.englishIds] : [];
   let edges = options.edges ? [...options.edges] : [];
 
-  if (germanIds.length === 0 && presence.presence === "present") {
+  if (germanIds.length === 0 && presence.presence !== "absent") {
     try {
       const text = readFileSync(join(root, presence.path), "utf8");
       const segmented = segmentLedger({ ledgerText: text });
@@ -216,7 +216,9 @@ export function runAlignEditions(options: AlignEditionsOptions): AlignEditionsRe
       translationUnitCount: englishIds.length,
       alignmentEdgeCount: edges.length,
       glossUnitCount: options.glossInput?.glossUnits.length ?? 0,
-      germanEditionPresent: presence.presence === "present",
+      // A partial ledger is not a German edition that is present: this reports coverage, not
+      // the existence of a file.
+      germanEditionPresent: presence.presence === "complete",
     });
 
     const json = coverageReportJson(rep);

@@ -44,7 +44,7 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
     expect(result.exitCode).toBe(0);
     // and a paper WITH a ledger is judged rather than excused, so not-available is not universal
     const withLedger = PAPER_SLUGS.find(
-      (slug) => inspectLedgerPresence(slug).presence === "present",
+      (slug) => inspectLedgerPresence(slug).presence === "complete",
     );
     if (withLedger)
       expect(runAlignEditions({ slug: withLedger }).outcome).not.toBe("not-available");

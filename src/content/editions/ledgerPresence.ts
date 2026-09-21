@@ -5,7 +5,7 @@
  * the failure this module exists to prevent.
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROUTE_SLUGS, type RouteSlug } from "../ids.ts";
 
@@ -56,7 +56,52 @@ export const PAPERS_WAITING_ON_CLOUD_OCR = [
   "molecular-dimensions",
 ] as const satisfies readonly RouteSlug[];
 
-export type LedgerPresence = "present" | "absent";
+/**
+ * What a ledger is to a paper. THREE states, and "present" is deliberately not one of them.
+ *
+ * This was `"present" | "absent"` until 2026-09-21, computed by `existsSync` alone. A file
+ * existing and a ledger COVERING a paper are two different facts and the code had one word
+ * for both, so the moment a paper acquired a skeleton - which the ledger bead mandates as
+ * step one, before a single word is transcribed - it flipped to "present" and every
+ * "an absent ledger is never completeness" assertion stopped running for it. The guard
+ * switched itself off at the exact moment a paper started having content, and reported
+ * green about the papers furthest along. ap-17-132 triggered it with one page of seventeen.
+ *
+ * `"present"` IS REMOVED RATHER THAN WIDENED, and that is the point of the change. Adding
+ * `"skeleton"` beside `"present"` would have left every existing `=== "present"` comparison
+ * compiling and wrong. Deleting the word turns all eight consumers into compile errors, so
+ * the compiler enumerates them instead of a grep, and each one is revisited deliberately.
+ *
+ * - `absent`   no file at the path
+ * - `partial`  a file, but at least one page carries no content beyond its markers
+ * - `complete` a file, and every page carries content
+ *
+ * `partial` rather than `skeleton` because it covers both the all-markers case and the
+ * half-transcribed one: nine skeleton pages of twelve is neither absent nor complete, and
+ * the guard has to hold for it.
+ */
+export type LedgerPresence = "absent" | "partial" | "complete";
+
+/**
+ * A page is covered when it carries anything beyond its page marker and printed-page anchor.
+ *
+ * This mirrors validateLedger's own rule (no body lines and no footnotes => skeleton page)
+ * without importing it: that module parses receipts and is far too heavy for a helper called
+ * in loops. The duplication is a drift risk and is answered by a test that asserts the two
+ * agree on every real ledger, so the copy cannot quietly diverge from the original.
+ */
+export function classifyLedgerCoverage(text: string): "partial" | "complete" {
+  const pages = text.split(/^--- REVIEWED TRANSCRIPTION PAGE \d+ OF \d+ ---$/m).slice(1);
+  if (pages.length === 0) return "partial";
+  for (const page of pages) {
+    const covered = page
+      .split("\n")
+      .map((line) => line.trim())
+      .some((line) => line.length > 0 && !line.startsWith("[[ANNALEN-PAGE"));
+    if (!covered) return "partial";
+  }
+  return "complete";
+}
 
 export type LedgerPresenceRecord = Readonly<{
   slug: RouteSlug;
@@ -75,7 +120,9 @@ export function inspectLedgerPresence(
 ): LedgerPresenceRecord {
   const relative = ledgerRelativePath(slug);
   const absolute = join(root, relative);
-  const presence: LedgerPresence = existsSync(absolute) ? "present" : "absent";
+  const presence: LedgerPresence = existsSync(absolute)
+    ? classifyLedgerCoverage(readFileSync(absolute, "utf8"))
+    : "absent";
   return Object.freeze({
     slug,
     bibliographicKey: PAPER_BIB_KEYS[slug],
@@ -92,7 +139,11 @@ export function inspectAllLedgers(root: string = process.cwd()): readonly Ledger
  * Completeness of a translation is only defined when a ledger is present.
  * This function never returns "complete" for an absent ledger.
  */
-export type TranslationCompleteness = "complete" | "incomplete" | "not-applicable-no-ledger";
+export type TranslationCompleteness =
+  | "complete"
+  | "incomplete"
+  | "not-applicable-no-ledger"
+  | "not-applicable-partial-ledger";
 
 export function translationCompleteness(input: {
   ledger: LedgerPresence;
@@ -100,6 +151,10 @@ export function translationCompleteness(input: {
   germanAlignableCount: number;
 }): TranslationCompleteness {
   if (input.ledger === "absent") return "not-applicable-no-ledger";
+  // A ledger that does not yet cover its paper licenses no completeness verdict either.
+  // Reported under its own name: calling a partial ledger "no ledger" would replace one
+  // false statement with another.
+  if (input.ledger === "partial") return "not-applicable-partial-ledger";
   if (input.germanAlignableCount === 0) return "not-applicable-no-ledger";
   if (input.translationUnitCount >= input.germanAlignableCount && input.translationUnitCount > 0) {
     return "complete";

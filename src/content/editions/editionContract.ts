@@ -37,6 +37,7 @@ import {
 } from "./alignment.ts";
 import { validateEditionDeclaration } from "./editionDeclaration.ts";
 import {
+  classifyLedgerCoverage,
   inspectLedgerPresence,
   type LedgerPresence,
   PAPER_BIB_KEYS,
@@ -787,7 +788,7 @@ export function assertEditionContract(
   const ledgerText =
     options.ledgerText !== undefined
       ? options.ledgerText
-      : presence.presence === "present"
+      : presence.presence !== "absent"
         ? readFileSync(join(root, presence.path), "utf8")
         : null;
 
@@ -1013,7 +1014,7 @@ export function assertEditionContract(
   let ledgerFindings: readonly string[] | null = null;
   let ledgerNotValidatable: string | null = null;
   if (options.ledgerClean === undefined) {
-    if (presence.presence === "present") {
+    if (presence.presence !== "absent") {
       try {
         // The receipt that governs this ledger is the one in the root under test.
         // validateLedger resolves it from process.cwd() when none is given, so a contract
@@ -1692,8 +1693,16 @@ export function assertEditionContract(
     message: check8Passed ? "Alignment edges name permanent ids." : check8Message,
   });
 
+  // The coverage of the ledger actually in hand, not an assertion that one exists. This
+  // read `ledger: "present"` until 2026-09-21 and so licensed a completeness verdict from
+  // any file at all, including one made entirely of page markers.
+  const ledgerCoverage: LedgerPresence =
+    options.ledgerText !== undefined && options.ledgerText !== null
+      ? classifyLedgerCoverage(options.ledgerText)
+      : presence.presence;
+
   const completeness = translationCompleteness({
-    ledger: "present",
+    ledger: ledgerCoverage,
     translationUnitCount: englishIds.length,
     germanAlignableCount: germanIds.length,
   });
@@ -1718,7 +1727,7 @@ export function assertEditionContract(
   );
   return {
     slug,
-    ledger: "present",
+    ledger: ledgerCoverage,
     translationCompleteness: completeness,
     outcome: failed ? "failed" : unavailable ? "not-available" : "passed",
     checks: Object.freeze(checks),

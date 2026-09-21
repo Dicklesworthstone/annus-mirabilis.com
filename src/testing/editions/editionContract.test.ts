@@ -47,7 +47,17 @@ const BEAD = "am-edn-alignment-tooling-do1";
  */
 function brownianPrintedPages(): readonly number[] {
   const receipt = readFileSync(join(process.cwd(), "docs/provenance/ap-17-549.md"), "utf8");
-  const pages = [...receipt.matchAll(/^\s*printedPage:\s*(\d+)\s*$/gm)].map((m) => Number(m[1]));
+  // Scoped to the pageMap block. Reading `printedPage:` from the WHOLE receipt was wrong and
+  // the contract caught it: a typographicalErrors entry added on 2026-09-21 carries its own
+  // printedPage field, so this helper counted thirteen pages for a twelve-page paper and the
+  // fixture then disagreed with the receipt it is built from - the exact defect the helper
+  // exists to prevent, reintroduced one level up.
+  const mapStart = receipt.indexOf("\npageMap:");
+  const mapEnd = receipt.indexOf("\nwitnesses:", mapStart);
+  const pageMapBlock = receipt.slice(mapStart, mapEnd > 0 ? mapEnd : undefined);
+  const pages = [...pageMapBlock.matchAll(/^\s*printedPage:\s*(\d+)\s*$/gm)].map((m) =>
+    Number(m[1]),
+  );
   if (pages.length === 0) {
     throw new Error(
       "docs/provenance/ap-17-549.md yielded no printedPage entries; the fixture below would " +
@@ -59,20 +69,43 @@ function brownianPrintedPages(): readonly number[] {
 
 const BROWNIAN_PRINTED_PAGES = brownianPrintedPages();
 
-/** Page 1 carries the sentence the reconstruction checks read; the rest are skeleton pages. */
+/**
+ * Page 1 carries the sentence the reconstruction checks read. EVERY OTHER PAGE CARRIES A
+ * LINE TOO, and that is deliberate: this fixture is the contract's happy path, and from
+ * 2026-09-21 a ledger whose pages are bare markers classifies as `partial` and licenses no
+ * completeness verdict at all. A fixture left as one page of text and eleven of markers
+ * would have been testing the partial path under a name that promises a covering one.
+ */
 const LEDGER = `${BROWNIAN_PRINTED_PAGES.map(
   (printed, i) =>
     `--- REVIEWED TRANSCRIPTION PAGE ${i + 1} OF ${BROWNIAN_PRINTED_PAGES.length} ---\n` +
-    `[[ANNALEN-PAGE ${printed}]]\n` +
-    (i === 0 ? "\nDie Bewegung ist unregelmäßig. Sie hört nicht auf.\n" : ""),
+    `[[ANNALEN-PAGE ${printed}]]\n\n` +
+    (i === 0
+      ? "Die Bewegung ist unregelmäßig. Sie hört nicht auf.\n"
+      : `Fortsetzung auf Seite ${printed}.\n`),
 ).join("\n")}`;
+
+/**
+ * The edition text this ledger reconstructs: every content line, in page order.
+ *
+ * It was the single page-1 sentence until 2026-09-21, which was consistent only while the
+ * other eleven pages were bare markers. Now that the fixture covers every page - because a
+ * bare-marker ledger classifies as `partial` and licenses no completeness verdict - the
+ * edition has to reconstruct all of it, and both are derived from the same array so they
+ * cannot drift apart.
+ */
+const LEDGER_EDITION_TEXT = BROWNIAN_PRINTED_PAGES.map((printed, i) =>
+  i === 0
+    ? "Die Bewegung ist unregelmäßig. Sie hört nicht auf."
+    : `Fortsetzung auf Seite ${printed}.`,
+).join("\n");
 
 describe("assertEditionContract", () => {
   test("a present ledger with matching reconstruction and id-edges passes", () => {
     const ledgerDigest = createHash("sha256").update(LEDGER, "utf8").digest("hex");
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
-      editionText: "Die Bewegung ist unregelmäßig. Sie hört nicht auf.",
+      editionText: LEDGER_EDITION_TEXT,
       declaredLedgerDigest: ledgerDigest,
       germanIds: ["s0-p1-s1", "s0-p1-s2"],
       englishIds: ["s0-p1-s1", "s0-p1-s2"],
@@ -81,7 +114,7 @@ describe("assertEditionContract", () => {
         { sourceId: "s0-p1-s2", targetId: "s0-p1-s2" },
       ],
     });
-    expect(result.ledger).toBe("present");
+    expect(result.ledger).toBe("complete");
     expect(result.outcome).toBe("passed");
     expect(result.translationCompleteness).toBe("complete");
     logger.log({
@@ -219,7 +252,7 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     const ledgerDigest = createHash("sha256").update(LEDGER, "utf8").digest("hex");
     const result = assertEditionContract("brownian-motion", {
       ledgerText: LEDGER,
-      editionText: "Die Bewegung ist unregelmäßig. Sie hört nicht auf.",
+      editionText: LEDGER_EDITION_TEXT,
       declaredLedgerDigest: ledgerDigest,
       germanIds: ["s0-p1-s1", "s0-p1-s2"],
       englishIds: ["s0-p1-s1", "s0-p1-s2"],
@@ -354,8 +387,8 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     // left, the "WHETHER OR NOT" in the name is no longer demonstrable here and this test
     // should be rewritten against a constructed root instead of quietly dropped.
     for (const [slug, units, ledger] of [
-      ["mass-energy", 25, "present"],
-      ["light-quanta", 128, "absent"],
+      ["mass-energy", 25, "complete"],
+      ["light-quanta", 128, "partial"],
     ] as const) {
       const r = assertEditionContract(slug, {});
       expect(r.ledger, `${slug}'s ledger state changed; this pair must span both`).toBe(ledger);
@@ -776,7 +809,7 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
     const failing = assertEditionContract(SLUG, {
       root,
       ledgerText: LEDGER,
-      editionText: "Die Bewegung ist unregelmäßig. Sie hört nicht auf.",
+      editionText: LEDGER_EDITION_TEXT,
     }).checks.find((c) => c.checkNumber === 12);
     expect(failing?.outcome).toBe("failed");
     expect(failing?.code).toBe("hero-quote-unresolved");
@@ -790,7 +823,7 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
     const resolving = assertEditionContract(SLUG, {
       root,
       ledgerText: LEDGER,
-      editionText: "Die Bewegung ist unregelmäßig. Sie hört nicht auf.",
+      editionText: LEDGER_EDITION_TEXT,
     }).checks.find((c) => c.checkNumber === 12);
     expect(resolving?.outcome).toBe("passed");
     expect(resolving?.message).toContain("1 quote(s) checked");

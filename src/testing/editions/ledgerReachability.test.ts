@@ -37,6 +37,10 @@ const LEDGERS_NOT_YET_REACHABLE: ReadonlyMap<string, string> = new Map([
     "Mass-energy machine draft with hand correction (docs/provenance/ap-18-639.md: ledgerStatus in-progress, role machine-draft-with-hand-correction). The /papers/mass-energy/view/german route already ships and renders 'not yet available' because nothing emits a bilingual-edition payload. Delete this entry when a content module reads the ledger, which waits on the owner ruling of am-dl4n criterion 2 and am-wisq.",
   ],
   [
+    "ap-17-132-reviewed.txt",
+    "Light-quanta machine draft with hand correction, in progress: 2 of 17 pages transcribed at the time of this entry (docs/provenance/ap-17-132.md: ledgerStatus in-progress, role machine-draft-with-hand-correction). Same state and same owner ruling as the other two. It is the sharpest instance of am-dl4n criterion 1 - a ledger whose coverage is a tenth of the paper - and inspectLedgerPresence now classifies it 'partial' rather than 'present' for exactly that reason. Delete this entry when a content module reads the ledger.",
+  ],
+  [
     "ap-17-549-reviewed.txt",
     "Brownian machine draft with hand correction, same state and same owner ruling as the mass-energy ledger. Longer and still partial, so it is also the case am-dl4n criterion 1 asks about: what a reader is shown for a paper whose ledger covers only some pages. Delete this entry when a content module reads the ledger.",
   ],
@@ -74,6 +78,14 @@ export function ledgerContentReaders(): string[] {
     const source = readFileSync(file, "utf8");
     if (!source.includes("papers/transcripts")) continue;
     if (!/\breadFile(Sync)?\s*\(/.test(source)) continue;
+    // ledgerPresence reads the ledger from 2026-09-21, to classify coverage as absent,
+    // partial or complete. It is STILL not a reader in the sense this census means, and the
+    // exclusion matters more now than when it was implicit: it names every paper's
+    // transcript path AND reads the file, so without this line it would be detected for
+    // every ledger, and "every ledger is read by something" would be permanently satisfied
+    // by a helper that surfaces not one word of the text to any reader. That is precisely
+    // the vacuity this test exists to prevent.
+    if (rel === "src/content/editions/ledgerPresence.ts") continue;
     found.push(rel);
   }
   return found.sort();
@@ -125,9 +137,17 @@ describe("a ledger on disk is read by something, or recorded as not yet reachabl
   test("reading the PATH is not reading the ledger: ledgerPresence does not count as a reader", () => {
     const readers = ledgerContentReaders();
     expect(readers).not.toContain("src/content/editions/ledgerPresence.ts");
-    // and that file does name the path, so the exclusion is doing work rather than being trivially true
+    // The exclusion must be doing work rather than being trivially true. It used to be shown
+    // by asserting the file contains no readFileSync; that proxy died on 2026-09-21 when
+    // ledgerPresence began reading the ledger to classify coverage, and a proxy that is
+    // false is worse than none. The replacement asserts the stronger thing directly: this
+    // file matches BOTH detection criteria and is excluded anyway, so the exclusion is what
+    // keeps the census honest rather than an accident of how the file is written.
     const presence = readFileSync(join(ROOT, "src/content/editions/ledgerPresence.ts"), "utf8");
     expect(presence).toContain("papers/transcripts");
-    expect(/\breadFile(Sync)?\s*\(/.test(presence)).toBe(false);
+    expect(
+      /\breadFile(Sync)?\s*\(/.test(presence),
+      "ledgerPresence no longer reads the ledger, so the explicit exclusion above is now trivially true and should be removed with this assertion",
+    ).toBe(true);
   });
 });

@@ -21,7 +21,7 @@ import { SENTENCE_ABBREVIATIONS } from "../../content/editions/segmentSentences.
  */
 describe("coverage report honesty", () => {
   test("a real report is honest, and the predicate is not the only witness", () => {
-    const report = coverageReport({ slug: "light-quanta" });
+    const report = coverageReport({ slug: "special-relativity" });
     const md = coverageReportMarkdown(report);
     const json = coverageReportJson(report);
 
@@ -31,6 +31,10 @@ describe("coverage report honesty", () => {
     for (const key of Object.keys(JSON.parse(json) as Record<string, unknown>)) {
       expect(/percent|completeness|score/i.test(key)).toBe(false);
     }
+    // The specimen must be a paper with NO ledger, which is the verdict being asserted.
+    // It was light-quanta until 2026-09-21, when a skeleton put a file on disk and the
+    // honest verdict there became not-applicable-partial-ledger. Re-pointed rather than
+    // widened: this test is about the absent case specifically.
     expect(report.translation).toBe("not-applicable-no-ledger");
   });
 

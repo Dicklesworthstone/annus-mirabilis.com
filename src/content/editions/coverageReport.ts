@@ -76,17 +76,19 @@ export function coverageReport(input: {
       // A file count, not a unit count. Left as-is rather than quietly made to look like a
       // measurement: the number of ledger UNITS is the validator's business, and this
       // record has never asked it.
-      unitCount: presence.presence === "present" ? 1 : 0,
+      unitCount: presence.presence !== "absent" ? 1 : 0,
       note:
-        presence.presence === "absent"
-          ? "No ledger present. This is not completeness."
-          : // This said "Reviewed ledger on disk." until 2026-09-20, and on that day it
-            // became a false statement: the first two ledgers in the project are machine
-            // drafts with hand correction, and docs/OWNERS.md still lists every
-            // german-source-reviewer slot as "open: recruiting". Presence is computed by
-            // existsSync, so this note can never speak to review status - it only knows a
-            // file is there. It now says only what it knows.
-            "A ledger file is present. Presence is not review, and not completeness; see the paper's provenance receipt for transcription.ledgerStatus.",
+        presence.presence === "partial"
+          ? "A ledger file is present but DOES NOT YET COVER every page of this paper. This is not completeness. See the paper's provenance receipt for transcription.ledgerStatus."
+          : presence.presence === "absent"
+            ? "No ledger present. This is not completeness."
+            : // This said "Reviewed ledger on disk." until 2026-09-20, and on that day it
+              // became a false statement: the first two ledgers in the project are machine
+              // drafts with hand correction, and docs/OWNERS.md still lists every
+              // german-source-reviewer slot as "open: recruiting". Presence is computed by
+              // existsSync, so this note can never speak to review status - it only knows a
+              // file is there. It now says only what it knows.
+              "A ledger file is present. Presence is not review, and not completeness; see the paper's provenance receipt for transcription.ledgerStatus.",
     },
     {
       layer: "german-edition",

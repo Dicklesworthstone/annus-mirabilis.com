@@ -321,9 +321,22 @@ describe("brownian facsimile verification (am-src-facsimile-brownian-mox)", () =
     expect(ids).toContain("watch-intro-uncertainty");
     expect(ids).toContain("watch-velocity-warning");
 
+    // This asserted `result === "pending"` for every entry until 2026-09-21, which made the
+    // test fail exactly when the work it tracks got done - a ratchet pointing the wrong way.
+    // The watch list exists to be settled; what is worth guarding is that a settled entry
+    // SAYS WHAT WAS SEEN rather than merely changing state.
+    const LEGAL = new Set(["pending", "confirmed-on-plate", "confirmed-absent"]);
     for (const item of fm.watchList) {
-      expect(item.result).toBe("pending");
+      expect(LEGAL.has(item.result), `${item.id}: unknown result "${item.result}"`).toBe(true);
+      if (item.result !== "pending") {
+        expect(
+          (item.notes ?? "").length,
+          `${item.id} is settled but its notes do not record what was read on the plate`,
+        ).toBeGreaterThan(80);
+      }
     }
+    // And the list must not be settled by emptying it.
+    expect(fm.watchList.length).toBeGreaterThanOrEqual(8);
   });
 
   test("planted negative: corrupted digest triggers failed outcome and evidence retention", () => {

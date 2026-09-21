@@ -10,7 +10,10 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { PAPERS_WAITING_ON_CLOUD_OCR } from "../src/content/editions/ledgerPresence.ts";
+import {
+  inspectLedgerPresence,
+  PAPERS_WAITING_ON_CLOUD_OCR,
+} from "../src/content/editions/ledgerPresence.ts";
 import { PIPELINE_STAGES, runEditionPipeline } from "./e2e-edition-pipeline.ts";
 
 const REPO = process.cwd();
@@ -60,16 +63,31 @@ const stageOf = (run: { stages: readonly { stage: string }[] }, stage: string) =
 
 describe("edition pipeline: no ledger", () => {
   test("papers 1, 3, 4, and 5 never report complete when no ledger is present", async () => {
+    // The list means NOT COVERED from 2026-09-21, which is absent OR partial: ap-17-132
+    // acquired a skeleton while being transcribed and stayed listed, as it must. The
+    // INVARIANT holds for every member whatever its coverage; the ledger-absent MECHANISM
+    // is asserted only where the ledger really is absent, rather than generalised away.
     for (const slug of PAPERS_WAITING_ON_CLOUD_OCR) {
       const result = await runEditionPipeline({ slug });
+      const presence = inspectLedgerPresence(slug).presence;
       expect(result.slug).toBe(slug);
-      expect(result.translationCompleteness).toBe("not-applicable-no-ledger");
       expect(result.translationCompleteness).not.toBe("complete");
-      expect(stageOf(result, "ledger")?.outcome).toBe("not-available");
-      expect(stageOf(result, "ledger")?.code).toBe("ledger-absent");
-      expect(stageOf(result, "reconcile")?.outcome).toBe("not-available");
-      expect(stageOf(result, "align")?.outcome).toBe("not-available");
+      expect(result.translationCompleteness).toMatch(/^not-applicable-/);
       expect(JSON.stringify(result.stages.map((s) => s.outcome))).not.toMatch(/"complete"/);
+      // No stage may claim success for a paper whose ledger does not cover it, whichever
+      // way it declines. This is the part that must hold for every member of the list.
+      for (const stage of ["reconcile", "align"] as const) {
+        expect(stageOf(result, stage)?.outcome, `${slug}: ${stage} must not pass`).not.toBe(
+          "passed",
+        );
+      }
+      if (presence === "absent") {
+        expect(result.translationCompleteness).toBe("not-applicable-no-ledger");
+        expect(stageOf(result, "ledger")?.outcome).toBe("not-available");
+        expect(stageOf(result, "ledger")?.code).toBe("ledger-absent");
+        expect(stageOf(result, "reconcile")?.outcome).toBe("not-available");
+        expect(stageOf(result, "align")?.outcome).toBe("not-available");
+      }
     }
   });
 
@@ -80,7 +98,14 @@ describe("edition pipeline: no ledger", () => {
   });
 
   test("--require-stage ledger exits non-zero for a paper with no ledger", async () => {
-    const result = await runEditionPipeline({ slug: "light-quanta", requireStage: "ledger" });
+    // The specimen must be a paper with NO ledger, which is what this test is about. It was
+    // light-quanta until 2026-09-21, when a skeleton put a file on disk; re-pointed rather
+    // than widened, because the subject is the require-stage behaviour and the paper is only
+    // the specimen that exhibits it.
+    const result = await runEditionPipeline({
+      slug: "special-relativity",
+      requireStage: "ledger",
+    });
     expect(result.exitCode).toBe(1);
     expect(result.translationCompleteness).toBe("not-applicable-no-ledger");
   });
