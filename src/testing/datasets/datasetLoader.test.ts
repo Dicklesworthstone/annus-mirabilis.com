@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import {
   DatasetValidationError,
   loadHistoricalDatasetFromYaml,
@@ -77,7 +78,7 @@ describe("datasetLoader (am-inst-dataset-overlay-ra9r)", () => {
     ).toThrow(DatasetValidationError);
   });
 
-  test("unregistered quantityId in column fails naming dataset, column, and id", () => {
+  test("unregistered quantityId in column fails naming dataset, column, and id (loader.ts:77)", () => {
     const invalidYaml = VALID_DATASET_YAML.replace(
       'quantityId: "rmsDisplacement1d"',
       'quantityId: "nonExistentQuantityIdXYZ"',
@@ -92,7 +93,7 @@ describe("datasetLoader (am-inst-dataset-overlay-ra9r)", () => {
     }
   });
 
-  test("legacy spelling in column fails with legacySpellingMessage", () => {
+  test("legacy spelling in column fails with legacySpellingMessage (loader.ts:70)", () => {
     // electricField is a registered legacy spelling in legacy-spellings.yaml
     const legacyYaml = VALID_DATASET_YAML.replace(
       'quantityId: "rmsDisplacement1d"',
@@ -107,13 +108,54 @@ describe("datasetLoader (am-inst-dataset-overlay-ra9r)", () => {
     }
   });
 
-  test("CSV digest mismatch fails with csv-digest-mismatch", () => {
+  test("CSV digest mismatch fails with csv-digest-mismatch (loader.ts:121)", () => {
+    // This test named the code in its title and asserted only the ERROR CLASS, which every
+    // other refusal in this loader also throws. Measured on 2026-09-21 by renaming the code
+    // at loader.ts:121 to a sentinel: the suite stayed green, so the site was credited by
+    // mention and nothing was checking it. Both the code and the two digests are asserted
+    // now, because an author staring at a mismatch needs to see which bytes were hashed.
+    const csvContent = "col1,col2\n1,2";
     expect(() =>
       loadHistoricalDatasetFromYaml(VALID_DATASET_YAML, {
         expectedCsvDigest: "abcdef123456",
-        csvContent: "col1,col2\n1,2",
+        csvContent,
       }),
     ).toThrow(DatasetValidationError);
+    try {
+      loadHistoricalDatasetFromYaml(VALID_DATASET_YAML, {
+        expectedCsvDigest: "abcdef123456",
+        csvContent,
+      });
+      throw new Error("expected csv-digest-mismatch, got a clean load");
+    } catch (err) {
+      expect(err).toBeInstanceOf(DatasetValidationError);
+      expect((err as DatasetValidationError).code).toBe("csv-digest-mismatch");
+      expect((err as DatasetValidationError).message).toContain("abcdef123456");
+      expect((err as DatasetValidationError).message).toContain(
+        createHash("sha256").update(csvContent, "utf8").digest("hex"),
+      );
+    }
+  });
+
+  test("the MATCHING digest loads cleanly: csv-digest-mismatch is not refusing everything (loader.ts:121)", () => {
+    // The accept half. A comparison written the wrong way round refuses every dataset and
+    // still passes the reject test above.
+    const csvContent = "col1,col2\n1,2";
+    const digest = createHash("sha256").update(csvContent, "utf8").digest("hex");
+    const ds = loadHistoricalDatasetFromYaml(VALID_DATASET_YAML, {
+      expectedCsvDigest: digest,
+      csvContent,
+    });
+    expect(ds.id.length).toBeGreaterThan(0);
+  });
+
+  test("no csvContent means no csv-digest-mismatch check, and no silent pass of a wrong digest (loader.ts:121)", () => {
+    // The guard is `expectedCsvDigest && csvContent !== undefined`. With the content absent
+    // there is nothing to hash, so the loader must not invent a verdict either way.
+    const ds = loadHistoricalDatasetFromYaml(VALID_DATASET_YAML, {
+      expectedCsvDigest: "abcdef123456",
+    });
+    expect(ds.id.length).toBeGreaterThan(0);
   });
 
   test("uncited dataset fails with missing-publication-citation", () => {
