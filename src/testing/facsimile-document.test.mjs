@@ -23,6 +23,29 @@ const inventory = () => ({ paper: "mass-energy", document: "ap-18-639", status: 
 });
 const project = (c=config(), i=inventory()) => projectFacsimileDocument("mass-energy", "ap-18-639", c, i);
 
+/**
+ * Assert WHICH refusal fired, at WHICH site.
+ *
+ * Every refusal below was asserted as `assert.throws(fn, /facsimile-data-invalid/)` before this
+ * helper, and that is weaker than it looks. FacsimileDataError builds its message as
+ * `${code}: ${message}`, so the regex is a SUBSTRING test on that message: renaming a site's
+ * code to `facsimile-data-invalid-PLANTED` leaves the message matching and the test green. All
+ * four coded sites in document.ts were planted that way and not one of them reddened.
+ *
+ * So this compares err.code exactly. Each site was established by planting it alone and seeing
+ * which test reddened, never by reading test names and matching them up.
+ *
+ * This file is deliberately not reformatted: biome reflows 53 of its pre-existing lines and
+ * would bury the change.
+ */
+const refusesWith = (fn, code, site) => {
+  assert.throws(fn, (err) => {
+    assert.equal(err.name, "FacsimileDataError", `${site}: ${err.name} is not a typed refusal`);
+    assert.equal(err.code, code, `${site}: refused with ${err.code}, not ${code}`);
+    return true;
+  }, `${site} did not refuse`);
+};
+
 test("projects one-based extracted pages, not parent offsets or printed folios", () => {
   const d = project();
   assert.deepEqual(d.pages, [{pdfPage:1,printedPage:639},{pdfPage:2,printedPage:640},{pdfPage:3,printedPage:641}]);
@@ -48,13 +71,24 @@ test("rejects unsafe URLs, mismatched identity, unknown decisions and invalid pi
     c=>c.pinned.originUrl="https://user:password@example.org/file.pdf", c=>c.pinned.sha256="bad",
     c=>c.pinned.mimeType="text/html", c=>c.pinned.pageCount=4, c=>c.pinned.pageCount=Infinity,
     c=>c.articlePages.printedFirst=638, c=>c.pinned.acquisitionDate="unknown" ];
-  for (const mutate of mutations) {const c=config();mutate(c);assert.throws(()=>project(c),/facsimile-data-invalid/);}
+  for (const mutate of mutations) {const c=config();mutate(c);refusesWith(()=>project(c),"facsimile-data-invalid","(document.ts:41)");}
+  // An origin the URL parser cannot read at all, which is a different site from one it reads
+  // and rejects. Every mutation above is PARSEABLE - "javascript:alert(1)" and
+  // "https://user:password@..." both construct fine and are refused by the protocol guard - so
+  // the catch around `new URL` was driven by nothing in this file until now.
+  const unparseable=config();unparseable.pinned.originUrl="not a url";
+  refusesWith(()=>project(unparseable),"facsimile-data-invalid","(document.ts:86)");
 });
 test("same-length wrong page window, stale extract map and out-of-parent pages are rejected", () => {
-  const mutations = [c=>c.articlePages.parentPageIndices=[232,233,234], c=>delete c.verifiedAnchor,
+  // Deleting the anchor leaves `config.verifiedAnchor ?? article.verifiedAnchor` undefined, so
+  // it fails the record() type guard at :36, while the rest are records that fail a stated
+  // condition at :41. Two sites behind one code, which is why they are cited apart.
+  const missingAnchor=config();delete missingAnchor.verifiedAnchor;
+  refusesWith(()=>project(missingAnchor),"facsimile-data-invalid","(document.ts:36)");
+  const mutations = [c=>c.articlePages.parentPageIndices=[232,233,234],
     c=>c.verifiedAnchor.verifiedBy="", c=>c.pinned.parent.parentPageIndices=[232,233,234],
     c=>c.pinned.parent.pageCount=235, c=>c.articlePages.parentPageIndices=[233,233,235]];
-  for(const mutate of mutations){const c=config();mutate(c);assert.throws(()=>project(c),/facsimile-data-invalid/);}
+  for(const mutate of mutations){const c=config();mutate(c);refusesWith(()=>project(c),"facsimile-data-invalid","(document.ts:41)");}
 });
 test("supports the configuration schema's nested verified anchor", () => {
   const c=config();c.articlePages.verifiedAnchor=c.verifiedAnchor;delete c.verifiedAnchor;
@@ -79,14 +113,14 @@ test("malformed and unknown fragments never fabricate a matching page", () => {
   for (const hash of ["", "#%E0%A4%A", "#facsimile-page-640junk", "#facsimile-page-1", "#s0-p999", "#arg-me-subtraction", "#s999", "x".repeat(513)]) {
     assert.equal(resolveFacsimileTarget(project(),hash),null);
   }
-  for(const page of [0,4,1.5,NaN,Infinity])assert.throws(()=>facsimilePdfHref(project(),page),/facsimile-page-out-of-range/);
+  for(const page of [0,4,1.5,NaN,Infinity])refusesWith(()=>facsimilePdfHref(project(),page),"facsimile-page-out-of-range","(document.ts:156)");
 });
 test("inventory identity, page ranges, missing locators, duplicate ids and unsafe aliases fail closed", () => {
   const mutations=[i=>i.paper="brownian-motion", i=>i.document="ap-17-549", i=>i.pageRange=[639,642],
     i=>i.units[1].locators=[{page:642}], i=>i.units[1].locators=[], i=>i.units.push({...i.units[0]}),
     i=>i.units[1].destination.editionBlockId="facsimile-page-639", i=>i.units[1].id="facsimile-page-640",
     i=>i.units[1].section="../s0", i=>i.units[1].id="bad id"];
-  for(const mutate of mutations){const i=inventory();mutate(i);assert.throws(()=>project(config(),i),/facsimile-data-invalid/);}
+  for(const mutate of mutations){const i=inventory();mutate(i);refusesWith(()=>project(config(),i),"facsimile-data-invalid","(document.ts:41)");}
 });
 
 test("many-to-one edition aliases retain all contributors without changing a canonical source anchor", () => {
