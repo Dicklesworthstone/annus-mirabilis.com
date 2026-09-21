@@ -49,7 +49,14 @@ export function auditFileRefusalCount(
   readonly slack: readonly string[];
   readonly replacementUpdates: readonly string[];
 } {
-  const allowed = baseline.get(fileRel) ?? 0;
+  // `baseline.get(...) ?? 0` collapses two different states: a file RECORDED at zero and a file
+  // that was never measured. Both then compare as `count > 0` and both were announced as
+  // "increased", which is false of the second and cost an orchestrator most of a tick working
+  // out that 27 files had not regressed. The comparison is right - an unbaselined file SHOULD
+  // be strict - so only the wording changes.
+  const recorded = baseline.get(fileRel);
+  const allowed = recorded ?? 0;
+  const against = recorded === undefined ? "no recorded baseline" : `baseline ${allowed}`;
 
   if (count > allowed) {
     const details = breakdown
@@ -63,7 +70,7 @@ export function auditFileRefusalCount(
     const detailSuffix = details ? ` Untested refusals: [${details}].` : "";
     return {
       regressions: [
-        `${fileRel}: ${count} untested refusal throw site(s), baseline ${allowed}.${detailSuffix} ` +
+        `${fileRel}: ${count} untested refusal throw site(s), ${against}.${detailSuffix} ` +
           "Add targeted tests for each refusal throw site or accept/reject test pairs. (See am-muyh)",
       ],
       slack: [],
@@ -134,8 +141,19 @@ describe("untested refusal throw site ratchet (am-muyh)", () => {
     const failureMessages: string[] = [];
 
     if (allRegressions.length > 0) {
+      // "increased" is true only where a recorded number went up. A file with no recorded
+      // baseline is a FIRST MEASUREMENT of a population that just became countable, which under
+      // am-p465 is a different thing from growth and must not be reported as it.
+      const rises = allRegressions.filter((r) => !r.includes("no recorded baseline")).length;
+      const firsts = allRegressions.length - rises;
+      const headline =
+        firsts === 0
+          ? `increased in ${rises} file(s)`
+          : rises === 0
+            ? `first measured in ${firsts} file(s) with no recorded baseline`
+            : `increased in ${rises} file(s) and first measured in ${firsts} with no recorded baseline`;
       failureMessages.push(
-        `[REGRESSION] Untested refusal throw sites increased in ${allRegressions.length} file(s):\n` +
+        `[REGRESSION] Untested refusal throw sites ${headline}:\n` +
           allRegressions.join("\n") +
           "\nEvery refusal throw site must be exercised by a test. See am-muyh.",
       );
