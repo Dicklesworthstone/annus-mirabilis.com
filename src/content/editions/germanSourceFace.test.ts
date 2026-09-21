@@ -121,6 +121,37 @@ test("a paper whose ledger has not been started reports absence, and does NOT re
   assert.equal(loadGermanSourceFace("molecular-dimensions", REPO), null);
 });
 
+test("a receipt that will not parse REFUSES, and never renders the text unlabelled", () => {
+  // This refusal matters more than a typical coverage site because of WHAT it guards.
+  // The whole design of requirement 2 is that the notice comes from the receipt rather
+  // than a literal in a component. receipt-unparseable is the one case where that design
+  // has nothing to derive from - and the wrong answer there is not a crash, it is
+  // rendering the German with no label at all, which is precisely what the owner's ruling
+  // forbids. So the failure path is the one case that must never degrade quietly.
+  const root = mkdtempSync(join(tmpdir(), "german-face-unparseable-"));
+  mkdirSync(join(root, "docs", "provenance"), { recursive: true });
+  // Front matter that opens and never closes, with a broken mapping inside it. The file
+  // exists, so this is not the missing-receipt path, and it is not the missing-ledger
+  // path either: nothing about the ledger is reached.
+  writeFileSync(
+    join(root, "docs", "provenance", "ap-18-639.md"),
+    "---\nkey: ap-18-639\ntranscription:\n  ledgerStatus: [unclosed\n    - : :\n",
+  );
+
+  assert.throws(
+    () => loadGermanSourceFace("mass-energy", root),
+    (error: unknown) => {
+      assert.ok(error instanceof GermanSourceFaceError, String(error));
+      assert.equal(error.code, "receipt-unparseable");
+      // The message must say why this is fatal rather than merely that parsing failed,
+      // because the tempting repair is to fall back to rendering without a notice.
+      assert.match(error.message, /unlabelled/i);
+      assert.match(error.message, /ap-18-639/);
+      return true;
+    },
+  );
+});
+
 test("REQUIREMENT 3, IN THE TYPE: text and notice are one value and cannot be separated", () => {
   // `notice` is not optional on GermanSourceFace, so no caller can obtain the German text
   // without also holding the sentence that qualifies it. This asserts the runtime half of
