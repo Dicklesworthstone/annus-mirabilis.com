@@ -305,6 +305,30 @@ $$
 --- MACHINE DRAFT TRANSCRIPTION PAGE 13 OF 31 ---
 [[ANNALEN-PAGE 903]]
 
+[[HEADING s4]]§ 4. Physikalische Bedeutung der erhaltenen Gleichungen, bewegte starre Körper und bewegte Uhren betreffend.
+
+Wir betrachten eine starre Kugel[[FN-MARK 1)]] vom Radius $R$, welche relativ zum bewegten System $k$ ruht, und deren Mittelpunkt im Koordinatenursprung von $k$ liegt. Die Gleichung der Oberfläche dieser relativ zum System $K$ mit der Geschwindigkeit $v$ bewegten Kugel ist:
+$$
+\xi^2 + \eta^2 + \zeta^2 = R^2 .
+$$
+Die Gleichung dieser Oberfläche ist in $x$, $y$, $z$ ausgedrückt zur Zeit $t = 0$:
+$$
+\frac{x^2}{\left( \sqrt{1 - \left( \frac{v}{V} \right)^2} \right)^2} + y^2 + z^2 = R^2 .
+$$
+
+Ein starrer Körper, welcher in ruhendem Zustande ausgemessen die Gestalt einer Kugel hat, hat also in bewegtem Zustande — vom ruhenden System aus betrachtet — die Gestalt eines Rotationsellipsoides mit den Achsen
+$$
+R \sqrt{1 - \left( \frac{v}{V} \right)^2} , \quad R , \quad R .
+$$
+
+Während also die $Y$- und $Z$-Dimension der Kugel (also auch jedes starren Körpers von beliebiger Gestalt) durch die Bewegung nicht modifiziert erscheinen, erscheint die $X$-Dimension im Verhältnis $1 : \sqrt{1 - (v/V)^2}$ verkürzt, also um so stärker, je größer $v$ ist. Für $v = V$ schrumpfen alle bewegten Objekte — vom „ruhenden“ System aus betrachtet — in flächenhafte Gebilde zusammen. Für Überlichtgeschwindigkeiten werden unsere Überlegungen sinnlos; wir werden übrigens in den folgenden Betrachtungen finden, daß die Lichtgeschwindigkeit in unserer Theorie physikalisch die Rolle der unendlich großen Geschwindigkeiten spielt.
+
+Es ist klar, daß die gleichen Resultate von im „ruhenden“ System ruhenden Körpern gelten, welche von einem gleichförmig bewegten System aus betrachtet werden.
+
+Wir denken uns ferner eine der Uhren, welche relativ zum ruhenden System ruhend die Zeit $t$, relativ zum bewegten[[CONTINUES]]
+
+[[FN 1)]] Das heißt einen Körper, welcher ruhend untersucht Kugelgestalt besitzt.
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 14 OF 31 ---
 [[ANNALEN-PAGE 904]]
 
