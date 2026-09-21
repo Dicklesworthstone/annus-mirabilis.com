@@ -190,6 +190,48 @@ Nun bewegt sich aber der Lichtstrahl relativ zum Anfangspunkte[[CONTINUES]]
 --- MACHINE DRAFT TRANSCRIPTION PAGE 10 OF 31 ---
 [[ANNALEN-PAGE 900]]
 
+punkt von $k$ im ruhenden System gemessen mit der Geschwindigkeit $V-v$, so daß gilt:
+$$
+\frac{x'}{V-v} = t .
+$$
+Setzen wir diesen Wert von $t$ in die Gleichung für $\xi$ ein, so erhalten wir:
+$$
+\xi = a \frac{V^2}{V^2 - v^2} x' .
+$$
+Auf analoge Weise finden wir durch Betrachtung von längs den beiden anderen Achsen bewegte Lichtstrahlen:
+$$
+\eta = V \tau = a V \left( t - \frac{v}{V^2 - v^2} x' \right) ,
+$$
+wobei
+$$
+\frac{y}{\sqrt{V^2 - v^2}} = t ; \quad x' = 0 ;
+$$
+also
+$$
+\eta = a \frac{V}{\sqrt{V^2 - v^2}} y
+$$
+und
+$$
+\zeta = a \frac{V}{\sqrt{V^2 - v^2}} z .
+$$
+
+Setzen wir für $x'$ seinen Wert ein, so erhalten wir:
+$$
+\begin{aligned}
+\tau &= \varphi(v) \beta \left( t - \frac{v}{V^2} x \right) , \\
+\xi &= \varphi(v) \beta (x - v t), \\
+\eta &= \varphi(v) y, \\
+\zeta &= \varphi(v) z,
+\end{aligned}
+$$
+wobei
+$$
+\beta = \frac{1}{\sqrt{1 - \left( \frac{v}{V} \right)^2}}
+$$
+und $\varphi$ eine vorläufig unbekannte Funktion von $v$ ist. Macht man über die Anfangslage des bewegten Systems und über den Nullpunkt von $\tau$ keinerlei Voraussetzung, so ist auf den rechten Seiten dieser Gleichungen je eine additive Konstante zuzufügen.
+
+Wir haben nun zu beweisen, daß jeder Lichtstrahl sich, im bewegten System gemessen, mit der Geschwindigkeit $V$ fortpflanzt, falls dies, wie wir angenommen haben, im ruhenden[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 11 OF 31 ---
 [[ANNALEN-PAGE 901]]
 

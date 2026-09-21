@@ -29,3 +29,19 @@
   reason: "Printed connective 'und' standing alone at the head of page 897, joining the two light-time equations of the synchrony argument across the page break: page 896 ends with t_B - t_A = r_AB/(V - v) and 897 opens with this 'und' and then t'_A - t_B = r_AB/(V + v). Source text, and load-bearing: the word is what makes the second equation a conjunct of the first rather than a separate statement, which is the step the section 2 conclusion rests on."
   editor: "agent:LilacValley"
   date: "2026-09-21"
+
+- ledgerKey: ap-17-891
+  code: short-line
+  ledgerPage: 10
+  lineFingerprint: ad6f70890a12d8f2
+  reason: "Printed connective 'wobei' standing alone between displays on page 900, in the derivation of the transformation equations. THIS ENTRY ACKNOWLEDGES TWO LINES, not one: 'wobei' occurs twice on this page (before the auxiliary condition y/sqrt(V^2-v^2)=t, and before the definition of beta) and computeLineFingerprint hashes the line TEXT alone, so both warnings match this single entry and neither the file nor the validator can tell them apart. An editor acknowledging one has acknowledged both. Both are source text and both introduce a display that LEDGER_FORMAT requires to open its own line."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
+
+- ledgerKey: ap-17-891
+  code: short-line
+  ledgerPage: 10
+  lineFingerprint: bb8c8605c55dcc2d
+  reason: "Printed connective 'also' standing alone between the auxiliary condition and the expression for eta on page 900. Source text, same reasoning as the wobei entries. Note that this fingerprint is byte-identical to the 'also' entry in the light-quanta allowlist, since the hash is of the line text; ledgerKey and ledgerPage are what separate them."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
