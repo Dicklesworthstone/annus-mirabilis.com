@@ -6,7 +6,7 @@ import test from "node:test";
 import { auditPinnedAssets } from "../audits/pinnedAssets.ts";
 import { checkReceipt } from "./checkReceipt.ts";
 import { loadProvenanceReceipts } from "./loadReceipts.ts";
-import { resolveEquationPage } from "./receiptSchema.ts";
+import { liveTypographicalErrors, resolveEquationPage } from "./receiptSchema.ts";
 import { receiptToSourceAsset } from "./receiptToSourceAsset.ts";
 import { validateSurveyRecord } from "./surveySchema.ts";
 import { GeneratedSectionError, replaceGeneratedContent } from "./writeGeneratedSection.ts";
@@ -561,4 +561,80 @@ test("loadProvenanceReceipts surfaces receipt errors in findings and report", ()
   const notFoundLoaded = loadProvenanceReceipts({ provenanceDir: fakeDir });
   assert.equal(notFoundLoaded.ok, true);
   assert.equal(notFoundLoaded.receipts.length, 0);
+});
+
+// A correction can turn out to be wrong. Before this, the record had nowhere to say so: the
+// type declared nine fields and none was a status, the validator checked only that evidence
+// was non-empty, and a retraction written as prose in an invented field was invisible to
+// every mechanical reader. Three records on ap-17-891 proposing to change a printed H to Y
+// sat in exactly the same state as the corrections that are still right.
+//
+// The plant below reaches BOTH states on the SAME record. A fixture pinned to one state
+// passes forever and proves nothing: it cannot show that the filter is reading the status
+// rather than returning whatever it was handed.
+test("A retracted typographical correction is excluded from live corrections, and reappears when it is not retracted", () => {
+  const base = {
+    id: "typo-fixture-1",
+    locator: { pdfPageIndex: 9, printedPage: 899 },
+    originalReading: "auf die H- und Z-Achse angewandt",
+    proposedReading: "auf die Y- und Z-Achse angewandt",
+    reasoning: "fixture",
+    evidence: "fixture",
+    layer: "source",
+    recordedBy: "agent:fixture",
+    recordedAt: "2026-09-19",
+  } as const;
+
+  const live = { ...base };
+  const retracted = {
+    ...base,
+    status: "retracted",
+    retraction: {
+      reason: "H is capital eta, the axis of the moving system's eta.",
+      retractedBy: "agent:fixture",
+      retractedAt: "2026-09-21",
+    },
+  } as const;
+
+  // RED ARM: retracted is excluded.
+  const withRetracted = liveTypographicalErrors([retracted]);
+  assert.equal(withRetracted.length, 0, "a retracted correction must not be served as live");
+
+  // GREEN ARM: the same record, not retracted, IS returned. Without this the assertion above
+  // is satisfied by a filter that returns nothing at all.
+  const withLive = liveTypographicalErrors([live]);
+  assert.equal(withLive.length, 1, "a live correction must be served");
+  assert.equal(withLive[0]?.id, "typo-fixture-1");
+
+  // And both together: exactly one survives, so the filter discriminates rather than
+  // emptying or passing through.
+  const mixed = liveTypographicalErrors([retracted, { ...live, id: "typo-fixture-2" }]);
+  assert.equal(mixed.length, 1);
+  assert.equal(mixed[0]?.id, "typo-fixture-2");
+
+  // Absent status means active. That is the default the corpus relies on: nine of the twelve
+  // real records carry no status at all.
+  assert.equal(liveTypographicalErrors([base]).length, 1);
+});
+
+test("The real ap-17-891 receipt distinguishes its retracted corrections from its live ones", () => {
+  const filePath = path.join("docs/provenance", "ap-17-891.md");
+  const content = fs.readFileSync(filePath, "utf8");
+  const result = checkReceipt(content, filePath);
+  const errors = result.diagnostics.filter((d) => d.severity === "error");
+  assert.deepEqual(errors, [], "the receipt must validate under the enforced record shape");
+
+  const typos = result.receipt?.frontMatter?.typographicalErrors ?? [];
+  const live = liveTypographicalErrors(typos);
+  // Denominator named: six records on this receipt, three of them retracted - the H-for-Y
+  // proposals on pages 899 and 902, which the plates on 899, 902 and 903 refute.
+  assert.equal(typos.length, 6, "ap-17-891 carries six typographical records");
+  assert.equal(live.length, 3, "three of them are live");
+  for (const retracted of typos.filter((e) => e.status === "retracted")) {
+    assert.ok(retracted.retraction?.reason, `${retracted.id} is retracted but gives no reason`);
+    assert.ok(
+      retracted.retraction?.retractedBy,
+      `${retracted.id} is retracted but names nobody: a verdict without an author cannot be questioned`,
+    );
+  }
 });

@@ -4,6 +4,7 @@ import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSy
 import { tmpdir } from "node:os";
 import { dirname, join, sep } from "node:path";
 import { load as parseYaml } from "js-yaml";
+import { parseReceipt } from "../../content/provenance/parseReceipt.ts";
 import {
   assertEditionContract,
   CONTRACT_CHECKS_SPEC,
@@ -46,29 +47,44 @@ const BEAD = "am-edn-alignment-tooling-do1";
  * one. The count below is now READ OFF the receipt's page map at test time, so a fixture
  * can never again quietly disagree with the artifact it claims to transcribe.
  */
-function brownianPrintedPages(): readonly number[] {
-  const receipt = readFileSync(join(process.cwd(), "docs/provenance/ap-17-549.md"), "utf8");
-  // Scoped to the pageMap block. Reading `printedPage:` from the WHOLE receipt was wrong and
-  // the contract caught it: a typographicalErrors entry added on 2026-09-21 carries its own
-  // printedPage field, so this helper counted thirteen pages for a twelve-page paper and the
-  // fixture then disagreed with the receipt it is built from - the exact defect the helper
-  // exists to prevent, reintroduced one level up.
-  const mapStart = receipt.indexOf("\npageMap:");
-  const mapEnd = receipt.indexOf("\nwitnesses:", mapStart);
-  const pageMapBlock = receipt.slice(mapStart, mapEnd > 0 ? mapEnd : undefined);
-  const pages = [...pageMapBlock.matchAll(/^\s*printedPage:\s*(\d+)\s*$/gm)].map((m) =>
-    Number(m[1]),
-  );
-  if (pages.length === 0) {
+function receiptPrintedPages(bibKey: string): readonly number[] {
+  // Read from the PARSED page map, not from the receipt text.
+  //
+  // This used to scan `printedPage:` out of the raw file, scoped to the pageMap block by
+  // slicing from "\npageMap:" to "\nwitnesses:". That was written after the helper counted
+  // thirteen pages for a twelve-page paper: typographicalErrors records carry their own
+  // printedPage, so whole-file scanning over-counts. The slice fixed ap-17-549 and nothing
+  // else - ap-17-891 has the identical shape and six typo records, and whole-file scanning
+  // there yields 37 printed pages for 31 real ones.
+  //
+  // A slice between two named keys also depends on the front matter's key ORDER, which no
+  // schema fixes. Reading the parsed map removes the whole class instead of patching the
+  // instance: pageMap entries are the only thing that can appear in fm.pageMap, for every
+  // receipt, whatever else the front matter grows.
+  const receiptPath = join(process.cwd(), `docs/provenance/${bibKey}.md`);
+  const parsed = parseReceipt(readFileSync(receiptPath, "utf8"), receiptPath);
+  const pageMap = parsed.frontMatter?.pageMap;
+  const pages = Array.isArray(pageMap)
+    ? pageMap.map((entry) => Number((entry as { printedPage: number }).printedPage))
+    : [];
+  if (pages.length === 0 || pages.some((n) => !Number.isFinite(n))) {
     throw new Error(
-      "docs/provenance/ap-17-549.md yielded no printedPage entries; the fixture below would " +
-        "otherwise be built from an empty page map and assert nothing.",
+      `docs/provenance/${bibKey}.md yielded no usable pageMap printedPage entries; the fixture ` +
+        `below would otherwise be built from an empty page map and assert nothing.`,
     );
   }
   return pages;
 }
 
-const BROWNIAN_PRINTED_PAGES = brownianPrintedPages();
+const BROWNIAN_PRINTED_PAGES = receiptPrintedPages("ap-17-549");
+
+// The hazard this helper exists to avoid is not specific to ap-17-549, and the previous fix
+// was. typographicalErrors records carry their own printedPage, so a whole-file scan of
+// docs/provenance/ap-17-891.md yields 37 printed pages where the page map declares 31 - six
+// typo records, one line each. Asserting BOTH receipts here is what makes the helper's
+// coverage a fact rather than an intention: if someone reverts it to a raw-text scan, the
+// relativity number moves and this fails.
+const RELATIVITY_PRINTED_PAGES = receiptPrintedPages("ap-17-891");
 
 /**
  * Page 1 carries the sentence the reconstruction checks read. EVERY OTHER PAGE CARRIES A
@@ -955,4 +971,20 @@ describe("assertEditionContract refuses a slug that is not a route", () => {
     // Without this the test above would pass over a function that refused everything.
     expect(() => assertEditionContract("brownian-motion", {})).not.toThrow();
   });
+});
+
+test("receiptPrintedPages reads the page map, not every printedPage in the receipt", () => {
+  // Denominators named. ap-17-549: 12 map entries, 1 typo record carrying printedPage, so a
+  // whole-file scan gives 13. ap-17-891: 31 map entries, 6 typo records, whole-file 37.
+  expect(BROWNIAN_PRINTED_PAGES.length).toBe(12);
+  expect(RELATIVITY_PRINTED_PAGES.length).toBe(31);
+
+  // Contiguous printed ranges, which a contaminated count cannot produce: a typo record's
+  // printedPage repeats a page already in the map, so the set would be smaller than the list.
+  expect(new Set(BROWNIAN_PRINTED_PAGES).size).toBe(BROWNIAN_PRINTED_PAGES.length);
+  expect(new Set(RELATIVITY_PRINTED_PAGES).size).toBe(RELATIVITY_PRINTED_PAGES.length);
+  expect(BROWNIAN_PRINTED_PAGES[0]).toBe(549);
+  expect(BROWNIAN_PRINTED_PAGES[BROWNIAN_PRINTED_PAGES.length - 1]).toBe(560);
+  expect(RELATIVITY_PRINTED_PAGES[0]).toBe(891);
+  expect(RELATIVITY_PRINTED_PAGES[RELATIVITY_PRINTED_PAGES.length - 1]).toBe(921);
 });
