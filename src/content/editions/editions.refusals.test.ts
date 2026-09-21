@@ -5,11 +5,26 @@
  * - segmentSentences.ts (2 sites):
  *   1. (segmentSentences.ts:195) non-contiguous-segmentation (dropped middle text)
  *   2. (segmentSentences.ts:210) non-contiguous-segmentation (dropped trailing text)
- * - editionDeclaration.ts (4 sites):
- *   3. (editionDeclaration.ts:48) unknown-paper
- *   4. (editionDeclaration.ts:53) bib-key-mismatch
- *   5. (editionDeclaration.ts:77) unknown-editor
- *   6. (editionDeclaration.ts:84) missing-reconciliation-run
+ * - editionDeclaration.ts (9 of its 11 sites; 73 and 130 are driven from editionContract.test.ts
+ *   and from the not-assigned test below, and their codes emit once each):
+ *   3. (editionDeclaration.ts:53) unknown-paper, the not-an-object early return
+ *   4. (editionDeclaration.ts:60) unknown-paper, an unrecognized slug
+ *   5. (editionDeclaration.ts:65) bib-key-mismatch
+ *   6. (editionDeclaration.ts:82) model-only-editors, a list that is all models
+ *   7. (editionDeclaration.ts:105) owners-registry-unavailable
+ *   8. (editionDeclaration.ts:116) unknown-editor, a malformed id
+ *   9. (editionDeclaration.ts:123) unknown-editor, a well-formed id in no registry
+ *   10. (editionDeclaration.ts:145) model-only-editors, the only human is an unfilled slot
+ *   11. (editionDeclaration.ts:155) missing-reconciliation-run
+ *
+ *   EVERY LINE ABOVE WAS MEASURED BY PLANTING on 2026-09-21, not read off the source: each
+ *   site's code literal was replaced with a sentinel one at a time and the suite run, so a
+ *   citation here names the site whose breakage this file actually catches. The four numbers
+ *   this block carried before (48, 53, 77, 84) had all rotted, and one of them had rotted
+ *   into a lie rather than into nothing: 48 landed on the site at 53, which no test drives,
+ *   while the test under it drives 60. The scanner therefore credited the untested site and
+ *   flagged the tested one. A citation that drifts onto another real site is worse than a
+ *   citation that drifts onto blank space.
  * - brownianInventory.ts (4 sites):
  *   7. (brownianInventory.ts:246) invented-source-units
  *   8. (brownianInventory.ts:301) ids-frozen-without-facsimile
@@ -197,54 +212,159 @@ describe("Editions Refusal Sites", () => {
       };
     }
 
-    // 3. (editionDeclaration.ts:48) unknown-paper
-    describe("Site (editionDeclaration.ts:48): unknown-paper", () => {
-      it("reports unknown-paper when paper slug is unrecognized (editionDeclaration.ts:48)", () => {
+    // 3. (editionDeclaration.ts:53) unknown-paper, the not-an-object early return
+    describe("Site (editionDeclaration.ts:53): unknown-paper on a non-object", () => {
+      // This site shares its CODE with the site at 60 and nothing else. It is a different
+      // refusal: it returns before any other check has run, so it reports exactly one issue
+      // where a bad slug reports several. Nothing drove it until now - the citation that was
+      // supposed to cover it named line 48, which proximity resolved onto this site while the
+      // test under that citation actually exercises 60.
+      for (const [label, raw] of [
+        ["null", null],
+        ["a string", "paper: brownian-motion"],
+        ["a number", 17],
+        ["undefined", undefined],
+      ] as const) {
+        it(`refuses ${label} as a declaration, before any other check (editionDeclaration.ts:53)`, () => {
+          const res = validateEditionDeclaration(raw);
+          assert.equal(res.ok, false);
+          assert.ok(res.issues.some((i) => i.code === "unknown-paper"));
+          assert.ok(res.issues.some((i) => i.message === "edition.yaml must be an object."));
+        });
+      }
+
+      it("returns ONLY that issue, which is what distinguishes it from the slug site (editionDeclaration.ts:53)", () => {
+        // The negative a naive repair would fail. Route a non-object through the normal path
+        // instead of returning early and it picks up missing-digest and model-only-editors on
+        // the way, because an empty object has no digests and no editors. One issue is the
+        // observable signature of the early return.
+        const res = validateEditionDeclaration(null);
+        assert.equal(res.issues.length, 1);
+        assert.equal(res.issues[0]?.code, "unknown-paper");
+        assert.ok(!res.issues.some((i) => i.code === "missing-digest"));
+        assert.ok(!res.issues.some((i) => i.code === "model-only-editors"));
+      });
+
+      for (const [label, raw] of [
+        ["an empty object", {}],
+        // Measured, not assumed: an array is `typeof "object"` and truthy, so it walks
+        // straight past this guard and is judged as a record with no fields. The refusal
+        // still happens and nothing is accepted, but it arrives as missing-digest rather
+        // than as "must be an object", which is a less useful thing to tell an author who
+        // wrote a YAML list. Asserted as it behaves rather than as I first assumed, and
+        // left for the file's owner to decide: widening the guard changes which code a
+        // malformed file reports, and that is a refusal-identity change, not a test fix.
+        ["an array, which this guard does not catch", []],
+      ] as const) {
+        it(`does not refuse ${label} here; it reaches the real checks (editionDeclaration.ts:53)`, () => {
+          // The boundary. A guard written as `!raw?.paper` would swallow both of these.
+          const res = validateEditionDeclaration(raw);
+          assert.equal(res.ok, false);
+          // Named by code as well as by message, because this block cites line 53 and a
+          // citation that never names the site's own code credits it by proximity alone.
+          assert.ok(
+            !res.issues.some(
+              (i) => i.code === "unknown-paper" && i.message === "edition.yaml must be an object.",
+            ),
+          );
+          assert.ok(res.issues.some((i) => i.code === "missing-digest"));
+        });
+      }
+    });
+
+    // 6. (editionDeclaration.ts:82) model-only-editors, a list that is all models
+    describe("Site (editionDeclaration.ts:82): model-only-editors", () => {
+      // The first of the two sites emitting this code. It fires on a list with no human-shaped
+      // id at all; the one at 145 fires on a list whose only human is someone the registry
+      // cannot vouch for. Neither was cited, so the scanner could not tell them apart and
+      // credited both to whichever test named the code. They are told apart here by MESSAGE,
+      // which is the only thing that differs at the call site.
+      const HERE =
+        "editors must include at least one human editor id; a model-only list is refused.";
+      const THERE =
+        "editors must include at least one human editor who is assigned in docs/OWNERS.md.";
+
+      for (const [label, editors] of [
+        ["a single model", ["claude-opus-5"]],
+        ["several models from different vendors", ["gpt-5.2", "gemini-3", "grok-4"]],
+        ["an empty list", []],
+      ] as const) {
+        it(`refuses ${label} (editionDeclaration.ts:82)`, () => {
+          const raw = { ...createValidDeclaration(), editors };
+          const res = validateEditionDeclaration(raw);
+          assert.equal(res.ok, false);
+          const messages = res.issues
+            .filter((i) => i.code === "model-only-editors")
+            .map((i) => i.message);
+          assert.deepEqual(messages, [HERE]);
+        });
+      }
+
+      it("emits its own message and not the registry one, which is the other site (editionDeclaration.ts:82)", () => {
+        // The negative. An implementation that merged the two sites into one emit would pass
+        // every assertion above except this one, and the reader of a failing declaration would
+        // be sent to docs/OWNERS.md to look up an id that was never a human id to begin with.
+        const raw = { ...createValidDeclaration(), editors: ["agent-amberfalcon"] };
+        const res = validateEditionDeclaration(raw);
+        assert.ok(res.issues.some((i) => i.code === "model-only-editors" && i.message === HERE));
+        assert.ok(!res.issues.some((i) => i.code === "model-only-editors" && i.message === THERE));
+      });
+
+      it("one assigned human is enough, however many models stand beside them (editionDeclaration.ts:82)", () => {
+        const raw = { ...createValidDeclaration(), editors: ["claude-opus-5", "jemanuel"] };
+        const res = validateEditionDeclaration(raw);
+        assert.ok(!res.issues.some((i) => i.code === "model-only-editors"));
+      });
+    });
+
+    // 4. (editionDeclaration.ts:60) unknown-paper
+    describe("Site (editionDeclaration.ts:60): unknown-paper", () => {
+      it("reports unknown-paper when paper slug is unrecognized (editionDeclaration.ts:60)", () => {
         const raw = { ...createValidDeclaration(), paper: "unknown-paper-slug" };
         const res = validateEditionDeclaration(raw);
         assert.equal(res.ok, false);
         assert.ok(res.issues.some((i) => i.code === "unknown-paper"));
       });
 
-      it("accepts known paper slug (editionDeclaration.ts:48)", () => {
+      it("accepts known paper slug (editionDeclaration.ts:60)", () => {
         const raw = createValidDeclaration();
         const res = validateEditionDeclaration(raw);
         assert.ok(!res.issues.some((i) => i.code === "unknown-paper"));
       });
     });
 
-    // 4. (editionDeclaration.ts:53) bib-key-mismatch
-    describe("Site (editionDeclaration.ts:53): bib-key-mismatch", () => {
-      it("reports bib-key-mismatch when bibliographicKey does not match paper (editionDeclaration.ts:53)", () => {
+    // 5. (editionDeclaration.ts:65) bib-key-mismatch
+    describe("Site (editionDeclaration.ts:65): bib-key-mismatch", () => {
+      it("reports bib-key-mismatch when bibliographicKey does not match paper (editionDeclaration.ts:65)", () => {
         const raw = { ...createValidDeclaration(), bibliographicKey: "ap-17-132" }; // brownian expects ap-17-549
         const res = validateEditionDeclaration(raw);
         assert.equal(res.ok, false);
         assert.ok(res.issues.some((i) => i.code === "bib-key-mismatch"));
       });
 
-      it("accepts bibliographicKey matching paper bib key (editionDeclaration.ts:53)", () => {
+      it("accepts bibliographicKey matching paper bib key (editionDeclaration.ts:65)", () => {
         const raw = createValidDeclaration();
         const res = validateEditionDeclaration(raw);
         assert.ok(!res.issues.some((i) => i.code === "bib-key-mismatch"));
       });
     });
 
-    // 5. (editionDeclaration.ts:77) unknown-editor
-    describe("Site (editionDeclaration.ts:77): unknown-editor", () => {
-      it("reports unknown-editor when human editor fails editor ID pattern (editionDeclaration.ts:77)", () => {
+    // 8. (editionDeclaration.ts:116) unknown-editor
+    describe("Site (editionDeclaration.ts:116): unknown-editor", () => {
+      it("reports unknown-editor when human editor fails editor ID pattern (editionDeclaration.ts:116)", () => {
         const raw = { ...createValidDeclaration(), editors: ["invalid!editor?name"] };
         const res = validateEditionDeclaration(raw);
         assert.equal(res.ok, false);
         assert.ok(res.issues.some((i) => i.code === "unknown-editor"));
       });
 
-      it("accepts a human editor who is assigned in docs/OWNERS.md (editionDeclaration.ts:77)", () => {
+      it("accepts a human editor who is assigned in docs/OWNERS.md (editionDeclaration.ts:116)", () => {
         const raw = createValidDeclaration();
         const res = validateEditionDeclaration(raw);
         assert.ok(!res.issues.some((i) => i.code === "unknown-editor"));
       });
 
-      it("reports unknown-editor for a well-formed id that is in no registry", () => {
+      it("reports unknown-editor for a well-formed id that is in no registry (editionDeclaration.ts:123)", () => {
         // The historical fixture. It spells like an id and belongs to nobody.
         const raw = { ...createValidDeclaration(), editors: ["ed-albert"] };
         const res = validateEditionDeclaration(raw);
@@ -266,7 +386,7 @@ describe("Editions Refusal Sites", () => {
         assert.ok(!res.issues.some((i) => i.code === "unknown-editor"));
       });
 
-      it("also reports model-only-editors when the list's only human is an unfilled slot", () => {
+      it("also reports model-only-editors when the list's only human is an unfilled slot (editionDeclaration.ts:145)", () => {
         // The second emit site of that code. The first says "this list is all models";
         // this one says "this list names no human the registry can vouch for", which an
         // unfilled recruiting slot is. Both are the section D rule that a declaration
@@ -282,7 +402,7 @@ describe("Editions Refusal Sites", () => {
         assert.ok(res.issues.some((i) => i.code === "editor-not-assigned"));
       });
 
-      it("reports owners-registry-unavailable rather than passing when OWNERS.md cannot be read", () => {
+      it("reports owners-registry-unavailable rather than passing when OWNERS.md cannot be read (editionDeclaration.ts:105)", () => {
         // An unreadable registry must not restore the permissive behaviour: a check
         // that could not look has not looked.
         const raw = createValidDeclaration();
@@ -292,16 +412,16 @@ describe("Editions Refusal Sites", () => {
       });
     });
 
-    // 6. (editionDeclaration.ts:84) missing-reconciliation-run
-    describe("Site (editionDeclaration.ts:84): missing-reconciliation-run", () => {
-      it("reports missing-reconciliation-run when reconciliationRunId is empty string or non-string (editionDeclaration.ts:84)", () => {
+    // 11. (editionDeclaration.ts:155) missing-reconciliation-run
+    describe("Site (editionDeclaration.ts:155): missing-reconciliation-run", () => {
+      it("reports missing-reconciliation-run when reconciliationRunId is empty string or non-string (editionDeclaration.ts:155)", () => {
         const raw = { ...createValidDeclaration(), reconciliationRunId: "" };
         const res = validateEditionDeclaration(raw);
         assert.equal(res.ok, false);
         assert.ok(res.issues.some((i) => i.code === "missing-reconciliation-run"));
       });
 
-      it("accepts valid non-empty reconciliationRunId (editionDeclaration.ts:84)", () => {
+      it("accepts valid non-empty reconciliationRunId (editionDeclaration.ts:155)", () => {
         const raw = createValidDeclaration();
         const res = validateEditionDeclaration(raw);
         assert.ok(!res.issues.some((i) => i.code === "missing-reconciliation-run"));
