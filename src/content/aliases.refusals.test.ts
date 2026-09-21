@@ -9,6 +9,8 @@
  */
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test, { describe } from "node:test";
 import { type AliasRecord, resolveAlias, validateAliasRecord } from "./aliases.ts";
 
@@ -23,9 +25,9 @@ const VALID_RECORD: AliasRecord = {
 
 describe("Content alias refusal throw/return sites (am-muyh)", () => {
   // ==========================================================================
-  // Site 1: (aliases.ts:29) alias-schema - Non-object raw input
+  // Site 1: (aliases.ts:54) alias-schema - Non-object raw input
   // ==========================================================================
-  test("site (aliases.ts:29) alias-schema: rejects non-object or null raw record, accepts valid object", () => {
+  test("site (aliases.ts:54) alias-schema: rejects non-object or null raw record, accepts valid object", () => {
     // Accept case: valid record object
     const accepted = validateAliasRecord(VALID_RECORD);
     assert.equal(accepted.ok, true);
@@ -58,9 +60,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 2: (aliases.ts:37) alias-schema - retiredId validation
+  // Site 2: (aliases.ts:62) alias-schema - retiredId validation
   // ==========================================================================
-  test("site (aliases.ts:37) alias-schema: rejects empty or non-string retiredId, accepts non-empty string", () => {
+  test("site (aliases.ts:62) alias-schema: rejects empty or non-string retiredId, accepts non-empty string", () => {
     // Accept case: non-empty trimmed retiredId
     const accepted = validateAliasRecord({ ...VALID_RECORD, retiredId: "s2-p3-s1" });
     assert.equal(accepted.ok, true);
@@ -90,9 +92,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 3: (aliases.ts:46) alias-kind-grammar - Invalid alias kind
+  // Site 3: (aliases.ts:71) alias-kind-grammar - Invalid alias kind
   // ==========================================================================
-  test("site (aliases.ts:46) alias-kind-grammar: rejects kind not in (retired, split, merged), accepts valid kinds", () => {
+  test("site (aliases.ts:71) alias-kind-grammar: rejects kind not in (retired, split, merged), accepts valid kinds", () => {
     // Accept cases: retired, merged, split
     assert.equal(validateAliasRecord({ ...VALID_RECORD, kind: "retired" }).ok, true);
     assert.equal(validateAliasRecord({ ...VALID_RECORD, kind: "merged" }).ok, true);
@@ -124,9 +126,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 4: (aliases.ts:54) alias-schema - replacementIds is not an array
+  // Site 4: (aliases.ts:79) alias-schema - replacementIds is not an array
   // ==========================================================================
-  test("site (aliases.ts:54) alias-schema: rejects non-array replacementIds, accepts valid array", () => {
+  test("site (aliases.ts:79) alias-schema: rejects non-array replacementIds, accepts valid array", () => {
     // Accept case: array of string IDs
     const accepted = validateAliasRecord({ ...VALID_RECORD, replacementIds: ["s1-p2"] });
     assert.equal(accepted.ok, true);
@@ -153,9 +155,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 5: (aliases.ts:63) alias-schema - Non-empty string items in replacementIds
+  // Site 5: (aliases.ts:88) alias-schema - Non-empty string items in replacementIds
   // ==========================================================================
-  test("site (aliases.ts:63) alias-schema: rejects empty or non-string replacementIds items, accepts valid string items", () => {
+  test("site (aliases.ts:88) alias-schema: rejects empty or non-string replacementIds items, accepts valid string items", () => {
     // Accept case: trimmed string items
     const accepted = validateAliasRecord({ ...VALID_RECORD, replacementIds: ["  s1-p2  "] });
     assert.equal(accepted.ok, true);
@@ -188,9 +190,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 6: (aliases.ts:73) alias-replacement-count - Retired must have 1 replacement
+  // Site 6: (aliases.ts:98) alias-replacement-count - Retired must have 1 replacement
   // ==========================================================================
-  test("site (aliases.ts:73) alias-replacement-count: rejects retired alias with replacement count !== 1, accepts exactly 1", () => {
+  test("site (aliases.ts:98) alias-replacement-count: rejects retired alias with replacement count !== 1, accepts exactly 1", () => {
     // Accept case: exactly 1 replacement
     const accepted = validateAliasRecord({
       ...VALID_RECORD,
@@ -219,9 +221,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 7: (aliases.ts:81) alias-replacement-count - Merged must have 1 replacement
+  // Site 7: (aliases.ts:106) alias-replacement-count - Merged must have 1 replacement
   // ==========================================================================
-  test("site (aliases.ts:81) alias-replacement-count: rejects merged alias with replacement count !== 1, accepts exactly 1", () => {
+  test("site (aliases.ts:106) alias-replacement-count: rejects merged alias with replacement count !== 1, accepts exactly 1", () => {
     // Accept case: exactly 1 replacement
     const accepted = validateAliasRecord({
       ...VALID_RECORD,
@@ -250,9 +252,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 8: (aliases.ts:89) alias-replacement-count - Split must have >= 2 replacements
+  // Site 8: (aliases.ts:114) alias-replacement-count - Split must have >= 2 replacements
   // ==========================================================================
-  test("site (aliases.ts:89) alias-replacement-count: rejects split alias with replacement count < 2, accepts >= 2", () => {
+  test("site (aliases.ts:114) alias-replacement-count: rejects split alias with replacement count < 2, accepts >= 2", () => {
     // Accept case: 2 or more replacements
     const accepted2 = validateAliasRecord({
       ...VALID_RECORD,
@@ -288,9 +290,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 9: (aliases.ts:97) alias-date-format - Date must be ISO YYYY-MM-DD
+  // Site 9: (aliases.ts:122) alias-date-format - Date must be ISO YYYY-MM-DD
   // ==========================================================================
-  test("site (aliases.ts:97) alias-date-format: rejects non-ISO calendar date format, accepts YYYY-MM-DD", () => {
+  test("site (aliases.ts:122) alias-date-format: rejects non-ISO calendar date format, accepts YYYY-MM-DD", () => {
     // Accept case: ISO calendar date string
     const accepted = validateAliasRecord({ ...VALID_RECORD, date: "1905-09-26" });
     assert.equal(accepted.ok, true);
@@ -320,9 +322,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 10: (aliases.ts:105) alias-schema - reason validation
+  // Site 10: (aliases.ts:130) alias-schema - reason validation
   // ==========================================================================
-  test("site (aliases.ts:105) alias-schema: rejects empty or non-string reason, accepts non-empty string", () => {
+  test("site (aliases.ts:130) alias-schema: rejects empty or non-string reason, accepts non-empty string", () => {
     // Accept case: valid reason
     const accepted = validateAliasRecord({ ...VALID_RECORD, reason: "Editorial correction" });
     assert.equal(accepted.ok, true);
@@ -349,9 +351,9 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   });
 
   // ==========================================================================
-  // Site 11: (aliases.ts:113) alias-schema - editor validation
+  // Site 11: (aliases.ts:138) alias-schema - editor validation
   // ==========================================================================
-  test("site (aliases.ts:113) alias-schema: rejects empty or non-string editor, accepts non-empty string", () => {
+  test("site (aliases.ts:138) alias-schema: rejects empty or non-string editor, accepts non-empty string", () => {
     // Accept case: valid editor
     const accepted = validateAliasRecord({ ...VALID_RECORD, editor: "ed-planck" });
     assert.equal(accepted.ok, true);
@@ -380,7 +382,7 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
   // ==========================================================================
   // Resolution Sites: (aliases.ts:146, 163, 174)
   // ==========================================================================
-  test("site (aliases.ts:146) invalid: rejects invalid alias record during resolution, accepts valid records", () => {
+  test("site (aliases.ts:171) invalid: rejects invalid alias record during resolution, accepts valid records", () => {
     const validAliases: AliasRecord[] = [VALID_RECORD];
     const accepted = resolveAlias("s1-p1", validAliases);
     assert.equal(accepted.ok, true);
@@ -394,7 +396,7 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
     }
   });
 
-  test("site (aliases.ts:163) cycle: rejects cyclic alias reference chains, accepts acyclic chains", () => {
+  test("site (aliases.ts:188) cycle: rejects cyclic alias reference chains, accepts acyclic chains", () => {
     const acyclic: AliasRecord[] = [
       {
         retiredId: "a",
@@ -445,7 +447,7 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
     }
   });
 
-  test("site (aliases.ts:174) dangling: rejects alias target missing from valid corpus IDs, accepts existing target", () => {
+  test("site (aliases.ts:199) dangling: rejects alias target missing from valid corpus IDs, accepts existing target", () => {
     const aliases: AliasRecord[] = [
       {
         retiredId: "a",
@@ -468,4 +470,54 @@ describe("Content alias refusal throw/return sites (am-muyh)", () => {
       assert.ok(res.error.includes("missing from the corpus"));
     }
   });
+});
+
+/**
+ * am-r3qt. Every citation in this file was off by exactly 25 lines.
+ *
+ * All fourteen pointed at nothing, so all fourteen credited nothing, and thirteen sites
+ * this file genuinely drives were reported untested. Each repointing was established by
+ * planting one site and observing exactly one test redden; the uniform offset is what the
+ * answer turned out to be, never how it was obtained.
+ */
+
+test("the fifteenth 'site' in aliases.ts is a TYPE, not a refusal, and no test can drive it", () => {
+  // aliases.ts:157 is counted as a refusal throw site and is not one. It is the code
+  // union on the failure branch of AliasResolutionResult:
+  //
+  //     | { readonly ok: false; readonly error: string; readonly code: "cycle" | ... }
+  //
+  // The scanner reads `code: "cycle"` in a string-literal position and records a site.
+  // Renaming it changes no runtime behaviour at all - it is erased before anything runs -
+  // so no test reddens and none ever could. This is a fourth category beside driven,
+  // undriven and unreachable: NOT CODE. Six such sites exist across the owed set
+  // (runtimeMapping.ts x3, reconciliation.ts, provenance.ts and this one), so the total
+  // is that much higher than the work actually available.
+  //
+  // Recorded rather than papered over with a test that would assert nothing. The claim is
+  // asserted so it stops being true loudly: the line must still be part of a type
+  // declaration, and the codes it names must still be the ones the resolver returns.
+  const source = readFileSync(join(process.cwd(), "src", "content", "aliases.ts"), "utf8");
+  const lines = source.split("\n");
+  const unionLine = lines.findIndex((line) => line.includes('readonly code: "cycle"'));
+  assert.ok(unionLine > -1, "the union member this records must still exist");
+  // A type member, not a statement: no `return`, no `throw`, and it sits under a `type`.
+  const line = lines[unionLine] ?? "";
+  assert.ok(!line.includes("return"), line);
+  assert.ok(!line.includes("throw"), line);
+  assert.match(
+    lines.slice(Math.max(0, unionLine - 3), unionLine).join(" "),
+    /export type AliasResolutionResult/,
+  );
+  // And the three codes it declares are each produced somewhere that IS a statement, so
+  // the union is a description of real refusals rather than a dead enumeration.
+  // Matched without a trailing comma: `invalid` is produced inline as
+  // `{ ..., code: "invalid" };` while the other two sit in multi-line objects, and
+  // requiring the comma made this arm fail on a code that IS produced.
+  for (const code of ["cycle", "dangling", "invalid"]) {
+    assert.ok(
+      new RegExp(`code: "${code}"\\s*[,}]`).test(source),
+      `${code} is declared in the union but never produced by a statement`,
+    );
+  }
 });

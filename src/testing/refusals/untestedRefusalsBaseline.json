@@ -22,7 +22,7 @@
   "src/components/lab/avogadro/AvogadroLab.tsx": 2,
   "src/components/lab/lightThread/LightThreadLab.tsx": 2,
   "src/comprehension/session.ts": 0,
-  "src/content/aliases.ts": 10,
+  "src/content/aliases.ts": 1,
   "src/content/anchors.ts": 2,
   "src/content/audits/readings.ts": 0,
   "src/content/checks/epistemic/run.ts": 0,
