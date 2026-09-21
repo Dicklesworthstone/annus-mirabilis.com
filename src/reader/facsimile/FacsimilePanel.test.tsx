@@ -18,13 +18,21 @@ const document = projectFacsimileDocument("mass-energy", "ap-18-639", {
     { id: "eq-s1-d1", kind: "display-equation", locators: [{ page: 641 }], destination: { editionBlockId: "de-example" } },
   ],
 });
-function panel(section?: string) {
+function panel(section?: string, inline = false) {
   if (!document) throw new Error("facsimile-fixture-not-admitted");
-  return <FacsimilePanel document={document} title="Original paper" section={section}
+  return <FacsimilePanel document={document} title="Original paper" section={section} inline={inline}
     faceHref="/papers/mass-energy/view/facsimile/" explanationHref="/papers/mass-energy/" />;
 }
 
 describe("FacsimilePanel static source face", () => {
+  test("inline source ids never collide with the mounted explanation's section anchors", () => {
+    const html = renderToStaticMarkup(<><section id="s1" />{panel("s1", true)}</>);
+    expect(html.match(/id="s1"/g)?.length).toBe(1);
+    expect(html).not.toContain('id="s1-p1"');
+    expect(html).toContain('data-facsimile-target="s1-p1"');
+    expect(html).toContain('href="/papers/mass-energy/view/facsimile/#s1-p1"');
+    expect(html).toContain('data-view-link="reading"');
+  });
   test("every original page and recovery path is in the HTML before JavaScript", () => {
     const html = renderToStaticMarkup(panel());
     for (const page of [1, 2, 3]) expect(html).toContain(`/papers/pdfs/ap-18-639.pdf#page=${page}`);

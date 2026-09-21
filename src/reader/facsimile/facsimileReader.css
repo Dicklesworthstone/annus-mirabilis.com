@@ -52,3 +52,8 @@
   .facsimile-reader-toolbar { display: none; }
   .facsimile-reader-page { break-inside: avoid; }
 }
+
+.inline-facsimile-panel { min-width: 0; margin-block: 1.5rem; }
+/* Hide only the superseded explanatory/source-status panels, never unmount their owners. */
+.reader-root[data-facsimile-inline-active] .reader-section,
+.reader-root[data-facsimile-inline-active] .page-intro [data-source-status] { display: none; }

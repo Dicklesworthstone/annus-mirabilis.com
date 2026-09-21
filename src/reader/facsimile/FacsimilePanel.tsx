@@ -18,14 +18,18 @@ export function FacsimilePanel({
   faceHref,
   explanationHref,
   section,
+  inline = false,
 }: {
   document: FacsimileDocument;
   title: string;
   faceHref: string;
   explanationHref: string;
   section?: string | undefined;
+  inline?: boolean | undefined;
 }) {
   const id = useId();
+  const anchorId = (anchor: string) => inline ? `${id}-${anchor}` : anchor;
+  const targetHref = (anchor: string) => `${inline ? faceHref : ""}#${anchor}`;
   const scope = facsimileSectionPages(document, section);
   const initial = scope[0] ?? document.pages[0];
   if (!initial) return null;
@@ -51,6 +55,7 @@ export function FacsimilePanel({
         document={document}
         initialPdfPage={initial.pdfPage}
         faceHref={faceHref}
+        inline={inline}
       />
       <h2>Read the original scanned pages</h2>
       <p>
@@ -112,7 +117,7 @@ export function FacsimilePanel({
           Open printed page {initial.printedPage} in the original PDF
         </a>{" · "}
         <a href={document.pdfUrl} download>Download the complete pinned PDF</a>{" · "}
-        <a href={explanationHref}>Return to the explanation</a>
+        <a href={explanationHref} data-view-link={inline ? "reading" : undefined}>Return to the explanation</a>
       </p>
       <p className="fine">
         A blank embedded display does not mean the source is missing. The direct PDF links work
@@ -151,7 +156,8 @@ export function FacsimilePanel({
         {document.pages.map((page) => (
           <a
             key={page.pdfPage}
-            href={`#${facsimilePageAnchor(page)}`}
+            href={targetHref(facsimilePageAnchor(page))}
+            data-facsimile-target={facsimilePageAnchor(page)}
             data-facsimile-page-link={page.pdfPage}
             aria-current={page.pdfPage === initial.pdfPage ? "page" : undefined}
           >
@@ -161,9 +167,9 @@ export function FacsimilePanel({
       </nav>
       <div data-facsimile-directory>
         {document.pages.map((page) => (
-          <section key={page.pdfPage} id={facsimilePageAnchor(page)} className="facsimile-reader-page">
+          <section key={page.pdfPage} id={anchorId(facsimilePageAnchor(page))} className="facsimile-reader-page">
             {extraAnchors.filter((anchor) => resolveFacsimileTarget(document, anchor) === page.pdfPage).map((anchor) => (
-              <span key={anchor} id={anchor} className="facsimile-reader-anchor" />
+              <span key={anchor} id={anchorId(anchor)} className="facsimile-reader-anchor" />
             ))}
             <h3>
               Printed page {page.printedPage} <span className="fine">· PDF page {page.pdfPage}</span>
@@ -172,8 +178,8 @@ export function FacsimilePanel({
             <p><a href={facsimilePdfHref(document, page.pdfPage)}>Open original printed page {page.printedPage}</a></p>
             <ul className="facsimile-reader-units">
               {document.units.filter((unit) => unit.pdfPages[0] === page.pdfPage).map((unit) => (
-                <li key={unit.id} id={unit.id} tabIndex={-1}>
-                  <a href={`#${unit.id}`}>{unit.id}</a>{" "}
+                <li key={unit.id} id={anchorId(unit.id)} tabIndex={-1}>
+                  <a href={targetHref(unit.id)} data-facsimile-target={unit.id}>{unit.id}</a>{" "}
                   <span className="fine">({unit.kind.replaceAll("-", " ")})</span>
                   {unit.pdfPages.length > 1 && (
                     <span> · spans {unit.pdfPages.map((number, index) => (

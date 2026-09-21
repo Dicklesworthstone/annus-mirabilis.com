@@ -51,6 +51,8 @@ jobs:
         run: bun test --isolate src/testing/kitchen-video-ui.test.tsx
       - name: Exercise combined camera and physical-input uncertainty
         run: bun test --isolate src/testing/kitchen-uncertainty-ui.test.tsx
+      - name: Exercise admitted source faces and no-JavaScript page directories
+        run: bun test --isolate src/reader/facsimile/FacsimilePanel.test.tsx src/reader/facsimile/FaceFallback.integration.test.tsx
       - run: bun run typecheck
       - name: Build the complete production preview
         shell: bash
@@ -67,6 +69,17 @@ jobs:
       - name: Exercise local video annotation through the real decoder and inference worker
         run: bun scripts/test-kitchen-video-browser.mjs
       - run: bun run test:browser
+      - name: Exercise built source routes and preserve the live reading laboratory
+        shell: bash
+        run: |
+          python3 -m http.server 4318 --bind 127.0.0.1 --directory out > artifacts/browser/facsimile-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:4318/papers/mass-energy/view/facsimile/ > /dev/null; then break; fi
+            sleep 0.25
+          done
+          BASE_URL=http://127.0.0.1:4318 node --experimental-strip-types scripts/e2e/facsimile.mjs
       - name: Upload browser evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()

@@ -9,15 +9,17 @@ export function FacsimileEnhancer({
   document: source,
   initialPdfPage,
   faceHref,
+  inline = false,
 }: {
   rootId: string;
   document: FacsimileDocument;
   initialPdfPage: number;
   faceHref: string;
+  inline?: boolean | undefined;
 }) {
   useEffect(() => {
     const root = document.getElementById(rootId);
-    if (root) return mountFacsimileReader(root, source, initialPdfPage, faceHref);
-  }, [rootId, source, initialPdfPage, faceHref]);
+    if (root) return mountFacsimileReader(root, source, initialPdfPage, faceHref, { preserveReaderHistory: inline });
+  }, [rootId, source, initialPdfPage, faceHref, inline]);
   return null;
 }

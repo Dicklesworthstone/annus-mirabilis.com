@@ -7,14 +7,12 @@ import { readFile, realpath, stat } from "node:fs/promises";
 import { join, sep } from "node:path";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import {
-  type FacsimileDocument,
   FacsimileDataError,
   projectFacsimileDocument,
 } from "./document.ts";
 
-export type FacsimileAvailability =
-  | Readonly<{ kind: "available"; document: FacsimileDocument }>
-  | Readonly<{ kind: "unavailable"; code: string; message: string }>;
+import type { FacsimileAvailability } from "./wire.ts";
+export type { FacsimileAvailability } from "./wire.ts";
 
 const MAX_PDF_BYTES = 64 * 1024 * 1024;
 const MAX_METADATA_BYTES = 2 * 1024 * 1024;

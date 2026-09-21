@@ -63,6 +63,44 @@ try {
       }
     }
   }
+  const inline = await browser.newContext({ viewport: { width: 320, height: 900 } });
+  try {
+    const page = await inline.newPage();
+    const maps = [];
+    page.on("request", request => { if (request.url().includes("facsimile.json")) maps.push(request.url()); });
+    await page.goto(new URL("/papers/brownian-motion/", base).href, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.querySelector("[data-reader-root]")?.getAttribute("data-enhanced") === "true");
+    assert.deepEqual(maps, []);
+    const lab = page.locator('#lab-bm-01 [data-instrument-id="bm-01"]');
+    await lab.waitFor({ state: "attached" });
+    const run = await lab.getAttribute("data-run-id");
+    const snapshot = await lab.getAttribute("data-snapshot-version");
+    const anchor = await page.evaluate(() => history.state.annusReader.state.anchor);
+    await page.evaluate(() => { window.__facsimileLabBefore = document.querySelector('#lab-bm-01 [data-instrument-id="bm-01"]'); });
+    await page.locator('a[data-view-link="facsimile"]').first().click();
+    const panel = page.locator("[data-inline-facsimile-panel] [data-facsimile-reader]");
+    await panel.waitFor();
+    await page.waitForFunction(() => !document.querySelector("[data-inline-facsimile-panel] [data-facsimile-controls]")?.disabled);
+    await panel.getByRole("button", { name: "Next page", exact: true }).click();
+    const selected = await panel.getAttribute("data-facsimile-pdf-page");
+    assert.equal(await page.evaluate(() => history.state.annusReader.state.anchor), anchor);
+    assert.equal(await lab.getAttribute("data-run-id"), run);
+    assert.equal(await lab.getAttribute("data-snapshot-version"), snapshot);
+    await panel.getByRole("link", { name: "Return to the explanation", exact: true }).click();
+    await page.waitForFunction(() => document.querySelector("[data-reader-root]")?.getAttribute("data-view") === "reading");
+    assert.equal(await page.evaluate(() => document.querySelector('#lab-bm-01 [data-instrument-id="bm-01"]') === window.__facsimileLabBefore), true);
+    await page.locator('a[data-view-link="facsimile"]').first().click();
+    await panel.waitFor();
+    assert.equal(await panel.getAttribute("data-facsimile-pdf-page"), selected);
+    assert.equal(maps.length, 1);
+    assert.equal(await page.evaluate(() => {
+      const ids = [...document.querySelectorAll("[id]")].map(element => element.id);
+      return ids.length === new Set(ids).size;
+    }), true);
+    results.push({ mode: "inline-no-prefetch-no-lab-restart-reader-anchor-retained", passed: true });
+  } finally {
+    await inline.close();
+  }
   const noScript = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 900 } });
   try {
     const page = await noScript.newPage();

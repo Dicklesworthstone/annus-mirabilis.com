@@ -13,6 +13,7 @@ export function mountFacsimileReader(
   document: FacsimileDocument,
   initialPdfPage: number,
   faceHref: string,
+  options: Readonly<{ preserveReaderHistory?: boolean }> = {},
 ): () => void {
   const window = root.ownerDocument.defaultView;
   if (!window) return () => {};
@@ -52,7 +53,7 @@ export function mountFacsimileReader(
       if (link.dataset.facsimilePageLink === String(page.pdfPage)) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     }
-    if (writeHistory) {
+    if (writeHistory && !options.preserveReaderHistory) {
       const url = new URL(window!.location.href);
       url.hash = facsimilePageAnchor(page);
       if (url.href !== window!.location.href) {
@@ -72,6 +73,7 @@ export function mountFacsimileReader(
     }
     const page = resolveFacsimileTarget(document, window!.location.hash);
     if (page === null) {
+      if (options.preserveReaderHistory) return;
       status!.textContent = "No scan-page locator is recorded for this link. The selected page is unchanged; use the page directory below.";
       return;
     }
@@ -106,17 +108,32 @@ export function mountFacsimileReader(
     }
   }
 
+  const followInlineTarget = (event: MouseEvent) => {
+    if (!options.preserveReaderHistory || event.defaultPrevented || event.button !== 0 ||
+      event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || !(event.target instanceof Element)) return;
+    const link = event.target.closest<HTMLElement>("[data-facsimile-target]");
+    if (!link || !root.contains(link)) return;
+    const page = resolveFacsimileTarget(document, link.dataset.facsimileTarget ?? "");
+    if (page === null) return;
+    event.preventDefault();
+    select(page, false);
+  };
+
   controls.disabled = false;
   select(initialPdfPage, false);
   fromLocation();
-  window.addEventListener("hashchange", fromLocation);
-  window.addEventListener("popstate", fromLocation);
+  if (!options.preserveReaderHistory) {
+    window.addEventListener("hashchange", fromLocation);
+    window.addEventListener("popstate", fromLocation);
+  }
+  root.addEventListener("click", followInlineTarget);
   form.addEventListener("submit", submit);
   previous.addEventListener("click", goPrevious);
   next.addEventListener("click", goNext);
   share.addEventListener("click", copyLink);
   return () => {
     active = false;
+    root.removeEventListener("click", followInlineTarget);
     window.removeEventListener("hashchange", fromLocation);
     window.removeEventListener("popstate", fromLocation);
     form.removeEventListener("submit", submit);

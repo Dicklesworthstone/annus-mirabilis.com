@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useId } from "react";
+import { InlineFacsimile } from "./facsimile/InlineFacsimile.tsx";
 import {
   DETAIL_STORAGE_KEY,
   FACES,
@@ -350,43 +351,49 @@ export function ReaderController(props: Props) {
     };
   }, [navigation]);
   return (
-    <div className="reader-controls">
-      <nav aria-label="Reading face">
-        <a href="?view=reading" data-view-link="reading">
-          Explanation
-        </a>
-        <a href="?view=results" data-view-link="results">
-          Argument synopsis
-        </a>
-        <a href="?view=german" data-view-link="german">
-          Source status
-        </a>
-      </nav>
-      <div className="reader-options">
-        <div className="reader-option">
-          <label htmlFor={detailId}>Detail</label>
-          <select id={detailId} data-detail-control defaultValue="1" disabled>
-            <option value="0">Overview</option>
-            <option value="1">Full explanation</option>
-            <option value="2">Show every step</option>
-          </select>
+    <>
+      <div className="reader-controls">
+        <nav aria-label="Reading face">
+          <a href="?view=reading" data-view-link="reading">
+            Explanation
+          </a>
+          <a href="?view=results" data-view-link="results">
+            Argument synopsis
+          </a>
+          <a href="?view=german" data-view-link="german">
+            Source status
+          </a>
+          <a href={`/papers/${props.registry.paperId}/view/facsimile/`} data-view-link="facsimile">
+            Original scan
+          </a>
+        </nav>
+        <div className="reader-options">
+          <div className="reader-option">
+            <label htmlFor={detailId}>Detail</label>
+            <select id={detailId} data-detail-control defaultValue="1" disabled>
+              <option value="0">Overview</option>
+              <option value="1">Full explanation</option>
+              <option value="2">Show every step</option>
+            </select>
+          </div>
+          <label className="check">
+            <input type="checkbox" data-lens-control disabled />
+            Show modern qualifications
+          </label>
         </div>
-        <label className="check">
-          <input type="checkbox" data-lens-control disabled />
-          Show modern qualifications
-        </label>
+        <p
+          className="reader-announcement fine"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          data-reader-announcement
+        />
+        <div className="share-field" data-copy-fallback hidden>
+          <label htmlFor={copyFallbackId}>Passage link</label>
+          <input id={copyFallbackId} type="text" readOnly />
+        </div>
       </div>
-      <p
-        className="reader-announcement fine"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        data-reader-announcement
-      />
-      <div className="share-field" data-copy-fallback hidden>
-        <label htmlFor={copyFallbackId}>Passage link</label>
-        <input id={copyFallbackId} type="text" readOnly />
-      </div>
-    </div>
+      <InlineFacsimile key={props.registry.paperId} paperId={props.registry.paperId} />
+    </>
   );
 }
