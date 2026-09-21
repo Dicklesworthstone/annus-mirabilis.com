@@ -104,7 +104,7 @@
   "src/equations/latex/render.ts": 0,
   "src/equations/latex/tokenize.ts": 0,
   "src/equations/missingStep/contentCheck.ts": 2,
-  "src/equations/monomial.ts": 3,
+  "src/equations/monomial.ts": 0,
   "src/equations/record.ts": 0,
   "src/equations/spoken/lintSpokenForm.ts": 1,
   "src/equations/spoken/spokenFormCheck.ts": 2,
