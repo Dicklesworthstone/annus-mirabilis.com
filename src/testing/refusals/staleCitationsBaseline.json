@@ -14,7 +14,7 @@
   "src/content/editions/segmentSentences.ts": 10,
   "src/content/kernel/verify.ts": 1,
   "src/content/ledger/ledgerMathSettings.ts": 4,
-  "src/content/ledger/validateLedger.ts": 7,
+  "src/content/ledger/validateLedger.ts": 0,
   "src/content/manifest/schema.ts": 101,
   "src/content/revisions.ts": 7,
   "src/content/schemas/argument.ts": 8,
