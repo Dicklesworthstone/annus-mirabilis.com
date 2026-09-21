@@ -37,11 +37,25 @@ export interface RefusalCodeBreakdown {
   readonly lines: readonly number[];
 }
 
+/**
+ * A code with more than one throw site in one file. Disclosed whether or not it carries
+ * debt, because a per-site number is only trustworthy once a reader knows how many sites
+ * share the code: five sites on one `invalid-config` is the shape in which attribution
+ * went wrong three times (am-ksl3).
+ */
+export interface MultiSiteCode {
+  readonly code: string;
+  readonly sites: number;
+  readonly citedSites: number;
+}
+
 export interface FileRefusalAnalysis {
   readonly file: string;
   readonly totalSites: number;
   readonly untestedSitesCount: number;
   readonly untestedBreakdown: readonly RefusalCodeBreakdown[];
+  /** Codes appearing at more than one site in this file. Reporting only; never credit. */
+  readonly multiSiteCodes: readonly MultiSiteCode[];
 }
 
 export interface RootScanTally {
@@ -596,6 +610,7 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
     }
 
     const breakdown: RefusalCodeBreakdown[] = [];
+    const multiSiteCodes: MultiSiteCode[] = [];
     let fileUntested = 0;
 
     for (const [code, codeSites] of sitesByCode) {
@@ -613,9 +628,30 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
         }
       }
 
-      // Remaining sites are covered by general test blocks for this code
+      // AMBIGUOUS SITES ARE NOT CREDITED (am-ksl3, owner ruling 2026-09-21).
+      //
+      // What stood here credited uncited sites from a COUNT of test blocks naming the
+      // code, handing the credit to whichever sites came first in line order. Attribution
+      // was by quantity, not identity, and three measured specimens show what that costs:
+      //
+      //   - download-facsimiles.ts 510/526: the credit went to the DEAD site and the live
+      //     one was reported, until a citation went in. Exactly backwards.
+      //   - download-facsimiles.ts 1115 and 1210: credited as tested while being both
+      //     unreachable and undriven, so the file under-reported by two.
+      //   - facsimileSourceSchema.ts: five sites on one invalid-config, any of which could
+      //     take another's credit.
+      //
+      // The rule now: when a code has more than one site in a file, only sites cited
+      // explicitly as (file.ts:LINE) are credited. A test block that merely NAMES the code
+      // credits nothing, however many such blocks exist. A single-site code is unchanged -
+      // there is no second site to confuse it with, and tightening it would make every
+      // one-site file worse for no reason.
+      //
+      // This can only RAISE an untested count, never lower one, so it cannot be used to
+      // make a failing check pass.
+      const ambiguous = totalCodeSites > 1;
       const remainingTests = Math.max(0, (codeMap.get(code) ?? 0) - testedSites);
-      const additionalTested = Math.min(unCitedSites.length, remainingTests);
+      const additionalTested = ambiguous ? 0 : Math.min(unCitedSites.length, remainingTests);
       testedSites += additionalTested;
 
       const untestedCount = Math.max(0, totalCodeSites - testedSites);
@@ -637,13 +673,28 @@ export function analyzeUntestedRefusals(rootDir: string): FullRefusalScanResult 
           lines: unassertedLines,
         });
       }
+
+      // Disclosed whether or not this code carries debt. A code that is fully credited
+      // across five sites is exactly the case a reader most needs to see, because under
+      // the rule above every one of those credits came from an explicit citation, and
+      // under the old rule none of them had to.
+      if (ambiguous) {
+        multiSiteCodes.push({
+          code,
+          sites: totalCodeSites,
+          citedSites: codeSites.filter((site) => citedLines.has(site.line)).length,
+        });
+      }
     }
+
+    multiSiteCodes.sort((a, b) => b.sites - a.sites || a.code.localeCompare(b.code));
 
     analyses.set(file, {
       file,
       totalSites: sites.length,
       untestedSitesCount: fileUntested,
       untestedBreakdown: breakdown,
+      multiSiteCodes,
     });
     totalUntested += fileUntested;
     const tally = rootTallies.get(rootOf.get(file) ?? "");

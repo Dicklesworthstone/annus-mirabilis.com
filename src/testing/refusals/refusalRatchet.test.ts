@@ -8,6 +8,7 @@ import {
   analyzeUntestedRefusals,
   CODED_SCAN_ROOTS,
   findSourceFiles,
+  type MultiSiteCode,
   type RefusalCodeBreakdown,
   scanRefusalThrowSites,
 } from "./refusalScanner.ts";
@@ -44,6 +45,7 @@ export function auditFileRefusalCount(
   count: number,
   baseline: ReadonlyMap<string, number>,
   breakdown?: readonly RefusalCodeBreakdown[],
+  multiSiteCodes?: readonly MultiSiteCode[],
 ): {
   readonly regressions: readonly string[];
   readonly slack: readonly string[];
@@ -68,9 +70,20 @@ export function auditFileRefusalCount(
           .join("; ")
       : "";
     const detailSuffix = details ? ` Untested refusals: [${details}].` : "";
+    // Disclosed on every failing file, because a per-site number means something
+    // different once a reader knows the code is repeated: under the am-ksl3 ruling an
+    // uncited site under a repeated code is never credited, so "3 untested of 5" here is
+    // a statement about citations as much as about tests.
+    const repeated = (multiSiteCodes ?? []).filter((m) => m.sites > 1);
+    const multiSuffix =
+      repeated.length > 0
+        ? ` One code at several sites in this file: [${repeated
+            .map((m) => `${m.code} x${m.sites}, ${m.citedSites} cited`)
+            .join("; ")}]. Uncited sites under a repeated code are never credited (am-ksl3).`
+        : "";
     return {
       regressions: [
-        `${fileRel}: ${count} untested refusal throw site(s), ${against}.${detailSuffix} ` +
+        `${fileRel}: ${count} untested refusal throw site(s), ${against}.${detailSuffix}${multiSuffix} ` +
           "Add targeted tests for each refusal throw site or accept/reject test pairs. (See am-muyh)",
       ],
       slack: [],
@@ -114,7 +127,13 @@ describe("untested refusal throw site ratchet (am-muyh)", () => {
 
     for (const [file, analysis] of analyses) {
       const count = analysis.untestedSitesCount;
-      const res = auditFileRefusalCount(file, count, baseline, analysis.untestedBreakdown);
+      const res = auditFileRefusalCount(
+        file,
+        count,
+        baseline,
+        analysis.untestedBreakdown,
+        analysis.multiSiteCodes,
+      );
       if (res.regressions.length > 0) allRegressions.push(...res.regressions);
       if (res.slack.length > 0) {
         allSlack.push(...res.slack);
@@ -462,6 +481,163 @@ test("widget-refused is refused", () => {
       imported.untestedSitesCount,
       0,
       "a test that imports the module and names the code does cover it",
+    );
+  });
+});
+
+describe("ambiguous sites are not credited (am-ksl3, owner ruling 2026-09-21)", () => {
+  // The old rule credited uncited sites from a COUNT of test blocks naming a code,
+  // in line order. Three measured specimens of what that costs are in the scanner's
+  // own comment. These fixtures hold the new rule in both directions, because a
+  // tightening that also broke the single-site path would make every one-site file
+  // worse for no reason.
+
+  /** Two throw sites under ONE code, plus a second code with a single site. */
+  const SOURCE = `
+export class WidgetError extends Error {
+  constructor(readonly code: string, message: string) {
+    super(message);
+  }
+}
+export function validateWidget(input: unknown, mode: string) {
+  if (input === null) {
+    throw new WidgetError("widget-refused", "first site");
+  }
+  if (input === undefined) {
+    throw new WidgetError("widget-refused", "second site");
+  }
+  if (mode === "bad") {
+    throw new WidgetError("mode-refused", "the only site for this code");
+  }
+  return input;
+}
+`;
+
+  function build(suffix: string, testBody: string): string {
+    const base = mkdtempSync(join(tmpdir(), "refusal-ambiguous-"));
+    const root = join(base, `ambiguous-${suffix}`);
+    mkdirSync(join(root, "src/widget"), { recursive: true });
+    mkdirSync(join(root, "src/elsewhere"), { recursive: true });
+    writeFileSync(join(root, "src/widget/validate.ts"), SOURCE);
+    writeFileSync(join(root, "src/elsewhere/coverage.test.ts"), testBody);
+    return root;
+  }
+
+  function analyse(root: string) {
+    const analysis = analyzeUntestedRefusals(root).analyses.get("src/widget/validate.ts");
+    assert.ok(analysis, "the fixture source must be scanned at all");
+    return analysis;
+  }
+
+  /** The lines the two same-code throws sit on, read from the fixture rather than guessed. */
+  const siteLines = SOURCE.split("\n")
+    .map((line, index) => ({ line, number: index + 1 }))
+    .filter(({ line }) => line.includes('"widget-refused"'))
+    .map(({ number }) => number);
+
+  test("the fixture really does have two sites on one code and one on another", () => {
+    // Reachability before the claims. If the fixture ever stopped having a repeated
+    // code, every arm below would pass under either rule and prove nothing.
+    assert.equal(siteLines.length, 2, "the fixture must carry a genuinely ambiguous code");
+    const analysis = analyse(build("shape", "import test from 'node:test';\n"));
+    assert.equal(analysis.totalSites, 3);
+    assert.deepEqual(
+      analysis.multiSiteCodes.map((entry) => `${entry.code}x${entry.sites}`),
+      ["widget-refusedx2"],
+      "the disclosure must name the repeated code and not the single-site one",
+    );
+  });
+
+  test("two test blocks NAMING an ambiguous code credit neither site", () => {
+    // Under the old rule this credited both, in line order, having driven neither.
+    const naming = `
+import test from "node:test";
+import { validateWidget } from "../widget/validate.ts";
+test("null is refused", () => {
+  try { validateWidget(null, "ok"); } catch (err) {
+    if ((err as { code?: string }).code !== "widget-refused") throw err;
+  }
+});
+test("undefined is refused", () => {
+  try { validateWidget(undefined, "ok"); } catch (err) {
+    if ((err as { code?: string }).code !== "widget-refused") throw err;
+  }
+});
+`;
+    const analysis = analyse(build("naming", naming));
+    const entry = analysis.untestedBreakdown.find((b) => b.code === "widget-refused");
+    assert.ok(entry, "the ambiguous code must be reported as untested");
+    assert.equal(entry.untestedSites, 2, "neither site is credited without a citation");
+    assert.deepEqual(
+      [...entry.lines].sort((a, b) => a - b),
+      siteLines,
+    );
+  });
+
+  test("a CITED site under an ambiguous code is still credited, and only that one", () => {
+    // The other half. A tightening that credited nothing would be unusable, and the
+    // citation path is the mechanism the ruling tells authors to use.
+    const cited = `
+import test from "node:test";
+import { validateWidget } from "../widget/validate.ts";
+test("null is refused (validate.ts:${siteLines[0]})", () => {
+  try { validateWidget(null, "ok"); } catch (err) {
+    if ((err as { code?: string }).code !== "widget-refused") throw err;
+  }
+});
+`;
+    const analysis = analyse(build("cited", cited));
+    const entry = analysis.untestedBreakdown.find((b) => b.code === "widget-refused");
+    assert.ok(entry, "the uncited sibling must still be reported");
+    assert.equal(entry.untestedSites, 1, "the cited site is credited; the other is not");
+    assert.deepEqual(entry.lines, [siteLines[1]]);
+    assert.equal(
+      analysis.multiSiteCodes.find((m) => m.code === "widget-refused")?.citedSites,
+      1,
+      "the disclosure must say how many of the sites carry a citation",
+    );
+  });
+
+  test("a SINGLE-site code is unchanged: naming it still credits it", () => {
+    // The path that must NOT tighten. There is no second site to confuse it with, and
+    // requiring a citation here would add debt to every one-site file in the tree for
+    // no gain. If this ever goes red the ruling has been over-applied.
+    const naming = `
+import test from "node:test";
+import { validateWidget } from "../widget/validate.ts";
+test("a bad mode is refused", () => {
+  try { validateWidget(1, "bad"); } catch (err) {
+    if ((err as { code?: string }).code !== "mode-refused") throw err;
+  }
+});
+`;
+    const analysis = analyse(build("single", naming));
+    assert.equal(
+      analysis.untestedBreakdown.find((b) => b.code === "mode-refused"),
+      undefined,
+      "a single-site code named by a test block is covered, with or without a citation",
+    );
+  });
+
+  test("the rule can only raise a count, never lower one", () => {
+    // Stated as an invariant rather than left to the changelog: whatever the fixture,
+    // the number of credited sites under the new rule is at most the number of sites.
+    // A rule that could lower a count could be used to make a failing gate pass, which
+    // is the shape RH-1 names.
+    const naming = `
+import test from "node:test";
+import { validateWidget } from "../widget/validate.ts";
+test("null is refused", () => {
+  try { validateWidget(null, "ok"); } catch (err) {
+    if ((err as { code?: string }).code !== "widget-refused") throw err;
+  }
+});
+`;
+    const analysis = analyse(build("invariant", naming));
+    assert.ok(analysis.untestedSitesCount <= analysis.totalSites);
+    assert.ok(
+      analysis.untestedSitesCount >= 2,
+      "the two ambiguous sites must both be counted as debt here",
     );
   });
 });
