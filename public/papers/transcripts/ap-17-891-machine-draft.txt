@@ -152,6 +152,41 @@ $$
 --- MACHINE DRAFT TRANSCRIPTION PAGE 9 OF 31 ---
 [[ANNALEN-PAGE 899]]
 
+Hieraus folgt, wenn man $x'$ unendlich klein wählt:
+$$
+\frac{1}{2}\left( \frac{1}{V-v} + \frac{1}{V+v} \right) \frac{\partial \tau}{\partial t} = \frac{\partial \tau}{\partial x'} + \frac{1}{V-v} \frac{\partial \tau}{\partial t} ,
+$$
+oder
+$$
+\frac{\partial \tau}{\partial x'} + \frac{v}{V^2 - v^2} \frac{\partial \tau}{\partial t} = 0 .
+$$
+
+Es ist zu bemerken, daß wir statt des Koordinatenursprunges jeden anderen Punkt als Ausgangspunkt des Lichtstrahles hätten wählen können und es gilt deshalb die eben erhaltene Gleichung für alle Werte von $x'$, $y$, $z$.
+
+Eine analoge Überlegung — auf die $H$- und $Z$-Achse angewandt — liefert, wenn man beachtet, daß sich das Licht längs dieser Achsen vom ruhenden System aus betrachtet stets mit der Geschwindigkeit $\sqrt{V^2 - v^2}$ fortpflanzt:
+$$
+\begin{aligned}
+\frac{\partial \tau}{\partial y} &= 0 \\
+\frac{\partial \tau}{\partial z} &= 0 .
+\end{aligned}
+$$
+Aus diesen Gleichungen folgt, da $\tau$ eine [[EM]]lineare[[/EM]] Funktion ist:
+$$
+\tau = a\left( t - \frac{v}{V^2 - v^2} x' \right) ,
+$$
+wobei $a$ eine vorläufig unbekannte Funktion $\varphi(v)$ ist und der Kürze halber angenommen ist, daß im Anfangspunkte von $k$ für $\tau = 0$ $t = 0$ sei.
+
+Mit Hilfe dieses Resultates ist es leicht, die Größen $\xi$, $\eta$, $\zeta$ zu ermitteln, indem man durch Gleichungen ausdrückt, daß sich das Licht (wie das Prinzip der Konstanz der Lichtgeschwindigkeit in Verbindung mit dem Relativitätsprinzip verlangt) auch im bewegten System gemessen mit der Geschwindigkeit $V$ fortpflanzt. Für einen zur Zeit $\tau = 0$ in Richtung der wachsenden $\xi$ ausgesandten Lichtstrahl gilt:
+$$
+\xi = V \tau ,
+$$
+oder
+$$
+\xi = a V \left( t - \frac{v}{V^2 - v^2} x' \right) .
+$$
+
+Nun bewegt sich aber der Lichtstrahl relativ zum Anfangspunkte[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 10 OF 31 ---
 [[ANNALEN-PAGE 900]]
 
