@@ -4,11 +4,33 @@ import { bm04DataCsv } from "../experiments/bm04/dataExport.ts";
 
 function fixture(cells = 25) {
   return {
-    instanceId: "instance-1", runId: "accepted-run", snapshotVersion: 7, revisions: { input: 3 },
-    parameters: { cells, W: 1e-5, F: 4e-15, m: 1, T: 293.15, eta: 0.001, a: 0.5e-6, dt: 0.001, steps: 50, profile: "uniform" },
+    instanceId: "instance-1",
+    runId: "accepted-run",
+    snapshotVersion: 7,
+    revisions: { input: 3 },
+    parameters: {
+      cells,
+      W: 1e-5,
+      F: 4e-15,
+      m: 1,
+      T: 293.15,
+      eta: 0.001,
+      a: 0.5e-6,
+      dt: 0.001,
+      steps: 50,
+      profile: "uniform",
+    },
     outputs: [
-      { quantityId: "densityProfile", status: "value", value: new Float64Array(cells).fill(100000) },
-      { quantityId: "osmoticProfile", status: "value", value: new Float64Array(cells).fill(100000) },
+      {
+        quantityId: "densityProfile",
+        status: "value",
+        value: new Float64Array(cells).fill(100000),
+      },
+      {
+        quantityId: "osmoticProfile",
+        status: "value",
+        value: new Float64Array(cells).fill(100000),
+      },
     ],
   };
 }
@@ -56,4 +78,51 @@ test("BM-04 CSV rejects nonfinite, negative, and invalid-grid data", () => {
     snapshot.parameters.cells = cells;
     assert.throws(() => bm04DataCsv(snapshot, "sha"), /grid is invalid/);
   }
+});
+
+/**
+ * The four dataExport refusals by code and by line (am-p465).
+ *
+ * The owner ruled "Positional code argument", so these sites lost their builtin TypeError and now
+ * throw ExperimentRuntimeError with a kebab code first. The cases above already drove three of
+ * these paths by MESSAGE; what was missing was the code and the line citation the scanner reads,
+ * so a converted site did not count as tested.
+ *
+ * dataExport.ts:8 IS NOT DRIVEN AND IS LEFT COUNTED. It guards a nonfinite number inside the
+ * private cell() formatter, and nothing outside can reach it: every accepted density is refused
+ * first at :82, the grid at :24, and each of the seven metadata parameters (F, m, T, eta, a, dt,
+ * steps) set to Infinity is ACCEPTED - measured, one at a time - because metadata is stringified
+ * before it reaches cell(). It is a defensive guard, which is a reason to keep it and not a reason
+ * to claim it is tested.
+ */
+const refusal = (fn) => {
+  try {
+    fn();
+  } catch (err) {
+    return err;
+  }
+  throw new Error("The export was accepted when it should have been refused.");
+};
+
+test("BM-04 export refusals carry their codes (dataExport.ts:24, 42, 82)", () => {
+  // dataExport.ts:82 - a nonfinite accepted density
+  const density = fixture();
+  density.outputs[0].value[2] = NaN;
+  const densityErr = refusal(() => bm04DataCsv(density, "sha"));
+  assert.equal(densityErr.code, "density-not-exportable");
+  assert.match(densityErr.message, /finite, nonnegative/);
+
+  // dataExport.ts:24 - a grid the accepted parameters cannot describe
+  const grid = fixture();
+  grid.parameters.cells = 3.5;
+  const gridErr = refusal(() => bm04DataCsv(grid, "sha"));
+  assert.equal(gridErr.code, "accepted-grid-invalid");
+  assert.match(gridErr.message, /accepted grid is invalid/);
+
+  // dataExport.ts:42 - two profiles that do not share one grid
+  const profile = fixture();
+  profile.outputs[1].value = new Float64Array(3);
+  const profileErr = refusal(() => bm04DataCsv(profile, "sha"));
+  assert.equal(profileErr.code, "profile-grid-mismatch");
+  assert.match(profileErr.message, /match the accepted spatial grid/);
 });

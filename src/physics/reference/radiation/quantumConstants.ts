@@ -2,6 +2,8 @@
  * Values are read through the registry's guarded readers, never from ambient SI fallbacks.
  * The printed light-paper action coefficient is derived from (R/N) beta, not a modern h.
  */
+import { ConstantSetError } from "../constants.ts";
+
 export type QuantumConstantSource = Readonly<{
   id: string;
   gasConstantProvenance: string;
@@ -15,17 +17,28 @@ export type QuantumConstantReaders<S extends QuantumConstantSource> = Readonly<{
 
 function finitePositive(value: number, name: string): number {
   if (!Number.isFinite(value) || value <= 0) {
-    throw new RangeError(`${name} must be positive and representable in SI.`);
+    throw new ConstantSetError(
+      "constant-not-representable",
+      `${name} must be positive and representable in SI.`,
+    );
   }
   return value;
 }
 function unitOf(set: QuantumConstantSource, quantityId: string): string {
   const entries = set.entries.filter((entry) => entry.quantityId === quantityId);
-  if (entries.length !== 1) throw new TypeError(`Expected one ${quantityId} in ${set.id}.`);
+  if (entries.length !== 1)
+    throw new ConstantSetError(
+      "constant-entry-not-unique",
+      `Expected one ${quantityId} in ${set.id}.`,
+    );
   return entries[0]?.unit ?? "";
 }
 function tagged(set: QuantumConstantSource, value: TaggedQuantumConstant): number {
-  if (value.setId !== set.id) throw new TypeError("Cannot mix constant sets in a quantum calculation.");
+  if (value.setId !== set.id)
+    throw new ConstantSetError(
+      "mixed-constant-sets-forbidden",
+      "Cannot mix constant sets in a quantum calculation.",
+    );
   return finitePositive(value.value, "Constant");
 }
 function thermalFactor(set: QuantumConstantSource): number {
@@ -33,7 +46,10 @@ function thermalFactor(set: QuantumConstantSource): number {
   const unit = unitOf(set, direct ? "boltzmannConstant" : "molarGasConstant");
   if (unit === (direct ? "J/K" : "J/(mol K)")) return 1;
   if (unit === (direct ? "erg/K" : "erg/(mol K)")) return 1e-7;
-  throw new TypeError(`Unsupported thermal-constant unit: ${unit}.`);
+  throw new ConstantSetError(
+    "thermal-constant-unit-unsupported",
+    `Unsupported thermal-constant unit: ${unit}.`,
+  );
 }
 
 /** Includes the unit conversion omitted by a raw R/N read of the printed CGS set. */
@@ -52,14 +68,20 @@ export function quantumConstantsSI<S extends QuantumConstantSource>(
   let h: number;
   if (set.id === "einstein-1905-light-quanta-printed") {
     if (unitOf(set, "wienConstantBeta") !== "s K") {
-      throw new TypeError("The printed Wien beta must have unit s K.");
+      throw new ConstantSetError(
+        "wien-beta-unit-invalid",
+        "The printed Wien beta must have unit s K.",
+      );
     }
     const beta = tagged(set, readers.read(set, "wienConstantBeta"));
     h = finitePositive(kB * beta, "Printed action coefficient (R/N) beta");
   } else {
     const unit = unitOf(set, "planckConstant");
     if (unit !== "J s" && unit !== "erg s") {
-      throw new TypeError(`Unsupported action-constant unit: ${unit}.`);
+      throw new ConstantSetError(
+        "action-constant-unit-unsupported",
+        `Unsupported action-constant unit: ${unit}.`,
+      );
     }
     h = finitePositive(
       tagged(set, readers.read(set, "planckConstant")) * (unit === "erg s" ? 1e-7 : 1),

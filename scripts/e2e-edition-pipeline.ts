@@ -94,7 +94,21 @@ export const SENTENCE_UNIT_RULING =
   "sentence-level reconciliation: the manifest format has no sentence kind (am-xz2d decision 1, owner ruling pending)";
 
 /** Control-flow marker for an empty corpus; never surfaced as a compiler error. */
-class EmptyCorpus extends Error {}
+/**
+ * The corpus loaded but held nothing to check.
+ *
+ * Carries a code as its first constructor argument, per the owner's ruling on am-p465
+ * ("Positional code argument"). It threw with no arguments at all before, so nothing naming the
+ * refusal reached a reader or the scanner.
+ */
+class EmptyCorpusError extends Error {
+  readonly code: string;
+  constructor(code: string, message = "The corpus contains no records to check.") {
+    super(message);
+    this.name = "EmptyCorpusError";
+    this.code = code;
+  }
+}
 
 function argValue(flag: string): string | undefined {
   const i = process.argv.indexOf(flag);
@@ -278,7 +292,7 @@ export async function runEditionPipeline(options: {
       push("compile", "not-available", `No content directory at ${join(root, "content")}.`, {
         code: "content-corpus-absent",
       });
-      throw new EmptyCorpus();
+      throw new EmptyCorpusError("corpus-empty");
     }
     const files = await loadReadingFiles(root);
     if (files.length === 0) {
@@ -288,7 +302,7 @@ export async function runEditionPipeline(options: {
       push("compile", "not-available", `No content records found under ${join(root, "content")}.`, {
         code: "content-corpus-absent",
       });
-      throw new EmptyCorpus();
+      throw new EmptyCorpusError("corpus-empty");
     }
     const compiled = compileReadingContent(files);
     const errors = compiled.diagnostics.filter((d) => d.severity === "error");
@@ -305,7 +319,7 @@ export async function runEditionPipeline(options: {
       );
     }
   } catch (err: unknown) {
-    if (!(err instanceof EmptyCorpus)) {
+    if (!(err instanceof EmptyCorpusError)) {
       push("compile", "failed", `The content compiler threw: ${String(err)}`, {
         code: "compile-threw",
       });
