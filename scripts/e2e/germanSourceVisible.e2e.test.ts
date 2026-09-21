@@ -45,8 +45,22 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const TRANSCRIPTS = join(REPO_ROOT, "public", "papers", "transcripts");
 const OUT_DIR = join(REPO_ROOT, "out");
 
-/** The mandatory first line of the ledger format, which must never reach a reader. */
-const FURNITURE_MARKER = "REVIEWED TRANSCRIPTION";
+/**
+ * The page marker that must never reach a reader, matched by its GRAMMAR rather than by
+ * its adjective.
+ *
+ * This was the literal string "REVIEWED TRANSCRIPTION" until am-wisq renamed the header to
+ * "--- MACHINE DRAFT TRANSCRIPTION PAGE n OF m ---". Keyed on the word REVIEWED, this
+ * guard would have gone blind at the exact moment the thing it guards against started
+ * happening: segmentLedger's stripFurniture is keyed on the same word, so the marker would
+ * have begun leaking into the German face and this assertion would have stopped matching
+ * it, both in the same instant and in the same direction.
+ *
+ * The grammar is `--- <WORDS> TRANSCRIPTION PAGE n OF m ---` and only the adjective moves,
+ * so the structure is what gets asserted. A future rename to any other adjective is
+ * covered without anyone remembering to come back here.
+ */
+const FURNITURE_MARKER = /---\s*[A-Z][A-Z \t]*TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---/;
 
 interface LedgerOnDisk {
   readonly bibKey: string;
@@ -122,15 +136,17 @@ test("every reviewed ledger on disk reaches a reader through its built German pa
     if (!page.includes(needle)) {
       unreachable.push(`${ledger.bibKey}: the built page does not contain "${needle}…"`);
     }
-    if (page.includes(FURNITURE_MARKER)) {
-      leakedFurniture.push(`${ledger.bibKey}: the page shows "${FURNITURE_MARKER}"`);
+    const furniture = FURNITURE_MARKER.exec(page);
+    if (furniture) {
+      leakedFurniture.push(`${ledger.bibKey}: the page shows "${furniture[0]}"`);
     }
   }
 
   // Page furniture reaching a reader is the worse failure of the two, and it is already
   // forbidden: AGENTS.md says scan-page furniture belongs in the ledger and the receipt,
   // never in the continuous edition. Nothing enforced that at the artefact level until
-  // now. It would also display the word REVIEWED about text nobody has reviewed (am-wisq).
+  // now, and under am-wisq the marker itself is being renamed, so this matches its
+  // grammar rather than either spelling of its adjective.
   assert.deepEqual(
     leakedFurniture,
     [],

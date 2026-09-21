@@ -72,7 +72,25 @@ export type SegmentLedgerResult =
       differences: readonly ReconciliationDifference[];
     }>;
 
-const PAGE_MARKER = /---\s*REVIEWED\s+TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---/g;
+/**
+ * The ledger page marker, matched by its GRAMMAR rather than by its status word.
+ *
+ * This read `REVIEWED\s+TRANSCRIPTION` until am-wisq began renaming the header to
+ * "--- MACHINE DRAFT TRANSCRIPTION PAGE n OF m ---". Keyed on the word REVIEWED, this
+ * strip would have stopped matching the moment the rename landed, and every page marker
+ * would have gone into the German source face as if it were Einstein's text - which
+ * AGENTS.md forbids outright: scan-page furniture belongs in the ledger and the receipt,
+ * never in the continuous edition.
+ *
+ * WHY THIS PATTERN IS PERMISSIVE WHERE THE LEDGER TOKENIZER'S IS NOT, because the two
+ * differing is deliberate and someone will otherwise "harmonise" them and reintroduce
+ * this. ledgerTokenizer.ts decides what IS a valid ledger header and must be an explicit
+ * alternation: accepting an undeclared status word there would let anything claim to be a
+ * header, so fail-closed is correct. This function decides what to REMOVE before a reader
+ * sees it, and a marker it fails to match leaks into the edition, so fail-OPEN is the
+ * danger here and it must match the grammar and survive the next status word too.
+ */
+const PAGE_MARKER = /---\s*[A-Z][A-Z \t]*TRANSCRIPTION\s+PAGE\s+\d+\s+OF\s+\d+\s*---/g;
 const PAGE_ANCHOR = /\[\[ANNALEN-PAGE[^\]]*\]\]/g;
 const ARTICLE_NUMBER = /\[\[ARTICLE-NUMBER[^\]]*\]\]/g;
 const OTHER_ARTICLE = /\[\[OTHER-ARTICLE-OMITTED\]\]/g;
