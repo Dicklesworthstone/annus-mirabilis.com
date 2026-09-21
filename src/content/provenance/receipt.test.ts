@@ -150,6 +150,22 @@ const errorTestCases = [
   { file: "err-scan-sha256-missing.md", rule: "receipt-scan-sha256-invalid" },
   { file: "err-ledger-pdf-sha-mismatch.md", rule: "receipt-ledger-source-pdf-sha256-mismatch" },
   { file: "err-typo-no-evidence.md", rule: "receipt-typo-no-evidence" },
+  // The four refusals added with the retraction work. Each is a SEPARATE fixture because they
+  // are four distinct branches: one plant cannot tell them apart, and a single fixture that
+  // trips several would let three of the four be deleted without anything going red.
+  //
+  // err-typo-unknown-field.md reproduces the REAL record shape that shipped before am-59wk -
+  // printedPage flat instead of a locator, proposedCorrection instead of proposedReading, and
+  // status/action/foundBy that the type never declared. That shape is wrong in several ways at
+  // once, so the fixture trips field-missing and bad-status too; the assertion targets the
+  // specific rule. It is the right fixture anyway: rejecting undeclared fields is exactly the
+  // rule that would have caught the original defect, a retraction written into a field the
+  // type did not have.
+  { file: "err-typo-unknown-field.md", rule: "receipt-typo-unknown-field" },
+  { file: "err-typo-field-missing.md", rule: "receipt-typo-field-missing" },
+  // The invalid value here is the real one: seven records carried exactly this status.
+  { file: "err-typo-bad-status.md", rule: "receipt-typo-bad-status" },
+  { file: "err-typo-retraction-missing.md", rule: "receipt-typo-retraction-missing" },
   { file: "err-tool-run-id-invalid.md", rule: "receipt-tool-run-id-invalid" },
   { file: "err-tool-run-id-duplicate.md", rule: "receipt-tool-run-id-duplicate" },
   { file: "err-fifth-reuse-terms.md", rule: "receipt-reuse-terms-invalid" },
