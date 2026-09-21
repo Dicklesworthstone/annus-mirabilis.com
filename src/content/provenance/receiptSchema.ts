@@ -228,6 +228,33 @@ export type Transcription = Readonly<{
   editors: readonly Editor[];
 }>;
 
+/**
+ * A proposal to read a printed word differently from the plate.
+ *
+ * `status` exists because a correction can turn out to be wrong, and a record that cannot
+ * say so is worse than no record: the retraction becomes prose addressed to a human who
+ * reads every entry in order, while every mechanical reader still sees a live correction.
+ * That is not hypothetical. Three records on ap-17-891 proposed changing a printed `H` to
+ * `Y` on pages 899 and 902; the `H` is capital eta, the axis of the moving system's eta,
+ * typeset identically to a Latin H. The retraction was written as free prose in a field
+ * the type did not declare, so nothing could distinguish the three retracted records from
+ * the ones that are still right.
+ *
+ * A retracted record is KEPT, never deleted. A typographical record that silently loses
+ * its retractions is worth less than one that shows them, because a reviewer cannot tell
+ * the difference between a correction nobody proposed and one that was proposed and
+ * refuted. Read live corrections through `liveTypographicalErrors`.
+ */
+export type TypographicalErrorStatus = "active" | "retracted";
+
+export type TypographicalErrorRetraction = Readonly<{
+  /** Why the correction does not hold. Carries the evidence, not just the verdict. */
+  reason: string;
+  /** Who retracted it, which need not be who recorded it. */
+  retractedBy: string;
+  retractedAt: string;
+}>;
+
 export type TypographicalError = Readonly<{
   id: string;
   locator: Readonly<{ pdfPageIndex: number; printedPage: number; line?: number | undefined }>;
@@ -238,7 +265,24 @@ export type TypographicalError = Readonly<{
   layer: "source" | "translation";
   recordedBy: string;
   recordedAt: string;
+  /** Absent means "active": the overwhelming majority of records, and the safe default. */
+  status?: TypographicalErrorStatus | undefined;
+  /** Required when status is "retracted", and meaningless otherwise. */
+  retraction?: TypographicalErrorRetraction | undefined;
 }>;
+
+/**
+ * The corrections a consumer should act on. A retracted record is not one of them.
+ *
+ * Anything that applies, displays, or counts proposed corrections reads them through here,
+ * so that retracting a record is a STATE CHANGE rather than a note somebody has to notice.
+ */
+export function liveTypographicalErrors(
+  errors: readonly TypographicalError[] | undefined,
+): readonly TypographicalError[] {
+  if (!errors) return [];
+  return errors.filter((e) => e.status !== "retracted");
+}
 
 export type WatchListItem = Readonly<{
   id: string;

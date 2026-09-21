@@ -895,17 +895,97 @@ export function checkReceipt(
   }
 
   // 9. Typographical Errors
+  //
+  // This used to check ONE thing - that evidence was non-empty - while the type declared
+  // nine fields. Into that gap seven records were written in a shape nobody declared,
+  // using proposedCorrection for proposedReading and carrying invented status/action/
+  // foundBy fields, and every one of them validated. The cost was not cosmetic: a
+  // retraction written in an undeclared `status` field was invisible to every mechanical
+  // reader, so three refuted corrections sat in exactly the same state as the live ones.
+  //
+  // So the validator now enforces the shape the type declares, and rejects fields the type
+  // does NOT declare. The second half matters more than the first: a missing field is
+  // conspicuous, an invented one is silently accepted and reads as though it works.
+  const TYPO_REQUIRED = [
+    "id",
+    "locator",
+    "originalReading",
+    "proposedReading",
+    "reasoning",
+    "evidence",
+    "layer",
+    "recordedBy",
+    "recordedAt",
+  ] as const;
+  const TYPO_OPTIONAL = ["status", "retraction"] as const;
+  const TYPO_KNOWN = new Set<string>([...TYPO_REQUIRED, ...TYPO_OPTIONAL]);
+
   if (Array.isArray(fm.typographicalErrors)) {
     for (let i = 0; i < fm.typographicalErrors.length; i++) {
       const typo = fm.typographicalErrors[i];
       if (!typo) continue;
       const p = `typographicalErrors[${i}]`;
-      if (!typo.evidence?.trim()) {
+      const label = typo.id || String(i);
+      const rec = typo as unknown as Record<string, unknown>;
+
+      for (const field of TYPO_REQUIRED) {
+        const value = rec[field];
+        const empty =
+          value === undefined ||
+          value === null ||
+          (typeof value === "string" && value.trim() === "");
+        if (empty) {
+          addError(
+            field === "evidence" ? "receipt-typo-no-evidence" : "receipt-typo-field-missing",
+            `${p}.${field}`,
+            `Typographical error "${label}" is missing required field "${field}".`,
+          );
+        }
+      }
+
+      for (const field of Object.keys(rec)) {
+        if (!TYPO_KNOWN.has(field)) {
+          addError(
+            "receipt-typo-unknown-field",
+            `${p}.${field}`,
+            `Typographical error "${label}" carries undeclared field "${field}". A record in a ` +
+              `shape nothing declares is accepted by nothing either: this is how a retraction ` +
+              `written into an invented field stayed invisible.`,
+          );
+        }
+      }
+
+      const status = rec.status;
+      if (status !== undefined && status !== "active" && status !== "retracted") {
         addError(
-          "receipt-typo-no-evidence",
-          `${p}.evidence`,
-          `Typographical error "${typo.id || i}" is missing evidence.`,
+          "receipt-typo-bad-status",
+          `${p}.status`,
+          `Typographical error "${label}" has status "${String(status)}"; expected "active" or ` +
+            `"retracted".`,
         );
+      }
+      if (status === "retracted") {
+        const r = rec.retraction as Record<string, unknown> | undefined;
+        const missing = !r || typeof r !== "object";
+        if (missing) {
+          addError(
+            "receipt-typo-retraction-missing",
+            `${p}.retraction`,
+            `Typographical error "${label}" is retracted but records no retraction: a verdict ` +
+              `without its reason and its author cannot be re-checked.`,
+          );
+        } else {
+          for (const field of ["reason", "retractedBy", "retractedAt"] as const) {
+            const v = r[field];
+            if (typeof v !== "string" || v.trim() === "") {
+              addError(
+                "receipt-typo-retraction-missing",
+                `${p}.retraction.${field}`,
+                `Retraction of "${label}" is missing "${field}".`,
+              );
+            }
+          }
+        }
       }
     }
   }
