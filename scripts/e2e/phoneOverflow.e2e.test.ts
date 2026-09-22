@@ -80,6 +80,12 @@
  *   ceiling raised to 200    2 arms failing   REGRESSION + IMPROVED
  *   ceiling restored to 94   1 arm failing    REGRESSION only
  *
+ * That plant target has since been REPAIRED OUT of the baseline (073ef4c2, measured on build
+ * 6dn6I6x6b_v2zuJKarWa_), so the recipe above no longer reproduces as written - a route that no
+ * longer overflows cannot exercise the magnitude arms, which read only measured violations. The
+ * record stays because it is what proved the arms, not because it is a runnable procedure. To
+ * re-prove them, plant against a pair that IS in BASELINE_OVERFLOWING at the time you run it.
+ *
  * Two things that only this shape could show. The magnitude arm is named SEPARATELY from the
  * presence arm, so a WORSE finding cannot be mistaken for a regression; and the arm count rises
  * from one to two rather than the magnitude finding replacing the regression, which is the
@@ -185,62 +191,23 @@ const PLANT_WIDTH = 320;
  * ownership decision.
  */
 // MAGNITUDES ARE NOW ENFORCED, not indicative (am-a3f1). Each entry carries the largest excess
-// measured for it, and exceeding that ceiling fails. The numbers here were measured on build
-// oHPd2JiH5los7k6SuuBJz; two of them - /lab/bm-03/@320 and /lab/lq-05/@320 - are expected to
-// leave entirely once 48c2f97c is measured, and their ceilings are the last honest values rather
-// than predictions.
+// measured for it, and exceeding that ceiling fails.
+//
+// THE TABLE COHORT IS GONE, and every one of them left by repair at its cause rather than by
+// going quiet. Recorded by cause, because the list shortening on its own is exactly what a
+// silently-hidden defect also looks like:
+//
+//   logarithms x3, exponentials@320   0e50a762 + e684aae1, by wiring foundations.css so its
+//                                     `.construction-table-wrap { overflow-x: auto }` stopped
+//                                     computing VISIBLE (am-orphaned-stylesheets-5u3c)
+//   partial-derivatives               817d2cc1 + c5586f5c, routed through that same audited
+//                                     wrapper instead of a generic `:has` rule
+//   taylor-expansion x3               073ef4c2, measured out on build 6dn6I6x6b_v2zuJKarWa_
+//
+// The stylesheet fix could not reach the last two because neither used the wrapper: they needed
+// a markup change, not a rule. That is why they outlived their four siblings by a day, and it is
+// the reason to distrust "the baseline got shorter" as evidence of anything on its own.
 const BASELINE_OVERFLOWING: readonly BaselineEntry[] = Object.freeze([
-  // TABLE WITH NO WORKING SCROLL CONTAINER. A table is at least its min-content width, so
-  // `width: 100%` cannot contain it and the document grows instead. The foundations three are
-  // NOT missing a rule: src/components/foundations/foundations.css declares
-  // `.construction-table-wrap { overflow-x: auto }` and is imported by nothing, so the wrapper
-  // computes overflow-x VISIBLE on the page - measured 358px wide with scrollWidth 453 at 390px.
-  // Wiring that stylesheet up changes 42 pages, which is an ownership decision, not a mobile fix:
-  // am-orphaned-stylesheets-5u3c.
-  {
-    id: "/foundations/taylor-expansion/@320",
-    maxExcessPx: 94,
-    measuredOn: "oHPd2JiH5los7k6SuuBJz",
-  },
-  {
-    id: "/foundations/taylor-expansion/@360",
-    maxExcessPx: 55,
-    measuredOn: "oHPd2JiH5los7k6SuuBJz",
-  },
-  {
-    id: "/foundations/taylor-expansion/@390",
-    maxExcessPx: 24,
-    measuredOn: "oHPd2JiH5los7k6SuuBJz",
-  },
-  // WHAT THE ORPHANED-STYLESHEET WIRING REACHED, AND WHAT IT COULD NOT.
-  //
-  // 0e50a762 and e684aae1 made foundations.css live, so its
-  // `.construction-table-wrap { overflow-x: auto }` finally applies. Measured on build
-  // oHPd2JiH5los7k6SuuBJz: /foundations/logarithms/ at all three widths and
-  // /foundations/exponentials/@320 are contained and have left this list.
-  //
-  // The two that remain do not use that wrapper, which is why a stylesheet fix could not reach
-  // them - counted in the built HTML rather than assumed: logarithms 1, exponentials 1,
-  // partial-derivatives 0, taylor-expansion 0. partial-derivatives wraps its table in
-  // div.thermodynamics-held-fixed-comparison, which has no overflow rule; taylor-expansion has no
-  // wrapper at all, its table.data-table being a direct child of the section.
-  // Added one cycle after the rest of this list, and the gate is how it was found rather than a
-  // guess. It was NOT overflowing at 360 when the baseline was derived; a type-scale change landed
-  // between the two builds (4137906a) and this table, which nothing constrains, grew about 10px:
-  // 357 -> 367 at 320, and 360 -> 366 at 360. Measured 5 runs at each width before recording it,
-  // because a 6px excess is exactly the size that could have been noise: 5/5 overflowing at 320
-  // and at 360, 0/5 at 390. Same cause as its sibling entries - am-orphaned-stylesheets-5u3c.
-  // /foundations/exponentials/ was filed under "rendered mathematics" and belongs here: its
-  // offender is table.data-table inside div.construction-table-wrap, the same inert wrapper as
-  // its three siblings above. Re-measured, not inherited.
-
-  // A ROW THAT WILL NOT WRAP. Same class as the .predict-mode-tabs defect already repaired on
-  // /lab/me-02/: two 240px button.secondary elements side by side on /lab/lq-07/, a 167px
-  // button.secondary on /lab/bm-03/, and a 280px div.input-field on /lab/lq-05/.
-  //
-  // /lab/lq-05/ is the one of the three whose obvious cause is already handled - .input-field
-  // carries min-width:0 and .input-grid collapses to a single column at 560px - so whatever holds
-  // it open is something else and it is not grouped here on the strength of looking similar.
   // /discover/brownian-motion/ - THE EXCURSION IS EXPLAINED, AND IT WAS NOT THE COPY.
   //
   // This entry read "+236px" and its two wider siblings are gone, repaired by ca2b4d29 and
@@ -299,6 +266,15 @@ const REPAIRED: readonly { readonly route: string; readonly defect: string }[] =
     route: "/lab/sr-01/",
     defect:
       "table.event-ledger carries six columns and had no container at all, so its 437px min-content went straight into the document at 320, 360 and 390 alike; contained by .table-scroll, with the tab stop and name shipped in the same commit so the fix did not trade the overflow for a keyboard trap (702cd935)",
+  },
+  // The last of the foundations table cohort, and the only one that was in BASELINE_OVERFLOWING
+  // at all three widths. It moves here rather than simply disappearing, because a baselined pair
+  // that stops overflowing leaves no trace otherwise: the presence arm goes quiet on a repair and
+  // on a route that was deleted or renamed in exactly the same way.
+  {
+    route: "/foundations/taylor-expansion/",
+    defect:
+      "TaylorBinomialExtension rendered a bare table.data-table as a direct child of its section, with no scroll wrapper while every sibling foundations component used construction-table-wrap. The rows sat AT a min-content floor of 377.3px inside a 288px section, so the 94px excess at 320 was a property of the column contents and no padding or margin change could reach it. Contained by the audited construction-table-wrap, with the tab stop and accessible name in the same commit so the overflow was not traded for a keyboard trap (073ef4c2)",
   },
 ]);
 
