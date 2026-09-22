@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { loadFirstPages } from "../../components/home/firstPages.ts";
 import type { SearchType } from "../../search/core.ts";
 import { parseSearchShard } from "../../search/protocol.ts";
+import { SearchPageField } from "../../search/SearchPageField.tsx";
 import { readCurrentSearchShard, readSearchManifest } from "../../search/server.ts";
 
 export const metadata: Metadata = {
@@ -162,15 +163,14 @@ export default async function SearchIndexPage() {
       <section className="hero">
         <p className="eyebrow">The whole index, on one page</p>
         <h1>Search</h1>
+        {/* The field comes first because it is what a reader looks for on a page called Search.
+            The lead used to open with "Press Ctrl K", which a phone cannot do; the shortcut now
+            sits inside the field, shown only where there is a keyboard to press it on. */}
+        <SearchPageField />
         <p className="lead">
-          Press <kbd>Ctrl</kbd> <kbd>K</kbd>, or <kbd>Cmd</kbd> <kbd>K</kbd> on a Mac, to search
-          from anywhere in the edition. If that does not work, or you would rather not use it,
-          everything the edition has indexed is listed below and your browser&rsquo;s own find will
-          reach all of it.
-        </p>
-        <p>
-          {entries.length} entries across {sections.length} kinds. Each one links to the passage,
-          argument, equation, instrument or lesson it names.
+          All {entries.length} entries the edition has indexed are listed below, each linking to the
+          passage, argument, equation, instrument or lesson it names. Your browser&rsquo;s own find
+          reaches every one of them.
         </p>
       </section>
 
