@@ -68,7 +68,7 @@
 }
 .camera-plot figcaption {
   font-size: var(--type-fine);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 .camera-lab input,
 .camera-lab select {

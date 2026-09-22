@@ -27,7 +27,7 @@
 
 .notation-header .lead {
   font-size: var(--type-body);
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--muted);
   max-width: 800px;
   margin: 0 0 1.25rem;
@@ -304,7 +304,7 @@
 
 .collision-card-desc {
   font-size: var(--type-fine);
-  line-height: 1.45;
+  line-height: 1.5;
   margin: 0.5rem 0;
 }
 
@@ -558,7 +558,7 @@
   color: var(--muted);
   font-style: italic;
   margin: 0.5rem 0;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .card-footer-row {

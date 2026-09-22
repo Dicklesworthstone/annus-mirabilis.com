@@ -87,7 +87,7 @@
 }
 .search-snippet {
   font-size: var(--type-small);
-  line-height: 1.45;
+  line-height: 1.5;
   margin-top: 0.25rem;
 }
 .search-dialog :focus-visible {

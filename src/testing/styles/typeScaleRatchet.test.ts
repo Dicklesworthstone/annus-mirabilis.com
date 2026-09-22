@@ -105,9 +105,9 @@ const DISTINCT_FONT_SIZE_BASELINE = 41;
 /**
  * The other two classes of the same defect, measured 2026-09-22 and held shrink-only.
  *
- * line-height 15 values over 54 declarations; the 1.4/1.45/1.5/1.55/1.6 cluster is 38 of them.
- * NOT collapsed in this pass: line-height sets vertical rhythm and the reading matrix depends on
- * it, so it wants its own measured pass rather than a nearest-value sweep.
+ * line-height was 15 values; it is 13. 1.45 and 1.55 were collapsed into 1.5 and 1.6 into 1.65,
+ * BY JOB rather than by nearest value: 1.45/1.5/1.55 are all secondary UI text and 1.6/1.65/1.7
+ * are all reading prose. Two uses of 1.6 survive in files another pane owns.
  *
  * font-weight 10 values, of which `bold`/`700` and `normal`/`400` are one weight spelled two ways.
  * Thirty-three declarations were normalised across ten files; the count is still 10 because THREE
@@ -115,34 +115,45 @@ const DISTINCT_FONT_SIZE_BASELINE = 41;
  * another pane. `200 800` and `100 800` are variable-font axis RANGES in @font-face, not weights,
  * and are correctly left alone.
  */
-const LINE_HEIGHT_BASELINE = 15;
+const LINE_HEIGHT_BASELINE = 13;
 const FONT_WEIGHT_BASELINE = 10;
 
 describe("type scale scatter ratchet", () => {
-  test("line-height and font-weight vocabularies never grow", () => {
+  // SPLIT INTO TWO TESTS, because one test could not report both.
+  //
+  // These shared a single test until the orchestrator planted an 11th weight AND a 16th
+  // line-height at once: the line-height assertion failed first and font-weight never reported.
+  // A gate that can only name one of the two defects it watches hides the second behind the
+  // first, and the plant that proved the gate works is the same plant that exposed it.
+  test("the line-height vocabulary never grows, and shrinking tightens the baseline", () => {
     const lh = distinctValues("line-height");
-    const fw = distinctValues("font-weight");
     console.log(
-      `[type scatter] line-height ${lh.values.length}/${LINE_HEIGHT_BASELINE} in ${lh.declarations} declarations; font-weight ${fw.values.length}/${FONT_WEIGHT_BASELINE} in ${fw.declarations}`,
+      `[type scatter] line-height ${lh.values.length}/${LINE_HEIGHT_BASELINE} in ${lh.declarations} declarations`,
     );
     expect(lh.values.length).toBeGreaterThan(0);
-    expect(fw.values.length).toBeGreaterThan(0);
     expect(
       lh.values.length,
       `line-height vocabulary grew to ${lh.values.length}: ${lh.values.join(", ")}`,
     ).toBeLessThanOrEqual(LINE_HEIGHT_BASELINE);
     expect(
+      lh.values.length,
+      `Pawl: line-height is down to ${lh.values.length}; tighten LINE_HEIGHT_BASELINE in this commit.`,
+    ).toBeGreaterThanOrEqual(LINE_HEIGHT_BASELINE);
+  });
+
+  test("the font-weight vocabulary never grows, and shrinking tightens the baseline", () => {
+    const fw = distinctValues("font-weight");
+    console.log(
+      `[type scatter] font-weight ${fw.values.length}/${FONT_WEIGHT_BASELINE} in ${fw.declarations} declarations`,
+    );
+    expect(fw.values.length).toBeGreaterThan(0);
+    expect(
       fw.values.length,
       `font-weight vocabulary grew to ${fw.values.length}: ${fw.values.join(", ")}`,
     ).toBeLessThanOrEqual(FONT_WEIGHT_BASELINE);
-    // The pawl, both classes.
-    expect(
-      lh.values.length,
-      `Pawl: line-height is down to ${lh.values.length}; tighten LINE_HEIGHT_BASELINE.`,
-    ).toBeGreaterThanOrEqual(LINE_HEIGHT_BASELINE);
     expect(
       fw.values.length,
-      `Pawl: font-weight is down to ${fw.values.length}; tighten FONT_WEIGHT_BASELINE.`,
+      `Pawl: font-weight is down to ${fw.values.length}; tighten FONT_WEIGHT_BASELINE in this commit.`,
     ).toBeGreaterThanOrEqual(FONT_WEIGHT_BASELINE);
   });
 

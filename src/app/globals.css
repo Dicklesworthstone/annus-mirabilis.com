@@ -89,7 +89,7 @@ body {
   color: var(--ink);
   font-family: var(--font-serif);
   font-size: var(--type-body);
-  line-height: 1.6;
+  line-height: 1.65;
   font-optical-sizing: auto;
   font-variant-numeric: lining-nums;
   text-rendering: optimizeLegibility;
@@ -368,7 +368,7 @@ h3 {
 }
 .lead {
   font-size: var(--type-lead);
-  line-height: 1.55;
+  line-height: 1.5;
   max-width: 64ch;
 }
 .actions {
@@ -479,7 +479,7 @@ legend {
   display: block;
   font-family: var(--font-sans);
   font-size: var(--type-fine);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 .input-grid label span {
   color: var(--muted);
@@ -524,7 +524,7 @@ legend {
 }
 .fine {
   font-size: var(--type-fine);
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--muted);
 }
 .notice {
@@ -556,7 +556,7 @@ legend {
 }
 .accepted-caption {
   font-size: var(--type-fine);
-  line-height: 1.6;
+  line-height: 1.65;
   border-block: 1px solid var(--line);
   padding: 0.75rem 0;
   color: var(--muted);
