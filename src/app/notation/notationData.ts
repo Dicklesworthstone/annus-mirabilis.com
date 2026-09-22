@@ -52,36 +52,84 @@ export interface NotationPageData {
   readonly papers: readonly PaperNotationSection[];
   readonly allEntries: readonly EnrichedConcordanceEntry[];
   readonly collisionClusters: readonly CollisionCluster[];
-  readonly uniqueGlyphs: readonly { key: string; display: string; count: number }[];
+  /**
+   * One item per printed glyph for the index at the top of the page: `html` is the glyph set by
+   * KaTeX (HTML and MathML) rather than its ASCII spelling, and `href` is the first entry that
+   * uses it, an element that exists on the page.
+   */
+  readonly uniqueGlyphs: readonly {
+    key: string;
+    display: string;
+    count: number;
+    html: string;
+    href: string;
+  }[];
+  /**
+   * How far the entries have been checked against the printed pages, computed from each entry's
+   * `verification.checkedAgainst`, so the sentence cannot outlive the records it describes.
+   */
   readonly honestyNotice: {
     readonly isPendingFacsimile: boolean;
+    readonly checkedCount: number;
+    readonly pendingCount: number;
     readonly message: string;
   };
 }
 
+/** The controlled wording every not-yet-checked entry carries in `verification.checkedAgainst`. */
+const PENDING_SCAN = /^Pending facsimile scan\b/;
+
+/**
+ * The status sentence under the page's lead: how many entries have been checked symbol by symbol
+ * against the printed pages, for which papers, and how many still come from transcriptions only.
+ */
+export function describeVerification(entries: readonly EnrichedConcordanceEntry[]): {
+  checkedCount: number;
+  pendingCount: number;
+  message: string;
+} {
+  const checked = entries.filter((e) => !PENDING_SCAN.test(e.verification.checkedAgainst));
+  const pendingCount = entries.length - checked.length;
+  const papers = [...new Set(checked.map((e) => e.paperTitle))];
+  const where = papers.length === 1 ? `, all of them in ${papers[0]}` : "";
+  const pending = `${pendingCount === 1 ? "entry was" : "entries were"} taken from transcriptions of the papers and ${pendingCount === 1 ? "has" : "have"} not yet been checked against the scans`;
+  const one = entries.length === 1;
+  const message =
+    checked.length === 0
+      ? one
+        ? "The one entry has not yet been checked against the printed pages; it was taken from a transcription of the paper."
+        : `None of the ${entries.length} entries has yet been checked against the printed pages. All of them were taken from transcriptions of the papers.`
+      : pendingCount === 0
+        ? one
+          ? "The one entry has been checked symbol by symbol against the printed pages."
+          : `All ${entries.length} entries have been checked symbol by symbol against the printed pages.`
+        : `${checked.length} of ${entries.length} entries ${checked.length === 1 ? "has" : "have"} been checked symbol by symbol against the printed pages${where}. The other ${pendingCount} ${pending}.`;
+  return { checkedCount: checked.length, pendingCount, message };
+}
+
 const PAPER_METADATA: Record<string, { title: string; number: number; locator: string }> = {
   "light-quanta": {
-    title: "Light Quanta",
+    title: "Light quanta",
     number: 1,
     locator: "Ann. Phys. (4) 17, 132–148 (1905)",
   },
   "brownian-motion": {
-    title: "Brownian Motion",
+    title: "Brownian motion",
     number: 2,
     locator: "Ann. Phys. (4) 17, 549–560 (1905)",
   },
   "special-relativity": {
-    title: "Special Relativity",
+    title: "Special relativity",
     number: 3,
     locator: "Ann. Phys. (4) 17, 891–921 (1905)",
   },
   "mass-energy": {
-    title: "Mass and Energy",
+    title: "Mass and energy",
     number: 4,
     locator: "Ann. Phys. (4) 18, 639–641 (1905)",
   },
   "molecular-dimensions": {
-    title: "Molecular Dimensions (Companion)",
+    title: "Molecular dimensions (the dissertation)",
     number: 5,
     locator: "Ann. Phys. (4) 19, 289–306 (1906)",
   },
@@ -347,6 +395,8 @@ export function loadNotationPageData(
       key,
       display: list[0]?.glyph.unicode || key,
       count: list.length,
+      html: renderStaticKatex(key).html,
+      href: `#${list[0]?.id ?? ""}`,
     }))
     .sort((a, b) => a.key.localeCompare(b.key));
 
@@ -358,10 +408,9 @@ export function loadNotationPageData(
     allEntries,
     collisionClusters,
     uniqueGlyphs,
-    honestyNotice: {
-      isPendingFacsimile: true,
-      message:
-        "All notation concordance entries are currently marked pending facsimile verification. No pinned facsimile scan is committed in the repository, and entries reflect checked period transcriptions rather than direct pixel verifications.",
-    },
+    honestyNotice: (() => {
+      const verification = describeVerification(allEntries);
+      return { isPendingFacsimile: verification.pendingCount > 0, ...verification };
+    })(),
   };
 }

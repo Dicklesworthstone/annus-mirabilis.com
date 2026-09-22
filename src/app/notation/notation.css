@@ -11,106 +11,67 @@
   font-family: inherit;
 }
 
-/* Page Intro & Header */
+/*
+ * THE HEADER AND THE SYMBOL INDEX (chrome, pane %44).
+ *
+ * The title and lead take the site's own h1 and .lead; this page set its own, a bold 700 title
+ * and a muted body-size lead, and read unlike every other page. The status is one .callout-note
+ * sentence computed from the entries, where a red-ruled banner used to assert a pending state
+ * that 26 entries had already left.
+ *
+ * The index sets each printed symbol with KaTeX, as a reader meets it in the paper, instead of
+ * its ASCII spelling ("alpha_v", "1.35*10^-2"). Each links to the first entry that uses it; the
+ * old links pointed at 121 anchors that no element carried.
+ */
 .notation-header {
-  margin-bottom: 2rem;
-  border-bottom: 2px solid var(--line);
-  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.notation-status {
+  max-width: 64ch;
+  margin: 1.5rem 0 0;
 }
 
-.notation-header h1 {
-  font-size: var(--type-display);
-  line-height: 1.2;
-  margin: 0.5rem 0 1rem;
-  font-weight: 700;
-}
-
-.notation-header .lead {
-  font-size: var(--type-body);
-  line-height: 1.65;
-  color: var(--muted);
-  max-width: 800px;
-  margin: 0 0 1.25rem;
-}
-
-/* Editorial Honesty Notice Banner */
-.honesty-banner {
-  background: var(--wash);
-  border: 1px solid var(--line);
-  border-left: 5px solid var(--accent);
-  padding: 1rem 1.25rem;
-  border-radius: 4px;
-  margin-bottom: 2rem;
-}
-
-.honesty-banner h2 {
-  font-size: var(--type-small);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 0.4rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--ink);
-}
-
-.honesty-banner p {
-  margin: 0;
-  font-size: var(--type-small);
-  line-height: 1.5;
-  color: var(--muted);
-}
-
-/* Quick Glyph Jump Index */
 .glyph-nav {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 4px;
+  margin-bottom: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
 }
-
 .glyph-nav-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-sans);
   font-size: var(--type-fine);
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: var(--muted);
-  margin-bottom: 0.5rem;
-  font-weight: 600;
 }
-
 .glyph-nav-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  list-style: none;
-  padding: 0;
+  gap: 0.25rem;
   margin: 0;
+  padding: 0;
+  list-style: none;
 }
-
 .glyph-nav-item a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 2.2rem;
-  height: 2.2rem;
-  padding: 0.2rem 0.5rem;
-  background: var(--wash);
-  border: 1px solid var(--line);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.6rem;
+  border: 1px solid transparent;
   border-radius: 3px;
   color: var(--ink);
-  font-family: inherit;
   font-size: var(--type-body);
   text-decoration: none;
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease;
 }
-
 .glyph-nav-item a:hover {
-  background: var(--ink);
-  color: var(--panel);
-  border-color: var(--ink);
+  border-color: var(--line);
+  background: var(--wash);
+}
+.glyph-nav-item .katex {
+  font-size: 1.05em;
 }
 
 /* Interactive Controls & Filters */
@@ -698,13 +659,6 @@
   .glyph-nav,
   .clear-search-btn {
     display: none !important;
-  }
-
-  .honesty-banner {
-    background: #fff;
-    border: 2px solid #000;
-    border-left: 6px solid #000;
-    page-break-inside: avoid;
   }
 
   .paper-section {

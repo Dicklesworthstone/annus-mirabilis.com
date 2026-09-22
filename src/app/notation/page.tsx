@@ -17,33 +17,30 @@ export default function NotationPage() {
   return (
     <div className="notation-page" data-page="notation">
       <header className="notation-header">
-        <p className="eyebrow">Critical edition · Reference apparatus</p>
-        <h1>Scoped notation concordance</h1>
+        <p className="eyebrow">Notation</p>
+        <h1>One letter, several meanings</h1>
         <p className="lead">
-          In 1905, notation was local. A glyph meant one thing in an electrodynamics derivation,
-          another in molecular kinetics, and another in radiation thermodynamics. Here you can
-          search every symbol, inspect its section-bounded meaning, and trace historical collisions.
+          Einstein reused letters. In the relativity paper <i>β</i> is the factor a modern reader
+          writes <i>γ</i>; in the light-quanta paper it is Wien&rsquo;s constant, the modern{" "}
+          <i>h</i>/<i>k</i>
+          <sub>B</sub>. In the Brownian paper <i>k</i> is the viscosity of the liquid, not
+          Boltzmann&rsquo;s constant. Each entry below gives a symbol as it was printed, what it
+          means in the sections where it appears, the symbol a modern reader would use where that
+          differs, and the first place the paper uses it.
         </p>
+        <p className="callout-note notation-status">{data.honestyNotice.message}</p>
       </header>
 
-      {/* Editorial Honesty Notice */}
-      <aside className="honesty-banner" role="status" aria-label="Editorial verification status">
-        <h2>Editorial status: pending facsimile verification</h2>
-        <p>{data.honestyNotice.message}</p>
-      </aside>
-
-      {/* Quick In-Page Glyph Jump Navigation (No-JS Compatible) */}
-      <nav className="glyph-nav" aria-label="Quick jump by glyph">
-        <div className="glyph-nav-title">Jump to glyph</div>
+      {/* Every printed symbol, set as printed, each linking to the first entry that uses it.
+          Plain links, so the index works without JavaScript. */}
+      <nav className="glyph-nav" aria-labelledby="glyph-nav-title">
+        <h2 className="glyph-nav-title" id="glyph-nav-title">
+          Go to a symbol
+        </h2>
         <ul className="glyph-nav-list">
           {data.uniqueGlyphs.map((g) => (
             <li key={g.key} className="glyph-nav-item">
-              <a
-                href={`#glyph-${g.key.replace(/[^a-zA-Z0-9]/g, "_")}`}
-                title={`${g.display} (${g.count} entries)`}
-              >
-                {g.display}
-              </a>
+              <a href={g.href} {...{ dangerouslySetInnerHTML: { __html: g.html } }} />
             </li>
           ))}
         </ul>
