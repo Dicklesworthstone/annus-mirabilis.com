@@ -498,6 +498,20 @@ h3 {
   padding: 3rem 0;
   max-width: 920px;
 }
+.page-intro > a {
+  /* A link that is a direct child of the intro is a way out of this page, not a word in a
+     sentence - "Read the whole available argument", "Start with the no-algebra encounter".
+     They rendered 17px tall. Measured on out/ 14:24:47 across 8 routes: 4 carry such a
+     link and each reaches the floor for +16px of page height; the other 4 have none and
+     the rule is a no-op there. No new overlapping targets anywhere, no overflow at 320 or
+     390. `inline-block` rather than `padding-block` for the reason given at
+     `.foundation-link > a` in reader.css: padding would not move the page, but on a tight
+     column the padded boxes of neighbouring links overlap and a tap near the seam opens
+     the wrong one. */
+  display: inline-block;
+  min-height: 44px;
+  align-content: center;
+}
 .page-intro h1 {
   /* A READING PAGE'S TITLE, NOT A HERO. This was clamp(2.5rem, 5vw, 4.6rem), which
      put a section title at 72px in a 920px column above a 450px reading column -

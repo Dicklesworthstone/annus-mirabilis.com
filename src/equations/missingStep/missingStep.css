@@ -4,6 +4,18 @@
   border: 1px solid currentColor;
   border-radius: 0.5rem;
 }
+.missing-step-lesson ol li > a {
+  /* Each step of the lesson is a link and rendered 17px tall. The list is tight - 11px
+     between one step and the next - so growing the hit area with `padding-block`, which
+     would not have moved the page at all, would have made every step's target overlap its
+     neighbour's by 17px. In a numbered list of steps that is the worst possible failure:
+     the reader taps step 3 and opens step 4, and nothing on screen explains why.
+     `inline-block` with a floor spaces the list instead. The steps stay underlined links
+     in an <ol>; only the row height changes. */
+  display: inline-block;
+  min-height: 44px;
+  align-content: center;
+}
 .missing-step-panel {
   max-width: 54rem;
   overflow-wrap: anywhere;

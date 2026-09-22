@@ -89,6 +89,13 @@
 }
 .reader-outline a {
   padding: 0.4rem 0;
+  /* The outline is a list of destinations, so its rows are controls and take the floor the
+     rest of the project's controls take. Measured on out/ 14:24:47 at 390px: these were
+     358x35 and 358x39 - full width already, short only because nothing floored them. They
+     are block boxes, so `min-height` expands the flow and no two targets can collide;
+     10 rows at +5 to +9px cost 85px on a 24,556px page. */
+  min-height: 44px;
+  align-content: center;
 }
 .reader-outline nav > div > a:not(:first-child) {
   padding-left: 0.8rem;
@@ -2170,6 +2177,19 @@ html:is(
   display: inline-block;
   margin: 0.5rem 0;
   font-weight: 500;
+}
+.foundation-link > a {
+  /* "Open the foundation: ..." is a sentence that navigates, and it rendered 17px tall.
+     NOT `padding-block`, which is the usual trick here because vertical padding on an
+     inline box grows the hit area without touching the line box - it would have been free.
+     It is unusable here: reaching 44 needs 14px a side and the nearest other link sits
+     21px away, so the padded boxes would have overlapped by 7px and a tap near the seam
+     would have opened the wrong destination. A smaller target beats a wrong one.
+     `inline-block` with a floor expands the flow instead, so nothing can collide, and the
+     link keeps its underline and colour - the cue that says it is a link is untouched. */
+  display: inline-block;
+  min-height: 44px;
+  align-content: center;
 }
 
 .foundation-question {
