@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-entropy-temperature",
+  "paper": "light-quanta",
+  "argument": "arg-lq-entropy-temperature",
+  "title": "Entropy per unit of energy, at one frequency",
+  "spoken": "At fixed frequency, the partial derivative of the spectral entropy density with respect to the spectral energy density is one over the temperature.",
+  "explanation": "At equilibrium, moving a little energy from one frequency interval to another gains no entropy to first order, so this derivative has one common value across the spectrum. The thermodynamic identity dS/dE = 1/T names that value.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Radiation in equilibrium at fixed volume.",
+    "Entropy density and energy density are compared at one frequency.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper. The paper writes phi for the entropy density."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-entropy-temperature.op.relation",
+    "left": {
+      "kind": "derivative",
+      "opId": "eq-model-lq-entropy-temperature.op.derivative",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-entropy-temperature.t.entropyDensity",
+        "quantityId": "spectralEntropyDensity"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-entropy-temperature.t.density",
+        "quantityId": "frequencyEnergyDensity"
+      },
+      "order": 1,
+      "partial": true,
+      "heldFixed": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-entropy-temperature.t.frequency",
+          "quantityId": "frequency"
+        }
+      ]
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "number",
+        "value": "1"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-entropy-temperature.t.temperature",
+        "quantityId": "temperature"
+      },
+      "opId": "eq-model-lq-entropy-temperature.op.inverse"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-entropy-temperature.op.derivative",
+      "title": "Rate of change at fixed frequency",
+      "explanation": "How much the entropy density rises per unit of added energy density, with the frequency held where it is.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-lq-entropy-temperature.op.inverse",
+      "title": "One over the temperature",
+      "explanation": "Thermodynamics defines temperature this way: dS/dE = 1/T, with the other constraints fixed.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-entropy-temperature.op.relation",
+      "title": "What it asserts",
+      "explanation": "At equilibrium every frequency interval gains the same entropy per unit of energy, and that common value is 1/T.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-entropy-temperature.t.density",
+      "title": "Spectral energy density",
+      "explanation": "Radiation energy per cubic metre per unit of frequency.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-lq-entropy-temperature.t.entropyDensity",
+      "title": "Spectral entropy density",
+      "explanation": "Entropy per cubic metre per unit of frequency; the paper writes it phi.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-entropy-temperature.t.frequency",
+      "title": "Frequency, held fixed",
+      "explanation": "The comparison is made at one frequency; only the energy density changes.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-lq-entropy-temperature.t.temperature",
+      "title": "Temperature",
+      "explanation": "The temperature of the radiation in equilibrium.",
+      "foundation": "entropy-temperature"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The rate at which the entropy density",
+      "nodeId": "eq-model-lq-entropy-temperature.t.entropyDensity"
+    },
+    {
+      "text": " grows with "
+    },
+    {
+      "text": "the energy density",
+      "nodeId": "eq-model-lq-entropy-temperature.t.density"
+    },
+    {
+      "text": ", at fixed "
+    },
+    {
+      "text": "frequency",
+      "nodeId": "eq-model-lq-entropy-temperature.t.frequency"
+    },
+    {
+      "text": ", is one over "
+    },
+    {
+      "text": "the temperature",
+      "nodeId": "eq-model-lq-entropy-temperature.t.temperature"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

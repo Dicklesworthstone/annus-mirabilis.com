@@ -33,7 +33,8 @@
       {
         "kind": "formula",
         "latex": "W=f^n,\\qquad\\Delta S=k_B\\ln W=nk_B\\ln f",
-        "spoken": "The probability is f to the n; the entropy difference is k B times its logarithm, or n k B logarithm f."
+        "spoken": "The probability is f to the n; the entropy difference is k B times its logarithm, or n k B logarithm f.",
+        "equations": ["eq-model-lq-configuration-probability", "eq-model-lq-configuration-entropy"]
       },
       {
         "kind": "paragraph",

@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-configuration-entropy",
+  "paper": "light-quanta",
+  "argument": "arg-lq-independent-configurations",
+  "title": "The count comes down as a coefficient",
+  "spoken": "The entropy change is k B times the logarithm of W, which is n times k B times the logarithm of f.",
+  "explanation": "Boltzmann's principle turns the probability into an entropy difference. The logarithm of f to the n is n times the logarithm of f, so the number of independent points becomes the coefficient, and that coefficient is what section 6 compares with the radiation's entropy.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "n points move independently of one another, each equally likely to be anywhere in the volume V_0.",
+    "The chosen part V is a fraction f = V/V_0 of that volume.",
+    "Boltzmann's principle, as the paper states it: an entropy difference is k_B times the logarithm of a relative probability.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper. The paper writes R/N for k_B."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-configuration-entropy.op.relation",
+    "left": {
+      "kind": "relation",
+      "opId": "eq-model-lq-configuration-entropy.op.principle",
+      "left": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-configuration-entropy.t.change",
+        "quantityId": "gasEntropyChange"
+      },
+      "right": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-configuration-entropy.t.boltzmann",
+            "quantityId": "boltzmannConstant"
+          },
+          {
+            "kind": "function",
+            "opId": "eq-model-lq-configuration-entropy.op.logW",
+            "name": "ln",
+            "argument": {
+              "kind": "symbol",
+              "termId": "eq-model-lq-configuration-entropy.t.probability",
+              "quantityId": "configurationProbability"
+            }
+          }
+        ],
+        "opId": "eq-model-lq-configuration-entropy.op.boltzmann"
+      },
+      "operator": "="
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-configuration-entropy.t.count",
+          "quantityId": "independentPointCount"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-configuration-entropy.t.boltzmann2",
+          "quantityId": "boltzmannConstant"
+        },
+        {
+          "kind": "function",
+          "opId": "eq-model-lq-configuration-entropy.op.logF",
+          "name": "ln",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-configuration-entropy.t.fraction",
+            "quantityId": "volumeRatio"
+          }
+        }
+      ],
+      "opId": "eq-model-lq-configuration-entropy.op.product"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.op.boltzmann",
+      "title": "k_B times ln W",
+      "explanation": "Boltzmann's principle, the name the paper gives it.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.op.logF",
+      "title": "Logarithm of the fraction",
+      "explanation": "Negative when f is less than one, so confining the points lowers their entropy.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.op.logW",
+      "title": "Logarithm of the probability",
+      "explanation": "Entropy differences go as the logarithm of relative probability.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.op.principle",
+      "title": "Boltzmann's principle",
+      "explanation": "The entropy difference from the probability of the configuration.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.op.product",
+      "title": "n k_B ln f",
+      "explanation": "The logarithm of f to the n is n times the logarithm of f.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.op.relation",
+      "title": "What it asserts",
+      "explanation": "The entropy change is proportional to the number of independent points.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.t.boltzmann",
+      "title": "Boltzmann's constant",
+      "explanation": "Turns the logarithm of a probability into an entropy; R over N in the paper.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.t.boltzmann2",
+      "title": "Boltzmann's constant",
+      "explanation": "Turns the logarithm of a probability into an entropy; R over N in the paper.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.t.change",
+      "title": "Entropy change of the points",
+      "explanation": "The entropy with the points confined minus the entropy with them free: a difference, not an absolute entropy.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.t.count",
+      "title": "Number of independent points",
+      "explanation": "How many points move independently of one another.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.t.fraction",
+      "title": "Fraction of the volume",
+      "explanation": "The share of the volume the points must all be in, V over V_0; between 0 and 1.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-entropy.t.probability",
+      "title": "Probability of the configuration",
+      "explanation": "The chance that, at one instant, all n points are in the chosen part of the volume.",
+      "foundation": "probability-independence"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The entropy change",
+      "nodeId": "eq-model-lq-configuration-entropy.t.change"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "k_B",
+      "nodeId": "eq-model-lq-configuration-entropy.t.boltzmann"
+    },
+    {
+      "text": " times the logarithm of "
+    },
+    {
+      "text": "the probability",
+      "nodeId": "eq-model-lq-configuration-entropy.t.probability"
+    },
+    {
+      "text": ", which is "
+    },
+    {
+      "text": "n",
+      "nodeId": "eq-model-lq-configuration-entropy.t.count"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "k_B",
+      "nodeId": "eq-model-lq-configuration-entropy.t.boltzmann2"
+    },
+    {
+      "text": " times the logarithm of "
+    },
+    {
+      "text": "the fraction f",
+      "nodeId": "eq-model-lq-configuration-entropy.t.fraction"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-configuration-probability",
+  "paper": "light-quanta",
+  "argument": "arg-lq-independent-configurations",
+  "title": "Multiply one chance per independent point",
+  "spoken": "The probability W is f to the power n.",
+  "explanation": "Each of n independent points is inside the fraction f of the volume with probability f, so the chance that all of them are inside at once is f multiplied by itself n times. Independence does the work: four labels on one shared position would give f, not f to the fourth.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "n points move independently of one another, each equally likely to be anywhere in the volume V_0.",
+    "The chosen part V is a fraction f = V/V_0 of that volume.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-configuration-probability.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-configuration-probability.t.probability",
+      "quantityId": "configurationProbability"
+    },
+    "right": {
+      "kind": "symbolPower",
+      "opId": "eq-model-lq-configuration-probability.op.power",
+      "base": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-configuration-probability.t.fraction",
+        "quantityId": "volumeRatio"
+      },
+      "exponent": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-configuration-probability.t.count",
+        "quantityId": "independentPointCount"
+      }
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-configuration-probability.op.power",
+      "title": "f multiplied by itself n times",
+      "explanation": "One factor of f for each point. Only independent chances multiply like this.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-probability.op.relation",
+      "title": "What it asserts",
+      "explanation": "The chance that every point is inside at once is the product of their separate chances.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-probability.t.count",
+      "title": "Number of independent points",
+      "explanation": "How many points move independently of one another.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-probability.t.fraction",
+      "title": "Fraction of the volume",
+      "explanation": "The share of the volume the points must all be in, V over V_0; between 0 and 1.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-configuration-probability.t.probability",
+      "title": "Probability of the configuration",
+      "explanation": "The chance that, at one instant, all n points are in the chosen part of the volume.",
+      "foundation": "probability-independence"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The probability",
+      "nodeId": "eq-model-lq-configuration-probability.t.probability"
+    },
+    {
+      "text": " that all "
+    },
+    {
+      "text": "n",
+      "nodeId": "eq-model-lq-configuration-probability.t.count"
+    },
+    {
+      "text": " points are inside "
+    },
+    {
+      "text": "the fraction f",
+      "nodeId": "eq-model-lq-configuration-probability.t.fraction"
+    },
+    {
+      "text": " of the volume is f multiplied by itself n times."
+    }
+  ]
+}

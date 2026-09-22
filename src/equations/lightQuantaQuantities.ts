@@ -291,6 +291,16 @@ export const LIGHT_QUANTA_QUANTITIES: QuantityRegistry = Object.freeze(
         "The factor by which the volume changes, V over V_0. A pure number.",
       ),
       quantity(
+        "configurationProbability",
+        "Probability of the configuration",
+        "W",
+        count,
+        "1",
+        "configuration-probability",
+        "result",
+        "Section 5's W: the probability that, at one instant, all n independent points are in the fraction f of the volume. A pure number between 0 and 1.",
+      ),
+      quantity(
         "gasEntropyChange",
         "Entropy change of the gas",
         "\\Delta S_{\\mathrm{gas}}",

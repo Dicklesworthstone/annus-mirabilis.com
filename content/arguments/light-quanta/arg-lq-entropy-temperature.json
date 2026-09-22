@@ -36,7 +36,8 @@
       {
         "kind": "formula",
         "latex": "\\left(\\frac{\\partial s_\\nu}{\\partial\\rho_\\nu}\\right)_\\nu=\\frac{1}{T}",
-        "spoken": "At fixed frequency, the partial derivative of spectral entropy density with respect to spectral energy density is inverse temperature."
+        "spoken": "At fixed frequency, the partial derivative of spectral entropy density with respect to spectral energy density is inverse temperature.",
+        "equations": ["eq-model-lq-entropy-temperature"]
       },
       {
         "kind": "paragraph",
