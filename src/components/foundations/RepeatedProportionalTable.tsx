@@ -87,8 +87,8 @@ export function RepeatedProportionalTable({
       <p>
         In linear change, an equal amount is added in every equal interval: y = y₀ + mt. In
         exponential change, the quantity is multiplied by an equal factor in every interval: y = y₀
-        · rⁿ. Because each change is proportional to the current amount, exponential functions
-        naturally describe continuous growth and decay.
+        · rⁿ. Every interval takes away the same fraction of what is left. Here each 10-second step
+        multiplies it by e<sup>−0.5</sup>, about 0.607.
       </p>
 
       <fieldset
@@ -207,10 +207,9 @@ export function RepeatedProportionalTable({
       <div className="dimensionless-exponents-note callout-limit">
         <Sub>Why exponents must always be dimensionless</Sub>
         <p>
-          You cannot evaluate e raised to three meters or five seconds, because the series
-          definition e<sup>u</sup> = 1 + u + u²/2! + … would require adding meters to square meters.
-          In every physical law, dimensional quantities inside exponents are strictly cancelled by
-          matching units:
+          There is no such number as e raised to three metres or five seconds: the series e
+          <sup>u</sup> = 1 + u + u²/2! + … would add metres to square metres. In a physical law the
+          units inside an exponent cancel:
         </p>
         <ul>
           <li>
@@ -231,10 +230,10 @@ export function RepeatedProportionalTable({
       >
         <Sub>Textual summary of the construction</Sub>
         <p>
-          Equal steps in the independent variable produce equal multiplicative ratios in the
-          dependent variable. The characteristic scale τ sets the interval over which the quantity
-          changes by a factor of 1/e ≈ 0.367879. All physical exponents are dimensionless ratios of
-          the independent variable to this characteristic scale.
+          Equal steps in time multiply what is left by equal factors: e<sup>−0.5</sup> per 10
+          seconds here, so the quantity falls to 1/e, about 0.368, every 20 seconds. That 20 seconds
+          is the scale in the exponent: the fraction left after a time t is e raised to −t/(20 s),
+          and t/(20 s) is a pure number.
         </p>
       </div>
     </section>
