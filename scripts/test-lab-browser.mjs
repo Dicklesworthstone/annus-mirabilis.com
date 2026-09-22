@@ -91,6 +91,8 @@ try {
   assert.equal(workerCount, 0);
   assert.equal(errors.length, 0);
   check("hydration preserves the static example and creates no worker");
+  // Since 76147028 bm-06's physical settings sit in the closed "Experiment settings" drawer.
+  await lab.locator("details.experiment-settings > summary").click();
   await lab.locator('input[name="eta"]').fill("2");
   assert.match(await lab.locator('[data-output="diffusionCoefficient"]').innerText(), /0\.42944/);
   await apply.click();
@@ -133,6 +135,7 @@ try {
     .getByRole("button", { name: "Open an independent second laboratory", exact: true })
     .click();
   const second = page.locator('[data-instrument-id="bm-06"]').nth(1);
+  await second.locator("details.experiment-settings > summary").click();
   await second.locator('input[name="eta"]').fill("2");
   await second.getByRole("button", { name: "Apply settings", exact: true }).click();
   await page.waitForFunction(() =>
