@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  declaredNumber,
   isShelfId,
   parseShelfParameters,
   SHELF_DEFINITIONS,
@@ -268,4 +269,16 @@ test("primaryShelfMetrics refuses a row the plot cannot draw: primary-observable
   );
   assert.throws(() => primaryShelfMetrics({ ...r, rows }), { code: "primary-observable-missing" });
   assert.equal(primaryShelfMetrics(r).length, 2);
+});
+
+// declaredNumber's guard: an admitted value comes back unchanged, and a key the instrument never
+// admitted is refused by its code. Zero is a value, so an implementation testing truthiness
+// instead of presence would refuse it and fail here.
+test("a declared value is returned and a missing one is refused: declared-field-missing", () => {
+  assert.equal(declaredNumber({ beta: 0.3 }, "beta"), 0.3);
+  assert.equal(declaredNumber({ beta: 0 }, "beta"), 0);
+  assert.throws(() => declaredNumber({ beta: 0.3 }, "armLength"), {
+    code: "declared-field-missing",
+  });
+  assert.throws(() => declaredNumber({}, "beta"), { code: "declared-field-missing" });
 });
