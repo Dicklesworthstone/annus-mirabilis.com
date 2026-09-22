@@ -52,6 +52,25 @@ describe("72 tested reading layouts", () => {
       new URL("../../reader/layout/layout.css", import.meta.url),
       "utf8",
     );
+    // A STATED CONSTRAINT, NOT OPEN DEBT: nine of the twelve phone combinations sit below the
+    // conventional 45-character floor, and they must.
+    //
+    // Measured with scripts in the session harness (cpl2.mjs, which reads TRUE line breaks from
+    // rendered line boxes rather than estimating an advance) at 390x844, where the reading column
+    // is 358px wide at every measure because the viewport is narrower than the narrowest setting:
+    //
+    //     type 100   46 CPL      type 112   43      type 125   38      type 150   31
+    //
+    // That is arithmetic, not a defect in the scale: 358px at 25.5px type IS about 31 characters.
+    // The only lever that would raise those rows is shrinking the font - which is precisely the
+    // setting the reader just used to enlarge it. So DO NOT "fix" this by capping the type scale
+    // on narrow viewports; that trades an accessibility affordance for a number.
+    //
+    // Desktop 1280x900 holds the band at 12 of 12 (46/46/46/46, 55/55/55/55, 67/67/67/62), and the
+    // anchor is the 1905 setting itself: printed page 554 of ap-17-549 measures 57, 58, 58, 55, 55,
+    // 56 characters per line. Where a 390px screen and that anchor disagree, the screen wins and
+    // the reason is recorded here rather than left looking like something to clean up.
+
     // THE MEASURE MUST BE FONT-RELATIVE, or the two settings do each other's job.
     //
     // ch scales with the type, so a ch-based max-width holds characters per line constant while

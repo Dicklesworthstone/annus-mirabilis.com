@@ -7,7 +7,7 @@
   background: var(--paper, #faf7ef);
 }
 .semantic-equation h3 {
-  font-size: 1.3rem;
+  font-size: var(--type-body);
   margin: 0.15rem 0 0.7rem;
 }
 .equation-formula {
@@ -30,7 +30,7 @@
   white-space: nowrap;
 }
 .equation-sentence {
-  font-size: 1.08rem;
+  font-size: var(--type-small);
   line-height: 1.7;
 }
 .equation-sentence span[data-selected="true"] {
@@ -55,7 +55,7 @@
   text-align: left;
 }
 .eq-kind {
-  font-size: 0.68rem;
+  font-size: var(--type-micro);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -97,7 +97,7 @@
   margin: 0.6rem 0;
 }
 .equation-value-list dt {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 .equation-value-list dd {
   margin: 0.1rem 0;
@@ -170,10 +170,10 @@
     font-size: 1.05em;
   }
   .semantic-equation .fine {
-    font-size: 0.85rem;
+    font-size: var(--type-fine);
   }
   .eq-chip {
-    font-size: 0.85rem;
+    font-size: var(--type-fine);
   }
 }
 @media print {
@@ -227,12 +227,12 @@
 
 .am-explorer-title {
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: var(--type-fine);
 }
 
 .am-explorer-hint {
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
 }
 
 .am-term-chips {
@@ -253,7 +253,7 @@
   border-radius: 0.25rem;
   background: var(--panel);
   color: var(--ink);
-  font-size: 0.8125rem;
+  font-size: var(--type-fine);
   cursor: pointer;
   line-height: 1.3;
 }
@@ -276,7 +276,7 @@
 }
 
 .chip-kind {
-  font-size: 0.6875rem;
+  font-size: var(--type-micro);
   color: var(--muted);
   text-transform: uppercase;
 }
@@ -298,7 +298,7 @@
 }
 
 .inspector-speech {
-  font-size: 0.875rem;
+  font-size: var(--type-fine);
   color: var(--ink);
   margin: 0 0 0.5rem;
   line-height: 1.4;
@@ -308,7 +308,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--muted);
 }
 
@@ -333,7 +333,7 @@
 .badge-move,
 .badge-countermodel,
 .badge-definition {
-  font-size: 0.6875rem;
+  font-size: var(--type-micro);
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   background: var(--wash);
@@ -352,7 +352,7 @@
   background: var(--wash);
   padding: 0.25rem 0.5rem;
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--muted);
 }
 
@@ -363,7 +363,7 @@
 
 /* Semantic equation chips and role key */
 .equation-role-key {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   margin-bottom: 0.5rem;
 }
@@ -382,7 +382,7 @@
 }
 
 .bridge-link {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--accent);
   text-decoration: underline;
 }
@@ -390,7 +390,7 @@
 /* Genealogy graph styles */
 .genealogy-node-title {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 
 .genealogy-edges,

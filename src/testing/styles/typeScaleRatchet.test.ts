@@ -70,7 +70,7 @@ export function distinctFontSizes(root: string = CSS_ROOT): {
  * The 55th is the documented exception in globals.css - the phone body at 1.0625rem, which is the
  * measured CPL optimum at 390px and which a 1.2 ratio anchored at 19px has no step for.
  */
-const DISTINCT_FONT_SIZE_BASELINE = 55;
+const DISTINCT_FONT_SIZE_BASELINE = 50;
 
 describe("type scale scatter ratchet", () => {
   test("the font-size vocabulary never grows, and shrinking tightens the baseline", () => {
