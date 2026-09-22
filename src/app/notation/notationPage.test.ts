@@ -6,7 +6,12 @@
 import { describe, expect, it } from "bun:test";
 import type { PaperConcordance } from "../../content/schemas/concordance.ts";
 import { getLogger, newRunIdentity } from "../../testing/log/logger.ts";
-import { loadNotationPageData, renderStaticKatex } from "./notationData.ts";
+import {
+  describeVerification,
+  type EnrichedConcordanceEntry,
+  loadNotationPageData,
+  renderStaticKatex,
+} from "./notationData.ts";
 import { filterNotationEntries } from "./notationSearch.ts";
 
 const logRunId = newRunIdentity();
@@ -253,18 +258,57 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     );
   });
 
-  it("honesty notice asserts pending facsimile verification", () => {
-    expect(data.honestyNotice.isPendingFacsimile).toBe(true);
-    expect(data.honestyNotice.message).toContain("pending facsimile verification");
-    expect(
-      data.allEntries.every(
-        (e) =>
-          e.verification.checkedAgainst.includes("Pending") ||
-          e.verification.checkedAgainst.length > 0,
-      ),
-    ).toBe(true);
+  // The notice used to be a fixed sentence asserting that every entry was pending and that no
+  // facsimile was pinned, and this test asserted the sentence. Both stopped being true when the
+  // 26 mass-energy entries were checked against ap-18-639. The notice is now computed from the
+  // entries, so these assert properties that hold at any count.
+  it("the verification notice partitions the entries it describes", () => {
+    const { checkedCount, pendingCount, message, isPendingFacsimile } = data.honestyNotice;
+    expect(checkedCount + pendingCount).toBe(data.totalEntriesCount);
+    expect(isPendingFacsimile).toBe(pendingCount > 0);
+    if (checkedCount > 0 && pendingCount > 0) {
+      expect(message).toContain(`${checkedCount} of ${data.totalEntriesCount} entries`);
+      expect(message).toContain(`The other ${pendingCount} `);
+    }
+    expect(message).not.toContain("No pinned facsimile");
+    logTestPass("honesty-notice-partition", message, { checkedCount, pendingCount });
+  });
 
-    logTestPass("honesty-notice-verified", "Honesty notice is explicitly present.");
+  it("the verification notice says the right thing in each of its three states", () => {
+    const entry = (checkedAgainst: string, paperTitle = "Mass and energy") =>
+      ({ verification: { checkedAgainst }, paperTitle }) as unknown as EnrichedConcordanceEntry;
+    const pending = entry("Pending facsimile scan (ap-17-132)", "Light quanta");
+    const checked = entry("Pinned facsimile ap-18-639, read as images");
+
+    const none = describeVerification([pending, pending]);
+    expect(none).toMatchObject({ checkedCount: 0, pendingCount: 2 });
+    expect(none.message).toContain("None of the 2 entries");
+
+    const all = describeVerification([checked, checked]);
+    expect(all).toMatchObject({ checkedCount: 2, pendingCount: 0 });
+    expect(all.message).toStartWith("All 2 entries have");
+    expect(describeVerification([checked]).message).toStartWith("The one entry has been");
+    expect(describeVerification([checked, pending, pending]).message).toStartWith(
+      "1 of 3 entries has been",
+    );
+
+    const some = describeVerification([checked, checked, pending]);
+    expect(some.message).toBe(
+      "2 of 3 entries have been checked symbol by symbol against the printed pages, all of them in Mass and energy. The other 1 entry was taken from transcriptions of the papers and has not yet been checked against the scans.",
+    );
+    // "Pending" elsewhere in the text is not the controlled prefix.
+    expect(describeVerification([entry("Checked; nothing pending")]).checkedCount).toBe(1);
+  });
+
+  it("every symbol in the index links to an entry that is on the page", () => {
+    const ids = new Set(data.allEntries.map((e) => e.id));
+    expect(data.uniqueGlyphs.length).toBeGreaterThan(0);
+    for (const g of data.uniqueGlyphs) {
+      expect(g.href.startsWith("#")).toBe(true);
+      expect(ids.has(g.href.slice(1))).toBe(true);
+      expect(g.html).toContain("<math");
+    }
+    logTestPass("glyph-index-targets", `${data.uniqueGlyphs.length} symbols, each to an entry.`);
   });
 
   it("spoken aria-labels are generated with full context for accessibility", () => {
