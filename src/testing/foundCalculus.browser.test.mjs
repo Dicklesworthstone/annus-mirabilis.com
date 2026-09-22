@@ -14,6 +14,26 @@ const MIME_TYPES = {
   ".json": "application/json",
 };
 
+/**
+ * The worked-example heading a foundation page will render, read from the record rather than
+ * written down here.
+ *
+ * These fixtures asserted the literal "One worked example" on four of the five foundations, and
+ * on the print page. That string was identical on all 27 foundation pages until c076ccf3 gave
+ * each record an `exampleTitle` naming the case it works through, at which point both AC6 tests
+ * went red while every page still rendered correctly without JavaScript and in print. The
+ * assertion was about copy; the property it protects is that the worked-example SECTION reaches
+ * the reader with scripting off.
+ *
+ * Reading the record is strictly stronger than the old literal: it also fails if a page renders
+ * some OTHER foundation's heading, which a shared constant string could never detect. The `??`
+ * mirrors FoundationBody's own fallback, so the two cannot drift.
+ */
+async function exampleHeadingOf(id) {
+  const record = JSON.parse(await readFile(resolve("content/foundations", `${id}.json`), "utf8"));
+  return record.exampleTitle ?? "One worked example";
+}
+
 describe("browser E2E foundation calculus verification (am-found-calculus-6agg)", () => {
   test("AC6 (Chromium): No-JavaScript rendering completeness across all 5 calculus foundations", async (t) => {
     const freshness = checkOutFreshness("out");
@@ -61,7 +81,6 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
           expectedTitle: "Functions and graphs",
           expectedContent: [
             "continuous curve",
-            "One worked example",
             "2Dt",
             "A stopping point:",
             "Textual summary of the construction",
@@ -70,22 +89,22 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
         {
           id: "derivatives",
           expectedTitle: "Rates of change and derivatives",
-          expectedContent: ["One worked example", "A stopping point:"],
+          expectedContent: ["A stopping point:"],
         },
         {
           id: "partial-derivatives",
           expectedTitle: "Partial derivatives and held-fixed quantities",
-          expectedContent: ["One worked example", "A stopping point:"],
+          expectedContent: ["A stopping point:"],
         },
         {
           id: "exponentials",
           expectedTitle: "Exponentials and continuous scaling",
-          expectedContent: ["One worked example", "A stopping point:"],
+          expectedContent: ["A stopping point:"],
         },
         {
           id: "logarithms",
           expectedTitle: "Logarithms and product-to-sum relations",
-          expectedContent: ["One worked example", "0.693147", "0.301030", "A stopping point:"],
+          expectedContent: ["0.693147", "0.301030", "A stopping point:"],
         },
       ];
 
@@ -96,6 +115,12 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
         assert.ok(
           bodyText.includes(f.expectedTitle),
           `foundation:${f.id} must render title "${f.expectedTitle}" without JavaScript`,
+        );
+
+        const exampleHeading = await exampleHeadingOf(f.id);
+        assert.ok(
+          bodyText.includes(exampleHeading),
+          `foundation:${f.id} must render its worked-example heading "${exampleHeading}" without JavaScript`,
         );
 
         for (const str of f.expectedContent) {
@@ -174,9 +199,10 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
         pdText.includes("Partial derivatives and held-fixed quantities"),
         "Print rendering of partial-derivatives must include complete title",
       );
+      const pdExampleHeading = await exampleHeadingOf("partial-derivatives");
       assert.ok(
-        pdText.includes("One worked example"),
-        "Print rendering must include worked example section",
+        pdText.includes(pdExampleHeading),
+        `Print rendering must include the worked-example section, headed "${pdExampleHeading}"`,
       );
       assert.ok(
         pdText.includes("A stopping point:"),
