@@ -27,6 +27,34 @@ export type RodSimultaneityLabProps = Readonly<{
   title?: string;
 }>;
 
+/** The values table's row names, in the reader's words. */
+const SR03_VALUE_LABELS: Readonly<Record<string, string>> = {
+  spatialSeparationK: "Distance between the events in K, Δx",
+  temporalSeparationK: "Time between the events in K, Δt",
+  spatialSeparationKPrime: "Distance between the events in k, Δx′",
+  temporalSeparationKPrime: "Time between the events in k, Δt′",
+  simultaneityK: "Their time order in K",
+  simultaneityKPrime: "Their time order in k",
+  measuredLength: "Measured length",
+  spacetimeIntervalSquared: "Interval, s² = Δx² − c²Δt²",
+  causalOrder: "Kind of separation",
+  gammaFactor: "Lorentz factor, γ",
+  ellipsoidAxisLongitudinal: "Sphere measured along the motion",
+  ellipsoidAxisTransverseY: "Sphere measured across the motion (y)",
+  ellipsoidAxisTransverseZ: "Sphere measured across the motion (z)",
+};
+
+/** The classification outputs, as src/workers/operations/sr03.ts encodes them. */
+const SR03_CLASS_WORDS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  simultaneityK: { "0": "simultaneous", "1": "second event later", "-1": "second event earlier" },
+  simultaneityKPrime: {
+    "0": "simultaneous",
+    "1": "second event later",
+    "-1": "second event earlier",
+  },
+  causalOrder: { "1": "spacelike", "0": "lightlike", "-1": "timelike" },
+};
+
 export function RodSimultaneityLab({
   example,
   title = "Rod measurement, simultaneity, and causal order laboratory",
@@ -695,54 +723,43 @@ export function RodSimultaneityLab({
         </section>
       </div>
 
-      {/* Accepted results telemetry table */}
-      <div className="notice" data-view-id="sr-03-data-table" style={{ margin: "1.5rem 0" }}>
-        <h3 style={{ marginTop: 0 }}>Accepted laboratory telemetry snapshot</h3>
-        <section
-          className="table-scroll"
-          tabIndex={0}
-          aria-label="Accepted laboratory telemetry snapshot table"
-        >
-          <table style={{ width: "100%", textAlign: "left", fontFamily: "var(--font-mono)" }}>
+      {/* The accepted values, in words. */}
+      <div className="lab-values" data-view-id="sr-03-data-table">
+        <h3>Values at these settings</h3>
+        <section className="table-scroll" tabIndex={0} aria-label="Values at these settings">
+          <table className="data-table">
             <thead>
               <tr>
-                <th scope="col">Quantity ID</th>
-                <th scope="col">Status</th>
-                <th scope="col">Value / Result</th>
-                <th scope="col">Unit</th>
-                <th scope="col">Owner ID</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Value</th>
               </tr>
             </thead>
             <tbody>
               {snapshot.outputs.map((out) => (
                 <tr key={out.quantityId} data-quantity-id={out.quantityId}>
-                  <th scope="row" style={{ fontFamily: "var(--font-mono)" }}>
-                    {out.quantityId}
-                  </th>
-                  <td>
-                    <span className="badge">{out.status}</span>
-                  </td>
-                  <td style={{ fontFamily: "var(--font-mono)" }}>
-                    {out.status === "value" ? (
-                      typeof out.value === "number" ? (
-                        Math.abs(out.value) > 1e4 ||
+                  <th scope="row">{SR03_VALUE_LABELS[out.quantityId] ?? out.quantityId}</th>
+                  <td data-output={out.quantityId}>
+                    {out.status !== "value" ? (
+                      "reason" in out ? (
+                        String(out.reason)
+                      ) : (
+                        "Outside the model's domain"
+                      )
+                    ) : typeof out.value !== "number" ? (
+                      String(out.value)
+                    ) : out.quantityId in SR03_CLASS_WORDS ? (
+                      (SR03_CLASS_WORDS[out.quantityId]?.[String(out.value)] ?? String(out.value))
+                    ) : (
+                      <>
+                        {Math.abs(out.value) > 1e4 ||
                         (Math.abs(out.value) < 1e-3 && out.value !== 0) ? (
                           <Sci value={out.value} digits={4} />
                         ) : (
-                          out.value.toFixed(4)
-                        )
-                      ) : (
-                        String(out.value)
-                      )
-                    ) : "reason" in out ? (
-                      String(out.reason)
-                    ) : (
-                      "Out of domain"
+                          String(Number(out.value.toFixed(4)))
+                        )}
+                        {out.unit && out.unit !== "1" ? ` ${out.unit.replace("^2", "²")}` : ""}
+                      </>
                     )}
-                  </td>
-                  <td className="fine">{out.unit}</td>
-                  <td className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                    {out.ownerId}
                   </td>
                 </tr>
               ))}
@@ -753,12 +770,10 @@ export function RodSimultaneityLab({
 
       {/* Epistemic limits (not modeled) */}
       <div className="notice" style={{ margin: "1.5rem 0" }}>
-        <h3 style={{ marginTop: 0 }}>Limits of this kinematic reference model (not modeled)</h3>
-        <p className="fine" style={{ marginBottom: "0.5rem" }}>
-          This reference owner implements exact special-relativistic coordinate transformations,
-          coordinate length measurements, and invariant spacetime intervals between inertial
-          reference frames. The following physical regimes require general relativity, dynamical
-          stress mechanics, or optical ray tracing and are explicitly <strong>not modeled</strong>:
+        <h3 style={{ marginTop: 0 }}>What this model leaves out</h3>
+        <p className="fine">
+          It applies exact special-relativistic coordinate transformations, coordinate length
+          measurements and invariant intervals between inertial frames. It does not model:
         </p>
         <ul className="fine">
           <li>
