@@ -1,0 +1,28 @@
+/* ---------------------------------------------------------------------------
+   Display mathematics on the German draft face (sourceMarkup.tsx).
+
+   A display formula sits on its own line inside the paragraph that introduces it, as
+   the 1905 compositor set it, with its printed number at the right. It is a <span>
+   because it lives inside a <p>, so it needs display: flex to become a line of its own.
+
+   Scoped to [data-german-draft] because .source-equation is also the class of the
+   anchored face's equation <div> in SourceBlock.tsx, whose inner .equation-container
+   already lays out formula and number; making that div a flex row would put its page
+   locators beside the formula instead of above it.
+
+   The scrolling is .source-equation's own `overflow-x: auto` in reader.css. The formula
+   does not shrink (flex: 1 0 auto), so a formula wider than a phone column scrolls
+   inside its line instead of widening the page. Measured at 390px on the three drafts:
+   10 of 102 display formulas are wider than the 358px column and scroll; the page itself
+   never does. No `gap`: the printed number keeps its own margin from .source-equation-label.
+   --------------------------------------------------------------------------- */
+[data-german-draft] .source-equation {
+  display: flex;
+  align-items: center;
+}
+.source-equation-math {
+  flex: 1 0 auto;
+}
+.source-equation-math > .katex-display {
+  margin: 0;
+}

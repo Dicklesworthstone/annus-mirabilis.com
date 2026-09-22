@@ -29,9 +29,32 @@
  * deleted token is invisible to every check, while a visible one turns
  * scripts/e2e/sourceMarkupLeak.e2e.test.ts red and names the page. Visible-and-caught beats
  * silently-discarded, so unknown tokens pass through unchanged.
+ *
+ * THE MATHEMATICS IS TYPESET HERE TOO, for the same reason the tokens are. The ledger records
+ * Einstein's formulas as TeX between `$…$` and `$$…$$`, which is correct in a transcription and
+ * wrong on a page. Measured on the export of 2026-09-22 14:24:47 before this: 15 of the 28 built
+ * /view/german/ pages served that TeX as text, 1,750 dollar signs and 2,584 control words,
+ * "Bei der „schwarzen Strahlung“ ist $\varphi$ eine solche Funktion von $\nu$". The other 13 are
+ * the twelve special-relativity notices and light-quanta §0, which has no mathematics.
+ *
+ * The regions are found by the SEGMENTER'S OWN grammar, `findDisplayMathRegions` and
+ * `findInlineMathRegions`, not by a second parser. A display region here is exactly the region the
+ * segmenter numbered, so the id it gave that equation can be put back on it. And each formula is
+ * checked by `parseLedgerMath`, the ledger's KaTeX policy (no trust, no macro definitions, bounded
+ * expansion), before it is rendered under the same settings. A formula that fails that check
+ * THROWS: the build stops and names the formula. It is not shown as TeX and it is not replaced by
+ * a placeholder, because malformed mathematics fails publication. All 409 formulas in the three
+ * drafts pass today (102 display, 307 inline, measured with those two functions).
  */
 
+import { renderToString } from "katex";
 import type { ReactNode } from "react";
+import {
+  findDisplayMathRegions,
+  findInlineMathRegions,
+} from "../../content/editions/segmentSentences.ts";
+import { LEDGER_KATEX_SETTINGS, parseLedgerMath } from "../../content/ledger/ledgerMathSettings.ts";
+import "./sourceMarkup.css";
 
 /** `[[SPERR]]`, `[[/SPERR]]`, `[[FN-MARK 1)]]`, `[[EQ-LABEL (1)]]`. */
 const TOKEN = /\[\[(\/?)([A-Z][A-Z-]*)(?:\s+([^\]]*))?\]\]/g;
@@ -73,55 +96,157 @@ const STANDALONE: Record<string, (arg: string | undefined, key: string) => React
  */
 const STRUCTURAL = new Set(["CONTINUES", "DATELINE", "RECEIVED", "PAGE", "COL"]);
 
+/** One ledger formula as KaTeX HTML plus MathML, or a thrown error naming where it failed. */
+function typesetLedgerMath(latex: string, displayMode: boolean, where: string): string {
+  const check = parseLedgerMath(latex, displayMode);
+  if (!check.ok) {
+    throw new Error(
+      `Ledger mathematics at ${where} does not parse (${check.code}): ${check.error} :: ${latex}`,
+    );
+  }
+  return renderToString(latex, {
+    ...LEDGER_KATEX_SETTINGS,
+    // A fresh object per call: KaTeX writes into it. See ledgerMathSettings.ts.
+    macros: {},
+    displayMode,
+    output: "htmlAndMathml",
+  });
+}
+
 /**
- * Renders a ledger text string into React nodes, resolving markup into typography.
+ * A display formula, set on its own line with its printed number at the right, as the compositor
+ * set it. `id` is the equation block's id from the segmenter, so an anchor to that equation lands
+ * on the formula rather than on the paragraph around it.
  *
- * Returns a plain string when the text carries no markup, so the overwhelming majority of blocks
+ * `source-equation` scrolls sideways when a formula is wider than a phone column. It carries no
+ * tab stop of its own: the site-wide overflow script (formulaOverflow.inline.ts) gives one to the
+ * formulas that actually overflow and to no others, so fifty display equations do not become fifty
+ * stops a keyboard reader has to walk through.
+ */
+export function sourceDisplayEquation(
+  latex: string,
+  label: string | undefined,
+  id: string | undefined,
+  key: string,
+): ReactNode {
+  return (
+    <span key={key} id={id} className="source-equation" data-block-kind="equation">
+      <span
+        className="source-equation-math"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output under the ledger's policy: no trust, no macros, parse checked first.
+        dangerouslySetInnerHTML={{ __html: typesetLedgerMath(latex, true, id ?? key) }}
+      />
+      {label ? <span className="source-equation-label">{label}</span> : null}
+    </span>
+  );
+}
+
+/**
+ * Renders a ledger text string into React nodes, resolving markup into typography and TeX into
+ * typeset mathematics.
+ *
+ * `displayIds` names the display equations this text contains, in printed order - a paragraph's
+ * `displayEquationIds`. When given, it must name every one of them: an id put on the wrong formula
+ * is a false anchor, so a count that disagrees with the text throws rather than guessing.
+ *
+ * Returns a plain string when the text carries neither markup nor mathematics, so most blocks
  * cost nothing and render exactly as before.
  */
-export function renderSourceMarkup(text: string, keyPrefix: string): ReactNode {
-  if (!text.includes("[[")) return text;
+export function renderSourceMarkup(
+  text: string,
+  keyPrefix: string,
+  displayIds: readonly string[] = [],
+): ReactNode {
+  if (!text.includes("[[") && !text.includes("$")) return text;
+
+  const displays = findDisplayMathRegions(text);
+  if (displayIds.length > 0 && displayIds.length !== displays.length) {
+    throw new Error(
+      `${keyPrefix}: ${displayIds.length} display equation id(s) for ${displays.length} display formula(s) in the text`,
+    );
+  }
+  type Region = Readonly<{
+    start: number;
+    end: number;
+    latex: string;
+    label: string | undefined;
+    display: boolean;
+    index: number;
+  }>;
+  const regions: Region[] = [
+    ...displays.map((r, index) => ({ ...r, label: r.label, display: true, index })),
+    ...findInlineMathRegions(text).map((r) => ({
+      ...r,
+      label: undefined,
+      display: false,
+      index: -1,
+    })),
+  ].sort((a, b) => a.start - b.start);
 
   type Frame = { readonly tag: string | null; readonly children: ReactNode[] };
   const stack: Frame[] = [{ tag: null, children: [] }];
   const top = () => stack[stack.length - 1] as Frame;
   const push = (node: ReactNode) => top().children.push(node);
 
-  let cursor = 0;
   let seq = 0;
-  for (const match of text.matchAll(TOKEN)) {
-    const at = match.index ?? 0;
-    if (at > cursor) push(text.slice(cursor, at));
-    cursor = at + match[0].length;
+  // Markup between formulas. The tag stack is shared across the formulas, so a [[SPERR]] pair
+  // that encloses a formula still wraps it.
+  const pushMarkup = (segment: string) => {
+    let cursor = 0;
+    for (const match of segment.matchAll(TOKEN)) {
+      const at = match.index ?? 0;
+      if (at > cursor) push(segment.slice(cursor, at));
+      cursor = at + match[0].length;
 
-    const closing = match[1] === "/";
-    const name = match[2] ?? "";
-    const arg = match[3];
+      const closing = match[1] === "/";
+      const name = match[2] ?? "";
+      const arg = match[3];
 
-    const paired = PAIRED[name];
-    if (paired) {
-      if (!closing) {
-        stack.push({ tag: name, children: [] });
-      } else if (stack.length > 1 && top().tag === name) {
-        const frame = stack.pop() as Frame;
-        push(paired(frame.children, `${keyPrefix}-m${seq++}`));
+      const paired = PAIRED[name];
+      if (paired) {
+        if (!closing) {
+          stack.push({ tag: name, children: [] });
+        } else if (stack.length > 1 && top().tag === name) {
+          const frame = stack.pop() as Frame;
+          push(paired(frame.children, `${keyPrefix}-m${seq++}`));
+        }
+        // An unmatched closer wraps nothing and is dropped rather than shown.
+        continue;
       }
-      // An unmatched closer wraps nothing and is dropped rather than shown.
-      continue;
+
+      const standalone = STANDALONE[name];
+      if (standalone) {
+        push(standalone(arg, `${keyPrefix}-m${seq++}`));
+        continue;
+      }
+
+      if (STRUCTURAL.has(name)) continue;
+
+      // Unrecognised: left visible so the leak check names it. See the docblock.
+      push(match[0]);
     }
+    if (cursor < segment.length) push(segment.slice(cursor));
+  };
 
-    const standalone = STANDALONE[name];
-    if (standalone) {
-      push(standalone(arg, `${keyPrefix}-m${seq++}`));
-      continue;
+  let cursor = 0;
+  for (const region of regions) {
+    if (region.start > cursor) pushMarkup(text.slice(cursor, region.start));
+    cursor = region.end;
+    const key = `${keyPrefix}-m${seq++}`;
+    if (region.display) {
+      // The region's printed number, if any, was captured with it by the segmenter's grammar.
+      push(sourceDisplayEquation(region.latex.trim(), region.label, displayIds[region.index], key));
+    } else {
+      push(
+        <span
+          key={key}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output under the ledger's policy: no trust, no macros, parse checked first.
+          dangerouslySetInnerHTML={{ __html: typesetLedgerMath(region.latex, false, key) }}
+        />,
+      );
     }
-
-    if (STRUCTURAL.has(name)) continue;
-
-    // Unrecognised: left visible so the leak check names it. See the docblock.
-    push(match[0]);
   }
-  if (cursor < text.length) push(text.slice(cursor));
+  if (cursor < text.length) pushMarkup(text.slice(cursor));
 
   // An opener with no closer must not swallow the rest of the paragraph: unwrap it and keep the
   // text. The emphasis is lost, the words are not.

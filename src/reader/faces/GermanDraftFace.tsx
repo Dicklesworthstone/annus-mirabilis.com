@@ -22,7 +22,7 @@
 import type { GermanSourceFace } from "../../content/editions/germanSourceFace.ts";
 import { FACE_REGISTRY } from "./registry.ts";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
-import { renderSourceMarkup } from "./sourceMarkup.tsx";
+import { renderSourceMarkup, sourceDisplayEquation } from "./sourceMarkup.tsx";
 import "../reader.css";
 
 const HEADING_KINDS = new Set(["heading", "part-heading"]);
@@ -60,7 +60,20 @@ export function GermanDraftFace({
     German title as its h1 and this matches it.
   */
   const mastheadTitle = blocks.find((b) => b.kind === "masthead-title");
-  const body = blocks.filter((b) => b.kind !== "footnote" && b !== mastheadTitle);
+  /*
+    EACH DISPLAY EQUATION IS PRINTED ONCE, WHERE THE COMPOSITOR PUT IT. The segmenter emits a
+    display equation twice over: as its own `equation` block, so it has an id an anchor can
+    name, and inside its paragraph's text as `$$…$$`, with the pairing recorded in the
+    paragraph's `displayEquationIds`. This face rendered both, so every equation appeared once
+    as a free-standing line ABOVE the sentence that introduces it and again inside that
+    sentence: 174 duplicates across the 15 pages with mathematics, measured on the export of
+    14:24:47. An equation a paragraph claims is now rendered inside that paragraph, at its
+    printed position and under its own id; only an equation no paragraph claims stands alone.
+  */
+  const claimedEquationIds = new Set(blocks.flatMap((b) => b.displayEquationIds ?? []));
+  const body = blocks.filter(
+    (b) => b.kind !== "footnote" && b !== mastheadTitle && !claimedEquationIds.has(b.id),
+  );
 
   return (
     <div data-reader-root data-ready="true" data-view="german" className="reader-root">
@@ -91,15 +104,17 @@ export function GermanDraftFace({
             <h2 key={block.id} id={block.id} lang="de">
               {renderSourceMarkup(block.text, block.id)}
             </h2>
+          ) : block.kind === "equation" ? (
+            sourceDisplayEquation(block.text, block.label, block.id, block.id)
           ) : (
             <p
               key={block.id}
               id={block.id}
-              className={block.kind === "equation" ? "source-equation" : "reader-passage"}
+              className="reader-passage"
               lang="de"
               data-block-kind={block.kind}
             >
-              {renderSourceMarkup(block.text, block.id)}
+              {renderSourceMarkup(block.text, block.id, block.displayEquationIds)}
             </p>
           ),
         )}
