@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import "./detail.css";
 
 export type CaptionReadingSet = Readonly<{
   r0: string;

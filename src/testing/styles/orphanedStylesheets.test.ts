@@ -67,28 +67,16 @@ describe("orphaned stylesheets (am-orphaned-stylesheets-5u3c)", () => {
     );
     expect(sheetCount).toBeGreaterThan(10);
 
-    // SHRINK-ONLY, WITH A PAWL, because the bead's population was an undercount. It named five;
-    // measurement found NINE. The five are fixed - foundations, bm03, me01, sr05, discovery are
-    // now imported from the components that use their classes. These four remain, recorded rather
-    // than swept, and two of them sit in directories another pane is working in.
-    const KNOWN_ORPHANS = [
-      "src/a11y/actions/families/interval/interval.css",
-      "src/equations/genealogy/genealogy.css",
-      "src/reader/detail/detail.css",
-      "src/visuals/kit/visuals.css",
-    ];
-    const unexpected = orphans.filter((o) => !KNOWN_ORPHANS.includes(o));
+    // ZERO ORPHANS. The bead named five; measurement found NINE, and all nine are now imported
+    // from the components that use their classes. The KNOWN_ORPHANS list this gate carried while
+    // the remaining four were outstanding is gone rather than left at zero length: a baseline
+    // nobody can shrink further is an invitation to add to it.
     expect(
-      unexpected,
+      orphans,
       `these stylesheets are imported by nothing, so their rules reach no page while their class ` +
-        `names still render:\n  ${unexpected.join("\n  ")}\n` +
+        `names still render:\n  ${orphans.join("\n  ")}\n` +
         `Import each from the component that uses its classes, the way reader.css is imported.`,
     ).toEqual([]);
-    expect(
-      orphans.length,
-      `Pawl: ${orphans.length} orphans remain, fewer than the ${KNOWN_ORPHANS.length} recorded. ` +
-        `Remove the fixed ones from KNOWN_ORPHANS in this same commit.`,
-    ).toBeGreaterThanOrEqual(KNOWN_ORPHANS.length);
   });
 
   test("REJECT: the detector actually finds an unimported sheet", () => {

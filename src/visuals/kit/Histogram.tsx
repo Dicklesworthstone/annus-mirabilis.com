@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { optionalIdentityAttributes } from "./identity.ts";
 import type { HistogramBinData, OptionalViewIdentityProps, Projector } from "./types.ts";
+import "./visuals.css";
 
 export interface HistogramProps extends OptionalViewIdentityProps {
   readonly bins: HistogramBinData;

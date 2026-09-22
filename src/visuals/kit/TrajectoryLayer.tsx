@@ -1,6 +1,7 @@
 import { type ReactElement, useEffect, useRef } from "react";
 import { viewIdentityAttributes } from "./identity.ts";
 import type { Projector, ViewIdentityProps } from "./types.ts";
+import "./visuals.css";
 
 export interface TracerPath {
   readonly id: string | number;

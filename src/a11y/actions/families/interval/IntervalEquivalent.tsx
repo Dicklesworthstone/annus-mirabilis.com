@@ -15,6 +15,7 @@ import { announce } from "../../../announce.ts";
 import { buildActionCommand } from "../../commandBuilder.ts";
 import { fixtureIntervalContract } from "../../fixtures.ts";
 import type { ActionContract, CanonicalActionCommand } from "../../types.ts";
+import "./interval.css";
 
 export interface IntervalBounds {
   readonly lower: number;

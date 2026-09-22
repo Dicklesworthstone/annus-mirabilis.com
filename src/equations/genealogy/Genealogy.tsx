@@ -12,6 +12,7 @@ import type React from "react";
 import { useState } from "react";
 import type { PremiseEdgeType } from "../../content/schemas/meanings.ts";
 import { layoutGenealogyGraph } from "./layoutLayers.ts";
+import "./genealogy.css";
 import type {
   GenealogyEdge,
   GenealogyGraph,

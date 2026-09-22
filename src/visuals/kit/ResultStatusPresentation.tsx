@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import type { OutputStatus } from "../../experiments/results/types.ts";
+import "./visuals.css";
 
 export interface ResultStatusPresentationProps {
   readonly status: OutputStatus;

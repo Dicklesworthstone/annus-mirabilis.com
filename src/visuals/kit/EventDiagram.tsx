@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { optionalIdentityAttributes } from "./identity.ts";
 import type { OptionalViewIdentityProps, Projector } from "./types.ts";
+import "./visuals.css";
 
 export interface Worldline {
   readonly id: string;
