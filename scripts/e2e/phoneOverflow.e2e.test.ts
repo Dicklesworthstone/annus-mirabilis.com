@@ -1,54 +1,97 @@
 /**
- * The layout viewport invariant at real phone widths, measured against the BUILT site.
+ * The layout viewport invariant at real phone widths, across EVERY built route.
  *
- * `document.documentElement.scrollWidth === clientWidth`. When it does not hold the reader gets
- * horizontal scroll: the column drifts sideways, the right edge of every line is off screen, and
- * pinch-zoom fights the page. It is the single cheapest signal that a layout only works because
- * the viewport is wide.
+ * The property: `document.documentElement.scrollWidth === clientWidth` at every supported phone
+ * width, on every page the build emits. When it does not hold the reader gets horizontal scroll:
+ * the column drifts sideways, the right edge of every line is off screen, and pinch-zoom fights
+ * the page. It is the cheapest single signal that a layout only works because the viewport is wide.
+ *
+ * The property does not hold yet, so it is enforced against a baseline of the pairs that still
+ * violate it, BY IDENTITY and TWO-SIDED. See "the shape of the assertion" below.
  *
  * WHY AGAINST out/ AND NOT A FIXTURE. src/testing/styles/computedStylesLayout.test.ts already
- * injects globals.css into a hand-written page and measures a button there. That is a fixture
- * check: it proves the rule computes, on markup the test wrote itself. Every defect this file was
- * written from survived that class of check, because each came from the INTERACTION between real
- * content and a real container - a 64 character sha256 inside a grid item whose min-width is
- * auto, a five column table inside a 342px block, a flex row of buttons with no flex-wrap. None
- * of those is visible in a stylesheet, and none is visible in a fixture whose content the author
- * chose. They are only visible in the artefact a reader actually receives.
+ * injects globals.css into hand-written markup and measures a button there. That is a fixture
+ * check: it proves a rule computes, on markup the test author chose. Every defect this file was
+ * written from would have passed it, because each came from the INTERACTION between real content
+ * and a real container - a 64 character sha256 inside a grid item whose min-width is auto, a five
+ * column table inside a 342px block, a flex row of buttons with no flex-wrap. None of those is
+ * visible in a stylesheet, and none is visible in a fixture.
  *
- * WHY IT REFUSES A STALE BUILD RATHER THAN SKIPPING. A page that never loaded reports no
- * overflow, and so does a page that is fine; an absent or stale out/ would make this file green
- * for the wrong reason, permanently. assertOutFreshness turns both into a failure that names the
- * cause. This is the same proposition as the 2026-09-21 correction inside outFreshness.ts, one
- * step earlier in the chain.
+ * WHY THREE WIDTHS. 320 is the narrowest viewport the lane matrix commits to (`touch-320` in
+ * scripts/e2e/lanes.ts); 360 is the commonest Android width; 390 is the iPhone logical width.
+ * They are not interchangeable, and that is measured rather than assumed: /notation/ overflowed
+ * at all three, /lab/me-02/ at 320 and 360 while fitting at 390, /lab/bm-03/ only at 320. Any
+ * single width reports one of those cases as the other.
+ *
+ * WHY IT REFUSES A STALE BUILD. A page that never loaded reports no overflow, and so does a page
+ * that is fine. An absent or stale out/ would make this file green for the wrong reason,
+ * permanently. assertOutFreshness turns both into a failure that names the cause.
+ *
+ * HOW IT SURVIVES A PEER REBUILDING out/ UNDERNEATH IT. A peer rebuilds several times an hour in
+ * this checkout, and `next build` empties the directory before refilling it. The first run of
+ * this test loaded /notation/ at 320px and got a 404 for the same route at 360px, mid-rebuild.
+ * Refusing on that would be a refusal on a condition that is permanently true here, which is
+ * precisely how `bun run test:node` became an off switch for 49 commits (see outFreshness.ts).
+ *
+ * The first repair was to copy the build and measure the copy. That works and costs 130MB per
+ * run, and disposing of the copy would mean writing file deletion into a test, which RULE 1 puts
+ * out of reach. So instead the Next build id is read off every route BEFORE and AFTER the sweep:
+ * one id both times, and the same id both times, means no rebuild landed while the pages were
+ * being measured. Two ids, or two different ids, means the numbers are a mixture of builds and
+ * the test says so INSTEAD of reporting them. That check is asserted before the load failures,
+ * because a mid-sweep rebuild is the cause and a 404 is only its symptom.
  *
  * WHY A SINGLE-THREADED SERVER WOULD BE WORSE THAN NO TEST. Measured while writing this: serving
- * out/ with a single-threaded static server reset 591 of 616 page loads under a browser's
- * parallel asset fetches. The sweep reported "2 violations" and looked clean; it had measured 25
- * pages of 616. Node's http server handles concurrent sockets, and the measured pair count below
- * is printed so a collapsed denominator is visible rather than silent.
+ * out/ single-threaded reset 591 of 616 page loads under a browser's parallel asset fetches. The
+ * sweep reported "2 violations" and read as clean; it had measured 25 pages of 616. Node's server
+ * handles concurrent sockets, a non-ok response is a failure rather than a skip, and the pair
+ * count is both asserted complete and printed.
  *
- * WHY IT COPIES out/ BEFORE MEASURING. In this shared checkout a peer rebuilds out/ several times
- * an hour, and `next build` empties the directory before it refills it. The first run of this test
- * loaded /notation/ at 320px and got a 404 for the same route at 360px, mid-rebuild. Refusing on
- * that would have been a refusal on a condition that is permanently true here, which is the exact
- * shape of the failure outFreshness.ts records: a gate that reads like diligence and is really an
- * off switch. So the pages are copied once, the copy is checked for a single Next build id, and
- * every measurement runs against that immutable snapshot. Two build ids means the copy caught a
- * rebuild in progress and the test says so instead of measuring a mixture.
+ * THE SHAPE OF THE ASSERTION, and why it is not a count.
  *
- * WHY KNOWN_OVERFLOWING IS A RATCHET AND NOT A SUPPRESSION. Those routes overflow today for
- * causes named beside each one, and several sit behind decisions that are not mine to take (see
- * the orphaned-stylesheet note on am-read-page-anatomy-l0b). Listing them as "expected to pass"
- * would be a lie and deleting them from the route set would hide them. So the test asserts they
- * STILL overflow: repairing one turns this file RED and the message says to promote it to
- * MUST_FIT. A fix cannot land silently and the list cannot quietly rot.
+ * AGENTS.md ("A Count Is For Reporting, Not For Asserting") records what `typos.length === 6`
+ * cost: a census frozen into an equality breaks on correct work and, worse, aborts above the
+ * checks that matter. `assert.equal(violations.length, 22)` would be the same mistake wearing a
+ * mobile hat. It would go red when a peer adds a route, it would go red when someone repairs a
+ * page, and in neither case would the message say which.
+ *
+ * So the count is REPORTED (t.diagnostic prints pairs measured and violations found, with the
+ * command that reproduces them) and the PROPERTY is asserted, in the only form that is true
+ * today: the set of overflowing (route, width) pairs is exactly the recorded baseline. The
+ * members are identities, not a number, and the comparison is two-sided:
+ *
+ *   - a pair measured overflowing that is NOT in the baseline is a REGRESSION, and the failure
+ *     names the route and the width;
+ *   - a pair in the baseline that no longer overflows is a REPAIR, and the failure says to delete
+ *     that line. Fixing a page therefore forces the baseline down instead of leaving slack for a
+ *     later regression to hide in.
+ *
+ * When the baseline empties, both halves keep holding and the assertion becomes the unconditional
+ * property with nothing to edit.
+ *
+ * THIS GATE IS HALF OF A PAIR, AND THE OTHER HALF CAN BE BROKEN BY SATISFYING THIS ONE.
+ *
+ * The commonest way to stop a region overflowing is to let it scroll. That is also the commonest
+ * way to create a keyboard trap: a pointer can drag a scroll region, and without a tab stop its
+ * off-screen content is unreachable by keyboard entirely. So a page can be moved out of
+ * BASELINE_OVERFLOWING by a change that puts a new entry into the scrollableRegions ratchet
+ * (src/testing/a11y/scrollableRegions.test.ts, am-bc6s), and the author sees one green tick and
+ * one number going the right way.
+ *
+ * That is not hypothetical: 8ece778c repaired /notation/ by wrapping its table in .table-scroll,
+ * and central verify caught "1 unreachable scroll region(s), baseline 0" at HEAD. f6f8a9ea is the
+ * missing half. Before claiming a route repaired here, run that ratchet, because the trade this
+ * gate rewards is exactly the trade that one refuses.
+ *
+ * Neither gate can see the trade on its own. It is visible because both are two-sided: this one
+ * refuses to let a repair go unrecorded, and that one refuses to let a scroll region go
+ * unreachable, so a change that buys one with the other has to show up in one of them.
  */
 
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdtempSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { createServer, type Server } from "node:http";
-import { tmpdir } from "node:os";
-import { extname, join, resolve } from "node:path";
+import { extname, join, relative, resolve, sep } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
@@ -57,87 +100,106 @@ import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
 const REPO_ROOT = resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const OUT_DIR = join(REPO_ROOT, "out");
 
-/**
- * Copies the routes under test out of the shared build directory so a peer's `next build` cannot
- * empty it underneath the measurement, and proves the copy is one build rather than two halves.
- */
-function pinRoutes(routes: readonly string[]): string {
-  const pinned = mkdtempSync(join(tmpdir(), "phone-overflow-"));
-  cpSync(join(OUT_DIR, "_next"), join(pinned, "_next"), { recursive: true });
-  for (const dir of ["fonts", "search"]) {
-    if (existsSync(join(OUT_DIR, dir))) {
-      cpSync(join(OUT_DIR, dir), join(pinned, dir), { recursive: true });
-    }
-  }
-  const buildIds = new Set<string>();
-  for (const route of routes) {
-    if (route === "/") {
-      // Copying OUT_DIR itself would pull the whole build in behind the home page.
-      cpSync(join(OUT_DIR, "index.html"), join(pinned, "index.html"));
-    } else {
-      cpSync(join(OUT_DIR, route), join(pinned, route), { recursive: true });
-    }
-    const html = readFileSync(join(pinned, route, "index.html"), "utf8");
-    const id = /\\"b\\":\\"([^\\"]+)\\"/.exec(html)?.[1];
-    assert.ok(
-      id,
-      `No Next build id found in ${route}; the copy cannot be checked for a mid-rebuild tear, so its measurements would be unverifiable.`,
-    );
-    buildIds.add(id);
-  }
-  assert.ok(
-    buildIds.size <= 1,
-    `The copied pages carry ${buildIds.size} different Next build ids (${[...buildIds].join(", ")}), so out/ was rebuilt during the copy and these pages are a mixture of two builds. Re-run; do not read the numbers.`,
-  );
-  return pinned;
-}
-
-/**
- * Three widths, not one. 320 is the narrowest viewport the lane matrix commits to and the one
- * `touch-320` in scripts/e2e/lanes.ts names; 360 is the commonest Android width; 390 is the
- * iPhone logical width. They are not interchangeable: /notation/ overflowed at all three, while
- * /lab/bm-03/ overflowed only at 320. A single width would have reported either as the other.
- */
 const PHONE_WIDTHS = [320, 360, 390] as const;
 
-/** Routes that must fit. Each was measured overflowing and was repaired; the cause is named. */
-const MUST_FIT: readonly { readonly route: string; readonly why: string }[] = [
+/** Pages loaded at once per width. Wall clock, not semantics; the measurement is per page. */
+const CONCURRENCY = 4;
+
+/** The viewport the planted negative runs at, named so its precondition can check against it. */
+const PLANT_WIDTH = 320;
+
+/**
+ * The (route, width) pairs that still overflow, by identity.
+ *
+ * Reproduce exactly what this list records:
+ *   bun run build
+ *   node --experimental-strip-types --test scripts/e2e/phoneOverflow.e2e.test.ts
+ * and read the diagnostic, which prints every measured violation as `route@width`.
+ *
+ * Each cause is recorded so the next reader repairs the defect rather than the symptom. Three
+ * distinct causes account for all of them, and one of the three is not a mobile fix at all:
+ * am-orphaned-stylesheets-5u3c records that src/components/foundations/foundations.css is
+ * imported by nothing, so its `.construction-table-wrap { overflow-x: auto }` computes VISIBLE on
+ * the page and the foundation tables have no container. Wiring it up changes 42 pages and is an
+ * ownership decision.
+ */
+const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
+  // TABLE WITH NO WORKING SCROLL CONTAINER. A table is at least its min-content width, so
+  // `width: 100%` cannot contain it and the document grows instead. The foundations three are
+  // NOT missing a rule: src/components/foundations/foundations.css declares
+  // `.construction-table-wrap { overflow-x: auto }` and is imported by nothing, so the wrapper
+  // computes overflow-x VISIBLE on the page - measured 358px wide with scrollWidth 453 at 390px.
+  // Wiring that stylesheet up changes 42 pages, which is an ownership decision, not a mobile fix:
+  // am-orphaned-stylesheets-5u3c.
+  "/foundations/logarithms/@320", // +149px
+  "/foundations/logarithms/@360", // +109px
+  "/foundations/logarithms/@390", // +79px
+  "/foundations/taylor-expansion/@320", // +85px
+  "/foundations/taylor-expansion/@360", // +45px
+  "/foundations/taylor-expansion/@390", // +15px
+  "/foundations/partial-derivatives/@320", // +47px
+  // Added one cycle after the rest of this list, and the gate is how it was found rather than a
+  // guess. It was NOT overflowing at 360 when the baseline was derived; a type-scale change landed
+  // between the two builds (4137906a) and this table, which nothing constrains, grew about 10px:
+  // 357 -> 367 at 320, and 360 -> 366 at 360. Measured 5 runs at each width before recording it,
+  // because a 6px excess is exactly the size that could have been noise: 5/5 overflowing at 320
+  // and at 360, 0/5 at 390. Same cause as its sibling entries - am-orphaned-stylesheets-5u3c.
+  "/foundations/partial-derivatives/@360", // +6px
+  // table.event-ledger, 410px wide, no container at all rather than an inert one.
+  "/lab/sr-01/@320", // +106px
+  "/lab/sr-01/@360", // +66px
+  "/lab/sr-01/@390", // +36px
+
+  // RENDERED MATHEMATICS WIDER THAN THE COLUMN. The unclipped offender on each of these is a
+  // KaTeX <semantics>/<mrow> subtree - 431px on /lab/lq-01/, 654px on /lab/bm-03/ - not a table.
+  // A formula cannot be broken at an arbitrary point the way an identifier can, so the remedy is
+  // a scrollable, focusable region (the .formula path that formulaOverflow.inline.ts already
+  // maintains for the reader faces) rather than a wrap rule. Not yet applied here.
+  "/lab/lq-01/@320", // +33px
+  "/lab/lq-06/@320", // +33px
+  "/lab/lq-09/@320", // +33px
+  "/lab/bm-03/@320", // +23px
+  "/foundations/exponentials/@320", // +14px
+
+  // A ROW THAT WILL NOT WRAP. Same class as the .predict-mode-tabs defect already repaired on
+  // /lab/me-02/: two 240px button.secondary elements side by side on /lab/lq-07/, and a 280px
+  // div.input-field on /lab/lq-05/.
+  "/lab/lq-05/@320", // +25px
+  "/lab/lq-07/@320", // +6px
+
+  // CAUSE NOT YET DIAGNOSED, recorded as measured rather than guessed at.
+  // /lab/sr-03/ reports only clipped KaTeX <path> elements among its offenders, so the element
+  // actually driving scrollWidth has not been identified.
+  "/lab/sr-03/@320", // +13px
+  // /discover/brownian-motion/ is unstable between builds in a way the others are not: +25px at
+  // 320 only when measured against build ad3987f2, and +236/+196/+166 at 320/360/390 against
+  // w5NVNsD35dd2hZmHUccbw an hour later, with no commit of mine touching that page. Diagnose it
+  // against a build whose working tree is known before assigning a cause.
+  "/discover/brownian-motion/@320", // +236px
+  "/discover/brownian-motion/@360", // +196px
+  "/discover/brownian-motion/@390", // +166px
+]);
+
+/**
+ * Routes repaired by 8ece778c, named by IDENTITY rather than left to the baseline's silence.
+ *
+ * The full sweep already requires these to fit, because anything not in BASELINE_OVERFLOWING must
+ * not overflow. Naming them adds the thing a generic regression message cannot: which defect came
+ * back. Both are permanent facts about pages that exist, which is the case AGENTS.md says to
+ * assert by identity instead of by count.
+ */
+const REPAIRED: readonly { readonly route: string; readonly defect: string }[] = Object.freeze([
   {
     route: "/notation/",
-    why: "entries-grid 1fr track blew out to 511.281px inside a 342px grid (unbreakable dotted quantity ids and a sha256), and modern-symbols-table had no scroll container",
+    defect:
+      "the .entries-grid `1fr` track sized itself to a card's min-content and reached 511.281px inside a 342px grid, from a dotted quantity id and a 64-character sha256 that carry no break opportunity; and modern-symbols-table had no scroll container",
   },
   {
     route: "/lab/me-02/",
-    why: ".predict-mode-tabs was display:flex with no flex-wrap, so its buttons ran off the page at 320 and 360 while fitting at 390",
+    defect:
+      ".predict-mode-tabs was display:flex with no flex-wrap, so a row of ~113px buttons could not break onto a second line; it fitted at 390 and failed at 320 and 360",
   },
-  // A control that was never broken. If the harness ever stops measuring, this passes for the
-  // same wrong reason as everything else, which is why the planted negative below exists too.
-  { route: "/", why: "control: the home page fits and always has" },
-];
-
-/**
- * Routes measured overflowing at one or more phone widths, with the cause. Asserted to STILL
- * overflow, so a repair reports itself here instead of landing unnoticed.
- */
-const KNOWN_OVERFLOWING: readonly { readonly route: string; readonly cause: string }[] = [
-  {
-    route: "/foundations/logarithms/",
-    cause:
-      "table.data-table is 453px inside a 358px block. .construction-table-wrap declares overflow-x:auto and computes VISIBLE, because src/components/foundations/foundations.css is imported by nothing and none of its 26 classes reach the built CSS",
-  },
-  {
-    route: "/foundations/taylor-expansion/",
-    cause: "same orphaned foundations.css as /foundations/logarithms/",
-  },
-  {
-    route: "/lab/sr-01/",
-    cause: "table.event-ledger is 410px wide with no scroll container",
-  },
-  {
-    route: "/foundations/partial-derivatives/",
-    cause: "same orphaned foundations.css; table.data-table 341px inside a 320px viewport",
-  },
-];
+]);
 
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".html": "text/html; charset=utf-8",
@@ -155,6 +217,37 @@ const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".txt": "text/plain; charset=utf-8",
   ".pdf": "application/pdf",
 };
+
+/** Every route the build emits, as a URL path, discovered rather than listed. */
+function discoverRoutes(root: string): string[] {
+  const routes: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === "_next") continue;
+        walk(full);
+      } else if (entry.name === "index.html") {
+        const rel = relative(root, dir).split(sep).join("/");
+        routes.push(rel === "" ? "/" : `/${rel}/`);
+      }
+    }
+  };
+  walk(root);
+  return routes.sort();
+}
+
+/** Every distinct Next build id currently on disk across the given routes. */
+function buildIdsOnDisk(routes: readonly string[]): Set<string> {
+  const ids = new Set<string>();
+  for (const route of routes) {
+    const file = join(OUT_DIR, route, "index.html");
+    if (!existsSync(file)) continue;
+    const id = /\\"b\\":\\"([^\\"]+)\\"/.exec(readFileSync(file, "utf8"))?.[1];
+    if (id) ids.add(id);
+  }
+  return ids;
+}
 
 function startStaticServer(rootDir: string): Promise<{ server: Server; origin: string }> {
   const server = createServer((req, res) => {
@@ -187,40 +280,72 @@ function startStaticServer(rootDir: string): Promise<{ server: Server; origin: s
   });
 }
 
-interface Measurement {
+/**
+ * Waits for the real reading face to be laid out before anything is measured.
+ *
+ * `waitUntil: "load"` does not mean the webfonts have been applied, and scrollWidth is a function
+ * of the face in use. This site self-hosts Newsreader, and the fallback metrics are not close
+ * enough to ignore: measured on this build with the font files aborted at the network against the
+ * same page with them allowed,
+ *
+ *   /foundations/logarithms/          @320  474 -> 480   (+6px)
+ *   /foundations/partial-derivatives/ @320  350 -> 367   (+17px)
+ *   /foundations/partial-derivatives/ @360  360 -> 366   (+6px)  <- changes the VERDICT
+ *
+ * The last one is why this is not a formality. Under fallback that route fits 360 exactly and the
+ * gate would call it clean; with the face a reader actually gets, it overflows by 6px. The gate
+ * reached the right answer before this existed only because the sweep reuses one context per
+ * width, so the fonts were already cached by the second navigation - correct by luck, and wrong
+ * for whichever route happened to be measured first.
+ *
+ * The home page, by contrast, is 320 and 390 either way, which matches what pane28 measured for
+ * the header: the chrome does not move at phone width, route CONTENT does.
+ *
+ * WHY THE CHECK AND NOT THE STATUS. With the fonts blocked the page still reports
+ * `document.fonts.status === "loaded"` and `document.fonts.size === 23` - "loaded" means nothing
+ * is pending, not that anything arrived. Awaiting readiness and asserting the status would be a
+ * guard that cannot fail. `document.fonts.check()` is the one that distinguishes a usable face
+ * from a dead one, so that is what every measurement carries and what is asserted below.
+ */
+async function settleFonts(page: import("playwright").Page): Promise<void> {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
+  // A repaint after the swap; the face can arrive before the reflow it causes.
+  await page.waitForTimeout(150);
+}
+
+interface Pair {
+  readonly id: string;
   readonly route: string;
   readonly width: number;
   readonly scrollWidth: number;
   readonly clientWidth: number;
-  readonly overflows: boolean;
+  readonly readingFaceUsable: boolean;
 }
 
-test("the layout viewport invariant holds at phone widths on the built site", async (t) => {
+test("no built route overflows its layout viewport at a supported phone width", async (t) => {
   const freshness = assertOutFreshness("out", REPO_ROOT);
   if (freshness.dirtyStaticSources && freshness.dirtyStaticSources.length > 0) {
-    // Reported, never suppressed: out/ is the artefact, and a peer's unsaved edit is not in it.
     t.diagnostic(
       `out/ predates ${freshness.dirtyStaticSources.length} uncommitted static source(s); this measures the BUILT artefact, not the working tree`,
     );
   }
 
-  const routes = [...MUST_FIT.map((r) => r.route), ...KNOWN_OVERFLOWING.map((r) => r.route)];
-  // A gate over an empty population reports conformance it never established.
-  assert.ok(
-    routes.length >= 6,
-    `Route set collapsed to ${routes.length}; this gate establishes nothing below 6 routes.`,
-  );
-  for (const route of routes) {
-    assert.ok(
-      existsSync(join(OUT_DIR, route, "index.html")),
-      `Route ${route} is not in the build, so measuring it would prove nothing. Rebuild, or correct the route.`,
-    );
-  }
+  const routes = discoverRoutes(OUT_DIR);
+  const buildIdsBefore = buildIdsOnDisk(routes);
 
-  const pinnedDir = pinRoutes(routes);
-  const { server, origin } = await startStaticServer(pinnedDir);
+  // Non-vacuity, stated on purpose rather than supplied by accident. A sweep over zero routes
+  // reports zero violations and is indistinguishable from a clean one.
+  assert.ok(
+    routes.length > 100,
+    `Only ${routes.length} routes discovered under out/. The build emits hundreds; a collapsed route set would report the property as holding without having tested it.`,
+  );
+
+  const { server, origin } = await startStaticServer(OUT_DIR);
   const browser = await chromium.launch();
-  const measurements: Measurement[] = [];
+  const measured: Pair[] = [];
+  const loadFailures: string[] = [];
   try {
     for (const width of PHONE_WIDTHS) {
       const context = await browser.newContext({
@@ -229,45 +354,67 @@ test("the layout viewport invariant holds at phone widths on the built site", as
         isMobile: true,
         hasTouch: true,
       });
-      const page = await context.newPage();
-      for (const route of routes) {
-        const response = await page.goto(`${origin}${route}`, { waitUntil: "load" });
-        assert.ok(
-          response?.ok(),
-          `${route} at ${width}px did not load (${response?.status()}); an unloaded page reports no overflow and would read as a pass.`,
-        );
-        await page.waitForTimeout(350);
-        const measured = await page.evaluate(() => ({
-          scrollWidth: document.documentElement.scrollWidth,
-          clientWidth: document.documentElement.clientWidth,
-        }));
-        measurements.push({
-          route,
-          width,
-          ...measured,
-          overflows: measured.scrollWidth > measured.clientWidth,
-        });
-      }
+      const queue = [...routes];
+      await Promise.all(
+        Array.from({ length: CONCURRENCY }, async () => {
+          const page = await context.newPage();
+          for (let route = queue.pop(); route !== undefined; route = queue.pop()) {
+            const response = await page.goto(`${origin}${route}`, { waitUntil: "load" });
+            if (!response?.ok()) {
+              loadFailures.push(`${route}@${width} (http ${response?.status()})`);
+              continue;
+            }
+            await settleFonts(page);
+            const box = await page.evaluate(() => ({
+              scrollWidth: document.documentElement.scrollWidth,
+              clientWidth: document.documentElement.clientWidth,
+              readingFaceUsable: document.fonts.check('1rem "Newsreader"'),
+            }));
+            measured.push({ id: `${route}@${width}`, route, width, ...box });
+          }
+          await page.close();
+        }),
+      );
       await context.close();
     }
 
-    // The instrument must be able to fail. Without this, every assertion below is a claim about
-    // a measurement that has never been observed going red on this page in this run.
+    // The instrument must be able to fail. Without this every assertion below is a claim about a
+    // measurement never observed going red, and a check that cannot fail looks exactly like one
+    // that found nothing wrong.
     const plantContext = await browser.newContext({
-      viewport: { width: 320, height: 844 },
+      viewport: { width: PLANT_WIDTH, height: 844 },
       isMobile: true,
       hasTouch: true,
     });
     const plantPage = await plantContext.newPage();
-    await plantPage.goto(`${origin}/`, { waitUntil: "load" });
+    const plantResponse = await plantPage.goto(`${origin}/`, { waitUntil: "load" });
+    await settleFonts(plantPage);
     const clean = await plantPage.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth,
     }));
+    // The plant's preconditions, checked before its verdict is allowed to mean anything.
+    //
+    // This is not defensive padding. The first run of the full sweep reported "PLANTED NEGATIVE
+    // DID NOT FIRE ... scrollWidth 980 against clientWidth 980", and the plant was fine: a peer's
+    // `next build` had emptied out/ mid-run, so / returned the 404 body, and a page with no
+    // viewport meta lays out at Chromium's 980px default where a 900px block fits with room to
+    // spare. Both numbers were 980 and the old weak precondition - scrollWidth === clientWidth -
+    // was satisfied by that. The message then blamed the measurement for what was a missing file.
+    // A precondition that a 404 can satisfy is not a precondition.
+    assert.ok(
+      plantResponse?.ok(),
+      `The planted negative could not load / (http ${plantResponse?.status()}). out/ was probably emptied by a peer's build mid-run. This says nothing about whether the measurement works; re-run.`,
+    );
+    assert.equal(
+      clean.clientWidth,
+      PLANT_WIDTH,
+      `The plant page laid out at ${clean.clientWidth}px rather than the requested ${PLANT_WIDTH}px. Chromium falls back to 980px for a document with no viewport meta, which is what the 404 body does, so this is a page that did not load rather than a page that is too wide. Re-run.`,
+    );
     assert.equal(
       clean.scrollWidth,
       clean.clientWidth,
-      "Planted negative needs a clean baseline on / at 320px before the plant means anything.",
+      "Planted negative needs a clean baseline on / at the plant width before the plant proves anything.",
     );
     await plantPage.evaluate(() => {
       const bar = document.createElement("div");
@@ -281,7 +428,7 @@ test("the layout viewport invariant holds at phone widths on the built site", as
     }));
     assert.ok(
       planted.scrollWidth > planted.clientWidth,
-      `PLANTED NEGATIVE DID NOT FIRE: a 900px block on a 320px viewport left scrollWidth ${planted.scrollWidth} vs clientWidth ${planted.clientWidth}. The measurement cannot detect overflow, so every other assertion in this file is vacuous.`,
+      `PLANTED NEGATIVE DID NOT FIRE: a 900px block on a 320px viewport left scrollWidth ${planted.scrollWidth} against clientWidth ${planted.clientWidth}. The measurement cannot detect overflow, so every assertion in this file is vacuous.`,
     );
     await plantContext.close();
   } finally {
@@ -289,32 +436,121 @@ test("the layout viewport invariant holds at phone widths on the built site", as
     server.close();
   }
 
-  t.diagnostic(
-    `measured ${measurements.length} route/width pairs (${routes.length} routes x ${PHONE_WIDTHS.length} widths: ${PHONE_WIDTHS.join(", ")}px)`,
-  );
+  // ASSERTED FIRST, because a mid-sweep rebuild is the CAUSE and a 404 is only its symptom.
+  // Reporting overflow numbers drawn from two different builds would be worse than reporting none.
+  const buildIdsAfter = buildIdsOnDisk(routes);
   assert.equal(
-    measurements.length,
-    routes.length * PHONE_WIDTHS.length,
-    "Some route/width pairs were not measured; a partial sweep cannot establish the invariant.",
+    buildIdsBefore.size,
+    1,
+    `out/ held ${buildIdsBefore.size} distinct Next build ids before the sweep (${[...buildIdsBefore].join(", ")}); it was mid-rebuild. Re-run.`,
+  );
+  assert.deepEqual(
+    [...buildIdsAfter].sort(),
+    [...buildIdsBefore].sort(),
+    `out/ was rebuilt DURING the sweep (before: ${[...buildIdsBefore].join(", ")}; after: ${[...buildIdsAfter].join(", ")}). These measurements are a mixture of two builds, so they are not reported. Re-run.`,
+  );
+  const buildId = [...buildIdsBefore][0] as string;
+
+  // A page that did not load cannot be judged either way, so it is a failure and not a gap.
+  assert.deepEqual(
+    loadFailures,
+    [],
+    `Routes failed to load, and an unloaded page reports no overflow exactly as a clean one does: ${loadFailures.join(", ")}`,
+  );
+  // THE WAIT IS ONLY WORTH ANYTHING IF THE FACE ACTUALLY ARRIVED.
+  //
+  // With the font files aborted at the network the page still reports
+  // `document.fonts.status === "loaded"` and 23 registered faces, because "loaded" means nothing
+  // is pending rather than that anything came. So awaiting readiness proves nothing on its own,
+  // and a self-hosted font that 404s would silently return every number here to fallback metrics
+  // while the run stayed green. This is the assertion that cannot be satisfied by an absent font.
+  const fallbackMetrics = measured
+    .filter((m) => !m.readingFaceUsable)
+    .map((m) => m.id)
+    .sort();
+  assert.deepEqual(
+    fallbackMetrics,
+    [],
+    `The reading face was not usable on these pages, so they were measured in fallback metrics and their widths are not what a reader gets (/foundations/partial-derivatives/@360 is 360 under fallback and 366 with Newsreader, which changes the verdict):\n  ${fallbackMetrics.join("\n  ")}`,
   );
 
-  for (const entry of MUST_FIT) {
-    for (const width of PHONE_WIDTHS) {
-      const m = measurements.find((x) => x.route === entry.route && x.width === width);
-      assert.ok(m, `No measurement for ${entry.route} at ${width}px.`);
-      assert.equal(
-        m.scrollWidth,
-        m.clientWidth,
-        `${entry.route} overflows at ${width}px: scrollWidth ${m.scrollWidth} vs clientWidth ${m.clientWidth} (+${m.scrollWidth - m.clientWidth}px). Was repaired for: ${entry.why}`,
-      );
-    }
+  // THE OTHER HALF OF THE INVARIANT, and the plant is why it is here.
+  //
+  // scrollWidth === clientWidth alone is satisfiable by a layout viewport that grew to match its
+  // content. A document with no viewport meta lays out at Chromium's 980px default and reports
+  // 980 === 980, which is how the plant's old precondition passed on a 404 body. Measured across
+  // 1809 real route/width pairs the site never inflates - clientWidth equalled the requested width
+  // every time - so this costs nothing today and closes the hole the plant found.
+  const wrongWidth = measured
+    .filter((m) => m.clientWidth !== m.width)
+    .map((m) => `${m.id} (laid out at ${m.clientWidth}px)`)
+    .sort();
+  assert.deepEqual(
+    wrongWidth,
+    [],
+    `These pages did not lay out at the viewport width they were given, so "scrollWidth === clientWidth" would be true of the wrong viewport:\n  ${wrongWidth.join("\n  ")}`,
+  );
+
+  assert.equal(
+    measured.length,
+    routes.length * PHONE_WIDTHS.length,
+    `Measured ${measured.length} pairs but ${routes.length} routes x ${PHONE_WIDTHS.length} widths is ${routes.length * PHONE_WIDTHS.length}. A partial sweep cannot establish the property.`,
+  );
+
+  const violations = measured.filter((m) => m.scrollWidth > m.clientWidth);
+
+  // REPORTED, not asserted: the numbers, anchored to what produced them.
+  t.diagnostic(
+    `build ${buildId}: measured ${measured.length} pairs (${routes.length} routes x ${PHONE_WIDTHS.length} widths: ${PHONE_WIDTHS.join(", ")}px); ${violations.length} overflowing`,
+  );
+  for (const v of violations) {
+    t.diagnostic(`  overflow ${v.id} scrollWidth=${v.scrollWidth} clientWidth=${v.clientWidth}`);
   }
 
-  for (const entry of KNOWN_OVERFLOWING) {
-    const overflowing = measurements.filter((x) => x.route === entry.route && x.overflows);
-    assert.ok(
-      overflowing.length > 0,
-      `${entry.route} no longer overflows at any of ${PHONE_WIDTHS.join(", ")}px. If you repaired it, MOVE IT to MUST_FIT in this file so the invariant is enforced instead of merely expected. Recorded cause: ${entry.cause}`,
+  // ASSERTED: the property, in the only form true today, two-sided and by identity.
+  const seen = new Set(violations.map((v) => v.id));
+  const baseline = new Set(BASELINE_OVERFLOWING);
+  const measuredIds = new Set(measured.map((m) => m.id));
+
+  const regressions = violations
+    .filter((v) => !baseline.has(v.id))
+    .map(
+      (v) =>
+        `${v.id} (scrollWidth ${v.scrollWidth} vs clientWidth ${v.clientWidth}, +${v.scrollWidth - v.clientWidth}px)`,
+    )
+    .sort();
+  assert.deepEqual(
+    regressions,
+    [],
+    `REGRESSION - these overflow at a phone width and are not in BASELINE_OVERFLOWING:\n  ${regressions.join("\n  ")}\nFix the page, or if the overflow is intended and contained, say why in this file.`,
+  );
+
+  const repaired = [...baseline].filter((id) => !seen.has(id) && measuredIds.has(id)).sort();
+  assert.deepEqual(
+    repaired,
+    [],
+    `REPAIRED - these no longer overflow. Delete them from BASELINE_OVERFLOWING in ${relative(REPO_ROOT, fileURLToPath(import.meta.url))} so the baseline ratchets down instead of leaving slack for a later regression to hide in:\n  ${repaired.join("\n  ")}`,
+  );
+
+  for (const { route, defect } of REPAIRED) {
+    const pairs = measured.filter((m) => m.route === route);
+    assert.equal(
+      pairs.length,
+      PHONE_WIDTHS.length,
+      `${route} was repaired and must stay measured at every phone width; found ${pairs.length} of ${PHONE_WIDTHS.length}. If the route was renamed, update REPAIRED rather than dropping the anchor.`,
+    );
+    const broken = pairs.filter((m) => m.scrollWidth > m.clientWidth);
+    assert.deepEqual(
+      broken.map((m) => `${m.id} (+${m.scrollWidth - m.clientWidth}px)`),
+      [],
+      `${route} overflows again. It was repaired for: ${defect}`,
     );
   }
+
+  const stale = [...baseline].filter((id) => !measuredIds.has(id)).sort();
+  assert.deepEqual(
+    stale,
+    [],
+    `STALE - these baseline entries name pairs the sweep never measured, so they protect nothing. The route was renamed or removed; update BASELINE_OVERFLOWING:\n  ${stale.join("\n  ")}`,
+  );
 });
