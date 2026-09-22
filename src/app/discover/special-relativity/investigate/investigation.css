@@ -1,0 +1,109 @@
+.sr-investigation-page {
+  max-width: 76rem;
+  margin-inline: auto;
+}
+
+.sr-investigation-page section {
+  min-width: 0;
+  scroll-margin-top: 1rem;
+}
+
+.sr-investigation .sr-argument-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+}
+
+.sr-investigation .sr-card {
+  padding-block: 0.8rem;
+  border-bottom: 1px solid currentColor;
+}
+
+.sr-investigation .sr-card details {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  border: 0;
+}
+
+.sr-investigation .sr-chain {
+  padding-inline-start: 1.5rem;
+}
+
+.sr-investigation .sr-chain li {
+  margin-block: 1rem;
+  padding: 0.75rem;
+  border-inline-start: 2px solid currentColor;
+}
+
+.sr-investigation [data-support="blocked"] {
+  border-inline-start-style: dashed;
+}
+
+.sr-investigation :is(button, select, summary, .sr-choice) {
+  min-height: 44px;
+}
+
+.sr-investigation :is(textarea, select) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  margin-block: 0.6rem 1rem;
+}
+
+.sr-investigation textarea {
+  resize: vertical;
+}
+
+.sr-investigation fieldset {
+  min-width: 0;
+}
+
+.sr-investigation .sr-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.sr-investigation .sr-choice input {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.sr-investigation .sr-share {
+  overflow-wrap: anywhere;
+}
+
+.sr-investigation-page .sr-event-table {
+  overflow-x: auto;
+  margin-block: 1rem;
+}
+
+.sr-investigation-page .sr-event-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-investigation-page .sr-event-table :is(th, td) {
+  padding: 0.6rem;
+  text-align: start;
+}
+
+.sr-investigation-page .sr-event-table caption {
+  text-align: start;
+  margin-bottom: 0.5rem;
+}
+
+.sr-investigation :is(h4, button, select, textarea, a, input):focus-visible,
+.sr-investigation-page .sr-event-table:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (max-width: 48rem) {
+  .sr-investigation .sr-argument-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

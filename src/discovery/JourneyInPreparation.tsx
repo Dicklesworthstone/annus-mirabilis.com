@@ -60,11 +60,24 @@ export function JourneyInPreparation({
           </section>
         )}
         {paperId === "special-relativity" && (
-          <p>
-            <a className="button" href="/papers/special-relativity/#entry-special-relativity">
-              Start with one flash and two clocks, no algebra required →
-            </a>
-          </p>
+          <section aria-labelledby="special-relativity-investigation-link">
+            <h3 id="special-relativity-investigation-link">Construct a map and choose a measurement</h3>
+            <p>
+              Assemble the light-direction constraints, identify the still-undetermined scale,
+              and test which event pairs measure a moving-frame length. This explanatory
+              investigation does not publish the reviewed historical journey.
+            </p>
+            <p>
+              <a className="button" href="/discover/special-relativity/investigate/">
+                Build and test the relativity argument →
+              </a>
+            </p>
+            <p>
+              <a className="button" href="/papers/special-relativity/#entry-special-relativity">
+                Start with one flash and two clocks, no algebra required →
+              </a>
+            </p>
+          </section>
         )}
         {paperId === "mass-energy" && (
           <section aria-labelledby="mass-energy-investigation-link">
