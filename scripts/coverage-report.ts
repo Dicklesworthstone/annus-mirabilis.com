@@ -131,7 +131,9 @@ export async function runCoverageReport(args: string[]): Promise<{
   //     - reviewed: 158
   //
   // and exited 0, while registered requiredInCi with cadence every-run and required in the preview
-  // and launch profiles. "Inputs: None" and "158 reviewed" are two lines apart and only one of them
+  // and launch profiles. (Both registry flags have since changed - the step is nightly and no
+  // longer requiredInCi - but the defect this paragraph describes was real at the time and the
+  // refusal below is what answers it.) "Inputs: None" and "158 reviewed" are two lines apart and only one of them
   // is true. The numbers are not a measurement of this repository and never were.
   //
   // The model for the honest form is in this same file: the numerical-validation dimension already

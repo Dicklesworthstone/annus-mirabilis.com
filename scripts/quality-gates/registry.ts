@@ -340,9 +340,21 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     //   - a `--profile preview` or `--profile launch` run uses cadence "all" (quality-gates.ts:168),
     //     so it STILL RUNS and still blocks there. Unmeasured coverage should stop a release, and
     //     requiredInProfiles is unchanged.
-    //   - requiredInCi stays true and stays meaningful: quality-gates.ts:455 exempts a step
-    //     skipped for cadence (`r.reason !== "cadence"`), so this does not silently downgrade a
-    //     required step, it declines to run it on the routine cadence.
+    //   - requiredInCi GOES FALSE, and that is a correction to this comment's first version.
+    //     I wrote that it could stay true because quality-gates.ts:455 exempts a step skipped for
+    //     cadence. That is true of the RUNNER and it is not the only claim the flag makes.
+    //     ciGateWiring.test.ts asserts a second invariant: every requiredInCi gate must be
+    //     EXECUTED by some dsr check. package.json's `gates` runs --family fast and --family
+    //     browser with no --cadence, so only every-run is admitted and a nightly gate is reachable
+    //     by no dsr check at all. Moving the cadence without clearing the flag left this gate
+    //     declaring a requirement nothing could satisfy, and central verify went red on exactly
+    //     that. The flag is dropped rather than the invariant silenced.
+    //
+    //     What the flag stood for is not lost. requiredInProfiles still carries preview and
+    //     launch, and profile mode filters on THAT alone (quality-gates.ts:211), never on
+    //     requiredInCi, so a --profile launch run still executes this gate and still refuses.
+    //     check-stashes.ts:13 records the same pattern for the same reason, and 23 gates still
+    //     declare requiredInCi, so ciGateWiring keeps a real population to quantify over.
     //
     // This is reversible in one word. When am-cm-coverage-ledger-0ip wires a loader and something
     // emits scenario evidence, put cadence back to every-run and pass the path in `command`.
@@ -351,7 +363,7 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     command: ["bun", "scripts/coverage-report.ts"],
     family: "fast",
     cadence: "nightly",
-    requiredInCi: true,
+    requiredInCi: false,
     requiredInProfiles: ["preview", "launch"],
     availability: {
       scriptPath: "scripts/coverage-report.ts",
