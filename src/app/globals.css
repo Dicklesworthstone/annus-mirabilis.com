@@ -687,13 +687,16 @@ h3 {
   gap: 1rem;
   flex-wrap: wrap;
 }
+/* The badge's colours were two raw hexes from the light theme (#34483c text, #8c998f border), so on
+   the dark page its text measured 1.65:1 against the paper. Both now come from the theme: the
+   muted ink for the words, and a border mixed from it toward the paper, so it reads in either. */
 .badge {
   display: inline-block;
   font-size: var(--type-micro);
   line-height: 1.5;
-  border: 1px solid #8c998f;
+  border: 1px solid color-mix(in srgb, var(--muted) 55%, var(--paper));
   padding: 0.3rem 0.5rem;
-  color: #34483c;
+  color: var(--muted);
   max-width: 100%;
 }
 .lab-columns {
