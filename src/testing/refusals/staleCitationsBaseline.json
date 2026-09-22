@@ -33,7 +33,7 @@
   "src/equations/monomial.ts": 4,
   "src/equations/record.ts": 1,
   "src/experiments/bm07/kitchen/csv.ts": 0,
-  "src/experiments/bm07/kitchen/schema.ts": 2,
+  "src/experiments/bm07/kitchen/schema.ts": 0,
   "src/physics/reference/events.ts": 2,
   "src/physics/reference/photoelectric.ts": 0,
   "src/reader/notebook/replayEntry.ts": 2,
