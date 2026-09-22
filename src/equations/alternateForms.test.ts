@@ -174,7 +174,7 @@ describe("Equation Alternate Forms Validation", () => {
       }
     });
 
-    test("rename-only alternate is REJECTED with 'alternate-is-rename' (alternateForms.ts:382)", () => {
+    test("rename-only alternate is REJECTED with 'alternate-is-rename' (alternateForms.ts:411)", () => {
       const renameAlternate = {
         id: "eq-s6-d3.alt.modernNotation",
         relation: "unit-conversion",
@@ -372,7 +372,7 @@ describe("Equation Alternate Forms Validation", () => {
       expect(typedModernization.historicalStatus).toBe("later-development");
     });
 
-    test("unit-conversion missing 'unitSystem' fails rule 'unit-conversion-missing-fields' (alternateForms.ts:322)", () => {
+    test("unit-conversion missing 'unitSystem' fails rule 'unit-conversion-missing-fields' (alternateForms.ts:351)", () => {
       const missingUnitSystem = {
         id: "eq-s6-d3.alt.si",
         relation: "unit-conversion",
@@ -406,7 +406,7 @@ describe("Equation Alternate Forms Validation", () => {
       }
     });
 
-    test("unit-conversion missing 'derivationChainId' fails rule 'unit-conversion-missing-fields' (alternateForms.ts:332)", () => {
+    test("unit-conversion missing 'derivationChainId' fails rule 'unit-conversion-missing-fields' (alternateForms.ts:361)", () => {
       const missingChain = {
         id: "eq-s6-d3.alt.si",
         relation: "unit-conversion",
@@ -423,7 +423,7 @@ describe("Equation Alternate Forms Validation", () => {
       }
     });
 
-    test("modernization missing 'modernLensRef' fails rule 'modernization-missing-fields' (alternateForms.ts:342)", () => {
+    test("modernization missing 'modernLensRef' fails rule 'modernization-missing-fields' (alternateForms.ts:371)", () => {
       const missingLens = {
         id: "eq-s6-d3.alt.modern",
         relation: "modernization",
@@ -440,7 +440,7 @@ describe("Equation Alternate Forms Validation", () => {
       }
     });
 
-    test("modernization missing or invalid 'historicalStatus' fails rule 'modernization-missing-fields' (alternateForms.ts:352)", () => {
+    test("modernization missing or invalid 'historicalStatus' fails rule 'modernization-missing-fields' (alternateForms.ts:381)", () => {
       const invalidStatus = {
         id: "eq-s6-d3.alt.modern",
         relation: "modernization",
@@ -674,7 +674,7 @@ describe("Equation Alternate Forms Validation", () => {
       historicalStatus: "later-development" as const,
     };
 
-    test("refusal (alternateForms.ts:247): invalid-alternate-form rejects non-object input", () => {
+    test("refusal (alternateForms.ts:276): invalid-alternate-form rejects non-object input", () => {
       // Accept: valid object
       const accepted = validateAlternateForm(validForm, dummyTree, "eq-bm-s3-d4");
       expect(accepted.valid).toBe(true);
@@ -687,7 +687,7 @@ describe("Equation Alternate Forms Validation", () => {
       }
     });
 
-    test("refusal (alternateForms.ts:365): alternate-missing-tree rejects alternate missing tree", () => {
+    test("refusal (alternateForms.ts:394): alternate-missing-tree rejects alternate missing tree", () => {
       // Accept: valid form with tree
       const accepted = validateAlternateForm(validForm, dummyTree, "eq-bm-s3-d4");
       expect(accepted.valid).toBe(true);
@@ -707,7 +707,7 @@ describe("Equation Alternate Forms Validation", () => {
       }
     });
 
-    test("refusal (alternateForms.ts:441): invalid-alternate-forms-list rejects non-array alternate forms list", () => {
+    test("refusal (alternateForms.ts:470): invalid-alternate-forms-list rejects non-array alternate forms list", () => {
       // Accept: valid array
       const accepted = validateAlternateForms([validForm], dummyTree, "eq-bm-s3-d4");
       expect(accepted.valid).toBe(true);
