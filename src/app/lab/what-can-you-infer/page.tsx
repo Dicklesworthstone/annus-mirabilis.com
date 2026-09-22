@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import generated from "../../../generated/inference-workbench.json";
 import { parseInferenceEvidence } from "../../../reasoning/infer/evidence.ts";
 import { FamilyWorkbench } from "../../../reasoning/infer/FamilyWorkbench.tsx";
+import "../../../components/lab/showTheCode.css";
 
 export const metadata: Metadata = {
   title: "What can you infer? Keep the data, add independent information",
@@ -84,9 +85,18 @@ export default function InferenceWorkbenchPage() {
               <p className="digest">
                 <code>{source.hash}</code>
               </p>
-              <pre style={{ overflowX: "auto", maxWidth: "100%" }}>
-                <code>{source.text}</code>
-              </pre>
+              {/* A source line does not wrap, so the listing scrolls inside a named region a
+                  keyboard can reach, not a bare scrolling <pre> (CLASS 2). */}
+              <section
+                className="show-the-code-scroll"
+                aria-label={`${source.path} source`}
+                // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+                tabIndex={0}
+              >
+                <pre>
+                  <code>{source.text}</code>
+                </pre>
+              </section>
             </section>
           ))}
         </details>

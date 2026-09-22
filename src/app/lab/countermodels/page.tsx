@@ -3,6 +3,7 @@ import generated from "../../../generated/countermodels.json";
 import { parseCountermodelCase } from "../../../reasoning/countermodel/caseSchema.ts";
 import type { PreparedCountermodelCase } from "../../../reasoning/countermodel/session.ts";
 import { CountermodelWorkbench } from "../../../reasoning/countermodel/Workbench.tsx";
+import "../../../components/lab/showTheCode.css";
 
 export const metadata: Metadata = { title: "Compare models: which observations can decide?" };
 export default function CountermodelPage() {
@@ -64,9 +65,18 @@ export default function CountermodelPage() {
               <p className="digest">
                 <code>{source.hash}</code>
               </p>
-              <pre style={{ overflowX: "auto", maxWidth: "100%" }}>
-                <code>{source.text}</code>
-              </pre>
+              {/* A source line does not wrap, so the listing scrolls inside a named region a
+                  keyboard can reach, not a bare scrolling <pre> (CLASS 2). */}
+              <section
+                className="show-the-code-scroll"
+                aria-label={`${source.path} source`}
+                // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+                tabIndex={0}
+              >
+                <pre>
+                  <code>{source.text}</code>
+                </pre>
+              </section>
             </section>
           ))}
           <details>
