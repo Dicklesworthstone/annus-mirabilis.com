@@ -125,17 +125,97 @@ export function ElectronDynamicsLab({
       <p data-detail="3" hidden>
         {SR13_CAPTION.r3}
       </p>
-      <p>
-        Section 10 examines the motion of a slowly accelerated electron in electromagnetic fields.
-        By combining rest-frame dynamics with stationary coordinate measurements, Einstein derives
-        longitudinal mass μγ³ and transverse mass μγ². Planck&apos;s laboratory force convention
-        yields transverse mass μγ. Both conventions make identical predictions for physical
-        deflections, potentials, and trajectories.
-      </p>
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Electron dynamics controls">
           <fieldset disabled={!ready}>
             <legend>Set field strengths, initial speed, and conventions</legend>
+            <div className="lab-choice">
+              <p className="fine">
+                Section 10 examines the motion of a slowly accelerated electron in electromagnetic
+                fields. By combining rest-frame dynamics with stationary coordinate measurements,
+                Einstein derives longitudinal mass μγ³ and transverse mass μγ². Planck&apos;s
+                laboratory force convention yields transverse mass μγ. Both conventions make
+                identical predictions for physical deflections, potentials, and trajectories.
+              </p>
+              <div className="actions">
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    apply({
+                      ...p,
+                      initialSpeed: 0.6,
+                      electricFieldY: 1e5,
+                      magneticFieldZ: 0,
+                      forceConvention: "source",
+                      datasetOverlay: "none",
+                    })
+                  }
+                >
+                  Convention at 0.6c (1.5625m vs 1.25m)
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    apply({
+                      ...p,
+                      initialSpeed: 0.95,
+                      electricFieldY: 0,
+                      magneticFieldZ: 0,
+                      datasetOverlay: "none",
+                    })
+                  }
+                >
+                  High speed (0.95c, W ≈ 2.20mc²)
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    apply({
+                      ...p,
+                      initialSpeed: 0.6,
+                      electricFieldY: 0,
+                      magneticFieldZ: 0.01,
+                      datasetOverlay: "none",
+                    })
+                  }
+                >
+                  Magnetic deflection (B = 0.01 T)
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    apply({
+                      ...p,
+                      initialSpeed: 0.6,
+                      electricFieldY: 1e5,
+                      magneticFieldZ: 0.01,
+                      datasetOverlay: "kaufmann-1902-1906",
+                    })
+                  }
+                >
+                  Kaufmann 1902–1906 overlay
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() =>
+                    apply({
+                      ...p,
+                      initialSpeed: 0.6,
+                      electricFieldY: 1e5,
+                      magneticFieldZ: 0.01,
+                      datasetOverlay: "bucherer-1908",
+                    })
+                  }
+                >
+                  Bucherer 1908 overlay
+                </button>
+              </div>
+            </div>
             <div className="input-grid">
               <div className="input-field">
                 <label htmlFor={`${id}-initialSpeed`}>Initial speed β = v/c</label>
@@ -237,84 +317,6 @@ export function ElectronDynamicsLab({
                 </select>
               </div>
             </div>
-            <div className="preset-list">
-              <button
-                type="button"
-                className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    initialSpeed: 0.6,
-                    electricFieldY: 1e5,
-                    magneticFieldZ: 0,
-                    forceConvention: "source",
-                    datasetOverlay: "none",
-                  })
-                }
-              >
-                Convention at 0.6c (1.5625m vs 1.25m)
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    initialSpeed: 0.95,
-                    electricFieldY: 0,
-                    magneticFieldZ: 0,
-                    datasetOverlay: "none",
-                  })
-                }
-              >
-                High speed (0.95c, W ≈ 2.20mc²)
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    initialSpeed: 0.6,
-                    electricFieldY: 0,
-                    magneticFieldZ: 0.01,
-                    datasetOverlay: "none",
-                  })
-                }
-              >
-                Magnetic deflection (B = 0.01 T)
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    initialSpeed: 0.6,
-                    electricFieldY: 1e5,
-                    magneticFieldZ: 0.01,
-                    datasetOverlay: "kaufmann-1902-1906",
-                  })
-                }
-              >
-                Kaufmann 1902–1906 overlay
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    initialSpeed: 0.6,
-                    electricFieldY: 1e5,
-                    magneticFieldZ: 0.01,
-                    datasetOverlay: "bucherer-1908",
-                  })
-                }
-              >
-                Bucherer 1908 overlay
-              </button>
-            </div>
             <button type="submit">Apply settings</button>
             {error ? (
               <p className="notice" role="alert">
@@ -348,7 +350,7 @@ export function ElectronDynamicsLab({
             lorentzFactor={gammaVal}
             datasetOverlay={draft.datasetOverlay}
           />
-          <h3>Accepted snapshot</h3>
+          <h3>Values at these settings</h3>
           <table>
             <caption>
               Relativistic electron dynamics quantities computed under current settings.
