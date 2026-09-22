@@ -2,41 +2,127 @@
    CSS containment avoids changing the shared layout or moving existing routes. */
 body:has([data-embed-lab]) > .site-header,
 body:has([data-embed-lab]) > .site-footer,
-body:has([data-embed-lab]) > .guided-tour-guide { display: none; }
-body:has([data-embed-lab]) > main { width: 100%; max-width: none; margin: 0; padding: 0; }
-.embedded-laboratory { padding: 1rem; overflow-wrap: anywhere; }
-.embedded-laboratory h1 { font-size: clamp(1.5rem, 4vw, 2.4rem); }
-.embed-attribution { padding-block: 0.75rem; border-bottom: 1px solid var(--rule); }
-.embed-attribution nav, .embed-builder-actions { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; }
-.embed-guidance { max-width: 65ch; margin-block: 1rem; }
-.embed-guidance details { margin-block: 0.5rem; }
-.embed-instrument { min-width: 0; }
-.embed-instrument > .laboratory { margin-inline: 0; }
-.embedded-laboratory :is(button, summary, select) { min-height: 44px; }
+body:has([data-embed-lab]) > .guided-tour-guide {
+  display: none;
+}
+body:has([data-embed-lab]) > main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+.embedded-laboratory {
+  padding: 1rem;
+  overflow-wrap: anywhere;
+}
+.embedded-laboratory h1 {
+  font-size: var(--type-display);
+}
+.embed-attribution {
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--rule);
+}
+.embed-attribution nav,
+.embed-builder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+}
+.embed-guidance {
+  max-width: 65ch;
+  margin-block: 1rem;
+}
+.embed-guidance details {
+  margin-block: 0.5rem;
+}
+.embed-instrument {
+  min-width: 0;
+}
+.embed-instrument > .laboratory {
+  margin-inline: 0;
+}
+.embedded-laboratory :is(button, summary, select) {
+  min-height: 44px;
+}
 .embedded-laboratory :is(button, summary, select, a):focus-visible,
-.embed-builder :is(input, select, textarea, button, a):focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+.embed-builder :is(input, select, textarea, button, a):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
 :root[data-embed-motion="reduce"] .embedded-laboratory *,
 :root[data-embed-motion="reduce"] .embedded-laboratory *::before,
-:root[data-embed-motion="reduce"] .embedded-laboratory *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-@media (prefers-reduced-motion: reduce) {
-  .embedded-laboratory *, .embedded-laboratory *::before, .embedded-laboratory *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+:root[data-embed-motion="reduce"] .embedded-laboratory *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
 }
-.embed-builder { max-width: 76rem; margin-inline: auto; }
-.embed-builder-settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
-.embed-builder-settings label { display: block; }
-.embed-builder :is(input, select, textarea) { display: block; max-width: 100%; width: 100%; font: inherit; box-sizing: border-box; padding: 0.6rem; }
-.embed-builder textarea { margin-block: 0.5rem 1rem; font-family: var(--font-mono); font-size: 0.85rem; resize: vertical; }
-.embed-builder iframe { display: block; width: 100%; max-width: 100%; border: 1px solid var(--rule); }
-.embed-builder :is(button, a, select) { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) {
+  .embedded-laboratory *,
+  .embedded-laboratory *::before,
+  .embedded-laboratory *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+.embed-builder {
+  max-width: 76rem;
+  margin-inline: auto;
+}
+.embed-builder-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+}
+.embed-builder-settings label {
+  display: block;
+}
+.embed-builder :is(input, select, textarea) {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+  font: inherit;
+  box-sizing: border-box;
+  padding: 0.6rem;
+}
+.embed-builder textarea {
+  margin-block: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: var(--type-fine);
+  resize: vertical;
+}
+.embed-builder iframe {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--rule);
+}
+.embed-builder :is(button, a, select) {
+  min-height: 44px;
+}
 @media (max-width: 48rem) {
-  .embedded-laboratory .lab-columns { grid-template-columns: minmax(0, 1fr); }
+  .embedded-laboratory .lab-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 @media print {
-  .embed-attribution a::after { content: " (" attr(href) ")"; }
-  .embed-guidance details:not([open]) > :not(summary) { display: block !important; }
-  .embed-builder iframe { display: none; }
-  .embed-builder textarea { white-space: pre-wrap; }
+  .embed-attribution a::after {
+    content: " (" attr(href) ")";
+  }
+  .embed-guidance details:not([open]) > :not(summary) {
+    display: block !important;
+  }
+  .embed-builder iframe {
+    display: none;
+  }
+  .embed-builder textarea {
+    white-space: pre-wrap;
+  }
 }
 
-:root:has([data-embed-lab])[data-theme="annalen"] { color-scheme: light !important; }
-:root:has([data-embed-lab])[data-theme="kramgasse-night"] { color-scheme: dark !important; }
+:root:has([data-embed-lab])[data-theme="annalen"] {
+  color-scheme: light !important;
+}
+:root:has([data-embed-lab])[data-theme="kramgasse-night"] {
+  color-scheme: dark !important;
+}
