@@ -23,6 +23,7 @@ import {
 import { identity } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { Sci } from "../Sci.tsx";
 
 const STEPS: readonly { id: Bm03Step; label: string; number: number }[] = [
@@ -238,76 +239,6 @@ export function ConfigurationLab({
               ))}
             </div>
 
-            <div className="input-grid">
-              <div className="input-field">
-                <label htmlFor={`${id}-Np`}>
-                  Particle count Np <span>(count)</span>
-                </label>
-                <input
-                  id={`${id}-Np`}
-                  name="Np"
-                  type="text"
-                  inputMode="numeric"
-                  value={draft.Np}
-                  onChange={(e) => {
-                    setDraft({ ...draft, Np: e.target.value });
-                    setDirty(true);
-                  }}
-                />
-              </div>
-
-              <div className="input-field">
-                <label htmlFor={`${id}-volumeRatio`}>
-                  Volume ratio V/V₀ <span>(ratio)</span>
-                </label>
-                <input
-                  id={`${id}-volumeRatio`}
-                  name="volumeRatio"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.volumeRatio}
-                  onChange={(e) => {
-                    setDraft({ ...draft, volumeRatio: e.target.value });
-                    setDirty(true);
-                  }}
-                />
-              </div>
-
-              <div className="input-field">
-                <label htmlFor={`${id}-V0`}>
-                  Reference volume V₀ <span>(μm³)</span>
-                </label>
-                <input
-                  id={`${id}-V0`}
-                  name="V0"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.V0}
-                  onChange={(e) => {
-                    setDraft({ ...draft, V0: e.target.value });
-                    setDirty(true);
-                  }}
-                />
-              </div>
-
-              <div className="input-field">
-                <label htmlFor={`${id}-T`}>
-                  Temperature T <span>(K)</span>
-                </label>
-                <input
-                  id={`${id}-T`}
-                  name="T"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.T}
-                  onChange={(e) => {
-                    setDraft({ ...draft, T: e.target.value });
-                    setDirty(true);
-                  }}
-                />
-              </div>
-            </div>
-
             <div style={{ marginTop: "1rem" }}>
               <div>
                 <strong>Particle placement model</strong>
@@ -356,14 +287,85 @@ export function ConfigurationLab({
               </div>
             </div>
 
-            <p className="fine" style={{ marginTop: "1rem" }}>
-              Whole integer Np ≥ 1, positive volume ratio V/V₀, reference volume V₀ and temperature
-              T.
-            </p>
+            <ExperimentSettings contents="particle count, volume ratio, reference volume, temperature">
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-Np`}>
+                    Particle count Np <span>(count)</span>
+                  </label>
+                  <input
+                    id={`${id}-Np`}
+                    name="Np"
+                    type="text"
+                    inputMode="numeric"
+                    value={draft.Np}
+                    onChange={(e) => {
+                      setDraft({ ...draft, Np: e.target.value });
+                      setDirty(true);
+                    }}
+                  />
+                </div>
 
-            <div className="actions">
-              <button type="submit">Apply settings</button>
-            </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-volumeRatio`}>
+                    Volume ratio V/V₀ <span>(ratio)</span>
+                  </label>
+                  <input
+                    id={`${id}-volumeRatio`}
+                    name="volumeRatio"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.volumeRatio}
+                    onChange={(e) => {
+                      setDraft({ ...draft, volumeRatio: e.target.value });
+                      setDirty(true);
+                    }}
+                  />
+                </div>
+
+                <div className="input-field">
+                  <label htmlFor={`${id}-V0`}>
+                    Reference volume V₀ <span>(μm³)</span>
+                  </label>
+                  <input
+                    id={`${id}-V0`}
+                    name="V0"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.V0}
+                    onChange={(e) => {
+                      setDraft({ ...draft, V0: e.target.value });
+                      setDirty(true);
+                    }}
+                  />
+                </div>
+
+                <div className="input-field">
+                  <label htmlFor={`${id}-T`}>
+                    Temperature T <span>(K)</span>
+                  </label>
+                  <input
+                    id={`${id}-T`}
+                    name="T"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.T}
+                    onChange={(e) => {
+                      setDraft({ ...draft, T: e.target.value });
+                      setDirty(true);
+                    }}
+                  />
+                </div>
+              </div>
+              <p className="fine" style={{ marginTop: "1rem" }}>
+                Whole integer Np ≥ 1, positive volume ratio V/V₀, reference volume V₀ and
+                temperature T.
+              </p>
+
+              <div className="actions">
+                <button type="submit">Apply settings</button>
+              </div>
+            </ExperimentSettings>
           </fieldset>
 
           {dirty && (
