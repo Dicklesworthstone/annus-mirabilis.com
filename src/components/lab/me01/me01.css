@@ -45,15 +45,3 @@
   background: var(--ink);
   color: var(--paper);
 }
-
-.input-with-slider {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin: 0.75rem 0;
-}
-
-/* The drawing comes first; the derivation steps sit under it, then the presets. */
-.me01-try {
-  margin-block: 1.25rem;
-}

@@ -48,6 +48,19 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
 
   const gammaSymbol = isModern ? "γ" : "1/√(1 - v²/V²)";
 
+  const pulse1Label = `Pulse 1: ${p1Val.toFixed(4)} L`;
+  const pulse2Label = `Pulse 2: ${p2Val.toFixed(4)} L`;
+  /**
+   * A pulse label sits just beyond its arrow's tip, clamped so the whole label stays inside the
+   * left pane (x 18 to 330). Unclamped, the longest arrow pushed "Pulse 2: 1.0000 L" to begin 140px
+   * left of the drawing at the default 0.6c and 0 degrees. The width is estimated, at about 0.6 em
+   * a character of bold sans at the 13.2-unit size the site's svg[role="img"] text rule sets.
+   */
+  function pulseLabelX(tipX: number, growsRight: boolean, label: string) {
+    const width = label.length * 13.2 * 0.6;
+    return growsRight ? Math.min(tipX + 8, 330 - width) : Math.max(tipX - 8, 18 + width);
+  }
+
   return (
     <div
       className="two-ledgers-svg-wrap"
@@ -196,26 +209,26 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
             Body
           </text>
 
-          {/* Labels for pulses */}
+          {/* Labels for pulses, clamped into the left pane (see pulseLabelX). */}
           <text
-            x={x1 + (Math.cos(rad) >= 0 ? 8 : -8)}
-            y={y1 - 6}
+            x={pulseLabelX(x1, Math.cos(rad) >= 0, pulse1Label)}
+            y={Math.max(64, y1 - 6)}
             textAnchor={Math.cos(rad) >= 0 ? "start" : "end"}
             fontSize="11"
             fontWeight="bold"
             fill="#2563eb"
           >
-            Pulse 1: {p1Val.toFixed(4)} L
+            {pulse1Label}
           </text>
           <text
-            x={x2 + (Math.cos(rad) <= 0 ? 8 : -8)}
-            y={y2 + 14}
+            x={pulseLabelX(x2, Math.cos(rad) <= 0, pulse2Label)}
+            y={Math.min(262, y2 + 14)}
             textAnchor={Math.cos(rad) <= 0 ? "start" : "end"}
             fontSize="11"
             fontWeight="bold"
             fill="#ea580c"
           >
-            Pulse 2: {p2Val.toFixed(4)} L
+            {pulse2Label}
           </text>
         </g>
 

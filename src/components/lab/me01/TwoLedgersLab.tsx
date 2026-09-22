@@ -1,7 +1,7 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
-import { fromMe01Draft, toMe01Draft } from "../../../experiments/me01/controls.ts";
+import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { fromMe01Draft, type Me01Draft, toMe01Draft } from "../../../experiments/me01/controls.ts";
 import {
   ME01_CAPTION,
   ME01_DEFAULTS,
@@ -21,6 +21,8 @@ import {
   evaluateMe01,
   type PreparedMe01Example,
 } from "../../../experiments/me01/session.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { SliderField } from "../SliderField.tsx";
 import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
 import "./me01.css";
 import "../showTheCode.css";
@@ -59,9 +61,9 @@ export function TwoLedgersLab({
   const [error, setError] = useState("");
   const [refusalCode, setRefusalCode] = useState<string | null>(null);
   const [linkNote, setLinkNote] = useState("");
+  const [linkPending, setLinkPending] = useState(false);
   const [sharedUrl, setSharedUrl] = useState("");
   const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
-  const [predictRevealed, setPredictRevealed] = useState(false);
 
   const evaluation = evaluateMe01(p);
 
@@ -69,8 +71,9 @@ export function TwoLedgersLab({
     const shared = decodeMe01Settings(window.location.search);
     if (shared.kind === "settings") {
       setDraft(toMe01Draft(shared.parameters));
+      setLinkPending(true);
       setLinkNote(
-        "Shared settings are loaded. Choose Apply settings to calculate them; the worked example is still displayed.",
+        "The link's settings are in the fields. The drawing still shows the worked example until you calculate them.",
       );
     } else if (shared.kind === "invalid") {
       setLinkNote(shared.message);
@@ -91,23 +94,25 @@ export function TwoLedgersLab({
     setError("");
     setRefusalCode(null);
     setLinkNote("");
+    setLinkPending(false);
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const parsed = fromMe01Draft(draft);
-    if (Math.abs(parsed.frameSpeed) >= 1) {
-      setError("No inertial observer moves at or above the speed of light (|v/c| < 1).");
-      setRefusalCode("superluminal-observer");
-      return;
-    }
+  /** Validate a whole draft and apply it; the typed fields and the sliders both end here. */
+  function commitDraft(next: Me01Draft) {
+    setDraft(next);
+    const parsed = fromMe01Draft(next);
     if (
       !Number.isFinite(parsed.frameSpeed) ||
       !Number.isFinite(parsed.emittedEnergyRestFrame) ||
       !Number.isFinite(parsed.emissionAngle)
     ) {
-      setError("Inputs must be finite real numbers.");
+      setError("Type a number in each field.");
       setRefusalCode("nonfinite-input");
+      return;
+    }
+    if (Math.abs(parsed.frameSpeed) >= 1) {
+      setError("No inertial observer moves at or above the speed of light (|v/c| < 1).");
+      setRefusalCode("superluminal-observer");
       return;
     }
     if (parsed.emittedEnergyRestFrame <= 0) {
@@ -115,7 +120,18 @@ export function TwoLedgersLab({
       setRefusalCode(null);
       return;
     }
+    setLinkPending(false);
     apply(parsed);
+  }
+
+  type NumericKey = "frameSpeed" | "emissionAngle" | "emittedEnergyRestFrame";
+  function field(key: NumericKey) {
+    return {
+      id: `${key}-${id}`,
+      value: draft[key],
+      onDraft: (v: string) => setDraft({ ...draft, [key]: v }),
+      onCommit: (v: string) => commitDraft({ ...draft, [key]: v }),
+    };
   }
 
   function loadPreset(presetId: string) {
@@ -184,271 +200,181 @@ export function TwoLedgersLab({
           <h2>{title}</h2>
           <p className="caption-r0">{ME01_CAPTION.r0}</p>
         </div>
-
-        <div className="notation-toggle-wrap">
-          <span className="toggle-label">Notation:</span>
-          <button
-            type="button"
-            className={`button-toggle ${p.notation === "printed" ? "active" : ""}`}
-            onClick={() => toggleNotation("printed")}
-            aria-pressed={p.notation === "printed"}
-          >
-            1905 Printed Radical
-          </button>
-          <button
-            type="button"
-            className={`button-toggle ${p.notation === "modern" ? "active" : ""}`}
-            onClick={() => toggleNotation("modern")}
-            aria-pressed={p.notation === "modern"}
-          >
-            Modern γ Notation
-          </button>
-        </div>
       </div>
 
-      {/* Main Visual Comparison */}
-      <TwoLedgersPlot parameters={p} evaluation={evaluation} clipId={`plot-clip-${id}`} />
+      <div className="lab-columns">
+        <div>
+          <details className="lab-predict">
+            <summary>Predict first</summary>
+            <fieldset>
+              <legend>{prompt.question}</legend>
+              {prompt.candidates.map((c) => (
+                <label key={c.id} className="lab-predict-candidate">
+                  <input
+                    type="radio"
+                    name={`predict-angle-${id}`}
+                    value={c.id}
+                    checked={predictAnswer === c.id}
+                    onChange={() => setPredictAnswer(c.id)}
+                  />
+                  <span>{c.label}</span>
+                </label>
+              ))}
+              {predictAnswer && <p className="lab-predict-reveal">{prompt.explanation}</p>}
+            </fieldset>
+          </details>
 
-      {/* Step Navigation */}
-      <nav className="step-nav" aria-label="Derivation steps">
-        {STEPS.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            className={`button-step ${p.step === s.id ? "active" : ""}`}
-            onClick={() => setStep(s.id)}
-            aria-current={p.step === s.id ? "step" : undefined}
-          >
-            {s.label}
-          </button>
-        ))}
-      </nav>
+          <SliderField
+            {...field("frameSpeed")}
+            label="Observer speed v/c"
+            unit="signed fraction of c"
+            min={-0.95}
+            max={0.95}
+            step={0.01}
+          />
+          <SliderField
+            {...field("emissionAngle")}
+            label="Emission angle φ"
+            unit="degrees from the direction of motion"
+            min={0}
+            max={180}
+            step={1}
+          />
 
-      <fieldset className="lab-choice me01-try">
-        <legend>Try</legend>
-        <div className="actions">
-          {ME01_PRESETS.map((pr) => (
-            <button
-              key={pr.presetId}
-              type="button"
-              className="secondary"
-              onClick={() => loadPreset(pr.presetId)}
-            >
-              {pr.label}
+          <fieldset className="lab-choice">
+            <legend>Try</legend>
+            <div className="actions">
+              {ME01_PRESETS.map((pr) => (
+                <button
+                  key={pr.presetId}
+                  type="button"
+                  className="secondary"
+                  onClick={() => loadPreset(pr.presetId)}
+                >
+                  {pr.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <ExperimentSettings contents="emitted energy, the premise, how internal energy is written, notation, a link to these settings">
+            <SliderField
+              {...field("emittedEnergyRestFrame")}
+              label="Emitted energy L"
+              unit="in the body's rest frame"
+              min={0.1}
+              max={5}
+              step={0.1}
+            />
+            <div className="control-row">
+              <span className="field-label">
+                The additive constant <var>C</var>
+              </span>
+              <div className="toggle-group">
+                <button
+                  type="button"
+                  className={`button-toggle ${p.premise === "unchanged" ? "active" : ""}`}
+                  onClick={() => togglePremise("unchanged")}
+                  aria-pressed={p.premise === "unchanged"}
+                >
+                  Unchanged, as the paper assumes
+                </button>
+                <button
+                  type="button"
+                  className={`button-toggle ${p.premise === "relaxed" ? "active" : ""}`}
+                  onClick={() => togglePremise("relaxed")}
+                  aria-pressed={p.premise === "relaxed"}
+                >
+                  Allowed to change
+                </button>
+              </div>
+            </div>
+            <div className="control-row">
+              <span className="field-label">Internal energies written as</span>
+              <div className="toggle-group">
+                <button
+                  type="button"
+                  className={`button-toggle ${p.offsetDisplay === "symbolic" ? "active" : ""}`}
+                  onClick={() => toggleOffsetDisplay("symbolic")}
+                  aria-pressed={p.offsetDisplay === "symbolic"}
+                >
+                  Symbols (E₀, H₀)
+                </button>
+                <button
+                  type="button"
+                  className={`button-toggle ${p.offsetDisplay === "offsets" ? "active" : ""}`}
+                  onClick={() => toggleOffsetDisplay("offsets")}
+                  aria-pressed={p.offsetDisplay === "offsets"}
+                >
+                  Numbers that cancel
+                </button>
+              </div>
+            </div>
+            <div className="control-row">
+              <span className="field-label">Notation</span>
+              <div className="toggle-group">
+                <button
+                  type="button"
+                  className={`button-toggle ${p.notation === "printed" ? "active" : ""}`}
+                  onClick={() => toggleNotation("printed")}
+                  aria-pressed={p.notation === "printed"}
+                >
+                  As printed in 1905, with the radical
+                </button>
+                <button
+                  type="button"
+                  className={`button-toggle ${p.notation === "modern" ? "active" : ""}`}
+                  onClick={() => toggleNotation("modern")}
+                  aria-pressed={p.notation === "modern"}
+                >
+                  Modern, with γ
+                </button>
+              </div>
+            </div>
+            <button type="button" className="secondary" onClick={share}>
+              Copy a link to these settings
             </button>
-          ))}
-        </div>
-      </fieldset>
+            {sharedUrl && (
+              <p className="fine">
+                Link copied: <code>{sharedUrl}</code>
+              </p>
+            )}
+          </ExperimentSettings>
 
-      {/* Form Controls */}
-      <form className="lab-controls" onSubmit={submit}>
-        <fieldset className="control-group">
-          <legend>Observer & Geometry</legend>
-
-          {/* Observer Speed */}
-          <div className="control-row">
-            <label htmlFor={`speed-${id}`}>
-              Observer speed <var>v/c</var> (signed fraction of <var>c</var>):
-            </label>
-            <div className="input-with-slider">
-              <input
-                id={`speed-${id}`}
-                type="range"
-                min="-0.95"
-                max="0.95"
-                step="0.01"
-                value={draft.frameSpeed}
-                onChange={(e) => {
-                  setDraft({ ...draft, frameSpeed: e.target.value });
-                }}
-              />
-              <input
-                type="number"
-                step="0.01"
-                className="input-number"
-                aria-label="Observer speed v/c"
-                value={draft.frameSpeed}
-                onChange={(e) => {
-                  setDraft({ ...draft, frameSpeed: e.target.value });
-                }}
-              />
+          {error && (
+            <p className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
+              {error}
+            </p>
+          )}
+          {linkNote && (
+            <div className="notice">
+              <p>{linkNote}</p>
+              {linkPending && (
+                <button type="button" className="secondary" onClick={() => commitDraft(draft)}>
+                  Calculate the linked settings
+                </button>
+              )}
             </div>
-          </div>
-
-          {/* Emission Angle */}
-          <div className="control-row">
-            <label htmlFor={`angle-${id}`}>
-              Emission angle <var>φ</var> (degrees relative to velocity):
-            </label>
-            <div className="input-with-slider">
-              <input
-                id={`angle-${id}`}
-                type="range"
-                min="0"
-                max="180"
-                step="1"
-                value={draft.emissionAngle}
-                onChange={(e) => {
-                  setDraft({ ...draft, emissionAngle: e.target.value });
-                }}
-              />
-              <input
-                type="number"
-                step="1"
-                min="0"
-                max="180"
-                className="input-number"
-                aria-label="Emission angle in degrees"
-                value={draft.emissionAngle}
-                onChange={(e) => {
-                  setDraft({ ...draft, emissionAngle: e.target.value });
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Emitted Energy */}
-          <div className="control-row">
-            <label htmlFor={`energy-${id}`}>
-              Emitted energy <var>L</var> (rest frame):
-            </label>
-            <div className="input-with-slider">
-              <input
-                id={`energy-${id}`}
-                type="range"
-                min="0.1"
-                max="5.0"
-                step="0.1"
-                value={draft.emittedEnergyRestFrame}
-                onChange={(e) => {
-                  setDraft({ ...draft, emittedEnergyRestFrame: e.target.value });
-                }}
-              />
-              <input
-                type="number"
-                step="0.1"
-                min="0.01"
-                className="input-number"
-                aria-label="Emitted energy L in rest frame"
-                value={draft.emittedEnergyRestFrame}
-                onChange={(e) => {
-                  setDraft({ ...draft, emittedEnergyRestFrame: e.target.value });
-                }}
-              />
-            </div>
-          </div>
-        </fieldset>
-
-        <fieldset className="control-group">
-          <legend>Premise Probe & Account Presentation</legend>
-
-          {/* Source Premise Probe */}
-          <div className="control-row">
-            <span className="field-label">
-              Source premise (additive constant <var>C</var>):
-            </span>
-            <div className="toggle-group">
-              <button
-                type="button"
-                className={`button-toggle ${p.premise === "unchanged" ? "active" : ""}`}
-                onClick={() => togglePremise("unchanged")}
-                aria-pressed={p.premise === "unchanged"}
-              >
-                C Unchanged (Source Premise)
-              </button>
-              <button
-                type="button"
-                className={`button-toggle ${p.premise === "relaxed" ? "active" : ""}`}
-                onClick={() => togglePremise("relaxed")}
-                aria-pressed={p.premise === "relaxed"}
-              >
-                C Relaxed (premise dropped)
-              </button>
-            </div>
-          </div>
-
-          {/* Offset Display Mode */}
-          <div className="control-row">
-            <span className="field-label">Internal energy display:</span>
-            <div className="toggle-group">
-              <button
-                type="button"
-                className={`button-toggle ${p.offsetDisplay === "symbolic" ? "active" : ""}`}
-                onClick={() => toggleOffsetDisplay("symbolic")}
-                aria-pressed={p.offsetDisplay === "symbolic"}
-              >
-                Symbolic (E₀, H₀)
-              </button>
-              <button
-                type="button"
-                className={`button-toggle ${p.offsetDisplay === "offsets" ? "active" : ""}`}
-                onClick={() => toggleOffsetDisplay("offsets")}
-                aria-pressed={p.offsetDisplay === "offsets"}
-              >
-                Explicit Offsets (Cancel)
-              </button>
-            </div>
-          </div>
-        </fieldset>
-
-        <div className="form-actions">
-          <button type="submit" className="button button-primary">
-            Apply changes
-          </button>
-          <button type="button" className="button" onClick={share}>
-            Share configuration link
-          </button>
+          )}
         </div>
 
-        {error && (
-          <div className="error-banner" role="alert" data-refusal-code={refusalCode ?? undefined}>
-            {error}
-          </div>
-        )}
-
-        {linkNote && <div className="info-banner">{linkNote}</div>}
-        {sharedUrl && (
-          <div className="share-banner">
-            Link copied to clipboard: <code>{sharedUrl}</code>
-          </div>
-        )}
-      </form>
-
-      {/* Predict Mode Section */}
-      <section className="predict-section" aria-label="Prediction mode">
-        <h3>Predict before changing the angle:</h3>
-        <p className="predict-question">{prompt.question}</p>
-        <div className="predict-options" role="radiogroup">
-          {prompt.candidates.map((c) => (
-            <label key={c.id} className="predict-candidate">
-              <input
-                type="radio"
-                name="predict-angle"
-                value={c.id}
-                checked={predictAnswer === c.id}
-                onChange={() => setPredictAnswer(c.id)}
-              />
-              <span>{c.label}</span>
-            </label>
-          ))}
+        <div className="lab-results">
+          <TwoLedgersPlot parameters={p} evaluation={evaluation} clipId={`plot-clip-${id}`} />
+          <nav className="step-nav" aria-label="Derivation steps">
+            {STEPS.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className={`button-step ${p.step === s.id ? "active" : ""}`}
+                onClick={() => setStep(s.id)}
+                aria-current={p.step === s.id ? "step" : undefined}
+              >
+                {s.label}
+              </button>
+            ))}
+          </nav>
         </div>
-        <div className="predict-actions">
-          <button
-            type="button"
-            className="button"
-            disabled={!predictAnswer}
-            onClick={() => setPredictRevealed(true)}
-          >
-            Commit prediction and reveal
-          </button>
-        </div>
-        {predictRevealed && (
-          <section className="predict-reveal" aria-live="polite">
-            <p className="reveal-title">What the model says</p>
-            <p>{prompt.explanation}</p>
-          </section>
-        )}
-      </section>
+      </div>
 
       {/* Show The Code Section */}
       <details className="show-the-code">
