@@ -70,11 +70,10 @@ export function LogarithmProductTable({
         Interactive construction: turning multiplication into addition
       </Title>
       <p>
-        In section 5 of the light-quanta paper, Einstein reasons about the entropy S of independent
-        systems. When two independent systems with microstate counts W₁ and W₂ are combined, the
-        total number of configurations multiplies: W = W₁ · W₂. However, the thermodynamic entropy
-        must add: S = S₁ + S₂. The only continuous function satisfying φ(W₁ · W₂) = φ(W₁) + φ(W₂) is
-        the logarithm: S = k ln W + const.
+        In §5 of the light-quanta paper, Einstein takes two independent systems. The probabilities
+        of their states multiply, W = W₁ · W₂, while their entropies add, S = S₁ + S₂. A logarithm
+        turns the one into the other, which is why he concludes that entropy is a constant times ln
+        W, plus a constant. The table checks the rule on three pairs of numbers.
       </p>
 
       <div className="notation-toggle-controls" style={{ margin: "1rem 0" }}>
@@ -98,7 +97,7 @@ export function LogarithmProductTable({
               : "Notation: Modern ISO standard (ln = natural log)"}
           </button>
           <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
-            Click or press Enter to toggle between 1905 historical print and modern ISO symbols.
+            Switches the table between the symbol printed in 1905, lg, and the modern ln.
           </span>
         </div>
       </div>
@@ -141,15 +140,14 @@ export function LogarithmProductTable({
         style={{ marginTop: "1rem" }}
         // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns are unreachable by keyboard, which is the access defect the scroll container would otherwise introduce (am-bc6s). Suppressed inline at the site, following ModernOnlySymbolsView.tsx, rather than as a per-file override that turns the rule off for a whole file and carries no reason with it.
         tabIndex={0}
-        aria-label="Verification of the logarithmic product-to-sum identity, scrollable table"
+        aria-label="Logarithms of three products, scrollable table"
       >
         <table
           className="data-table"
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
         >
           <caption style={{ textAlign: "left", fontWeight: "bold", marginBottom: "0.5rem" }}>
-            Verification of logarithmic product-to-sum identity: {logSymbol}(W₁ · W₂) = {logSymbol}
-            (W₁) + {logSymbol}(W₂)
+            {logSymbol}(W₁ · W₂) = {logSymbol}(W₁) + {logSymbol}(W₂), checked on three pairs
           </caption>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--rule)", textAlign: "left" }}>
@@ -218,12 +216,10 @@ export function LogarithmProductTable({
       >
         <Sub>Textual summary of the construction</Sub>
         <p>
-          The table demonstrates that for any pair of numbers, the logarithm of their product
-          exactly equals the sum of their individual logarithms. This algebraic homomorphism bridges
-          statistical mechanics (where independent configurations multiply) and macroscopic
-          thermodynamics (where entropy is an extensive, additive quantity). When reading 1905
-          papers, readers must translate printed “lg” to natural “ln” to obtain the correct physical
-          entropies.
+          For each of three pairs of numbers, the logarithm of the product equals the sum of the two
+          logarithms. That is the property entropy needs: the probabilities of independent systems
+          multiply and their entropies add. In the 1905 papers the logarithm is printed lg and means
+          the natural logarithm, ln.
         </p>
       </div>
     </section>
