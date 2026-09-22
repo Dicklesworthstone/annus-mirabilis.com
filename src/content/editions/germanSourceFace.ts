@@ -46,6 +46,7 @@ import { join } from "node:path";
 import type { RouteSlug } from "../ids.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
 import { type SourceFaceNotice, sourceFaceNotice } from "../provenance/sourceFaceNotice.ts";
+import { type BlockPages, blockStartPages } from "./blockPages.ts";
 import { PAPER_BIB_KEYS } from "./ledgerPresence.ts";
 import { type ProposedBlock, segmentLedger } from "./segmentLedger.ts";
 
@@ -55,6 +56,8 @@ export type GermanSourceFace = Readonly<{
   /** Never optional. Holding the text means holding what qualifies it. */
   notice: SourceFaceNotice;
   blocks: readonly ProposedBlock[];
+  /** The printed page each block starts on, from the ledger's own page anchors (blockPages.ts). */
+  printedPages: BlockPages;
 }>;
 
 export class GermanSourceFaceError extends Error {
@@ -123,8 +126,15 @@ export function loadGermanSourceFace(
     );
   }
 
-  const segmented = segmentLedger({ ledgerText: readFileSync(ledgerPath, "utf8") });
+  const ledgerText = readFileSync(ledgerPath, "utf8");
+  const segmented = segmentLedger({ ledgerText });
   if (segmented.status === "absent") return null;
 
-  return { slug, bibKey, notice, blocks: segmented.blocks };
+  return {
+    slug,
+    bibKey,
+    notice,
+    blocks: segmented.blocks,
+    printedPages: blockStartPages(ledgerText, segmented.blocks),
+  };
 }
