@@ -119,10 +119,17 @@ export async function PaperReader({
         companion={
           <Companion kind={companionKind}>
             {companionKind === "original" ? (
-              <p className="notice">
-                The reviewed German and aligned English for this passage are not yet available. The
-                explanation does not stand in for those source layers.
-              </p>
+              <>
+                <p className="notice">
+                  The reviewed German and aligned English for this passage are not yet available.
+                  The explanation does not stand in for those source layers.
+                </p>
+                <p>
+                  <a href="/papers/brownian-motion/view/german/">
+                    Read the drafted German source for the whole paper →
+                  </a>
+                </p>
+              </>
             ) : companionKind === "equation" ? (
               <p>
                 Equations stay in the passage. Pin one from the derivation when you need it beside
@@ -230,6 +237,17 @@ export async function PaperReader({
                         The reviewed German, aligned English, gloss, facsimile, and split view for
                         this passage are not yet available. The explanation does not stand in for
                         those source layers.
+                      </p>
+                      {/* The sentence above is true and was, on its own, misleading: it says
+                          REVIEWED and PER PASSAGE, and a reader reads "the German is not here".
+                          A drafted German source for the whole paper does exist - 23,608
+                          characters - and until this link it was reachable from no other face
+                          on this page. The destination labels itself a draft, so nothing here
+                          has to promise review it has not had. */}
+                      <p>
+                        <a href="/papers/brownian-motion/view/german/">
+                          Read the drafted German source for the whole paper →
+                        </a>
                       </p>
                     </div>
                     <details className="model-limits">
