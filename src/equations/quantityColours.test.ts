@@ -96,8 +96,17 @@ describe("assignQuantityColours", () => {
     });
   }
 
-  test("a paper whose quantities fit the palette gets one colour per quantity", () => {
-    const eqs = records("brownian-motion");
+  test("records whose quantities fit the palette get one colour per quantity", () => {
+    // Named records, not a whole paper: this used Brownian's whole record set while it had three
+    // records, and on 2026-09-22 colouring Brownian's formulas took it to 19 quantities. No paper
+    // fits nine any more (mass-energy 15, light quanta 34, relativity 53), which is the case the
+    // view-level assignment below exists for. These three still fit, and say so.
+    const fitting = ["eq-model-bm-apparent-speed", "eq-model-bm-diffusivity", "eq-model-bm-rms"];
+    const eqs = records("brownian-motion").filter((e) => fitting.includes(e.id));
+    expect(eqs.map((e) => e.id).sort()).toEqual([...fitting].sort());
+    expect(new Set(eqs.flatMap((e) => e.quantityIds)).size).toBeLessThanOrEqual(
+      QUANTITY_PALETTE.length,
+    );
     const colours = assignQuantityColours(eqs);
     const ids = Object.keys(colours);
     expect(ids.length).toBeLessThanOrEqual(QUANTITY_PALETTE.length);
