@@ -15,7 +15,7 @@ import { ThemeToggle } from "./theme/ThemeToggle";
 import { THEME_INIT_SOURCE } from "./theme/themeInit.inline";
 export const metadata: Metadata = {
   metadataBase: new URL("https://annus-mirabilis.com"),
-  title: { default: "Annus Mirabilis — four papers, one year", template: "%s · Annus Mirabilis" },
+  title: { default: "Annus Mirabilis: four papers, one year", template: "%s · Annus Mirabilis" },
   description:
     "An interactive edition in preparation. Begin with an executable Brownian-motion laboratory and a static, accessible first encounter.",
 };
