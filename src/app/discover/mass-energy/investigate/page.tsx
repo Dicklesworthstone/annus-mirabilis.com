@@ -127,7 +127,7 @@ export default function MassEnergyArgumentPage() {
             v approaches zero. A zero-speed run alone gives zero kinetic-energy difference; dividing
             that result by zero is not the limit calculation.
           </p>
-          <a href="/lab/me-02/">Compare the proxy, approximation and analytic limit in ME-02</a>
+          <a href="/lab/me-02/">Compare the proxy, the approximation and the limit</a>
         </details>
         <details>
           <summary>Include the emitted light inside your system boundary. What changed?</summary>
@@ -137,7 +137,7 @@ export default function MassEnergyArgumentPage() {
             statement about energy lost by the body to that larger system without a new account.
             Unequal pulses would also require a recoil calculation absent from this reconstruction.
           </p>
-          <a href="/lab/me-03/">Change the system boundary in ME-03</a>
+          <a href="/lab/me-03/">Move the system boundary</a>
         </details>
       </section>
 

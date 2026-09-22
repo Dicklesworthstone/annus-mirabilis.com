@@ -38,11 +38,11 @@ export function InvestigationTransfer({
     try {
       await navigator.clipboard.writeText(url.href);
       setMessage(
-        `Settings for accepted snapshot ${version} copied. Prediction notes are not included.`,
+        `Link to these settings copied (result ${version}). Your prediction notes are not in it.`,
       );
     } catch {
       setMessage(
-        `Copy the link below for accepted snapshot ${version}. Prediction notes are not included.`,
+        `Copy the link below to share these settings (result ${version}). Your prediction notes are not in it.`,
       );
     }
   }
@@ -100,8 +100,7 @@ export function InvestigationTransfer({
           />
           {shared.version !== current.snapshotVersion && (
             <p className="fine">
-              This copied link names an earlier accepted snapshot. Share again to copy the current
-              settings.
+              This link is for an earlier result. Share again to copy the current settings.
             </p>
           )}
         </div>
