@@ -35,9 +35,47 @@
   border-block: 1px solid var(--line);
   padding: 1rem 0;
 }
-.reader-controls nav a[aria-current="page"] {
-  font-weight: 700;
-  text-decoration-thickness: 3px;
+/* ---------------------------------------------------------------------------
+   THE FACES ARE TABS OVER ONE TEXT, not a sentence of links. They were underlined links in a
+   row, the current one bolder with a thicker underline, which read as more links. Now a rule
+   runs under the row, each face sits on it, and the current face carries the accent bar and
+   a heavier weight: two cues, neither of them colour alone. The paper page's chooser
+   (ReaderController) and the face pages' (FaceChooser) share the class, so both read alike.
+   A face with nothing yet sits in .face-pending after the row instead of posing as a tab.
+   --------------------------------------------------------------------------- */
+.face-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.5rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}
+.face-tabs > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.face-tabs > a:hover {
+  color: var(--ink);
+}
+.face-tabs > a[aria-current="page"] {
+  border-bottom: 2px solid var(--accent);
+  color: var(--ink);
+  font-weight: 600;
+}
+.face-pending {
+  margin: 0.75rem 0 0;
+}
+@media (max-width: 560px) {
+  .face-tabs {
+    column-gap: 1rem;
+    font-size: var(--type-fine);
+  }
 }
 .reader-options {
   display: flex;

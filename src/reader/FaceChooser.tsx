@@ -52,27 +52,55 @@ export function FaceChooser({
 }) {
   const mark = (id: FaceId) =>
     availability?.[id] === "empty" ? <span className="face-state"> · not set yet</span> : null;
+  /*
+    TABS FOR THE FACES THAT HAVE SOMETHING, AND ONE LINE FOR THE ONES THAT DO NOT. Eight equal
+    links, three of them "not set yet", wrapped into three rows on a phone and read as a list of
+    doors. A face reported empty is still a link - its page says what is missing - but it sits
+    in a quiet line after the tabs rather than posing as one, unless it is the face on screen,
+    which is always a tab.
+  */
+  const pending = FACE_FALLBACK_IDS.filter((id) => availability?.[id] === "empty" && id !== current);
+  const tabs = FACE_FALLBACK_IDS.filter((id) => !pending.includes(id));
   return (
     <nav className="reader-controls" aria-label="Reading face">
-      <a
-        href={faceLinkHref(paperId, "reading", section)}
-        data-view-link="reading"
-        aria-current={current === "reading" ? "page" : undefined}
-      >
-        Explanation
-      </a>
-      {FACE_FALLBACK_IDS.map((id) => (
+      <div className="face-tabs">
         <a
-          key={id}
-          href={faceLinkHref(paperId, id, section)}
-          data-view-link={id}
-          aria-current={id === current ? "page" : undefined}
-          data-face-state={availability?.[id] ?? undefined}
+          href={faceLinkHref(paperId, "reading", section)}
+          data-view-link="reading"
+          aria-current={current === "reading" ? "page" : undefined}
         >
-          {FACE_REGISTRY[id].label}
-          {mark(id)}
+          Explanation
         </a>
-      ))}
+        {tabs.map((id) => (
+          <a
+            key={id}
+            href={faceLinkHref(paperId, id, section)}
+            data-view-link={id}
+            aria-current={id === current ? "page" : undefined}
+            data-face-state={availability?.[id] ?? undefined}
+          >
+            {FACE_REGISTRY[id].label}
+            {mark(id)}
+          </a>
+        ))}
+      </div>
+      {pending.length > 0 ? (
+        <p className="face-pending fine">
+          Not yet available:{" "}
+          {pending.map((id, i) => (
+            <span key={id}>
+              {i > 0 ? " · " : null}
+              <a
+                href={faceLinkHref(paperId, id, section)}
+                data-view-link={id}
+                data-face-state="empty"
+              >
+                {FACE_REGISTRY[id].label}
+              </a>
+            </span>
+          ))}
+        </p>
+      ) : null}
     </nav>
   );
 }

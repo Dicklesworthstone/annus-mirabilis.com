@@ -426,8 +426,10 @@ export function ReaderController(props: Props) {
             and what it said is in the paper's status disclosure (PaperStatus), which states
             that the source faces remain in preparation. ?view=german still resolves for
             links that carry it. */}
-        <nav aria-label="Reading face">
-          <a href="?view=reading" data-view-link="reading">
+        <nav className="face-tabs" aria-label="Reading face">
+          {/* Current in the static HTML too: this page IS the explanation, and without
+              JavaScript nothing else would ever mark it. The controller takes over after. */}
+          <a href="?view=reading" data-view-link="reading" aria-current="page">
             {FACE_REGISTRY.reading.label}
           </a>
           <a href="?view=results" data-view-link="results">
