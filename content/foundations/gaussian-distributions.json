@@ -10,19 +10,34 @@
     {
       "kind": "formula",
       "latex": "p(x,t)=\\frac{1}{\\sqrt{4\\pi Dt}}\\exp\\left(-\\frac{x^2}{4Dt}\\right)",
-      "spoken": "For positive D and t, the density is an exponential bell with normalization one over the square root of four pi D t."
+      "spoken": "p of x and t equals one over the square root of four pi D t, times e to the minus x squared over four D t."
     },
     {
       "kind": "paragraph",
-      "text": "Here x is displacement, t is elapsed time, and D is a constant diffusivity. Put u = x divided by the square root of 4Dt. Then dx is the square root of 4Dt times du. The normalization reduces to the integral of exp(−u²), which is the square root of π."
+      "text": "Here x is the displacement, t the time since the start and D the diffusion coefficient. Two things need checking: that the total probability under the curve is 1, and that the mean square displacement is 2Dt. One change of variable turns both into standard integrals."
+    },
+    {
+      "kind": "formula",
+      "latex": "u=\\frac{x}{\\sqrt{4Dt}},\\qquad dx=\\sqrt{4Dt}\\,du",
+      "spoken": "Let u equal x over the square root of four D t. Then d x equals the square root of four D t, times d u."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\begin{aligned}\\int_{-\\infty}^{\\infty}p(x,t)\\,dx&=\\frac{1}{\\sqrt{\\pi}}\\int_{-\\infty}^{\\infty}e^{-u^2}\\,du\\\\&=1\\end{aligned}",
+      "spoken": "The total probability becomes one over the square root of pi, times the integral of e to the minus u squared, and that equals one."
     },
     {
       "kind": "paragraph",
-      "text": "One way to evaluate that integral is to square it: I² is the integral of exp(−u²−v²) over the plane. In polar coordinates, area is r dr dθ; angles cover 0 to 2π. The radial integral of r exp(−r²) is one half, so I² = π. Since the integral is positive, I = √π. This way of evaluating it is a modern check; the paper does not show it."
+      "text": "The last step needs the integral of e to the minus u squared to be √π. One way to see it is to square the integral, which makes it an integral over a whole plane, and then add the plane up in rings around the origin: a ring of radius r and width dr has area 2πr dr. This check is a modern one; the paper does not show it."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\begin{aligned}I^2&=\\int_{-\\infty}^{\\infty}\\int_{-\\infty}^{\\infty}e^{-(u^2+v^2)}\\,du\\,dv\\\\&=\\int_{0}^{\\infty}e^{-r^2}\\,2\\pi r\\,dr=\\pi\\end{aligned}",
+      "spoken": "I squared is the integral of e to the minus u squared plus v squared over the whole plane, which equals the integral from zero to infinity of e to the minus r squared times two pi r d r, which is pi."
     },
     {
       "kind": "paragraph",
-      "text": "For the second moment use integration by parts: choose u as the factor and integrate u exp(−u²), whose antiderivative is −exp(−u²)/2. The endpoint term vanishes at both infinities. What remains is one half the normalization integral."
+      "text": "For the mean square, the same substitution leaves the integral of u² times e to the minus u squared. Integrating by parts once, the end terms vanish at both infinities, and half the integral above remains:"
     },
     {
       "kind": "formula",
@@ -47,6 +62,6 @@
   ],
   "exampleTitle": "Where 68 per cent of the probability sits",
   "prerequisites": ["integration", "mean-variance-rms"],
-  "stoppingPoint": "A normalized density and its moments describe an ensemble, not a required endpoint for one tracer.",
+  "stoppingPoint": "The bell curve says where many particles end up. Any one particle can end anywhere, and about one in three ends more than one width from its start.",
   "citations": []
 }
