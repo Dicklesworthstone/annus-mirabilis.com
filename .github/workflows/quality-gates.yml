@@ -62,6 +62,14 @@ jobs:
       - name: Run fast quality gate chain
         run: bun scripts/quality-gates.ts --all --family fast --cadence every-run
 
+      # The browser family, which no job ran until 2026-09-21. browser-acceptance has read
+      # requiredInCi true throughout while nothing executed it; the workflow that carried its
+      # name ran a different command over 20 files the node lane already runs. Owner decision
+      # am-browser-gate-identity-7nq2, verbatim "Delete the workflow; register the journey".
+      # Chromium and webkit are installed above, so this adds no install.
+      - name: Run browser quality gate chain
+        run: bun scripts/quality-gates.ts --all --family browser --cadence every-run
+
       - name: Upload test logs and evidence on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

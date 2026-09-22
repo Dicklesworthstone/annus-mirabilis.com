@@ -484,11 +484,17 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     // `--fixtures --journey runtime-conformance` exits 0 today over nine live-class assertions
     // in real Chromium, three of them planted negatives that must fail.
     //
-    // So the title now overstates the scope, and that is left visible rather than quietly
-    // retitled: which artifact IS the browser gate - this registry entry or the different
-    // command in .github/workflows/browser-acceptance.yml - is a decision, and am-xyxk item 2
-    // puts it to the owner. This change only stops the entry claiming a gate that cannot run.
-    title: "Browser acceptance E2E vertical slices",
+    // THE TITLE IS NOW WHAT IT RUNS. It said "Browser acceptance E2E vertical slices" while
+    // running the runtime-conformance journey, which am-xyxk item 2 put to the owner as part of
+    // a larger question: three artifacts shared the name "browser acceptance" and did three
+    // different things. Owner decision 2026-09-21, verbatim "Delete the workflow; register the
+    // journey" - neither of the two readings offered, but the third the bead raised, on the
+    // grounds that it resolves the duplication instead of relabelling it
+    // (am-browser-gate-identity-7nq2).
+    //
+    // WIDEN THE COMMAND, DO NOT WIDEN THE TITLE BACK, when am-test-e2e-harness-bqmh builds the
+    // paper lanes: the journey is what this gate covers until a --paper run can pass.
+    title: "Runtime conformance in live Chromium",
     command: [
       "bun",
       "scripts/e2e-paper-vertical-slices.ts",
@@ -498,6 +504,12 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     ],
     family: "browser",
     cadence: "every-run",
+    // THIS FLAG WAS NEVER THE PROBLEM AND IS UNCHANGED. It has read true throughout; what was
+    // false is that any job ran it, because no workflow passed --family browser. A flag is a
+    // declaration and CI is the wiring, and the whole of am-browser-gate-identity-7nq2 is about
+    // mistaking one for the other. quality-gates.yml now runs the browser family, and
+    // src/testing/ciGateWiring.test.ts fails if ANY requiredInCi gate is run by no workflow job,
+    // so the declaration cannot drift away from the wiring again in silence.
     requiredInCi: true,
     requiredInProfiles: ["preview", "launch"],
     availability: {
