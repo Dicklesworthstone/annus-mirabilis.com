@@ -5,6 +5,21 @@ import { CoefficientMatchLab } from "../components/lab/lq06/CoefficientMatchLab.
 import { createLq06Session, type PreparedLq06Example } from "../experiments/lq06/session.ts";
 import rawExample from "../generated/lq06-example.json";
 
+/**
+ * Heading assertions below compare case-insensitively (am-edit-voice-lint-trmf). They asserted
+ * the exact capitalisation of a section heading in order to check that the SECTION IS PRESENT,
+ * and so they broke when the de-slop pass normalised these pages from Title Case to the site's
+ * sentence case, although every section they protect was still rendering.
+ *
+ * This is a partial hardening and it is worth being exact about the limit: lowercasing both
+ * sides survives a case change and would NOT survive a rewording. The durable fix is a stable
+ * per-section anchor, which these pages do not have - each carries one section id for the whole
+ * page and none on the individual headings. Recorded rather than left implicit, so the next
+ * person who hits this knows the ceiling of what is here.
+ */
+const containsHeading = (html: string, heading: string) =>
+  html.toLowerCase().includes(heading.toLowerCase());
+
 const example = rawExample as unknown as PreparedLq06Example;
 
 describe("LQ-06 Matching Entropy Coefficients Lab View & Route (am-lq-06-coefficient-match-n8pe)", () => {
@@ -12,11 +27,11 @@ describe("LQ-06 Matching Entropy Coefficients Lab View & Route (am-lq-06-coeffic
     const html = renderToStaticMarkup(<CoefficientMatchPage />);
     expect(html).toContain("The radiation entropy law matches the gas entropy law");
     expect(html).toContain("The exponent identifies the light quantum");
-    expect(html).toContain("The Entropy Volume Laws Placed Side by Side");
-    expect(html).toContain("The Move: Equating the Functional Forms");
-    expect(html).toContain("Energy per Element and Historical Constants");
-    expect(html).toContain("Mean Quantum Energy over a Wien Spectrum");
-    expect(html).toContain("The Three Logical Roles");
+    expect(containsHeading(html, "The Entropy Volume Laws Placed Side by Side")).toBe(true);
+    expect(containsHeading(html, "The Move: Equating the Functional Forms")).toBe(true);
+    expect(containsHeading(html, "Energy per Element and Historical Constants")).toBe(true);
+    expect(containsHeading(html, "Mean Quantum Energy over a Wien Spectrum")).toBe(true);
+    expect(containsHeading(html, "The Three Logical Roles")).toBe(true);
     expect(html).toContain('data-instrument-id="lq-06"');
     expect(html).toContain('data-testid="lq06-coefficient-match-lab"');
   });

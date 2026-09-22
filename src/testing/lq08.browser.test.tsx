@@ -6,6 +6,21 @@ import { createLq08Session } from "../experiments/lq08/session.ts";
 import type { AcceptedSnapshot } from "../experiments/store/instanceStore.ts";
 import example from "../generated/lq08-example.json";
 
+/**
+ * Heading assertions below compare case-insensitively (am-edit-voice-lint-trmf). They asserted
+ * the exact capitalisation of a section heading in order to check that the SECTION IS PRESENT,
+ * and so they broke when the de-slop pass normalised these pages from Title Case to the site's
+ * sentence case, although every section they protect was still rendering.
+ *
+ * This is a partial hardening and it is worth being exact about the limit: lowercasing both
+ * sides survives a case change and would NOT survive a rewording. The durable fix is a stable
+ * per-section anchor, which these pages do not have - each carries one section id for the whole
+ * page and none on the individual headings. Recorded rather than left implicit, so the next
+ * person who hits this knows the ceiling of what is here.
+ */
+const containsHeading = (html: string, heading: string) =>
+  html.toLowerCase().includes(heading.toLowerCase());
+
 function getNumericValue(snap: AcceptedSnapshot | null, quantityId: string): number {
   if (!snap) throw new Error("Missing snapshot");
   const output = snap.outputs.find((o) => o.quantityId === quantityId);
@@ -28,7 +43,7 @@ describe("LQ-08 Photoelectric Apparatus Lab View & Route", () => {
   test("static page renders cleanly without javascript and includes key sections", () => {
     const html = renderToStaticMarkup(<PhotoelectricPage />);
     expect(html).toContain("Energy is discrete");
-    expect(html).toContain("The Single-Quantum Energy Conservation Law");
+    expect(containsHeading(html, "The Single-Quantum Energy Conservation Law")).toBe(true);
     expect(html).toContain('data-view-id="lq-08-energy-diagram"');
     expect(html).toContain('data-view-id="lq-08-stopping-plot"');
     expect(html).toContain('data-view-id="lq-08-iv-curve"');
