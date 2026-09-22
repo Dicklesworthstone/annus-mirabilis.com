@@ -3,36 +3,54 @@
   "kind": "foundation",
   "id": "integration",
   "title": "Adding continuously",
-  "question": "What operation does an integral describe here?",
-  "summary": "An integral adds contributions from narrow intervals; its units include the width of each interval.",
+  "question": "How do you add up something that varies continuously?",
+  "summary": "An integral adds up many thin strips, each a height times a width, and narrows the strips until the total stops changing. Its units are the height's units times the width's.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Approximate the area under a curve by rectangles. Each contributes height times width. Add all contributions, then refine the widths. When those sums approach a limit, that limit is the integral."
+      "text": "To add up something that changes from place to place, such as the probability spread along a line, cut the line into narrow strips. Each strip contributes its height times its width. Add the strips, then cut them narrower and add again. For a smooth curve the totals settle on one value, and that value is the integral:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\int_a^b p(x)\\,dx = \\lim_{\\Delta x \\to 0} \\sum_i p(x_i)\\,\\Delta x",
+      "spoken": "The integral of p of x from a to b is the value that the sum of p of x i times delta x settles on as delta x shrinks."
     },
     {
       "kind": "paragraph",
-      "text": "For a probability density, a rectangle has units of inverse length times length, leaving a dimensionless probability. For total probability the whole area must be one."
+      "text": "The units multiply. A probability density is a probability per metre, so a strip of it, times a width in metres, is a plain probability. For a density the whole area must be 1, because the particle has to be somewhere. The Brownian paper's §4 writes exactly that for the chances of a jump Δ, ∫φ(Δ) dΔ = 1, and the light-quanta paper's §3 adds entropy over every frequency, S = v∫φ dν."
     },
     {
       "kind": "paragraph",
-      "text": "Integration by parts comes from adding the product rule for differentiation over an interval: the integral of u times the derivative of v equals the endpoint product minus the integral of v times the derivative of u."
+      "text": "One more tool recurs in the papers: integration by parts. It is the product rule for derivatives added up over an interval, and it moves a derivative from one factor to the other at the price of an endpoint term:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\int_a^b u\\frac{dv}{dx}\\,dx = [uv]_a^b - \\int_a^b v\\frac{du}{dx}\\,dx",
+      "spoken": "The integral of u times the derivative of v equals u v at b minus u v at a, minus the integral of v times the derivative of u."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The endpoint term, uv at b minus uv at a, is part of the answer. It disappears only when uv is zero at both ends, as it is for a density that falls to zero far out on both sides."
     }
   ],
   "example": [
     {
-      "kind": "formula",
-      "latex": "\\int_a^b u\\frac{dv}{dx}\\,dx=[uv]_a^b-\\int_a^b v\\frac{du}{dx}\\,dx",
-      "spoken": "Integration by parts moves a derivative from one factor to another and retains the endpoint term."
+      "kind": "steps",
+      "items": [
+        "A particle is equally likely to be anywhere in a stretch 4 micrometres long: the density is 0.25 per micrometre across it and zero outside.",
+        "Cut the stretch into 4 strips 1 µm wide. Each strip gives 0.25 × 1 = 0.25; together they give 1.",
+        "Cut it into 8 strips 0.5 µm wide. Each gives 0.25 × 0.5 = 0.125; together, 8 × 0.125 = 1 again.",
+        "The chance of finding the particle in the first 1.5 µm is 0.25 × 1.5 = 0.375, whatever width the strips have."
+      ]
     },
     {
       "kind": "paragraph",
-      "text": "A constant density of 0.25 per micrometre over 4 micrometres gives 0.25 times 4 = 1, regardless of how many equal rectangles we use."
+      "text": "For a flat density every cut gives the same total, so the value it settles on is plain from the start. For a curved density, such as the Brownian bell curve, the strip totals change as the strips narrow, and the integral is the value they settle on."
     }
   ],
-  "exampleTitle": "A constant density, summed by rectangles",
+  "exampleTitle": "A flat density, added up in strips",
   "prerequisites": ["distributions"],
-  "stoppingPoint": "The width and the endpoint term are part of the calculation, not decorations on the integral sign.",
+  "stoppingPoint": "An integral is a total of height times width over a range, in the units of both. The widths and any endpoint term are part of the calculation, not decoration on the integral sign.",
   "citations": []
 }
