@@ -29,22 +29,20 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
   return (
     <article className="foundation-page">
       <header>
-        <p className="eyebrow">Foundation · Explanatory preview</p>
+        <p className="eyebrow">Foundation lesson</p>
         <h1>{foundation.title}</h1>
         <p className="lead">{foundation.summary}</p>
         <p className="fine">
-          Original explanatory text; editorial review pending. This is not a translated source
-          passage.
+          Written for this edition, not translated from Einstein. Editorial review pending.
         </p>
       </header>
       <FoundationBody foundation={foundation} foundations={lessons} />
-      <p>
-        <a href={foundation.exports.markdown}>Read as Markdown</a> ·{" "}
-        <a href="/foundations/">All foundations</a> ·{" "}
-        <a href="/papers/brownian-motion/">Return to the Brownian argument</a>
-      </p>
       <p className="fine">
-        Your browser’s Back button returns to the passage that brought you here.
+        If you came here from a passage, Back returns you to the exact place you left.
+      </p>
+      <p>
+        <a href="/foundations/">All foundation lessons</a> ·{" "}
+        <a href={foundation.exports.markdown}>Read as Markdown</a>
       </p>
     </article>
   );
