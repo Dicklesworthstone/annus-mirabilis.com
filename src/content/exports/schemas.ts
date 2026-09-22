@@ -491,6 +491,29 @@ export function validateLayerRights(kind: string, rights: unknown): void {
  * Validates data against a known schema structure.
  */
 /**
+ * A record carried a key its schema does not declare.
+ *
+ * A SUBCLASS of ExportValidationError rather than a new hierarchy: three tests assert
+ * `toThrow(ExportValidationError)` and any caller catching the base class must keep catching
+ * this. What the subclass adds is a kebab-case code as its FIRST constructor argument, which is
+ * what makes the refusal visible to refusalRatchet - the base class takes (schema, path,
+ * message) and its first argument is a variable, so every throw through it reads as bare.
+ *
+ * The closure check was added in the same breath as this class because it introduced the only
+ * two refusals in this file that had no prior art to copy, and paying that debt at the moment
+ * it is created is cheaper than recording it.
+ */
+export class ExportSchemaClosureError extends ExportValidationError {
+  readonly code: string;
+
+  constructor(code: string, schema: string, path: string, message: string) {
+    super(schema, path, `${message} (${code})`);
+    this.name = "ExportSchemaClosureError";
+    this.code = code;
+  }
+}
+
+/**
  * Every export schema in this file declares `additionalProperties: false`, and until now nothing
  * read it.
  *
@@ -522,14 +545,20 @@ const EXPORT_SCHEMAS_BY_KIND: Record<string, { readonly properties: Record<strin
 function rejectUndeclaredKeys(kind: string, record: Record<string, unknown>): void {
   const schema = EXPORT_SCHEMAS_BY_KIND[kind];
   if (schema === undefined) {
-    throw new ExportValidationError(kind, "root", `No schema is registered for kind '${kind}'.`);
+    throw new ExportSchemaClosureError(
+      "export-kind-unregistered",
+      kind,
+      "root",
+      `No schema is registered for kind '${kind}'`,
+    );
   }
   const declared = new Set(Object.keys(schema.properties));
   const undeclared = Object.keys(record)
     .filter((key) => !declared.has(key))
     .sort();
   if (undeclared.length > 0) {
-    throw new ExportValidationError(
+    throw new ExportSchemaClosureError(
+      "export-key-undeclared",
       kind,
       undeclared[0] as string,
       `${undeclared.length} key(s) not declared by the ${kind} schema: ${undeclared.join(", ")}. The schema sets additionalProperties: false, so a record may not carry fields it does not declare.`,

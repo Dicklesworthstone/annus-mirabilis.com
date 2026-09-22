@@ -37,6 +37,11 @@ import {
   FIXTURE_BROWNIAN_TRANSLATION_UNITS,
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
 import { emitMachineReadableExports } from "./emitter.ts";
+import {
+  ExportSchemaClosureError,
+  ExportValidationError,
+  validateExportRecord,
+} from "./schemas.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -223,5 +228,64 @@ describe("export stability: the formats carry one unit set, and nothing is stamp
     expect(
       clock.test(sourceWithoutComments(["/* start", "end */ const z = new Date();"].join("\n"))),
     ).toBe(true);
+  });
+});
+
+describe("the schema closure refuses, and says which key and which kind", () => {
+  // These exist because typing the two refusals made them visible to refusalRatchet, which then
+  // required them to be exercised. That chain is the point: an untyped throw is invisible to the
+  // ratchet AND to a caller, and one edit fixes both.
+  const validIndex = {
+    schemaVersion: 1,
+    contentRevision: "r1",
+    releaseProfile: "preview",
+    files: [],
+  };
+
+  test("a key the schema does not declare is refused by code", () => {
+    let thrown: unknown;
+    try {
+      validateExportRecord("index", { ...validIndex, generatedOn: "2026-09-22" });
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(ExportSchemaClosureError);
+    expect((thrown as ExportSchemaClosureError).code).toBe("export-key-undeclared");
+    // The message must name the key, or a refusal on a large record says nothing useful.
+    expect((thrown as Error).message).toContain("generatedOn");
+  });
+
+  test("the same record without that key is accepted", () => {
+    // The accept half. A refusal test alone cannot tell a working closure from one that refuses
+    // everything.
+    expect(() => validateExportRecord("index", validIndex)).not.toThrow();
+  });
+
+  test("a kind with no registered schema is refused rather than silently skipped", () => {
+    // Reachable only by casting past the union, which is the point: if the union ever gains a
+    // member and the schema map does not, this fails instead of the closure quietly checking
+    // nothing.
+    let thrown: unknown;
+    try {
+      validateExportRecord("glossary" as Parameters<typeof validateExportRecord>[0], {
+        ...validIndex,
+      });
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(ExportSchemaClosureError);
+    expect((thrown as ExportSchemaClosureError).code).toBe("export-kind-unregistered");
+  });
+
+  test("the closure error is still an ExportValidationError", () => {
+    // Three tests in exports.test.ts assert toThrow(ExportValidationError). The subclass must not
+    // quietly break them.
+    let thrown: unknown;
+    try {
+      validateExportRecord("index", { ...validIndex, nope: 1 });
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(ExportValidationError);
   });
 });
