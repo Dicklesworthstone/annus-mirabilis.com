@@ -91,6 +91,36 @@ describe("the German face a reader is served", () => {
     expect(noticeAt).toBeLessThan(textAt);
   });
 
+  test("no TeX reaches a reader, and each display equation is printed once, in place", async () => {
+    // Measured on the export of 14:24:47: 15 of 28 German pages served the ledger's TeX as
+    // text, and every display equation twice - once above the sentence introducing it, once
+    // inside it as `$$…$$`.
+    for (const paperId of DRAFT_PAPERS) {
+      const face = loadGermanSourceFace(paperId as never);
+      expect(face).not.toBeNull();
+      if (!face) continue;
+      const html = await germanMarkup(paperId);
+      const draft = html.slice(html.indexOf("data-german-draft"));
+      // KaTeX keeps each formula's TeX in a MathML <annotation> for assistive technology. That
+      // is the formula's source for a screen reader, not text on the page, so it goes first.
+      const visible = draft
+        .replace(/<(script|style|annotation)\b[^>]*>[\s\S]*?<\/\1>/g, " ")
+        .replace(/<[^>]+>/g, " ");
+      expect(visible).not.toContain("$");
+      expect(visible).not.toMatch(/\\[a-zA-Z]+/);
+
+      // Not vacuous: the two absences above mean something only because formulas are there.
+      // One typeset display per equation block, and each equation's id on exactly one element,
+      // so an anchor to it lands on the formula and nowhere else.
+      const equationIds = face.blocks.filter((b) => b.kind === "equation").map((b) => b.id);
+      expect(equationIds.length).toBeGreaterThan(0);
+      expect(draft.match(/class="katex-display"/g)?.length).toBe(equationIds.length);
+      for (const id of equationIds) {
+        expect(html.split(`id="${id}"`).length - 1).toBe(1);
+      }
+    }
+  });
+
   test("a paper with no ledger still reports absence honestly", async () => {
     // The control. Without it every assertion above is satisfied by a page that renders
     // a draft notice over any paper at all, including the three that have no transcript.
