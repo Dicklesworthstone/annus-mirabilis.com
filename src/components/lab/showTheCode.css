@@ -1,3 +1,11 @@
+/* Type: --font-sans and --font-mono, never system-ui or ui-monospace.
+   Four `system-ui, sans-serif` and one `ui-monospace, "JetBrains Mono", monospace`
+   rendered 41 elements on /papers/brownian-motion/ outside the three declared faces.
+   They survived an earlier sweep because that sweep grepped for Arial/Helvetica/
+   Georgia/Times - a denylist of font NAMES, which cannot catch a name nobody thought
+   to list. The instrument that found them enumerates computed font-family and checks
+   it against the allowlist of declared faces. Note ui-monospace ALREADY named
+   JetBrains Mono second: the token was one position away and still lost. */
 .show-the-code {
   border: 1px solid var(--line, #c7c5b9);
   background: var(--panel, #fffdf7);
@@ -7,7 +15,7 @@
 }
 .show-the-code > summary {
   cursor: pointer;
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--type-small);
 }
 .show-the-code-tabs {
@@ -15,7 +23,7 @@
   flex-wrap: wrap;
   gap: 0.6rem;
   margin: 0.7rem 0;
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 .show-the-code-tabs a {
   min-height: 2.25rem;
@@ -34,7 +42,7 @@
   max-width: 100%;
   padding: 0.7rem;
   background: var(--wash, #e8eadf);
-  font-family: ui-monospace, "JetBrains Mono", monospace;
+  font-family: var(--font-mono);
   font-size: var(--type-fine);
   line-height: 1.5;
 }
@@ -65,12 +73,12 @@
   text-underline-offset: 0.18em;
 }
 .show-the-code .kernel-role {
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--type-fine);
   color: var(--muted, #545b56);
 }
 .show-the-code .kernel-header {
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--type-fine);
   color: var(--muted, #545b56);
 }

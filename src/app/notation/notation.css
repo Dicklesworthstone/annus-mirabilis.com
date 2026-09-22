@@ -414,7 +414,7 @@
 
 .card-anchor-link {
   font-size: var(--type-fine);
-  font-family: monospace;
+  font-family: var(--font-mono);
   color: var(--muted);
   text-decoration: none;
 }

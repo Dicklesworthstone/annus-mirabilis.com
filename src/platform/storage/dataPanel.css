@@ -84,7 +84,7 @@
 }
 
 .data-panel-bytes {
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-weight: 700;
   color: var(--accent);
 }
@@ -256,7 +256,7 @@
 }
 
 .data-panel-namespace-key {
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-size: var(--type-micro);
   color: var(--muted);
   word-break: break-all;
@@ -269,7 +269,7 @@
 }
 
 .data-panel-cell-size {
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-size: var(--type-fine);
   color: var(--ink);
   white-space: nowrap;

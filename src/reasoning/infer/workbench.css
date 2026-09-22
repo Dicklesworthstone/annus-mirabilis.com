@@ -81,9 +81,10 @@
 }
 .inference-workbench .plot svg text {
   fill: currentColor;
-  font:
-    12px system-ui,
-    sans-serif;
+  /* Longhand, and the token: the `font` shorthand also reset weight and
+     font-variant-numeric on SVG axis labels, which are numbers. */
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
 }
 .inference-workbench .plot .axis {
   stroke: currentColor;
