@@ -83,116 +83,133 @@ export function TaylorBinomialExtension() {
         accumulate:
       </p>
 
-      <table
-        className="data-table"
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontSize: "0.9rem",
-          margin: "0.75rem 0",
-        }}
+      {/*
+        am-a3f1. Same defect and same repair as HeldFixedToggle (817d2cc1): a .data-table with no
+        scroll wrapper, in a component whose siblings all use construction-table-wrap.
+
+        Measured at 320px against out/: the rows sit at a min-content floor of 377.3px inside a
+        288px section, and the page reports scrollWidth 414 against a 320 viewport, +94. That
+        floor is a property of the column contents, so no padding or margin change reaches it -
+        the same arithmetic that made a padding-only route unexecutable on partial-derivatives.
+        The region therefore has to scroll, and a scrolling region has to be reachable.
+      */}
+      <section
+        className="construction-table-wrap"
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns are unreachable by keyboard, which is the access defect the scroll container would otherwise introduce (am-bc6s). Suppressed inline at the site, following ModernOnlySymbolsView.tsx, rather than as a per-file override that turns the rule off for a whole file and carries no reason with it.
+        tabIndex={0}
+        aria-label="Partial sums of the binomial series at v/c = 0.6, scrollable table"
       >
-        <caption style={{ textAlign: "left", fontWeight: "bold", marginBottom: "0.4rem" }}>
-          Partial sums of γ − 1 at x = 0.36 against exact 0.25
-        </caption>
-        <thead>
-          <tr style={{ borderBottom: "1px solid var(--rule)", textAlign: "left" }}>
-            <th scope="col" style={{ padding: "0.4rem" }}>
-              Order
-            </th>
-            <th scope="col" style={{ padding: "0.4rem" }}>
-              Term added
-            </th>
-            <th scope="col" style={{ padding: "0.4rem" }}>
-              Term value
-            </th>
-            <th scope="col" style={{ padding: "0.4rem" }}>
-              Partial sum
-            </th>
-            <th scope="col" style={{ padding: "0.4rem" }}>
-              Difference to exact (0.25)
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-            <td style={{ padding: "0.4rem" }}>1st (linear in x)</td>
-            <td style={{ padding: "0.4rem" }}>½ x</td>
-            <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-              0.180000
-            </td>
-            <td
-              style={{
-                padding: "0.4rem",
-                fontFamily: "var(--font-mono, monospace)",
-                fontWeight: "bold",
-              }}
-            >
-              {sums036.partialSums[0].toFixed(6)}
-            </td>
-            <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-              {(0.25 - sums036.partialSums[0]).toFixed(6)}
-            </td>
-          </tr>
-          <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-            <td style={{ padding: "0.4rem" }}>2nd (quadratic)</td>
-            <td style={{ padding: "0.4rem" }}>⅜ x²</td>
-            <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-              0.048600
-            </td>
-            <td
-              style={{
-                padding: "0.4rem",
-                fontFamily: "var(--font-mono, monospace)",
-                fontWeight: "bold",
-              }}
-            >
-              {sums036.partialSums[1].toFixed(6)}
-            </td>
-            <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-              {(0.25 - sums036.partialSums[1]).toFixed(6)}
-            </td>
-          </tr>
-          <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-            <td style={{ padding: "0.4rem" }}>3rd (cubic)</td>
-            <td style={{ padding: "0.4rem" }}>⁵/₁₆ x³</td>
-            <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-              0.014580
-            </td>
-            <td
-              style={{
-                padding: "0.4rem",
-                fontFamily: "var(--font-mono, monospace)",
-                fontWeight: "bold",
-              }}
-            >
-              {sums036.partialSums[2].toFixed(6)}
-            </td>
-            <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-              {(0.25 - sums036.partialSums[2]).toFixed(6)}
-            </td>
-          </tr>
-          <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-            <td style={{ padding: "0.4rem" }}>4th (quartic)</td>
-            <td style={{ padding: "0.4rem" }}>³⁵/₁₂₈ x⁴</td>
-            <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-              0.0045927
-            </td>
-            <td
-              style={{
-                padding: "0.4rem",
-                fontFamily: "var(--font-mono, monospace)",
-                fontWeight: "bold",
-              }}
-            >
-              {sums036.partialSums[3].toFixed(6)}
-            </td>
-            <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-              {(0.25 - sums036.partialSums[3]).toFixed(6)}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <table
+          className="data-table"
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: "0.9rem",
+            margin: "0.75rem 0",
+          }}
+        >
+          <caption style={{ textAlign: "left", fontWeight: "bold", marginBottom: "0.4rem" }}>
+            Partial sums of γ − 1 at x = 0.36 against exact 0.25
+          </caption>
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--rule)", textAlign: "left" }}>
+              <th scope="col" style={{ padding: "0.4rem" }}>
+                Order
+              </th>
+              <th scope="col" style={{ padding: "0.4rem" }}>
+                Term added
+              </th>
+              <th scope="col" style={{ padding: "0.4rem" }}>
+                Term value
+              </th>
+              <th scope="col" style={{ padding: "0.4rem" }}>
+                Partial sum
+              </th>
+              <th scope="col" style={{ padding: "0.4rem" }}>
+                Difference to exact (0.25)
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style={{ borderBottom: "1px solid var(--rule)" }}>
+              <td style={{ padding: "0.4rem" }}>1st (linear in x)</td>
+              <td style={{ padding: "0.4rem" }}>½ x</td>
+              <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
+                0.180000
+              </td>
+              <td
+                style={{
+                  padding: "0.4rem",
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontWeight: "bold",
+                }}
+              >
+                {sums036.partialSums[0].toFixed(6)}
+              </td>
+              <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
+                {(0.25 - sums036.partialSums[0]).toFixed(6)}
+              </td>
+            </tr>
+            <tr style={{ borderBottom: "1px solid var(--rule)" }}>
+              <td style={{ padding: "0.4rem" }}>2nd (quadratic)</td>
+              <td style={{ padding: "0.4rem" }}>⅜ x²</td>
+              <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
+                0.048600
+              </td>
+              <td
+                style={{
+                  padding: "0.4rem",
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontWeight: "bold",
+                }}
+              >
+                {sums036.partialSums[1].toFixed(6)}
+              </td>
+              <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
+                {(0.25 - sums036.partialSums[1]).toFixed(6)}
+              </td>
+            </tr>
+            <tr style={{ borderBottom: "1px solid var(--rule)" }}>
+              <td style={{ padding: "0.4rem" }}>3rd (cubic)</td>
+              <td style={{ padding: "0.4rem" }}>⁵/₁₆ x³</td>
+              <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
+                0.014580
+              </td>
+              <td
+                style={{
+                  padding: "0.4rem",
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontWeight: "bold",
+                }}
+              >
+                {sums036.partialSums[2].toFixed(6)}
+              </td>
+              <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
+                {(0.25 - sums036.partialSums[2]).toFixed(6)}
+              </td>
+            </tr>
+            <tr style={{ borderBottom: "1px solid var(--rule)" }}>
+              <td style={{ padding: "0.4rem" }}>4th (quartic)</td>
+              <td style={{ padding: "0.4rem" }}>³⁵/₁₂₈ x⁴</td>
+              <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
+                0.0045927
+              </td>
+              <td
+                style={{
+                  padding: "0.4rem",
+                  fontFamily: "var(--font-mono, monospace)",
+                  fontWeight: "bold",
+                }}
+              >
+                {sums036.partialSums[3].toFixed(6)}
+              </td>
+              <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
+                {(0.25 - sums036.partialSums[3]).toFixed(6)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
 
       <p style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
         Notice that the leading quadratic term 0.18 corresponds to the 0.18L mass–energy fixture
