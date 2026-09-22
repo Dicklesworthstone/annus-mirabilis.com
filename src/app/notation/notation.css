@@ -348,6 +348,10 @@
 .notation-entry-also a {
   color: var(--ink);
 }
+/* "first used on p. 898" is one phrase; it broke between "p." and "898" at 1440 (BUILD 14). */
+.notation-entry-facts .first-use-link {
+  white-space: nowrap;
+}
 /* AGENTS.md: the dangerous collisions (beta, and paper 2's k) are called out in red where they
    are used. This is one of the few places the accent is for. */
 .notation-entry-flag {
