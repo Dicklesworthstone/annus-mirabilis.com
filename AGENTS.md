@@ -1191,7 +1191,7 @@ evidence. A close request without cited evidence is a debt, not a completion.
 **Builds go through `rch`.** Compilation and test commands are offloaded to the remote
 worker fleet. Never report a build result you did not observe.
 
-**Ask whether a build is running with an anchored pattern, never `ps | grep`.** Only one
+**Ask whether a build is running by gating on the EXECUTABLE, never on argv text.** Only one
 `next build` may run in this checkout at a time, so panes check before starting or before
 touching `out/`. The check itself is the trap: a shell's own command line contains the
 pipeline text, so `ps aux | grep -cE "[n]ext build"` matches the wrapper shells that are
@@ -1201,17 +1201,55 @@ two of those had been created by that very command a second earlier. The `[n]ext
 trick defeats a literal self-match and does nothing about a wrapper whose argv carries the
 whole string, so the number is not merely wrong, it is unstable: measuring changes it.
 
-Use the resolved binary path, which only a real invocation has:
+Use the form that tests what is EXECUTING, not what is mentioned:
 
 ```bash
-pgrep -fl "node_modules/.bin/next build"    # 1 line, the real build, or nothing
+ps -eo pid,comm,args | awk '$2 ~ /(^|\/)node$/ && /\.bin\/next build/ {print $1}'
 ```
 
-Three of us made the `ps | grep` error inside two hours and each acted on it - one aborted a
-plant and moved `out/` back on a false alarm, and the orchestrator made it one tick after
-correcting another pane for it. A rule three people break is a fact about the instrument.
-The general form: **when a process check can match the process doing the checking, anchor it
-on something only the target can contain.**
+A build's `comm` is `node`; a wrapper's is a shell. Read the OUTPUT, not the exit code:
+`awk` exits 0 with nothing to print, so empty output means no build and the exit status
+means nothing here (see "A Tool's Exit Code Is Not Evidence Until You Know What It
+Examined" above).
+
+**This paragraph has now been wrong twice, and both wrong versions read as careful.** Until
+2026-09-22 it said to use "the resolved binary path, which only a real invocation has" and
+gave `pgrep -fl "node_modules/.bin/next build"` with the comment `# 1 line, the real build,
+or nothing`. That was corrected the same day to `pgrep -fl "\.bin/next build$"`, which was
+also wrong, and which this replaces. The closing sentence used to read: "when a process
+check can match the process doing the checking, anchor it on something only the target can
+contain." Anchoring is exactly what failed.
+
+Measured on 2026-09-22 against a population built for the purpose - one plain build, one
+build carrying a flag, one shell wrapper whose argv ends with the string:
+
+| form | plain build | `next build --debug` | zsh wrapper |
+|---|---|---|---|
+| `pgrep -f "node_modules/.bin/next build"` | found | found | **matched** |
+| `pgrep -f "\.bin/next build$"` | found | **MISSED** | **matched** |
+| the `comm`-gated form above | found | found | correctly excluded |
+
+The anchored form fails in BOTH directions: false-green on any added flag, because `build`
+stops being the last word, and false-positive on a wrapper whose argv happens to end there.
+False-green is the dangerous direction, since it says the slot is free while a build writes
+`out/`.
+
+One more trap the table does not show, and the reason the regex is `(^|/)node$` rather than
+`== "node"`: on this machine `ps -eo comm` prints a bare `node` for some processes and a
+full path for others, and zsh appears four ways (`zsh`, `-zsh`, `/bin/zsh`, `-/bin/zsh`).
+An equality test against `"node"` would go false-green the day a build is invoked through an
+absolute path. Match the basename.
+
+**Five instances across four people, and every repair until this one lengthened the pattern
+without changing its kind.** Two panes named zsh wrappers as builds; one read "3" from a
+grep that matched its own pipeline; the anchored "fix" was then found false-green under a
+flag. The durable proposition: **a substring match against argv cannot distinguish a process
+from a process that MENTIONS one, and making the substring longer never fixes the kind of
+error.** That is the same rule as "A gate that forbids a construct must read code, not text"
+a few sections above, wearing different clothes - there the text that describes a construct
+is not the construct, here the command line that names a program is not the program. When a
+check can match the thing doing the checking, do not lengthen the pattern. Change what you
+are matching ON.
 
 **A probe goes in the session scratchpad, never under `src/`.** This is the enforcement half of
 RULE 2 point 3, and the reason outranks tidiness: a file under `src/` is TYPECHECKED. On
