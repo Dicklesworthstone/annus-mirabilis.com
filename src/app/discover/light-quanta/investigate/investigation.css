@@ -13,9 +13,11 @@
 .light-input-group h3 {
   font-size: var(--type-small);
 }
+/* auto-fill, not auto-fit: auto-fit collapsed the empty tracks, so the counting model's single
+   field stretched across the whole 1134px workbench at 1440 while its neighbours sat in quarters. */
 .light-input-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
   gap: 1rem;
 }
 /* am-qt1j moved each control out of its <label> and into a sibling pairing, so the stacking
