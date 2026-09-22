@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-electron-energy",
+  "paper": "special-relativity",
+  "argument": "arg-sr-electron-work",
+  "title": "The voltage supplies the energy",
+  "spoken": "Charge magnitude times voltage magnitude supplies kinetic energy.",
+  "explanation": "Accelerated from rest through a voltage U, the electron gains energy |q| times U, and all of it is energy of motion. With K = mc²(γ − 1) this fixes the electron's speed.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An electron accelerated from rest, then moving at speed v with |v| < c. In section 10 the electron is momentarily at rest in the moving system, so its speed is that system's speed v.",
+    "Modern teaching notation: gamma is the paper's beta, |q| the size of the electron's charge, U the size of the voltage."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-electron-energy.op.relation",
+    "left": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-electron-energy.t.charge",
+          "quantityId": "particleChargeMagnitude"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-electron-energy.t.voltage",
+          "quantityId": "acceleratingPotential"
+        }
+      ],
+      "opId": "eq-model-sr-electron-energy.op.work"
+    },
+    "right": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-electron-energy.t.energy",
+      "quantityId": "kineticEnergy"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-electron-energy.op.relation",
+      "title": "What it asserts",
+      "explanation": "Energy conservation for acceleration from rest: the work done becomes energy of motion.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-energy.op.work",
+      "title": "Charge times voltage",
+      "explanation": "The work the field does on the electron: coulombs times volts is joules.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-energy.t.charge",
+      "title": "Size of the electron's charge",
+      "explanation": "The elementary charge. The sign of the charge decides the direction of the force, not these magnitudes.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-energy.t.energy",
+      "title": "Kinetic energy",
+      "explanation": "The electron's energy of motion afterwards: m c squared times gamma minus one, not one half m v squared, which is only its low-speed form.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-energy.t.voltage",
+      "title": "Accelerating voltage",
+      "explanation": "The voltage the electron falls through, starting from rest.",
+      "foundation": "electromagnetism-charges"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The size of the electron's charge",
+      "nodeId": "eq-model-sr-electron-energy.t.charge"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the accelerating voltage",
+      "nodeId": "eq-model-sr-electron-energy.t.voltage"
+    },
+    {
+      "text": " equals "
+    },
+    {
+      "text": "its kinetic energy",
+      "nodeId": "eq-model-sr-electron-energy.t.energy"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

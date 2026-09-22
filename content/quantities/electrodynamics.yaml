@@ -539,6 +539,18 @@
   frame: laboratory
   colorRole: field
 
+- id: particleChargeMagnitude
+  name: Size of a particle's charge
+  description: >
+    The magnitude |q| of a moving particle's charge, without its sign; for an electron it is the
+    elementary charge. A quantity of its own so that formulas can write |q| without an
+    absolute-value operation.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 1, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+
 - id: acceleratingPotential
   name: Accelerating potential
   description: >

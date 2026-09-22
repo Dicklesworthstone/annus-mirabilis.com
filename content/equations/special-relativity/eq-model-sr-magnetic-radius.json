@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-magnetic-radius",
+  "paper": "special-relativity",
+  "argument": "arg-sr-electron-work",
+  "title": "The circle in a magnetic field",
+  "spoken": "In a transverse magnetic field the circular radius is gamma m v over charge magnitude B.",
+  "explanation": "In a uniform magnetic field across its motion the electron goes round a circle. Its radius is gamma m v over |q| B: larger than m v over |q| B, the value without gamma, by gamma. At 0.6c that is 25 per cent.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An electron accelerated from rest, then moving at speed v with |v| < c. In section 10 the electron is momentarily at rest in the moving system, so its speed is that system's speed v.",
+    "Modern teaching notation: gamma is the paper's beta, |q| the size of the electron's charge, U the size of the voltage.",
+    "A uniform magnetic field of strength B at right angles to the electron's velocity, in the laboratory."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-magnetic-radius.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-magnetic-radius.t.radius",
+      "quantityId": "radiusCurvatureMagnetic"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-magnetic-radius.t.factor",
+            "quantityId": "lorentzFactor"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-magnetic-radius.t.mass",
+            "quantityId": "electronMass"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-magnetic-radius.t.speed",
+            "quantityId": "frameSpeed"
+          }
+        ],
+        "opId": "eq-model-sr-magnetic-radius.op.momentum"
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-magnetic-radius.t.charge",
+            "quantityId": "particleChargeMagnitude"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-magnetic-radius.t.field",
+            "quantityId": "magneticFieldStationary"
+          }
+        ],
+        "opId": "eq-model-sr-magnetic-radius.op.push"
+      },
+      "opId": "eq-model-sr-magnetic-radius.op.ratio"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.op.momentum",
+      "title": "Gamma m v",
+      "explanation": "The quantity the field has to turn round. Without gamma this is the low-speed m v.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.op.push",
+      "title": "Charge times field",
+      "explanation": "How strongly the field turns the electron.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.op.ratio",
+      "title": "The ratio",
+      "explanation": "Metres: kilograms times metres per second, over coulombs times teslas.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.op.relation",
+      "title": "What it asserts",
+      "explanation": "A prediction that deflection experiments on fast electrons can test: the radius grows with gamma, not with v alone.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.t.charge",
+      "title": "Size of the electron's charge",
+      "explanation": "The elementary charge. The sign of the charge decides the direction of the force, not these magnitudes.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "Of the electron's speed: one over the square root of one minus v squared over c squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.t.field",
+      "title": "Magnetic field",
+      "explanation": "Across the motion, in the laboratory.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.t.mass",
+      "title": "Electron mass",
+      "explanation": "The electron's mass at rest.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.t.radius",
+      "title": "Radius of the circle",
+      "explanation": "The radius of the electron's circular path in the laboratory.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-magnetic-radius.t.speed",
+      "title": "Electron speed",
+      "explanation": "The speed of the system in which the electron is momentarily at rest, which is the electron's own speed.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The radius",
+      "nodeId": "eq-model-sr-magnetic-radius.t.radius"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-magnetic-radius.t.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "m",
+      "nodeId": "eq-model-sr-magnetic-radius.t.mass"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-magnetic-radius.t.speed"
+    },
+    {
+      "text": ", over "
+    },
+    {
+      "text": "the size of the charge",
+      "nodeId": "eq-model-sr-magnetic-radius.t.charge"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-sr-magnetic-radius.t.field"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

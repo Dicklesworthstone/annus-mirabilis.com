@@ -37,7 +37,8 @@
       {
         "kind": "formula",
         "latex": "|q|U=K,\\qquad r_B=\\frac{\\gamma mv}{|q|B}",
-        "spoken": "For acceleration from rest, charge magnitude times voltage magnitude supplies kinetic energy; in a transverse magnetic field the circular radius is gamma m v over charge magnitude B."
+        "spoken": "For acceleration from rest, charge magnitude times voltage magnitude supplies kinetic energy; in a transverse magnetic field the circular radius is gamma m v over charge magnitude B.",
+        "equations": ["eq-model-sr-electron-energy", "eq-model-sr-magnetic-radius"]
       },
       {
         "kind": "paragraph",

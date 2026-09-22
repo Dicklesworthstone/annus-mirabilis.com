@@ -25,6 +25,9 @@ const currentDensity = ["-2", "0", "0", "0", "1", "0"] as const;
 const force = ["1", "1", "-2", "0", "0", "0"] as const;
 const acceleration = ["1", "0", "-2", "0", "0", "0"] as const;
 const mass = ["0", "1", "0", "0", "0", "0"] as const;
+const charge = ["0", "0", "1", "0", "1", "0"] as const;
+const potential = ["2", "1", "-3", "0", "-1", "0"] as const;
+const magneticField = ["0", "1", "-2", "0", "-1", "0"] as const;
 function quantity(
   id: string,
   name: string,
@@ -480,6 +483,56 @@ export const SPECIAL_RELATIVITY_QUANTITIES: QuantityRegistry = Object.freeze(
         "velocity-along-y",
         "result",
         "The same object's velocity across the direction of the frame change, in the moving system.",
+      ),
+      quantity(
+        "particleChargeMagnitude",
+        "Size of the electron's charge",
+        "|q|",
+        charge,
+        "C",
+        "charge-magnitude",
+        "input",
+        "The magnitude of the electron's charge, the elementary charge; the sign does not enter these relations.",
+      ),
+      quantity(
+        "acceleratingPotential",
+        "Accelerating voltage",
+        "U",
+        potential,
+        "V",
+        "potential",
+        "input",
+        "The voltage through which the electron is accelerated from rest.",
+      ),
+      quantity(
+        "kineticEnergy",
+        "Kinetic energy",
+        "K",
+        energy,
+        "J",
+        "kinetic-energy",
+        "result",
+        "The electron's energy of motion, m c squared times gamma minus one.",
+      ),
+      quantity(
+        "radiusCurvatureMagnetic",
+        "Radius of the circular path",
+        "r_B",
+        length,
+        "m",
+        "radius",
+        "result",
+        "The radius of the circle the electron follows in a uniform magnetic field across its motion.",
+      ),
+      quantity(
+        "magneticFieldStationary",
+        "Magnetic field",
+        "B",
+        magneticField,
+        "T",
+        "magnetic-field",
+        "input",
+        "The strength of the uniform magnetic field across the electron's motion, in the laboratory.",
       ),
     ].map((q) => [q.id, q]),
   ),
