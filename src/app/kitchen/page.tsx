@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "../lab/bm-07/kitchen/kitchen.css";
+import "./kitchenGuide.css";
 import {
   KITCHEN_COLUMNS,
   KITCHEN_METADATA_KEYS,

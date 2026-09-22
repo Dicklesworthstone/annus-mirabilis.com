@@ -1,0 +1,43 @@
+/*
+ * THE THREE STAGES ON /kitchen/ (chrome, pane %44).
+ *
+ * The site's table defaults are for numbers: `td { text-align: right }`, `tbody th { width: 58% }`,
+ * and kitchen.css adds `overflow-wrap: anywhere` to every cell. On this table, whose cells are
+ * sentences, that gave the one-word stage names 58% of the width and right-aligned the questions
+ * into what was left, broken mid-word at 390px ("Questio / n", "documente / d", "compat / ible").
+ * Here the prose reads left to right and breaks only between words; on a phone each stage is a
+ * block, its name, then its question, then what it can establish.
+ */
+.kitchen-guide [data-kitchen-stages] :is(th, td) {
+  width: auto;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+.kitchen-guide [data-kitchen-stages] tbody th {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.kitchen-guide [data-kitchen-stages] td:first-of-type {
+  font-style: italic;
+}
+@media (max-width: 600px) {
+  .kitchen-guide [data-kitchen-stages] thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .kitchen-guide [data-kitchen-stages] tr {
+    display: block;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .kitchen-guide [data-kitchen-stages] :is(th, td) {
+    display: block;
+    padding: 0.1rem 0;
+    border: 0;
+    font-size: var(--type-small);
+  }
+}
