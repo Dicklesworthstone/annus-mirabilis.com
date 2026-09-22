@@ -14,6 +14,10 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  ATTRIBUTION_HEADER_PATTERN,
+  attributionHeaderOpensWith,
+} from "./hygiene/attributionHeader.ts";
 import { FORBIDDEN_DONOR_IDENTITIES } from "./thirdPartyRequests.test.ts";
 import { appendUiExtractionLog, newUiExtractionLogRunId } from "./uiExtractionLogging.ts";
 
@@ -57,7 +61,7 @@ export interface HeaderValidationResult {
 export function validateAttributionHeader(content: string): HeaderValidationResult {
   const errors: string[] = [];
   const expectedOpening = `/**\n * Extracted from ${DONOR_DOMAIN}\n`;
-  if (!content.startsWith(expectedOpening)) {
+  if (!attributionHeaderOpensWith(content, expectedOpening)) {
     errors.push(`Missing required opening: '/**\\n * Extracted from ${DONOR_DOMAIN}\\n'`);
   }
   const expectedRepo = `Source repository: ${DONOR_REPO_URL}`;
@@ -92,7 +96,7 @@ export function scanUiCodeForHygiene(filePath: string, content: string): UiHygie
 
   // Strip leading attribution header comment block: /** ... */
   let body = content;
-  const headerMatch = content.match(/^\s*\/\*\*[\s\S]*?\*\//);
+  const headerMatch = ATTRIBUTION_HEADER_PATTERN.exec(content);
   const headerOffsetLines = headerMatch ? (headerMatch[0]?.split("\n").length ?? 1) - 1 : 0;
   if (headerMatch) {
     body = content.slice(headerMatch[0]?.length ?? 0);

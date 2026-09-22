@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { appendExtractionLog, newExtractionLogRunId } from "./extractionLogging.ts";
+import { ATTRIBUTION_HEADER_PATTERN, attributionHeaderOpensWith } from "./hygiene/attributionHeader.ts";
 
 const logRunId = newExtractionLogRunId();
 
@@ -107,7 +108,7 @@ export const DONOR_VOCABULARY = /\b(?:patent\w*|wright)\b/i;
 
 export function validateAttributionHeader(content: string): HeaderValidationResult {
   const errors: string[] = [];
-  if (!content.startsWith("/**\n * Extracted from classic-patents.com\n")) {
+  if (!attributionHeaderOpensWith(content, "/**\n * Extracted from classic-patents.com\n")) {
     errors.push("Missing required opening: '/**\\n * Extracted from classic-patents.com\\n'");
   }
   if (
@@ -141,7 +142,7 @@ export function scanCodeForHygiene(filePath: string, content: string): HygieneVi
 
   // Strip leading attribution header comment block: /** ... */
   let body = content;
-  const headerMatch = content.match(/^\s*\/\*\*[\s\S]*?\*\//);
+  const headerMatch = ATTRIBUTION_HEADER_PATTERN.exec(content);
   const headerOffsetLines = headerMatch ? headerMatch[0].split("\n").length - 1 : 0;
   if (headerMatch) {
     body = content.slice(headerMatch[0].length);

@@ -12,6 +12,7 @@ import { describe, expect, test } from "bun:test";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ATTRIBUTION_HEADER_PATTERN, attributionHeaderOpensWith } from "../src/testing/hygiene/attributionHeader.ts";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -40,7 +41,7 @@ export interface HeaderValidationResult {
  */
 export function validateAttributionHeader(content: string): HeaderValidationResult {
   const errors: string[] = [];
-  if (!content.startsWith("/**\n * Extracted from classic-patents.com\n")) {
+  if (!attributionHeaderOpensWith(content, "/**\n * Extracted from classic-patents.com\n")) {
     errors.push("Missing required opening: '/**\\n * Extracted from classic-patents.com\\n'");
   }
   if (
@@ -102,7 +103,7 @@ function scanForForbiddenIdentities(
   content: string,
   forbidden: readonly string[],
 ): { token: string; line: number }[] {
-  const headerMatch = /^\s*\/\*\*[\s\S]*?\*\//.exec(content);
+  const headerMatch = ATTRIBUTION_HEADER_PATTERN.exec(content);
   const headerEnd = headerMatch ? headerMatch.index + headerMatch[0].length : 0;
   const body = content.slice(headerEnd);
   const bodyStartLine = content.slice(0, headerEnd).split("\n").length;

@@ -21,6 +21,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { ATTRIBUTION_HEADER_PATTERN } from "./hygiene/attributionHeader.ts";
 import { appendUiExtractionLog, newUiExtractionLogRunId } from "./uiExtractionLogging.ts";
 
 export const FORBIDDEN_DONOR_IDENTITIES = [
@@ -59,7 +60,7 @@ export function scanSourceText(filePath: string, content: string): ScanViolation
 
   // Strip leading attribution header comment block: /** ... */
   let body = content;
-  const headerMatch = content.match(/^\s*\/\*\*[\s\S]*?\*\//);
+  const headerMatch = ATTRIBUTION_HEADER_PATTERN.exec(content);
   const headerOffsetLines = headerMatch ? (headerMatch[0]?.split("\n").length ?? 1) - 1 : 0;
   if (headerMatch) {
     body = content.slice(headerMatch[0]?.length ?? 0);
