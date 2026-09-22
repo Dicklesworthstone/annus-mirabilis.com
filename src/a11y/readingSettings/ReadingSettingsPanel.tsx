@@ -117,7 +117,14 @@ export function ReadingSettingsPanel() {
         "Reading-only, Reading-only checkbox". It read as two controls in the extracted text and
         was one. The checkbox's label is the accessible name; nothing else is needed.
       */}
-      <div className="reading-setting">
+      {/*
+        NO CLASS. This div only groups the checkbox with its hint where a <fieldset> used to; it
+        needs no styling, and the undeclared-class gate is right that inventing one is a cost with
+        no payer. Note the trap it warns about: the container that DOES exist is the plural
+        `.reading-settings`, on the <details> above. A singular `.reading-setting` reads as its
+        sibling and is styled nowhere.
+      */}
+      <div>
         <label>
           <input
             type="checkbox"
