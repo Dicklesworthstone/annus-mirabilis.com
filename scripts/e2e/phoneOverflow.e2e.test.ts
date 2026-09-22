@@ -102,6 +102,44 @@ const OUT_DIR = join(REPO_ROOT, "out");
 
 const PHONE_WIDTHS = [320, 360, 390] as const;
 
+/**
+ * A baselined pair records HOW FAR it overflows, not merely that it does (am-a3f1).
+ *
+ * Presence alone let a baselined route get steadily worse in silence:
+ * /foundations/partial-derivatives/@320 went 357 to 367 to 391 across three builds and this gate
+ * said nothing at any point, because "it overflows" stayed true throughout. The 24px it gained is
+ * larger than most of the defects this file has ever caught.
+ */
+interface BaselineEntry {
+  readonly id: string;
+  /** Largest excess measured for this pair, in CSS px. Exceeding it fails. */
+  readonly maxExcessPx: number;
+  /**
+   * The Next build id this ceiling was measured on.
+   *
+   * A magnitude without its build is not comparable to anything. Across builds where nobody
+   * touched the page these numbers move by a few pixels on their own, so a later reader seeing a
+   * different figure cannot tell real growth from another build's noise unless the recorded value
+   * says where it came from. The failure messages quote both ids for the same reason.
+   */
+  readonly measuredOn: string;
+}
+
+/**
+ * How far BELOW its ceiling a pair may sit before the ceiling must be tightened.
+ *
+ * Derived from measurement rather than chosen: across builds where nobody touched the page, the
+ * excess wobbled by 1px on /foundations/taylor-expansion/@360, 3px on /lab/bm-03/@320 and 8px on
+ * /foundations/exponentials/@320 - the last across a type-scale change that altered rendering
+ * everywhere. 8 therefore tolerates every benign movement observed on this site while still
+ * catching partial-derivatives' 24px drift in either direction.
+ *
+ * A tighter band would make this list brittle in the way AGENTS.md records for typos.length === 6:
+ * it would go red on correct work and abort above the checks that matter. A looser one would let
+ * a real regression hide inside the tolerance.
+ */
+const MAGNITUDE_SLACK_PX = 8;
+
 /** Pages loaded at once per width. Wall clock, not semantics; the measurement is per page. */
 const CONCURRENCY = 4;
 
@@ -123,11 +161,12 @@ const PLANT_WIDTH = 320;
  * the page and the foundation tables have no container. Wiring it up changes 42 pages and is an
  * ownership decision.
  */
-// The `// +Npx` annotations are INDICATIVE, not asserted. Only the route@width identities are
-// enforced, because the magnitudes move with copy and type scale while the defect does not:
-// /lab/bm-03/ has read +23 and +20, /foundations/exponentials/ +14 and +22, on builds a few hours
-// apart with no commit touching either page.
-const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
+// MAGNITUDES ARE NOW ENFORCED, not indicative (am-a3f1). Each entry carries the largest excess
+// measured for it, and exceeding that ceiling fails. The numbers here were measured on build
+// oHPd2JiH5los7k6SuuBJz; two of them - /lab/bm-03/@320 and /lab/lq-05/@320 - are expected to
+// leave entirely once 48c2f97c is measured, and their ceilings are the last honest values rather
+// than predictions.
+const BASELINE_OVERFLOWING: readonly BaselineEntry[] = Object.freeze([
   // TABLE WITH NO WORKING SCROLL CONTAINER. A table is at least its min-content width, so
   // `width: 100%` cannot contain it and the document grows instead. The foundations three are
   // NOT missing a rule: src/components/foundations/foundations.css declares
@@ -135,9 +174,21 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // computes overflow-x VISIBLE on the page - measured 358px wide with scrollWidth 453 at 390px.
   // Wiring that stylesheet up changes 42 pages, which is an ownership decision, not a mobile fix:
   // am-orphaned-stylesheets-5u3c.
-  "/foundations/taylor-expansion/@320", // +85px
-  "/foundations/taylor-expansion/@360", // +45px
-  "/foundations/taylor-expansion/@390", // +15px
+  {
+    id: "/foundations/taylor-expansion/@320",
+    maxExcessPx: 94,
+    measuredOn: "oHPd2JiH5los7k6SuuBJz",
+  },
+  {
+    id: "/foundations/taylor-expansion/@360",
+    maxExcessPx: 55,
+    measuredOn: "oHPd2JiH5los7k6SuuBJz",
+  },
+  {
+    id: "/foundations/taylor-expansion/@390",
+    maxExcessPx: 24,
+    measuredOn: "oHPd2JiH5los7k6SuuBJz",
+  },
   // WHAT THE ORPHANED-STYLESHEET WIRING REACHED, AND WHAT IT COULD NOT.
   //
   // 0e50a762 and e684aae1 made foundations.css live, so its
@@ -150,14 +201,22 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // partial-derivatives 0, taylor-expansion 0. partial-derivatives wraps its table in
   // div.thermodynamics-held-fixed-comparison, which has no overflow rule; taylor-expansion has no
   // wrapper at all, its table.data-table being a direct child of the section.
-  "/foundations/partial-derivatives/@320", // +47px
+  {
+    id: "/foundations/partial-derivatives/@320",
+    maxExcessPx: 71,
+    measuredOn: "oHPd2JiH5los7k6SuuBJz",
+  },
   // Added one cycle after the rest of this list, and the gate is how it was found rather than a
   // guess. It was NOT overflowing at 360 when the baseline was derived; a type-scale change landed
   // between the two builds (4137906a) and this table, which nothing constrains, grew about 10px:
   // 357 -> 367 at 320, and 360 -> 366 at 360. Measured 5 runs at each width before recording it,
   // because a 6px excess is exactly the size that could have been noise: 5/5 overflowing at 320
   // and at 360, 0/5 at 390. Same cause as its sibling entries - am-orphaned-stylesheets-5u3c.
-  "/foundations/partial-derivatives/@360", // +6px
+  {
+    id: "/foundations/partial-derivatives/@360",
+    maxExcessPx: 31,
+    measuredOn: "oHPd2JiH5los7k6SuuBJz",
+  },
   // /foundations/exponentials/ was filed under "rendered mathematics" and belongs here: its
   // offender is table.data-table inside div.construction-table-wrap, the same inert wrapper as
   // its three siblings above. Re-measured, not inherited.
@@ -169,8 +228,8 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // /lab/lq-05/ is the one of the three whose obvious cause is already handled - .input-field
   // carries min-width:0 and .input-grid collapses to a single column at 560px - so whatever holds
   // it open is something else and it is not grouped here on the strength of looking similar.
-  "/lab/lq-05/@320",
-  "/lab/bm-03/@320",
+  { id: "/lab/lq-05/@320", maxExcessPx: 21, measuredOn: "oHPd2JiH5los7k6SuuBJz" },
+  { id: "/lab/bm-03/@320", maxExcessPx: 20, measuredOn: "oHPd2JiH5los7k6SuuBJz" },
   // /discover/brownian-motion/ - THE EXCURSION IS EXPLAINED, AND IT WAS NOT THE COPY.
   //
   // This entry read "+236px" and its two wider siblings are gone, repaired by ca2b4d29 and
@@ -194,7 +253,7 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // regressions on the next. Repeating a measurement on the axis you chose says nothing about
   // the axis the quantity moves on. They leave now for a different reason - a named cause, a
   // code change that addresses it, and a measurement after it - not because they were quiet.
-  "/discover/brownian-motion/@320", // +236px
+  { id: "/discover/brownian-motion/@320", maxExcessPx: 25, measuredOn: "oHPd2JiH5los7k6SuuBJz" },
 ]);
 
 /**
@@ -532,7 +591,7 @@ test("no built route overflows its layout viewport at a supported phone width", 
 
   // ASSERTED: the property, in the only form true today, two-sided and by identity.
   const seen = new Set(violations.map((v) => v.id));
-  const baseline = new Set(BASELINE_OVERFLOWING);
+  const baseline = new Set(BASELINE_OVERFLOWING.map((e) => e.id));
 
   // REPORTED, not asserted: the numbers, anchored to what produced them.
   //
@@ -558,6 +617,15 @@ test("no built route overflows its layout viewport at a supported phone width", 
   }
   const measuredIds = new Set(measured.map((m) => m.id));
 
+  // ONE VERDICT, ALL ARMS. Each arm appends to `failures` and a single assertion reports them
+  // together, because assert-per-arm means the FIRST failing arm aborts the rest and the others
+  // become invisible exactly when the file is red - which is when their evidence is most needed.
+  // Concretely: three presence regressions were standing in front of the magnitude arms added for
+  // am-a3f1, so a baselined route could have been growing 24px underneath a red run and nothing
+  // would have printed it. AGENTS.md records the same shape for a stale census aborting above the
+  // retraction property it was standing in front of.
+  const failures: string[] = [];
+
   const regressions = violations
     .filter((v) => !baseline.has(v.id))
     .map(
@@ -565,38 +633,71 @@ test("no built route overflows its layout viewport at a supported phone width", 
         `${v.id} (scrollWidth ${v.scrollWidth} vs clientWidth ${v.clientWidth}, +${v.scrollWidth - v.clientWidth}px)`,
     )
     .sort();
-  assert.deepEqual(
-    regressions,
-    [],
-    `REGRESSION - these overflow at a phone width and are not in BASELINE_OVERFLOWING:\n  ${regressions.join("\n  ")}\nFix the page, or if the overflow is intended and contained, say why in this file.`,
-  );
+  if (regressions.length > 0)
+    failures.push(
+      `REGRESSION - these overflow at a phone width and are not in BASELINE_OVERFLOWING:\n  ${regressions.join("\n  ")}\nFix the page, or if the overflow is intended and contained, say why in this file.`,
+    );
 
   const repaired = [...baseline].filter((id) => !seen.has(id) && measuredIds.has(id)).sort();
-  assert.deepEqual(
-    repaired,
-    [],
-    `REPAIRED - these no longer overflow. Delete them from BASELINE_OVERFLOWING in ${relative(REPO_ROOT, fileURLToPath(import.meta.url))} so the baseline ratchets down instead of leaving slack for a later regression to hide in:\n  ${repaired.join("\n  ")}`,
-  );
+  if (repaired.length > 0)
+    failures.push(
+      `REPAIRED - these no longer overflow. Delete them from BASELINE_OVERFLOWING in ${relative(REPO_ROOT, fileURLToPath(import.meta.url))} so the baseline ratchets down instead of leaving slack for a later regression to hide in:\n  ${repaired.join("\n  ")}`,
+    );
 
   for (const { route, defect } of REPAIRED) {
     const pairs = measured.filter((m) => m.route === route);
-    assert.equal(
-      pairs.length,
-      PHONE_WIDTHS.length,
-      `${route} was repaired and must stay measured at every phone width; found ${pairs.length} of ${PHONE_WIDTHS.length}. If the route was renamed, update REPAIRED rather than dropping the anchor.`,
-    );
+    if (pairs.length !== PHONE_WIDTHS.length) {
+      failures.push(
+        `${route} was repaired and must stay measured at every phone width; found ${pairs.length} of ${PHONE_WIDTHS.length}. If the route was renamed, update REPAIRED rather than dropping the anchor.`,
+      );
+    }
     const broken = pairs.filter((m) => m.scrollWidth > m.clientWidth);
-    assert.deepEqual(
-      broken.map((m) => `${m.id} (+${m.scrollWidth - m.clientWidth}px)`),
-      [],
-      `${route} overflows again. It was repaired for: ${defect}`,
-    );
+    if (broken.length > 0) {
+      failures.push(
+        `${route} overflows again: ${broken.map((m) => `${m.id} (+${m.scrollWidth - m.clientWidth}px)`).join(", ")}. It was repaired for: ${defect}`,
+      );
+    }
   }
 
+  // MAGNITUDE, the half presence could not see (am-a3f1). A pair may stay in this list and still
+  // regress: partial-derivatives@320 grew 357 -> 367 -> 391 while remaining continuously "in the
+  // baseline", and nothing here objected. Both directions are checked, for the same reason the
+  // presence arm is two-sided - an improvement that goes unrecorded is slack a later regression
+  // hides in.
+  const byId = new Map(BASELINE_OVERFLOWING.map((e) => [e.id, e]));
+  const worse: string[] = [];
+  const better: string[] = [];
+  for (const v of violations) {
+    const entry = byId.get(v.id);
+    if (!entry) continue; // not baselined: the presence arm above already reported it
+    const excess = v.scrollWidth - v.clientWidth;
+    if (excess > entry.maxExcessPx) {
+      worse.push(
+        `${v.id}: ${excess}px now, ceiling ${entry.maxExcessPx}px (+${excess - entry.maxExcessPx} over)`,
+      );
+    } else if (excess < entry.maxExcessPx - MAGNITUDE_SLACK_PX) {
+      better.push(
+        `${v.id}: ${excess}px on ${buildId}, ceiling ${entry.maxExcessPx}px measured on ${entry.measuredOn}`,
+      );
+    }
+  }
+  if (worse.length > 0)
+    failures.push(
+      `WORSE - these are baselined, so the presence arm stays quiet, but they overflow further than recorded:\n  ${worse.join("\n  ")}\nThe page got worse while the list said nothing changed. Fix it, or raise the ceiling in this file and say what made the page wider.`,
+    );
+  if (better.length > 0)
+    failures.push(
+      `IMPROVED - these overflow less than recorded by more than the ${MAGNITUDE_SLACK_PX}px tolerance. Lower maxExcessPx to the measured value so the ceiling ratchets down instead of leaving slack for a later regression to hide in. Record the build id you measured on alongside it:\n  ${better.join("\n  ")}`,
+    );
+
   const stale = [...baseline].filter((id) => !measuredIds.has(id)).sort();
+  if (stale.length > 0)
+    failures.push(
+      `STALE - these baseline entries name pairs the sweep never measured, so they protect nothing. The route was renamed or removed; update BASELINE_OVERFLOWING:\n  ${stale.join("\n  ")}`,
+    );
   assert.deepEqual(
-    stale,
+    failures,
     [],
-    `STALE - these baseline entries name pairs the sweep never measured, so they protect nothing. The route was renamed or removed; update BASELINE_OVERFLOWING:\n  ${stale.join("\n  ")}`,
+    `${failures.length} arm(s) of this gate failed on build ${buildId}:\n\n${failures.join("\n\n")}`,
   );
 });
