@@ -776,6 +776,20 @@ summary {
   font: 0.85rem / 1.4 var(--font-sans);
   color: var(--muted);
   cursor: pointer;
+  /*
+   * MEASURED, because the reason is not the one it looks like. At 1280px the summary is a 141px
+   * flex item and its text sets on two lines, "Reading / preferences". That costs NO height: the
+   * box is 44px either way, held by the min-height above, so this is tidiness rather than layout.
+   * Injecting `white-space: nowrap` into build c4p2BidRuiV3E8jfGXeCU moved the box 141x44 ->
+   * 146x44 at 1280 and changed nothing at all at 390 or 320, where it already fits on one line.
+   * documentElement.scrollWidth stayed equal to the viewport at all three widths, so the 5px is
+   * taken from slack in the header row and not from the page.
+   *
+   * It is here because two stacked grey words beside a one-line switch read as a fragment rather
+   * than as a control, not because it was costing a row. Saying which it is matters: the last
+   * three header numbers on this project were each quoted onward as a height saving.
+   */
+  white-space: nowrap;
   /* The default marker is removed only so the triangle can be drawn on the correct side of the
      text at a size that matches the smaller type; it is replaced immediately below, never
      dropped. A disclosure with no affordance is the defect this rule exists to avoid. */
