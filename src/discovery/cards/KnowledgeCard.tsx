@@ -48,6 +48,7 @@ export function KnowledgeCardView({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
           gap: "0.75rem",
           outline: "none",
         }}
@@ -94,12 +95,31 @@ export function KnowledgeCardView({
             {card.proposition}
           </p>
         </div>
+        {/*
+          THE BADGE ROW MAY SHRINK; THE CHEVRON BELOW MAY NOT.
+
+          flexShrink: 0 sat here and was the whole of /discover/brownian-motion/'s overflow: the
+          page measured 556px at 320, 360 AND 390 alike, which is 236px past a phone. The intent
+          was right at desktop - do not squash the status chip and the chevron - but this row
+          holds a StatusLabel whose text is a sentence ("Parallel work: not available to a 1904
+          reader", 285px), so forbidding it to shrink pins the whole document to that sentence's
+          width.
+
+          It was NOT an unbreakable token, which is what three earlier remedies assumed. Squeezed
+          in place the row's min-content is 1px and the badge's is 22px: it could always shrink
+          and was forbidden to. That is why min-width: 0 moved nothing - min-width was never the
+          binding constraint, flex-shrink was.
+
+          The chevron keeps flexShrink: 0 deliberately. An icon squashed to 3px is a different
+          defect, and it is a flex item of fixed size rather than one carrying prose.
+        */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
+            flexWrap: "wrap",
+            minWidth: 0,
             gap: "0.625rem",
-            flexShrink: 0,
           }}
         >
           <StatusLabel status={card.status} admittedImport={card.admittedImport} />
