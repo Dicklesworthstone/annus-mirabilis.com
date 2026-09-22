@@ -15,15 +15,15 @@ export default function Home() {
               at the depth you choose, with instruments that work out what follows when you change
               an assumption.
             </p>
-            <div className="actions">
-              <a className="button" href="/papers/">
-                Read the papers
-              </a>
-              <a href="/discover/brownian-motion/">Work out the Brownian argument yourself</a>
-            </div>
           </div>
         </div>
         <FirstPages />
+        <div className="actions">
+          <a className="button" href="/papers/">
+            Read the papers
+          </a>
+          <a href="/discover/brownian-motion/">Work out the Brownian argument yourself</a>
+        </div>
       </section>
 
       <p className="lead catalogue-intro">

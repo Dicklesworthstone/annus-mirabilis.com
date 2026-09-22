@@ -10,7 +10,7 @@
  * so a tick and the month it falls in agree.
  */
 .first-pages {
-  margin: 2.5rem 0 0.5rem;
+  margin: 1.5rem 0 0.5rem;
 }
 .first-pages-list {
   --mark-gap: 2px;
@@ -159,12 +159,17 @@
 /*
  * The hero around the plates, on the home page and the 404. The headline shares a row with the
  * lead from 1100px and is set a size down from the site's page titles, so the plates take the
- * first screen: at 1440x900 the plates' bottom edge is inside it.
+ * first screen.
  */
 .hero.hero-with-plates {
   max-width: none;
-  padding-top: 2.5rem;
+  padding-top: 1.5rem;
   padding-bottom: 1rem;
+}
+/* The buttons follow the plates: the plates are the way in, and above them they pushed the first
+   row of plates past the fold on a phone. */
+.hero-with-plates > .actions {
+  margin-top: 1.75rem;
 }
 .hero-with-plates-head h1 {
   font-size: clamp(2.4rem, 5vw, 4rem);
@@ -179,9 +184,6 @@
   }
   .hero-with-plates-head .lead {
     margin-top: 0;
-  }
-  .hero-with-plates-head .actions {
-    margin-bottom: 0;
   }
 }
 /* The home page's longer introduction, moved below the plates to open the paper catalogue. */

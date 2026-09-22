@@ -42,15 +42,15 @@ export default function NotFound() {
               From here the two look the same, so here are the four papers the edition is built
               around.
             </p>
-            <div className="actions">
-              <a className="button" href="/papers/">
-                Open the paper catalogue
-              </a>
-              <a href="/">Return to the start</a>
-            </div>
           </div>
         </div>
         <FirstPages />
+        <div className="actions">
+          <a className="button" href="/papers/">
+            Open the paper catalogue
+          </a>
+          <a href="/">Return to the start</a>
+        </div>
       </section>
 
       <section className="reading page-flush">
