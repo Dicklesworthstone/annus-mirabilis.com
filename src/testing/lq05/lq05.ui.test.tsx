@@ -68,8 +68,10 @@ describe("LQ-05 UI components and route", () => {
     expect(html).toContain('data-execution-label="host"');
     expect(html).toContain("<noscript>");
     expect(html).toContain("JavaScript disabled");
-    expect(html).toContain("Predict Mode");
-    expect(html).toContain("Presets");
+    // The prediction sits in a closed disclosure under the drawing, and the presets are the
+    // family's "Try" group (lq-05 instrument-first).
+    expect(html).toContain("<summary>Predict first</summary>");
+    expect(html).toContain("<legend>Try</legend>");
     expect(containsHeading(html, "Calculated microstate and entropy outputs")).toBe(true);
     expect(html).toContain("Relative State Probability");
     expect(html).toContain("Dimensionless Entropy Change ΔS/k_B");
