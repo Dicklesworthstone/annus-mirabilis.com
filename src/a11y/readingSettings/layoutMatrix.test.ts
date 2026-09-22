@@ -55,11 +55,18 @@ describe("72 tested reading layouts", () => {
     // A STATED CONSTRAINT, NOT OPEN DEBT: nine of the twelve phone combinations sit below the
     // conventional 45-character floor, and they must.
     //
-    // Measured with scripts in the session harness (cpl2.mjs, which reads TRUE line breaks from
-    // rendered line boxes rather than estimating an advance) at 390x844, where the reading column
-    // is 358px wide at every measure because the viewport is narrower than the narrowest setting:
+    // Measured with cpl2.mjs, which reads TRUE line breaks from rendered line boxes rather than
+    // estimating an advance, at 390x844:
     //
-    //     type 100   46 CPL      type 112   43      type 125   38      type 150   31
+    //     narrow    46  43  38  31        across type 100 / 112 / 125 / 150
+    //     default   49  43  38  31
+    //     wide      49  43  38  31
+    //
+    // ELEVEN of the twelve are viewport-bound: the column is 358px whatever the measure says,
+    // because at 390px the viewport is narrower than the setting. The twelfth is not - narrow at
+    // 100% renders 342px, so that one cell is measure-bound. An earlier draft of this note said
+    // "358px at every measure", which was true before the measure moved to ch and is now wrong for
+    // that cell; it is corrected here rather than left as a plausible sentence nobody rechecks.
     //
     // That is arithmetic, not a defect in the scale: 358px at 25.5px type IS about 31 characters.
     // The only lever that would raise those rows is shrinking the font - which is precisely the
