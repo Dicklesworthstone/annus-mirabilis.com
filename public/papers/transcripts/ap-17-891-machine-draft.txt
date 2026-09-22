@@ -514,6 +514,28 @@ Zur Interpretation dieser Gleichungen bemerken wir folgendes. Es liegt eine punk
 --- MACHINE DRAFT TRANSCRIPTION PAGE 20 OF 31 ---
 [[ANNALEN-PAGE 910]]
 
+elektrischen Kraft eine „elektromotorische Kraft“, welche unter Vernachlässigung von mit der zweiten und höheren Potenzen von $v/V$ multiplizierten Gliedern gleich ist dem mit der Lichtgeschwindigkeit dividierten Vektorprodukt der Bewegungsgeschwindigkeit des Einheitspoles und der magnetischen Kraft. (Alte Ausdrucksweise.)
+
+2. Ist ein punktförmiger elektrischer Einheitspol in einem elektromagnetischen Felde bewegt, so ist die auf ihn wirkende Kraft gleich der an dem Orte des Einheitspoles vorhandenen elektrischen Kraft, welche man durch Transformation des Feldes auf ein relativ zum elektrischen Einheitspol ruhendes Koordinatensystem erhält. (Neue Ausdrucksweise.)
+
+Analoges gilt über die „magnetomotorischen Kräfte“. Man sieht, daß in der entwickelten Theorie die elektromotorische Kraft nur die Rolle eines Hilfsbegriffes spielt, welcher seine Einführung dem Umstande verdankt, daß die elektrischen und magnetischen Kräfte keine von dem Bewegungszustande des Koordinatensystems unabhängige Existenz besitzen.
+
+Es ist ferner klar, daß die in der Einleitung angeführte Asymmetrie bei der Betrachtung der durch Relativbewegung eines Magneten und eines Leiters erzeugten Ströme verschwindet. Auch werden die Fragen nach dem „Sitz“ der elektrodynamischen elektromotorischen Kräfte (Unipolarmaschinen) gegenstandslos.
+
+[[HEADING s7]]§ 7. Theorie des [[SPERR]]Doppeler[[/SPERR]]schen Prinzips und der Aberration.
+
+Im Systeme $K$ befinde sich sehr ferne vom Koordinatenursprung eine Quelle elektrodynamischer Wellen, welche in einem den Koordinatenursprung enthaltenden Raumteil mit genügender Annäherung durch die Gleichungen dargestellt sei:
+$$
+\begin{aligned}
+X &= X_0 \sin \Phi , &\quad L &= L_0 \sin \Phi , \\
+Y &= Y_0 \sin \Phi , &\quad M &= M_0 \sin \Phi , &\quad \Phi &= \omega \left( t - \frac{a x + b y + c z}{V} \right) . \\
+Z &= Z_0 \sin \Phi , &\quad N &= N_0 \sin \Phi ,
+\end{aligned}
+$$
+Hierbei sind $(X_0, Y_0, Z_0)$ und $(L_0, M_0, N_0)$ die Vektoren, welche die Amplitude des Wellenzuges bestimmen, $a$, $b$, $c$ die Richtungskosinus der Wellennormalen.
+
+Wir fragen nach der Beschaffenheit dieser Wellen, wenn dieselben von einem in dem bewegten System $k$ ruhenden[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 21 OF 31 ---
 [[ANNALEN-PAGE 911]]
 
