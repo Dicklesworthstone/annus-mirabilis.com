@@ -159,6 +159,94 @@ describe("untested refusal throw site ratchet (am-muyh)", () => {
    * the declaration to a measurement rather than to a comment. If the scanner is ever widened,
    * this goes red and whoever widened it must update what the gate claims about itself.
    */
+  /**
+   * A refusal code whose value is a CONDITIONAL is still a refusal code (am-utmv).
+   *
+   * The line patterns require a quoted literal immediately after the colon, so a code that
+   * varies with state left the measurement entirely. The fixture below is the real historical
+   * conversion rather than a synthetic one: license-inventory/logger.ts carried
+   * `rule: "inventory-complete"` as one counted site until am-zqat made the rule depend on open
+   * rights positions, after which the file measured ZERO and the slack pawl asked for its
+   * baseline to be tightened to 0. The file was no better covered.
+   *
+   * Widened here where am-qyys's accumulator surface was not, and the difference is the reason:
+   * there the question was semantic and three predicates each mismeasured; here the property is
+   * still named `rule`, and a conditional over string literals is an exact AST shape.
+   */
+  const LITERAL_FORM = [
+    "const record = {",
+    '  level: "info",',
+    '  rule: "inventory-complete",',
+    '  message: "done",',
+    "};",
+  ].join("\n");
+  const CONDITIONAL_FORM = [
+    "const record = {",
+    '  level: "info",',
+    "  rule:",
+    "    rights.pendingOwnerRuling > 0",
+    '      ? "inventory-complete-with-open-rights-positions"',
+    '      : "inventory-complete",',
+    '  message: "done",',
+    "};",
+  ].join("\n");
+
+  test("a conditional rule value contributes a site per literal, at that literal's line (am-utmv)", () => {
+    const sites = scanRefusalThrowSites(CONDITIONAL_FORM, "scripts/license-inventory/logger.ts");
+    assert.deepEqual(
+      sites.map((site) => ({ line: site.line, code: site.code })),
+      [
+        { line: 5, code: "inventory-complete-with-open-rights-positions" },
+        { line: 6, code: "inventory-complete" },
+      ],
+      "each branch is a distinct refusal a test must reach separately, at its own line",
+    );
+  });
+
+  test("converting a literal code to a conditional does NOT reduce the count (am-utmv)", () => {
+    // The defect, stated as the two measurements that used to disagree.
+    const before = scanRefusalThrowSites(LITERAL_FORM, "scripts/license-inventory/logger.ts");
+    const after = scanRefusalThrowSites(CONDITIONAL_FORM, "scripts/license-inventory/logger.ts");
+    assert.equal(before.length, 1);
+    assert.ok(
+      after.length >= before.length,
+      `converting to a conditional dropped the count from ${before.length} to ${after.length}`,
+    );
+
+    // And against the LIVE file, so this is tied to the tree and not only to a quoted string.
+    const live = scanRefusalThrowSites(
+      readFileSync(join(ROOT, "scripts/license-inventory/logger.ts"), "utf8"),
+      "scripts/license-inventory/logger.ts",
+    );
+    assert.ok(
+      live.some((site) => site.code === "inventory-complete"),
+      "the live logger.ts conditional is invisible again",
+    );
+    assert.ok(
+      live.some((site) => site.code === "inventory-complete-with-open-rights-positions"),
+      "the live logger.ts only shows one branch",
+    );
+  });
+
+  test("a genuinely removed site still reduces the count (am-utmv)", () => {
+    // The other half. Without it the change could have been "never report fewer sites", which
+    // would satisfy the test above and make the scanner blind to deletions.
+    const removed = LITERAL_FORM.replace('  rule: "inventory-complete",\n', "");
+    assert.ok(!removed.includes("inventory-complete"), "the fixture must really lose the site");
+    assert.equal(
+      scanRefusalThrowSites(removed, "scripts/license-inventory/logger.ts").length,
+      0,
+      "a deleted property must leave the count, or the scanner cannot see removals",
+    );
+  });
+
+  test("a literal a line pattern already claimed is not counted twice (am-utmv)", () => {
+    // The AST pass runs alongside the line patterns, so the same literal could arrive from
+    // both. Deduplication is by line and code.
+    const single = 'const d = { rule: "inventory-complete", message: "m" };';
+    assert.equal(scanRefusalThrowSites(single, "scripts/x.ts").length, 1);
+  });
+
   test("the declared scope is true: an accumulating validator is invisible to this ratchet (am-qyys)", () => {
     const relPath = "src/content/provenance/checkReceipt.ts";
     const source = readFileSync(join(ROOT, relPath), "utf8");

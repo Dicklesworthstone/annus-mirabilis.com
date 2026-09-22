@@ -290,6 +290,77 @@ function typeMemberLines(source: string): Set<number> {
 /**
  * Scans source file text for refusal throw sites.
  */
+/**
+ * Refusal codes hidden inside a CONDITIONAL property value (am-utmv).
+ *
+ * The line patterns below require a quoted literal immediately after the colon, so a code that
+ * varies with state disappears the moment someone writes it as a ternary. That is not
+ * hypothetical: scripts/license-inventory/logger.ts carried `rule: "inventory-complete"` as one
+ * counted site until am-zqat made the rule depend on open rights positions, after which the
+ * file measured ZERO and the ratchet's slack pawl asked for the baseline to be tightened. The
+ * file was no better covered; the site had left the scanner's view, and tightening on that
+ * basis would have recorded an edit as an improvement.
+ *
+ * WHY THIS ONE IS WIDENED WHERE THE ACCUMULATOR SURFACE (am-qyys) WAS NOT. There the question
+ * was semantic - whether a kebab string handed to a pushing function is a refusal at all - and
+ * three predicates each mismeasured in a different direction. Here the marker is already
+ * present and only the VALUE SHAPE varies: the property is still named `rule` or `code`, and a
+ * conditional over string literals is an exact AST shape. Nothing is guessed, so the ceiling
+ * that stopped am-qyys does not apply.
+ *
+ * A site per literal, at the literal's own line, because each branch is a distinct refusal a
+ * test has to reach separately.
+ */
+function conditionalCodeSites(source: string, relPath: string): RefusalThrowSite[] {
+  const sites: RefusalThrowSite[] = [];
+  // Nothing to parse unless a candidate property is present at all.
+  if (!/(?:code|rule|refusalCode|errorCode|kind)\s*:/.test(source)) return sites;
+  const file = ts.createSourceFile("conditional.ts", source, ts.ScriptTarget.Latest, true);
+  const lines = source.split("\n");
+
+  /** String-literal leaves of a possibly nested conditional; anything else is skipped. */
+  const leaves = (node: ts.Node, out: ts.StringLiteralLike[]): void => {
+    if (ts.isStringLiteralLike(node)) {
+      out.push(node);
+      return;
+    }
+    if (ts.isConditionalExpression(node)) {
+      leaves(node.whenTrue, out);
+      leaves(node.whenFalse, out);
+      return;
+    }
+    if (ts.isParenthesizedExpression(node)) leaves(node.expression, out);
+  };
+
+  const visit = (node: ts.Node): void => {
+    if (
+      ts.isPropertyAssignment(node) &&
+      (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) &&
+      CODE_PROPERTY_NAMES.has(node.name.text) &&
+      ts.isConditionalExpression(node.initializer)
+    ) {
+      const found: ts.StringLiteralLike[] = [];
+      leaves(node.initializer, found);
+      for (const literal of found) {
+        if (!isRefusalCode(literal.text)) continue;
+        const line = file.getLineAndCharacterOfPosition(literal.getStart(file)).line + 1;
+        sites.push({
+          file: relPath,
+          line,
+          code: literal.text,
+          snippet: (lines[line - 1] ?? "").trim(),
+        });
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+  return sites;
+}
+
+/** The property names that carry a refusal code, shared by the line patterns and the AST pass. */
+const CODE_PROPERTY_NAMES = new Set(["code", "rule", "refusalCode", "errorCode", "kind"]);
+
 export function scanRefusalThrowSites(source: string, relPath: string): RefusalThrowSite[] {
   const sites: RefusalThrowSite[] = [];
   const lines = source.split("\n");
@@ -410,6 +481,18 @@ export function scanRefusalThrowSites(source: string, relPath: string): RefusalT
       }
     }
   }
+
+  // Codes hidden inside a conditional value, which the line patterns above cannot see. Merged
+  // rather than replacing them, and deduplicated by line and code so a literal that a line
+  // pattern already claimed is not counted twice.
+  const seen = new Set(sites.map((site) => `${site.line}:${site.code}`));
+  for (const site of conditionalCodeSites(source, relPath)) {
+    const key = `${site.line}:${site.code}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    sites.push(site);
+  }
+  sites.sort((a, b) => a.line - b.line || a.code.localeCompare(b.code));
 
   return sites;
 }
