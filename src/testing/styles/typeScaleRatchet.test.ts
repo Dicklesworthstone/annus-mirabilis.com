@@ -62,10 +62,15 @@ export function distinctFontSizes(root: string = CSS_ROOT): {
 }
 
 /**
- * Measured 2026-09-22 at the commit that introduced this gate. Tighten it when it drops; never
- * raise it. A rise means a sixty-second size was invented instead of a step being reused.
+ * Measured 2026-09-22. Tighten it when it drops; never raise it. A rise means a size was invented
+ * instead of a step being reused.
+ *
+ * 61 at the commit that introduced this gate. 55 after globals.css was migrated: 20 literal values
+ * there were collapsed onto the scale, of which 6 existed nowhere else and left the vocabulary.
+ * The 55th is the documented exception in globals.css - the phone body at 1.0625rem, which is the
+ * measured CPL optimum at 390px and which a 1.2 ratio anchored at 19px has no step for.
  */
-const DISTINCT_FONT_SIZE_BASELINE = 61;
+const DISTINCT_FONT_SIZE_BASELINE = 55;
 
 describe("type scale scatter ratchet", () => {
   test("the font-size vocabulary never grows, and shrinking tightens the baseline", () => {

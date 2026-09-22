@@ -88,7 +88,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 1.1875rem;
+  font-size: var(--type-body);
   line-height: 1.6;
   font-optical-sizing: auto;
   font-variant-numeric: lining-nums;
@@ -121,7 +121,7 @@ figcaption {
 }
 button,
 input {
-  font-size: 1rem;
+  font-size: var(--type-small);
 }
 button,
 .button {
@@ -256,7 +256,7 @@ main {
   border-bottom: 1px solid var(--line);
 }
 .wordmark {
-  font-size: 1.65rem;
+  font-size: var(--type-title);
   font-weight: bold;
   color: var(--ink);
   text-decoration: none;
@@ -264,7 +264,7 @@ main {
 }
 .wordmark span {
   display: block;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   font-family: var(--font-sans);
   font-weight: normal;
   letter-spacing: 0.12em;
@@ -275,17 +275,55 @@ nav {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 nav a {
   color: var(--ink);
   padding: 0.4rem 0;
 }
+
+/*
+ * The nav stops wrapping where there is room to hold one row.
+ *
+ * MEASURED with document.fonts.ready awaited, which matters: without the wait
+ * this header reads 110px at 1440 where the settled value is 159, so every
+ * figure here would have been wrong by more than the fix.
+ *
+ * The header is 159px and the nav is two rows at 960, 1024, 1100, 1280, 1440
+ * AND 1920 alike. It wraps at 1920 with 700px spare, so this is not a
+ * narrow-desktop problem: all four header children default to flex-shrink 1, so
+ * flexbox squeezes the nav from a natural 620 down to 567 at 1280 and it wraps
+ * at a width it would otherwise fit.
+ *
+ *                     baseline          with this rule
+ *    960px           159px / 2 rows    159px / 2 rows
+ *   1024px           159px / 2 rows    159px / 2 rows
+ *   1100px           159px / 2 rows    157px / 1 row
+ *   1280px           159px / 2 rows    153px / 1 row
+ *   1440px           159px / 2 rows    140px / 1 row
+ *   1920px           159px / 2 rows    140px / 1 row
+ *
+ * THE MEDIA QUERY IS LOAD-BEARING, not tidiness. Unscoped, flex-shrink: 0 puts
+ * documentElement.scrollWidth at 1059 on a 1024 and a 960 viewport: real
+ * horizontal overflow, the same failure phoneOverflow.e2e.test.ts guards at the
+ * other end of the range. Verified with a fresh browser per width: 1024
+ * overflows, 1100 does not, so the breakpoint is the measured threshold rather
+ * than a round number.
+ *
+ * Shrinking the type does NOT fix this and I checked before assuming: overriding
+ * font-size alone, nav 0.95rem -> 0.8rem with the wordmark 1.65 -> 1.45rem,
+ * moves the header 157 -> 149 and the nav still wraps.
+ */
+@media (min-width: 1100px) {
+  header.site-header nav {
+    flex-shrink: 0;
+  }
+}
 .site-footer {
   border-top: 1px solid var(--line);
   padding: 2rem 0 3rem;
   margin-top: 5rem;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 h1,
@@ -318,18 +356,18 @@ h2 {
   margin: 0.65rem 0 1.2rem;
 }
 h3 {
-  font-size: 1.2rem;
+  font-size: var(--type-body);
   line-height: 1.35;
 }
 .eyebrow {
-  font-size: 0.74rem;
+  font-size: var(--type-micro);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--accent);
   font-weight: bold;
 }
 .lead {
-  font-size: 1.35rem;
+  font-size: var(--type-lead);
   line-height: 1.55;
   max-width: 64ch;
 }
@@ -375,14 +413,14 @@ h3 {
 }
 .step-number {
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   letter-spacing: 0.1em;
   color: var(--accent);
 }
 .formula {
   overflow: auto;
   padding: 1rem 0;
-  font-size: 1rem;
+  font-size: var(--type-small);
 }
 .katex-display {
   margin: 0.5rem 0;
@@ -402,7 +440,7 @@ h3 {
 }
 .badge {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   line-height: 1.5;
   border: 1px solid #8c998f;
   padding: 0.3rem 0.5rem;
@@ -425,7 +463,7 @@ fieldset {
   min-width: 0;
 }
 legend {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 0 0 1rem;
@@ -440,7 +478,7 @@ legend {
 .share-field {
   display: block;
   font-family: var(--font-sans);
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   line-height: 1.45;
 }
 .input-grid label span {
@@ -465,7 +503,7 @@ legend {
   margin-bottom: 1.2rem;
 }
 .preset-list button {
-  font-size: 0.78rem;
+  font-size: var(--type-fine);
   padding: 0.5rem 0.6rem;
   min-height: 36px;
 }
@@ -474,7 +512,7 @@ legend {
   align-items: center;
   gap: 0.7rem;
   font-family: var(--font-sans);
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   line-height: 1.4;
   margin: 1.4rem 0;
   min-height: 44px;
@@ -485,7 +523,7 @@ legend {
   flex: none;
 }
 .fine {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   line-height: 1.6;
   color: var(--muted);
 }
@@ -493,7 +531,7 @@ legend {
   background: var(--wash);
   border-left: 3px solid var(--plot);
   padding: 0.9rem 1.1rem;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 .error {
   border-color: var(--accent);
@@ -506,18 +544,18 @@ legend {
   margin: 0.3rem 0.5rem 0.3rem 0;
 }
 .draft-note {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   font-style: italic;
   color: var(--accent);
 }
 .status-line {
-  font-size: 0.87rem;
+  font-size: var(--type-fine);
   line-height: 1.5;
   margin-top: 0;
   min-height: 2.7em;
 }
 .accepted-caption {
-  font-size: 0.82rem;
+  font-size: var(--type-fine);
   line-height: 1.6;
   border-block: 1px solid var(--line);
   padding: 0.75rem 0;
@@ -533,7 +571,7 @@ svg[role="img"] {
 }
 svg[role="img"] text {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--type-fine);
   fill: var(--ink);
 }
 .axis {
@@ -557,20 +595,20 @@ svg[role="img"] text {
   fill: none;
 }
 figcaption {
-  font-size: 0.78rem;
+  font-size: var(--type-fine);
   line-height: 1.5;
   color: var(--muted);
 }
 table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 0.87rem;
+  font-size: var(--type-fine);
   line-height: 1.5;
   text-align: left;
 }
 caption {
   text-align: left;
-  font-size: 0.83rem;
+  font-size: var(--type-fine);
   padding: 0.7rem 0;
   font-weight: bold;
   font-family: var(--font-sans);
@@ -650,7 +688,7 @@ tbody th {
   min-width: 0;
 }
 .lab-bottom p {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 .grid-result {
   margin-top: 2rem;
@@ -673,7 +711,7 @@ details {
 summary {
   cursor: pointer;
   min-height: 28px;
-  font-size: 1rem;
+  font-size: var(--type-small);
 }
 
 /*
@@ -730,7 +768,7 @@ samp,
   font-style: italic;
 }
 .paper-catalogue .actions {
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 @media (max-width: 900px) {
   .lab-columns {
@@ -758,7 +796,26 @@ samp,
     width: calc(100% - 32px);
   }
   body {
-    font-size: 17px;
+    /*
+     * BY JOB, NOT BY NEAREST VALUE. This was 17px and the collapse mapped it to --type-small
+     * (15.84px) because that is arithmetically closest - a 7% shrink of body text on the
+     * smallest screens, which is the opposite of what a phone rule is for. body IS the body,
+     * so it takes the body step. Nearest-value is a useful default and a bad rule wherever the
+     * step's JOB is known, which is the whole reason each step has one.
+     *
+     * AND THEN NEITHER STEP WON, so this is the scale's one documented exception. Measured CPL
+     * on the Brownian reading face at 390x844, at 100% type:
+     *
+     *     --type-small (15.84px)   49 CPL   in band, but 7% smaller body text than before
+     *     --type-body  (19px)      43 CPL   better glyphs, and ALL TWELVE phone rows below 45
+     *     1.0625rem    (17px)      46 CPL   in band, and the size this rule already had
+     *
+     * A 1.2 ratio anchored at 19px has no step at 17px, and on a 390px line the ratio and the
+     * 45-75 band genuinely disagree: every increase in size costs characters. The original 17px
+     * is the measured optimum for this one viewport, so it stays as a literal and is named here
+     * rather than rounded to a step that is worse on the number that matters.
+     */
+    font-size: 1.0625rem;
   }
   .site-header {
     align-items: start;
@@ -780,7 +837,7 @@ samp,
     padding: 2.5rem 0;
   }
   .lead {
-    font-size: 1.15rem;
+    font-size: var(--type-body);
   }
   .feature-row,
   .lab-bottom,
@@ -804,17 +861,17 @@ samp,
   }
   th,
   td {
-    font-size: 0.8rem;
+    font-size: var(--type-fine);
     padding: 0.5rem 0.3rem;
   }
   .lab-heading h2 {
-    font-size: 1.8rem;
+    font-size: var(--type-title);
   }
   .preset-list {
     gap: 0.4rem;
   }
   svg[role="img"] text {
-    font-size: 14px;
+    font-size: var(--type-fine);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -891,7 +948,7 @@ select {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 1rem;
+  font-size: var(--type-small);
 }
 .tracer-path {
   stroke-width: 1;
@@ -946,13 +1003,13 @@ select {
 
 .form-error {
   color: var(--accent);
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   margin-top: 0.5rem;
 }
 
 .form-note {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   margin-top: 0.5rem;
   font-style: italic;
 }
@@ -971,7 +1028,7 @@ select {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   font-family: var(--font-sans);
 }
 
@@ -1009,18 +1066,18 @@ select {
 }
 
 .rate-annotation {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--ink);
 }
 
 .rate-comparison {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
 .constant-set-annotation {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
 }
 
 .field-plot-container {
@@ -1055,7 +1112,7 @@ select {
   border-left: 3px solid var(--refusal-border, #b3261e);
   padding: 0.75rem 1rem;
   margin: 1rem 0;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .model-toggle {
@@ -1066,7 +1123,7 @@ select {
 }
 
 .not-modeled {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   border-top: 1px solid var(--line);
   padding-top: 0.75rem;
@@ -1076,7 +1133,7 @@ select {
 .caption-r1,
 .caption-r2,
 .caption-r3 {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   margin-top: 0.5rem;
 }
@@ -1099,7 +1156,7 @@ select {
 }
 
 .assumptions-note {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   font-style: italic;
   margin-top: 0.5rem;
