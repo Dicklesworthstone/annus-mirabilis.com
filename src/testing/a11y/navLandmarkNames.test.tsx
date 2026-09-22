@@ -53,8 +53,10 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
     const result = assertNavLandmarkUniqueness(html, "PaperReader");
 
     expect(result.distinctCount).toBe(result.navCount);
-    expect(result.navCount).toBe(58);
-    expect(result.distinctCount).toBe(58);
+    // Non-vacuity, not a census: a page with no nav landmark would pass the equality above. This
+    // asserted 58 until 390afa87 rendered each passage's step reading once instead of twice, which
+    // removed 12 navs and turned it red on correct work (AGENTS.md, "A Count Is For Reporting").
+    expect(result.navCount).toBeGreaterThan(0);
   });
 
   test("every nav landmark on PaperPage carries a unique accessible name (AC a)", async () => {
@@ -62,8 +64,7 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
     const result = assertNavLandmarkUniqueness(html, "PaperPage");
 
     expect(result.distinctCount).toBe(result.navCount);
-    expect(result.navCount).toBe(45);
-    expect(result.distinctCount).toBe(45);
+    expect(result.navCount).toBeGreaterThan(0);
   });
 
   test("section-scoped PaperReader renders carry unique nav accessible names", async () => {
@@ -83,31 +84,23 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
       n.accessibleName.includes("Mean, variance and RMS"),
     );
 
-    // Mean, variance and RMS is embedded in:
-    // 1. Passage 1 (reading steps)
-    // 2. Passage 1 (local steps)
-    // 3. Passage 6 (reading steps)
-    // 4. Passage 6 (local steps)
-    // 5. Clarification dialog panel
-    expect(meanVarianceNavs.length).toBe(5);
-    const distinctMeanVarianceNames = new Set(meanVarianceNavs.map((n) => n.accessibleName));
-    expect(distinctMeanVarianceNames.size).toBe(5);
-
-    expect(distinctMeanVarianceNames).toContain(
+    // Mean, variance and RMS is embedded in each passage's step reading and in the clarification
+    // panel. The step reading is rendered once per passage (390afa87); until then each passage
+    // also carried a "local steps" copy, and this test counted five navs where there are now three.
+    // Asserted by identity rather than by count, so a new passage using this foundation adds a
+    // name without breaking the test.
+    const names = new Set(meanVarianceNavs.map((n) => n.accessibleName));
+    expect(meanVarianceNavs.length).toBeGreaterThan(1);
+    expect(names.size).toBe(meanVarianceNavs.length);
+    expect(names).toContain(
       "Prerequisites for Mean, variance and RMS (Zero average is not no movement, reading steps)",
     );
-    expect(distinctMeanVarianceNames).toContain(
-      "Prerequisites for Mean, variance and RMS (Zero average is not no movement, local steps)",
-    );
-    expect(distinctMeanVarianceNames).toContain(
+    expect(names).toContain(
       "Prerequisites for Mean, variance and RMS (What would let us count molecules?, reading steps)",
     );
-    expect(distinctMeanVarianceNames).toContain(
-      "Prerequisites for Mean, variance and RMS (What would let us count molecules?, local steps)",
-    );
-    expect(distinctMeanVarianceNames).toContain(
-      "Prerequisites for Mean, variance and RMS (clarification panel)",
-    );
+    expect(names).toContain("Prerequisites for Mean, variance and RMS (clarification panel)");
+    // The step reading is not rendered twice: no passage carries a second copy of the nav.
+    expect([...names].filter((n) => n.includes("local steps"))).toEqual([]);
   });
 
   test("companion view side column and bottom sheet navs get distinct accessible names", async () => {
