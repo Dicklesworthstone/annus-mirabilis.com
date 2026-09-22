@@ -59,9 +59,11 @@
   text-decoration-color: var(--link-underline);
   text-underline-offset: 0.2em;
 }
+/* Hover draws a heavier underline and nudges the arrow, so the change never rests on colour alone;
+   contrast.test.ts's sweep reads `text-decoration` and `transform`, not the thickness longhand. */
 .step-doors p.step-door > a:hover .step-door-text {
   color: var(--accent);
-  text-decoration-thickness: 2px;
+  text-decoration: underline 2px;
 }
 .step-door-arrow {
   grid-column: 2;
@@ -72,4 +74,5 @@
 }
 .step-doors p.step-door > a:hover .step-door-arrow {
   color: var(--accent);
+  transform: translateX(2px);
 }
