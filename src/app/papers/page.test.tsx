@@ -41,9 +41,17 @@ describe("Papers index: the Brownian entry can be chosen without knowing its nam
     expect(html).toContain("before the argument itself establishes why size matters");
   });
 
-  test("'Show me one example first' links to the real first-encounter anchor", () => {
-    expect(html).toContain('href="/papers/brownian-motion#entry-brownian-motion"');
-    expect(html).toContain("Show me one example first");
+  test("the first-encounter anchor is offered as a labelled link", () => {
+    // ASSERT THE PROPERTY, NOT THE WORDING. This used to require the literal label "Show me one
+    // example first" beside the href. That label was first-person marketing register and the
+    // de-slop pass replaced it with "Start with one worked example", which broke this test
+    // although the thing it protects - that the real first-encounter anchor is reachable from a
+    // link a reader can see - had not changed. A copy-verbatim assertion does not merely go
+    // stale; it actively resists the campaign that is meant to improve the copy.
+    const anchor =
+      /<a[^>]*href="\/papers\/brownian-motion#entry-brownian-motion"[^>]*>([^<]*)<\/a>/.exec(html);
+    expect(anchor, "the first-encounter anchor must be rendered as an <a>").not.toBeNull();
+    expect((anchor?.[1] ?? "").trim().length).toBeGreaterThan(0);
   });
 
   test("the German title is still present as an identifier (unchanged)", () => {
@@ -55,10 +63,22 @@ describe("Papers index: the Brownian entry can be chosen without knowing its nam
   });
 });
 
-describe("Papers index: the companion is labeled, never a fifth flagship", () => {
+describe("Papers index: the companion is presented as a companion, outside the four", () => {
   test("the companion section names the molecular-dimensions record and does not appear in the four-paper catalogue", () => {
-    expect(html).toContain("A companion, not a fifth flagship");
-    expect(html).toContain("molecular-dimensions");
+    // The old assertion required the heading "A companion, not a fifth flagship" verbatim. That
+    // heading was a not-X reversal and the de-slop pass replaced it, which broke a test whose
+    // subject is a STRUCTURAL claim: the dissertation is a companion and is not one of the four.
+    // The wording of the heading was never the thing being protected.
+    const catalogue =
+      /<div class="paper-catalogue">([\s\S]*?)<\/div><section/.exec(html)?.[1] ?? "";
+    expect(catalogue.match(/<article>/g)?.length, "the catalogue holds exactly four papers").toBe(
+      4,
+    );
+    expect(catalogue.toLowerCase()).not.toContain("molecular-dimensions");
+
+    const companion = /<section class="reading">([\s\S]*?)<\/section>/.exec(html)?.[1] ?? "";
+    expect(companion.toLowerCase()).toContain("molecular-dimensions");
+    expect(companion.toLowerCase()).toContain("companion");
   });
 });
 
