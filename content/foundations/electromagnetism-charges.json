@@ -3,44 +3,58 @@
   "kind": "foundation",
   "id": "electromagnetism-charges",
   "title": "Forces on charges, currents, and electromagnetic waves",
-  "question": "How do charges interact with electric and magnetic fields?",
-  "summary": "Electric charges produce electric fields and experience forces q E; moving charges experience magnetic forces q v x B. Bound charges act as resonators absorbing and emitting electromagnetic waves at the speed of light.",
+  "question": "What does an electric or a magnetic field do to a charge?",
+  "summary": "An electric field pushes a charge along the field. A magnetic field pushes a moving charge sideways. Carrying an electron across a potential difference of one volt gives it one electron volt of energy, 1.602 × 10⁻¹⁹ joules.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Electric charge is the intrinsic property of matter that produces and responds to electromagnetic fields. A charge q at rest in an electric field E experiences an electrostatic force F = q E. When moving with velocity v through a magnetic field B, the charge experiences an additional perpendicular magnetic force F = q (v x B). Together, these form the Lorentz force."
+      "text": "A charge q in an electric field E feels a force qE, along the field for a positive charge and against it for a negative one. A charge moving with velocity v through a magnetic field B feels a further force, at right angles both to its motion and to the field. Together these are the Lorentz force:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\mathbf{F} = q\\left(\\mathbf{E} + \\mathbf{v} \\times \\mathbf{B}\\right)",
+      "spoken": "The force equals q times the sum of the electric field and the cross product of the velocity with the magnetic field."
     },
     {
       "kind": "paragraph",
-      "text": "Moving a charge through an electric potential difference Delta V transfers potential energy Delta W = q Delta V. For a fundamental electron charge e = 1.602e-19 C accelerated across a potential of 1 V, the energy gained is defined as 1 electron-volt (1 eV = 1.602e-19 J)."
+      "text": "Carrying a charge q across a potential difference ΔV changes its energy by qΔV. The electron's charge has magnitude e = 1.602 × 10⁻¹⁹ coulombs, so one volt changes an electron's energy by 1.602 × 10⁻¹⁹ joules. That amount is called one electron volt, 1 eV. §8 of the light-quanta paper states the energy of electrons that light frees from a metal in these terms: by the potential needed to stop them."
     },
     {
       "kind": "paragraph",
-      "text": "In microscopic matter, an electron bound to an equilibrium position by a restoring force acts as a harmonic oscillator or resonator. When disturbed by incoming electromagnetic waves, it absorbs and reradiates energy at its natural resonant frequency nu_0. Einstein's 1905 light-quanta paper opened with Planck's model of such resonators in thermal equilibrium with radiant energy."
+      "text": "An electron held near a point by a force proportional to its displacement, like a mass on a spring, vibrates at a natural frequency of its own, and it absorbs and emits light near that frequency. §1 of the light-quanta paper fills a closed box with such bound electrons, which it calls resonators, together with free electrons, gas molecules and radiation, and asks what equilibrium requires. Using Planck's condition of 1900 for resonators and radiation, the answer gives the radiation an infinite total energy. That is the difficulty in the section's title."
     },
     {
       "kind": "paragraph",
-      "text": "Maxwell's electrodynamics expresses four physical laws in words: electric charges act as sources of electric flux; magnetic field lines are closed loops with no isolated magnetic charges; a time-varying magnetic field induces a circulating electric field (Faraday induction); and electric currents alongside time-varying electric fields generate circulating magnetic fields (Maxwell-Ampere law). Combined, these equations govern self-propagating electromagnetic waves traveling at speed c in vacuum."
+      "text": "Maxwell's equations tie fields to charges and currents in four statements: charges are the sources of electric field; there are no magnetic charges; a changing magnetic field drives a circulating electric field, which is Faraday's induction; and currents and changing electric fields drive circulating magnetic fields. Together they allow waves of field that cross empty space at the speed of light, c."
     },
     {
       "kind": "paragraph",
-      "text": "Einstein pointed out in 1905 that classical electrodynamics treated the relative motion of a magnet and a conductor with an artificial asymmetry: moving the magnet created an electric field in space that drove current, whereas moving the conductor created no electric field but rather a magnetic Lorentz force on electrons. Yet the physical current was identical in both descriptions."
+      "text": "The relativity paper opens with a case from this theory. Move a magnet past a conductor, and the theory describes an electric field that drives a current. Move the conductor past the magnet instead, and it describes no electric field, only a magnetic force on the conductor's charges. The current is the same either way. The paper counts this difference of description, with no difference in what is observed, among its grounds for taking only relative motion to matter."
     }
   ],
   "example": [
     {
       "kind": "formula",
-      "latex": "\\mathbf{F} = q\\left(\\mathbf{E} + \\mathbf{v} \\times \\mathbf{B}\\right), \\quad \\Delta W = q \\Delta V",
-      "spoken": "Force equals charge times the sum of electric field and the cross product of velocity with magnetic field, and work equals charge times potential difference."
+      "latex": "\\Delta W = q\\,\\Delta V",
+      "spoken": "The change in energy equals the charge times the potential difference."
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "An electron starts at rest and crosses a potential difference of 1 V.",
+        "It gains energy e × 1 V = 1.602 × 10⁻¹⁹ joules: one electron volt.",
+        "At low speed that energy is ½mv², with the electron's mass m = 9.109 × 10⁻³¹ kg. So v² = 2 × 1.602 × 10⁻¹⁹ ÷ 9.109 × 10⁻³¹ = 3.52 × 10¹¹ m²/s².",
+        "The square root gives v ≈ 5.93 × 10⁵ m/s, about 600 kilometres per second."
+      ]
     },
     {
       "kind": "paragraph",
-      "text": "Accelerating an electron of charge e = 1.602e-19 Coulombs across an electric potential difference of Delta V = 1.0 Volt gives kinetic energy Delta W = (1.602e-19 C)(1.0 V) = 1.602e-19 Joules = 1 eV. An electron bound with effective spring constant k_s and mass m oscillates at natural frequency nu_0 = (1 / 2 pi) sqrt(k_s / m)."
+      "text": "That is fast, but only 0.2 per cent of the speed of light, so the low-speed formula ½mv² is safe here. The charge and mass used are modern values."
     }
   ],
   "exampleTitle": "An electron across one volt",
   "prerequisites": ["functions-graphs", "derivatives"],
-  "stoppingPoint": "Charge is the property that makes electric forces; fields mediate force between separated charges without action-at-a-distance.",
+  "stoppingPoint": "Charge is the property that makes electric forces. Fields carry the force between separated charges, without action at a distance.",
   "citations": []
 }
