@@ -237,6 +237,12 @@ describe("the real corpus: every printed number is pinned", () => {
       // segmentLedger joins across (see below). 905, 906 and 907 all end in a display. A page
       // ending in prose takes the tag inline and moves nothing.
       //
+      // 7 -> 8 when p908 landed, and that movement was PREDICTED by the paragraph above rather
+      // than discovered by the failure: 907 ends in a display, so its tag is on its own line, so
+      // "Wenden wir auf diese Gleichungen die in § 3 entwickelte Transformation an ... wobei
+      // beta = ..." joined across 907/908 the moment 908 existed. The rule has now been right
+      // once in advance, so treat a movement it does NOT predict as worth investigating.
+      //
       // WHAT THIS NUMBER CANNOT SEE, so that a later reader does not mistake it for the count of
       // cross-page sentences. A crossing is visible here only when [[CONTINUES]] sits on its own
       // line. When it is written inline, glued to the last word, segmentLedger keeps it attached,
@@ -248,11 +254,14 @@ describe("the real corpus: every printed number is pinned", () => {
       // Measured 2026-09-21 with the harness as its own oracle: 32 tags across the four ledgers,
       // 25 inline and 7 own-line. Rewriting every inline tag onto its own line in a scratch copy,
       // which changes no text, reveals 17 further crossing sentences - 5 in ap-17-132, 4 in
-      // ap-17-549, 7 in ap-17-891, 1 in ap-18-639. So 6 is the count of VISIBLE crossings in this
-      // paper, not the count of crossings. Left as measured rather than repaired here: the repair
+      // ap-17-549, 7 in ap-17-891, 1 in ap-18-639. So the value below is the count of VISIBLE
+      // crossings in this paper, not the count of crossings. (Those four per-paper figures were
+      // measured on 2026-09-21 against the tree at that moment and will drift as pages land;
+      // what does not drift is that the inline form hides a crossing and the own-line form does
+      // not.) Left as measured rather than repaired here: the repair
       // is either a ledger-wide rewrite touching four papers or a change to segmentLedger, and
       // both belong to am-span-recording-decision-ero2, not to a transcription pane.
-      unplaceableProposedSentences: 7,
+      unplaceableProposedSentences: 8,
     },
   };
 
