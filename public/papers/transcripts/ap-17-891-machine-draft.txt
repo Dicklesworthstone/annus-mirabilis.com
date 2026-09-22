@@ -332,6 +332,28 @@ Wir denken uns ferner eine der Uhren, welche relativ zum ruhenden System ruhend 
 --- MACHINE DRAFT TRANSCRIPTION PAGE 14 OF 31 ---
 [[ANNALEN-PAGE 904]]
 
+System ruhend die Zeit $\tau$ anzugeben befähigt sind, im Koordinatenursprung von $k$ gelegen und so gerichtet, daß sie die Zeit $\tau$ angibt. Wie schnell geht diese Uhr, vom ruhenden System aus betrachtet?
+
+Zwischen die Größen $x$, $t$ und $\tau$, welche sich auf den Ort dieser Uhr beziehen, gelten offenbar die Gleichungen:
+$$
+\tau = \frac{1}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} \left( t - \frac{v}{V^2} x \right)
+$$
+und
+$$
+x = v t .
+$$
+Es ist also
+$$
+\tau = t \sqrt{1 - \left( \frac{v}{V} \right)^2} = t - \left( 1 - \sqrt{1 - \left( \frac{v}{V} \right)^2} \right) t ,
+$$
+woraus folgt, daß die Angabe der Uhr (im ruhenden System betrachtet) pro Sekunde um $(1 - \sqrt{1 - (v/V)^2})$ Sek. oder — bis auf Größen vierter und höherer Ordnung um $\frac{1}{2} (v/V)^2$ Sek. zurückbleibt.
+
+Hieraus ergibt sich folgende eigentümliche Konsequenz. Sind in den Punkten $A$ und $B$ von $K$ ruhende, im ruhenden System betrachtet, synchron gehende Uhren vorhanden, und bewegt man die Uhr in $A$ mit der Geschwindigkeit $v$ auf der Verbindungslinie nach $B$, so gehen nach Ankunft dieser Uhr in $B$ die beiden Uhren nicht mehr synchron, sondern die von $A$ nach $B$ bewegte Uhr geht gegenüber der von Anfang an in $B$ befindlichen um $\frac{1}{2} t v^2 / V^2$ Sek. (bis auf Größen vierter und höherer Ordnung) nach, wenn $t$ die Zeit ist, welche die Uhr von $A$ nach $B$ braucht.
+
+Man sieht sofort, daß dies Resultat auch dann noch gilt, wenn die Uhr in einer beliebigen polygonalen Linie sich von $A$ nach $B$ bewegt, und zwar auch dann, wenn die Punkte $A$ und $B$ zusammenfallen.
+
+Nimmt man an, daß das für eine polygonale Linie bewiesene Resultat auch für eine stetig gekrümmte Kurve gelte, so erhält man den Satz: Befinden sich in $A$ zwei synchron gehende Uhren und bewegt man die eine derselben auf einer geschlossenen Kurve mit konstanter Geschwindigkeit, bis sie wieder nach $A$ zurückkommt, was $t$ Sek. dauern möge, so geht die letztere Uhr bei ihrer Ankunft in $A$ gegenüber der unbewegt[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 15 OF 31 ---
 [[ANNALEN-PAGE 905]]
 

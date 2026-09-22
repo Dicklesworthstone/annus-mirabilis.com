@@ -45,3 +45,11 @@
   reason: "Printed connective 'also' standing alone between the auxiliary condition and the expression for eta on page 900. Source text, same reasoning as the wobei entries. Note that this fingerprint is byte-identical to the 'also' entry in the light-quanta allowlist, since the hash is of the line text; ledgerKey and ledgerPage are what separate them."
   editor: "agent:LilacValley"
   date: "2026-09-21"
+
+- ledgerKey: ap-17-891
+  code: short-line
+  ledgerPage: 14
+  lineFingerprint: 856cc99d87343400
+  reason: "Printed connective 'und' standing alone between the two clock equations on page 904, section 4: tau = (1/sqrt(1-(v/V)^2))(t - (v/V^2)x), then 'und', then x = v t. Source text. Its fingerprint is byte-identical to the page 897 'und' entry because computeLineFingerprint hashes the line text alone; ledgerPage 14 versus 7 is the only thing separating the two entries, and an editor must judge each page's line on its own plate."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
