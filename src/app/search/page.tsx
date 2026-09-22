@@ -185,11 +185,13 @@ export default async function SearchIndexPage() {
             </h2>
             {flat ? (
               <ul className="search-index-list">
-                {list.map((entry) => (
-                  <li key={entry.id}>
-                    <a href={href(entry)}>{entry.title}</a>
-                  </li>
-                ))}
+                {groups
+                  .flatMap((g) => g.entries)
+                  .map((entry) => (
+                    <li key={entry.id}>
+                      <a href={href(entry)}>{entry.title}</a>
+                    </li>
+                  ))}
               </ul>
             ) : (
               <div className="search-index-groups">
