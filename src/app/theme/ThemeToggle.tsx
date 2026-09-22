@@ -126,9 +126,19 @@ export function ThemeToggle() {
         */}
         <span>
           Dark
-          {/* Keeps the edition's own name for the theme in the accessible name. WCAG 2.5.3 wants
-              the accessible name to CONTAIN the visible label, so the visible word comes first. */}
-          <span className="theme-switch-full-name"> theme ({THEME_LABELS[DARK]})</span>
+          {/* "Dark" alone is not a control's job description, so the hidden span completes it to
+              "Dark theme". WCAG 2.5.3 wants the accessible name to CONTAIN the visible label, so
+              the visible word comes first and the span is appended, never substituted.
+
+              IT USED TO APPEND THE EDITION'S NAME FOR THE THEME TOO - "Dark theme (Kramgasse
+              Night)". That was deliberate and it was backwards. `.theme-switch-full-name` is
+              clipped to 1px, and "Kramgasse Night" is rendered nowhere else a reader can see:
+              not here, not in the reading-preferences panel. So the flavour reached screen-reader
+              users ONLY, as a parenthetical heard on every one of 300-odd pages, while sighted
+              readers never learned the theme had a name at all. That is not equal access to the
+              edition's voice, it is verbosity charged to one audience. If the name should be
+              surfaced, it should be surfaced to everyone, where themes are described. */}
+          <span className="theme-switch-full-name"> theme</span>
         </span>
       </button>
       {/* Visually hidden: left visible it added a row to the header after the first press, so the

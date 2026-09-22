@@ -294,7 +294,13 @@ describe("ThemeToggle: UI reflection of active theme and user selection", () => 
     // WCAG 2.5.3: the accessible name CONTAINS the visible label, which is why the full name is
     // appended rather than substituted for the short word.
     expect(accessibleName).toContain(visible);
-    expect(accessibleName).toContain("Kramgasse Night");
+    // The name completes the visible word to a control's job description and stops there.
+    expect(accessibleName.replace(/\s+/g, " ").trim()).toBe("Dark theme");
+    // It used to append the edition's theme name as well. That reached screen-reader users ONLY -
+    // .theme-switch-full-name is clipped to 1px and "Kramgasse Night" renders nowhere a sighted
+    // reader can see it - so the parenthetical was verbosity charged to one audience on every
+    // page. If it comes back, it comes back visibly, for everyone.
+    expect(accessibleName).not.toContain("Kramgasse");
 
     // The name is FIXED across states. A control labelled "Switch to dark" renames itself on
     // press, so a screen-reader user re-reading it hears the opposite of what they chose.

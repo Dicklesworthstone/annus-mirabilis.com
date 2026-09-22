@@ -142,7 +142,7 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       // alternative was a typed error class invented to satisfy the scanner, which is apparatus
       // where a rewrite of one condition does the job. The message names which half failed, so
       // the refusal is no less specific than the two it replaces.
-      const NAME = "Dark theme (Kramgasse Night)";
+      const NAME = "Dark theme";
       const present = (await themeToggle.count()) > 0 && (await themeToggle.isVisible());
       const named =
         present && (await themeToggle.getByRole("switch", { name: NAME, exact: true }).count()) > 0;
