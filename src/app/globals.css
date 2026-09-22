@@ -833,6 +833,45 @@ samp,
 .comparison-toggle {
   margin: 1.5rem 0 3rem;
 }
+/*
+ * THE INSTRUMENTS INDEX.
+ *
+ * Thirty-four links on one page is the count that made the old homepage unreadable, so the shape
+ * carries the difference: each entry is a sentence naming the question the instrument answers,
+ * grouped under the paper whose claim it interrogates. A single column at a readable measure,
+ * because these are sentences and a two-column grid would set them at a width that fights them.
+ *
+ * The id rides along in muted monospace. It is not decoration: ids are how AGENTS.md addresses
+ * instruments, they appear in bead titles and in URLs, and a reader who has seen "sr-09" in a
+ * discussion needs to find it here without reading all thirteen.
+ */
+.instrument-group {
+  border-top: 1px solid var(--line);
+  padding: 1.5rem 0;
+}
+.instrument-group h2 {
+  margin-bottom: 0.3rem;
+}
+.instrument-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.6rem;
+  max-width: var(--reader-measure, 40rem);
+}
+.instrument-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.instrument-id {
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+
 .paper-catalogue,
 .journey-catalogue {
   display: grid;

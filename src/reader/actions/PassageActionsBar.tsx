@@ -1,14 +1,8 @@
 import { FoundationLink } from "../Blocks.tsx";
 import { faceLinkHref } from "../paperRoutes.ts";
+import { LAB_NAMES } from "./labNames.ts";
 import { ObstacleMenu } from "./ObstacleMenu.tsx";
 import type { PassageActions } from "./passageActions.schema.ts";
-
-const LAB_NAMES: Record<string, string> = {
-  "bm-01": "Tracer ensemble",
-  "bm-05": "Random steps",
-  "bm-06": "Spreading probability",
-  "bm-07": "Molecular-number inference",
-};
 
 export function PassageActionsBar({
   paperId,

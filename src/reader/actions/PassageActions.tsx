@@ -17,15 +17,9 @@
 import { useId, useState } from "react";
 import type { ReaderRegistry } from "../navigation/state.ts";
 import { buildPassageLink, type PassageLinkAxes } from "./buildPassageLink.ts";
+import { LAB_NAMES } from "./labNames.ts";
 import { ObstacleMenu } from "./ObstacleMenu.tsx";
 import type { PassageActions as PassageActionsData } from "./passageActions.schema.ts";
-
-const LAB_NAMES: Record<string, string> = {
-  "bm-01": "Tracer ensemble",
-  "bm-05": "Random steps",
-  "bm-06": "Spreading probability",
-  "bm-07": "Molecular-number inference",
-};
 
 export interface PassageActionsProps {
   readonly actions: PassageActionsData;

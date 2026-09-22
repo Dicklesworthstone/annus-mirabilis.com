@@ -43,7 +43,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <nav aria-label="Main navigation">
             <a href="/papers/">Papers</a>
             <a href="/discover/">Discovery routes</a>
-            <a href="/lab/bm-06/">Instruments</a>
+            <a href="/instruments/">Instruments</a>
             <a href="/connections/">Across the papers</a>
             <SearchLauncher />
             <NotebookLauncher />
