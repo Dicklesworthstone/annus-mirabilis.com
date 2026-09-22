@@ -95,34 +95,60 @@ describe("contrast: color never carries meaning alone (AGENTS.md constraint)", (
     expect(GLOBALS_CSS).toContain("text-decoration-thickness: 2px");
   });
 
-  test("theme toggle selected state carries a weight cue and native radio checked state, not hue alone", () => {
+  test("the theme switch carries a POSITION cue that differs between its two states, not hue alone", () => {
     // ASSERTS THE PROPERTY, NOT THE SPELLING, and asserts it INSIDE the rule block.
     //
-    // This used to be two independent toContain calls against the whole stylesheet, so the
-    // selector and the declaration could live anywhere in the file, in any order, in different
-    // rules. It also hard-coded `font-weight: bold` - the only place in the tree that did - so
-    // e8505e48 normalising bold to its numeric form 700 turned the lane red while the
-    // ACCESSIBILITY PROPERTY was never broken: 700 is bold, and the selected chip still carries a
-    // non-hue cue. A test that fails when a synonym is substituted is asserting a spelling.
+    // This replaces a check on `.theme-toggle label:has(input:checked)` declaring a bold weight.
+    // That control is gone: the owner ruled on 2026-09-22 that the edition has a single
+    // dark/light switch rather than three radio chips, so the selector it named no longer exists
+    // and a test naming it would be green against nothing.
     //
-    // Extracting the block makes it strictly stronger than what it replaces: a weight declared in
-    // some other rule can no longer satisfy it.
-    const SELECTOR = ".theme-toggle label:has(input:checked)";
-    expect(THEMES_CSS).toContain(SELECTOR);
-    const start = THEMES_CSS.indexOf(SELECTOR);
-    const open = THEMES_CSS.indexOf("{", start);
-    const close = THEMES_CSS.indexOf("}", open);
-    expect(open, `${SELECTOR} has no rule block`).toBeGreaterThan(-1);
-    expect(close, `${SELECTOR} has an unterminated rule block`).toBeGreaterThan(open);
-    const block = THEMES_CSS.slice(open + 1, close);
+    // The property it protected is unchanged and is what is asserted here - the switch's state
+    // must be legible without hue. The cue is now positional: the knob sits at one end of the
+    // track when off and the other when on.
+    //
+    // It is STRICTLY STRONGER than the weight check it replaces, because it compares the two
+    // states rather than inspecting one. A stylesheet that declared a transform on the checked
+    // knob identical to the unchecked knob would have satisfied "declares a transform" while
+    // leaving the two states indistinguishable; that is exactly the failure this pair catches.
+    function blockFor(selector: string): string {
+      expect(THEMES_CSS, `${selector} is absent from themes.css`).toContain(selector);
+      const start = THEMES_CSS.indexOf(selector);
+      const open = THEMES_CSS.indexOf("{", start);
+      const close = THEMES_CSS.indexOf("}", open);
+      expect(open, `${selector} has no rule block`).toBeGreaterThan(-1);
+      expect(close, `${selector} has an unterminated rule block`).toBeGreaterThan(open);
+      return THEMES_CSS.slice(open + 1, close);
+    }
 
-    // bold, 700, 800, 900 are all a bold weight. The cue is what matters, not which token says it.
-    const weight = /font-weight:\s*(bold|[6-9]00)\s*;/.exec(block);
+    const off = blockFor(".theme-switch-knob");
+    const on = blockFor('.theme-switch[aria-checked="true"] .theme-switch-knob');
+
+    const offTransform = /transform:\s*([^;]+);/.exec(off);
+    const onTransform = /transform:\s*([^;]+);/.exec(on);
     expect(
-      weight,
-      `${SELECTOR} declares no bold weight cue; its block is:\n${block.trim()}\n` +
-        `The selected chip must be distinguishable without hue (AGENTS.md: colour never carries meaning alone).`,
+      offTransform,
+      `The unchecked knob declares no transform; its block is:\n${off.trim()}`,
     ).not.toBeNull();
+    expect(
+      onTransform,
+      `The checked knob declares no transform, so the switch's state would rest on hue alone. ` +
+        `Its block is:\n${on.trim()}\n` +
+        `AGENTS.md: colour never carries meaning alone.`,
+    ).not.toBeNull();
+    expect(
+      onTransform?.[1]?.trim(),
+      "The checked and unchecked knob resolve to the SAME transform, so the knob does not move " +
+        "and the two states are distinguishable only by colour.",
+    ).not.toBe(offTransform?.[1]?.trim());
+  });
+
+  test("the theme switch keeps its knob visible in forced colours", () => {
+    // The theme tokens are discarded in forced-colors mode, so a knob painted with var(--ink)
+    // would vanish into its own track and the switch would read as having no state at all.
+    const forced = THEMES_CSS.slice(THEMES_CSS.indexOf("@media (forced-colors: active)"));
+    expect(forced).toContain(".theme-switch-knob");
+    expect(forced).toContain("CanvasText");
   });
 
   test("disabled buttons define cursor: not-allowed and reduced opacity, not hue alone", () => {

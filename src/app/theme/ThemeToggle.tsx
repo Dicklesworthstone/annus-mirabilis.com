@@ -1,28 +1,12 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { SETTINGS_KEY_PREFIX, storageKeyRegistry } from "../../platform/storage/keys";
 import { FOLLOW_SYSTEM_VALUE, THEME_IDS, type ThemeId } from "./tokens";
 
 const THEME_LABELS: Readonly<Record<ThemeId, string>> = {
   annalen: "Annalen",
   "kramgasse-night": "Kramgasse Night",
-};
-
-/**
- * What a sighted reader sees on the chip. The edition's names for its two
- * themes are longer than the control needs to be: at 390x844 the four-word
- * pair wrapped to two rows and the group cost 105px of a 400px header, which
- * is the owner's complaint stated as a quantity.
- *
- * The full name is not dropped, it moves into the accessible name as a
- * parenthetical, so the chip reads "Light (Annalen)" to a screen reader. WCAG
- * 2.5.3 wants the accessible name to CONTAIN the visible label, which is why
- * the short word comes first and the name is appended rather than substituted.
- */
-const THEME_SHORT_LABELS: Readonly<Record<ThemeId, string>> = {
-  annalen: "Light",
-  "kramgasse-night": "Dark",
 };
 
 const registration = storageKeyRegistry.get(`${SETTINGS_KEY_PREFIX}theme`);
@@ -32,6 +16,9 @@ if (!registration) {
 const THEME_KEY = registration.key;
 
 type StoredValue = ThemeId | typeof FOLLOW_SYSTEM_VALUE;
+
+const DARK: ThemeId = "kramgasse-night";
+const LIGHT: ThemeId = "annalen";
 
 function readStored(): StoredValue | null {
   try {
@@ -43,86 +30,97 @@ function readStored(): StoredValue | null {
   }
 }
 
-function applyTheme(value: StoredValue): void {
-  const resolved =
-    value === FOLLOW_SYSTEM_VALUE
-      ? typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches
-        ? "kramgasse-night"
-        : "annalen"
-      : value;
-  document.documentElement.dataset.theme = resolved;
+function systemPrefersDark(): boolean {
+  return typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+/** Resolves a stored value, or the absence of one, to the theme actually on the page. */
+function resolve(value: StoredValue | null): ThemeId {
+  if (value === LIGHT || value === DARK) return value;
+  return systemPrefersDark() ? DARK : LIGHT;
+}
+
+function applyTheme(theme: ThemeId): void {
+  document.documentElement.dataset.theme = theme;
   try {
-    localStorage.setItem(THEME_KEY, value);
+    localStorage.setItem(THEME_KEY, theme);
   } catch {
     /* The choice still applies to this page; it just will not persist. */
   }
 }
 
 /**
- * An accessible radio group (am-design-themes-typography-288q): keyboard
- * operable, announced once on change. Renders after the pre-paint script
- * has already set `data-theme`; this component reflects and updates that
- * choice, it never decides the choice on first paint.
+ * ONE CONTROL, NOT THREE.
+ *
+ * The owner's ruling, 2026-09-22, verbatim: "We don't need 4 themes, we need a single dark/light
+ * toggle and for the UI/UX to not be HORRIBLE." What stood here was a three-radio fieldset
+ * (Light / Dark / System) that read as a form in the middle of the site chrome and was, measured
+ * at 390x844, the largest single block in a header the reader meets before any content.
+ *
+ * SYSTEM PREFERENCE IS THE DEFAULT, NOT A THIRD CHOICE. With nothing stored the switch reflects
+ * `prefers-color-scheme`, and the pre-paint script has already applied it, so what the control
+ * shows is what the page is. The first press writes an explicit theme id and the reader's choice
+ * wins from then on. A reader who stored "follow-system" under the old control still has it
+ * honoured on read; nothing writes that value any more.
+ *
+ * WHY A SWITCH AND NOT A BUTTON THAT RENAMES ITSELF. A control labelled "Switch to dark" changes
+ * its own label when pressed, so a screen-reader user who re-reads it hears the opposite of what
+ * they just chose and cannot tell the current state from the name. `role="switch"` keeps the name
+ * fixed and puts the state in `aria-checked`, where assistive technology already knows to look.
+ *
+ * THE STATE IS NOT CARRIED BY HUE. The knob moves across the track, which is a position cue that
+ * survives a monochrome display, forced colours, and a reader who cannot distinguish the accent
+ * from the rule. AGENTS.md requires that colour never carries meaning alone; contrast.test.ts
+ * asserts the structural cue is present in the stylesheet.
  */
 export function ThemeToggle() {
-  const id = useId();
-  const [selected, setSelected] = useState<StoredValue | null>(null);
+  // `null` until the effect runs: the server and the first client paint agree on the same markup,
+  // and the pre-paint script owns what the page actually looks like before this mounts.
+  const [theme, setTheme] = useState<ThemeId | null>(null);
   const [announcement, setAnnouncement] = useState("");
 
   useEffect(() => {
-    const stored = readStored();
-    if (stored !== null) {
-      setSelected(stored);
-    } else {
-      const current = document.documentElement.dataset.theme as ThemeId | undefined;
-      if (current && (THEME_IDS as readonly string[]).includes(current)) {
-        setSelected(current);
-      }
+    const current = document.documentElement.dataset.theme;
+    if (current === LIGHT || current === DARK) {
+      setTheme(current);
+      return;
     }
+    setTheme(resolve(readStored()));
   }, []);
 
-  function choose(value: StoredValue) {
-    applyTheme(value);
-    setSelected(value);
-    setAnnouncement(
-      value === FOLLOW_SYSTEM_VALUE
-        ? "Theme set to follow your system appearance."
-        : `Theme changed to ${THEME_LABELS[value]}.`,
-    );
+  const isDark = theme === DARK;
+
+  function toggle() {
+    const next: ThemeId = isDark ? LIGHT : DARK;
+    applyTheme(next);
+    setTheme(next);
+    setAnnouncement(`Theme changed to ${THEME_LABELS[next]}.`);
   }
 
   return (
-    <fieldset className="theme-toggle">
-      <legend>Theme</legend>
-      {THEME_IDS.map((themeId) => (
-        <label key={themeId}>
-          <input
-            type="radio"
-            name={`${id}-theme`}
-            checked={selected === themeId}
-            onChange={() => choose(themeId)}
-          />
-          {THEME_SHORT_LABELS[themeId]}
-          <span className="theme-toggle-full-name"> ({THEME_LABELS[themeId]})</span>
-        </label>
-      ))}
-      <label>
-        <input
-          type="radio"
-          name={`${id}-theme`}
-          checked={selected === FOLLOW_SYSTEM_VALUE}
-          onChange={() => choose(FOLLOW_SYSTEM_VALUE)}
-        />
-        System
-        <span className="theme-toggle-full-name"> (follow your device appearance)</span>
-      </label>
-      {/* The announcement is for a screen reader, and it is the only child whose
-          height depends on a reader having touched the control. Left visible it
-          added a row to the header AFTER the first click, so the page moved
-          under the reader in response to their own action. */}
-      <p className="theme-toggle-announcement" role="status" aria-live="polite">
+    <>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isDark}
+        className="theme-switch"
+        onClick={toggle}
+      >
+        <span className="theme-switch-track" aria-hidden="true">
+          <span className="theme-switch-knob" />
+        </span>
+        <span className="theme-switch-label">
+          Dark
+          {/* Keeps the edition's own name for the theme in the accessible name. WCAG 2.5.3 wants
+              the accessible name to CONTAIN the visible label, so the visible word comes first. */}
+          <span className="theme-switch-full-name"> theme ({THEME_LABELS[DARK]})</span>
+        </span>
+      </button>
+      {/* Visually hidden: left visible it added a row to the header after the first press, so the
+          page moved under the reader in response to their own action. */}
+      <p className="theme-switch-announcement" role="status" aria-live="polite">
         {announcement}
       </p>
-    </fieldset>
+    </>
   );
 }

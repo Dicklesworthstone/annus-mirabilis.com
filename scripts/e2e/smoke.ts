@@ -114,14 +114,15 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       });
     }
 
-    // 3. Theme toggle (am-im0x). ThemeToggle renders a radio group, not a button,
-    // and writes document.documentElement.dataset.theme. An absent control is a
-    // failure: a check that passes when the feature is missing cannot fail for the
-    // reason it exists, and this one reported a pass for eleven months of a
-    // shipped toggle because it searched for [data-theme-toggle], which the
-    // component has never carried.
+    // 3. Theme toggle (am-im0x). ThemeToggle renders ONE switch, not a radio group: the owner
+    // ruled on 2026-09-22 that the edition has a single dark/light toggle. An absent control is a
+    // failure: a check that passes when the feature is missing cannot fail for the reason it
+    // exists, and this one reported a pass for eleven months of a shipped toggle because it
+    // searched for [data-theme-toggle], which the component has never carried. The selector moved
+    // with the control for the same reason - "fieldset.theme-toggle" now matches nothing, so
+    // leaving it would have restored exactly that failure.
     const themeStarted = performance.now();
-    const THEME_SELECTOR = "fieldset.theme-toggle";
+    const THEME_SELECTOR = 'button[role="switch"].theme-switch';
     try {
       // Check 2 left the page on the not-found route. Every check after it ran
       // there, so the two chrome checks below were searching a page that has no
@@ -142,13 +143,18 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       // Named by ACCESSIBLE NAME, which is the short visible word plus the
       // edition's name for the theme. Asserting the full name here is the browser-
       // level half of the WCAG 2.5.3 contract themeInit.test.ts asserts in the DOM.
-      const steps: readonly (readonly [string, string])[] = [
-        ["Dark (Kramgasse Night)", "kramgasse-night"],
-        ["Light (Annalen)", "annalen"],
-      ];
+      // The switch has ONE accessible name across both states, by design: a control that renames
+      // itself tells a screen-reader user the opposite of what they just chose. So the name is
+      // asserted once, and the two transitions are driven by pressing the same control twice.
+      const NAME = "Dark theme (Kramgasse Night)";
+      if ((await themeToggle.getByRole("switch", { name: NAME, exact: true }).count()) === 0) {
+        throw new Error(`The theme switch does not carry the accessible name "${NAME}"`);
+      }
+      // Two transitions, so the check cannot pass by the page already sitting on the expected
+      // theme. The homepage starts on annalen, so the first press must reach the other theme.
       const observed: string[] = [];
-      for (const [label, expected] of steps) {
-        await themeToggle.getByRole("radio", { name: label, exact: true }).check();
+      for (const expected of ["kramgasse-night", "annalen"] as const) {
+        await themeToggle.click();
         await page.waitForFunction(
           (want) => document.documentElement.getAttribute("data-theme") === want,
           expected,
@@ -159,7 +165,7 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       checks.push({
         check: "theme-toggle",
         ok: true,
-        message: `data-theme started at ${before ?? "unset"} and followed the radio group through ${observed.join(" then ")}`,
+        message: `data-theme started at ${before ?? "unset"} and followed the switch through ${observed.join(" then ")}`,
         durationMs: performance.now() - themeStarted,
       });
     } catch (err) {

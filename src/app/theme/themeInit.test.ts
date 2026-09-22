@@ -219,60 +219,11 @@ describe("THEME_INIT_SOURCE: a self-contained, immediately-invoked expression", 
 });
 
 describe("ThemeToggle: UI reflection of active theme and user selection", () => {
-  test("reflects the dark theme default on /discover when nothing is stored", async () => {
-    document.documentElement.dataset.theme = "kramgasse-night";
-    const container = createContainer();
-    const root = createRoot(container);
-    await act(async () => {
-      root.render(createElement(ThemeToggle));
-    });
-    const darkRadio = container.querySelector(
-      'input[type="radio"]:checked',
-    ) as HTMLInputElement | null;
-    expect(darkRadio).not.toBeNull();
-    expect(darkRadio?.parentElement?.textContent).toContain("Kramgasse Night");
-    await act(async () => {
-      root.unmount();
-    });
-    removeContainer(container);
-  });
-
-  test("explicit user selection updates localStorage and overrides route default", async () => {
-    document.documentElement.dataset.theme = "kramgasse-night";
-    const container = createContainer();
-    const root = createRoot(container);
-    await act(async () => {
-      root.render(createElement(ThemeToggle));
-    });
-    const annalenRadio = container.querySelectorAll('input[type="radio"]')[0] as
-      | HTMLInputElement
-      | undefined;
-    if (!annalenRadio) throw new Error("Expected annalen radio button to exist");
-    await act(async () => {
-      annalenRadio.click();
-    });
-    expect(document.documentElement.dataset.theme).toBe("annalen");
-    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("annalen");
-    await act(async () => {
-      root.unmount();
-    });
-    removeContainer(container);
-  });
-});
-
-describe("ThemeToggle: the header control's size is a design constraint", () => {
   /**
-   * The owner's complaint was that the chrome eats the first screen, and the
-   * theme control was the largest single block in it: 105px of a 400px header
-   * at 390x844, because the edition's theme names are long enough to wrap the
-   * chip row twice. The browser measurement lives in themes.css beside the
-   * rules that produced it; these are the properties that measurement depends
-   * on, asserted where they can fail fast.
-   *
-   * The length budget is a PROXY for width and is labelled as one. It cannot
-   * tell you the header is 295px; it can tell you when someone has put
-   * "Kramgasse Night" back on the chip, which is the only way the measured
-   * number silently stops being true.
+   * These followed the three-radio fieldset that stood here until 2026-09-22, when the owner
+   * ruled the edition has "a single dark/light toggle". They are rewritten rather than deleted:
+   * every property they protected still applies to the switch, and a test that keeps querying
+   * `input[type="radio"]` would fail on the markup while proving nothing about the behaviour.
    */
   async function renderToggle() {
     const container = createContainer();
@@ -283,32 +234,74 @@ describe("ThemeToggle: the header control's size is a design constraint", () => 
     return { container, root };
   }
 
-  test("every chip shows a short word and keeps its full name in the accessible name", async () => {
+  function switchOf(container: HTMLElement): HTMLButtonElement {
+    const el = container.querySelector('button[role="switch"]');
+    if (!el) throw new Error("Expected a single theme switch to exist");
+    return el as HTMLButtonElement;
+  }
+
+  test("reflects the dark theme default on /discover when nothing is stored", async () => {
+    document.documentElement.dataset.theme = "kramgasse-night";
     const { container, root } = await renderToggle();
-    const labels = [...container.querySelectorAll("label")];
-    expect(labels.length).toBe(3);
+    // State lives in aria-checked, not in which of several controls is selected.
+    expect(switchOf(container).getAttribute("aria-checked")).toBe("true");
+    await act(async () => {
+      root.unmount();
+    });
+    removeContainer(container);
+  });
 
-    const seen: string[] = [];
-    for (const label of labels) {
-      const hidden = label.querySelector(".theme-toggle-full-name");
-      // A chip that dropped the span would read only "Light" to a screen
-      // reader, and the edition would have lost its theme's name to a layout fix.
-      expect(hidden).not.toBeNull();
-      const accessibleName = label.textContent ?? "";
-      const visible = accessibleName.replace(hidden?.textContent ?? "", "").trim();
+  test("explicit user selection updates localStorage and overrides route default", async () => {
+    document.documentElement.dataset.theme = "kramgasse-night";
+    const { container, root } = await renderToggle();
+    await act(async () => {
+      switchOf(container).click();
+    });
+    expect(document.documentElement.dataset.theme).toBe("annalen");
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("annalen");
+    expect(switchOf(container).getAttribute("aria-checked")).toBe("false");
+    await act(async () => {
+      root.unmount();
+    });
+    removeContainer(container);
+  });
 
-      expect(visible.length).toBeLessThanOrEqual(6);
-      // WCAG 2.5.3: the accessible name contains the visible label, which is why
-      // the full name is APPENDED rather than substituted for the short word.
-      expect(accessibleName).toContain(visible);
-      expect(accessibleName.length).toBeGreaterThan(visible.length);
-      seen.push(visible);
-    }
-    expect(seen).toEqual(["Light", "Dark", "System"]);
+  test("there is ONE theme control, and system preference is not a third choice", async () => {
+    // The ruling was about the count. Three controls became one, and "System" stopped being a
+    // visible option: with nothing stored the switch reflects the resolved preference instead.
+    document.documentElement.dataset.theme = "annalen";
+    const { container, root } = await renderToggle();
+    expect(container.querySelectorAll('button[role="switch"]').length).toBe(1);
+    expect(container.querySelectorAll('input[type="radio"]').length).toBe(0);
+    expect(container.textContent ?? "").not.toContain("System");
+    await act(async () => {
+      root.unmount();
+    });
+    removeContainer(container);
+  });
 
-    const names = labels.map((l) => l.textContent ?? "");
-    expect(names[0]).toContain("Annalen");
-    expect(names[1]).toContain("Kramgasse Night");
+  test("the switch shows a short word and keeps the theme's own name in the accessible name", async () => {
+    document.documentElement.dataset.theme = "annalen";
+    const { container, root } = await renderToggle();
+    const control = switchOf(container);
+    const hidden = control.querySelector(".theme-switch-full-name");
+    // A control that dropped the span would read only "Dark" to a screen reader, and the edition
+    // would have lost its theme's name to a layout fix.
+    expect(hidden).not.toBeNull();
+    const accessibleName = control.textContent ?? "";
+    const visible = accessibleName.replace(hidden?.textContent ?? "", "").trim();
+    expect(visible).toBe("Dark");
+    // WCAG 2.5.3: the accessible name CONTAINS the visible label, which is why the full name is
+    // appended rather than substituted for the short word.
+    expect(accessibleName).toContain(visible);
+    expect(accessibleName).toContain("Kramgasse Night");
+
+    // The name is FIXED across states. A control labelled "Switch to dark" renames itself on
+    // press, so a screen-reader user re-reading it hears the opposite of what they chose.
+    await act(async () => {
+      control.click();
+    });
+    expect(switchOf(container).textContent).toBe(accessibleName);
 
     await act(async () => {
       root.unmount();
@@ -317,22 +310,21 @@ describe("ThemeToggle: the header control's size is a design constraint", () => 
   });
 
   test("the announcement never adds a row to the header after the reader clicks", async () => {
+    document.documentElement.dataset.theme = "annalen";
     const { container, root } = await renderToggle();
     const status = container.querySelector('[role="status"]');
     expect(status).not.toBeNull();
     expect(status?.getAttribute("aria-live")).toBe("polite");
-    // Visually hidden, not removed: it is the only announcement a screen reader
-    // gets for a change it cannot see. Left visible it grew the header in
-    // response to the reader's own click.
-    expect(status?.className).toBe("theme-toggle-announcement");
+    // Visually hidden, not removed: it is the only announcement a screen reader gets for a change
+    // it cannot see. Left visible it grew the header in response to the reader's own click.
+    expect(status?.className).toBe("theme-switch-announcement");
     expect(status?.textContent).toBe("");
 
-    const dark = container.querySelectorAll('input[type="radio"]')[1] as HTMLInputElement;
     await act(async () => {
-      dark.click();
+      switchOf(container).click();
     });
     expect(status?.textContent).toBe("Theme changed to Kramgasse Night.");
-    expect(status?.className).toBe("theme-toggle-announcement");
+    expect(status?.className).toBe("theme-switch-announcement");
 
     await act(async () => {
       root.unmount();
