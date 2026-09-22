@@ -3,45 +3,45 @@
   "kind": "foundation",
   "id": "error-and-inference",
   "title": "Uncertainty, evidence and inference",
-  "question": "What makes an estimate informative, rather than just a number returned by a formula?",
-  "summary": "Keep identifiability, estimator bias, repeated-sample uncertainty and independently measured inputs separate.",
+  "question": "What can a set of measurements tell you, and what can it not?",
+  "summary": "An estimate is worth as much as the model and the inputs behind it. Before trusting a number, ask whether the data can tell the unknowns apart, how much the answer would move on a new sample, and which inputs were measured independently.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Inference asks what an observation permits you to learn under a specified model. Before calculating a narrow interval, ask whether the observations distinguish the parameters at all. Brownian diffusivity constrains the product of radius and molecular number when temperature and viscosity are given; it cannot identify both members of that product separately."
+      "text": "Start with what the data can tell apart at all. In §3 of the Brownian paper the diffusion coefficient is D = RT/(N · 6πkP), with k the liquid's viscosity and P the particle's radius. So watching particles spread gives D, and with the temperature and viscosity known, D fixes the product of N and P, not each of them: a smaller particle and a larger N give the same spreading. To get N, the radius has to be measured some other way."
     },
     {
       "kind": "paragraph",
-      "text": "An estimator is a rule applied to a finite sample. Different samples produce different estimates. Bias concerns the estimator's mean across such repetitions, not whether one particular estimate happens to equal the answer. Fitting drift from the same displacements uses information and changes the degrees of freedom available to estimate spread."
+      "text": "An estimate comes from a finite sample, and a different sample gives a different number. Two questions follow: whether the method lands on the right value on average, which is its bias, and how widely its answers scatter from sample to sample. Fitting a drift from the same displacements uses up part of the information and leaves less to estimate the scatter."
     },
     {
       "kind": "paragraph",
-      "text": "A 95% confidence procedure covers a fixed true parameter in 95% of repetitions when its assumptions hold. That statement is not a 95% posterior probability that this one fixed parameter lies inside one realized interval. Keeping the missed intervals in a repeated-trial plot is essential to understanding coverage."
+      "text": "A 95 per cent confidence interval comes from a method that, used on many samples, catches the true value in 95 of every 100 of them, provided its assumptions hold. It is not a 95 per cent chance that this one interval contains the value. A plot of many repeated intervals, with the misses left in, shows what the promise means."
     },
     {
       "kind": "paragraph",
-      "text": "A conditional interval holds the input radius, viscosity and temperature exact. A combined interval can include their uncertainty only when their measurement procedures and coverage are declared. A plausible-looking plus-or-minus bound with no coverage is not a confidence statement. The union bound adds error probabilities without requiring statistical independence between the input intervals."
+      "text": "An interval that treats the radius, viscosity and temperature as exact holds only on that condition. Allowing for their uncertainty needs to know how each was measured and how often its own interval misses. Without that, a plus-or-minus has no stated coverage and is not a confidence statement."
     },
     {
       "kind": "paragraph",
-      "text": "A synthetic path created from a chosen molecular number is useful for checking recovery and coverage, not as independent evidence for that number in nature. With modern SI definitions, the Avogadro constant is already fixed; the analogous inversion is a consistency check. An empirical determination requires noncircular physical inputs and an admitted observation model."
+      "text": "A path simulated from a chosen N is useful for checking that a method recovers the N it was given. It is not evidence about N in nature. Since 2019 the SI fixes Avogadro's number by definition, so recovering it from modern data checks consistency. Measuring N, as Perrin did from 1908, needs inputs measured independently of it."
     }
   ],
   "example": [
     {
       "kind": "steps",
       "items": [
-        "Consider a purely numerical inverse exercise N = 12/D, with D estimated as 4. Its point estimate is N = 3.",
-        "Suppose an admitted procedure gives the D interval [3, 6]. Since division by a larger positive D produces a smaller N, the corresponding interval is [12/6, 12/3] = [2, 4]. The endpoints reverse.",
-        "Now suppose an extra unknown scale a enters as N = 12/(aD). The same D supports many a–N pairs. No interval for a unique N is justified until a is supplied independently.",
-        "Declaring a = 2 halves both the point estimate and the inverted bounds without changing any displacement. It changes an assumption, not the observations.",
-        "For a combined guarantee, three input procedures with at most 1% failure each and a diffusion procedure with at most 2% failure have at most 5% total failure by the union bound. Without their stated coverage, that arithmetic supplies no guarantee."
+        "Take a made-up relation, N = 12/D, with D measured as 4. The estimate is N = 12/4 = 3.",
+        "Suppose the method gives D between 3 and 6. A larger D means a smaller N, so N runs from 12/6 = 2 to 12/3 = 4: the ends swap over.",
+        "Now suppose N = 12/(aD), with a an unknown scale. The same D fits many pairs of a and N, and no interval for N follows until a is measured separately.",
+        "Declaring a = 2 halves both the estimate and its interval without changing a single measurement. It changes an assumption, not the data.",
+        "If three inputs each come from a method that misses at most once in 100 uses, and D's method at most twice, the combination misses at most 5 times in 100, even if the misses are related. Without the stated miss rates, this arithmetic guarantees nothing."
       ]
     }
   ],
   "exampleTitle": "Inverting an interval, and watching its endpoints swap",
   "prerequisites": ["mean-variance-rms", "probability-independence"],
-  "stoppingPoint": "State what is identifiable, which estimator and observation model you used, what is held exact, and whether the result is synthetic recovery, an independent estimate or a consistency check.",
+  "stoppingPoint": "Say what the data can tell apart, which method and model you used, what you held exact, and whether the result recovers a value you put in, estimates it independently, or checks consistency.",
   "citations": ["nist-normal-variance", "bipm-si-definitions"]
 }
