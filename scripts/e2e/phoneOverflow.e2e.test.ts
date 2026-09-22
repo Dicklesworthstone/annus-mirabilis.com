@@ -117,6 +117,7 @@ import { extname, join, relative, resolve, sep } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import { classifyDirtySources, uncitableReason } from "../../src/testing/buildFaithfulness.ts";
 import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
 
 const REPO_ROOT = resolve(fileURLToPath(new URL("../../", import.meta.url)));
@@ -426,9 +427,28 @@ interface Pair {
 
 test("no built route overflows its layout viewport at a supported phone width", async (t) => {
   const freshness = assertOutFreshness("out", REPO_ROOT);
-  if (freshness.dirtyStaticSources && freshness.dirtyStaticSources.length > 0) {
+  // This block used to ASSERT that out/ predated the dirty sources, print a count, and continue.
+  // On 2026-09-22 that claim was false - two files were saved 81 seconds into the build and out/
+  // had read them - and the run's numbers were nearly cited as a measurement of HEAD. It now
+  // checks the ordering instead of asserting it, and names the files. See buildFaithfulness.ts.
+  //
+  // outMtimeMs missing resolves to Infinity, not 0: with 0 every file sorts as "written after the
+  // build" and the check would silently pass for everything, which is the shape a disabled gate
+  // takes.
+  const citability = classifyDirtySources(
+    freshness.dirtyStaticSources ?? [],
+    freshness.outMtimeMs ?? Number.POSITIVE_INFINITY,
+    (p) => {
+      try {
+        return statSync(resolve(REPO_ROOT, p)).mtimeMs;
+      } catch {
+        return undefined;
+      }
+    },
+  );
+  if (citability.writtenAfterBuild.length > 0) {
     t.diagnostic(
-      `out/ predates ${freshness.dirtyStaticSources.length} uncommitted static source(s); this measures the BUILT artefact, not the working tree`,
+      `out/ predates ${citability.writtenAfterBuild.length} uncommitted static source(s), checked rather than assumed: ${citability.writtenAfterBuild.join(", ")}`,
     );
   }
 
@@ -705,6 +725,10 @@ test("no built route overflows its layout viewport at a supported phone width", 
     failures.push(
       `STALE - these baseline entries name pairs the sweep never measured, so they protect nothing. The route was renamed or removed; update BASELINE_OVERFLOWING:\n  ${stale.join("\n  ")}`,
     );
+  // Leads the list on purpose: every number below describes a build that matches no commit, so a
+  // reader must meet that before the magnitudes, not after them.
+  if (!citability.citable) failures.unshift(uncitableReason(citability, buildId));
+
   assert.deepEqual(
     failures,
     [],
