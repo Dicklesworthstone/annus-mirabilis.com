@@ -220,7 +220,11 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
           data-token-worked
         >
           <summary>
-            {item.setup.tokens} {item.setup.locked ? "tokens kept together" : "independent tokens"}{" "}
+            {/* One token is neither independent nor kept together - the two series start from
+                the same case - and "1 independent tokens" was the only thing it could say. */}
+            {item.setup.tokens === 1
+              ? "1 token"
+              : `${item.setup.tokens} ${item.setup.locked ? "tokens kept together" : "independent tokens"}`}{" "}
             in {item.setup.parts} equal parts
           </summary>
           <OutcomeTable example={item} />
