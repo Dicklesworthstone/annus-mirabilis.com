@@ -12,6 +12,7 @@ import {
 } from "../../experiments/sr03/definition.ts";
 import { decodeSr03Settings, encodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
+import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { identity } from "./presentation.ts";
 import {
   MinkowskiDiagramPlot,
@@ -318,327 +319,6 @@ export function RodSimultaneityLab({
         ))}
       </div>
 
-      {/* Non-simultaneous refusal banner & repair */}
-      {isNonSimultaneousRefusal && (
-        <div
-          className="notice error"
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.75rem",
-            margin: "1rem 0",
-          }}
-        >
-          <div>
-            <p style={{ fontWeight: "bold", margin: 0 }}>
-              Refusal: Non-simultaneous Endpoint Measurement
-            </p>
-            <p className="fine" style={{ margin: "0.25rem 0 0" }}>
-              {measOut?.reason ??
-                "These endpoint events are not simultaneous in the measuring frame; choose endpoints at one time of that frame."}
-            </p>
-          </div>
-          <button type="button" onClick={repairToSimultaneous} className="button">
-            Repair to frame-simultaneous endpoints
-          </button>
-        </div>
-      )}
-
-      {/* Controls Form */}
-      <form
-        onSubmit={submit}
-        aria-label="Rod measurement and simultaneity settings"
-        aria-describedby={error ? `${id}-error` : undefined}
-        style={{ margin: "1.5rem 0" }}
-      >
-        <fieldset disabled={!ready}>
-          <legend>Interactive Kinematic Controls</legend>
-
-          <div className="input-grid">
-            {/* Rod Rest Frame */}
-            <div className="input-field">
-              <label htmlFor={`${id}-rest-frame`}>Rod Rest Frame</label>
-              <select
-                id={`${id}-rest-frame`}
-                value={draft.rodRestFrame}
-                onChange={(e) => {
-                  const next = { ...draft, rodRestFrame: e.target.value };
-                  setDraft(next);
-                  try {
-                    apply(fromSr03Draft(next));
-                  } catch {}
-                }}
-                style={{ fontFamily: "var(--font-mono)" }}
-              >
-                <option value="k">Frame k (Moving at velocity v)</option>
-                <option value="K">Frame K (Platform at rest)</option>
-              </select>
-            </div>
-
-            {/* Measuring Frame */}
-            <div className="input-field">
-              <label htmlFor={`${id}-meas-frame`}>Measuring Observer Frame</label>
-              <select
-                id={`${id}-meas-frame`}
-                value={draft.measuringFrame}
-                onChange={(e) => {
-                  const next = { ...draft, measuringFrame: e.target.value };
-                  setDraft(next);
-                  try {
-                    apply(fromSr03Draft(next));
-                  } catch {}
-                }}
-                style={{ fontFamily: "var(--font-mono)" }}
-              >
-                <option value="K">Frame K (Platform observer)</option>
-                <option value="k">Frame k (Moving observer)</option>
-              </select>
-            </div>
-
-            {/* Frame Velocity v */}
-            <div className="input-field">
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <label htmlFor={`${id}-v`}>Relative Speed v (fraction of c)</label>
-                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                  {p.v.toFixed(2)} c
-                </span>
-              </div>
-              <input
-                id={`${id}-v-range`}
-                type="range"
-                min="-0.95"
-                max="0.95"
-                step="0.05"
-                value={draft.v}
-                onChange={(e) => {
-                  const next = { ...draft, v: e.target.value };
-                  setDraft(next);
-                  try {
-                    apply(fromSr03Draft(next));
-                  } catch {}
-                }}
-              />
-              <input
-                id={`${id}-v`}
-                type="number"
-                min="-0.95"
-                max="0.95"
-                step="0.01"
-                value={draft.v}
-                onChange={(e) => {
-                  const next = { ...draft, v: e.target.value };
-                  setDraft(next);
-                  try {
-                    apply(fromSr03Draft(next));
-                  } catch {}
-                }}
-                style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
-              />
-            </div>
-
-            {/* Proper Length L0 */}
-            <div className="input-field">
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <label htmlFor={`${id}-l0`}>Proper Length L₀ (light-seconds)</label>
-                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                  {p.L0.toFixed(1)} ls
-                </span>
-              </div>
-              <input
-                id={`${id}-l0-range`}
-                type="range"
-                min="1"
-                max="50"
-                step="1"
-                value={draft.L0}
-                onChange={(e) => {
-                  const next = { ...draft, L0: e.target.value };
-                  setDraft(next);
-                  try {
-                    apply(fromSr03Draft(next));
-                  } catch {}
-                }}
-              />
-              <input
-                id={`${id}-l0`}
-                type="number"
-                min="0.1"
-                max="1000"
-                step="0.5"
-                value={draft.L0}
-                onChange={(e) => {
-                  const next = { ...draft, L0: e.target.value };
-                  setDraft(next);
-                  try {
-                    apply(fromSr03Draft(next));
-                  } catch {}
-                }}
-                style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
-              />
-            </div>
-
-            {/* Sphere Radius R */}
-            <div className="input-field">
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <label htmlFor={`${id}-r`}>Sphere Radius R (ls)</label>
-                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                  {p.R.toFixed(1)} ls
-                </span>
-              </div>
-              <input
-                id={`${id}-r-range`}
-                type="range"
-                min="0.5"
-                max="10"
-                step="0.5"
-                value={draft.R}
-                onChange={(e) => {
-                  const next = { ...draft, R: e.target.value };
-                  setDraft(next);
-                  try {
-                    apply(fromSr03Draft(next));
-                  } catch {}
-                }}
-              />
-              <input
-                id={`${id}-r`}
-                type="number"
-                min="0.1"
-                max="100"
-                step="0.1"
-                value={draft.R}
-                onChange={(e) => {
-                  const next = { ...draft, R: e.target.value };
-                  setDraft(next);
-                  try {
-                    apply(fromSr03Draft(next));
-                  } catch {}
-                }}
-                style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
-              />
-            </div>
-
-            {/* Endpoint Pair Selection */}
-            <div className="input-field">
-              <label htmlFor={`${id}-endpoint-pair`}>Endpoint Event Selection</label>
-              <select
-                id={`${id}-endpoint-pair`}
-                value={draft.endpointPairId}
-                onChange={(e) => {
-                  const next = { ...draft, endpointPairId: e.target.value };
-                  setDraft(next);
-                  try {
-                    apply(fromSr03Draft(next));
-                  } catch {}
-                }}
-                style={{ fontFamily: "var(--font-mono)" }}
-              >
-                <option value="platform-simultaneous">Platform-Simultaneous (dt = 0 in K)</option>
-                <option value="frame-simultaneous">
-                  Frame-Simultaneous (dt = 0 in Measuring Frame)
-                </option>
-                <option value="causal-timelike">Causal Timelike (dt = 10s, dx = 5ls)</option>
-                <option value="causal-lightlike">Causal Lightlike (dt = 10s, dx = 10ls)</option>
-                <option value="causal-threshold">Causal Threshold (dt = 2s, dx = 10ls)</option>
-                <option value="custom">Custom Coordinates</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Custom coordinate inputs if custom */}
-          {draft.endpointPairId === "custom" && (
-            <div className="input-grid" style={{ marginTop: "1rem" }}>
-              <div className="input-field">
-                <label
-                  htmlFor={`${id}-t1`}
-                  className="fine"
-                  style={{ fontFamily: "var(--font-mono)" }}
-                >
-                  E₁ t (s)
-                </label>
-                <input
-                  id={`${id}-t1`}
-                  type="number"
-                  value={draft.customT1 ?? "0"}
-                  onChange={(e) => setDraft({ ...draft, customT1: e.target.value })}
-                  style={{ fontFamily: "var(--font-mono)" }}
-                />
-              </div>
-              <div className="input-field">
-                <label
-                  htmlFor={`${id}-x1`}
-                  className="fine"
-                  style={{ fontFamily: "var(--font-mono)" }}
-                >
-                  E₁ x (ls)
-                </label>
-                <input
-                  id={`${id}-x1`}
-                  type="number"
-                  value={draft.customX1 ?? "0"}
-                  onChange={(e) => setDraft({ ...draft, customX1: e.target.value })}
-                  style={{ fontFamily: "var(--font-mono)" }}
-                />
-              </div>
-              <div className="input-field">
-                <label
-                  htmlFor={`${id}-t2`}
-                  className="fine"
-                  style={{ fontFamily: "var(--font-mono)" }}
-                >
-                  E₂ t (s)
-                </label>
-                <input
-                  id={`${id}-t2`}
-                  type="number"
-                  value={draft.customT2 ?? "0"}
-                  onChange={(e) => setDraft({ ...draft, customT2: e.target.value })}
-                  style={{ fontFamily: "var(--font-mono)" }}
-                />
-              </div>
-              <div className="input-field">
-                <label
-                  htmlFor={`${id}-x2`}
-                  className="fine"
-                  style={{ fontFamily: "var(--font-mono)" }}
-                >
-                  E₂ x (ls)
-                </label>
-                <input
-                  id={`${id}-x2`}
-                  type="number"
-                  value={draft.customX2 ?? "10"}
-                  onChange={(e) => setDraft({ ...draft, customX2: e.target.value })}
-                  style={{ fontFamily: "var(--font-mono)" }}
-                />
-              </div>
-            </div>
-          )}
-
-          {error && (
-            <p id={`${id}-error`} className="notice error">
-              {error}
-            </p>
-          )}
-
-          <div className="button-group" style={{ marginTop: "1rem" }}>
-            <button type="submit" className="button">
-              Apply settings
-            </button>
-            <button type="button" onClick={share} className="button secondary">
-              Copy settings link
-            </button>
-          </div>
-          {linkNote && (
-            <p className="notice" style={{ marginTop: "0.5rem" }}>
-              {linkNote}
-            </p>
-          )}
-        </fieldset>
-      </form>
-
       {/* Visualizations Grid */}
       <div
         style={{
@@ -680,6 +360,329 @@ export function RodSimultaneityLab({
         transverseY={transY}
         transverseZ={transZ}
       />
+
+      {/* Non-simultaneous refusal banner & repair */}
+      {isNonSimultaneousRefusal && (
+        <div
+          className="notice error"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.75rem",
+            margin: "1rem 0",
+          }}
+        >
+          <div>
+            <p style={{ fontWeight: "bold", margin: 0 }}>
+              Refusal: Non-simultaneous Endpoint Measurement
+            </p>
+            <p className="fine" style={{ margin: "0.25rem 0 0" }}>
+              {measOut?.reason ??
+                "These endpoint events are not simultaneous in the measuring frame; choose endpoints at one time of that frame."}
+            </p>
+          </div>
+          <button type="button" onClick={repairToSimultaneous} className="button">
+            Repair to frame-simultaneous endpoints
+          </button>
+        </div>
+      )}
+
+      <ExperimentSettings contents="speed, frames, rod length, sphere radius, event pair">
+        {/* Controls Form */}
+        <form
+          onSubmit={submit}
+          aria-label="Rod measurement and simultaneity settings"
+          aria-describedby={error ? `${id}-error` : undefined}
+          style={{ margin: "1.5rem 0" }}
+        >
+          <fieldset disabled={!ready}>
+            <legend>Interactive Kinematic Controls</legend>
+
+            <div className="input-grid">
+              {/* Rod Rest Frame */}
+              <div className="input-field">
+                <label htmlFor={`${id}-rest-frame`}>Rod Rest Frame</label>
+                <select
+                  id={`${id}-rest-frame`}
+                  value={draft.rodRestFrame}
+                  onChange={(e) => {
+                    const next = { ...draft, rodRestFrame: e.target.value };
+                    setDraft(next);
+                    try {
+                      apply(fromSr03Draft(next));
+                    } catch {}
+                  }}
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
+                  <option value="k">Frame k (Moving at velocity v)</option>
+                  <option value="K">Frame K (Platform at rest)</option>
+                </select>
+              </div>
+
+              {/* Measuring Frame */}
+              <div className="input-field">
+                <label htmlFor={`${id}-meas-frame`}>Measuring Observer Frame</label>
+                <select
+                  id={`${id}-meas-frame`}
+                  value={draft.measuringFrame}
+                  onChange={(e) => {
+                    const next = { ...draft, measuringFrame: e.target.value };
+                    setDraft(next);
+                    try {
+                      apply(fromSr03Draft(next));
+                    } catch {}
+                  }}
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
+                  <option value="K">Frame K (Platform observer)</option>
+                  <option value="k">Frame k (Moving observer)</option>
+                </select>
+              </div>
+
+              {/* Frame Velocity v */}
+              <div className="input-field">
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <label htmlFor={`${id}-v`}>Relative Speed v (fraction of c)</label>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    {p.v.toFixed(2)} c
+                  </span>
+                </div>
+                <input
+                  id={`${id}-v-range`}
+                  type="range"
+                  min="-0.95"
+                  max="0.95"
+                  step="0.05"
+                  value={draft.v}
+                  onChange={(e) => {
+                    const next = { ...draft, v: e.target.value };
+                    setDraft(next);
+                    try {
+                      apply(fromSr03Draft(next));
+                    } catch {}
+                  }}
+                />
+                <input
+                  id={`${id}-v`}
+                  type="number"
+                  min="-0.95"
+                  max="0.95"
+                  step="0.01"
+                  value={draft.v}
+                  onChange={(e) => {
+                    const next = { ...draft, v: e.target.value };
+                    setDraft(next);
+                    try {
+                      apply(fromSr03Draft(next));
+                    } catch {}
+                  }}
+                  style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
+                />
+              </div>
+
+              {/* Proper Length L0 */}
+              <div className="input-field">
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <label htmlFor={`${id}-l0`}>Proper Length L₀ (light-seconds)</label>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    {p.L0.toFixed(1)} ls
+                  </span>
+                </div>
+                <input
+                  id={`${id}-l0-range`}
+                  type="range"
+                  min="1"
+                  max="50"
+                  step="1"
+                  value={draft.L0}
+                  onChange={(e) => {
+                    const next = { ...draft, L0: e.target.value };
+                    setDraft(next);
+                    try {
+                      apply(fromSr03Draft(next));
+                    } catch {}
+                  }}
+                />
+                <input
+                  id={`${id}-l0`}
+                  type="number"
+                  min="0.1"
+                  max="1000"
+                  step="0.5"
+                  value={draft.L0}
+                  onChange={(e) => {
+                    const next = { ...draft, L0: e.target.value };
+                    setDraft(next);
+                    try {
+                      apply(fromSr03Draft(next));
+                    } catch {}
+                  }}
+                  style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
+                />
+              </div>
+
+              {/* Sphere Radius R */}
+              <div className="input-field">
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <label htmlFor={`${id}-r`}>Sphere Radius R (ls)</label>
+                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                    {p.R.toFixed(1)} ls
+                  </span>
+                </div>
+                <input
+                  id={`${id}-r-range`}
+                  type="range"
+                  min="0.5"
+                  max="10"
+                  step="0.5"
+                  value={draft.R}
+                  onChange={(e) => {
+                    const next = { ...draft, R: e.target.value };
+                    setDraft(next);
+                    try {
+                      apply(fromSr03Draft(next));
+                    } catch {}
+                  }}
+                />
+                <input
+                  id={`${id}-r`}
+                  type="number"
+                  min="0.1"
+                  max="100"
+                  step="0.1"
+                  value={draft.R}
+                  onChange={(e) => {
+                    const next = { ...draft, R: e.target.value };
+                    setDraft(next);
+                    try {
+                      apply(fromSr03Draft(next));
+                    } catch {}
+                  }}
+                  style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
+                />
+              </div>
+
+              {/* Endpoint Pair Selection */}
+              <div className="input-field">
+                <label htmlFor={`${id}-endpoint-pair`}>Endpoint Event Selection</label>
+                <select
+                  id={`${id}-endpoint-pair`}
+                  value={draft.endpointPairId}
+                  onChange={(e) => {
+                    const next = { ...draft, endpointPairId: e.target.value };
+                    setDraft(next);
+                    try {
+                      apply(fromSr03Draft(next));
+                    } catch {}
+                  }}
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
+                  <option value="platform-simultaneous">Platform-Simultaneous (dt = 0 in K)</option>
+                  <option value="frame-simultaneous">
+                    Frame-Simultaneous (dt = 0 in Measuring Frame)
+                  </option>
+                  <option value="causal-timelike">Causal Timelike (dt = 10s, dx = 5ls)</option>
+                  <option value="causal-lightlike">Causal Lightlike (dt = 10s, dx = 10ls)</option>
+                  <option value="causal-threshold">Causal Threshold (dt = 2s, dx = 10ls)</option>
+                  <option value="custom">Custom Coordinates</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Custom coordinate inputs if custom */}
+            {draft.endpointPairId === "custom" && (
+              <div className="input-grid" style={{ marginTop: "1rem" }}>
+                <div className="input-field">
+                  <label
+                    htmlFor={`${id}-t1`}
+                    className="fine"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    E₁ t (s)
+                  </label>
+                  <input
+                    id={`${id}-t1`}
+                    type="number"
+                    value={draft.customT1 ?? "0"}
+                    onChange={(e) => setDraft({ ...draft, customT1: e.target.value })}
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  />
+                </div>
+                <div className="input-field">
+                  <label
+                    htmlFor={`${id}-x1`}
+                    className="fine"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    E₁ x (ls)
+                  </label>
+                  <input
+                    id={`${id}-x1`}
+                    type="number"
+                    value={draft.customX1 ?? "0"}
+                    onChange={(e) => setDraft({ ...draft, customX1: e.target.value })}
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  />
+                </div>
+                <div className="input-field">
+                  <label
+                    htmlFor={`${id}-t2`}
+                    className="fine"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    E₂ t (s)
+                  </label>
+                  <input
+                    id={`${id}-t2`}
+                    type="number"
+                    value={draft.customT2 ?? "0"}
+                    onChange={(e) => setDraft({ ...draft, customT2: e.target.value })}
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  />
+                </div>
+                <div className="input-field">
+                  <label
+                    htmlFor={`${id}-x2`}
+                    className="fine"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    E₂ x (ls)
+                  </label>
+                  <input
+                    id={`${id}-x2`}
+                    type="number"
+                    value={draft.customX2 ?? "10"}
+                    onChange={(e) => setDraft({ ...draft, customX2: e.target.value })}
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <p id={`${id}-error`} className="notice error">
+                {error}
+              </p>
+            )}
+
+            <div className="button-group" style={{ marginTop: "1rem" }}>
+              <button type="submit" className="button">
+                Apply settings
+              </button>
+              <button type="button" onClick={share} className="button secondary">
+                Copy settings link
+              </button>
+            </div>
+            {linkNote && (
+              <p className="notice" style={{ marginTop: "0.5rem" }}>
+                {linkNote}
+              </p>
+            )}
+          </fieldset>
+        </form>
+      </ExperimentSettings>
 
       {/* Spacetime event interval ledger */}
       <div className="notice" style={{ margin: "1.5rem 0" }}>
