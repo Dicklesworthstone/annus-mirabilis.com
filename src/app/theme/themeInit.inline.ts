@@ -28,6 +28,14 @@ export const THEME_STORAGE_KEY: string = registration.key;
 export const THEME_FOLLOW_SYSTEM = FOLLOW_SYSTEM_VALUE;
 export const KNOWN_THEME_IDS: readonly string[] = THEME_IDS;
 
+/**
+ * NOTHING STORED FOLLOWS THE SYSTEM. The last fallback was "annalen" unconditionally, so a reader
+ * whose device was set to dark got the light page on every route that declares no default:
+ * measured on out/ 14:47:11 in Chromium and WebKit, /, /papers/ and /lab/bm-01/ stayed light
+ * under a dark system preference, contradicting ThemeToggle's statement that the system
+ * preference is the default. The explanation lives here rather than inside the function because
+ * the function's own text is what every page inlines.
+ */
 export function initTheme(
   storageKey: string,
   followSystem: string,
@@ -65,10 +73,14 @@ export function initTheme(
           }
         }
       }
-      resolved =
-        routeDefault !== null && knownThemeIds.indexOf(routeDefault) !== -1
-          ? routeDefault
-          : "annalen";
+      if (routeDefault !== null && knownThemeIds.indexOf(routeDefault) !== -1) {
+        resolved = routeDefault;
+      } else {
+        resolved =
+          typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches
+            ? "kramgasse-night"
+            : "annalen";
+      }
     }
     document.documentElement.dataset.theme = resolved;
   } catch {

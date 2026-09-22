@@ -146,6 +146,33 @@ describe("initTheme: Slate default via data-route-theme attribute (AGENTS.md con
   });
 });
 
+describe("initTheme: nothing stored follows the system", () => {
+  test("a dark system preference gives kramgasse-night on a page with no route default", () => {
+    stubMatchMedia(true);
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
+  });
+
+  test("a light system preference gives annalen on a page with no route default", () => {
+    stubMatchMedia(false);
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(document.documentElement.dataset.theme).toBe("annalen");
+  });
+
+  test("a stored choice still beats a dark system preference", () => {
+    stubMatchMedia(true);
+    localStorage.setItem(THEME_STORAGE_KEY, "annalen");
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(document.documentElement.dataset.theme).toBe("annalen");
+  });
+
+  test("the injected source carries the same behaviour, not only the function", () => {
+    stubMatchMedia(true);
+    new Function(THEME_INIT_SOURCE)();
+    expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
+  });
+});
+
 describe("initTheme: follow-system", () => {
   test("maps a dark system preference to kramgasse-night", () => {
     stubMatchMedia(true);
@@ -171,8 +198,11 @@ describe("initTheme: follow-system", () => {
 });
 
 describe("initTheme: no stored preference, no route default", () => {
-  test("falls back to annalen, never a dark theme by default", () => {
-    stubMatchMedia(true); // even with a dark system preference
+  // This asserted "never a dark theme by default" until 2026-09-22, when the orchestrator ruled
+  // that an untouched switch follows the device (dispatch 10). Nothing stored now resolves from
+  // prefers-color-scheme; the light case is the one that must still give annalen.
+  test("follows a light system preference to annalen", () => {
+    stubMatchMedia(false);
     initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
     expect(document.documentElement.dataset.theme).toBe("annalen");
   });

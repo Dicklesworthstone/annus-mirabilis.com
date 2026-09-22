@@ -40,6 +40,21 @@
   --plot-darkfield: #0d1117;
   color-scheme: dark;
 }
+/* Without JavaScript the pre-paint script never sets data-theme, so the device's setting has to be
+   honoured here. The values repeat the block above; change both together. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --paper: #1c2128;
+    --ink: #e8e6e1;
+    --muted: #979ea6;
+    --rule: #363c42;
+    --accent: #e0a458;
+    --focus-ring: #e8e6e1;
+    --wash: #21282f;
+    --plot-darkfield: #0d1117;
+    color-scheme: dark;
+  }
+}
 
 :root {
   /* Between rule and ink: 1px of #d3d3d3 under a word is too faint to find. */
@@ -201,6 +216,29 @@ body {
   }
 }
 
+/* The knob follows the theme on <html> as well as aria-checked. The server HTML always says
+   aria-checked="false", because only the browser knows the device's setting; keyed on the
+   attribute alone, a reader whose device is dark saw the knob on the light side until hydration. */
+:root[data-theme="kramgasse-night"] .theme-switch-knob {
+  background: var(--accent);
+  transform: translate(calc(2.25rem - 0.8rem - 6px), -50%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-switch-knob {
+    background: var(--accent);
+    transform: translate(calc(2.25rem - 0.8rem - 6px), -50%);
+  }
+}
+/* Forced colours discard var(--accent), so a knob painted with it would vanish on the dark side.
+   These three selectors tie the ones above in specificity and win by coming later. */
+@media (forced-colors: active) {
+  :root .theme-switch .theme-switch-knob,
+  .theme-switch[aria-checked="true"] .theme-switch-knob,
+  :root:not([data-theme]) .theme-switch-knob {
+    background: CanvasText;
+  }
+}
+
 .theme-switch:focus-visible {
   outline: 2px solid var(--focus-ring, var(--accent));
   outline-offset: 3px;
@@ -252,7 +290,8 @@ body {
     box-shadow: inset -0.18rem 0.05rem 0 0 var(--muted);
     transform: translateY(-50%);
   }
-  .theme-switch[aria-checked="true"] .theme-switch-track::after {
+  .theme-switch[aria-checked="true"] .theme-switch-track::after,
+  :root[data-theme="kramgasse-night"] .theme-switch-track::after {
     opacity: 0;
   }
 }
