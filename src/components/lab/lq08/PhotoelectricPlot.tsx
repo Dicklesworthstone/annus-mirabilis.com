@@ -1,5 +1,6 @@
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { visibleColor } from "../../../experiments/lq08/session.ts";
+import { Sci } from "../Sci.tsx";
 
 export type EnergyLadderProps = Readonly<{
   frequency: number; // Hz
@@ -453,9 +454,9 @@ export function StoppingPotentialPlot({
               fontSize: "0.6875rem",
             }}
           >
-            Empirical Fit Slope: {millikanData.fittedSlopeVs.toExponential(4)} V&middot;s &plusmn;{" "}
-            {millikanData.fittedSlopeStdErr.toExponential(2)} | Theoretical (h/e):{" "}
-            {millikanData.modelLineSlopeVs.toExponential(4)} V&middot;s
+            Empirical Fit Slope: <Sci value={millikanData.fittedSlopeVs} digits={4} /> V&middot;s
+            &plusmn; <Sci value={millikanData.fittedSlopeStdErr} digits={2} /> | Theoretical (h/e):{" "}
+            <Sci value={millikanData.modelLineSlopeVs} digits={4} /> V&middot;s
           </p>
         </div>
       )}

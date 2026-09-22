@@ -1,5 +1,6 @@
 import type { Lq07Parameters } from "../../../experiments/lq07/definition.ts";
 import type { Lq07Evaluation } from "../../../experiments/lq07/session.ts";
+import { Sci } from "../Sci.tsx";
 
 export interface FluorescencePlotProps {
   parameters: Lq07Parameters;
@@ -602,7 +603,7 @@ export function FluorescencePlot({
                   color: "var(--ink)",
                 }}
               >
-                {rates.absorbedRatePerSecond.toExponential(4)} s⁻¹
+                <Sci value={rates.absorbedRatePerSecond} digits={4} /> s⁻¹
               </span>
             </div>
             <div>
@@ -616,7 +617,7 @@ export function FluorescencePlot({
                   color: "var(--accent)",
                 }}
               >
-                {rates.emittedRatePerSecond.toExponential(4)} s⁻¹
+                <Sci value={rates.emittedRatePerSecond} digits={4} /> s⁻¹
               </span>
             </div>
             <div>

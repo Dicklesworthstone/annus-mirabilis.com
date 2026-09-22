@@ -1,6 +1,9 @@
+import type { ReactNode } from "react";
 import type { CameraTrajectoryAnalysis } from "../../experiments/bm07/trajectoryCamera.ts";
+import { Sci } from "./Sci.tsx";
 
-const display = (value: number) => (value === 0 ? "0" : value.toExponential(5));
+const display = (value: number): ReactNode =>
+  value === 0 ? "0" : <Sci value={value} digits={5} />;
 const PREVIEW_PAIRS = 32;
 
 /** Read only the accepted model and pairing receipt, never the current draft. */
@@ -45,11 +48,15 @@ export function CameraTrajectoryResult({ analysis }: { analysis: CameraTrajector
             <tr>
               <th scope="row">Conditional physical diffusion confidence set</th>
               <td>
-                {camera.empty
-                  ? "Empty physical confidence set; not replaced by zero."
-                  : camera.interval
-                    ? `[${display(camera.interval.lower)}, ${display(camera.interval.upper)}] m²/s`
-                    : "Not available; no interval is implied."}
+                {camera.empty ? (
+                  "Empty physical confidence set; not replaced by zero."
+                ) : camera.interval ? (
+                  <>
+                    [{display(camera.interval.lower)}, {display(camera.interval.upper)}] m²/s
+                  </>
+                ) : (
+                  "Not available; no interval is implied."
+                )}
               </td>
             </tr>
             <tr>

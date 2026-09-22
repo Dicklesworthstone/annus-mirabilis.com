@@ -1,5 +1,6 @@
 import type { Me03Parameters } from "../../../experiments/me03/definition.ts";
 import type { Me03Snapshot } from "../../../experiments/me03/session.ts";
+import { SciSvg } from "../Sci.tsx";
 
 export interface BoundaryLedgerPlotProps {
   parameters: Me03Parameters;
@@ -386,11 +387,17 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             <text x="0" y="42" fontSize="11" fill="var(--muted)">
               Mass change Δm:{" "}
               <tspan fontWeight="bold" fill="var(--accent)">
-                {massDelta !== null
-                  ? massDelta === 0
-                    ? "0 (unchanged)"
-                    : `${massDelta.toExponential(4)} kg`
-                  : "Not assigned (1905)"}
+                {massDelta !== null ? (
+                  massDelta === 0 ? (
+                    "0 (unchanged)"
+                  ) : (
+                    <>
+                      <SciSvg value={massDelta} digits={4} /> kg
+                    </>
+                  )
+                ) : (
+                  "Not assigned (1905)"
+                )}
               </tspan>
             </text>
           </g>

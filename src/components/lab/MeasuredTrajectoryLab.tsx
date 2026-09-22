@@ -1,6 +1,14 @@
 "use client";
 
-import { type ChangeEvent, type FormEvent, useEffect, useId, useRef, useState } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  type ReactNode,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import {
   type TrajectoryAnalysis,
   trajectoryAnalysisJson,
@@ -21,6 +29,7 @@ import {
 } from "../../experiments/bm07/trajectoryDraft.ts";
 
 import { CameraTrajectoryResult } from "./CameraTrajectoryResult.tsx";
+import { Sci } from "./Sci.tsx";
 import { TrajectoryInspection } from "./TrajectoryInspection.tsx";
 
 const estimatorNames = {
@@ -28,7 +37,8 @@ const estimatorNames = {
   "maximum-likelihood-centered": "Fit a common drift · maximum likelihood",
   "independent-increment-known-zero-drift": "Independently known zero drift · unbiased",
 };
-const display = (value: number) => (value === 0 ? "0" : value.toExponential(5));
+const display = (value: number): ReactNode =>
+  value === 0 ? "0" : <Sci value={value} digits={5} />;
 type Accepted = Readonly<{ analysis: TrajectoryAnalysis; source: string; run: number }>;
 type AnalysisModel = "ideal-increments" | "camera-disjoint-pairs";
 
@@ -499,9 +509,11 @@ export function MeasuredTrajectoryLab() {
             Source: {accepted.source}. {a.trajectory.points.length} positions in{" "}
             {a.trajectory.trackCount} track(s), {a.trajectory.incrementCount} adjacent displacements
             in the observation ledger, {a.trajectory.dimension} coordinate(s). Sampling interval:{" "}
-            {a.trajectory.dt === null
-              ? "not admitted as equally spaced"
-              : `${display(a.trajectory.dt)} s`}
+            {a.trajectory.dt === null ? (
+              "not admitted as equally spaced"
+            ) : (
+              <>{display(a.trajectory.dt)} s</>
+            )}
             .
           </p>
           <p>
@@ -547,9 +559,13 @@ export function MeasuredTrajectoryLab() {
                 <tr>
                   <th scope="row">Conditional diffusion interval</th>
                   <td>
-                    {a.interval
-                      ? `[${display(a.interval.lower)}, ${display(a.interval.upper)}] m²/s`
-                      : "Not available; no interval is implied."}
+                    {a.interval ? (
+                      <>
+                        [{display(a.interval.lower)}, {display(a.interval.upper)}] m²/s
+                      </>
+                    ) : (
+                      "Not available; no interval is implied."
+                    )}
                   </td>
                 </tr>
               </tbody>
@@ -584,9 +600,11 @@ export function MeasuredTrajectoryLab() {
                 <tr>
                   <th scope="row">Estimated Boltzmann constant</th>
                   <td>
-                    {a.molecular.estimatedBoltzmannConstant === null
-                      ? "Not available"
-                      : `${display(a.molecular.estimatedBoltzmannConstant)} J/K`}
+                    {a.molecular.estimatedBoltzmannConstant === null ? (
+                      "Not available"
+                    ) : (
+                      <>{display(a.molecular.estimatedBoltzmannConstant)} J/K</>
+                    )}
                   </td>
                 </tr>
               </tbody>

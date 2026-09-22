@@ -13,6 +13,7 @@ import {
   einsteinPrintedIonizationChecks,
   type PreparedLq09Example,
 } from "../../../experiments/lq09/session.ts";
+import { Sci } from "../Sci.tsx";
 import { IonizationCountingPlot, IonizationThresholdLadderPlot } from "./IonizationPlot.tsx";
 
 export type IonizationLabProps = Readonly<{
@@ -607,8 +608,8 @@ export function IonizationLab({ example }: IonizationLabProps) {
                   {histChecks.starkCheck.thresholdWavelengthNm.toFixed(0)} nm
                 </p>
                 <p className="fine" style={{ margin: 0, fontSize: "0.75rem" }}>
-                  J = {histChecks.starkCheck.energyPerGramEquivalentErg.toExponential(1)} erg per
-                  gram-equivalent.
+                  J = <Sci value={histChecks.starkCheck.energyPerGramEquivalentErg} digits={1} />{" "}
+                  erg per gram-equivalent.
                 </p>
               </div>
             </div>
@@ -733,7 +734,9 @@ export function IonizationLab({ example }: IonizationLabProps) {
                     <td>
                       <span className="badge">value</span>
                     </td>
-                    <td>{absorbedLightEnergy.toExponential(4)} J</td>
+                    <td>
+                      <Sci value={absorbedLightEnergy} digits={4} /> J
+                    </td>
                   </tr>
                   <tr data-quantity-id="absorbedQuantumRate">
                     <th
@@ -746,7 +749,9 @@ export function IonizationLab({ example }: IonizationLabProps) {
                     <td>
                       <span className="badge">value</span>
                     </td>
-                    <td>{absorbedQRate.toExponential(4)} s&#8315;&sup1;</td>
+                    <td>
+                      <Sci value={absorbedQRate} digits={4} /> s&#8315;&sup1;
+                    </td>
                   </tr>
                   <tr data-quantity-id="ionizationRate">
                     <th
@@ -767,11 +772,17 @@ export function IonizationLab({ example }: IonizationLabProps) {
                       </span>
                     </td>
                     <td>
-                      {ionizationStatus === "value" && ionizationRate !== null
-                        ? `${ionizationRate.toExponential(4)} s⁻¹`
-                        : ionizationStatus === "underdetermined"
-                          ? `≤ ${absorbedQRate.toExponential(4)} s⁻¹`
-                          : "not-applicable"}
+                      {ionizationStatus === "value" && ionizationRate !== null ? (
+                        <>
+                          <Sci value={ionizationRate} digits={4} /> s⁻¹
+                        </>
+                      ) : ionizationStatus === "underdetermined" ? (
+                        <>
+                          ≤ <Sci value={absorbedQRate} digits={4} /> s⁻¹
+                        </>
+                      ) : (
+                        "not-applicable"
+                      )}
                     </td>
                   </tr>
                   <tr data-quantity-id="ionizedGramMolecules">
@@ -797,11 +808,22 @@ export function IonizationLab({ example }: IonizationLabProps) {
                     <td>
                       {ionizedGramMoleculesOut &&
                       ionizedGramMoleculesOut.status === "value" &&
-                      typeof ionizedGramMoleculesOut.value === "number"
-                        ? `${ionizedGramMoleculesOut.value.toExponential(4)} mol`
-                        : ionizedGramMoleculesOut?.status === "underdetermined"
-                          ? `≤ ${(absorbedLightEnergy / (6.022e23 * quantumEnergyEv * 1.602e-19)).toExponential(4)} mol`
-                          : "not-applicable"}
+                      typeof ionizedGramMoleculesOut.value === "number" ? (
+                        <>
+                          <Sci value={ionizedGramMoleculesOut.value} digits={4} /> mol
+                        </>
+                      ) : ionizedGramMoleculesOut?.status === "underdetermined" ? (
+                        <>
+                          ≤{" "}
+                          <Sci
+                            value={absorbedLightEnergy / (6.022e23 * quantumEnergyEv * 1.602e-19)}
+                            digits={4}
+                          />{" "}
+                          mol
+                        </>
+                      ) : (
+                        "not-applicable"
+                      )}
                     </td>
                   </tr>
                 </tbody>

@@ -1,13 +1,14 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { type ReactNode, useId, useMemo, useState } from "react";
 import type { ImportedTrajectory } from "../../experiments/bm07/trajectoryCsv.ts";
 import {
   inspectTrajectory,
   trajectoryTrackIds,
 } from "../../experiments/bm07/trajectoryInspection.ts";
+import { Sci } from "./Sci.tsx";
 
-const number = (value: number) => (value === 0 ? "0" : value.toExponential(5));
+const number = (value: number): ReactNode => (value === 0 ? "0" : <Sci value={value} digits={5} />);
 const axisNames = ["x", "y", "z"] as const;
 
 /** Parent keys this inspector by the accepted run, not by a draft revision. */

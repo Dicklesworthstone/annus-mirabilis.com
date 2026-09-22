@@ -1,6 +1,13 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import {
+  type FormEvent,
+  type ReactNode,
+  useEffect,
+  useId,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   LQ03_DEFAULTS,
   LQ03_NOT_MODELED,
@@ -15,6 +22,7 @@ import {
   type PreparedLq03Example,
 } from "../../../experiments/lq03/session.ts";
 import { identity } from "../presentation.ts";
+import { Sci } from "../Sci.tsx";
 
 type Draft = Readonly<{
   T: string;
@@ -62,11 +70,16 @@ function fromDraft(d: Draft): unknown {
   };
 }
 
-function densityText(result: Lq03Evaluation["planck"]["frequency"], unit: string): string {
+function densityText(result: Lq03Evaluation["planck"]["frequency"], unit: string): ReactNode {
   if (result.status !== "value") {
     return result.status === "outside-domain" ? result.reason : `(${result.status})`;
   }
-  if (result.linearRepresentable) return `${result.value.toExponential(6)} ${unit}`;
+  if (result.linearRepresentable)
+    return (
+      <>
+        <Sci value={result.value} digits={6} /> {unit}
+      </>
+    );
   const ln = result.logFrequencyEnergyDensity ?? result.logWavelengthEnergyDensity;
   return ln === undefined
     ? "below the plotted range"
@@ -76,13 +89,17 @@ function densityText(result: Lq03Evaluation["planck"]["frequency"], unit: string
 function scalarText(
   result: { status: string; value?: number; reason?: string },
   unit: string,
-): string {
+): ReactNode {
   if (result.status !== "value" || typeof result.value !== "number") {
     return result.status === "outside-domain" && result.reason
       ? result.reason
       : `(${result.status})`;
   }
-  return `${result.value.toExponential(6)} ${unit}`;
+  return (
+    <>
+      <Sci value={result.value} digits={6} /> {unit}
+    </>
+  );
 }
 
 export function SpectrumLab({
@@ -338,8 +355,9 @@ export function SpectrumLab({
           <h3>Spectral densities at the probe frequency</h3>
           <table>
             <caption>
-              Values at &nu; = {p.probeNu.toExponential(4)} Hz, T = {p.T} K. Wavelength density is
-              the Jacobian-transformed value, never a bare substitution of &lambda; = c/&nu;.
+              Values at &nu; = <Sci value={p.probeNu} digits={4} /> Hz, T = {p.T} K. Wavelength
+              density is the Jacobian-transformed value, never a bare substitution of &lambda; =
+              c/&nu;.
             </caption>
             <thead>
               <tr>
@@ -356,22 +374,22 @@ export function SpectrumLab({
               {draft.showPlanck && (
                 <tr>
                   <td>Planck 1900</td>
-                  <td>{densityText(evaluation.planck.frequency, "J/(m^3 Hz)")}</td>
-                  <td>{densityText(evaluation.planck.wavelength, "J/(m^3 m)")}</td>
+                  <td>{densityText(evaluation.planck.frequency, "J/(m³ Hz)")}</td>
+                  <td>{densityText(evaluation.planck.wavelength, "J/(m³ m)")}</td>
                 </tr>
               )}
               {draft.showWien && (
                 <tr>
                   <td>Wien 1896</td>
-                  <td>{densityText(evaluation.wien.frequency, "J/(m^3 Hz)")}</td>
-                  <td>{densityText(evaluation.wien.wavelength, "J/(m^3 m)")}</td>
+                  <td>{densityText(evaluation.wien.frequency, "J/(m³ Hz)")}</td>
+                  <td>{densityText(evaluation.wien.wavelength, "J/(m³ m)")}</td>
                 </tr>
               )}
               {draft.showClassical && (
                 <tr>
                   <td>Classical &sect;1</td>
-                  <td>{densityText(evaluation.classical.frequency, "J/(m^3 Hz)")}</td>
-                  <td>{densityText(evaluation.classical.wavelength, "J/(m^3 m)")}</td>
+                  <td>{densityText(evaluation.classical.frequency, "J/(m³ Hz)")}</td>
+                  <td>{densityText(evaluation.classical.wavelength, "J/(m³ m)")}</td>
                 </tr>
               )}
             </tbody>
@@ -379,9 +397,9 @@ export function SpectrumLab({
 
           <h3>Band energy: identical across representations</h3>
           <p>
-            From the frequency integral: {scalarText(evaluation.bandEnergyFromFrequency, "J/m^3")}.
+            From the frequency integral: {scalarText(evaluation.bandEnergyFromFrequency, "J/m³")}.
             From the wavelength integral over the same physical band:{" "}
-            {scalarText(evaluation.bandEnergyFromWavelength, "J/m^3")}. These agree because the
+            {scalarText(evaluation.bandEnergyFromWavelength, "J/m³")}. These agree because the
             Jacobian is applied; a relabeled axis without it would not agree (see &ldquo;Show the
             code&rdquo;).
           </p>
@@ -406,16 +424,22 @@ export function SpectrumLab({
                   c / &lambda;<sub>peak</sub> (NOT the frequency-density peak)
                 </td>
                 <td>
-                  {evaluation.frequencyFromPeakWavelength === null
-                    ? "(unavailable)"
-                    : `${evaluation.frequencyFromPeakWavelength.toExponential(6)} Hz`}
+                  {evaluation.frequencyFromPeakWavelength === null ? (
+                    "(unavailable)"
+                  ) : (
+                    <>
+                      <Sci value={evaluation.frequencyFromPeakWavelength} digits={6} /> Hz
+                    </>
+                  )}
                 </td>
               </tr>
               <tr>
                 <td>
                   Per-natural-log-interval peak (x = {evaluation.peakLogInterval.x.toFixed(7)})
                 </td>
-                <td>{evaluation.peakLogInterval.peakFrequency.toExponential(6)} Hz</td>
+                <td>
+                  <Sci value={evaluation.peakLogInterval.peakFrequency} digits={6} /> Hz
+                </td>
               </tr>
             </tbody>
           </table>
@@ -429,8 +453,8 @@ export function SpectrumLab({
           <p>
             At this temperature and probe frequency, x = h&nu;/(k<sub>B</sub>T) ={" "}
             {regime.x.toFixed(6)}. Wien's law's relative error here is{" "}
-            {regime.wienRelativeError.toExponential(4)}; the classical law's relative error is{" "}
-            {regime.rayleighJeansRelativeError.toExponential(4)}. {verdict}
+            <Sci value={regime.wienRelativeError} digits={4} />; the classical law's relative error
+            is <Sci value={regime.rayleighJeansRelativeError} digits={4} />. {verdict}
           </p>
           <p className="fine">
             This pointwise error is not a certificate for the light paper's integrated entropy

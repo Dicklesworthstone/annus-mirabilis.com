@@ -1,5 +1,7 @@
 "use client";
 
+import { SciSvg } from "../Sci.tsx";
+
 export type CoefficientMatchPlotProps = Readonly<{
   radiationEnergyJ: number;
   frequencyHz: number;
@@ -284,8 +286,8 @@ export function CoefficientMatchSideBySidePlot({
                 fontSize="12"
                 fontFamily="monospace"
               >
-                n_eff = {effectiveCount.toExponential(4)} quanta · ε = {quantumEnergyEv.toFixed(4)}{" "}
-                eV ({quantumEnergyEv.toFixed(2)} eV / packet)
+                n_eff = <SciSvg value={effectiveCount} digits={4} /> quanta · ε ={" "}
+                {quantumEnergyEv.toFixed(4)} eV ({quantumEnergyEv.toFixed(2)} eV / packet)
               </text>
             </>
           ) : hasSelection ? (
@@ -325,8 +327,8 @@ export function CoefficientMatchSideBySidePlot({
                 fontSize="11"
                 fontFamily="monospace"
               >
-                Radiation coeff: {radVolumeCoeff.toExponential(3)} J/K ↔ Gas coeff:{" "}
-                {gasVolumeCoeff.toExponential(3)} J/K
+                Radiation coeff: <SciSvg value={radVolumeCoeff} digits={3} /> J/K ↔ Gas coeff:{" "}
+                <SciSvg value={gasVolumeCoeff} digits={3} /> J/K
               </text>
             </>
           )}

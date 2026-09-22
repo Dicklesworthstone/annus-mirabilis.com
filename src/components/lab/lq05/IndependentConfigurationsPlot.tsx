@@ -1,5 +1,6 @@
 import type { Lq05Parameters } from "../../../experiments/lq05/definition.ts";
 import type { Lq05Evaluation } from "../../../experiments/lq05/session.ts";
+import { PowerOfTen, Sci } from "../Sci.tsx";
 
 export interface IndependentConfigurationsPlotProps {
   parameters: Lq05Parameters;
@@ -179,9 +180,11 @@ export function IndependentConfigurationsPlot({
             ) : (
               <span style={{ color: "var(--ink)", fontWeight: 600 }}>
                 W = fⁿ = ({f.toFixed(2)})^{n} ={" "}
-                {independentProbability.linearRepresentable
-                  ? independentProbability.value.toExponential(4)
-                  : `10^(${independentProbability.log10W.toFixed(2)})`}
+                {independentProbability.linearRepresentable ? (
+                  <Sci value={independentProbability.value} digits={4} />
+                ) : (
+                  <PowerOfTen exponent={independentProbability.log10W} digits={2} />
+                )}
               </span>
             )}
           </span>
@@ -329,8 +332,10 @@ export function IndependentConfigurationsPlot({
           }}
         >
           <strong>Monte Carlo Philox sampling:</strong> {sampling.successCount} successes out of{" "}
-          {sampling.trials.toLocaleString()} trials ({sampling.sampleFraction.toExponential(4)}).
-          Seed: <code style={{ fontFamily: "var(--font-mono, monospace)" }}>{sampling.seed}</code>.
+          {sampling.trials.toLocaleString()} trials (
+          <Sci value={sampling.sampleFraction} digits={4} />
+          ). Seed:{" "}
+          <code style={{ fontFamily: "var(--font-mono, monospace)" }}>{sampling.seed}</code>.
         </div>
       )}
 

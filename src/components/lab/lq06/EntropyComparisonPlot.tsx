@@ -1,4 +1,5 @@
 import type { Lq06SubexpressionChoice } from "../../../experiments/lq06/definition.ts";
+import { SciSvg } from "../Sci.tsx";
 
 export interface EntropyComparisonPlotProps {
   radiationEnergy: number;
@@ -173,7 +174,7 @@ export function EntropyComparisonPlot({
             fontFamily="var(--font-mono, monospace)"
             fontWeight="600"
           >
-            {radiationEntropy.toExponential(4)} J/K
+            <SciSvg value={radiationEntropy} digits={4} /> J/K
           </text>
           <text x="14" y="158" fontSize="10" fill="var(--muted)">
             Effective count n_eff:
@@ -187,7 +188,7 @@ export function EntropyComparisonPlot({
             fontFamily="var(--font-mono, monospace)"
             fontWeight="bold"
           >
-            {effectiveCount.toExponential(4)}
+            <SciSvg value={effectiveCount} digits={4} />
           </text>
         </g>
 
@@ -273,7 +274,7 @@ export function EntropyComparisonPlot({
             fontFamily="var(--font-mono, monospace)"
             fontWeight="600"
           >
-            {gasEntropy.toExponential(4)} J/K
+            <SciSvg value={gasEntropy} digits={4} /> J/K
           </text>
           <text x="14" y="158" fontSize="10" fill="var(--muted)">
             Quantum energy ε = h·ν:

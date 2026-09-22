@@ -1,0 +1,12 @@
+/* Powers of ten in the laboratories (Sci.tsx). */
+
+.sci {
+  white-space: nowrap;
+}
+
+/* A raised exponent must not push its line away from the lines around it. */
+.sci sup {
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: 0.5em;
+}

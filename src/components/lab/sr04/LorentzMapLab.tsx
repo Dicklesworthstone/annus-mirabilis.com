@@ -18,6 +18,7 @@ import {
   type PreparedSr04Example,
 } from "../../../experiments/sr04/session.ts";
 import { identity } from "../presentation.ts";
+import { Sci } from "../Sci.tsx";
 
 const CONSTRAINT_LABELS: Readonly<Record<ConstraintId, string>> = {
   "right-moving-light": "Right-moving light stays at c",
@@ -340,7 +341,9 @@ export function LorentzMapLab({
                 </tr>
                 <tr>
                   <td>d (s/m)</td>
-                  <td>{family.value.d.toExponential(6)}</td>
+                  <td>
+                    <Sci value={family.value.d} digits={6} />
+                  </td>
                 </tr>
                 <tr>
                   <td>transverse scale</td>
@@ -362,7 +365,9 @@ export function LorentzMapLab({
                 {Object.entries(family.residuals).map(([key, value]) => (
                   <tr key={key}>
                     <td>{key}</td>
-                    <td>{value.toExponential(3)}</td>
+                    <td>
+                      <Sci value={value} digits={3} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

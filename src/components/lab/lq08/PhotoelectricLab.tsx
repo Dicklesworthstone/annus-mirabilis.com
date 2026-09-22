@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react
 import { LQ08_HISTORICAL_CHECK, LQ08_NOT_MODELED } from "../../../experiments/lq08/definition.ts";
 import { evaluateMillikanOverlay } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
+import { Sci } from "../Sci.tsx";
 import {
   CurrentVoltagePlot,
   EnergyLadderPlot,
@@ -560,13 +561,17 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                     </span>
                   </td>
                   <td style={{ padding: "0.4rem var(--table-cell-x)" }}>
-                    {out.status === "value"
-                      ? typeof out.value === "number"
-                        ? out.value.toExponential(4)
-                        : String(out.value)
-                      : out.status === "not-applicable"
-                        ? `N/A (${"reason" in out ? String(out.reason) : ""})`
-                        : `Underdetermined (${"compatibleFamily" in out ? String(out.compatibleFamily) : ""})`}
+                    {out.status === "value" ? (
+                      typeof out.value === "number" ? (
+                        <Sci value={out.value} digits={4} />
+                      ) : (
+                        String(out.value)
+                      )
+                    ) : out.status === "not-applicable" ? (
+                      `N/A (${"reason" in out ? String(out.reason) : ""})`
+                    ) : (
+                      `Underdetermined (${"compatibleFamily" in out ? String(out.compatibleFamily) : ""})`
+                    )}
                   </td>
                   <td style={{ padding: "0.4rem var(--table-cell-x)", color: "var(--muted)" }}>
                     {out.unit}
@@ -639,9 +644,9 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
                 {LQ08_HISTORICAL_CHECK.representationA.printedText})
               </p>
               <p className="fine" style={{ color: "var(--muted)", margin: "0.25rem 0 0" }}>
-                Slope: {LQ08_HISTORICAL_CHECK.representationA.slopeVsPerHz.toExponential(4)}{" "}
+                Slope: <Sci value={LQ08_HISTORICAL_CHECK.representationA.slopeVsPerHz} digits={4} />{" "}
                 V&middot;s (modern h/e ={" "}
-                {LQ08_HISTORICAL_CHECK.representationA.modernSlopeVsPerHz.toExponential(4)}{" "}
+                <Sci value={LQ08_HISTORICAL_CHECK.representationA.modernSlopeVsPerHz} digits={4} />{" "}
                 V&middot;s)
               </p>
             </div>

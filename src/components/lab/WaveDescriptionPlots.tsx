@@ -1,4 +1,5 @@
 import type { Lq01Parameters } from "../../experiments/lq01/definition.ts";
+import { Sci, SciSvg } from "./Sci.tsx";
 
 export type InterferencePlotProps = Readonly<{
   screenIntensity: Float64Array | null;
@@ -546,7 +547,7 @@ export function SpreadingPlot({
         }}
       >
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
-          I(r) = P / (4πr²) = {intensity.toExponential(4)} W/m²
+          I(r) = P / (4πr²) = <Sci value={intensity} digits={4} /> W/m²
         </span>{" "}
         at distance{" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>r = {radius.toFixed(2)} m</span>
@@ -691,7 +692,7 @@ export function SpreadingPlot({
             fontWeight="bold"
             fill="var(--ink)"
           >
-            {intensity.toExponential(3)} W/m²
+            <SciSvg value={intensity} digits={3} /> W/m²
           </text>
 
           <text x="12" y="104" fontSize="10" fontFamily="monospace" fill="var(--muted)">
@@ -722,7 +723,7 @@ export function SpreadingPlot({
             fontFamily="monospace"
             fill="var(--ink)"
           >
-            {smallAperturePower.toExponential(3)} W
+            <SciSvg value={smallAperturePower} digits={3} /> W
           </text>
 
           <text x="12" y="162" fontSize="10" fontFamily="monospace" fill="var(--muted)">
@@ -736,7 +737,7 @@ export function SpreadingPlot({
             fontFamily="monospace"
             fill="var(--ink)"
           >
-            {exactDiskPower.toExponential(3)} W
+            <SciSvg value={exactDiskPower} digits={3} /> W
           </text>
 
           <text x="12" y="186" fontSize="9" fontFamily="monospace" fill="var(--muted)">

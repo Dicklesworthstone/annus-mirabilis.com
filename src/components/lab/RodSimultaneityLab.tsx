@@ -18,6 +18,7 @@ import {
   RodStripPlot,
   SphereEllipsoidPlot,
 } from "./RodSimultaneityPlots.tsx";
+import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 
 export type RodSimultaneityLabProps = Readonly<{
@@ -769,16 +770,22 @@ export function RodSimultaneityLab({
                     <span className="badge">{out.status}</span>
                   </td>
                   <td style={{ fontFamily: "var(--font-mono)" }}>
-                    {out.status === "value"
-                      ? typeof out.value === "number"
-                        ? Math.abs(out.value) > 1e4 ||
-                          (Math.abs(out.value) < 1e-3 && out.value !== 0)
-                          ? out.value.toExponential(4)
-                          : out.value.toFixed(4)
-                        : String(out.value)
-                      : "reason" in out
-                        ? String(out.reason)
-                        : "Out of domain"}
+                    {out.status === "value" ? (
+                      typeof out.value === "number" ? (
+                        Math.abs(out.value) > 1e4 ||
+                        (Math.abs(out.value) < 1e-3 && out.value !== 0) ? (
+                          <Sci value={out.value} digits={4} />
+                        ) : (
+                          out.value.toFixed(4)
+                        )
+                      ) : (
+                        String(out.value)
+                      )
+                    ) : "reason" in out ? (
+                      String(out.reason)
+                    ) : (
+                      "Out of domain"
+                    )}
                   </td>
                   <td className="fine">{out.unit}</td>
                   <td className="fine" style={{ fontFamily: "var(--font-mono)" }}>

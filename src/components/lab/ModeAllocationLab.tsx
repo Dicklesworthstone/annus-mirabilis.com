@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useId, useState } from "react";
+import { type FormEvent, type ReactNode, useId, useState } from "react";
 import {
   computeLq02Snapshot,
   DEFAULT_LQ02_INPUTS,
@@ -9,6 +9,7 @@ import {
   type RadiationResult,
   removeUpperLimit,
 } from "../../experiments/lq02/session";
+import { Sci } from "./Sci.tsx";
 
 const NOT_MODELED = [
   "The mechanism coupling matter and radiation beyond Planck's stated equilibrium condition.",
@@ -37,8 +38,14 @@ function fromDraft(draft: Draft): Lq02Inputs {
   };
 }
 
-function formatValue(result: RadiationResult<number>, unit: string, digits = 6): string {
-  if (result.status === "value") return `${result.value.toExponential(digits)} ${unit}`;
+function formatValue(result: RadiationResult<number>, unit: string, digits = 6): ReactNode {
+  if (result.status === "value")
+    return (
+      <>
+        <Sci value={result.value} digits={digits} />
+        {unit ? ` ${unit}` : ""}
+      </>
+    );
   if (result.status === "outside-domain") return `Not modeled here: ${result.reason}`;
   return result.status;
 }
@@ -246,13 +253,17 @@ export function ModeAllocationLab({
           </table>
 
           <p className="model-note">
-            With resonators up to {accepted.nuCutoff.toExponential(3)} Hz at {accepted.T} K, the
-            classical allocation holds{" "}
-            {snapshot.energyUpToCutoff.status === "value"
-              ? snapshot.energyUpToCutoff.value.toExponential(3)
-              : "an unmodeled amount"}{" "}
+            With resonators up to <Sci value={accepted.nuCutoff} digits={3} /> Hz at {accepted.T} K,
+            the classical allocation holds{" "}
+            {snapshot.energyUpToCutoff.status === "value" ? (
+              <Sci value={snapshot.energyUpToCutoff.value} digits={3} />
+            ) : (
+              "an unmodeled amount"
+            )}{" "}
             J per cubic meter; each tenfold widening multiplies it by 1000. Every resonator
-            oscillation carries the same mean energy k_BT (source notation (R/N)T), which §1 notes
+            oscillation carries the same mean energy <var>k</var>
+            <sub>B</sub>
+            <var>T</var> (source notation (<var>R</var>/<var>N</var>)<var>T</var>), which §1 notes
             is two-thirds of a free molecule's mean kinetic energy.
           </p>
 
@@ -271,8 +282,8 @@ export function ModeAllocationLab({
               </p>
               <p className="fine">
                 The last accepted, finite-range snapshot above (up to{" "}
-                {accepted.nuCutoff.toExponential(3)} Hz) stays visible and is not replaced by this
-                refusal.
+                <Sci value={accepted.nuCutoff} digits={3} /> Hz) stays visible and is not replaced
+                by this refusal.
               </p>
             </div>
           )}
@@ -283,28 +294,36 @@ export function ModeAllocationLab({
               <tbody>
                 <tr>
                   <th scope="row">N, from Einstein's printed §2 constants (historical)</th>
-                  <td>{snapshot.avogadro.avogadroConstant.toExponential(6)} mol⁻¹</td>
+                  <td>
+                    <Sci value={snapshot.avogadro.avogadroConstant} digits={6} /> mol⁻¹
+                  </td>
                 </tr>
                 <tr>
                   <th scope="row">N, as printed in §2</th>
-                  <td>{snapshot.avogadro.printedAvogadroConstant.toExponential(2)} mol⁻¹</td>
+                  <td>
+                    <Sci value={snapshot.avogadro.printedAvogadroConstant} digits={2} /> mol⁻¹
+                  </td>
                 </tr>
                 <tr>
                   <th scope="row">N_A, defined, 2019 SI (modern)</th>
                   <td>
-                    {snapshot.avogadro.modernComparisons.modernAvogadro.toExponential(8)} mol⁻¹
+                    <Sci value={snapshot.avogadro.modernComparisons.modernAvogadro} digits={8} />{" "}
+                    mol⁻¹
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">Hydrogen-atom mass from the printed N (historical)</th>
-                  <td>{snapshot.avogadro.printedHydrogenAtomMassGrams.toExponential(2)} g</td>
+                  <td>
+                    <Sci value={snapshot.avogadro.printedHydrogenAtomMassGrams} digits={2} /> g
+                  </td>
                 </tr>
                 <tr>
                   <th scope="row">Hydrogen-atom mass, modern (labeled modern)</th>
                   <td>
-                    {snapshot.avogadro.modernComparisons.modernHydrogenAtomMassGrams.toExponential(
-                      6,
-                    )}{" "}
+                    <Sci
+                      value={snapshot.avogadro.modernComparisons.modernHydrogenAtomMassGrams}
+                      digits={6}
+                    />{" "}
                     g
                   </td>
                 </tr>

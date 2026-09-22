@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useId, useState } from "react";
+import { type FormEvent, type ReactNode, useId, useState } from "react";
 import {
   type Bm02Inputs,
   computeBm02Snapshot,
@@ -9,6 +9,7 @@ import {
   PHI_MAX,
   SUGAR_0P01M_INPUTS,
 } from "../../experiments/bm02/session";
+import { Sci } from "./Sci.tsx";
 
 const NOT_MODELED = [
   "Particle interactions and excluded volume above the dilute domain.",
@@ -51,9 +52,14 @@ function fromDraft(draft: Draft, model: OsmoticModel): Bm02Inputs {
   };
 }
 
-function formatResult(result: { status: string; value?: unknown }, unit: string): string {
+function formatResult(result: { status: string; value?: unknown }, unit: string): ReactNode {
   if (result.status === "value" && typeof result.value === "number") {
-    return `${result.value.toExponential(6)} ${unit}`;
+    return (
+      <>
+        <Sci value={result.value} digits={6} />
+        {unit ? ` ${unit}` : ""}
+      </>
+    );
   }
   if (result.status === "outside-domain" && "reason" in result) {
     return `Not modeled here: ${String((result as { reason: unknown }).reason)}`;
@@ -381,7 +387,7 @@ export function OsmoticPartitionLab({
               Above φ = {PHI_MAX}, particle interactions and excluded volume are not modeled by the
               ideal dilute law. At these settings the admissible boundary is at most{" "}
               {snapshot.domain.maxAdmittedCount.toLocaleString()} particles, or at least{" "}
-              {snapshot.domain.minAdmittedVolume.toExponential(4)} m³ of accessible volume.
+              <Sci value={snapshot.domain.minAdmittedVolume} digits={4} /> m³ of accessible volume.
             </p>
           )}
 

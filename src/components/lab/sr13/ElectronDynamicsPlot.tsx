@@ -1,3 +1,5 @@
+import { SciSvg } from "../Sci.tsx";
+
 export interface ElectronDynamicsPlotProps {
   initialSpeed: number;
   initialDirectionDeg: number;
@@ -170,7 +172,8 @@ export function ElectronDynamicsPlot({
               fontFamily: "var(--font-sans)",
             }}
           >
-            Uniform Field Chamber (E = {eMag.toExponential(1)} V/m, B = {bMag.toFixed(3)} T)
+            Uniform Field Chamber (E = <SciSvg value={eMag} digits={1} /> V/m, B = {bMag.toFixed(3)}{" "}
+            T)
           </text>
           <text
             x={originX}

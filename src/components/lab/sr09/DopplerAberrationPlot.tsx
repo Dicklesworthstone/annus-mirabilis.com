@@ -1,3 +1,5 @@
+import { Sci } from "../Sci.tsx";
+
 export interface DopplerAberrationPlotProps {
   beta: number;
   gamma?: number | undefined;
@@ -428,7 +430,7 @@ export function DopplerAberrationPlot({
                 color: "var(--ink)",
               }}
             >
-              {secondOrderShift.toExponential(4)}
+              <Sci value={secondOrderShift} digits={4} />
             </div>
             <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
               Ives–Stilwell 1938 overlay

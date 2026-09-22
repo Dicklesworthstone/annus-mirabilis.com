@@ -10,6 +10,7 @@ import {
   type Lq06SubexpressionChoice,
 } from "../../../experiments/lq06/definition.ts";
 import { createLq06Session, type PreparedLq06Example } from "../../../experiments/lq06/session.ts";
+import { Sci } from "../Sci.tsx";
 import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
 
 export type CoefficientMatchLabProps = Readonly<{
@@ -772,7 +773,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                     <td>
                       <span className="badge">value</span>
                     </td>
-                    <td>{effectiveCount.toExponential(6)}</td>
+                    <td>
+                      <Sci value={effectiveCount} digits={6} />
+                    </td>
                   </tr>
                   <tr data-quantity-id="quantumEnergy">
                     <th
@@ -785,7 +788,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                     <td>
                       <span className="badge">value</span>
                     </td>
-                    <td>{quantumEnergyJ.toExponential(6)} J</td>
+                    <td>
+                      <Sci value={quantumEnergyJ} digits={6} /> J
+                    </td>
                   </tr>
                   <tr data-quantity-id="quantumEnergyEv">
                     <th
@@ -811,7 +816,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                     <td>
                       <span className="badge">value</span>
                     </td>
-                    <td>{radVolumeCoeff.toExponential(6)} J/K</td>
+                    <td>
+                      <Sci value={radVolumeCoeff} digits={6} /> J/K
+                    </td>
                   </tr>
                   <tr data-quantity-id="gasEntropyVolumeCoefficient">
                     <th
@@ -824,7 +831,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                     <td>
                       <span className="badge">value</span>
                     </td>
-                    <td>{gasVolumeCoeff.toExponential(6)} J/K</td>
+                    <td>
+                      <Sci value={gasVolumeCoeff} digits={6} /> J/K
+                    </td>
                   </tr>
                   <tr data-quantity-id="radiationEntropy">
                     <th
@@ -837,7 +846,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                     <td>
                       <span className="badge">value</span>
                     </td>
-                    <td>{radEntropy.toExponential(6)} J/K</td>
+                    <td>
+                      <Sci value={radEntropy} digits={6} /> J/K
+                    </td>
                   </tr>
                   <tr data-quantity-id="gasEntropy">
                     <th
@@ -850,7 +861,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                     <td>
                       <span className="badge">value</span>
                     </td>
-                    <td>{gasEntropy.toExponential(6)} J/K</td>
+                    <td>
+                      <Sci value={gasEntropy} digits={6} /> J/K
+                    </td>
                   </tr>
                   <tr data-quantity-id="meanQuantumEnergyWienEv">
                     <th

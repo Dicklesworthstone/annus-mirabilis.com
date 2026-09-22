@@ -1,6 +1,7 @@
 "use client";
 
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { SciSvg } from "../Sci.tsx";
 
 export interface FieldFrameChangePlotProps {
   readonly electricStationary?: PublishedResult;
@@ -215,7 +216,7 @@ export function FieldFrameChangePlot({
               </>
             )}
             <text x="14" y="4" fontSize="11" fill="#0277bd" fontWeight="bold">
-              B_z {isMoving ? "′" : ""}: {B_active[2].toExponential(3)} T
+              B_z {isMoving ? "′" : ""}: <SciSvg value={B_active[2]} digits={3} /> T
             </text>
           </g>
         ) : null}

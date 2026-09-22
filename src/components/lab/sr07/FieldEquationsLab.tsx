@@ -18,6 +18,7 @@ import {
 import { decodeSr07Settings, encodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
 import { createSr07Session, type PreparedSr07Example } from "../../../experiments/sr07/session.ts";
 import { identity, result } from "../presentation.ts";
+import { Sci } from "../Sci.tsx";
 
 function Readout({
   snapshot,
@@ -32,7 +33,11 @@ function Readout({
 }) {
   const r = result(snapshot, id);
   if (r.status === "value" && typeof r.value === "number")
-    return <span data-output={id}>{r.value.toExponential(digits)}</span>;
+    return (
+      <span data-output={id}>
+        <Sci value={r.value} digits={digits} />
+      </span>
+    );
   const text = "reason" in r ? r.reason : "No value.";
   return (
     <span data-output={id} data-result-status={r.status}>

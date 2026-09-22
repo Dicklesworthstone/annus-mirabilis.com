@@ -17,6 +17,7 @@ import {
   type PreparedLq05Example,
 } from "../../../experiments/lq05/session.ts";
 import { identity } from "../presentation.ts";
+import { PowerOfTen, Sci } from "../Sci.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
 
 export function IndependentConfigurationsLab({
@@ -500,11 +501,13 @@ export function IndependentConfigurationsLab({
                   {p.locked ? "W_locked = f" : "W = (V/V₀)ⁿ = fⁿ"}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: "bold" }}>
-                  {p.locked
-                    ? evaluation.locked.value.toFixed(6)
-                    : evaluation.independentProbability.linearRepresentable
-                      ? evaluation.independentProbability.value.toExponential(6)
-                      : `10^(${evaluation.independentProbability.log10W.toFixed(4)})`}
+                  {p.locked ? (
+                    evaluation.locked.value.toFixed(6)
+                  ) : evaluation.independentProbability.linearRepresentable ? (
+                    <Sci value={evaluation.independentProbability.value} digits={6} />
+                  ) : (
+                    <PowerOfTen exponent={evaluation.independentProbability.log10W} digits={4} />
+                  )}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   {p.locked

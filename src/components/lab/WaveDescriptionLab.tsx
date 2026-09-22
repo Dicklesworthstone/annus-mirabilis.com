@@ -12,6 +12,7 @@ import {
 import { decodeLq01Settings, encodeLq01Settings } from "../../experiments/lq01/permalink.ts";
 import { createLq01Session, type PreparedLq01Example } from "../../experiments/lq01/session.ts";
 import { array, identity, result, scalar } from "./presentation.ts";
+import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { InterferencePlot, SpreadingPlot, WavefrontPlot } from "./WaveDescriptionPlots.tsx";
 
@@ -749,18 +750,24 @@ export function WaveDescriptionLab({
                     </span>
                   </td>
                   <td style={{ padding: "0.4rem var(--table-cell-x)" }}>
-                    {out.status === "value"
-                      ? out.value instanceof Float64Array
-                        ? `[Float64Array ${out.value.length} pts]`
-                        : typeof out.value === "number"
-                          ? Math.abs(out.value) > 1e4 ||
-                            (Math.abs(out.value) < 1e-3 && out.value !== 0)
-                            ? out.value.toExponential(4)
-                            : out.value.toFixed(4)
-                          : String(out.value)
-                      : "reason" in out
-                        ? String(out.reason)
-                        : "Out of domain"}
+                    {out.status === "value" ? (
+                      out.value instanceof Float64Array ? (
+                        `[Float64Array ${out.value.length} pts]`
+                      ) : typeof out.value === "number" ? (
+                        Math.abs(out.value) > 1e4 ||
+                        (Math.abs(out.value) < 1e-3 && out.value !== 0) ? (
+                          <Sci value={out.value} digits={4} />
+                        ) : (
+                          out.value.toFixed(4)
+                        )
+                      ) : (
+                        String(out.value)
+                      )
+                    ) : "reason" in out ? (
+                      String(out.reason)
+                    ) : (
+                      "Out of domain"
+                    )}
                   </td>
                   <td style={{ padding: "0.4rem var(--table-cell-x)", color: "var(--muted)" }}>
                     {out.unit}

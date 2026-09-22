@@ -23,6 +23,7 @@ import {
 import { identity } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
+import { Sci } from "../Sci.tsx";
 
 const STEPS: readonly { id: Bm03Step; label: string; number: number }[] = [
   { id: "one-particle", label: "1. One particle", number: 1 },
@@ -458,29 +459,41 @@ export function ConfigurationLab({
                   <th scope="row">Free-energy difference ΔF</th>
                   <td data-output="deltaF">
                     {evaluation.deltaF.result.status === "value" &&
-                    typeof evaluation.deltaF.result.value === "number"
-                      ? `${evaluation.deltaF.result.value.toExponential(5)} J`
-                      : evaluation.deltaF.result.status}
+                    typeof evaluation.deltaF.result.value === "number" ? (
+                      <>
+                        <Sci value={evaluation.deltaF.result.value} digits={5} /> J
+                      </>
+                    ) : (
+                      evaluation.deltaF.result.status
+                    )}
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">Ideal pressure p</th>
                   <td data-output="pressure">
                     {evaluation.pressure.result.status === "value" &&
-                    typeof evaluation.pressure.result.value === "number"
-                      ? `${evaluation.pressure.result.value.toExponential(7)} Pa`
-                      : "reason" in evaluation.pressure.result
-                        ? `${evaluation.pressure.result.status} (${String(evaluation.pressure.result.reason)})`
-                        : evaluation.pressure.result.status}
+                    typeof evaluation.pressure.result.value === "number" ? (
+                      <>
+                        <Sci value={evaluation.pressure.result.value} digits={7} /> Pa
+                      </>
+                    ) : "reason" in evaluation.pressure.result ? (
+                      `${evaluation.pressure.result.status} (${String(evaluation.pressure.result.reason)})`
+                    ) : (
+                      evaluation.pressure.result.status
+                    )}
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">Locked-cluster pressure</th>
                   <td data-output="lockedClusterPressure">
                     {evaluation.lockedClusterPressure.result.status === "value" &&
-                    typeof evaluation.lockedClusterPressure.result.value === "number"
-                      ? `${evaluation.lockedClusterPressure.result.value.toExponential(7)} Pa`
-                      : evaluation.lockedClusterPressure.result.status}
+                    typeof evaluation.lockedClusterPressure.result.value === "number" ? (
+                      <>
+                        <Sci value={evaluation.lockedClusterPressure.result.value} digits={7} /> Pa
+                      </>
+                    ) : (
+                      evaluation.lockedClusterPressure.result.status
+                    )}
                   </td>
                 </tr>
                 <tr>

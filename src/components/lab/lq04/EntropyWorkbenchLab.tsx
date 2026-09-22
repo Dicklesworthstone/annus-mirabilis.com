@@ -8,7 +8,14 @@
  * `src/experiments/lq04/session.ts`'s `buildLq04Snapshot`, so this component and any other
  * consumer of the same snapshot can never disagree.
  */
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import {
+  type FormEvent,
+  type ReactNode,
+  useEffect,
+  useId,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   LQ04_DEFAULTS,
   LQ04_NOT_MODELED,
@@ -25,6 +32,7 @@ import type {
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
 import { identity } from "../presentation.ts";
+import { Sci } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 
 type Draft = Readonly<{
@@ -68,11 +76,16 @@ function findOutput(snapshot: AcceptedSnapshot, id: string): PublishedResult | u
   return snapshot.outputs.find((o) => o.quantityId === id);
 }
 
-function valueText(snapshot: AcceptedSnapshot, id: string, unit: string, digits = 6): string {
+function valueText(snapshot: AcceptedSnapshot, id: string, unit: string, digits = 6): ReactNode {
   const output = findOutput(snapshot, id);
   if (!output) return "(not available in this state)";
   if (output.status === "value" && typeof output.value === "number") {
-    return `${output.value.toExponential(digits)} ${unit}`.trim();
+    return (
+      <>
+        <Sci value={output.value} digits={digits} />
+        {unit ? ` ${unit}` : ""}
+      </>
+    );
   }
   if (output.status === "outside-domain") return output.reason;
   if (output.status === "not-applicable") return output.reason;
@@ -162,7 +175,7 @@ export function EntropyWorkbenchLab({
       <noscript>
         <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built,
-          at nu = {LQ04_DEFAULTS.frequency.toExponential(2)} Hz and T0 ={" "}
+          at nu = <Sci value={LQ04_DEFAULTS.frequency} digits={2} /> Hz and T0 ={" "}
           {LQ04_DEFAULTS.referenceTemperature} K with the printed formulas below. Changing settings
           requires JavaScript.
         </p>
@@ -274,8 +287,8 @@ export function EntropyWorkbenchLab({
 
         <div className="lab-results">
           <p className="fine">
-            Fixed energy E = {energyText} at nu = {p.frequency.toExponential(2)} Hz in a{" "}
-            {p.bandwidth.toExponential(2)} Hz band.
+            Fixed energy E = {energyText} at nu = <Sci value={p.frequency} digits={2} /> Hz in a{" "}
+            <Sci value={p.bandwidth} digits={2} /> Hz band.
           </p>
 
           {refused && entropyOutput?.status === "outside-domain" ? (
@@ -319,8 +332,8 @@ export function EntropyWorkbenchLab({
               </tr>
               <tr>
                 <th scope="row">Spectral entropy density s_nu</th>
-                <td>{valueText(snapshot, "initialSpectralEntropyDensity", "J/(m^3 Hz K)")}</td>
-                <td>{valueText(snapshot, "finalSpectralEntropyDensity", "J/(m^3 Hz K)")}</td>
+                <td>{valueText(snapshot, "initialSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
+                <td>{valueText(snapshot, "finalSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
               </tr>
             </tbody>
           </table>

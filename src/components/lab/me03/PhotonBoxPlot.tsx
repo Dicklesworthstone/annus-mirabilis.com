@@ -2,6 +2,7 @@ import type { Me03Parameters } from "../../../experiments/me03/definition.ts";
 import type { PhotonInBoxResult } from "../../../experiments/me03/session.ts";
 import type { RepresentationScale } from "../../../visuals/kit/types.ts";
 import "./me03.css";
+import { Sci, SciSvg } from "../Sci.tsx";
 
 export interface PhotonBoxPlotProps {
   parameters: Me03Parameters;
@@ -176,10 +177,10 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
             fontWeight="bold"
             data-testid="units-strip-displacement"
           >
-            Δx = {physicalDisplacement.toExponential(6)} m
+            Δx = <SciSvg value={physicalDisplacement} digits={6} /> m
           </text>
           <text x={width - 55} y="24" fontSize="10" textAnchor="end" fill="var(--muted)">
-            Magnified {magnification.toExponential()}× for visualization (appliesTo:
+            Magnified <SciSvg value={magnification} />× for visualization (appliesTo:
             centerOfMassShift)
           </text>
         </g>
@@ -190,30 +191,51 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
         <div className="telemetry-col">
           <p className="telemetry-label">Pulse Momentum:</p>
           <p className="telemetry-value">
-            {evaluation.pulseMomentum.status === "value"
-              ? `${Number(evaluation.pulseMomentum.value).toExponential(6)} kg·m/s`
-              : "outside domain"}
+            {evaluation.pulseMomentum.status === "value" ? (
+              <>
+                <Sci value={Number(evaluation.pulseMomentum.value)} digits={6} /> kg·m/s
+              </>
+            ) : (
+              "outside domain"
+            )}
           </p>
           <p className="telemetry-label">Recoil Speed:</p>
           <p className="telemetry-value">
-            {evaluation.recoilSpeed.status === "value"
-              ? `${Number(evaluation.recoilSpeed.value).toExponential(6)} m/s`
-              : "outside domain"}
+            {evaluation.recoilSpeed.status === "value" ? (
+              <>
+                <Sci value={Number(evaluation.recoilSpeed.value)} digits={6} /> m/s
+              </>
+            ) : (
+              "outside domain"
+            )}
           </p>
         </div>
 
         <div className="telemetry-col">
           <p className="telemetry-label">Flight Time:</p>
           <p className="telemetry-value">
-            {evaluation.pulseFlightTime.status === "value"
-              ? `${Number(evaluation.pulseFlightTime.value).toExponential(6)} s`
-              : "outside domain"}
+            {evaluation.pulseFlightTime.status === "value" ? (
+              <>
+                <Sci value={Number(evaluation.pulseFlightTime.value)} digits={6} /> s
+              </>
+            ) : (
+              "outside domain"
+            )}
           </p>
           <p className="telemetry-label">Light Mass Assigned:</p>
           <p className="telemetry-value">
-            {assignLightMass
-              ? `${evaluation.lightMassAssigned.status === "value" ? Number(evaluation.lightMassAssigned.value).toExponential(6) : "0"} kg (E/c²)`
-              : "0 kg (none)"}
+            {assignLightMass ? (
+              <>
+                {evaluation.lightMassAssigned.status === "value" ? (
+                  <Sci value={Number(evaluation.lightMassAssigned.value)} digits={6} />
+                ) : (
+                  "0"
+                )}{" "}
+                kg (E/c²)
+              </>
+            ) : (
+              "0 kg (none)"
+            )}
           </p>
         </div>
 
@@ -228,7 +250,9 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
               : `Nonzero: ${evaluation.exactRationalCenterOfMassShift.numerator} / ${evaluation.exactRationalCenterOfMassShift.denominator} m`}
           </p>
           <p className="telemetry-label">Domain Bound E/(Mc²):</p>
-          <p className="telemetry-value">{evaluation.domainRatio.toExponential(4)} ≤ 1.0e-3 (OK)</p>
+          <p className="telemetry-value">
+            <Sci value={evaluation.domainRatio} digits={4} /> ≤ <Sci value={1e-3} digits={1} /> (OK)
+          </p>
         </div>
       </div>
 

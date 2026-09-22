@@ -1,4 +1,5 @@
 import { visibleColor } from "../../../experiments/lq09/session.ts";
+import { SciSvg } from "../Sci.tsx";
 
 export type IonizationThresholdLadderProps = Readonly<{
   frequency: number; // Hz
@@ -327,7 +328,8 @@ export function IonizationCountingPlot({
           fontFamily="var(--font-mono, monospace)"
           fill="var(--ink)"
         >
-          {incidentQuantaRate.toExponential(2)}/s
+          <SciSvg value={incidentQuantaRate} digits={2} />
+          /s
         </text>
 
         {/* Absorbed Quanta Bar */}
@@ -355,7 +357,8 @@ export function IonizationCountingPlot({
           fontFamily="var(--font-mono, monospace)"
           fill="var(--ink)"
         >
-          {absorbedQuantaRate.toExponential(2)}/s
+          <SciSvg value={absorbedQuantaRate} digits={2} />
+          /s
         </text>
 
         {/* Ionization Events Bar */}
@@ -386,7 +389,8 @@ export function IonizationCountingPlot({
               fontFamily="var(--font-mono, monospace)"
               fill="var(--ink)"
             >
-              {ionizationRate.toExponential(2)}/s
+              <SciSvg value={ionizationRate} digits={2} />
+              /s
             </text>
           </>
         ) : ionizationStatus === "underdetermined" ? (
@@ -409,7 +413,8 @@ export function IonizationCountingPlot({
               fill="var(--ink)"
               fontWeight="600"
             >
-              Bounded: &le; {absorbedQuantaRate.toExponential(2)}/s
+              Bounded: &le; <SciSvg value={absorbedQuantaRate} digits={2} />
+              /s
             </text>
           </>
         ) : (
