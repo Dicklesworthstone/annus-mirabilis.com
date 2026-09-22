@@ -3,35 +3,88 @@
   "kind": "foundation",
   "id": "derivatives",
   "title": "Rates of change and derivatives",
-  "question": "What physical rate does a derivative measure?",
-  "summary": "A derivative measures the instantaneous rate of change of one physical quantity with respect to another, defined as the limit of average differences over shrinking intervals.",
+  "question": "How can a body have a speed at a single instant?",
+  "summary": "Work out the average rate over shorter and shorter intervals. The value those averages settle on is the rate at the instant, and it is called the derivative.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "When a quantity changes over an interval of time or space, the ratio of the change in output to the change in input gives an average rate. As the measurement interval shrinks toward zero, this average ratio approaches a definite limit: the instantaneous derivative."
+      "text": "A speed needs two readings of position and the time between them: divide the distance covered by the time taken, and you have the average speed over that interval. An instant has no duration, so that recipe cannot be used at an instant as it stands."
     },
     {
       "kind": "paragraph",
-      "text": "Geometrically, the derivative is the slope of the tangent line to the function graph at a single point. Physically, it always carries the units of the output divided by the units of the input. For position over time, the derivative is velocity in metres per second; for concentration over position, it is a spatial gradient in particles per metre to the fourth power."
+      "text": "So shorten the interval instead. Over a shorter interval the average describes a shorter piece of the motion, and for smooth motion the averages settle on one number as the interval shrinks. That number is the derivative, the speed at the instant. The interval is never set to zero, which would mean dividing zero distance by zero time; it only shrinks."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\frac{dx}{dt} = \\lim_{\\Delta t \\to 0} \\frac{x(t+\\Delta t) - x(t)}{\\Delta t}",
+      "spoken": "d x by d t is the value that the change in position divided by the change in time settles on as delta t shrinks towards zero."
     },
     {
       "kind": "paragraph",
-      "text": "In 1905, Einstein used derivatives to relate microscopic flux to macroscopic concentration gradients, and to extract temperature and wavelength dependencies from radiation laws without guessing unmeasured intermediates."
+      "text": "A derivative carries units: those of the quantity that changes, divided by those of the quantity you vary. Position in metres, varied over time in seconds, gives metres per second. On a graph of position against time, the derivative at a point is the steepness of the curve there."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Einstein's Brownian paper uses derivatives of a concentration. In §3, the number of particles that diffuse through each unit of area each second is the diffusion coefficient D times the rate at which the concentration ν falls along the tube:"
+    },
+    {
+      "kind": "formula",
+      "latex": "-D\\,\\frac{\\partial \\nu}{\\partial x}",
+      "spoken": "Minus D times the partial derivative of nu with respect to x."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In §4, the rate at which the concentration f at one place changes in time is set equal to D times the rate at which its slope along the tube changes:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\frac{\\partial f}{\\partial t} = D\\,\\frac{\\partial^2 f}{\\partial x^2}",
+      "spoken": "The partial derivative of f with respect to t equals D times the second partial derivative of f with respect to x."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The curly ∂ marks a partial derivative, taken while the other variable is held fixed."
     }
   ],
   "example": [
     {
-      "kind": "formula",
-      "latex": "\\frac{df}{dx} = \\lim_{\\Delta x \\to 0} \\frac{f(x+\\Delta x) - f(x)}{\\Delta x}",
-      "spoken": "The derivative of f with respect to x is the limit of the difference quotient as delta x approaches zero."
+      "kind": "paragraph",
+      "text": "A body's position after t seconds is x = 3t² metres. At t = 1 s it is at 3 m. Find its speed at exactly that moment by averaging over shorter and shorter intervals that start there."
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "Over the next 1 s it reaches 12 m: 9 m in 1 s, an average of 9 m/s.",
+        "Over the next 0.1 s it reaches 3.63 m: 0.63 m in 0.1 s, an average of 6.3 m/s.",
+        "Over the next 0.01 s it reaches 3.0603 m: 0.0603 m in 0.01 s, an average of 6.03 m/s.",
+        "Over the next 0.001 s it reaches 3.006003 m: 0.006003 m in 0.001 s, an average of 6.003 m/s."
+      ]
     },
     {
       "kind": "paragraph",
-      "text": "If position x(t) = c t^2 with c = 3 metres per second squared, the change between t and t + Δt is c(t+Δt)^2 - ct^2 = 2ctΔt + c(Δt)^2. Dividing by Δt gives 2ct + cΔt. In the limit Δt -> 0, the instantaneous velocity is exactly 2ct = 6t metres per second."
+      "text": "The averages settle on 6 m/s, the speed at t = 1 s. The algebra shows why, at any time t. Over an interval Δt the body moves 3(t + Δt)² − 3t² metres. Since (t + Δt)² is t² + 2tΔt + (Δt)², that distance is:"
+    },
+    {
+      "kind": "formula",
+      "latex": "3(t+\\Delta t)^2 - 3t^2 = 6t\\,\\Delta t + 3(\\Delta t)^2",
+      "spoken": "Three times t plus delta t, squared, minus three t squared, equals six t delta t plus three delta t squared."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Divide that distance by the time Δt to get the average speed over the interval:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\frac{6t\\,\\Delta t + 3(\\Delta t)^2}{\\Delta t} = 6t + 3\\,\\Delta t",
+      "spoken": "Six t delta t plus three delta t squared, divided by delta t, equals six t plus three delta t."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The 3Δt term shrinks with the interval and leaves 6t metres per second. At t = 1 s that is 6 m/s. The extra 3, 0.3, 0.03 and 0.003 in the list above are that 3Δt term, for Δt of 1, 0.1, 0.01 and 0.001 seconds."
     }
   ],
-  "exampleTitle": "The velocity of a body whose position goes as t squared",
+  "exampleTitle": "The speed at t = 1 s of a body at x = 3t² metres",
   "prerequisites": [
     {
       "foundationId": "foundation:functions-graphs",
@@ -44,6 +97,6 @@
       "caption": "Return to Brownian §4 diffusion rate derivation"
     }
   ],
-  "stoppingPoint": "A derivative is an instantaneous rate bearing explicit units; it is not a fraction of two separate isolated zeros.",
+  "stoppingPoint": "A derivative is the value an average rate settles on as the interval shrinks, in units of one quantity per unit of the other. The interval shrinks but is never set to zero, so nothing is ever divided by zero.",
   "citations": []
 }
