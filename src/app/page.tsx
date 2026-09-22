@@ -3,115 +3,106 @@ export default function Home() {
     <>
       <section className="hero">
         <p className="eyebrow">Annalen der Physik · 1905</p>
-        <h1>
-          Four papers.
-          <br />A different way
-          <br />
-          to ask <em>why.</em>
-        </h1>
+        <h1>Einstein&rsquo;s four papers of 1905</h1>
         <p className="lead">
-          Read an argument, change a quantity, and see exactly what follows. Annus Mirabilis is
-          becoming an interactive critical edition of Einstein’s four 1905 papers.
+          An interactive critical edition of the four papers Einstein sent to Annalen der Physik in
+          1905, with his dissertation as a companion. The edition is in preparation. What is
+          finished is listed below, and what is missing is named rather than summarised.
         </p>
         <div className="actions">
           <a className="button" href="/discover/brownian-motion/">
-            Begin with a wandering particle →
+            Open the Brownian motion journey
           </a>
-          <a href="/papers/brownian-motion/">Read the displacement argument</a>
-          <a href="/papers/light-quanta/#entry-light-quanta">
-            Show me how counting can reveal a pattern
-          </a>
+          <a href="/papers/brownian-motion/">Read the Brownian motion paper</a>
+          <a href="/papers/light-quanta/#entry-light-quanta">Read the light-quanta paper</a>
           <a href="/papers/special-relativity/#entry-special-relativity">
-            How would you set a distant clock?
+            Read the special relativity paper
           </a>
         </div>
       </section>
       <section className="feature-row">
         <div>
           <p className="eyebrow">Available now · Brownian motion</p>
-          <h2>
-            When each path is uncertain,
-            <br />
-            what can still be predictable?
-          </h2>
+          <h2>Six laboratories and a reading path</h2>
         </div>
         <div>
           <p>
-            The tracer ensemble records reproducible synthetic paths; the random-step laboratory
-            shows how different step laws approach diffusion; the spreading laboratory explores
-            interval probabilities and the diffusion equation. The inference laboratory turns the
-            question around: estimate a hidden molecular number, identify the missing inputs, and
-            test uncertainty across hypothetical repetitions. The camera laboratory then separates
-            physical wandering from exposure blur, localization error, and stage drift.
+            The tracer ensemble records reproducible synthetic paths. The random-step laboratory
+            shows how different step laws approach diffusion, and the spreading laboratory covers
+            interval probabilities and the diffusion equation. The inference laboratory estimates a
+            hidden molecular number, names the inputs it does not have, and tests the uncertainty
+            across repeated trials. The camera laboratory separates physical wandering from exposure
+            blur, localization error, and stage drift.
           </p>
           <p>
-            The reading path connects these instruments to six explanatory passages and thirteen
-            foundation lessons. Open a missing step, change the level of detail, and return without
-            restarting the embedded trial.
+            The reading path links these instruments to six explanatory passages and thirteen
+            foundation lessons. You can open a missing step, change the level of detail, and return
+            without restarting the trial you had running.
           </p>
           <p>
-            <a href="/papers/brownian-motion/">Read, investigate, and return to the argument →</a>
+            <a href="/papers/brownian-motion/">Open the reading path for Brownian motion</a>
           </p>
           <p>
-            The worked example remains readable with JavaScript off. The interactive calculation
+            The worked example stays readable with JavaScript off. The interactive calculation
             starts only when you ask for it.
           </p>
-          <a href="/lab/bm-01/">Open the tracer ensemble →</a>
           <p>
-            <a href="/lab/bm-05/">Build diffusion from independent steps →</a>
+            <a href="/lab/bm-01/">Open the tracer ensemble</a>
           </p>
           <p>
-            <a href="/lab/bm-07/">Infer a hidden molecular number and test the uncertainty →</a>
+            <a href="/lab/bm-05/">Build diffusion from independent steps</a>
           </p>
           <p>
-            <a href="/lab/bm-08/">Keep the particle; change the camera and the inference →</a>
+            <a href="/lab/bm-07/">Estimate a hidden molecular number</a>
           </p>
           <p>
-            <a href="/lab/bm-06/">Open the spreading laboratory →</a>
+            <a href="/lab/bm-08/">Change the camera and the inference</a>
           </p>
           <p>
-            <a href="/lab/lq-01/">Interrogate wave interference and spherical energy spreading →</a>
+            <a href="/lab/bm-06/">Open the spreading laboratory</a>
           </p>
           <p>
-            <a href="/lab/me-02/">Ask what a drop in energy of motion says about inertia →</a>
+            <a href="/lab/lq-01/">Compare wave interference with spherical spreading</a>
           </p>
           <p>
-            <a href="/lab/sr-02/">Compare both descriptions of the magnet and conductor →</a>
+            <a href="/lab/me-02/">Trace inertia from a drop in energy of motion</a>
           </p>
           <p>
-            <a href="/lab/sr-03/">Measure moving rods, simultaneity, and causal order →</a>
+            <a href="/lab/sr-02/">Compare both descriptions of the magnet and conductor</a>
           </p>
           <p>
-            <a href="/lab/sr-09/">
-              Watch Doppler and aberration diverge from the medium formulae →
-            </a>
+            <a href="/lab/sr-03/">Measure moving rods, simultaneity, and causal order</a>
           </p>
           <p>
-            <a href="/lab/sr-10/">Transform the energy and volume of a finite light complex →</a>
+            <a href="/lab/sr-09/">Compare Doppler and aberration with the medium formulae</a>
           </p>
           <p>
-            <a href="/lab/sr-13/">Examine electron dynamics and both force conventions →</a>
+            <a href="/lab/sr-10/">Transform the energy and volume of a finite light complex</a>
           </p>
           <p>
-            <a href="/lab/lq-06/">
-              Match radiation entropy to gas entropy and derive the light quantum →
-            </a>
+            <a href="/lab/sr-13/">Examine electron dynamics under both force conventions</a>
+          </p>
+          <p>
+            <a href="/lab/lq-06/">Match radiation entropy to gas entropy</a>
           </p>
         </div>
       </section>
       <section className="reading">
-        <h2>Keep the distinctions that matter</h2>
+        <h2>What the interface keeps separate</h2>
         <p>
-          A calculated curve is not an experimental observation. A numerical instability is not a
-          physical impossibility. A modern constant is not a verified historical transcription.
-          Those distinctions are part of the interface, not qualifications left in a footnote.
+          A calculated curve is a calculated curve, and the interface says so where the number
+          appears: an experimental observation carries a citation, a numerical instability carries
+          its stability condition, and a modern constant carries the constant set it came from. None
+          of these distinctions is left to a footnote.
         </p>
         <p>
-          The German source ledgers and aligned English translation are still in preparation. The
-          available reader presents original explanations, not reviewed source text. This preview
-          does not substitute a summary for the promised edition.
+          The German source ledgers and the aligned English translation are still in preparation.
+          The reader currently presents explanations written for this edition, not reviewed source
+          text, and it says so on every face that has no source yet.
         </p>
-        <a href="/papers/">See the four-paper catalogue →</a>
+        <p>
+          <a href="/papers/">See the paper catalogue</a>
+        </p>
       </section>
     </>
   );
