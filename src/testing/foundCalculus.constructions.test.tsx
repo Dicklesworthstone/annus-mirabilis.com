@@ -26,18 +26,20 @@ test("foundCalculus.constructions: TableToPlotBuilder renders SSR markup, keyboa
   const html = renderToStaticMarkup(<TableToPlotBuilder />);
 
   // Heading and structure
-  assert.ok(html.includes("from measurement table to curve"));
+  assert.ok(html.includes("from a table to a curve"));
   assert.ok(html.includes("table-to-plot-builder"));
 
   // Keyboard controls
   assert.ok(html.includes('aria-label="Plot builder controls"'));
   assert.ok(html.includes('aria-label="Plot next data point"'));
-  assert.ok(html.includes('aria-label="Plot every measurement in the table"'));
+  assert.ok(html.includes('aria-label="Plot every point in the table"'));
   assert.ok(html.includes('aria-label="Reset plot to first point"'));
   assert.ok(html.includes('aria-live="polite"'));
 
-  // Table points from Brownian §5
-  assert.ok(html.includes("Table of paired measurements (Brownian §5)"));
+  // The table is computed from λx² = 2Dt, and must say so: it was captioned "Table of paired
+  // measurements (Brownian §5)", which presented invented numbers as Einstein's data.
+  assert.ok(html.includes("These are not measurements."));
+  assert.ok(!/measurements \(Brownian/.test(html));
   assert.ok(html.includes(">0</td>"));
   assert.ok(html.includes(">1</td>"));
   assert.ok(html.includes(">4</td>"));
@@ -577,7 +579,7 @@ test("foundCalculus.constructions: E2E 2 - From Brownian §5, open foundation:fu
     // Plot all with keyboard
     const allBtn = mustQuery<HTMLButtonElement>(
       pageRoot,
-      'button[aria-label="Plot every measurement in the table"]',
+      'button[aria-label="Plot every point in the table"]',
     );
     await act(async () => {
       allBtn.focus();
