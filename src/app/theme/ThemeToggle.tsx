@@ -109,7 +109,22 @@ export function ThemeToggle() {
         <span className="theme-switch-track" aria-hidden="true">
           <span className="theme-switch-knob" />
         </span>
-        <span className="theme-switch-label">
+        {/*
+          A plain span, deliberately unclassed. It groups the visible word with the
+          visually-hidden remainder so the two read as one accessible name, and it needs no rule
+          of its own: the button is the flex container and this is simply its second item.
+          It carried a label class until the declared-classes ratchet (am-vw1o) caught it,
+          correctly - no stylesheet declared that token, so the name claimed a styling contract
+          that did not exist. A class nothing styles is a promise to the next reader that there is
+          something to find.
+
+          The token is NOT spelled out above, and that is deliberate. This scanner reads raw
+          source, so a comment quoting the removed name puts it straight back into the file the
+          scanner examines: my first attempt at this fix left the gate red while the code was
+          already correct. AGENTS.md records the same shape - text that DESCRIBES a forbidden
+          construct is not the construct, and the better the comment the likelier the misfire.
+        */}
+        <span>
           Dark
           {/* Keeps the edition's own name for the theme in the accessible name. WCAG 2.5.3 wants
               the accessible name to CONTAIN the visible label, so the visible word comes first. */}

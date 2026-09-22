@@ -26,7 +26,15 @@ describe("EnglishFace render tests", () => {
     expect(html).toContain('lang="en"');
     expect(html).toContain("On the Movement of Small Particles");
     expect(html).toContain("By A. Einstein");
-    expect(html).toContain("Translated by A. D. Cowper");
+    // NOT "A. D. Cowper", and this is a rights rule rather than a fixture detail.
+    // AGENTS.md admits Cowper's 1926 Methuen translation only as a comparison witness
+    // cited in a provenance receipt, never as the site's own translation - so a reader
+    // face that renders "Translated by A. D. Cowper" is publishing an attribution the
+    // project has decided it will not make. f8ffe801 corrected the fixture to
+    // fixture-translator and deliberately left this assertion to the reader face's
+    // owner rather than rewriting it silently. Restoring the old name reintroduces the
+    // rights problem, not a passing test.
+    expect(html).toContain("Translated by Fixture Translator");
   });
 
   test("renders unreviewed translation banner when draft units exist", () => {
