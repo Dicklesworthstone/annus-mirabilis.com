@@ -852,6 +852,28 @@ samp,
   .lab-columns {
     grid-template-columns: 1fr;
   }
+  /* Once the two columns stack, the instrument comes before the controls that
+     drive it. Measured on the 10:09:52 build at 390px: the first visual sat at
+     2691px on /lab/bm-06/ and 3556px on /lab/bm-01/, which is 3.2 and 4.2
+     screens, and about 1000px BELOW its own control form. A reader met nine
+     text fields before the thing they change. AGENTS.md: "A scene begins with a
+     useful question and a stable default, not a dense control panel."
+
+     Verified across the population rather than assumed: 25 .lab-columns grids
+     on 24 built routes, and child 1 is the control form in 25 of 25. Child 2 is
+     the output in all of them - a plot on 20, a readout table of accepted
+     values on the other 5 (lq-02, lq-03, lq-04, sr-02, sr-04).
+
+     THE COST, measured and not hidden: child 2 holds 37 focusable controls
+     across 12 of the 25 grids, so on those pages the visual order and the tab
+     order disagree - a keyboard reader tabs into the form below before reaching
+     the controls shown above it. The honest repair is DOM order, but 22
+     separate components render this grid and there is no shared shell, so that
+     is 22 edits that will drift. One line here, with the divergence stated, was
+     the better trade; revert this single rule if the tab order matters more. */
+  .lab-columns > :nth-child(2) {
+    order: -1;
+  }
   .lab-bottom,
   .feature-row {
     gap: 1.5rem;
@@ -952,6 +974,23 @@ samp,
   }
   .input-grid {
     grid-template-columns: 1fr;
+  }
+  /* A parameter reads as a row - name on the left, value on the right - instead
+     of a label stacked over a full-width box. On /lab/bm-01/ nine parameters
+     cost about 100px each stacked; as rows they cost about 56px, and the 44px
+     floor also lifts the text inputs off the 43px they measured, one pixel
+     under the WCAG 2.2 target-size minimum they were aiming at. */
+  .input-grid .input-field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(7rem, 45%);
+    align-items: center;
+    gap: 0.4rem 0.75rem;
+    min-height: 44px;
+  }
+  .input-grid .input-field > input,
+  .input-grid .input-field > select {
+    min-height: 44px;
+    margin-top: 0;
   }
   .lab-columns {
     gap: 1rem;
