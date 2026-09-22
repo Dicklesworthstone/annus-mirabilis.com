@@ -46,8 +46,8 @@ describe("LQ-08 Photoelectric Apparatus Lab View & Route", () => {
     expect(html).toContain('data-view-id="lq-08-energy-diagram"');
     expect(html).toContain('data-view-id="lq-08-stopping-plot"');
     expect(html).toContain('data-view-id="lq-08-iv-curve"');
-    expect(containsHeading(html, "Accepted Laboratory Snapshot")).toBe(true);
-    expect(containsHeading(html, "Limits of this Reference Model (Not Modeled)")).toBe(true);
+    expect(containsHeading(html, "Values at these settings")).toBe(true);
+    expect(containsHeading(html, "What this model leaves out")).toBe(true);
     expect(html).toContain("Multi-photon or thermionic emission");
   });
 
@@ -116,13 +116,11 @@ describe("LQ-08 Photoelectric Apparatus Lab View & Route", () => {
 
   test("notModeled items are non-empty and properly disclosed", () => {
     const html = renderToStaticMarkup(<PhotoelectricLab example={example} />);
-    expect(containsHeading(html, "Limits of this Reference Model (Not Modeled)")).toBe(true);
+    expect(containsHeading(html, "What this model leaves out")).toBe(true);
     expect(html).toContain("Multi-photon or thermionic emission");
     expect(html).toContain("Contact potentials and surface states");
     expect(html).toContain("Space charge");
-    expect(
-      containsHeading(html, "Historical Readout: Einstein 1905 §8 Order-of-Magnitude Check"),
-    ).toBe(true);
+    expect(containsHeading(html, "Einstein’s 1905 §8 check, by order of magnitude")).toBe(true);
     expect(html).toContain("What was neglected:");
     expect(html).toContain("What it is not:");
   });
