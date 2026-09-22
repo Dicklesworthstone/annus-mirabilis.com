@@ -28,7 +28,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "R"
-    notes: "The value R = 8.31e7 erg/(mol·K) is an editorial input of the printed-historical constant set, not a concordance repair."
+    notes: "The value R = 8.31 · 10⁷ erg/(mol·K) is the one this edition uses for Einstein's printed constants: an input, not a correction of anything printed."
     sources:
       facsimilePage: 134
       anchor: lq-s2-p1
@@ -62,7 +62,7 @@ entries:
       firstUseBySection:
         - sectionId: lq-s2
           anchor: lq-s2-p1
-    notes: "Avogadro's number here and in paper 2. A magnetic-field component in paper 3. Printed 6.17e23 is a printed-historical constant-set entry, not a concordance correction."
+    notes: "Avogadro's number here and in paper 2; a magnetic-field component in paper 3. The printed 6.17 · 10²³ is kept as printed, as one of Einstein's constants, not corrected."
     sources:
       facsimilePage: 134
       anchor: lq-s2-p1
@@ -106,7 +106,7 @@ entries:
           anchor: lq-s1-p1
         - sectionId: lq-s5
           anchor: lq-s5-p1
-    notes: "Group rename matched on bound quantity ids, never on the characters R/N. k_B is not a printed symbol. §5's C is identified with this group later; the two quantity ids stay distinct until that identification."
+    notes: "Modern notation writes the ratio R/N as Boltzmann's constant, a symbol the paper never prints. The C of §5 is identified with R/N later in the argument; until then the two are kept apart."
     sources:
       facsimilePage: 133
       anchor: lq-s1-p1
@@ -139,7 +139,7 @@ entries:
             kind: term
             terms: ["avogadroConstant"]
         modernGlyph: "h"
-    notes: "The paper never writes h. Group rename only. h is not a printed symbol."
+    notes: "The paper never writes h. Modern notation writes the whole group Rβ/N as Planck's constant h."
     sources:
       facsimilePage: 134
       anchor: lq-s2-p1
@@ -187,7 +187,7 @@ entries:
           anchor: lq-s8-p1
         - sectionId: lq-s9
           anchor: lq-s9-p1
-    notes: "The third meaning of beta. In paper 3 it is the Lorentz factor (modern gamma). It is not v/c. Assuming beta = v/c makes every later formula look plausible and be wrong. Rename of an expression, not a one-letter swap."
+    notes: "The third meaning of β. In paper 3 it is the factor a modern reader writes γ. It is not v/c: read as v/c, every later formula looks plausible and is wrong. Modern notation replaces the whole expression, not just the letter."
     sources:
       facsimilePage: 134
       anchor: lq-s2-p1
@@ -232,7 +232,7 @@ entries:
           anchor: lq-s1-p1
         - sectionId: lq-s2
           anchor: lq-s2-p1
-    notes: "Expression rename. This entry never carries or corrects a printed value. A suspected exponent misprint of alpha belongs to the provenance receipt, not here."
+    notes: "This page never carries or corrects a printed value. A suspected misprint in the exponent of α is recorded with the scan's provenance, not here."
     sources:
       facsimilePage: 133
       anchor: lq-s1-p1
@@ -268,7 +268,7 @@ entries:
           anchor: lq-s1-p1
         - sectionId: lq-s2
           anchor: lq-s2-p1
-    notes: "Rename only. Speed of light here. A magnetic-field component in paper 3 §6. Emitted energy in paper 4. §9's L is a different entry. The value 3e10 cm/s is an editorial input of the constant set."
+    notes: "The speed of light here; a magnetic-field component in paper 3 §6; emitted energy in paper 4. The L of §9 is a different quantity. The value 3 · 10¹⁰ cm/s is an input this edition supplies."
     sources:
       facsimilePage: 132
       anchor: lq-s1-p1
@@ -293,7 +293,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "u_\\nu"
-    notes: "Binds frequencyEnergyDensity, never wavelengthEnergyDensity. Whether the edition also prints an un-subscripted rho is pending the facsimile; no un-subscripted rho entry is admitted without that check."
+    notes: "Energy density per unit frequency, never per unit wavelength. Whether the paper also prints ρ without the subscript has not yet been checked against the scan, so no such entry is listed."
     sources:
       facsimilePage: 133
       anchor: lq-s1-p1
@@ -329,7 +329,7 @@ entries:
           anchor: lq-s3-p1
         - sectionId: lq-s4
           anchor: lq-s4-p1
-    notes: "Spectral entropy density here. Transition kernel in paper 2. An angle in paper 3. Volume fraction in the dissertation. §5's phi(W) is a different entry."
+    notes: "Spectral entropy density here; the transition probability density in paper 2; an angle in paper 3; a volume fraction in the dissertation. The φ(W) of §5 is a different quantity."
     sources:
       facsimilePage: 135
       anchor: lq-s3-p1
@@ -513,7 +513,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "V"
-    notes: "Rename of the printed volume glyph to V. Whether the facsimile prints v or V is pending; this entry follows the bead's listed glyph."
+    notes: "Modern notation writes this volume as V. Whether the scan prints v or V has not yet been checked; the entry follows the transcription."
     sources:
       facsimilePage: 135
       anchor: lq-s3-p1
@@ -760,7 +760,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "Z"
-    notes: "A vector component of radiationElectricField. The component is a term binding, not a second quantity id."
+    notes: "One component of the radiation's electric field."
     sources:
       facsimilePage: 132
       anchor: lq-s1-fn1
@@ -1176,7 +1176,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "V_{\\mathrm{s}}"
-    notes: "Never a signed collector potential. In the printed check Pi is in abvolts, and Pi · 10^{-8} is read as volts. This entry does not correct a printed number."
+    notes: "Always a magnitude, never a signed potential. In the printed check Π is in abvolts, and Π · 10⁻⁸ is read as volts. This page does not correct the printed number."
     sources:
       facsimilePage: 145
       anchor: lq-s8-p1
@@ -1268,7 +1268,7 @@ entries:
       firstUseBySection:
         - sectionId: lq-s8
           anchor: lq-s8-p1
-    notes: "Never an energy id. Modern glyph F, the Faraday constant. Printed 9.6e3 abcoulombs per gram-equivalent is 9.6e4 C/mol beside the modern Faraday constant 96485.33 C/mol. This entry does not correct the printed 9.6e3."
+    notes: "Not an energy. Modern notation writes F, the Faraday constant. The printed 9.6 · 10³ abcoulombs per gram-equivalent is 9.6 · 10⁴ C/mol, beside the modern 96485.33 C/mol. The printed value is kept as printed."
     sources:
       facsimilePage: 145
       anchor: lq-s8-p1
@@ -1302,7 +1302,7 @@ entries:
       firstUseBySection:
         - sectionId: lq-s8
           anchor: lq-s8-p1
-    notes: "Modern glyph Phi_m, pending reviewer confirmation against the cross-toggle rule. Distinct from P and from p."
+    notes: "Modern notation writes Φₘ; that choice is not yet confirmed by a reviewer. Distinct from P and from p."
     sources:
       facsimilePage: 145
       anchor: lq-s8-p1
@@ -1388,7 +1388,7 @@ entries:
       firstUseBySection:
         - sectionId: lq-s9
           anchor: lq-s9-p1
-    notes: "Never speedOfLight. The §§1–2 L is a different entry. Section 9 is not dropped behind the photoelectric headline."
+    notes: "Not the speed of light; the L of §§1–2 is a different quantity."
     sources:
       facsimilePage: 147
       anchor: lq-s9-p1
@@ -1421,7 +1421,7 @@ entries:
             kind: term
             terms: ["avogadroConstant"]
         modernGlyph: "I"
-    notes: "Admitted as the per-molecule form named by the bead. Whether the facsimile prints J/N as a group is pending."
+    notes: "Listed in its per-molecule form. Whether the paper prints J/N as a group has not yet been checked against the scan."
     sources:
       facsimilePage: 147
       anchor: lq-s9-p1
@@ -1450,7 +1450,7 @@ entries:
       toSystem: si
       factor: 1.0e-7
       exact: true
-    notes: "1 erg = 10^{-7} J. The concordance never repairs a printed number."
+    notes: "1 erg = 10⁻⁷ J. This page never corrects a printed number."
     sources:
       facsimilePage: 134
       anchor: lq-s2-p1
@@ -1552,7 +1552,7 @@ entries:
       toSystem: si
       factor: 10
       exact: false
-    notes: "Conventional factor: 1 abC ↔ 10 C. Printed E = 9.6e3 abC per gram-equivalent is 9.6e4 C/mol. This entry does not correct 9.6e3."
+    notes: "By convention 1 abcoulomb = 10 C. The printed E = 9.6 · 10³ abcoulombs per gram-equivalent is 9.6 · 10⁴ C/mol. The printed value is kept as printed."
     sources:
       facsimilePage: 145
       anchor: lq-s8-p1

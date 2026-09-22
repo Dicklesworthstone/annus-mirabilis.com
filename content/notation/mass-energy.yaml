@@ -292,7 +292,7 @@ entries:
       firstUseBySection:
         - sectionId: me-s0
           anchor: me-s0-p5
-    notes: "Verified against ap-18-639: the factor is printed as an explicit radical every time, 6 occurrences (p. 639 once in the l* relation; p. 640 four times; p. 641 once). The shorthand \\beta is NOT printed anywhere in this paper, so no beta entry and no printed-collision flag for beta exist here; AGENTS.md, the master plan and the original inventory all expected beta and are wrong on that point. This is a group rename: the whole radical renders as \\gamma. The caution collision is a pointer to paper 3, where Einstein does write beta for this same factor, so a reader meeting beta there learns the correspondence."
+    notes: "Checked against the printed pages: the factor is printed as an explicit radical every time, six times (p. 639 once, p. 640 four times, p. 641 once). β is not printed anywhere in this paper, although the relativity paper uses β for the same factor. Modern notation writes the whole radical as γ."
     sources:
       facsimilePage: 639
       anchor: me-s0-p5
@@ -329,7 +329,7 @@ entries:
       firstUseBySection:
         - sectionId: me-s0
           anchor: me-s0-p7
-    notes: "Total emitted energy in rest frame. Not the speed of light (paper 1) and not a magnetic-field component (paper 3 §6). A reader carrying paper 1's L into paper 4 misreads the central result as being about light speed when it is about radiated energy. Renders as E_{\\text{emit}}, not bare E, because the paper also prints a generic E that already renders as E; two entries rendering to E in scope me-s0 would be a modern-glyph-collision. Decision recorded in docs/editorial/mass-energy-notation-verification.md section 5."
+    notes: "The total energy emitted, measured in the body's rest frame. Not the speed of light (paper 1) and not a magnetic-field component (paper 3 §6): a reader who carries paper 1's L into this paper reads the central result as being about the speed of light when it is about radiated energy. Modern notation writes it as an E with a subscript, not a bare E, because the paper also prints a plain E."
     sources:
       facsimilePage: 640
       anchor: me-s0-p7
@@ -812,7 +812,7 @@ entries:
       toSystem: si
       factor: 1e-17
       conversionDerivationRef: "Printed 9e20 (cm/s)^2 rounds V to 3e10 cm/s. In SI, 1/c^2 = 1/(2.99792e8 m/s)^2 = 1.11265e-17 kg/J. The printed value 1/(9e20 erg/g) = 1/(9e20 * 1e-7 J / 1e-3 kg) = 1/(9e16 J/kg) = 1.11111e-17 kg/J, which is 0.14% above exact modern 1/c^2 because Einstein rounded V."
-    notes: "Unit-conversion entry for the paper's printed 9*10^20 factor. That is 0.14 percent above modern c^2 = 8.98755*10^20 cm^2/s^2 because the paper rounds V to 3*10^10 cm/s."
+    notes: "The paper's printed factor 9 · 10²⁰ is 0.14 percent above the modern c² = 8.98755 · 10²⁰ cm²/s², because the paper rounds V to 3 · 10¹⁰ cm/s."
     sources:
       facsimilePage: 641
       anchor: me-s0-p15

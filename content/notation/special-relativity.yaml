@@ -36,7 +36,7 @@ entries:
       firstUseBySection:
         - sectionId: sr-s0
           anchor: sr-s0-p1
-    notes: "Rename only. Not a unit conversion and not a change of argument."
+    notes: "Modern notation writes c. Only the letter changes: no unit conversion, no change in the argument."
     sources:
       facsimilePage: 891
       anchor: sr-s0-p1
@@ -552,7 +552,7 @@ entries:
       firstUseBySection:
         - sectionId: sr-s3
           anchor: sr-s3-p1
-    notes: "Printed x' = x - vt is an auxiliary. Modern x' is reserved for xi. The two must not share a glyph in a modern rendering of §3."
+    notes: "The printed x′ = x − vt is an auxiliary coordinate. In modern notation x′ means the moving-frame coordinate the paper writes ξ, so a modern rendering of §3 gives the two different symbols."
     sources:
       facsimilePage: 898
       anchor: sr-s3-p1
@@ -586,7 +586,7 @@ entries:
       firstUseBySection:
         - sectionId: sr-s3
           anchor: sr-s3-p1
-    notes: "Rename only. Einstein's beta is the modern gamma. It is not v/c, and it is not paper 1's Wien constant h/k_B. Assuming beta = v/c makes every later formula look plausible and be wrong."
+    notes: "Einstein's β is the modern γ. It is not v/c, and it is not paper 1's Wien constant. Read as v/c, every later formula looks plausible and is wrong."
     sources:
       facsimilePage: 898
       anchor: sr-s3-p1
@@ -611,7 +611,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "a(v)"
-    notes: "Printed a is not the modern side-door ansatz a(v), which is a modernOnlySymbols record."
+    notes: "The printed a is not the a(v) that some modern derivations introduce; that one is listed under Symbols this edition adds."
     sources:
       facsimilePage: 898
       anchor: sr-s3-p1
@@ -644,7 +644,7 @@ entries:
       firstUseBySection:
         - sectionId: sr-s3
           anchor: sr-s3-p1
-    notes: "In §§7–8 the same glyph is an angle. Distinct from §6's psi(v)."
+    notes: "In §§7–8 the same letter is an angle. Distinct from the ψ(v) of §6."
     sources:
       facsimilePage: 900
       anchor: sr-s3-p1
@@ -829,7 +829,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "E_x"
-    notes: "Rename only. Gaussian-to-SI conversion E_G = sqrt(4 pi epsilon_0) E_SI is a unitConversion, not applied by the notation toggle. fromSystem gaussian-cgs, toSystem si."
+    notes: "Printed in Gaussian units. The Gaussian field is √(4πε₀) times the SI field; the modern-notation view does not apply that conversion."
     sources:
       facsimilePage: 907
       anchor: sr-s6-p1
@@ -855,7 +855,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "E_y"
-    notes: "Rename only. Gaussian-to-SI conversion is a separate unitConversion (gaussian-cgs to si). The SI transformation is E'_y = gamma (E_y - v B_z), not a string substitution on the Gaussian formula."
+    notes: "Printed in Gaussian units; the conversion to SI is separate, and the modern-notation view does not apply it. In SI this component transforms by a different formula, not the Gaussian one with its letters changed."
     sources:
       facsimilePage: 907
       anchor: sr-s6-p1
@@ -881,7 +881,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "E_z"
-    notes: "Rename only. Gaussian-to-SI is unitConversion, gaussian-cgs to si."
+    notes: "Printed in Gaussian units; the conversion to SI is separate, and the modern-notation view does not apply it."
     sources:
       facsimilePage: 907
       anchor: sr-s6-p1
@@ -916,7 +916,7 @@ entries:
       firstUseBySection:
         - sectionId: sr-s6
           anchor: sr-s6-p1
-    notes: "A magnetic-field component. Not the speed of light (paper 1) and not emitted energy (paper 4). Rename only; Gaussian-to-SI is unitConversion B_G = c sqrt(4 pi epsilon_0) B_SI."
+    notes: "A magnetic-field component. Not the speed of light (paper 1) and not emitted energy (paper 4). Printed in Gaussian units; the Gaussian field is c√(4πε₀) times the SI field, a conversion kept separate."
     sources:
       facsimilePage: 907
       anchor: sr-s6-p1
@@ -942,7 +942,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "B_y"
-    notes: "Rename only. SI form B'_y = gamma (B_y + v E_z / c^2) is not a string substitution on the Gaussian formula."
+    notes: "In SI this component transforms by a different formula, not the Gaussian one with its letters changed."
     sources:
       facsimilePage: 907
       anchor: sr-s6-p1
@@ -1003,7 +1003,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "E'_y"
-    notes: "Rename of the printed glyph. Gaussian-to-SI conversion (fromSystem gaussian-cgs, toSystem si) is a unitConversion and is not applied by the notation toggle. The SI law is E'_y = gamma (E_y - v B_z)."
+    notes: "Printed in Gaussian units; the conversion to SI is separate, and the modern-notation view does not apply it. In SI this component transforms by a different formula."
     sources:
       facsimilePage: 907
       anchor: sr-s6-p1
@@ -1030,7 +1030,7 @@ entries:
       factor: 1
       exact: false
       conversionDerivationRef: "E_G = sqrt(4 pi epsilon_0) E_SI"
-    notes: "This entry records the unit-system conversion. It does not rename a printed glyph. The toggle must not apply it."
+    notes: "This records the change from Gaussian to SI units. It renames nothing, and the modern-notation view does not apply it."
     sources:
       facsimilePage: 907
       anchor: sr-s6-p1
@@ -1055,7 +1055,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "\\psi(v)"
-    notes: "A different record from §3's phi(v). Different argument, only later both equal to 1."
+    notes: "Not the φ(v) of §3: a different argument, though both later turn out to equal 1."
     sources:
       facsimilePage: 908
       anchor: sr-s6-p1
@@ -1308,7 +1308,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "A"
-    notes: "Gaussian amplitude. Energy density A^2/8pi is Gaussian; converting it is unitConversion, not a rename."
+    notes: "An amplitude in Gaussian units; the energy density A²/8π is Gaussian too. Converting it to SI changes its form, not only its letter."
     sources:
       facsimilePage: 910
       anchor: sr-s7-p1
@@ -1366,7 +1366,7 @@ entries:
       firstUseBySection:
         - sectionId: sr-s8
           anchor: sr-s8-p1
-    notes: "Expected glyph R, pending facsimile. Distinct from §4's rest-sphere radius."
+    notes: "Expected to be printed R; not yet checked against the scan. Distinct from the radius of the sphere at rest in §4."
     sources:
       facsimilePage: 911
       anchor: sr-s8-p1
@@ -1478,7 +1478,7 @@ entries:
       factor: 1
       exact: false
       conversionDerivationRef: "rho_printed = 4 pi rho_Gaussian = sqrt(4 pi / epsilon_0) rho_SI"
-    notes: "The toggle must not display the printed rho as the modern SI charge density. Comparison witness: 4-pi-fache Dichte der Elektrizitat, pending facsimile."
+    notes: "The modern-notation view does not show the printed ρ as the modern SI charge density. A comparison text reads “4-pi-fache Dichte der Elektrizitat”; not yet checked against the scan."
     sources:
       facsimilePage: 914
       anchor: sr-s9-p1
@@ -1555,7 +1555,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "e"
-    notes: "Gaussian charge. Converting to SI is unitConversion, not this rename."
+    notes: "A charge in Gaussian units; converting it to SI is separate from renaming it."
     sources:
       facsimilePage: 917
       anchor: sr-s10-p1
@@ -1604,7 +1604,7 @@ entries:
       kind: modernization
       modernLensRef: "sr-10-modern-force-convention"
       argumentChangeDescription: "The source's transverse coefficient is m gamma^2 under its comoving-force convention. The laboratory convention gives m gamma (transverseMassLaboratory). That is a change of force convention, not a rename of beta and not a Gaussian-to-SI conversion."
-    notes: "The notation toggle must not apply this entry. Glyph pending facsimile; expected form is the printed transverse-mass coefficient."
+    notes: "The modern-notation view leaves this as printed. Not yet checked against the scan; the expected form is the printed coefficient of the transverse mass."
     sources:
       facsimilePage: 919
       anchor: sr-s10-p1
@@ -1628,7 +1628,7 @@ entries:
       kind: modernization
       modernLensRef: "sr-10-modern-force-convention"
       argumentChangeDescription: "The printed longitudinal coefficient is tied to the paper's force convention. Modern invariant-mass dynamics does not keep a direction-dependent mass as a primitive."
-    notes: "Glyph pending facsimile. Toggle must not apply this entry."
+    notes: "Not yet checked against the scan. The modern-notation view leaves this as printed."
     sources:
       facsimilePage: 919
       anchor: sr-s10-p1
