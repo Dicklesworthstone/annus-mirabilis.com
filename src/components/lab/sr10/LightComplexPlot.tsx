@@ -1,3 +1,5 @@
+import { FramePair } from "../FramePair.tsx";
+
 export interface LightComplexPlotProps {
   beta: number;
   gamma: number;
@@ -40,8 +42,9 @@ export function LightComplexPlot({
   const phiRad_k = (phiMovingDeg * Math.PI) / 180;
 
   // Visual layout
-  const width = 800;
-  const height = 380;
+  // Both frames share one 800 × 380 coordinate space, K drawn around x = 200 and k
+  // around x = 600; each FramePair panel's viewBox crops its own half. The k ellipse's
+  // radii are clamped to 130, so it stays inside x 470 to 730 at every speed.
   const cx1 = 200;
   const cy = 190;
   const cx2 = 600;
@@ -77,288 +80,286 @@ export function LightComplexPlot({
           padding: "1rem",
         }}
       >
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          role="img"
-          aria-label={`Light complex transformation diagram: stationary frame K with sphere volume = ${volumeStationaryM3.toFixed(2)} m^3, moving frame k with transformed volume = ${volumeMovingM3.toFixed(2)} m^3`}
-          style={{ width: "100%", height: "auto", userSelect: "none" }}
-        >
-          <title>Relativistic Light Complex Transformation (Einstein 1905 §8)</title>
+        <FramePair>
+          <svg
+            viewBox="10 10 370 360"
+            role="img"
+            aria-label={`Stationary frame K: a spherical light complex, energy ${energyStationaryJ.toFixed(2)} J, volume ${volumeStationaryM3.toFixed(2)} cubic metres, ray at phi = ${phiStationaryDeg.toFixed(1)} degrees`}
+            style={{ width: "100%", height: "auto", userSelect: "none" }}
+          >
+            <title>Stationary frame K</title>
+            <defs>
+              <marker
+                id="arrow-k-ray"
+                viewBox="0 0 10 10"
+                refX={5}
+                refY={5}
+                markerWidth={6}
+                markerHeight={6}
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--plot)" />
+              </marker>
+            </defs>
+            {/* Frame K Left Pane */}
+            <g>
+              <text x={40} y={35} fontSize="14" fontWeight="600" fill="var(--ink)">
+                Stationary Frame K
+              </text>
+              <text x={40} y={55} fontSize="12" fill="var(--muted)">
+                Spherical light complex · E = {energyStationaryJ.toFixed(2)} J · V ={" "}
+                {volumeStationaryM3.toFixed(2)} m³
+              </text>
 
-          {/* Dividing line */}
-          <line
-            x1={width / 2}
-            y1={20}
-            x2={width / 2}
-            y2={height - 20}
-            stroke="var(--line)"
-            strokeDasharray="4 4"
-          />
-
-          {/* Frame K Left Pane */}
-          <g>
-            <text x={40} y={35} fontSize="14" fontWeight="600" fill="var(--ink)">
-              Stationary Frame K
-            </text>
-            <text x={40} y={55} fontSize="12" fill="var(--muted)">
-              Spherical light complex · E = {energyStationaryJ.toFixed(2)} J · V ={" "}
-              {volumeStationaryM3.toFixed(2)} m³
-            </text>
-
-            {/* Coordinate axes */}
-            <line
-              x1={cx1 - 130}
-              y1={cy}
-              x2={cx1 + 130}
-              y2={cy}
-              stroke="var(--line)"
-              strokeWidth={1}
-            />
-            <line
-              x1={cx1}
-              y1={cy - 120}
-              x2={cx1}
-              y2={cy + 120}
-              stroke="var(--line)"
-              strokeWidth={1}
-            />
-            <text x={cx1 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
-              x
-            </text>
-            <text x={cx1} y={cy - 125} fontSize="10" fill="var(--muted)" textAnchor="middle">
-              y
-            </text>
-
-            {/* Spherical light complex boundary */}
-            <circle
-              cx={cx1}
-              cy={cy}
-              r={baseRadius}
-              fill="var(--plot)"
-              fillOpacity={0.15}
-              stroke="var(--plot)"
-              strokeWidth={2}
-            />
-
-            {/* Internal light wave ripples */}
-            <circle
-              cx={cx1}
-              cy={cy}
-              r={baseRadius * 0.65}
-              fill="none"
-              stroke="var(--plot)"
-              strokeWidth={1}
-              strokeDasharray="3 3"
-              strokeOpacity={0.5}
-            />
-            <circle
-              cx={cx1}
-              cy={cy}
-              r={baseRadius * 0.35}
-              fill="none"
-              stroke="var(--plot)"
-              strokeWidth={1}
-              strokeDasharray="3 3"
-              strokeOpacity={0.5}
-            />
-
-            {/* Propagation ray */}
-            <line
-              x1={cx1}
-              y1={cy}
-              x2={ray1X}
-              y2={ray1Y}
-              stroke="var(--plot)"
-              strokeWidth={2.5}
-              markerEnd="url(#arrow-k-ray)"
-            />
-            <circle cx={cx1} cy={cy} r={3} fill="var(--plot)" />
-
-            {/* Angle arc */}
-            <path
-              d={`M ${cx1 + 25} ${cy} A 25 25 0 ${phiRadK > Math.PI ? 1 : 0} 0 ${cx1 + 25 * Math.cos(phiRadK)} ${cy - 25 * Math.sin(phiRadK)}`}
-              fill="none"
-              stroke="var(--plot)"
-              strokeWidth={1.2}
-              strokeDasharray="2 2"
-            />
-            <text
-              x={cx1 + 32}
-              y={cy - 10}
-              fontSize="12"
-              fontFamily="var(--font-mono, monospace)"
-              fontWeight="500"
-              fill="var(--plot)"
-            >
-              φ = {phiStationaryDeg.toFixed(1)}°
-            </text>
-          </g>
-
-          {/* Frame k Right Pane */}
-          <g>
-            <text x={cx2 - 140} y={35} fontSize="14" fontWeight="600" fill="var(--ink)">
-              Moving Frame k (β = {beta.toFixed(2)}c)
-            </text>
-            <text x={cx2 - 140} y={55} fontSize="12" fill="var(--muted)">
-              Physical complex · E′ = {energyMovingJ.toFixed(2)} J · V′ ={" "}
-              {volumeMovingM3.toFixed(2)} m³
-            </text>
-
-            {/* Coordinate axes */}
-            <line
-              x1={cx2 - 130}
-              y1={cy}
-              x2={cx2 + 130}
-              y2={cy}
-              stroke="var(--line)"
-              strokeWidth={1}
-            />
-            <line
-              x1={cx2}
-              y1={cy - 120}
-              x2={cx2}
-              y2={cy + 120}
-              stroke="var(--line)"
-              strokeWidth={1}
-            />
-            <text x={cx2 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
-              x′
-            </text>
-            <text x={cx2} y={cy - 125} fontSize="10" fill="var(--muted)" textAnchor="middle">
-              y′
-            </text>
-
-            {/* Boost vector arrow */}
-            <g transform={`translate(${cx2 - 50}, ${cy + 105})`}>
+              {/* Coordinate axes */}
               <line
-                x1={0}
-                y1={0}
-                x2={50}
-                y2={0}
-                stroke="var(--accent)"
+                x1={cx1 - 130}
+                y1={cy}
+                x2={cx1 + 130}
+                y2={cy}
+                stroke="var(--line)"
+                strokeWidth={1}
+              />
+              <line
+                x1={cx1}
+                y1={cy - 120}
+                x2={cx1}
+                y2={cy + 120}
+                stroke="var(--line)"
+                strokeWidth={1}
+              />
+              <text x={cx1 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
+                x
+              </text>
+              <text x={cx1} y={cy - 125} fontSize="10" fill="var(--muted)" textAnchor="middle">
+                y
+              </text>
+
+              {/* Spherical light complex boundary */}
+              <circle
+                cx={cx1}
+                cy={cy}
+                r={baseRadius}
+                fill="var(--plot)"
+                fillOpacity={0.15}
+                stroke="var(--plot)"
                 strokeWidth={2}
-                markerEnd="url(#arrow-boost-complex)"
+              />
+
+              {/* Internal light wave ripples */}
+              <circle
+                cx={cx1}
+                cy={cy}
+                r={baseRadius * 0.65}
+                fill="none"
+                stroke="var(--plot)"
+                strokeWidth={1}
+                strokeDasharray="3 3"
+                strokeOpacity={0.5}
+              />
+              <circle
+                cx={cx1}
+                cy={cy}
+                r={baseRadius * 0.35}
+                fill="none"
+                stroke="var(--plot)"
+                strokeWidth={1}
+                strokeDasharray="3 3"
+                strokeOpacity={0.5}
+              />
+
+              {/* Propagation ray */}
+              <line
+                x1={cx1}
+                y1={cy}
+                x2={ray1X}
+                y2={ray1Y}
+                stroke="var(--plot)"
+                strokeWidth={2.5}
+                markerEnd="url(#arrow-k-ray)"
+              />
+              <circle cx={cx1} cy={cy} r={3} fill="var(--plot)" />
+
+              {/* Angle arc */}
+              <path
+                d={`M ${cx1 + 25} ${cy} A 25 25 0 ${phiRadK > Math.PI ? 1 : 0} 0 ${cx1 + 25 * Math.cos(phiRadK)} ${cy - 25 * Math.sin(phiRadK)}`}
+                fill="none"
+                stroke="var(--plot)"
+                strokeWidth={1.2}
+                strokeDasharray="2 2"
               />
               <text
-                x={25}
-                y={-5}
-                fontSize="10"
+                x={cx1 + 32}
+                y={cy - 10}
+                fontSize="12"
                 fontFamily="var(--font-mono, monospace)"
-                fill="var(--accent)"
-                textAnchor="middle"
+                fontWeight="500"
+                fill="var(--plot)"
               >
-                v = {beta.toFixed(2)}c
+                φ = {phiStationaryDeg.toFixed(1)}°
               </text>
             </g>
+          </svg>
+          <svg
+            viewBox="420 10 370 360"
+            role="img"
+            aria-label={`Moving frame k at beta = ${beta.toFixed(2)}: the same complex as an ellipsoid, energy ${energyMovingJ.toFixed(2)} J, volume ${volumeMovingM3.toFixed(2)} cubic metres, ray at phi' = ${phiMovingDeg.toFixed(1)} degrees`}
+            style={{ width: "100%", height: "auto", userSelect: "none" }}
+          >
+            <title>Moving frame k</title>
+            <defs>
+              <marker
+                id="arrow-prime-ray"
+                viewBox="0 0 10 10"
+                refX={5}
+                refY={5}
+                markerWidth={6}
+                markerHeight={6}
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
+              </marker>
+              <marker
+                id="arrow-boost-complex"
+                viewBox="0 0 10 10"
+                refX={5}
+                refY={5}
+                markerWidth={6}
+                markerHeight={6}
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
+              </marker>
+            </defs>
+            {/* Frame k Right Pane */}
+            <g>
+              <text x={cx2 - 140} y={35} fontSize="14" fontWeight="600" fill="var(--ink)">
+                Moving Frame k (β = {beta.toFixed(2)}c)
+              </text>
+              <text x={cx2 - 140} y={55} fontSize="12" fill="var(--muted)">
+                Physical complex · E′ = {energyMovingJ.toFixed(2)} J · V′ ={" "}
+                {volumeMovingM3.toFixed(2)} m³
+              </text>
 
-            {/* Countermodel: Material Rod Contraction contour */}
-            {showCountermodel ? (
-              <g>
+              {/* Coordinate axes */}
+              <line
+                x1={cx2 - 130}
+                y1={cy}
+                x2={cx2 + 130}
+                y2={cy}
+                stroke="var(--line)"
+                strokeWidth={1}
+              />
+              <line
+                x1={cx2}
+                y1={cy - 120}
+                x2={cx2}
+                y2={cy + 120}
+                stroke="var(--line)"
+                strokeWidth={1}
+              />
+              <text x={cx2 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
+                x′
+              </text>
+              <text x={cx2} y={cy - 125} fontSize="10" fill="var(--muted)" textAnchor="middle">
+                y′
+              </text>
+
+              {/* Boost vector arrow */}
+              <g transform={`translate(${cx2 - 50}, ${cy + 105})`}>
+                <line
+                  x1={0}
+                  y1={0}
+                  x2={50}
+                  y2={0}
+                  stroke="var(--accent)"
+                  strokeWidth={2}
+                  markerEnd="url(#arrow-boost-complex)"
+                />
+                <text
+                  x={25}
+                  y={-5}
+                  fontSize="10"
+                  fontFamily="var(--font-mono, monospace)"
+                  fill="var(--accent)"
+                  textAnchor="middle"
+                >
+                  v = {beta.toFixed(2)}c
+                </text>
+              </g>
+
+              {/* Countermodel: Material Rod Contraction contour */}
+              {showCountermodel ? (
+                <g>
+                  <ellipse
+                    cx={cx2}
+                    cy={cy}
+                    rx={rx_rod}
+                    ry={ry_rod}
+                    fill="none"
+                    stroke="var(--muted)"
+                    strokeWidth={1.5}
+                    strokeDasharray="4 3"
+                  />
+                  <text
+                    x={cx2 + rx_rod + 6}
+                    y={cy + ry_rod - 10}
+                    fontSize="9"
+                    fontFamily="var(--font-mono, monospace)"
+                    fill="var(--muted)"
+                  >
+                    Rod: 1/γ
+                  </text>
+                </g>
+              ) : null}
+
+              {/* Transformed Light Complex Ellipsoid */}
+              <g transform={`rotate(${(-phiRad_k * 180) / Math.PI + 90}, ${cx2}, ${cy})`}>
                 <ellipse
                   cx={cx2}
                   cy={cy}
-                  rx={rx_rod}
-                  ry={ry_rod}
-                  fill="none"
-                  stroke="var(--muted)"
-                  strokeWidth={1.5}
-                  strokeDasharray="4 3"
+                  rx={ry_k}
+                  ry={rx_k}
+                  fill={energyFactor > 1 ? "var(--accent)" : "var(--plot)"}
+                  fillOpacity={0.2}
+                  stroke={energyFactor > 1 ? "var(--accent)" : "var(--plot)"}
+                  strokeWidth={2}
                 />
-                <text
-                  x={cx2 + rx_rod + 6}
-                  y={cy + ry_rod - 10}
-                  fontSize="9"
-                  fontFamily="var(--font-mono, monospace)"
-                  fill="var(--muted)"
-                >
-                  Rod: 1/γ
-                </text>
               </g>
-            ) : null}
 
-            {/* Transformed Light Complex Ellipsoid */}
-            <g transform={`rotate(${(-phiRad_k * 180) / Math.PI + 90}, ${cx2}, ${cy})`}>
-              <ellipse
-                cx={cx2}
-                cy={cy}
-                rx={ry_k}
-                ry={rx_k}
-                fill={energyFactor > 1 ? "var(--accent)" : "var(--plot)"}
-                fillOpacity={0.2}
-                stroke={energyFactor > 1 ? "var(--accent)" : "var(--plot)"}
-                strokeWidth={2}
+              {/* Transformed propagation ray */}
+              <line
+                x1={cx2}
+                y1={cy}
+                x2={ray2X}
+                y2={ray2Y}
+                stroke="var(--accent)"
+                strokeWidth={2.5}
+                markerEnd="url(#arrow-prime-ray)"
               />
+              <circle cx={cx2} cy={cy} r={3} fill="var(--accent)" />
+
+              {/* Transformed angle arc */}
+              <path
+                d={`M ${cx2 + 25} ${cy} A 25 25 0 ${phiRad_k > Math.PI ? 1 : 0} 0 ${cx2 + 25 * Math.cos(phiRad_k)} ${cy - 25 * Math.sin(phiRad_k)}`}
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth={1.2}
+                strokeDasharray="2 2"
+              />
+              <text
+                x={cx2 + 32}
+                y={cy - 10}
+                fontSize="12"
+                fontFamily="var(--font-mono, monospace)"
+                fontWeight="500"
+                fill="var(--accent)"
+              >
+                φ′ = {phiMovingDeg.toFixed(1)}°
+              </text>
             </g>
-
-            {/* Transformed propagation ray */}
-            <line
-              x1={cx2}
-              y1={cy}
-              x2={ray2X}
-              y2={ray2Y}
-              stroke="var(--accent)"
-              strokeWidth={2.5}
-              markerEnd="url(#arrow-prime-ray)"
-            />
-            <circle cx={cx2} cy={cy} r={3} fill="var(--accent)" />
-
-            {/* Transformed angle arc */}
-            <path
-              d={`M ${cx2 + 25} ${cy} A 25 25 0 ${phiRad_k > Math.PI ? 1 : 0} 0 ${cx2 + 25 * Math.cos(phiRad_k)} ${cy - 25 * Math.sin(phiRad_k)}`}
-              fill="none"
-              stroke="var(--accent)"
-              strokeWidth={1.2}
-              strokeDasharray="2 2"
-            />
-            <text
-              x={cx2 + 32}
-              y={cy - 10}
-              fontSize="12"
-              fontFamily="var(--font-mono, monospace)"
-              fontWeight="500"
-              fill="var(--accent)"
-            >
-              φ′ = {phiMovingDeg.toFixed(1)}°
-            </text>
-          </g>
-
-          {/* Markers */}
-          <defs>
-            <marker
-              id="arrow-k-ray"
-              viewBox="0 0 10 10"
-              refX={5}
-              refY={5}
-              markerWidth={6}
-              markerHeight={6}
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--plot)" />
-            </marker>
-            <marker
-              id="arrow-prime-ray"
-              viewBox="0 0 10 10"
-              refX={5}
-              refY={5}
-              markerWidth={6}
-              markerHeight={6}
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
-            </marker>
-            <marker
-              id="arrow-boost-complex"
-              viewBox="0 0 10 10"
-              refX={5}
-              refY={5}
-              markerWidth={6}
-              markerHeight={6}
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
-            </marker>
-          </defs>
-        </svg>
+          </svg>
+        </FramePair>
       </div>
 
       {/* Diagnostics / Badges Grid */}
