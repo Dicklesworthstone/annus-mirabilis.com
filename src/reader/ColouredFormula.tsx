@@ -16,9 +16,18 @@ import "../equations/equations.css";
 
 export function ColouredFormula({ equations }: { equations: readonly CompiledEquation[] }) {
   const legend = quantityLegend(equations);
+  const rowLabel = `Formula: ${equations.map((e) => e.title || e.id).join("; ")}`;
   return (
     <div className="reading-formula" data-equations={equations.map((e) => e.id).join(" ")}>
-      <div className="reading-formula-row">
+      {/* A tab stop because it can scroll: a relation wider than a phone scrolls inside its own
+          line rather than pushing the page sideways, and a keyboard reader needs to reach that
+          scroll. Named by the equations it shows; the focus ring is the global one. */}
+      <section
+        className="reading-formula-row"
+        aria-label={rowLabel}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable (WCAG 2.1.1); see the comment above.
+        tabIndex={0}
+      >
         {equations.map((equation) => (
           <div key={equation.id} className="reading-formula-relation">
             <div
@@ -32,7 +41,7 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
             />
           </div>
         ))}
-      </div>
+      </section>
       <QuantityLegendList legend={legend} label="Quantities in this formula" />
     </div>
   );

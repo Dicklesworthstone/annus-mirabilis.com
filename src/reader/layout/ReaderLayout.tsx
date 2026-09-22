@@ -35,10 +35,16 @@ export function ReaderLayout({
         <div data-reader-main="" className="reader-main">
           {children}
         </div>
+        {/* A tab stop because it can scroll: on a wide screen the column sticks beside the text and
+            scrolls inside itself when it is taller than the window (a 1280x800 laptop with a
+            section's plate and symbol key). Without one, a keyboard reader could not scroll its
+            plate caption into view. It is named by its title; the focus ring is the global one. */}
         <aside
           data-reader-companion-column=""
           className="reader-companion-column"
           aria-label={companionTitle}
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard-reachable (WCAG 2.1.1); see the comment above.
+          tabIndex={0}
         >
           {columnCompanion}
         </aside>
