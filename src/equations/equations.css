@@ -230,6 +230,12 @@
   align-items: baseline;
   gap: 0.4rem;
 }
+/* The glyph is KaTeX; a line box of its own keeps a subscripted glyph (K_max, nu_0) from
+   pushing its legend line taller than the names beside it. */
+.equation-legend-glyph {
+  display: inline-block;
+  line-height: 1;
+}
 .semantic-equation button:disabled {
   opacity: 0.75;
 }
