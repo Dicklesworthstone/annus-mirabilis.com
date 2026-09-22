@@ -223,7 +223,27 @@ describe("the real corpus: every printed number is pinned", () => {
       agreeing: 0,
       differing: 0,
       unplaceableManifestUnits: 0,
-      unplaceableProposedSentences: 5,
+      // 5 -> 6 when p906 landed. Re-derived, not nudged: the sentence "Wir setzen: ... alpha
+      // ist dann als der Winkel zwischen den Geschwindigkeiten v und w anzusehen." opens on 905
+      // and its closing period lands on 906, so it is contained in no single page and the
+      // harness counts it rather than guessing, exactly as its own comment says it will.
+      //
+      // WHAT THIS NUMBER CANNOT SEE, so that a later reader does not mistake it for the count of
+      // cross-page sentences. A crossing is visible here only when [[CONTINUES]] sits on its own
+      // line. When it is written inline, glued to the last word, segmentLedger keeps it attached,
+      // the sentence terminates at the page break and the crossing reads as placeable. p904 ends
+      // "...der unbewegt[[CONTINUES]]" and its crossing is invisible for exactly that reason;
+      // p905 ends with the tag on its own line and its crossing shows. LEDGER_FORMAT permits both
+      // placements, so this measure currently depends on a free formatting choice.
+      //
+      // Measured 2026-09-21 with the harness as its own oracle: 32 tags across the four ledgers,
+      // 25 inline and 7 own-line. Rewriting every inline tag onto its own line in a scratch copy,
+      // which changes no text, reveals 17 further crossing sentences - 5 in ap-17-132, 4 in
+      // ap-17-549, 7 in ap-17-891, 1 in ap-18-639. So 6 is the count of VISIBLE crossings in this
+      // paper, not the count of crossings. Left as measured rather than repaired here: the repair
+      // is either a ledger-wide rewrite touching four papers or a change to segmentLedger, and
+      // both belong to am-span-recording-decision-ero2, not to a transcription pane.
+      unplaceableProposedSentences: 6,
     },
   };
 
