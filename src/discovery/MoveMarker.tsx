@@ -57,7 +57,7 @@ export function MoveMarker({ move }: MoveMarkerProps) {
               fontWeight: "bold",
             }}
           >
-            The Consequential Move
+            The consequential move
           </span>
         </div>
         <div

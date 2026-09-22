@@ -31,7 +31,7 @@ describe("Stage component rendering", () => {
     expect(containsHeading(html, "Support Ladder · Five Rungs of Understanding")).toBe(true);
     expect(html).toContain("1. Worked Example");
     expect(html).toContain("2. Partial Comparison");
-    expect(html).toContain("3. Prediction Opportunity");
+    expect(html).toContain("3. Prediction opportunity");
     expect(html).toContain("4. Physical Explanation");
     expect(html).toContain("5. Transfer Case");
   });

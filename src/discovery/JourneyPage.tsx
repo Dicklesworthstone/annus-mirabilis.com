@@ -101,7 +101,7 @@ export function JourneyPage({ journey }: JourneyPageProps) {
                 margin: 0,
               }}
             >
-              Draft Journey · Pending Elements Declared
+              Draft journey · Pending elements declared
             </span>
             <ul
               style={{

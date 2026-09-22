@@ -11,7 +11,7 @@ export default function ModeAllocationPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Light Quanta · Sections 1–2</p>
+        <p className="eyebrow">Light quanta · Sections 1–2</p>
         <h1>
           Give every resonator its share,
           <br />

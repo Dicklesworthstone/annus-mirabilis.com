@@ -11,7 +11,7 @@ export default function PhotoelectricPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Light Quanta · Section 8</p>
+        <p className="eyebrow">Light quanta · Section 8</p>
         <h1>
           Energy is discrete.
           <br />

@@ -113,7 +113,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     expect(html).toContain("Mean absolute displacement is not a wrong answer");
 
     // Step 10: The Bridge
-    expect(html).toContain("The Bridge to the Argument");
+    expect(html).toContain("The bridge to the argument");
     expect(html).toContain("New skill");
     expect(lower(html)).toContain(lower("Why Useful in the Paper"));
     expect(lower(html)).toContain(lower("Continue With Your Choice of Guidance"));

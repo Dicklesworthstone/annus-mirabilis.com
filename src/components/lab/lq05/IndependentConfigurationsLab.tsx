@@ -145,7 +145,7 @@ export function IndependentConfigurationsLab({
         }}
       >
         <div style={{ width: "100%" }}>
-          <p className="eyebrow">Light Quanta · §5 Statistical Microstate Counting</p>
+          <p className="eyebrow">Light quanta · §5 statistical microstate counting</p>
           <h2 id={`${id}-title`} style={{ margin: "0.25rem 0" }}>
             {title}
           </h2>

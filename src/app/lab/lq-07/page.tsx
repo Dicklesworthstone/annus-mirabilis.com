@@ -31,7 +31,7 @@ export default function FluorescencePage() {
     >
       <header className="page-intro" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
         <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          LQ-07 · Light Quanta · Paper 1, §7 Energy Conservation
+          LQ-07 · Light quanta · Paper 1, §7 energy conservation
         </p>
         <h1 style={{ fontFamily: "var(--font-serif, serif)" }}>
           Stokes's rule and the single-quantum energy budget

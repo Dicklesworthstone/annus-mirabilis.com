@@ -94,8 +94,8 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
 
     // 4. Part 3: continueWith routes
     expect(lower(html)).toContain(lower("Continue With Your Choice of Guidance"));
-    expect(html).toContain("More Guidance · Foundations");
-    expect(html).toContain("Less Guidance · Laboratory &amp; Paper");
+    expect(html).toContain("More guidance · Foundations");
+    expect(html).toContain("Less guidance · Laboratory &amp; paper");
     expect(html).toContain('href="/foundations/mean-variance-rms"');
     expect(html).toContain('href="/lab/bm-01"');
     expect(html).toContain('data-instrument-id="bm-01"');

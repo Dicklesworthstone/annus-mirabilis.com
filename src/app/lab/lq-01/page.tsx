@@ -17,7 +17,7 @@ export default function WaveDescriptionPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Light Quanta · Introduction</p>
+        <p className="eyebrow">Light quanta · Introduction</p>
         <h1>
           Continuous waves explain
           <br />

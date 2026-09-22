@@ -31,7 +31,7 @@ export default function IndependentConfigurationsPage() {
     >
       <header className="page-intro" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
         <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          LQ-05 · Light Quanta · Paper 1, §5 Heuristic Foundation
+          LQ-05 · Light quanta · Paper 1, §5 heuristic foundation
         </p>
         <h1 style={{ fontFamily: "var(--font-serif, serif)" }}>
           Independent configurations and the gas analogy

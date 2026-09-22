@@ -599,7 +599,7 @@ export function ChargeCurrentLab({
         }}
       >
         <h4 className="eyebrow" style={{ margin: 0, fontSize: "0.75rem" }}>
-          Predict: Is a Neutral Wire Still Neutral in a Moving Frame?
+          Predict: is a neutral wire still neutral in a moving frame?
         </h4>
         <p style={{ margin: 0, fontSize: "0.85rem" }}>
           A neutral wire in the laboratory carries a current in the +x direction. Described from a

@@ -181,7 +181,7 @@ export function SupportLadder({ support }: SupportLadderProps) {
               margin: "0 0 0.25rem",
             }}
           >
-            3. Prediction Opportunity
+            3. Prediction opportunity
           </p>
           <p style={{ margin: "0 0 0.5rem", fontWeight: 500, fontSize: "0.875rem" }}>
             {prediction.prompt}

@@ -90,6 +90,6 @@ describe("LQ-07 UI components and route", () => {
     );
     expect(html).toContain("hν₁ = hν₂ + E_other");
     expect(containsHeading(html, "The Two Historical Deviation Cases")).toBe(true);
-    expect(html).toContain("Light Quanta · Paper 1, §7 Energy Conservation");
+    expect(html).toContain("Light quanta · Paper 1, §7 energy conservation");
   });
 });

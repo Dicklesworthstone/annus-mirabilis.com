@@ -141,7 +141,7 @@ export function FluorescenceLab({
         }}
       >
         <div>
-          <p className="eyebrow">Light Quanta · §7 Fluorescence &amp; Stokes's Rule</p>
+          <p className="eyebrow">Light quanta · §7 fluorescence &amp; Stokes's rule</p>
           <h2 id={`${id}-title`}>{title}</h2>
           <p className="fine" style={{ marginTop: "0.5rem", fontSize: "0.95rem" }}>
             How single-quantum energy conservation hν₁ = hν₂ + E_other explains Stokes's rule (ν₂ ≤

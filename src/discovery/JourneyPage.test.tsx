@@ -28,16 +28,16 @@ describe("JourneyPage container component rendering", () => {
       "How can the thermal agitation of invisible molecules produce observable microscopic motion?",
     );
     expect(html).toContain("#card-osmotic-pressure");
-    expect(html).toContain("The Consequential Move");
+    expect(html).toContain("The consequential move");
     expect(containsHeading(html, "World Checks · Testing the Consequences")).toBe(true);
     expect(html).toContain("Connecting to the 1905 Paper");
-    expect(html).toContain("Entry Portals · Front &amp; Side Doors");
+    expect(html).toContain("Entry portals · Front &amp; side doors");
   });
 
   test("renders partial journey with declared pending elements banner", () => {
     const html = renderToStaticMarkup(<JourneyPage journey={FIXTURE_PARTIAL_JOURNEY} />);
 
-    expect(html).toContain("Draft Journey · Pending Elements Declared");
+    expect(html).toContain("Draft journey · Pending elements declared");
     expect(html).toContain("worldChecks:");
     expect(html).toContain("Photoelectric and photoluminescence data checks in preparation.");
     expect(html).toContain("am-disc-journey-i-chain-n1lh");

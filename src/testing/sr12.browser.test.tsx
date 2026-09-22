@@ -40,6 +40,6 @@ describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
     expect(html).toContain("Gaussian pulse continuity (0.5c)");
     expect(html).toContain("Current loop (0.6c)");
     expect(html).toContain("Four-Current Invariant");
-    expect(html).toContain("Predict: Is a Neutral Wire Still Neutral in a Moving Frame?");
+    expect(html).toContain("Predict: is a neutral wire still neutral in a moving frame?");
   });
 });

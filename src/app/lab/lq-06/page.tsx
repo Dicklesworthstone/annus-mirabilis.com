@@ -12,7 +12,7 @@ export default function CoefficientMatchPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Light Quanta · Section 6</p>
+        <p className="eyebrow">Light quanta · Section 6</p>
         <h1>
           The radiation entropy law matches the gas entropy law.
           <br />

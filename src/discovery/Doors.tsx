@@ -38,7 +38,7 @@ export function Doors({ doors }: DoorsProps) {
             display: "block",
           }}
         >
-          Entry Portals · Front & Side Doors
+          Entry portals · Front & side doors
         </span>
         <h3
           style={{

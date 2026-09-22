@@ -11,7 +11,7 @@ export default function EntropyWorkbenchPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Light Quanta · Sections 3-4</p>
+        <p className="eyebrow">Light quanta · Sections 3-4</p>
         <h1>
           A spectrum has an entropy.
           <br />

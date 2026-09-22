@@ -175,7 +175,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
           }}
         >
           <div>
-            <p className="eyebrow">Interactive Critical Edition · Instrument LQ-09</p>
+            <p className="eyebrow">Interactive critical edition · Instrument LQ-09</p>
             <h2 style={{ margin: "0.25rem 0" }}>Gas ionization bounds and counting model</h2>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>

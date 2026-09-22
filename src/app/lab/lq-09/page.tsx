@@ -11,7 +11,7 @@ export default function IonizationPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Light Quanta · Section 9</p>
+        <p className="eyebrow">Light quanta · Section 9</p>
         <h1>
           Threshold frequency sets the bound.
           <br />

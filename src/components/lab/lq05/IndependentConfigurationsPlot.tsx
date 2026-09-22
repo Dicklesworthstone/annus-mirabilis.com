@@ -217,7 +217,7 @@ export function IndependentConfigurationsPlot({
               margin: 0,
             }}
           >
-            Binomial distribution: Points inside subvolume P(k)
+            Binomial distribution: points inside subvolume P(k)
           </h4>
           <span
             style={{

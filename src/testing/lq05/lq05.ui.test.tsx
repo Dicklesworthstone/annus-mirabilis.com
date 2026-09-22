@@ -80,6 +80,6 @@ describe("LQ-05 UI components and route", () => {
     expect(containsHeading(html, "Independent Configurations and the Gas Analogy")).toBe(true);
     expect(containsHeading(html, "The Independence Argument in Einstein 1905 §5")).toBe(true);
     expect(html).toContain("W = (V / V₀)ⁿ");
-    expect(html).toContain("Light Quanta · Paper 1, §5 Heuristic Foundation");
+    expect(html).toContain("Light quanta · Paper 1, §5 heuristic foundation");
   });
 });

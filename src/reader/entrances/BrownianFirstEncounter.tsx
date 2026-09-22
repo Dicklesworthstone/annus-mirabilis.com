@@ -735,7 +735,7 @@ export function BrownianFirstEncounter({
         style={{ borderTop: "2px solid var(--line)", paddingTop: "1.5rem", marginTop: "2rem" }}
       >
         <span className="eyebrow" style={{ display: "block", marginBottom: "0.5rem" }}>
-          Step 10 · The Bridge to the Argument
+          Step 10 · The bridge to the argument
         </span>
 
         {/* 3 required bridge parts */}
@@ -772,7 +772,7 @@ export function BrownianFirstEncounter({
               >
                 <div>
                   <span className="eyebrow" style={{ display: "block", marginBottom: "0.25rem" }}>
-                    More Guidance · Foundations
+                    More guidance · Foundations
                   </span>
                   <p className="fine" style={{ marginBottom: "0.75rem" }}>
                     Review mean, variance, and root-mean-square displacement with worked algebraic
@@ -804,7 +804,7 @@ export function BrownianFirstEncounter({
               >
                 <div>
                   <span className="eyebrow" style={{ display: "block", marginBottom: "0.25rem" }}>
-                    Less Guidance · Laboratory & Paper
+                    Less guidance · Laboratory & paper
                   </span>
                   <p className="fine" style={{ marginBottom: "0.75rem" }}>
                     Test thousands of particles in the BM-01 tracer ensemble or jump straight to

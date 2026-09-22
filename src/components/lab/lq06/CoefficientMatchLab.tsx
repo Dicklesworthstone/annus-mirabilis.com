@@ -174,7 +174,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           }}
         >
           <div>
-            <p className="eyebrow">Interactive Critical Edition · Instrument LQ-06</p>
+            <p className="eyebrow">Interactive critical edition · Instrument LQ-06</p>
             <h2 style={{ margin: "0.25rem 0" }}>
               Matching the entropy laws to derive the light quantum (§6, the move)
             </h2>
