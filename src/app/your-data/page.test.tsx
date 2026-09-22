@@ -23,9 +23,9 @@ describe("YourDataPage", () => {
     const html = renderToStaticMarkup(<YourDataPage />);
 
     expect(html).toContain("Your data stays on your device.");
-    expect(containsHeading(html, "No Network Transmission")).toBe(true);
-    expect(html).toContain("Full Portability");
-    expect(html).toContain("Unilateral Deletion");
+    expect(containsHeading(html, "No network transmission")).toBe(true);
+    expect(containsHeading(html, "Take it with you")).toBe(true);
+    expect(containsHeading(html, "Delete it yourself")).toBe(true);
     expect(html).toContain('data-testid="privacy-guarantees"');
     expect(html).toContain('data-testid="data-panel"');
     expect(html).toContain("JavaScript is currently disabled.");

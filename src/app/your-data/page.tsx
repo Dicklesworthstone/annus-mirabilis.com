@@ -35,7 +35,7 @@ export default function YourDataPage() {
         </div>
 
         <div className="privacy-card">
-          <h2 className="privacy-card-title">Full Portability</h2>
+          <h2 className="privacy-card-title">Take it with you</h2>
           <p className="privacy-card-desc">
             Export all your saved work, notebook reflections, and predictions at any time as a
             standard JSON file.
@@ -43,7 +43,7 @@ export default function YourDataPage() {
         </div>
 
         <div className="privacy-card">
-          <h2 className="privacy-card-title">Unilateral Deletion</h2>
+          <h2 className="privacy-card-title">Delete it yourself</h2>
           <p className="privacy-card-desc">
             Clear individual namespaces or wipe all stored data with a single click. Clearing is
             strictly local to your browser.
