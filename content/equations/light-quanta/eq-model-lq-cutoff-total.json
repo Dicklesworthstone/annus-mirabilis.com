@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-cutoff-total",
+  "paper": "light-quanta",
+  "argument": "arg-lq-classical-allocation",
+  "title": "The total grows as the cutoff cubed",
+  "spoken": "The energy density below cutoff frequency nu c is eight pi k B T over three c cubed, times cutoff frequency cubed.",
+  "explanation": "Integrating the classical density, which grows as the frequency squared, gives a total that grows as the cutoff cubed. Doubling the cutoff multiplies it by eight, and with no cutoff it has no limit.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Each radiation mode in equilibrium carries the classical average energy k_B T.",
+    "A cutoff frequency nu_c; the model counts only frequencies below it.",
+    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for k_B, and beta for B."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-cutoff-total.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-cutoff-total.t.total",
+      "quantityId": "energyDensityBelowCutoff",
+      "at": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-cutoff-total.t.cutoffArg",
+        "quantityId": "frequency",
+        "index": "c"
+      }
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "product",
+            "args": [
+              {
+                "kind": "number",
+                "value": "8"
+              },
+              {
+                "kind": "constant",
+                "name": "pi"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-lq-cutoff-total.t.boltzmann",
+                "quantityId": "boltzmannConstant"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-lq-cutoff-total.t.temperature",
+                "quantityId": "temperature"
+              }
+            ],
+            "opId": "eq-model-lq-cutoff-total.op.numerator"
+          },
+          "denominator": {
+            "kind": "product",
+            "args": [
+              {
+                "kind": "number",
+                "value": "3"
+              },
+              {
+                "kind": "power",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-lq-cutoff-total.t.light",
+                  "quantityId": "speedOfLight"
+                },
+                "exponent": {
+                  "num": 3,
+                  "den": 1
+                },
+                "opId": "eq-model-lq-cutoff-total.op.lightCubed"
+              }
+            ],
+            "opId": "eq-model-lq-cutoff-total.op.denominator"
+          },
+          "opId": "eq-model-lq-cutoff-total.op.coefficient"
+        },
+        {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-cutoff-total.t.cutoff",
+            "quantityId": "frequency",
+            "index": "c"
+          },
+          "exponent": {
+            "num": 3,
+            "den": 1
+          },
+          "opId": "eq-model-lq-cutoff-total.op.cutoffCubed"
+        }
+      ],
+      "opId": "eq-model-lq-cutoff-total.op.product"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-cutoff-total.op.coefficient",
+      "title": "The coefficient",
+      "explanation": "Fixed by the temperature alone.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.op.cutoffCubed",
+      "title": "Cutoff cubed",
+      "explanation": "Double the cutoff and this is eight times larger.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.op.denominator",
+      "title": "Three c cubed",
+      "explanation": "The three comes from integrating frequency squared.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.op.lightCubed",
+      "title": "c cubed",
+      "explanation": "From counting standing waves in a box.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.op.numerator",
+      "title": "Eight pi k_B T",
+      "explanation": "From the classical density's coefficient.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.op.product",
+      "title": "Coefficient times cutoff cubed",
+      "explanation": "Finite for any cutoff, unbounded as the cutoff grows.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.op.relation",
+      "title": "What it asserts",
+      "explanation": "A finite window gives a finite total, but no window is singled out, and the full total is infinite.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.t.boltzmann",
+      "title": "Boltzmann's constant",
+      "explanation": "With the temperature, the classical average energy per mode; R over N in the paper.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.t.cutoff",
+      "title": "Cutoff frequency",
+      "explanation": "The highest frequency the sum includes.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.t.cutoffArg",
+      "title": "Cutoff frequency",
+      "explanation": "The highest frequency the sum includes.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper writes it L.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.t.temperature",
+      "title": "Temperature",
+      "explanation": "The temperature of the radiation in equilibrium.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-total.t.total",
+      "title": "Energy density below the cutoff",
+      "explanation": "Energy per cubic metre in all frequencies up to the cutoff.",
+      "foundation": "integration"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The energy density below the cutoff",
+      "nodeId": "eq-model-lq-cutoff-total.t.total"
+    },
+    {
+      "text": " is eight pi "
+    },
+    {
+      "text": "k_B",
+      "nodeId": "eq-model-lq-cutoff-total.t.boltzmann"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "T",
+      "nodeId": "eq-model-lq-cutoff-total.t.temperature"
+    },
+    {
+      "text": " over three "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-lq-cutoff-total.t.light"
+    },
+    {
+      "text": " cubed, times "
+    },
+    {
+      "text": "the cutoff",
+      "nodeId": "eq-model-lq-cutoff-total.t.cutoff"
+    },
+    {
+      "text": " cubed."
+    }
+  ]
+}

@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-wien-entropy-density",
+  "paper": "light-quanta",
+  "argument": "arg-lq-wien-integration",
+  "title": "Integrate for the entropy density",
+  "spoken": "The integrated entropy density is minus density over B frequency times the bracketed logarithm minus one, plus a frequency-dependent constant.",
+  "explanation": "Integrating 1/T with respect to the density gives the entropy density up to a constant C(nu) that may depend on frequency. The constant cannot simply be dropped; the next step fixes it by a boundary condition.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The Wien regime: the density follows A nu cubed times exp(−B nu / T).",
+    "Entropy density and energy density are compared at one frequency.",
+    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for k_B, and beta for B."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-wien-entropy-density.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-wien-entropy-density.t.entropyDensity",
+      "quantityId": "spectralEntropyDensity"
+    },
+    "right": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "product",
+            "args": [
+              {
+                "kind": "quotient",
+                "numerator": {
+                  "kind": "symbol",
+                  "termId": "eq-model-lq-wien-entropy-density.t.density",
+                  "quantityId": "frequencyEnergyDensity"
+                },
+                "denominator": {
+                  "kind": "product",
+                  "args": [
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-lq-wien-entropy-density.t.beta",
+                      "quantityId": "wienConstantBeta"
+                    },
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-lq-wien-entropy-density.t.frequency",
+                      "quantityId": "frequency"
+                    }
+                  ],
+                  "opId": "eq-model-lq-wien-entropy-density.op.betaNu"
+                },
+                "opId": "eq-model-lq-wien-entropy-density.op.ratio"
+              },
+              {
+                "kind": "sum",
+                "args": [
+                  {
+                    "kind": "function",
+                    "opId": "eq-model-lq-wien-entropy-density.op.log",
+                    "name": "ln",
+                    "argument": {
+                      "kind": "quotient",
+                      "numerator": {
+                        "kind": "symbol",
+                        "termId": "eq-model-lq-wien-entropy-density.t.density2",
+                        "quantityId": "frequencyEnergyDensity"
+                      },
+                      "denominator": {
+                        "kind": "product",
+                        "args": [
+                          {
+                            "kind": "symbol",
+                            "termId": "eq-model-lq-wien-entropy-density.t.alpha",
+                            "quantityId": "wienConstantAlpha"
+                          },
+                          {
+                            "kind": "power",
+                            "base": {
+                              "kind": "symbol",
+                              "termId": "eq-model-lq-wien-entropy-density.t.frequency2",
+                              "quantityId": "frequency"
+                            },
+                            "exponent": {
+                              "num": 3,
+                              "den": 1
+                            },
+                            "opId": "eq-model-lq-wien-entropy-density.op.cubed"
+                          }
+                        ],
+                        "opId": "eq-model-lq-wien-entropy-density.op.wien"
+                      },
+                      "opId": "eq-model-lq-wien-entropy-density.op.logArg"
+                    }
+                  },
+                  {
+                    "kind": "number",
+                    "value": "-1"
+                  }
+                ],
+                "opId": "eq-model-lq-wien-entropy-density.op.bracket"
+              }
+            ],
+            "opId": "eq-model-lq-wien-entropy-density.op.scaled"
+          }
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-wien-entropy-density.t.constant",
+          "quantityId": "entropyDensityConstant",
+          "at": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-wien-entropy-density.t.frequency3",
+            "quantityId": "frequency"
+          }
+        }
+      ],
+      "opId": "eq-model-lq-wien-entropy-density.op.total"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.betaNu",
+      "title": "B times nu",
+      "explanation": "A temperature.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.bracket",
+      "title": "Logarithm minus one",
+      "explanation": "The minus one is what integrating the logarithm adds.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.cubed",
+      "title": "nu cubed",
+      "explanation": "From Wien's law.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.log",
+      "title": "Its logarithm",
+      "explanation": "From inverting Wien's exponential.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.logArg",
+      "title": "Density over A nu cubed",
+      "explanation": "A pure number, so its logarithm is defined.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.ratio",
+      "title": "Density over B nu",
+      "explanation": "Carries the entropy density's units.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.relation",
+      "title": "What it asserts",
+      "explanation": "The entropy density of Wien-regime radiation as a function of its energy density, up to a constant the next step fixes.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.scaled",
+      "title": "The integrated term",
+      "explanation": "Minus density over B nu times the bracket.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.total",
+      "title": "Plus the constant",
+      "explanation": "Integration fixes the entropy density only up to this.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.op.wien",
+      "title": "A nu cubed",
+      "explanation": "Wien's prefactor at this frequency.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.t.alpha",
+      "title": "Wien's alpha",
+      "explanation": "The constant multiplying Wien's law.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.t.beta",
+      "title": "Wien's beta",
+      "explanation": "The constant in Wien's exponent; later identified as h over k_B. It is not the beta of the relativity paper.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.t.constant",
+      "title": "The integration constant",
+      "explanation": "Whatever integration leaves; the boundary condition that entropy density vanishes with energy density sets it to zero.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.t.density",
+      "title": "Spectral energy density",
+      "explanation": "Radiation energy per cubic metre per unit of frequency.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.t.density2",
+      "title": "Spectral energy density",
+      "explanation": "Radiation energy per cubic metre per unit of frequency.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.t.entropyDensity",
+      "title": "Spectral entropy density",
+      "explanation": "Entropy per cubic metre per unit of frequency; the paper writes it phi.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.t.frequency",
+      "title": "Frequency",
+      "explanation": "The frequency of the radiation.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.t.frequency2",
+      "title": "Frequency",
+      "explanation": "The frequency of the radiation.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-entropy-density.t.frequency3",
+      "title": "Frequency",
+      "explanation": "The frequency of the radiation.",
+      "foundation": "fields-waves"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The entropy density",
+      "nodeId": "eq-model-lq-wien-entropy-density.t.entropyDensity"
+    },
+    {
+      "text": " is minus "
+    },
+    {
+      "text": "the energy density",
+      "nodeId": "eq-model-lq-wien-entropy-density.t.density"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-wien-entropy-density.t.beta"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "nu",
+      "nodeId": "eq-model-lq-wien-entropy-density.t.frequency"
+    },
+    {
+      "text": ", times the logarithm of density over A nu cubed minus one, plus "
+    },
+    {
+      "text": "C of nu",
+      "nodeId": "eq-model-lq-wien-entropy-density.t.constant"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

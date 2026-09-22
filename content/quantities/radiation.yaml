@@ -103,6 +103,41 @@
   spectralBasis: per-frequency
   colorRole: statistical
 
+- id: energyDensityBelowCutoff
+  name: Energy density below a cutoff frequency
+  description: >
+    Radiation energy per unit volume in all frequencies from zero up to a cutoff nu_c, U(nu_c):
+    the integral of frequencyEnergyDensity up to nu_c. Finite for any finite cutoff, which is why
+    the classical total's divergence is not cured by choosing one.
+  dimensionStatus: declared
+  dimension: [-1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: entropyDensityConstant
+  name: Integration constant of the spectral entropy density
+  description: >
+    The frequency-dependent constant C(nu) that integrating the Wien entropy relation leaves in
+    spectralEntropyDensity. Paper 1 section 4 sets it to zero by the boundary condition that the
+    entropy density vanishes with the energy density.
+  dimensionStatus: declared
+  dimension: [-1, 1, -1, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: entropyFromUnfixedConstant
+  name: Entropy an unfixed constant would add
+  description: >
+    The term Delta S_C = Delta nu C(nu) (V - V0) that an entropy-density constant left unfixed
+    would add to a comparison of volumes V and V0 in a band of width Delta nu.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: radiationEnergy
   name: Radiation energy
   description: The absolute radiation energy in a region, not a per-volume density.

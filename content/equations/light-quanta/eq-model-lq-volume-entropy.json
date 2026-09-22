@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-volume-entropy",
+  "paper": "light-quanta",
+  "argument": "arg-lq-fixed-band-volume",
+  "title": "The entropy depends on the volume through a logarithm",
+  "spoken": "The entropy difference is E over B frequency times the natural logarithm of the volume ratio.",
+  "explanation": "At the same energy and band, the radiation's entropy in volume V exceeds that in V_0 by E over B nu times the logarithm of their ratio. Doubling the volume adds (E/(B nu)) ln 2, and doubling it again adds the same.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Radiation of fixed energy E in a narrow band of frequencies around nu, compared in two volumes V and V_0.",
+    "The Wien regime, with the integration constant of the entropy density set to zero.",
+    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for k_B, and beta for B."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-volume-entropy.op.relation",
+    "left": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-volume-entropy.t.entropy",
+          "quantityId": "radiationEntropy",
+          "at": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-volume-entropy.t.volumeArg",
+            "quantityId": "volume"
+          }
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-volume-entropy.t.entropy0",
+            "quantityId": "radiationEntropy",
+            "at": {
+              "kind": "symbol",
+              "termId": "eq-model-lq-volume-entropy.t.volume0Arg",
+              "quantityId": "volume",
+              "index": "0"
+            }
+          }
+        }
+      ],
+      "opId": "eq-model-lq-volume-entropy.op.difference"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-volume-entropy.t.energy",
+            "quantityId": "radiationEnergy"
+          },
+          "denominator": {
+            "kind": "product",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-lq-volume-entropy.t.beta",
+                "quantityId": "wienConstantBeta"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-lq-volume-entropy.t.frequency",
+                "quantityId": "frequency"
+              }
+            ],
+            "opId": "eq-model-lq-volume-entropy.op.betaNu"
+          },
+          "opId": "eq-model-lq-volume-entropy.op.coefficient"
+        },
+        {
+          "kind": "function",
+          "opId": "eq-model-lq-volume-entropy.op.log",
+          "name": "ln",
+          "argument": {
+            "kind": "quotient",
+            "numerator": {
+              "kind": "symbol",
+              "termId": "eq-model-lq-volume-entropy.t.volume",
+              "quantityId": "volume"
+            },
+            "denominator": {
+              "kind": "symbol",
+              "termId": "eq-model-lq-volume-entropy.t.volume0",
+              "quantityId": "volume",
+              "index": "0"
+            },
+            "opId": "eq-model-lq-volume-entropy.op.volumeRatio"
+          }
+        }
+      ],
+      "opId": "eq-model-lq-volume-entropy.op.product"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-volume-entropy.op.betaNu",
+      "title": "B times nu",
+      "explanation": "A temperature: B has units of seconds times kelvin.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.op.coefficient",
+      "title": "E over B nu",
+      "explanation": "An entropy, in joules per kelvin. Only after B = h/k_B can it be read as k_B times a pure number.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.op.difference",
+      "title": "The entropy difference",
+      "explanation": "Only the difference is fixed; terms that do not depend on volume cancel.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.op.log",
+      "title": "Its logarithm",
+      "explanation": "Doubling the volume adds ln 2, whatever the starting volume.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.op.product",
+      "title": "Coefficient times logarithm",
+      "explanation": "The same form as for a gas of independent particles, which the next step compares.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.op.relation",
+      "title": "What it asserts",
+      "explanation": "How the radiation's entropy depends on its volume, at fixed energy and band.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.op.volumeRatio",
+      "title": "Volume ratio",
+      "explanation": "A pure number.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.t.beta",
+      "title": "Wien's beta",
+      "explanation": "The constant in Wien's exponent; later identified as h over k_B. It is not the beta of the relativity paper.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.t.energy",
+      "title": "Radiation energy",
+      "explanation": "The fixed energy of the radiation in the band.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.t.entropy",
+      "title": "Entropy in volume V",
+      "explanation": "The radiation's entropy when it fills volume V.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.t.entropy0",
+      "title": "Entropy in volume V_0",
+      "explanation": "The same radiation's entropy in the comparison volume.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.t.frequency",
+      "title": "Frequency",
+      "explanation": "The frequency of the radiation.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.t.volume",
+      "title": "Volume",
+      "explanation": "The volume the radiation fills.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.t.volume0",
+      "title": "Comparison volume",
+      "explanation": "The volume the first state is compared with.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.t.volume0Arg",
+      "title": "Comparison volume",
+      "explanation": "The volume the first state is compared with.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-volume-entropy.t.volumeArg",
+      "title": "Volume",
+      "explanation": "The volume the radiation fills.",
+      "foundation": "bridge-fractions-ratios"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The entropy in volume V",
+      "nodeId": "eq-model-lq-volume-entropy.t.entropy"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "that in V_0",
+      "nodeId": "eq-model-lq-volume-entropy.t.entropy0"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "E",
+      "nodeId": "eq-model-lq-volume-entropy.t.energy"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-volume-entropy.t.beta"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "nu",
+      "nodeId": "eq-model-lq-volume-entropy.t.frequency"
+    },
+    {
+      "text": " times the logarithm of "
+    },
+    {
+      "text": "V",
+      "nodeId": "eq-model-lq-volume-entropy.t.volume"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "V_0",
+      "nodeId": "eq-model-lq-volume-entropy.t.volume0"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-unfixed-constant",
+  "paper": "light-quanta",
+  "argument": "arg-lq-fixed-band-volume",
+  "title": "What an unfixed constant would add",
+  "spoken": "An unfixed entropy-density constant would add bandwidth times C of frequency times the volume difference.",
+  "explanation": "If the entropy density's integration constant C(nu) were not set to zero, the comparison of two volumes would pick up this extra term, proportional to the volume difference rather than to the logarithm of the ratio.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Radiation in a narrow band of width Delta nu around nu, compared in volumes V and V_0.",
+    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for k_B, and beta for B."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-unfixed-constant.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-unfixed-constant.t.extra",
+      "quantityId": "entropyFromUnfixedConstant"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-unfixed-constant.t.band",
+          "quantityId": "bandwidth"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-unfixed-constant.t.constant",
+          "quantityId": "entropyDensityConstant",
+          "at": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-unfixed-constant.t.frequency",
+            "quantityId": "frequency"
+          }
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-lq-unfixed-constant.t.volume",
+              "quantityId": "volume"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "symbol",
+                "termId": "eq-model-lq-unfixed-constant.t.volume0",
+                "quantityId": "volume",
+                "index": "0"
+              }
+            }
+          ],
+          "opId": "eq-model-lq-unfixed-constant.op.volumeChange"
+        }
+      ],
+      "opId": "eq-model-lq-unfixed-constant.op.product"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-unfixed-constant.op.product",
+      "title": "Band times constant times volume change",
+      "explanation": "Linear in the volume difference: a different shape from the logarithm.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-unfixed-constant.op.relation",
+      "title": "What it asserts",
+      "explanation": "Why the constant cannot simply be dropped: the boundary condition that entropy density vanishes with energy density is what sets it to zero.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-unfixed-constant.op.volumeChange",
+      "title": "V minus V_0",
+      "explanation": "A difference of volumes, not their ratio.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-lq-unfixed-constant.t.band",
+      "title": "Width of the band",
+      "explanation": "The width of the narrow frequency band.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-unfixed-constant.t.constant",
+      "title": "The integration constant",
+      "explanation": "C at this frequency: what integrating the entropy relation leaves undetermined.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-unfixed-constant.t.extra",
+      "title": "The extra entropy",
+      "explanation": "The term the constant would add to the comparison.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-unfixed-constant.t.frequency",
+      "title": "Frequency",
+      "explanation": "The frequency of the radiation.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-unfixed-constant.t.volume",
+      "title": "Volume",
+      "explanation": "The volume the radiation fills.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-unfixed-constant.t.volume0",
+      "title": "Comparison volume",
+      "explanation": "The volume the first state is compared with.",
+      "foundation": "bridge-fractions-ratios"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The extra entropy",
+      "nodeId": "eq-model-lq-unfixed-constant.t.extra"
+    },
+    {
+      "text": " would be "
+    },
+    {
+      "text": "the band width",
+      "nodeId": "eq-model-lq-unfixed-constant.t.band"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "C of nu",
+      "nodeId": "eq-model-lq-unfixed-constant.t.constant"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "V",
+      "nodeId": "eq-model-lq-unfixed-constant.t.volume"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "V_0",
+      "nodeId": "eq-model-lq-unfixed-constant.t.volume0"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-cutoff-integral",
+  "paper": "light-quanta",
+  "argument": "arg-lq-classical-allocation",
+  "title": "Add up the density below a cutoff",
+  "spoken": "The energy density below cutoff frequency nu c is the integral of the spectral density from zero to nu c.",
+  "explanation": "A density per unit frequency becomes an energy per unit volume only when it is added up over a range of frequencies. Here the range runs from zero to a cutoff.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Each radiation mode in equilibrium carries the classical average energy k_B T.",
+    "A cutoff frequency nu_c; the model counts only frequencies below it.",
+    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for k_B, and beta for B."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-cutoff-integral.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-cutoff-integral.t.total",
+      "quantityId": "energyDensityBelowCutoff",
+      "at": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-cutoff-integral.t.cutoffArg",
+        "quantityId": "frequency",
+        "index": "c"
+      }
+    },
+    "right": {
+      "kind": "integral",
+      "opId": "eq-model-lq-cutoff-integral.op.integral",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-cutoff-integral.t.density",
+        "quantityId": "frequencyEnergyDensity"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-cutoff-integral.t.frequency",
+        "quantityId": "frequency"
+      },
+      "lower": {
+        "kind": "number",
+        "value": "0"
+      },
+      "upper": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-cutoff-integral.t.cutoff",
+        "quantityId": "frequency",
+        "index": "c"
+      }
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-cutoff-integral.op.integral",
+      "title": "Add up over frequency",
+      "explanation": "From zero to the cutoff: density times frequency width, summed.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-integral.op.relation",
+      "title": "What it asserts",
+      "explanation": "The energy per volume is the area under the density curve up to the cutoff.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-integral.t.cutoff",
+      "title": "Cutoff frequency",
+      "explanation": "The highest frequency the sum includes.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-integral.t.cutoffArg",
+      "title": "Cutoff frequency",
+      "explanation": "The highest frequency the sum includes.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-integral.t.density",
+      "title": "Spectral energy density",
+      "explanation": "Radiation energy per cubic metre per unit of frequency.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-integral.t.frequency",
+      "title": "Frequency",
+      "explanation": "The frequency of the radiation.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-cutoff-integral.t.total",
+      "title": "Energy density below the cutoff",
+      "explanation": "Energy per cubic metre in all frequencies up to the cutoff.",
+      "foundation": "integration"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The energy density below the cutoff",
+      "nodeId": "eq-model-lq-cutoff-integral.t.total"
+    },
+    {
+      "text": " is the integral of "
+    },
+    {
+      "text": "the spectral density",
+      "nodeId": "eq-model-lq-cutoff-integral.t.density"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "frequency",
+      "nodeId": "eq-model-lq-cutoff-integral.t.frequency"
+    },
+    {
+      "text": ", from 0 to "
+    },
+    {
+      "text": "the cutoff",
+      "nodeId": "eq-model-lq-cutoff-integral.t.cutoff"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
