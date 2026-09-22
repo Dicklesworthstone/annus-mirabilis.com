@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Discovery routes",
   description:
-    "Reconstructions of the problems the 1905 papers answer, worked from what was on the shelf at the end of 1904. One route is written; the other three are not yet.",
+    "Reconstructions of the problems the 1905 papers answer, worked from what was on the shelf at the end of 1904. Two routes are written; the other two are not yet.",
 };
 
 /**
@@ -33,9 +33,14 @@ export const metadata: Metadata = {
  *   mass-energy             810 chars   1 section    0
  *   special-relativity      418 chars   1 section    0
  *
- * One route is written and three are stubs that say so. An index presenting four equal doors
- * would be the claim-without-capability defect this edition exists to avoid, so the three are
- * named individually with what IS behind them rather than folded into a footnote.
+ * UPDATED 2026-09-22: mass-energy is now written. Measured on the rendered component,
+ * 14,268 characters of visible text with 5 numbered steps, 11 disclosures, a validated
+ * 1904 shelf of 6 cards and one declared 1905 import. So the split is now two written and
+ * two stubs, and the heading below says two rather than three.
+ *
+ * An index presenting four equal doors would be the claim-without-capability defect this
+ * edition exists to avoid, so the stubs are still named individually with what IS behind
+ * them rather than folded into a footnote.
  */
 export default function DiscoverIndex() {
   return (
@@ -79,10 +84,32 @@ export default function DiscoverIndex() {
             <a href="/papers/brownian-motion/">Read the paper instead</a>
           </div>
         </article>
+
+        <article>
+          <p className="eyebrow">Written · Ann. Phys. 18, 639</p>
+          <h2>
+            <a href="/discover/mass-energy/">Mass and energy</a>
+          </h2>
+          <p className="german-title">
+            Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?
+          </p>
+          <p>
+            A body at rest gives off two equal flashes and does not recoil. Energy has left it and
+            nothing you can see about it has changed, so the route asks what did. Five steps, one
+            imported result that is declared rather than smuggled, and a prediction to commit to
+            before the answer arrives.
+          </p>
+          <div className="actions">
+            <a className="button" href="/discover/mass-energy/">
+              Take this route
+            </a>
+            <a href="/papers/mass-energy/">Read the paper instead</a>
+          </div>
+        </article>
       </section>
 
       <section className="reading">
-        <h2>Three routes are not written yet</h2>
+        <h2>Two routes are not written yet</h2>
         <p>
           Each of these papers has its reading edition and its instruments. What is missing is the
           reconstruction: the shelf, the difficulty, and the fork where a reasonable person could
@@ -123,24 +150,6 @@ export default function DiscoverIndex() {
           </p>
           <div className="actions">
             <a href="/papers/special-relativity/">Read the paper and its instruments</a>
-          </div>
-        </article>
-
-        <article>
-          <p className="eyebrow">Not written · Ann. Phys. 18, 639</p>
-          <h2>
-            <a href="/papers/mass-energy/">Does inertia depend on energy content?</a>
-          </h2>
-          <p className="german-title">
-            Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?
-          </p>
-          <p>
-            The route through the two accounts of one body giving off light is not written. The
-            reading edition is, and so are three instruments, including the one that follows the
-            subtraction.
-          </p>
-          <div className="actions">
-            <a href="/papers/mass-energy/">Read the paper and its instruments</a>
           </div>
         </article>
       </section>
