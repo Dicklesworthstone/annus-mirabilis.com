@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { notFound } from "next/navigation";
 import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-light-quanta.json";
 import clockEntranceRaw from "../../content/arguments/special-relativity/entrance-special-relativity.json";
+import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import type { RouteSlug } from "../content/ids.ts";
@@ -476,6 +477,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       </section>
       <p className="fine">{foundations.length} foundation readings sit behind this argument.</p>
       <dialog className="clarification-dialog" data-clarification-dialog aria-modal="true">
+        {/* The X, first so the compass wraps round it; ReaderController wires it, and a press
+            outside the lesson, to "Return to the exact step". Escape still goes back one step. */}
+        <ModalCloseButton
+          label="Close the lesson and return to the passage"
+          data-clarification-close
+        />
         <nav className="reader-compass" aria-label="Explanation compass">
           <p>
             <strong>The question we were answering:</strong> <span data-compass-question />

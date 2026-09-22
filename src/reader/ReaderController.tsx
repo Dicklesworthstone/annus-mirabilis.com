@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useId } from "react";
+import { makeDismissible } from "../a11y/modal/dismiss.ts";
 import { FACE_REGISTRY } from "./faces/registry.ts";
 import { InlineFacsimile } from "./facsimile/InlineFacsimile.tsx";
 import {
@@ -362,6 +363,19 @@ export function ReaderController(props: Props) {
     root.addEventListener("change", changeControl);
     dialog.addEventListener("cancel", cancel);
     window.addEventListener("popstate", pop);
+    /* The owner's rule for every overlay: an X top right, and a press outside closes it. Both
+       close the whole lesson stack and return to the passage, as "Return to the exact step"
+       does; Escape keeps its own meaning here, one step back (the cancel handler above). */
+    const dismissal = new AbortController();
+    makeDismissible(dialog, {
+      signal: dismissal.signal,
+      escape: false,
+      closeButton: dialog.querySelector<HTMLButtonElement>("[data-clarification-close]"),
+      onDismiss: () => {
+        if (state.frames.length)
+          change({ ...state, frames: [] }, false, "Returned to the exact step.");
+      },
+    });
     const openSearchOnMount = location.search;
     save();
     render();
@@ -414,6 +428,7 @@ export function ReaderController(props: Props) {
       root.removeEventListener("change", changeControl);
       dialog.removeEventListener("cancel", cancel);
       window.removeEventListener("popstate", pop);
+      dismissal.abort();
       closeDirectOpenDialog(document);
     };
   }, [navigation]);

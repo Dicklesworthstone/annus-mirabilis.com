@@ -1,3 +1,4 @@
+import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
 import { TracerLab } from "../components/lab/TracerLab";
 import { loadPaper } from "../content/server";
 import { EquationScope } from "../equations/EquationScope";
@@ -341,6 +342,12 @@ export async function PaperReader({
         </p>
       </section>
       <dialog className="clarification-dialog" data-clarification-dialog aria-modal="true">
+        {/* The X, first so the compass wraps round it; ReaderController wires it, and a press
+            outside the lesson, to "Return to the exact step". Escape still goes back one step. */}
+        <ModalCloseButton
+          label="Close the lesson and return to the passage"
+          data-clarification-close
+        />
         <nav className="reader-compass" aria-label="Explanation compass">
           <p>
             <strong>The question we were answering:</strong> <span data-compass-question />

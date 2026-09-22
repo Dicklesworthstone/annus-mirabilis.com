@@ -2,6 +2,7 @@
 import { createElement } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
+import { createModalCloseButton, makeDismissible } from "../../a11y/modal/dismiss.ts";
 import { Compass } from "./Compass.tsx";
 import { returnToInterruptedSentence } from "./focus.ts";
 import {
@@ -19,6 +20,8 @@ type Mounted = {
   dialog: HTMLDialogElement;
   frame: StackFrame;
   onCancel: (e: Event) => void;
+  /** Removes the X and press-outside listeners (makeDismissible) of this opening. */
+  dismissal: AbortController;
 };
 const mounted = new WeakMap<Document, Mounted>();
 let triggerNumber = 0;
@@ -28,6 +31,10 @@ function ensureDialog(doc: Document) {
   if (!dialog) {
     dialog = doc.createElement("dialog");
     dialog.setAttribute(DIALOG_ATTR, "");
+    // The owner's rule for every overlay: an X at the top right. First, so the compass wraps it.
+    const close = createModalCloseButton("Close and return to the passage");
+    close.setAttribute("data-clarification-close", "");
+    dialog.appendChild(close);
     const mount = doc.createElement("div");
     mount.setAttribute(MOUNT_ATTR, "");
     dialog.appendChild(mount);
@@ -43,6 +50,7 @@ export function closeDirectOpenDialog(doc: Document, returnFocus = false): void 
   if (!current) return;
   if (current.dialog.open) current.dialog.close();
   current.dialog.removeEventListener("cancel", current.onCancel);
+  current.dismissal.abort();
   if (returnFocus)
     doc.defaultView?.requestAnimationFrame(() => {
       // Browser Back restores the interrupted control; Forward into another panel must not
@@ -157,7 +165,10 @@ export function openFromSearch(doc: Document, search: string): boolean {
   const { dialog, mount } = ensureDialog(doc);
   dialog.setAttribute("aria-label", frame.title);
   const existing = mounted.get(doc);
-  if (existing) dialog.removeEventListener("cancel", existing.onCancel);
+  if (existing) {
+    dialog.removeEventListener("cancel", existing.onCancel);
+    existing.dismissal.abort();
+  }
   const root = existing?.root ?? createRoot(mount);
   const onReturn = () => {
     const pushed = !!saved && win.history.state?.annusClarification?.pushed === true;
@@ -179,7 +190,15 @@ export function openFromSearch(doc: Document, search: string): boolean {
     e.preventDefault();
     onReturn();
   };
-  mounted.set(doc, { root, dialog, frame, onCancel });
+  // The X and a press outside the panel return to the passage, as Escape (cancel) does.
+  const dismissal = new AbortController();
+  makeDismissible(dialog, {
+    signal: dismissal.signal,
+    escape: false,
+    closeButton: dialog.querySelector<HTMLButtonElement>("[data-clarification-close]"),
+    onDismiss: () => onReturn(),
+  });
+  mounted.set(doc, { root, dialog, frame, onCancel, dismissal });
   dialog.addEventListener("cancel", onCancel);
   const child = renderKind({
     parsed: resolved.parsedId,
