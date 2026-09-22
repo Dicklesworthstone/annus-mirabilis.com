@@ -3,68 +3,77 @@
   "kind": "foundation",
   "id": "partial-derivatives",
   "title": "Partial derivatives and held-fixed quantities",
-  "question": "What does a partial derivative mean when several variables change simultaneously?",
-  "summary": "A partial derivative quantifies how a multivariable function responds to variations in one variable while all other independent variables are strictly held constant.",
+  "question": "When a quantity depends on two things, what does its rate of change mean?",
+  "summary": "A quantity that depends on more than one variable has more than one rate of change. A partial derivative varies one variable and holds the others fixed, and it means nothing until you say which ones are held fixed.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Many physical quantities depend on more than one parameter: particle density depends on both position x and time t; gas entropy depends on both volume V and temperature T. When asking how such a quantity changes, one must specify which variable is moving and which variables are being held constant."
+      "text": "The concentration of particles in a tube depends on where you look, x, and when you look, t. Ask how fast the concentration changes and there are two different answers: how it changes as you move along the tube at one instant, and how it changes at one place as time passes."
     },
     {
       "kind": "paragraph",
-      "text": "The partial derivative ∂f/∂x represents the rate of change of f with respect to x while holding time t strictly fixed. Conversely, ∂f/∂t represents the rate of accumulation at a fixed position x over time. In thermodynamics, holding temperature fixed produces an isothermal derivative, while holding entropy or volume fixed produces an adiabatic or isochoric derivative."
+      "text": "A partial derivative picks one of them. ∂f/∂x is the rate of change along the tube with the time t held fixed, like comparing points in one photograph. ∂f/∂t is the rate of change in time at a fixed position x, like watching one spot under the microscope. The curly ∂ says that something else is being held fixed, and a subscript names it:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left(\\frac{\\partial f}{\\partial x}\\right)_t \\qquad \\left(\\frac{\\partial f}{\\partial t}\\right)_x",
+      "spoken": "The partial derivative of f with respect to x at fixed t, and the partial derivative of f with respect to t at fixed x."
     },
     {
       "kind": "paragraph",
-      "text": "Einstein's derivation of the diffusion equation equates the time rate of accumulation at a fixed location to the divergence of spatial flux: ∂f/∂t = D ∂^2f/∂x^2. Both sides describe rates under different held-fixed constraints."
+      "text": "Thermodynamics depends on the same care. How much a gas's volume changes as the pressure changes depends on whether its temperature T is held fixed, with heat flowing in and out, or its entropy S is held fixed, with the gas insulated. The two derivatives have different values, and ∂V/∂p written alone does not say which is meant:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left(\\frac{\\partial V}{\\partial p}\\right)_T \\quad \\text{versus} \\quad \\left(\\frac{\\partial V}{\\partial p}\\right)_S",
+      "spoken": "The partial derivative of V with respect to p at fixed temperature T, versus the same derivative at fixed entropy S."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In §3 of the light-quanta paper, radiation fills a fixed volume and φ is its entropy per unit volume and per unit interval of frequency, a function of the energy density ρ and of ν. Varying ρ with the frequency ν held fixed, Einstein finds that the derivative is 1/T:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left(\\frac{\\partial \\varphi}{\\partial \\rho}\\right)_{\\nu} = \\frac{1}{T}",
+      "spoken": "The partial derivative of phi with respect to rho, at fixed frequency nu, equals one over T."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In §6 of the relativity paper, Maxwell's equations are rewritten in the coordinates ξ, η, ζ, τ of a moving system. A derivative with respect to x taken with y, z and t held fixed then becomes a combination of a derivative with respect to ξ and one with respect to τ, because holding the resting time t fixed does not hold the moving time τ fixed."
     }
   ],
   "example": [
     {
-      "kind": "formula",
-      "latex": "\\left(\\frac{\\partial f}{\\partial x}\\right)_t = -\\frac{x}{2Dt} f(x, t)",
-      "spoken": "Spatial partial derivative of density with respect to x holding time t fixed."
-    },
-    {
       "kind": "paragraph",
-      "text": "Example 1 (Time fixed when moving through space): For diffusion profile f(x, t) = (4 pi D t)^(-1/2) exp(-x^2 / (4Dt)), the spatial gradient quantifies concentration variation along a channel. Here, elapsed time t is strictly fixed as the held-fixed parameter. A spatial snapshot taken at one fixed instant evaluates to ∂f/∂x = -x/(2Dt) f(x, t)."
+      "text": "Take the spreading profile of the Brownian paper's §4, written for a single particle:"
     },
     {
       "kind": "formula",
-      "latex": "\\left(\\frac{\\partial f}{\\partial t}\\right)_x = \\left(-\\frac{1}{2t} + \\frac{x^2}{4Dt^2}\\right) f(x, t)",
-      "spoken": "Time partial derivative of density with respect to time holding position x fixed."
+      "latex": "f(x,t) = \\frac{1}{\\sqrt{4\\pi D t}}\\,e^{-x^2/4Dt}",
+      "spoken": "f of x and t equals one over the square root of four pi D t, times e to the minus x squared over four D t."
     },
     {
       "kind": "paragraph",
-      "text": "Example 2 (Position fixed when tracking time): The time accumulation rate records concentration changes at a fixed location. Here, spatial position x is strictly fixed as the held-fixed parameter. A stationary probe at one coordinate records accumulation rate ∂f/∂t = (-1/(2t) + x^2/(4Dt^2)) f(x, t). Equating accumulation to spatial flux divergence yields ∂f/∂t = D ∂^2f/∂x^2."
+      "text": "Hold t fixed and differentiate with respect to x. Only the exponent depends on x, and the derivative of −x²/4Dt with respect to x is −x/2Dt:"
     },
     {
       "kind": "formula",
-      "latex": "\\left(\\frac{\\partial V}{\\partial p}\\right)_T \\quad\\text{versus}\\quad \\left(\\frac{\\partial V}{\\partial p}\\right)_S",
-      "spoken": "Isothermal volume derivative with respect to pressure holding temperature T fixed versus adiabatic volume derivative holding entropy S fixed."
+      "latex": "\\left(\\frac{\\partial f}{\\partial x}\\right)_t = -\\frac{x}{2Dt}\\,f(x,t)",
+      "spoken": "The partial derivative of f with respect to x at fixed t equals minus x over two D t, times f."
     },
     {
       "kind": "paragraph",
-      "text": "Example 3 (Thermodynamic derivatives: isothermal versus adiabatic): In gas thermodynamics, the volume response to pressure depends on thermal boundary conditions. The isothermal derivative (∂V/∂p)_T explicitly names temperature T as the held-fixed quantity while heat exchanges freely with a bath. Conversely, the adiabatic derivative (∂V/∂p)_S explicitly names entropy S as the held-fixed quantity under thermal insulation. Because isothermal compression permits heat release, the isothermal compressibility exceeds the adiabatic compressibility. Writing ∂V/∂p without identifying the held-fixed parameter is physically incomplete."
+      "text": "That is the slope of the profile in one snapshot: downhill to the right of the centre, uphill to the left. Now hold x fixed and differentiate with respect to t. Both the factor in front and the exponent depend on t:"
     },
     {
       "kind": "formula",
-      "latex": "\\left(\\frac{\\partial s_\\nu}{\\partial u_\\nu}\\right)_{V, \\nu} = \\frac{1}{T}",
-      "spoken": "Monochromatic radiation entropy density derivative with respect to energy density holding volume V and frequency nu fixed."
+      "latex": "\\left(\\frac{\\partial f}{\\partial t}\\right)_x = \\left(-\\frac{1}{2t} + \\frac{x^2}{4Dt^2}\\right) f(x,t)",
+      "spoken": "The partial derivative of f with respect to t at fixed x equals minus one over two t, plus x squared over four D t squared, all times f."
     },
     {
       "kind": "paragraph",
-      "text": "Example 4 (Radiation entropy derivative in Light Quanta §3): For blackbody radiation at frequency nu, the entropy density s_nu depends on both spectral energy density u_nu and enclosure volume V. Einstein's derivation of Wien's displacement law takes the partial derivative (∂s_nu/∂u_nu)_(V, nu) = 1/T. Here both cavity volume V and radiation frequency nu are strictly held fixed as the held-fixed parameters while varying energy density u_nu."
-    },
-    {
-      "kind": "formula",
-      "latex": "\\left(\\frac{\\partial}{\\partial x}\\right)_{y, z, t} = \\gamma \\left(\\frac{\\partial}{\\partial x'}\\right)_{y', z', t'} - \\gamma \\frac{v}{c^2} \\left(\\frac{\\partial}{\\partial t'}\\right)_{x', y', z'}",
-      "spoken": "Chain rule transformation of spatial partial derivative holding rest-frame coordinates fixed into moving-frame partial derivatives."
-    },
-    {
-      "kind": "paragraph",
-      "text": "Example 5 (Transformed derivatives in Relativity §6): In coordinate transformations between a resting frame (x, y, z, t) and a moving frame (x', y', z', t'), the partial derivative (∂/∂x)_(y, z, t) explicitly holds resting coordinates y, z, and time t fixed. When expressed in moving coordinates via the relativistic chain rule, it becomes a combination of moving spatial derivative (∂/∂x')_(y', z', t') holding y', z', and t' fixed, and moving time derivative (∂/∂t')_(x', y', z') holding x', y', and z' fixed. Changing coordinate systems changes which physical quantities are held fixed."
+      "text": "That is what a probe fixed at one place records. Near the centre, where x² is less than 2Dt, the bracket is negative: the concentration falls as the cloud spreads away. Farther out it is positive: the concentration rises as the cloud arrives. Differentiate the first result once more with respect to x and multiply by D, and you get the second. That is the §4 equation ∂f/∂t = D ∂²f/∂x², a rate at one place equal to a curvature at one time."
     }
   ],
   "exampleTitle": "The same diffusion profile, differentiated two ways",
@@ -84,6 +93,6 @@
       "caption": "Return to Brownian §4 diffusion equation derivation"
     }
   ],
-  "stoppingPoint": "A partial derivative is mathematically and physically undefined until every held-fixed parameter is explicitly identified.",
+  "stoppingPoint": "A partial derivative is not defined until you have said which quantities are held fixed.",
   "citations": []
 }
