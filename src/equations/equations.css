@@ -46,8 +46,14 @@
   margin: 0.8rem 0;
 }
 .eq-chip {
-  min-height: 2.25rem;
-  min-width: 2.25rem;
+  /* 2.75rem, not 2.25rem. globals.css already floors every <button> at 44px, but a
+     class selector beats an element selector, so this rule silently lowered the floor
+     to 36px for every equation chip. Measured at 390px on the built Brownian paper
+     page: 40 chips rendered at 41.27px, short by 2.73px, and they were the single
+     largest group of standalone sub-44px targets on the page. The site's own standard
+     was one specificity step away the whole time. */
+  min-height: 2.75rem;
+  min-width: 2.75rem;
   display: flex;
   gap: 0.5rem;
   align-items: center;
