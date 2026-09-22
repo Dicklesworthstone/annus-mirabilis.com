@@ -888,14 +888,16 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
   const extractPath = path.resolve(repoRoot, pinned.path);
   const parentPath = path.resolve(repoRoot, pinned.parent.path);
 
-  if (!fs.existsSync(extractPath)) {
+  const extractMissing = !fs.existsSync(extractPath);
+  const parentMissing = !fs.existsSync(parentPath);
+  if (extractMissing) {
     findings.push({
       check: "artifact",
       code: "pinned-pdf-unavailable",
       message: `Config '${key}': pinned PDF '${pinned.path}' is not on disk.`,
     });
   }
-  if (!fs.existsSync(parentPath)) {
+  if (parentMissing) {
     findings.push({
       check: "artifact",
       code: "parent-pdf-unavailable",
@@ -905,7 +907,62 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
         `A pin that cannot be compared with its parent is unverified, not verified.`,
     });
   }
-  if (findings.some((f) => f.check === "artifact")) {
+
+  // THE PINNED FILE IS TRACKED; THE PARENT IS NOT. So the checks that read only the extract are
+  // measurable wherever this runs, including CI, and they used to be unreachable there for two
+  // reasons that had nothing to do with them: this function returned on ANY artifact finding, so
+  // a missing parent ended it before the extract was ever hashed, and the tool probe below
+  // demands pdftotext, which the OCR denylist forbids
+  // (D-2026-09-21-facsimile-text-layer-stays-forbidden). Neither is a property of the digest or
+  // the page count. They need pdfinfo, which is on no denylist, and the file that ships.
+  //
+  // Sequencing only. No check is added, removed or relaxed, and every parent-side refusal below
+  // still refuses exactly what it refused before (am-xoxn).
+  let extractPages: number | null = null;
+  if (!extractMissing) {
+    try {
+      requireTool("pdfinfo");
+      const extractDigest = sha256File(extractPath);
+      if (extractDigest !== pinned.sha256) {
+        findings.push({
+          check: "artifact",
+          code: "pinned-digest-conflict",
+          message:
+            `Config '${key}': pinned PDF digest on disk (${extractDigest}) does not match the recorded ` +
+            `sha256 (${pinned.sha256}).`,
+        });
+      }
+      extractPages = pdfPageCount(extractPath);
+      if (extractPages !== pinned.pageCount) {
+        findings.push({
+          check: "artifact",
+          code: "pinned-page-count-mismatch",
+          message: `Config '${key}': pinned PDF holds ${extractPages} pages but the record says ${pinned.pageCount}.`,
+        });
+      }
+    } catch (err: unknown) {
+      // The same breadth as the outer catch below, deliberately. A reason the gate has no code
+      // for - an unreadable file, say - is still a measurement failure and must be REPORTED as
+      // one rather than thrown out of verifyPin, which would end the whole run on one pin. The
+      // first version of this block rethrew, and verify-facsimile-pins.ts:1144 caught it.
+      if (err instanceof PinMeasurementError) {
+        findings.push({ check: "artifact", code: err.code, message: err.message });
+      } else {
+        const message = err instanceof Error ? err.message : String(err);
+        findings.push({
+          check: "artifact",
+          code: "page-render-failed",
+          message: `Config '${key}': measurement failed: ${message}`,
+        });
+      }
+    }
+  }
+
+  // Unavailability, not "any artifact finding". The old condition was equivalent while the only
+  // artifact findings reachable here were the two above; now that a real refusal can be recorded
+  // before this line, returning on it would throw away the parent comparison that is the whole
+  // point of this gate.
+  if (extractMissing || parentMissing) {
     return { key, verified: false, facts, findings };
   }
 
@@ -913,17 +970,6 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
     requireTool("pdftoppm");
     requireTool("pdftotext");
     requireTool("pdfinfo");
-
-    const extractDigest = sha256File(extractPath);
-    if (extractDigest !== pinned.sha256) {
-      findings.push({
-        check: "artifact",
-        code: "pinned-digest-conflict",
-        message:
-          `Config '${key}': pinned PDF digest on disk (${extractDigest}) does not match the recorded ` +
-          `sha256 (${pinned.sha256}).`,
-      });
-    }
     const parentDigest = sha256File(parentPath);
     if (parentDigest !== pinned.parent.sha256) {
       findings.push({
@@ -936,14 +982,8 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
       return { key, verified: false, facts, findings };
     }
 
-    const extractPages = pdfPageCount(extractPath);
-    if (extractPages !== pinned.pageCount) {
-      findings.push({
-        check: "artifact",
-        code: "pinned-page-count-mismatch",
-        message: `Config '${key}': pinned PDF holds ${extractPages} pages but the record says ${pinned.pageCount}.`,
-      });
-    }
+    // Measured above, before the parent gate, because it needs only the tracked file.
+    const measuredExtractPages = extractPages ?? pdfPageCount(extractPath);
     const parentPages = pdfPageCount(parentPath);
 
     // Check 3 first: its offset is what lets check 2 say where a stale extract was cut from.
@@ -961,7 +1001,7 @@ export function verifyPin(config: unknown, repoRoot: string): PinResult {
 
     // Check 2: the pinned bytes against the parent pages the config names.
     const extractFirstHash = renderPageHash(extractPath, 1);
-    const extractLastHash = renderPageHash(extractPath, extractPages);
+    const extractLastHash = renderPageHash(extractPath, measuredExtractPages);
     const parentFirstHash = renderPageHash(parentPath, declaredFirstIndex);
     const parentLastHash = renderPageHash(parentPath, declaredLastIndex);
 
