@@ -94,7 +94,9 @@ export default function DiscoverIndex() {
                         <i key={n} />
                       ))}
                     </span>
-                    {plate.pages} pages, pp. {plate.firstPage}&ndash;{plate.lastPage}
+                    {/* No break inside the range: "pp. 132–" and "148" split across lines at 390. */}
+                    {plate.pages} pages, pp.&nbsp;{plate.firstPage}&#8288;&ndash;&#8288;
+                    {plate.lastPage}
                   </p>
                 </div>
               )}
