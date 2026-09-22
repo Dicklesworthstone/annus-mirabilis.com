@@ -227,10 +227,9 @@ export default function BrownianEncounter() {
         <details>
           <summary>Why use the squared displacement?</summary>
           <p>
-            Squaring makes both leftward and rightward displacements positive. More importantly,
-            independent steps with zero mean have a useful property: their mean squares add.
-            Absolute displacements do not have that same additive rule. This gives the square a role
-            in the derivation, not just a convenient sign.
+            Squaring makes leftward and rightward displacements alike positive. It also has a
+            property the absolute value lacks: for independent steps with zero mean, the mean
+            squares add. That is why the square, and not the absolute value, carries the derivation.
           </p>
         </details>
         <StepDoors>
@@ -262,7 +261,7 @@ export default function BrownianEncounter() {
           <Formula latex={String.raw`\langle x^2\rangle=2Dt \qquad \lambda_x=\sqrt{2Dt}`} />
           <p>
             The laboratory’s one-second, ten-second and one-minute comparison is calculated from one
-            accepted diffusion coefficient. It is not three independent measurements.
+            diffusion coefficient. It is not three independent measurements.
           </p>
         </details>
         <StepDoors>
@@ -295,7 +294,7 @@ export default function BrownianEncounter() {
           </p>
           <p>
             Try changing viscosity from 1 to 2 mPa·s. The laboratory does not silently change
-            viscosity when you edit temperature; they are separate declared inputs.
+            viscosity when you edit temperature; they are separate settings.
           </p>
         </details>
       </section>
@@ -345,9 +344,9 @@ export default function BrownianEncounter() {
         <h2>Where this enters the paper</h2>
         <p>
           The Brownian-motion paper’s §§4–5 connect irregular displacements to diffusion and then to
-          a measurable displacement scale. The reviewed source text and aligned translation are not
-          yet published here. This first encounter is newly authored explanatory material, not a
-          substitute source face.
+          a measurable displacement scale. The German text is on this site, not yet reviewed; the
+          English translation is not written yet. This route is new explanation written for this
+          edition, not a translation of the paper.
         </p>
         <div className="actions">
           <a className="button" href="/papers/brownian-motion/">
