@@ -3,36 +3,54 @@
   "kind": "foundation",
   "id": "frames-events",
   "title": "Events, reference frames, and the coordinate grid",
-  "question": "How do observers assign spatial and temporal coordinates to physical events?",
-  "summary": "An event is a physical occurrence at a single point in space and instant in time. A reference frame is an idealized coordinate system of rigid rods and synchronized clocks that assigns four numbers (x, y, z, t) to each event.",
+  "question": "What does it mean to say that two distant events happen at the same time?",
+  "summary": "An event happens at one place at one instant. Clocks at different places can only be compared by a rule, and §1 of the relativity paper gives one: send light out and back, and call the clocks synchronous if the trip out takes as long as the trip back.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "An event is a physical occurrence localized at a single location in space and a single instant in time, such as a spark jumping, a particle collision, or the emission of a flash of light."
+      "text": "An event is something that happens at one place at one instant: a spark, a collision, a flash leaving a lamp. To give it a time, you read a clock at that place. Reading a distant clock by looking at it would mix in the time the light takes to reach you."
     },
     {
       "kind": "paragraph",
-      "text": "To measure events quantitatively, observers construct a reference frame: an imaginary rigid spatial lattice equipped with stationary clocks at every grid intersection. An observer does not rely on looking at a distant clock across space (which incurs light-travel delay); instead, the coordinate time of an event is recorded by the local clock located right where the event occurs."
+      "text": "A reference frame is a set of rigid measuring rods and clocks at rest, with a clock at every place, so that each event gets three coordinates of position and one of time from the rods and the clock beside it. Before that works, the clocks must agree, and for clocks far apart agreeing needs a rule."
     },
     {
       "kind": "paragraph",
-      "text": "Clock synchronization follows Einstein's operational convention: a light pulse sent from clock A at time t_A reaches clock B, reflects, and returns to A at time t'_A. Clock B is synchronized with clock A if its reading at reflection satisfies the midpoint assignment t_B = (t_A + t'_A) / 2."
+      "text": "§1 of the relativity paper gives the rule. Send a flash of light from clock A to clock B and back. Note A's reading when it leaves, B's reading when it arrives, and A's reading when it returns. The clocks are called synchronous if the trip out takes as long, by the clocks, as the trip back:"
+    },
+    {
+      "kind": "formula",
+      "latex": "t_B - t_A = t'_A - t_B",
+      "spoken": "t B minus t A equals t A prime minus t B: the trip out takes as long as the trip back."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The paper calls this a definition. It cannot be checked by measurement, because checking it would need clocks that are already synchronous. §1 adds two assumptions: that the rule is consistent, so that if B agrees with A then A agrees with B, and two clocks that agree with a third agree with each other; and that light's speed measured out and back is a universal constant, which the paper writes V."
     }
   ],
   "example": [
     {
+      "kind": "steps",
+      "items": [
+        "Clock A reads 0 s as a flash leaves it for clock B.",
+        "The flash is reflected at B and arrives back at A when A reads 10 s.",
+        "By the rule the two trips take equal times, so the reflection happened at 5 s on A's time.",
+        "If B's clock read 5 s at the reflection, it is synchronous with A. If it read 7 s, it is 2 s fast, and setting it back 2 s makes the two agree."
+      ]
+    },
+    {
       "kind": "formula",
       "latex": "t_B = \\frac{1}{2}\\left(t_A + t'_A\\right)",
-      "spoken": "The time at clock B equals one half of the sum of the emission time at clock A and the return time at clock A."
+      "spoken": "The time at B equals one half of the sum of A's reading when the flash left and A's reading when it came back."
     },
     {
       "kind": "paragraph",
-      "text": "If a master clock A emits a light signal at t_A = 0 seconds toward stationary clock B, and the reflected signal returns to clock A at t'_A = 10 seconds, the synchronization convention assigns the time t_B = (0 + 10) / 2 = 5 seconds to the reflection event at clock B."
+      "text": "The rule needs no distance. If B is known to be 1.5 × 10⁹ metres away, the same round trip also gives light's speed: 2 × 1.5 × 10⁹ m divided by 10 s is 3 × 10⁸ metres per second."
     }
   ],
   "exampleTitle": "Setting a distant clock with one light signal",
   "prerequisites": ["functions-graphs"],
-  "stoppingPoint": "An event is something that happens at one place and one time; coordinate assignment is an operational measurement convention, not an absolute cosmic background.",
+  "stoppingPoint": "An event is something that happens at one place and one time. Whether two distant events are simultaneous depends on a rule for setting clocks, which §1 of the relativity paper supplies.",
   "citations": []
 }
