@@ -20,7 +20,10 @@ export const BROWNIAN_PLOT_POINTS: readonly DataPoint[] = [
 
 /**
  * Interactive table-to-plot builder for foundation:functions-graphs.
- * Builds a √t displacement curve from a table of paired Brownian measurements.
+ * Builds a √t displacement curve from a table worked out from λx² = 2Dt. The values are
+ * computed for D = 2 µm²/s and are labelled as such: they were captioned "Table of paired
+ * measurements (Brownian §5)" until 2026-09-22, which presented invented numbers as
+ * Einstein's data (AGENTS.md, "no manufactured historical data").
  * Operable by keyboard and fully rendered for no-JavaScript visitors.
  */
 export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel?: HeadingLevel }) {
@@ -58,12 +61,13 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
       data-foundation-construction="functions-graphs"
     >
       <Title id={headingId} className="construction-title">
-        Interactive construction: from measurement table to curve
+        Interactive construction: from a table to a curve
       </Title>
       <p>
-        In section 5 of the Brownian motion paper, Einstein shows that while the mean displacement
-        is zero, the mean squared displacement grows linearly with time: ⟨x²⟩ = 2Dt. Consequently,
-        the observable root-mean-square displacement grows as the square root of time: √⟨x²⟩ ∝ √t.
+        In §4 of the Brownian paper, a particle's root-mean-square displacement in a time t is λx =
+        √(2Dt). The mean square grows in proportion to the time, so the typical displacement grows
+        only as the square root of the time. The table below is worked out from that formula for D =
+        2 µm²/s. Plot it point by point to see what square-root growth looks like.
       </p>
 
       <fieldset
@@ -83,7 +87,7 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
           type="button"
           onClick={plotAll}
           disabled={plottedCount >= BROWNIAN_PLOT_POINTS.length}
-          aria-label="Plot every measurement in the table"
+          aria-label="Plot every point in the table"
         >
           Plot all
         </button>
@@ -194,7 +198,7 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
             </text>
           </svg>
           <figcaption style={{ fontSize: "0.85rem", color: "var(--muted)", marginTop: "0.4rem" }}>
-            Dashed line: continuous √t trajectory. Dots: discrete observations.
+            Dashed line: λx = √(2Dt). Dots: the rows of the table.
           </figcaption>
         </figure>
 
@@ -203,14 +207,14 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
           style={{ flex: "1 1 240px", minWidth: "240px" }}
           // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns are unreachable by keyboard, which is the access defect the scroll container would otherwise introduce (am-bc6s). Suppressed inline at the site, following ModernOnlySymbolsView.tsx, rather than as a per-file override that turns the rule off for a whole file and carries no reason with it.
           tabIndex={0}
-          aria-label="Paired measurements of time and mean square displacement, Brownian section 5, scrollable table"
+          aria-label="Time and mean square displacement worked out from λx² = 2Dt, scrollable table"
         >
           <table
             className="data-table"
             style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
           >
             <caption style={{ textAlign: "left", fontWeight: "bold", marginBottom: "0.5rem" }}>
-              Table of paired measurements (Brownian §5)
+              Worked out from λx² = 2Dt with D = 2 µm²/s. These are not measurements.
             </caption>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--rule)", textAlign: "left" }}>
@@ -245,10 +249,10 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
                     <td
                       style={{
                         padding: "0.4rem",
-                        color: isPlotted ? "var(--accent)" : "var(--muted)",
+                        color: isPlotted ? "var(--ink)" : "var(--muted)",
                       }}
                     >
-                      {isPlotted ? "Plotted" : "Pending"}
+                      {isPlotted ? "Plotted" : "Not yet"}
                     </td>
                   </tr>
                 );
@@ -264,10 +268,10 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
       >
         <Sub>Textual summary of the construction</Sub>
         <p>
-          Each observation pairs an elapsed time in seconds with an accumulated squared displacement
-          in square micrometers. Plotting these pairs demonstrates that displacement does not scale
-          proportionally with time (which would indicate constant drift velocity), but rather with
-          the square root of time (the hallmark of diffusive random walks).
+          Each row pairs a time in seconds with the mean square displacement in square micrometres
+          and its square root. Four times the time gives twice the displacement, not four times: the
+          displacement grows as the square root of time. A particle drifting at a steady speed would
+          go four times as far.
         </p>
       </div>
     </section>
