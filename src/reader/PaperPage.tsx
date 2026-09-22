@@ -77,6 +77,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             <GermanDraftFace
               face={draft}
               paperTitle={paperRecord.paper.title}
+              germanTitle={paperRecord.paper.germanTitle}
               sectionId={resolved.section}
             />
           );
@@ -191,7 +192,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       <header className="page-intro">
         <p className="eyebrow">Read · {paper.title}</p>
         <h1>{sectionId ? sections[0]?.title : paper.title}</h1>
-        <p className="lead">{paper.description}</p>
+        {/* Paper-level lead, so a section view omits it. See PaperReader for the
+            reasoning, including why the two disclosures are not treated the same way. */}
+        {sectionId ? null : <p className="lead">{paper.description}</p>}
         <p className="notice" data-source-status>
           {paper.sourceNotice}
         </p>

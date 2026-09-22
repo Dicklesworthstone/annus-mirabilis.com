@@ -31,17 +31,36 @@ const MASTHEAD_KINDS = new Set(["masthead-title", "masthead-author"]);
 export function GermanDraftFace({
   face,
   paperTitle,
+  germanTitle,
   sectionId,
 }: {
   readonly face: GermanSourceFace;
   readonly paperTitle: string;
+  /** The paper's own German title, from its metadata record. Used when no masthead block is in scope. */
+  readonly germanTitle: string;
   readonly sectionId?: string | undefined;
 }) {
   const blocks = sectionId
     ? face.blocks.filter((b) => b.id === sectionId || b.id.startsWith(`${sectionId}-`))
     : face.blocks;
   const footnotes = blocks.filter((b) => b.kind === "footnote");
-  const body = blocks.filter((b) => b.kind !== "footnote");
+  /*
+    THE PAGE NEEDS A DOCUMENT TITLE, and every German draft page lacked one: measured on the
+    build of 10:39:30, 16 built pages had no <h1> at all, all of them a /view/german. Thirteen
+    opened at an <h2> carrying a section title, two mass-energy pages opened at "Fußnoten", and
+    /papers/light-quanta/s0/view/german had no heading of any level. A document whose first
+    heading is an h2 gives a screen-reader user no title in the heading order, and the section
+    title was doing an h1's job in an h2's tag.
+
+    The title is NOT invented and is not promoted out of Einstein's prose. On a full paper view
+    the printed masthead title block IS the title, so it is hoisted here and rendered as the h1
+    rather than repeated as a paragraph beneath one - keeping its own block id, so anchors that
+    already point at it still resolve. A section view holds no masthead block, so the title comes
+    from the paper's metadata record, which is ours to use; GermanFace:54 already renders the
+    German title as its h1 and this matches it.
+  */
+  const mastheadTitle = blocks.find((b) => b.kind === "masthead-title");
+  const body = blocks.filter((b) => b.kind !== "footnote" && b !== mastheadTitle);
 
   return (
     <div data-reader-root data-ready="true" data-view="german" className="reader-root">
@@ -49,6 +68,9 @@ export function GermanDraftFace({
         <p className="eyebrow">
           Read · {paperTitle} · {FACE_REGISTRY.german.label}
         </p>
+        <h1 className="source-paper-title" lang="de" id={mastheadTitle?.id}>
+          {mastheadTitle ? renderSourceMarkup(mastheadTitle.text, mastheadTitle.id) : germanTitle}
+        </h1>
       </header>
 
       {/*
