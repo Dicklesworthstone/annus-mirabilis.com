@@ -812,3 +812,19 @@ Schema-test JSONL (gitignored artifacts): `artifacts/test-logs/perf-profiles/202
   anywhere outside of it, and should always have an X button in the upper right corner for good UX"**. The
   inline-disclosure boundary is the orchestrator's reading (agent:TanElk), not the owner's words. The owner may overrule it.
 - **Date:** 2026-09-22.
+
+## D-2026-09-22-one-sun-moon-theme-toggle
+
+- **Decision:** the site has two themes (light, `annalen`, and dark, `kramgasse-night`) and **one control**: a single icon button in the
+  header that shows a moon in the light theme and a sun in the dark theme, and switches to the other theme when pressed. There is
+  no visible "System" option and no theme menu. The internal theme names are never shown to readers.
+- **Decider:** the project owner, 2026-09-22, verbatim, twice. First: **"We don't need 4 themes, we need a single dark/light
+  toggle"**. Then, having seen the three-option control on the live site: **"instead of "Light(Annalen) Dark(Kramgasse Night)
+  System" we need to have a single toggle that is either an icon of sun or a moon, don't make this harder than it needs to be!!!
+  make it super slick and nice!!!"**
+- **Orchestrator's reading, not the owner's words (agent:TanElk), overrulable:** until the reader presses the button, the page
+  follows the device's `prefers-color-scheme`; one press sets and persists the reader's choice. Which icon a state shows (the
+  destination: a moon while light) is the orchestrator's call.
+- **Supersedes:** AGENTS.md "Product Shape & Tech Stack" item 2, which until this date recorded the theme set as undecided
+  (am-x03s). That paragraph is amended in place.
+- **Date:** 2026-09-22.
