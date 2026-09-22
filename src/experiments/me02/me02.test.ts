@@ -98,11 +98,11 @@ describe("ME-02 instrument contract", () => {
     expect(conversion.comparison.wording.includes("0.1385 percent")).toBe(true);
   });
 
-  test("caption readings exist at R0-R3 and name the UNKNOWN facsimile glyph", () => {
+  test("caption readings exist at R0-R3 and name the printed radical", () => {
     expect(ME02_CAPTION.r0.includes("speed of light squared")).toBe(true);
     expect(ME02_CAPTION.r1.includes("analytic limit")).toBe(true);
-    expect(ME02_CAPTION.r2.includes("beta^2")).toBe(true);
-    expect(ME02_CAPTION.r3.includes("UNKNOWN")).toBe(true);
+    expect(ME02_CAPTION.r2.includes("β²")).toBe(true);
+    expect(ME02_CAPTION.r3.includes("explicit radical")).toBe(true);
   });
 
   test("outputs are even in v and the quadratic sits below the exact curve at 0.6c", () => {
@@ -296,7 +296,7 @@ describe("ME-02 instrument contract", () => {
     const manifest = validateExperiment(rawManifest);
     expect(manifest.id).toBe("me-02");
     expect(manifest.assumptions.some((a) => a.includes("Newtonian"))).toBe(true);
-    expect(ME02_CAPTION.r3.includes("UNKNOWN until the facsimile is pinned")).toBe(true);
+    expect(ME02_CAPTION.r3.includes("1/√(1 − v²/V²)")).toBe(true);
   });
 
   test("AC8: full instrument contract - action contracts validate and enforce accessible equivalence", () => {

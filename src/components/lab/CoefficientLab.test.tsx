@@ -66,7 +66,7 @@ describe("ME-02 route", () => {
     expect(html).toContain("A smaller energy of motion");
     expect(html).toContain('id="coefficient-argument"');
     expect(html).toContain("The finite-speed proxy is not the limit");
-    expect(html).toContain("UNKNOWN until the facsimile is pinned");
+    expect(html).toContain("explicit radical, 1/√(1 − v²/V²)");
     expect(html).toContain("Not modeled:");
   });
 });
