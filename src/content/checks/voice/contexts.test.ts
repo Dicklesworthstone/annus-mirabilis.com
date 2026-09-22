@@ -22,14 +22,36 @@ describe("resolveVoiceContext: record kind and field path decide the severity", 
   it("am-9yw6: an argument's scholarly recap is not judged as progress copy", () => {
     assert.equal(resolveVoiceContext("argument", "recap"), "prose");
 
-    // The plant this bead is for: the real recap through the real linter. The theater rule still
-    // reports the word - that question belongs to am-xsue and is untouched here - but it reports
-    // it at the severity prose carries, not the gamification severity of a progress readout.
-    const context = resolveVoiceContext("argument", "recap");
-    const theater = checkVoice(SCHOLARLY_RECAP, { context }).filter((f) => f.rule === "theater");
-    assert.equal(theater.length, 1);
-    assert.equal(theater[0]?.severity, "flag");
-    assert.notEqual(theater[0]?.severity, "error");
+    // WHAT CHANGED HERE AND WHAT DID NOT. The invariant this bead paid for is that the CONTEXT
+    // decides how a string is judged, and it is intact. What broke was the scaffolding: the old
+    // body asserted `theater.length === 1` in order to reach into that finding and check its
+    // severity, and so it pinned an incidental fact - that "points" is theater vocabulary in
+    // prose at all. Its own comment deferred that question: "the theater rule still reports the
+    // word - that question belongs to am-xsue and is untouched here". am-xsue was then answered,
+    // in f7a0a849 under am-gzxs: "points" is now gated on a scoring construction, so in prose the
+    // mathematical noun reports nothing, which is exactly what the comment above SCHOLARLY_RECAP
+    // says it deserves.
+    //
+    // So the assertion is rewritten to state the invariant directly, by contrasting the two
+    // contexts on ONE string rather than inspecting one finding in one context. That is stronger
+    // than what it replaces, and it no longer depends on which words another rule treats as
+    // vocabulary.
+    const asProse = checkVoice(SCHOLARLY_RECAP, {
+      context: resolveVoiceContext("argument", "recap"),
+    }).filter((f) => f.rule === "theater");
+    const asProgress = checkVoice(SCHOLARLY_RECAP, { context: "reader-progress" }).filter(
+      (f) => f.rule === "theater",
+    );
+
+    assert.deepEqual(
+      asProse,
+      [],
+      "an argument's recap is prose, and 'uniformly distributed points' is the mathematical noun",
+    );
+    assert.ok(
+      asProgress.some((f) => f.severity === "error"),
+      "the same words on a progress readout are still gamification, or the contrast proves nothing",
+    );
   });
 
   it("am-9yw6 planted negative: a recap that IS progress copy still errors", () => {
