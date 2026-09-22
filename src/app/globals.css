@@ -1033,7 +1033,23 @@ samp,
      cost about 100px each stacked; as rows they cost about 56px, and the 44px
      floor also lifts the text inputs off the 43px they measured, one pixel
      under the WCAG 2.2 target-size minimum they were aiming at. */
-  .input-grid .input-field {
+  /*
+    OPT IN, not opt out. This rule first read `.input-grid .input-field` and applied the row
+    layout to every field, which was wrong for two of them and broke two pages: on /lab/lq-01/
+    and /lab/lq-05/ the "control" is a non-wrapping row of buttons, and pinning it to the 7rem
+    track made it overflow its own column - measured +27px at 320, +21 at 360, +8 at 390 on
+    lq-01, and +11/+12/+6 on lq-05, six regressions against a baseline of zero.
+
+    A range slider was the second miss, and the gate could not see it: those fields did not
+    overflow, they just read badly, with a two-line label crushed against its value in a 96px
+    column. Looking at the page found that one; no measurement would have.
+
+    So the row belongs only to a field whose control is a TYPED value - a text input or a
+    select - which is the case it was designed for and the only one it helps. A range, a row
+    of buttons, or anything else keeps the stacked layout `.input-field` already carries.
+  */
+  .input-grid .input-field:has(> input:not([type="range"])),
+  .input-grid .input-field:has(> select) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(7rem, 45%);
     align-items: center;
