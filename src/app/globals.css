@@ -826,6 +826,31 @@ samp,
   nav {
     gap: 0.6rem 1rem;
   }
+  /*
+   * The header nav's two rows sit closer, and ONLY the header's.
+   *
+   * MEASURED at 390x844 and 320x844 with document.fonts.ready awaited, against
+   * a real build. Identical at both widths:
+   *
+   *   row-gap 0.6rem   header 266  nav 86   rows 10px apart   (was)
+   *   row-gap 0.3rem   header 261  nav 81   rows  5px apart   (is)
+   *   row-gap 0.2rem   header 260  nav 79   rows  3px apart
+   *   row-gap 0        header 256  nav 76   rows  0px apart
+   *
+   * Item height is 38px in every one of those, so no touch target changes. 0
+   * buys 10px and puts two rows of links in contact, where a mis-tap lands on
+   * the neighbouring row; 0.3rem keeps 5px of separation for 5px of header.
+   *
+   * SCOPED TO THE HEADER because `nav` above is not a header selector. It is
+   * the bare element, and the built pages carry far more than one: 59 nav
+   * elements on papers/brownian-motion, 37 on mass-energy, 35 on
+   * special-relativity, 9 on lab/bm-06. Editing the rule above to save 5px in
+   * the header would have re-spaced every one of them. The existing rule's
+   * reach is a separate finding and is left alone here.
+   */
+  header.site-header nav {
+    row-gap: 0.3rem;
+  }
   .header-controls {
     display: flex;
     flex-wrap: wrap;
