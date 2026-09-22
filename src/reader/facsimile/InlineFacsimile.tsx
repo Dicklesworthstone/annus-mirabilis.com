@@ -1,7 +1,20 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { FacsimilePanel } from "./FacsimilePanel.tsx";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { type FacsimileAvailability, facsimileMapPath, readFacsimileResponse } from "./wire.ts";
+
+/*
+  THE VIEWER IS FETCHED WITH THE PAGE MAP, NOT WITH THE PAGE. This component sits on every reading
+  page so the facsimile face can open without leaving the explanation, but the viewer inside it
+  (FacsimilePanel, FacsimileEnhancer and facsimileReader.css) renders only after the reader picks
+  that face and the page map has loaded. It was a static import, so the whole viewer shipped in the
+  first bundle of every reading page: on BUILD 19 it shared chunk 5877 with ReaderController, on a
+  /papers/brownian-motion route 88 brotli bytes over its 204,800 budget. It now loads when the face
+  is chosen, in parallel with the page-map fetch that has to happen first anyway, so a reader who
+  opens the facsimile waits no longer than before. The standalone facsimile page (FaceFallback)
+  still imports the panel directly: there it IS the first paint.
+*/
+const loadPanel = () => import("./FacsimilePanel.tsx");
+const FacsimilePanel = lazy(() => loadPanel().then((m) => ({ default: m.FacsimilePanel })));
 
 /** Reader face changes never replace the explanation/laboratory subtree.
  * Nothing is fetched until this instance's reader explicitly selects the facsimile face.
@@ -48,6 +61,7 @@ export function InlineFacsimile({ paperId }: { paperId: string }) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: `attempt` is a re-run trigger for the retry control, not an unused read; removing it breaks "Retry source access".
   useEffect(() => {
     if (!visible || cached.current) return;
+    void loadPanel();
     const abort = new AbortController();
     let active = true;
     setFailure(false);
@@ -77,14 +91,22 @@ export function InlineFacsimile({ paperId }: { paperId: string }) {
       className="inline-facsimile-panel"
     >
       {result?.kind === "available" ? (
-        <FacsimilePanel
-          document={result.document}
-          title={`Original source for ${paperId.replaceAll("-", " ")}`}
-          section={section}
-          faceHref={faceHref}
-          explanationHref={explanationHref}
-          inline
-        />
+        <Suspense
+          fallback={
+            <p role="status">
+              Loading the original journal scan. Your reading position and laboratory are unchanged.
+            </p>
+          }
+        >
+          <FacsimilePanel
+            document={result.document}
+            title={`Original source for ${paperId.replaceAll("-", " ")}`}
+            section={section}
+            faceHref={faceHref}
+            explanationHref={explanationHref}
+            inline
+          />
+        </Suspense>
       ) : (
         <div>
           <h2>Original journal scan</h2>
