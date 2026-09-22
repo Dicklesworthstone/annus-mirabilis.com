@@ -142,7 +142,7 @@ describe("initTheme: Slate default via data-route-theme attribute (AGENTS.md con
     document.documentElement.setAttribute("data-route-theme", "kramgasse-night");
     // If a resolver ignores the attribute and only inspects storage:
     const mockTheme = localStorage.getItem(THEME_STORAGE_KEY) ?? "annalen";
-    expect(mockTheme).toBe("annalen"); // Proves ignoring data-route-theme fails to apply slate
+    expect(mockTheme).toBe("annalen"); // Proves ignoring data-route-theme fails to apply the route's dark theme
   });
 });
 
@@ -253,6 +253,87 @@ describe("ThemeToggle: UI reflection of active theme and user selection", () => 
     });
     expect(document.documentElement.dataset.theme).toBe("annalen");
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("annalen");
+    await act(async () => {
+      root.unmount();
+    });
+    removeContainer(container);
+  });
+});
+
+describe("ThemeToggle: the header control's size is a design constraint", () => {
+  /**
+   * The owner's complaint was that the chrome eats the first screen, and the
+   * theme control was the largest single block in it: 105px of a 400px header
+   * at 390x844, because the edition's theme names are long enough to wrap the
+   * chip row twice. The browser measurement lives in themes.css beside the
+   * rules that produced it; these are the properties that measurement depends
+   * on, asserted where they can fail fast.
+   *
+   * The length budget is a PROXY for width and is labelled as one. It cannot
+   * tell you the header is 295px; it can tell you when someone has put
+   * "Kramgasse Night" back on the chip, which is the only way the measured
+   * number silently stops being true.
+   */
+  async function renderToggle() {
+    const container = createContainer();
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(createElement(ThemeToggle));
+    });
+    return { container, root };
+  }
+
+  test("every chip shows a short word and keeps its full name in the accessible name", async () => {
+    const { container, root } = await renderToggle();
+    const labels = [...container.querySelectorAll("label")];
+    expect(labels.length).toBe(3);
+
+    const seen: string[] = [];
+    for (const label of labels) {
+      const hidden = label.querySelector(".theme-toggle-full-name");
+      // A chip that dropped the span would read only "Light" to a screen
+      // reader, and the edition would have lost its theme's name to a layout fix.
+      expect(hidden).not.toBeNull();
+      const accessibleName = label.textContent ?? "";
+      const visible = accessibleName.replace(hidden?.textContent ?? "", "").trim();
+
+      expect(visible.length).toBeLessThanOrEqual(6);
+      // WCAG 2.5.3: the accessible name contains the visible label, which is why
+      // the full name is APPENDED rather than substituted for the short word.
+      expect(accessibleName).toContain(visible);
+      expect(accessibleName.length).toBeGreaterThan(visible.length);
+      seen.push(visible);
+    }
+    expect(seen).toEqual(["Light", "Dark", "System"]);
+
+    const names = labels.map((l) => l.textContent ?? "");
+    expect(names[0]).toContain("Annalen");
+    expect(names[1]).toContain("Kramgasse Night");
+
+    await act(async () => {
+      root.unmount();
+    });
+    removeContainer(container);
+  });
+
+  test("the announcement never adds a row to the header after the reader clicks", async () => {
+    const { container, root } = await renderToggle();
+    const status = container.querySelector('[role="status"]');
+    expect(status).not.toBeNull();
+    expect(status?.getAttribute("aria-live")).toBe("polite");
+    // Visually hidden, not removed: it is the only announcement a screen reader
+    // gets for a change it cannot see. Left visible it grew the header in
+    // response to the reader's own click.
+    expect(status?.className).toBe("theme-toggle-announcement");
+    expect(status?.textContent).toBe("");
+
+    const dark = container.querySelectorAll('input[type="radio"]')[1] as HTMLInputElement;
+    await act(async () => {
+      dark.click();
+    });
+    expect(status?.textContent).toBe("Theme changed to Kramgasse Night.");
+    expect(status?.className).toBe("theme-toggle-announcement");
+
     await act(async () => {
       root.unmount();
     });

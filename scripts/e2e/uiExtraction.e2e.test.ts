@@ -225,14 +225,20 @@ async function runChecks(
     const before = await read();
     // Click the LABEL, which is what a reader clicks: the bordered word is the
     // affordance and the radio sits inside it. Driving the input directly is not
-    // the same action, and in WebKit it is not even possible - the inputs for
-    // "Annalen" and "Slate" measure 0 x 12 CSS pixels there against 13 x 13 in
-    // Chromium, so Playwright refuses to click them as not visible. The feature
+    // the same action, and in WebKit it is not even possible - the radio inputs
+    // measured 0 x 12 CSS pixels there against 13 x 13 in Chromium, so Playwright
+    // refuses to click them as not visible. (That was measured when the chips were
+    // still labelled with the theme names; the inputs are unchanged.) The feature
     // works in both engines through the label; the zero-width input is a separate
     // real finding about pointer target size, reported as its own rather than
     // folded into this check's verdict.
+    //
+    // Matched by SUBSTRING, not exact text. The chip shows a short word and carries
+    // the edition's theme name in a visually hidden span, so the label's own text is
+    // "Dark (Kramgasse Night)" and an exact match against either half finds nothing.
+    // Naming the theme here keeps the check readable as "choose Kramgasse Night".
     const choose = async (label: string, expected: string): Promise<void> => {
-      await group.getByText(label, { exact: true }).click({ timeout: 10_000 });
+      await group.locator("label").filter({ hasText: label }).click({ timeout: 10_000 });
       await page.waitForFunction(
         (want) => document.documentElement.getAttribute("data-theme") === want,
         expected,
@@ -251,7 +257,7 @@ async function runChecks(
         `theme did not persist across reload: expected kramgasse-night, got ${afterReload}`,
       );
     }
-    return `started ${before ?? "unset"}, followed the radio group, and held slate across a reload`;
+    return `started ${before ?? "unset"}, followed the radio group, and held Kramgasse Night across a reload`;
   });
 
   // 2. The palette opens on the keyboard shortcut and Escape closes it with focus
@@ -362,7 +368,13 @@ async function runPlant(browser: Browser, baseUrl: string, plantPath: string): P
     broken.push("theme-toggle");
   } else {
     try {
-      await group.getByText("Slate", { exact: true }).click({ timeout: 5000 });
+      // A theme the control actually offers, reached the way a reader reaches it.
+      // This probe is a REACHABILITY CONTROL: the clean page must break nothing, so
+      // a target that cannot be found reports "theme-toggle" as broken on every run
+      // and the control that proves the plant is doing the work stops working. It
+      // was left naming "Slate" when that theme was removed, and only the control at
+      // the call site would have said so - this file skips when out/ is absent.
+      await group.locator("label").filter({ hasText: "Kramgasse Night" }).click({ timeout: 5000 });
       await page.waitForFunction(
         () => document.documentElement.getAttribute("data-theme") === "kramgasse-night",
         undefined,

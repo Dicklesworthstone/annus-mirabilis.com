@@ -119,8 +119,8 @@ criteria:
     level: "AA"
     status: "implemented"
     owner: "am-design-themes-typography-288q"
-    rule: "Text and mathematical symbols achieve at least 4.5:1 contrast for normal text and 3:1 for large text across all three themes."
-    check: "scripts/a11y/contrastCheck.ts against Annalen, Kramgasse Night, and Slate palettes."
+    rule: "Text and mathematical symbols achieve at least 4.5:1 contrast for normal text and 3:1 for large text across both themes."
+    check: "src/app/theme/contrast.test.ts audits every declared pair of THEME_TOKENS across the Annalen and Kramgasse Night palettes, 16 pairs of a stated 8 per theme, with a planted sub-3.0:1 focus ring proving the audit fails when a token is out of range."
 
   - id: "1.4.4"
     name: "Resize Text"

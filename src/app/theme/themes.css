@@ -28,7 +28,6 @@
   color-scheme: dark;
 }
 
-
 :root {
   --line: var(--rule);
   --panel: var(--paper);
@@ -94,33 +93,85 @@ body {
   }
 }
 
+/*
+ * The theme control costs one row instead of three.
+ *
+ * MEASURED on the homepage against two real `bun run build` outputs, with the
+ * DOM's own getBoundingClientRect at 390x844:
+ *
+ *              .theme-toggle   header   #main begins
+ *   before          105px       400px       y=400
+ *   after            27px       264px       y=264
+ *
+ * THE 78px IS MINE. THE OTHER 58px IS NOT, and the difference matters more than
+ * the total: pane30 landed 4ca4603e and further uncommitted globals.css work
+ * between those two builds, so the header's 136px is a joint number and only the
+ * toggle row is a like-for-like comparison of this file. Reading the whole 136
+ * as the effect of this change would be taking credit for a peer's commit.
+ *
+ * Also measured, same build: at 320px the chips still hold ONE row (27px) and
+ * documentElement.scrollWidth stays 320, so the narrowest supported width gained
+ * the row rather than an overflow. At 1280px the group is 63px over two rows,
+ * because there the header is a single flex row and the control shares its width
+ * with the nav; that is a smaller box than the 181px pane30 measured there before
+ * any of this, so desktop did not pay for the phone.
+ *
+ * Where the 105 went, because "it got smaller" is not a measurement. The
+ * fieldset was three stacked rows: the legend rendered on a line of its own
+ * (35px including its gap), then the chips wrapped, because "Annalen" (101px)
+ * and "Kramgasse Night" (158px) already fill a 358px content box and left
+ * "Follow system" (139px) to a third row. 35 + 41 + 29 = 105.
+ *
+ * Dropping `slate` did NOT fix this and I want that recorded: four chips wrapped
+ * to two rows and three chips still wrapped to two rows, so the header measured
+ * 400px both before and after that commit. The wrap came from the LENGTH of the
+ * names, not the COUNT of them.
+ *
+ * So the legend is hidden rather than deleted - the fieldset still takes its
+ * accessible name from it - and the chips carry the short word with the edition's
+ * own name appended out of sight. "Light (Annalen)" is the accessible name;
+ * "Light" is what fits. The three chips measure 79 + 75 + 94 with two 8px gaps,
+ * 264px against the 288px a 320px viewport gives, which is why the row holds at
+ * the narrowest supported width and not only at 390.
+ */
 .theme-toggle {
   display: flex;
-  /* The four theme options plus the legend exceed a 320px viewport in one row
-     (measured 443px, pushing documentElement.scrollWidth to 459px). AGENTS.md
-     requires every surface to work at 320px, so the row wraps rather than
-     overflowing. Wrapping keeps every control reachable; hiding the overflow
-     would leave "Follow system" unreachable on a narrow screen. */
+  /* AGENTS.md requires every surface to work at 320px. The row still wraps
+     rather than overflowing if a translation or a larger text setting pushes it
+     past the content box: wrapping keeps every control reachable, where hiding
+     the overflow would leave "System" unreachable on a narrow screen. */
   flex-wrap: wrap;
   max-width: 100%;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   font: 0.85rem / 1.4 var(--font-sans);
   border: none;
   padding: 0;
 }
 
-.theme-toggle legend {
-  font-weight: bold;
+/* Named for assistive technology, absent from the layout. A `display: none`
+   legend would take the fieldset's accessible name with it. */
+.theme-toggle legend,
+.theme-toggle-full-name,
+.theme-toggle-announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .theme-toggle label {
   border: 1px solid var(--rule);
-  padding: 0.25rem 0.6rem;
+  padding: 0.2rem 0.55rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
 }
 
 .theme-toggle label:has(input:checked) {

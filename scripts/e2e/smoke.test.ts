@@ -13,9 +13,16 @@ const IDENTITY =
  * `document.documentElement.dataset.theme`. This fixture proves the CHECK is
  * live; that the real site honours the same contract is proven separately by
  * running the journey against the static build (am-im0x).
+ *
+ * TWO radios, and the split label, because the check drives two transitions and
+ * finds each one by its accessible name. A fixture with one radio cannot reach
+ * the state the check exists to observe, so the check would pass on a page where
+ * the theme never changed - which is precisely what it did after `slate` was
+ * removed from here and from the step list.
  */
 const THEME_GROUP = `<fieldset class="theme-toggle"><legend>Theme</legend>
-<label><input type="radio" name="t" value="annalen" checked>Annalen</label>
+<label><input type="radio" name="t" value="annalen" checked>Light<span> (Annalen)</span></label>
+<label><input type="radio" name="t" value="kramgasse-night">Dark<span> (Kramgasse Night)</span></label>
 </fieldset>
 <script>
 document.documentElement.dataset.theme = "annalen";

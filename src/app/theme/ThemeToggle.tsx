@@ -9,6 +9,22 @@ const THEME_LABELS: Readonly<Record<ThemeId, string>> = {
   "kramgasse-night": "Kramgasse Night",
 };
 
+/**
+ * What a sighted reader sees on the chip. The edition's names for its two
+ * themes are longer than the control needs to be: at 390x844 the four-word
+ * pair wrapped to two rows and the group cost 105px of a 400px header, which
+ * is the owner's complaint stated as a quantity.
+ *
+ * The full name is not dropped, it moves into the accessible name as a
+ * parenthetical, so the chip reads "Light (Annalen)" to a screen reader. WCAG
+ * 2.5.3 wants the accessible name to CONTAIN the visible label, which is why
+ * the short word comes first and the name is appended rather than substituted.
+ */
+const THEME_SHORT_LABELS: Readonly<Record<ThemeId, string>> = {
+  annalen: "Light",
+  "kramgasse-night": "Dark",
+};
+
 const registration = storageKeyRegistry.get(`${SETTINGS_KEY_PREFIX}theme`);
 if (!registration) {
   throw new Error(`Storage registry has no entry for "${SETTINGS_KEY_PREFIX}theme".`);
@@ -86,7 +102,8 @@ export function ThemeToggle() {
             checked={selected === themeId}
             onChange={() => choose(themeId)}
           />
-          {THEME_LABELS[themeId]}
+          {THEME_SHORT_LABELS[themeId]}
+          <span className="theme-toggle-full-name"> ({THEME_LABELS[themeId]})</span>
         </label>
       ))}
       <label>
@@ -96,9 +113,14 @@ export function ThemeToggle() {
           checked={selected === FOLLOW_SYSTEM_VALUE}
           onChange={() => choose(FOLLOW_SYSTEM_VALUE)}
         />
-        Follow system
+        System
+        <span className="theme-toggle-full-name"> (follow your device appearance)</span>
       </label>
-      <p className="fine" role="status" aria-live="polite">
+      {/* The announcement is for a screen reader, and it is the only child whose
+          height depends on a reader having touched the control. Left visible it
+          added a row to the header AFTER the first click, so the page moved
+          under the reader in response to their own action. */}
+      <p className="theme-toggle-announcement" role="status" aria-live="polite">
         {announcement}
       </p>
     </fieldset>

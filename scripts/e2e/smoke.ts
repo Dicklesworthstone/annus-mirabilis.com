@@ -134,8 +134,18 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       const read = () => page.evaluate(() => document.documentElement.getAttribute("data-theme"));
       const before = await read();
       // Two transitions, so the check cannot pass by the page already sitting on
-      // the expected theme.
-      const steps: readonly (readonly [string, string])[] = [["Annalen", "annalen"]];
+      // the expected theme. The homepage starts on annalen, so the FIRST step must
+      // be the other theme or this check proves nothing: removing `slate` cut this
+      // list to the single ["Annalen", "annalen"] entry and left the sentence above
+      // describing a check that no longer existed.
+      //
+      // Named by ACCESSIBLE NAME, which is the short visible word plus the
+      // edition's name for the theme. Asserting the full name here is the browser-
+      // level half of the WCAG 2.5.3 contract themeInit.test.ts asserts in the DOM.
+      const steps: readonly (readonly [string, string])[] = [
+        ["Dark (Kramgasse Night)", "kramgasse-night"],
+        ["Light (Annalen)", "annalen"],
+      ];
       const observed: string[] = [];
       for (const [label, expected] of steps) {
         await themeToggle.getByRole("radio", { name: label, exact: true }).check();
