@@ -69,6 +69,28 @@
  * When the baseline empties, both halves keep holding and the assertion becomes the unconditional
  * property with nothing to edit.
  *
+ * THE MAGNITUDE ARMS ARE PLANTED, BOTH DIRECTIONS, AND THE RESULTS ARE HERE RATHER THAN IN A
+ * TRANSCRIPT. Until an arm has been observed going red it is a design, and the presence-only
+ * version of this file also looked correct by inspection. Planted against
+ * /foundations/taylor-expansion/@320, whose measured excess is 94px, on build
+ * fBWFaB6E9DObGs9-YnM8x:
+ *
+ *   ceiling 94, unaltered    1 arm failing    REGRESSION only
+ *   ceiling lowered to 10    2 arms failing   REGRESSION + WORSE
+ *   ceiling raised to 200    2 arms failing   REGRESSION + IMPROVED
+ *   ceiling restored to 94   1 arm failing    REGRESSION only
+ *
+ * Two things that only this shape could show. The magnitude arm is named SEPARATELY from the
+ * presence arm, so a WORSE finding cannot be mistaken for a regression; and the arm count rises
+ * from one to two rather than the magnitude finding replacing the regression, which is the
+ * one-verdict change working - before it, the presence arm asserted first and the magnitude arm
+ * would never have run on a red build at all.
+ *
+ * The WORSE arm also has a real-world instance, which is better evidence than any plant:
+ * /discover/brownian-motion/@320 carried a ceiling of 25px taken from a build where the badge
+ * copy happened to be short, the page later measured 236px over that same entry, and presence-only
+ * said nothing. The arm reported +211 over the moment it existed.
+ *
  * THIS GATE IS HALF OF A PAIR, AND THE OTHER HALF CAN BE BROKEN BY SATISFYING THIS ONE.
  *
  * The commonest way to stop a region overflowing is to let it scroll. That is also the commonest
