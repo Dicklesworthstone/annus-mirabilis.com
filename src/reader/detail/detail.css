@@ -67,7 +67,7 @@
 }
 
 .caption-title {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   font-weight: 600;
   margin-top: 0.5rem;
   margin-bottom: 0.25rem;

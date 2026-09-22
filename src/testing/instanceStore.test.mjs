@@ -391,8 +391,22 @@ const mixedBatch = (token) => ({
   simulationTime: 0,
   final: true,
   outputs: [
-    { quantityId: "density", unit: "1/m", semanticKind: "coordinate-density", ownerId: "diffusion.ftcs1d", status: "value", value: 1 },
-    { quantityId: "flux", unit: "1/m", semanticKind: "coordinate-density", ownerId: "diffusion.ftcs1d", status: "not-applicable", reason: "No flux is defined for this model at the initial step." },
+    {
+      quantityId: "density",
+      unit: "1/m",
+      semanticKind: "coordinate-density",
+      ownerId: "diffusion.ftcs1d",
+      status: "value",
+      value: 1,
+    },
+    {
+      quantityId: "flux",
+      unit: "1/m",
+      semanticKind: "coordinate-density",
+      ownerId: "diffusion.ftcs1d",
+      status: "not-applicable",
+      reason: "No flux is defined for this model at the initial step.",
+    },
   ],
 });
 
@@ -437,7 +451,10 @@ test("am-ltg9 CONTROL: the three declared conditions still report malformed-publ
 
   const badStep = createInstanceStore(options("ltg9/bad-step"));
   const b = badStep.issue("setup-change");
-  assert.equal(badStep.publish({ ...publication(b), stepIndex: -1 }).reason, "malformed-publication");
+  assert.equal(
+    badStep.publish({ ...publication(b), stepIndex: -1 }).reason,
+    "malformed-publication",
+  );
 
   const badContract = createInstanceStore(options("ltg9/bad-contract"));
   const c = badContract.issue("setup-change");

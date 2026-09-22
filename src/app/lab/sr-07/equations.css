@@ -1,5 +1,5 @@
 .sr07-equation {
-  font-size: 1.05rem;
+  font-size: var(--type-small);
   overflow-x: auto;
   max-width: 100%;
 }

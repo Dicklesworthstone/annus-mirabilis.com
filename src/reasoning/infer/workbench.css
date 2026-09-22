@@ -104,7 +104,7 @@
 .inference-workbench .digest {
   overflow-wrap: anywhere;
   word-break: break-word;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 .inference-workbench [hidden] {
   display: none !important;

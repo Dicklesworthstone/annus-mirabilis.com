@@ -29,12 +29,12 @@
 
 .genealogy-header h3 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--type-body);
   color: #2b2621;
 }
 
 .genealogy-perspective-badge {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -57,7 +57,7 @@
   background: #fff4e6;
   border: 1px solid #ffd8a8;
   border-radius: 0.5rem;
-  font-size: 0.875rem;
+  font-size: var(--type-fine);
   color: #9c4200;
 }
 
@@ -134,7 +134,7 @@
 }
 
 .genealogy-edge-type {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   font-weight: 600;
   padding: 0.15rem 0.45rem;
   border-radius: 0.25rem;
@@ -171,7 +171,7 @@
   padding: 0.35rem 0.75rem;
   margin: 0.25rem 0;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--type-fine);
   color: #2b2621;
   cursor: pointer;
   text-align: left;
@@ -187,7 +187,7 @@
 }
 
 .genealogy-badge {
-  font-size: 0.65rem;
+  font-size: var(--type-micro);
   font-weight: bold;
   padding: 0.1rem 0.35rem;
   border-radius: 0.2rem;
@@ -206,12 +206,12 @@
 }
 
 .genealogy-anchor {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: #8c8273;
 }
 
 .genealogy-node-item.repeated {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   color: #8c8273;
   font-style: italic;
   padding: 0.25rem 0;

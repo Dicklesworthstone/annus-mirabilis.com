@@ -12,7 +12,7 @@
 .foundation-construction h3,
 .foundation-extension h3 {
   margin-top: 0;
-  font-size: 1.15rem;
+  font-size: var(--type-body);
   font-weight: 600;
 }
 
@@ -23,7 +23,7 @@
 
 .construction-text-equivalent {
   margin-top: 1rem;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   border-top: 1px dashed var(--line);
   padding-top: 0.75rem;
@@ -60,7 +60,7 @@
   padding: 0.75rem 1rem;
   border-left: 3px solid var(--accent);
   background: var(--wash);
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 
 /* Table to Plot Builder */
@@ -69,7 +69,7 @@
 }
 
 .construction-status {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   font-weight: 500;
   color: var(--ink);
   margin: 0.5rem 0;

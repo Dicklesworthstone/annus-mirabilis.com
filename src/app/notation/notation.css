@@ -19,14 +19,14 @@
 }
 
 .notation-header h1 {
-  font-size: 2.25rem;
+  font-size: var(--type-display);
   line-height: 1.2;
   margin: 0.5rem 0 1rem;
   font-weight: 700;
 }
 
 .notation-header .lead {
-  font-size: 1.15rem;
+  font-size: var(--type-body);
   line-height: 1.6;
   color: var(--muted);
   max-width: 800px;
@@ -44,7 +44,7 @@
 }
 
 .honesty-banner h2 {
-  font-size: 1rem;
+  font-size: var(--type-small);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 0.4rem;
@@ -56,7 +56,7 @@
 
 .honesty-banner p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   line-height: 1.5;
   color: var(--muted);
 }
@@ -71,7 +71,7 @@
 }
 
 .glyph-nav-title {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
@@ -100,7 +100,7 @@
   border-radius: 3px;
   color: var(--ink);
   font-family: inherit;
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   text-decoration: none;
   transition:
     background 0.15s ease,
@@ -137,7 +137,7 @@
 .search-input-wrapper input {
   padding-left: 2.25rem;
   height: 44px;
-  font-size: 1.05rem;
+  font-size: var(--type-small);
 }
 
 .search-icon {
@@ -160,7 +160,7 @@
   cursor: pointer;
   padding: 0.3rem 0.5rem;
   min-height: auto;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .clear-search-btn:hover {
@@ -170,7 +170,7 @@
 
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
@@ -182,7 +182,7 @@
 }
 
 .filter-group label {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -196,7 +196,7 @@
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 4px;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 
 .filter-summary-row {
@@ -207,7 +207,7 @@
   gap: 0.75rem;
   padding-top: 0.75rem;
   border-top: 1px solid var(--line);
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 
 .results-count {
@@ -234,7 +234,7 @@
 }
 
 .collision-cluster-header h2 {
-  font-size: 1.35rem;
+  font-size: var(--type-lead);
   margin: 0 0 0.35rem;
   color: #c0392b;
   display: flex;
@@ -244,13 +244,13 @@
 
 .collision-cluster-header p {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 
 .collision-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 1rem;
 }
 
@@ -275,12 +275,12 @@
 }
 
 .collision-glyph {
-  font-size: 1.5rem;
+  font-size: var(--type-lead);
   font-weight: bold;
 }
 
 .collision-severity-tag {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   font-weight: 700;
   text-transform: uppercase;
   padding: 0.2rem 0.5rem;
@@ -303,7 +303,7 @@
 }
 
 .collision-card-desc {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   line-height: 1.45;
   margin: 0.5rem 0;
 }
@@ -321,20 +321,20 @@
 
 .paper-section-header .eyebrow {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
 }
 
 .paper-section-header h2 {
-  font-size: 1.75rem;
+  font-size: var(--type-title);
   margin: 0.25rem 0 0.35rem;
 }
 
 .paper-section-header .fine {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
@@ -407,13 +407,13 @@
 }
 
 .card-glyph {
-  font-size: 1.75rem;
+  font-size: var(--type-title);
   line-height: 1;
   font-family: inherit;
 }
 
 .card-anchor-link {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   font-family: monospace;
   color: var(--muted);
   text-decoration: none;
@@ -436,7 +436,7 @@
   border: 1px solid var(--line);
   padding: 0.2rem 0.5rem;
   border-radius: 3px;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   font-weight: 600;
 }
 
@@ -446,7 +446,7 @@
   border: 1px solid #cbd5e0;
   padding: 0.2rem 0.5rem;
   border-radius: 3px;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   font-weight: 600;
 }
 
@@ -469,7 +469,7 @@
 }
 
 .card-meaning {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   font-weight: 600;
   margin: 0 0 0.5rem;
   color: var(--ink);
@@ -477,13 +477,13 @@
 
 .card-details-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 0.75rem;
   background: var(--wash);
   padding: 0.75rem 1rem;
   border-radius: 4px;
   margin-bottom: 0.75rem;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .detail-item {
@@ -493,7 +493,7 @@
 }
 
 .detail-label {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted);
@@ -531,7 +531,7 @@
 }
 
 .card-collision-alert .alert-title {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   font-weight: 700;
   margin: 0 0 0.25rem;
   display: flex;
@@ -549,12 +549,12 @@
 
 .card-collision-alert p {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: var(--type-fine);
   line-height: 1.4;
 }
 
 .card-notes {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   font-style: italic;
   margin: 0.5rem 0;
@@ -569,7 +569,7 @@
   gap: 0.75rem;
   padding-top: 0.75rem;
   border-top: 1px solid var(--line);
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .verification-status {
@@ -596,13 +596,13 @@
 }
 
 .modern-only-section h3 {
-  font-size: 1.15rem;
+  font-size: var(--type-body);
   margin: 0 0 0.35rem;
   color: var(--ink);
 }
 
 .modern-only-section .disclaimer {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   margin: 0 0 1rem;
 }
@@ -610,7 +610,7 @@
 .modern-symbols-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .modern-symbols-table th,
@@ -623,7 +623,7 @@
 .modern-symbols-table th {
   background: var(--wash);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -653,7 +653,7 @@
   }
 
   .notation-header h1 {
-    font-size: 1.75rem;
+    font-size: var(--type-title);
   }
 
   .card-header-row {
@@ -677,7 +677,7 @@
   .glyph-nav-item a {
     min-width: 1.8rem;
     height: 1.8rem;
-    font-size: 0.95rem;
+    font-size: var(--type-small);
     padding: 0.1rem 0.3rem;
   }
 }
@@ -734,7 +734,7 @@
 
   .first-use-link::after {
     content: " (" attr(href) ")";
-    font-size: 0.8rem;
+    font-size: var(--type-fine);
     font-weight: normal;
   }
 }
@@ -746,7 +746,7 @@
 }
 
 .collision-entry-summary {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .notation-client-root,

@@ -334,7 +334,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(320px, 100%), 1fr))",
           gap: "1.5rem",
         }}
       >
@@ -616,7 +616,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))",
               gap: "0.75rem",
             }}
           >
@@ -937,7 +937,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           className="fine"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
             gap: "0.5rem",
             paddingLeft: "1.25rem",
             margin: 0,

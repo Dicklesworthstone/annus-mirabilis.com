@@ -40,7 +40,7 @@
 }
 .countermodel-scroll table {
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   width: 100%;
   min-width: 28rem;
 }
@@ -54,7 +54,7 @@
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 .countermodel-matrix > tbody > tr > th,
 .countermodel-matrix > tbody > tr > td,
@@ -65,7 +65,7 @@
   text-align: left;
 }
 .countermodel-matrix h3 {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
 }
 .countermodel-matrix p {
   margin-block: 0.65rem;
@@ -76,7 +76,7 @@
   padding-inline-start: 0.6rem;
 }
 .countermodel-counted {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
 }
 .countermodel-conclusion {
   border-block-start: 1px dashed var(--ink);
@@ -99,7 +99,7 @@
   padding-block: 0.7rem;
 }
 .countermodel-digest {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   word-break: break-word;
 }
 .countermodel-mobile-label {

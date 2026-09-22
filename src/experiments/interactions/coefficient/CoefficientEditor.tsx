@@ -257,7 +257,7 @@ export function CoefficientEditor({
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(140px, 100%), 1fr))",
                 gap: "0.5rem",
                 fontSize: "0.75rem",
                 fontFamily: "var(--font-mono, monospace)",

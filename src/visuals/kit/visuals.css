@@ -23,7 +23,7 @@
 .trajectory-census {
   display: flex;
   gap: 0.75rem;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--muted);
   margin-top: 0.5rem;
 }
@@ -35,7 +35,7 @@
 }
 
 .rendering-convention-note {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   font-style: italic;
   margin-top: 0.25rem;
@@ -77,7 +77,7 @@
 }
 
 .histogram-annotation {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   fill: var(--ink);
 }
 
@@ -113,14 +113,14 @@
 
 .notice-title {
   margin: 0 0 0.25rem;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   font-weight: 600;
   color: var(--accent);
 }
 
 .notice-explanation {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--ink);
 }
 
@@ -136,7 +136,7 @@
 
 .tick {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--type-micro);
   fill: var(--muted);
 }
 
@@ -153,12 +153,12 @@
 /* Time Legend */
 .time-value {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .time-rate-badge {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   padding: 0.15rem 0.4rem;
   border: 1px solid var(--line);
   background: var(--wash);
@@ -188,7 +188,7 @@
 /* Scale Bar */
 .scale-bar {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--type-micro);
 }
 
 /* Result status note message & action */
@@ -201,7 +201,7 @@
 }
 
 .result-status-action-button {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 /* Planted test fixtures */

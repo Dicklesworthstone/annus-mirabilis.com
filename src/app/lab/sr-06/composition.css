@@ -5,7 +5,7 @@
 }
 .sr06-matrix {
   font-variant-numeric: tabular-nums;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
 }
 .sr06-matrix td {
   padding: 0.15rem 0.4rem;

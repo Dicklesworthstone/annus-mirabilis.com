@@ -4,7 +4,7 @@
 
 .quantity-legend {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--ink);
 }
 
@@ -23,7 +23,7 @@
 
 .legend-title {
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--muted);
   margin-right: 0.5rem;
 }
@@ -46,7 +46,7 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
 }
 
 .legend-item.is-highlighted {
@@ -110,7 +110,7 @@
   background: var(--wash);
   padding: 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--ink);
 }
 

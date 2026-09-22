@@ -252,7 +252,8 @@ describe("untested refusal throw site ratchet (am-muyh)", () => {
     const source = readFileSync(join(ROOT, relPath), "utf8");
 
     // Not a vacuous fixture: it really does carry many coded accumulator refusals.
-    const coded = source.match(/\b(?:addError|addFlag)\s*\(\s*"[a-z][a-z0-9]*(?:-[a-z0-9]+)+"/g) ?? [];
+    const coded =
+      source.match(/\b(?:addError|addFlag)\s*\(\s*"[a-z][a-z0-9]*(?:-[a-z0-9]+)+"/g) ?? [];
     assert.ok(coded.length > 50, `expected many coded accumulator refusals, found ${coded.length}`);
 
     // And the scanner sees none of them.

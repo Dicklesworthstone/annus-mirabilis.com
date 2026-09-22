@@ -42,7 +42,7 @@
   min-height: 44px;
   padding: 0.5rem;
   border: 1px solid var(--line);
-  font-size: 1rem;
+  font-size: var(--type-small);
 }
 .search-filters {
   display: grid;
@@ -52,7 +52,7 @@
 }
 .search-filters label {
   min-width: 0;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 .search-status {
   min-height: 1.65em;
@@ -86,7 +86,7 @@
   text-underline-offset: 0.15em;
 }
 .search-snippet {
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   line-height: 1.45;
   margin-top: 0.25rem;
 }

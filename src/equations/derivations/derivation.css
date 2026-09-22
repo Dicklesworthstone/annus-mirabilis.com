@@ -19,7 +19,7 @@
 
 .derivation-disclosure > summary {
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: var(--type-small);
   cursor: pointer;
   padding: 0.5rem 0;
   user-select: none;
@@ -36,7 +36,7 @@
 
 .route-tab-btn {
   padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   font-weight: 500;
   border: 1px solid var(--line, #bcb5a6);
   border-radius: 4px;
@@ -91,7 +91,7 @@
   gap: 0.5rem;
   padding: 0.35rem 0.75rem;
   margin-bottom: 0.75rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -124,12 +124,12 @@
 
 .step-number {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   color: var(--muted, #595349);
 }
 
 .step-rule {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   font-weight: 600;
   padding: 0.15rem 0.5rem;
   border-radius: 3px;
@@ -139,7 +139,7 @@
 
 .unverified-marker {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   font-weight: 600;
   color: #854d0e;
   background: #fef9c3;
@@ -162,7 +162,7 @@
 }
 
 .step-arrow {
-  font-size: 1.5rem;
+  font-size: var(--type-lead);
   color: var(--muted, #595349);
   user-select: none;
 }
@@ -193,7 +193,7 @@
 
 .step-reasons {
   margin: 0.75rem 0;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   line-height: 1.5;
 }
 
@@ -203,7 +203,7 @@
 
 .step-local-steps {
   margin-top: 0.5rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .step-local-steps > summary {
@@ -223,7 +223,7 @@
 .step-scope-change {
   margin: 0.5rem 0;
   padding: 0.4rem 0.6rem;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   border-radius: 3px;
   background: var(--wash);
   border: 1px solid #cbd5e1;
@@ -238,7 +238,7 @@
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: 0.75rem;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
 }
 
 .step-tool-link,
@@ -264,7 +264,7 @@
 
 .disclosure-tab {
   padding: 0.4rem 0.8rem;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   font-weight: 500;
   border: none;
   background: transparent;
@@ -279,7 +279,7 @@
 
 .disclosure-tabpanel {
   padding: 0.75rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 @media (max-width: 640px) {

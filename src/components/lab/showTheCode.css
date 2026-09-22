@@ -8,7 +8,7 @@
 .show-the-code > summary {
   cursor: pointer;
   font-family: system-ui, sans-serif;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 .show-the-code-tabs {
   display: flex;
@@ -35,7 +35,7 @@
   padding: 0.7rem;
   background: var(--wash, #e8eadf);
   font-family: ui-monospace, "JetBrains Mono", monospace;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   line-height: 1.45;
 }
 .show-the-code .kernel-trace-wrap {
@@ -66,12 +66,12 @@
 }
 .show-the-code .kernel-role {
   font-family: system-ui, sans-serif;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted, #545b56);
 }
 .show-the-code .kernel-header {
   font-family: system-ui, sans-serif;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted, #545b56);
 }
 .equation-context[data-selected-quantity-id] .kernel-ident[data-selected="true"] {
@@ -97,7 +97,7 @@
   border-left: 3px solid var(--refusal-border, #b3261e);
   padding: 0.6rem 0.8rem;
   margin: 0.5rem 0;
-  font-size: 0.88rem;
+  font-size: var(--type-fine);
 }
 
 .show-the-code-listing {

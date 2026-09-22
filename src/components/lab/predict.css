@@ -18,12 +18,12 @@
 
 .predict-overlay-title {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   font-weight: 600;
 }
 
 .predict-overlay-clear {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   padding: 0.25rem 0.5rem;
 }
 
@@ -32,7 +32,7 @@
   flex-wrap: wrap;
   gap: 1.5rem;
   margin-bottom: 0.75rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .legend-prediction {
@@ -134,7 +134,7 @@
 }
 
 .predict-export-list {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .predict-export-list ul {
@@ -150,7 +150,7 @@
 
 .preview-summary {
   margin-top: 0.25rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
@@ -176,7 +176,7 @@
 
 .predict-question {
   margin: 0.5rem 0 1rem;
-  font-size: 1rem;
+  font-size: var(--type-small);
   font-weight: 500;
 }
 
@@ -194,7 +194,7 @@
 }
 
 .predict-label {
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   line-height: 1.4;
 }
 
@@ -206,7 +206,7 @@
 
 .predict-feedback {
   margin-top: 0.75rem;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 

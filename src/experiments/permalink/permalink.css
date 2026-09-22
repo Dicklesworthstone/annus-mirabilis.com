@@ -13,7 +13,7 @@
 }
 
 .share-control-form-name {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -32,12 +32,12 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   cursor: pointer;
 }
 
 .share-control-predictions-notice {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   margin: 0.25rem 0 0 1.5rem;
 }
@@ -50,7 +50,7 @@
 }
 
 .share-control-button {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   font-weight: 500;
   padding: 0.4rem 0.8rem;
   background: var(--accent);
@@ -66,7 +66,7 @@
 }
 
 .share-control-status {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--accent);
   min-height: 1.25rem;
 }
@@ -77,7 +77,7 @@
 
 .share-control-url-label {
   display: block;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   margin-bottom: 0.25rem;
 }
@@ -86,7 +86,7 @@
   width: 100%;
   padding: 0.4rem 0.6rem;
   font-family: var(--font-mono, monospace);
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   border: 1px solid var(--line);
   background: var(--wash);
   color: var(--ink);

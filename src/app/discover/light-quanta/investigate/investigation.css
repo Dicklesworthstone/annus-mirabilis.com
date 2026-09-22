@@ -15,7 +15,7 @@
   padding: 1rem;
 }
 .light-input-group h3 {
-  font-size: 1rem;
+  font-size: var(--type-small);
 }
 .light-input-grid {
   display: grid;
@@ -30,7 +30,7 @@
 }
 
 .light-input-grid label {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 .light-input-grid input,
 .light-investigation textarea {
@@ -118,7 +118,7 @@
   .light-table-scroll th,
   .light-table-scroll td {
     padding: 0.5rem;
-    font-size: 0.875rem;
+    font-size: var(--type-fine);
   }
 }
 @media print {

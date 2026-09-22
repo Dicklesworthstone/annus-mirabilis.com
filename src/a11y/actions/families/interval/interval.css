@@ -16,7 +16,7 @@
 
 .interval-question h4 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--type-small);
   color: #3b332a;
 }
 
@@ -29,7 +29,7 @@
 
 .interval-fieldset legend {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   padding: 0 0.4rem;
   color: #5c5346;
 }
@@ -47,14 +47,14 @@
 }
 
 .interval-input-group label {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   font-weight: 500;
 }
 
 .interval-number-input {
   min-height: 2.25rem; /* >= 24x24 px */
   padding: 0.4rem 0.6rem;
-  font-size: 1rem;
+  font-size: var(--type-small);
   font-family: inherit;
   border: 1px solid #bcb5a6;
   border-radius: 0.25rem;
@@ -76,7 +76,7 @@
   margin-top: 0.75rem;
   padding-top: 0.75rem;
   border-top: 1px dashed #e0d9cb;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .interval-compare-toggle {
@@ -89,7 +89,7 @@
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .compare-checkbox {
@@ -110,7 +110,7 @@
   min-height: 2.5rem; /* >= 24px target rule */
   min-width: 7rem;
   padding: 0.5rem 1.25rem;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   font-weight: 600;
   font-family: inherit;
   color: #ffffff;
@@ -130,6 +130,6 @@
 }
 
 .committed-status {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: #6b6357;
 }

@@ -38,7 +38,7 @@
   margin: 1.2rem 0 0.4rem;
 }
 .camera-pair-result {
-  font-size: 1.35rem;
+  font-size: var(--type-lead);
   font-weight: 700;
 }
 .camera-ideal {
@@ -67,7 +67,7 @@
   margin-top: 1.2rem;
 }
 .camera-plot figcaption {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   line-height: 1.55;
 }
 .camera-lab input,
@@ -79,7 +79,7 @@
     padding: 0.7rem;
   }
   .camera-results table {
-    font-size: 0.82rem;
+    font-size: var(--type-fine);
   }
   .camera-results th,
   .camera-results td {

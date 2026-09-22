@@ -53,13 +53,15 @@ async function fixture({ source = bytes, manifest = inventory, text = config() }
   const configDir = join(root, "scripts/sources/facsimile-sources");
   const inventoryDir = join(root, "content/source-blocks/mass-energy");
   const pdfDir = join(root, "public/papers/pdfs");
-  await Promise.all([configDir, inventoryDir, pdfDir].map(path => mkdir(path, { recursive: true })));
+  await Promise.all(
+    [configDir, inventoryDir, pdfDir].map((path) => mkdir(path, { recursive: true })),
+  );
   if (text !== null) await writeFile(join(configDir, "ap-18-639.yaml"), text);
   if (manifest !== null) await writeFile(join(inventoryDir, "manifest.yaml"), manifest);
   if (source !== null) await writeFile(join(pdfDir, "ap-18-639.pdf"), source);
   return { root, configDir, inventoryDir, pdfDir, pdf: join(pdfDir, "ap-18-639.pdf") };
 }
-const load = fixture => loadFacsimileDocument("mass-energy", "ap-18-639", fixture.root);
+const load = (fixture) => loadFacsimileDocument("mass-energy", "ap-18-639", fixture.root);
 
 test("server joins the existing YAML parser, page projection and verified file bytes", async () => {
   const result = await load(await fixture());
@@ -72,7 +74,11 @@ test("server joins the existing YAML parser, page projection and verified file b
 });
 test("local-only and reference-only pins never read malformed inventory or missing PDF", async () => {
   for (const decision of ["pin-local-only", "reference-only"]) {
-    const f = await fixture({ source: null, manifest: "bad yaml without a mapping", text: config(decision) });
+    const f = await fixture({
+      source: null,
+      manifest: "bad yaml without a mapping",
+      text: config(decision),
+    });
     const result = await load(f);
     assert.equal(result.kind, "unavailable");
     assert.equal(result.code, "facsimile-not-published");
@@ -84,17 +90,25 @@ test("absent configuration and absent pinned bytes have distinct explanations", 
   assert.equal((await load(await fixture({ source: null }))).code, "facsimile-source-missing");
 });
 test("a stale same-length PDF fails the pinned digest without exposing a usable source", async () => {
-  const result = await load(await fixture({ source: Buffer.from(bytes.toString().replace("fixture", "changed")) }));
+  const result = await load(
+    await fixture({ source: Buffer.from(bytes.toString().replace("fixture", "changed")) }),
+  );
   assert.equal(result.code, "facsimile-digest-mismatch");
   assert.equal("document" in result, false);
 });
 test("correctly hashed non-PDF bytes and too-small files are rejected (server.ts:51)", async () => {
   const html = Buffer.from("<html>Not an original scan</html>");
   const hash = createHash("sha256").update(html).digest("hex");
-  assert.equal((await load(await fixture({ source: html, text: config("publish", hash) }))).code, "facsimile-not-pdf");
+  assert.equal(
+    (await load(await fixture({ source: html, text: config("publish", hash) }))).code,
+    "facsimile-not-pdf",
+  );
   // The stat-time size guard. facsimile-file-invalid has a second site at server.ts:61, which
   // this does not reach; see the note on that site below.
-  assert.equal((await load(await fixture({ source: Buffer.from("PDF") }))).code, "facsimile-file-invalid");
+  assert.equal(
+    (await load(await fixture({ source: Buffer.from("PDF") }))).code,
+    "facsimile-file-invalid",
+  );
 });
 
 test("metadata that is not a readable file is refused, not read as absent (server.ts:26)", async () => {
@@ -153,23 +167,37 @@ test("a pin without inventory remains readable but has no manufactured source an
 });
 test("JSON source inventories are supported without a YAML counterpart", async () => {
   const f = await fixture({ manifest: null });
-  await writeFile(join(f.inventoryDir, "manifest.json"), JSON.stringify({
-    paper: "mass-energy", document: "ap-18-639", pageCount: 3, pageRange: [639,641], units: [],
-  }));
+  await writeFile(
+    join(f.inventoryDir, "manifest.json"),
+    JSON.stringify({
+      paper: "mass-energy",
+      document: "ap-18-639",
+      pageCount: 3,
+      pageRange: [639, 641],
+      units: [],
+    }),
+  );
   assert.equal((await load(f)).kind, "available");
 });
 test("invalid identities are rejected before path interpolation", async () => {
-  for (const [paper, key] of [["../private", "ap-18-639"], ["mass-energy", "../../secret"]]) {
+  for (const [paper, key] of [
+    ["../private", "ap-18-639"],
+    ["mass-energy", "../../secret"],
+  ]) {
     const result = await loadFacsimileDocument(paper, key, "/path/that/does/not/exist");
     assert.equal(result.code, "facsimile-identity-invalid");
   }
 });
-test("a symlink cannot publish bytes from outside the public PDF directory", { skip: process.platform === "win32" }, async () => {
+test("a symlink cannot publish bytes from outside the public PDF directory", {
+  skip: process.platform === "win32",
+}, async () => {
   const f = await fixture({ source: null });
   const external = join(f.root, "private.pdf");
   await writeFile(external, bytes);
   await symlink(external, f.pdf);
-  await assert.rejects(verifyFacsimilePdf(f.pdf, digest, f.pdfDir), { code: "facsimile-path-refused" });
+  await assert.rejects(verifyFacsimilePdf(f.pdf, digest, f.pdfDir), {
+    code: "facsimile-path-refused",
+  });
   assert.equal((await load(f)).code, "facsimile-path-refused");
 });
 test("a changed file is re-verified on a later load rather than using a stale admission", async () => {

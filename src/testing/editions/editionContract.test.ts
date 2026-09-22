@@ -4,7 +4,6 @@ import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSy
 import { tmpdir } from "node:os";
 import { dirname, join, sep } from "node:path";
 import { load as parseYaml } from "js-yaml";
-import { parseReceipt } from "../../content/provenance/parseReceipt.ts";
 import {
   assertEditionContract,
   CONTRACT_CHECKS_SPEC,
@@ -18,6 +17,7 @@ import {
   resetReviewStateCheck,
   strictNoReviewedCheck,
 } from "../../content/editions/reviewState.ts";
+import { parseReceipt } from "../../content/provenance/parseReceipt.ts";
 import { spanTextDigest } from "../../content/schemas/spans.ts";
 import { getLogger } from "../log/logger.ts";
 

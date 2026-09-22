@@ -218,7 +218,7 @@ export function WaveDescriptionLab({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))",
             gap: "0.5rem",
             marginBottom: "0.75rem",
           }}
@@ -377,7 +377,7 @@ export function WaveDescriptionLab({
           {p.mode === "interference" ? (
             <div
               className="input-grid"
-              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(260px, 100%), 1fr))" }}
             >
               {/* Amplitude 1 */}
               <div className="input-field">
@@ -546,7 +546,7 @@ export function WaveDescriptionLab({
           ) : (
             <div
               className="input-grid"
-              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(260px, 100%), 1fr))" }}
             >
               {/* Source Power P */}
               <div className="input-field">
@@ -665,7 +665,7 @@ export function WaveDescriptionLab({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(320px, 100%), 1fr))",
             gap: "1.5rem",
           }}
         >

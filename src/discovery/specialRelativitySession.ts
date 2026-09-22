@@ -37,24 +37,36 @@ function hasOnlyKeys(value: Record<string, unknown>, allowed: readonly string[])
   return Object.keys(value).every((key) => allowed.includes(key));
 }
 function validOrder(value: unknown): value is RelativityCardId[] {
-  return Array.isArray(value) && value.length <= RELATIVITY_CARDS.length
-    && value.every(isRelativityCardId) && new Set(value).size === value.length;
+  return (
+    Array.isArray(value) &&
+    value.length <= RELATIVITY_CARDS.length &&
+    value.every(isRelativityCardId) &&
+    new Set(value).size === value.length
+  );
 }
 
 /** Fail closed on malformed/unknown data, never repair it into an apparently valid argument. */
 export function parseRelativitySession(value: unknown): SessionDecode {
-  if (!record(value) || !hasOnlyKeys(value, ["format", "version", "order", "measurement", "predictions", "note"])) {
+  if (
+    !record(value) ||
+    !hasOnlyKeys(value, ["format", "version", "order", "measurement", "predictions", "note"])
+  ) {
     return invalid("This is not a supported relativity investigation record.");
   }
-  if (value.format !== "annus-mirabilis-relativity-investigation" || value.version !== RELATIVITY_SESSION_VERSION) {
+  if (
+    value.format !== "annus-mirabilis-relativity-investigation" ||
+    value.version !== RELATIVITY_SESSION_VERSION
+  ) {
     return invalid("Unsupported investigation format or version; no state was applied.");
   }
-  if (!validOrder(value.order)) return invalid("The card order contains unknown, duplicate or excessive cards.");
+  if (!validOrder(value.order))
+    return invalid("The card order contains unknown, duplicate or excessive cards.");
   if (!isRelativityMeasurementId(value.measurement)) return invalid("Unknown measurement example.");
   if (typeof value.note !== "string" || value.note.length > RELATIVITY_NOTE_LIMIT) {
     return invalid(`Notes must be text of at most ${RELATIVITY_NOTE_LIMIT} characters.`);
   }
-  if (!record(value.predictions)) return invalid("Predictions must be keyed by measurement example.");
+  if (!record(value.predictions))
+    return invalid("Predictions must be keyed by measurement example.");
   const predictions: Partial<Record<RelativityMeasurementId, LengthPrediction>> = {};
   for (const [id, prediction] of Object.entries(value.predictions)) {
     if (!isRelativityMeasurementId(id) || (prediction !== "yes" && prediction !== "no")) {
@@ -63,7 +75,15 @@ export function parseRelativitySession(value: unknown): SessionDecode {
     predictions[id] = prediction;
   }
   // Copy only admitted fields. Imported assessments, HTML and executable data are never used.
-  return { kind: "session", session: { order: [...value.order], measurement: value.measurement, predictions, note: value.note } };
+  return {
+    kind: "session",
+    session: {
+      order: [...value.order],
+      measurement: value.measurement,
+      predictions,
+      note: value.note,
+    },
+  };
 }
 
 export function exportRelativitySession(session: RelativitySession): string {
@@ -76,12 +96,14 @@ export function exportRelativitySession(session: RelativitySession): string {
     note: session.note,
   };
   const parsed = parseRelativitySession(payload);
-  if (parsed.kind !== "session") throw new Error(parsed.kind === "invalid" ? parsed.message : "Invalid session.");
+  if (parsed.kind !== "session")
+    throw new Error(parsed.kind === "invalid" ? parsed.message : "Invalid session.");
   return JSON.stringify(payload, null, 2);
 }
 
 export function importRelativitySession(text: string): SessionDecode {
-  if (text.length > RELATIVITY_IMPORT_LIMIT) return invalid("This investigation file is too large.");
+  if (text.length > RELATIVITY_IMPORT_LIMIT)
+    return invalid("This investigation file is too large.");
   try {
     return parseRelativitySession(JSON.parse(text));
   } catch {
@@ -91,7 +113,8 @@ export function importRelativitySession(text: string): SessionDecode {
 
 /** Share ONLY public card IDs and the chosen example. Notes and predictions stay private. */
 export function encodeRelativityLink(session: RelativitySession): string {
-  if (!validOrder(session.order) || !isRelativityMeasurementId(session.measurement)) throw new Error("Invalid shared investigation.");
+  if (!validOrder(session.order) || !isRelativityMeasurementId(session.measurement))
+    throw new Error("Invalid shared investigation.");
   const query = new URLSearchParams();
   query.set("sr", String(RELATIVITY_SESSION_VERSION));
   query.set("cards", session.order.join(","));
@@ -103,14 +126,21 @@ export function decodeRelativityLink(search: string): SessionDecode {
   if (search.length > RELATIVITY_LINK_LIMIT) return invalid("This investigation link is too long.");
   const query = new URLSearchParams(search);
   if (!["sr", "cards", "example"].some((key) => query.has(key))) return { kind: "absent" };
-  if (["sr", "cards", "example"].some((key) => query.getAll(key).length !== 1) || query.get("sr") !== String(RELATIVITY_SESSION_VERSION)) {
+  if (
+    ["sr", "cards", "example"].some((key) => query.getAll(key).length !== 1) ||
+    query.get("sr") !== String(RELATIVITY_SESSION_VERSION)
+  ) {
     return invalid("The link has missing, repeated or unsupported investigation parameters.");
   }
   const cards = query.get("cards");
   const order = cards === "" ? [] : cards?.split(",");
   const measurement = query.get("example");
-  if (!validOrder(order) || !isRelativityMeasurementId(measurement)) return invalid("The link contains unknown or duplicate investigation choices.");
-  return { kind: "session", session: { ...emptyRelativitySession(), order: [...order], measurement } };
+  if (!validOrder(order) || !isRelativityMeasurementId(measurement))
+    return invalid("The link contains unknown or duplicate investigation choices.");
+  return {
+    kind: "session",
+    session: { ...emptyRelativitySession(), order: [...order], measurement },
+  };
 }
 
 /** Derived outcomes are recomputed from current authored dependencies, never stored as authority. */

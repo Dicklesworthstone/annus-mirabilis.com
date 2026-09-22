@@ -99,7 +99,7 @@
   background: var(--panel);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 30%);
 }
 
@@ -131,7 +131,7 @@
 .facsimile-error-text {
   max-width: 28rem;
   font-family: var(--font-sans);
-  font-size: 0.875rem;
+  font-size: var(--type-fine);
 }
 
 .facsimile-toolbar {
@@ -211,7 +211,7 @@
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   text-align: center;
 }
 
@@ -231,7 +231,7 @@
   background: var(--accent);
   color: var(--paper);
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--type-micro);
   cursor: pointer;
 }
 

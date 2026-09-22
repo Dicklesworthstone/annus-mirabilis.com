@@ -66,9 +66,9 @@ describe("where the attribution header ends is decided once (am-ftgq)", () => {
 
   test("a file genuinely missing the opening is still refused", () => {
     // AC 4's other half: this must not have been made green by making the rule unsatisfiable.
-    expect(attributionHeaderOpensWith("/**\n * Something else entirely\n */\n", EXPECTED_OPENING)).toBe(
-      false,
-    );
+    expect(
+      attributionHeaderOpensWith("/**\n * Something else entirely\n */\n", EXPECTED_OPENING),
+    ).toBe(false);
     expect(attributionHeaderOpensWith("export const x = 1;\n", EXPECTED_OPENING)).toBe(false);
     expect(extractAttributionHeader("export const x = 1;\n")).toBe(null);
   });

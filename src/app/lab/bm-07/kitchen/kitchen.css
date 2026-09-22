@@ -125,10 +125,10 @@
   .kitchen-results th,
   .kitchen-results td {
     padding: 0.5rem 0.35rem;
-    font-size: 0.9rem;
+    font-size: var(--type-fine);
   }
   .kitchen-guide table {
-    font-size: 0.85rem;
+    font-size: var(--type-fine);
   }
 }
 @media print {

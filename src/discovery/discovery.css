@@ -11,14 +11,14 @@
 }
 
 .subtitle {
-  font-size: 1.15rem;
+  font-size: var(--type-body);
   color: var(--muted);
   margin-top: 0.5rem;
 }
 
 .citation {
   font-style: italic;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
@@ -39,7 +39,7 @@
 }
 
 .exercise-prompt {
-  font-size: 1rem;
+  font-size: var(--type-small);
   margin-bottom: 1rem;
 }
 
@@ -51,7 +51,7 @@
 
 .exercise-error {
   color: var(--accent);
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .exercise-verdict {

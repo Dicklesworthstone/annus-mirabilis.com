@@ -12,7 +12,7 @@
 }
 
 .layer-1-statement {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   font-weight: 600;
   margin: 0;
 }
@@ -30,7 +30,7 @@
 
 .layer-2-text {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   line-height: 1.5;
 }
 
@@ -42,7 +42,7 @@
 }
 
 .a11y-btn {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   padding: 0.25rem 0.6rem;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -88,7 +88,7 @@
 .inspectable-data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .inspectable-table caption {
@@ -120,11 +120,11 @@
   justify-content: space-between;
   gap: 1rem;
   margin-top: 0.75rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .pagination-btn {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   padding: 0.25rem 0.5rem;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -145,7 +145,7 @@
 
 .pagination-info {
   font-family: var(--font-mono, monospace);
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
@@ -156,7 +156,7 @@
   background: var(--wash);
   border: 1px solid var(--line);
   border-radius: 4px;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .scale-facts-table {
@@ -185,5 +185,5 @@
 
 .comparison-delta {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }

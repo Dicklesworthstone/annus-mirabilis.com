@@ -266,7 +266,10 @@ export function IndependentConfigurationsLab({
         <form
           onSubmit={submit}
           className="input-grid"
-          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
+            gap: "1.5rem",
+          }}
         >
           {/* 1. Point count n */}
           <div className="input-field">

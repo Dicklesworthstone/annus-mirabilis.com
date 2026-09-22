@@ -21,7 +21,7 @@
 
 .ledger-summary {
   margin-top: 0.75rem;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .step-nav {
@@ -33,7 +33,7 @@
 
 .button-step {
   padding: 0.35rem 0.75rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   border: 1px solid var(--line);
   background: var(--panel);
   color: var(--ink);

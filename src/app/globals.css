@@ -815,7 +815,7 @@ samp,
      * is the measured optimum for this one viewport, so it stays as a literal and is named here
      * rather than rounded to a step that is worse on the number that matters.
      */
-    font-size: 1.0625rem;
+    font-size: var(--type-small);
   }
   .site-header {
     align-items: start;

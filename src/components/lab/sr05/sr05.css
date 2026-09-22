@@ -27,7 +27,7 @@
 }
 
 .equator-note {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   border-left: 3px solid var(--accent);
   padding: 0.5rem 0.75rem;

@@ -432,7 +432,7 @@ export function FluorescencePlot({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))",
             gap: "0.5rem",
             fontSize: "0.75rem",
           }}
@@ -586,7 +586,7 @@ export function FluorescencePlot({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(130px, 100%), 1fr))",
               gap: "0.75rem",
               paddingTop: "0.25rem",
             }}

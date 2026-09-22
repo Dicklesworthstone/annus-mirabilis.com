@@ -23,7 +23,7 @@
 
 .step-title {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: var(--type-fine);
   font-weight: 600;
   fill: var(--ink);
 }

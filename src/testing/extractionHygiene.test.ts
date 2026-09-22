@@ -3,7 +3,10 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { appendExtractionLog, newExtractionLogRunId } from "./extractionLogging.ts";
-import { ATTRIBUTION_HEADER_PATTERN, attributionHeaderOpensWith } from "./hygiene/attributionHeader.ts";
+import {
+  ATTRIBUTION_HEADER_PATTERN,
+  attributionHeaderOpensWith,
+} from "./hygiene/attributionHeader.ts";
 
 const logRunId = newExtractionLogRunId();
 

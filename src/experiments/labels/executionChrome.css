@@ -17,7 +17,7 @@
 .execution-currency {
   margin: 0;
   padding: 0.35rem 0.55rem;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   line-height: 1.45;
   max-width: 100%;
   background: var(--panel, #fffdf7);
@@ -55,7 +55,7 @@
 
 .model-note {
   width: 100%;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   line-height: 1.45;
   border: 1px solid var(--line, #c7c5b9);
   padding: 0.35rem 0.55rem;
