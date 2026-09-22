@@ -1,0 +1,14 @@
+/* LQ-07, fluorescence and Stokes's rule (FluorescenceLab.tsx). The drawing comes first; the two
+   predictions sit in one closed disclosure under it, then the presets. */
+.lq07-predict,
+.lq07-try {
+  max-width: 44rem;
+}
+
+.lq07-prompt {
+  margin-block: 0.75rem 1.25rem;
+}
+
+.lq07-prompt h3 {
+  font-size: var(--type-small);
+}

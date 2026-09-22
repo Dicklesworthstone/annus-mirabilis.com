@@ -19,6 +19,7 @@ import {
 } from "../../../experiments/lq07/session.ts";
 import { identity } from "../presentation.ts";
 import { FluorescencePlot } from "./FluorescencePlot.tsx";
+import "./fluorescenceLab.css";
 
 export function FluorescenceLab({
   example,
@@ -144,169 +145,162 @@ export function FluorescenceLab({
           <p className="eyebrow">Light quanta · §7 fluorescence &amp; Stokes's rule</p>
           <h2 id={`${id}-title`}>{title}</h2>
           <p className="fine" style={{ marginTop: "0.5rem", fontSize: "0.95rem" }}>
-            How single-quantum energy conservation hν₁ = hν₂ + E_other explains Stokes's rule (ν₂ ≤
-            ν₁) and correctly predicts multi-quantum and thermal deviation conditions.
+            What single-quantum energy conservation, hν₁ = hν₂ + E_other, allows a fluorescent body
+            to emit, and where multi-quantum and thermal cases depart from it.
           </p>
         </div>
       </header>
 
-      {/* Predict Mode Card 1: Stokes Rule */}
-      <section
-        className="notice"
-        style={{ margin: "1.5rem 0" }}
-        aria-label="Predict Mode: Energy Conservation"
-      >
-        <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          Predict mode · Energy conservation
-        </p>
-        <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
-          Can fluorescent emission occur at higher frequency than the exciting light (ν₂ &gt; ν₁)
-          under single-quantum absorption?
-        </h3>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))",
-            gap: "0.5rem",
-            marginTop: "0.75rem",
-          }}
-        >
-          <button
-            type="button"
-            className={`button ${predictAnswer1 === "intensity" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.75rem" }}
-            onClick={() => setPredictAnswer1("intensity")}
-          >
-            <strong>With intense light</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              Power per second increases
-            </span>
-          </button>
-          <button
-            type="button"
-            className={`button ${predictAnswer1 === "always" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.75rem" }}
-            onClick={() => setPredictAnswer1("always")}
-          >
-            <strong>Always possible</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              Medium shifts frequencies freely
-            </span>
-          </button>
-          <button
-            type="button"
-            className={`button ${predictAnswer1 === "never" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.75rem" }}
-            onClick={() => setPredictAnswer1("never")}
-          >
-            <strong>Never</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              One quantum in, one quantum&apos;s energy at most out
-            </span>
-          </button>
-        </div>
-        {predictAnswer1 && (
-          <div
-            style={{
-              marginTop: "0.75rem",
-              padding: "0.75rem",
-              border: "1px solid var(--line)",
-              borderRadius: "4px",
-              background: "var(--panel)",
-            }}
-          >
-            <p style={{ margin: 0 }}>
-              The model: in each elementary process one quantum of energy hν₁ is absorbed. Energy is
-              conserved (hν₁ = hν₂ + E_other, with E_other ≥ 0), so the emitted quantum hν₂ cannot
-              exceed hν₁, and ν₂ ≤ ν₁. A brighter beam delivers more quanta each second, not more
-              energy in each one.
-            </p>
-          </div>
-        )}
-      </section>
-
-      {/* Predict Mode Card 2: Weak Light Linearity */}
-      <section
-        className="notice"
-        style={{ margin: "1.5rem 0" }}
-        aria-label="Predict mode: very weak light"
-      >
-        <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          Predict mode · Very weak light
-        </p>
-        <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
-          How does the emission rate behave as the incident light becomes extremely weak?
-        </h3>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))",
-            gap: "0.5rem",
-            marginTop: "0.75rem",
-          }}
-        >
-          <button
-            type="button"
-            className={`button ${predictAnswer2 === "threshold" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.75rem" }}
-            onClick={() => setPredictAnswer2("threshold")}
-          >
-            <strong>Stops below an intensity threshold</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              Energy must build up first
-            </span>
-          </button>
-          <button
-            type="button"
-            className={`button ${predictAnswer2 === "linear" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.75rem" }}
-            onClick={() => setPredictAnswer2("linear")}
-          >
-            <strong>Strictly proportional, zero threshold</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              Each absorbed quantum can emit on its own
-            </span>
-          </button>
-        </div>
-        {predictAnswer2 && (
-          <div
-            style={{
-              marginTop: "0.75rem",
-              padding: "0.75rem",
-              border: "1px solid var(--line)",
-              borderRadius: "4px",
-              background: "var(--panel)",
-            }}
-          >
-            <p style={{ margin: 0 }}>
-              The model: each absorbed quantum acts independently, with probability Y, so the
-              emitted rate is proportional to the absorbed power however weak the light, with no
-              threshold. A wave picture might predict a threshold, or a delay while energy
-              accumulates; the light-quantum picture predicts neither.
-            </p>
-          </div>
-        )}
-      </section>
-
-      {/* Presets Bar */}
-      <nav aria-label="Presets" className="preset-list" style={{ alignItems: "center" }}>
-        <span className="fine" style={{ fontWeight: 600, marginRight: "0.25rem" }}>
-          Presets:
-        </span>
-        {(Object.keys(LQ07_PRESETS) as (keyof typeof LQ07_PRESETS)[]).map((key) => (
-          <button
-            key={key}
-            type="button"
-            className="button secondary"
-            onClick={() => setPreset(key)}
-          >
-            {LQ07_PRESETS[key]?.label}
-          </button>
-        ))}
-      </nav>
-
       {/* Main Plot & Visual Ledger */}
       <FluorescencePlot parameters={p} evaluation={evaluation} />
+
+      <details className="lab-predict lq07-predict">
+        <summary>Predict first</summary>
+        {/* Predict Mode Card 1: Stokes Rule */}
+        <section className="lq07-prompt" aria-label="Predict Mode: Energy Conservation">
+          <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
+            Predict mode · Energy conservation
+          </p>
+          <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
+            Can fluorescent emission occur at higher frequency than the exciting light (ν₂ &gt; ν₁)
+            under single-quantum absorption?
+          </h3>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))",
+              gap: "0.5rem",
+              marginTop: "0.75rem",
+            }}
+          >
+            <button
+              type="button"
+              className={`button ${predictAnswer1 === "intensity" ? "" : "secondary"}`}
+              style={{ textAlign: "left", padding: "0.75rem" }}
+              onClick={() => setPredictAnswer1("intensity")}
+            >
+              <strong>With intense light</strong>
+              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+                Power per second increases
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`button ${predictAnswer1 === "always" ? "" : "secondary"}`}
+              style={{ textAlign: "left", padding: "0.75rem" }}
+              onClick={() => setPredictAnswer1("always")}
+            >
+              <strong>Always possible</strong>
+              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+                Medium shifts frequencies freely
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`button ${predictAnswer1 === "never" ? "" : "secondary"}`}
+              style={{ textAlign: "left", padding: "0.75rem" }}
+              onClick={() => setPredictAnswer1("never")}
+            >
+              <strong>Never</strong>
+              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+                One quantum in, one quantum&apos;s energy at most out
+              </span>
+            </button>
+          </div>
+          {predictAnswer1 && (
+            <div
+              style={{
+                marginTop: "0.75rem",
+                padding: "0.75rem",
+                border: "1px solid var(--line)",
+                borderRadius: "4px",
+                background: "var(--panel)",
+              }}
+            >
+              <p style={{ margin: 0 }}>
+                The model: in each elementary process one quantum of energy hν₁ is absorbed. Energy
+                is conserved (hν₁ = hν₂ + E_other, with E_other ≥ 0), so the emitted quantum hν₂
+                cannot exceed hν₁, and ν₂ ≤ ν₁. A brighter beam delivers more quanta each second,
+                not more energy in each one.
+              </p>
+            </div>
+          )}
+        </section>
+
+        {/* Predict Mode Card 2: Weak Light Linearity */}
+        <section
+          className="lq07-prompt"
+          style={{ margin: "1.5rem 0" }}
+          aria-label="Predict mode: very weak light"
+        >
+          <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
+            Predict mode · Very weak light
+          </p>
+          <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
+            How does the emission rate behave as the incident light becomes extremely weak?
+          </h3>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))",
+              gap: "0.5rem",
+              marginTop: "0.75rem",
+            }}
+          >
+            <button
+              type="button"
+              className={`button ${predictAnswer2 === "threshold" ? "" : "secondary"}`}
+              style={{ textAlign: "left", padding: "0.75rem" }}
+              onClick={() => setPredictAnswer2("threshold")}
+            >
+              <strong>Stops below an intensity threshold</strong>
+              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+                Energy must build up first
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`button ${predictAnswer2 === "linear" ? "" : "secondary"}`}
+              style={{ textAlign: "left", padding: "0.75rem" }}
+              onClick={() => setPredictAnswer2("linear")}
+            >
+              <strong>Strictly proportional, zero threshold</strong>
+              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+                Each absorbed quantum can emit on its own
+              </span>
+            </button>
+          </div>
+          {predictAnswer2 && (
+            <div
+              style={{
+                marginTop: "0.75rem",
+                padding: "0.75rem",
+                border: "1px solid var(--line)",
+                borderRadius: "4px",
+                background: "var(--panel)",
+              }}
+            >
+              <p style={{ margin: 0 }}>
+                The model: each absorbed quantum acts independently, with probability Y, so the
+                emitted rate is proportional to the absorbed power however weak the light, with no
+                threshold. A wave picture might predict a threshold, or a delay while energy
+                accumulates; the light-quantum picture predicts neither.
+              </p>
+            </div>
+          )}
+        </section>
+      </details>
+
+      <fieldset className="lab-choice lq07-try">
+        <legend>Try</legend>
+        <div className="actions">
+          {(Object.keys(LQ07_PRESETS) as (keyof typeof LQ07_PRESETS)[]).map((key) => (
+            <button key={key} type="button" className="secondary" onClick={() => setPreset(key)}>
+              {LQ07_PRESETS[key]?.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       {/* Interactive Controls Section */}
       <section
