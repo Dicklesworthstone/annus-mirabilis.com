@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-diffusion-equation",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-diffusion-equation",
+  "title": "The diffusion equation",
+  "spoken": "The rate of change of the probability density with time equals D times its second derivative with respect to position.",
+  "explanation": "Where the density curves upward it grows, and where it curves downward it falls, at a rate set by D. A peak therefore flattens and spreads.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Independent steps with a symmetric step law and a finite mean square step.",
+    "Times long compared with one step, distances large compared with one step.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-diffusion-equation.op.relation",
+    "left": {
+      "kind": "derivative",
+      "opId": "eq-model-bm-diffusion-equation.op.rate",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-bm-diffusion-equation.t.density",
+        "quantityId": "probabilityDensity"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-bm-diffusion-equation.t.time",
+        "quantityId": "observationInterval"
+      },
+      "order": 1,
+      "partial": true
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-diffusion-equation.t.diffusion",
+          "quantityId": "diffusionCoefficient"
+        },
+        {
+          "kind": "derivative",
+          "opId": "eq-model-bm-diffusion-equation.op.curvature",
+          "expression": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusion-equation.t.density2",
+            "quantityId": "probabilityDensity"
+          },
+          "variable": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusion-equation.t.position",
+            "quantityId": "positionCoordinate1d"
+          },
+          "order": 2,
+          "partial": true
+        }
+      ],
+      "opId": "eq-model-bm-diffusion-equation.op.product"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-diffusion-equation.op.curvature",
+      "title": "Curvature in space",
+      "explanation": "The second derivative: how the slope of the density changes along x.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusion-equation.op.product",
+      "title": "D times the curvature",
+      "explanation": "The spreading rate: larger D, faster flattening.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusion-equation.op.rate",
+      "title": "Rate of change in time",
+      "explanation": "How fast the density at one x changes.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusion-equation.op.relation",
+      "title": "What it asserts",
+      "explanation": "The density changes in time exactly as fast as D times its curvature in space.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusion-equation.t.density",
+      "title": "Probability density",
+      "explanation": "Probability per metre of finding the particle at x after time t.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusion-equation.t.density2",
+      "title": "Probability density",
+      "explanation": "Probability per metre of finding the particle at x after time t.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusion-equation.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "How fast the mean square displacement grows: half its rate of growth. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusion-equation.t.position",
+      "title": "Position",
+      "explanation": "The coordinate x along which the particles spread.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusion-equation.t.time",
+      "title": "Observation interval",
+      "explanation": "The time over which displacement is observed.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The rate of change of the density",
+      "nodeId": "eq-model-bm-diffusion-equation.t.density"
+    },
+    {
+      "text": " in "
+    },
+    {
+      "text": "time",
+      "nodeId": "eq-model-bm-diffusion-equation.t.time"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "D",
+      "nodeId": "eq-model-bm-diffusion-equation.t.diffusion"
+    },
+    {
+      "text": " times its second derivative along "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-bm-diffusion-equation.t.position"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

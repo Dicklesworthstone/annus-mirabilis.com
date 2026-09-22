@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-square-of-sum",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-independent-steps",
+  "title": "The square of a sum",
+  "spoken": "A plus B, squared, equals A squared plus two A B plus B squared.",
+  "explanation": "The cross term 2AB is what averages to zero when the next step is independent of the ones before it, which is why the mean squares simply add.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Ordinary algebra; A and B are any numbers.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-square-of-sum.op.relation",
+    "left": {
+      "kind": "power",
+      "base": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-square-of-sum.t.a",
+            "quantityId": "genericNumberA"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-square-of-sum.t.b",
+            "quantityId": "genericNumberB"
+          }
+        ],
+        "opId": "eq-model-bm-square-of-sum.op.sum"
+      },
+      "exponent": {
+        "num": 2,
+        "den": 1
+      },
+      "opId": "eq-model-bm-square-of-sum.op.squareSum"
+    },
+    "right": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-square-of-sum.t.a2",
+            "quantityId": "genericNumberA"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          },
+          "opId": "eq-model-bm-square-of-sum.op.aSquared"
+        },
+        {
+          "kind": "product",
+          "args": [
+            {
+              "kind": "number",
+              "value": "2"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-square-of-sum.t.a3",
+              "quantityId": "genericNumberA"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-square-of-sum.t.b3",
+              "quantityId": "genericNumberB"
+            }
+          ],
+          "opId": "eq-model-bm-square-of-sum.op.cross"
+        },
+        {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-square-of-sum.t.b2",
+            "quantityId": "genericNumberB"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          },
+          "opId": "eq-model-bm-square-of-sum.op.bSquared"
+        }
+      ],
+      "opId": "eq-model-bm-square-of-sum.op.expanded"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-square-of-sum.op.aSquared",
+      "title": "A squared",
+      "explanation": "A times A.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.op.bSquared",
+      "title": "B squared",
+      "explanation": "B times B.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.op.cross",
+      "title": "The cross term",
+      "explanation": "Twice A times B: it vanishes on average for an independent, zero-mean B.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.op.expanded",
+      "title": "Three terms",
+      "explanation": "Each term of the bracket times each term.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.op.relation",
+      "title": "What it asserts",
+      "explanation": "An identity: true for every A and B.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.op.squareSum",
+      "title": "The sum, squared",
+      "explanation": "The whole bracket times itself, not each term squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.op.sum",
+      "title": "A plus B",
+      "explanation": "The sum to be squared.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.t.a",
+      "title": "Any number",
+      "explanation": "A stands for any number; here, the sum of the earlier steps.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.t.a2",
+      "title": "Any number",
+      "explanation": "A stands for any number; here, the sum of the earlier steps.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.t.a3",
+      "title": "Any number",
+      "explanation": "A stands for any number; here, the sum of the earlier steps.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.t.b",
+      "title": "Any other number",
+      "explanation": "B stands for any number; here, the next step.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.t.b2",
+      "title": "Any other number",
+      "explanation": "B stands for any number; here, the next step.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-square-of-sum.t.b3",
+      "title": "Any other number",
+      "explanation": "B stands for any number; here, the next step.",
+      "foundation": "bridge-squaring-square-roots"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "A",
+      "nodeId": "eq-model-bm-square-of-sum.t.a"
+    },
+    {
+      "text": " plus "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-bm-square-of-sum.t.b"
+    },
+    {
+      "text": ", squared, is "
+    },
+    {
+      "text": "A",
+      "nodeId": "eq-model-bm-square-of-sum.t.a2"
+    },
+    {
+      "text": " squared plus two "
+    },
+    {
+      "text": "A",
+      "nodeId": "eq-model-bm-square-of-sum.t.a3"
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-bm-square-of-sum.t.b3"
+    },
+    {
+      "text": " plus "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-bm-square-of-sum.t.b2"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-walk-diffusivity",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-independent-steps",
+  "title": "The diffusivity of a walk",
+  "spoken": "D equals l squared over two tau.",
+  "explanation": "A walk of steps of length l every tau spreads like diffusion with this D.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Independent steps of mean square length l squared.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-walk-diffusivity.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-walk-diffusivity.t.diffusion",
+      "quantityId": "diffusionCoefficient"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "power",
+        "base": {
+          "kind": "symbol",
+          "termId": "eq-model-bm-walk-diffusivity.t.step",
+          "quantityId": "stepRms"
+        },
+        "exponent": {
+          "num": 2,
+          "den": 1
+        },
+        "opId": "eq-model-bm-walk-diffusivity.op.square"
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "number",
+            "value": "2"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-walk-diffusivity.t.interval",
+            "quantityId": "stepInterval"
+          }
+        ],
+        "opId": "eq-model-bm-walk-diffusivity.op.denominator"
+      },
+      "opId": "eq-model-bm-walk-diffusivity.op.quotient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-walk-diffusivity.op.denominator",
+      "title": "Two tau",
+      "explanation": "The two is one dimension's convention.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-diffusivity.op.quotient",
+      "title": "Step square per unit time",
+      "explanation": "Squared length per second.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-diffusivity.op.relation",
+      "title": "What it asserts",
+      "explanation": "The microscopic walk sets the macroscopic D.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-diffusivity.op.square",
+      "title": "l squared",
+      "explanation": "The mean square of one step.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-diffusivity.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "How fast the mean square displacement grows: half its rate of growth. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-diffusivity.t.interval",
+      "title": "Step interval",
+      "explanation": "The short time between successive steps of the walk.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-diffusivity.t.step",
+      "title": "Step length",
+      "explanation": "The root mean square length of one step.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "D",
+      "nodeId": "eq-model-bm-walk-diffusivity.t.diffusion"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "l",
+      "nodeId": "eq-model-bm-walk-diffusivity.t.step"
+    },
+    {
+      "text": " squared over two "
+    },
+    {
+      "text": "tau",
+      "nodeId": "eq-model-bm-walk-diffusivity.t.interval"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

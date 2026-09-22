@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-walk-time",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-independent-steps",
+  "title": "Time counts steps",
+  "spoken": "t equals n tau.",
+  "explanation": "n steps of duration tau take time t.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Steps of equal duration tau.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-walk-time.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-walk-time.t.time",
+      "quantityId": "observationInterval"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-walk-time.t.count",
+          "quantityId": "walkStepCount"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-walk-time.t.interval",
+          "quantityId": "stepInterval"
+        }
+      ],
+      "opId": "eq-model-bm-walk-time.op.product"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-walk-time.op.product",
+      "title": "n times tau",
+      "explanation": "The total time of n steps.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-time.op.relation",
+      "title": "What it asserts",
+      "explanation": "Counting steps and measuring time are the same thing here.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-time.t.count",
+      "title": "Number of steps",
+      "explanation": "How many independent steps fit in time t.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-time.t.interval",
+      "title": "Step interval",
+      "explanation": "The short time between successive steps of the walk.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-walk-time.t.time",
+      "title": "Observation interval",
+      "explanation": "The time over which displacement is observed.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "t",
+      "nodeId": "eq-model-bm-walk-time.t.time"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "n",
+      "nodeId": "eq-model-bm-walk-time.t.count"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "tau",
+      "nodeId": "eq-model-bm-walk-time.t.interval"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

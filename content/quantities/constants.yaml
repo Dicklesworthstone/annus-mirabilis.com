@@ -154,6 +154,28 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: space-geometry
+- id: genericNumberA
+  name: Any number A
+  description: >
+    A placeholder for any number in an algebraic identity such as (A + B)^2 = A^2 + 2AB + B^2,
+    where the identity holds whatever A is. Not a physical quantity.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+- id: genericNumberB
+  name: Any number B
+  description: >
+    The second placeholder in an algebraic identity, beside genericNumberA. Not a physical
+    quantity.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
 
 - id: configurationProbability
   name: Configuration probability

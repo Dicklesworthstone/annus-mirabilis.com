@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-diffusivity-molar",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-diffusivity",
+  "title": "The same diffusivity, written with the gas constant",
+  "spoken": "D equals R T over six pi eta a N.",
+  "explanation": "Einstein's form: the gas constant per molecule, R over N, stands where the modern form writes k_B. A larger N would make each molecule's kick smaller and the spreading slower.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "A dilute suspension of spheres, each moving slowly through a Newtonian liquid (Stokes drag).",
+    "N is Avogadro's number, the quantity the paper sets out to measure.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper. The paper writes k for the viscosity."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-diffusivity-molar.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-diffusivity-molar.t.diffusion",
+      "quantityId": "diffusionCoefficient"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity-molar.t.gas",
+            "quantityId": "molarGasConstant"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity-molar.t.temperature",
+            "quantityId": "temperature"
+          }
+        ],
+        "opId": "eq-model-bm-diffusivity-molar.op.numerator"
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "number",
+            "value": "6"
+          },
+          {
+            "kind": "constant",
+            "name": "pi"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity-molar.t.viscosity",
+            "quantityId": "viscosity"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity-molar.t.radius",
+            "quantityId": "particleRadius"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity-molar.t.avogadro",
+            "quantityId": "avogadroConstant"
+          }
+        ],
+        "opId": "eq-model-bm-diffusivity-molar.op.denominator"
+      },
+      "opId": "eq-model-bm-diffusivity-molar.op.quotient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.op.denominator",
+      "title": "Six pi eta a N",
+      "explanation": "Stokes's drag coefficient for one sphere, times N.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.op.numerator",
+      "title": "R times T",
+      "explanation": "Thermal energy per mole.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.op.quotient",
+      "title": "Thermal energy over drag",
+      "explanation": "Kicks drive spreading; drag resists it.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.op.relation",
+      "title": "What it asserts",
+      "explanation": "The spreading rate is fixed by temperature, viscosity, size and the number of molecules in a mole.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.t.avogadro",
+      "title": "Avogadro's number",
+      "explanation": "Molecules per mole: what the measurement is meant to find.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "How fast the mean square displacement grows: half its rate of growth. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.t.gas",
+      "title": "Gas constant",
+      "explanation": "Energy per mole per kelvin.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.t.radius",
+      "title": "Particle radius",
+      "explanation": "The radius of the suspended sphere, not its diameter.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.t.temperature",
+      "title": "Absolute temperature",
+      "explanation": "Temperature in kelvin.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-molar.t.viscosity",
+      "title": "Viscosity",
+      "explanation": "The liquid's resistance to shear. The paper writes it k, which is not Boltzmann's constant.",
+      "foundation": "diffusion-equation"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "D",
+      "nodeId": "eq-model-bm-diffusivity-molar.t.diffusion"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "R",
+      "nodeId": "eq-model-bm-diffusivity-molar.t.gas"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "T",
+      "nodeId": "eq-model-bm-diffusivity-molar.t.temperature"
+    },
+    {
+      "text": " over six pi times "
+    },
+    {
+      "text": "the viscosity",
+      "nodeId": "eq-model-bm-diffusivity-molar.t.viscosity"
+    },
+    {
+      "text": ", "
+    },
+    {
+      "text": "the radius",
+      "nodeId": "eq-model-bm-diffusivity-molar.t.radius"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "N",
+      "nodeId": "eq-model-bm-diffusivity-molar.t.avogadro"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

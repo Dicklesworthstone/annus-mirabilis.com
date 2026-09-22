@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-avogadro-inference",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-inference",
+  "title": "From a measured spread to the number of molecules",
+  "spoken": "N equals R T t over three pi eta a times the mean square displacement.",
+  "explanation": "With temperature, viscosity and radius measured independently, the observed mean square gives Avogadro's number. The radius has to come from somewhere else: the spread alone cannot separate it from N.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Radius, viscosity and temperature are measured independently of the displacement data.",
+    "The same dilute-sphere model as the diffusivity.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper. The paper writes k for the viscosity."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-avogadro-inference.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-avogadro-inference.t.estimate",
+      "quantityId": "avogadroNumberEstimate"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-avogadro-inference.t.gas",
+            "quantityId": "molarGasConstant"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-avogadro-inference.t.temperature",
+            "quantityId": "temperature"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-avogadro-inference.t.time",
+            "quantityId": "observationInterval"
+          }
+        ],
+        "opId": "eq-model-bm-avogadro-inference.op.numerator"
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "number",
+            "value": "3"
+          },
+          {
+            "kind": "constant",
+            "name": "pi"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-avogadro-inference.t.viscosity",
+            "quantityId": "viscosity"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-avogadro-inference.t.radius",
+            "quantityId": "particleRadius"
+          },
+          {
+            "kind": "average",
+            "opId": "eq-model-bm-avogadro-inference.op.mean",
+            "argument": {
+              "kind": "power",
+              "base": {
+                "kind": "symbol",
+                "termId": "eq-model-bm-avogadro-inference.t.displacement",
+                "quantityId": "displacement1d"
+              },
+              "exponent": {
+                "num": 2,
+                "den": 1
+              },
+              "opId": "eq-model-bm-avogadro-inference.op.square"
+            }
+          }
+        ],
+        "opId": "eq-model-bm-avogadro-inference.op.denominator"
+      },
+      "opId": "eq-model-bm-avogadro-inference.op.quotient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.op.denominator",
+      "title": "Three pi eta a times the mean square",
+      "explanation": "Drag and the observed spread.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.op.mean",
+      "title": "The observed mean square",
+      "explanation": "From many displacements.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.op.numerator",
+      "title": "R T t",
+      "explanation": "Thermal energy per mole, times the interval.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.op.quotient",
+      "title": "The ratio",
+      "explanation": "Per mole.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.op.relation",
+      "title": "What it asserts",
+      "explanation": "Counting molecules becomes a measurement of spreading.",
+      "foundation": "error-and-inference"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.op.square",
+      "title": "x squared",
+      "explanation": "Each observed displacement, squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.t.displacement",
+      "title": "Displacement since the start",
+      "explanation": "How far one particle has moved along x since observation began.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.t.estimate",
+      "title": "Estimated Avogadro number",
+      "explanation": "The number of molecules per mole this measurement infers. An estimate, not the defined constant.",
+      "foundation": "error-and-inference"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.t.gas",
+      "title": "Gas constant",
+      "explanation": "Energy per mole per kelvin.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.t.radius",
+      "title": "Particle radius",
+      "explanation": "The radius of the suspended sphere, not its diameter.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.t.temperature",
+      "title": "Absolute temperature",
+      "explanation": "Temperature in kelvin.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.t.time",
+      "title": "Observation interval",
+      "explanation": "The time over which displacement is observed.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-avogadro-inference.t.viscosity",
+      "title": "Viscosity",
+      "explanation": "The liquid's resistance to shear. The paper writes it k, which is not Boltzmann's constant.",
+      "foundation": "diffusion-equation"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "N",
+      "nodeId": "eq-model-bm-avogadro-inference.t.estimate"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "R",
+      "nodeId": "eq-model-bm-avogadro-inference.t.gas"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "T",
+      "nodeId": "eq-model-bm-avogadro-inference.t.temperature"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-bm-avogadro-inference.t.time"
+    },
+    {
+      "text": " over three pi times "
+    },
+    {
+      "text": "the viscosity",
+      "nodeId": "eq-model-bm-avogadro-inference.t.viscosity"
+    },
+    {
+      "text": ", "
+    },
+    {
+      "text": "the radius",
+      "nodeId": "eq-model-bm-avogadro-inference.t.radius"
+    },
+    {
+      "text": " and the mean of "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-bm-avogadro-inference.t.displacement"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

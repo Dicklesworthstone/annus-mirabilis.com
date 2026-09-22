@@ -377,6 +377,17 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: time-rate
+- id: walkStepCount
+  name: Number of walk steps
+  description: >
+    The number n of independent steps a random walk takes in an observation interval, so that
+    t = n tau; paper 2 section 4's independent-steps argument.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: count
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
 
 - id: stepRms
   name: Step RMS

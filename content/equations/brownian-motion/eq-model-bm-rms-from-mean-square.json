@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-rms-from-mean-square",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-gaussian",
+  "title": "The typical distance is the root of the mean square",
+  "spoken": "Lambda x is the square root of the mean square displacement, which is the square root of two D t.",
+  "explanation": "The root of the mean square is a distance in metres. It grows as the square root of time: four times as long, twice as far.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The Gaussian spreading of independent steps, one coordinate.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-rms-from-mean-square.op.relation",
+    "left": {
+      "kind": "relation",
+      "opId": "eq-model-bm-rms-from-mean-square.op.definition",
+      "left": {
+        "kind": "symbol",
+        "termId": "eq-model-bm-rms-from-mean-square.t.rms",
+        "quantityId": "rmsDisplacement1d"
+      },
+      "right": {
+        "kind": "root",
+        "opId": "eq-model-bm-rms-from-mean-square.op.rootMean",
+        "degree": 2,
+        "radicand": {
+          "kind": "average",
+          "opId": "eq-model-bm-rms-from-mean-square.op.mean",
+          "argument": {
+            "kind": "power",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-bm-rms-from-mean-square.t.displacement",
+              "quantityId": "displacement1d"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            },
+            "opId": "eq-model-bm-rms-from-mean-square.op.square"
+          }
+        }
+      },
+      "operator": "="
+    },
+    "right": {
+      "kind": "root",
+      "opId": "eq-model-bm-rms-from-mean-square.op.rootModel",
+      "degree": 2,
+      "radicand": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "number",
+            "value": "2"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-rms-from-mean-square.t.diffusion",
+            "quantityId": "diffusionCoefficient"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-rms-from-mean-square.t.time",
+            "quantityId": "observationInterval"
+          }
+        ],
+        "opId": "eq-model-bm-rms-from-mean-square.op.product"
+      }
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.op.definition",
+      "title": "The definition",
+      "explanation": "Lambda x is the root mean square.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.op.mean",
+      "title": "The mean square",
+      "explanation": "Averaged over many particles.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.op.product",
+      "title": "Two D t",
+      "explanation": "The model's mean square after time t.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.op.relation",
+      "title": "What it asserts",
+      "explanation": "The measurable distance follows from D and t alone.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.op.rootMean",
+      "title": "Its square root",
+      "explanation": "Back to metres.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.op.rootModel",
+      "title": "Square root of 2 D t",
+      "explanation": "Grows as the square root of t.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.op.square",
+      "title": "x squared",
+      "explanation": "Squared, so leftward and rightward moves both count.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "How fast the mean square displacement grows: half its rate of growth. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.t.displacement",
+      "title": "Displacement since the start",
+      "explanation": "How far one particle has moved along x since observation began.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.t.rms",
+      "title": "Typical distance along x",
+      "explanation": "The root mean square displacement along one coordinate.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-rms-from-mean-square.t.time",
+      "title": "Observation interval",
+      "explanation": "The time over which displacement is observed.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The typical distance",
+      "nodeId": "eq-model-bm-rms-from-mean-square.t.rms"
+    },
+    {
+      "text": " is the square root of the mean of "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-bm-rms-from-mean-square.t.displacement"
+    },
+    {
+      "text": " squared, which is the square root of two times "
+    },
+    {
+      "text": "D",
+      "nodeId": "eq-model-bm-rms-from-mean-square.t.diffusion"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-bm-rms-from-mean-square.t.time"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 268 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 271 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -113,6 +113,8 @@ Total: 268 quantities, 45 rejected spellings, 2 reserved spellings.
 | frequencyEnergyDensity | Frequency-basis spectral energy density | -1,1,-1,0,0,0 | not-applicable | scalar | — |
 | fringeShift | Fringe shift | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | gasEntropyChange | Entropy change of a gas of independent points | 2,1,-2,-1,0,0 | not-applicable | scalar | — |
+| genericNumberA | Any number A | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| genericNumberB | Any number B | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | gramEquivalentCharge | Gram-equivalent charge | 0,0,1,0,1,-1 | not-applicable | scalar | — |
 | gridSpacing | Grid spacing | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | hydrostaticHead | Hydrostatic head | 1,0,0,0,0,0 | not-applicable | scalar | — |
@@ -264,6 +266,7 @@ Total: 268 quantities, 45 rejected spellings, 2 reserved spellings.
 | volume | Volume | 3,0,0,0,0,0 | not-applicable | scalar | — |
 | volumeFraction | Volume fraction | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | volumeRatio | Volume ratio | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| walkStepCount | Number of walk steps | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | waveAngularFrequencyMoving | Wave angular frequency (moving system) | 0,0,-1,0,0,0 | moving-system | scalar | — |
 | waveAngularFrequencyStationary | Wave angular frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
 | waveFrequencyMoving | Wave frequency (moving system) | 0,0,-1,0,0,0 | moving-system | scalar | — |

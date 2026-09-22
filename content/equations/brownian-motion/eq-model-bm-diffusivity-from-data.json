@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-diffusivity-from-data",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-inference",
+  "title": "Read D off the observations",
+  "spoken": "D equals the mean square displacement over two t.",
+  "explanation": "Turn the relation around: a measured mean square over a known interval gives D.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The mean square is estimated from many observed displacements over one interval t.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-diffusivity-from-data.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-diffusivity-from-data.t.diffusion",
+      "quantityId": "diffusionCoefficient"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "average",
+        "opId": "eq-model-bm-diffusivity-from-data.op.mean",
+        "argument": {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity-from-data.t.displacement",
+            "quantityId": "displacement1d"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          },
+          "opId": "eq-model-bm-diffusivity-from-data.op.square"
+        }
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "number",
+            "value": "2"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-diffusivity-from-data.t.time",
+            "quantityId": "observationInterval"
+          }
+        ],
+        "opId": "eq-model-bm-diffusivity-from-data.op.denominator"
+      },
+      "opId": "eq-model-bm-diffusivity-from-data.op.quotient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-diffusivity-from-data.op.denominator",
+      "title": "Two t",
+      "explanation": "Twice the interval.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-from-data.op.mean",
+      "title": "Their mean",
+      "explanation": "An estimate from a finite sample.",
+      "foundation": "error-and-inference"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-from-data.op.quotient",
+      "title": "Mean square over two t",
+      "explanation": "Metres squared per second.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-from-data.op.relation",
+      "title": "What it asserts",
+      "explanation": "D is measurable from displacements alone.",
+      "foundation": "error-and-inference"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-from-data.op.square",
+      "title": "x squared",
+      "explanation": "Each observed displacement, squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-from-data.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "How fast the mean square displacement grows: half its rate of growth. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-from-data.t.displacement",
+      "title": "Displacement since the start",
+      "explanation": "How far one particle has moved along x since observation began.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-diffusivity-from-data.t.time",
+      "title": "Observation interval",
+      "explanation": "The time over which displacement is observed.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "D",
+      "nodeId": "eq-model-bm-diffusivity-from-data.t.diffusion"
+    },
+    {
+      "text": " is the mean of "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-bm-diffusivity-from-data.t.displacement"
+    },
+    {
+      "text": " squared over two "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-bm-diffusivity-from-data.t.time"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

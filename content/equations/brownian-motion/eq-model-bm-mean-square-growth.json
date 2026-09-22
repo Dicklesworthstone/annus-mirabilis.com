@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-mean-square-growth",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-independent-steps",
+  "title": "The mean square grows in proportion to time",
+  "spoken": "The mean square displacement equals two D t.",
+  "explanation": "The squares of independent steps add, so the mean square grows in proportion to time, not to its square.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Independent, zero-mean steps.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-mean-square-growth.op.relation",
+    "left": {
+      "kind": "average",
+      "opId": "eq-model-bm-mean-square-growth.op.mean",
+      "argument": {
+        "kind": "power",
+        "base": {
+          "kind": "symbol",
+          "termId": "eq-model-bm-mean-square-growth.t.displacement",
+          "quantityId": "displacement1d"
+        },
+        "exponent": {
+          "num": 2,
+          "den": 1
+        },
+        "opId": "eq-model-bm-mean-square-growth.op.square"
+      }
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "number",
+          "value": "2"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-mean-square-growth.t.diffusion",
+          "quantityId": "diffusionCoefficient"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-mean-square-growth.t.time",
+          "quantityId": "observationInterval"
+        }
+      ],
+      "opId": "eq-model-bm-mean-square-growth.op.product"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-mean-square-growth.op.mean",
+      "title": "The mean square",
+      "explanation": "Averaged over many particles.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-mean-square-growth.op.product",
+      "title": "Two D t",
+      "explanation": "Linear in time.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-mean-square-growth.op.relation",
+      "title": "What it asserts",
+      "explanation": "Four times as long gives four times the mean square.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-mean-square-growth.op.square",
+      "title": "x squared",
+      "explanation": "Squared, so both directions count.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-mean-square-growth.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "How fast the mean square displacement grows: half its rate of growth. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-mean-square-growth.t.displacement",
+      "title": "Displacement since the start",
+      "explanation": "How far one particle has moved along x since observation began.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-mean-square-growth.t.time",
+      "title": "Observation interval",
+      "explanation": "The time over which displacement is observed.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The mean of x",
+      "nodeId": "eq-model-bm-mean-square-growth.t.displacement"
+    },
+    {
+      "text": " squared is two times "
+    },
+    {
+      "text": "D",
+      "nodeId": "eq-model-bm-mean-square-growth.t.diffusion"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-bm-mean-square-growth.t.time"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
