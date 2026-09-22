@@ -840,16 +840,34 @@ summary {
      centring is lost. `.reader-bottom-sheet > summary` was already doing 44px as a
      list-item, so this follows an in-project precedent rather than inventing one.
 
-     Measured as a delta on out/ 12:20:02 at 390px, with the missingStep floor raised
-     in the same pass:
+     Measured on out/ 14:12:38, built at the commit that carries this rule, by removing
+     the floor again rather than by simulating it. 390x844. Two denominators, because
+     ONLY ONE OF THEM IS ABOUT A READER:
 
-         /papers/brownian-motion/     under-44  39 -> 0   markers 64 -> 64   +80px
-         /papers/brownian-motion/s4/  under-44  38 -> 0   markers 58 -> 58   +64px
-         /lab/bm-01/                  under-44   8 -> 0   markers 12 -> 12  +128px
-         /lab/bm-06/                  under-44   2 -> 0   markers  3 ->  3   +16px
+                                      laid out    reachable    under-44        under-44
+                                                               laid out        reachable
+         /papers/brownian-motion/        65          23        39 -> 0          5 -> 0
+         /papers/brownian-motion/s4/     59          17        38 -> 0          4 -> 0
+         /lab/bm-01/                     13          13         8 -> 0          8 -> 0
+         /lab/bm-06/                      4           3         2 -> 0          1 -> 0
 
-     No horizontal overflow on any of them. 80px on a 24,477px page is 0.33 percent;
-     a padding-based floor cost 367px for the same result and still left one short. */
+     A closed `<details>` in Chromium hides its content with `content-visibility:
+     hidden`, not `display: none`, so everything inside KEEPS ITS LAYOUT BOXES:
+     `getClientRects()` is non-empty and `getBoundingClientRect()` returns real
+     numbers, while the content is unpainted and not hit-testable. 42 of this page's
+     65 summaries are nested inside a closed disclosure. Selecting on "has client
+     rects" therefore counts controls no reader can touch, and the first version of
+     this comment quoted 39 as though it described an arrival state. It does not:
+     a reader meets 23 disclosures here, 5 of which were short.
+
+     The count that changed is an upper bound over the whole tree; the count that
+     matters is the last column. Both reach zero, and the 42 buried ones are floored
+     too the moment their parent opens, so the wider number is not wasted work - it
+     is just not the number to quote.
+
+     Markers on reachable summaries: 22 -> 22, 16 -> 16, 12 -> 12, 2 -> 2. No
+     horizontal overflow. +80px on a 24,477px page is 0.33 percent; a padding-based
+     floor cost 367px for the same result and still left one summary short. */
   min-height: 44px;
   align-content: center;
   font-size: var(--type-small);
