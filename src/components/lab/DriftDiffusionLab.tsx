@@ -216,105 +216,105 @@ export function DriftDiffusionLab({
         </p>
       </noscript>
 
-      <p>
-        In §3 of the Brownian paper, Einstein calculates how fast particles diffuse by pitting a
-        directional drag force against Brownian random spreading. Explore the flux balance, test
-        whether force drops out of the quotient, or turn kicks off to inspect Nägeli’s hypothesis.
-      </p>
-
-      <section className="predict-mode-box" aria-label="Predict before calculating">
-        <h3>Predict before calculating</h3>
-        <p className="predict-question">{BM04_PROMPT.question}</p>
-        <div className="predict-options">
-          {BM04_PROMPT.candidates.map((c) => (
-            <label key={c.id} className="predict-option">
-              <input
-                type="radio"
-                name={`${id}-predict`}
-                value={c.id}
-                checked={prediction === c.id}
-                onChange={() => setPrediction(c.id)}
-              />
-              <span className="predict-label">
-                <strong>{c.label}</strong>: {c.description}
-              </span>
-            </label>
-          ))}
-        </div>
-        <details>
-          <summary>Show the explanation and test the prediction</summary>
-          {selectedPrediction && (
+      <details className="lab-predict bm04-predict">
+        <summary>Predict before calculating</summary>
+        <section className="predict-mode-box" aria-label="Predict before calculating">
+          <p className="predict-question">{BM04_PROMPT.question}</p>
+          <div className="predict-options">
+            {BM04_PROMPT.candidates.map((c) => (
+              <label key={c.id} className="predict-option">
+                <input
+                  type="radio"
+                  name={`${id}-predict`}
+                  value={c.id}
+                  checked={prediction === c.id}
+                  onChange={() => setPrediction(c.id)}
+                />
+                <span className="predict-label">
+                  <strong>{c.label}</strong>: {c.description}
+                </span>
+              </label>
+            ))}
+          </div>
+          <details>
+            <summary>Show the explanation and test the prediction</summary>
+            {selectedPrediction && (
+              <p>
+                Your prediction: <strong>{selectedPrediction.label}</strong>.
+              </p>
+            )}
             <p>
-              Your prediction: <strong>{selectedPrediction.label}</strong>.
+              At fixed temperature, viscosity and particle radius, the thermal diffusion coefficient
+              stays unchanged. A stronger force changes directed drift, not the thermal diffusivity.
+              The equilibrium length becomes shorter, but that is not a smaller diffusion
+              coefficient.
             </p>
-          )}
-          <p>
-            At fixed temperature, viscosity and particle radius, the thermal diffusion coefficient
-            stays unchanged. A stronger force changes directed drift, not the thermal diffusivity.
-            The equilibrium length becomes shorter, but that is not a smaller diffusion coefficient.
-          </p>
-          <p>
-            The accepted run has thermal D = {display(diffCoeff, 1e12)} μm²/s and drift velocity{" "}
-            {display(drift, 1e6)} μm/s. With mismatched kicks, the chosen kick strength is a
-            separate model assumption; a transient profile is not an equilibrium measurement.
-          </p>
-          <button
-            type="button"
-            className="secondary"
-            onClick={compareForce}
-            disabled={!ready || view.pending || p.F === 0 || !Number.isFinite(p.F * 2)}
-          >
-            Calculate with twice the accepted force
-          </button>
-          {p.F === 0 && (
-            <p>First apply a nonzero force: doubling zero does not create a comparison.</p>
-          )}
-          {comparison && (
-            <div {...identity(snapshot)} data-baseline-run-id={comparison.identity["data-run-id"]}>
-              {isComparison ? (
-                <div className="table-wrapper">
-                  <table className="data-table">
-                    <caption>Two accepted runs; only the applied force changed</caption>
-                    <thead>
-                      <tr>
-                        <th scope="col">Quantity</th>
-                        <th scope="col">Baseline</th>
-                        <th scope="col">Double force</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">Force (fN)</th>
-                        <td>{display(comparison.parameters.F, 1e15)}</td>
-                        <td>{display(p.F, 1e15)}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Thermal D (μm²/s)</th>
-                        <td>{display(comparison.diffusion, 1e12)}</td>
-                        <td>{display(diffCoeff, 1e12)}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Drift velocity (μm/s)</th>
-                        <td>{display(comparison.drift, 1e6)}</td>
-                        <td>{display(drift, 1e6)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p>
-                  The comparison appears when the doubled-force run is accepted. A refusal keeps the
-                  baseline unchanged; changing another parameter invalidates this comparison.
-                </p>
-              )}
-            </div>
-          )}
-          <p>
-            The explanation is available with or without a prediction. These are model consequences,
-            not experimental proof.
-          </p>
-        </details>
-      </section>
+            <p>
+              The accepted run has thermal D = {display(diffCoeff, 1e12)} μm²/s and drift velocity{" "}
+              {display(drift, 1e6)} μm/s. With mismatched kicks, the chosen kick strength is a
+              separate model assumption; a transient profile is not an equilibrium measurement.
+            </p>
+            <button
+              type="button"
+              className="secondary"
+              onClick={compareForce}
+              disabled={!ready || view.pending || p.F === 0 || !Number.isFinite(p.F * 2)}
+            >
+              Calculate with twice the accepted force
+            </button>
+            {p.F === 0 && (
+              <p>First apply a nonzero force: doubling zero does not create a comparison.</p>
+            )}
+            {comparison && (
+              <div
+                {...identity(snapshot)}
+                data-baseline-run-id={comparison.identity["data-run-id"]}
+              >
+                {isComparison ? (
+                  <div className="table-wrapper">
+                    <table className="data-table">
+                      <caption>Two accepted runs; only the applied force changed</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">Quantity</th>
+                          <th scope="col">Baseline</th>
+                          <th scope="col">Double force</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">Force (fN)</th>
+                          <td>{display(comparison.parameters.F, 1e15)}</td>
+                          <td>{display(p.F, 1e15)}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Thermal D (μm²/s)</th>
+                          <td>{display(comparison.diffusion, 1e12)}</td>
+                          <td>{display(diffCoeff, 1e12)}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Drift velocity (μm/s)</th>
+                          <td>{display(comparison.drift, 1e6)}</td>
+                          <td>{display(drift, 1e6)}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p>
+                    The comparison appears when the doubled-force run is accepted. A refusal keeps
+                    the baseline unchanged; changing another parameter invalidates this comparison.
+                  </p>
+                )}
+              </div>
+            )}
+            <p>
+              The explanation is available with or without a prediction. These are model
+              consequences, not experimental proof.
+            </p>
+          </details>
+        </section>
+      </details>
 
       <div className="lab-columns">
         <form
@@ -324,6 +324,11 @@ export function DriftDiffusionLab({
         >
           <fieldset disabled={!ready}>
             <legend>Set up the experiment</legend>
+            <p className="fine">
+              In §3 Einstein calculates how fast particles diffuse by setting a directional drag
+              force against their random spreading. Compare the fluxes, change the force, or turn
+              the kicks off to test Nägeli’s hypothesis.
+            </p>
             <div className="preset-list">
               {Object.entries(BM04_PRESETS).map(([key, item]) => (
                 <button

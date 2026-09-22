@@ -402,3 +402,8 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell) > p[data-detail="3"
   max-width: 44rem;
   margin-block: 0.5rem 1.25rem;
 }
+
+.bm04-predict {
+  max-width: 44rem;
+  margin-block: 0.5rem 1.25rem;
+}
