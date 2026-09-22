@@ -27,7 +27,7 @@ export const metadata: Metadata = {
  * hypothesis, and opening on the "ultraviolet catastrophe", which is Ehrenfest's phrase from
  * 1911. The wave theory keeps its successes at step 1 and is never refuted; the Planck card
  * carries the resonator/radiation distinction as a stated limit; and the divergence at step 3 is
- * described as what the counting gives, without the later name.
+ * described as what the counting gives, with the later name only in the note that attributes it.
  */
 export default function LightQuantaRoute() {
   return (
@@ -61,9 +61,8 @@ export default function LightQuantaRoute() {
           takes any of that away, and any replacement that cannot reproduce it is not a candidate.
         </p>
         <p>
-          It matters to be clear about this at the start, because the ending is often told as though
-          waves were overthrown. They were not. What follows narrows to a region the optical
-          evidence never covered.
+          The ending is often told as though waves were overthrown. They were not. What follows
+          narrows to a region the optical evidence never covered.
         </p>
         <p>
           <a href="/lab/lq-01/">See what continuous waves account for</a>
@@ -74,11 +73,11 @@ export default function LightQuantaRoute() {
         <p className="step-number">02 / Find the edge of the evidence</p>
         <h2>Optics measures averages</h2>
         <p>
-          Here is the gap, and it is easy to miss because it is a statement about instruments rather
-          than about light. Every optical measurement confirming the wave theory is an average over
-          an enormous number of cycles. A fringe pattern is a time-averaged intensity. Nothing in
-          that evidence says what happens in a single act of emission or absorption, because no
-          optical measurement of the period resolved one.
+          The gap is easy to miss, because it is a statement about instruments rather than about
+          light. Every optical measurement confirming the wave theory is an average over an enormous
+          number of cycles. A fringe pattern is a time-averaged intensity. Nothing in that evidence
+          says what happens in a single act of emission or absorption, because no optical
+          measurement of the period resolved one.
         </p>
         <p>
           So there is a region where the wave theory is untested rather than confirmed: the moment
@@ -110,8 +109,8 @@ export default function LightQuantaRoute() {
         </p>
         <p>
           The sum does not converge. Every frequency is handed the same share and there is no
-          highest frequency, so the total energy in the box grows without bound. The paper writes it
-          out and the integral is plainly infinite.
+          highest frequency, so the total energy in the box grows without bound. The paper writes
+          the integral out, and it is infinite.
         </p>
         <details>
           <summary>What this does and does not show</summary>
@@ -119,8 +118,8 @@ export default function LightQuantaRoute() {
             It shows that two things cannot both be applied without limit: the equal-shares rule of
             kinetic theory, and a field with unboundedly many vibrations. It does not say which one
             to give up, and it says nothing about interference. A reader who concludes "so waves are
-            wrong" has moved faster than the argument. Note also that the famous name for this
-            result was coined in 1911, six years after the paper, and the paper does not use it.
+            wrong" has moved faster than the argument. The name this result is known by, the
+            "ultraviolet catastrophe", is Paul Ehrenfest's, from 1911; the paper does not use it.
           </p>
         </details>
         <p>
@@ -194,7 +193,7 @@ export default function LightQuantaRoute() {
             way. That is an invitation to test, and the last step takes it.
           </p>
           <p>
-            It is also worth being exact about what is borrowed. Planck had already let his
+            One thing is borrowed, and it needs stating exactly. Planck had already let his
             resonators exchange energy in finite elements, and his constants are used here. That is
             a statement about the material oscillators trading energy with the field. It is not the
             statement that free radiation is itself made of independent quanta, which is what this
