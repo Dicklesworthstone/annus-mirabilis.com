@@ -44,8 +44,8 @@ export default function MassEnergyRoute() {
         </h1>
         <p className="lead">
           A lamp that has been burning all night is lighter in the morning than it was at dusk. That
-          sounds absurd, and it is what the shortest of the four papers argues. You can get there
-          yourself in five moves, and the only hard one is knowing what to subtract.
+          sounds hard to believe, and it is what the shortest of the four papers argues. You can get
+          there yourself in five moves, and the only hard one is knowing what to subtract.
         </p>
         <p className="fine">
           A route you could take, not a transcript of Einstein&rsquo;s private thoughts. Every step
@@ -94,7 +94,7 @@ export default function MassEnergyRoute() {
             Mass in 1904 is the measure of how hard a body is to accelerate, fixed by the body and
             not by its history. Energy is a quantity of account that bodies exchange. On that
             reading, asking whether emitting light changes the mass is like asking whether paying a
-            bill changes your height. This is not a foolish position, and nothing in the argument
+            bill changes your height. There is a serious case for it, and nothing in the argument
             that follows refutes it directly. What the argument does is produce a number where that
             position predicts none.
           </p>

@@ -216,7 +216,7 @@ export default function LightQuantaRoute() {
         </p>
         <p>
           Light re-emitted by a fluorescing substance should not have a higher frequency than the
-          light that caused it, because one incoming piece cannot pay for a larger outgoing one.
+          light that excited it, because one incoming piece cannot pay for a larger outgoing one.
           Stokes had recorded exactly that in 1852. The electrons driven out of a metal should gain
           energy set by the frequency and not by the brightness, which is what Lenard measured in
           1902 and what the wave account could not place. And ultraviolet light should only ionise a
