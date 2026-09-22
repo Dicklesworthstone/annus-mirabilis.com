@@ -530,17 +530,32 @@ test("no built route overflows its layout viewport at a supported phone width", 
 
   const violations = measured.filter((m) => m.scrollWidth > m.clientWidth);
 
-  // REPORTED, not asserted: the numbers, anchored to what produced them.
-  t.diagnostic(
-    `build ${buildId}: measured ${measured.length} pairs (${routes.length} routes x ${PHONE_WIDTHS.length} widths: ${PHONE_WIDTHS.join(", ")}px); ${violations.length} overflowing`,
-  );
-  for (const v of violations) {
-    t.diagnostic(`  overflow ${v.id} scrollWidth=${v.scrollWidth} clientWidth=${v.clientWidth}`);
-  }
-
   // ASSERTED: the property, in the only form true today, two-sided and by identity.
   const seen = new Set(violations.map((v) => v.id));
   const baseline = new Set(BASELINE_OVERFLOWING);
+
+  // REPORTED, not asserted: the numbers, anchored to what produced them.
+  //
+  // EVERY LINE SAYS WHICH KIND IT IS, because the earlier version did not and that cost a
+  // near-miss. This block printed one bare `overflow <id>` line per violation and the assertion
+  // below named only the unexpected ones. A reader of the lane output took the nine-line dump for
+  // the regression list and came within a sentence of telling another pane its commit had caused
+  // five regressions when the assertion named one. The dump was not wrong; it was unlabelled, and
+  // an unlabelled list of nine beside an assertion about one is a trap rather than a report.
+  //
+  // So each line is tagged, the header gives both counts, and it says outright where the verdict
+  // lives. A number in a diagnostic is evidence; only the assertion is a verdict.
+  const expected = violations.filter((v) => baseline.has(v.id));
+  const unexpected = violations.filter((v) => !baseline.has(v.id));
+  t.diagnostic(
+    `build ${buildId}: measured ${measured.length} pairs (${routes.length} routes x ${PHONE_WIDTHS.length} widths: ${PHONE_WIDTHS.join(", ")}px); ${violations.length} overflowing = ${expected.length} expected by BASELINE_OVERFLOWING + ${unexpected.length} not. REGRESSIONS ARE THE SECOND GROUP AND ARE NAMED IN THE ASSERTION BELOW, NOT IN THESE LINES.`,
+  );
+  for (const v of violations) {
+    const tag = baseline.has(v.id) ? "in-baseline " : "NOT-IN-BASELINE";
+    t.diagnostic(
+      `  ${tag} ${v.id} scrollWidth=${v.scrollWidth} clientWidth=${v.clientWidth} (+${v.scrollWidth - v.clientWidth}px)`,
+    );
+  }
   const measuredIds = new Set(measured.map((m) => m.id));
 
   const regressions = violations
