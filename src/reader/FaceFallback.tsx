@@ -1,4 +1,5 @@
 import { loadPaper } from "../content/server.ts";
+import { FaceChooser } from "./FaceChooser.tsx";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
 import { FacsimilePanel } from "./facsimile/FacsimilePanel.tsx";
 import { loadFacsimileDocument } from "./facsimile/server.ts";
@@ -52,21 +53,7 @@ export async function FaceFallback(
             : paper.sourceNotice}
         </p>
       </header>
-      <nav className="reader-controls" aria-label="Reading face">
-        <a href={faceLinkHref(paperId, "reading", section)} data-view-link="reading">
-          Explanation
-        </a>
-        {FACE_FALLBACK_IDS.map((id) => (
-          <a
-            key={id}
-            href={faceLinkHref(paperId, id, section)}
-            data-view-link={id}
-            aria-current={id === face ? "page" : undefined}
-          >
-            {FACE_REGISTRY[id].label}
-          </a>
-        ))}
-      </nav>
+      <FaceChooser paperId={paperId} section={section} current={face} />
       {facsimile?.kind === "available" && (
         <FacsimilePanel
           document={facsimile.document}
