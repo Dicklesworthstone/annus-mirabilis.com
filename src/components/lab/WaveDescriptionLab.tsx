@@ -16,6 +16,7 @@ import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, identity, result, scalar } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
+import { SliderField } from "./SliderField.tsx";
 import { InterferencePlot, SpreadingPlot, WavefrontPlot } from "./WaveDescriptionPlots.tsx";
 import "./waveDescriptionLab.css";
 
@@ -87,66 +88,6 @@ function ValueCell({ snapshot, id }: { snapshot: AcceptedSnapshot; id: string })
   }
   if (typeof out.value === "number") return formatValue(out.value);
   return <>A curve of {out.value.length} points, drawn above</>;
-}
-
-/**
- * A slider with a typed value beside it (AGENTS.md: "Readers can type exact values as well as
- * drag"). The label names the typed field; the slider takes the same name by reference.
- */
-function SliderField({
-  id,
-  label,
-  unit,
-  min,
-  max,
-  step,
-  value,
-  readout,
-  onDraft,
-  onCommit,
-}: {
-  id: string;
-  label: string;
-  unit: string;
-  min: number;
-  max: number;
-  step: number;
-  value: string;
-  readout?: string;
-  onDraft: (next: string) => void;
-  onCommit: (next: string) => void;
-}) {
-  const numeric = Number(value);
-  const sliderValue = Number.isFinite(numeric) ? Math.min(max, Math.max(min, numeric)) : min;
-  return (
-    <div className="input-field lq01-slider">
-      <label id={`${id}-label`} htmlFor={id}>
-        {label} <span>({unit})</span>
-      </label>
-      <div className="lq01-slider-pair">
-        <input
-          type="range"
-          aria-labelledby={`${id}-label`}
-          min={min}
-          max={max}
-          step={step}
-          value={sliderValue}
-          onChange={(e) => onCommit(e.target.value)}
-        />
-        <input
-          id={id}
-          type="text"
-          inputMode="decimal"
-          autoComplete="off"
-          spellCheck={false}
-          value={value}
-          onChange={(e) => onDraft(e.target.value)}
-          onBlur={(e) => onCommit(e.target.value)}
-        />
-      </div>
-      {readout && <p className="fine lq01-readout">{readout}</p>}
-    </div>
-  );
 }
 
 export function WaveDescriptionLab({
