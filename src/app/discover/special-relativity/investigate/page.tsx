@@ -80,7 +80,7 @@ export default function SpecialRelativityInvestigationPage() {
             synchronization-based derivation. Aligned axes and coincident origins are assumed;
             accelerated and arbitrarily rotated coordinates are not derived.
           </p>
-          <p>
+          <p className="ways-on">
             <a href="/notation/">Consult the section-scoped notation concordance</a>
             {" · "}
             <a href="/papers/special-relativity/">Read the paper</a>

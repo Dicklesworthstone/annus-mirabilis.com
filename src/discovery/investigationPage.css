@@ -46,8 +46,12 @@
 /* Ways on that a disclosure lists as a row (a link as a direct child of <details>, joined by
    " · "), and the light-quanta handoff into the entropy-law comparison: 17 to 19px tall on
    BUILD 14. Links inside a sentence keep their inline size. */
+/* A paragraph that is only a row of ways on ("Open the notation concordance · Read the paper"),
+   inside a disclosure: its links were 19px tall on BUILD 20. A class, because CSS cannot tell a
+   paragraph of links from a sentence with a link in it. */
 .investigation-page details > a,
 .investigation-page a[data-coefficient-handoff],
+.investigation-page .ways-on a,
 .investigation-page .actions a:not(.button) {
   display: inline-block;
   min-height: 44px;

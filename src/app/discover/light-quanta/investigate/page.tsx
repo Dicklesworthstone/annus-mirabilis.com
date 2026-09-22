@@ -80,7 +80,7 @@ export default function LightQuantaInvestigationPage() {
             ε for elementary charge; the emission formula here uses the editorial symbol e to
             distinguish it from energy per quantum.
           </p>
-          <p>
+          <p className="ways-on">
             <a href="/notation/">Open the notation concordance</a>
             {" · "}
             <a href="/papers/light-quanta/#entry-light-quanta">
