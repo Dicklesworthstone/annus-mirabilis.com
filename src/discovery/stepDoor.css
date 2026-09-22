@@ -6,8 +6,10 @@
  * style above the link's words; the arrow sits at the right edge. The door is as wide as its
  * words, up to the reading measure, and never under 44px tall.
  *
- * `.encounter p.step-door > a` is (0,2,2), above the theme's `:root a:not(.button)` at (0,2,1),
- * which would otherwise underline the whole door and colour it on hover.
+ * `.step-doors p.step-door > a` is (0,2,2), above the theme's `:root a:not(.button)` at (0,2,1),
+ * which would otherwise underline the whole door and colour it on hover. It is scoped to the
+ * StepDoors group rather than to the journeys, so a door looks the same on an investigate page;
+ * a StepDoor therefore always sits inside StepDoors.
  */
 .step-doors {
   display: flex;
@@ -16,11 +18,11 @@
   gap: 0.5rem;
   margin: 1.5rem 0;
 }
-.encounter p.step-door {
+.step-doors p.step-door {
   max-width: 100%;
   margin: 0;
 }
-.encounter p.step-door > a {
+.step-doors p.step-door > a {
   display: inline-grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -35,7 +37,7 @@
   color: var(--ink);
   text-decoration: none;
 }
-.encounter p.step-door > a:hover {
+.step-doors p.step-door > a:hover {
   background: var(--wash);
 }
 .step-door-kind {
@@ -57,7 +59,7 @@
   text-decoration-color: var(--link-underline);
   text-underline-offset: 0.2em;
 }
-.encounter p.step-door > a:hover .step-door-text {
+.step-doors p.step-door > a:hover .step-door-text {
   color: var(--accent);
   text-decoration-thickness: 2px;
 }
@@ -68,6 +70,6 @@
   font-size: var(--type-small);
   color: var(--muted);
 }
-.encounter p.step-door > a:hover .step-door-arrow {
+.step-doors p.step-door > a:hover .step-door-arrow {
   color: var(--accent);
 }

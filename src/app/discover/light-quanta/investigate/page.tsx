@@ -5,6 +5,7 @@ import type { PreparedLightInvestigation } from "../../../../discovery/lightQuan
 import example from "../../../../generated/light-quanta-investigation.json";
 import "../../../../discovery/investigationPage.css";
 import "./investigation.css";
+import { StepDoor, StepDoors } from "../../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
   title: "Investigate light quanta: entropy, counting and emission",
@@ -47,9 +48,8 @@ export default function LightQuantaInvestigationPage() {
           what a further energy-transfer hypothesis predicts.
         </p>
         <p className="notice">
-          A route you could take, not a transcript of Einstein’s private thoughts. This worked
-          preview does not publish the reviewed historical journey, its knowledge shelf, or a new
-          translation. Editorial and physics review remain pending.
+          A route you could take, not a transcript of Einstein’s private thoughts. Its numbers are
+          worked examples from stated assumptions. Editorial and physics review remain pending.
         </p>
         <nav className="actions" aria-label="Investigation stages">
           <a href="#light-entropy">Entropy</a>
@@ -65,13 +65,11 @@ export default function LightQuantaInvestigationPage() {
           description of wave propagation and a hypothesis about energy exchange address different
           obstacles. The calculations below do not model interference or claim that it disappears.
         </p>
-        <p>
-          <a href="/lab/lq-01/">Investigate prescribed waves and interference</a>
-          {" · "}
-          <a href="/lab/lq-02/">Inspect classical energy allocation and its cutoff</a>
-          {" · "}
-          <a href="/lab/lq-03/">Compare spectral laws and their admitted regimes</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/lq-01/">Investigate prescribed waves and interference</StepDoor>
+          <StepDoor href="/lab/lq-02/">Inspect classical energy allocation and its cutoff</StepDoor>
+          <StepDoor href="/lab/lq-03/">Compare spectral laws and their admitted regimes</StepDoor>
+        </StepDoors>
         <details>
           <summary>Notation and what is held fixed</summary>
           <p>
@@ -112,11 +110,12 @@ export default function LightQuantaInvestigationPage() {
             inventing an absorption cross-section or an exact yield. Both retain the distinction
             between a bound and a measurement.
           </p>
-          <p>
-            <a href="/lab/lq-07/">Inspect fluorescence budgets and thermal qualifications</a>
-            {" · "}
-            <a href="/lab/lq-09/">Inspect ionization thresholds and count bounds</a>
-          </p>
+          <StepDoors>
+            <StepDoor href="/lab/lq-07/">
+              Inspect fluorescence budgets and thermal qualifications
+            </StepDoor>
+            <StepDoor href="/lab/lq-09/">Inspect ionization thresholds and count bounds</StepDoor>
+          </StepDoors>
         </details>
         <p>
           Before leaving, explain why locked positions change the counting law, which inference
@@ -132,7 +131,7 @@ export default function LightQuantaInvestigationPage() {
             Read the stopping-potential qualifications
           </a>
           <a href="/papers/light-quanta/view/facsimile/">Inspect the original scan</a>
-          <a href="/discover/light-quanta/">Full journey publication status</a>
+          <a href="/discover/light-quanta/">Back to the light-quanta route</a>
         </nav>
       </section>
     </article>

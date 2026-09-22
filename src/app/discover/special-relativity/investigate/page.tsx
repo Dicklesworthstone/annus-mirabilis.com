@@ -8,6 +8,7 @@ import {
 } from "../../../../discovery/specialRelativityInvestigation.ts";
 import "../../../../discovery/investigationPage.css";
 import "./investigation.css";
+import { StepDoor, StepDoors } from "../../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
   title: "Investigate relativity: construct a map and choose a measurement",
@@ -35,9 +36,8 @@ export default function SpecialRelativityInvestigationPage() {
           not the transformation law.
         </p>
         <p className="notice">
-          A route you could take, not a transcript of Einstein’s private thoughts. This explanatory
-          preview does not publish the reviewed historical journey, its knowledge shelf, or a new
-          translation. Editorial and physics review remain pending.
+          A route you could take, not a transcript of Einstein’s private thoughts. Editorial and
+          physics review remain pending.
         </p>
         <nav className="actions" aria-label="Relativity investigation stages">
           <a href="#sr-start">Clocks before coordinates</a>
@@ -53,13 +53,12 @@ export default function SpecialRelativityInvestigationPage() {
           procedure. Reading a remote clock when light reaches your eye adds a travel delay; that
           reception is a different event from the one being timed.
         </p>
-        <p>
-          <a href="/papers/special-relativity/#entry-special-relativity">
+        <StepDoors>
+          <StepDoor href="/papers/special-relativity/#entry-special-relativity">
             Start with one flash and two clocks, without algebra
-          </a>
-          {" · "}
-          <a href="/lab/sr-01/">Inspect the synchronization event ledger</a>
-        </p>
+          </StepDoor>
+          <StepDoor href="/lab/sr-01/">Inspect the synchronization event ledger</StepDoor>
+        </StepDoors>
         <details>
           <summary>What the ordinary map preserves, and what it does not</summary>
           <Formula
@@ -84,7 +83,7 @@ export default function SpecialRelativityInvestigationPage() {
           <p>
             <a href="/notation/">Consult the section-scoped notation concordance</a>
             {" · "}
-            <a href="/papers/special-relativity/">Return to the source-reading edition</a>
+            <a href="/papers/special-relativity/">Read the paper</a>
           </p>
         </details>
       </section>
@@ -116,13 +115,11 @@ export default function SpecialRelativityInvestigationPage() {
           fields, forces and light. Transformed components need not have equal numerical values.
           Describe the same event with the stated transformation law before making a comparison.
         </p>
-        <p>
-          <a href="/lab/sr-08/">Compare fields and forces in two frames</a>
-          {" · "}
-          <a href="/lab/sr-09/">Follow wave phase, frequency and direction</a>
-          {" · "}
-          <a href="/lab/sr-10/">Follow the energy of a light complex</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/sr-08/">Compare fields and forces in two frames</StepDoor>
+          <StepDoor href="/lab/sr-09/">Follow wave phase, frequency and direction</StepDoor>
+          <StepDoor href="/lab/sr-10/">Follow the energy of a light complex</StepDoor>
+        </StepDoors>
         <p>
           The light-energy transformation supplies an explicit premise for the next paper. It is not
           inferred by assuming mass–energy equivalence.
@@ -132,7 +129,7 @@ export default function SpecialRelativityInvestigationPage() {
             Continue to the two-ledger mass–energy argument
           </a>
           <a href="/papers/special-relativity/">Read the special-relativity paper</a>
-          <a href="/discover/special-relativity/">Historical journey publication status</a>
+          <a href="/discover/special-relativity/">Back to the relativity route</a>
         </nav>
       </section>
     </article>

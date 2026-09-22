@@ -10,6 +10,7 @@ import {
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../../experiments/me01/session.ts";
 import "../../../../discovery/investigationPage.css";
 import "./argument.css";
+import { StepDoor, StepDoors } from "../../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
   title: "Build the mass–energy argument",
@@ -43,10 +44,10 @@ export default function MassEnergyArgumentPage() {
           accounts to a change in the body’s inertia, keeping every extra premise visible.
         </p>
         <p className="notice">
-          This is an authored reconstruction of a sufficient argument, not an account of Einstein’s
-          private thinking, a reviewed historical knowledge shelf, or the source-aligned critical
-          edition. The German source and translation remain separate publication work. The symbols
-          here use modern c, β = v/c and γ; the September paper uses V and an explicit radical.
+          A route you could take: one argument that is enough to reach the result, not an account of
+          Einstein’s private thinking. Editorial and physics review remain pending. The symbols are
+          modern, c, β = v/c and γ; the September paper writes V for the speed of light and the
+          square root out in full.
         </p>
         <nav className="actions" aria-label="Investigation sections">
           <a href="#argument-workbench">Assemble the argument</a>
@@ -69,12 +70,14 @@ export default function MassEnergyArgumentPage() {
           emitted in the rest frame. C denotes the additive offset in the stated identification H −
           E = K + C. Whether that offset changes is a premise to inspect, not an algebraic detail.
         </p>
-        <p>
-          <a href="/lab/sr-10/">Inspect the imported finite-light-complex transformation</a>{" "}
-          <a href="/lab/me-01/#two-ledgers-argument">
+        <StepDoors>
+          <StepDoor href="/lab/sr-10/">
+            Inspect the imported finite-light-complex transformation
+          </StepDoor>
+          <StepDoor href="/lab/me-01/#two-ledgers-argument">
             Read the two-ledger equations and their source context
-          </a>
-        </p>
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <MassEnergyArgumentWorkbench equations={equations} />
@@ -144,17 +147,17 @@ export default function MassEnergyArgumentPage() {
         </h2>
         <p>
           Predict whether tilting the emission axis changes each pulse energy, their sum, or both.
-          Then vary the observer and relax the offset premise. These numbers come from the existing
-          ME-01 host-reference owner, not from the argument checker. A computed consequence does not
-          independently verify its premises.
+          Then vary the observer and relax the offset premise. These numbers are computed by the
+          two-ledgers instrument, not by the argument checker above, and a computed consequence
+          cannot check its own premises.
         </p>
         <TwoLedgersComparison example={DEFAULT_PREPARED_EXAMPLE} />
       </section>
       <footer className="reading actions">
         <a className="button" href="/papers/mass-energy/#arg-me-two-ledgers">
-          Return to the explanatory paper preview
+          Read the argument as the paper makes it
         </a>
-        <a href="/discover/mass-energy/">See the full discovery journey’s publication status</a>
+        <a href="/discover/mass-energy/">Back to the mass-energy route</a>
         <a href="/lab/me-02/">Continue to the small-speed coefficient</a>
       </footer>
     </article>

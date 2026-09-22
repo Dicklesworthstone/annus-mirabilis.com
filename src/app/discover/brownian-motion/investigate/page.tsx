@@ -19,12 +19,12 @@ export default function BrownianInvestigationPage() {
           carry its diffusion coefficient into an interval-probability question.
         </p>
         <p>
-          This is a synthetic, host-calculated investigation using the existing tracer and spreading
-          laboratories. It is not a reconstruction of Einstein’s private thoughts or a historical
-          measurement.
+          The trial here is synthetic: this site computes it from a model, with the tracer and
+          spreading instruments. It is not a historical measurement, and not a reconstruction of
+          Einstein’s private thoughts.
         </p>
         <div className="actions">
-          <a href="/discover/brownian-motion/">Read the no-algebra encounter</a>
+          <a href="/discover/brownian-motion/">Back to the Brownian route</a>
           <a href="/papers/brownian-motion/#arg-bm-observable">Return to the paper’s argument</a>
         </div>
       </header>

@@ -27,8 +27,9 @@
   font-size: var(--type-title);
   line-height: 1.2;
 }
-/* The stage links under the title were 17px tall at 390 and 19px at 1440. */
-.investigation-page > .page-intro .actions a:not(.button) {
+/* Every row of ways on or out: the stage links under the title were 17px tall at 390 and 19px
+   at 1440, and the rows closing mass-energy's page and Brownian's settings 28 to 31px. */
+.investigation-page .actions a:not(.button) {
   display: inline-block;
   min-height: 44px;
   align-content: center;
