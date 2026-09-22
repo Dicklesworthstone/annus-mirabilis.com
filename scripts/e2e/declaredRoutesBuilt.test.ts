@@ -171,7 +171,15 @@ test("every declared route is built, and no built page is an empty shell", () =>
     `Declared routes that did not build:\n  ${missing.join("\n  ")}\n` +
       "A route with a page.tsx and no page in out/ is a section of the site that silently " +
       "does not exist. An UNDECLARED route being absent is not a failure and is not " +
-      "reported here: /sources and /about have no page.tsx because their beads are open.",
+      "reported here: /sources and /about have no page.tsx because their beads are open." +
+      "\n\nBEFORE HUNTING A CAUSE, CHECK WHETHER THIS IS THE FIRST BUILD AFTER A HISTORY " +
+      "REWRITE. On 2026-09-22 a pull --rebase rewrote every file's state under Next's " +
+      "incremental cache, and the two builds immediately after it omitted " +
+      "/discover/light-quanta and /discover/mass-energy from the route table while exiting 0 " +
+      "and reporting 350/350 static pages generated. The third build, over identical " +
+      "committed sources, emitted both. Nothing in the source was wrong and two plausible " +
+      "structural causes were proposed and disproved before that was noticed. After a rebase " +
+      "the first build's route table is evidence of nothing: rebuild before diagnosing.",
   );
   assert.deepEqual(
     empty,
