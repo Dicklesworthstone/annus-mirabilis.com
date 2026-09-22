@@ -642,11 +642,54 @@ test("The real ap-17-891 receipt distinguishes its retracted corrections from it
 
   const typos = result.receipt?.frontMatter?.typographicalErrors ?? [];
   const live = liveTypographicalErrors(typos);
-  // Denominator named: six records on this receipt, three of them retracted - the H-for-Y
-  // proposals on pages 899 and 902, which the plates on 899, 902 and 903 refute.
-  assert.equal(typos.length, 6, "ap-17-891 carries six typographical records");
-  assert.equal(live.length, 3, "three of them are live");
-  for (const retracted of typos.filter((e) => e.status === "retracted")) {
+  const retractedRecords = typos.filter((e) => e.status === "retracted");
+
+  // ASSERT THE PROPERTY, NOT THE CENSUS. This used to read `typos.length === 6` and
+  // `live.length === 3`, which pinned a number that GROWS every time a plate turns up a
+  // misprint. It broke on correct work within the day: recording err-typo-p908-1, a comma the
+  // 1905 compositor dropped from "((X', Y' Z')", took the file from six records to seven and
+  // turned this test red while nothing it exists to protect had changed. A count is the right
+  // thing to state in a report and the wrong thing to assert in a test whose subject is a
+  // partition.
+  //
+  // The partition is what liveTypographicalErrors exists for, and it is exact: every record is
+  // either served as live or marked retracted, never both and never neither.
+  assert.equal(
+    live.length + retractedRecords.length,
+    typos.length,
+    "every record is in exactly one bucket",
+  );
+  assert.deepEqual(
+    live.filter((e) => e.status === "retracted"),
+    [],
+    "a retracted correction must never be served as live",
+  );
+  assert.deepEqual(
+    typos.filter((e) => e.status !== "retracted" && !live.includes(e)),
+    [],
+    "a record with no retraction must be served as live",
+  );
+
+  // Non-vacuity, which the census used to supply by accident. Without these, a receipt whose
+  // records were all live would iterate the retraction loop below zero times and pass while
+  // proving nothing at all.
+  assert.ok(
+    retractedRecords.length > 0,
+    "at least one retracted record, or the loop below is empty",
+  );
+  assert.ok(live.length > 0, "at least one live record, or the live half is untested");
+
+  // The three H-for-Y proposals are named by IDENTITY rather than counted. They are permanent -
+  // a retraction is kept and marked, never deleted - so naming them is stable in a way a
+  // census is not, and it is the specific historical fact this receipt records: the plates on
+  // 899, 902 and 903 refute the proposal to read the printed capital eta as a Y.
+  for (const id of ["typo-h-for-y-axis-p899", "err-typo-p899-1", "err-typo-p902-1"]) {
+    const record = typos.find((e) => e.id === id);
+    assert.ok(record, `${id} must still be present: a retraction is marked, never removed`);
+    assert.equal(record?.status, "retracted", `${id} must still be retracted`);
+  }
+
+  for (const retracted of retractedRecords) {
     assert.ok(retracted.retraction?.reason, `${retracted.id} is retracted but gives no reason`);
     assert.ok(
       retracted.retraction?.retractedBy,
