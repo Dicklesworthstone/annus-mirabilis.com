@@ -2198,12 +2198,20 @@ html:is(
  * The persistent half carries the LABEL ALONE because the whole paragraph, made sticky,
  * eats a third of a 320px viewport and makes the German unreadable. That was measured
  * rather than assumed, and the measurement is recorded on am-dl4n.
+ *
+ * THEME TOKENS ONLY. These rules named --surface-raised, --rule-strong and --ink-strong,
+ * which no stylesheet defines, so every declaration ran on its fallback: a 6%-opaque red wash
+ * the German text scrolled THROUGH under the sticky label, and a fixed ink of #2b1a1a that
+ * ignores the theme. Measured in the dark theme on /papers/mass-energy/view/german/: the
+ * label that says the text is unreviewed rendered rgb(43,26,26) on rgb(28,33,40), which is
+ * near-black on near-black. The disclosure was present, and in the dark theme nobody could
+ * read it. --wash is opaque in both themes, and --ink and --accent follow the theme.
  */
 .source-draft-notice {
   margin: 0 0 1.25rem;
   padding: 0.85rem 1rem;
-  border-left: 4px solid var(--rule-strong, #8a1c1c);
-  background: var(--surface-raised, rgba(138, 28, 28, 0.06));
+  border-left: 4px solid var(--accent);
+  background: var(--wash);
 }
 .source-draft-notice__body {
   margin: 0;
@@ -2220,9 +2228,9 @@ html:is(
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--ink-strong, #2b1a1a);
-  background: var(--surface-raised, rgba(138, 28, 28, 0.06));
-  border-bottom: 2px solid var(--rule-strong, #8a1c1c);
+  color: var(--ink);
+  background: var(--wash);
+  border-bottom: 2px solid var(--accent);
 }
 @media (prefers-reduced-motion: reduce) {
   /* Nothing here animates. The rule exists so a later author does not add a transition
