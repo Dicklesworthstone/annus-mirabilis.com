@@ -436,3 +436,27 @@ describe("a partial derivative with a quantity held fixed", () => {
     );
   });
 });
+
+describe("a derivative with respect to a variable printed as a letter", () => {
+  // BUILD 18b failed here: the differential was glued to the variable, and \partial followed by
+  // a letter is one undefined control sequence (\partialx). The offline generator renders with
+  // throwOnError, so the whole build stopped; the page renderer does not throw and would have
+  // shown an error box instead.
+  test("partial and total derivatives by x and by t are valid KaTeX", () => {
+    for (const partial of [true, false])
+      for (const variable of ["coordinatePositionStationary", "coordinateTimeStationary"]) {
+        const tree = rel(
+          op({
+            kind: "derivative",
+            expression: sym("electricFieldStationary"),
+            variable: sym(variable),
+            order: 1,
+            partial,
+          }),
+          sym("electricFieldMoving"),
+        );
+        const latex = latexOf(tree);
+        expect(latex).not.toMatch(/\\partial[a-z]|\\mathrm\{d\}[a-z]/);
+      }
+  });
+});

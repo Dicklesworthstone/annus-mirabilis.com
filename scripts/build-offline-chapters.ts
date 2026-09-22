@@ -10,7 +10,7 @@ import {
   loadPaperPayload,
 } from "../src/content/compiler/serverLoaders.ts";
 import { expressionLatex } from "../src/equations/latex.ts";
-import { BROWNIAN_QUANTITIES } from "../src/equations/quantities.ts";
+import { teachingProfile } from "../src/equations/teachingProfiles.ts";
 import { parseResult } from "../src/experiments/results/codec.ts";
 import { loadOfflineAssets } from "../src/platform/offline/assets.ts";
 import {
@@ -138,11 +138,21 @@ export async function buildOfflineChapters(
     )) {
       if (payload.schemaVersion !== 1 || payload.paper.status !== "explanation-preview")
         throw new Error("A changed publication schema needs an explicit offline adapter.");
+      // Each paper's own glyph table. Every paper used to be rendered with the Brownian one, so
+      // a symbol from any other paper had no glyph and printed as its term id: offline chapters
+      // for light quanta, relativity and mass-energy showed "eq-model-..." as mathematics, and
+      // BUILD 18b failed once a term id followed \partial. A paper without a table stops the
+      // build rather than borrowing another paper's.
+      const profile = teachingProfile(payload.paper.id);
+      if (!profile)
+        throw new Error(
+          `No teaching profile for "${payload.paper.id}", so its equations have no glyphs.`,
+        );
       const equations = payload.equations.map((equation) => ({
         id: equation.id,
         argument: equation.argument,
         title: equation.title,
-        latex: expressionLatex(equation.tree, BROWNIAN_QUANTITIES),
+        latex: expressionLatex(equation.tree, profile.quantities),
         spoken: equation.spoken,
         explanation: equation.explanation,
       }));

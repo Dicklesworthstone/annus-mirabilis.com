@@ -247,7 +247,10 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
       case "derivative": {
         const d = n.partial ? "\\partial" : "\\mathrm{d}";
         const p = n.order === 1 ? "" : `^{${n.order}}`;
-        s = `\\frac{${d}${p}\\left(${render(n.expression)}\\right)}{${d}${render(n.variable)}${p}}`;
+        // A space after the differential: \partial followed directly by a variable whose LaTeX
+        // starts with a letter is one undefined control sequence, \partialx. BUILD 18b failed on
+        // exactly that in the offline generator.
+        s = `\\frac{${d}${p}\\left(${render(n.expression)}\\right)}{${d} ${render(n.variable)}${p}}`;
         // Held fixed: the whole quotient is bracketed and the fixed quantities subscripted.
         if (n.heldFixed?.length)
           s = `\\left(${s}\\right)_{${n.heldFixed.map((h) => render(h)).join(",\\,")}}`;
