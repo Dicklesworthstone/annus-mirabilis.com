@@ -111,6 +111,29 @@ export function distinctFontSizes(root: string = CSS_ROOT): {
  * being 0.9rem -> --type-fine (-8.3%), 1.3rem -> --type-body (-8.7%) and 1.1rem -> --type-body
  * (+8.0%). That is the scatter collapsing rather than a rounding error, and it is the same trade
  * globals.css took.
+ *
+ * WHY THE DECLARATION COUNT FALLS WITHOUT ANYTHING BEING DELETED, because a 101-declaration drop
+ * is the shape of a deletion and a future auditor is right to suspect one. distinctFontSizes()
+ * skips any value starting with `var(`, so a declaration that MOVES onto the scale leaves both the
+ * declaration count and the vocabulary. The file itself is unchanged in size. Measured across the
+ * migrating commit:
+ *
+ *                              before      after
+ *   reader.css lines             2218       2218      identical
+ *   font-size declarations        109        109      identical
+ *     of which literal            109          8
+ *     of which var(--type-*)        0        101
+ *   font-weight declarations       28         28      identical
+ *     of which bold/normal          3          0
+ *
+ *   what THIS GATE sees          before      after
+ *   font-size declarations        133         32      101 moved behind var()
+ *   font-size distinct             41         19
+ *   font-weight declarations      142        142      no drop: weights are not var()
+ *   font-weight distinct           10          8      three declarations respelled
+ *
+ * So the font-size drop is the gate's own exclusion working as designed, and the font-weight drop
+ * has no declaration change behind it at all - 700 and 400 are exactly what bold and normal meant.
  */
 const DISTINCT_FONT_SIZE_BASELINE = 19;
 
