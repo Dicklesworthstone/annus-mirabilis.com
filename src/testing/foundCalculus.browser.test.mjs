@@ -29,6 +29,16 @@ const MIME_TYPES = {
  * some OTHER foundation's heading, which a shared constant string could never detect. The `??`
  * mirrors FoundationBody's own fallback, so the two cannot drift.
  */
+/**
+ * The lesson's question and stopping point, read from its record. functions-graphs pinned the
+ * phrase "continuous curve", which a79916f3's rewrite removed while every part of the lesson still
+ * rendered without JavaScript. The record's own fields cannot drift from the page they render on.
+ */
+async function lessonTextOf(id) {
+  const record = JSON.parse(await readFile(resolve("content/foundations", `${id}.json`), "utf8"));
+  return [record.question, record.stoppingPoint];
+}
+
 async function exampleHeadingOf(id) {
   const record = JSON.parse(await readFile(resolve("content/foundations", `${id}.json`), "utf8"));
   return record.exampleTitle ?? "One worked example";
@@ -80,7 +90,6 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
           id: "functions-graphs",
           expectedTitle: "Functions and graphs",
           expectedContent: [
-            "continuous curve",
             "2Dt",
             "Where this lesson stops",
             "Textual summary of the construction",
@@ -127,6 +136,13 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
           assert.ok(
             bodyText.includes(str),
             `foundation:${f.id} must render content "${str}" without JavaScript`,
+          );
+        }
+
+        for (const str of await lessonTextOf(f.id)) {
+          assert.ok(
+            bodyText.includes(str),
+            `foundation:${f.id} must render its question and stopping point without JavaScript: "${str}"`,
           );
         }
       }
