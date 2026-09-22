@@ -1,3 +1,4 @@
+import { FramePair } from "../FramePair.tsx";
 import { Sci } from "../Sci.tsx";
 
 export interface DopplerAberrationPlotProps {
@@ -32,8 +33,8 @@ export function DopplerAberrationPlot({
   const thetaRad_k = (thetaMovingDeg * Math.PI) / 180;
 
   // Visual layout
-  const width = 800;
-  const height = 400;
+  // Both frames share one 800 × 400 coordinate space, K drawn around x = 200 and k
+  // around x = 600; each FramePair panel's viewBox crops its own half.
   const cx1 = 200;
   const cy = 200;
   const cx2 = 600;
@@ -85,244 +86,254 @@ export function DopplerAberrationPlot({
           padding: "1rem",
         }}
       >
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          role="img"
-          aria-label={`Wavefront and aberration diagram: stationary frame K with theta = ${thetaStationaryDeg.toFixed(1)} degrees, moving frame k with theta' = ${thetaMovingDeg.toFixed(1)} degrees`}
-          style={{ width: "100%", height: "auto", userSelect: "none" }}
-        >
-          <title>Relativistic Doppler and Aberration Vector Diagram</title>
+        <FramePair>
+          <svg
+            viewBox="10 20 370 320"
+            role="img"
+            aria-label={`Stationary frame K: the source ray at theta = ${thetaStationaryDeg.toFixed(1)} degrees, frequency ${frequencyStationaryTHz.toFixed(1)} THz`}
+            style={{ width: "100%", height: "auto", userSelect: "none" }}
+          >
+            <title>Stationary frame K</title>
+            <defs>
+              <marker
+                id="arrow-k"
+                viewBox="0 0 10 10"
+                refX={5}
+                refY={5}
+                markerWidth={6}
+                markerHeight={6}
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--plot)" />
+              </marker>
+            </defs>
+            {/* Frame K Left Pane */}
+            <g>
+              <text x={40} y={40} fontSize="14" fontWeight="600" fill="var(--ink)">
+                Stationary Frame K
+              </text>
+              <text x={40} y={60} fontSize="12" fill="var(--muted)">
+                Source frame · ν = {frequencyStationaryTHz.toFixed(1)} THz · θ ={" "}
+                {thetaStationaryDeg.toFixed(1)}°
+              </text>
 
-          {/* Dividing line */}
-          <line
-            x1={width / 2}
-            y1={20}
-            x2={width / 2}
-            y2={height - 20}
-            stroke="var(--line)"
-            strokeDasharray="4 4"
-          />
-
-          {/* Frame K Left Pane */}
-          <g>
-            <text x={40} y={40} fontSize="14" fontWeight="600" fill="var(--ink)">
-              Stationary Frame K
-            </text>
-            <text x={40} y={60} fontSize="12" fill="var(--muted)">
-              Source frame · ν = {frequencyStationaryTHz.toFixed(1)} THz · θ ={" "}
-              {thetaStationaryDeg.toFixed(1)}°
-            </text>
-
-            {/* Coordinate axes */}
-            <line
-              x1={cx1 - radius}
-              y1={cy}
-              x2={cx1 + radius}
-              y2={cy}
-              stroke="var(--line)"
-              strokeWidth={1}
-            />
-            <line
-              x1={cx1}
-              y1={cy - radius}
-              x2={cx1}
-              y2={cy + radius}
-              stroke="var(--line)"
-              strokeWidth={1}
-            />
-            <text x={cx1 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
-              x
-            </text>
-            <text x={cx1} y={cy - radius - 8} fontSize="10" fill="var(--muted)" textAnchor="middle">
-              y
-            </text>
-
-            {/* Wavefronts */}
-            {waveLinesK.map((line) => (
+              {/* Coordinate axes */}
               <line
-                key={`k-wave-${line.x1.toFixed(1)}-${line.y1.toFixed(1)}`}
-                x1={line.x1}
-                y1={line.y1}
-                x2={line.x2}
-                y2={line.y2}
-                stroke="var(--plot)"
-                strokeWidth={1.5}
-                strokeOpacity={0.6}
+                x1={cx1 - radius}
+                y1={cy}
+                x2={cx1 + radius}
+                y2={cy}
+                stroke="var(--line)"
+                strokeWidth={1}
               />
-            ))}
-
-            {/* Propagation ray */}
-            <line
-              x1={cx1}
-              y1={cy}
-              x2={ray1X}
-              y2={ray1Y}
-              stroke="var(--plot)"
-              strokeWidth={2.5}
-              markerEnd="url(#arrow-k)"
-            />
-            <circle cx={cx1} cy={cy} r={3} fill="var(--plot)" />
-
-            {/* Angle arc */}
-            <path
-              d={`M ${cx1 + 30} ${cy} A 30 30 0 ${thetaRadK > Math.PI ? 1 : 0} 0 ${cx1 + 30 * Math.cos(thetaRadK)} ${cy - 30 * Math.sin(thetaRadK)}`}
-              fill="none"
-              stroke="var(--plot)"
-              strokeWidth={1.2}
-              strokeDasharray="2 2"
-            />
-            <text
-              x={cx1 + 42}
-              y={cy - 12}
-              fontSize="12"
-              fontFamily="var(--font-mono, monospace)"
-              fontWeight="500"
-              fill="var(--plot)"
-            >
-              θ = {thetaStationaryDeg.toFixed(1)}°
-            </text>
-          </g>
-
-          {/* Frame k Right Pane */}
-          <g>
-            <text x={cx2 - 140} y={40} fontSize="14" fontWeight="600" fill="var(--ink)">
-              Moving Frame k (β = {beta.toFixed(3)}c)
-            </text>
-            <text x={cx2 - 140} y={60} fontSize="12" fill="var(--muted)">
-              Observer frame · ν&apos; = {frequencyMovingTHz.toFixed(1)} THz · θ&apos; ={" "}
-              {thetaMovingDeg.toFixed(1)}°
-            </text>
-
-            {/* Coordinate axes */}
-            <line
-              x1={cx2 - radius}
-              y1={cy}
-              x2={cx2 + radius}
-              y2={cy}
-              stroke="var(--line)"
-              strokeWidth={1}
-            />
-            <line
-              x1={cx2}
-              y1={cy - radius}
-              x2={cx2}
-              y2={cy + radius}
-              stroke="var(--line)"
-              strokeWidth={1}
-            />
-            <text x={cx2 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
-              x&apos;
-            </text>
-            <text x={cx2} y={cy - radius - 8} fontSize="10" fill="var(--muted)" textAnchor="middle">
-              y&apos;
-            </text>
-
-            {/* Boost vector arrow */}
-            <g transform={`translate(${cx2 - 60}, ${cy + radius - 20})`}>
               <line
-                x1={0}
-                y1={0}
-                x2={50}
-                y2={0}
-                stroke="var(--accent)"
-                strokeWidth={2}
-                markerEnd="url(#arrow-boost)"
+                x1={cx1}
+                y1={cy - radius}
+                x2={cx1}
+                y2={cy + radius}
+                stroke="var(--line)"
+                strokeWidth={1}
               />
+              <text x={cx1 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
+                x
+              </text>
               <text
-                x={25}
-                y={-6}
+                x={cx1}
+                y={cy - radius - 8}
                 fontSize="10"
-                fontFamily="var(--font-mono, monospace)"
-                fill="var(--accent)"
+                fill="var(--muted)"
                 textAnchor="middle"
               >
-                v = {beta.toFixed(2)}c
+                y
+              </text>
+
+              {/* Wavefronts */}
+              {waveLinesK.map((line) => (
+                <line
+                  key={`k-wave-${line.x1.toFixed(1)}-${line.y1.toFixed(1)}`}
+                  x1={line.x1}
+                  y1={line.y1}
+                  x2={line.x2}
+                  y2={line.y2}
+                  stroke="var(--plot)"
+                  strokeWidth={1.5}
+                  strokeOpacity={0.6}
+                />
+              ))}
+
+              {/* Propagation ray */}
+              <line
+                x1={cx1}
+                y1={cy}
+                x2={ray1X}
+                y2={ray1Y}
+                stroke="var(--plot)"
+                strokeWidth={2.5}
+                markerEnd="url(#arrow-k)"
+              />
+              <circle cx={cx1} cy={cy} r={3} fill="var(--plot)" />
+
+              {/* Angle arc */}
+              <path
+                d={`M ${cx1 + 30} ${cy} A 30 30 0 ${thetaRadK > Math.PI ? 1 : 0} 0 ${cx1 + 30 * Math.cos(thetaRadK)} ${cy - 30 * Math.sin(thetaRadK)}`}
+                fill="none"
+                stroke="var(--plot)"
+                strokeWidth={1.2}
+                strokeDasharray="2 2"
+              />
+              <text
+                x={cx1 + 42}
+                y={cy - 12}
+                fontSize="12"
+                fontFamily="var(--font-mono, monospace)"
+                fontWeight="500"
+                fill="var(--plot)"
+              >
+                θ = {thetaStationaryDeg.toFixed(1)}°
               </text>
             </g>
+          </svg>
+          <svg
+            viewBox="420 20 370 320"
+            role="img"
+            aria-label={`Moving frame k at beta = ${beta.toFixed(3)}: the same ray at theta' = ${thetaMovingDeg.toFixed(1)} degrees, frequency ${frequencyMovingTHz.toFixed(1)} THz`}
+            style={{ width: "100%", height: "auto", userSelect: "none" }}
+          >
+            <title>Moving frame k</title>
+            <defs>
+              <marker
+                id="arrow-prime"
+                viewBox="0 0 10 10"
+                refX={5}
+                refY={5}
+                markerWidth={6}
+                markerHeight={6}
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
+              </marker>
+              <marker
+                id="arrow-boost"
+                viewBox="0 0 10 10"
+                refX={5}
+                refY={5}
+                markerWidth={6}
+                markerHeight={6}
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
+              </marker>
+            </defs>
+            {/* Frame k Right Pane */}
+            <g>
+              <text x={cx2 - 140} y={40} fontSize="14" fontWeight="600" fill="var(--ink)">
+                Moving Frame k (β = {beta.toFixed(3)}c)
+              </text>
+              <text x={cx2 - 140} y={60} fontSize="12" fill="var(--muted)">
+                Observer frame · ν&apos; = {frequencyMovingTHz.toFixed(1)} THz · θ&apos; ={" "}
+                {thetaMovingDeg.toFixed(1)}°
+              </text>
 
-            {/* Transformed Wavefronts */}
-            {waveLines_k.map((line) => (
+              {/* Coordinate axes */}
               <line
-                key={`k-prime-wave-${line.x1.toFixed(1)}-${line.y1.toFixed(1)}`}
-                x1={line.x1}
-                y1={line.y1}
-                x2={line.x2}
-                y2={line.y2}
-                stroke={dopplerFactor > 1 ? "var(--accent)" : "var(--plot)"}
-                strokeWidth={1.5}
-                strokeOpacity={0.7}
+                x1={cx2 - radius}
+                y1={cy}
+                x2={cx2 + radius}
+                y2={cy}
+                stroke="var(--line)"
+                strokeWidth={1}
               />
-            ))}
+              <line
+                x1={cx2}
+                y1={cy - radius}
+                x2={cx2}
+                y2={cy + radius}
+                stroke="var(--line)"
+                strokeWidth={1}
+              />
+              <text x={cx2 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
+                x&apos;
+              </text>
+              <text
+                x={cx2}
+                y={cy - radius - 8}
+                fontSize="10"
+                fill="var(--muted)"
+                textAnchor="middle"
+              >
+                y&apos;
+              </text>
 
-            {/* Transformed Propagation ray */}
-            <line
-              x1={cx2}
-              y1={cy}
-              x2={ray2X}
-              y2={ray2Y}
-              stroke="var(--accent)"
-              strokeWidth={2.5}
-              markerEnd="url(#arrow-prime)"
-            />
-            <circle cx={cx2} cy={cy} r={3} fill="var(--accent)" />
+              {/* Boost vector arrow */}
+              <g transform={`translate(${cx2 - 60}, ${cy + radius - 20})`}>
+                <line
+                  x1={0}
+                  y1={0}
+                  x2={50}
+                  y2={0}
+                  stroke="var(--accent)"
+                  strokeWidth={2}
+                  markerEnd="url(#arrow-boost)"
+                />
+                <text
+                  x={25}
+                  y={-6}
+                  fontSize="10"
+                  fontFamily="var(--font-mono, monospace)"
+                  fill="var(--accent)"
+                  textAnchor="middle"
+                >
+                  v = {beta.toFixed(2)}c
+                </text>
+              </g>
 
-            {/* Transformed Angle arc */}
-            <path
-              d={`M ${cx2 + 30} ${cy} A 30 30 0 ${thetaRad_k > Math.PI ? 1 : 0} 0 ${cx2 + 30 * Math.cos(thetaRad_k)} ${cy - 30 * Math.sin(thetaRad_k)}`}
-              fill="none"
-              stroke="var(--accent)"
-              strokeWidth={1.2}
-              strokeDasharray="2 2"
-            />
-            <text
-              x={cx2 + 42}
-              y={cy - 12}
-              fontSize="12"
-              fontFamily="var(--font-mono, monospace)"
-              fontWeight="500"
-              fill="var(--accent)"
-            >
-              θ&apos; = {thetaMovingDeg.toFixed(1)}°
-            </text>
-          </g>
+              {/* Transformed Wavefronts */}
+              {waveLines_k.map((line) => (
+                <line
+                  key={`k-prime-wave-${line.x1.toFixed(1)}-${line.y1.toFixed(1)}`}
+                  x1={line.x1}
+                  y1={line.y1}
+                  x2={line.x2}
+                  y2={line.y2}
+                  stroke={dopplerFactor > 1 ? "var(--accent)" : "var(--plot)"}
+                  strokeWidth={1.5}
+                  strokeOpacity={0.7}
+                />
+              ))}
 
-          {/* Markers */}
-          <defs>
-            <marker
-              id="arrow-k"
-              viewBox="0 0 10 10"
-              refX={5}
-              refY={5}
-              markerWidth={6}
-              markerHeight={6}
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--plot)" />
-            </marker>
-            <marker
-              id="arrow-prime"
-              viewBox="0 0 10 10"
-              refX={5}
-              refY={5}
-              markerWidth={6}
-              markerHeight={6}
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
-            </marker>
-            <marker
-              id="arrow-boost"
-              viewBox="0 0 10 10"
-              refX={5}
-              refY={5}
-              markerWidth={6}
-              markerHeight={6}
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
-            </marker>
-          </defs>
-        </svg>
+              {/* Transformed Propagation ray */}
+              <line
+                x1={cx2}
+                y1={cy}
+                x2={ray2X}
+                y2={ray2Y}
+                stroke="var(--accent)"
+                strokeWidth={2.5}
+                markerEnd="url(#arrow-prime)"
+              />
+              <circle cx={cx2} cy={cy} r={3} fill="var(--accent)" />
+
+              {/* Transformed Angle arc */}
+              <path
+                d={`M ${cx2 + 30} ${cy} A 30 30 0 ${thetaRad_k > Math.PI ? 1 : 0} 0 ${cx2 + 30 * Math.cos(thetaRad_k)} ${cy - 30 * Math.sin(thetaRad_k)}`}
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth={1.2}
+                strokeDasharray="2 2"
+              />
+              <text
+                x={cx2 + 42}
+                y={cy - 12}
+                fontSize="12"
+                fontFamily="var(--font-mono, monospace)"
+                fontWeight="500"
+                fill="var(--accent)"
+              >
+                θ&apos; = {thetaMovingDeg.toFixed(1)}°
+              </text>
+            </g>
+          </svg>
+        </FramePair>
       </div>
 
       {/* Numerical Invariants and Diagnostics Badges */}

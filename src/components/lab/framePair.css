@@ -1,0 +1,26 @@
+/* Two frame panels (FramePair.tsx). */
+
+.frame-pair {
+  container-type: inline-size;
+}
+
+.frame-pair-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.frame-pair-panels > svg + svg {
+  border-inline-start: 1px dashed var(--line);
+}
+
+/* Below about 34rem each side-by-side panel would be narrower than 17rem, so stack them. */
+@container (max-width: 34rem) {
+  .frame-pair-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .frame-pair-panels > svg + svg {
+    border-inline-start: 0;
+    border-block-start: 1px dashed var(--line);
+  }
+}
