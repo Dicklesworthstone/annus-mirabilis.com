@@ -135,7 +135,7 @@ export function distinctFontSizes(root: string = CSS_ROOT): {
  * So the font-size drop is the gate's own exclusion working as designed, and the font-weight drop
  * has no declaration change behind it at all - 700 and 400 are exactly what bold and normal meant.
  */
-const DISTINCT_FONT_SIZE_BASELINE = 19;
+const DISTINCT_FONT_SIZE_BASELINE = 18;
 
 /**
  * The other two classes of the same defect, measured 2026-09-22 and held shrink-only.
