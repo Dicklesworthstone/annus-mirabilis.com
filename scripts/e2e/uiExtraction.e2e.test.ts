@@ -220,45 +220,53 @@ async function runChecks(
   //    cannot pass because the page already sat on the expected theme.
   await record("theme-toggle", async () => {
     await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 20_000 });
-    const group = page.locator("fieldset.theme-toggle").first();
-    if ((await group.count()) === 0) throw new Error("no fieldset.theme-toggle on the built page");
+    // PORTED FROM THE THREE-RADIO FIELDSET, which 884dfc19 replaced with one switch. The old
+    // selector was `fieldset.theme-toggle` and matched nothing from 09:52 onward, so these
+    // assertions were red in a lane nobody was running. The property is unchanged: the control
+    // must switch the theme, and the theme must survive a reload.
+    const control = page.locator('button[role="switch"].theme-switch').first();
+    if ((await control.count()) === 0) {
+      throw new Error('no button[role="switch"].theme-switch on the built page');
+    }
     const read = () => page.evaluate(() => document.documentElement.getAttribute("data-theme"));
     const before = await read();
-    // Click the LABEL, which is what a reader clicks: the bordered word is the
-    // affordance and the radio sits inside it. Driving the input directly is not
-    // the same action, and in WebKit it is not even possible - the radio inputs
-    // measured 0 x 12 CSS pixels there against 13 x 13 in Chromium, so Playwright
-    // refuses to click them as not visible. (That was measured when the chips were
-    // still labelled with the theme names; the inputs are unchanged.) The feature
-    // works in both engines through the label; the zero-width input is a separate
-    // real finding about pointer target size, reported as its own rather than
-    // folded into this check's verdict.
-    //
-    // Matched by SUBSTRING, not exact text. The chip shows a short word and carries
-    // the edition's theme name in a visually hidden span, so the label's own text is
-    // "Dark (Kramgasse Night)" and an exact match against either half finds nothing.
-    // Naming the theme here keeps the check readable as "choose Kramgasse Night".
-    const choose = async (label: string, expected: string): Promise<void> => {
-      await group.locator("label").filter({ hasText: label }).click({ timeout: 10_000 });
+
+    // Press the CONTROL, which is what a reader presses. The old note here is worth keeping
+    // because the reasoning survives the change of control and the measurement does not: driving
+    // an input directly is not the same action as activating the affordance, and in WebKit the
+    // radio inputs measured 0 x 12 CSS pixels against 13 x 13 in Chromium, so Playwright refused
+    // to click them as not visible. That is why the old check clicked the label rather than the
+    // input. A switch has no inner input to be tempted by - the button IS the affordance - so the
+    // hazard is gone rather than handled, and am-8w0x's zero-area risk is now checked directly on
+    // the switch's own parts in the two-engine test below.
+    const press = async (expected: string): Promise<void> => {
+      await control.click({ timeout: 10_000 });
       await page.waitForFunction(
         (want) => document.documentElement.getAttribute("data-theme") === want,
         expected,
         { timeout: 5000 },
       );
     };
-    // Two transitions, so the check cannot pass because the page already sat on
-    // the expected theme, then a third to leave it where a reload can prove it.
-    await choose("Kramgasse Night", "kramgasse-night");
-    await choose("Annalen", "annalen");
-    await choose("Kramgasse Night", "kramgasse-night");
+
+    // TWO TRANSITIONS, DERIVED FROM THE STARTING STATE RATHER THAN ASSUMED. The radio version
+    // could name the theme it wanted; a switch only toggles, so pressing it twice from an unknown
+    // start is the only way to prove it moves in both directions. Naming a fixed first target
+    // would pass whenever the page happened to start on the other one, which is exactly the
+    // "cannot pass because the page already sat there" property the original was protecting.
+    const DARK = "kramgasse-night";
+    const LIGHT = "annalen";
+    const start = before === DARK ? DARK : LIGHT;
+    const other = start === DARK ? LIGHT : DARK;
+    await press(other);
+    await press(start);
+    // A third press only when the start was light, so the reload check always runs against dark.
+    if (start !== DARK) await press(DARK);
     await page.reload({ waitUntil: "domcontentloaded" });
     const afterReload = await read();
-    if (afterReload !== "kramgasse-night") {
-      throw new Error(
-        `theme did not persist across reload: expected kramgasse-night, got ${afterReload}`,
-      );
+    if (afterReload !== DARK) {
+      throw new Error(`theme did not persist across reload: expected ${DARK}, got ${afterReload}`);
     }
-    return `started ${before ?? "unset"}, followed the radio group, and held Kramgasse Night across a reload`;
+    return `started ${before ?? "unset"}, toggled to ${other} and back to ${start}, and held ${DARK} across a reload`;
   });
 
   // 2. The palette opens on the keyboard shortcut and Escape closes it with focus
@@ -364,23 +372,34 @@ async function runPlant(browser: Browser, baseUrl: string, plantPath: string): P
   );
   if (foreign.length > 0) broken.push("no-third-party-requests");
 
-  const group = page.locator("fieldset.theme-toggle").first();
-  if ((await group.count()) === 0) {
+  const control = page.locator('button[role="switch"].theme-switch').first();
+  if ((await control.count()) === 0) {
     broken.push("theme-toggle");
   } else {
     try {
-      // A theme the control actually offers, reached the way a reader reaches it.
-      // This probe is a REACHABILITY CONTROL: the clean page must break nothing, so
-      // a target that cannot be found reports "theme-toggle" as broken on every run
-      // and the control that proves the plant is doing the work stops working. It
-      // was left naming "Slate" when that theme was removed, and only the control at
-      // the call site would have said so - this file skips when out/ is absent.
-      await group.locator("label").filter({ hasText: "Kramgasse Night" }).click({ timeout: 5000 });
-      await page.waitForFunction(
-        () => document.documentElement.getAttribute("data-theme") === "kramgasse-night",
-        undefined,
-        { timeout: 3000 },
-      );
+      // A REACHABILITY CONTROL: the clean page must break nothing, so a target that cannot be
+      // found reports "theme-toggle" as broken on every run and the control that proves the plant
+      // is doing the work stops working. It was left naming "Slate" when that theme was removed,
+      // and it was left on `fieldset.theme-toggle` when 884dfc19 replaced the radios with this
+      // switch - twice now, by two different people, and both times only the call site would have
+      // said so, because this file skips when out/ is absent.
+      //
+      // Pressed until dark rather than once. A switch toggles, so a single press from an unknown
+      // starting theme reaches dark only half the time, and a probe that is right half the time
+      // reports the plant broken on the other half.
+      const dark = () =>
+        page.waitForFunction(
+          () => document.documentElement.getAttribute("data-theme") === "kramgasse-night",
+          undefined,
+          { timeout: 3000 },
+        );
+      await control.click({ timeout: 5000 });
+      try {
+        await dark();
+      } catch {
+        await control.click({ timeout: 5000 });
+        await dark();
+      }
     } catch {
       broken.push("theme-toggle");
     }
@@ -518,7 +537,7 @@ function breakPaletteShortcut(rewritten: { count: number }) {
   };
 }
 
-test("am-8w0x: identical theme radios render identically in both engines", async (t) => {
+test("am-8w0x: every part of the theme switch has area in both engines", async (t) => {
   // Freshness first, then existence, the convention germanSourceVisible.e2e.test.ts
   // and declaredRoutesBuilt.test.ts already use: an out/ that exists but is 119
   // commits behind is the other way this file goes green for the wrong reason.
@@ -542,54 +561,66 @@ test("am-8w0x: identical theme radios render identically in both engines", async
         const context = await browser.newContext({ viewport: { ...VIEWPORT } });
         const page = await context.newPage();
         await page.goto(baseUrl, { waitUntil: "load", timeout: 20_000 });
-        const boxes = await page.evaluate(() =>
-          [...document.querySelectorAll("fieldset.theme-toggle input")].map((input) => {
-            const rect = input.getBoundingClientRect();
-            return {
-              label: (input.closest("label")?.textContent ?? "").trim(),
+        // PORTED FROM THE RADIOS (884dfc19). The old query was
+        // `fieldset.theme-toggle input` and returned an empty list from 09:52 onward, which the
+        // guard below correctly refuses - but only in a lane nobody was running.
+        //
+        // The subject is unchanged and is NOT "four things are the same size". am-8w0x was
+        // WebKit collapsing a control to zero width while Chromium drew it at 13x13, so the
+        // property is that every part of the control HAS AREA, in every engine. A switch has
+        // three parts a reader depends on - the pressable button, the track it moves along, and
+        // the knob that shows which end it is at - and any of them at zero is the same defect.
+        const boxes = await page.evaluate(() => {
+          const parts = [
+            ["switch", 'button[role="switch"].theme-switch'],
+            ["track", ".theme-switch-track"],
+            ["knob", ".theme-switch-knob"],
+          ] as const;
+          const out: { label: string; width: number; height: number }[] = [];
+          for (const [label, selector] of parts) {
+            const el = document.querySelector(selector);
+            if (!el) continue;
+            const rect = el.getBoundingClientRect();
+            out.push({
+              label,
               width: Math.round(rect.width),
               height: Math.round(rect.height),
-            };
-          }),
-        );
+            });
+          }
+          return out;
+        });
 
-        // Reachability before any claim: at least one control, or "they all match" is
-        // true of an empty list and of a page that renders no toggle at all. This was
-        // `=== 4` and went red the day the themes were consolidated (am-r3qt): the site
-        // had four choices, then three, and now two editions plus System. A cardinality
-        // written into a cross-engine test is a number that has to be maintained by
-        // whoever changes the theme list, and they have no reason to look here. The
-        // subject of this test is that the ENGINES AGREE, so the count is compared
-        // between them after the loop and is not named anywhere.
+        // REACHABILITY BEFORE ANY CLAIM, kept verbatim in spirit from the radio version because
+        // it is the guard that matters most: "every part has area" is true of an empty list and
+        // of a page that renders no control at all. The old assertion was `=== 4` and went red
+        // the day the themes were consolidated (am-r3qt), which is why a cardinality is not
+        // written here either - the parts are named below instead, so this cannot silently pass
+        // on a page that dropped one of them.
         assert.ok(
           boxes.length > 0,
-          `${engine.name}: no theme radios found at all. "They all match" is true of an empty list, so this is the empty-population failure rather than a pass.`,
+          `${engine.name}: no part of the theme switch found at all. "Every part has area" is true of an empty list, so this is the empty-population failure rather than a pass.`,
+        );
+        assert.deepEqual(
+          boxes.map((box) => box.label).sort(),
+          ["knob", "switch", "track"],
+          `${engine.name}: the switch is missing a part. Found ${JSON.stringify(boxes.map((b) => b.label))}. The knob is the state cue and the track is what it moves along; a control missing either renders as something a reader cannot read a state from.`,
         );
         seen.push({ engine: engine.name, labels: boxes.map((box) => box.label) });
         for (const box of boxes) {
           report.push(`${engine.name} "${box.label}": ${box.width}x${box.height}`);
         }
 
-        // Equality, not merely nonzero. A nonzero check would have passed Chromium
-        // while it drew the same control at 13, 51, 13 and 58 pixels wide, and only
-        // caught WebKit's collapse to 0. These are four instances of one control;
-        // rendering them at different sizes is the defect, and zero is its worst case.
-        const widths = new Set(boxes.map((box) => box.width));
-        const heights = new Set(boxes.map((box) => box.height));
-        assert.equal(
-          widths.size,
-          1,
-          `${engine.name}: four identical radios rendered at different widths - ${boxes
-            .map((b) => `${b.label}=${b.width}`)
-            .join(
-              ", ",
-            )}. globals.css once sized every input at width:100% with min-width:0, which collapsed the short-labelled ones to nothing in WebKit and stretched the long-labelled ones in Chromium (am-8w0x).`,
-        );
-        assert.equal(heights.size, 1, `${engine.name}: radios rendered at different heights`);
-        assert.ok(
-          (boxes[0]?.width ?? 0) > 0 && (boxes[0]?.height ?? 0) > 0,
-          `${engine.name}: the radios are uniform but have no area, so there is nothing to click`,
-        );
+        // AREA, PART BY PART. The radio version compared four instances of one control for equal
+        // size; there is one control now, so that comparison has no population and asserting it
+        // would be vacuous. What survives is the defect am-8w0x actually was: WebKit collapsed a
+        // control to zero width while Chromium drew it at 13x13. Zero area is unclickable and,
+        // for the knob, unreadable - it is the cue that says which end the switch is at.
+        for (const box of boxes) {
+          assert.ok(
+            box.width > 0 && box.height > 0,
+            `${engine.name}: the switch's ${box.label} rendered ${box.width}x${box.height}, so it has no area. globals.css once sized every theme input at width:100% with min-width:0, which collapsed them to nothing in WebKit and stretched them in Chromium (am-8w0x).`,
+          );
+        }
         await context.close();
       } finally {
         await browser.close();
@@ -599,32 +630,32 @@ test("am-8w0x: identical theme radios render identically in both engines", async
     await new Promise<void>((done) => server.close(() => done()));
   }
 
-  // The claim the test's name makes, and the only one that survives a theme being added
-  // or removed: both engines see the SAME radios. A disagreement here is the defect
-  // am-8w0x is about, and it cannot be satisfied by finding none in both, because the
-  // per-engine guard above already refused that.
+  // BOTH ENGINES SAW THE SAME CONTROL. A disagreement here is the defect am-8w0x is about, and
+  // it cannot be satisfied by finding nothing in both, because the per-engine guard above already
+  // refused that.
+  //
+  // What is compared is WHICH PARTS each engine found, not their pixel sizes. Cross-engine pixel
+  // equality would be a stricter claim than am-8w0x supports and a flaky one: the two engines
+  // round and lay out text differently, so a passing run would depend on font metrics. The
+  // defect was a part with NO area, which is asserted per engine above where it can name the
+  // part that vanished.
   assert.equal(
     seen.length,
     ENGINES.length,
-    `only ${seen.length} of ${ENGINES.length} engines reported theme radios`,
+    `only ${seen.length} of ${ENGINES.length} engines reported the theme switch`,
   );
   const [first, ...rest] = seen;
   assert.ok(first, "no engine reported");
   for (const other of rest) {
-    assert.equal(
-      other.labels.length,
-      first.labels.length,
-      `the engines disagree on how many theme radios exist: ${first.engine} saw ${first.labels.length} (${first.labels.join(", ")}), ${other.engine} saw ${other.labels.length} (${other.labels.join(", ")}).`,
-    );
     assert.deepEqual(
-      other.labels,
-      first.labels,
-      `the engines agree on the number of theme radios and disagree on which: ${first.engine} ${JSON.stringify(first.labels)} vs ${other.engine} ${JSON.stringify(other.labels)}.`,
+      [...other.labels].sort(),
+      [...first.labels].sort(),
+      `the engines disagree on which parts of the theme switch exist: ${first.engine} ${JSON.stringify(first.labels)} vs ${other.engine} ${JSON.stringify(other.labels)}.`,
     );
   }
 
   console.log(
-    `theme radio boxes (${first.labels.length} per engine, agreed across ${seen.length}):\n  ${report.join("\n  ")}`,
+    `theme switch parts (${first.labels.length} per engine, agreed across ${seen.length}):\n  ${report.join("\n  ")}`,
   );
 });
 
