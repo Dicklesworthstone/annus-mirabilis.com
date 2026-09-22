@@ -74,7 +74,8 @@ export function ReadingSettingsPanel() {
   const closeButton = useRef<HTMLButtonElement>(null);
 
   // The sheet hangs over the page, so it closes like every other overlay: the X, a press
-  // anywhere outside it, or Escape. Without JavaScript the summary still opens and closes it.
+  // anywhere outside it, or Escape. Without JavaScript none of these settings can apply, so
+  // globals.css does not show the control at all (see "READING PREFERENCES IS AN ICON BUTTON").
   useEffect(() => {
     const details = panel.current;
     if (!details) return;
