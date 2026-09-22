@@ -30,7 +30,7 @@
   "src/content/checks/i18n/check.ts": 0,
   "src/content/checks/review/authorship.ts": 2,
   "src/content/checks/review/crossProjection.ts": 1,
-  "src/content/checks/review/editionReviewState.ts": 3,
+  "src/content/checks/review/editionReviewState.ts": 1,
   "src/content/checks/review/statuses.ts": 1,
   "src/content/checks/structural/structural.ts": 0,
   "src/content/checks/voice/rules.ts": 1,
