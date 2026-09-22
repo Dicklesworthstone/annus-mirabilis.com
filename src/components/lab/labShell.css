@@ -174,8 +174,8 @@
   flex-basis: 100%;
 }
 
-/* SliderField.tsx: a slider and its typed value on one line. The slider takes the room and the
-   field takes six characters. (lq-01 first, then lq-08.) */
+/* SliderField.tsx: a typed value and its slider on one line. The field takes six characters and
+   the slider takes the room. (lq-01 first, then lq-08.) */
 .lab-slider {
   margin-block: 1.1rem 0;
 }
@@ -193,7 +193,7 @@
 
 .lab-slider-pair {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 6.5rem;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
   gap: 0.75rem;
   align-items: center;
   margin-top: 0.3rem;

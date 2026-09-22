@@ -3,7 +3,9 @@
  * drag", and "typed-value entry beside every slider".
  *
  * The <label> names the typed field, so the field's accessible name is the visible label text;
- * the slider takes the same name by reference. Dragging commits at once. Typing edits a draft
+ * the slider takes the same name by reference. The typed field comes first, in the DOM and on
+ * screen: it is the control the label belongs to, so a query by label finds it before the slider,
+ * and the number reads before the thumb that sets it. Dragging commits at once. Typing edits a draft
  * that commits when the field loses focus or its form is submitted, so a half-typed "0." is
  * never sent to the model.
  *
@@ -48,15 +50,6 @@ export function SliderField({
       </label>
       <div className="lab-slider-pair">
         <input
-          type="range"
-          aria-labelledby={`${id}-label`}
-          min={min}
-          max={max}
-          step={step}
-          value={sliderValue}
-          onChange={(e) => onCommit(e.target.value)}
-        />
-        <input
           id={id}
           type="text"
           inputMode="decimal"
@@ -71,6 +64,15 @@ export function SliderField({
               onCommit(e.currentTarget.value);
             }
           }}
+        />
+        <input
+          type="range"
+          aria-labelledby={`${id}-label`}
+          min={min}
+          max={max}
+          step={step}
+          value={sliderValue}
+          onChange={(e) => onCommit(e.target.value)}
         />
       </div>
       {readout && <p className="fine lab-slider-readout">{readout}</p>}
