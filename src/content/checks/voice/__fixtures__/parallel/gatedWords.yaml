@@ -1,0 +1,14 @@
+# Planted fixture for noParallelDenyLists.test.ts (am-x9xf).
+#
+# Every term here lives in a GATED list rather than in a rule's `words`: "points" is in
+# theater.constructionGated and "naive"/"naively" are in mockery.qualifierGated. They are still
+# the rules' vocabulary - only the construction that reaches them changed - so a second copy of
+# them is still a second copy, and collectDenyListVocabulary() has to include the gated lists for
+# this file to be detected.
+#
+# Exactly three terms, which is MIN_MATCHING_TERMS: drop either gated list from the vocabulary
+# and this fixture falls to two or one and stops being reported.
+gated_terms:
+  - "points"
+  - "naive"
+  - "naively"

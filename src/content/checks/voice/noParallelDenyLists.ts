@@ -27,10 +27,27 @@ export function collectDenyListVocabulary(): readonly string[] {
   const mockery = rules.rules.mockery as WordListRule;
   const overclaim = rules.rules.overclaim as OverclaimRule;
   const independence = rules.rules["independence-claim"] as DataOnlyRule;
+  /**
+   * The gated word lists belong here too (am-x9xf).
+   *
+   * A word moved out of `words` into `constructionGated` or `qualifierGated` is still this
+   * rule's vocabulary; only the construction that reaches it changed. Reading `words` alone
+   * means the protected vocabulary silently SHRINKS every time a word is gated, and a second
+   * copy of it elsewhere in the tree stops being detected - in the gate whose whole job is to
+   * notice second copies.
+   *
+   * This was already true before the change that found it: "points" moved to
+   * theater.constructionGated under am-gzxs and dropped out of this list then. "naive" and
+   * "naively" would have followed it today.
+   */
   const words = [
     ...theater.words,
     ...(theater.markWords ?? []),
+    ...(theater.constructionGated?.words ?? []),
+    ...(theater.qualifierGated?.words ?? []),
     ...mockery.words,
+    ...(mockery.constructionGated?.words ?? []),
+    ...(mockery.qualifierGated?.words ?? []),
     ...overclaim.phrases,
     ...independence.phrases,
   ];

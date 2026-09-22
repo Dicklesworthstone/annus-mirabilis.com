@@ -89,6 +89,42 @@ export interface WordListRule {
     readonly triggers: readonly string[];
     readonly maxTokensBetween: number;
   };
+  /**
+   * Words that are this rule's vocabulary in two constructions and a TERM OF ART everywhere
+   * else (am-x9xf).
+   *
+   * "naive" was in `words` and fired 21 times across the tree, every one of them technical:
+   * naive estimator, naive subtraction, naive formula, naive evaluation, naive zero-drift
+   * procedure, naive Lorentz contraction. In numerical analysis and statistics "naive" modifies
+   * a METHOD, and calling a method unrefined mocks nobody. The rule's own description says what
+   * it is for: words that mock "a historical figure, a countermodel, or a reader's earlier
+   * guess".
+   *
+   * The existing `allowlist` was the wrong shape for this and shows why: it held four entries,
+   * naive estimate(s) and naive estimator(s), while the corpus had a dozen other method nouns
+   * and an open-ended supply of them. Enumerating what is SAFE is unwinnable here; enumerating
+   * what is MOCKERY is small and closed, because the things one can mock are people and what
+   * people hold.
+   *
+   * Two firing constructions, both anchored:
+   *   predicative - "Lorentz was naive", the word asserted OF someone;
+   *   attributive on a person - "a naive reader", "the naive view".
+   * Everything else is a modifier on a method and is not this rule's business.
+   */
+  readonly qualifierGated?: {
+    readonly words: readonly string[];
+    /**
+     * Contexts whose entire purpose is presenting someone else's position, where the word is
+     * this rule's vocabulary whatever it modifies. Mirrors constructionGated.scoringContexts.
+     */
+    readonly alwaysFiringContexts: readonly VoiceContext[];
+    /** Nouns whose modification by the word is mockery: people, and what a person holds. */
+    readonly targets: readonly string[];
+    /** Copulas that make the word a predicate about someone rather than a modifier. */
+    readonly predicateTriggers: readonly string[];
+    readonly maxTokensBefore: number;
+    readonly maxTokensAfter: number;
+  };
   readonly defaultSeverity?: Severity;
   readonly severityByContext?: Readonly<Partial<Record<VoiceContext | "default", Severity>>>;
   readonly quotationDowngrade?: Severity;

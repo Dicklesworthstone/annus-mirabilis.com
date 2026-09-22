@@ -333,12 +333,120 @@ rules:
     kind: word-list
     words:
       - foolish
-      - naive
-      - naively
       - silly
       - stupid
       - absurd
       - obviously wrong
+    # "naive" and "naively" moved out of `words` on 2026-09-22 (am-x9xf). They fired 21 times
+    # across the tree and every one was technical: naive estimator, naive subtraction, naive
+    # formula, naive evaluation, naive zero-drift procedure, naive Lorentz contraction. In
+    # numerical analysis and statistics the word modifies a METHOD, and calling a method
+    # unrefined mocks nobody.
+    #
+    # The `allowlist` below was the attempt to handle this and shows why it cannot be: it holds
+    # four entries, naive estimate(s) and naive estimator(s), against an open-ended supply of
+    # method nouns. What is SAFE here is unwinnable to enumerate. What is MOCKERY is small and
+    # closed, because the things one can mock are people and what people hold - so the gate
+    # enumerates that instead, and the four allowlist entries stay only as belt and braces.
+    qualifierGated:
+      words:
+        - naive
+        - naively
+      # Contexts that exist to present someone else's position. A journey branch is a rival route
+      # a reader may take and a countermodel cell is a rival account, so there the word is about
+      # whoever holds the thing whatever noun follows it - which is what keeps "This naive
+      # candidate." loud with no person noun in the sentence at all.
+      alwaysFiringContexts:
+        - journey-branch
+        - countermodel-cell
+      # Asserted OF someone: "Lorentz was naive".
+      predicateTriggers:
+        - is
+        - are
+        - was
+        - were
+        - be
+        - been
+        - being
+        - seems
+        - seemed
+        - sounds
+        - looks
+        - appears
+        - remains
+      maxTokensBefore: 2
+      # Modifying a person, or what a person holds: "a naive reader", "the naive view".
+      #
+      # This list was under-enumerated twice before it was right, both times caught by plants
+      # that already existed in the repository rather than by anything written for this change:
+      # voice.test.ts wanted "Nägeli's naive objection" to fire, and copyGuards.test.ts wanted
+      # "A naive proponent might think particles move in straight lines." to fire. Both are the
+      # exact case the rule exists for, and both went quiet. Twenty-one technical uses going
+      # silent is a win only if these stay loud, so a person noun is added here on sight rather
+      # than argued about.
+      targets:
+        - reader
+        - readers
+        - student
+        - students
+        - proponent
+        - proponents
+        - advocate
+        - advocates
+        - defender
+        - defenders
+        - supporter
+        - supporters
+        - believer
+        - believers
+        - opponent
+        - opponents
+        - critic
+        - critics
+        - sceptic
+        - sceptics
+        - skeptic
+        - skeptics
+        - theorist
+        - theorists
+        - author
+        - authors
+        - colleague
+        - colleagues
+        - physicist
+        - physicists
+        - scientist
+        - scientists
+        - thinker
+        - thinkers
+        - contemporary
+        - contemporaries
+        - audience
+        - person
+        - people
+        - view
+        - views
+        - belief
+        - beliefs
+        - guess
+        - guesses
+        - intuition
+        - intuitions
+        - answer
+        - answers
+        - prediction
+        - predictions
+        # What a named person put forward. "Nägeli's naive objection" is the case the rule was
+        # written for and the case that caught this narrowing being too tight.
+        - objection
+        - objections
+        - criticism
+        - criticisms
+        - complaint
+        - complaints
+        - doubt
+        - doubts
+      maxTokensAfter: 2
     allowlist:
       - naive estimate
       - naive estimator

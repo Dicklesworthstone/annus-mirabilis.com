@@ -215,6 +215,25 @@ function precedingTokensContain(
   return tokens.some((t) => wantedSet.has(t));
 }
 
+/** The mirror of precedingTokensContain, for a word that is judged by what it MODIFIES. */
+function followingTokensContain(
+  text: string,
+  endIndex: number,
+  wanted: readonly string[],
+  maxTokens: number,
+): boolean {
+  const after = text.slice(endIndex);
+  const sentenceEnd = after.search(/[.;!?\n]/u);
+  const window = sentenceEnd === -1 ? after : after.slice(0, sentenceEnd);
+  const tokens = window
+    .split(/[^\p{L}\p{N}'-]+/u)
+    .filter((t) => t.length > 0)
+    .slice(0, maxTokens)
+    .map((t) => t.toLowerCase());
+  const wantedSet = new Set(wanted.map((t) => t.toLowerCase()));
+  return tokens.some((t) => wantedSet.has(t));
+}
+
 export function matchWordListRule(
   text: string,
   rule: WordListRule,
@@ -268,6 +287,66 @@ export function matchWordListRule(
           `Remove or rephrase "${m.matchedText}"; state the specific claim instead.`,
         ),
       );
+    }
+  }
+
+  // Qualifier-gated words (am-x9xf). Kept OUT of `words` above for the same reason as the
+  // construction-gated ones: the plain path must never see them. "naive" is a term of art
+  // modifying a METHOD and is this rule's vocabulary only when it is asserted OF someone, or
+  // modifies a person or what a person holds.
+  if (rule.qualifierGated) {
+    const gated = rule.qualifierGated;
+    for (const word of gated.words) {
+      for (const m of findPhraseMatches(text, word)) {
+        if (overlapsAny(m.index, m.matchedText.length, exceptionRanges)) continue;
+        if (overlapsAny(m.index, m.matchedText.length, allowlistRanges)) continue;
+        // A context whose whole purpose is presenting a rival account or a reader's own branch:
+        // there, "naive" is about whoever holds the thing, whatever noun follows it. This is the
+        // arm that keeps "This naive candidate." loud in countermodel-cell, where no person noun
+        // appears at all. The allowlist is checked ABOVE, so "naive estimate" stays exempt even
+        // here.
+        if (gated.alwaysFiringContexts.includes(context)) {
+          let contextSeverity =
+            isQuotation && rule.quotationDowngrade ? rule.quotationDowngrade : baseSeverity;
+          if (source.layer === "translation" && contextSeverity === "error")
+            contextSeverity = "flag";
+          findings.push(
+            finding(
+              ruleId,
+              contextSeverity,
+              context,
+              m,
+              `Remove or rephrase "${m.matchedText}"; say what the account gets wrong, not what kind of person holds it.`,
+            ),
+          );
+          continue;
+        }
+        const predicative = precedingTokensContain(
+          text,
+          m.index,
+          gated.predicateTriggers,
+          gated.maxTokensBefore,
+        );
+        const aboutAPerson = followingTokensContain(
+          text,
+          m.index + m.matchedText.length,
+          gated.targets,
+          gated.maxTokensAfter,
+        );
+        if (!predicative && !aboutAPerson) continue;
+        let severity =
+          isQuotation && rule.quotationDowngrade ? rule.quotationDowngrade : baseSeverity;
+        if (source.layer === "translation" && severity === "error") severity = "flag";
+        findings.push(
+          finding(
+            ruleId,
+            severity,
+            context,
+            m,
+            `Remove or rephrase "${m.matchedText}"; say what the account gets wrong, not what kind of person holds it.`,
+          ),
+        );
+      }
     }
   }
 

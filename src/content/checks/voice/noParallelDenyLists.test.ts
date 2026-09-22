@@ -37,6 +37,26 @@ describe("scanForParallelDenyLists on planted fixtures", () => {
     assert.deepEqual(new Set(first.matchedTerms), new Set(["foolish", "silly", "absurd"]));
   });
 
+  it("a fixture listing only GATED vocabulary fails, so the gated lists are really protected", () => {
+    // am-x9xf. collectDenyListVocabulary() read `words` alone, so a term moved into
+    // theater.constructionGated or mockery.qualifierGated dropped out of the vocabulary this
+    // gate protects - in the gate whose whole job is to notice second copies. "points" had
+    // already gone that way under am-gzxs; "naive" and "naively" would have followed today.
+    //
+    // The real-tree test above cannot see that: removing a term from the vocabulary does not
+    // create a violation, it just stops one being findable, and the tree has none either way.
+    // This fixture is the arm that goes red instead. Verified by plant: deleting
+    // `...(mockery.qualifierGated?.words ?? [])` from collectDenyListVocabulary leaves the real
+    // tree green and turns this red.
+    const findings = scanForParallelDenyLists({
+      roots: ["src/content/checks/voice/__fixtures__/parallel/gatedWords.yaml"],
+    });
+    const first = findings[0];
+    assert.ok(first, "a list of three gated vocabulary terms must be reported");
+    assert.ok(first.file.endsWith("gatedWords.yaml"));
+    assert.deepEqual(new Set(first.matchedTerms), new Set(["points", "naive", "naively"]));
+  });
+
   // am-f6hr. This used to read `scanForParallelDenyLists({ roots: [] })`, which
   // scans NO FILE: the assertion held for MIN_MATCHING_TERMS of 1, 2, 3 or 99, so
   // the boundary the test is named after was never exercised. Both sides are now
