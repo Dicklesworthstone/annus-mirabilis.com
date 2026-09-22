@@ -751,3 +751,34 @@ Schema-test JSONL (gitignored artifacts): `artifacts/test-logs/perf-profiles/202
 - **Unchanged:** running OCR on this host remains forbidden in every form (focr, Tesseract, OCRmyPDF, EasyOCR, PaddleOCR, every call form). Reading pinned page **images** visually and hand-correcting from them is not OCR, is what has produced four ledgers, and continues.
 - **Date:** 2026-09-21.
 - **Revisit trigger:** a cloud OCR research draft becomes available through the sanctioned dispatch interface (`am-src-ocr-dispatch-interface-m1ur`), which is the route the `pdftotext` entry's own wording contemplates as the legitimate one.
+
+
+---
+
+## D-2026-09-22-dsr-is-the-ci-never-github-actions
+
+- **Question:** What enforces the quality gates on this project? The repo carried 8 `.github/workflows/*.yml` files, a registry whose entries declare `requiredInCi`, and a local runner (`scripts/quality-gates.ts`, `package.json` → `"gates"`). Agents — and the orchestrator — had been reasoning as though GitHub Actions were the CI.
+- **Owner ruling, verbatim, 2026-09-22:** ***"we don't use gh actions for CI *EVER*, we ONLY use /dsr"***.
+- **Choice:** **`dsr` is the CI.** `annus-mirabilis` is now registered in `~/.config/dsr/repos.yaml` (owner selected *"Register annus-mirabilis with dsr"*). GitHub Actions is never the CI on this account, and `.github/workflows/*.yml` is not a gate: a green workflow run is not evidence and a red one is not a blocker.
+- **The registration:**
+  ```yaml
+  annus-mirabilis:
+    repo: Dicklesworthstone/annus-mirabilis.com
+    local_path: /Users/jemanuel/projects/annus-mirabilis.com
+    language: typescript
+    build_cmd: bun run build
+    default_branch: main
+    checks:
+      - bun run typecheck
+      - bun run test
+      - bun run test:node
+      - bun run gates
+  ```
+  No `targets`, `binary_name` or `archive_format`: this is a Next.js static export (`next.config.mjs` sets `output: "export"`), so there is nothing to cross-compile. **No `workflow:` key, on purpose.** The `checks` list **is** the gate chain; `gates` runs `scripts/quality-gates.ts`, whose registry carries `requiredInCi` and `cadence` per entry. `dsr repos validate` → `annus-mirabilis: OK` (7 of 7).
+- **Verified, not assumed:** `dsr quality annus-mirabilis` executes the list — `[quality] Running 4 quality check(s)`. A `checks:` field that nothing ran would have been a config entry gating nothing, which is the defect class this repo keeps finding, so it was proved by running rather than by reading the schema.
+- **First verdict, and it is RED: 1 of 4 passed.** `typecheck` ✓ (11,283 ms); `test`, `test:node`, `gates` ✗. That is the first real CI verdict this project has had, and it is usefully red. Breakdown from `bun run test` (10,824 tests across 1,167 files, 6 fail): **two are a false positive** — the OCR guard greps for the literal `getTextContent`, and `4f6f55f0` added a *comment* at `scripts/download-facsimiles.ts:1459` correctly citing the denylist's own reason. No OCR call was added. That is `am-v5te`, "a checker that cannot tell a description of a thing from the thing"; note the guard's own test dodges its rule by writing `["get","TextContent"].join("")`, which is the author conceding the same point. The other four are real: 26 stale citations in `src/experiments/bm07/kitchen/csv.ts` against a baseline of 0, the untested-refusal census moving 119 → 171, a drifted citation at `argument.ts:1546`, and the `ap-17-891` receipt retraction test.
+- **Decider:** the project owner, 2026-09-22, in the words quoted above and by selecting *"Register annus-mirabilis with dsr"*.
+- **Why this entry exists:** because the previous owner ruling in this area was never written down, and the orchestrator then cited it wrongly to two panes — see `D-2026-09-21-facsimile-text-layer-stays-forbidden`. Every owner decision is now written to `DECISIONS.md` and to a bead comment in the tick it is obtained.
+- **Consequence for the graph:** 20 of 417 open beads reason about workflows or GitHub Actions and need re-scoping. `am-h0nb` ("quality-gates.yml can essentially never complete") is a bead about a runner we do not use. `ciGateWiring.test.ts` (`9a471c86`) is well-built and verified red-on-removal by plant, but asserts "every `requiredInCi` gate is executed by some **workflow job**" — the right assertion pointed at the wrong artefact, and its referent must become the dsr `checks` chain.
+- **Date:** 2026-09-22.
+- **Revisit trigger:** dsr gains or loses the ability to run a check chain for a non-binary project, or the gate chain grows a step that needs a build host rather than this machine.
