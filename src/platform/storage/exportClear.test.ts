@@ -14,7 +14,7 @@ const EXPORTABLE_SETTING: SettingRegistration = {
   schemaVersion: 1,
   label: "Reading theme",
   prePaint: true,
-  allowedValues: ["annalen", "slate"],
+  allowedValues: ["annalen", "kramgasse-night"],
   defaultValue: "annalen",
 };
 
@@ -44,7 +44,7 @@ function contextWithData() {
   const registry = createKeyRegistry([EXPORTABLE_SETTING, NON_CLEARABLE_DOCUMENT, NOTEBOOK]);
   const storage = new InMemoryStorage();
   const ctx = createStorageContext({ registry, getStorage: () => storage });
-  writeRaw(ctx, EXPORTABLE_SETTING.key, "slate");
+  writeRaw(ctx, EXPORTABLE_SETTING.key, "kramgasse-night");
   writeDocument(ctx, NOTEBOOK.key, { schemaVersion: 1, entries: ["first note"] });
   writeRaw(ctx, NON_CLEARABLE_DOCUMENT.key, JSON.stringify({ schemaVersion: 1 }));
   return { ctx, storage };
@@ -56,7 +56,7 @@ describe("exportNamespaces", () => {
     const exported = exportNamespaces(ctx);
     expect(() => JSON.stringify(exported)).not.toThrow();
     const byKey = Object.fromEntries(exported.namespaces.map((n) => [n.key, n.value]));
-    expect(byKey[EXPORTABLE_SETTING.key]).toBe("slate");
+    expect(byKey[EXPORTABLE_SETTING.key]).toBe("kramgasse-night");
     expect(byKey[NOTEBOOK.key]).toEqual({ schemaVersion: 1, entries: ["first note"] });
   });
 

@@ -8,7 +8,7 @@
  *
  * Modifications:
  * - Added WCAG AA contrast verification (>= 4.5:1) for every palette text color against
- *   all three theme backgrounds (annalen, kramgasse-night, slate) using relativeLuminance and contrastRatio.
+ *   both theme backgrounds (annalen, kramgasse-night) using relativeLuminance and contrastRatio.
  * - Retained all interactive LaTeX preparation, balanced group, and double-attribution tests.
  */
 
@@ -47,15 +47,12 @@ describe("colorPalette WCAG AA contrast validation", () => {
 
   test("every palette text color satisfies WCAG AA (>= 4.5:1) against Kramgasse Night and Slate backgrounds", () => {
     const kramgassePaper = THEME_TOKENS["kramgasse-night"].paper;
-    const slatePaper = THEME_TOKENS.slate.paper;
 
     for (const variant of colorVariants) {
       const cfg = COLOR_STYLES[variant];
       const kramgasseRatio = contrastRatio(cfg.textHexDark, kramgassePaper);
-      const slateRatio = contrastRatio(cfg.textHexDark, slatePaper);
 
       expect(kramgasseRatio).toBeGreaterThanOrEqual(4.5);
-      expect(slateRatio).toBeGreaterThanOrEqual(4.5);
     }
   });
 });

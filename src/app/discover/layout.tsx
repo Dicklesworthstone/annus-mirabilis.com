@@ -3,14 +3,14 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   other: {
-    "data-route-theme": "slate",
-    "route-theme": "slate",
+    "data-route-theme": "kramgasse-night",
+    "route-theme": "kramgasse-night",
   },
 };
 
 export default function DiscoverLayout({ children }: { children: ReactNode }) {
   return (
-    <div data-route-theme="slate" style={{ display: "contents" }}>
+    <div data-route-theme="kramgasse-night" style={{ display: "contents" }}>
       {children}
     </div>
   );

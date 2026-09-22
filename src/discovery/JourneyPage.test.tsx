@@ -4,11 +4,11 @@ import { JourneyPage } from "./JourneyPage.tsx";
 import { FIXTURE_JOURNEY_BROWNIAN, FIXTURE_PARTIAL_JOURNEY } from "./testing/fixtureJourney.ts";
 
 describe("JourneyPage container component rendering", () => {
-  test("renders complete Brownian motion journey with data-theme slate and all sections", () => {
+  test("renders complete Brownian motion journey with data-theme kramgasse-night and all sections", () => {
     const html = renderToStaticMarkup(<JourneyPage journey={FIXTURE_JOURNEY_BROWNIAN} />);
 
     expect(html).toContain('data-journey-id="brownian-motion"');
-    expect(html).toContain('data-theme="slate"');
+    expect(html).toContain('data-theme="kramgasse-night"');
     expect(html).toContain(
       "Suspended microscopic particles in a liquid at rest never settle into permanent stillness.",
     );

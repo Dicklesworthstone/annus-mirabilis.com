@@ -38,7 +38,7 @@ export interface ThemeTokens {
   readonly plotDarkfield: string;
 }
 
-export const THEME_IDS: readonly ThemeId[] = Object.freeze(["annalen", "kramgasse-night", "slate"]);
+export const THEME_IDS: readonly ThemeId[] = Object.freeze(["annalen", "kramgasse-night"]);
 
 export function isThemeId(value: string): value is ThemeId {
   return (THEME_IDS as readonly string[]).includes(value);
@@ -80,17 +80,6 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
     // ink 11.62, muted 5.50 (Annalen's muted figure exactly), wash-vs-paper 1.116
     wash: "#232a32",
     plotDarkfield: "#0d1117",
-  }),
-  slate: Object.freeze({
-    paper: "#14181a",
-    ink: "#f0efe7",
-    muted: "#a9b6ac",
-    rule: "#2c3630",
-    accent: "#e2726a",
-    focusRing: "#f0efe7",
-    // ink 14.13, muted 7.74, wash-vs-paper 1.096 (closest to Annalen's 1.086)
-    wash: "#1b2123",
-    plotDarkfield: "#0a0d0e",
   }),
 });
 

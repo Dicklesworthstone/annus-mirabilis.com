@@ -16,7 +16,6 @@ const IDENTITY =
  */
 const THEME_GROUP = `<fieldset class="theme-toggle"><legend>Theme</legend>
 <label><input type="radio" name="t" value="annalen" checked>Annalen</label>
-<label><input type="radio" name="t" value="slate">Slate</label>
 </fieldset>
 <script>
 document.documentElement.dataset.theme = "annalen";
@@ -54,7 +53,7 @@ test("the theme check drives the real radio group and reports the observed data-
     const theme = result.checks.find((c) => c.check === "theme-toggle");
     assert.equal(theme?.ok, true);
     // The message must name what was observed, not merely that something was found.
-    assert.match(theme?.message ?? "", /slate then annalen/);
+    assert.match(theme?.message ?? "", /kramgasse-night then annalen/);
   } finally {
     await close(server);
   }

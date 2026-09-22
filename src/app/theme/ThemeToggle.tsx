@@ -7,7 +7,6 @@ import { FOLLOW_SYSTEM_VALUE, THEME_IDS, type ThemeId } from "./tokens";
 const THEME_LABELS: Readonly<Record<ThemeId, string>> = {
   annalen: "Annalen",
   "kramgasse-night": "Kramgasse Night",
-  slate: "Slate",
 };
 
 const registration = storageKeyRegistry.get(`${SETTINGS_KEY_PREFIX}theme`);

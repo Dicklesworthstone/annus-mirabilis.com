@@ -114,16 +114,6 @@
 }
 
 /* Slate / Chalkboard theme override */
-[data-theme="slate"] .derivation-step[data-is-move="true"],
-[data-theme="slate"] .derivation-step.is-move {
-  border: 2px dashed #f1f5f9;
-  background: #1e293b;
-}
-[data-theme="slate"] .the-move-box {
-  color: #f8fafc;
-  border-color: #f1f5f9;
-  background: #334155;
-}
 
 .step-header {
   display: flex;
@@ -199,9 +189,6 @@
    papers, below the 3:1 non-text minimum, so the fill has to keep carrying it. */
 [data-theme="kramgasse-night"] .derivation-subexpression-highlight {
   background: #422025;
-}
-[data-theme="slate"] .derivation-subexpression-highlight {
-  background: #38191a;
 }
 
 .step-reasons {

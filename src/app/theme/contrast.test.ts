@@ -70,11 +70,6 @@ describe("contrast: forbidden low-contrast pairs documented with exact ratios to
     expect(ratio).toBeCloseTo(2.18, 2);
     expect(ratio).toBeLessThan(NORMAL_TEXT_MIN);
   });
-  test("hardcoded white on Slate coral accent yields 3.07:1 (asserted forbidden for normal text < 4.5)", () => {
-    const ratio = contrastRatio("#ffffff", THEME_TOKENS.slate.accent);
-    expect(ratio).toBeCloseTo(3.07, 2);
-    expect(ratio).toBeLessThan(NORMAL_TEXT_MIN);
-  });
 });
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -180,10 +175,12 @@ describe("contrast: Annalen's reference values match the kept placeholder implem
 });
 
 describe("auditThemeTokensContrast: automated token contrast check (AC 3)", () => {
-  test("auditThemeTokensContrast passes for all declared pairs across all three themes", () => {
+  test("auditThemeTokensContrast passes for all declared pairs across both themes", () => {
     const result = auditThemeTokensContrast(THEME_TOKENS);
     expect(result.passes).toBe(true);
-    expect(result.checkedCount).toBe(24); // 8 declared pairs * 3 themes (ink/muted on wash added 2026-09-19)
+    // 8 declared pairs x 2 themes. Was 24 across three until slate was removed; the
+    // denominator is stated so a future drop in themes cannot quietly reduce what is checked.
+    expect(result.checkedCount).toBe(16);
     expect(result.violations).toHaveLength(0);
   });
 
@@ -209,15 +206,18 @@ describe("auditThemeTokensContrast: automated token contrast check (AC 3)", () =
   test("planted negative: seeded UI boundary contrast violation (< 3.0:1) is detected", () => {
     const mutatedTokens = {
       ...THEME_TOKENS,
-      slate: {
-        ...THEME_TOKENS.slate,
-        focusRing: "#1e2426", // contrast against #14181a is ~1.14 (< 3.0)
+      "kramgasse-night": {
+        ...THEME_TOKENS["kramgasse-night"],
+        // Retargeted from slate when that theme was removed. Contrast against
+        // kramgasse-night's paper #1c2128 is 1.16 (< 3.0), RECOMPUTED rather than carried
+        // over: slate's paper was #14181a, so the old seed would not give the same ratio.
+        focusRing: "#262d35",
       },
     };
     const result = auditThemeTokensContrast(mutatedTokens);
     expect(result.passes).toBe(false);
     const violation = result.violations.find(
-      (v) => v.theme === "slate" && v.pairName === "focusRing on paper",
+      (v) => v.theme === "kramgasse-night" && v.pairName === "focusRing on paper",
     );
     expect(violation).toBeDefined();
     expect(violation?.ratio).toBeLessThan(3.0);
@@ -280,7 +280,6 @@ const REPO_ROOT = join(HERE, "../../..");
 const CSS_ROOT = join(REPO_ROOT, "src");
 const DARK_THEME_INK: Readonly<Record<string, string>> = {
   "kramgasse-night": THEME_TOKENS["kramgasse-night"].ink,
-  slate: THEME_TOKENS.slate.ink,
 };
 
 describe("contrast sweep: colour is never the only channel, across every stylesheet", () => {
@@ -389,11 +388,11 @@ describe("contrast sweep: the dark themes stay readable over hardcoded backgroun
   });
 });
 
-describe("contrast: the accent is perceptibly distinct from ink in all three themes", () => {
+describe("contrast: the accent is perceptibly distinct from ink in both themes", () => {
   // NOT a WCAG threshold. WCAG says nothing about accent-vs-ink. This is a
   // project floor: where colour is used as the REDUNDANT second channel, it
   // should actually be perceivable. Measured 2026-09-19: annalen 2.538,
-  // kramgasse-night 1.750, slate 2.658. The floor sits below the observed
+  // kramgasse-night 1.750. The floor sits below the observed
   // minimum with margin, so it catches a future token collapse, not today.
   const ACCENT_DISTINCTNESS_FLOOR = 1.5;
   for (const id of THEME_IDS) {
@@ -498,7 +497,7 @@ describe("contrast: the result weave stays readable and as prominent as authored
     return m[1];
   }
 
-  for (const theme of ["kramgasse-night", "slate"] as const) {
+  for (const theme of ["kramgasse-night"] as const) {
     for (const { name, authoredFill } of MEANINGS) {
       test(`${theme}: .weave-${name} keeps body copy at AA and matches Annalen's prominence`, () => {
         const tokens = THEME_TOKENS[theme];
@@ -515,7 +514,7 @@ describe("contrast: the result weave stays readable and as prominent as authored
 
   test("planted negative: the authored light fills are exactly what fails on a dark page", () => {
     // This is the real defect this block exists for, not an invented fixture.
-    for (const theme of ["kramgasse-night", "slate"] as const) {
+    for (const theme of ["kramgasse-night"] as const) {
       for (const { authoredFill } of MEANINGS) {
         expect(contrastRatio(THEME_TOKENS[theme].ink, authoredFill)).toBeLessThan(4.5);
       }

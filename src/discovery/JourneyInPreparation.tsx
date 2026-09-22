@@ -19,7 +19,11 @@ export function JourneyInPreparation({
   citation,
 }: JourneyInPreparationProps) {
   return (
-    <article className="journey in-preparation" data-journey-in-preparation data-theme="slate">
+    <article
+      className="journey in-preparation"
+      data-journey-in-preparation
+      data-theme="kramgasse-night"
+    >
       <header>
         <p className="eyebrow">Discover · A route you could take</p>
         <h1 lang="de">{germanTitle}</h1>

@@ -190,7 +190,7 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     "theme",
     "am-design-themes-typography-288q",
     true,
-    ["annalen", "kramgasse-night", "slate"],
+    ["annalen", "kramgasse-night"],
     "annalen",
     "Reading theme",
   ),

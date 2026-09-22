@@ -3,7 +3,7 @@
  * Target: at least 7:1. Semantic color is never the only cue.
  */
 
-export type ThemeId = "annalen" | "kramgasse-night" | "slate";
+export type ThemeId = "annalen" | "kramgasse-night";
 
 export type ContrastPair = Readonly<{
   ink: string;
@@ -13,7 +13,6 @@ export type ContrastPair = Readonly<{
 export const HIGH_CONTRAST_BODY: Readonly<Record<ThemeId, ContrastPair>> = Object.freeze({
   annalen: { ink: "#000000", paper: "#ffffff" },
   "kramgasse-night": { ink: "#ffffff", paper: "#000000" },
-  slate: { ink: "#ffffff", paper: "#000000" },
 });
 
 function srgbChannel(byte: number): number {

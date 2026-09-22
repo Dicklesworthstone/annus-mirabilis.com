@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
  * in TSX/TS UI components and visual renderers (am-design-themes-typography-288q).
  *
  * To guarantee complete, defect-free theme switching across Annalen (light cream),
- * Kramgasse Night (dark slate/amber), and Slate (chalkboard), all user-facing UI and
+ * Kramgasse Night (dark slate/amber), both user-facing UI and
  * visual instrumentation must resolve colors via semantic CSS variables and design tokens
  * (e.g. var(--paper), var(--ink), var(--muted), var(--line), var(--accent)).
  *

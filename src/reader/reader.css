@@ -443,18 +443,6 @@ html:is(
   background: #3a2723;
 }
 
-[data-theme="slate"] .weave-assumption-active {
-  background: #1c1e3a;
-}
-[data-theme="slate"] .weave-quantity-compared {
-  background: #142b20;
-}
-[data-theme="slate"] .weave-agreement-within-bound {
-  background: #13292f;
-}
-[data-theme="slate"] .weave-outside-domain {
-  background: #331f17;
-}
 
 .weave-pointer {
   display: block;

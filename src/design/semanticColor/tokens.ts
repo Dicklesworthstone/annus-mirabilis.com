@@ -49,15 +49,6 @@ export const ROLE_TOKENS: Readonly<Record<ThemeId, RoleTokens>> = Object.freeze(
     field: "#25f4d1",
     quanta: "#f2f20d",
   }),
-  slate: Object.freeze({
-    energy: "#d2b9ac",
-    "time-rate": "#0df20d",
-    "space-geometry": "#df20df",
-    material: "#089191",
-    statistical: "#3d7af5",
-    field: "#868613",
-    quanta: "#b6fbfb",
-  }),
 });
 
 /**

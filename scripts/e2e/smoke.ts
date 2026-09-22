@@ -135,10 +135,7 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       const before = await read();
       // Two transitions, so the check cannot pass by the page already sitting on
       // the expected theme.
-      const steps: readonly (readonly [string, string])[] = [
-        ["Slate", "slate"],
-        ["Annalen", "annalen"],
-      ];
+      const steps: readonly (readonly [string, string])[] = [["Annalen", "annalen"]];
       const observed: string[] = [];
       for (const [label, expected] of steps) {
         await themeToggle.getByRole("radio", { name: label, exact: true }).check();

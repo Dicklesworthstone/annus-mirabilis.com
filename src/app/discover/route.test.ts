@@ -41,13 +41,13 @@ describe("Discover [paper] route contracts and page rendering", () => {
     expect(meta.title).toBe("Not in the edition");
   });
 
-  test("renders Brownian motion journey page with slate theme", async () => {
+  test("renders Brownian motion journey page with kramgasse-night theme", async () => {
     const pageElement = await DiscoverPaperPage({
       params: Promise.resolve({ paper: "brownian-motion" }),
     });
     const html = renderToStaticMarkup(pageElement);
 
-    expect(html).toContain('data-theme="slate"');
+    expect(html).toContain('data-theme="kramgasse-night"');
     expect(html).toContain('data-journey-id="brownian-motion"');
     expect(html).toContain(
       "Suspended microscopic particles in a liquid at rest never settle into permanent stillness.",

@@ -130,11 +130,7 @@
    chosen, the fill is simply removed where its own lightness is wrong, and the
    authored Annalen appearance is untouched. */
 [data-theme="kramgasse-night"] .equation-sentence span[data-selected="true"],
-[data-theme="slate"] .equation-sentence span[data-selected="true"],
 [data-theme="kramgasse-night"] .equation-visual [data-selected="true"],
-[data-theme="slate"] .equation-visual [data-selected="true"] {
-  background: transparent;
-}
 .semantic-equation[data-pattern="true"] .am-role-input {
   color: inherit;
   text-decoration: underline dashed;

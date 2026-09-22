@@ -75,7 +75,7 @@ describe("DataPanel component", () => {
   });
 
   test("in-page confirmation is used for clearing; window.confirm is never called", async () => {
-    writeSetting(ctx, "am:settings:v1:theme", "slate");
+    writeSetting(ctx, "am:settings:v1:theme", "kramgasse-night");
 
     let confirmCalled = false;
     (window as unknown as { confirm: () => boolean }).confirm = () => {
@@ -120,7 +120,7 @@ describe("DataPanel component", () => {
       });
 
       expect(container.querySelector('[data-testid="clear-confirmation"]')).toBeNull();
-      expect(inMemory.getItem("am:settings:v1:theme")).toBe("slate");
+      expect(inMemory.getItem("am:settings:v1:theme")).toBe("kramgasse-night");
 
       // Re-trigger and confirm
       await act(async () => {

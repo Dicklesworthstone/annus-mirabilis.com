@@ -504,14 +504,8 @@
 [data-theme="kramgasse-night"] .card-collision-alert {
   background: #272328;
 }
-[data-theme="slate"] .card-collision-alert {
-  background: #201a1b;
-}
 [data-theme="kramgasse-night"] .card-collision-alert.caution {
   background: #362822;
-}
-[data-theme="slate"] .card-collision-alert.caution {
-  background: #2f2016;
 }
 
 .card-collision-alert .alert-title {

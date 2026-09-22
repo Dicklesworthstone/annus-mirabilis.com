@@ -54,13 +54,6 @@ html[data-contrast="high"] {
   --panel: #ffffff;
 }
 html[data-theme="kramgasse-night"][data-contrast="high"],
-html[data-theme="slate"][data-contrast="high"] {
-  --ink: #ffffff;
-  --paper: #000000;
-  --muted: #dddddd;
-  --line: #888888;
-  --panel: #111111;
-}
 
 .reader-root {
   font-size: calc(1em * var(--reader-type-scale));

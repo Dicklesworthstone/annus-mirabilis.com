@@ -35,7 +35,7 @@ export function JourneyPage({ journey }: JourneyPageProps) {
   return (
     <article
       data-journey-id={id}
-      data-theme="slate"
+      data-theme="kramgasse-night"
       style={{
         maxWidth: "56rem",
         margin: "0 auto",

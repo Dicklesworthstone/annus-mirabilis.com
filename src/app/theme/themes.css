@@ -28,17 +28,6 @@
   color-scheme: dark;
 }
 
-:root[data-theme="slate"] {
-  --paper: #14181a;
-  --ink: #f0efe7;
-  --muted: #a9b6ac;
-  --rule: #2c3630;
-  --accent: #e2726a;
-  --focus-ring: #f0efe7;
-  --wash: #1b2123;
-  --plot-darkfield: #0a0d0e;
-  color-scheme: dark;
-}
 
 :root {
   --line: var(--rule);

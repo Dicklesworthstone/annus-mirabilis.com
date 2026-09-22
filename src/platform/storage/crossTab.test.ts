@@ -28,9 +28,13 @@ describe("subscribeCrossTab", () => {
     const target = new FakeCrossTabTarget();
     const changes: CrossTabChange[] = [];
     subscribeCrossTab((change) => changes.push(change), target);
-    target.dispatch({ key: "am:settings:v1:theme", newValue: "slate", oldValue: "annalen" });
+    target.dispatch({
+      key: "am:settings:v1:theme",
+      newValue: "kramgasse-night",
+      oldValue: "annalen",
+    });
     expect(changes).toEqual([
-      { key: "am:settings:v1:theme", newValue: "slate", oldValue: "annalen" },
+      { key: "am:settings:v1:theme", newValue: "kramgasse-night", oldValue: "annalen" },
     ]);
   });
 

@@ -241,13 +241,15 @@ async function runChecks(
     };
     // Two transitions, so the check cannot pass because the page already sat on
     // the expected theme, then a third to leave it where a reload can prove it.
-    await choose("Slate", "slate");
+    await choose("Kramgasse Night", "kramgasse-night");
     await choose("Annalen", "annalen");
-    await choose("Slate", "slate");
+    await choose("Kramgasse Night", "kramgasse-night");
     await page.reload({ waitUntil: "domcontentloaded" });
     const afterReload = await read();
-    if (afterReload !== "slate") {
-      throw new Error(`theme did not persist across reload: expected slate, got ${afterReload}`);
+    if (afterReload !== "kramgasse-night") {
+      throw new Error(
+        `theme did not persist across reload: expected kramgasse-night, got ${afterReload}`,
+      );
     }
     return `started ${before ?? "unset"}, followed the radio group, and held slate across a reload`;
   });
@@ -362,7 +364,7 @@ async function runPlant(browser: Browser, baseUrl: string, plantPath: string): P
     try {
       await group.getByText("Slate", { exact: true }).click({ timeout: 5000 });
       await page.waitForFunction(
-        () => document.documentElement.getAttribute("data-theme") === "slate",
+        () => document.documentElement.getAttribute("data-theme") === "kramgasse-night",
         undefined,
         { timeout: 3000 },
       );
