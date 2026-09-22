@@ -173,56 +173,46 @@ export function ConfigurationLab({
         </p>
       </noscript>
 
-      {/* Predict prompt card */}
-      <div
-        className="predict-card"
-        style={{
-          padding: "1rem",
-          margin: "1rem 0",
-          background: "var(--panel)",
-          border: "1px solid var(--line)",
-          borderRadius: "8px",
-        }}
-      >
-        <h3>Predict before deriving</h3>
-        <p>
-          Doubling the volume available to two independent particles multiplies the number of
-          position arrangements by 2, 4, or 8?
-        </p>
-        <div className="actions" role="group" aria-label="Your prediction">
-          {(["2", "4", "8"] as const).map((factor) => (
-            <button
-              key={factor}
-              type="button"
-              aria-pressed={predictAnswer === factor}
-              className={predictAnswer === factor ? "primary" : "secondary"}
-              onClick={() => setPredictAnswer(factor)}
-            >
-              Multiplies by {factor}
-            </button>
-          ))}
-        </div>
-        {/* The model's answer comes after a choice and reads the same whichever was chosen: a
-            prediction is a starting point, never a score. Without JavaScript the buttons do
-            nothing, so the same reasoning is a disclosure a reader can open. */}
-        {predictAnswer ? (
-          <p className="fine" role="status">
-            You chose {predictAnswer}. {PREDICT_REASONING}
-          </p>
-        ) : (
-          <details>
-            <summary>The model&apos;s answer</summary>
-            <p className="fine">{PREDICT_REASONING}</p>
-          </details>
-        )}
-      </div>
-
       <div className="lab-columns">
         <form
           onSubmit={submit}
           aria-label="Configuration integral settings"
           aria-describedby={error ? `${id}-error` : undefined}
         >
+          {/* The model's answer comes after a choice and reads the same whichever was chosen: a
+              prediction is a starting point, never a score. Without JavaScript the choices do
+              nothing, so the same reasoning is a disclosure a reader can open. */}
+          <details className="lab-predict">
+            <summary>Predict before deriving</summary>
+            <fieldset>
+              <legend>
+                Doubling the volume available to two independent particles multiplies the number of
+                position arrangements by 2, 4, or 8?
+              </legend>
+              {(["2", "4", "8"] as const).map((factor) => (
+                <label key={factor} className="lab-predict-candidate">
+                  <input
+                    type="radio"
+                    name={`${id}-predict`}
+                    value={factor}
+                    checked={predictAnswer === factor}
+                    onChange={() => setPredictAnswer(factor)}
+                  />
+                  <span>Multiplies by {factor}</span>
+                </label>
+              ))}
+              {predictAnswer ? (
+                <p className="lab-predict-reveal" role="status">
+                  You chose {predictAnswer}. {PREDICT_REASONING}
+                </p>
+              ) : (
+                <details>
+                  <summary>The model&apos;s answer</summary>
+                  <p className="fine">{PREDICT_REASONING}</p>
+                </details>
+              )}
+            </fieldset>
+          </details>
           <fieldset disabled={!ready}>
             <legend>Presets and parameters</legend>
             <div className="preset-list">
@@ -380,6 +370,13 @@ export function ConfigurationLab({
         </form>
 
         <div className="lab-results" {...identity(snapshot)}>
+          {/* SVG Construction Visual */}
+          <ConfigurationPlot
+            parameters={p}
+            evaluation={evaluation}
+            clipId={`bm03-plot-${id.replace(/[^a-zA-Z0-9]/g, "")}`}
+          />
+
           {/* Step navigation */}
           <div className="step-navigation" style={{ marginBottom: "1rem" }}>
             <p>
@@ -429,13 +426,6 @@ export function ConfigurationLab({
               </button>
             </div>
           </div>
-
-          {/* SVG Construction Visual */}
-          <ConfigurationPlot
-            parameters={p}
-            evaluation={evaluation}
-            clipId={`bm03-plot-${id.replace(/[^a-zA-Z0-9]/g, "")}`}
-          />
 
           {/* Accepted values table */}
           <div className="table-scroll" style={{ marginTop: "1.5rem" }}>
