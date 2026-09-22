@@ -76,6 +76,8 @@ export async function checkWalkBrowser(browser, url, check) {
         { timeout: 20000 },
       );
     }
+    // Since 811faa43 bm-05's walker, step and seed fields sit in the closed "Experiment settings" drawer.
+    await lab.locator("details.experiment-settings > summary").click();
     await lab.locator('[name="walkers"]').fill("160");
     await lab.locator('[name="seed"]').fill("9007199254740993");
     await accepted(() => apply.click());
@@ -208,6 +210,7 @@ export async function checkWalkBrowser(browser, url, check) {
       .getByRole("button", { name: "Open an independent walk laboratory", exact: true })
       .click();
     const second = page.locator('[data-instrument-id="bm-05"]').nth(1);
+    await second.locator("details.experiment-settings > summary").click();
     await second.locator('[name="walkers"]').fill("20");
     await second.locator('[name="runSteps"]').fill("64");
     await second.locator('[name="seed"]').fill("42");
