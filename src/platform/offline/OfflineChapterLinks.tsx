@@ -1,12 +1,30 @@
 import { loadOfflineChapter, loadOfflineManifest } from "./server.ts";
+import "./offline.css";
 
-/** Server-rendered links only. A missing artifact is never advertised to the reader. */
+/** "558 KB" rather than "571730 bytes": a reader decides by size, not by count. */
+function formatSize(bytes: number): string {
+  return bytes < 1024 * 1024
+    ? `${Math.round(bytes / 1024)} KB`
+    : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/**
+ * Server-rendered links only. A missing artifact is never advertised to the reader.
+ *
+ * On a paper page the list explains itself once. On /offline/, which lists every paper, the page
+ * says what a chapter file holds, so each paper's list is its title and its chapters: that page
+ * used to repeat one heading, "Keep the explanation for offline reading", and one paragraph per
+ * paper without naming the paper, and to link to itself under each.
+ */
 export async function OfflineChapterLinks({
   paperId,
   section,
+  heading,
 }: {
   paperId: string;
   section?: string;
+  /** The paper's title on /offline/; when given, the explanation and the index link are left out. */
+  heading?: string;
 }) {
   const manifest = await loadOfflineManifest();
   const chapters =
@@ -20,15 +38,19 @@ export async function OfflineChapterLinks({
     if (!(await loadOfflineChapter(entry.paper, file)))
       throw new Error("An advertised offline chapter is absent from the current build.");
   }
+  const onIndex = heading !== undefined;
   return (
-    <section className="reading" aria-label="Offline chapter downloads">
-      <h2>Keep the explanation for offline reading</h2>
-      <p>
-        Each HTML file contains the available explanation at every detail level, linked foundations,
-        source references, and available build-time scalar results. It includes no private notes or
-        running simulations. This remains an explanation preview, not a reviewed source edition.
-      </p>
-      <ul>
+    <section className="reading offline-chapters" aria-label={heading ?? "Read offline"}>
+      <h2>{heading ?? "Read this offline"}</h2>
+      {!onIndex && (
+        <p>
+          Each chapter is one HTML file that opens in any browser without a connection. It holds the
+          explanation at every level of detail, the lessons it links to, its source references and
+          the numbers worked out when the site was built. It has no notes of yours and no running
+          simulations. It is an explanation, not a reviewed edition of the paper.
+        </p>
+      )}
+      <ul className="offline-chapter-list">
         {chapters.map((entry) => (
           <li key={entry.path}>
             <a
@@ -37,16 +59,19 @@ export async function OfflineChapterLinks({
               data-offline-chapter
               data-offline-bytes={entry.bytes}
             >
-              Save this chapter for offline reading: {entry.title}
+              <span className="visually-hidden">Download </span>
+              {entry.title}
             </a>{" "}
-            <span className="fine">({entry.bytes} bytes · HTML)</span>
+            <span className="fine">HTML, {formatSize(entry.bytes)}</span>
           </li>
         ))}
       </ul>
-      <p className="fine">
-        Open the downloaded file in a browser. Online source links still need a connection.
-        Interactive plots are not included. <a href="/offline/">Browse saved-chapter downloads</a>.
-      </p>
+      {!onIndex && (
+        <p className="fine">
+          Links to online sources still need a connection, and the interactive plots are not
+          included. <a href="/offline/">Every chapter you can keep</a>
+        </p>
+      )}
     </section>
   );
 }

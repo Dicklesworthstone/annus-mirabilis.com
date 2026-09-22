@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { loadFirstPages } from "../../components/home/firstPages.ts";
 import { OfflineChapterLinks } from "../../platform/offline/OfflineChapterLinks.tsx";
 import { loadOfflineManifest } from "../../platform/offline/server.ts";
 
@@ -10,25 +11,38 @@ export const metadata: Metadata = {
 
 export default async function OfflinePage() {
   const manifest = await loadOfflineManifest();
-  const papers = [...new Set(manifest?.chapters.map((entry) => entry.paper) ?? [])].sort();
+  // In the order the journal received the papers, and under the names the rest of the site uses.
+  const titles = new Map(loadFirstPages().map((p) => [p.slug, p.title]));
+  const offered = new Set(manifest?.chapters.map((entry) => entry.paper) ?? []);
+  const papers = [
+    ...[...titles.keys()].filter((slug) => offered.has(slug)),
+    ...[...offered].filter((slug) => !titles.has(slug)).sort(),
+  ];
   return (
     <>
       <header className="page-intro">
         <p className="eyebrow">Read without a connection</p>
-        <h1>Keep a chapter, including the tools for its argument.</h1>
+        <h1>Take a chapter with you</h1>
         <p className="lead">
-          A single HTML file opens in your browser without installing an app. Its mathematics and
-          linked foundation explanations travel with it.
+          Each chapter is one HTML file. It opens in any browser without an app or a connection, and
+          carries its mathematics and the lessons it links to.
         </p>
         <p>
-          The downloads contain the available authored explanations only. Source transcription,
-          translation, and review remain separate work. No private notebook data is read or
-          included.
+          A file holds the explanation at every level of detail, its source references and the
+          numbers worked out when the site was built. It is an explanation, not a reviewed edition
+          of the paper: the German text and a translation are separate work, and not in it. Nothing
+          from your notebook is read or included. Links to online sources still need a connection,
+          and the interactive plots are not included.
         </p>
-        <a href="/papers/">Return to the papers</a>
       </header>
       {papers.length > 0 ? (
-        papers.map((paperId) => <OfflineChapterLinks key={paperId} paperId={paperId} />)
+        papers.map((paperId) => (
+          <OfflineChapterLinks
+            key={paperId}
+            paperId={paperId}
+            heading={titles.get(paperId) ?? paperId}
+          />
+        ))
       ) : (
         <section className="reading">
           <h2>No chapters are offered in this build</h2>
@@ -38,6 +52,9 @@ export default async function OfflinePage() {
           </p>
         </section>
       )}
+      <p className="fine">
+        <a href="/papers/">Back to the papers</a>
+      </p>
     </>
   );
 }

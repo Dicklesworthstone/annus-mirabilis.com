@@ -1,0 +1,26 @@
+/*
+ * Chapter downloads (chrome, pane %44), on /offline/ and on a paper page. One row per chapter:
+ * the chapter's title as the link and its size beside it, instead of "Save this chapter for
+ * offline reading: ..." on every line with "(571730 bytes · HTML)" after it.
+ */
+.offline-chapters {
+  margin-top: 2.5rem;
+}
+.offline-chapter-list {
+  margin: 0.75rem 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+.offline-chapter-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 1rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--line);
+}
+.offline-chapter-list > li > .fine {
+  color: var(--muted);
+  white-space: nowrap;
+}
