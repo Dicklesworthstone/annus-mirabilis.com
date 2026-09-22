@@ -3,7 +3,7 @@ import { FirstPages } from "../components/home/FirstPages.tsx";
 export default function Home() {
   return (
     <>
-      <section className="hero home-hero">
+      <section className="hero hero-with-plates">
         <p className="eyebrow">Annalen der Physik, 1905</p>
         <h1>Four papers, 1905</h1>
         <p className="lead">

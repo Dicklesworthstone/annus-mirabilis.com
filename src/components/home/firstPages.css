@@ -151,6 +151,6 @@
 }
 /* The first pages run the full width of the page, so the hero drops its 940px cap; the lead keeps
    its own 64ch measure. */
-.home-hero {
+.hero-with-plates {
   max-width: none;
 }
