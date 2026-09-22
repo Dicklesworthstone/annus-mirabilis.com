@@ -19,7 +19,7 @@ import "../../components/lab/labShell.css";
 export default function LaboratoryLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      {children}
+      <div className="lab-route">{children}</div>
       <nav className="actions no-print" aria-label="Ways to test a model">
         <span className="eyebrow">Ways to test a model</span>
         <a className="button secondary" href="/lab/bm-01/compare/">

@@ -121,3 +121,55 @@
 .lab-onward li {
   margin-block: 0.55rem;
 }
+
+/* ONE TITLE PER LABORATORY PAGE. On a /lab route the page's own heading asks the question
+   ("Where does a wandering particle end up?"); the instrument's eyebrow (its catalogue id,
+   "BM-01 · A reproducible trial") and its second title repeated it inside the panel. On lab
+   routes both are kept for assistive technology, since the h2 names the instrument's region,
+   and hidden from sight. Embedded instruments (a paper page) keep their visible heading,
+   because .lab-route exists only in src/app/lab/layout.tsx. */
+.lab-route .laboratory > .lab-heading :is(.eyebrow, h2) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The execution label, currency and model note as one line under the plot, not a stacked
+   panel above it (bm-01 first; ExecutionChrome's own stacked layout stays the default). */
+.lab-status-row {
+  margin-block: 0.75rem 1rem;
+}
+
+.lab-status-row .execution-chrome {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  max-width: none;
+}
+
+.lab-status-row .execution-currency {
+  padding: 0.2rem 0.5rem;
+}
+
+.lab-status-row :is(.execution-currency-heading, .execution-currency-text) {
+  display: inline;
+}
+
+.lab-status-row .execution-currency-text {
+  margin: 0 0 0 0.35em;
+}
+
+.lab-status-row .model-note {
+  width: auto;
+}
+
+.lab-status-row .model-note[open] {
+  flex-basis: 100%;
+}
