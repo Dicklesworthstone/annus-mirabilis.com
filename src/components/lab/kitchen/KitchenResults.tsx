@@ -2,6 +2,28 @@ import type { KitchenAccepted } from "../../../experiments/bm07/kitchen/session.
 import { InferenceInterval as Interval, InferenceValue as Value } from "../InferencePlots.tsx";
 import { array, display, identity } from "../presentation.ts";
 
+/**
+ * Ordinary-language labels for the gasConstantProvenance enum (AGENTS.md "Typed results":
+ * status names never leak to readers as cryptic warnings). Before this, the results panel
+ * rendered the raw identifier, so a reader saw "Classification:
+ * measured-without-counting-molecules".
+ *
+ * The voice lint could not see that leak and still cannot: componentText.ts extracts literal
+ * JSX text, and this value arrives through a JSX expression. What the lint flagged instead was
+ * the DATA that feeds it, "not-applicable" sitting in two constant-set records, where it is a
+ * correct enum value and not prose. The finding was real and pointed one step away from itself.
+ *
+ * kitchen/definition.ts widens this field to `string`, so an exhaustive Record over the union
+ * is not available here; src/testing/kitchen-uncertainty-ui.test.tsx asserts instead that every
+ * value present in content/quantities/constant-sets/*.yaml has a label, which makes the real
+ * records the denominator.
+ */
+export const GAS_CONSTANT_PROVENANCE_LABELS: Readonly<Record<string, string>> = {
+  defined: "the gas constant is exact by definition in this set",
+  "measured-without-counting-molecules": "the gas constant was measured without counting molecules",
+  "not-applicable": "this set declares no gas constant",
+};
+
 export function KitchenPlot({ accepted }: { accepted: KitchenAccepted }) {
   const { document, report, snapshot } = accepted;
   const indices = report.tracks.find((t) => t.key === report.selectedTrack)?.indices ?? [];
@@ -204,7 +226,8 @@ export function KitchenResults({ accepted }: { accepted: KitchenAccepted }) {
         </>
       )}
       <p className="fine">
-        Gas-constant source: {r.constantSetId}. Classification: {r.gasConstantProvenance}. The
+        Gas-constant source: {r.constantSetId}. Classification:{" "}
+        {GAS_CONSTANT_PROVENANCE_LABELS[r.gasConstantProvenance] ?? "not recorded"}. The
         interpretation depends on these declared inputs and does not certify a real suspension.
       </p>
       <section data-kitchen-uncertainty={r.uncertainty.state}>

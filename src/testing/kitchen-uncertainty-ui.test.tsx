@@ -1,9 +1,13 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { KitchenInputs } from "../components/lab/kitchen/KitchenControls.tsx";
-import { KitchenResults } from "../components/lab/kitchen/KitchenResults.tsx";
+import {
+  GAS_CONSTANT_PROVENANCE_LABELS,
+  KitchenResults,
+} from "../components/lab/kitchen/KitchenResults.tsx";
 import { kitchenAnalysisJson } from "../experiments/bm07/kitchen/export.ts";
 import { createKitchenHost } from "../experiments/bm07/kitchen/host.ts";
 import type { KitchenDocument } from "../experiments/bm07/kitchen/schema.ts";
@@ -170,5 +174,40 @@ test("editing and applying a relationship cannot mutate the already accepted res
       root.unmount();
     });
     removeContainer(container);
+  }
+});
+
+/**
+ * am-edit-voice-lint-trmf: every gasConstantProvenance value that exists in the real records has
+ * an ordinary-language label, so the results panel can never print a raw enum id to a reader.
+ *
+ * The denominator is the corpus rather than a hand-written list: kitchen/definition.ts widens the
+ * field to `string`, so TypeScript cannot force exhaustiveness here, and a fourth value added to a
+ * record would otherwise render as "not recorded" in silence.
+ */
+test("every gasConstantProvenance value in the constant-set records has a reader-facing label", () => {
+  const dir = "content/quantities/constant-sets";
+  const files = readdirSync(dir).filter((f) => f.endsWith(".yaml"));
+  expect(files.length).toBeGreaterThan(0);
+
+  const values = new Set<string>();
+  for (const file of files) {
+    const match = /^gasConstantProvenance:\s*(\S+)\s*$/m.exec(
+      readFileSync(`${dir}/${file}`, "utf8"),
+    );
+    expect(match, `${file} must declare gasConstantProvenance`).not.toBeNull();
+    if (match?.[1]) values.add(match[1]);
+  }
+  // Printed, not just counted, so a wrong population is visible rather than inferred.
+  expect(
+    values.size,
+    `values found across ${files.length} records: ${[...values].sort().join(", ")}`,
+  ).toBeGreaterThan(0);
+
+  for (const value of values) {
+    expect(
+      GAS_CONSTANT_PROVENANCE_LABELS[value],
+      `"${value}" is in the records but has no reader-facing label, so the panel would print "not recorded"`,
+    ).toBeTruthy();
   }
 });
