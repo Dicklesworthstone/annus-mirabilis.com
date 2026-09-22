@@ -40,6 +40,22 @@
   min-width: 0;
   box-sizing: border-box;
   margin-block: 0.5rem;
+  /* The button below is the field; a second box around it read as a box in a box. */
+  padding: 0;
+  border: 0;
+}
+/* The file picker's own button is drawn like the site's secondary buttons beside it, not as the
+   browser's grey system control, which in the dark theme sat as a pale slab under three outlined
+   buttons. The input itself is unchanged, so choosing a file works as before. */
+:is(.notebook-dialog, .notebook-inline) input[type="file"]::file-selector-button {
+  min-height: 44px;
+  margin-right: 0.75rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
 }
 :is(.notebook-dialog, .notebook-inline) textarea {
   display: block;
@@ -63,22 +79,23 @@
 /* The notebook arrives after hydration, so without room held for it the guide below jumped down
    when it did: layout shift 0.204 at 1440 on an empty notebook, 0.1 with one entry (BUILD 20),
    against the 0.1 budget. The host keeps the empty notebook's height until it is filled, measured
-   on BUILD 20 as 30.3rem up to 390px, 24.4rem at 600px and 22.1rem from 768px up. Only where the
+   on BUILD 20 (with the file button below) as 30.2rem up to 390px, 24.3rem at 600px and 21.0-22.0rem
+   from 768px up. Only where the
    script can run: the pre-paint theme script sets data-theme, and a page without it keeps no gap. */
 :root[data-theme] [data-notebook-inline] {
   margin-block: 1.5rem 2.5rem;
 }
 :root[data-theme] [data-notebook-inline]:empty {
-  min-height: 22.1rem;
+  min-height: 22rem;
 }
 @media (max-width: 767px) {
   :root[data-theme] [data-notebook-inline]:empty {
-    min-height: 24.4rem;
+    min-height: 24.3rem;
   }
 }
 @media (max-width: 559px) {
   :root[data-theme] [data-notebook-inline]:empty {
-    min-height: 30.3rem;
+    min-height: 30.2rem;
   }
 }
 .notebook-entry {
