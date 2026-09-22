@@ -74,7 +74,7 @@ export default function WalkPage() {
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-06/">
-            Explore the resulting Gaussian spread
+            Open the spreading laboratory
           </a>
           <a href="/lab/bm-01/">Return to the tracer ensemble</a>
         </div>

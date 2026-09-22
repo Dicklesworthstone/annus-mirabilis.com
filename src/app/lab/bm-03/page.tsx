@@ -80,7 +80,7 @@ export default function ConfigurationPage() {
 
         <div className="actions">
           <a className="button" href="/lab/bm-01/">
-            Explore the tracer ensemble
+            Open the tracer ensemble
           </a>
           <a href="/lab/bm-05/">From random steps to diffusion</a>
         </div>

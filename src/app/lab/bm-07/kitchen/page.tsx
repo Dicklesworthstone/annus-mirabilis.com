@@ -19,7 +19,7 @@ export default function KitchenObservationPage() {
         </p>
         <p>
           <a href="/kitchen/">Read the observation guide and worksheet</a> ·{" "}
-          <a href="/lab/bm-08/">Explore camera error first</a> ·{" "}
+          <a href="/lab/bm-08/">Start with camera error</a> ·{" "}
           <a href="/papers/brownian-motion/#arg-bm-inference">Return to the inference argument</a>
         </p>
       </header>

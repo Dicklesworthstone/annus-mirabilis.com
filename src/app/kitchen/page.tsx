@@ -212,7 +212,7 @@ export default function KitchenGuide() {
           </p>
         </details>
         <div className="actions">
-          <a href="/lab/bm-08/">Explore what a camera changes</a>
+          <a href="/lab/bm-08/">Open the camera laboratory</a>
           <a href="/papers/brownian-motion/#arg-bm-inference">
             Return to the Brownian inference argument
           </a>

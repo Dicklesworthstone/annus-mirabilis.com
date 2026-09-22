@@ -96,7 +96,7 @@ export default function WaveDescriptionPage() {
           <a className="button" href="/papers/light-quanta/#s0">
             Return to the Light Quanta Paper
           </a>
-          <a href="/discover/light-quanta/">Explore Journey I</a>
+          <a href="/discover/light-quanta/">Open the light-quanta journey</a>
         </div>
       </section>
     </>

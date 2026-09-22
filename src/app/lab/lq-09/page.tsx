@@ -125,7 +125,7 @@ export default function IonizationPage() {
           <a className="button" href="/papers/light-quanta/#s9">
             Return to the Light Quanta Paper
           </a>
-          <a href="/discover/light-quanta/">Explore the Discovery Journey</a>
+          <a href="/discover/light-quanta/">Open the light-quanta journey</a>
         </div>
       </section>
     </>

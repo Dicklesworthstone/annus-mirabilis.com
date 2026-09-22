@@ -49,7 +49,7 @@ export default function BrownianDataPage() {
           diagnostic, never silently replaced by a plausible positive answer.
         </p>
         <p>
-          <a href="/lab/bm-08/">Explore how a camera changes the inference</a>
+          <a href="/lab/bm-08/">Open the camera laboratory</a>
         </p>
         <p>
           <a href="/papers/brownian-motion/#arg-bm-inference">
