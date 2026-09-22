@@ -1388,10 +1388,33 @@ export async function main(
         }
       }
     }
+    // A COUNT CANNOT LIE, AND THE SENTENCE BELOW COULD.
+    //
+    // checkAllConfigs already refuses a MISSING directory. A directory that EXISTS and holds no
+    // configuration returns {valid: true, results: {}}, so the loop above printed nothing and this
+    // announced that every configuration was verified valid, having verified none. --config-dir is
+    // documented interface, so a mistyped or wrong path is reachable rather than contrived.
+    //
+    // Re-measured 2026-09-22: the two INVALID configs am-cglg recorded are now fixed, so the real
+    // run and the empty run printed the SAME final line and both exited 0. While ap-34-591 and
+    // ap-17-549 were invalid you could still tell the two apart by the absence of the failure
+    // lines; with the corpus clean, the vacuous run had become indistinguishable from the real one
+    // by reading the output. That is why this reports the population rather than only the verdict.
+    const checked = Object.keys(results).length;
+    if (checked === 0) {
+      console.error(
+        `\n❌ EMPTY_CONFIG_POPULATION: 0 of 0 configurations checked in ${configDir ?? getDefaultConfigDir()}.`,
+      );
+      console.error(
+        "    Nothing was examined, so nothing was verified. A configuration directory that exists",
+      );
+      console.error("    and holds no configuration is a wrong path, not a clean gate.");
+      return finish(4); // EMPTY_CONFIG_POPULATION
+    }
     if (!valid) {
       return finish(3); // INVALID_CONFIG
     }
-    console.log("\nAll facsimile source configurations verified valid.");
+    console.log(`\nAll ${checked} facsimile source configurations verified valid.`);
     return finish(0);
   }
 

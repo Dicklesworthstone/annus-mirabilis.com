@@ -23,6 +23,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs";
 import * as http from "node:http";
+import * as os from "node:os";
 import * as path from "node:path";
 import yaml from "js-yaml";
 import {
@@ -2738,5 +2739,51 @@ describe("21. Refusals nobody had ever seen fire (am-muyh)", () => {
     const pageIdPush = lines.findIndex((line) => line.includes("pageObjIds.push(id)"));
     expect(pageIdPush).toBeGreaterThan(-1);
     expect(lines.slice(Math.max(0, pageIdPush - 2), pageIdPush).join(" ")).toContain("/Type");
+  });
+});
+
+describe("check-config states the population it examined (am-cglg)", () => {
+  /** Captures both streams; main() reports the empty population on stderr and the count on stdout. */
+  async function runCheckConfig(args: string[]): Promise<{ code: number; out: string }> {
+    const lines: string[] = [];
+    const log = console.log;
+    const err = console.error;
+    console.log = (...a: unknown[]) => void lines.push(a.join(" "));
+    console.error = (...a: unknown[]) => void lines.push(a.join(" "));
+    try {
+      const code = await main(args, { exitOnCompletion: false });
+      return { code, out: lines.join("\n") };
+    } finally {
+      console.log = log;
+      console.error = err;
+    }
+  }
+
+  test("REJECT: a directory that exists and holds no configuration refuses instead of announcing success", async () => {
+    // NOT a missing directory - checkAllConfigs already refuses that one. This is the reachable
+    // case the gate got wrong: --config-dir is documented interface, so a wrong or mistyped path
+    // that happens to exist returns {valid: true, results: {}} and every violation check passes
+    // because there was nothing to violate.
+    const empty = fs.mkdtempSync(path.join(os.tmpdir(), "am-cglg-empty-"));
+    const { code, out } = await runCheckConfig(["--check-config", "--config-dir", empty]);
+
+    expect(code).toBe(4);
+    expect(out).toContain("EMPTY_CONFIG_POPULATION");
+    expect(out).toContain("0 of 0 configurations checked");
+    expect(out).toContain(empty);
+    // The claim that could not be true must be absent, not merely outweighed.
+    expect(out).not.toContain("configurations verified valid");
+  });
+
+  test("control: the real directory passes, and the success line carries the real count", async () => {
+    const { code, out } = await runCheckConfig(["--check-config"]);
+    const population = Object.keys(checkAllConfigs().results).length;
+
+    expect(population).toBeGreaterThan(0);
+    expect(code).toBe(0);
+    // Derived from the corpus, never written as a literal. A hardcoded number would pass today
+    // and go quietly wrong the first time a paper is added - and the count is the whole point,
+    // since a count cannot lie the way "All ... verified valid" could.
+    expect(out).toContain(`All ${population} facsimile source configurations verified valid.`);
   });
 });
