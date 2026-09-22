@@ -11,12 +11,7 @@ import {
 import { useEquationScope } from "./EquationScope.tsx";
 import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
 import { navigate } from "./navigation.ts";
-import {
-  colourStyle,
-  paperQuantityColours,
-  quantityLegend,
-  termColourCss,
-} from "./quantityColourView.ts";
+import { colourStyle, paperQuantityColours, quantityLegend } from "./quantityColourView.ts";
 import { createSelectionStore } from "./selectionStore.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 import "./equations.css";
@@ -113,7 +108,6 @@ export function SemanticEquation({
     const term = id ? equation.terms.find((t) => t.termId === id) : undefined;
     return term ? paperColours[term.quantityId] : undefined;
   };
-  const termColourRules = termColourCss(equation);
   const legend = quantityLegend([equation]);
   const navLabel = effectiveScopeLabel
     ? `Terms and operations in ${equation.title || equation.id} (${effectiveScopeLabel})`
@@ -127,7 +121,6 @@ export function SemanticEquation({
       data-selected-node-id={current ?? undefined}
       data-pattern={String(pattern)}
     >
-      {termColourRules ? <style>{termColourRules}</style> : null}
       <header>
         <p className="eyebrow">Explore the equation · Modern model notation</p>
         <h3>{equation.title}</h3>
@@ -170,7 +163,9 @@ export function SemanticEquation({
           </span>
         ))}
       </p>
-      <p id={`${uid}-keys`} className="fine">
+      {/* The keyboard help is shown while the formula has focus (equations.css), and it is the
+          formula's accessible description either way: aria-describedby reads a hidden node. */}
+      <p id={`${uid}-keys`} className="fine equation-keys">
         Select a term or operation. In the formula, Down enters an operation, Up returns to its
         parent, and Left/Right move between siblings. Escape clears selection. Tab leaves the
         formula.
@@ -219,31 +214,37 @@ export function SemanticEquation({
           Clear equation selection
         </button>
       </div>
-      <nav className="equation-chips" aria-label={navLabel}>
-        {equation.navigation.map((n) => {
-          const noteEntry = equation.notes.find((note) => note.nodeId === n.id);
-          const noteTitle = noteEntry?.title ?? n.id;
-          return (
-            <button
-              type="button"
-              className={
-                n.kind === "term" ? "secondary eq-chip eq-term" : "secondary eq-chip eq-operation"
-              }
-              key={n.id}
-              data-node-id={n.id}
-              data-quantity-id={n.quantityId ?? undefined}
-              data-selected={String(!!selectedNode(n.id))}
-              disabled={!ready}
-              aria-label={`${noteTitle} ${n.kind}`}
-              aria-pressed={!!selectedNode(n.id)}
-              onClick={() => select(n.id)}
-            >
-              {noteTitle}
-              <span className="eq-kind">{n.kind === "term" ? "term" : "operation"}</span>
-            </button>
-          );
-        })}
-      </nav>
+      {/* Every term and operation as a button: the way to explore without a pointer or arrow
+          keys. It was seven or more full-width buttons stacked under every formula, so it opens
+          on request; closed, the buttons stay in the page and in the accessibility tree order. */}
+      <details className="equation-parts">
+        <summary>Each term and operation, in words</summary>
+        <nav className="equation-chips" aria-label={navLabel}>
+          {equation.navigation.map((n) => {
+            const noteEntry = equation.notes.find((note) => note.nodeId === n.id);
+            const noteTitle = noteEntry?.title ?? n.id;
+            return (
+              <button
+                type="button"
+                className={
+                  n.kind === "term" ? "secondary eq-chip eq-term" : "secondary eq-chip eq-operation"
+                }
+                key={n.id}
+                data-node-id={n.id}
+                data-quantity-id={n.quantityId ?? undefined}
+                data-selected={String(!!selectedNode(n.id))}
+                disabled={!ready}
+                aria-label={`${noteTitle} ${n.kind}`}
+                aria-pressed={!!selectedNode(n.id)}
+                onClick={() => select(n.id)}
+              >
+                {noteTitle}
+                <span className="eq-kind">{n.kind === "term" ? "term" : "operation"}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </details>
       {note && (
         <section
           className="equation-inspector"
@@ -304,33 +305,38 @@ export function SemanticEquation({
               : "No numerical binding is declared."}
           </p>
         )}
-        <dl className="equation-value-list">
-          {equation.terms.map((t) => {
-            const b = equation.bindings.find((b) => b.termId === t.termId),
-              v = readTermValue(t, b ? slot : null);
-            return (
-              <div key={t.termId} data-quantity-id={t.quantityId}>
-                <dt
-                  className={paperColours[t.quantityId] ? "equation-quantity" : undefined}
-                  style={colourStyle(paperColours[t.quantityId])}
-                >
-                  {t.quantity.name}
-                  {(t.scale.num !== 1 || t.scale.den !== 1) &&
-                    ` (shown × ${t.scale.num}/${t.scale.den})`}
-                </dt>
-                <dd data-term-value={t.termId} data-value-kind={v.kind}>
-                  {v.kind === "value" ? (
-                    <>
-                      {v.text} <span>{v.unit}</span>
-                    </>
-                  ) : (
-                    v.text
-                  )}
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
+        {/* Values exist only with a laboratory slot. Without one, every term read "No accepted
+            value is available here.", three and four times in a row, under a line that already
+            said the equation is symbolic. */}
+        {slot ? (
+          <dl className="equation-value-list">
+            {equation.terms.map((t) => {
+              const b = equation.bindings.find((b) => b.termId === t.termId),
+                v = readTermValue(t, b ? slot : null);
+              return (
+                <div key={t.termId} data-quantity-id={t.quantityId}>
+                  <dt
+                    className={paperColours[t.quantityId] ? "equation-quantity" : undefined}
+                    style={colourStyle(paperColours[t.quantityId])}
+                  >
+                    {t.quantity.name}
+                    {(t.scale.num !== 1 || t.scale.den !== 1) &&
+                      ` (shown × ${t.scale.num}/${t.scale.den})`}
+                  </dt>
+                  <dd data-term-value={t.termId} data-value-kind={v.kind}>
+                    {v.kind === "value" ? (
+                      <>
+                        {v.text} <span>{v.unit}</span>
+                      </>
+                    ) : (
+                      v.text
+                    )}
+                  </dd>
+                </div>
+              );
+            })}
+          </dl>
+        ) : null}
       </div>
       <details>
         <summary>Read the equation aloud in words</summary>

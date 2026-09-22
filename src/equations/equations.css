@@ -151,8 +151,10 @@
    The slots and their values live in src/equations/quantityColours.ts, and
    quantityColours.test.ts checks that these declarations match them, so the two cannot drift.
    A coloured element sets --qc (its slot's colour) and --qd (its slot's pattern-mode line):
-   the formula's term spans through a rule per term id that SemanticEquation writes, and the
-   sentence, legend and value list through an inline style. Both read the same map.
+   a term span in any compiled equation's KaTeX HTML through src/generated/quantity-colours.css,
+   one rule per term id written by build-equations.ts, so the explorer, the reading's formulas
+   and the mass-energy derivations colour a quantity alike without rules of their own; the
+   sentence, legend, value list and show-the-code through an inline style from the same map.
 
    KaTeX wraps each term's glyphs in a role span (am-role-*) inside the term span. The role span's
    own colour would win over anything the term span inherits, so inside a formula it takes the
@@ -193,8 +195,8 @@
     --q-8: #ecc1e7;
   }
 }
-.equation-visual [data-term],
-.equation-visual [data-term] [class*="am-role-"],
+.katex [data-term],
+.katex [data-term] [class*="am-role-"],
 .equation-quantity {
   color: var(--qc, inherit);
 }
@@ -516,4 +518,26 @@
 .reading-formula .equation-legend {
   justify-content: center;
   margin: 0.35rem 0 0;
+}
+
+/* THE EXPLORER, QUIETER (TanElk's BUILD 10 review). The keyboard help shows while the formula
+   has focus, which is when it is useful; it stays the formula's accessible description. The
+   two tools sit on one row at the interface's small size. The term and operation buttons open
+   from a summary instead of stacking under every formula. */
+.semantic-equation .equation-keys {
+  display: none;
+}
+.semantic-equation .equation-formula:focus-within ~ .equation-keys {
+  display: block;
+}
+.semantic-equation .equation-tools button {
+  font-size: var(--type-fine);
+  padding-inline: 0.8rem;
+}
+.semantic-equation .equation-parts {
+  margin: 0.5rem 0;
+}
+.semantic-equation .equation-parts > summary {
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
 }

@@ -125,3 +125,12 @@
 .kernel-string {
   color: var(--plot);
 }
+
+/* ONE COLOUR PER QUANTITY (owner's ruling, 2026-09-22; reading pane %42). A trace row keeps its
+   am-role-* class as a marker, but its colour is its quantity's, set as --qc by ShowTheCode from
+   the paper's map; a quantity no equation shows keeps the ink. Without this the global role
+   colours applied, so viscosity was ochre in the equation and brown in the trace beside it, and
+   the role colours were light-theme values on the dark theme. */
+.kernel-trace tr[class^="am-role-"] {
+  color: var(--qc, inherit);
+}

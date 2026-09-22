@@ -1,16 +1,23 @@
 import type { ReactNode } from "react";
 import {
   highlightKernelSource,
-  quantityHue,
   selectionCss,
   tokenizeKernelSource,
 } from "../../content/kernel/highlight.ts";
 import { roleForQuantity } from "../../content/kernel/trace.ts";
 import type { WorkedTrace } from "../../content/kernel/types.ts";
 import { KERNEL_DISPLAY_ROLE_LABELS, type KernelListing } from "../../content/kernel/types.ts";
+import {
+  colourStyle,
+  paperOfId,
+  paperQuantityColours,
+  type QuantityColour,
+} from "../../equations/quantityColourView.ts";
 import "./showTheCode.css";
 
-function TraceTable({ trace }: { trace: WorkedTrace }) {
+type Colours = Readonly<Record<string, QuantityColour>>;
+
+function TraceTable({ trace, colours }: { trace: WorkedTrace; colours: Colours }) {
   return (
     <section
       className="kernel-trace-wrap"
@@ -44,6 +51,7 @@ function TraceTable({ trace }: { trace: WorkedTrace }) {
                 data-quantity-id={row.quantityId}
                 data-op-id={row.opId}
                 className={roleClass}
+                style={colourStyle(row.quantityId ? colours[row.quantityId] : undefined)}
               >
                 <th scope="row">{row.label}</th>
                 <td>
@@ -90,6 +98,17 @@ export function ShowTheCode({
   equationCard,
   uid = "stc",
 }: ShowTheCodeProps) {
+  /*
+    ONE COLOUR PER QUANTITY, here as in the equations (owner's ruling, 2026-09-22). The listing's
+    paper is read from its equation or instrument id, and an identifier or trace row takes that
+    paper's colour for its quantity. A quantity no equation on the page shows (the gas constant,
+    Avogadro's number) keeps the ink: a colour it does not have would read as a claim.
+  */
+  const paper = listings
+    .flatMap((l) => [l.equationId, ...l.independentReferences.map((r) => r.experimentId)])
+    .map(paperOfId)
+    .find(Boolean);
+  const colours: Colours = paper ? paperQuantityColours(paper) : {};
   const quantityIds = [
     ...new Set([
       ...listings.flatMap((l) => l.identifierBindings.map((b) => b.quantityId)),
@@ -209,7 +228,8 @@ export function ShowTheCode({
                                   className="kernel-ident"
                                   data-quantity-id={token.quantityId}
                                   style={{
-                                    color: quantityHue(token.quantityId),
+                                    ...colourStyle(colours[token.quantityId]),
+                                    color: "var(--qc, inherit)",
                                     textDecoration: "underline",
                                     textDecorationStyle: "dotted",
                                     textUnderlineOffset: "0.18em",
@@ -239,7 +259,7 @@ export function ShowTheCode({
                       </pre>
                     </section>
                   ) : null}
-                  {listing.trace ? <TraceTable trace={listing.trace} /> : null}
+                  {listing.trace ? <TraceTable trace={listing.trace} colours={colours} /> : null}
                   {listing.independentReferences.length > 0 ? (
                     <ul>
                       {listing.independentReferences.map((ref) => (

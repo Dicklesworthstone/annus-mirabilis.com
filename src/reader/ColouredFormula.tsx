@@ -9,16 +9,14 @@
  * glyph and name, which is the channel that does not depend on seeing colour. Exploring a term
  * stays with the explorer cards.
  */
-import { colourStyle, quantityLegend, termColourCss } from "../equations/quantityColourView.ts";
+import { colourStyle, quantityLegend } from "../equations/quantityColourView.ts";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
 import "../equations/equations.css";
 
 export function ColouredFormula({ equations }: { equations: readonly CompiledEquation[] }) {
-  const rules = equations.map(termColourCss).join("");
   const legend = quantityLegend(equations);
   return (
     <div className="reading-formula" data-equations={equations.map((e) => e.id).join(" ")}>
-      {rules ? <style>{rules}</style> : null}
       <div className="reading-formula-row">
         {equations.map((equation) => (
           <div key={equation.id} className="reading-formula-relation">
