@@ -95,14 +95,7 @@ export function NudgeSensitivityDemo({
         }}
       >
         <Sub style={{ margin: "0 0 0.5rem 0" }}>What the model computes</Sub>
-        <dl
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 1fr",
-            gap: "0.4rem 1.5rem",
-            margin: 0,
-          }}
-        >
+        <dl className="readout-grid">
           <dt style={{ color: "var(--muted)" }}>Baseline frequency (ν₀):</dt>
           <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
             <Sci value={baseNu} digits={2} /> Hz

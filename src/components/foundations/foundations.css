@@ -140,6 +140,28 @@
   }
 }
 
+/*
+ * A construction's readout: label and value side by side where there is room, stacked on a phone.
+ * A power of ten drawn by Sci does not break across lines, so at 320px "4.135667696 × 10⁻¹⁵" (176px)
+ * could not share the panel's ~232px with its label, and /foundations/derivatives/ scrolled
+ * sideways by 9px (node lane, phoneOverflow, BUILD ebbcb39b).
+ */
+.readout-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.4rem 1.5rem;
+  margin: 0;
+}
+@media (max-width: 480px) {
+  .readout-grid {
+    grid-template-columns: 1fr;
+    row-gap: 0.1rem;
+  }
+  .readout-grid dd {
+    margin-bottom: 0.5rem;
+  }
+}
+
 .construction-text-equivalent {
   margin-top: 1rem;
   font-size: var(--type-fine);

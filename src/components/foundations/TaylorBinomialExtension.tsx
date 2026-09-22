@@ -240,15 +240,7 @@ export function TaylorBinomialExtension({
         }}
       >
         <SubSub style={{ margin: "0 0 0.5rem 0" }}>Comparison at v/c = 10⁻⁴ (x = 10⁻⁸)</SubSub>
-        <dl
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 1fr",
-            gap: "0.4rem 1.5rem",
-            margin: 0,
-            fontSize: "0.9rem",
-          }}
-        >
+        <dl className="readout-grid" style={{ fontSize: "0.9rem" }}>
           <dt style={{ color: "var(--muted)" }}>First series term (½ x):</dt>
           <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
             <Sci value={firstTermLow} digits={10} />
