@@ -180,18 +180,38 @@ export default function DiscoverIndex() {
         </article>
       </section>
 
-      <section className="reading page-flush">
-        <h2>
-          {spelled(UNWRITTEN_COUNT)} {plural(UNWRITTEN_COUNT)} not written yet
-        </h2>
-        <p>
-          Each of these papers has its reading edition and its instruments. What is missing is the
-          reconstruction: the shelf, the difficulty, and the fork where a reasonable person could
-          have gone the other way. Until that is written, the paper itself is the better door.
-        </p>
-      </section>
+      {/*
+        THE TERMINAL STATE HAD NO COPY WRITTEN FOR IT, and the page reached it today.
+        When special-relativity landed, UNWRITTEN_COUNT went to 0 and this section still rendered
+        unconditionally: spelled(0) is "no", so the heading read "no routes not written yet" above
+        a paragraph describing a set with nothing in it, followed by an empty
+        <section className="journey-catalogue"> where the last card had been.
 
-      <section className="journey-catalogue"></section>
+        A data-driven page still needs copy for every value its data can take. The count became
+        correct and the sentence around it did not.
+      */}
+      {UNWRITTEN_COUNT > 0 ? (
+        <section className="reading page-flush">
+          <h2>
+            {spelled(UNWRITTEN_COUNT)} {plural(UNWRITTEN_COUNT)} not written yet
+          </h2>
+          <p>
+            Each of these papers has its reading edition and its instruments. What is missing is the
+            reconstruction: the shelf, the difficulty, and the fork where a reasonable person could
+            have gone the other way. Until that is written, the paper itself is the better door.
+          </p>
+        </section>
+      ) : (
+        <section className="reading page-flush">
+          <h2>All {spelled(WRITTEN_COUNT).toLowerCase()} routes are written</h2>
+          <p>
+            Every paper of 1905 now has a reconstruction as well as an edition. Each starts from
+            what was on the shelf at the end of 1904, meets the difficulty that did not fit, and
+            offers the forks where a careful reader could have gone another way. None of them claims
+            to be what Einstein thought.
+          </p>
+        </section>
+      )}
     </>
   );
 }
