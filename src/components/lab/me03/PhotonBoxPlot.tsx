@@ -258,9 +258,7 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
 
       {/* Accessible & Print Representation Scale Facts */}
       <section className="scale-facts-section">
-        <h4 className="scale-facts-heading">
-          Published Representation Scale (am-inst-2d-view-kit-u75r)
-        </h4>
+        <h4 className="scale-facts-heading">The drawing&apos;s scale</h4>
         <div className="scale-facts-table-wrap">
           <table className="scale-facts-table">
             <tbody>

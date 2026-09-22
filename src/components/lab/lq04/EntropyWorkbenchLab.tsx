@@ -359,7 +359,7 @@ export function EntropyWorkbenchLab({
           <p className="fine">Not modeled: {LQ04_NOT_MODELED.join("; ")}.</p>
 
           <details>
-            <summary>Action contract: the same action without dragging, color, or a canvas</summary>
+            <summary>The same action without dragging, color, or a canvas</summary>
             <p>
               Every action here is typed text entry and a text result: choose half, same, or double,
               or type any volume ratio, and read the entropy-change sentence and the state table

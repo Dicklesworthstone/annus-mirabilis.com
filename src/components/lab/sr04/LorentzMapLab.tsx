@@ -411,9 +411,7 @@ export function LorentzMapLab({
           <p className="fine">Not modeled: {SR04_NOT_MODELED.join("; ")}.</p>
 
           <details>
-            <summary>
-              Action contract: the same construction without dragging, color, or a canvas
-            </summary>
+            <summary>The same construction without dragging, color, or a canvas</summary>
             <p>
               Every action here is a checkbox toggle or typed text entry, and every result is a text
               table or sentence. Enable constraints from the checklist, type a hand-built

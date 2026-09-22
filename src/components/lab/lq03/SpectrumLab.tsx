@@ -464,7 +464,7 @@ export function SpectrumLab({
           <p className="fine">Not modeled: {LQ03_NOT_MODELED.join("; ")}.</p>
 
           <details>
-            <summary>Action contract: the same action without dragging, color, or a canvas</summary>
+            <summary>The same action without dragging, color, or a canvas</summary>
             <p>
               Every action here is typed text entry and a text result: type the band edges and probe
               frequency in hertz, choose the representation from the select lists above, and read
