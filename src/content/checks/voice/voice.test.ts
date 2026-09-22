@@ -622,3 +622,114 @@ describe("translation layer and German source block policy (AC2)", () => {
     assert.ok(failingReports.some((r) => r.rule === "condescension"));
   });
 });
+
+/**
+ * The de-slop rules, added on the owner's directive of 2026-09-22. Every rule here carries BOTH
+ * negatives, which is the model D-2026-09-19-theater-points-compounds sets: real slop it must
+ * catch, and real technical prose it must NOT flag. The must-not-flag cases are not invented —
+ * each one is a sentence this edition legitimately needs, and several are drawn from the papers
+ * themselves (p. 907 of ap-17-891 says that (X, Y, Z) REPRESENTS the vector of the electric
+ * force, which is why "represents" can never join a copula-avoidance list here).
+ */
+describe("de-slop rules", () => {
+  const DESLOP = new Set([
+    "setup-reversal",
+    "negative-parallelism",
+    "copula-avoidance",
+    "significance-inflation",
+    "heres-why",
+    "unverified-count",
+  ]);
+  const deslopFindings = (text: string, context: "prose" | "ui-label" = "prose") =>
+    checkVoice(text, { context }).filter((f) => DESLOP.has(f.rule));
+
+  it("catches the hero copy the owner objected to, by rule and by name", () => {
+    // The literal string that shipped on the homepage until 2026-09-22.
+    const findings = deslopFindings("A different way to ask why.");
+    assert.ok(has(findings, "significance-inflation", "error"), "hero must fail");
+  });
+
+  it("catches each de-slop pattern at error severity", () => {
+    for (const [rule, text] of [
+      ["setup-reversal", "Einstein's papers were unreadable. Until now."],
+      ["negative-parallelism", "This isn't just a website about physics."],
+      ["copula-avoidance", "The ledger serves as a diplomatic transcription."],
+      ["significance-inflation", "A transformative reimagining of the 1905 papers."],
+      ["heres-why", "Here's why it matters."],
+    ] as const) {
+      assert.ok(has(deslopFindings(text), rule, "error"), `${rule} must fail on: ${text}`);
+    }
+  });
+
+  it("does NOT flag the technical prose a physics edition needs", () => {
+    for (const text of [
+      // "transform" and "transformation" are the subject of sections 3 and 6; only
+      // "transformative" is inflation, and the phrase matcher's letter boundaries keep them apart.
+      "Transform the energy and volume of a finite light complex",
+      "Apply the transformation equations found in section 3.",
+      // The verbs deliberately excluded from copula-avoidance.
+      "(X, Y, Z) represents the vector of the electric force.",
+      "The viscous drag acts as a restoring influence on the particle.",
+      "A diffusion law emerges as the limit of independent steps.",
+      "Each printed page corresponds to one ANNALEN-PAGE marker.",
+      // Deictic "here", and the measured correlative, are ordinary exposition.
+      "Here the observer measures the interval between two events.",
+      "The result is not only exact but also independent of the frame.",
+    ]) {
+      assert.deepEqual(rulesOf(deslopFindings(text)), [], `must stay quiet on: ${text}`);
+    }
+  });
+
+  it("unverified-count catches the false heading that shipped, and the two counts beside it", () => {
+    // Built against the real defect: "Six laboratories and a reading path" was contradicted by
+    // its own next paragraph, which enumerated five, while eight bm-* routes exist.
+    assert.ok(has(deslopFindings("Six laboratories and a reading path"), "unverified-count"));
+    const inherited = deslopFindings("six explanatory passages and thirteen foundation lessons");
+    assert.equal(
+      inherited.filter((f) => f.rule === "unverified-count").length,
+      2,
+      "both inherited counts must be caught, not just the first",
+    );
+  });
+
+  it("unverified-count leaves numerals, fixed facts and domain counts alone", () => {
+    for (const text of [
+      // Digits are never touched: every measured quantity in this edition is one.
+      "Ann. Phys. (4) 17, 549-560 (1905), pages 549 to 560",
+      "The displacement is 0.8 micrometres in one second.",
+      "See section 3 for the transformation equations.",
+      // Four is fixed by the subject and cannot drift as the edition grows.
+      "Einstein's four papers of 1905",
+      // The noun must follow the numeral, not merely appear later in the clause.
+      "A laboratory for six particles",
+      "six months after the laboratory opened",
+      // Measured false positives that cost "routes" and "experiments" their place in the rule.
+      "These are two accounts of one emission, not two experiments.",
+      "The two routes to D agree.",
+    ]) {
+      assert.deepEqual(
+        deslopFindings(text).filter((f) => f.rule === "unverified-count"),
+        [],
+        `unverified-count must stay quiet on: ${text}`,
+      );
+    }
+  });
+
+  it("a translation of Einstein is downgraded, never hard-failed", () => {
+    // The boundary in code: source and translation layers are not ours to restyle, so an
+    // error becomes a flag rather than failing a gate on his words.
+    const findings = checkVoice("A different way to state the result is available.", {
+      context: "prose",
+      source: { layer: "translation" },
+    }).filter((f) => DESLOP.has(f.rule));
+    assert.ok(has(findings, "significance-inflation", "flag"));
+    assert.ok(!has(findings, "significance-inflation", "error"));
+  });
+
+  it("each regex rule states its own repair, and ascii-dash keeps the one it always had", () => {
+    const count = deslopFindings("Six laboratories").find((f) => f.rule === "unverified-count");
+    assert.match(count?.suggestion ?? "", /Verify the count/);
+    const dash = checkVoice("a -- b", { context: "prose" }).find((f) => f.rule === "ascii-dash");
+    assert.match(dash?.suggestion ?? "", /Restructure without a joining dash/);
+  });
+});

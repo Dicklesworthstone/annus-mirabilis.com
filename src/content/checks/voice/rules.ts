@@ -43,6 +43,12 @@ export interface RegexRule {
   readonly description: string;
   readonly pattern: string;
   readonly defaultSeverity: Severity;
+  /**
+   * Repair text shown with the finding. Optional so `ascii-dash`, the only regex rule that
+   * predates this field, keeps the wording it always had; every regex rule added after it
+   * states its own, because one rule's repair advice is wrong for another's defect.
+   */
+  readonly repair?: string;
   readonly quotationExempt?: boolean;
   readonly codeSpanExempt?: boolean;
   readonly translationSeverity?: Severity;
@@ -125,7 +131,13 @@ export type RuleId =
   | "mockery"
   | "overclaim"
   | "independence-claim"
-  | "pedagogy-claim";
+  | "pedagogy-claim"
+  | "setup-reversal"
+  | "negative-parallelism"
+  | "copula-avoidance"
+  | "significance-inflation"
+  | "heres-why"
+  | "unverified-count";
 
 export const RULE_IDS: readonly RuleId[] = [
   "em-dash",
@@ -143,6 +155,12 @@ export const RULE_IDS: readonly RuleId[] = [
   "overclaim",
   "independence-claim",
   "pedagogy-claim",
+  "setup-reversal",
+  "negative-parallelism",
+  "copula-avoidance",
+  "significance-inflation",
+  "heres-why",
+  "unverified-count",
 ];
 
 export interface VoiceRules {

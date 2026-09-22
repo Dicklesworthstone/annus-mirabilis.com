@@ -320,3 +320,157 @@ rules:
       - minimal guidance is worthless
     defaultSeverity: error
 
+
+  # --- de-slop rules (owner directive of 2026-09-22: "there are horrendous slop writing
+  # tropes. Every word of copy on the entire site has to have /de-slopify applied to it
+  # rigorously"). Added as RULES rather than as a one-time rewrite so the patterns cannot
+  # come back. Every rule below is a phrase-list of NAMED collocations, never a bare word or
+  # a part-of-speech pattern, for the reason recorded in docs/DECISIONS.md
+  # D-2026-09-19-theater-points-compounds: a rule broad enough to catch the marketing form
+  # is broad enough to fire on legitimate physics prose, and blinding it afterwards is worse
+  # than scoping it correctly now. Each rule below names, in its own comment, the vocabulary
+  # it deliberately does NOT claim and why.
+
+  setup-reversal:
+    description: "Reversal markers that set an expectation only to overturn it. Marketing cadence, not exposition."
+    # NOT CLAIMED: the two-beat fragment headline itself ("Four papers. / A different way /
+    # to ask why."). The linter sees each JSX text node separately, so a rule cannot see that
+    # the fragments are adjacent. That hero is caught instead by significance-inflation, on
+    # "a different way to", and voice.test.ts plants the literal string to prove it.
+    kind: phrase-list
+    phrases:
+      - until now
+      - not anymore
+      - that changes now
+      - all that changed
+      - think again
+      - "or so you might think"
+      - "or so it seems"
+    defaultSeverity: error
+
+  negative-parallelism:
+    description: "The marketing reversal in its lexical forms: the thing is disowned, then reasserted bigger."
+    # NOT CLAIMED: the bare correlative "not only X but also Y", and bare "not just". Both are
+    # ordinary measured academic prose - "the transformation is not only exact but also
+    # independent of the frame" is a sentence this edition may legitimately need. Only the
+    # collocations that carry the marketing register are listed.
+    kind: phrase-list
+    phrases:
+      - not just another
+      - more than just
+      - "isn't just"
+      - "it's not about"
+      - it is not about
+      - "isn't about"
+      - not your average
+      - "this isn't your"
+    defaultSeverity: error
+
+  copula-avoidance:
+    description: "Standing in for a plain 'is' with a verb of agency, so a description sounds like an achievement."
+    # NOT CLAIMED, and this is the most important exclusion in this file: "represents",
+    # "acts as", "functions as", "corresponds to" and "emerges as" are all load-bearing
+    # technical language in a critical edition of physics papers. Page 907 of ap-17-891 says
+    # in so many words that (X, Y, Z) REPRESENTS the vector of the electric force. A rule
+    # that banned those verbs would be the "data points" false positive again, one order of
+    # magnitude worse. Only the inflated collocations are listed.
+    kind: phrase-list
+    phrases:
+      - serves as a
+      - stands as a
+      - positions itself as
+      - establishes itself as
+      - "emerges as the definitive"
+    defaultSeverity: error
+
+  significance-inflation:
+    description: "Claiming importance in place of stating content."
+    # NOT CLAIMED: "transform", "transformation" and "transformative" are three different
+    # words here. Only the last is inflation; the first two are the subject matter of
+    # sections 3 and 6 of the relativity paper and appear in our own link labels. The phrase
+    # matcher asserts letter boundaries, so listing "transformative" cannot reach either of
+    # the others, and voice.test.ts plants that pair.
+    kind: phrase-list
+    phrases:
+      - a different way to
+      - a new way to think about
+      - a different way to think about
+      - at its core
+      - a testament to
+      - serves as a reminder
+      - stands as a reminder
+      - changed everything
+      - changed the world
+      - forever changed
+      - nothing short of
+      - paradigm shift
+      - transformative
+      - reimagine
+      - reimagines
+      - reimagined
+      - what if I told you
+      - the real question is
+    defaultSeverity: error
+
+  heres-why:
+    description: "The explainer tic that announces an explanation instead of giving one."
+    # NOT CLAIMED: "here" used deictically. "Here the observer measures the interval" is
+    # ordinary exposition and cannot match, because every phrase below requires the
+    # contraction or the copula plus a following word.
+    kind: phrase-list
+    phrases:
+      - "here's why"
+      - here is why
+      - "here's how"
+      - here is how
+      - "here's what"
+      - here is what
+      - "here's the thing"
+      - "but here's"
+      - "and here's"
+    defaultSeverity: error
+
+  unverified-count:
+    description: "A spelled-out count of a site object that drifts as the edition grows."
+    # WHY THIS RULE EXISTS, and it is not a style rule. De-slopping toward specificity
+    # MANUFACTURES FACTUAL CLAIMS: vague copy cannot be wrong, specific copy can. The homepage
+    # hero "When each path is uncertain, what can still be predictable?" was bad writing that
+    # was unfalsifiable; its replacement heading "Six laboratories and a reading path" was
+    # better writing that was FALSE, contradicted by its own next paragraph, which enumerated
+    # five. Two inherited counts in the same block - "six explanatory passages and thirteen
+    # foundation lessons" - matched no population that could be constructed either. All three
+    # shipped and were caught in review. This rule is built against that defect, not a
+    # synthetic one.
+    #
+    # NOT CLAIMED: digits. "1905", "§ 3", "0.8 micrometres" and every measured quantity in this
+    # edition are numerals and must never be touched by a voice rule; only spelled-out cardinals
+    # immediately preceding a drifting-object noun can match.
+    #
+    # NOT CLAIMED, and this was MEASURED rather than guessed: "routes" and "experiments".
+    # With both in the noun list the rule produced 6 findings across 16,918 scanned items and
+    # 5 were false: "These are two accounts of one emission, not two experiments", "The two
+    # routes to D agree", "Three routes toward a molecular number", "it does not provide two
+    # independent experiments", and a fieldset legend "the two diffusion routes". Every one is
+    # a distinction fixed by the physics, not a count of site objects that grows as the
+    # edition does. Dropping the two nouns leaves the single true positive. This is the same
+    # correction D-2026-09-19-theater-points-compounds records for "data points": scope the
+    # rule to what it is for, rather than fire it across legitimate domain prose and then
+    # blind it with exceptions.
+    #
+    # NOT CLAIMED: "papers". Four is fixed by the subject - the four papers Einstein sent to
+    # Annalen der Physik in 1905 - and cannot drift as the edition grows, so "four papers" is
+    # a permanent fact rather than an unverified count. Laboratories, lessons and passages all
+    # change every time one lands, which is exactly what makes a count of them a liability.
+    #
+    # A count that HAS been verified is not forbidden; it goes through
+    # content/editorial/voice-overrides.yaml with the command that produced it, which is the
+    # repo's designed escape hatch and the same shape as every other exemption here. Naming the
+    # exemption is the point; blinding the rule is what D-2026-09-19-theater-points-compounds
+    # forbids.
+    kind: regex
+    pattern: "(?<![\\p{L}])(?:[Tt]wo|[Tt]hree|[Ff]our|[Ff]ive|[Ss]ix|[Ss]even|[Ee]ight|[Nn]ine|[Tt]en|[Ee]leven|[Tt]welve|[Tt]hirteen|[Ff]ourteen|[Ff]ifteen|[Ss]ixteen|[Ss]eventeen|[Ee]ighteen|[Nn]ineteen|[Tt]wenty)(?:\\s+[A-Za-z-]+)?\\s+(?:[Ll]aborator(?:y|ies)|[Ll]essons?|[Pp]assages?|[Ii]nstruments?|[Jj]ourneys?|[Tt]ours?|[Ff]oundations?)(?![\\p{L}])"
+    defaultSeverity: flag
+    quotationExempt: true
+    codeSpanExempt: true
+    translationSeverity: flag
+    repair: "Verify the count and record the command that produced it, or write the sentence without a number."

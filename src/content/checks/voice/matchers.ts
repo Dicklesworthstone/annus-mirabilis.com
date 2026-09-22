@@ -168,7 +168,7 @@ export function matchRegexRule(
         severity,
         context,
         { index: m.index, matchedText: m[0] },
-        "Restructure without a joining dash; use a comma, colon, or separate sentence.",
+        rule.repair ?? "Restructure without a joining dash; use a comma, colon, or separate sentence.",
       ),
     );
   }

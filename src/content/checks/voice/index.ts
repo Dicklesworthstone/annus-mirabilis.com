@@ -164,6 +164,61 @@ export function checkVoice(text: string, options: CheckVoiceOptions): VoiceFindi
     ),
   );
 
+  findings.push(
+    ...matchPhraseListRule(
+      text,
+      rules.rules["setup-reversal"] as PhraseListRule,
+      "setup-reversal",
+      context,
+      source,
+    ),
+  );
+  findings.push(
+    ...matchPhraseListRule(
+      text,
+      rules.rules["negative-parallelism"] as PhraseListRule,
+      "negative-parallelism",
+      context,
+      source,
+    ),
+  );
+  findings.push(
+    ...matchPhraseListRule(
+      text,
+      rules.rules["copula-avoidance"] as PhraseListRule,
+      "copula-avoidance",
+      context,
+      source,
+    ),
+  );
+  findings.push(
+    ...matchPhraseListRule(
+      text,
+      rules.rules["significance-inflation"] as PhraseListRule,
+      "significance-inflation",
+      context,
+      source,
+    ),
+  );
+  findings.push(
+    ...matchPhraseListRule(
+      text,
+      rules.rules["heres-why"] as PhraseListRule,
+      "heres-why",
+      context,
+      source,
+    ),
+  );
+  findings.push(
+    ...matchRegexRule(
+      text,
+      rules.rules["unverified-count"] as RegexRule,
+      "unverified-count",
+      context,
+      source,
+    ),
+  );
+
   return findings.sort((a, b) => a.index - b.index);
 }
 
