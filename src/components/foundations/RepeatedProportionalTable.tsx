@@ -137,7 +137,13 @@ export function RepeatedProportionalTable() {
         </p>
       </div>
 
-      <div className="construction-table-wrap" style={{ marginTop: "1rem" }}>
+      <section
+        className="construction-table-wrap"
+        style={{ marginTop: "1rem" }}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns are unreachable by keyboard, which is the access defect the scroll container would otherwise introduce (am-bc6s). Suppressed inline at the site, following ModernOnlySymbolsView.tsx, rather than as a per-file override that turns the rule off for a whole file and carries no reason with it.
+        tabIndex={0}
+        aria-label="Compounding decay steps with constant multiplier e to the minus 0.5, scrollable table"
+      >
         <table
           className="data-table"
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
@@ -188,7 +194,7 @@ export function RepeatedProportionalTable() {
             })}
           </tbody>
         </table>
-      </div>
+      </section>
 
       <div className="dimensionless-exponents-note" style={{ marginTop: "1.5rem" }}>
         <h4>Why exponents must always be dimensionless</h4>

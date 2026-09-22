@@ -275,6 +275,78 @@ test("foundCalculus.constructions: FoundationConstruction dispatcher renders cor
   assert.equal(unknownHtml, "");
 });
 
+/*
+ * am-uj6w / am-bc6s. EVERY construction wrapper scrolls, so every one needs a tab stop.
+ *
+ * .construction-table-wrap declares overflow-x: auto (foundations.css). A container that scrolls
+ * and cannot be focused puts its off-screen columns out of a keyboard's reach altogether, which is
+ * a worse defect than the overflow it replaces: an overflowing page at least left the content
+ * reachable. WCAG 2.1.1, axe scrollable-region-focusable.
+ *
+ * Measured at 320px across the built routes on 2026-09-22, before this test existed:
+ * logarithms +202px, exponentials +64px, derivatives +23px past the viewport. functions-graphs
+ * fits today and is checked anyway, because whether a container that DECLARES scrolling actually
+ * scrolls is a property of its data and the reader's type size, not of the viewport alone.
+ *
+ * Two things are asserted as a single question. The element must be a <section>, because a bare
+ * <div> has role=generic and a generic element takes no accessible name at all - biome rejects
+ * aria-label on one, and it was this rule that caught the first version of the repair. The name
+ * is then asserted present and non-empty rather than by its text: the wording belongs to each
+ * table's <caption> and will be reworded, while the defect this guards is a missing tab stop.
+ *
+ * The per-construction non-vacuity check is deliberate. Without it, a renamed class would make
+ * every loop body execute zero times and the test would report a clean pass having examined
+ * nothing.
+ */
+test("foundCalculus.constructions: every scrolling construction wrapper is focusable and named", () => {
+  const constructions = [
+    { name: "TableToPlotBuilder", node: <TableToPlotBuilder /> },
+    { name: "NudgeSensitivityDemo", node: <NudgeSensitivityDemo /> },
+    { name: "HeldFixedToggle", node: <HeldFixedToggle /> },
+    { name: "RepeatedProportionalTable", node: <RepeatedProportionalTable /> },
+    { name: "LogarithmProductTable", node: <LogarithmProductTable /> },
+    { name: "TaylorBinomialExtension", node: <TaylorBinomialExtension /> },
+  ];
+
+  let checked = 0;
+  for (const { name, node } of constructions) {
+    const html = renderToStaticMarkup(node);
+    // Membership in the class list, not a substring of it: "construction-table-wrap-inner" and
+    // "construction-table-wrapX" both CONTAIN the token, and a substring match would have credited
+    // either as the audited wrapper. Found by planting a rename and watching this test stay green.
+    const wrappers = (html.match(/<[a-z]+[^>]*class="[^"]*"[^>]*>/g) ?? []).filter((tag) => {
+      const cls = tag.match(/class="([^"]*)"/)?.[1];
+      return cls?.split(/\s+/).includes("construction-table-wrap") ?? false;
+    });
+    assert.ok(
+      wrappers.length > 0,
+      `${name} renders no construction-table-wrap at all, so the checks below would examine nothing. The class was probably renamed.`,
+    );
+    for (const tag of wrappers) {
+      assert.match(
+        tag,
+        /^<section\b/,
+        `${name}: the scrolling wrapper is not a <section>, and a generic element carries no accessible name: ${tag}`,
+      );
+      assert.match(
+        tag,
+        /tabindex="0"/,
+        `${name}: the scrolling wrapper has no tab stop, so its off-screen columns cannot be reached by keyboard: ${tag}`,
+      );
+      const label = tag.match(/aria-label="([^"]*)"/)?.[1];
+      assert.ok(
+        label !== undefined && label.trim().length > 0,
+        `${name}: the scrolling wrapper has no accessible name: ${tag}`,
+      );
+      checked += 1;
+    }
+  }
+  assert.ok(
+    checked >= constructions.length,
+    `only ${checked} wrappers checked across ${constructions.length} constructions`,
+  );
+});
+
 test("foundCalculus.constructions: E2E 1 - From Brownian §4, open foundation:partial-derivatives, toggle held fixed, and return to exact step", async () => {
   await installDom();
   registerDefaultClarificationKinds();

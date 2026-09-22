@@ -128,7 +128,13 @@ export function NudgeSensitivityDemo() {
         </dl>
       </div>
 
-      <div className="construction-table-wrap" style={{ marginTop: "1rem" }}>
+      <section
+        className="construction-table-wrap"
+        style={{ marginTop: "1rem" }}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns are unreachable by keyboard, which is the access defect the scroll container would otherwise introduce (am-bc6s). Suppressed inline at the site, following ModernOnlySymbolsView.tsx, rather than as a per-file override that turns the rule off for a whole file and carries no reason with it.
+        tabIndex={0}
+        aria-label="Frequency steps and sensitivity ratio, scrollable table"
+      >
         <table
           className="data-table"
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
@@ -174,7 +180,7 @@ export function NudgeSensitivityDemo() {
             })}
           </tbody>
         </table>
-      </div>
+      </section>
 
       <div
         className="construction-text-equivalent"
