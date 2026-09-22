@@ -136,6 +136,11 @@
 .reader-outline nav > div {
   display: flex;
   flex-direction: column;
+  /* The global `nav { gap: 1.5rem }` is for the header's row of links. Down this column it put
+     24px between every pair of groups: 240px of the 929px outline on special-relativity in
+     BUILD 6, which is what pushed its bottom off a 900px screen. The groups' own 0.25rem
+     margin separates them. Column gap is left alone for the two-column grid below 900px. */
+  row-gap: 0;
 }
 .reader-outline nav > div {
   margin-bottom: 0.25rem;

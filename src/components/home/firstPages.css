@@ -1,35 +1,34 @@
 /*
- * CHROME (pane %34): THE FOUR FIRST PAGES, IN THE ORDER THE JOURNAL RECEIVED THEM.
+ * CHROME (pane %34): THE FOUR FIRST PAGES LEAD THE HOME PAGE.
  *
- * Below 1100px the four sit in equal columns in date order. From 1100px each plate's left edge
- * stands on its received date along 1905, and the month axis is drawn to the day: its columns are
- * 31fr 28fr 31fr ... so a plate and the month it falls in agree, where equal twelfths would be off
- * by up to five days.
- *
- * The marks under a plate are one per printed page (17, 12, 31, 3), all at the same pitch, so
- * their lengths compare as the page counts do. They are real elements rather than a gradient,
- * because a gradient's percentage stops resolve against its own box and would not keep the pitch.
+ * Four plates in received order, two by two on a phone and four across from 700px, as wide as the
+ * content allows (about 306px each at 1440) so each reads as a page of German type with a title
+ * block. Each carries a calendar label above it (the day as a numeral over the month, so every
+ * label has the same two lines) and one mark per printed page below it (17, 12, 31, 3) at one
+ * pitch, so the marks' lengths compare as the page counts do. From 1100px a ruler of 1905 under
+ * the plates places the four received dates to the day: its month columns are 31fr 28fr 31fr...,
+ * so a tick and the month it falls in agree.
  */
 .first-pages {
-  margin: 2rem 0 0.5rem;
+  margin: 2.5rem 0 0.5rem;
 }
 .first-pages-list {
-  --mark-gap: 1px;
+  --mark-gap: 2px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem 1rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-/* Each column is a subgrid of the list's three rows, so a date that wraps ("27 September" at
-   390px) moves all four plates down together instead of dropping one out of line. */
+/* Each column is a subgrid of the list's three rows, so the four labels, plates and captions stay
+   in line whatever wraps. */
 .first-page {
   display: grid;
   grid-row: span 3;
   grid-template-rows: subgrid;
   align-content: start;
-  row-gap: 0.4rem;
+  row-gap: 0.55rem;
   min-width: 0;
   font-family: var(--font-sans);
   font-size: var(--type-fine);
@@ -38,13 +37,27 @@
 .first-page-received {
   align-self: end;
   margin: 0;
+}
+.first-page-received time {
+  display: flex;
+  flex-direction: column;
+}
+.first-page-day {
+  font-family: var(--font-serif);
+  font-size: var(--type-title);
+  line-height: 1;
+}
+.first-page-month {
+  font-size: var(--type-micro);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .first-page > a {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.6rem;
   text-decoration: none;
 }
 .first-page-plate {
@@ -54,7 +67,7 @@
   /* Only seen while the plate loads; the scan itself is the page colour. */
   background: var(--wash);
   border: 1px solid var(--rule);
-  box-shadow: 0 10px 22px -16px rgb(0 0 0 / 0.45);
+  box-shadow: 0 14px 30px -20px rgb(0 0 0 / 0.5);
   transition: transform 160ms ease;
 }
 .first-page > a:hover .first-page-plate {
@@ -62,7 +75,7 @@
 }
 .first-page-title {
   font-family: var(--font-serif);
-  font-size: var(--type-small);
+  font-size: var(--type-body);
   line-height: 1.2;
 }
 :root .first-page > a:hover .first-page-title {
@@ -76,53 +89,38 @@
 .first-page-marks {
   display: flex;
   gap: var(--mark-gap);
-  height: 0.7rem;
-  margin-bottom: 0.35rem;
+  height: 0.75rem;
+  margin-bottom: 0.4rem;
 }
 .first-page-marks > i {
   flex: none;
   width: 1px;
   background: var(--ink);
 }
-.first-pages-axis {
+.first-pages-ruler {
   display: none;
 }
 .first-pages > figcaption {
-  max-width: 64ch;
-  margin-top: 1.25rem;
+  max-width: 70ch;
+  margin-top: 1.5rem;
   color: var(--muted);
 }
-@media (min-width: 400px) {
+@media (min-width: 700px) {
   .first-pages-list {
-    --mark-gap: 1.5px;
+    --mark-gap: 3px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.75rem 2rem;
   }
 }
 @media (min-width: 1100px) {
-  .first-pages-list {
-    --mark-gap: 2.5px;
-    display: flex;
-    gap: 0;
-    padding-bottom: 1rem;
+  .first-pages-ruler {
+    position: relative;
+    display: block;
+    margin-top: 2rem;
+    padding-top: 1.6rem;
     border-bottom: 1px solid var(--rule);
   }
-  .first-page {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    position: relative;
-    flex: 0 0 calc(var(--plate) * 100%);
-    margin-left: calc(var(--offset) * 100%);
-  }
-  /* The stem from the plate's left edge down to its day on the axis. */
-  .first-page::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -1rem;
-    height: 1rem;
-    border-left: 1px solid var(--muted);
-  }
-  .first-pages-axis {
+  .first-pages-months {
     display: grid;
     grid-template-columns: 31fr 28fr 31fr 30fr 31fr 30fr 31fr 31fr 30fr 31fr 30fr 31fr;
     font-family: var(--font-sans);
@@ -131,14 +129,22 @@
     text-transform: uppercase;
     color: var(--muted);
   }
-  .first-pages-axis > span {
-    padding: 0.35rem 0 0 0.3rem;
+  .first-pages-months > span {
+    padding: 0.3rem 0 0.35rem 0.3rem;
     border-left: 1px solid var(--rule);
   }
-}
-@media (min-width: 1400px) {
-  .first-pages-list {
-    --mark-gap: 3px;
+  /* A tick at the received day, labelled with the paper, above the month it falls in. */
+  .first-pages-tick {
+    position: absolute;
+    top: 0;
+    left: calc(var(--at) * 100%);
+    height: 100%;
+    padding-left: 0.35rem;
+    border-left: 2px solid var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--type-fine);
+    line-height: 1.2;
+    white-space: nowrap;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -148,12 +154,4 @@
   .first-page > a:hover .first-page-plate {
     transform: none;
   }
-}
-/* The first pages run the full width of the page, so the hero drops its 940px cap; the lead keeps
-   its own 64ch measure. */
-/* Two classes, because the built bundle orders this file BEFORE globals.css: at equal specificity
-   .hero's 940px cap won there, and each plate came out 103px wide at 1440 instead of 145. An
-   injected stylesheet lands last and hid it. */
-.hero.hero-with-plates {
-  max-width: none;
 }
