@@ -106,20 +106,56 @@ describe("Gate Registration Verification", () => {
     ).toThrow("Step 'perf-budgets' has family 'browser', expected 'perf'");
   });
 
-  test("workflow file runs perf family and contains no deploy, alias, or DNS command", () => {
-    const workflowPath = join(ROOT, ".github/workflows/perf-budgets.yml");
-    const content = readFileSync(workflowPath, "utf8");
+  /**
+   * REPOINTED 2026-09-22, am-7bkr. This read `.github/workflows/perf-budgets.yml` and asserted
+   * that it passes --family perf, holds read-only permissions, and contains no deploy, alias,
+   * cloudflare or dns token. Every assertion passed, and none of them constrained anything: the
+   * owner's standing rule is verbatim "we don't use gh actions for CI *EVER*, we ONLY use /dsr",
+   * and ~/.config/dsr/repos.yaml says the same in a comment on this repository, so that file
+   * never executes. A safety control over a non-runner reads exactly like a safety control.
+   *
+   * The --family perf half is dropped rather than moved: the registry's own family is already
+   * asserted directly, fifteen lines above, against QUALITY_GATE_STEPS rather than against a
+   * YAML file's text. The permissions half has no counterpart outside GitHub Actions and is
+   * dropped with it.
+   *
+   * The deploy half is the one worth keeping, so it is pointed at the surfaces that DO run: the
+   * four package.json scripts dsr invokes, and every command in the gate registry. Measured when
+   * this was written: 36 surfaces, 4 scripts plus 32 registry commands, no banned token in any.
+   */
+  test("no command the CI actually runs carries a deploy, alias, or DNS token", () => {
+    const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+    // Mirrored from ~/.config/dsr/repos.yaml, tools.annus-mirabilis.checks. Asserted present
+    // below, so a drifted mirror fails here instead of narrowing the population in silence.
+    const DSR_CHECKS = ["typecheck", "test", "test:node", "gates"] as const;
 
-    // Must run perf family
-    expect(content).toContain("--family perf");
+    const surfaces = [
+      ...DSR_CHECKS.map((name) => ({
+        where: `package.json scripts.${name}`,
+        text: pkg.scripts?.[name] ?? "",
+      })),
+      ...QUALITY_GATE_STEPS.map((step) => ({
+        where: `registry ${step.id}`,
+        text: step.command.join(" "),
+      })),
+    ];
 
-    // Must have read-only permissions
-    expect(content).toContain("permissions:\n  contents: read");
+    // Non-vacuity, named rather than implied: a missing script or an emptied registry would make
+    // every assertion below true over nothing.
+    expect(surfaces.length).toBe(DSR_CHECKS.length + QUALITY_GATE_STEPS.length);
+    expect(surfaces.every((s) => s.text.length > 0)).toBe(true);
 
-    // Must NOT contain deploy, alias, or DNS commands
-    expect(content.toLowerCase()).not.toContain("deploy");
-    expect(content.toLowerCase()).not.toContain("alias");
-    expect(content.toLowerCase()).not.toContain("cloudflare");
-    expect(content.toLowerCase()).not.toContain("dns");
+    const banned = ["deploy", "alias", "cloudflare", "dns"];
+    const hits = surfaces.flatMap((s) =>
+      banned
+        .filter((token) => s.text.toLowerCase().includes(token))
+        .map((token) => `${s.where}: "${token}" in ${s.text}`),
+    );
+    expect(
+      hits,
+      "A command the CI runs names a deploy, alias or DNS operation. Releases go only through scripts/verified-production-deploy.ts behind a human authorization file; the gate chain never moves an alias or a DNS record.",
+    ).toEqual([]);
   });
 });
