@@ -45,8 +45,8 @@ describe("LQ-09 Gas Ionization Lab View & Route", () => {
     expect(containsHeading(html, "The Single-Quantum Ionization Conservation Law")).toBe(true);
     expect(html).toContain('data-view-id="lq-09-energy-ladder"');
     expect(html).toContain('data-view-id="lq-09-rate-budget"');
-    expect(containsHeading(html, "Accepted Laboratory Telemetry Snapshot")).toBe(true);
-    expect(containsHeading(html, "Limits of this Reference Model (Not Modeled)")).toBe(true);
+    expect(containsHeading(html, "Values at these settings")).toBe(true);
+    expect(containsHeading(html, "What this model leaves out")).toBe(true);
     expect(html).toContain("Secondary ionization and cascade ionization");
   });
 
