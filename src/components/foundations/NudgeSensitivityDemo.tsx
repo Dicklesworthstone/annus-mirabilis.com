@@ -49,10 +49,10 @@ export function NudgeSensitivityDemo({
         Interactive construction: local sensitivity and derivative units
       </Title>
       <p>
-        In section 8 of the light-quanta paper, Einstein predicts that when light liberates
-        electrons from a cathode, increasing the light frequency ν increases the required stopping
-        potential V linearly. The derivative dV/dν is the local sensitivity of stopping voltage to
-        incident frequency.
+        In §8 of the light-quanta paper, Einstein predicts that the potential V needed to stop the
+        electrons light frees from a metal rises in a straight line with the light's frequency ν,
+        with the same slope for every metal. The derivative dV/dν is that slope: how many volts the
+        stopping potential rises for each hertz of frequency.
       </p>
 
       <fieldset
@@ -93,7 +93,7 @@ export function NudgeSensitivityDemo({
           margin: "1rem 0",
         }}
       >
-        <Sub style={{ margin: "0 0 0.5rem 0" }}>Observed sensitivity response</Sub>
+        <Sub style={{ margin: "0 0 0.5rem 0" }}>What the model computes</Sub>
         <dl
           style={{
             display: "grid",
@@ -129,7 +129,7 @@ export function NudgeSensitivityDemo({
             {ratio.toExponential(9)} V·s (or V/Hz)
           </dd>
 
-          <dt style={{ color: "var(--muted)" }}>Universal ratio h/e:</dt>
+          <dt style={{ color: "var(--muted)" }}>Modern h/e (2019 SI):</dt>
           <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
             {PLANCK_TO_ELEMENTARY_CHARGE_RATIO.toExponential(9)} V·s
           </dd>
@@ -196,11 +196,12 @@ export function NudgeSensitivityDemo({
       >
         <Sub>Textual summary of the construction</Sub>
         <p>
-          A derivative is not a dimensionless number; it has physical units determined by the ratio
-          of output units to input units. Here, dividing volts by hertz yields volt-seconds.
-          Regardless of how small the nudge step Δν is chosen, the ratio ΔV / Δν evaluates to the
-          exact physical constant h/e ≈ 4.14 × 10⁻¹⁵ V·s, confirming that the sensitivity of
-          stopping potential to frequency is universal and independent of the metal.
+          A derivative carries units: volts divided by hertz gives volt-seconds. This model is
+          Einstein's §8 straight line, with its slope set to the modern value of h/e, about 4.14 ×
+          10⁻¹⁵ V·s. On a straight line every step size gives the same ratio ΔV / Δν, which is why
+          the table repeats one number four times; on a curve the ratio would change with the step
+          and settle only as Δν shrinks. The model was built with one slope for every metal, so it
+          cannot show that real metals share one. Millikan measured that in 1916.
         </p>
       </div>
     </section>
