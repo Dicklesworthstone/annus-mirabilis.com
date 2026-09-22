@@ -151,6 +151,9 @@
 }
 /* The first pages run the full width of the page, so the hero drops its 940px cap; the lead keeps
    its own 64ch measure. */
-.hero-with-plates {
+/* Two classes, because the built bundle orders this file BEFORE globals.css: at equal specificity
+   .hero's 940px cap won there, and each plate came out 103px wide at 1440 instead of 145. An
+   injected stylesheet lands last and hid it. */
+.hero.hero-with-plates {
   max-width: none;
 }
