@@ -223,22 +223,12 @@ const BASELINE_OVERFLOWING: readonly BaselineEntry[] = Object.freeze([
   // partial-derivatives 0, taylor-expansion 0. partial-derivatives wraps its table in
   // div.thermodynamics-held-fixed-comparison, which has no overflow rule; taylor-expansion has no
   // wrapper at all, its table.data-table being a direct child of the section.
-  {
-    id: "/foundations/partial-derivatives/@320",
-    maxExcessPx: 71,
-    measuredOn: "oHPd2JiH5los7k6SuuBJz",
-  },
   // Added one cycle after the rest of this list, and the gate is how it was found rather than a
   // guess. It was NOT overflowing at 360 when the baseline was derived; a type-scale change landed
   // between the two builds (4137906a) and this table, which nothing constrains, grew about 10px:
   // 357 -> 367 at 320, and 360 -> 366 at 360. Measured 5 runs at each width before recording it,
   // because a 6px excess is exactly the size that could have been noise: 5/5 overflowing at 320
   // and at 360, 0/5 at 390. Same cause as its sibling entries - am-orphaned-stylesheets-5u3c.
-  {
-    id: "/foundations/partial-derivatives/@360",
-    maxExcessPx: 31,
-    measuredOn: "oHPd2JiH5los7k6SuuBJz",
-  },
   // /foundations/exponentials/ was filed under "rendered mathematics" and belongs here: its
   // offender is table.data-table inside div.construction-table-wrap, the same inert wrapper as
   // its three siblings above. Re-measured, not inherited.
