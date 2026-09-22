@@ -7,6 +7,18 @@ import { BrownianFirstEncounter } from "../../reader/entrances/BrownianFirstEnco
 import { newRunIdentity, TestLogger } from "../log/logger.ts";
 import { createContainer, installDom, removeContainer, uninstallDom } from "../reactDom.ts";
 
+/**
+ * Heading lookups below are case-insensitive (am-edit-voice-lint-trmf). They used a heading's
+ * exact capitalisation as a position marker, to assert that the three bridge parts render IN
+ * ORDER - a real structural property - and so they broke when the de-slop pass normalised this
+ * entrance from Title Case to the site's sentence case, although the ordering was untouched.
+ *
+ * Same ceiling as cca97b8e, stated rather than implied: this survives a case change and would
+ * not survive a rewording. The durable form is a per-part anchor in the component, which does
+ * not exist; the ordering assertion is the reason a bare "does it appear" check is not enough.
+ */
+const lower = (h: string) => h.toLowerCase();
+
 const BEAD_ID = "am-bm-first-encounter-fjvh";
 
 describe("Brownian First Encounter Interactive UI Component (am-bm-first-encounter-fjvh)", () => {
@@ -103,8 +115,8 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     // Step 10: The Bridge
     expect(html).toContain("The Bridge to the Argument");
     expect(html).toContain("New Skill");
-    expect(html).toContain("Why Useful in the Paper");
-    expect(html).toContain("Continue With Your Choice of Guidance");
+    expect(lower(html)).toContain(lower("Why Useful in the Paper"));
+    expect(lower(html)).toContain(lower("Continue With Your Choice of Guidance"));
 
     logger.log({
       testId: "ui-ten-steps-rendered",
@@ -263,8 +275,12 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
       );
     });
 
-    const foundationLink = Array.from(container.querySelectorAll("a")).find((a) =>
-      a.textContent?.includes("Open Mean, Variance & RMS Drawer"),
+    // Selected by HREF, not by label text. The label was "Open Mean, Variance & RMS Drawer" and
+    // the de-slop pass changed both its case and its wording ("&" to "and"), which a
+    // case-insensitive match would not have survived either. The href is what makes this link
+    // that link, so it is the handle that cannot go stale under a copy edit.
+    const foundationLink = Array.from(container.querySelectorAll("a")).find(
+      (a) => a.getAttribute("href") === "/foundations/mean-variance-rms",
     );
     expect(foundationLink).toBeDefined();
 
@@ -273,8 +289,12 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     });
     expect(navigatedFoundation).toBe("mean-variance-rms");
 
-    const instrumentLink = Array.from(container.querySelectorAll("a")).find((a) =>
-      a.textContent?.includes("Open BM-01 Lab"),
+    // By href for the same reason as the foundation link above. Two anchors share this href -
+    // the interactive route and the static fallback - and find() takes the first, which is the
+    // interactive one. That choice is self-checking rather than assumed: the assertion below
+    // requires the click to fire onNavigateInstrument, which the static fallback would not do.
+    const instrumentLink = Array.from(container.querySelectorAll("a")).find(
+      (a) => a.getAttribute("href") === "/lab/bm-01",
     );
     expect(instrumentLink).toBeDefined();
 

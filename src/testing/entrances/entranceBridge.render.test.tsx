@@ -5,6 +5,18 @@ import { BrownianFirstEncounter } from "../../reader/entrances/BrownianFirstEnco
 import { newRunIdentity, TestLogger } from "../log/logger.ts";
 import { installDom, uninstallDom } from "../reactDom.ts";
 
+/**
+ * Heading lookups below are case-insensitive (am-edit-voice-lint-trmf). They used a heading's
+ * exact capitalisation as a position marker, to assert that the three bridge parts render IN
+ * ORDER - a real structural property - and so they broke when the de-slop pass normalised this
+ * entrance from Title Case to the site's sentence case, although the ordering was untouched.
+ *
+ * Same ceiling as cca97b8e, stated rather than implied: this survives a case change and would
+ * not survive a rewording. The durable form is a per-part anchor in the component, which does
+ * not exist; the ordering assertion is the reason a bare "does it appear" check is not enough.
+ */
+const lower = (h: string) => h.toLowerCase();
+
 const BEAD_ID = "am-bm-first-encounter-fjvh";
 
 describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
@@ -75,13 +87,13 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     );
 
     // 3. Part 2: whyUsefulHere
-    expect(html).toContain("Why Useful in the Paper");
+    expect(lower(html)).toContain(lower("Why Useful in the Paper"));
     expect(html).toContain(
       "Section 5 says how far a particle typically wanders after a given time, and that statement is about the squared spread, not about a speed.",
     );
 
     // 4. Part 3: continueWith routes
-    expect(html).toContain("Continue With Your Choice of Guidance");
+    expect(lower(html)).toContain(lower("Continue With Your Choice of Guidance"));
     expect(html).toContain("More Guidance · Foundations");
     expect(html).toContain("Less Guidance · Laboratory &amp; Paper");
     expect(html).toContain('href="/foundations/mean-variance-rms"');
@@ -90,8 +102,8 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
 
     // Verify ordering in output string
     const skillIndex = html.indexOf("New Skill");
-    const whyIndex = html.indexOf("Why Useful in the Paper");
-    const routesIndex = html.indexOf("Continue With Your Choice of Guidance");
+    const whyIndex = lower(html).indexOf(lower("Why Useful in the Paper"));
+    const routesIndex = lower(html).indexOf(lower("Continue With Your Choice of Guidance"));
 
     expect(skillIndex).toBeGreaterThan(-1);
     expect(whyIndex).toBeGreaterThan(skillIndex);
