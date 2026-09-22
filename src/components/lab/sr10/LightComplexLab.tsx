@@ -133,16 +133,48 @@ export function LightComplexLab({
       <p data-detail="3" hidden>
         {SR10_CAPTION.r3}
       </p>
-      <p>
-        A bounded pulse of light does not transform like a solid rod. Energy follows q = γ(1 − β cos
-        φ). Volume follows 1/q. The planted negative &ldquo;it contracts like a rod&rdquo; is tested
-        at φ = 90° in K, where q = γ and 1/γ differ by γ², and along the axis. At cos φ = β the
-        energy factor equals 1/γ and cannot catch that mistake.
-      </p>
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Light complex settings">
           <fieldset disabled={!ready}>
             <legend>Set observer speed and packet parameters</legend>
+            <div className="lab-choice">
+              <p className="fine">
+                A bounded pulse of light does not transform like a solid rod. Its energy follows q =
+                γ(1 − β cos φ) and its volume 1/q. The tempting mistake, &ldquo;it contracts like a
+                rod&rdquo;, shows at φ = 90° in K, where q = γ and 1/γ differ by γ², and along the
+                axis. At cos φ = β the energy factor equals 1/γ, so that ray cannot tell them apart.
+              </p>
+              <div className="actions">
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 0 })}
+                >
+                  Receding along axis (φ = 0°, 0.6c)
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 180 })}
+                >
+                  Approaching along axis (φ = 180°, 0.6c)
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 53.13010235415598 })}
+                >
+                  Transverse in k (cos φ = 0.6)
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 90 })}
+                >
+                  Transverse in K (φ = 90°)
+                </button>
+              </div>
+            </div>
             <div className="input-grid">
               <div className="input-field">
                 <label htmlFor={`${id}-beta`}>Observer speed β = v/c</label>
@@ -222,36 +254,6 @@ export function LightComplexLab({
                 Show material rod countermodel comparison (1/γ)
               </label>
             </div>
-            <div className="preset-list">
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 0 })}
-              >
-                Receding along axis (φ = 0°, 0.6c)
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 180 })}
-              >
-                Approaching along axis (φ = 180°, 0.6c)
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 53.13010235415598 })}
-              >
-                Transverse in k (cos φ = 0.6)
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 90 })}
-              >
-                Transverse in K (φ = 90°)
-              </button>
-            </div>
             <button type="submit">Apply settings</button>
             {error ? (
               <p className="notice" role="alert">
@@ -295,7 +297,7 @@ export function LightComplexLab({
           ) : (
             <p>The model does not admit this observer. No inertial observer at |v| ≥ c.</p>
           )}
-          <h3>Accepted snapshot</h3>
+          <h3>Values at these settings</h3>
           <table>
             <caption>
               Relativistic light complex transformation factors compared to the naive material

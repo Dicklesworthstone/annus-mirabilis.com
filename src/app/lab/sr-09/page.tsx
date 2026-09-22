@@ -26,12 +26,19 @@ export default function DopplerAberrationPage() {
         <p className="lead">
           How do the frequency and propagation direction of light transform between frames?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s7">Read §7 of the 1905 relativity paper</a>
-        </p>
       </header>
 
       <DopplerAberrationLab example={{ ...example, parameters: checked.data }} />
+
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s7">Read §7 of the 1905 relativity paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="doppler-aberration-worked">
         <h2>Worked case (readable without JavaScript)</h2>

@@ -118,15 +118,40 @@ export function DopplerAberrationLab({
       <p data-detail="3" hidden>
         {SR09_CAPTION.r3}
       </p>
-      <p>
-        Type a speed and an angle, or choose a named ray. Frequency and direction come from one
-        wave-vector transform. The transverse case (θ = 90°) is the purely relativistic shift: the
-        medium formulae give no change.
-      </p>
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Doppler and aberration settings">
           <fieldset disabled={!ready}>
             <legend>Set the observer and the ray</legend>
+            <div className="lab-choice">
+              <p className="fine">Choose a named ray, or type a speed and an angle.</p>
+              <div className="actions">
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 0 })}
+                >
+                  Receding 0.6c (θ = 0°)
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 180 })}
+                >
+                  Approaching 0.6c (θ = 180°)
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 90 })}
+                >
+                  Transverse 0.6c (θ = 90°)
+                </button>
+              </div>
+              <p className="fine">
+                The transverse case (θ = 90°) is the purely relativistic shift: the medium formulae
+                give no change there.
+              </p>
+            </div>
             <div className="input-grid">
               <div className="input-field">
                 <label htmlFor={`${id}-beta`}>Observer speed β = v/c</label>
@@ -177,29 +202,6 @@ export function DopplerAberrationLab({
                 />
               </div>
             </div>
-            <div className="preset-list">
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 0 })}
-              >
-                Receding 0.6c (θ = 0°)
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 180 })}
-              >
-                Approaching 0.6c (θ = 180°)
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => apply({ ...p, beta: 0.6, propagationAngleDeg: 90 })}
-              >
-                Transverse 0.6c (θ = 90°)
-              </button>
-            </div>
             <button type="submit">Apply settings</button>
             {error ? (
               <p className="notice" role="alert">
@@ -232,7 +234,7 @@ export function DopplerAberrationLab({
           ) : (
             <p>The model does not admit this observer. No inertial observer at |v| ≥ c.</p>
           )}
-          <h3>Accepted snapshot</h3>
+          <h3>Values at these settings</h3>
           <table>
             <caption>
               Relativistic factors from one wave-vector transform, beside the two medium formulae

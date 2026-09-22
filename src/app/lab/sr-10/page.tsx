@@ -26,12 +26,19 @@ export default function LightComplexPage() {
         <p className="lead">
           How do the energy and volume of a bounded light complex transform between frames?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s8">Read §8 of the 1905 relativity paper</a>
-        </p>
       </header>
 
       <LightComplexLab example={{ ...example, parameters: checked.data }} />
+
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s8">Read §8 of the 1905 relativity paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="light-complex-worked">
         <h2>Worked case (readable without JavaScript)</h2>
