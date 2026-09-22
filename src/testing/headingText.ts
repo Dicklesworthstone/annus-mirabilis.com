@@ -21,6 +21,42 @@
  * still breaks these assertions by design, because a reworded heading is a different heading and
  * somebody should look at it.
  *
+ * WHEN THE HEADING IS CONTENT RATHER THAN CHROME, DO NOT NAME IT HERE AT ALL.
+ *
+ * The paragraph above is right that a reworded heading should break an assertion and bring
+ * somebody to look. That holds where the heading is CHROME - a label the interface owns, like
+ * "No network transmission", which changes rarely and deliberately.
+ *
+ * It is wrong where the heading is CONTENT: authored per record, expected to improve, and owned
+ * by whoever is writing the copy rather than by the test. There, naming the string makes the test
+ * fire on correct work, and it fires at the person least able to tell a regression from an
+ * improvement - the copy author, mid-pass, reading a red lane.
+ *
+ * Measured, 2026-09-22, rather than offered as a preference. Two cases of each:
+ *
+ *   CHROME, and the test was right to break
+ *     your-data/page.test.tsx named "Full Portability" and "Unilateral Deletion". Renaming them
+ *     to plain English broke it, correctly: three privacy guarantees are interface labels and
+ *     somebody should confirm all three still render. Repaired by updating the literals and
+ *     moving all three to containsHeading (843ff3a0).
+ *     papers/page.test.tsx asserted that the Brownian entry is identifiable without the words
+ *     "Brownian motion". A copy pass tried to normalise that heading and the test refused. The
+ *     test was right and the copy change was reverted; nothing here was loosened.
+ *
+ *   CONTENT, and naming the string was the defect
+ *     foundCalculus.browser.test.mjs asserted the literal "One worked example" on four
+ *     foundations and in print. That string was identical on all 27 foundation pages until each
+ *     record gained an `exampleTitle` naming its case, at which point both AC6 tests went red
+ *     while every page still rendered correctly with scripting off. Repaired by reading the
+ *     heading from content/foundations/<id>.json with the renderer's own fallback (a8bda77c),
+ *     which also catches a page rendering some OTHER foundation's heading - something a shared
+ *     literal never could.
+ *
+ * So the question to ask before naming a heading in an assertion is not "will this change" but
+ * "who owns this string". If a record owns it, read it from the record. If the interface owns it,
+ * name it and accept the break. A count or a list is the same question: discover/route.test.ts
+ * named four slugs until the contract changed under it, and now derives them (83d50a5c).
+ *
  * Limits, stated rather than left to be discovered: the extractor is a regex over server-rendered
  * markup, so a `>` inside an attribute value of a heading's own tag would end the tag early, and
  * nested markup inside a heading is flattened to its text. Both are fine for `renderToStaticMarkup`
