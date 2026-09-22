@@ -23,9 +23,7 @@
     }
   ],
   "exampleTitle": "Two walkers, opposite directions, average zero",
-  "prerequisites": [
-    "bridge-sum-average"
-  ],
+  "prerequisites": ["bridge-sum-average"],
   "stoppingPoint": "The sign names a direction relative to a chosen axis; it does not mean a negative distance.",
   "citations": []
 }

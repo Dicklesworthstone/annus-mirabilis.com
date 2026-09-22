@@ -28,9 +28,7 @@
     }
   ],
   "exampleTitle": "Seven particles in, five out",
-  "prerequisites": [
-    "bridge-sum-average"
-  ],
+  "prerequisites": ["bridge-sum-average"],
   "stoppingPoint": "Conservation counts net crossings; it does not require each individual particle to stop.",
   "citations": []
 }

@@ -41,12 +41,7 @@
     }
   ],
   "exampleTitle": "Three joules into a reservoir held at 300 kelvin",
-  "prerequisites": [
-    "partial-derivatives",
-    "integration"
-  ],
+  "prerequisites": ["partial-derivatives", "integration"],
   "stoppingPoint": "State what is held fixed, distinguish total entropy from entropy density, and supply an integration condition before interpreting a volume-dependent difference.",
-  "citations": [
-    "ap-17-132"
-  ]
+  "citations": ["ap-17-132"]
 }

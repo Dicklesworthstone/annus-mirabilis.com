@@ -28,9 +28,7 @@
     }
   ],
   "exampleTitle": "A flat density across four micrometres",
-  "prerequisites": [
-    "bridge-sum-average"
-  ],
+  "prerequisites": ["bridge-sum-average"],
   "stoppingPoint": "Always distinguish curve height, interval area and an individual observation.",
   "citations": []
 }

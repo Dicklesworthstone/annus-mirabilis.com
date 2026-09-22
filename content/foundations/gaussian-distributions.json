@@ -37,10 +37,7 @@
     }
   ],
   "exampleTitle": "Where 68 per cent of the probability sits",
-  "prerequisites": [
-    "integration",
-    "mean-variance-rms"
-  ],
+  "prerequisites": ["integration", "mean-variance-rms"],
   "stoppingPoint": "A normalized density and its moments describe an ensemble, not a required endpoint for one tracer.",
   "citations": []
 }

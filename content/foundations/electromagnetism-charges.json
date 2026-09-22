@@ -40,10 +40,7 @@
     }
   ],
   "exampleTitle": "An electron across one volt",
-  "prerequisites": [
-    "functions-graphs",
-    "derivatives"
-  ],
+  "prerequisites": ["functions-graphs", "derivatives"],
   "stoppingPoint": "Charge is the property that makes electric forces; fields mediate force between separated charges without action-at-a-distance.",
   "citations": []
 }

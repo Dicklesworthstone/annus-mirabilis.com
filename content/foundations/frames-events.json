@@ -32,9 +32,7 @@
     }
   ],
   "exampleTitle": "Setting a distant clock with one light signal",
-  "prerequisites": [
-    "functions-graphs"
-  ],
+  "prerequisites": ["functions-graphs"],
   "stoppingPoint": "An event is something that happens at one place and one time; coordinate assignment is an operational measurement convention, not an absolute cosmic background.",
   "citations": []
 }

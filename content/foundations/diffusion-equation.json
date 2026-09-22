@@ -33,10 +33,7 @@
     }
   ],
   "exampleTitle": "Doubling the diffusion coefficient, then quadrupling the time",
-  "prerequisites": [
-    "flux-continuity",
-    "bridge-squaring-square-roots"
-  ],
+  "prerequisites": ["flux-continuity", "bridge-squaring-square-roots"],
   "stoppingPoint": "D has units of length squared per time; boundary conditions and model premises must be stated.",
   "citations": []
 }

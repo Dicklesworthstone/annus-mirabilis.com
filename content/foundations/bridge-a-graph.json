@@ -27,9 +27,7 @@
     }
   ],
   "exampleTitle": "Plotting four positions that average to zero",
-  "prerequisites": [
-    "bridge-negative-numbers-direction"
-  ],
+  "prerequisites": ["bridge-negative-numbers-direction"],
   "stoppingPoint": "Check axis labels, units, and whether the curve represents a count, a density, or an accumulated total.",
   "citations": []
 }

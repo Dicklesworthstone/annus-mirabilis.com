@@ -33,9 +33,7 @@
     }
   ],
   "exampleTitle": "Squaring 2.1 by keeping two terms",
-  "prerequisites": [
-    "bridge-squaring-square-roots"
-  ],
+  "prerequisites": ["bridge-squaring-square-roots"],
   "stoppingPoint": "Name what is held fixed, which terms are retained, and why the remainder is small.",
   "citations": []
 }

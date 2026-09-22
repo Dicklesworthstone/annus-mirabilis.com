@@ -24,9 +24,7 @@
     }
   ],
   "exampleTitle": "Doubling every displacement, and what the RMS does",
-  "prerequisites": [
-    "bridge-sum-average"
-  ],
+  "prerequisites": ["bridge-sum-average"],
   "stoppingPoint": "Use the nonnegative square root when reporting a magnitude.",
   "citations": []
 }

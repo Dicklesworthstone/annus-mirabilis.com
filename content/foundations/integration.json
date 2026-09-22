@@ -32,9 +32,7 @@
     }
   ],
   "exampleTitle": "A constant density, summed by rectangles",
-  "prerequisites": [
-    "distributions"
-  ],
+  "prerequisites": ["distributions"],
   "stoppingPoint": "The width and the endpoint term are part of the calculation, not decorations on the integral sign.",
   "citations": []
 }

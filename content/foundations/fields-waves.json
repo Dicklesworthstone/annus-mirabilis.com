@@ -40,10 +40,7 @@
     }
   ],
   "exampleTitle": "A 600-terahertz wave and a one-watt lamp",
-  "prerequisites": [
-    "functions-graphs",
-    "derivatives"
-  ],
+  "prerequisites": ["functions-graphs", "derivatives"],
   "stoppingPoint": "A field is a value assigned to every place; observed optical intensity is a time average, not an instantaneous pulse.",
   "citations": []
 }
