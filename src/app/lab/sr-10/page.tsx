@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
+import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
 import { LightComplexLab } from "../../../components/lab/sr10/LightComplexLab.tsx";
 import { validateSr10Parameters } from "../../../experiments/sr10/parameters.ts";
 import example from "../../../generated/sr10-example.json";
@@ -56,8 +57,9 @@ export default function LightComplexPage() {
           latex={String.raw`\frac{V'}{V} = \frac{1}{q} = \frac{\sqrt{1 - \beta^2}}{1 - \beta\cos\varphi} = \frac{1}{0.5} = 2.0\implies V' = 2.0\text{ m}^3`}
         />
         <p>
-          Meanwhile, the energy density transforms with the square of the amplitude ratio, $u'/u =
-          q^2 = 0.25$. The total energy in the moving frame is:
+          Meanwhile, the energy density transforms with the square of the amplitude ratio,{" "}
+          <InlineFormula latex={String.raw`u'/u = q^2 = 0.25`} />. The total energy in the moving
+          frame is:
         </p>
         <Formula latex={String.raw`E' = u'V' = (u q^2)(V / q) = u V q = E q = 0.5\text{ J}`} />
         <p>

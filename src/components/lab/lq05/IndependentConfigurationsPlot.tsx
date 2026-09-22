@@ -179,7 +179,7 @@ export function IndependentConfigurationsPlot({
               </span>
             ) : (
               <span style={{ color: "var(--ink)", fontWeight: 600 }}>
-                W = fⁿ = ({f.toFixed(2)})^{n} ={" "}
+                W = fⁿ = ({f.toFixed(2)})<sup>{n}</sup> ={" "}
                 {independentProbability.linearRepresentable ? (
                   <Sci value={independentProbability.value} digits={4} />
                 ) : (
@@ -288,7 +288,7 @@ export function IndependentConfigurationsPlot({
             marginBottom: 0,
           }}
         >
-          Green bar at k = {n} represents all points inside: W = P({n}) = f^{n}.
+          The last bar, k = {n}, is every point inside: W = P({n}) = f<sup>{n}</sup>.
         </p>
       </div>
 
