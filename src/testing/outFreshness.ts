@@ -27,8 +27,27 @@ export interface OutFreshnessResult {
    * this question. Of the gaps between those 68, 28% are under two minutes, and 34 of the 68
    * fall inside the two hours 02:00-04:00. The arrival is BURSTY, not steady, and that is the
    * whole difference between "the window is structurally too short" and "you built during a
-   * burst". Length-biased, a build started at a random moment survives to a completed gate run
-   * 82-87% of the time, taking the slower and faster of the two build durations on record.
+   * burst".
+   *
+   * THIS FIGURE HAS NO SINGLE VALUE AND ANY STATEMENT OF ONE NAMES ITS POPULATION OR IS WRONG.
+   * An earlier revision of this comment said a build "survives to a completed gate run 82-87% of
+   * the time". The arithmetic was right; the population was half idle. Re-measured over 33.1h to
+   * 2026-09-22 06:28, sliding the build window at 30s steps, born-stale rate for a 3m00 / 3m30
+   * build against the moments it is drawn from:
+   *
+   *     every moment in the 33h          9% / 10%   <- the old number's population
+   *     moments with >=1 static commit/h 18% / 20%  (50% of the span)
+   *     moments with >=3/h               33% / 37%  (21%)
+   *     moments with >=8/h               56% / 62%  (8%)
+   *
+   * Nobody starts a build during the hours with no commits, because nobody is working then. At
+   * four panes at full tilt it is a coin flip or worse, and that is the regime builds happen in.
+   *
+   * A related failure this count CANNOT see, measured the same day and accepted on am-6v4k: an
+   * edit written mid-build and committed six minutes later left out/ carrying the pre-edit string
+   * on 8 lab routes while this function returned fresh:true for 6m02s, because an uncommitted edit
+   * is not in buildCommit..HEAD. The window being short makes the build incoherent as well as
+   * making it stale, and only the first of those is a commit-range question.
    */
   readonly staleCommitCount?: number | undefined;
   readonly staleSpanMs?: number | undefined;
