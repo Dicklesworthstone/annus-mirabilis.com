@@ -1,7 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { containsHeading } from "../testing/headingText.ts";
 import { JourneyPage } from "./JourneyPage.tsx";
 import { FIXTURE_JOURNEY_BROWNIAN, FIXTURE_PARTIAL_JOURNEY } from "./testing/fixtureJourney.ts";
+
+/**
+ * Heading assertions here compare case-insensitively AND are scoped to heading elements
+ * (am-edit-voice-lint-trmf). They asserted the exact Title Case of a heading in order to
+ * check that the SECTION IS PRESENT, so they broke when the de-slop pass moved these pages
+ * to the site's sentence case while every section they protect was still rendering.
+ *
+ * containsHeading is the shared helper, not a local lowercase: text outside an h1-h6 cannot
+ * satisfy it. That matters because the first repair of this kind WAS a local lowercase, and
+ * it let an aria-label two elements away stand in for a heading that had been deleted.
+ */
 
 describe("JourneyPage container component rendering", () => {
   test("renders complete Brownian motion journey with data-theme kramgasse-night and all sections", () => {
@@ -17,7 +29,7 @@ describe("JourneyPage container component rendering", () => {
     );
     expect(html).toContain("#card-osmotic-pressure");
     expect(html).toContain("The Consequential Move");
-    expect(html).toContain("World Checks · Testing the Consequences");
+    expect(containsHeading(html, "World Checks · Testing the Consequences")).toBe(true);
     expect(html).toContain("Connecting to the 1905 Paper");
     expect(html).toContain("Entry Portals · Front &amp; Side Doors");
   });

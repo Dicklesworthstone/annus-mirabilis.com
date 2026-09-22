@@ -4,6 +4,18 @@ import ChargeCurrentPage from "../app/lab/sr-12/page.tsx";
 import { ChargeCurrentLab } from "../components/lab/sr12/ChargeCurrentLab.tsx";
 import type { PreparedSr12Example } from "../experiments/sr12/session.ts";
 import rawExample from "../generated/sr12-example.json";
+import { containsHeading } from "./headingText.ts";
+
+/**
+ * Heading assertions here compare case-insensitively AND are scoped to heading elements
+ * (am-edit-voice-lint-trmf). They asserted the exact Title Case of a heading in order to
+ * check that the SECTION IS PRESENT, so they broke when the de-slop pass moved these pages
+ * to the site's sentence case while every section they protect was still rendering.
+ *
+ * containsHeading is the shared helper, not a local lowercase: text outside an h1-h6 cannot
+ * satisfy it. That matters because the first repair of this kind WAS a local lowercase, and
+ * it let an aria-label two elements away stand in for a heading that had been deleted.
+ */
 
 const example = rawExample as unknown as PreparedSr12Example;
 
@@ -14,7 +26,7 @@ describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
     expect(html).toContain("total charge is invariant");
     expect(html).toContain("Worked case (readable without JavaScript)");
     expect(html).toContain('data-instrument-id="sr-12"');
-    expect(html).toContain("Relativistic Four-Current Visualization");
+    expect(containsHeading(html, "Relativistic Four-Current Visualization")).toBe(true);
     expect(html).toContain("Unit System Modernization");
     expect(html).toContain("Gaussian 1905 (§9)");
   });

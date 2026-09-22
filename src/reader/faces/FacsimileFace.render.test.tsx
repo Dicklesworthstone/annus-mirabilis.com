@@ -1,7 +1,19 @@
 import { describe, expect, it } from "bun:test";
 import { renderToString } from "react-dom/server";
+import { containsHeading } from "../../testing/headingText.ts";
 import type { FacsimileSourceAsset } from "./FacsimileFace.tsx";
 import { FacsimileFace } from "./FacsimileFace.tsx";
+
+/**
+ * Heading assertions here compare case-insensitively AND are scoped to heading elements
+ * (am-edit-voice-lint-trmf). They asserted the exact Title Case of a heading in order to
+ * check that the SECTION IS PRESENT, so they broke when the de-slop pass moved these pages
+ * to the site's sentence case while every section they protect was still rendering.
+ *
+ * containsHeading is the shared helper, not a local lowercase: text outside an h1-h6 cannot
+ * satisfy it. That matters because the first repair of this kind WAS a local lowercase, and
+ * it let an aria-label two elements away stand in for a heading that had been deleted.
+ */
 
 describe("FacsimileFace rendering (am-read-facsimile-face-er0)", () => {
   const mockPublishAsset: FacsimileSourceAsset = {
@@ -122,7 +134,7 @@ describe("FacsimileFace rendering (am-read-facsimile-face-er0)", () => {
     expect(html).toContain("Restricted Archives Consortium");
 
     // Local-only notice and verbatim statement
-    expect(html).toContain("Local Verification Scan");
+    expect(containsHeading(html, "Local Verification Scan")).toBe(true);
     expect(html).toContain(
       "This scan is pinned locally for verification only and is not distributed publicly under its source terms.",
     );
@@ -158,7 +170,7 @@ describe("FacsimileFace rendering (am-read-facsimile-face-er0)", () => {
 
     const html = renderToString(<FacsimileFace paper={paper} sourceAsset={mockRefAsset} />);
 
-    expect(html).toContain("Reference Only Document");
+    expect(containsHeading(html, "Reference Only Document")).toBe(true);
     expect(html).toContain("Reference only; scan not hosted.");
     expect(html).not.toContain("facsimile-viewer-toolbar");
   });

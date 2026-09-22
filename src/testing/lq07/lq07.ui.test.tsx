@@ -5,6 +5,18 @@ import { FluorescenceLab } from "../../components/lab/lq07/FluorescenceLab.tsx";
 import { FluorescencePlot } from "../../components/lab/lq07/FluorescencePlot.tsx";
 import { LQ07_DEFAULTS } from "../../experiments/lq07/definition.ts";
 import { evaluateLq07 } from "../../experiments/lq07/session.ts";
+import { containsHeading } from "../headingText.ts";
+
+/**
+ * Heading assertions here compare case-insensitively AND are scoped to heading elements
+ * (am-edit-voice-lint-trmf). They asserted the exact Title Case of a heading in order to
+ * check that the SECTION IS PRESENT, so they broke when the de-slop pass moved these pages
+ * to the site's sentence case while every section they protect was still rendering.
+ *
+ * containsHeading is the shared helper, not a local lowercase: text outside an h1-h6 cannot
+ * satisfy it. That matters because the first repair of this kind WAS a local lowercase, and
+ * it let an aria-label two elements away stand in for a heading that had been deleted.
+ */
 
 describe("LQ-07 UI components and route", () => {
   test("FluorescencePlot renders allowed and disallowed energy ledgers statically with proper SVGs", () => {
@@ -68,9 +80,11 @@ describe("LQ-07 UI components and route", () => {
   test("FluorescencePage route renders without errors and includes article sections", () => {
     const html = renderToStaticMarkup(<FluorescencePage />);
     expect(html).toContain("Single-Quantum Energy Budget");
-    expect(html).toContain("The Single-Quantum Energy Budget in Einstein 1905 §7");
+    expect(containsHeading(html, "The Single-Quantum Energy Budget in Einstein 1905 §7")).toBe(
+      true,
+    );
     expect(html).toContain("hν₁ = hν₂ + E_other");
-    expect(html).toContain("The Two Historical Deviation Cases");
+    expect(containsHeading(html, "The Two Historical Deviation Cases")).toBe(true);
     expect(html).toContain("Light Quanta · Paper 1, §7 Energy Conservation");
   });
 });

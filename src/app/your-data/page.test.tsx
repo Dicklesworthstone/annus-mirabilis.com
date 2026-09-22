@@ -1,7 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { containsHeading } from "../../testing/headingText.ts";
 import { getLogger } from "../../testing/log/logger.ts";
 import YourDataPage, { metadata } from "./page.tsx";
+
+/**
+ * Heading assertions here compare case-insensitively AND are scoped to heading elements
+ * (am-edit-voice-lint-trmf). They asserted the exact Title Case of a heading in order to
+ * check that the SECTION IS PRESENT, so they broke when the de-slop pass moved these pages
+ * to the site's sentence case while every section they protect was still rendering.
+ *
+ * containsHeading is the shared helper, not a local lowercase: text outside an h1-h6 cannot
+ * satisfy it. That matters because the first repair of this kind WAS a local lowercase, and
+ * it let an aria-label two elements away stand in for a heading that had been deleted.
+ */
 
 const logger = getLogger("platform-storage");
 const BEAD = "am-plat-local-storage-km8f";
@@ -11,7 +23,7 @@ describe("YourDataPage", () => {
     const html = renderToStaticMarkup(<YourDataPage />);
 
     expect(html).toContain("Your data stays on your device.");
-    expect(html).toContain("No Network Transmission");
+    expect(containsHeading(html, "No Network Transmission")).toBe(true);
     expect(html).toContain("Full Portability");
     expect(html).toContain("Unilateral Deletion");
     expect(html).toContain('data-testid="privacy-guarantees"');

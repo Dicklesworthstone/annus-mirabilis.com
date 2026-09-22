@@ -13,6 +13,7 @@ import { TaylorBinomialExtension } from "../components/foundations/TaylorBinomia
 import { ReaderController } from "../reader/ReaderController.tsx";
 import { registerDefaultClarificationKinds } from "../reader/stack/kinds.ts";
 import { writeCalculusLog } from "./foundCalculus.logger.ts";
+import { containsHeading } from "./headingText.ts";
 import { installDom, uninstallDom } from "./reactDom.ts";
 
 function mustQuery<T extends Element>(root: ParentNode, selector: string): T {
@@ -201,7 +202,12 @@ test("foundCalculus.constructions: TaylorBinomialExtension renders series, parti
 
   assert.ok(html.includes("taylor-binomial-extension"));
   assert.ok(html.includes('data-foundation-extension="taylor-expansion-binomial"'));
-  assert.ok(html.includes("Binomial Series Expansion for the Relativistic Lorentz Factor γ"));
+  // Scoped to the heading element and case-folded (am-edit-voice-lint-trmf): this asserted the
+  // exact Title Case in order to check the section is present, and the de-slop pass moves the
+  // page to sentence case while the section keeps rendering.
+  assert.ok(
+    containsHeading(html, "Binomial Series Expansion for the Relativistic Lorentz Factor γ"),
+  );
 
   // Series formula
   assert.ok(html.includes("(1 − x)<sup>−1/2</sup> = 1 + ½ x + ⅜ x² + ⁵/₁₆ x³ + ³⁵/₁₂₈ x⁴"));
