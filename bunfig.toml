@@ -18,6 +18,7 @@ pathIgnorePatterns = [
   "src/testing/foundCalculus.browser.test.mjs",
   "src/testing/asupersyncProfile.test.ts",
   "src/testing/trackedImports.test.ts",
+  "src/testing/hygiene/beadsCommitScope.test.ts",
   "src/content/kernel/formatterExclusions.test.ts",
   "src/testing/docs/inventoryVersions.test.ts",
   "scripts/verify-facsimile-pins.test.ts",
