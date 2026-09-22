@@ -7,7 +7,14 @@
   --reader-wide-min: 64em;
   --reader-sticky-lab-max: 40vh;
   --reader-scroll-padding: 3rem;
-  --reader-measure: 65ch;
+  /* The unattributed default, and it must equal data-measure="default" (43ch).
+     It is declared ON this element, so it BEATS the inherited html value for the
+     whole reader subtree - which means changing the html base alone does nothing
+     here. Measured with the attribute removed (the no-JS and storage-throws case)
+     at 1280x900: 65ch gave a 680px column at 85 characters per line, past the 75
+     ceiling; 43ch gives 450px at 55, the same as the default setting and the
+     1905 plate's ~57. */
+  --reader-measure: 43ch;
 }
 
 .reader-anatomy {

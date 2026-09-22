@@ -4,7 +4,12 @@
    cannot blow the header off a 320 px screen. */
 
 html {
-  --reader-measure: 40rem;
+  /* Same value and same unit as data-measure="default" below: one idea, stated
+     once. It was 40rem - the font-dependent unit this file exists to replace, and
+     the contradiction sat seven lines above the comment saying so. On its own this
+     line changes nothing, because layout.css declares the measure directly on
+     .reader-anatomy-host; both had to move together. */
+  --reader-measure: 43ch;
   --reader-type-scale: 1;
   --reader-paragraph-gap: 1em;
 }
