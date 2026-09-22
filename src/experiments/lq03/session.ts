@@ -313,3 +313,138 @@ export function createLq03Session(
     defaults: LQ03_DEFAULTS,
   };
 }
+
+export type Lq03SpectrumLaw = "planck" | "wien" | "classical";
+
+export type Lq03Spectrum = Readonly<{
+  coordinate: Lq03Parameters["coordinate"];
+  convention: Lq03Parameters["convention"];
+  axisScale: Lq03Parameters["axisScale"];
+  /** Base-10 logarithms of the horizontal coordinate and of each law's density in the convention. */
+  points: readonly Readonly<{
+    log10X: number;
+    log10Density: Readonly<Record<Lq03SpectrumLaw, number | null>>;
+  }>[];
+  /** The drawn window: coordinate values (Hz or m) for x; for y, base-10 logs on a logarithmic
+   * scale and densities on a linear one. */
+  xRange: readonly [number, number];
+  yRange: readonly [number, number];
+  xDecades: readonly number[];
+  xLinearTicks: readonly number[];
+  yDecades: readonly number[];
+  probeLog10X: number;
+  bandLog10X: readonly [number, number];
+  /** Planck's maximum in THIS convention, from the owner's peak functions, not the sampled grid. */
+  peak: Readonly<{ log10X: number; log10Density: number }> | null;
+  temperature: number;
+}>;
+
+const SPECTRUM_SAMPLES = 161;
+const SPECTRUM_LOG10_NU: readonly [number, number] = [11, 16];
+
+function log10Of(result: RadiationResult<number>): number | null {
+  if (result.status !== "value") return null;
+  const logged = result.log10FrequencyEnergyDensity ?? result.log10WavelengthEnergyDensity;
+  if (logged !== undefined && Number.isFinite(logged)) return logged;
+  return result.value > 0 ? Math.log10(result.value) : null;
+}
+
+/**
+ * The spectrum lq-03 draws: each law's energy density in the chosen convention, sampled from the
+ * radiation owner at 161 frequencies, log-spaced over the admitted 10^11 to 10^16 Hz, and placed on
+ * the chosen coordinate. The per-log and per-decade densities are ν u_ν and ln 10 · ν u_ν, a change
+ * of representation of the owner's u_ν rather than new physics; the per-m density is the owner's
+ * own u_λ at λ = c/ν, so the Jacobian is the owner's, never a relabelled axis.
+ */
+export function evaluateLq03Spectrum(p: Lq03Parameters): Lq03Spectrum {
+  const set = getConstantSet("modern-si-2019");
+  const c = 299792458;
+  const frequencyDensity = {
+    planck: planckFrequencyEnergyDensity,
+    wien: wienFrequencyEnergyDensity,
+    classical: rayleighJeansFrequencyEnergyDensity,
+  } as const;
+  const wavelengthDensity = {
+    planck: planckWavelengthEnergyDensity,
+    wien: wienWavelengthEnergyDensity,
+    classical: rayleighJeansWavelengthEnergyDensity,
+  } as const;
+  const inConvention = (law: Lq03SpectrumLaw, nu: number): number | null => {
+    if (p.convention === "per-m") return log10Of(wavelengthDensity[law](c / nu, p.T, set));
+    const perHz = log10Of(frequencyDensity[law](nu, p.T, set));
+    if (perHz === null) return null;
+    if (p.convention === "per-hz") return perHz;
+    const perLog = perHz + Math.log10(nu);
+    return p.convention === "per-log" ? perLog : perLog + Math.log10(Math.LN10);
+  };
+  const toLog10X = (nu: number) =>
+    p.coordinate === "frequency" ? Math.log10(nu) : Math.log10(c / nu);
+
+  const points = Array.from({ length: SPECTRUM_SAMPLES }, (_, i) => {
+    const nu =
+      10 **
+      (SPECTRUM_LOG10_NU[0] +
+        ((SPECTRUM_LOG10_NU[1] - SPECTRUM_LOG10_NU[0]) * i) / (SPECTRUM_SAMPLES - 1));
+    return Object.freeze({
+      log10X: toLog10X(nu),
+      log10Density: Object.freeze({
+        planck: inConvention("planck", nu),
+        wien: inConvention("wien", nu),
+        classical: inConvention("classical", nu),
+      }),
+    });
+  });
+
+  // Where Planck's curve peaks depends on the convention, not on the axis it is drawn against.
+  const peakWavelength = planckPeakWavelength(p.T, set);
+  const peakFrequency = planckPeakFrequency(p.T, set);
+  const peakNu =
+    p.convention === "per-m"
+      ? peakWavelength.status === "value"
+        ? c / peakWavelength.value
+        : null
+      : p.convention === "per-hz"
+        ? peakFrequency.status === "value"
+          ? peakFrequency.value
+          : null
+        : planckPeakLogInterval(p.T, set).peakFrequency;
+  const peakDensity = peakNu === null ? null : inConvention("planck", peakNu);
+  const peak =
+    peakNu !== null && peakDensity !== null
+      ? Object.freeze({ log10X: toLog10X(peakNu), log10Density: peakDensity })
+      : null;
+
+  const log10Extent = SPECTRUM_LOG10_NU.map((e) => toLog10X(10 ** e)).sort((a, b) => a - b) as [
+    number,
+    number,
+  ];
+  const logScale = p.axisScale === "logarithmic";
+  const xRange: [number, number] = logScale
+    ? [10 ** log10Extent[0], 10 ** log10Extent[1]]
+    : [0, 4 * 10 ** (peak?.log10X ?? log10Extent[1])];
+  const top =
+    peak?.log10Density ?? Math.max(...points.map((pt) => pt.log10Density.planck ?? -Infinity));
+  const yRange: [number, number] = logScale ? [top - 6, top + 1] : [0, 1.25 * 10 ** top];
+  const decades = (lo: number, hi: number) => {
+    const out: number[] = [];
+    for (let e = Math.ceil(lo); e <= Math.floor(hi); e++) out.push(e);
+    return out;
+  };
+  // Quarter marks inside the frame; the right edge itself carries no label to overhang it.
+  const xLinearTicks = [1, 2, 3].map((k) => (k * xRange[1]) / 4);
+  return Object.freeze({
+    coordinate: p.coordinate,
+    convention: p.convention,
+    axisScale: p.axisScale,
+    points: Object.freeze(points),
+    xRange,
+    yRange,
+    xDecades: logScale ? decades(log10Extent[0], log10Extent[1]) : [],
+    xLinearTicks: logScale ? [] : xLinearTicks,
+    yDecades: logScale ? decades(yRange[0], yRange[1]) : [],
+    probeLog10X: toLog10X(p.probeNu),
+    bandLog10X: [toLog10X(p.nu1), toLog10X(p.nu2)] as const,
+    peak,
+    temperature: p.T,
+  });
+}

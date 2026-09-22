@@ -1,0 +1,48 @@
+/*
+ * LQ-03's spectrum (labs pane %45). The three laws differ by weight and dash pattern, and the
+ * legend draws each pattern beside its name, so no curve is told apart by colour alone.
+ */
+.lq03-spectrum {
+  max-width: 40rem;
+  margin: 0 0 1.5rem;
+}
+.lq03-spectrum svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.lq03-spectrum figcaption {
+  margin-top: 0.4rem;
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+.lq03-axes line {
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+.lq03-band {
+  fill: var(--wash);
+}
+.lq03-curve {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+.lq03-curve-wien {
+  stroke: var(--muted);
+  stroke-width: 2;
+  stroke-dasharray: 8 4;
+}
+.lq03-curve-classical {
+  stroke: var(--muted);
+  stroke-width: 2;
+  stroke-dasharray: 2 3;
+}
+.lq03-probe {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.lq03-peak {
+  fill: var(--ink);
+}

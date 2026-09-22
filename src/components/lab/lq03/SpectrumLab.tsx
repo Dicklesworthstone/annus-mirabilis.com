@@ -18,11 +18,15 @@ import {
   buildLq03Snapshot,
   createLq03Session,
   evaluateLq03,
+  evaluateLq03Spectrum,
   type Lq03Evaluation,
   type PreparedLq03Example,
 } from "../../../experiments/lq03/session.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
+import { SliderField } from "../SliderField.tsx";
+import { SpectrumPlot } from "./SpectrumPlot.tsx";
 
 type Draft = Readonly<{
   T: string;
@@ -129,6 +133,7 @@ export function SpectrumLab({
   const [error, setError] = useState("");
 
   const evaluation = evaluateLq03(p);
+  const spectrum = evaluateLq03Spectrum(p);
 
   useEffect(() => {
     setReady(true);
@@ -151,6 +156,12 @@ export function SpectrumLab({
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     apply(fromDraft(draft));
+  }
+
+  /** The slider and the selects apply at once; the typed band, probe and tolerance wait for Apply. */
+  function applyDraft(next: Draft) {
+    setDraft(next);
+    apply(fromDraft(next));
   }
 
   const regime = evaluation.regime;
@@ -180,7 +191,7 @@ export function SpectrumLab({
         <span className="badge">Ideal model, host calculation</span>
       </header>
 
-      <p>{LQ03_QUESTION}</p>
+      <p className="lab-question">{LQ03_QUESTION}</p>
 
       <noscript>
         <p className="notice">
@@ -197,81 +208,46 @@ export function SpectrumLab({
           aria-describedby={error ? `${id}-error` : undefined}
         >
           <fieldset disabled={!ready}>
-            <legend>Temperature, band, and probe</legend>
+            <legend className="visually-hidden">Spectrum settings</legend>
+            <SliderField
+              id={`${id}-T`}
+              label="Temperature T"
+              unit="K, 500-10000"
+              min={500}
+              max={10000}
+              step={50}
+              value={draft.T}
+              onDraft={(T) => setDraft({ ...draft, T })}
+              onCommit={(T) => applyDraft({ ...draft, T })}
+            />
             <div className="input-grid">
               <div className="input-field">
-                <label htmlFor={`${id}-T`}>
-                  Temperature T <span>(K, 500-10000)</span>
-                </label>
-                <input
-                  id={`${id}-T`}
-                  name="T"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.T}
-                  onChange={(e) => setDraft({ ...draft, T: e.target.value })}
-                />
+                <label htmlFor={`${id}-convention`}>Density per</label>
+                <select
+                  id={`${id}-convention`}
+                  name="convention"
+                  value={draft.convention}
+                  onChange={(e) =>
+                    applyDraft({
+                      ...draft,
+                      convention: e.target.value as Lq03Parameters["convention"],
+                    })
+                  }
+                >
+                  <option value="per-hz">Hertz</option>
+                  <option value="per-m">Metre of wavelength</option>
+                  <option value="per-log">Natural-log interval</option>
+                  <option value="per-decade">Decade</option>
+                </select>
               </div>
               <div className="input-field">
-                <label htmlFor={`${id}-nu1`}>
-                  Band lower edge &nu;<sub>1</sub> <span>(Hz)</span>
-                </label>
-                <input
-                  id={`${id}-nu1`}
-                  name="nu1"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.nu1}
-                  onChange={(e) => setDraft({ ...draft, nu1: e.target.value })}
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-nu2`}>
-                  Band upper edge &nu;<sub>2</sub> <span>(Hz)</span>
-                </label>
-                <input
-                  id={`${id}-nu2`}
-                  name="nu2"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.nu2}
-                  onChange={(e) => setDraft({ ...draft, nu2: e.target.value })}
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-probeNu`}>
-                  Probe frequency <span>(Hz)</span>
-                </label>
-                <input
-                  id={`${id}-probeNu`}
-                  name="probeNu"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.probeNu}
-                  onChange={(e) => setDraft({ ...draft, probeNu: e.target.value })}
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-epsilon`}>
-                  Regime tolerance &epsilon; <span>(%, 0.1-99)</span>
-                </label>
-                <input
-                  id={`${id}-epsilon`}
-                  name="epsilon"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.epsilon}
-                  onChange={(e) => setDraft({ ...draft, epsilon: e.target.value })}
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-coordinate`}>Horizontal coordinate</label>
+                <label htmlFor={`${id}-coordinate`}>Plot against</label>
                 <select
                   id={`${id}-coordinate`}
                   name="coordinate"
                   value={draft.coordinate}
                   onChange={(e) =>
-                    setDraft({
+                    applyDraft({
                       ...draft,
                       coordinate: e.target.value as Lq03Parameters["coordinate"],
                     })
@@ -281,197 +257,247 @@ export function SpectrumLab({
                   <option value="wavelength">Wavelength</option>
                 </select>
               </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-axisScale`}>Axis scale</label>
-                <select
-                  id={`${id}-axisScale`}
-                  name="axisScale"
-                  value={draft.axisScale}
-                  onChange={(e) =>
-                    setDraft({ ...draft, axisScale: e.target.value as Lq03Parameters["axisScale"] })
-                  }
-                >
-                  <option value="logarithmic">Logarithmic</option>
-                  <option value="linear">Linear</option>
-                </select>
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-convention`}>Density convention</label>
-                <select
-                  id={`${id}-convention`}
-                  name="convention"
-                  value={draft.convention}
-                  onChange={(e) =>
-                    setDraft({
-                      ...draft,
-                      convention: e.target.value as Lq03Parameters["convention"],
-                    })
-                  }
-                >
-                  <option value="per-hz">Per Hz</option>
-                  <option value="per-m">Per m</option>
-                  <option value="per-log">Per natural-log interval</option>
-                  <option value="per-decade">Per decade</option>
-                </select>
-              </div>
             </div>
-            <div className="input-grid">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={draft.showPlanck}
-                  onChange={(e) => setDraft({ ...draft, showPlanck: e.target.checked })}
-                />{" "}
-                Planck 1900
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={draft.showWien}
-                  onChange={(e) => setDraft({ ...draft, showWien: e.target.checked })}
-                />{" "}
-                Wien 1896
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={draft.showClassical}
-                  onChange={(e) => setDraft({ ...draft, showClassical: e.target.checked })}
-                />{" "}
-                Classical &sect;1
-              </label>
-            </div>
-            <button type="submit">Apply settings</button>
+            <ExperimentSettings contents="axis scale, which laws are drawn, the band, the probe frequency, the regime tolerance">
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-axisScale`}>Axis scale</label>
+                  <select
+                    id={`${id}-axisScale`}
+                    name="axisScale"
+                    value={draft.axisScale}
+                    onChange={(e) =>
+                      applyDraft({
+                        ...draft,
+                        axisScale: e.target.value as Lq03Parameters["axisScale"],
+                      })
+                    }
+                  >
+                    <option value="logarithmic">Logarithmic</option>
+                    <option value="linear">Linear</option>
+                  </select>
+                </div>
+              </div>
+              <div className="input-grid">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={draft.showPlanck}
+                    onChange={(e) => applyDraft({ ...draft, showPlanck: e.target.checked })}
+                  />{" "}
+                  Planck 1900
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={draft.showWien}
+                    onChange={(e) => applyDraft({ ...draft, showWien: e.target.checked })}
+                  />{" "}
+                  Wien 1896
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={draft.showClassical}
+                    onChange={(e) => applyDraft({ ...draft, showClassical: e.target.checked })}
+                  />{" "}
+                  Classical &sect;1
+                </label>
+              </div>
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-nu1`}>
+                    Band lower edge &nu;<sub>1</sub> <span>(Hz)</span>
+                  </label>
+                  <input
+                    id={`${id}-nu1`}
+                    name="nu1"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.nu1}
+                    onChange={(e) => setDraft({ ...draft, nu1: e.target.value })}
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-nu2`}>
+                    Band upper edge &nu;<sub>2</sub> <span>(Hz)</span>
+                  </label>
+                  <input
+                    id={`${id}-nu2`}
+                    name="nu2"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.nu2}
+                    onChange={(e) => setDraft({ ...draft, nu2: e.target.value })}
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-probeNu`}>
+                    Probe frequency <span>(Hz)</span>
+                  </label>
+                  <input
+                    id={`${id}-probeNu`}
+                    name="probeNu"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.probeNu}
+                    onChange={(e) => setDraft({ ...draft, probeNu: e.target.value })}
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-epsilon`}>
+                    Regime tolerance &epsilon; <span>(%, 0.1-99)</span>
+                  </label>
+                  <input
+                    id={`${id}-epsilon`}
+                    name="epsilon"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.epsilon}
+                    onChange={(e) => setDraft({ ...draft, epsilon: e.target.value })}
+                  />
+                </div>
+              </div>
+              <button type="submit">Apply settings</button>
+            </ExperimentSettings>
           </fieldset>
+          {error && (
+            <p id={`${id}-error`} className="notice" role="alert">
+              {error}
+            </p>
+          )}
         </form>
 
-        {error && (
-          <p id={`${id}-error`} className="notice" role="alert">
-            {error}
-          </p>
-        )}
-
-        <div className="results" aria-live="polite">
-          <h3>Spectral densities at the probe frequency</h3>
-          <table>
-            <caption>
-              Values at &nu; = <Sci value={p.probeNu} digits={4} /> Hz, T = {p.T} K. Wavelength
-              density is the Jacobian-transformed value, never a bare substitution of &lambda; =
-              c/&nu;.
-            </caption>
-            <thead>
-              <tr>
-                <th>Law</th>
-                <th>
-                  u<sub>&nu;</sub> (J&middot;m&#8315;&#179;&middot;Hz&#8315;&#185;)
-                </th>
-                <th>
-                  u<sub>&lambda;</sub> (J&middot;m&#8315;&#8308;)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {draft.showPlanck && (
+        <div className="results lab-results">
+          <SpectrumPlot
+            spectrum={spectrum}
+            shown={{ planck: p.showPlanck, wien: p.showWien, classical: p.showClassical }}
+            titleId={`${id}-spectrum`}
+          />
+          <div aria-live="polite">
+            <h3>Spectral densities at the probe frequency</h3>
+            <table>
+              <caption>
+                Values at &nu; = <Sci value={p.probeNu} digits={4} /> Hz, T = {p.T} K. Wavelength
+                density is the Jacobian-transformed value, never a bare substitution of &lambda; =
+                c/&nu;.
+              </caption>
+              <thead>
                 <tr>
-                  <td>Planck 1900</td>
-                  <td>{densityText(evaluation.planck.frequency, "J/(m³ Hz)")}</td>
-                  <td>{densityText(evaluation.planck.wavelength, "J/(m³ m)")}</td>
+                  <th>Law</th>
+                  <th>
+                    u<sub>&nu;</sub> (J&middot;m&#8315;&#179;&middot;Hz&#8315;&#185;)
+                  </th>
+                  <th>
+                    u<sub>&lambda;</sub> (J&middot;m&#8315;&#8308;)
+                  </th>
                 </tr>
-              )}
-              {draft.showWien && (
-                <tr>
-                  <td>Wien 1896</td>
-                  <td>{densityText(evaluation.wien.frequency, "J/(m³ Hz)")}</td>
-                  <td>{densityText(evaluation.wien.wavelength, "J/(m³ m)")}</td>
-                </tr>
-              )}
-              {draft.showClassical && (
-                <tr>
-                  <td>Classical &sect;1</td>
-                  <td>{densityText(evaluation.classical.frequency, "J/(m³ Hz)")}</td>
-                  <td>{densityText(evaluation.classical.wavelength, "J/(m³ m)")}</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {p.showPlanck && (
+                  <tr>
+                    <td>Planck 1900</td>
+                    <td>{densityText(evaluation.planck.frequency, "J/(m³ Hz)")}</td>
+                    <td>{densityText(evaluation.planck.wavelength, "J/(m³ m)")}</td>
+                  </tr>
+                )}
+                {p.showWien && (
+                  <tr>
+                    <td>Wien 1896</td>
+                    <td>{densityText(evaluation.wien.frequency, "J/(m³ Hz)")}</td>
+                    <td>{densityText(evaluation.wien.wavelength, "J/(m³ m)")}</td>
+                  </tr>
+                )}
+                {p.showClassical && (
+                  <tr>
+                    <td>Classical &sect;1</td>
+                    <td>{densityText(evaluation.classical.frequency, "J/(m³ Hz)")}</td>
+                    <td>{densityText(evaluation.classical.wavelength, "J/(m³ m)")}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
 
-          <h3>Band energy: identical across representations</h3>
-          <p>
-            From the frequency integral: {scalarText(evaluation.bandEnergyFromFrequency, "J/m³")}.
-            From the wavelength integral over the same physical band:{" "}
-            {scalarText(evaluation.bandEnergyFromWavelength, "J/m³")}. These agree because the
-            Jacobian is applied; a relabeled axis without it would not agree (see &ldquo;Show the
-            code&rdquo;).
-          </p>
-
-          <h3>Peak locations: representation-dependent, and why</h3>
-          <table>
-            <tbody>
-              <tr>
-                <td>
-                  Frequency-density peak &nu;<sub>peak</sub>
-                </td>
-                <td>{scalarText(evaluation.peakFrequency, "Hz")}</td>
-              </tr>
-              <tr>
-                <td>
-                  Wavelength-density peak &lambda;<sub>peak</sub>
-                </td>
-                <td>{scalarText(evaluation.peakWavelength, "m")}</td>
-              </tr>
-              <tr>
-                <td>
-                  c / &lambda;<sub>peak</sub> (NOT the frequency-density peak)
-                </td>
-                <td>
-                  {evaluation.frequencyFromPeakWavelength === null ? (
-                    "(unavailable)"
-                  ) : (
-                    <>
-                      <Sci value={evaluation.frequencyFromPeakWavelength} digits={6} /> Hz
-                    </>
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Per-natural-log-interval peak (x = {evaluation.peakLogInterval.x.toFixed(7)})
-                </td>
-                <td>
-                  <Sci value={evaluation.peakLogInterval.peakFrequency} digits={6} /> Hz
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="fine">
-            The frequency-density peak and c divided by the wavelength-density peak are different
-            numbers on purpose: u<sub>&lambda;</sub> and u<sub>&nu;</sub> are different functions
-            related by a Jacobian, so their maxima do not correspond under &lambda; = c/&nu;.
-          </p>
-
-          <h3>Wien and classical regime verdict</h3>
-          <p>
-            At this temperature and probe frequency, x = h&nu;/(k<sub>B</sub>T) ={" "}
-            {regime.x.toFixed(6)}. Wien's law's relative error here is{" "}
-            <Sci value={regime.wienRelativeError} digits={4} />; the classical law's relative error
-            is <Sci value={regime.rayleighJeansRelativeError} digits={4} />. {verdict}
-          </p>
-          <p className="fine">
-            This pointwise error is not a certificate for the light paper's integrated entropy
-            argument (&sect;4), which holds only within its own stated limits.
-          </p>
-
-          <p className="fine">Not modeled: {LQ03_NOT_MODELED.join("; ")}.</p>
-
-          <details>
-            <summary>The same action without dragging, color, or a canvas</summary>
+            <h3>Band energy: identical across representations</h3>
             <p>
-              Every action here is typed text entry and a text result: type the band edges and probe
-              frequency in hertz, choose the representation from the select lists above, and read
-              the band-energy and peak tables and the regime verdict sentence. No control depends on
-              dragging a handle, distinguishing color alone, or reading a canvas.
+              From the frequency integral: {scalarText(evaluation.bandEnergyFromFrequency, "J/m³")}.
+              From the wavelength integral over the same physical band:{" "}
+              {scalarText(evaluation.bandEnergyFromWavelength, "J/m³")}. These agree because the
+              Jacobian is applied; a relabeled axis without it would not agree (see &ldquo;Show the
+              code&rdquo;).
             </p>
-          </details>
+
+            <h3>Peak locations: representation-dependent, and why</h3>
+            <table>
+              <tbody>
+                <tr>
+                  <td>
+                    Frequency-density peak &nu;<sub>peak</sub>
+                  </td>
+                  <td>{scalarText(evaluation.peakFrequency, "Hz")}</td>
+                </tr>
+                <tr>
+                  <td>
+                    Wavelength-density peak &lambda;<sub>peak</sub>
+                  </td>
+                  <td>{scalarText(evaluation.peakWavelength, "m")}</td>
+                </tr>
+                <tr>
+                  <td>
+                    c / &lambda;<sub>peak</sub> (NOT the frequency-density peak)
+                  </td>
+                  <td>
+                    {evaluation.frequencyFromPeakWavelength === null ? (
+                      "(unavailable)"
+                    ) : (
+                      <>
+                        <Sci value={evaluation.frequencyFromPeakWavelength} digits={6} /> Hz
+                      </>
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    Per-natural-log-interval peak (x = {evaluation.peakLogInterval.x.toFixed(7)})
+                  </td>
+                  <td>
+                    <Sci value={evaluation.peakLogInterval.peakFrequency} digits={6} /> Hz
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p className="fine">
+              The frequency-density peak and c divided by the wavelength-density peak are different
+              numbers on purpose: u<sub>&lambda;</sub> and u<sub>&nu;</sub> are different functions
+              related by a Jacobian, so their maxima do not correspond under &lambda; = c/&nu;.
+            </p>
+
+            <h3>Wien and classical regime verdict</h3>
+            <p>
+              At this temperature and probe frequency, x = h&nu;/(k<sub>B</sub>T) ={" "}
+              {regime.x.toFixed(6)}. Wien's law's relative error here is{" "}
+              <Sci value={regime.wienRelativeError} digits={4} />; the classical law's relative
+              error is <Sci value={regime.rayleighJeansRelativeError} digits={4} />. {verdict}
+            </p>
+            <p className="fine">
+              This pointwise error is not a certificate for the light paper's integrated entropy
+              argument (&sect;4), which holds only within its own stated limits.
+            </p>
+
+            <p className="fine">Not modeled: {LQ03_NOT_MODELED.join("; ")}.</p>
+
+            <details>
+              <summary>The same action without dragging, color, or a canvas</summary>
+              <p>
+                Every action here is typed text entry and a text result: type the temperature, the
+                band edges and the probe frequency, choose the representation from the select lists
+                above, and read the band-energy and peak tables and the regime verdict sentence. The
+                spectrum drawing shows the same densities; its description names the peak, and the
+                three laws differ by line pattern, not colour. No control depends on dragging a
+                handle, distinguishing color alone, or reading a canvas.
+              </p>
+            </details>
+          </div>
         </div>
       </div>
     </section>
