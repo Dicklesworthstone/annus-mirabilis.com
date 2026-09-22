@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { MASS_ENERGY_SHELF_CARDS } from "../../../content/massEnergyShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
   title: "A body gives off light. What does it lose?",
@@ -132,9 +133,11 @@ export default function MassEnergyRoute() {
             the June one. Naming the debt is the difference between a route and a conjuring trick.
           </p>
         </details>
-        <p>
-          <a href="/lab/sr-10/">Transform a finite light complex and watch its energy change</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/sr-10/">
+            Transform a finite light complex and watch its energy change
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -163,11 +166,11 @@ export default function MassEnergyRoute() {
             survives.
           </p>
         </details>
-        <p>
-          <a href="/discover/mass-energy/investigate/">
+        <StepDoors>
+          <StepDoor href="/discover/mass-energy/investigate/">
             Assemble the argument yourself and take that premise out
-          </a>
-        </p>
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -197,11 +200,11 @@ export default function MassEnergyRoute() {
             nothing, which is a different thing from taking the limit.
           </p>
         </details>
-        <p>
-          <a href="/lab/me-02/">
+        <StepDoors>
+          <StepDoor href="/lab/me-02/">
             Compare the finite-speed proxy with the limit that identifies the mass
-          </a>
-        </p>
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section>

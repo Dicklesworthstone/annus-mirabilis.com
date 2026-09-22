@@ -6,6 +6,7 @@ import {
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import type { KnowledgeCard } from "../../../discovery/cards/types.ts";
+import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = { title: "A first encounter with Brownian motion" };
 
@@ -295,14 +296,16 @@ export default function BrownianEncounter() {
             in the derivation, not just a convenient sign.
           </p>
         </details>
-        <p>
-          <a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
+        <StepDoors>
+          <StepDoor href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
             See the step where the cross terms drop out
-          </a>
-        </p>
-        <p>
-          <a href="/lab/bm-01/">Compare signed means and mean squares in the tracer ensemble</a>
-        </p>
+          </StepDoor>
+        </StepDoors>
+        <StepDoors>
+          <StepDoor href="/lab/bm-01/">
+            Compare signed means and mean squares in the tracer ensemble
+          </StepDoor>
+        </StepDoors>
       </section>
       <section>
         <p className="step-number">02 / Make a prediction</p>
@@ -325,10 +328,12 @@ export default function BrownianEncounter() {
             accepted diffusion coefficient. It is not three independent measurements.
           </p>
         </details>
-        <a href="/lab/bm-06/">Compare the observation times in the laboratory</a>
-        <p>
-          <a href="/lab/bm-05/">Build the argument from coin, uniform and Gaussian steps</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/bm-06/">Compare the observation times in the laboratory</StepDoor>
+          <StepDoor href="/lab/bm-05/">
+            Build the argument from coin, uniform and Gaussian steps
+          </StepDoor>
+        </StepDoors>
       </section>
       <section>
         <p className="step-number">03 / Ask an interval question</p>
@@ -366,7 +371,9 @@ export default function BrownianEncounter() {
           radius, estimate the number, and repeat the experiment to see why some confidence
           intervals miss.
         </p>
-        <a href="/lab/bm-07/">Estimate the number and repeat the experiment</a>
+        <StepDoors>
+          <StepDoor href="/lab/bm-07/">Estimate the number and repeat the experiment</StepDoor>
+        </StepDoors>
       </section>
       <section>
         <p className="step-number">05 / Try it yourself</p>

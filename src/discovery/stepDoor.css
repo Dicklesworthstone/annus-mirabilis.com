@@ -1,0 +1,73 @@
+/*
+ * DISCOVER (pane %43): A STEP'S DOOR TO ITS INSTRUMENT, ITS PASSAGE OR ITS INVESTIGATION.
+ *
+ * The foundations index's card idiom (a thin rule, a 4px radius, the wash on hover), so a door
+ * reads as a thing to open rather than as a callout. What it opens is named in the eyebrow
+ * style above the link's words; the arrow sits at the right edge. The door is as wide as its
+ * words, up to the reading measure, and never under 44px tall.
+ *
+ * `.encounter p.step-door > a` is (0,2,2), above the theme's `:root a:not(.button)` at (0,2,1),
+ * which would otherwise underline the whole door and colour it on hover.
+ */
+.step-doors {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+.encounter p.step-door {
+  max-width: 100%;
+  margin: 0;
+}
+.encounter p.step-door > a {
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 1.25rem;
+  max-width: min(100%, 70ch);
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0.6rem 1rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--ink);
+  text-decoration: none;
+}
+.encounter p.step-door > a:hover {
+  background: var(--wash);
+}
+.step-door-kind {
+  grid-column: 1;
+  font-family: var(--font-sans);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.step-door-text {
+  grid-column: 1;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  line-height: 1.35;
+  text-decoration: underline 1px;
+  text-decoration-color: var(--link-underline);
+  text-underline-offset: 0.2em;
+}
+.encounter p.step-door > a:hover .step-door-text {
+  color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+.step-door-arrow {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+.encounter p.step-door > a:hover .step-door-arrow {
+  color: var(--accent);
+}

@@ -606,6 +606,13 @@ h3 {
   padding-top: 1.5rem;
   margin-top: 2.8rem;
 }
+/* Discover (pane %43). The way out at the foot of every route, beside its button, was 28px tall
+   at 390 and 31px at 1440 on all four. */
+.encounter .actions a:not(.button) {
+  display: inline-block;
+  min-height: 44px;
+  align-content: center;
+}
 .step-number {
   font-family: var(--font-sans);
   font-size: var(--type-fine);

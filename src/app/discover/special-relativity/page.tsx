@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SPECIAL_RELATIVITY_SHELF_CARDS } from "../../../content/specialRelativityShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
   title: "One current, two stories. Which one is the moving one?",
@@ -68,9 +69,11 @@ export default function SpecialRelativityRoute() {
           and the current arises instead because the wire is moving through it. Two mechanisms, two
           descriptions, one needle that cannot tell them apart.
         </p>
-        <p>
-          <a href="/lab/sr-02/">Tell both stories about the magnet and compare them</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/sr-02/">
+            Tell both stories about the magnet and compare them
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -144,12 +147,12 @@ export default function SpecialRelativityRoute() {
           their clocks by the same rule, do not end up agreeing about which distant events are
           simultaneous. Neither has made a mistake.
         </p>
-        <p>
-          <a href="/lab/sr-01/">
+        <StepDoors>
+          <StepDoor href="/lab/sr-01/">
             Set two distant clocks and watch what the procedure commits you to
-          </a>{" "}
-          <a href="/lab/sr-03/">See simultaneity and length come apart together</a>
-        </p>
+          </StepDoor>
+          <StepDoor href="/lab/sr-03/">See simultaneity and length come apart together</StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -167,9 +170,9 @@ export default function SpecialRelativityRoute() {
           down; here it is built from a measurement procedure you can carry out, and nothing enters
           it that was not put in at step 3.
         </p>
-        <p>
-          <a href="/lab/sr-04/">Build the map rather than receive it</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/sr-04/">Build the map rather than receive it</StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -191,10 +194,12 @@ export default function SpecialRelativityRoute() {
             calculated on its own. Keeping the two apart is the whole of the distinction.
           </p>
         </details>
-        <p>
-          <a href="/lab/sr-05/">Separate what the clock reads from what a camera sees</a>{" "}
-          <a href="/lab/sr-06/">Add two speeds and fail to exceed the light speed</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/sr-05/">
+            Separate what the clock reads from what a camera sees
+          </StepDoor>
+          <StepDoor href="/lab/sr-06/">Add two speeds and fail to exceed the light speed</StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -235,11 +240,13 @@ export default function SpecialRelativityRoute() {
           known since 1729, and the same transformation gives the shift and the accompanying change
           of frequency together, from one relation rather than two.
         </p>
-        <p>
-          <a href="/lab/sr-06/">Recover the partial drag from velocity addition</a>{" "}
-          <a href="/lab/sr-09/">Get aberration and Doppler from one transformation</a>{" "}
-          <a href="/lab/sr-08/">Watch electric and magnetic fields change into each other</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/sr-06/">Recover the partial drag from velocity addition</StepDoor>
+          <StepDoor href="/lab/sr-09/">Get aberration and Doppler from one transformation</StepDoor>
+          <StepDoor href="/lab/sr-08/">
+            Watch electric and magnetic fields change into each other
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section>

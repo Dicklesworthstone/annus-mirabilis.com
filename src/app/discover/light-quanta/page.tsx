@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { LIGHT_QUANTA_SHELF_CARDS } from "../../../content/lightQuantaShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
   title: "Waves explain the light you see. What about the moment it is made?",
@@ -64,9 +65,9 @@ export default function LightQuantaRoute() {
           The ending is often told as though waves were overthrown. They were not. What follows
           narrows to a region the optical evidence never covered.
         </p>
-        <p>
-          <a href="/lab/lq-01/">See what continuous waves account for</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/lq-01/">See what continuous waves account for</StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -122,9 +123,9 @@ export default function LightQuantaRoute() {
             "ultraviolet catastrophe", is Paul Ehrenfest's, from 1911; the paper does not use it.
           </p>
         </details>
-        <p>
-          <a href="/lab/lq-02/">Watch the total refuse to settle</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/lq-02/">Watch the total refuse to settle</StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -141,10 +142,14 @@ export default function LightQuantaRoute() {
           fixed and let the radiation occupy a different volume, how does the entropy change? That
           is a question about counting, not about mechanism, and it can be answered.
         </p>
-        <p>
-          <a href="/lab/lq-03/">Find where Wien&rsquo;s law holds and where it stops</a>{" "}
-          <a href="/lab/lq-04/">Take the entropy of a spectrum and change its volume</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/lq-03/">
+            Find where Wien&rsquo;s law holds and where it stops
+          </StepDoor>
+          <StepDoor href="/lab/lq-04/">
+            Take the entropy of a spectrum and change its volume
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -161,9 +166,9 @@ export default function LightQuantaRoute() {
           You now have two answers to one question, derived independently: one for radiation in a
           regime where a measured law holds, one for a gas of a known number of independent things.
         </p>
-        <p>
-          <a href="/lab/lq-05/">Count independent configurations in the gas</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/lq-05/">Count independent configurations in the gas</StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -200,9 +205,11 @@ export default function LightQuantaRoute() {
             step arrives at, and the two should not be run together.
           </p>
         </details>
-        <p>
-          <a href="/lab/lq-06/">Put the two entropy laws side by side and read the exponent</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/lq-06/">
+            Put the two entropy laws side by side and read the exponent
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section>
@@ -231,11 +238,11 @@ export default function LightQuantaRoute() {
             instruments below say so about themselves.
           </p>
         </details>
-        <p>
-          <a href="/lab/lq-07/">Test the fluorescence budget</a>{" "}
-          <a href="/lab/lq-08/">Separate how many electrons from how energetic</a>{" "}
-          <a href="/lab/lq-09/">Set a threshold and see what it does not determine</a>
-        </p>
+        <StepDoors>
+          <StepDoor href="/lab/lq-07/">Test the fluorescence budget</StepDoor>
+          <StepDoor href="/lab/lq-08/">Separate how many electrons from how energetic</StepDoor>
+          <StepDoor href="/lab/lq-09/">Set a threshold and see what it does not determine</StepDoor>
+        </StepDoors>
       </section>
 
       <section>
