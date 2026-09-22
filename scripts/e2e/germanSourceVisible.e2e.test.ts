@@ -40,6 +40,7 @@ import { dirname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { PAPER_BIB_KEYS } from "../../src/content/editions/ledgerPresence.ts";
+import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const TRANSCRIPTS = join(REPO_ROOT, "public", "papers", "transcripts");
@@ -129,6 +130,10 @@ test("every reviewed ledger on disk reaches a reader through its built German pa
       "If ledgers have moved, this test must move with them.",
   );
 
+  // ABSENT *AND* STALE. See declaredRoutesBuilt.test.ts for the measurement: existsSync alone
+  // let a build 119 commits behind HEAD satisfy this, so "what a reader meets" was being checked
+  // against pages no reader would meet. Same convention as src/testing/outFreshness.ts.
+  assertOutFreshness();
   if (!existsSync(join(OUT_DIR, "index.html"))) {
     assert.fail(
       "out/ is absent, so what a reader meets cannot be checked. Run bun run build. " +

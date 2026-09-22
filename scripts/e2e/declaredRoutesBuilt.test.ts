@@ -33,6 +33,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const APP_ROOT = join(REPO_ROOT, "src", "app");
@@ -114,6 +115,18 @@ test("every declared route is built, and no built page is an empty shell", () =>
       "If the App Router has moved, this check must move with it rather than pass.",
   );
 
+  // ABSENT *AND* STALE, because the reasoning above does not stop at absence.
+  //
+  // This guarded existsSync only, so a build from an earlier day satisfied it. Measured on
+  // 2026-09-21 the local out/ was 119 commits behind HEAD and this test passed against it - a
+  // green that asserts every declared route is built, on output that predates 119 commits of
+  // route changes. A stale artefact is no more evidence than a missing one, which is what the
+  // sentence below already says; it was only ever enforced for one of the two.
+  //
+  // assertOutFreshness is the repository's existing answer (src/testing/outFreshness.ts, used by
+  // foundCalculus.e2e.test.ts and thirdPartyRequests.test.ts, both of which refuse on a stale
+  // build today). This aligns with that convention rather than inventing a second one.
+  assertOutFreshness();
   if (!existsSync(join(OUT_DIR, "index.html"))) {
     assert.fail(
       "out/ is absent, so what is built cannot be checked. Run bun run build. " +
