@@ -27,7 +27,18 @@ export function mountFacsimileReader(
   const share = root.querySelector<HTMLButtonElement>("[data-facsimile-share]");
   const shareField = root.querySelector<HTMLInputElement>("[data-facsimile-share-url]");
   const controls = root.querySelector<HTMLFieldSetElement>("[data-facsimile-controls]");
-  if (!frame || !form || !input || !previous || !next || !status || !direct || !share || !shareField || !controls) {
+  if (
+    !frame ||
+    !form ||
+    !input ||
+    !previous ||
+    !next ||
+    !status ||
+    !direct ||
+    !share ||
+    !shareField ||
+    !controls
+  ) {
     // Static page/PDF links still work if an embedder omits the optional controls.
     return () => {};
   }
@@ -50,14 +61,19 @@ export function mountFacsimileReader(
     root.dataset.facsimilePdfPage = String(page.pdfPage);
     status!.textContent = `Selected printed page ${page.printedPage} (PDF page ${page.pdfPage} of ${document.pages.length}). The embedded display depends on your browser's PDF support.`;
     for (const link of root.querySelectorAll<HTMLAnchorElement>("[data-facsimile-page-link]")) {
-      if (link.dataset.facsimilePageLink === String(page.pdfPage)) link.setAttribute("aria-current", "page");
+      if (link.dataset.facsimilePageLink === String(page.pdfPage))
+        link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     }
     if (writeHistory && !options.preserveReaderHistory) {
       const url = new URL(window!.location.href);
       url.hash = facsimilePageAnchor(page);
       if (url.href !== window!.location.href) {
-        try { window!.history.pushState(null, "", url.href); } catch { /* Direct PDF and copyable links remain usable. */ }
+        try {
+          window!.history.pushState(null, "", url.href);
+        } catch {
+          /* Direct PDF and copyable links remain usable. */
+        }
       }
     }
     const shared = new URL(faceHref, window!.location.href);
@@ -74,7 +90,8 @@ export function mountFacsimileReader(
     const page = resolveFacsimileTarget(document, window!.location.hash);
     if (page === null) {
       if (options.preserveReaderHistory) return;
-      status!.textContent = "No scan-page locator is recorded for this link. The selected page is unchanged; use the page directory below.";
+      status!.textContent =
+        "No scan-page locator is recorded for this link. The selected page is unchanged; use the page directory below.";
       return;
     }
     select(page, false);
@@ -87,7 +104,8 @@ export function mountFacsimileReader(
       : undefined;
     if (!page) {
       input!.setAttribute("aria-invalid", "true");
-      status!.textContent = "Enter a printed page number from the directory below. The selected scan page has not changed.";
+      status!.textContent =
+        "Enter a printed page number from the directory below. The selected scan page has not changed.";
       return;
     }
     select(page.pdfPage, true);
@@ -99,18 +117,29 @@ export function mountFacsimileReader(
     try {
       if (!window!.navigator.clipboard?.writeText) throw new Error("clipboard-unavailable");
       await window!.navigator.clipboard.writeText(url);
-      if (active && shareField!.value === url) status!.textContent = "Link to the selected source page copied.";
+      if (active && shareField!.value === url)
+        status!.textContent = "Link to the selected source page copied.";
     } catch {
       if (!active || shareField!.value !== url) return;
       shareField!.focus();
       shareField!.select();
-      status!.textContent = "Copy the selected source-page link from the field. Clipboard access is not required.";
+      status!.textContent =
+        "Copy the selected source-page link from the field. Clipboard access is not required.";
     }
   }
 
   const followInlineTarget = (event: MouseEvent) => {
-    if (!options.preserveReaderHistory || event.defaultPrevented || event.button !== 0 ||
-      event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || !(event.target instanceof Element)) return;
+    if (
+      !options.preserveReaderHistory ||
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.altKey ||
+      event.shiftKey ||
+      !(event.target instanceof Element)
+    )
+      return;
     const link = event.target.closest<HTMLElement>("[data-facsimile-target]");
     if (!link || !root.contains(link)) return;
     const page = resolveFacsimileTarget(document, link.dataset.facsimileTarget ?? "");

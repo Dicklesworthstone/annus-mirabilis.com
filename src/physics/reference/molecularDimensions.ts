@@ -33,11 +33,21 @@ export type MolecularDimensionsSnapshot = Readonly<{
 
 const IDENTITIES = Object.freeze({
   radius: { quantityId: "molecularRadius", unit: "m", semanticKind: "length" },
-  molecularNumber: { quantityId: "molecularNumber", unit: "mol^-1", semanticKind: "molecular-number" },
-  radiusTimesMolecularNumber: {
-    quantityId: "radiusTimesMolecularNumber", unit: "m/mol", semanticKind: "identifiability-product",
+  molecularNumber: {
+    quantityId: "molecularNumber",
+    unit: "mol^-1",
+    semanticKind: "molecular-number",
   },
-  volumeFraction: { quantityId: "soluteVolumeFraction", unit: "1", semanticKind: "volume-fraction" },
+  radiusTimesMolecularNumber: {
+    quantityId: "radiusTimesMolecularNumber",
+    unit: "m/mol",
+    semanticKind: "identifiability-product",
+  },
+  volumeFraction: {
+    quantityId: "soluteVolumeFraction",
+    unit: "1",
+    semanticKind: "volume-fraction",
+  },
 } as const);
 type Key = keyof typeof IDENTITIES;
 
@@ -45,56 +55,107 @@ function result(key: Key, payload: ResultPayload): ScientificResult {
   return Object.freeze({ ...IDENTITIES[key], ownerId: MOLECULAR_DIMENSIONS_OWNER, ...payload });
 }
 
-function refuse(condition: string, reason: string, domainKind: "input" | "model" | "numerical"): MolecularDimensionsSnapshot {
+function refuse(
+  condition: string,
+  reason: string,
+  domainKind: "input" | "model" | "numerical",
+): MolecularDimensionsSnapshot {
   const payload = {
-    status: "outside-domain" as const, condition, domainKind, reason,
-    boundary: Object.freeze({ alternativeModel: "positive finite inputs in the dilute-sphere regime" }),
+    status: "outside-domain" as const,
+    condition,
+    domainKind,
+    reason,
+    boundary: Object.freeze({
+      alternativeModel: "positive finite inputs in the dilute-sphere regime",
+    }),
   };
   return Object.freeze({
-    radius: result("radius", payload), molecularNumber: result("molecularNumber", payload),
+    radius: result("radius", payload),
+    molecularNumber: result("molecularNumber", payload),
     radiusTimesMolecularNumber: result("radiusTimesMolecularNumber", payload),
     volumeFraction: result("volumeFraction", payload),
   });
 }
 
-export function inferMolecularDimensions(p: MolecularDimensionsInputs): MolecularDimensionsSnapshot {
-  if (![p.temperature, p.viscosity, p.diffusion, p.gasConstant].every((n) => Number.isFinite(n) && n > 0) ||
-      ![p.molarConcentration, p.specificViscosity].every((n) => Number.isFinite(n) && n >= 0) ||
-      (p.viscosityCoefficient !== 1 && p.viscosityCoefficient !== 2.5)) {
-    return refuse("invalid-input", "Supply positive temperature, solvent viscosity, diffusivity and gas constant, nonnegative concentration and specific viscosity, and coefficient 1 or 2.5.", "input");
+export function inferMolecularDimensions(
+  p: MolecularDimensionsInputs,
+): MolecularDimensionsSnapshot {
+  if (
+    ![p.temperature, p.viscosity, p.diffusion, p.gasConstant].every(
+      (n) => Number.isFinite(n) && n > 0,
+    ) ||
+    ![p.molarConcentration, p.specificViscosity].every((n) => Number.isFinite(n) && n >= 0) ||
+    (p.viscosityCoefficient !== 1 && p.viscosityCoefficient !== 2.5)
+  ) {
+    return refuse(
+      "invalid-input",
+      "Supply positive temperature, solvent viscosity, diffusivity and gas constant, nonnegative concentration and specific viscosity, and coefficient 1 or 2.5.",
+      "input",
+    );
   }
   // Work in log space to avoid overflowing intermediate products at finite inputs.
-  const logA = Math.log(p.gasConstant) + Math.log(p.temperature) - Math.log(6 * Math.PI) -
-    Math.log(p.viscosity) - Math.log(p.diffusion);
+  const logA =
+    Math.log(p.gasConstant) +
+    Math.log(p.temperature) -
+    Math.log(6 * Math.PI) -
+    Math.log(p.viscosity) -
+    Math.log(p.diffusion);
   const A = Math.exp(logA);
   if (!Number.isFinite(A) || A <= 0) {
-    return refuse("nonrepresentable-output", "The radius-times-number product cannot be represented as a positive finite number at these settings.", "numerical");
+    return refuse(
+      "nonrepresentable-output",
+      "The radius-times-number product cannot be represented as a positive finite number at these settings.",
+      "numerical",
+    );
   }
   if (p.molarConcentration === 0 && p.specificViscosity === 0) {
     const unknown = {
       status: "underdetermined" as const,
       compatibleFamily: "a N = RT/(6 pi eta D); doubling a and halving N leaves D unchanged.",
-      neededInformation: Object.freeze(["A nonzero dilute-solution concentration and its viscosity increment, or an independently measured radius."]),
+      neededInformation: Object.freeze([
+        "A nonzero dilute-solution concentration and its viscosity increment, or an independently measured radius.",
+      ]),
     };
     return Object.freeze({
-      radius: result("radius", unknown), molecularNumber: result("molecularNumber", unknown),
-      radiusTimesMolecularNumber: result("radiusTimesMolecularNumber", { status: "value", value: A }),
+      radius: result("radius", unknown),
+      molecularNumber: result("molecularNumber", unknown),
+      radiusTimesMolecularNumber: result("radiusTimesMolecularNumber", {
+        status: "value",
+        value: A,
+      }),
       volumeFraction: result("volumeFraction", { status: "value", value: 0 }),
     });
   }
   if (p.molarConcentration === 0 || p.specificViscosity === 0) {
-    return refuse("inconsistent-solution", "A finite positive molecular radius and number require both a nonzero concentration and a nonzero viscosity increment. Zero concentration cannot explain a positive increment.", "model");
+    return refuse(
+      "inconsistent-solution",
+      "A finite positive molecular radius and number require both a nonzero concentration and a nonzero viscosity increment. Zero concentration cannot explain a positive increment.",
+      "model",
+    );
   }
   const phi = p.specificViscosity / p.viscosityCoefficient;
   if (phi > MAX_DILUTE_VOLUME_FRACTION) {
-    return refuse("not-dilute", "The inferred solute volume fraction exceeds this model's explicit 5% admission ceiling. A concentrated-solution model is needed; this cutoff is not an error estimate.", "model");
+    return refuse(
+      "not-dilute",
+      "The inferred solute volume fraction exceeds this model's explicit 5% admission ceiling. A concentrated-solution model is needed; this cutoff is not an error estimate.",
+      "model",
+    );
   }
-  const logRadius = (Math.log(p.specificViscosity) - Math.log(p.viscosityCoefficient) -
-    Math.log(4 * Math.PI / 3) - Math.log(p.molarConcentration) - logA) / 2;
+  const logRadius =
+    (Math.log(p.specificViscosity) -
+      Math.log(p.viscosityCoefficient) -
+      Math.log((4 * Math.PI) / 3) -
+      Math.log(p.molarConcentration) -
+      logA) /
+    2;
   const radius = Math.exp(logRadius);
   const N = Math.exp(logA - logRadius);
   if (![radius, N, phi].every((n) => Number.isFinite(n) && n > 0)) {
-    return refuse("nonrepresentable-output", "The inferred radius, molecular number or volume fraction cannot be represented as a positive finite number. No zero or infinity is substituted.", "numerical");
+    return refuse(
+      "nonrepresentable-output",
+      "The inferred radius, molecular number or volume fraction cannot be represented as a positive finite number. No zero or infinity is substituted.",
+      "numerical",
+    );
   }
   return Object.freeze({
     radius: result("radius", { status: "value", value: radius }),

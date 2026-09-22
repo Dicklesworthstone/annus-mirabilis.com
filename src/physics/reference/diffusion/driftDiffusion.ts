@@ -163,7 +163,12 @@ export function driftDiffusionFrames1d(
               action: { parameterId: "cells", value: Math.max(3, Math.floor(cells / 2)) },
             },
             ...(driftOnly
-              ? [{ label: "Use a weaker force.", action: { parameterId: "force", value: force / 2 } }]
+              ? [
+                  {
+                    label: "Use a weaker force.",
+                    action: { parameterId: "force", value: force / 2 },
+                  },
+                ]
               : []),
           ],
         },
@@ -189,9 +194,7 @@ export function driftDiffusionFrames1d(
     }
     values.set(field, frame * cells);
   }
-  const pe = D === 0
-    ? (u === 0 ? 0 : Math.sign(u) * Number.POSITIVE_INFINITY)
-    : u / (D / dx);
+  const pe = D === 0 ? (u === 0 ? 0 : Math.sign(u) * Number.POSITIVE_INFINITY) : u / (D / dx);
   return {
     kind: "accepted",
     data: Object.freeze({
@@ -255,7 +258,7 @@ function initialProfile(
   }
   if (!(weight > 0) || !Number.isFinite(weight)) return null;
   for (let i = 0; i < cells; i++) {
-    const density = ((field[i] ?? 0) / weight) / dx;
+    const density = (field[i] ?? 0) / weight / dx;
     if (!Number.isFinite(density)) return null;
     field[i] = density;
   }
@@ -264,14 +267,11 @@ function initialProfile(
 
 type TransportSpeeds = ReturnType<typeof transportSpeeds>;
 
-function faceFlux(
-  field: Float64Array,
-  speeds: TransportSpeeds,
-  D: number,
-  u: number,
-): FaceFlux[] {
+function faceFlux(field: Float64Array, speeds: TransportSpeeds, D: number, u: number): FaceFlux[] {
   const faces: FaceFlux[] = Array.from({ length: field.length + 1 }, () => ({
-    total: 0, drift: 0, diffusion: 0,
+    total: 0,
+    drift: 0,
+    diffusion: 0,
   }));
   for (let i = 0; i < field.length - 1; i++) {
     const ni = field[i] ?? 0;

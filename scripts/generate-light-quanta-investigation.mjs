@@ -3,10 +3,10 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  evaluateLightInvestigation,
+  LIGHT_INVESTIGATION_CONSTANTS,
   LIGHT_INVESTIGATION_DEFAULTS,
   LIGHT_INVESTIGATION_MODEL,
-  LIGHT_INVESTIGATION_CONSTANTS,
-  evaluateLightInvestigation,
 } from "../src/discovery/lightQuanta/investigation.ts";
 import { encodeResult } from "../src/experiments/results/codec.ts";
 
@@ -45,7 +45,9 @@ export async function prepareLightInvestigation() {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const example = await prepareLightInvestigation();
   await mkdir(resolve(root, "src/generated"), { recursive: true });
-  await writeFile(resolve(root, "src/generated/light-quanta-investigation.json"),
-    `${JSON.stringify(example, null, 2)}\n`);
+  await writeFile(
+    resolve(root, "src/generated/light-quanta-investigation.json"),
+    `${JSON.stringify(example, null, 2)}\n`,
+  );
   console.log(JSON.stringify({ modelId: example.modelId, sourceDigest: example.sourceDigest }));
 }

@@ -651,6 +651,14 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       ...overrides,
     });
 
+    // CITATIONS GO STALE SILENTLY, and these seven did. They were written against lines
+    // 700-772; inserting the extract-folio evaluator above them moved every one by about
+    // 159 lines, and nothing said so - under the old mention-credit rule the sites were
+    // credited anyway, so this file read as fully covered while seven of its citations
+    // pointed at nothing. The am-ksl3 tightening is what exposed it. Repointed to the
+    // lines the scanner reports today; see am-ksl3 for the follow-on, that a citation
+    // matching no site should be REPORTED rather than ignored.
+    //
     // Each arm cites its site as (verify-facsimile-pins.ts:LINE). The refusal scanner
     // otherwise credits sites by COUNTING test blocks that mention a code and handing
     // that many sites the credit in line order, so seven tests would have covered

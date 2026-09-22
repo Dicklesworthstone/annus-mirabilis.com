@@ -39,7 +39,13 @@ export function validateLq06Parameters(input: unknown): Lq06ParameterCheck {
     return bad("Use complete, known parameter data fields.");
   }
   const p = fields as Lq06Parameters;
-  for (const key of ["radiationEnergy", "frequency", "gasParticles", "volumeRatio", "temperature"] as const) {
+  for (const key of [
+    "radiationEnergy",
+    "frequency",
+    "gasParticles",
+    "volumeRatio",
+    "temperature",
+  ] as const) {
     if (typeof p[key] !== "number" || !Number.isFinite(p[key])) {
       return bad(`Parameter "${key}" must be a finite number.`);
     }
@@ -55,10 +61,18 @@ export function validateLq06Parameters(input: unknown): Lq06ParameterCheck {
   if (p.temperature <= 0 || p.temperature > 50000) {
     return bad("Temperature must be positive and not exceed 50,000 K.");
   }
-  if (!["none", "E", "nu", "E_over_beta_nu", "N_E_over_R_beta_nu", "V"].includes(p.selectedSubexpression)) {
+  if (
+    !["none", "E", "nu", "E_over_beta_nu", "N_E_over_R_beta_nu", "V"].includes(
+      p.selectedSubexpression,
+    )
+  ) {
     return bad("Invalid subexpression choice.");
   }
-  if (!["none", "E", "h_nu", "R_beta_nu_over_N", "k_B_T", "arbitrary"].includes(p.proposedEnergyElement)) {
+  if (
+    !["none", "E", "h_nu", "R_beta_nu_over_N", "k_B_T", "arbitrary"].includes(
+      p.proposedEnergyElement,
+    )
+  ) {
     return bad("Invalid proposed energy element.");
   }
   if (!["none", "coincidence", "independent-quanta"].includes(p.forkAChoice)) {

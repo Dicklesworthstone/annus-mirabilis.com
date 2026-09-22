@@ -4,9 +4,17 @@ import { getConstantSet } from "../physics/reference/constants.ts";
 import { driftDiffusionFrames1d } from "../physics/reference/diffusion/driftDiffusion.ts";
 
 const defaults = {
-  cells: 20, width: 1e-5, frames: 3, stepsPerFrame: 20, dt: 0.001,
-  kickDiffusivity: 4e-13, mobility: 1e8, force: 4e-15,
-  temperature: 293.15, profile: "uniform", set: getConstantSet("modern-si-2019"),
+  cells: 20,
+  width: 1e-5,
+  frames: 3,
+  stepsPerFrame: 20,
+  dt: 0.001,
+  kickDiffusivity: 4e-13,
+  mobility: 1e8,
+  force: 4e-15,
+  temperature: 293.15,
+  profile: "uniform",
+  set: getConstantSet("modern-si-2019"),
 };
 
 function accepted(overrides = {}) {
@@ -53,7 +61,10 @@ for (const force of [-1000, 1000]) {
     assert.ok(Number.isFinite(data.sigma));
     near(data.sigma, 0.1);
     assert.ok(data.values.every((x) => Number.isFinite(x) && x >= 0));
-    near(data.values.subarray(0, 10).reduce((sum, x) => sum + x, 0), 1);
+    near(
+      data.values.subarray(0, 10).reduce((sum, x) => sum + x, 0),
+      1,
+    );
     const invalid = driftDiffusionFrames1d({ ...defaults, ...options, dt: 0.002 });
     assert.equal(invalid.kind, "refused");
     assert.equal(invalid.refusal.code, "drift-diffusion-unstable");
@@ -74,7 +85,10 @@ test("BM-04 final fluxes describe the accepted density, including a zero-step fr
     const data = accepted({ frames, stepsPerFrame: 1, force: 0, profile: "step" });
     const row = data.values.subarray((frames - 1) * defaults.cells);
     for (let i = 0; i < defaults.cells - 1; i++) {
-      near(data.faceFlux[i + 1].total, (defaults.kickDiffusivity / data.dx) * (row[i] - row[i + 1]));
+      near(
+        data.faceFlux[i + 1].total,
+        (defaults.kickDiffusivity / data.dx) * (row[i] - row[i + 1]),
+      );
     }
     assert.equal(data.faceFlux[0].total, 0);
     assert.equal(data.faceFlux[defaults.cells].total, 0);

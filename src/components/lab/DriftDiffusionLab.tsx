@@ -162,8 +162,11 @@ export function DriftDiffusionLab({
   const diffCoeff = scalar(snapshot, "diffusionCoefficient");
   const steadyState = scalar(snapshot, "steadyState");
   const drift = scalar(snapshot, "driftVelocity");
-  const selectedPrediction = BM04_PROMPT.candidates.find((candidate) => candidate.id === prediction);
-  const isComparison = comparison !== null &&
+  const selectedPrediction = BM04_PROMPT.candidates.find(
+    (candidate) => candidate.id === prediction,
+  );
+  const isComparison =
+    comparison !== null &&
     (Object.keys(comparison.parameters) as (keyof Bm04Parameters)[]).every((key) =>
       key === "F" ? p.F === comparison.parameters.F * 2 : p[key] === comparison.parameters[key],
     );
@@ -239,7 +242,9 @@ export function DriftDiffusionLab({
         <details>
           <summary>Show the explanation and test the prediction</summary>
           {selectedPrediction && (
-            <p>Your prediction: <strong>{selectedPrediction.label}</strong>.</p>
+            <p>
+              Your prediction: <strong>{selectedPrediction.label}</strong>.
+            </p>
           )}
           <p>
             At fixed temperature, viscosity and particle radius, the thermal diffusion coefficient
@@ -247,8 +252,8 @@ export function DriftDiffusionLab({
             The equilibrium length becomes shorter, but that is not a smaller diffusion coefficient.
           </p>
           <p>
-            The accepted run has thermal D = {display(diffCoeff, 1e12)} μm²/s and drift velocity
-            {" "}{display(drift, 1e6)} μm/s. With mismatched kicks, the chosen kick strength is a
+            The accepted run has thermal D = {display(diffCoeff, 1e12)} μm²/s and drift velocity{" "}
+            {display(drift, 1e6)} μm/s. With mismatched kicks, the chosen kick strength is a
             separate model assumption; a transient profile is not an equilibrium measurement.
           </p>
           <button
@@ -296,15 +301,15 @@ export function DriftDiffusionLab({
                 </div>
               ) : (
                 <p>
-                  The comparison appears when the doubled-force run is accepted. A refusal keeps
-                  the baseline unchanged; changing another parameter invalidates this comparison.
+                  The comparison appears when the doubled-force run is accepted. A refusal keeps the
+                  baseline unchanged; changing another parameter invalidates this comparison.
                 </p>
               )}
             </div>
           )}
           <p>
-            The explanation is available with or without a prediction. These are model
-            consequences, not experimental proof.
+            The explanation is available with or without a prediction. These are model consequences,
+            not experimental proof.
           </p>
         </details>
       </section>
@@ -355,7 +360,10 @@ export function DriftDiffusionLab({
                   name="profile"
                   value={draft.profile}
                   onChange={(event) => {
-                    setDraft({ ...draft, profile: event.target.value as Bm04Parameters["profile"] });
+                    setDraft({
+                      ...draft,
+                      profile: event.target.value as Bm04Parameters["profile"],
+                    });
                     setDirty(true);
                   }}
                 >
@@ -367,7 +375,9 @@ export function DriftDiffusionLab({
               </div>
             </div>
             <div className="button-row">
-              <button type="submit" disabled={!dirty && !error}>Apply settings</button>
+              <button type="submit" disabled={!dirty && !error}>
+                Apply settings
+              </button>
               <button
                 type="button"
                 className="secondary"
@@ -379,9 +389,15 @@ export function DriftDiffusionLab({
               >
                 Reset to defaults
               </button>
-              <button type="button" className="secondary" onClick={share}>Share settings</button>
+              <button type="button" className="secondary" onClick={share}>
+                Share settings
+              </button>
             </div>
-            {error && <p id={`${id}-error`} className="form-error" role="alert">{error}</p>}
+            {error && (
+              <p id={`${id}-error`} className="form-error" role="alert">
+                {error}
+              </p>
+            )}
             {linkNote && <p className="form-note">{linkNote}</p>}
             {sharedUrl && (
               <input
@@ -395,7 +411,9 @@ export function DriftDiffusionLab({
           </fieldset>
         </form>
         <div className="lab-results">
-          <p role="status" className="notice">{announcement}</p>
+          <p role="status" className="notice">
+            {announcement}
+          </p>
           <DensityProfilePlot snapshot={snapshot} widthMicrons={p.W * 1e6} />
           <FluxBalancePlot snapshot={snapshot} />
           <ForceCancellationPanel
@@ -413,19 +431,24 @@ export function DriftDiffusionLab({
       >
         <h3>Inspect and export the accepted dataset</h3>
         <p>
-          All {cells} cells are available below (cell width Δx = {display(dx, 1)} μm).
-          The numerical profile is a normalized coordinate probability density; its cell masses
-          sum to one. The osmotic reference is evaluated at cell centers.
+          All {cells} cells are available below (cell width Δx = {display(dx, 1)} μm). The numerical
+          profile is a normalized coordinate probability density; its cell masses sum to one. The
+          osmotic reference is evaluated at cell centers.
         </p>
         {(dirty || view.pending) && (
           <p className="notice">
-            The table and export use the displayed accepted result, not unapplied or pending settings.
+            The table and export use the displayed accepted result, not unapplied or pending
+            settings.
           </p>
         )}
         <button type="button" className="secondary" disabled={!ready} onClick={downloadData}>
           Download accepted data (CSV)
         </button>
-        {exportNote && <p role="status" className="form-note">{exportNote}</p>}
+        {exportNote && (
+          <p role="status" className="form-note">
+            {exportNote}
+          </p>
+        )}
         <details>
           <summary>Full cell dataset ({cells} rows)</summary>
           <div className="table-wrapper">

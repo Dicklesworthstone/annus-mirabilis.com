@@ -28,16 +28,18 @@ export function FacsimilePanel({
   inline?: boolean | undefined;
 }) {
   const id = useId();
-  const anchorId = (anchor: string) => inline ? `${id}-${anchor}` : anchor;
+  const anchorId = (anchor: string) => (inline ? `${id}-${anchor}` : anchor);
   const targetHref = (anchor: string) => `${inline ? faceHref : ""}#${anchor}`;
   const scope = facsimileSectionPages(document, section);
   const initial = scope[0] ?? document.pages[0];
   if (!initial) return null;
   const sourceIds = new Set(document.units.map((unit) => unit.id));
-  const aliases = [...new Set(document.units.flatMap((unit) => [...unit.aliases]))]
-    .filter((alias) => !sourceIds.has(alias));
-  const sections = [...new Set(document.units.map((unit) => unit.section))]
-    .filter((value): value is string => value !== null && !sourceIds.has(value));
+  const aliases = [...new Set(document.units.flatMap((unit) => [...unit.aliases]))].filter(
+    (alias) => !sourceIds.has(alias),
+  );
+  const sections = [...new Set(document.units.map((unit) => unit.section))].filter(
+    (value): value is string => value !== null && !sourceIds.has(value),
+  );
   const extraAnchors = [...new Set([...aliases, ...sections])];
 
   return (
@@ -60,8 +62,8 @@ export function FacsimilePanel({
       <h2>Read the original scanned pages</h2>
       <p>
         These are the pinned journal scans, not a newly typeset transcription or a translation.
-        Printed journal page numbers and PDF page numbers are shown separately.
-        The scan’s machine-readable text may contain errors.
+        Printed journal page numbers and PDF page numbers are shown separately. The scan’s
+        machine-readable text may contain errors.
       </p>
       {section && (
         <p className="notice" data-facsimile-section={section}>
@@ -94,11 +96,17 @@ export function FacsimilePanel({
               size={6}
             />
             <button type="submit">Show page</button>
-            <button type="button" data-facsimile-next disabled={initial.pdfPage === document.pages.length}>
+            <button
+              type="button"
+              data-facsimile-next
+              disabled={initial.pdfPage === document.pages.length}
+            >
               Next page
             </button>
           </div>
-          <button type="button" data-facsimile-share>Copy source-page link</button>
+          <button type="button" data-facsimile-share>
+            Copy source-page link
+          </button>
           <label htmlFor={`${id}-share`}>Shareable source-page link</label>
           <input
             id={`${id}-share`}
@@ -109,15 +117,28 @@ export function FacsimilePanel({
           />
         </fieldset>
       </form>
-      <p id={`${id}-status`} data-facsimile-status role="status" aria-live="polite" aria-atomic="true">
-        Initial selection: printed page {initial.printedPage}, PDF page {initial.pdfPage} of {document.pages.length}.
+      <p
+        id={`${id}-status`}
+        data-facsimile-status
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        Initial selection: printed page {initial.printedPage}, PDF page {initial.pdfPage} of{" "}
+        {document.pages.length}.
       </p>
       <p className="facsimile-reader-recovery">
         <a data-facsimile-direct href={facsimilePdfHref(document, initial.pdfPage)}>
           Open printed page {initial.printedPage} in the original PDF
-        </a>{" · "}
-        <a href={document.pdfUrl} download>Download the complete pinned PDF</a>{" · "}
-        <a href={explanationHref} data-view-link={inline ? "reading" : undefined}>Return to the explanation</a>
+        </a>
+        {" · "}
+        <a href={document.pdfUrl} download>
+          Download the complete pinned PDF
+        </a>
+        {" · "}
+        <a href={explanationHref} data-view-link={inline ? "reading" : undefined}>
+          Return to the explanation
+        </a>
       </p>
       <p className="fine">
         A blank embedded display does not mean the source is missing. The direct PDF links work
@@ -134,11 +155,22 @@ export function FacsimilePanel({
       <details className="facsimile-reader-provenance">
         <summary>Source identity and limits of verification</summary>
         <dl>
-          <dt>Source record</dt><dd>{document.key}</dd>
-          <dt>Acquired</dt><dd>{document.acquisitionDate}</dd>
-          <dt>Recorded scan rights</dt><dd>{document.rightsStatus}</dd>
-          <dt>Origin</dt><dd><a href={document.originUrl} rel="noreferrer">Open the recorded archival source</a></dd>
-          <dt>Pinned SHA-256</dt><dd><code>{document.sha256}</code></dd>
+          <dt>Source record</dt>
+          <dd>{document.key}</dd>
+          <dt>Acquired</dt>
+          <dd>{document.acquisitionDate}</dd>
+          <dt>Recorded scan rights</dt>
+          <dd>{document.rightsStatus}</dd>
+          <dt>Origin</dt>
+          <dd>
+            <a href={document.originUrl} rel="noreferrer">
+              Open the recorded archival source
+            </a>
+          </dd>
+          <dt>Pinned SHA-256</dt>
+          <dd>
+            <code>{document.sha256}</code>
+          </dd>
         </dl>
         <p>
           This build checked the served file against this digest and checked the recorded page-map
@@ -148,9 +180,9 @@ export function FacsimilePanel({
       </details>
       <h2>Original-page directory</h2>
       <p>
-        The “Open original printed page” links open the scan directly, including without JavaScript. Source identifiers select
-        their first recorded page in the embedded viewer when JavaScript is available. A passage
-        that spans pages retains a link to each page.
+        The “Open original printed page” links open the scan directly, including without JavaScript.
+        Source identifiers select their first recorded page in the embedded viewer when JavaScript
+        is available. A passage that spans pages retains a link to each page.
       </p>
       <nav aria-label="Original scan pages" className="facsimile-reader-page-links">
         {document.pages.map((page) => (
@@ -167,29 +199,57 @@ export function FacsimilePanel({
       </nav>
       <div data-facsimile-directory>
         {document.pages.map((page) => (
-          <section key={page.pdfPage} id={anchorId(facsimilePageAnchor(page))} className="facsimile-reader-page">
-            {extraAnchors.filter((anchor) => resolveFacsimileTarget(document, anchor) === page.pdfPage).map((anchor) => (
-              <span key={anchor} id={anchorId(anchor)} className="facsimile-reader-anchor" />
-            ))}
-            <h3>
-              Printed page {page.printedPage} <span className="fine">· PDF page {page.pdfPage}</span>
-              {section && scope.some((item) => item.pdfPage === page.pdfPage) && <span className="badge">Section source page</span>}
-            </h3>
-            <p><a href={facsimilePdfHref(document, page.pdfPage)}>Open original printed page {page.printedPage}</a></p>
-            <ul className="facsimile-reader-units">
-              {document.units.filter((unit) => unit.pdfPages[0] === page.pdfPage).map((unit) => (
-                <li key={unit.id} id={anchorId(unit.id)} tabIndex={-1}>
-                  <a href={targetHref(unit.id)} data-facsimile-target={unit.id}>{unit.id}</a>{" "}
-                  <span className="fine">({unit.kind.replaceAll("-", " ")})</span>
-                  {unit.pdfPages.length > 1 && (
-                    <span> · spans {unit.pdfPages.map((number, index) => (
-                      <span key={number}>{index > 0 ? ", " : ""}<a href={facsimilePdfHref(document, number)}>PDF page {number}</a></span>
-                    ))}</span>
-                  )}
-                </li>
+          <section
+            key={page.pdfPage}
+            id={anchorId(facsimilePageAnchor(page))}
+            className="facsimile-reader-page"
+          >
+            {extraAnchors
+              .filter((anchor) => resolveFacsimileTarget(document, anchor) === page.pdfPage)
+              .map((anchor) => (
+                <span key={anchor} id={anchorId(anchor)} className="facsimile-reader-anchor" />
               ))}
+            <h3>
+              Printed page {page.printedPage}{" "}
+              <span className="fine">· PDF page {page.pdfPage}</span>
+              {section && scope.some((item) => item.pdfPage === page.pdfPage) && (
+                <span className="badge">Section source page</span>
+              )}
+            </h3>
+            <p>
+              <a href={facsimilePdfHref(document, page.pdfPage)}>
+                Open original printed page {page.printedPage}
+              </a>
+            </p>
+            <ul className="facsimile-reader-units">
+              {document.units
+                .filter((unit) => unit.pdfPages[0] === page.pdfPage)
+                .map((unit) => (
+                  <li key={unit.id} id={anchorId(unit.id)} tabIndex={-1}>
+                    <a href={targetHref(unit.id)} data-facsimile-target={unit.id}>
+                      {unit.id}
+                    </a>{" "}
+                    <span className="fine">({unit.kind.replaceAll("-", " ")})</span>
+                    {unit.pdfPages.length > 1 && (
+                      <span>
+                        {" "}
+                        · spans{" "}
+                        {unit.pdfPages.map((number, index) => (
+                          <span key={number}>
+                            {index > 0 ? ", " : ""}
+                            <a href={facsimilePdfHref(document, number)}>PDF page {number}</a>
+                          </span>
+                        ))}
+                      </span>
+                    )}
+                  </li>
+                ))}
             </ul>
-            {document.units.length === 0 && <p>No source-unit locators are recorded yet; the original page itself is available.</p>}
+            {document.units.length === 0 && (
+              <p>
+                No source-unit locators are recorded yet; the original page itself is available.
+              </p>
+            )}
           </section>
         ))}
       </div>

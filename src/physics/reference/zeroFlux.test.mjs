@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import {
-  REFERENCE_ZERO_FLUX_BUDGET,
-  zeroFluxEvolution,
-} from "./diffusion/zeroFlux.ts";
+import { test } from "node:test";
+import { REFERENCE_ZERO_FLUX_BUDGET, zeroFluxEvolution } from "./diffusion/zeroFlux.ts";
 
 function accepted(input, time, options) {
   const outcome = zeroFluxEvolution(Float64Array.from(input), time, options);
@@ -12,14 +9,18 @@ function accepted(input, time, options) {
   return outcome.data;
 }
 function close(actual, expected, tolerance = 2e-12) {
-  assert.ok(Math.abs(actual - expected) <= tolerance,
-    `${actual} differs from ${expected} by ${Math.abs(actual - expected)}`);
+  assert.ok(
+    Math.abs(actual - expected) <= tolerance,
+    `${actual} differs from ${expected} by ${Math.abs(actual - expected)}`,
+  );
 }
 function sameArray(actual, expected, tolerance = 2e-12) {
   assert.equal(actual.length, expected.length);
   for (let i = 0; i < actual.length; i++) close(actual[i], expected[i], tolerance);
 }
-function mass(values) { return values.reduce((a, b) => a + b, 0); }
+function mass(values) {
+  return values.reduce((a, b) => a + b, 0);
+}
 
 for (const t of [0, 1e-8, 0.2, 1, 16, 16.00001, 100, 1e8]) {
   test(`three-cell centre impulse agrees with its closed form at tau=${t}`, () => {
@@ -28,29 +29,49 @@ for (const t of [0, 1e-8, 0.2, 1, 16, 16.00001, 100, 1e8]) {
     sameArray(accepted([0, 1, 0], t).values, [edge, (1 + 2 * e) / 3, edge]);
   });
   test(`three-cell wall impulse agrees with its closed form at tau=${t}`, () => {
-    const a = Math.exp(-t), b = Math.exp(-3 * t);
-    sameArray(accepted([1, 0, 0], t).values,
-      [1 / 3 + a / 2 + b / 6, (1 - b) / 3, 1 / 3 - a / 2 + b / 6]);
+    const a = Math.exp(-t),
+      b = Math.exp(-3 * t);
+    sameArray(accepted([1, 0, 0], t).values, [
+      1 / 3 + a / 2 + b / 6,
+      (1 - b) / 3,
+      1 / 3 - a / 2 + b / 6,
+    ]);
   });
 }
-for (const [n, k, t] of [[11, 1, 0.3], [17, 7, 5], [31, 3, 17], [128, 2, 400]]) {
+for (const [n, k, t] of [
+  [11, 1, 0.3],
+  [17, 7, 5],
+  [31, 3, 17],
+  [128, 2, 400],
+]) {
   test(`cosine eigenmode has the correct finite-grid decay (${n}, ${k}, ${t})`, () => {
-    const input = Array.from({ length: n }, (_, i) => 1 + 0.25 * Math.cos(Math.PI * k * (i + 0.5) / n));
-    const damping = Math.exp(-4 * t * Math.sin(Math.PI * k / (2 * n)) ** 2);
-    const expected = Array.from({ length: n }, (_, i) => 1 + 0.25 * damping * Math.cos(Math.PI * k * (i + 0.5) / n));
+    const input = Array.from(
+      { length: n },
+      (_, i) => 1 + 0.25 * Math.cos((Math.PI * k * (i + 0.5)) / n),
+    );
+    const damping = Math.exp(-4 * t * Math.sin((Math.PI * k) / (2 * n)) ** 2);
+    const expected = Array.from(
+      { length: n },
+      (_, i) => 1 + 0.25 * damping * Math.cos((Math.PI * k * (i + 0.5)) / n),
+    );
     sameArray(accepted(input, t).values, expected, 2e-11);
   });
 }
-for (const [a, b] of [[0.5, 1], [10, 10], [17, 40], [100, 1e5]]) {
+for (const [a, b] of [
+  [0.5, 1],
+  [10, 10],
+  [17, 40],
+  [100, 1e5],
+]) {
   test(`semigroup composition crosses methods without changing the physics (${a}+${b})`, () => {
-    const input = Array.from({ length: 37 }, (_, i) => (i * 17 % 31) / 7);
+    const input = Array.from({ length: 37 }, (_, i) => ((i * 17) % 31) / 7);
     const first = accepted(input, a);
     sameArray(accepted(first.values, b).values, accepted(input, a + b).values, 5e-11);
   });
 }
 for (const time of [0.001, 5, 16, 16 + 1e-9, 1e3, 1e12]) {
   test(`conserves mass and positivity for a non-normalized profile at tau=${time}`, () => {
-    const input = Array.from({ length: 65 }, (_, i) => i < 13 ? 7 : 0);
+    const input = Array.from({ length: 65 }, (_, i) => (i < 13 ? 7 : 0));
     const result = accepted(input, time);
     close(mass(result.values), mass(input), 3e-11);
     assert.ok(result.values.every((v) => Number.isFinite(v) && v >= 0 && v <= 7));
@@ -74,7 +95,10 @@ test("successful and budget-refused computations do not mutate input", () => {
     assert.equal(zeroFluxEvolution(input, time).kind, "accepted");
     assert.deepEqual(input, original);
   }
-  assert.equal(zeroFluxEvolution(input, 1, { budget: { workUnits: 0, allocationBytes: 0 } }).kind, "outcome");
+  assert.equal(
+    zeroFluxEvolution(input, 1, { budget: { workUnits: 0, allocationBytes: 0 } }).kind,
+    "outcome",
+  );
   assert.deepEqual(input, original);
 });
 test("zero and constant fields remain exactly stationary", () => {
@@ -86,7 +110,10 @@ test("zero and constant fields remain exactly stationary", () => {
 test("huge densities evolve without overflowing their total during normalization", () => {
   const result = accepted([Number.MAX_VALUE, Number.MAX_VALUE / 2, Number.MAX_VALUE / 4], 1);
   const scaled = accepted([1, 0.5, 0.25], 1);
-  sameArray(Array.from(result.values, (x) => x / Number.MAX_VALUE), scaled.values);
+  sameArray(
+    Array.from(result.values, (x) => x / Number.MAX_VALUE),
+    scaled.values,
+  );
 });
 test("subnormal rescaling is refused rather than fabricated as zero or high-precision output", () => {
   const result = zeroFluxEvolution(new Float64Array([Number.MIN_VALUE, 0, 0]), 1);
@@ -99,12 +126,18 @@ test("reflection of the initial field reflects the result", () => {
     sameArray(accepted(input, t).values, accepted([...input].reverse(), t).values.reverse());
 });
 test("splitting a source respects linear superposition", () => {
-  const a = new Float64Array(21); a[3] = 2;
-  const b = new Float64Array(21); b[17] = 5;
+  const a = new Float64Array(21);
+  a[3] = 2;
+  const b = new Float64Array(21);
+  b[17] = 5;
   const combined = Float64Array.from(a, (x, i) => x + b[i]);
   for (const t of [0.5, 32]) {
-    const x = accepted(a, t).values, y = accepted(b, t).values;
-    sameArray(accepted(combined, t).values, Array.from(x, (v, i) => v + y[i]));
+    const x = accepted(a, t).values,
+      y = accepted(b, t).values;
+    sameArray(
+      accepted(combined, t).values,
+      Array.from(x, (v, i) => v + y[i]),
+    );
   }
 });
 test("tiny positive time uses a stated truncation bound rather than an unstable cosine sum", () => {
@@ -113,7 +146,8 @@ test("tiny positive time uses a stated truncation bound rather than an unstable 
   assert.ok(r.truncationL1Bound > 0 && r.truncationL1Bound < 1e-299);
 });
 test("long-time equilibrium does not require time-proportional work", () => {
-  const input = new Float64Array(2048); input[0] = 1;
+  const input = new Float64Array(2048);
+  input[0] = 1;
   const r = accepted(input, Number.MAX_VALUE);
   assert.equal(r.method, "equilibrium");
   assert.equal(r.terms, 0);
@@ -121,7 +155,8 @@ test("long-time equilibrium does not require time-proportional work", () => {
   assert.ok(r.requestedBudget.workUnits < 100_000);
 });
 test("callers cannot raise the host work ceiling", () => {
-  const field = new Float64Array(1500); field[0] = 1;
+  const field = new Float64Array(1500);
+  field[0] = 1;
   const result = zeroFluxEvolution(field, 17, {
     budget: { workUnits: Number.MAX_SAFE_INTEGER, allocationBytes: Number.MAX_SAFE_INTEGER },
   });
@@ -166,23 +201,34 @@ test("refuses shared and wrong-typed memory", () => {
 });
 test("refuses invalid tolerances and malformed budget counts", () => {
   for (const truncationTolerance of [-1, 0, 1e-20, 0.1, Infinity, NaN])
-    assert.equal(zeroFluxEvolution(new Float64Array([0, 1, 0]), 1, { truncationTolerance }).kind, "refused");
+    assert.equal(
+      zeroFluxEvolution(new Float64Array([0, 1, 0]), 1, { truncationTolerance }).kind,
+      "refused",
+    );
   for (const workUnits of [-1, 0.5, Infinity, NaN])
-    assert.equal(zeroFluxEvolution(new Float64Array([0, 1, 0]), 1, {
-      budget: { workUnits, allocationBytes: 100_000 },
-    }).kind, "refused");
+    assert.equal(
+      zeroFluxEvolution(new Float64Array([0, 1, 0]), 1, {
+        budget: { workUnits, allocationBytes: 100_000 },
+      }).kind,
+      "refused",
+    );
 });
 test("repeated runs have byte-identical outputs and metadata in the same environment", () => {
   const input = [1, 8, 2, 7, 3, 6, 4, 5];
   for (const t of [0.5, 17, 1000]) assert.deepEqual(accepted(input, t), accepted(input, t));
 });
 
-const fixtures = JSON.parse(readFileSync(new URL("./zeroFlux.fixtures.json", import.meta.url), "utf8"));
+const fixtures = JSON.parse(
+  readFileSync(new URL("./zeroFlux.fixtures.json", import.meta.url), "utf8"),
+);
 for (const fixture of fixtures.cases) {
   test(`independent symmetric-matrix fixture n=${fixture.n}, tau=${fixture.time}`, () => {
     const actual = accepted(fixture.initial, fixture.time).values;
-    const error = Array.from(actual, (value, i) => Math.abs(value - fixture.expected[i]))
-      .reduce((a, b) => a + b, 0) / mass(fixture.initial);
+    const error =
+      Array.from(actual, (value, i) => Math.abs(value - fixture.expected[i])).reduce(
+        (a, b) => a + b,
+        0,
+      ) / mass(fixture.initial);
     assert.ok(error <= fixtures.normalizedL1Tolerance, String(error));
   });
 }

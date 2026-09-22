@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { FacsimilePanel } from "./FacsimilePanel.tsx";
-import { facsimileMapPath, type FacsimileAvailability, readFacsimileResponse } from "./wire.ts";
+import { type FacsimileAvailability, facsimileMapPath, readFacsimileResponse } from "./wire.ts";
 
 /** Reader face changes never replace the explanation/laboratory subtree.
  * Nothing is fetched until this instance's reader explicitly selects the facsimile face.
@@ -20,7 +20,8 @@ export function InlineFacsimile({ paperId }: { paperId: string }) {
     if (!root) return;
     const update = () => {
       const segments = window.location.pathname.split("/").filter(Boolean);
-      const candidate = segments[0] === "papers" && segments[1] === paperId ? segments[2] : undefined;
+      const candidate =
+        segments[0] === "papers" && segments[1] === paperId ? segments[2] : undefined;
       setSection(candidate && /^s\d+$/.test(candidate) ? candidate : undefined);
       const active = root.dataset.view === "facsimile";
       root.toggleAttribute("data-facsimile-inline-active", active);
@@ -50,13 +51,21 @@ export function InlineFacsimile({ paperId }: { paperId: string }) {
       .catch(() => {
         if (active && !abort.signal.aborted) setFailure(true);
       });
-    return () => { active = false; abort.abort(); };
+    return () => {
+      active = false;
+      abort.abort();
+    };
   }, [paperId, visible, attempt]);
 
   const explanationHref = section ? `/papers/${paperId}/${section}/` : `/papers/${paperId}/`;
   const faceHref = `${explanationHref}view/facsimile/`;
   return (
-    <section ref={host} hidden={!visible} data-inline-facsimile-panel className="inline-facsimile-panel">
+    <section
+      ref={host}
+      hidden={!visible}
+      data-inline-facsimile-panel
+      className="inline-facsimile-panel"
+    >
       {result?.kind === "available" ? (
         <FacsimilePanel
           document={result.document}
@@ -70,15 +79,31 @@ export function InlineFacsimile({ paperId }: { paperId: string }) {
         <div>
           <h2>Original journal scan</h2>
           <p role="status">
-            {result?.kind === "unavailable" ? result.message : failure
-              ? "The source-page map could not be loaded. Your reading position and laboratory are unchanged."
-              : "Loading the recorded source-page map. Your reading position and laboratory are unchanged."}
+            {result?.kind === "unavailable"
+              ? result.message
+              : failure
+                ? "The source-page map could not be loaded. Your reading position and laboratory are unchanged."
+                : "Loading the recorded source-page map. Your reading position and laboratory are unchanged."}
           </p>
           {(failure || result?.kind === "unavailable") && (
-            <button type="button" onClick={() => { cached.current = null; setResult(null); setAttempt((value) => value + 1); }}>Retry source access</button>
+            <button
+              type="button"
+              onClick={() => {
+                cached.current = null;
+                setResult(null);
+                setAttempt((value) => value + 1);
+              }}
+            >
+              Retry source access
+            </button>
           )}
-          <p><a href={faceHref}>Open the standalone facsimile reader</a>{" · "}
-            <a href={explanationHref} data-view-link="reading">Return to the explanation</a></p>
+          <p>
+            <a href={faceHref}>Open the standalone facsimile reader</a>
+            {" · "}
+            <a href={explanationHref} data-view-link="reading">
+              Return to the explanation
+            </a>
+          </p>
         </div>
       )}
     </section>

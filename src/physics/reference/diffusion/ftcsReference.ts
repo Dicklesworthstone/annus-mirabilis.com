@@ -38,7 +38,10 @@ export type FtcsTimeComparison = Readonly<{
   ownerId: "diffusion.ftcsTimeDiscretizationComparison";
 }>;
 
-function invalid(parameterIds: readonly string[], requirements: string): ZeroFluxComputation<never> {
+function invalid(
+  parameterIds: readonly string[],
+  requirements: string,
+): ZeroFluxComputation<never> {
   return {
     kind: "refused",
     refusal: makeRefusal("invalid-parameter", { parameterIds }, { details: { requirements } }),
@@ -84,7 +87,12 @@ function result(
   uncertainty?: Uncertainty,
 ): ScientificResult {
   return Object.freeze({
-    status: "value", value, quantityId, unit: "1", semanticKind, ownerId,
+    status: "value",
+    value,
+    quantityId,
+    unit: "1",
+    semanticKind,
+    ownerId,
     ...(uncertainty === undefined ? {} : { uncertainty }),
   });
 }
@@ -105,14 +113,30 @@ export function ftcsTimeDiscretizationComparison(
     return invalid(["parameters"], "Provide an FTCS comparison request.");
   const { initialField, field, dx, stabilityRatio, steps } = parameters;
   if (
-    !(initialField instanceof Float64Array) || !(field instanceof Float64Array) ||
-    !(initialField.buffer instanceof ArrayBuffer) || !(field.buffer instanceof ArrayBuffer) ||
-    initialField.length < 3 || field.length !== initialField.length
-  ) return invalid(["initialField", "field"], "Use same-sized, privately owned Float64Array fields with at least three cells.");
+    !(initialField instanceof Float64Array) ||
+    !(field instanceof Float64Array) ||
+    !(initialField.buffer instanceof ArrayBuffer) ||
+    !(field.buffer instanceof ArrayBuffer) ||
+    initialField.length < 3 ||
+    field.length !== initialField.length
+  )
+    return invalid(
+      ["initialField", "field"],
+      "Use same-sized, privately owned Float64Array fields with at least three cells.",
+    );
   if (
-    !Number.isFinite(dx) || dx <= 0 || !Number.isFinite(stabilityRatio) ||
-    stabilityRatio < 0 || stabilityRatio > 0.5 || !Number.isSafeInteger(steps) || steps < 0
-  ) return invalid(["dx", "stabilityRatio", "steps"], "Use positive finite dx, an accepted FTCS ratio in [0, 0.5], and a nonnegative safe integer step count.");
+    !Number.isFinite(dx) ||
+    dx <= 0 ||
+    !Number.isFinite(stabilityRatio) ||
+    stabilityRatio < 0 ||
+    stabilityRatio > 0.5 ||
+    !Number.isSafeInteger(steps) ||
+    steps < 0
+  )
+    return invalid(
+      ["dx", "stabilityRatio", "steps"],
+      "Use positive finite dx, an accepted FTCS ratio in [0, 0.5], and a nonnegative safe integer step count.",
+    );
   if (!options || typeof options !== "object")
     return invalid(["options"], "Provide an options object.");
   const budget = options.budget ?? REFERENCE_ZERO_FLUX_BUDGET;
@@ -137,15 +161,21 @@ export function ftcsTimeDiscretizationComparison(
   });
   if (evolution.kind !== "accepted") {
     if (evolution.kind === "outcome" && evolution.outcome.outcome === "budget-exhausted")
-      return budgetOutcome({
-        workUnits: evolution.outcome.requested.workUnits + reserved.workUnits,
-        allocationBytes: evolution.outcome.requested.allocationBytes + reserved.allocationBytes,
-      }, allowed);
+      return budgetOutcome(
+        {
+          workUnits: evolution.outcome.requested.workUnits + reserved.workUnits,
+          allocationBytes: evolution.outcome.requested.allocationBytes + reserved.allocationBytes,
+        },
+        allowed,
+      );
     return evolution;
   }
   const reference = evolution.data;
   const referenceCellMasses = new Float64Array(n);
-  const initial = massSum(), observed = massSum(), referenceTotal = massSum(), l1 = massSum();
+  const initial = massSum(),
+    observed = massSum(),
+    referenceTotal = massSum(),
+    l1 = massSum();
   let maxError = 0;
   for (let i = 0; i < n; i++) {
     const a = initialField[i]! * dx;
@@ -153,39 +183,65 @@ export function ftcsTimeDiscretizationComparison(
     const c = reference.values[i]! * dx;
     if (
       ![a, b, c].every(Number.isFinite) ||
-      (initialField[i]! > 0 && a === 0) || (field[i]! > 0 && b === 0) ||
+      (initialField[i]! > 0 && a === 0) ||
+      (field[i]! > 0 && b === 0) ||
       (reference.values[i]! > 0 && c === 0)
-    ) return numerical("A cell mass is outside binary64 range; no partial comparison is returned.");
+    )
+      return numerical("A cell mass is outside binary64 range; no partial comparison is returned.");
     referenceCellMasses[i] = c;
-    initial.add(a); observed.add(b); referenceTotal.add(c);
+    initial.add(a);
+    observed.add(b);
+    referenceTotal.add(c);
     const difference = Math.abs(b - c);
     l1.add(difference);
     maxError = Math.max(maxError, difference);
   }
-  const initialMass = initial.value(), observedMass = observed.value(), referenceMass = referenceTotal.value();
+  const initialMass = initial.value(),
+    observedMass = observed.value(),
+    referenceMass = referenceTotal.value();
   const l1Error = l1.value();
   if (![initialMass, observedMass, referenceMass, l1Error].every(Number.isFinite))
     return numerical("A total mass or error is outside binary64 range.");
-  const magnitude = initialMass * (
-    reference.truncationL1Bound + reference.roundoffL1Estimate + reference.roundoffL1Correction
-  ) + Math.max(initialMass, observedMass, referenceMass) * (16 * Number.EPSILON * n);
-  if (!Number.isFinite(magnitude)) return numerical("The numerical error estimate is outside binary64 range.");
+  const magnitude =
+    initialMass *
+      (reference.truncationL1Bound +
+        reference.roundoffL1Estimate +
+        reference.roundoffL1Correction) +
+    Math.max(initialMass, observedMass, referenceMass) * (16 * Number.EPSILON * n);
+  if (!Number.isFinite(magnitude))
+    return numerical("The numerical error estimate is outside binary64 range.");
   const uncertainty: Uncertainty = Object.freeze({
     kind: "numerical-error-estimate",
     magnitude,
-    method: "Finite-grid series truncation plus floating-point error estimate; excludes spatial/model error.",
+    method:
+      "Finite-grid series truncation plus floating-point error estimate; excludes spatial/model error.",
     guarantee: "estimate",
   });
   return {
     kind: "accepted",
     data: Object.freeze({
-      reference, referenceCellMasses,
+      reference,
+      referenceCellMasses,
       initialMass: result("initialMass", initialMass, "cell-mass"),
       observedMass: result("observedMass", observedMass, "cell-mass"),
       referenceMass: result("referenceMass", referenceMass, "cell-mass"),
-      signedMassDrift: result("signedMassDrift", observedMass - initialMass, "cell-mass-difference"),
-      maxCellMassTimeError: result("maxCellMassTimeError", maxError, "cell-mass-difference", uncertainty),
-      l1CellMassTimeError: result("l1CellMassTimeError", l1Error, "cell-mass-difference", uncertainty),
+      signedMassDrift: result(
+        "signedMassDrift",
+        observedMass - initialMass,
+        "cell-mass-difference",
+      ),
+      maxCellMassTimeError: result(
+        "maxCellMassTimeError",
+        maxError,
+        "cell-mass-difference",
+        uncertainty,
+      ),
+      l1CellMassTimeError: result(
+        "l1CellMassTimeError",
+        l1Error,
+        "cell-mass-difference",
+        uncertainty,
+      ),
       requestedBudget: Object.freeze({
         workUnits: reference.requestedBudget.workUnits + reserved.workUnits,
         allocationBytes: reference.requestedBudget.allocationBytes + reserved.allocationBytes,

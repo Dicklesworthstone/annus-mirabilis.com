@@ -16,7 +16,8 @@ function euler(input, r, steps) {
   for (let k = 0; k < steps; k++) {
     const next = new Float64Array(input.length);
     for (let i = 0; i < next.length; i++) {
-      const left = current[Math.max(0, i - 1)], right = current[Math.min(next.length - 1, i + 1)];
+      const left = current[Math.max(0, i - 1)],
+        right = current[Math.min(next.length - 1, i + 1)];
       next[i] = current[i] + r * (left - 2 * current[i] + right);
     }
     current = next;
@@ -25,7 +26,13 @@ function euler(input, r, steps) {
 }
 function request(initialField, ratio = 0.1, steps = 20, dx = 0.2) {
   const initial = Float64Array.from(initialField);
-  return { initialField: initial, field: euler(initial, ratio, steps), dx, stabilityRatio: ratio, steps };
+  return {
+    initialField: initial,
+    field: euler(initial, ratio, steps),
+    dx,
+    stabilityRatio: ratio,
+    steps,
+  };
 }
 
 test("zero-step comparison exactly matches the initial condition", () => {
@@ -50,9 +57,11 @@ test("one-step three-cell fixture measures Euler error against a closed form", (
   assert.equal(r.spatialError, "not-assessed");
 });
 test("step halving exhibits first-order temporal convergence at fixed elapsed model time", () => {
-  const input = new Float64Array(31); input[15] = 1;
-  const errors = [20, 40, 80, 160].map((steps) =>
-    accepted(request(input, 2 / steps, steps, 1)).l1CellMassTimeError.value);
+  const input = new Float64Array(31);
+  input[15] = 1;
+  const errors = [20, 40, 80, 160].map(
+    (steps) => accepted(request(input, 2 / steps, steps, 1)).l1CellMassTimeError.value,
+  );
   for (let i = 1; i < errors.length; i++) {
     assert.ok(errors[i] < 0.6 * errors[i - 1], String(errors));
     assert.ok(errors[i] > 0.4 * errors[i - 1], String(errors));
@@ -83,7 +92,8 @@ test("lost observed mass is reported, not silently renormalized away", () => {
   assert.ok(r.l1CellMassTimeError.value >= 0.3 - 1e-12);
 });
 test("extra observed mass on a zero source is visible", () => {
-  const p = request([0, 0, 0], 0, 0, 2); p.field[1] = 1;
+  const p = request([0, 0, 0], 0, 0, 2);
+  p.field[1] = 1;
   const r = accepted(p);
   assert.equal(r.initialMass.value, 0);
   assert.equal(r.signedMassDrift.value, 2);
@@ -123,37 +133,64 @@ test("the full wrapper budget includes reference work and additional mass storag
 });
 test("source and observed arrays are not mutated or aliased by outputs", () => {
   const p = request([1, 0, 2, 0, 1]);
-  const beforeInitial = p.initialField.slice(), beforeField = p.field.slice();
+  const beforeInitial = p.initialField.slice(),
+    beforeField = p.field.slice();
   const r = accepted(p);
-  r.reference.values.fill(99); r.referenceCellMasses.fill(11);
+  r.reference.values.fill(99);
+  r.referenceCellMasses.fill(11);
   assert.deepEqual(p.initialField, beforeInitial);
   assert.deepEqual(p.field, beforeField);
 });
 for (const [key, value] of [
-  ["dx", 0], ["dx", Infinity], ["dx", NaN], ["dx", -1],
-  ["steps", -1], ["steps", 0.5], ["steps", Infinity], ["steps", Number.MAX_SAFE_INTEGER + 1],
-  ["stabilityRatio", -1], ["stabilityRatio", 0.500001], ["stabilityRatio", NaN],
+  ["dx", 0],
+  ["dx", Infinity],
+  ["dx", NaN],
+  ["dx", -1],
+  ["steps", -1],
+  ["steps", 0.5],
+  ["steps", Infinity],
+  ["steps", Number.MAX_SAFE_INTEGER + 1],
+  ["stabilityRatio", -1],
+  ["stabilityRatio", 0.500001],
+  ["stabilityRatio", NaN],
 ]) {
   test(`refuses invalid comparison parameter ${key}=${value}`, () => {
-    const p = request([0, 1, 0]); p[key] = value;
+    const p = request([0, 1, 0]);
+    p[key] = value;
     assert.equal(ftcsTimeDiscretizationComparison(p).kind, "refused");
   });
 }
 test("refuses mismatched, shared, negative and nonfinite observed fields", () => {
-  for (const field of [new Float64Array(2), new Float64Array([-1, 1, 0]),
-    new Float64Array([NaN, 1, 0]), new Float64Array(new SharedArrayBuffer(24)), [0, 1, 0]]) {
-    const p = request([0, 1, 0]); p.field = field;
+  for (const field of [
+    new Float64Array(2),
+    new Float64Array([-1, 1, 0]),
+    new Float64Array([NaN, 1, 0]),
+    new Float64Array(new SharedArrayBuffer(24)),
+    [0, 1, 0],
+  ]) {
+    const p = request([0, 1, 0]);
+    p.field = field;
     assert.equal(ftcsTimeDiscretizationComparison(p).kind, "refused");
   }
 });
 test("refuses an invalid initial field through the shared reference contract", () => {
-  const p = request([0, 1, 0]); p.initialField[0] = -1;
+  const p = request([0, 1, 0]);
+  p.initialField[0] = -1;
   assert.equal(ftcsTimeDiscretizationComparison(p).kind, "refused");
 });
 test("underflowed or overflowing cell masses return no partial comparison", () => {
-  for (const [input, dx] of [[Number.MIN_VALUE, Number.MIN_VALUE], [Number.MAX_VALUE, 2]]) {
+  for (const [input, dx] of [
+    [Number.MIN_VALUE, Number.MIN_VALUE],
+    [Number.MAX_VALUE, 2],
+  ]) {
     const field = new Float64Array([input, input, input]);
-    const r = ftcsTimeDiscretizationComparison({initialField: field, field, dx, stabilityRatio: 0, steps: 0});
+    const r = ftcsTimeDiscretizationComparison({
+      initialField: field,
+      field,
+      dx,
+      stabilityRatio: 0,
+      steps: 0,
+    });
     assert.equal(r.kind, "outcome");
     assert.equal(r.outcome.outcome, "invariant-violation");
     assert.equal("data" in r, false);
@@ -161,7 +198,13 @@ test("underflowed or overflowing cell masses return no partial comparison", () =
 });
 test("overflowing total mass is not mislabeled as a finite scientific result", () => {
   const field = new Float64Array([Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE]);
-  const r = ftcsTimeDiscretizationComparison({initialField: field, field, dx: 1, stabilityRatio: 0, steps: 0});
+  const r = ftcsTimeDiscretizationComparison({
+    initialField: field,
+    field,
+    dx: 1,
+    stabilityRatio: 0,
+    steps: 0,
+  });
   assert.equal(r.kind, "outcome");
   assert.equal(r.outcome.outcome, "invariant-violation");
 });

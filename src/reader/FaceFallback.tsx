@@ -12,24 +12,28 @@ export interface FaceFallbackOptions {
   readonly facsimileLoader?: typeof loadFacsimileDocument;
 }
 
-export async function FaceFallback({
-  paperId,
-  section,
-  face,
-}: {
-  paperId: string;
-  section?: string;
-  face: FaceFallbackId;
-}, options: FaceFallbackOptions = {}) {
+export async function FaceFallback(
+  {
+    paperId,
+    section,
+    face,
+  }: {
+    paperId: string;
+    section?: string;
+    face: FaceFallbackId;
+  },
+  options: FaceFallbackOptions = {},
+) {
   const payload = await loadPaper(paperId);
   const { paper } = payload;
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   const label = FACE_REGISTRY[face].label;
   // Only the explicit source face reads the PDF; ordinary reading remains static and light.
-  const facsimile = face === "facsimile"
-    ? await (options.facsimileLoader ?? loadFacsimileDocument)(paperId, paper.citation)
-    : null;
+  const facsimile =
+    face === "facsimile"
+      ? await (options.facsimileLoader ?? loadFacsimileDocument)(paperId, paper.citation)
+      : null;
   return (
     <div data-reader-root data-ready="true" data-view={face} className="reader-root">
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
@@ -116,11 +120,18 @@ export async function FaceFallback({
       ) : null}
       {SOURCE_FACES.has(face) && facsimile?.kind !== "available" ? (
         <div data-face-source>
-          <p className="notice" {...(facsimile?.kind === "unavailable" ? { "data-refusal-code": facsimile.code } : {})}>
-            {facsimile?.kind === "unavailable"
-              ? facsimile.message
-              : <>The {label.toLowerCase()} for this paper is not yet available. The explanation does not
-                stand in for that source layer.</>}
+          <p
+            className="notice"
+            {...(facsimile?.kind === "unavailable" ? { "data-refusal-code": facsimile.code } : {})}
+          >
+            {facsimile?.kind === "unavailable" ? (
+              facsimile.message
+            ) : (
+              <>
+                The {label.toLowerCase()} for this paper is not yet available. The explanation does
+                not stand in for that source layer.
+              </>
+            )}
           </p>
           <p>
             <a href={paperPath(paperId, section)}>Read the explanation instead →</a>

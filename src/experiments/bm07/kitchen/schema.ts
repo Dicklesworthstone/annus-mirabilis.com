@@ -126,19 +126,31 @@ export class KitchenInputError extends TypeError {
 }
 export function kitchenNumber(raw: string, field: string, row = 0): number {
   if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(raw))
-    throw new KitchenInputError("number-invalid", row, field, "enter a finite decimal number, not a formula.");
+    throw new KitchenInputError(
+      "number-invalid",
+      row,
+      field,
+      "enter a finite decimal number, not a formula.",
+    );
   const n = Number(raw);
   const mantissa = raw.split(/[eE]/)[0] ?? "";
   if (!Number.isFinite(n) || (n === 0 && /[1-9]/.test(mantissa)))
-    throw new KitchenInputError("number-invalid", row, field, "the number is outside the supported range.");
+    throw new KitchenInputError(
+      "number-invalid",
+      row,
+      field,
+      "the number is outside the supported range.",
+    );
   return n;
 }
 export function intervalMetadata(raw: string, field: string): readonly [number, number] | null {
   if (!raw) return null;
   const m = /^\[([^,]+),([^,]+)\]$/.exec(raw);
-  if (!m) throw new KitchenInputError("range-invalid", 0, field, "use [lower,upper] or leave it blank.");
+  if (!m)
+    throw new KitchenInputError("range-invalid", 0, field, "use [lower,upper] or leave it blank.");
   const [_, rawA, rawB] = m;
-  if (!rawA || !rawB) throw new KitchenInputError("range-invalid", 0, field, "use [lower,upper] or leave it blank.");
+  if (!rawA || !rawB)
+    throw new KitchenInputError("range-invalid", 0, field, "use [lower,upper] or leave it blank.");
   const a = kitchenNumber(rawA.trim(), field),
     b = kitchenNumber(rawB.trim(), field);
   if (!(a > 0 && b >= a))
@@ -154,7 +166,8 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
   ]);
   for (const key of KITCHEN_METADATA_KEYS)
     if (!(key in input) && !optional.has(key))
-      throw new KitchenInputError("metadata-invalid", 
+      throw new KitchenInputError(
+        "metadata-invalid",
         0,
         key,
         "the metadata declaration is missing (a blank value is allowed for an unknown optional measurement).",
@@ -170,7 +183,12 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
     if (!m[key] && nullable) return;
     const n = kitchenNumber(m[key], key);
     if (n < min || n > max)
-      throw new KitchenInputError("kitchen-input-invalid", 0, key, `use a number from ${min} to ${max}.`);
+      throw new KitchenInputError(
+        "kitchen-input-invalid",
+        0,
+        key,
+        `use a number from ${min} to ${max}.`,
+      );
     m[key] = String(n);
   };
   numeric("source_width_px", 1, 4096);
@@ -191,7 +209,8 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
   numeric("physical_input_coverage", 0.001, 1, true);
   numeric("exposure_s", 0, 2, true);
   const choice = (k: MetadataKey, values: readonly string[]) => {
-    if (!values.includes(m[k])) throw new KitchenInputError("kitchen-input-invalid", 0, k, `choose ${values.join(", ")}.`);
+    if (!values.includes(m[k]))
+      throw new KitchenInputError("kitchen-input-invalid", 0, k, `choose ${values.join(", ")}.`);
   };
   choice("rotation_degrees", ["0", "90", "180", "270"]);
   choice("calibration_axes", ["x", "y", "both"]);
@@ -208,7 +227,8 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
   choice("radius_provenance", ["independent", "same-displacements", "unknown"]);
   choice("radius_scale_axis", ["", "independent", "x", "y"]);
   if (m.physical_input_coverage && !m.physical_input_provenance.trim())
-    throw new KitchenInputError("kitchen-input-invalid", 
+    throw new KitchenInputError(
+      "kitchen-input-invalid",
       0,
       "physical_input_provenance",
       "describe the source and simultaneous-coverage basis of the complete input box; marginal coverage or click scatter alone is insufficient.",
@@ -218,7 +238,8 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
       (m.calibration_axes === axis || m.calibration_axes === "both") &&
       !m[`pixels_per_um_${axis}`]
     )
-      throw new KitchenInputError("kitchen-input-invalid", 
+      throw new KitchenInputError(
+        "kitchen-input-invalid",
         0,
         `pixels_per_um_${axis}`,
         "the declared calibrated axis needs a scale.",
@@ -239,13 +260,24 @@ export function validateKitchenMetadata(input: Record<string, string>): KitchenM
       m[point] &&
       !(range[0] <= Number(m[point]) && Number(m[point]) <= range[1])
     )
-      throw new KitchenInputError("range-invalid", 0, k, "the range must contain the declared point value.");
+      throw new KitchenInputError(
+        "range-invalid",
+        0,
+        k,
+        "the range must contain the declared point value.",
+      );
     if (range) m[k] = `[${range.join(",")}]`;
   }
   if (m.exposure_s && Number(m.exposure_s) > Number(m.declared_interval_s))
-    throw new KitchenInputError("observations-inconsistent", 0, "exposure_s", "overlapping exposures are not supported.");
+    throw new KitchenInputError(
+      "observations-inconsistent",
+      0,
+      "exposure_s",
+      "overlapping exposures are not supported.",
+    );
   if (m.viscosity_mpa_s && !m.viscosity_source.trim())
-    throw new KitchenInputError("kitchen-input-invalid", 
+    throw new KitchenInputError(
+      "kitchen-input-invalid",
       0,
       "viscosity_source",
       "name the source or the approximation you chose.",

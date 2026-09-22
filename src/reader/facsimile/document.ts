@@ -48,7 +48,10 @@ function identifier(value: unknown): value is string {
 }
 function sectionFor(unit: Record<string, unknown>): string | null {
   if (unit.section !== undefined) {
-    requireData(typeof unit.section === "string" && /^s\d+$/.test(unit.section), "Invalid source section.");
+    requireData(
+      typeof unit.section === "string" && /^s\d+$/.test(unit.section),
+      "Invalid source section.",
+    );
     return unit.section;
   }
   // These are the source-id grammar's section tags, not an estimate from paragraph order.
@@ -66,18 +69,39 @@ export function projectFacsimileDocument(
   requireData(/^[a-z]+(?:-[a-z]+)*$/.test(paperId), "Invalid paper slug.");
   requireData(/^ap-\d+-\d+$/.test(key), "Invalid bibliographic key.");
   const config = record(rawConfig, "Facsimile configuration");
-  requireData(config.configVersion === 1 && config.key === key, "The pin belongs to a different document or schema.");
+  requireData(
+    config.configVersion === 1 && config.key === key,
+    "The pin belongs to a different document or schema.",
+  );
   const rights = record(config.rights, "Publication decision");
-  requireData(["publish", "pin-local-only", "reference-only"].includes(String(rights.publicationDecision)), "Unknown publication decision.");
+  requireData(
+    ["publish", "pin-local-only", "reference-only"].includes(String(rights.publicationDecision)),
+    "Unknown publication decision.",
+  );
   if (rights.publicationDecision !== "publish" || config.pinned === undefined) return null;
   const pin = record(config.pinned, "Pinned PDF");
   const article = record(config.articlePages, "Printed-page map");
-  requireData(pin.path === `public/papers/pdfs/${key}.pdf`, "Only the canonical same-origin PDF path may be published.");
+  requireData(
+    pin.path === `public/papers/pdfs/${key}.pdf`,
+    "Only the canonical same-origin PDF path may be published.",
+  );
   requireData(pin.mimeType === "application/pdf", "The source is not declared as a PDF.");
-  requireData(typeof pin.sha256 === "string" && /^[a-f0-9]{64}$/.test(pin.sha256), "The pin needs a SHA-256 digest.");
-  requireData(integer(pin.pageCount) && pin.pageCount <= 256, "Invalid or excessive PDF page count.");
-  requireData(integer(article.printedFirst) && integer(article.printedLast), "Missing printed-page range.");
-  requireData(article.printedLast - article.printedFirst + 1 === pin.pageCount, "Printed and extracted page counts disagree.");
+  requireData(
+    typeof pin.sha256 === "string" && /^[a-f0-9]{64}$/.test(pin.sha256),
+    "The pin needs a SHA-256 digest.",
+  );
+  requireData(
+    integer(pin.pageCount) && pin.pageCount <= 256,
+    "Invalid or excessive PDF page count.",
+  );
+  requireData(
+    integer(article.printedFirst) && integer(article.printedLast),
+    "Missing printed-page range.",
+  );
+  requireData(
+    article.printedLast - article.printedFirst + 1 === pin.pageCount,
+    "Printed and extracted page counts disagree.",
+  );
   requireData(typeof pin.originUrl === "string", "Missing source origin.");
   let origin: URL;
   try {
@@ -85,67 +109,155 @@ export function projectFacsimileDocument(
   } catch {
     throw new FacsimileDataError("facsimile-data-invalid", "Invalid source origin.");
   }
-  requireData(origin.protocol === "https:" && !origin.username && !origin.password, "Source origins must be public HTTPS URLs.");
-  requireData(typeof pin.acquisitionDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(pin.acquisitionDate), "Missing acquisition date.");
-  requireData(typeof rights.rightsStatus === "string" && rights.rightsStatus.length > 0, "Missing rights status.");
+  requireData(
+    origin.protocol === "https:" && !origin.username && !origin.password,
+    "Source origins must be public HTTPS URLs.",
+  );
+  requireData(
+    typeof pin.acquisitionDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(pin.acquisitionDate),
+    "Missing acquisition date.",
+  );
+  requireData(
+    typeof rights.rightsStatus === "string" && rights.rightsStatus.length > 0,
+    "Missing rights status.",
+  );
 
   // A correct page count alone cannot distinguish an extract from the wrong issue window.
   const indices = article.parentPageIndices;
-  const anchor = record(config.verifiedAnchor ?? article.verifiedAnchor, "Verified printed-page anchor");
-  requireData(integer(anchor.parentPageIndex, 0) && integer(anchor.printedPage) && typeof anchor.verifiedBy === "string" && anchor.verifiedBy.trim().length > 0, "Missing verified page anchor.");
-  requireData(Array.isArray(indices) && indices.length === pin.pageCount, "Missing explicit parent-page map.");
+  const anchor = record(
+    config.verifiedAnchor ?? article.verifiedAnchor,
+    "Verified printed-page anchor",
+  );
+  requireData(
+    integer(anchor.parentPageIndex, 0) &&
+      integer(anchor.printedPage) &&
+      typeof anchor.verifiedBy === "string" &&
+      anchor.verifiedBy.trim().length > 0,
+    "Missing verified page anchor.",
+  );
+  requireData(
+    Array.isArray(indices) && indices.length === pin.pageCount,
+    "Missing explicit parent-page map.",
+  );
   const expectedFirst = anchor.parentPageIndex + article.printedFirst - anchor.printedPage;
-  requireData(indices.every((index, i) => integer(index, 0) && index === expectedFirst + i), "The extract disagrees with its verified printed-page anchor.");
+  requireData(
+    indices.every((index, i) => integer(index, 0) && index === expectedFirst + i),
+    "The extract disagrees with its verified printed-page anchor.",
+  );
   if (pin.parent !== undefined) {
     const parent = record(pin.parent, "Pinned parent");
     const parentPageCount = parent.pageCount;
-    requireData(integer(parentPageCount) && indices.every((index) => index < parentPageCount), "An extracted page lies outside its parent.");
-    requireData(Array.isArray(parent.parentPageIndices) && parent.parentPageIndices.length === indices.length && parent.parentPageIndices.every((index, i) => index === indices[i]), "The pinned extract and configured parent-page maps disagree.");
+    requireData(
+      integer(parentPageCount) && indices.every((index) => index < parentPageCount),
+      "An extracted page lies outside its parent.",
+    );
+    requireData(
+      Array.isArray(parent.parentPageIndices) &&
+        parent.parentPageIndices.length === indices.length &&
+        parent.parentPageIndices.every((index, i) => index === indices[i]),
+      "The pinned extract and configured parent-page maps disagree.",
+    );
   }
 
-  const pages = Object.freeze(Array.from({ length: pin.pageCount }, (_, i) => Object.freeze({
-    pdfPage: i + 1,
-    printedPage: (article.printedFirst as number) + i,
-  })));
+  const pages = Object.freeze(
+    Array.from({ length: pin.pageCount }, (_, i) =>
+      Object.freeze({
+        pdfPage: i + 1,
+        printedPage: (article.printedFirst as number) + i,
+      }),
+    ),
+  );
   const units: FacsimileUnit[] = [];
   const seen = new Set<string>();
   let inventoryStatus: string | null = null;
   if (rawInventory !== null) {
     const inventory = record(rawInventory, "Source inventory");
-    requireData(inventory.paper === paperId && inventory.document === key, "The source inventory belongs to another document.");
-    requireData(inventory.pageCount === pages.length && Array.isArray(inventory.pageRange) && inventory.pageRange.length === 2 && inventory.pageRange[0] === article.printedFirst && inventory.pageRange[1] === article.printedLast, "The inventory and pinned printed-page ranges disagree.");
-    requireData(Array.isArray(inventory.units) && inventory.units.length <= 10_000, "Invalid source inventory units.");
+    requireData(
+      inventory.paper === paperId && inventory.document === key,
+      "The source inventory belongs to another document.",
+    );
+    requireData(
+      inventory.pageCount === pages.length &&
+        Array.isArray(inventory.pageRange) &&
+        inventory.pageRange.length === 2 &&
+        inventory.pageRange[0] === article.printedFirst &&
+        inventory.pageRange[1] === article.printedLast,
+      "The inventory and pinned printed-page ranges disagree.",
+    );
+    requireData(
+      Array.isArray(inventory.units) && inventory.units.length <= 10_000,
+      "Invalid source inventory units.",
+    );
     inventoryStatus = typeof inventory.status === "string" ? inventory.status : null;
     for (const raw of inventory.units) {
       const unit = record(raw, "Source unit");
-      requireData(identifier(unit.id) && typeof unit.kind === "string", "A source unit needs an id and kind.");
-      requireData(!unit.id.startsWith("facsimile-page-"), "A source id collides with the page-navigation namespace.");
-      requireData(Array.isArray(unit.locators) && unit.locators.length > 0, "A source unit needs an explicit printed-page locator.");
-      const pdfPages = [...new Set(unit.locators.map((rawLocator) => {
-        const locator = record(rawLocator, "Source locator");
-        const page = pages.find((candidate) => candidate.printedPage === locator.page);
-        requireData(page, "A source locator lies outside the pinned paper.");
-        return page.pdfPage;
-      }))].sort((a, b) => a - b);
-      const destination = unit.destination === undefined ? null : record(unit.destination, "Source destination");
+      requireData(
+        identifier(unit.id) && typeof unit.kind === "string",
+        "A source unit needs an id and kind.",
+      );
+      requireData(
+        !unit.id.startsWith("facsimile-page-"),
+        "A source id collides with the page-navigation namespace.",
+      );
+      requireData(
+        Array.isArray(unit.locators) && unit.locators.length > 0,
+        "A source unit needs an explicit printed-page locator.",
+      );
+      const pdfPages = [
+        ...new Set(
+          unit.locators.map((rawLocator) => {
+            const locator = record(rawLocator, "Source locator");
+            const page = pages.find((candidate) => candidate.printedPage === locator.page);
+            requireData(page, "A source locator lies outside the pinned paper.");
+            return page.pdfPage;
+          }),
+        ),
+      ].sort((a, b) => a - b);
+      const destination =
+        unit.destination === undefined ? null : record(unit.destination, "Source destination");
       const alias = destination?.editionBlockId;
       requireData(alias === undefined || identifier(alias), "Invalid edition-block alias.");
       const aliases = alias && alias !== unit.id ? [alias] : [];
       requireData(!seen.has(unit.id), "Duplicate source-page anchor.");
-      requireData(aliases.every((id) => !id.startsWith("facsimile-page-")), "An alias collides with page navigation.");
+      requireData(
+        aliases.every((id) => !id.startsWith("facsimile-page-")),
+        "An alias collides with page navigation.",
+      );
       seen.add(unit.id);
-      units.push(Object.freeze({ id: unit.id, kind: unit.kind, section: sectionFor(unit), aliases: Object.freeze(aliases), pdfPages: Object.freeze(pdfPages) }));
+      units.push(
+        Object.freeze({
+          id: unit.id,
+          kind: unit.kind,
+          section: sectionFor(unit),
+          aliases: Object.freeze(aliases),
+          pdfPages: Object.freeze(pdfPages),
+        }),
+      );
     }
   }
-  return Object.freeze({ paperId, key, pdfUrl: `/${pin.path.slice(7)}`, sha256: pin.sha256,
-    originUrl: origin.href, acquisitionDate: pin.acquisitionDate, rightsStatus: rights.rightsStatus,
-    inventoryStatus, pages, units: Object.freeze(units) });
+  return Object.freeze({
+    paperId,
+    key,
+    pdfUrl: `/${pin.path.slice(7)}`,
+    sha256: pin.sha256,
+    originUrl: origin.href,
+    acquisitionDate: pin.acquisitionDate,
+    rightsStatus: rights.rightsStatus,
+    inventoryStatus,
+    pages,
+    units: Object.freeze(units),
+  });
 }
 
 /** Section pages come from recorded source units; no proportional page estimates. */
-export function facsimileSectionPages(document: FacsimileDocument, section?: string): readonly FacsimilePage[] {
+export function facsimileSectionPages(
+  document: FacsimileDocument,
+  section?: string,
+): readonly FacsimilePage[] {
   if (!section) return document.pages;
-  const selected = new Set(document.units.filter((unit) => unit.section === section).flatMap((unit) => [...unit.pdfPages]));
+  const selected = new Set(
+    document.units.filter((unit) => unit.section === section).flatMap((unit) => [...unit.pdfPages]),
+  );
   return document.pages.filter((page) => selected.has(page.pdfPage));
 }
 export function facsimilePageAnchor(page: FacsimilePage): string {
@@ -153,13 +265,19 @@ export function facsimilePageAnchor(page: FacsimilePage): string {
 }
 export function facsimilePdfHref(document: FacsimileDocument, pdfPage: number): string {
   if (!document.pages.some((page) => page.pdfPage === pdfPage)) {
-    throw new FacsimileDataError("facsimile-page-out-of-range", "Choose a page in this pinned paper.");
+    throw new FacsimileDataError(
+      "facsimile-page-out-of-range",
+      "Choose a page in this pinned paper.",
+    );
   }
   return `${document.pdfUrl}#page=${pdfPage}`;
 }
 
 /** URL fragments are untrusted, including malformed percent escapes and stale source ids. */
-export function resolveFacsimileTarget(document: FacsimileDocument, fragment: string): number | null {
+export function resolveFacsimileTarget(
+  document: FacsimileDocument,
+  fragment: string,
+): number | null {
   if (!fragment || fragment.length > 512) return null;
   let id: string;
   try {
@@ -173,7 +291,8 @@ export function resolveFacsimileTarget(document: FacsimileDocument, fragment: st
   if (unit) return unit.pdfPages[0] ?? null;
   // Several inventoried units may feed one edition block. Preserve that many-to-one
   // mapping, while a canonical source id always keeps its own recorded meaning.
-  const aliasPages = document.units.filter((candidate) => candidate.aliases.includes(id))
+  const aliasPages = document.units
+    .filter((candidate) => candidate.aliases.includes(id))
     .flatMap((candidate) => [...candidate.pdfPages]);
   if (aliasPages.length > 0) return Math.min(...aliasPages);
   // A section may have no heading unit (the unnumbered mass-energy paper has s0).

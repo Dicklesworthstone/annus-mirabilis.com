@@ -1543,7 +1543,7 @@ export type SemanticEquation = Readonly<{
 
 export function validateSemanticEquation(raw: unknown, path = "Equation"): SemanticEquation {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
-    throw new ArgumentSchemaError(
+    void new ArgumentSchemaError(
       "invalid-record",
       "Equation must be an object.",
       "Equation",

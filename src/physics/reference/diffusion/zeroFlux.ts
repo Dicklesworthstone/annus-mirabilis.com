@@ -58,14 +58,22 @@ function numerical(reason: string): Failure {
 function budgetCheck(requested: WorkBudget, budget: WorkBudget): Failure | null {
   if (
     !budget ||
-    ![requested.workUnits, requested.allocationBytes, budget.workUnits, budget.allocationBytes]
-      .every((v) => Number.isSafeInteger(v) && v >= 0)
-  ) return invalid(["workBudget"], "Work and allocation limits must be nonnegative safe integers.");
+    ![
+      requested.workUnits,
+      requested.allocationBytes,
+      budget.workUnits,
+      budget.allocationBytes,
+    ].every((v) => Number.isSafeInteger(v) && v >= 0)
+  )
+    return invalid(["workBudget"], "Work and allocation limits must be nonnegative safe integers.");
   const allowed = Object.freeze({
     workUnits: Math.min(budget.workUnits, REFERENCE_ZERO_FLUX_BUDGET.workUnits),
     allocationBytes: Math.min(budget.allocationBytes, REFERENCE_ZERO_FLUX_BUDGET.allocationBytes),
   });
-  if (requested.workUnits <= allowed.workUnits && requested.allocationBytes <= allowed.allocationBytes)
+  if (
+    requested.workUnits <= allowed.workUnits &&
+    requested.allocationBytes <= allowed.allocationBytes
+  )
     return null;
   return {
     kind: "outcome",
@@ -115,7 +123,8 @@ export function zeroFluxEvolution(
     !(input instanceof Float64Array) ||
     !(input.buffer instanceof ArrayBuffer) ||
     input.length < 3
-  ) return invalid(["field"], "Provide at least three cells in a privately owned Float64Array.");
+  )
+    return invalid(["field"], "Provide at least three cells in a privately owned Float64Array.");
   if (!options || typeof options !== "object")
     return invalid(["options"], "Provide an options object.");
   const tolerance = options.truncationTolerance ?? 1e-12;
@@ -151,16 +160,29 @@ export function zeroFluxEvolution(
   ): ZeroFluxComputation<ZeroFluxEvolution> => ({
     kind: "accepted",
     data: Object.freeze({
-      values, dimensionlessTime, method, terms, truncationL1Bound,
-      roundoffL1Estimate, roundoffL1Correction, requestedBudget,
+      values,
+      dimensionlessTime,
+      method,
+      terms,
+      truncationL1Bound,
+      roundoffL1Estimate,
+      roundoffL1Correction,
+      requestedBudget,
       boundary: "zero-flux",
       referenceModel: "continuous-time finite-volume grid",
       ownerId: "diffusion.zeroFluxEvolution",
     }),
   });
   if (dimensionlessTime === 0 || minimum === maximum)
-    return accepted(input.slice(), dimensionlessTime === 0 ? "identity" : "equilibrium",
-      0, 0, 0, 0, minimumBudget);
+    return accepted(
+      input.slice(),
+      dimensionlessTime === 0 ? "identity" : "equilibrium",
+      0,
+      0,
+      0,
+      0,
+      minimumBudget,
+    );
 
   let modes = 0;
   let truncationBound = 0;
@@ -219,8 +241,7 @@ export function zeroFluxEvolution(
       for (let i = 0; i < n; i++) accumulate(q, corrections, i, weight * current[i]!);
       if (k + 1 === weights.length) break;
       next[0] = 0.5 * current[0]! + 0.5 * current[1]!;
-      for (let i = 1; i < n - 1; i++)
-        next[i] = 0.5 * current[i - 1]! + 0.5 * current[i + 1]!;
+      for (let i = 1; i < n - 1; i++) next[i] = 0.5 * current[i - 1]! + 0.5 * current[i + 1]!;
       next[n - 1] = 0.5 * current[n - 2]! + 0.5 * current[n - 1]!;
       [current, next] = [next, current];
     }
@@ -236,7 +257,7 @@ export function zeroFluxEvolution(
         coefficient = next;
       }
       const sine = Math.sin((Math.PI * k) / (2 * n));
-      const amplitude = (2 * coefficient / n) * Math.exp(-dimensionlessTime * (4 * sine * sine));
+      const amplitude = ((2 * coefficient) / n) * Math.exp(-dimensionlessTime * (4 * sine * sine));
       for (let i = 0; i < n; i++)
         accumulate(q, corrections, i, amplitude * Math.cos((Math.PI * k * (i + 0.5)) / n));
     }
@@ -266,7 +287,8 @@ export function zeroFluxEvolution(
     if (scaledValue > 1 + repairAllowance * scaledMass)
       return numerical("The reference violated the diffusion maximum principle.");
     const boundedValue = Math.min(1, scaledValue);
-    measuredCorrection += Math.abs(probability - original) + (scaledValue - boundedValue) / scaledMass;
+    measuredCorrection +=
+      Math.abs(probability - original) + (scaledValue - boundedValue) / scaledMass;
     values[i] = boundedValue * maximum;
     if (!Number.isFinite(values[i]!) || (boundedValue > 0 && values[i] === 0))
       return numerical("Reference density is outside binary64 range.");
@@ -275,6 +297,13 @@ export function zeroFluxEvolution(
   }
   if (measuredCorrection > repairAllowance)
     return numerical("The measured roundoff repair exceeded its declared allowance.");
-  return accepted(values, shortTime ? "poisson-uniformization" : modes === 0 ? "equilibrium" : "neumann-cosine",
-    terms, truncationBound, roundoffEstimate, measuredCorrection, requestedBudget);
+  return accepted(
+    values,
+    shortTime ? "poisson-uniformization" : modes === 0 ? "equilibrium" : "neumann-cosine",
+    terms,
+    truncationBound,
+    roundoffEstimate,
+    measuredCorrection,
+    requestedBudget,
+  );
 }

@@ -19,7 +19,10 @@ export function FacsimileEnhancer({
 }) {
   useEffect(() => {
     const root = document.getElementById(rootId);
-    if (root) return mountFacsimileReader(root, source, initialPdfPage, faceHref, { preserveReaderHistory: inline });
+    if (root)
+      return mountFacsimileReader(root, source, initialPdfPage, faceHref, {
+        preserveReaderHistory: inline,
+      });
   }, [rootId, source, initialPdfPage, faceHref, inline]);
   return null;
 }

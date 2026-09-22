@@ -1,11 +1,63 @@
-.controls { border: 0; padding: 0; min-width: 0; }
-.controls fieldset { min-width: 0; margin: 1rem 0; padding: 1rem; border: 1px solid currentColor; border-radius: 0.4rem; }
-.controls legend { padding: 0 0.4rem; font-weight: 600; }
-.controls input, .controls select { box-sizing: border-box; max-width: 100%; width: 100%; }
-.controls label { display: block; margin: 0.6rem 0 0.25rem; }
-.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; }
-.tableWrap { overflow-x: auto; margin-block: 1.5rem; }
-.tableWrap table { width: 100%; border-collapse: collapse; }
-.tableWrap th, .tableWrap td { text-align: start; vertical-align: top; padding: 0.75rem; border-bottom: 1px solid currentColor; }
-.tableWrap caption { text-align: start; font-weight: 600; margin-bottom: 0.75rem; }
-@media print { .controls { display: none; } .tableWrap { overflow: visible; } .tableWrap th, .tableWrap td { padding: 0.35rem; } }
+.controls {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.controls fieldset {
+  min-width: 0;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid currentColor;
+  border-radius: 0.4rem;
+}
+.controls legend {
+  padding: 0 0.4rem;
+  font-weight: 600;
+}
+.controls input,
+.controls select {
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+}
+.controls label {
+  display: block;
+  margin: 0.6rem 0 0.25rem;
+}
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 1rem;
+}
+.tableWrap {
+  overflow-x: auto;
+  margin-block: 1.5rem;
+}
+.tableWrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tableWrap th,
+.tableWrap td {
+  text-align: start;
+  vertical-align: top;
+  padding: 0.75rem;
+  border-bottom: 1px solid currentColor;
+}
+.tableWrap caption {
+  text-align: start;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+@media print {
+  .controls {
+    display: none;
+  }
+  .tableWrap {
+    overflow: visible;
+  }
+  .tableWrap th,
+  .tableWrap td {
+    padding: 0.35rem;
+  }
+}

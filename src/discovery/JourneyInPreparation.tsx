@@ -36,17 +36,21 @@ export function JourneyInPreparation({
         {paperId === "light-quanta" && (
           <section aria-labelledby="light-quanta-investigation-link">
             <h3 id="light-quanta-investigation-link">Investigate entropy, counting and emission</h3>
-            <p>Carry a computed radiation state through coefficient matching, compare independent
-              and locked configurations, and test one-variable photoelectric predictions. This
-              explanatory workbench does not publish the reviewed historical journey.</p>
-            <p><a className="button" href="/discover/light-quanta/investigate/">
-              Work through the connected light-quanta investigation →
-            </a></p>
-          <p>
-            <a className="button" href="/papers/light-quanta/#entry-light-quanta">
-              Start with a counting example, no algebra required →
-            </a>
-          </p>
+            <p>
+              Carry a computed radiation state through coefficient matching, compare independent and
+              locked configurations, and test one-variable photoelectric predictions. This
+              explanatory workbench does not publish the reviewed historical journey.
+            </p>
+            <p>
+              <a className="button" href="/discover/light-quanta/investigate/">
+                Work through the connected light-quanta investigation →
+              </a>
+            </p>
+            <p>
+              <a className="button" href="/papers/light-quanta/#entry-light-quanta">
+                Start with a counting example, no algebra required →
+              </a>
+            </p>
           </section>
         )}
         {paperId === "special-relativity" && (
