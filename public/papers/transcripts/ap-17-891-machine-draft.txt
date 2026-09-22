@@ -395,6 +395,29 @@ $$
 --- MACHINE DRAFT TRANSCRIPTION PAGE 16 OF 31 ---
 [[ANNALEN-PAGE 906]]
 
+$\alpha$ ist dann als der Winkel zwischen den Geschwindigkeiten $v$ und $w$ anzusehen. Nach einfacher Rechnung ergibt sich:
+$$
+U = \frac{\sqrt{(v^2 + w^2 + 2 v w \cos \alpha) - \left( \frac{v w \sin \alpha}{V} \right)^2}}{1 + \frac{v w \cos \alpha}{V^2}} .
+$$
+Es ist bemerkenswert, daß $v$ und $w$ in symmetrischer Weise in den Ausdruck für die resultierende Geschwindigkeit eingehen. Hat auch $w$ die Richtung der $X$-Achse ($\Xi$-Achse), so erhalten wir:
+$$
+U = \frac{v + w}{1 + \frac{v w}{V^2}} .
+$$
+Aus dieser Gleichung folgt, daß aus der Zusammensetzung zweier Geschwindigkeiten, welche kleiner sind als $V$, stets eine Geschwindigkeit kleiner als $V$ resultiert. Setzt man nämlich $v = V - \varkappa$, $w = V - \lambda$, wobei $\varkappa$ und $\lambda$ positiv und kleiner als $V$ seien, so ist:
+$$
+U = V \frac{2 V - \varkappa - \lambda}{2 V - \varkappa - \lambda + \frac{\varkappa \lambda}{V}} < V .
+$$
+
+Es folgt ferner, daß die Lichtgeschwindigkeit $V$ durch Zusammensetzung mit einer „Unterlichtgeschwindigkeit“ nicht geändert werden kann. Man erhält für diesen Fall:
+$$
+U = \frac{V + w}{1 + \frac{w}{V}} = V .
+$$
+Wir hätten die Formel für $U$ für den Fall, daß $v$ und $w$ gleiche Richtung besitzen, auch durch Zusammensetzen zweier Transformationen gemäß § 3 erhalten können. Führen wir neben den in § 3 figurierenden Systemen $K$ und $k$ noch ein drittes, zu $k$ in Parallelbewegung begriffenes Koordinatensystem $k'$ ein, dessen Anfangspunkt sich auf der $\Xi$-Achse mit der Geschwindigkeit $w$ bewegt, so erhalten wir zwischen den Größen $x$, $y$, $z$, $t$ und den entsprechenden Größen von $k'$ Gleichungen, welche sich von den in § 3 gefundenen nur dadurch unterscheiden, daß an Stelle von „$v$“ die Größe
+$$
+\frac{v + w}{1 + \frac{v w}{V^2}}
+$$
+[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 17 OF 31 ---
 [[ANNALEN-PAGE 907]]
 
