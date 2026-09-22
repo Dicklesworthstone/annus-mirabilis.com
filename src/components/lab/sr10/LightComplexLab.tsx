@@ -12,6 +12,7 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import { LightComplexPlot } from "./LightComplexPlot.tsx";
 
@@ -210,51 +211,56 @@ export function LightComplexLab({
                   }
                 />
               </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-initialEnergyJ`}>Initial energy in K (Joules)</label>
-                <input
-                  id={`${id}-initialEnergyJ`}
-                  type="number"
-                  name="initialEnergyJ"
-                  inputMode="decimal"
-                  min="0.01"
-                  step="0.1"
-                  value={draft.initialEnergyJ}
-                  onChange={(event) =>
-                    setDraft({ ...draft, initialEnergyJ: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-initialVolumeM3`}>Initial volume in K (m³)</label>
-                <input
-                  id={`${id}-initialVolumeM3`}
-                  type="number"
-                  name="initialVolumeM3"
-                  inputMode="decimal"
-                  min="0.01"
-                  step="0.1"
-                  value={draft.initialVolumeM3}
-                  onChange={(event) =>
-                    setDraft({ ...draft, initialVolumeM3: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-            </div>
-            <div className="checkbox-row" style={{ marginTop: "0.5rem" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <input
-                  type="checkbox"
-                  name="showCountermodel"
-                  checked={draft.showCountermodel}
-                  onChange={(event) =>
-                    setDraft({ ...draft, showCountermodel: event.currentTarget.checked })
-                  }
-                />
-                Show material rod countermodel comparison (1/γ)
-              </label>
             </div>
             <button type="submit">Apply settings</button>
+            <ExperimentSettings contents="initial energy and volume, the material rod countermodel">
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-initialEnergyJ`}>Initial energy in K (Joules)</label>
+                  <input
+                    id={`${id}-initialEnergyJ`}
+                    type="number"
+                    name="initialEnergyJ"
+                    inputMode="decimal"
+                    min="0.01"
+                    step="0.1"
+                    value={draft.initialEnergyJ}
+                    onChange={(event) =>
+                      setDraft({ ...draft, initialEnergyJ: Number(event.currentTarget.value) })
+                    }
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-initialVolumeM3`}>Initial volume in K (m³)</label>
+                  <input
+                    id={`${id}-initialVolumeM3`}
+                    type="number"
+                    name="initialVolumeM3"
+                    inputMode="decimal"
+                    min="0.01"
+                    step="0.1"
+                    value={draft.initialVolumeM3}
+                    onChange={(event) =>
+                      setDraft({ ...draft, initialVolumeM3: Number(event.currentTarget.value) })
+                    }
+                  />
+                </div>
+                <div className="checkbox-row" style={{ marginTop: "0.5rem" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <input
+                      type="checkbox"
+                      name="showCountermodel"
+                      checked={draft.showCountermodel}
+                      onChange={(event) =>
+                        setDraft({ ...draft, showCountermodel: event.currentTarget.checked })
+                      }
+                    />
+                    Show material rod countermodel comparison (1/γ)
+                  </label>
+                </div>
+              </div>
+              <p className="fine">Changes here apply with Apply settings.</p>
+            </ExperimentSettings>
             {error ? (
               <p className="notice" role="alert">
                 {error}
