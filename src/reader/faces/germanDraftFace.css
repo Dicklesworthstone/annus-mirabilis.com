@@ -6,7 +6,7 @@
    lines dropped; 117 at 1024px). The reader's own measure setting did not reach it either,
    because readingSettings.css applies --reader-measure to .reading-column and .reader-main,
    and this face is neither. It takes the same variable, so Narrow, Default and Wide in Reading
-   preferences change it (Default has been 56ch, about 72 characters a line, since 2026-09-22;
+   preferences change it (Default has been 53ch, about 69 characters a line, since 2026-09-22;
    readingSettings.css says why).
 
    The footnotes share the column, so a note reads at the width of the text it annotates, and

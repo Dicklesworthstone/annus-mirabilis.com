@@ -9,7 +9,7 @@ html {
      the contradiction sat seven lines above the comment saying so. On its own this
      line changes nothing, because layout.css declares the measure directly on
      .reader-anatomy-host; both had to move together. */
-  --reader-measure: 56ch;
+  --reader-measure: 53ch;
   --reader-type-scale: 1;
   --reader-paragraph-gap: 1em;
   /* The reading column's size relative to the site's reading body. 1 below 1280px; see "THE
@@ -82,30 +82,37 @@ html {
  * 15 with this CSS injected, true line breaks, trailing partial lines dropped, 1440x900, 22.8px:
  *
  *     44ch  Narrow   55-57 CPL   516-553px    the 1905 plate's ~57, the old default's line
- *     56ch  Default  71-73 CPL   703px column (Brownian's median paragraph 666px, 46%)
- *     62ch  Wide     ~81 CPL     779px        past 75, for a reader who asks for long lines
+ *     53ch  Default  68-70 CPL   666px column (Brownian's median paragraph 629px, 44%)
+ *     56ch  Wide     71-73 CPL   703px column
  *
  * Narrow is anchored where Default used to be: a reader who liked the plate's measure keeps it
  * one click away.
+ *
+ * WIDE WAS 62ch AND DEFAULT 56ch FOR ONE BUILD, AND THE BAND SAID NO. The reading matrix
+ * (scripts/e2e/readingMatrix.e2e.test.ts, 1280x900, true line breaks) measured Wide/100 at 79
+ * characters a line, and Default at 56ch was already at 71-73, so there was no room above it for a
+ * Wide that stays inside 45-75: 57ch renders 76 on the light-quanta and mass-energy pages. So
+ * Default steps down to 53ch and Wide takes 56ch, a real step up that stays in the band. The
+ * default column is 666px at 1440 where it was 703px, still 61% wider than the 413px of BUILD 15.
  */
 html[data-measure="narrow"] {
   --reader-measure: 44ch;
 }
 html[data-measure="default"] {
-  --reader-measure: 56ch;
+  --reader-measure: 53ch;
 }
 html[data-measure="wide"] {
-  --reader-measure: 62ch;
+  --reader-measure: 56ch;
 }
 
 html[data-measure="narrow"] .reader-anatomy-host {
   --reader-measure: 44ch;
 }
 html[data-measure="default"] .reader-anatomy-host {
-  --reader-measure: 56ch;
+  --reader-measure: 53ch;
 }
 html[data-measure="wide"] .reader-anatomy-host {
-  --reader-measure: 62ch;
+  --reader-measure: 56ch;
 }
 
 /*

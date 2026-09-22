@@ -12,11 +12,11 @@
    is way too skinny on desktop browsers"). Light quanta, relativity and mass-energy had no
    measure: a fixed 780px track of 19px type, 98 to 100 characters a line on BUILD 15 (true line
    breaks, 1440), pushed to the right edge of the frame, 300px from the outline. Now the text
-   track is the reader's measure times the desktop step (readingSettings.css), 703px of 22.8px
-   type at 72-73 characters a line, and the outline and the text sit together in the middle of
-   the frame. The page's own title, notice and tabs take the same width, so everything on the
-   page shares one left edge. On a tablet (one column) the text keeps the measure too: 586px
-   where it ran the full 704px at 90 characters a line. There is no empty right column to fill:
+   track is the reader's measure times the desktop step (readingSettings.css), 666px of 22.8px
+   type at 68-70 characters a line at the default measure, and the outline and the text sit
+   together in the middle of the frame. The page's own title, notice and tabs take the same width,
+   so everything on the page shares one left edge. On a tablet (one column) the text keeps the
+   measure too, where it ran the full 704px at 90 characters a line. There is no empty right column to fill:
    the composition is only as wide as what it holds.
    --------------------------------------------------------------------------- */
 .reader-layout {
