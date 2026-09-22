@@ -24,6 +24,72 @@ export interface EnrichedConcordanceEntry extends ConcordanceEntry {
   readonly modernRendered?: RenderedMath | undefined;
   readonly firstUseUrl: string;
   readonly searchKeywords: readonly string[];
+  /** Where the meaning holds, in the reader's words: "§2, §5 and §8", "introduction", "note 1". */
+  readonly whereLabel: string;
+  /** "Checked against the printed page on 19 September 2026.", or that it has not been. */
+  readonly checkedLabel: string;
+  /** The other entries printed with the same symbol: the collisions, readable. */
+  readonly alsoPrinted: readonly {
+    readonly id: string;
+    readonly meaning: string;
+    readonly paperTitle: string;
+    readonly whereLabel: string;
+  }[];
+}
+
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+function joinInProse(items: readonly string[]): string {
+  if (items.length <= 1) return items.join("");
+  return `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
+}
+
+/**
+ * A scope token as a reader would say it. Tokens are paper-prefixed content ids ("lq-s1-fn1",
+ * "me-s0-p5", "md-1911", "all"); papers 1 to 3 number their unnumbered introduction s0, and the
+ * mass-energy paper has no sections, so its s0 is the whole paper. An unrecognised token is
+ * returned as it is, so a new kind shows up on the page instead of vanishing.
+ */
+export function formatScopeToken(paper: string, token: string): string {
+  const whole = paper === "mass-energy";
+  if (/(^|-)all$/.test(token)) return "throughout";
+  if (/-1906$/.test(token)) return "the 1906 text";
+  if (/-1911$/.test(token)) return "the 1911 correction";
+  let m = /-s0-p(\d+)$/.exec(token);
+  if (m) return whole ? `paragraph ${m[1]}` : `introduction, paragraph ${m[1]}`;
+  if (/-s0$/.test(token)) return whole ? "throughout" : "introduction";
+  m = /-s(\d+)-fn(\d+)$/.exec(token);
+  if (m) return `§${m[1]}, note ${m[2]}`;
+  m = /-s(\d+)$/.exec(token);
+  if (m) return `§${m[1]}`;
+  return token;
+}
+
+export function formatScope(paper: string, scope: readonly string[]): string {
+  return joinInProse([...new Set(scope.map((token) => formatScopeToken(paper, token)))]);
+}
+
+function formatCheckedLabel(entry: ConcordanceEntry): string {
+  if (PENDING_SCAN.test(entry.verification.checkedAgainst))
+    return "Not yet checked against the printed page; taken from a transcription.";
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(entry.verification.date);
+  const month = m ? MONTHS[Number(m[2]) - 1] : undefined;
+  return m && month
+    ? `Checked against the printed page on ${Number(m[3])} ${month} ${m[1]}.`
+    : "Checked against the printed page.";
 }
 
 export interface CollisionCluster {
@@ -162,8 +228,7 @@ export function renderStaticKatex(latex: string, displayMode = false): RenderedM
  */
 export function generateSpokenName(entry: ConcordanceEntry, paperTitle: string): string {
   const glyphName = entry.glyph.latex.replace(/\\/g, "").replace(/[{}]/g, "");
-  const scopeDesc = entry.scope.map((s) => s.replace(/^[a-z]+-/, "")).join(", ");
-  return `${glyphName}, ${entry.meaning}, ${paperTitle}, section ${scopeDesc}`;
+  return `${glyphName}, ${entry.meaning}, ${paperTitle}, ${formatScope(entry.paper, entry.scope)}`;
 }
 
 /**
@@ -316,6 +381,9 @@ export function loadNotationPageData(
         modernRendered,
         firstUseUrl,
         searchKeywords,
+        whereLabel: formatScope(entry.paper, entry.scope),
+        checkedLabel: formatCheckedLabel(entry),
+        alsoPrinted: [],
       };
 
       allEntries.push(enriched);
@@ -350,6 +418,32 @@ export function loadNotationPageData(
 
   // Sort papers by paper number
   papersSections.sort((a, b) => a.paperNumber - b.paperNumber);
+
+  // Second pass: each entry learns the other entries printed with its symbol. Every list that
+  // holds entries is rewritten, so the catalogue, the clusters and the index see the same objects.
+  const withSiblings = new Map<string, EnrichedConcordanceEntry>();
+  for (const list of glyphMap.values()) {
+    for (const entry of list) {
+      withSiblings.set(entry.id, {
+        ...entry,
+        alsoPrinted: list
+          .filter((other) => other.id !== entry.id)
+          .map((other) => ({
+            id: other.id,
+            meaning: other.meaning,
+            paperTitle: other.paperTitle,
+            whereLabel: other.whereLabel,
+          })),
+      });
+    }
+  }
+  const resolve = (entry: EnrichedConcordanceEntry) => withSiblings.get(entry.id) ?? entry;
+  const entries = allEntries.map(resolve);
+  const papers = papersSections.map((section) => ({
+    ...section,
+    entries: section.entries.map(resolve),
+  }));
+  for (const [key, list] of glyphMap) glyphMap.set(key, list.map(resolve));
 
   // Build collision clusters (glyphs with >1 entry or explicit collision record)
   const collisionClusters: CollisionCluster[] = [];
@@ -401,15 +495,15 @@ export function loadNotationPageData(
     .sort((a, b) => a.key.localeCompare(b.key));
 
   return {
-    totalEntriesCount: allEntries.length,
+    totalEntriesCount: entries.length,
     totalCollisionsCount: totalCollisions,
     dangerCollisionsCount: dangerCount,
-    papers: papersSections,
-    allEntries,
+    papers,
+    allEntries: entries,
     collisionClusters,
     uniqueGlyphs,
     honestyNotice: (() => {
-      const verification = describeVerification(allEntries);
+      const verification = describeVerification(entries);
       return { isPendingFacsimile: verification.pendingCount > 0, ...verification };
     })(),
   };

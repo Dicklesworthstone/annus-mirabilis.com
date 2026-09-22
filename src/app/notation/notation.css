@@ -299,252 +299,114 @@
   color: var(--muted);
 }
 
-/* Entries List / Cards */
+/*
+ * ONE ENTRY, ONE ROW (chrome, pane %44).
+ *
+ * Each entry was a bordered card: an internal id, a badge per section token, a two-column
+ * "Quantity identity" grid, a collision banner and a footer with a raw status string. 188 of them
+ * made this page 115,704px tall at 390 and 63,716px at 1440. An entry is now the printed symbol,
+ * set large, beside what it means, where that holds, the modern symbol, the first use, and the
+ * other meanings printed with the same symbol; notes and the checking record open on request.
+ *
+ * The row wraps: a wide printed expression ("1/2 (L/V^2) v^2") takes its own line and the
+ * meaning drops beneath it, so no entry is narrower than its symbol or wider than the phone.
+ * From 1100px two columns, read down each paper as in a printed index.
+ */
 .entries-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 3rem;
 }
-
-/*
- * A grid item defaults to min-width: auto, so its min-content width sizes the track rather than
- * the track clipping it. One card's longest unbreakable run therefore widened the single `1fr`
- * track for EVERY card: measured at a 390px viewport, .entries-grid was 342px wide while its
- * computed grid-template-columns was 511.281px, and the document reached 559px at 320, 360 and
- * 390 alike. Same failure and same repair as .lab-bottom in globals.css.
- *
- * min-width: 0 alone only moves the overflow inside the card, because the runs that cause it are
- * genuinely unbreakable: a canonical quantity id (`#lq.R_over_N.boltzmannConstant`) and a 64
- * character sha256, neither carrying a space. Both are identifiers a reader copies rather than
- * reads as prose, so they may break anywhere; the surrounding prose is left alone. This is the
- * same class of token, and the same remedy, that .table-scroll records for its dotted columns.
- */
-.entries-grid > * {
+@media (min-width: 1100px) {
+  .entries-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.notation-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1.25rem;
+  min-width: 0;
+  padding: 1rem 0 1.1rem;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 1.5rem;
+}
+.notation-entry:target {
+  background: var(--wash);
+  box-shadow:
+    -0.75rem 0 0 var(--wash),
+    0.75rem 0 0 var(--wash);
+}
+.notation-entry-glyph {
+  flex: 0 0 auto;
+  min-width: 3rem;
+  max-width: 100%;
+  font-size: 1.55rem;
+  line-height: 1.2;
+}
+.notation-entry-body {
+  flex: 1 1 16rem;
   min-width: 0;
 }
-
-.card-anchor-link,
-.verification-status {
+.notation-entry-meaning {
+  margin: 0;
+  font-size: var(--type-body);
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+.notation-entry-facts,
+.notation-entry-also {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  line-height: 1.5;
+  color: var(--muted);
+}
+/* inline-block, so a link's underline does not run under the separator it starts with. */
+.notation-entry-facts > * + *::before {
+  content: "·";
+  display: inline-block;
+  margin: 0 0.45em;
+  color: var(--muted);
+}
+.notation-entry-facts a,
+.notation-entry-also a {
+  color: var(--ink);
+}
+/* AGENTS.md: the dangerous collisions (beta, and paper 2's k) are called out in red where they
+   are used. This is one of the few places the accent is for. */
+.notation-entry-flag {
+  color: var(--accent);
+  font-weight: 700;
+}
+.notation-entry.is-danger {
+  box-shadow: inset 2px 0 0 var(--accent);
+  padding-left: 0.85rem;
+}
+/* The global details rule rules each disclosure off above and below with 1.3rem of margin, which
+   is right for a section's disclosure and doubled every entry's height here. The summary keeps
+   the global list-item display, so its marker and its 44px floor both hold. */
+.notation-entry-more {
+  margin: 0.1rem 0 0;
+  padding: 0;
+  border: 0;
+  font-size: var(--type-small);
+}
+.notation-entry-more > summary {
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--muted);
+  cursor: pointer;
+}
+/* The collision view's links to entries (CollisionClusterView.tsx). */
+.card-anchor-link {
   overflow-wrap: anywhere;
 }
-
-.concordance-card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 1.25rem;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-  position: relative;
-}
-
-.concordance-card:target,
-.concordance-card.focused {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(139, 53, 38, 0.2);
-}
-
-.concordance-card.has-danger {
-  border-left: 6px solid #c0392b;
-}
-
-.concordance-card.has-caution {
-  border-left: 6px solid #d35400;
-}
-
-.card-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-.card-glyph-container {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-
-.card-glyph {
-  font-size: var(--type-title);
-  line-height: 1;
-  font-family: inherit;
-}
-
-.card-anchor-link {
-  font-size: var(--type-fine);
-  font-family: var(--font-mono);
-  color: var(--muted);
-  text-decoration: none;
-}
-
-.card-anchor-link:hover {
-  text-decoration: underline;
-}
-
-.card-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  align-items: center;
-}
-
-.badge-scope {
-  background: var(--wash);
-  color: var(--ink);
-  border: 1px solid var(--line);
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  font-size: var(--type-fine);
-  font-weight: 600;
-}
-
-.badge-op {
-  background: #edf2f7;
-  color: #2d3748;
-  border: 1px solid #cbd5e0;
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  font-size: var(--type-fine);
-  font-weight: 600;
-}
-
-.badge-op.rename {
-  background: #e6fffa;
-  color: #234e52;
-  border-color: #81e6d9;
-}
-
-.badge-op.unitConversion {
-  background: #ebf8ff;
-  color: #2b6cb0;
-  border-color: #bee3f8;
-}
-
-.badge-op.modernization {
-  background: #faf5ff;
-  color: #553c9a;
-  border-color: #e9d8fd;
-}
-
-.card-meaning {
-  font-size: var(--type-body);
-  font-weight: 600;
-  margin: 0 0 0.5rem;
-  color: var(--ink);
-}
-
-.card-details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: 0.75rem;
-  background: var(--wash);
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
-  margin-bottom: 0.75rem;
-  font-size: var(--type-fine);
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.detail-label {
-  font-size: var(--type-micro);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.detail-val {
-  color: var(--ink);
-  font-weight: 500;
-}
-
-.card-collision-alert {
-  margin: 0.75rem 0;
-  padding: 0.75rem;
-  border-radius: 4px;
-  background: #fde8e4;
-  border: 1px solid #c0392b;
-}
-
-.card-collision-alert.caution {
-  background: #fef5e7;
-  border-color: #d35400;
-}
-
-/* Dark-theme fills derived from each severity's OWN authored border hue mixed into
-   the theme's --paper, at the percentage reproducing its authored fill-vs-paper
-   separation: danger 1.046 from #c0392b (7%), caution 1.140 from #d35400 (14%).
-   --ink over the results is 12.4 to 14.9 against the 4.5 minimum, and the authored
-   border colours are untouched, so which hue means which severity is unchanged. */
-[data-theme="kramgasse-night"] .card-collision-alert {
-  background: #272328;
-}
-[data-theme="kramgasse-night"] .card-collision-alert.caution {
-  background: #362822;
-}
-
-.card-collision-alert .alert-title {
-  font-size: var(--type-fine);
-  font-weight: 700;
-  margin: 0 0 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.card-collision-alert.danger .alert-title {
-  color: #c0392b;
-}
-
-.card-collision-alert.caution .alert-title {
-  color: #b7791f;
-}
-
-.card-collision-alert p {
-  margin: 0;
-  font-size: var(--type-fine);
-  line-height: 1.4;
-}
-
-.card-notes {
-  font-size: var(--type-fine);
-  color: var(--muted);
-  font-style: italic;
-  margin: 0.5rem 0;
-  line-height: 1.5;
-}
-
-.card-footer-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--line);
-  font-size: var(--type-fine);
-}
-
-.verification-status {
-  color: var(--muted);
-}
-
-.first-use-link {
-  font-weight: 600;
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.first-use-link:hover {
-  text-decoration: underline;
+.notation-entry-more > p {
+  margin: 0.25rem 0 0.6rem;
+  line-height: 1.55;
 }
 
 /* Modern-Only Symbols Section */
@@ -613,33 +475,8 @@
     padding: 1rem 0.5rem 3rem;
   }
 
-  .notation-header h1 {
-    font-size: var(--type-title);
-  }
-
-  .card-header-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.4rem;
-  }
-
-  .card-details-grid {
-    grid-template-columns: 1fr;
-  }
-
   .filter-grid {
     grid-template-columns: 1fr;
-  }
-
-  .glyph-nav-list {
-    gap: 0.25rem;
-  }
-
-  .glyph-nav-item a {
-    min-width: 1.8rem;
-    height: 1.8rem;
-    font-size: var(--type-small);
-    padding: 0.1rem 0.3rem;
   }
 }
 
@@ -669,21 +506,8 @@
     page-break-before: avoid;
   }
 
-  .concordance-card {
-    border: 1px solid #666;
-    background: #fff;
+  .notation-entry {
     page-break-inside: avoid;
-    margin-bottom: 1rem;
-  }
-
-  .concordance-card.has-danger {
-    border-left: 6px solid #000;
-  }
-
-  .card-collision-alert {
-    background: #fff;
-    border: 2px solid #000;
-    color: #000;
   }
 
   .first-use-link::after {
