@@ -387,11 +387,17 @@ p {
  *
  * What the site is, the four papers (the end of a long paper is where a reader looks for the
  * next), the pages about the site, and a colophon naming the typefaces and whose scans the 1905
- * pages are. One column on a phone; from 900px the three groups share a row.
+ * pages are. On a phone the two link groups share a row; from 900px all three do.
  */
 .site-footer {
   display: grid;
-  gap: 1.75rem 3rem;
+  /* On a phone the two link groups share a row; stacked, the footer was 771px at 390. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem 1.25rem;
+}
+.site-footer-about,
+.site-footer-colophon {
+  grid-column: 1 / -1;
 }
 .site-footer-name {
   margin: 0 0 0.35rem;
@@ -414,17 +420,16 @@ p {
   padding: 0;
 }
 .site-footer-colophon {
-  margin: 0;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--rule);
+  margin: 0.5rem 0 0;
   font-size: var(--type-fine);
 }
 @media (min-width: 900px) {
   .site-footer {
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.75rem 3rem;
   }
-  .site-footer-colophon {
-    grid-column: 1 / -1;
+  .site-footer-about {
+    grid-column: auto;
   }
 }
 .hero {
