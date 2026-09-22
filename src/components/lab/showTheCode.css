@@ -134,3 +134,8 @@
 .kernel-trace tr[class^="am-role-"] {
   color: var(--qc, inherit);
 }
+/* An identifier bound to a quantity takes that quantity's colour; ShowTheCode's root names the
+   paper and src/generated/quantity-colours.css supplies --qc. */
+.show-the-code .kernel-ident {
+  color: var(--qc, inherit);
+}

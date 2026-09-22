@@ -11,7 +11,6 @@ import {
 import { useEquationScope } from "./EquationScope.tsx";
 import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
 import { navigate } from "./navigation.ts";
-import { colourStyle, paperQuantityColours, quantityLegend } from "./quantityColourView.ts";
 import { createSelectionStore } from "./selectionStore.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 import "./equations.css";
@@ -98,17 +97,15 @@ export function SemanticEquation({
         equation.terms.find((t) => t.termId === id)?.quantityId === selected.quantityId));
   const equationId = effectiveScope ? `${equation.id}-${effectiveScope}` : equation.id;
   /*
-    ONE COLOUR PER QUANTITY, looked up by canonical id from the paper's map (build-equations.ts).
-    The formula's term spans come from KaTeX as HTML, so they are coloured by a rule per term id;
-    the sentence, the legend and the value list are coloured by the same id through the same two
-    custom properties. Term ids are validated as [a-z0-9-.A-Z] (ast.ts), so they need no escaping.
+    ONE COLOUR PER QUANTITY, from CSS alone. The root names its paper (data-paper), each coloured
+    element carries its quantity id, and src/generated/quantity-colours.css maps the pair to a
+    slot; the formula's KaTeX term spans are mapped by term id in the same sheet. This component
+    imports no colour map: importing one put every paper's quantities, with rendered glyphs, into
+    the first-route JavaScript (initial-route-js went 842 bytes over on the Brownian page).
   */
-  const paperColours = paperQuantityColours(equation.paper);
-  const colourOfTerm = (id: string | undefined) => {
-    const term = id ? equation.terms.find((t) => t.termId === id) : undefined;
-    return term ? paperColours[term.quantityId] : undefined;
-  };
-  const legend = quantityLegend([equation]);
+  const quantityOfTerm = (id: string | undefined) =>
+    id ? equation.terms.find((t) => t.termId === id)?.quantityId : undefined;
+  const legend = [...new Map(equation.terms.map((t) => [t.quantityId, t.quantity.name]))];
   const navLabel = effectiveScopeLabel
     ? `Terms and operations in ${equation.title || equation.id} (${effectiveScopeLabel})`
     : `Terms and operations in ${equation.title || equation.id}`;
@@ -117,6 +114,7 @@ export function SemanticEquation({
       ref={root}
       className="semantic-equation"
       data-equation-id={equationId}
+      data-paper={equation.paper}
       data-equation-digest={equation.treeDigest}
       data-selected-node-id={current ?? undefined}
       data-pattern={String(pattern)}
@@ -156,8 +154,8 @@ export function SemanticEquation({
           <span
             key={`${f.nodeId ?? "frag"}-${f.text}`}
             data-selected={String(!!selectedNode(f.nodeId))}
-            className={colourOfTerm(f.nodeId) ? "equation-quantity" : undefined}
-            style={colourStyle(colourOfTerm(f.nodeId))}
+            className={quantityOfTerm(f.nodeId) ? "equation-quantity" : undefined}
+            data-quantity-id={quantityOfTerm(f.nodeId)}
           >
             {f.text}
           </span>
@@ -172,19 +170,9 @@ export function SemanticEquation({
       </p>
       {legend.length > 0 ? (
         <ul className="equation-legend" aria-label={`Quantities in ${equation.title}`}>
-          {legend.map(({ quantityId, colour }) => (
-            <li
-              key={quantityId}
-              className="equation-quantity"
-              data-quantity-id={quantityId}
-              style={colourStyle(colour)}
-            >
-              <span
-                className="equation-legend-glyph"
-                aria-hidden="true"
-                {...{ dangerouslySetInnerHTML: { __html: colour.glyphHtml } }}
-              />
-              <span className="equation-legend-name">{colour.name}</span>
+          {legend.map(([quantityId, name]) => (
+            <li key={quantityId} className="equation-quantity" data-quantity-id={quantityId}>
+              <span className="equation-legend-name">{name}</span>
             </li>
           ))}
         </ul>
@@ -314,12 +302,7 @@ export function SemanticEquation({
               const b = equation.bindings.find((b) => b.termId === t.termId),
                 v = readTermValue(t, b ? slot : null);
               return (
-                <div
-                  key={t.termId}
-                  data-quantity-id={t.quantityId}
-                  className={paperColours[t.quantityId] ? "equation-quantity" : undefined}
-                  style={colourStyle(paperColours[t.quantityId])}
-                >
+                <div key={t.termId} data-quantity-id={t.quantityId} className="equation-quantity">
                   <dt>
                     {t.quantity.name}
                     {(t.scale.num !== 1 || t.scale.den !== 1) &&

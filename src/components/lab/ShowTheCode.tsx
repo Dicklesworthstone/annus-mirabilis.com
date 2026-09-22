@@ -7,17 +7,10 @@ import {
 import { roleForQuantity } from "../../content/kernel/trace.ts";
 import type { WorkedTrace } from "../../content/kernel/types.ts";
 import { KERNEL_DISPLAY_ROLE_LABELS, type KernelListing } from "../../content/kernel/types.ts";
-import {
-  colourStyle,
-  paperOfId,
-  paperQuantityColours,
-  type QuantityColour,
-} from "../../equations/quantityColourView.ts";
+import { paperOfId } from "../../equations/paperOfId.ts";
 import "./showTheCode.css";
 
-type Colours = Readonly<Record<string, QuantityColour>>;
-
-function TraceTable({ trace, colours }: { trace: WorkedTrace; colours: Colours }) {
+function TraceTable({ trace }: { trace: WorkedTrace }) {
   return (
     <section
       className="kernel-trace-wrap"
@@ -51,7 +44,6 @@ function TraceTable({ trace, colours }: { trace: WorkedTrace; colours: Colours }
                 data-quantity-id={row.quantityId}
                 data-op-id={row.opId}
                 className={roleClass}
-                style={colourStyle(row.quantityId ? colours[row.quantityId] : undefined)}
               >
                 <th scope="row">{row.label}</th>
                 <td>
@@ -108,7 +100,6 @@ export function ShowTheCode({
     .flatMap((l) => [l.equationId, ...l.independentReferences.map((r) => r.experimentId)])
     .map(paperOfId)
     .find(Boolean);
-  const colours: Colours = paper ? paperQuantityColours(paper) : {};
   const quantityIds = [
     ...new Set([
       ...listings.flatMap((l) => l.identifierBindings.map((b) => b.quantityId)),
@@ -118,7 +109,7 @@ export function ShowTheCode({
     ]),
   ];
   return (
-    <details className="show-the-code" open>
+    <details className="show-the-code" open data-paper={paper}>
       <summary>Show the code</summary>
       <style>{selectionCss(quantityIds)}</style>
       {listings.map((listing) => {
@@ -228,8 +219,6 @@ export function ShowTheCode({
                                   className="kernel-ident"
                                   data-quantity-id={token.quantityId}
                                   style={{
-                                    ...colourStyle(colours[token.quantityId]),
-                                    color: "var(--qc, inherit)",
                                     textDecoration: "underline",
                                     textDecorationStyle: "dotted",
                                     textUnderlineOffset: "0.18em",
@@ -259,7 +248,7 @@ export function ShowTheCode({
                       </pre>
                     </section>
                   ) : null}
-                  {listing.trace ? <TraceTable trace={listing.trace} colours={colours} /> : null}
+                  {listing.trace ? <TraceTable trace={listing.trace} /> : null}
                   {listing.independentReferences.length > 0 ? (
                     <ul>
                       {listing.independentReferences.map((ref) => (

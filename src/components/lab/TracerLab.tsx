@@ -2,7 +2,6 @@
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { EquationScope } from "../../equations/EquationScope.tsx";
-import { colourStyle, paperQuantityColours } from "../../equations/quantityColourView.ts";
 import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
@@ -21,10 +20,6 @@ import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
-
-/* The model's readouts take their quantity's colour, as in the equations beside them (the
-   owner's per-quantity ruling; reading pane %42). */
-const BROWNIAN_COLOURS = paperQuantityColours("brownian-motion");
 
 function SamplingBand({
   snapshot,
@@ -223,6 +218,7 @@ export function TracerLab({
         className="laboratory"
         aria-labelledby={`${id}-title`}
         data-instrument-id="bm-01"
+        data-paper="brownian-motion"
         {...identity(snapshot)}
         data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
         data-accepted-input-revision={snapshot.revisions.input}
@@ -539,7 +535,6 @@ export function TracerLab({
                     data-output="diffusionCoefficient"
                     data-quantity-id="diffusionCoefficient"
                     className="equation-quantity"
-                    style={colourStyle(BROWNIAN_COLOURS.diffusionCoefficient)}
                   >
                     {display(scalar(snapshot, "diffusionCoefficient"), 1e12)} μm²/s
                   </td>
@@ -576,11 +571,7 @@ export function TracerLab({
                   <th scope="row">Coordinate RMS (sample / model)</th>
                   <td data-output="sampleRms">
                     {display(scalar(snapshot, "sampleRms"), 1e6)} /{" "}
-                    <span
-                      data-quantity-id="rmsDisplacement1d"
-                      className="equation-quantity"
-                      style={colourStyle(BROWNIAN_COLOURS.rmsDisplacement1d)}
-                    >
+                    <span data-quantity-id="rmsDisplacement1d" className="equation-quantity">
                       {display(scalar(snapshot, "rmsDisplacement1d"), 1e6)} μm
                     </span>{" "}
                     <span
