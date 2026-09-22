@@ -35,6 +35,12 @@
   border: 1px solid var(--line);
   padding: 1rem 1.2rem;
 }
+/* A companion heading labels a 20rem box, not the page: the global h2 set "Beside this passage"
+   at page-heading size over two lines of a narrow column. */
+.reader-companion-column h2,
+.reader-bottom-sheet h2 {
+  font-size: var(--type-title);
+}
 
 .reader-companion-nav {
   display: flex;
@@ -98,11 +104,23 @@
   }
 }
 
-/* Wide: outline | main | companion column. Hide the sheet. */
+/* Wide: outline | main | companion column. Hide the sheet.
+
+   ONE CENTRED COMPOSITION. The companion took every remaining pixel (1fr), about 700px at
+   1440, for a note a few lines long, so the text sat in a 450px column pinned left of an empty
+   field (TanElk's BUILD 10 review, item 5). Now the three columns take their own widths - the
+   outline, the reading measure, a companion of at most 20rem - and sit together in the centre,
+   and the companion stays beside the passage as the page scrolls. */
 @container reader (min-width: 64em) {
   .reader-anatomy {
-    grid-template-columns: minmax(0, 12rem) minmax(0, var(--reader-measure)) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 12rem) minmax(0, var(--reader-measure)) minmax(14rem, 20rem);
+    justify-content: center;
+    column-gap: 3rem;
     align-items: start;
+  }
+  .reader-companion-column {
+    position: sticky;
+    top: var(--reader-scroll-padding);
   }
   .reader-outline {
     grid-column: 1;
