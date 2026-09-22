@@ -286,6 +286,15 @@
   }
 }
 
+/* The two ways out at the foot of every lesson page. They were 17px tall at 390 and 19px at 1440
+   on all 27 lessons. inline-block with a floor rather than padding: the two share a line, and
+   padded inline boxes would overlap at the separator. */
+.foundation-page > .foundation-page-exit a {
+  display: inline-block;
+  min-height: 44px;
+  align-content: center;
+}
+
 /*
  * The foundations index: lessons grouped by what a reader is missing. Each card's title link is
  * stretched over the card with ::after, so the whole card is one tap target taller than 44px,

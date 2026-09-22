@@ -40,7 +40,7 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
       <p className="fine">
         If you came here from a passage, Back returns you to the exact place you left.
       </p>
-      <p>
+      <p className="foundation-page-exit">
         <a href="/foundations/">All foundation lessons</a> ·{" "}
         <a href={foundation.exports.markdown}>Read as Markdown</a>
       </p>
