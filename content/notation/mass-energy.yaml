@@ -240,7 +240,7 @@ entries:
       unicode: "cos φ"
       latex: "\\cos\\varphi"
       variant: plain
-    meaning: "Cosine of angle phi"
+    meaning: "Cosine of the angle φ"
     binding:
       nonQuantityKind: operator
     operation:
@@ -267,7 +267,7 @@ entries:
       unicode: "1/√(1 - v²/V²)"
       latex: "\\frac{1}{\\sqrt{1 - v^2/V^2}}"
       variant: plain
-    meaning: "The Lorentz factor, printed throughout as an explicit radical; beta is not printed in this paper"
+    meaning: "The Lorentz factor, printed throughout as an explicit radical; β does not appear in this paper"
     binding:
       quantityId: lorentzFactor
     operation:
@@ -750,7 +750,7 @@ entries:
       unicode: "1/2 (L/V²) v²"
       latex: "\\frac{1}{2}\\frac{L}{V^2}v^2"
       variant: plain
-    meaning: "Second-order approximation of kinetic energy decrease to order (v/V)^2"
+    meaning: "Decrease in kinetic energy, to second order in v/V"
     binding:
       quantityId: quadraticKineticDifference
     frameOrReference: moving-system
@@ -803,7 +803,7 @@ entries:
       unicode: "9 · 10²⁰"
       latex: "9\\cdot 10^{20}"
       variant: plain
-    meaning: "Printed factor (3·10^10 cm/s)^2 in CGS converting energy in ergs to mass in grams"
+    meaning: "Printed factor (3 · 10¹⁰ cm/s)², which turns an energy in ergs into a mass in grams"
     binding:
       nonQuantityKind: unit-symbol
     operation:

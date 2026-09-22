@@ -123,7 +123,7 @@ entries:
       unicode: "Rβ/N"
       latex: "R\\beta/N"
       variant: plain
-    meaning: "The printed group R beta / N, Planck's constant"
+    meaning: "The printed group Rβ/N, Planck's constant"
     binding:
       quantityId: planckConstant
     operation:
@@ -156,7 +156,7 @@ entries:
       unicode: "β"
       latex: "\\beta"
       variant: plain
-    meaning: "Wien's constant in the exponential, the modern h/k_B"
+    meaning: "Wien's constant in the exponential; in modern terms, Planck's constant over Boltzmann's"
     binding:
       quantityId: wienConstantBeta
     operation:
@@ -310,7 +310,7 @@ entries:
       unicode: "φ"
       latex: "\\varphi"
       variant: plain
-    meaning: "Spectral entropy density per frequency, as a function of rho and nu"
+    meaning: "Entropy density per unit frequency, as a function of ρ and ν"
     binding:
       quantityId: spectralEntropyDensity
     operation:
@@ -917,7 +917,7 @@ entries:
       unicode: "F_ν"
       latex: "F_\\nu"
       variant: subscripted
-    meaning: "Probability density F_nu in the factorization of the §1 footnote"
+    meaning: "Probability density F_ν in the factorization of the §1 footnote"
     binding:
       nonQuantityKind: function-label
     operation:
@@ -941,7 +941,7 @@ entries:
       unicode: "f_ν"
       latex: "f_\\nu"
       variant: subscripted
-    meaning: "Probability density f_nu in the factorization of the §1 footnote"
+    meaning: "Probability density f_ν in the factorization of the §1 footnote"
     binding:
       nonQuantityKind: function-label
     operation:
@@ -1029,7 +1029,7 @@ entries:
       unicode: "φ"
       latex: "\\varphi"
       variant: plain
-    meaning: "Entropy as a function of probability, S = phi(W)"
+    meaning: "Entropy as a function of probability, S = φ(W)"
     binding:
       quantityId: entropy
     operation:
@@ -1251,7 +1251,7 @@ entries:
       unicode: "E"
       latex: "E"
       variant: plain
-    meaning: "Charge of a gram-equivalent of a monovalent ion, printed 9.6 · 10^3 in electromagnetic CGS"
+    meaning: "Charge of a gram-equivalent of a monovalent ion, printed 9.6 · 10³ in electromagnetic CGS units"
     binding:
       quantityId: gramEquivalentCharge
     operation:
@@ -1346,7 +1346,7 @@ entries:
       unicode: "j"
       latex: "j"
       variant: plain
-    meaning: "Number of gram-molecules ionized, j = L / (R beta nu)"
+    meaning: "Number of gram-molecules ionized, j = L/(Rβν)"
     binding:
       quantityId: ionizedGramMolecules
     operation:
@@ -1371,7 +1371,7 @@ entries:
       unicode: "L"
       latex: "L"
       variant: plain
-    meaning: "Absorbed light energy in j = L / (R beta nu)"
+    meaning: "Absorbed light energy, in j = L/(Rβν)"
     binding:
       quantityId: absorbedLightEnergy
     operation:
@@ -1517,7 +1517,7 @@ entries:
       unicode: "abV"
       latex: "\\mathrm{abV}"
       variant: plain
-    meaning: "Abvolt, electromagnetic CGS potential; Pi · 10^{-8} is read as volts"
+    meaning: "Abvolt, the electromagnetic CGS unit of potential; Π · 10⁻⁸ is read as volts"
     binding:
       nonQuantityKind: unit-symbol
     operation:

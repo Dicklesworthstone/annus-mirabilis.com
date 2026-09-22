@@ -120,7 +120,7 @@ entries:
       unicode: "1"
       latex: "1"
       variant: plain
-    meaning: "Coefficient of phi in the 1906 viscosity law k-star = k(1 + phi), printed as 1"
+    meaning: "Coefficient of φ in the 1906 viscosity law k* = k(1 + φ), printed as 1"
     binding:
       quantityId: suspensionViscosityCoefficient
     operation:
@@ -154,7 +154,7 @@ entries:
       unicode: "5/2"
       latex: "\\frac{5}{2}"
       variant: plain
-    meaning: "Coefficient of phi after the 1911 correction, printed as 5/2"
+    meaning: "Coefficient of φ after the 1911 correction, printed as 5/2"
     binding:
       quantityId: suspensionViscosityCoefficient
     operation:

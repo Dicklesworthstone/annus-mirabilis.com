@@ -206,7 +206,7 @@ entries:
       unicode: "ν"
       latex: "\\nu"
       variant: plain
-    meaning: "Number density of suspended particles (nu = n / V*)"
+    meaning: "Number density of suspended particles, ν = n/V*"
     binding:
       quantityId: numberDensity
     operation:
@@ -338,7 +338,7 @@ entries:
       unicode: "φ_ν"
       latex: "\\varphi_\\nu"
       variant: plain
-    meaning: "Time rate of change of generalized state variable p_nu (dp_nu / dt)"
+    meaning: "Rate of change of the state variable p_ν, dp_ν/dt"
     binding:
       quantityId: stateVariableRate
     operation:
@@ -443,7 +443,7 @@ entries:
       unicode: "κ"
       latex: "\\kappa"
       variant: plain
-    meaning: "Statistical constant satisfying 2*kappa*N = R (half of Boltzmann's constant)"
+    meaning: "Statistical constant with 2κN = R: half of Boltzmann's constant"
     binding:
       quantityId: boltzmannConstant
       scale:
@@ -485,7 +485,7 @@ entries:
       unicode: "2κ"
       latex: "2\\kappa"
       variant: plain
-    meaning: "Product 2*kappa representing Boltzmann's constant k_B"
+    meaning: "The product 2κ, which is Boltzmann's constant"
     binding:
       quantityId: boltzmannConstant
     operation:
@@ -538,7 +538,7 @@ entries:
       unicode: "F"
       latex: "F"
       variant: plain
-    meaning: "Helmholtz free energy (F = E - T*S)"
+    meaning: "Helmholtz free energy, F = E − TS"
     binding:
       quantityId: freeEnergy
     operation:
@@ -740,7 +740,7 @@ entries:
       unicode: "k"
       latex: "k"
       variant: plain
-    meaning: "Fluid dynamic viscosity (eta)"
+    meaning: "Viscosity of the liquid, the modern η"
     binding:
       quantityId: viscosity
     operation:
@@ -867,7 +867,7 @@ entries:
       unicode: "v"
       latex: "v"
       variant: plain
-    meaning: "Drift velocity imparted by external force (K / (6*pi*k*P))"
+    meaning: "Speed the external force K gives a particle, K/(6πkP)"
     binding:
       quantityId: driftVelocity
     operation:
@@ -891,7 +891,7 @@ entries:
       unicode: "R/N"
       latex: "R/N"
       variant: plain
-    meaning: "Ratio of molar gas constant to Avogadro constant (Boltzmann's constant k_B)"
+    meaning: "Ratio of the gas constant to Avogadro's number, which is Boltzmann's constant"
     binding:
       quantityId: boltzmannConstant
     operation:
@@ -954,7 +954,7 @@ entries:
       unicode: "Δ"
       latex: "\\Delta"
       variant: plain
-    meaning: "1D spatial displacement increment of a particle in interval tau"
+    meaning: "A particle's displacement along one axis in the time interval τ"
     binding:
       quantityId: displacementIncrement
     operation:
@@ -978,7 +978,7 @@ entries:
       unicode: "φ(Δ)"
       latex: "\\varphi(\\Delta)"
       variant: plain
-    meaning: "Transition probability density of displacement (dimension L^-1)"
+    meaning: "Probability density of a displacement, per unit length"
     binding:
       quantityId: transitionKernel
     operation:
@@ -1087,7 +1087,7 @@ entries:
       unicode: "1.35*10^-2"
       latex: "1.35 \\times 10^{-2}"
       variant: plain
-    meaning: "Dynamic viscosity of water at 17 C in CGS poise converting to SI Pa*s"
+    meaning: "Viscosity of water at 17 °C, printed in poise (CGS); SI uses Pa·s"
     binding:
       quantityId: viscosity
     operation:
@@ -1112,7 +1112,7 @@ entries:
       unicode: "Mikron"
       latex: "\\text{Mikron}"
       variant: plain
-    meaning: "Printed unit word for micrometre (10^-6 m)"
+    meaning: "The printed unit word for the micrometre, 10⁻⁶ m"
     binding:
       nonQuantityKind: unit-symbol
     operation:

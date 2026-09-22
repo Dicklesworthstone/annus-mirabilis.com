@@ -535,7 +535,7 @@ entries:
       unicode: "x′"
       latex: "x'"
       variant: primed
-    meaning: "Galilean auxiliary coordinate x - vt, not the moving-frame coordinate xi"
+    meaning: "Galilean auxiliary coordinate x − vt, not the moving-frame coordinate ξ"
     binding:
       quantityId: auxiliaryGalileanCoordinate
     operation:
@@ -569,7 +569,7 @@ entries:
       unicode: "β"
       latex: "\\beta"
       variant: plain
-    meaning: "The factor 1/sqrt(1 - v^2/V^2); the modern gamma"
+    meaning: "The factor 1/√(1 − v²/V²), the modern γ"
     binding:
       quantityId: lorentzFactor
     operation:
@@ -628,7 +628,7 @@ entries:
       unicode: "φ"
       latex: "\\varphi"
       variant: plain
-    meaning: "Unknown scale function phi(v), later shown to equal 1"
+    meaning: "Unknown scale function φ(v), later shown to equal 1"
     binding:
       quantityId: scaleFactorUnknown
     operation:
@@ -767,7 +767,7 @@ entries:
       unicode: "κ"
       latex: "\\kappa"
       variant: plain
-    meaning: "Speed by which v falls short of V, in v = V - kappa"
+    meaning: "Speed by which v falls short of V, in v = V − κ"
     binding:
       quantityId: speedDeficitFromLight
     operation:
@@ -792,7 +792,7 @@ entries:
       unicode: "λ"
       latex: "\\lambda"
       variant: plain
-    meaning: "Speed by which w falls short of V, in w = V - lambda"
+    meaning: "Speed by which w falls short of V, in w = V − λ"
     binding:
       quantityId: speedDeficitFromLight
     operation:
@@ -1467,7 +1467,7 @@ entries:
       unicode: "ρ"
       latex: "\\rho"
       variant: plain
-    meaning: "Printed 4-pi times the Gaussian electric-force divergence; not a plain charge density"
+    meaning: "Printed as 4π times the divergence of the Gaussian electric force; not a plain charge density"
     binding:
       quantityId: chargeDensityStationary
     frameOrReference: stationary-system
