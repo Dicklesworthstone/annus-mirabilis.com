@@ -13,10 +13,11 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const output = resolve(root, "artifacts/browser/notebook");
 await mkdir(output, { recursive: true });
 const cache = new Map();
-async function moduleUrl(name) {
-  if (cache.has(name)) return cache.get(name);
-  assert.match(name, /^[A-Za-z]+$/u);
-  const source = await readFile(resolve(root, "src/reader/notebook", `${name}.ts`), "utf8");
+/** `file` is an absolute path to a .ts module; its relative .ts imports are loaded the same way. */
+async function moduleUrl(file) {
+  if (cache.has(file)) return cache.get(file);
+  assert.ok(file.startsWith(resolve(root, "src")) && file.endsWith(".ts"), file);
+  const source = await readFile(file, "utf8");
   const result = ts.transpileModule(source, {
     compilerOptions: {
       target: ts.ScriptTarget.ES2022,
@@ -26,12 +27,13 @@ async function moduleUrl(name) {
   });
   assert.ok(!result.diagnostics?.some((d) => d.category === ts.DiagnosticCategory.Error));
   let text = result.outputText;
-  for (const match of [...text.matchAll(/from "\.\/([A-Za-z]+)\.ts"/gu)])
-    text = text.replace(match[0], `from "${await moduleUrl(match[1])}"`);
+  for (const match of [...text.matchAll(/from "(\.{1,2}\/[\w./-]+\.ts)"/gu)])
+    text = text.replace(match[0], `from "${await moduleUrl(resolve(dirname(file), match[1]))}"`);
   const url = `data:text/javascript;base64,${Buffer.from(text).toString("base64")}`;
-  cache.set(name, url);
+  cache.set(file, url);
   return url;
 }
+const notebookModule = (name) => moduleUrl(resolve(root, "src/reader/notebook", `${name}.ts`));
 const style = await readFile(resolve(root, "src/reader/notebook/notebook.css"), "utf8");
 const browser = await chromium.launch({
   headless: true,
@@ -85,6 +87,16 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
         discardFallback() {},
       };
       window.readerLocation = { pathname: "/papers/brownian-motion/", search: "", hash: "" };
+      // Injected at the same I/O boundary as the notebook document.
+      window.recapMemory = {
+        value: null,
+        dismissed() {
+          return this.value;
+        },
+        dismiss(href) {
+          this.value = href;
+        },
+      };
       window.remount = () => {
         window.dispose?.();
         window.store = createNotebookStore(window.io);
@@ -93,25 +105,69 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
           document.getElementById("trigger"),
           window.store,
           () => window.readerLocation,
+          window.recapMemory,
         );
       };
       window.remount();
     },
-    { storeUrl: await moduleUrl("notebookStore"), browserUrl: await moduleUrl("browser") },
+    {
+      storeUrl: await notebookModule("notebookStore"),
+      browserUrl: await notebookModule("browser"),
+    },
   );
   const first = page.locator("#arg-bm-observable");
   const button = (name) => page.getByRole("button", { name, exact: true });
   const notes = () => page.evaluate(() => store.getSnapshot().document.entries);
-  check("controls attach once per passage", (await button("Save question").count()) === 2);
-  await first.getByRole("button", { name: "Save question", exact: true }).click();
-  await first.getByRole("button", { name: "Save question", exact: true }).click();
+  const bookmarks = page.locator("button.notebook-save-toggle");
+  const firstBookmark = first.locator("button.notebook-save-toggle");
+  /** One bookmark per passage; pressing it opens the menu that holds the four actions. */
+  async function menuAction(name) {
+    if ((await first.locator(".notebook-save-menu").count()) === 0) await firstBookmark.click();
+    await first.getByRole("button", { name, exact: true }).click();
+  }
+  check("one bookmark per passage", (await bookmarks.count()) === 2);
+  check(
+    "no action buttons before the bookmark is pressed",
+    (await button("Save question").count()) === 0,
+  );
+  check(
+    "the bookmark names its passage",
+    (await firstBookmark.getAttribute("aria-label")) === "Save to notebook: The observable",
+  );
+  await firstBookmark.click();
+  check("the bookmark opens one menu", (await page.locator(".notebook-save-menu").count()) === 1);
+  check(
+    "the menu takes focus",
+    (await page.evaluate(() => document.activeElement.textContent)) === "Save question",
+  );
+  await page.keyboard.press("Escape");
+  check(
+    "Escape closes the menu and returns focus to the bookmark",
+    (await page.locator(".notebook-save-menu").count()) === 0 &&
+      (await firstBookmark.evaluate((node) => node === document.activeElement)),
+  );
+  await firstBookmark.click();
+  await page.locator(".notebook-save-menu button.modal-close").click();
+  check("the X closes the menu", (await page.locator(".notebook-save-menu").count()) === 0);
+  await firstBookmark.click();
+  await page.mouse.click(300, 700);
+  check(
+    "a press outside closes the menu",
+    (await page.locator(".notebook-save-menu").count()) === 0,
+  );
+  await menuAction("Save question");
+  await menuAction("Save question");
   check("pin is idempotent", (await notes()).length === 1);
-  await first.getByRole("button", { name: "Save example", exact: true }).click();
+  check(
+    "a saved passage keeps a filled bookmark",
+    (await firstBookmark.getAttribute("data-saved")) === "",
+  );
+  await menuAction("Save example");
   check(
     "example preserves foundation return frame",
     (await notes())[1].frame.open === "foundation:mean-square",
   );
-  await first.getByRole("button", { name: "Add a note", exact: true }).click();
+  await menuAction("Add a note");
   await page
     .getByLabel("Your note or question", { exact: true })
     .fill('<img src="https://invalid.example"> PRIVATE_SENTINEL λₓ');
@@ -124,8 +180,8 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
   check("note retains its passage", (await notes())[2].frame.anchor === "arg-bm-observable");
   await page.keyboard.press("Escape");
   check(
-    "Escape restores trigger focus",
-    (await page.evaluate(() => document.activeElement.textContent)) === "Add a note",
+    "Escape restores focus to the passage's bookmark",
+    await firstBookmark.evaluate((node) => node === document.activeElement),
   );
   await page.locator("#trigger").click();
   await button("Edit note: The observable").click();
@@ -175,18 +231,31 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
   await page.evaluate(() => window.dispatchEvent(new Event("pagehide")));
   await page.evaluate(() => window.remount());
   check("new store restores persisted entries", (await notes()).length === 3);
-  check(
-    "recap uses authored passage text",
-    (await page.locator(".notebook-recap").innerText()).includes("The signed mean can vanish"),
-  );
+  check("no reminder on a paper page", (await page.locator(".notebook-recap").count()) === 0);
   await page.evaluate(() => {
-    readerLocation.hash = "#arg-bm-gaussian";
+    readerLocation.pathname = "/papers/";
     window.remount();
   });
   check(
-    "different deep link gets a compact notice",
-    !(await page.locator(".notebook-recap").innerText()).includes("The signed mean can vanish"),
+    "one line on /papers/ names the saved place",
+    (await page.locator(".notebook-recap").innerText()) ===
+      "Continue where you left off: The observable",
   );
+  await button("Dismiss: continue where you left off").click();
+  await page.evaluate(() => window.remount());
+  check(
+    "a dismissal outlives the page view",
+    (await page.locator(".notebook-recap").count()) === 0,
+  );
+  await page.evaluate(() => {
+    readerLocation.pathname = "/";
+    window.remount();
+  });
+  check("and holds on the home page too", (await page.locator(".notebook-recap").count()) === 0);
+  await page.evaluate(() => {
+    readerLocation.pathname = "/papers/brownian-motion/";
+    window.remount();
+  });
   await page.locator("#trigger").click();
   await button("Clear notebook").click();
   await button("Confirm").click();
@@ -224,7 +293,7 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
   await page.evaluate(() => {
     io.mode = "quota";
   });
-  await first.getByRole("button", { name: "Add a note", exact: true }).click();
+  await menuAction("Add a note");
   await page
     .getByLabel("Your note or question", { exact: true })
     .fill("Session survives a failed save");
@@ -263,8 +332,7 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
   await page.evaluate(() => window.remount());
   check(
     "remount disposes owned DOM",
-    (await page.locator(".notebook-dialog").count()) === 1 &&
-      (await button("Save question").count()) === 2,
+    (await page.locator(".notebook-dialog").count()) === 1 && (await bookmarks.count()) === 2,
   );
   check(
     "no private note in network requests",
