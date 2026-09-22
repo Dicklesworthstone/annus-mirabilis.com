@@ -7,19 +7,16 @@ import rawExample from "../generated/lq06-example.json";
 import { containsHeading } from "./headingText.ts";
 
 /**
- * Heading assertions below compare case-insensitively (am-edit-voice-lint-trmf). They asserted
- * the exact capitalisation of a section heading in order to check that the SECTION IS PRESENT,
- * and so they broke when the de-slop pass normalised these pages from Title Case to the site's
- * sentence case, although every section they protect was still rendering.
+ * Heading assertions below use the SHARED containsHeading imported above, which folds case and
+ * scopes the match to an h1-h6 element (am-edit-voice-lint-trmf).
  *
- * This is a partial hardening and it is worth being exact about the limit: lowercasing both
- * sides survives a case change and would NOT survive a rewording. The durable fix is a stable
- * per-section anchor, which these pages do not have - each carries one section id for the whole
- * page and none on the individual headings. Recorded rather than left implicit, so the next
- * person who hits this knows the ceiling of what is here.
+ * This file carried a private copy of the weak version - `html.toLowerCase().includes(...)` -
+ * which 67956679 replaced everywhere else after measuring that it let an aria-label two elements
+ * away stand in for a heading that had been deleted outright. e79c5f3c added the import without
+ * removing the local, leaving a duplicate binding that `bun test` ran happily and `tsc` refused
+ * with TS2440. Both the local and its docblock are gone; the limits of the shared helper are
+ * documented at its definition.
  */
-const containsHeading = (html: string, heading: string) =>
-  html.toLowerCase().includes(heading.toLowerCase());
 
 const example = rawExample as unknown as PreparedLq06Example;
 
