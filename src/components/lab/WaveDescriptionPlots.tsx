@@ -464,14 +464,14 @@ export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontP
           r="5"
           fill={centerIntensity > 0.1 ? "#38bdf8" : "var(--muted)"}
         />
-        {/* The field is dark in both themes, so this label is drawn light in both. */}
+        {/* The field is dark in both themes, so the reading takes the sky of its marker dot. */}
         <text
           x={width - 58}
           y={centerY - 10}
           textAnchor="end"
           fontFamily="monospace"
           fontWeight="600"
-          style={{ fill: "#e2e8f0" }}
+          style={{ fill: "#38bdf8" }}
         >
           I₀ = {centerIntensity.toFixed(1)}
         </text>
