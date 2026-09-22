@@ -1,3 +1,4 @@
+import { createModalCloseButton, makeDismissible } from "../a11y/modal/dismiss.ts";
 import {
   SEARCH_LIMITS,
   SEARCH_TYPES,
@@ -68,8 +69,7 @@ export function openCommandPalette(
   const heading = element("div", undefined, "search-heading");
   const title = element("h2", "Search the edition");
   title.id = `${id}-title`;
-  const closeButton = element("button", "Close search", "secondary");
-  closeButton.type = "button";
+  const closeButton = createModalCloseButton("Close search");
   heading.append(title, closeButton);
   const privacy = element(
     "p",
@@ -281,7 +281,14 @@ export function openCommandPalette(
       retry.hidden = false;
     }
   }
-  closeButton.addEventListener("click", close, events);
+  // The X and a press outside. Escape stays below: the search field would otherwise spend the
+  // first Escape clearing its text.
+  makeDismissible(dialog, {
+    onDismiss: close,
+    signal: listeners.signal,
+    escape: false,
+    closeButton,
+  });
   dialog.addEventListener(
     "cancel",
     (event) => {
@@ -304,21 +311,6 @@ export function openCommandPalette(
     events,
   );
   dialog.addEventListener("close", close, events);
-  dialog.addEventListener(
-    "click",
-    (event) => {
-      if (event.target !== dialog) return;
-      const box = dialog.getBoundingClientRect();
-      if (
-        event.clientX < box.left ||
-        event.clientX > box.right ||
-        event.clientY < box.top ||
-        event.clientY > box.bottom
-      )
-        close();
-    },
-    events,
-  );
   input.addEventListener("input", scheduleSearch, events);
   paper.addEventListener("change", scheduleSearch, events);
   type.addEventListener("change", scheduleSearch, events);

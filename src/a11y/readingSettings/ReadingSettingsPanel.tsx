@@ -6,12 +6,14 @@
  * the settings namespace; blocked storage falls back to the session map.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createStorageContext,
   type StorageContext,
   writeSetting,
 } from "../../platform/storage/store.ts";
+import { makeDismissible } from "../modal/dismiss.ts";
+import { ModalCloseButton } from "../modal/ModalCloseButton.tsx";
 import {
   CONTRAST_VALUES,
   type ContrastValue,
@@ -68,6 +70,26 @@ export function ReadingSettingsPanel() {
   const [spacing, setSpacing] = useState<ParagraphSpacingValue>(
     READING_SETTINGS_DEFAULTS.paragraphSpacing,
   );
+  const panel = useRef<HTMLDetailsElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+
+  // The sheet hangs over the page, so it closes like every other overlay: the X, a press
+  // anywhere outside it, or Escape. Without JavaScript the summary still opens and closes it.
+  useEffect(() => {
+    const details = panel.current;
+    if (!details) return;
+    const listeners = new AbortController();
+    makeDismissible(details, {
+      signal: listeners.signal,
+      closeButton: closeButton.current,
+      onDismiss(reason) {
+        details.open = false;
+        // After a press outside, focus stays where the reader pointed.
+        if (reason !== "outside") details.querySelector("summary")?.focus();
+      },
+    });
+    return () => listeners.abort();
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement.dataset;
@@ -107,7 +129,7 @@ export function ReadingSettingsPanel() {
   }
 
   return (
-    <details className="reading-settings" data-reading-settings>
+    <details className="reading-settings" data-reading-settings ref={panel}>
       {/* On a phone only "Reading" shows, so the control fits beside the wordmark; the rest of
           the name stays in the accessibility tree, and the visible word is its first word. */}
       <summary>
@@ -116,6 +138,7 @@ export function ReadingSettingsPanel() {
       {/* One box for everything the disclosure reveals, so a phone can lay it out as a single
           sheet under the header instead of inside the 64px column the summary occupies. */}
       <div className="reading-settings-body">
+        <ModalCloseButton label="Close reading preferences" ref={closeButton} />
         {/*
         NO fieldset/legend HERE, and that is the fix for the duplicated "Reading-only".
         A fieldset groups SEVERAL controls under one name; the other four below genuinely do that

@@ -1,0 +1,57 @@
+/*
+ * THE X ON EVERY OVERLAY (chrome, pane %44).
+ *
+ * The owner, 2026-09-22: "should always have an X button in the upper right corner". dismiss.ts
+ * and ModalCloseButton.tsx build it, and this is its one look. It is 44 by 44 for a thumb. It is
+ * floated right, so a heading beside it wraps instead of running underneath. It is sticky, so in a
+ * panel that scrolls it stays in the corner and a reader never has to scroll back up to leave.
+ *
+ * `button.modal-close` rather than `.modal-close`: the global `button` and
+ * `button:hover:not(:disabled)` rules in globals.css would otherwise paint it as a filled ink
+ * slab that turns accent red on hover.
+ */
+button.modal-close {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 1;
+  float: right;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  margin: 0 0 0.25rem 0.75rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--muted);
+  line-height: 1;
+}
+button.modal-close svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+button.modal-close:hover:not(:disabled) {
+  background: var(--wash);
+  border-color: var(--line);
+  color: var(--ink);
+}
+@media (forced-colors: active) {
+  button.modal-close {
+    border-color: ButtonText;
+  }
+  button.modal-close svg {
+    stroke: ButtonText;
+  }
+}
+@media print {
+  button.modal-close {
+    display: none;
+  }
+}

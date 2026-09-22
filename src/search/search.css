@@ -22,6 +22,7 @@
   gap: 1rem;
 }
 .search-heading h2 {
+  min-width: 0;
   margin: 0;
 }
 .search-dialog button {
@@ -112,8 +113,8 @@
   .search-filters {
     grid-template-columns: 1fr;
   }
+  /* The X is 44px, so it keeps the title's row on a phone; the title wraps its own words. */
   .search-heading {
-    flex-wrap: wrap;
     gap: 0.5rem;
   }
   .search-results {

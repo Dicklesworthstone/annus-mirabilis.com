@@ -1,3 +1,4 @@
+import { createModalCloseButton, makeDismissible } from "../../a11y/modal/dismiss.ts";
 import { exportNotebookHtml, exportNotebookJson } from "./export.ts";
 import { mergeNotebook } from "./import.ts";
 import type { NotebookChange, NotebookStore } from "./notebookStore.ts";
@@ -47,9 +48,7 @@ export function mountNotebookPanel(
     "p",
     "Private notes on this device. Export important notes before clearing browser data or changing devices. Nothing is uploaded.",
   );
-  const close = button("Close notebook", () => {
-    closePanel();
-  });
+  const close = createModalCloseButton("Close notebook");
   const status = node("p");
   status.setAttribute("role", "status");
   status.setAttribute("aria-live", "polite");
@@ -409,11 +408,13 @@ export function mountNotebookPanel(
     confirmation.hidden = true;
     if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
   }
-  const onCancel = (event: Event) => {
-    event.preventDefault();
-    closePanel();
-  };
-  dialog.addEventListener("cancel", onCancel);
+  // The X, a press outside, and Escape all close it the same way.
+  const dismissal = new AbortController();
+  makeDismissible(dialog, {
+    onDismiss: closePanel,
+    signal: dismissal.signal,
+    closeButton: close,
+  });
   const unsubscribe = store.subscribe(render);
   return Object.freeze({
     open: openPanel,
@@ -424,7 +425,7 @@ export function mountNotebookPanel(
       importGeneration++;
       unsubscribe();
       closePanel();
-      dialog.removeEventListener("cancel", onCancel);
+      dismissal.abort();
       dialog.remove();
       for (const [url, timeout] of urls) {
         clearTimeout(timeout);

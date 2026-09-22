@@ -4,6 +4,7 @@ import "katex/dist/katex.min.css";
 import "./globals.css";
 import "./theme/themes.css";
 import "../a11y/readingSettings/readingSettings.css";
+import "../a11y/modal/modal.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
 import { PrimaryNavLinks } from "../components/chrome/PrimaryNavLinks.tsx";
