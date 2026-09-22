@@ -7,9 +7,18 @@ describe("OsmoticPartitionLab: static rendering (no JavaScript)", () => {
   const html = renderToStaticMarkup(<OsmoticPartitionLab example={DEFAULT_BM02_INPUTS} />);
 
   test("renders the default snapshot's real numbers, not placeholders", () => {
-    // These come from computeBm02Snapshot, never hand-typed in the component.
-    expect(html).toContain("4.047373e-6 Pa"); // osmotic pressure
-    expect(html).toContain("4.047373e-14 N"); // partition force
+    // These come from computeBm02Snapshot, never hand-typed in the component. Same
+    // digits as toExponential(6), drawn as a power of ten with a spoken name (Sci.tsx).
+    expect(html).toContain(
+      'aria-label="4.047373 times 10 to the power minus 6">4.047373\u202f×\u202f10<sup>−6</sup></span> Pa',
+    ); // osmotic pressure
+    expect(html).toContain(
+      'aria-label="4.047373 times 10 to the power minus 14">4.047373\u202f×\u202f10<sup>−14</sup></span> N',
+    ); // partition force
+  });
+
+  test("no number reaches the reader in toExponential's serialization", () => {
+    expect(html).not.toMatch(/\d\.\d+e[-+]\d/);
   });
 
   test("has exactly one instrument root, addressable as bm-02", () => {

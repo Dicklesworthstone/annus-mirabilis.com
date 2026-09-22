@@ -2,7 +2,16 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LQ04_DEFAULTS, LQ04_NOT_MODELED } from "../../../experiments/lq04/definition.ts";
 import { buildLq04Snapshot, evaluateLq04 } from "../../../experiments/lq04/session.ts";
+import { exponentialParts } from "../../../units/scientific.ts";
 import { EntropyWorkbenchComparison } from "./EntropyWorkbenchLab.tsx";
+
+/** What <Sci value digits /> draws: toExponential's digits as a raised power of ten. */
+function drawn(value: number, digits: number): string {
+  const parts = exponentialParts(value, digits);
+  return parts.kind === "plain"
+    ? parts.text
+    : `${parts.mantissa}\u202f×\u202f10<sup>${parts.exponent}</sup>`;
+}
 
 describe("EntropyWorkbenchLab: server-rendered markup shows real numbers without JavaScript (am-lq-04-entropy-workbench-senj)", () => {
   test("the default example renders the reference state, not an empty box", () => {
@@ -19,7 +28,7 @@ describe("EntropyWorkbenchLab: server-rendered markup shows real numbers without
     // A real computed number reaches the markup, not a placeholder.
     const evaluation = evaluateLq04(LQ04_DEFAULTS);
     if (evaluation.status === "value") {
-      expect(html).toContain(evaluation.energy.toExponential(6));
+      expect(html).toContain(drawn(evaluation.energy, 6));
     }
 
     expect(html).toContain("Not modeled:");
@@ -38,7 +47,7 @@ describe("EntropyWorkbenchLab: server-rendered markup shows real numbers without
     const html = renderToStaticMarkup(<EntropyWorkbenchComparison example={example} />);
     const evaluation = evaluateLq04(parameters);
     if (evaluation.status === "value") {
-      expect(html).toContain(evaluation.radiationEntropy.toExponential(6));
+      expect(html).toContain(drawn(evaluation.radiationEntropy, 6));
     } else {
       throw new Error("expected a value at the golden state");
     }

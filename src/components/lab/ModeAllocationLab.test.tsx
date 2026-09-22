@@ -7,9 +7,19 @@ describe("ModeAllocationLab: static rendering (no JavaScript)", () => {
   const html = renderToStaticMarkup(<ModeAllocationLab example={DEFAULT_LQ02_INPUTS} />);
 
   test("renders the default snapshot's real numbers, not placeholders", () => {
-    // From computeLq02Snapshot, never hand-typed in the component.
-    expect(html).toContain("6.439187e-3 J/m³"); // energy up to the cutoff
-    expect(html).toContain("2.070974e-20 J"); // mean resonator energy
+    // From computeLq02Snapshot, never hand-typed in the component. Same digits as
+    // toExponential(6), drawn as a power of ten with a spoken name (Sci.tsx).
+    // A small exponent is written out: 6.439187e-3 is 0.006439187, the same seven digits.
+    expect(html).toContain('<span class="sci">0.006439187</span> J/m³'); // energy up to the cutoff
+    expect(html).toContain(
+      'aria-label="2.070974 times 10 to the power minus 20">2.070974\u202f×\u202f10<sup>−20</sup></span> J',
+    ); // mean resonator energy
+  });
+
+  test("no number reaches the reader in toExponential's serialization", () => {
+    // It printed "9.990000e-1" for a share of 99.9% until 2026-09-22.
+    expect(html).not.toMatch(/\d\.\d+e[-+]\d/);
+    expect(html).toContain("0.9990000"); // the share above the probe frequency
   });
 
   test("has exactly one instrument root, addressable as lq-02", () => {
