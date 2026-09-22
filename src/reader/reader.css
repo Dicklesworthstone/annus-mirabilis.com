@@ -124,7 +124,10 @@
 .spoken-math {
   font-family: var(--font-sans);
   font-size: var(--type-fine);
-  line-height: 1.55;
+  /* 1.5, the dominant value (25 of 59 declarations), not the 1.55 that was hiding
+     inside the `font:` shorthand here until I made it longhand. At --type-fine
+     (13.2px) the two differ by 0.66px per line. */
+  line-height: 1.5;
   color: var(--muted);
   margin-top: -0.4rem;
 }
