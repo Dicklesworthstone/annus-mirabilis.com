@@ -6,12 +6,14 @@ import {
   SR13_NOT_MODELED,
   type Sr13Parameters,
 } from "../../../experiments/sr13/definition.ts";
+
 import { validateSr13Parameters } from "../../../experiments/sr13/parameters.ts";
 import { createSr13Session, type PreparedSr13Example } from "../../../experiments/sr13/session.ts";
 import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import { ElectronDynamicsPlot } from "./ElectronDynamicsPlot.tsx";
 
@@ -234,34 +236,6 @@ export function ElectronDynamicsLab({
                 />
               </div>
               <div className="input-field">
-                <label htmlFor={`${id}-electricFieldY`}>Electric field Ey (V/m)</label>
-                <input
-                  id={`${id}-electricFieldY`}
-                  type="number"
-                  name="electricFieldY"
-                  inputMode="decimal"
-                  step="10000"
-                  value={draft.electricFieldY}
-                  onChange={(event) =>
-                    setDraft({ ...draft, electricFieldY: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-magneticFieldZ`}>Magnetic field Bz (Tesla)</label>
-                <input
-                  id={`${id}-magneticFieldZ`}
-                  type="number"
-                  name="magneticFieldZ"
-                  inputMode="decimal"
-                  step="0.005"
-                  value={draft.magneticFieldZ}
-                  onChange={(event) =>
-                    setDraft({ ...draft, magneticFieldZ: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-              <div className="input-field">
                 <label htmlFor={`${id}-forceConvention`}>Force convention</label>
                 <select
                   id={`${id}-forceConvention`}
@@ -278,46 +252,79 @@ export function ElectronDynamicsLab({
                   <option value="laboratory">Laboratory (Planck 1906: F = dp/dt)</option>
                 </select>
               </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-massLanguage`}>Mass language</label>
-                <select
-                  id={`${id}-massLanguage`}
-                  name="massLanguage"
-                  value={draft.massLanguage}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      massLanguage: event.currentTarget.value as "1905" | "modern",
-                    })
-                  }
-                >
-                  <option value="1905">1905 Velocity-dependent masses</option>
-                  <option value="modern">Modern invariant mass + momentum</option>
-                </select>
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-datasetOverlay`}>Historical dataset overlay</label>
-                <select
-                  id={`${id}-datasetOverlay`}
-                  name="datasetOverlay"
-                  value={draft.datasetOverlay}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      datasetOverlay: event.currentTarget.value as
-                        | "none"
-                        | "kaufmann-1902-1906"
-                        | "bucherer-1908",
-                    })
-                  }
-                >
-                  <option value="none">None (model curve only)</option>
-                  <option value="kaufmann-1902-1906">Kaufmann 1902–1906 (Radium β-rays)</option>
-                  <option value="bucherer-1908">Bucherer 1908 (Velocity filter)</option>
-                </select>
-              </div>
             </div>
             <button type="submit">Apply settings</button>
+            <ExperimentSettings contents="electric and magnetic field strengths, mass language, a historical dataset overlay">
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-electricFieldY`}>Electric field Ey (V/m)</label>
+                  <input
+                    id={`${id}-electricFieldY`}
+                    type="number"
+                    name="electricFieldY"
+                    inputMode="decimal"
+                    step="10000"
+                    value={draft.electricFieldY}
+                    onChange={(event) =>
+                      setDraft({ ...draft, electricFieldY: Number(event.currentTarget.value) })
+                    }
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-magneticFieldZ`}>Magnetic field Bz (Tesla)</label>
+                  <input
+                    id={`${id}-magneticFieldZ`}
+                    type="number"
+                    name="magneticFieldZ"
+                    inputMode="decimal"
+                    step="0.005"
+                    value={draft.magneticFieldZ}
+                    onChange={(event) =>
+                      setDraft({ ...draft, magneticFieldZ: Number(event.currentTarget.value) })
+                    }
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-massLanguage`}>Mass language</label>
+                  <select
+                    id={`${id}-massLanguage`}
+                    name="massLanguage"
+                    value={draft.massLanguage}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        massLanguage: event.currentTarget.value as "1905" | "modern",
+                      })
+                    }
+                  >
+                    <option value="1905">1905 Velocity-dependent masses</option>
+                    <option value="modern">Modern invariant mass + momentum</option>
+                  </select>
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-datasetOverlay`}>Historical dataset overlay</label>
+                  <select
+                    id={`${id}-datasetOverlay`}
+                    name="datasetOverlay"
+                    value={draft.datasetOverlay}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        datasetOverlay: event.currentTarget.value as
+                          | "none"
+                          | "kaufmann-1902-1906"
+                          | "bucherer-1908",
+                      })
+                    }
+                  >
+                    <option value="none">None (model curve only)</option>
+                    <option value="kaufmann-1902-1906">Kaufmann 1902–1906 (Radium β-rays)</option>
+                    <option value="bucherer-1908">Bucherer 1908 (Velocity filter)</option>
+                  </select>
+                </div>
+              </div>
+              <p className="fine">Changes here apply with Apply settings.</p>
+            </ExperimentSettings>
             {error ? (
               <p className="notice" role="alert">
                 {error}
