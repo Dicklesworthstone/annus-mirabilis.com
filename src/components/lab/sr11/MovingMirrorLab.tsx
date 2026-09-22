@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import {
   SR11_CAPTION,
@@ -7,14 +7,15 @@ import {
   SR11_NOT_MODELED,
   type Sr11Parameters,
 } from "../../../experiments/sr11/definition.ts";
-import { validateSr11Parameters } from "../../../experiments/sr11/parameters.ts";
 import { createSr11Session, type PreparedSr11Example } from "../../../experiments/sr11/session.ts";
 import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import { ShowTheCode } from "../ShowTheCode.tsx";
+import { SliderField } from "../SliderField.tsx";
 import { MovingMirrorPlot } from "./MovingMirrorPlot.tsx";
 
 function numericOf(item: PublishedResult | undefined): number | null {
@@ -40,6 +41,15 @@ function SnapshotReading({
   return <span data-quantity-id={quantityId}>{item.status}</span>;
 }
 
+type NumericKey = "beta" | "incidentAngleDeg" | "incidentEnergyDensity" | "mirrorArea";
+
+const FIELD_LABELS: Readonly<Record<NumericKey, string>> = {
+  beta: "Mirror velocity β = v/c",
+  incidentAngleDeg: "Incident angle φ",
+  incidentEnergyDensity: "Incident energy density u",
+  mirrorArea: "Mirror surface area Aₘ",
+};
+
 export function MovingMirrorLab({
   example,
   title = "Moving mirror reflection and radiation pressure",
@@ -54,7 +64,7 @@ export function MovingMirrorLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
-  const [draft, setDraft] = useState(() => ({ ...example.parameters }));
+  const [drafts, setDrafts] = useState<Partial<Record<NumericKey, string>>>({});
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
 
@@ -70,20 +80,43 @@ export function MovingMirrorLab({
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
       setError(outcome.refusal.message);
-      return;
+      return false;
     }
-    setDraft(parameters);
     setError("");
+    return true;
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const checked = validateSr11Parameters(draft);
-    if (checked.kind !== "accepted") {
-      setError(checked.refusal.message);
+  function preset(change: Partial<Sr11Parameters>) {
+    setDrafts({});
+    apply({ ...p, ...change });
+  }
+
+  /** Commit one typed or dragged value against the accepted settings. */
+  function commit(key: NumericKey, text: string) {
+    const n = Number(text.trim());
+    if (text.trim() === "" || !Number.isFinite(n)) {
+      setDrafts((d) => ({ ...d, [key]: text }));
+      setError(`${FIELD_LABELS[key]}: enter a number.`);
       return;
     }
-    apply(checked.data);
+    if (apply({ ...p, [key]: n })) {
+      setDrafts((d) => {
+        const { [key]: _done, ...rest } = d;
+        return rest;
+      });
+    } else {
+      setDrafts((d) => ({ ...d, [key]: text }));
+    }
+  }
+
+  function field(key: NumericKey) {
+    return {
+      id: `${id}-${key}`,
+      label: FIELD_LABELS[key],
+      value: drafts[key] ?? String(p[key]),
+      onDraft: (v: string) => setDrafts((d) => ({ ...d, [key]: v })),
+      onCommit: (v: string) => commit(key, v),
+    };
   }
 
   const freqRatio = numericOf(result(snapshot, "frequencyRatio"));
@@ -133,201 +166,95 @@ export function MovingMirrorLab({
         {SR11_CAPTION.r3}
       </p>
 
-      <p>
-        Set the mirror velocity ratio β = v/c and incident angle φ, or select a preset scenario. The
-        reflection modifies frequency, ray direction, and amplitude, while radiation pressure does
-        mechanical work that conserves energy across reference frames.
-      </p>
-
       <div className="lab-columns">
-        <form onSubmit={submit} aria-label="Moving mirror reflection settings">
-          <fieldset disabled={!ready}>
-            <legend>Set mirror motion and incident ray</legend>
-            <div className="input-grid">
-              <div className="input-field">
-                <label htmlFor={`${id}-beta`}>Mirror velocity β = v/c</label>
-                <input
-                  id={`${id}-beta`}
-                  type="number"
-                  name="beta"
-                  inputMode="decimal"
-                  step="0.01"
-                  min="-0.95"
-                  max="0.95"
-                  value={draft.beta}
-                  onChange={(event) =>
-                    setDraft({ ...draft, beta: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-
-              <div className="input-field">
-                <label htmlFor={`${id}-incidentAngleDeg`}>Incident angle φ (degrees)</label>
-                <input
-                  id={`${id}-incidentAngleDeg`}
-                  type="number"
-                  name="incidentAngleDeg"
-                  inputMode="decimal"
-                  step="1"
-                  min="0"
-                  max="180"
-                  value={draft.incidentAngleDeg}
-                  onChange={(event) =>
-                    setDraft({ ...draft, incidentAngleDeg: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-
-              <div className="input-field">
-                <label htmlFor={`${id}-incidentEnergyDensity`}>Incident energy density u</label>
-                <input
-                  id={`${id}-incidentEnergyDensity`}
-                  type="number"
-                  name="incidentEnergyDensity"
-                  inputMode="decimal"
-                  step="0.1"
-                  min="0.1"
-                  max="100"
-                  value={draft.incidentEnergyDensity}
-                  onChange={(event) =>
-                    setDraft({ ...draft, incidentEnergyDensity: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-
-              <div className="input-field">
-                <label htmlFor={`${id}-mirrorArea`}>Mirror surface area Am</label>
-                <input
-                  id={`${id}-mirrorArea`}
-                  type="number"
-                  name="mirrorArea"
-                  inputMode="decimal"
-                  step="0.1"
-                  min="0.1"
-                  max="100"
-                  value={draft.mirrorArea}
-                  onChange={(event) =>
-                    setDraft({ ...draft, mirrorArea: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-
-              <div className="input-field">
-                <label htmlFor={`${id}-frame`}>Description frame</label>
-                <select
-                  id={`${id}-frame`}
-                  name="frame"
-                  value={draft.frame}
-                  onChange={(event) =>
-                    setDraft({ ...draft, frame: event.currentTarget.value as "lab" | "mirror" })
-                  }
-                >
-                  <option value="lab">Laboratory frame (K)</option>
-                  <option value="mirror">Mirror rest frame (k)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="preset-list">
+        <div>
+          <fieldset disabled={!ready} className="lab-choice">
+            <legend>Try</legend>
+            <div className="actions">
               <button
                 type="button"
                 className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    beta: 0.6,
-                    incidentAngleDeg: 0,
-                    frame: "lab",
-                  })
-                }
+                onClick={() => preset({ beta: 0.6, incidentAngleDeg: 0, frame: "lab" })}
               >
                 Receding 0.6c (normal)
               </button>
               <button
                 type="button"
                 className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    beta: -0.6,
-                    incidentAngleDeg: 0,
-                    frame: "lab",
-                  })
-                }
+                onClick={() => preset({ beta: -0.6, incidentAngleDeg: 0, frame: "lab" })}
               >
                 Approaching -0.6c (head-on)
               </button>
               <button
                 type="button"
                 className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    beta: 0.6,
-                    incidentAngleDeg: 30,
-                    frame: "lab",
-                  })
-                }
+                onClick={() => preset({ beta: 0.6, incidentAngleDeg: 30, frame: "lab" })}
               >
                 Oblique 30° (0.6c)
               </button>
               <button
                 type="button"
                 className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    beta: 0.6,
-                    incidentAngleDeg: 53.13010235,
-                    frame: "lab",
-                  })
-                }
+                onClick={() => preset({ beta: 0.6, incidentAngleDeg: 53.13010235, frame: "lab" })}
               >
                 Interception limit (53.13°)
               </button>
               <button
                 type="button"
                 className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    beta: 0.6,
-                    incidentAngleDeg: 0,
-                    frame: "mirror",
-                  })
-                }
+                onClick={() => preset({ beta: 0.6, incidentAngleDeg: 0, frame: "mirror" })}
               >
                 Mirror frame (0.6c)
               </button>
               <button
                 type="button"
                 className="secondary"
-                onClick={() =>
-                  apply({
-                    ...p,
-                    beta: 0,
-                    incidentAngleDeg: 0,
-                    frame: "lab",
-                  })
-                }
+                onClick={() => preset({ beta: 0, incidentAngleDeg: 0, frame: "lab" })}
               >
                 Stationary (β = 0)
               </button>
             </div>
-
-            <button type="submit">Apply settings</button>
-            {error ? (
-              <p className="notice" role="alert">
-                {error}
-              </p>
-            ) : null}
           </fieldset>
-        </form>
+
+          <fieldset disabled={!ready}>
+            <SliderField {...field("beta")} unit="" min={-0.95} max={0.95} step={0.01} />
+            <SliderField {...field("incidentAngleDeg")} unit="degrees" min={0} max={180} step={1} />
+            <div className="input-field lab-slider">
+              <label htmlFor={`${id}-frame`}>Description frame</label>
+              <select
+                id={`${id}-frame`}
+                name="frame"
+                value={p.frame}
+                onChange={(event) =>
+                  apply({ ...p, frame: event.currentTarget.value as "lab" | "mirror" })
+                }
+              >
+                <option value="lab">Laboratory frame (K)</option>
+                <option value="mirror">Mirror rest frame (k)</option>
+              </select>
+            </div>
+            <ExperimentSettings contents="incident energy density, mirror area">
+              <SliderField
+                {...field("incidentEnergyDensity")}
+                unit="energy per volume"
+                min={0.1}
+                max={100}
+                step={0.1}
+              />
+              <SliderField {...field("mirrorArea")} unit="area" min={0.1} max={100} step={0.1} />
+            </ExperimentSettings>
+          </fieldset>
+          {error ? (
+            <p className="notice error" role="alert">
+              {error}
+            </p>
+          ) : null}
+        </div>
 
         <div className="lab-results">
           <MovingMirrorPlot
-            beta={draft.beta}
-            incidentAngleDeg={draft.incidentAngleDeg}
+            beta={p.beta}
+            incidentAngleDeg={p.incidentAngleDeg}
             phiReflectedDeg={phiReflDeg ?? 0}
             frequencyRatio={freqRatio ?? 1}
             radiationPressure={radPressure ?? 0}
@@ -336,12 +263,12 @@ export function MovingMirrorLab({
             reflectedPower={pRefl ?? 0}
             workRate={pWork ?? 0}
             energyBalanceResidual={pResidual ?? 0}
-            frame={draft.frame}
+            frame={p.frame}
             isApplicable={isApplicable}
             notApplicableReason={notApplicableReason}
           />
 
-          <h3>Accepted snapshot</h3>
+          <h3>Values at these settings</h3>
           <table>
             <caption>
               Relativistic wave reflection quantities and energy conservation ledger across frames.
@@ -384,19 +311,19 @@ export function MovingMirrorLab({
                 </td>
               </tr>
               <tr>
-                <th scope="row">Incident power P_inc</th>
+                <th scope="row">Incident power</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="incidentPower" /> W
                 </td>
               </tr>
               <tr>
-                <th scope="row">Reflected power P_refl</th>
+                <th scope="row">Reflected power</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="reflectedPower" /> W
                 </td>
               </tr>
               <tr>
-                <th scope="row">Work rate P·v·Am</th>
+                <th scope="row">Work done on the mirror, P·v·Aₘ</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="workRate" /> W
                 </td>
@@ -411,9 +338,9 @@ export function MovingMirrorLab({
           </table>
 
           <p>
-            At normal incidence with a receding mirror (β = 0.6), the incident power is 0.4 IA_m,
-            the reflected power is 0.1 IA_m, and the mirror receives mechanical work rate 0.3 IA_m.
-            Energy conservation holds exactly with zero residual.
+            At normal incidence with a receding mirror (β = 0.6), the incident power is 0.4 IAₘ, the
+            reflected power 0.1 IAₘ, and the mirror receives mechanical work at the rate 0.3 IAₘ.
+            Energy is conserved exactly, with zero residual.
           </p>
         </div>
       </div>

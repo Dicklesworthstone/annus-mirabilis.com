@@ -28,12 +28,17 @@ export default function MovingMirrorPage() {
           reflected by a moving mirror, and how does energy balance between the light and the
           mirror&apos;s mechanical work?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s8">Read §8 of the 1905 relativity paper</a>
-        </p>
       </header>
 
       <MovingMirrorLab example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s8">Read §8 of the 1905 relativity paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="moving-mirror-worked">
         <h2>Worked case (readable without JavaScript)</h2>
