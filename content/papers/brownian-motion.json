@@ -4,7 +4,7 @@
   "id": "brownian-motion",
   "title": "Brownian motion: from wandering to a measurable law",
   "germanTitle": "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
-  "description": "Read the displacement argument, ask for its missing steps, and investigate the same relationships in three working laboratories.",
+  "description": "Read the displacement argument and ask for the steps it leaves out. The laboratories test the same relationships.",
   "citation": "ap-17-549",
   "status": "explanation-preview",
   "sourceStatus": "in-preparation",
