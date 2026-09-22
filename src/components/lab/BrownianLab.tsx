@@ -19,8 +19,13 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
+import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
+
+/** The page asks "how likely is a tracer to finish inside this interval", so the interval
+ * stays in view; the physical settings and the numerical grid go in the drawer. */
+const INTERVAL_KEYS = new Set(["lower", "upper"]);
 
 export type ExternalDiffusivitySource = Readonly<{
   instanceId: string;
@@ -134,7 +139,7 @@ export function BrownianLab({
   const probability = scalar(snapshot, "intervalProbability");
   const rms = scalar(snapshot, "rmsDisplacement1d");
   const announcement = view.pending
-    ? "Calculating the requested settings. The last accepted result remains below."
+    ? "Calculating the requested settings. The last accepted result stays on screen until it is done."
     : view.status === "refused"
       ? `${view.refusal?.message ?? "Calculation refused."} The last accepted result is unchanged.`
       : view.status === "unavailable"
@@ -161,14 +166,6 @@ export function BrownianLab({
           <p className="eyebrow">BM-06 · An executable model</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <ExecutionChrome
-          state="host-accepted"
-          view={view}
-          modelNote={modelNoteFromView(view, {
-            notModeled: "The ballistic short-time regime and inertia.",
-            showTheCodeHref: `#stc-${id}`,
-          })}
-        />
       </header>
       <noscript>
         <p className="notice">
@@ -202,39 +199,10 @@ export function BrownianLab({
               ))}
             </div>
             <div className="input-grid">
-              {fields.slice(0, 6).map((field) => (
-                <div className="input-field" key={field.key}>
-                  <label htmlFor={`${id}-${field.key}`}>
-                    {field.label} <span>({field.unit})</span>
-                  </label>
-                  <input
-                    id={`${id}-${field.key}`}
-                    name={field.key}
-                    type="text"
-                    inputMode="decimal"
-                    value={draft[field.key]}
-                    onChange={(event) => {
-                      setDraft({ ...draft, [field.key]: event.target.value });
-                      setDirty(true);
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-            <label className="check">
-              <input
-                type="checkbox"
-                checked={draft.gridEnabled}
-                onChange={(event) => {
-                  setDraft({ ...draft, gridEnabled: event.target.checked });
-                  setDirty(true);
-                }}
-              />{" "}
-              Compare with a numerical grid
-            </label>
-            {draft.gridEnabled && (
-              <div className="input-grid">
-                {fields.slice(6).map((field) => (
+              {fields
+                .slice(0, 6)
+                .filter((field) => INTERVAL_KEYS.has(field.key))
+                .map((field) => (
                   <div className="input-field" key={field.key}>
                     <label htmlFor={`${id}-${field.key}`}>
                       {field.label} <span>({field.unit})</span>
@@ -252,13 +220,70 @@ export function BrownianLab({
                     />
                   </div>
                 ))}
+            </div>
+            <ExperimentSettings contents="temperature, viscosity, radius, elapsed time, numerical grid">
+              <div className="input-grid">
+                {fields
+                  .slice(0, 6)
+                  .filter((field) => !INTERVAL_KEYS.has(field.key))
+                  .map((field) => (
+                    <div className="input-field" key={field.key}>
+                      <label htmlFor={`${id}-${field.key}`}>
+                        {field.label} <span>({field.unit})</span>
+                      </label>
+                      <input
+                        id={`${id}-${field.key}`}
+                        name={field.key}
+                        type="text"
+                        inputMode="decimal"
+                        value={draft[field.key]}
+                        onChange={(event) => {
+                          setDraft({ ...draft, [field.key]: event.target.value });
+                          setDirty(true);
+                        }}
+                      />
+                    </div>
+                  ))}
               </div>
-            )}
-            <p className="fine">
-              Positive temperature, viscosity and radius; nonnegative time. Interval endpoints are
-              closed. Grid: 3–4097 cells and a separate work budget. Values outside a calculation’s
-              domain are refused, never clamped.
-            </p>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={draft.gridEnabled}
+                  onChange={(event) => {
+                    setDraft({ ...draft, gridEnabled: event.target.checked });
+                    setDirty(true);
+                  }}
+                />{" "}
+                Compare with a numerical grid
+              </label>
+              {draft.gridEnabled && (
+                <div className="input-grid">
+                  {fields.slice(6).map((field) => (
+                    <div className="input-field" key={field.key}>
+                      <label htmlFor={`${id}-${field.key}`}>
+                        {field.label} <span>({field.unit})</span>
+                      </label>
+                      <input
+                        id={`${id}-${field.key}`}
+                        name={field.key}
+                        type="text"
+                        inputMode="decimal"
+                        value={draft[field.key]}
+                        onChange={(event) => {
+                          setDraft({ ...draft, [field.key]: event.target.value });
+                          setDirty(true);
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="fine">
+                Positive temperature, viscosity and radius; nonnegative time. Interval endpoints are
+                closed. Grid: 3–4097 cells and a separate work budget. Values outside a
+                calculation’s domain are refused, never clamped.
+              </p>
+            </ExperimentSettings>
             <div className="actions">
               <button type="submit">Apply settings</button>
               <button
@@ -315,9 +340,6 @@ export function BrownianLab({
           )}
         </form>
         <div className="lab-results" {...identity(snapshot)}>
-          <p role="status" aria-live="polite" aria-atomic="true" className="status-line">
-            {announcement}
-          </p>
           {view.refusal && (
             <div className="notice error" data-refusal-code={view.refusal.code}>
               <h3>Requested calculation not accepted</h3>
@@ -351,6 +373,23 @@ export function BrownianLab({
               ))}
             </div>
           )}
+          <DistributionPlot
+            snapshot={snapshot}
+            clipId={`plot-${id.replace(/[^a-zA-Z0-9]/g, "")}`}
+          />
+          <div className="lab-status-row">
+            <ExecutionChrome
+              state="host-accepted"
+              view={view}
+              modelNote={modelNoteFromView(view, {
+                notModeled: "The ballistic short-time regime and inertia.",
+                showTheCodeHref: `#stc-${id}`,
+              })}
+            />
+          </div>
+          <p role="status" aria-live="polite" aria-atomic="true" className="status-line">
+            {announcement}
+          </p>
           <div className="accepted-caption">
             <strong>Accepted settings</strong>
             <br />
@@ -362,10 +401,6 @@ export function BrownianLab({
               ? "D is the explicitly copied value, not a calculation from these physical inputs."
               : "D is calculated from these physical inputs."}
           </div>
-          <DistributionPlot
-            snapshot={snapshot}
-            clipId={`plot-${id.replace(/[^a-zA-Z0-9]/g, "")}`}
-          />
           <div className="table-scroll">
             <table {...identity(snapshot)}>
               <caption>One accepted calculation, in explicit units</caption>
