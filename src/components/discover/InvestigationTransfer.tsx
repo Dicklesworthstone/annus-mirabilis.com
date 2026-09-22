@@ -109,7 +109,7 @@ export function InvestigationTransfer({
       {coefficientHref ? (
         <p>
           <a data-coefficient-handoff href={coefficientHref}>
-            Continue in LQ-06 with this exact accepted radiation energy →
+            Open the entropy-law comparison with this radiation energy →
           </a>
         </p>
       ) : (

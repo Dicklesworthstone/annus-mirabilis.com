@@ -189,8 +189,8 @@ export function LightQuantaInvestigation({
     >
       <p className="notice">
         <strong>{execution.text}.</strong> Modern SI constants are used throughout these numerical
-        examples. They are declared model calculations, not measurements available in 1904. No
-        result here is labeled as a FrankenSim calculation.
+        examples. They are declared model calculations, not measurements available in 1904. None of
+        these numbers comes from the FrankenSim engine.
       </p>
       <noscript>
         <p className="notice">
@@ -341,8 +341,8 @@ export function LightQuantaInvestigation({
         {entropy.status === "outside-domain" && (
           <p className="notice" data-inference-blocked>
             The entropy inference is withheld for this requested state. No earlier, valid
-            coefficient has been carried forward. Restore the worked settings or inspect the domain
-            in LQ-04.
+            coefficient has been carried forward. Restore the worked settings, or see where the
+            calculation holds in <a href="/lab/lq-04/">the spectrum-entropy instrument</a>.
           </p>
         )}
         <details>
@@ -355,9 +355,9 @@ export function LightQuantaInvestigation({
           </p>
           <p>
             Both endpoint states must be dilute and the band must be narrow. This calculation uses
-            the LQ-04 owner’s one-percent Wien criterion and one-percent maximum relative band
-            width. Compress far enough and the inference becomes unavailable rather than a false
-            number.
+            the spectrum-entropy instrument’s limits: Wien’s law within one per cent, and a band no
+            wider than one per cent of its frequency. Compress far enough and the inference becomes
+            unavailable rather than a false number.
           </p>
           <a href="/foundations/entropy-temperature/">Entropy and temperature</a>
           {" · "}
@@ -419,7 +419,7 @@ export function LightQuantaInvestigation({
           {" · "}
           <a href="/foundations/logarithms/">Why logarithms turn products into sums</a>
           {" · "}
-          <a href="/lab/lq-05/">Enumerate and sample configurations in LQ-05</a>
+          <a href="/lab/lq-05/">Count and sample configurations in the gas-analogy instrument</a>
         </details>
       </section>
 
@@ -496,7 +496,7 @@ export function LightQuantaInvestigation({
             Modern numerical constants construct these illustrative states; they are not independent
             historical measurements from which a new physical constant has been discovered.
           </p>
-          <a href="/lab/lq-06/">Inspect the coefficient correspondence in LQ-06</a>
+          <a href="/lab/lq-06/">Set the two entropy laws side by side</a>
           {" · "}
           <a href="/papers/light-quanta/#arg-lq-entropy-correspondence">
             Read the argument and its qualifications
