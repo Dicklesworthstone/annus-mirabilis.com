@@ -1,5 +1,19 @@
 import type { Lq01Parameters } from "../../experiments/lq01/definition.ts";
-import { Sci, SciSvg } from "./Sci.tsx";
+import { Sci } from "./Sci.tsx";
+
+/*
+ * Label size and colour. The site rule `svg[role="img"] text` sets every label's font-size and
+ * fill, and a stylesheet rule beats an SVG presentation attribute, so fontSize="10" and fill="…"
+ * on these <text> elements never applied: every label was --type-fine in --ink, which on the
+ * dark wave field drew S₁, S₂ and the screen reading dark on dark. The size now comes from
+ * waveDescriptionLab.css, and a label that needs its own colour sets it as a style, which does
+ * beat the rule.
+ */
+const PROBE_LABEL: Readonly<Record<Lq01Parameters["screenPosition"], string>> = {
+  center: "centre",
+  "first-min": "first dark fringe",
+  "first-max": "first bright fringe",
+};
 
 export type InterferencePlotProps = Readonly<{
   screenIntensity: Float64Array | null;
@@ -26,7 +40,7 @@ export function InterferencePlot({
 }: InterferencePlotProps) {
   const width = 480;
   const height = 260;
-  const padding = { top: 30, right: 30, bottom: 40, left: 55 };
+  const padding = { top: 30, right: 20, bottom: 40, left: 30 };
 
   const plotW = width - padding.left - padding.right;
   const plotH = height - padding.top - padding.bottom;
@@ -79,7 +93,7 @@ export function InterferencePlot({
             margin: 0,
           }}
         >
-          Screen Intensity Profile ⟨I(y)⟩{" "}
+          Brightness across the screen, ⟨I(y)⟩{" "}
           {delta !== 0 && (
             <span
               className="fine"
@@ -105,7 +119,7 @@ export function InterferencePlot({
             border: "1px solid var(--line)",
           }}
         >
-          {readout === "time-average" ? "Time-Averaged" : "Instantaneous Snapshot"}
+          {readout === "time-average" ? "Averaged over many cycles" : "One instant"}
         </span>
       </div>
       <p
@@ -115,20 +129,21 @@ export function InterferencePlot({
           marginBottom: "0.5rem",
         }}
       >
-        Classical linear superposition of two coherent point sources. Central intensity:{" "}
+        Two coherent point sources, added as waves. At the centre{" "}
         <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
           {centerIntensity.toFixed(3)}
         </strong>
-        , Fringe visibility:{" "}
+        ; fringe visibility{" "}
         <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
           {fringeVisibility.toFixed(3)}
         </strong>
         {fringeSpacing > 0 && (
           <span>
-            , Fringe spacing:{" "}
+            ; bright fringes{" "}
             <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
-              {fringeSpacing.toFixed(4)} m
-            </strong>
+              {fringeSpacing.toFixed(1)} λ
+            </strong>{" "}
+            apart
           </span>
         )}
         .
@@ -168,31 +183,28 @@ export function InterferencePlot({
           x={padding.left - 6}
           y={scaleY(4) + 4}
           textAnchor="end"
-          fontSize="10"
           fontFamily="monospace"
-          fill="var(--muted)"
+          style={{ fill: "var(--muted)" }}
         >
-          4.0 (max)
+          4
         </text>
         <text
           x={padding.left - 6}
           y={scaleY(2) + 4}
           textAnchor="end"
-          fontSize="10"
           fontFamily="monospace"
-          fill="var(--muted)"
+          style={{ fill: "var(--muted)" }}
         >
-          2.0
+          2
         </text>
         <text
           x={padding.left - 6}
           y={scaleY(0) + 4}
           textAnchor="end"
-          fontSize="10"
           fontFamily="monospace"
-          fill="var(--muted)"
+          style={{ fill: "var(--muted)" }}
         >
-          0.0
+          0
         </text>
 
         {/* Center vertical dashed line */}
@@ -209,11 +221,10 @@ export function InterferencePlot({
           x={padding.left + plotW / 2}
           y={height - padding.bottom + 16}
           textAnchor="middle"
-          fontSize="10"
           fontFamily="monospace"
-          fill="var(--muted)"
+          style={{ fill: "var(--muted)" }}
         >
-          y = 0 (Center)
+          y = 0, centre
         </text>
 
         {/* Intensity Curve (Data trace - kept literal sky blue) */}
@@ -250,12 +261,12 @@ export function InterferencePlot({
           x={selectedX}
           y={Math.max(padding.top + 12, selectedY - 10)}
           textAnchor="middle"
-          fontSize="10"
           fontFamily="monospace"
           fontWeight="600"
-          fill="#e11d48"
+          style={{ fill: "#e11d48" }}
         >
-          {screenPosition}: {selectedIntensity.toFixed(2)} (Δr = {pathDifference.toFixed(2)}λ)
+          {PROBE_LABEL[screenPosition]}: {selectedIntensity.toFixed(2)} (Δr ={" "}
+          {pathDifference.toFixed(2)}λ)
         </text>
 
         {/* X Axis Label */}
@@ -263,11 +274,10 @@ export function InterferencePlot({
           x={width / 2}
           y={height - 6}
           textAnchor="middle"
-          fontSize="11"
           fontWeight="500"
-          fill="var(--muted)"
+          style={{ fill: "var(--muted)" }}
         >
-          Screen Position y (Fringes)
+          Position on the screen, y
         </text>
       </svg>
     </div>
@@ -276,17 +286,11 @@ export function InterferencePlot({
 
 export type WavefrontPlotProps = Readonly<{
   separation: number;
-  wavelength: number;
   delta: number;
   centerIntensity: number;
 }>;
 
-export function WavefrontPlot({
-  separation,
-  wavelength,
-  delta,
-  centerIntensity,
-}: WavefrontPlotProps) {
+export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontPlotProps) {
   const width = 480;
   const height = 260;
 
@@ -319,7 +323,7 @@ export function WavefrontPlot({
             margin: 0,
           }}
         >
-          2D wavefield crest superposition
+          Wave crests from the two sources
         </h3>
         <span
           className="fine"
@@ -329,8 +333,7 @@ export function WavefrontPlot({
             color: "var(--muted)",
           }}
         >
-          λ = {(wavelength * 1e9).toFixed(0)} nm | d = {separation.toFixed(1)} λ | δ ={" "}
-          {(delta / Math.PI).toFixed(2)} π
+          d = {separation.toFixed(1)} λ · δ = {(delta / Math.PI).toFixed(2)}π
         </span>
       </div>
       <p
@@ -340,7 +343,7 @@ export function WavefrontPlot({
           marginBottom: "0.5rem",
         }}
       >
-        Concentric circular wavefront crests radiate from coherent sources{" "}
+        Circles of crests spread from the coherent sources{" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>S₁</span> and{" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>S₂</span>.
       </p>
@@ -419,10 +422,9 @@ export function WavefrontPlot({
           x={srcX - 8}
           y={s1Y + 3}
           textAnchor="end"
-          fontSize="10"
           fontFamily="monospace"
           fontWeight="bold"
-          fill="#38bdf8"
+          style={{ fill: "#38bdf8" }}
         >
           S₁
         </text>
@@ -431,10 +433,9 @@ export function WavefrontPlot({
           x={srcX - 8}
           y={s2Y + 3}
           textAnchor="end"
-          fontSize="10"
           fontFamily="monospace"
           fontWeight="bold"
-          fill="#fbbf24"
+          style={{ fill: "#fbbf24" }}
         >
           S₂
         </text>
@@ -448,7 +449,13 @@ export function WavefrontPlot({
           stroke="var(--line)"
           strokeWidth="3"
         />
-        <text x={width - 45} y="25" fontSize="10" fontFamily="monospace" fill="var(--muted)">
+        <text
+          x={width - 58}
+          y="25"
+          textAnchor="end"
+          fontFamily="monospace"
+          style={{ fill: "var(--muted)" }}
+        >
           Screen
         </text>
         <circle
@@ -457,13 +464,14 @@ export function WavefrontPlot({
           r="5"
           fill={centerIntensity > 0.1 ? "#38bdf8" : "var(--muted)"}
         />
+        {/* The field is dark in both themes, so this label is drawn light in both. */}
         <text
-          x={width - 42}
-          y={centerY + 4}
-          fontSize="10"
+          x={width - 58}
+          y={centerY - 10}
+          textAnchor="end"
           fontFamily="monospace"
           fontWeight="600"
-          fill="var(--ink)"
+          style={{ fill: "#e2e8f0" }}
         >
           I₀ = {centerIntensity.toFixed(1)}
         </text>
@@ -477,22 +485,13 @@ export type SpreadingPlotProps = Readonly<{
   radius: number;
   intensity: number;
   shellPower: number;
-  smallAperturePower: number;
-  exactDiskPower: number;
 }>;
 
-export function SpreadingPlot({
-  power,
-  radius,
-  intensity,
-  shellPower,
-  smallAperturePower,
-  exactDiskPower,
-}: SpreadingPlotProps) {
+export function SpreadingPlot({ power, radius, intensity, shellPower }: SpreadingPlotProps) {
   const width = 480;
   const height = 260;
 
-  const originX = 110;
+  const originX = width / 2;
   const originY = height / 2;
 
   const r1Px = 40;
@@ -522,7 +521,7 @@ export function SpreadingPlot({
             margin: 0,
           }}
         >
-          Spherical Energy Spreading &amp; Conservation
+          One source, its energy spread over spheres
         </h3>
         <span
           className="fine"
@@ -611,10 +610,9 @@ export function SpreadingPlot({
           x={originX}
           y={originY - 12}
           textAnchor="middle"
-          fontSize="10"
           fontFamily="monospace"
           fontWeight="bold"
-          fill="#f59e0b"
+          style={{ fill: "#f59e0b" }}
         >
           Source (P = {power} W)
         </text>
@@ -633,9 +631,8 @@ export function SpreadingPlot({
           x={originX + currentRPx / 2}
           y={originY - 6}
           textAnchor="middle"
-          fontSize="10"
           fontFamily="monospace"
-          fill="#34d399"
+          style={{ fill: "#34d399" }}
         >
           r = {radius.toFixed(1)} m
         </text>
@@ -649,101 +646,6 @@ export function SpreadingPlot({
           fill="#f43f5e"
           rx="1"
         />
-
-        {/* Data readout panel on right of SVG */}
-        <g transform="translate(260, 25)">
-          <rect
-            x="0"
-            y="0"
-            width="200"
-            height="200"
-            fill="var(--panel)"
-            stroke="var(--line)"
-            rx="6"
-          />
-          <text x="12" y="24" fontSize="11" fill="var(--ink)" fontWeight="600">
-            Radiant Power Accounting
-          </text>
-
-          <text x="12" y="52" fontSize="10" fontFamily="monospace" fill="var(--muted)">
-            Source Power P:
-          </text>
-          <text
-            x="188"
-            y="52"
-            textAnchor="end"
-            fontSize="10"
-            fontFamily="monospace"
-            fontWeight="bold"
-            fill="var(--ink)"
-          >
-            {power.toFixed(2)} W
-          </text>
-
-          <text x="12" y="78" fontSize="10" fontFamily="monospace" fill="var(--muted)">
-            Intensity I(r):
-          </text>
-          <text
-            x="188"
-            y="78"
-            textAnchor="end"
-            fontSize="10"
-            fontFamily="monospace"
-            fontWeight="bold"
-            fill="var(--ink)"
-          >
-            <SciSvg value={intensity} digits={3} /> W/m²
-          </text>
-
-          <text x="12" y="104" fontSize="10" fontFamily="monospace" fill="var(--muted)">
-            Enclosed ∮ I dA:
-          </text>
-          <text
-            x="188"
-            y="104"
-            textAnchor="end"
-            fontSize="10"
-            fontFamily="monospace"
-            fontWeight="bold"
-            fill="#34d399"
-          >
-            {shellPower.toFixed(4)} W
-          </text>
-
-          <line x1="12" y1="118" x2="188" y2="118" stroke="var(--line)" />
-
-          <text x="12" y="138" fontSize="10" fontFamily="monospace" fill="var(--muted)">
-            1 cm² Aperture I·S:
-          </text>
-          <text
-            x="188"
-            y="138"
-            textAnchor="end"
-            fontSize="10"
-            fontFamily="monospace"
-            fill="var(--ink)"
-          >
-            <SciSvg value={smallAperturePower} digits={3} /> W
-          </text>
-
-          <text x="12" y="162" fontSize="10" fontFamily="monospace" fill="var(--muted)">
-            Exact Disk Power:
-          </text>
-          <text
-            x="188"
-            y="162"
-            textAnchor="end"
-            fontSize="10"
-            fontFamily="monospace"
-            fill="var(--ink)"
-          >
-            <SciSvg value={exactDiskPower} digits={3} /> W
-          </text>
-
-          <text x="12" y="186" fontSize="9" fontFamily="monospace" fill="var(--muted)">
-            Gauss–Legendre quad identity
-          </text>
-        </g>
       </svg>
     </div>
   );

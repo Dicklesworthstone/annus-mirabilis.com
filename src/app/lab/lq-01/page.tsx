@@ -28,12 +28,20 @@ export default function WaveDescriptionPage() {
           What does a continuous wave description of light explain well, and what exactly does its
           intensity measure?
         </p>
-        <p>
-          <a href="/papers/light-quanta/#s0">Read the Introduction of Einstein’s 1905 paper</a>
-        </p>
       </header>
 
       <WaveDescriptionLab example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/light-quanta/#s0">Read the Introduction of Einstein’s 1905 paper</a>
+          </li>
+          <li>
+            <a href="/discover/light-quanta/">Open the light-quanta journey</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="wave-theory">
         <p className="eyebrow">The physical context</p>
