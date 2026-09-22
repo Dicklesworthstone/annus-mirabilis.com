@@ -124,10 +124,16 @@ describe("untested refusal throw site ratchet (am-muyh)", () => {
     `\nEvery refusal THROW site must be exercised by a test. See am-muyh.\n${THROW_SCOPE_NOTE}`;
 
   const THROW_SCOPE_NOTE =
-    "SCOPE: this ratchet counts `throw new SomeError('kebab-code')` sites only. A validator" +
-    " that ACCUMULATES refusals - pushing a coded diagnostic into a findings array instead of" +
-    " throwing - is not counted here and never has been, so a file with no entry above may" +
-    " still carry untested refusals. See am-qyys.";
+    "SCOPE: this ratchet counts TWO shapes, not one, and the note here said one until" +
+    " 2026-09-22. It counts `throw new SomeError('kebab-code')`, AND a standalone" +
+    " `code:`/`kind:`/`rule:`/`refusalCode:`/`errorCode:` field carrying a kebab string," +
+    " which is how a validator that RETURNS a coded refusal record is counted. Measured:" +
+    " 2115 sites, 1406 reached from a throw and 709 from a returned record." +
+    " What is still invisible is a validator that ACCUMULATES refusals - pushing a coded" +
+    " diagnostic into a findings array with addError/addFlag instead of throwing or" +
+    " returning it - so a file with no entry above may still carry untested refusals." +
+    " Returning a record and accumulating one are DIFFERENT here, and conflating them is" +
+    " what made the old note wrong. See am-qyys.";
 
   /**
    * WHAT THIS RATCHET DOES NOT COVER, measured rather than asserted (am-qyys).
