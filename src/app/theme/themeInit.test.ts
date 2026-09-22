@@ -248,12 +248,11 @@ describe("THEME_INIT_SOURCE: a self-contained, immediately-invoked expression", 
   });
 });
 
-describe("ThemeToggle: UI reflection of active theme and user selection", () => {
+describe("ThemeToggle: one icon button, sun or moon", () => {
   /**
-   * These followed the three-radio fieldset that stood here until 2026-09-22, when the owner
-   * ruled the edition has "a single dark/light toggle". They are rewritten rather than deleted:
-   * every property they protected still applies to the switch, and a test that keeps querying
-   * `input[type="radio"]` would fail on the markup while proving nothing about the behaviour.
+   * The owner, 2026-09-22: "a single toggle that is either an icon of sun or a moon". The icon and
+   * the accessible name are chosen by CSS from data-theme (contrast.test.ts asserts those rules);
+   * these assert the markup and what a press does.
    */
   async function renderToggle() {
     const container = createContainer();
@@ -263,121 +262,123 @@ describe("ThemeToggle: UI reflection of active theme and user selection", () => 
     });
     return { container, root };
   }
-
-  function switchOf(container: HTMLElement): HTMLButtonElement {
-    const el = container.querySelector('button[role="switch"]');
-    if (!el) throw new Error("Expected a single theme switch to exist");
-    return el as HTMLButtonElement;
-  }
-
-  test("reflects the dark theme default on /discover when nothing is stored", async () => {
-    document.documentElement.dataset.theme = "kramgasse-night";
-    const { container, root } = await renderToggle();
-    // State lives in aria-checked, not in which of several controls is selected.
-    expect(switchOf(container).getAttribute("aria-checked")).toBe("true");
+  async function done(container: HTMLElement, root: ReturnType<typeof createRoot>) {
     await act(async () => {
       root.unmount();
     });
     removeContainer(container);
+  }
+  function buttonOf(container: HTMLElement): HTMLButtonElement {
+    const buttons = container.querySelectorAll("button");
+    expect(buttons.length).toBe(1);
+    return buttons[0] as HTMLButtonElement;
+  }
+
+  test("it is one plain button with an icon and the two actions as its possible names", async () => {
+    document.documentElement.dataset.theme = "annalen";
+    const { container, root } = await renderToggle();
+    const button = buttonOf(container);
+    expect(button.getAttribute("type")).toBe("button");
+    // A button whose name says the action, not a switch whose state sits in aria-checked.
+    expect(button.getAttribute("role")).toBeNull();
+    expect(button.hasAttribute("aria-checked")).toBe(false);
+    expect(container.querySelectorAll('input[type="radio"]').length).toBe(0);
+    const svg = button.querySelector("svg");
+    expect(svg?.getAttribute("aria-hidden")).toBe("true");
+    expect(svg?.querySelector(".theme-toggle-moon")).not.toBeNull();
+    expect(svg?.querySelector(".theme-toggle-sun")).not.toBeNull();
+    expect(button.querySelector(".theme-toggle-to-dark")?.textContent).toBe("Switch to dark theme");
+    expect(button.querySelector(".theme-toggle-to-light")?.textContent).toBe(
+      "Switch to light theme",
+    );
+    // No third option and none of the edition's names for its themes, anywhere a reader could meet them.
+    const text = container.textContent ?? "";
+    for (const word of ["System", "Annalen", "Kramgasse"]) expect(text).not.toContain(word);
+    await done(container, root);
   });
 
-  test("explicit user selection updates localStorage and overrides route default", async () => {
-    document.documentElement.dataset.theme = "kramgasse-night";
+  test("a press switches the theme, keeps the choice, and a second press switches back", async () => {
+    document.documentElement.dataset.theme = "annalen";
     const { container, root } = await renderToggle();
     await act(async () => {
-      switchOf(container).click();
+      buttonOf(container).click();
+    });
+    expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("kramgasse-night");
+    await act(async () => {
+      buttonOf(container).click();
     });
     expect(document.documentElement.dataset.theme).toBe("annalen");
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("annalen");
-    expect(switchOf(container).getAttribute("aria-checked")).toBe("false");
-    await act(async () => {
-      root.unmount();
-    });
-    removeContainer(container);
+    await done(container, root);
   });
 
-  test("there is ONE theme control, and system preference is not a third choice", async () => {
-    // The ruling was about the count. Three controls became one, and "System" stopped being a
-    // visible option: with nothing stored the switch reflects the resolved preference instead.
-    document.documentElement.dataset.theme = "annalen";
-    const { container, root } = await renderToggle();
-    expect(container.querySelectorAll('button[role="switch"]').length).toBe(1);
-    expect(container.querySelectorAll('input[type="radio"]').length).toBe(0);
-    expect(container.textContent ?? "").not.toContain("System");
-    await act(async () => {
-      root.unmount();
+  test("the page's colours fade across on a press, and do not under reduced motion", async () => {
+    // The file's default stub answers true for every query without "dark" in it, reduced motion
+    // included, so this half installs one where the reader has not asked for less motion.
+    (globalThis as { matchMedia?: unknown }).matchMedia = (query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
     });
-    removeContainer(container);
+    document.documentElement.dataset.theme = "annalen";
+    document.documentElement.classList.remove("theme-fading");
+    const { container, root } = await renderToggle();
+    await act(async () => {
+      buttonOf(container).click();
+    });
+    expect(document.documentElement.classList.contains("theme-fading")).toBe(true);
+    await done(container, root);
+
+    document.documentElement.classList.remove("theme-fading");
+    (globalThis as { matchMedia?: unknown }).matchMedia = (query: string) => ({
+      matches: query.includes("reduced-motion"),
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+    });
+    const again = await renderToggle();
+    await act(async () => {
+      buttonOf(again.container).click();
+    });
+    expect(document.documentElement.classList.contains("theme-fading")).toBe(false);
+    await done(again.container, again.root);
   });
 
-  test("the switch shows a short word and keeps the theme's own name in the accessible name", async () => {
+  test("until the first press the page follows the device, and afterwards the reader's choice wins", async () => {
+    let listener: (() => void) | undefined;
+    let prefersDark = false;
+    (globalThis as { matchMedia?: unknown }).matchMedia = (query: string) => ({
+      get matches() {
+        return query.includes("color-scheme: dark") ? prefersDark : false;
+      },
+      media: query,
+      addEventListener(_: string, fn: () => void) {
+        if (query.includes("color-scheme")) listener = fn;
+      },
+      removeEventListener() {},
+    });
     document.documentElement.dataset.theme = "annalen";
     const { container, root } = await renderToggle();
-    const control = switchOf(container);
-    const hidden = control.querySelector(".theme-switch-full-name");
-    // A control that dropped the span would read only "Dark" to a screen reader, and the edition
-    // would have lost its theme's name to a layout fix.
-    expect(hidden).not.toBeNull();
-    const accessibleName = control.textContent ?? "";
-    const visible = accessibleName.replace(hidden?.textContent ?? "", "").trim();
-    expect(visible).toBe("Dark");
-    // WCAG 2.5.3: the accessible name CONTAINS the visible label, which is why the full name is
-    // appended rather than substituted for the short word.
-    expect(accessibleName).toContain(visible);
-    // The name completes the visible word to a control's job description and stops there.
-    expect(accessibleName.replace(/\s+/g, " ").trim()).toBe("Dark theme");
-    // It used to append the edition's theme name as well. That reached screen-reader users ONLY -
-    // .theme-switch-full-name is clipped to 1px and "Kramgasse Night" renders nowhere a sighted
-    // reader can see it - so the parenthetical was verbosity charged to one audience on every
-    // page. If it comes back, it comes back visibly, for everyone.
-    expect(accessibleName).not.toContain("Kramgasse");
+    expect(listener).toBeDefined();
 
-    // The name is FIXED across states. A control labelled "Switch to dark" renames itself on
-    // press, so a screen-reader user re-reading it hears the opposite of what they chose.
+    // Nothing stored: the device turns dark, and so does the page.
+    prefersDark = true;
+    await act(async () => listener?.());
+    expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
+
+    // One press stores a choice; the device changing again no longer moves the page.
     await act(async () => {
-      control.click();
+      buttonOf(container).click();
     });
-    expect(switchOf(container).textContent).toBe(accessibleName);
-
-    await act(async () => {
-      root.unmount();
-    });
-    removeContainer(container);
-  });
-
-  test("the announcement never adds a row to the header after the reader clicks", async () => {
-    document.documentElement.dataset.theme = "annalen";
-    const { container, root } = await renderToggle();
-    const status = container.querySelector('[role="status"]');
-    expect(status).not.toBeNull();
-    expect(status?.getAttribute("aria-live")).toBe("polite");
-    // Visually hidden, not removed: it is the only announcement a screen reader gets for a change
-    // it cannot see. Left visible it grew the header in response to the reader's own click.
-    expect(status?.className).toBe("theme-switch-announcement");
-    expect(status?.textContent).toBe("");
-
-    await act(async () => {
-      switchOf(container).click();
-    });
-    // The announcement names the MODE the reader chose, not the edition's name for the theme.
-    // It said "Theme changed to Kramgasse Night." - a name rendered nowhere a sighted reader can
-    // see it, and one that disambiguates nothing when THEME_IDS holds exactly two entries.
-    expect(status?.textContent).toBe("Theme changed to dark.");
-    expect(status?.textContent).not.toContain("Kramgasse");
-    expect(status?.className).toBe("theme-switch-announcement");
-
-    // The other direction was the worse of the two: it announced "Annalen", the journal's name,
-    // for the LIGHT theme. Asserted because a one-directional test would have left it unexamined.
-    await act(async () => {
-      switchOf(container).click();
-    });
-    expect(status?.textContent).toBe("Theme changed to light.");
-    expect(status?.textContent).not.toContain("Annalen");
-
-    await act(async () => {
-      root.unmount();
-    });
-    removeContainer(container);
+    expect(document.documentElement.dataset.theme).toBe("annalen");
+    prefersDark = false;
+    await act(async () => listener?.());
+    prefersDark = true;
+    await act(async () => listener?.());
+    expect(document.documentElement.dataset.theme).toBe("annalen");
+    await done(container, root);
   });
 });
 

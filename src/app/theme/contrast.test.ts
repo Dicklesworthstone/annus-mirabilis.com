@@ -95,60 +95,68 @@ describe("contrast: color never carries meaning alone (AGENTS.md constraint)", (
     expect(GLOBALS_CSS).toContain("text-decoration-thickness: 2px");
   });
 
-  test("the theme switch carries a POSITION cue that differs between its two states, not hue alone", () => {
-    // ASSERTS THE PROPERTY, NOT THE SPELLING, and asserts it INSIDE the rule block.
-    //
-    // This replaces a check on `.theme-toggle label:has(input:checked)` declaring a bold weight.
-    // That control is gone: the owner ruled on 2026-09-22 that the edition has a single
-    // dark/light switch rather than three radio chips, so the selector it named no longer exists
-    // and a test naming it would be green against nothing.
-    //
-    // The property it protected is unchanged and is what is asserted here - the switch's state
-    // must be legible without hue. The cue is now positional: the knob sits at one end of the
-    // track when off and the other when on.
-    //
-    // It is STRICTLY STRONGER than the weight check it replaces, because it compares the two
-    // states rather than inspecting one. A stylesheet that declared a transform on the checked
-    // knob identical to the unchecked knob would have satisfied "declares a transform" while
-    // leaving the two states indistinguishable; that is exactly the failure this pair catches.
-    function blockFor(selector: string): string {
-      expect(THEMES_CSS, `${selector} is absent from themes.css`).toContain(selector);
-      const start = THEMES_CSS.indexOf(selector);
-      const open = THEMES_CSS.indexOf("{", start);
-      const close = THEMES_CSS.indexOf("}", open);
-      expect(open, `${selector} has no rule block`).toBeGreaterThan(-1);
-      expect(close, `${selector} has an unterminated rule block`).toBeGreaterThan(open);
-      return THEMES_CSS.slice(open + 1, close);
+  // THE THEME BUTTON'S STATE IS A SHAPE: A MOON OR A SUN. It replaced a switch whose state was the
+  // knob's position (the owner, 2026-09-22: "a single toggle that is either an icon of sun or a
+  // moon"). The shape is chosen by CSS from data-theme, and so is the accessible name, so both are
+  // asserted here, in the rule blocks, by property. A rule is found by its WHOLE selector: a line
+  // search for `.theme-toggle-sun {` matched the second half of the shared transition rule
+  // `.theme-toggle-moon, .theme-toggle-sun`, which sets no opacity at all.
+  const RULES = (() => {
+    const css = THEMES_CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const out: { selector: string; body: string }[] = [];
+    for (const m of css.matchAll(/([^{};]+)\{([^{}]*)\}/g)) {
+      const selector = (m[1] ?? "")
+        .split(",")
+        .map((part) => part.trim().replace(/\s+/g, " "))
+        .join(", ");
+      out.push({ selector, body: m[2] ?? "" });
     }
+    return out;
+  })();
+  function ruleBody(selector: string): string {
+    const found = RULES.filter((r) => r.selector === selector);
+    expect(found.length, `exactly one rule for "${selector}" in themes.css`).toBe(1);
+    return found[0]?.body ?? "";
+  }
+  const opacity = (body: string) => /opacity:\s*([\d.]+)/.exec(body)?.[1];
+  const DARK = ':root[data-theme="kramgasse-night"]';
 
-    const off = blockFor(".theme-switch-knob");
-    const on = blockFor('.theme-switch[aria-checked="true"] .theme-switch-knob');
-
-    const offTransform = /transform:\s*([^;]+);/.exec(off);
-    const onTransform = /transform:\s*([^;]+);/.exec(on);
-    expect(
-      offTransform,
-      `The unchecked knob declares no transform; its block is:\n${off.trim()}`,
-    ).not.toBeNull();
-    expect(
-      onTransform,
-      `The checked knob declares no transform, so the switch's state would rest on hue alone. ` +
-        `Its block is:\n${on.trim()}\n` +
-        `AGENTS.md: colour never carries meaning alone.`,
-    ).not.toBeNull();
-    expect(
-      onTransform?.[1]?.trim(),
-      "The checked and unchecked knob resolve to the SAME transform, so the knob does not move " +
-        "and the two states are distinguishable only by colour.",
-    ).not.toBe(offTransform?.[1]?.trim());
+  test("the theme button shows a moon in the light theme and a sun in the dark, by shape", () => {
+    // Default, which is the light theme: a press goes dark, so the moon.
+    expect(opacity(ruleBody(".theme-toggle-moon"))).toBe("1");
+    expect(opacity(ruleBody(".theme-toggle-sun"))).toBe("0");
+    // Dark theme: a press goes light, so the sun.
+    expect(opacity(ruleBody(`${DARK} .theme-toggle-moon`))).toBe("0");
+    expect(opacity(ruleBody(`${DARK} .theme-toggle-sun`))).toBe("1");
   });
 
-  test("the theme switch keeps its knob visible in forced colours", () => {
-    // The theme tokens are discarded in forced-colors mode, so a knob painted with var(--ink)
-    // would vanish into its own track and the switch would read as having no state at all.
-    const forced = THEMES_CSS.slice(THEMES_CSS.indexOf("@media (forced-colors: active)"));
-    expect(forced).toContain(".theme-switch-knob");
-    expect(forced).toContain("CanvasText");
+  test("the theme button's name is the action a press takes, chosen by the same attribute", () => {
+    // Both names are in the button; the one that does not apply is display: none, which also
+    // removes it from the accessible name. The two selectors share one rule.
+    const rule = ruleBody(
+      `${DARK} .theme-toggle-to-dark, :root:not([data-theme="kramgasse-night"]) .theme-toggle-to-light`,
+    );
+    expect(rule).toMatch(/display:\s*none/);
+  });
+
+  test("without JavaScript there is no data-theme, and the theme button is not shown", () => {
+    expect(ruleBody(":root:not([data-theme]) .theme-toggle")).toMatch(/display:\s*none/);
+  });
+
+  test("the theme button draws in system colours when forced colours are on", () => {
+    const forced = THEMES_CSS.slice(THEMES_CSS.lastIndexOf("@media (forced-colors: active)"));
+    expect(forced).toContain(".theme-toggle-icon");
+    expect(forced).toContain("ButtonText");
+  });
+
+  test("the theme button's motion stops under reduced motion", () => {
+    const reduced = THEMES_CSS.slice(
+      THEMES_CSS.lastIndexOf("@media (prefers-reduced-motion: reduce)"),
+    );
+    const block = reduced.slice(0, reduced.indexOf("}\n}") + 3);
+    expect(block).toContain(".theme-toggle-moon");
+    expect(block).toContain(".theme-toggle-sun");
+    expect(block).toMatch(/transition:\s*none/);
   });
 
   test("disabled buttons define cursor: not-allowed and reduced opacity, not hue alone", () => {
