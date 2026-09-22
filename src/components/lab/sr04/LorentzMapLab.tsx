@@ -165,7 +165,7 @@ export function LorentzMapLab({
         <span className="badge">Ideal model, host calculation</span>
       </header>
 
-      <p>{SR04_QUESTION}</p>
+      <p className="lab-question">{SR04_QUESTION}</p>
 
       <noscript>
         <p className="notice">

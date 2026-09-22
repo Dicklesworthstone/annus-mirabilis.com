@@ -170,7 +170,7 @@ export function EntropyWorkbenchLab({
         <span className="badge">Ideal model, host calculation</span>
       </header>
 
-      <p>{LQ04_QUESTION}</p>
+      <p className="lab-question">{LQ04_QUESTION}</p>
 
       <noscript>
         <p className="notice">
@@ -307,10 +307,10 @@ export function EntropyWorkbenchLab({
 
           {/* On a 320px phone this three-column table was 348px wide and pushed the whole page
               sideways; it now scrolls inside its own labelled region instead. */}
-          <div
+          <section
             className="table-scroll"
-            role="region"
             aria-label="Constrained-state comparison table"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
             tabIndex={0}
           >
             <table>
@@ -345,7 +345,7 @@ export function EntropyWorkbenchLab({
                 </tr>
               </tbody>
             </table>
-          </div>
+          </section>
 
           {p.showUnfixedConstantPanel ? (
             <p className="notice">
