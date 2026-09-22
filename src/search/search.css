@@ -101,10 +101,14 @@
   font-size: 0.75em;
   white-space: nowrap;
 }
-@media (max-width: 420px) {
+/* Phones and most tablets have no Ctrl K to press, and below 768px the hint made "Search" 111px
+   wide in the header's second band. */
+@media (max-width: 767px) {
   .search-launcher > span {
     display: none;
   }
+}
+@media (max-width: 420px) {
   .search-filters {
     grid-template-columns: 1fr;
   }

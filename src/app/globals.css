@@ -230,43 +230,61 @@ main {
   margin: auto;
 }
 /*
- * The header stops competing with the edition for the first screen.
+ * CHROME (pane %34): THE HEADER IS TWO BANDS, AND ONE ROW WHERE ONE ROW FITS.
  *
- * MEASURED before this rule, homepage at 390x844: the header was 456px tall, 54% of the first
- * screen, and #main began at y=456. Its four children stacked full width - wordmark 52, nav 93,
- * reading preferences 57 (already a CLOSED disclosure, not the twenty controls a DOM text
- * extraction suggests), theme toggle 105 - with 149px of padding and gaps between them.
+ * Band one holds the wordmark and the two controls, band two the six destinations. From 1200px
+ * the nav moves up between them. It was a flex row whose four children all shrank, so below
+ * 1100px the nav got whatever width the wordmark and controls left over, and at 1100-1172px it
+ * refused to shrink and pushed the page sideways. Header height in px, measured on out/ 14:47:11
+ * (before) and with this file's rules injected into that build (after), the same on the home
+ * page, a paper, a laboratory and the foundations index:
  *
- * The two control blocks are the ones that do not need a row each: neither is content, and both
- * are things you reach for rather than read. Grouping them costs the height of the taller one
- * instead of the sum, and the group wraps rather than overflowing at narrow widths.
+ *      320   260 -> 164        600   521 -> 137       1100   140 -> 137, and 73px of sideways
+ *      390   213 -> 164        768   239 -> 137              scroll -> none
+ *      560   213 -> 117       1024   171 -> 137       1280   140 -> 110      1440   110 -> 110
  *
- * The theme toggle's own 105px is the largest single block and it is NOT touched here: it is
- * styled in src/app/theme/themes.css, which another pane owns. Reported rather than reached for.
+ * No destination is hidden at any width, and every link and control keeps a 44px target. The
+ * one width band that still sets "Notebook" alone on a second row is 561-579px (183px).
  */
-.header-controls {
-  /*
-   * display:contents, so the wrapper exists only where it earns its place.
-   *
-   * MEASURED both ways, which is the point. At desktop the header is already a single flex ROW,
-   * so its height is the tallest child - 181px. Making this a flex container of its own put the
-   * two controls in their own box, that box wrapped to two lines at 1280px, and the header went
-   * 181 -> 233px. The grouping helped the phone (456 -> 400) and hurt the desktop by 52px, which
-   * a one-viewport measurement would have shipped.
-   *
-   * Here the wrapper is removed from layout entirely and the children participate in the header's
-   * own row exactly as before. The phone rule below turns it back into a real box, where the
-   * header stacks and grouping is what saves the height.
-   */
-  display: contents;
-}
 .site-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 2rem;
-  padding: 1.8rem 0;
+  gap: 0.5rem 2rem;
+  padding: 1rem 0;
   border-bottom: 1px solid var(--line);
+  /* The reading-preferences sheet is positioned against the header. */
+  position: relative;
+}
+.site-header > .header-controls {
+  grid-area: 1 / 2;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.site-header > nav {
+  grid-area: 2 / 1 / 3 / -1;
+  /* Rows of 44px targets separate themselves; the 1.5rem gap every nav inherits is for prose. */
+  row-gap: 0.15rem;
+}
+/* Below 768px the six share one row only with a phone-sized gap: at 600px, 24px gaps left
+   "Notebook" alone on a second row. */
+@media (max-width: 767px) {
+  .site-header > nav {
+    column-gap: 1rem;
+  }
+}
+@media (min-width: 1200px) {
+  .site-header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: 1.8rem 0;
+  }
+  .site-header > nav {
+    grid-area: 1 / 2;
+  }
+  .site-header > .header-controls {
+    grid-area: 1 / 3;
+  }
 }
 .wordmark {
   font-size: var(--type-title);
@@ -274,6 +292,9 @@ main {
   color: var(--ink);
   text-decoration: none;
   line-height: 1.1;
+  grid-area: 1 / 1;
+  /* The link keeps its own width, so the empty rest of the row is not a hit area that goes home. */
+  justify-self: start;
 }
 .wordmark span {
   display: block;
@@ -324,43 +345,6 @@ nav a {
   padding: 0.56rem 0;
 }
 
-/*
- * The nav stops wrapping where there is room to hold one row.
- *
- * MEASURED with document.fonts.ready awaited, which matters: without the wait
- * this header reads 110px at 1440 where the settled value is 159, so every
- * figure here would have been wrong by more than the fix.
- *
- * The header is 159px and the nav is two rows at 960, 1024, 1100, 1280, 1440
- * AND 1920 alike. It wraps at 1920 with 700px spare, so this is not a
- * narrow-desktop problem: all four header children default to flex-shrink 1, so
- * flexbox squeezes the nav from a natural 620 down to 567 at 1280 and it wraps
- * at a width it would otherwise fit.
- *
- *                     baseline          with this rule
- *    960px           159px / 2 rows    159px / 2 rows
- *   1024px           159px / 2 rows    159px / 2 rows
- *   1100px           159px / 2 rows    157px / 1 row
- *   1280px           159px / 2 rows    153px / 1 row
- *   1440px           159px / 2 rows    140px / 1 row
- *   1920px           159px / 2 rows    140px / 1 row
- *
- * THE MEDIA QUERY IS LOAD-BEARING, not tidiness. Unscoped, flex-shrink: 0 puts
- * documentElement.scrollWidth at 1059 on a 1024 and a 960 viewport: real
- * horizontal overflow, the same failure phoneOverflow.e2e.test.ts guards at the
- * other end of the range. Verified with a fresh browser per width: 1024
- * overflows, 1100 does not, so the breakpoint is the measured threshold rather
- * than a round number.
- *
- * Shrinking the type does NOT fix this and I checked before assuming: overriding
- * font-size alone, nav 0.95rem -> 0.8rem with the wordmark 1.65 -> 1.45rem,
- * moves the header 157 -> 149 and the nav still wraps.
- */
-@media (min-width: 1100px) {
-  header.site-header nav {
-    flex-shrink: 0;
-  }
-}
 .site-footer {
   border-top: 1px solid var(--line);
   padding: 2rem 0 3rem;
@@ -978,6 +962,23 @@ summary {
 .site-header summary:hover {
   color: var(--ink);
 }
+/*
+ * The open panel is a sheet hanging from the header, not a column inside it. In the flow it made
+ * the header 901px tall at 1440 and 927px at 768, and dragged the wordmark and nav down to the
+ * middle of that height. On a phone, where the summary now sits beside the wordmark, it would
+ * have been a 64px-wide column.
+ */
+.site-header details[open] > .reading-settings-body {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 5;
+  width: min(24rem, 100%);
+  padding: 0.25rem 1.25rem 1rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-top: 0;
+}
 code,
 pre,
 kbd,
@@ -1119,12 +1120,6 @@ samp,
      */
     font-size: 1.0625rem; /* SWEEP-EXEMPT: see the note above */
   }
-  .site-header {
-    align-items: start;
-    gap: 0.6rem;
-    flex-direction: column;
-    padding: 0.9rem 0;
-  }
   nav {
     gap: 0.6rem 1rem;
   }
@@ -1205,14 +1200,30 @@ samp,
   }
   header.site-header {
     padding: 0.7rem 0;
-    gap: 0.35rem;
+    gap: 0.35rem 0.75rem;
   }
-  .header-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 1.25rem;
-    width: 100%;
+  /* The two controls share the wordmark's row, which leaves room for "Reading" and not for
+     "Reading preferences". At 320 that is 135 + 64 + 44px against a 288px line, with the theme
+     switch dropping its word below 360px (themes.css). */
+  .site-header > .header-controls {
+    gap: 0.9rem;
+  }
+  .reading-settings-summary-rest {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .site-header details[open] > .reading-settings-body {
+    left: 0;
+    width: auto;
+    padding-inline: 0;
+    border-inline: 0;
   }
   .hero {
     padding: 2.5rem 0;

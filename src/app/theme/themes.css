@@ -199,3 +199,41 @@ body {
   white-space: nowrap;
   border: 0;
 }
+
+/*
+ * CHROME (pane %34): BELOW 360px THE SWITCH SHARES THE WORDMARK'S ROW AND DROPS ITS WORD.
+ *
+ * Wordmark, "Reading" and a 73px switch need 272px plus gaps against a 288px line at 320, so the
+ * visible "Dark" goes and the button keeps a 44px target. The span is clipped rather than
+ * removed, so "Dark theme" is still the accessible name. A crescent in the empty half of the
+ * track says what the switch does; once it is on, the knob sits there and the crescent goes.
+ */
+@media (max-width: 359px) {
+  .theme-switch {
+    min-width: 44px;
+    justify-content: center;
+  }
+  .theme-switch > span:last-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .theme-switch-track::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    box-shadow: inset -0.18rem 0.05rem 0 0 var(--muted);
+    transform: translateY(-50%);
+  }
+  .theme-switch[aria-checked="true"] .theme-switch-track::after {
+    opacity: 0;
+  }
+}

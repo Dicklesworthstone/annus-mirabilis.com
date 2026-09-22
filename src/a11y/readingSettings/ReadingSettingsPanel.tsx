@@ -108,8 +108,15 @@ export function ReadingSettingsPanel() {
 
   return (
     <details className="reading-settings" data-reading-settings>
-      <summary>Reading preferences</summary>
-      {/*
+      {/* On a phone only "Reading" shows, so the control fits beside the wordmark; the rest of
+          the name stays in the accessibility tree, and the visible word is its first word. */}
+      <summary>
+        Reading<span className="reading-settings-summary-rest"> preferences</span>
+      </summary>
+      {/* One box for everything the disclosure reveals, so a phone can lay it out as a single
+          sheet under the header instead of inside the 64px column the summary occupies. */}
+      <div className="reading-settings-body">
+        {/*
         NO fieldset/legend HERE, and that is the fix for the duplicated "Reading-only".
         A fieldset groups SEVERAL controls under one name; the other four below genuinely do that
         for their radio groups. This one wrapped a SINGLE checkbox whose own label is the same
@@ -117,118 +124,119 @@ export function ReadingSettingsPanel() {
         "Reading-only, Reading-only checkbox". It read as two controls in the extracted text and
         was one. The checkbox's label is the accessible name; nothing else is needed.
       */}
-      {/*
+        {/*
         NO CLASS. This div only groups the checkbox with its hint where a <fieldset> used to; it
         needs no styling, and the undeclared-class gate is right that inventing one is a cost with
         no payer. Note the trap it warns about: the container that DOES exist is the plural
         `.reading-settings`, on the <details> above. A singular `.reading-setting` reads as its
         sibling and is styled nowhere.
       */}
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={readingOnly}
-            data-setting="readingOnly"
-            onChange={(event) => {
-              const next = event.target.checked;
-              setReadingOnly(next);
-              applyToDocument({ readingOnly: next });
-              persist(KEY.readingOnly, readingOnlyStorageValue(next));
-            }}
-          />{" "}
-          {READING_SETTING_LABELS.readingOnly}
-        </label>
-        <p className="hint">{READING_SETTING_LABELS.readingOnlyHelp}</p>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={readingOnly}
+              data-setting="readingOnly"
+              onChange={(event) => {
+                const next = event.target.checked;
+                setReadingOnly(next);
+                applyToDocument({ readingOnly: next });
+                persist(KEY.readingOnly, readingOnlyStorageValue(next));
+              }}
+            />{" "}
+            {READING_SETTING_LABELS.readingOnly}
+          </label>
+          <p className="hint">{READING_SETTING_LABELS.readingOnlyHelp}</p>
+        </div>
+        <fieldset>
+          <legend>{READING_SETTING_LABELS.measure}</legend>
+          {MEASURE_VALUES.map((value) => (
+            <label key={value}>
+              <input
+                type="radio"
+                name="measure"
+                value={value}
+                checked={measure === value}
+                data-setting="measure"
+                onChange={() => {
+                  setMeasure(value);
+                  applyToDocument({ measure: value });
+                  persist(KEY.measure, value);
+                }}
+              />{" "}
+              {value === "narrow"
+                ? READING_SETTING_LABELS.measureNarrow
+                : value === "wide"
+                  ? READING_SETTING_LABELS.measureWide
+                  : READING_SETTING_LABELS.measureDefault}
+            </label>
+          ))}
+        </fieldset>
+        <fieldset>
+          <legend>{READING_SETTING_LABELS.typeScale}</legend>
+          {TYPE_SCALE_VALUES.map((value) => (
+            <label key={value}>
+              <input
+                type="radio"
+                name="typeScale"
+                value={value}
+                checked={typeScale === value}
+                data-setting="typeScale"
+                onChange={() => {
+                  setTypeScale(value);
+                  applyToDocument({ typeScale: value });
+                  persist(KEY.typeScale, value);
+                }}
+              />{" "}
+              {value} percent
+            </label>
+          ))}
+        </fieldset>
+        <fieldset>
+          <legend>{READING_SETTING_LABELS.contrast}</legend>
+          {CONTRAST_VALUES.map((value) => (
+            <label key={value}>
+              <input
+                type="radio"
+                name="contrast"
+                value={value}
+                checked={contrast === value}
+                data-setting="contrast"
+                onChange={() => {
+                  setContrast(value);
+                  applyToDocument({ contrast: value });
+                  persist(KEY.contrast, value);
+                }}
+              />{" "}
+              {value === "high"
+                ? READING_SETTING_LABELS.contrastHigh
+                : READING_SETTING_LABELS.contrastDefault}
+            </label>
+          ))}
+        </fieldset>
+        <fieldset>
+          <legend>{READING_SETTING_LABELS.paragraphSpacing}</legend>
+          {PARAGRAPH_SPACING_VALUES.map((value) => (
+            <label key={value}>
+              <input
+                type="radio"
+                name="paragraphSpacing"
+                value={value}
+                checked={spacing === value}
+                data-setting="paragraphSpacing"
+                onChange={() => {
+                  setSpacing(value);
+                  applyToDocument({ paragraphSpacing: value });
+                  persist(KEY.paragraphSpacing, value);
+                }}
+              />{" "}
+              {value === "relaxed"
+                ? READING_SETTING_LABELS.spacingRelaxed
+                : READING_SETTING_LABELS.spacingDefault}
+            </label>
+          ))}
+        </fieldset>
       </div>
-      <fieldset>
-        <legend>{READING_SETTING_LABELS.measure}</legend>
-        {MEASURE_VALUES.map((value) => (
-          <label key={value}>
-            <input
-              type="radio"
-              name="measure"
-              value={value}
-              checked={measure === value}
-              data-setting="measure"
-              onChange={() => {
-                setMeasure(value);
-                applyToDocument({ measure: value });
-                persist(KEY.measure, value);
-              }}
-            />{" "}
-            {value === "narrow"
-              ? READING_SETTING_LABELS.measureNarrow
-              : value === "wide"
-                ? READING_SETTING_LABELS.measureWide
-                : READING_SETTING_LABELS.measureDefault}
-          </label>
-        ))}
-      </fieldset>
-      <fieldset>
-        <legend>{READING_SETTING_LABELS.typeScale}</legend>
-        {TYPE_SCALE_VALUES.map((value) => (
-          <label key={value}>
-            <input
-              type="radio"
-              name="typeScale"
-              value={value}
-              checked={typeScale === value}
-              data-setting="typeScale"
-              onChange={() => {
-                setTypeScale(value);
-                applyToDocument({ typeScale: value });
-                persist(KEY.typeScale, value);
-              }}
-            />{" "}
-            {value} percent
-          </label>
-        ))}
-      </fieldset>
-      <fieldset>
-        <legend>{READING_SETTING_LABELS.contrast}</legend>
-        {CONTRAST_VALUES.map((value) => (
-          <label key={value}>
-            <input
-              type="radio"
-              name="contrast"
-              value={value}
-              checked={contrast === value}
-              data-setting="contrast"
-              onChange={() => {
-                setContrast(value);
-                applyToDocument({ contrast: value });
-                persist(KEY.contrast, value);
-              }}
-            />{" "}
-            {value === "high"
-              ? READING_SETTING_LABELS.contrastHigh
-              : READING_SETTING_LABELS.contrastDefault}
-          </label>
-        ))}
-      </fieldset>
-      <fieldset>
-        <legend>{READING_SETTING_LABELS.paragraphSpacing}</legend>
-        {PARAGRAPH_SPACING_VALUES.map((value) => (
-          <label key={value}>
-            <input
-              type="radio"
-              name="paragraphSpacing"
-              value={value}
-              checked={spacing === value}
-              data-setting="paragraphSpacing"
-              onChange={() => {
-                setSpacing(value);
-                applyToDocument({ paragraphSpacing: value });
-                persist(KEY.paragraphSpacing, value);
-              }}
-            />{" "}
-            {value === "relaxed"
-              ? READING_SETTING_LABELS.spacingRelaxed
-              : READING_SETTING_LABELS.spacingDefault}
-          </label>
-        ))}
-      </fieldset>
     </details>
   );
 }

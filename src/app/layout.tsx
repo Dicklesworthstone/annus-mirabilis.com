@@ -42,9 +42,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </a>
           <nav aria-label="Main navigation">
             <a href="/papers/">Papers</a>
-            <a href="/discover/">Discovery routes</a>
+            {/* Short labels so the six fit two rows on a 320px phone at full size: "Discover" is
+                the edition's name for the activity, "Connections" is the page's own title. */}
+            <a href="/discover/">Discover</a>
             <a href="/instruments/">Instruments</a>
-            <a href="/connections/">Across the papers</a>
+            <a href="/connections/">Connections</a>
             <SearchLauncher />
             <NotebookLauncher />
           </nav>
