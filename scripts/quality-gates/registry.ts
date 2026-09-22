@@ -544,6 +544,24 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-plat-resource-stress-9zgu",
   },
   {
+    // NOT RUN BY CI, AND THAT IS THE DECISION RATHER THAN AN OVERSIGHT (am-7bkr, 2026-09-22).
+    //
+    // Measured that day with the CI's own flags: `--fail-fast --family fast --only apple-quality`
+    // and the same with `--family browser` both report Selected Steps: 0. So nothing dsr runs
+    // reaches this step, exactly as browser-acceptance was unreached - and unlike that one, it is
+    // correct here, for three reasons that are each checkable:
+    //
+    //   1. AGENTS.md, iPhone app chapter, verbatim: "Apple validation runs locally as the `apple`
+    //      gate family, not in the website's CI."
+    //   2. `requiredInCi: false` below. browser-acceptance's defect was a gate declaring TRUE
+    //      while nothing ran it; this one has never claimed CI would run it, which is why
+    //      src/testing/ciGateWiring.test.ts does not quantify over it.
+    //   3. scripts/dsr-apple-quality.sh does not exist on disk and neither does ios/. Wiring it
+    //      today would add a permanent not-available row to every run, and wiring it after the
+    //      script lands would start an Xcode build on every dsr check, against rule 1.
+    //
+    // `cadence: every-run` is scoped WITHIN a run of the apple family, which is a local
+    // `--family apple` invocation. It does not claim that CI runs this every time.
     id: "apple-quality",
     title: "Apple local quality gate (Xcode / SwiftUI)",
     command: ["bash", "scripts/dsr-apple-quality.sh"],
