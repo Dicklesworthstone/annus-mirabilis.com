@@ -1426,21 +1426,35 @@ export async function main(
     // What this gate's green does NOT cover, stated by the gate itself (am-xoxn).
     // A digest check proves the bytes are the ones recorded, not that the recorded
     // bytes are the right pages: --verify was green all night while three pins served
-    // the wrong article - ap-17-549 page 1 was L. Hermann on Leyden jars. Reading a
-    // pinned extract's own text layer would catch that and needs no parent scan, but
-    // it runs poppler's text extractor, which is on the OCR denylist, so it waits on
-    // that ruling
-    // rather than being smuggled into CI. The parent-scan comparison that also catches
-    // it lives in facsimile-pins, which is requiredInCi false because /sources is
-    // git-ignored.
+    // the wrong article - ap-17-549 page 1 was L. Hermann on Leyden jars.
+    //
+    // THE TEXT-LAYER CHECK IS NOT PENDING A RULING ANY MORE; IT IS FORBIDDEN BY ONE.
+    // This comment said it "waits on that ruling" until 2026-09-21. The owner ruled that
+    // day, verbatim "Guard stands - withdraw the drafting aid", recorded as
+    // D-2026-09-21-facsimile-text-layer-stays-forbidden. The extract's own text layer is
+    // not to be extracted by any route: the denylist forbids the PURPOSE, not the tool,
+    // and pdftotext and pdf.js getTextContent both carry the same "in source-layer
+    // pipelines" reason, so changing library routes around nothing.
+    //
+    // The distinction matters for anyone reading this gate's green. evaluateExtractFolios
+    // EXISTS in verify-facsimile-pins.ts and is tested, and it may not run. A capability
+    // that is built and forbidden is a different state from one that is missing, and a
+    // reader who assumes the second will go looking for work that is already done
+    // (am-d1cz, criterion 4).
+    //
+    // The parent-scan comparison that also catches a wrong extract lives in
+    // facsimile-pins, which is requiredInCi false because /sources is git-ignored.
     console.log(
       "\nWhat a green here does NOT mean: a digest check proves the bytes are the ones " +
         "recorded, not that the recorded bytes are the right pages. --verify was green " +
         "all night while three pins served the wrong article. Nor does it prove the " +
         "parent scan was the right VOLUME: a digest binds these bytes to this record, " +
         "not this record to Annalen 17. Parent-scan comparison is in facsimile-pins " +
-        "(requiredInCi false, needs the git-ignored /sources); the text-layer folio " +
-        "check is blocked on the poppler text-extractor denylist ruling.",
+        "(requiredInCi false, needs the git-ignored /sources). The extract-side folio " +
+        "check EXISTS and is tested (evaluateExtractFolios) and MAY NOT RUN: the owner " +
+        "ruled on 2026-09-21 that the embedded text layer is not to be extracted by any " +
+        "route (D-2026-09-21-facsimile-text-layer-stays-forbidden). Built and forbidden " +
+        "is not the same state as missing; do not go and write it again.",
     );
     if (!allOk) {
       console.error(
