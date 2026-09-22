@@ -92,8 +92,6 @@ export function scanColourRules(cssRoot: string, repoRoot: string): ColourRule[]
  * Verified by reading the markup on 2026-09-19 (pane31).
  */
 export const EXTERNAL_CHANNELS: Readonly<Record<string, string>> = Object.freeze({
-  ":root:where([data-theme]) a:not(.button)":
-    "UA default text-decoration: underline on <a href>. globals.css sets text-underline-offset and a:hover text-decoration-thickness, both of which presuppose that underline; nothing removes it for this selector.",
   ".direct-pdf-link":
     "An <a> (src/reader/faces/FacsimileFace.tsx:198) that never sets text-decoration: none, so it keeps the UA underline.",
   "h1 em": "<em> is italic by UA default, so the emphasis is carried by slant as well as hue.",
