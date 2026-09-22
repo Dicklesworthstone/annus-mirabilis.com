@@ -105,10 +105,10 @@ export default function MassEnergyRoute() {
         <p className="step-number">03 / Describe the same event twice</p>
         <h2>Two accounts of one emission</h2>
         <p>
-          Here is the move, and it is the only one in the route that is not bookkeeping. Describe
-          the same emission a second time, from a frame gliding steadily past at speed <em>v</em>.
-          Nothing about the body changes; you have changed only where you are standing. Write down
-          the body&rsquo;s energy before and after in each account, four quantities in all.
+          This is the move, and the only one in the route that is not bookkeeping. Describe the same
+          emission a second time, from a frame gliding steadily past at speed <em>v</em>. Nothing
+          about the body changes; you have changed only where you are standing. Write down the
+          body&rsquo;s energy before and after in each account, four quantities in all.
         </p>
         <p>
           Three of those four you cannot evaluate. You do not know the absolute energy content of a

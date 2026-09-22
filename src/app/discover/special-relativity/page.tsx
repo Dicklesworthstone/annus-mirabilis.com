@@ -77,9 +77,9 @@ export default function SpecialRelativityRoute() {
         <p className="step-number">02 / Decide whether that bothers you</p>
         <h2>An asymmetry in the telling, not in the measuring</h2>
         <p>
-          It is worth being honest that this is not a crisis. Nothing is predicted wrongly. The two
-          accounts agree on every number, and a physicist who shrugs and uses whichever is
-          convenient will never be caught out by an experiment.
+          This is not a crisis. Nothing is predicted wrongly. The two accounts agree on every
+          number, and a physicist who shrugs and uses whichever is convenient will never be caught
+          out by an experiment.
         </p>
         <p>
           What is odd is that the theory distinguishes two situations that no measurement
@@ -163,9 +163,9 @@ export default function SpecialRelativityRoute() {
           reduces to the familiar one at everyday speeds.
         </p>
         <p>
-          It is worth doing rather than reading, because the result is often presented as a formula
-          handed down. It is not. It is constructed, from a measurement procedure you can carry out,
-          and nothing enters it that was not put in at step 3.
+          Work it through rather than read it. The result is often presented as a formula handed
+          down; here it is built from a measurement procedure you can carry out, and nothing enters
+          it that was not put in at step 3.
         </p>
         <p>
           <a href="/lab/sr-04/">Build the map rather than receive it</a>
