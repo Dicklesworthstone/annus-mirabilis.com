@@ -36,7 +36,7 @@ export default function WaveDescriptionPage() {
 
       <section className="reading" id="wave-theory">
         <p className="eyebrow">The Physical Context</p>
-        <h2>The Successes of Continuous Wave Optics</h2>
+        <h2>The successes of continuous wave optics</h2>
         <p>
           In the opening paragraph of his 1905 paper, Einstein contrasts the continuous spatial
           functions of Maxwellian electrodynamics with the atomistic discrete description of
@@ -55,7 +55,7 @@ export default function WaveDescriptionPage() {
           latex={String.raw`\psi(\mathbf{r}, t) = \frac{A_1}{r_1}\cos(k r_1 - \omega t + \phi_1) + \frac{A_2}{r_2}\cos(k r_2 - \omega t + \phi_2)`}
         />
 
-        <h2>Time Averages Versus Instantaneous Values</h2>
+        <h2>Time averages versus instantaneous values</h2>
         <p>
           Optical detectors (the eye, photographic plates, chemical actinometers) cannot resolve
           oscillations at optical frequencies (
@@ -73,7 +73,7 @@ export default function WaveDescriptionPage() {
           ), the intensity drops to identically zero.
         </p>
 
-        <h2>Geometric Energy Spreading</h2>
+        <h2>Geometric energy spreading</h2>
         <p>
           On the wave theory, energy emitted by an isotropic point source of power{" "}
           <Formula latex="P" /> spreads continuously over expanding spherical wavefronts of surface

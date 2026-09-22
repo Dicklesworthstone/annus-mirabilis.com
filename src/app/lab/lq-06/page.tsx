@@ -33,7 +33,7 @@ export default function CoefficientMatchPage() {
 
       <section className="reading" id="the-move-theory">
         <p className="eyebrow">The Physical Argument</p>
-        <h2>The Entropy Volume Laws Placed Side by Side</h2>
+        <h2>The entropy volume laws placed side by side</h2>
         <p>
           In &sect;4, Einstein showed that for monochromatic radiation of energy{" "}
           <Formula latex="E" /> and frequency <Formula latex="\nu" /> in the Wien regime, changing
@@ -52,7 +52,7 @@ export default function CoefficientMatchPage() {
           latex={String.raw`S - S_0 = \frac{R}{N}\,n\ln\frac{V}{V_0} = k_B\,n\ln\frac{V}{V_0}`}
         />
 
-        <h2>The Move: Equating the Functional Forms</h2>
+        <h2>The move: equating the functional forms</h2>
         <p>
           To make the two equations directly comparable, Einstein rewrites the radiation entropy
           formula with Boltzmann&apos;s constant factor <Formula latex="R/N" /> outside the
@@ -75,7 +75,7 @@ export default function CoefficientMatchPage() {
           plays precisely the role of the particle count <Formula latex="n" />.
         </p>
 
-        <h2>Energy per Element and Historical Constants</h2>
+        <h2>Energy per element and historical constants</h2>
         <p>
           If a total energy <Formula latex="E" /> is composed of <Formula latex="n_{\text{eff}}" />{" "}
           independent quanta, each quantum carries an energy:
@@ -98,7 +98,7 @@ export default function CoefficientMatchPage() {
           Planck&apos;s quantum of action <Formula latex="h" /> to within 1%.
         </p>
 
-        <h2>Mean Quantum Energy over a Wien Spectrum</h2>
+        <h2>Mean quantum energy over a Wien spectrum</h2>
         <p>
           Einstein further calculated the average energy of light quanta in thermal radiation at
           temperature <Formula latex="T" /> by integrating over the full Wien spectrum:
@@ -112,7 +112,7 @@ export default function CoefficientMatchPage() {
           <Formula latex={String.raw`\langle E_{\text{kin}} \rangle = \frac{3}{2} k_B T`} />.
         </p>
 
-        <h2>The Three Logical Roles</h2>
+        <h2>The three logical roles</h2>
         <ol>
           <li>
             <strong>Derivation (Mathematical Identity):</strong> The radiation entropy volume law

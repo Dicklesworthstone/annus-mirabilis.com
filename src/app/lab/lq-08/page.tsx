@@ -31,7 +31,7 @@ export default function PhotoelectricPage() {
 
       <section className="reading" id="photoelectric-theory">
         <p className="eyebrow">The Physical Argument</p>
-        <h2>The Single-Quantum Energy Conservation Law</h2>
+        <h2>The single-quantum energy conservation law</h2>
         <p>
           In &sect;8 of his 1905 paper, Einstein applies the light-quantum hypothesis to the
           generation of cathode rays by light (the photoelectric effect). If monochromatic light
@@ -49,7 +49,7 @@ export default function PhotoelectricPage() {
           latex={String.raw`e V_s = h\nu - \Phi \implies V_s = \frac{h}{e}\nu - \frac{\Phi}{e}`}
         />
 
-        <h2>Two Qualitative Predictions Classical Waves Cannot Explain</h2>
+        <h2>Two qualitative predictions classical waves cannot explain</h2>
         <ol>
           <li>
             <strong>Intensity Invariance of Electron Energy:</strong> Increasing the radiant power
@@ -67,7 +67,7 @@ export default function PhotoelectricPage() {
           </li>
         </ol>
 
-        <h2>Einstein&apos;s 1905 Historical Check</h2>
+        <h2>Einstein&apos;s 1905 historical check</h2>
         <p>
           At the time of writing in 1905, quantitative photoelectric data was scarce. Philipp Lenard
           had observed in 1902 that spark potentials reached several volts under ultraviolet arc
@@ -81,7 +81,7 @@ export default function PhotoelectricPage() {
           plausibility test of the light-quantum hypothesis.
         </p>
 
-        <h2>Universal Slope: Robert Millikan&apos;s 1916 Precision Validation</h2>
+        <h2>Universal slope: Robert Millikan&apos;s 1916 precision validation</h2>
         <p>
           Over a decade later, Robert Millikan undertook exhaustive vacuum experiments on freshly
           cut alkali metals (sodium, potassium, lithium) to test Einstein&apos;s linear equation.
@@ -91,7 +91,7 @@ export default function PhotoelectricPage() {
           horizontal threshold cutoff intercept <Formula latex={String.raw`\nu_0`} />.
         </p>
 
-        <h2>Epistemic Boundary: Deductive Consequences vs. Empirical Proof</h2>
+        <h2>Epistemic boundary: deductive consequences vs. empirical proof</h2>
         <p>
           A simulator programmed with an energy threshold does not prove that nature has a
           threshold; it demonstrates the deductive consequences of single-quantum energy exchange

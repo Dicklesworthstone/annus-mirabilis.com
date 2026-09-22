@@ -38,7 +38,7 @@ export default function RodSimultaneityPage() {
 
       <section className="reading" id="simultaneity-theory">
         <p className="eyebrow">The Physical Context</p>
-        <h2>§2: The Relativity of Simultaneity</h2>
+        <h2>§2: the relativity of simultaneity</h2>
         <p>
           In §2 of <em>Zur Elektrodynamik bewegter Körper</em>, Einstein investigates a rigid rod of
           length <Formula latex="r_{AB}" /> moving with velocity <Formula latex="v" /> relative to a
@@ -67,7 +67,7 @@ export default function RodSimultaneityPage() {
           relative to that system.&rdquo;
         </blockquote>
 
-        <h2>§4: Physical Meaning of Moving Rods and Spheres</h2>
+        <h2>§4: physical meaning of moving rods and spheres</h2>
         <p>
           In §4, Einstein uses the Lorentz transformation to determine the coordinate dimensions of
           moving bodies measured simultaneously in the observer’s frame:
@@ -88,7 +88,7 @@ export default function RodSimultaneityPage() {
         </p>
         <Formula latex={String.raw`a = R \sqrt{1 - \frac{v^2}{c^2}}, \qquad b = R, \qquad c = R`} />
 
-        <h2>Coordinate Measurement Versus Visual Appearance</h2>
+        <h2>Coordinate measurement versus visual appearance</h2>
         <p>
           Einstein’s length contraction describes <em>coordinate measurement</em> (positions
           recorded simultaneously in the measuring frame by a network of synchronized clocks). It is
@@ -98,7 +98,7 @@ export default function RodSimultaneityPage() {
           visually rotated rather than flattened.
         </p>
 
-        <h2>Invariant Spacetime Intervals and Causal Order</h2>
+        <h2>Invariant spacetime intervals and causal order</h2>
         <p>
           Between any two events <Formula latex="E_1" /> and <Formula latex="E_2" />, the squared
           spacetime interval is strictly invariant under all Lorentz transformations:

@@ -31,7 +31,7 @@ export default function IonizationPage() {
 
       <section className="reading" id="ionization-theory">
         <p className="eyebrow">The Physical Argument</p>
-        <h2>The Single-Quantum Ionization Conservation Law</h2>
+        <h2>The single-quantum ionization conservation law</h2>
         <p>
           In &sect;9 of his 1905 paper, Einstein extends the light-quantum hypothesis from surface
           photoemission to the ionization of gases by light. If a molecule requires an energy{" "}
@@ -47,7 +47,7 @@ export default function IonizationPage() {
           wavelength <Formula latex={String.raw`\lambda_0 = \frac{c}{\nu_0}`} />.
         </p>
 
-        <h2>The Counting Relation: Proportionality to Absorbed Energy</h2>
+        <h2>The counting relation: proportionality to absorbed energy</h2>
         <p>
           Suppose light of frequency <Formula latex={String.raw`\nu > \nu_0`} /> shines into a gas,
           and a total light energy <Formula latex="L" /> is absorbed. Under Einstein&apos;s primary
@@ -62,7 +62,7 @@ export default function IonizationPage() {
         </p>
         <Formula latex={String.raw`N_{\text{ion}} = \frac{L}{h\nu}`} />
 
-        <h2>Three Epistemic Absorption Conditions</h2>
+        <h2>Three epistemic absorption conditions</h2>
         <ol>
           <li>
             <strong>All absorption ionizes:</strong> When every absorbed quantum produces an
@@ -83,7 +83,7 @@ export default function IonizationPage() {
           </li>
         </ol>
 
-        <h2>Einstein&apos;s 1905 Historical Checks</h2>
+        <h2>Einstein&apos;s 1905 historical checks</h2>
         <p>
           Einstein verified that the energy scale of light quanta matches gas ionization using two
           contemporary experimental datasets:
@@ -112,7 +112,7 @@ export default function IonizationPage() {
           </li>
         </ul>
 
-        <h2>Epistemic Boundary</h2>
+        <h2>Epistemic boundary</h2>
         <p>
           Below the ionization threshold frequency (<Formula latex={String.raw`\nu < \nu_0`} />
           ), the count and rate of single-quantum ionization are strictly not applicable (a typed

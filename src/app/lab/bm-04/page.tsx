@@ -35,7 +35,7 @@ export default function DriftDiffusionLabPage() {
       <DriftDiffusionLab example={{ ...example, parameters: checked.data }} />
 
       <section className="reading" id="theory">
-        <h2>The Physical Argument in Section 3</h2>
+        <h2>The physical argument in Section 3</h2>
         <p>
           Section 3 is where Route A reaches the diffusion coefficient. Einstein’s derivation
           operates in two complementary stages:
@@ -67,14 +67,14 @@ export default function DriftDiffusionLabPage() {
         </p>
         <Formula latex={String.raw`D = \frac{RT}{N}\frac{1}{6\pi k P} = \mu k_B T`} />
 
-        <h3>Why the Applied Force Drops Out</h3>
+        <h3>Why the applied force drops out</h3>
         <p>
           The external force <var>K</var> is merely a theoretical probe: a stronger force creates a
           steeper concentration gradient in exact proportion to the faster drift speed it induces.
           When the two descriptions are equated, the force cancels out completely.
         </p>
 
-        <h3>The Nägeli Kicks-Off Branch (1879)</h3>
+        <h3>The Nägeli kicks-off branch (1879)</h3>
         <p>
           In 1879, the botanist Carl Nägeli argued that no single molecular impact could impart
           measurable momentum to a microscopic particle, concluding that thermal molecular agitation

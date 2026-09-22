@@ -31,7 +31,7 @@ export default function EntropyWorkbenchPage() {
 
       <section className="reading" id="radiation-entropy-theory">
         <p className="eyebrow">The Physical Argument</p>
-        <h2>Wien&apos;s Variational Argument (§3)</h2>
+        <h2>Wien&apos;s variational argument (§3)</h2>
         <p>
           Einstein attributes the entropy argument to Wien and uses it to fix the temperature
           dependence of the spectral entropy density <Formula latex={String.raw`\varphi`} />.
@@ -45,7 +45,7 @@ export default function EntropyWorkbenchPage() {
           <Formula latex={String.raw`\rho`} /> is zero.
         </p>
 
-        <h2>The Dilute, Narrow-Band Limit (§4)</h2>
+        <h2>The dilute, narrow-band limit (§4)</h2>
         <p>
           Section 4 restricts to dilute monochromatic radiation obeying Wien&apos;s law, inverts it
           for the temperature, integrates the entropy density using the zero-density condition
@@ -64,7 +64,7 @@ export default function EntropyWorkbenchPage() {
           the workbench above never rounds it to an integer or calls it a count of particles.
         </p>
 
-        <h2>Why the Fixing Condition Matters</h2>
+        <h2>Why the fixing condition matters</h2>
         <p>
           Had the integration constant <Formula latex={String.raw`C(\nu)`} /> been left unfixed
           rather than set to zero by the boundary condition, it would contribute an extra term
@@ -73,7 +73,7 @@ export default function EntropyWorkbenchPage() {
           illustrative nonzero <Formula latex={String.raw`C(\nu)`} />.
         </p>
 
-        <h2>Epistemic Boundary: A Regime-Limited Approximation</h2>
+        <h2>Epistemic boundary: a regime-limited approximation</h2>
         <p>
           Wien&apos;s law is an admitted approximation to the true (Planck) spectrum, accurate only
           where the radiation is dilute relative to the frequency and temperature in question. A
