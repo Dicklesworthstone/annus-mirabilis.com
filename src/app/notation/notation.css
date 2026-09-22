@@ -7,7 +7,9 @@
    the two columns of entries get the width the old 1200px cap held back. */
 .notation-page {
   margin: 0 auto;
-  padding: 1.5rem 1rem 4rem;
+  /* No side padding: main already carries the page gutter, and a second inset put this page's
+     text 8px (390) to 16px (1440) inside the header's left edge. */
+  padding: 1.5rem 0 4rem;
   color: var(--ink);
   font-family: inherit;
 }
@@ -419,7 +421,7 @@
 /* Responsive Viewports (320px support) */
 @media (max-width: 640px) {
   .notation-page {
-    padding: 1rem 0.5rem 3rem;
+    padding: 1rem 0 3rem;
   }
 
   .filter-grid {

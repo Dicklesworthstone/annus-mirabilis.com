@@ -12,7 +12,9 @@
 .your-data-page {
   max-width: 54rem;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  /* No side padding: main already carries the page gutter. The second 1rem inset cost a 390px
+     phone 32px of a 358px column and set the page off the header's left edge. */
+  padding: 2rem 0;
 }
 
 .privacy-guarantees {
