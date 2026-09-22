@@ -5,8 +5,9 @@ export default function LaboratoryLayout({ children }: { children: ReactNode }) 
   return (
     <>
       <nav className="actions no-print" aria-label="Reasoning laboratories">
+        <span className="eyebrow">Reasoning tools</span>
         <a className="button secondary" href="/lab/bm-01/compare/">
-          Hold something fixed
+          Change one input at a time
         </a>
         <a className="button secondary" href="/lab/countermodels/">
           Compare competing models
