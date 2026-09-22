@@ -918,7 +918,7 @@ test("parens.property.test: minimal correct parentheses from precedence", () => 
     args: [{ kind: "negate", argument: symA }, symB],
   };
   const renderedProdNeg = renderLatex(prodNeg, { mode: "plain" });
-  assert.equal(renderedProdNeg, "\\left(-\\left(x\\right)\\right)\\,y");
+  assert.equal(renderedProdNeg, "\\left(-x\\right)\\,y");
 });
 
 test("parens.property.test: test parser catches precedence inversions (planted defects)", () => {

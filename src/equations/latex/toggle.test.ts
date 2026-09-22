@@ -405,8 +405,8 @@ test("toggle.test: Paper 1 Wien exponential toggle preserves term bindings acros
     concordance,
   });
 
-  assert.equal(printedPlain.latex, "\\exp\\left(-\\left(\\frac{\\beta\\,\\nu}{T}\\right)\\right)");
-  assert.equal(modernPlain.latex, "\\exp\\left(-\\left(\\frac{h\\,\\nu}{k_B\\,T}\\right)\\right)");
+  assert.equal(printedPlain.latex, "\\exp\\left(-\\frac{\\beta\\,\\nu}{T}\\right)");
+  assert.equal(modernPlain.latex, "\\exp\\left(-\\frac{h\\,\\nu}{k_B\\,T}\\right)");
 
   // Colorized toggle
   const printedColor = renderEquationLatex({

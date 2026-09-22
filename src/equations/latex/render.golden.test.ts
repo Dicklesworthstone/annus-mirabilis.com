@@ -69,8 +69,8 @@ const PINNED_GOLDENS = {
     alternate_si_plain: "E'_y = \\gamma\\,\\left(E_y - v\\,B_z\\right)",
   },
   paper1_wien: {
-    printed_plain: "\\exp\\left(-\\left(\\frac{\\beta\\,\\nu}{T}\\right)\\right)",
-    modern_plain: "\\exp\\left(-\\left(\\frac{h\\,\\nu}{k_B\\,T}\\right)\\right)",
+    printed_plain: "\\exp\\left(-\\frac{\\beta\\,\\nu}{T}\\right)",
+    modern_plain: "\\exp\\left(-\\frac{h\\,\\nu}{k_B\\,T}\\right)",
   },
 };
 
