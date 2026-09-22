@@ -617,25 +617,40 @@ plainly in both directions below.
 - If a Luna worker or the cloud execution path is unavailable, pause the OCR portion and report the blocker. **Do not fall back to local OCR.**
 - Give cloud workers bounded, checkpointed page ranges. Preserve partial results after every chunk; never create one monolithic all-papers or all-pages batch. Limit concurrency so results remain reviewable.
 - Local agents may inspect a pinned PDF, review already-produced page renders or OCR drafts, and hand-correct or author the ledger and editions. Those activities never authorize starting a local OCR process.
-- **An agent may read the facsimile's own embedded text layer and the pinned page images.** The
-  owner ruled on this on 2026-09-20, selecting verbatim **"Both layer and pixels"** from three
-  options, having been told in the option itself that choosing it "means amending that sentence,
-  not working around it". So: extracting the OCR layer a host embedded in a pinned PDF (produced
-  off this machine, before we ever saw it) is permitted, and **reading the page image to correct
-  what that layer got wrong is permitted** - that is how `Trdgheit` becomes `Trägheit`, which the
-  layer's own text can never reveal because it is mechanically valid ASCII.
-- **And in the same breath, because the two must never be confused again:** that permission
-  changes what an agent may LOOK AT. It changes nothing about what may be EXECUTED. The denylisted
-  engines stay denylisted in every call form, and the OCR guard's denylist and call-form coverage
-  are untouched by the ruling. Proposing to relax that guard on the strength of this paragraph is
-  out of scope and goes back to the owner.
-- Cloud OCR output is research evidence only. **So is an embedded text layer, and so is a ledger
-  drafted from one.** A ledger produced under this permission is a **machine draft with hand
-  correction**: it satisfies no acceptance criterion that requires human review. Measured on
-  2026-09-20, `docs/OWNERS.md` holds **one named human (`jemanuel`) and 54 slots marked
-  `open: recruiting`**, among them `open-german-source-mass-energy` - so for every paper, the
-  reviewer who would turn such a draft into a reviewed ledger does not yet exist. A draft says
-  that in its own receipt, not only in a commit message.
+- **An agent may read the pinned page IMAGES. An agent may NOT read the embedded text layer.**
+  The boundary has three parts and only the middle one changed:
+  - pinned page **images**, read visually, and hand-corrected from - **ALLOWED**, and it is the
+    method that has produced four ledgers;
+  - the facsimile's embedded **text layer** - **FORBIDDEN**, by any route, as a drafting aid or
+    otherwise;
+  - any **OCR engine**, in any call form - **FORBIDDEN**.
+- **This paragraph said the opposite until 2026-09-22 and the permission it described was
+  withdrawn a day after it was granted.** The 2026-09-20 ruling ("Both layer and pixels") was
+  superseded by `docs/DECISIONS.md` D-2026-09-21-facsimile-text-layer-stays-forbidden, where the
+  owner selected verbatim **"Guard stands — withdraw the drafting aid (Recommended)"**. No
+  implementation followed the withdrawn approval. The reason is recorded there: the denylist
+  forbids the **purpose**, not the tool, so no change of extraction library affects it, and a
+  measurement on `ap-18-639` found **86 stray single letters concentrated exactly where the
+  inline mathematics is**.
+- **Why this correction is worth more than its size.** A page transcribed from the text layer and
+  a page transcribed from the plate are indistinguishable in the finished ledger; nothing
+  downstream can tell them apart, so no later gate can catch a violation. The boundary holding at
+  the moment of transcription is the only control there is. This paragraph is where an agent
+  reads its permissions at session start, and while it carried the superseded text it was a
+  standing instruction to do the forbidden thing.
+- **What has not changed:** the denylisted engines stay denylisted in every call form, and the OCR
+  guard's denylist and call-form coverage are untouched by any of this. `pdfinfo` and `pdftoppm`
+  are not denylist entries and remain available. Proposing to relax the guard on the strength of
+  any paragraph here is out of scope and goes back to the owner.
+- Cloud OCR output is research evidence only, and so is any ledger drafted from it. (The clause
+  that used to extend this to an embedded text layer is now moot rather than wrong: the layer may
+  not be read at all, so no ledger can be drafted from one.) Such a ledger is a **machine draft
+  with hand correction**, and a ledger hand-transcribed from the plates is a **hand draft**;
+  NEITHER satisfies an acceptance criterion that requires human review. Measured on 2026-09-20,
+  `docs/OWNERS.md` holds **one named human (`jemanuel`) and 54 slots marked `open: recruiting`**,
+  among them `open-german-source-mass-energy` - so for every paper, the reviewer who would turn
+  either kind of draft into a reviewed ledger does not yet exist. A draft says that in its own
+  receipt, not only in a commit message.
 
 **The 1905 typesetting** (roman body, italic mathematics, Greek, fractions, letter-spaced emphasis) defeats naive recognition. **Mathematics is retyped by the editor and compared directly with page images. Parsed PDF text is frequently unreliable for these sources and is never accepted for an equation.**
 
