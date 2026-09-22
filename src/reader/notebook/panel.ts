@@ -263,7 +263,7 @@ export function mountNotebookPanel(
       list.append(
         node(
           "p",
-          "No entries yet. Open a paper and use Save question, Save example, or Add a note beside a passage.",
+          "No entries yet. On a paper page, press the bookmark beside a passage heading to save a question, a next step or a note.",
         ),
       );
     for (const paper of NOTEBOOK_PAPERS) {
