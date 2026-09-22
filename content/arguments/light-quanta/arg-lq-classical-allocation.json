@@ -31,12 +31,13 @@
       },
       {
         "kind": "formula",
-        "latex": "u_\\nu=\\frac{8\\pi\\nu^2}{c^3}k_BT",
-        "spoken": "The classical energy density per unit frequency is eight pi frequency squared times thermal energy, divided by light speed cubed."
+        "latex": "\\rho_\\nu=\\frac{8\\pi\\nu^2}{c^3}k_BT",
+        "spoken": "The classical energy density per unit frequency is eight pi frequency squared times thermal energy, divided by light speed cubed.",
+        "equations": ["eq-model-lq-classical-density"]
       },
       {
         "kind": "formula",
-        "latex": "U(\\nu_c)=\\int_0^{\\nu_c}u_\\nu\\,d\\nu=\\frac{8\\pi k_BT}{3c^3}\\nu_c^3",
+        "latex": "U(\\nu_c)=\\int_0^{\\nu_c}\\rho_\\nu\\,d\\nu=\\frac{8\\pi k_BT}{3c^3}\\nu_c^3",
         "spoken": "The energy density below cutoff frequency nu c is eight pi k B T over three c cubed, times cutoff frequency cubed."
       },
       {

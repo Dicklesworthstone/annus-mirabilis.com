@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-classical-density",
+  "paper": "light-quanta",
+  "argument": "arg-lq-classical-allocation",
+  "title": "The classical allocation of energy to the spectrum",
+  "spoken": "The spectral energy density equals eight pi times the frequency squared over the speed of light cubed, times k B times the temperature.",
+  "explanation": "Give every mode of the radiation the average energy k_B T that classical theory assigns, and count the modes per unit volume per unit frequency: the density grows as the frequency squared without limit.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Each radiation mode in equilibrium carries the classical average energy k_B T.",
+    "These are modern teaching equations in SI notation; the paper writes L for c and R/N for k_B."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-classical-density.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-classical-density.t.density",
+      "quantityId": "frequencyEnergyDensity"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "product",
+            "args": [
+              {
+                "kind": "number",
+                "value": "8"
+              },
+              {
+                "kind": "constant",
+                "name": "pi"
+              },
+              {
+                "kind": "power",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-lq-classical-density.t.frequency",
+                  "quantityId": "frequency"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                }
+              }
+            ]
+          },
+          "denominator": {
+            "kind": "power",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-lq-classical-density.t.light",
+              "quantityId": "speedOfLight"
+            },
+            "exponent": {
+              "num": 3,
+              "den": 1
+            }
+          }
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-classical-density.t.boltzmann",
+          "quantityId": "boltzmannConstant"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-classical-density.t.temperature",
+          "quantityId": "temperature"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-classical-density.t.density",
+      "title": "Spectral energy density",
+      "explanation": "The same quantity section 4 describes with Wien's law, here computed from classical theory.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-classical-density.t.frequency",
+      "title": "Frequency",
+      "explanation": "Squared: the number of modes per unit frequency grows with the frequency squared, so the density does too.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-lq-classical-density.t.light",
+      "title": "Speed of light",
+      "explanation": "Cubed, from counting standing waves in a box; the paper writes it L.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-lq-classical-density.t.boltzmann",
+      "title": "Boltzmann's constant",
+      "explanation": "With the temperature, the classical average energy per mode; R over N in the paper.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-classical-density.t.temperature",
+      "title": "Temperature",
+      "explanation": "The density is proportional to it at every frequency in this allocation.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-classical-density.op.relation",
+      "title": "No upper limit",
+      "explanation": "Nothing in the formula stops the growth at high frequency, so the total energy over all frequencies diverges. That is the difficulty section 1 names, before any quantum is proposed.",
+      "foundation": "integration"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The classical density",
+      "nodeId": "eq-model-lq-classical-density.t.density"
+    },
+    {
+      "text": " grows as "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-classical-density.t.frequency"
+    },
+    {
+      "text": " squared, times "
+    },
+    {
+      "text": "k_B",
+      "nodeId": "eq-model-lq-classical-density.t.boltzmann"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "the temperature",
+      "nodeId": "eq-model-lq-classical-density.t.temperature"
+    },
+    {
+      "text": ", over "
+    },
+    {
+      "text": "the speed of light",
+      "nodeId": "eq-model-lq-classical-density.t.light"
+    },
+    {
+      "text": " cubed."
+    }
+  ]
+}
