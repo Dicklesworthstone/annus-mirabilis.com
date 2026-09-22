@@ -14,9 +14,6 @@ export default function BrownianDataPage() {
           Bring an explicitly calibrated trajectory CSV, inspect the observations, and ask whether
           the selected observation model admits them before interpreting an estimate.
         </p>
-        <p>
-          <a href="/lab/bm-07/">Return to the synthetic inference exercise and derivation</a>
-        </p>
       </header>
       <section className="reading" aria-labelledby="trajectory-format">
         <h2 id="trajectory-format">A small, explicit data format</h2>
@@ -37,6 +34,14 @@ export default function BrownianDataPage() {
         </p>
       </section>
       <MeasuredTrajectoryLab />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/lab/bm-07/">Return to the synthetic inference exercise and derivation</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" aria-labelledby="trajectory-limits">
         <h2 id="trajectory-limits">An interval is not an authenticity certificate</h2>
         <p>

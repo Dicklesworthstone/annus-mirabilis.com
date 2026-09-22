@@ -26,13 +26,18 @@ export default function VelocityCompositionPage() {
           Why doesn't adding speeds preserve light speed, and what happens when the motions are not
           along one line?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s5">Read §5 of the 1905 kinematics paper</a>
-        </p>
       </header>
       <VelocityCompositionComparison
         example={{ ...DEFAULT_PREPARED_EXAMPLE, parameters: checked.data }}
       />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s5">Read §5 of the 1905 kinematics paper</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" id="composition-worked">
         <h2>Worked case (readable without JavaScript)</h2>
         <p>

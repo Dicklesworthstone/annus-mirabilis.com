@@ -27,12 +27,17 @@ export default function ChargeCurrentPage() {
           How do charge density and current density transform between inertial frames, and why is a
           neutral current-carrying wire charged in a moving frame?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s9">Read §9 of the 1905 relativity paper</a>
-        </p>
       </header>
 
       <ChargeCurrentLab example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s9">Read §9 of the 1905 relativity paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="charge-current-worked">
         <h2>Worked case (readable without JavaScript)</h2>

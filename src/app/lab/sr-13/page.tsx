@@ -27,12 +27,17 @@ export default function ElectronDynamicsPage() {
           What force, work, energy, and deflection relations follow for a slowly accelerated
           electron, and why do two different &ldquo;transverse masses&rdquo; appear?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s10">Read §10 of the 1905 relativity paper</a>
-        </p>
       </header>
 
       <ElectronDynamicsLab example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s10">Read §10 of the 1905 relativity paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="electron-dynamics-worked">
         <h2>Worked case (readable without JavaScript)</h2>

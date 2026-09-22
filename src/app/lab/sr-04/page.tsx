@@ -27,17 +27,24 @@ export default function LorentzMapPage() {
           What map between two inertial frames keeps both postulates, and what does each requirement
           decide?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s3">Read &sect;3&apos;s functional-equation route</a>
-        </p>
       </header>
 
-      <p className="reading">
-        <a className="button" href="/lab/countermodels/">
-          Compare competing models: which observations can actually decide?
-        </a>
-      </p>
       <LorentzMapComparison example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s3">
+              Read &sect;3&apos;s functional-equation route
+            </a>
+          </li>
+          <li>
+            <a href="/lab/countermodels/">
+              Compare competing models: which observations can actually decide?
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="lorentz-map-argument">
         <p className="eyebrow">Open the derivation</p>

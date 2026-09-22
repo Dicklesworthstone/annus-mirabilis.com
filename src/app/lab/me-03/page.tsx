@@ -23,12 +23,19 @@ export default function BoundaryLedgerPage() {
           When energy leaves a body as radiation, which system loses mass, and which does not? Drag
           a thermodynamic boundary around the components and inspect what energy crosses it.
         </p>
-        <p>
-          <a href="/papers/mass-energy/#arg-me-scope">Read the explanatory preview and its scope</a>
-        </p>
       </header>
 
       <BoundaryLedgerComparison example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/mass-energy/#arg-me-scope">
+              Read the explanatory preview and its scope
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="system-boundary-reading">
         <p className="eyebrow">The physics of the boundary</p>

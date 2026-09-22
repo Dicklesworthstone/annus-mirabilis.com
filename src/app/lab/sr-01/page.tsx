@@ -24,14 +24,20 @@ export default function ClockSyncPage() {
           &mdash; a stated agreement, not an independent measurement of the two one-way travel
           times.
         </p>
-        <p>
-          <a href="/papers/special-relativity/s1/#arg-sr-synchronization">
-            Read the synchronization argument (explanatory preview)
-          </a>
-        </p>
       </header>
 
       <ClockSyncComparison example={example} restoreFromLocation />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/s1/#arg-sr-synchronization">
+              {" "}
+              Read the synchronization argument (explanatory preview){" "}
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="clock-sync-argument">
         <p className="eyebrow">Open the derivation</p>

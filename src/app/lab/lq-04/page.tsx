@@ -23,12 +23,17 @@ export default function EntropyWorkbenchPage() {
           radiation depend on the volume it occupies, and what had to be fixed to get a definite
           answer?
         </p>
-        <p>
-          <a href="/papers/light-quanta/#s3">Read Section 3 of Einstein&apos;s 1905 paper</a>
-        </p>
       </header>
 
       <EntropyWorkbenchComparison example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/light-quanta/#s3">Read Section 3 of Einstein&apos;s 1905 paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="radiation-entropy-theory">
         <p className="eyebrow">The physical argument</p>

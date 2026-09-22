@@ -28,14 +28,20 @@ export default function RodSimultaneityPage() {
           How does relative motion affect the synchronization of clocks, the coordinate measurement
           of moving rods, and the shape of moving spheres?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s2">
-            Read §2 (On the Relativity of Lengths and Times) of Einstein’s 1905 paper
-          </a>
-        </p>
       </header>
 
       <RodSimultaneityLab example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s2">
+              {" "}
+              Read §2 (On the Relativity of Lengths and Times) of Einstein’s 1905 paper{" "}
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="simultaneity-theory">
         <p className="eyebrow">The physical context</p>

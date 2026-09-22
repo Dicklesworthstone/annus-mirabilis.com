@@ -27,12 +27,17 @@ export default function FieldFrameChangePage() {
           How do electric and magnetic descriptions change together under a boost, and what does a
           test charge experience in each frame?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s6">Read §6 of the 1905 relativity paper</a>
-        </p>
       </header>
 
       <FieldFrameChangeLab example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s6">Read §6 of the 1905 relativity paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="field-frame-change-worked">
         <h2>Worked case (readable without JavaScript)</h2>

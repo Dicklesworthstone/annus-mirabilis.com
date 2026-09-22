@@ -26,13 +26,18 @@ export default function FieldEquationsPage() {
           How do the Maxwell-Hertz equations keep their form under the transformation, and what must
           the electric and magnetic fields do?
         </p>
-        <p>
-          <a href="/papers/special-relativity/#s6">Read §6 of the 1905 relativity paper</a>
-        </p>
       </header>
       <FieldEquationsComparison
         example={{ ...DEFAULT_PREPARED_EXAMPLE, parameters: checked.data }}
       />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s6">Read §6 of the 1905 relativity paper</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" id="field-equations-worked">
         <h2>Worked case (readable without JavaScript)</h2>
         <p>

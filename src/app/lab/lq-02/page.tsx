@@ -23,12 +23,17 @@ export default function ModeAllocationPage() {
           actually predicts, and why the paper says it rules out any equilibrium between matter and
           radiation.
         </p>
-        <p>
-          <a href="/papers/light-quanta/#s1">Read §1's resonator model and its verdict</a>
-        </p>
       </header>
 
       <ModeAllocationLab example={DEFAULT_LQ02_INPUTS} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/light-quanta/#s1">Read §1's resonator model and its verdict</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading">
         <h2>The law this instrument calculates</h2>

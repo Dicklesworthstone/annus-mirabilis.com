@@ -24,14 +24,20 @@ export default function TwoLedgersPage() {
           energy accounting books of two different inertial observers force you to conclude about
           the body&apos;s energy of motion?
         </p>
-        <p>
-          <a href="/papers/mass-energy/#arg-me-two-ledgers">
-            Read the two-ledger argument (explanatory preview)
-          </a>
-        </p>
       </header>
 
       <TwoLedgersComparison example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/mass-energy/#arg-me-two-ledgers">
+              {" "}
+              Read the two-ledger argument (explanatory preview){" "}
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="two-ledgers-argument">
         <p className="eyebrow">Open the derivation</p>

@@ -25,11 +25,16 @@ export default function MagnetConductorPage() {
           how does the transformation remove it? Both descriptions are internally coherent. They
           agree on what is measured to first order in v/c.
         </p>
-        <p>
-          <a href="/papers/">The four-paper catalogue (source edition in preparation)</a>
-        </p>
       </header>
       <MagnetConductorComparison example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/">The four-paper catalogue (source edition in preparation)</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" id="magnet-conductor-argument">
         <p className="eyebrow">Open the two descriptions</p>
         <h2>A path across the motion is comparable</h2>

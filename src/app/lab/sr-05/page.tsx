@@ -26,12 +26,19 @@ export default function MovingClocksPage() {
           Choose a worldline. Compare the traveling clock's own proper time with the platform clocks
           it moves past, and read both clocks' faces at the reunion event.
         </p>
-        <p>
-          <a href="/papers/relativity/#s4">Read Section 4 of Einstein&rsquo;s 1905 paper</a>
-        </p>
       </header>
 
       <MovingClocksLab example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/special-relativity/#s4">
+              Read Section 4 of Einstein&rsquo;s 1905 paper
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="moving-clocks-theory">
         <p className="eyebrow">The physical argument</p>

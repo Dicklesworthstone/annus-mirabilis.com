@@ -28,12 +28,17 @@ export default function SpectrumPage() {
           is Wien's law or the classical law an accurate description, and what does a density plot
           actually measure?
         </p>
-        <p>
-          <a href="/papers/light-quanta/#s2">Read &sect;2's classical-regime conclusion</a>
-        </p>
       </header>
 
       <SpectrumComparison example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/light-quanta/#s2">Read &sect;2's classical-regime conclusion</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="spectrum-argument">
         <p className="eyebrow">Open the derivation</p>
