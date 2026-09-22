@@ -23,7 +23,7 @@ export default function Home() {
       <section className="feature-row">
         <div>
           <p className="eyebrow">Available now · Brownian motion</p>
-          <h2>Six laboratories and a reading path</h2>
+          <h2>The Brownian motion laboratories</h2>
         </div>
         <div>
           <p>
@@ -35,9 +35,9 @@ export default function Home() {
             blur, localization error, and stage drift.
           </p>
           <p>
-            The reading path links these instruments to six explanatory passages and thirteen
-            foundation lessons. You can open a missing step, change the level of detail, and return
-            without restarting the trial you had running.
+            The reading path links these instruments to the explanatory passages and the foundation
+            lessons they depend on. You can open a missing step, change the level of detail, and
+            return without restarting the trial you had running.
           </p>
           <p>
             <a href="/papers/brownian-motion/">Open the reading path for Brownian motion</a>
