@@ -221,16 +221,22 @@ test("foundCalculus.constructions: TaylorBinomialExtension renders series, parti
   assert.ok(html.includes("0.243180"));
   assert.ok(html.includes("0.247773"));
   assert.ok(html.includes("0.25"));
-  assert.ok(html.includes("0.18L mass–energy fixture beside the exact 0.25L"));
+  // The first term against the exact bracket at 0.6c: the mass-energy paper's own step.
+  assert.ok(html.includes("0.18L") && html.includes("0.25L"));
 
-  // Cancellation-free evaluation at v/c = 1e-4
-  assert.ok(html.includes("5.0000000375e-9"));
-  assert.ok(html.includes("5.0000001917e-9"));
-  assert.ok(html.includes("7.500000e-9"));
+  // Evaluation at v/c = 1e-4, each value the live one, drawn as a power of ten by Sci, which sets
+  // the × between narrow no-break spaces (U+202F) so a number never breaks across lines.
+  assert.ok(html.includes("5.0000000375\u202f×\u202f10<sup>−9</sup>"));
+  assert.ok(html.includes("5.0000001917\u202f×\u202f10<sup>−9</sup>"));
+  assert.ok(html.includes("7.500000\u202f×\u202f10<sup>−9</sup>"));
   assert.ok(html.includes("3.833"));
-  assert.ok(html.includes("Cancellation-free evaluation rule:"));
-  assert.ok(html.includes("expm1(-0.5 * log1p(-x))"));
-  assert.ok(html.includes("is required for trustworthy numerical evaluation"));
+  assert.ok(html.includes("x / (√(1 − x) · (1 + √(1 − x)))"));
+  // Until 16bbe240 the extension printed toExponential ("5.0000000375e-9"), followed each live
+  // value by a hard-coded "(computed: ...)" copy that would outlive a change to the calculation,
+  // and showed readers the swarm's words ("Planned callers", "fixture", "Planted naive route").
+  assert.ok(!/\d\.\d+e[-+]\d/.test(html), "no toExponential token reaches the reader");
+  assert.ok(!html.includes("(computed:"), "no hard-coded copy of a computed value");
+  assert.ok(!/Planned callers|fixture|Planted/.test(html), "no internal vocabulary");
 
   writeCalculusLog({
     testId: "taylor-binomial-extension-rendered",
