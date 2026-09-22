@@ -355,6 +355,23 @@ export function staleReason(
   if (parsed.length === 0) {
     return `${recordKey(record.file, record.className)}: measurements do not parse: "${record.measurements}"`;
   }
+  // A region that was never laid out measures 0/0, which shows no overflow and would be honoured
+  // as proof that it fits. It is not proof of anything: it is proof the element was not rendered
+  // when someone measured it.
+  //
+  // This is not hypothetical. Measured on 2026-09-22: construction-table-wrap has 74 rendered
+  // instances across 29 built pages, and SEVENTY of them report 0/0 at 320px because they sit
+  // inside a collapsed `section` on the papers routes. Anyone auditing that class by opening each
+  // page and measuring would have produced seventy passing exemptions from seventy elements that
+  // never appeared. Only 3 of the 74 actually overflow and 1 genuinely fits.
+  //
+  // The rule is zero specifically, not a small-width threshold: zero means not laid out, and any
+  // other cutoff would be a number nobody measured.
+  const notLaidOut = parsed.filter((p) => p.clientWidth === 0 || p.scrollWidth === 0);
+  if (notLaidOut.length > 0) {
+    const at = notLaidOut.map((p) => `${p.viewport} ${p.scrollWidth}/${p.clientWidth}`).join(", ");
+    return `${recordKey(record.file, record.className)}: the recorded measurements are zero-width at ${at}, so the element was not laid out when it was measured. That is not evidence the region fits; re-measure it with the region actually rendered.`;
+  }
   const overflowing = parsed.filter((p) => p.scrollWidth > p.clientWidth);
   if (overflowing.length > 0) {
     const at = overflowing.map((p) => `${p.viewport} ${p.scrollWidth}/${p.clientWidth}`).join(", ");
@@ -753,6 +770,38 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
     const why = staleReason(overflowing, () => 'className="table-scroll"');
     assert.ok(why?.includes("show overflow at 320px 900/254"), why);
     assert.ok(why?.includes("must keep its tabIndex"), why);
+  });
+
+  test("a record measured while the element was not laid out is refused, not honoured", () => {
+    // 0/0 shows no overflow, so the old check honoured it. It is not evidence the region fits.
+    // Measured 2026-09-22: of construction-table-wrap's 74 rendered instances across 29 built
+    // pages, SEVENTY report 0/0 at 320px because they sit inside a collapsed section on the
+    // papers routes. Auditing that class page by page would have produced seventy passing
+    // exemptions from elements that never appeared.
+    const base = {
+      file: MEASURED,
+      className: "table-scroll",
+      url: "/x/",
+      measurements: "320px: 254px/254px (diff 0)",
+      reason: "r",
+      measuredBy: "test",
+    } as const;
+    const src = () => 'className="table-scroll"';
+
+    const notLaidOut = staleReason({ ...base, measurements: "320px: 0px/0px (diff 0)" }, src);
+    assert.ok(notLaidOut?.includes("not laid out"), notLaidOut);
+    assert.ok(notLaidOut?.includes("re-measure"), notLaidOut);
+
+    // One zero among several good viewports is still a refusal: the region was not measured at
+    // that width, and a partial measurement must not pass as a whole one.
+    const oneZero = staleReason(
+      { ...base, measurements: "320px: 0px/0px (diff 0); 1280px: 900px/900px (diff 0)" },
+      src,
+    );
+    assert.ok(oneZero?.includes("not laid out"), oneZero);
+
+    // The accept half: a genuinely measured, genuinely fitting region is still honoured.
+    assert.equal(staleReason(base, src), undefined);
   });
 
   test("am-uj6w: a STALE record fails - the element is gone, or the numbers do not parse", () => {
