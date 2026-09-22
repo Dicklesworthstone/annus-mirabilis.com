@@ -211,7 +211,30 @@ export function mountReaderNotebook(
       }
     }
   }
-  const observer = new MutationObserver(enhance);
+  /**
+   * The page's "Open your notebook" control ships DISABLED and is enabled here.
+   *
+   * It used to be an anchor pointing at /notebook/ while standing on /notebook/, relying on the
+   * delegated click below to turn it into a panel. Without this script that control reloaded the
+   * page the reader was already on and nothing happened, which is the hydration-dependent button
+   * AGENTS.md forbids. Shipping it disabled makes the unavailable state visible; enabling it here
+   * is what the script arriving actually means.
+   *
+   * Every matching control is enabled, not just the first, because the same marker is used by
+   * SaveComparisonReplay.tsx and a second one may be added without anyone revisiting this line.
+   */
+  function enableLaunchers() {
+    for (const el of document.querySelectorAll("[data-open-notebook][disabled]")) {
+      if (el instanceof HTMLButtonElement) el.disabled = false;
+    }
+  }
+  enableLaunchers();
+
+  const observer = new MutationObserver(() => {
+    enhance();
+    // A control rendered after mount is still a control a reader can press.
+    enableLaunchers();
+  });
   showRecap();
   enhance();
   observer.observe(main, { childList: true, subtree: true });

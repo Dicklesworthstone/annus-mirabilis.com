@@ -16,10 +16,23 @@ export default function NotebookPage() {
           notes, then return to the same passage and reading view.
         </p>
       </header>
+      {/*
+        THE BUTTON USED TO LINK TO THIS PAGE. It read `href="/notebook/"` while standing ON
+        /notebook/, and relied on the notebook script intercepting the click to open the panel.
+        With JavaScript off, or before hydration, pressing the site's most prominent control
+        reloaded the page the reader was already on and nothing happened. AGENTS.md is explicit:
+        "No-JavaScript readers get real links, never hydration-dependent buttons."
+
+        The panel still opens the same way for readers who have the script, through
+        data-open-notebook, which browser.ts already delegates on. What changes is that the
+        control is now a <button> that is DISABLED until the script arrives, so a reader without
+        it meets a control that visibly cannot be pressed rather than one that silently does
+        nothing. The noscript block below already explains why.
+      */}
       <p>
-        <a className="button" href="/notebook/" data-open-notebook>
+        <button className="button" type="button" data-open-notebook disabled>
           Open your notebook
-        </a>
+        </button>
       </p>
       <p>
         On a paper page, use Save question, Save next step or Add a note beside a passage. Save

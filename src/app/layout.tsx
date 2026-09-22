@@ -55,14 +55,26 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </header>
         <PermalinkRobotsManager />
         <main id="main">{children}</main>
+        {/*
+          THE FOOTER CARRIES THE PAGE THAT EXPLAINS WHAT THE SITE STORES.
+          Measured 2026-09-22 across every .tsx in src/: `href="/your-data/"` appeared ZERO times.
+          The page existed, was written, and was reachable only by typing the URL. For a site
+          whose stated position is no accounts, no tracking and everything kept on the reader's own
+          device, the page making that promise being unreachable is the promise going unmade.
+          The footer is where a reader looks for it, and it is on every page.
+        */}
         <footer className="site-footer">
           <p>
             A critical edition in preparation. The instruments here work out their own numbers and
             say so where each one appears; none of them is a measurement of nature.
           </p>
-          <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com">
-            Source and development plan
-          </a>
+          <nav aria-label="About this site">
+            <a href="/your-data/">What this site stores</a>
+            <a href="/offline/">Read without a connection</a>
+            <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com">
+              Source and development plan
+            </a>
+          </nav>
         </footer>
       </body>
     </html>
