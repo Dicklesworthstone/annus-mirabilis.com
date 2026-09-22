@@ -9,6 +9,7 @@ import {
   type RadiationResult,
   removeUpperLimit,
 } from "../../experiments/lq02/session";
+import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { Sci } from "./Sci.tsx";
 
 const NOT_MODELED = [
@@ -178,37 +179,6 @@ export function ModeAllocationLab({
 
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Mode-allocation settings" className="controls">
-          <label htmlFor={`${id}-T`}>Temperature (K)</label>
-          <input
-            id={`${id}-T`}
-            inputMode="decimal"
-            value={draft.T}
-            onChange={(e) => setDraft({ ...draft, T: e.target.value })}
-          />
-
-          <label htmlFor={`${id}-nuc`}>Highest resonator frequency, the cutoff (Hz)</label>
-          <input
-            id={`${id}-nuc`}
-            inputMode="decimal"
-            value={draft.nuCutoff}
-            onChange={(e) => setDraft({ ...draft, nuCutoff: e.target.value })}
-          />
-
-          <label htmlFor={`${id}-probe`}>Probe frequency, for the share-above readout (Hz)</label>
-          <input
-            id={`${id}-probe`}
-            inputMode="decimal"
-            value={draft.probeFrequency}
-            onChange={(e) => setDraft({ ...draft, probeFrequency: e.target.value })}
-          />
-
-          <button type="submit">Apply</button>
-          {error && (
-            <p className="error" role="alert">
-              {error}
-            </p>
-          )}
-
           <div className="actions">
             <button type="button" onClick={() => widen(10)}>
               Widen tenfold
@@ -220,6 +190,38 @@ export function ModeAllocationLab({
               Remove the upper limit
             </button>
           </div>
+          <ExperimentSettings contents="temperature, cutoff and probe frequencies">
+            <label htmlFor={`${id}-T`}>Temperature (K)</label>
+            <input
+              id={`${id}-T`}
+              inputMode="decimal"
+              value={draft.T}
+              onChange={(e) => setDraft({ ...draft, T: e.target.value })}
+            />
+
+            <label htmlFor={`${id}-nuc`}>Highest resonator frequency, the cutoff (Hz)</label>
+            <input
+              id={`${id}-nuc`}
+              inputMode="decimal"
+              value={draft.nuCutoff}
+              onChange={(e) => setDraft({ ...draft, nuCutoff: e.target.value })}
+            />
+
+            <label htmlFor={`${id}-probe`}>Probe frequency, for the share-above readout (Hz)</label>
+            <input
+              id={`${id}-probe`}
+              inputMode="decimal"
+              value={draft.probeFrequency}
+              onChange={(e) => setDraft({ ...draft, probeFrequency: e.target.value })}
+            />
+
+            <button type="submit">Apply</button>
+          </ExperimentSettings>
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
         </form>
 
         <div className="readouts">

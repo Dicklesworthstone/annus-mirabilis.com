@@ -86,3 +86,23 @@
 .experiment-settings-body {
   padding-block: 0.25rem 1.25rem;
 }
+
+/* Bare label + control pairs inside the drawer read like the labelled fields elsewhere in
+   the family (small sans labels), instead of in the body serif. */
+.experiment-settings-body > label {
+  display: block;
+  margin-top: 0.9rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  line-height: 1.5;
+}
+
+.experiment-settings-body > :is(input, select) {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+}
+
+.experiment-settings-body > button[type="submit"] {
+  margin-top: 1rem;
+}
