@@ -490,6 +490,53 @@ export function validateLayerRights(kind: string, rights: unknown): void {
 /**
  * Validates data against a known schema structure.
  */
+/**
+ * Every export schema in this file declares `additionalProperties: false`, and until now nothing
+ * read it.
+ *
+ * The validator below is a hand-written switch that checks each schema's `required` list and
+ * stops there, so all six schemas stated a closure rule the runtime enforced on none of them.
+ * Measured by planting `generatedOn: new Date()...` as a new top-level key on the index record:
+ * `validateExportRecord("index", ...)` accepted it without complaint and the whole exports suite
+ * stayed at 14 pass 0 fail.
+ *
+ * It is the prescription class - a declaration naming a behaviour the code does not implement -
+ * and it matters for this bead specifically. Requirement 7 promises that additive changes stay
+ * within v1 and breaking changes bump the version. A validator that accepts unknown keys cannot
+ * refuse a misspelled optional field, a renamed field whose old spelling is still being written,
+ * or a v2 field leaking into a v1 record; each of those ships as a silently accepted record.
+ *
+ * Required fields were never the gap: a typo in one of those is caught by its own absence. The
+ * gap is every optional field and every key nobody declared at all.
+ */
+const EXPORT_SCHEMAS_BY_KIND: Record<string, { readonly properties: Record<string, unknown> }> = {
+  paper: PAPER_EXPORT_SCHEMA,
+  section: SECTION_EXPORT_SCHEMA,
+  equation: EQUATION_EXPORT_SCHEMA,
+  argument: ARGUMENT_EXPORT_SCHEMA,
+  experiment: EXPERIMENT_EXPORT_SCHEMA,
+  index: EXPORT_INDEX_SCHEMA,
+};
+
+/** Rejects top-level keys the record's schema does not declare. */
+function rejectUndeclaredKeys(kind: string, record: Record<string, unknown>): void {
+  const schema = EXPORT_SCHEMAS_BY_KIND[kind];
+  if (schema === undefined) {
+    throw new ExportValidationError(kind, "root", `No schema is registered for kind '${kind}'.`);
+  }
+  const declared = new Set(Object.keys(schema.properties));
+  const undeclared = Object.keys(record)
+    .filter((key) => !declared.has(key))
+    .sort();
+  if (undeclared.length > 0) {
+    throw new ExportValidationError(
+      kind,
+      undeclared[0] as string,
+      `${undeclared.length} key(s) not declared by the ${kind} schema: ${undeclared.join(", ")}. The schema sets additionalProperties: false, so a record may not carry fields it does not declare.`,
+    );
+  }
+}
+
 export function validateExportRecord(
   kind: "paper" | "section" | "equation" | "argument" | "experiment" | "index",
   data: unknown,
@@ -504,6 +551,8 @@ export function validateExportRecord(
   if (rec.schemaVersion !== 1) {
     throw new ExportValidationError(kind, "schemaVersion", "Expected schemaVersion === 1.");
   }
+
+  rejectUndeclaredKeys(kind, rec);
 
   if (kind !== "index") {
     validateLayerRights(kind, rec.rights);

@@ -66,6 +66,49 @@ function fixturePayload(rootDir: string) {
   };
 }
 
+/**
+ * Source with comments removed, so a clock check reads CODE rather than TEXT.
+ *
+ * Written because this gate caught its own documentation. The schemas.ts note explaining the
+ * plant contains the literal `new Date()` while describing it, and a text-level scan reported a
+ * clock in a file that has none - the exact direction AGENTS.md records for unanchored patterns,
+ * which fail toward the prose ABOUT a thing rather than the thing. `blockCoversCode` made the
+ * same mistake with `includes` and credited a comment as executable code.
+ *
+ * Line numbers are preserved: comment bodies are blanked rather than deleted, so a violation
+ * still reports the line it is on.
+ */
+function sourceWithoutComments(source: string): string {
+  const lines = source.split("\n");
+  let inBlock = false;
+  return lines
+    .map((line) => {
+      let out = "";
+      let index = 0;
+      while (index < line.length) {
+        if (inBlock) {
+          const end = line.indexOf("*/", index);
+          if (end === -1) return out;
+          inBlock = false;
+          index = end + 2;
+          continue;
+        }
+        const block = line.indexOf("/*", index);
+        const lineComment = line.indexOf("//", index);
+        if (block !== -1 && (lineComment === -1 || block < lineComment)) {
+          out += line.slice(index, block);
+          inBlock = true;
+          index = block + 2;
+          continue;
+        }
+        if (lineComment !== -1) return out + line.slice(index, lineComment);
+        return out + line.slice(index);
+      }
+      return out;
+    })
+    .join("\n");
+}
+
 describe("export stability: the formats carry one unit set, and nothing is stamped", () => {
   test("every section's JSON and Markdown carry exactly the same unit ids", async () => {
     const root = await mkdtemp(resolve(process.env.AM_TEST_TMP ?? tmpdir(), "am-parity-"));
@@ -147,7 +190,7 @@ describe("export stability: the formats carry one unit set, and nothing is stamp
 
     const found: string[] = [];
     for (const file of surface) {
-      const source = readFileSync(resolve(HERE, file), "utf8");
+      const source = sourceWithoutComments(readFileSync(resolve(HERE, file), "utf8"));
       for (const [token, pattern] of forbidden) {
         const lines = source.split("\n");
         for (let index = 0; index < lines.length; index++) {
@@ -163,5 +206,22 @@ describe("export stability: the formats carry one unit set, and nothing is stamp
       filesScanned: surface.length,
       tokens: forbidden.length,
     });
+  });
+
+  test("the clock check reads code, not the prose about it, and still sees real code", () => {
+    // Both directions, or the stripper is only proved to be permissive. A gate that strips
+    // everything would also report a clean surface forever.
+    const inAComment = ["/* a note mentioning new Date() in passing */", "const x = 1;"].join("\n");
+    const inTheCode = ["// a note", "const stamp = new Date();"].join("\n");
+    const clock = /\bnew\s+Date\b/;
+
+    expect(clock.test(sourceWithoutComments(inAComment))).toBe(false);
+    expect(clock.test(sourceWithoutComments(inTheCode))).toBe(true);
+    // A trailing line comment must not swallow the code before it.
+    expect(sourceWithoutComments("const y = 2; // new Date()").trim()).toBe("const y = 2;");
+    // And a block comment spanning lines must not swallow the code after it.
+    expect(
+      clock.test(sourceWithoutComments(["/* start", "end */ const z = new Date();"].join("\n"))),
+    ).toBe(true);
   });
 });
