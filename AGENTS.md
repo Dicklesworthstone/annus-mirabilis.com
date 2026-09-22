@@ -1171,6 +1171,22 @@ correcting another pane for it. A rule three people break is a fact about the in
 The general form: **when a process check can match the process doing the checking, anchor it
 on something only the target can contain.**
 
+**A probe goes in the session scratchpad, never under `src/`.** This is the enforcement half of
+RULE 2 point 3, and the reason outranks tidiness: a file under `src/` is TYPECHECKED. On
+2026-09-22 a spawn probe left in `src/testing/hygiene/` referenced `Bun.spawnSync`, which this
+repository's ambient `Bun` type does not declare, so for about twenty minutes it was the sole
+`error TS` and broke `bun run check:types` **for every pane**. It did not need anyone to run a
+bare `git add -A` to do damage; it only needed to be compiled. Two panes independently placed a
+spawn probe in that same directory within four minutes while chasing the same `EBADF` on
+`posix_spawn '/usr/bin/git'`, which is a fact about how visible this norm is rather than about
+either of them. If a probe is already in the tree, **`mv` it to your scratchpad; do not delete
+it.** A move is not a deletion and RULE 1 does not block one, which matters because the moment a
+probe lands in the repo nobody can remove it without the owner. Confirm the move three ways
+rather than assuming it: the destination present with a byte count, the source directory holding
+zero of those files, and `find src -name '<probe>*'` returning zero. The third check is not
+redundant with the second - it is what caught a SECOND probe, belonging to another pane, that had
+appeared four minutes after the first was moved.
+
 ## Beads Issue Tracking
 
 Use `br` (beads_rust) for task tracking. **`br` never runs git.** After changes, sync and stage manually.
