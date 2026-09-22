@@ -82,29 +82,29 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
           expectedContent: [
             "continuous curve",
             "2Dt",
-            "A stopping point:",
+            "Where this lesson stops",
             "Textual summary of the construction",
           ],
         },
         {
           id: "derivatives",
           expectedTitle: "Rates of change and derivatives",
-          expectedContent: ["A stopping point:"],
+          expectedContent: ["Where this lesson stops"],
         },
         {
           id: "partial-derivatives",
           expectedTitle: "Partial derivatives and held-fixed quantities",
-          expectedContent: ["A stopping point:"],
+          expectedContent: ["Where this lesson stops"],
         },
         {
           id: "exponentials",
           expectedTitle: "Exponentials and continuous scaling",
-          expectedContent: ["A stopping point:"],
+          expectedContent: ["Where this lesson stops"],
         },
         {
           id: "logarithms",
           expectedTitle: "Logarithms and product-to-sum relations",
-          expectedContent: ["0.693147", "0.301030", "A stopping point:"],
+          expectedContent: ["0.693147", "0.301030", "Where this lesson stops"],
         },
       ];
 
@@ -205,8 +205,8 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
         `Print rendering must include the worked-example section, headed "${pdExampleHeading}"`,
       );
       assert.ok(
-        pdText.includes("A stopping point:"),
-        "Print rendering must include stopping point notice",
+        pdText.includes("Where this lesson stops"),
+        "Print rendering must include the section headed Where this lesson stops",
       );
 
       // Verify page element visibility under print media

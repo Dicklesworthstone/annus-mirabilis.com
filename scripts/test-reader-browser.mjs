@@ -41,7 +41,7 @@ export async function checkReaderBrowser(browser, url, check) {
     await passage.getByRole("link", { name: /^Why\?:/u }).click();
     assert.match(new URL(page.url()).pathname, /foundations\/mean-variance-rms\/$/);
     assert.equal(await page.locator("h1").innerText(), "Mean, variance and RMS");
-    assert.match(await page.locator("main").innerText(), /A stopping point/);
+    assert.match(await page.locator("main").innerText(), /Where this lesson stops/);
     await page.locator('[data-foundation="bridge-negative-numbers-direction"]').click();
     assert.equal(await page.locator("h1").innerText(), "A sign records direction");
     await page.goBack();
