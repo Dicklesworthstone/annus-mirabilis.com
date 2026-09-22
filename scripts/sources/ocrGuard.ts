@@ -149,17 +149,38 @@ export function scanContentForViolations(
   const matchers = getCompiledMatchers(denylist);
 
   // Scan line by line for imports, spawns, or code symbols
+  let inExemptCommentBlock = false;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (line === undefined) continue;
     const trimmed = line.trim();
 
-    // Skip comments that merely mention the denylist or explain guard rules
-    if (
-      trimmed.startsWith("//") &&
-      (trimmed.includes("denylist") || trimmed.includes("forbidden") || trimmed.includes("policy"))
-    ) {
-      continue;
+    // Skip comments that merely mention the denylist or explain guard rules.
+    //
+    // THE EXEMPTION IS BLOCK-AWARE, and that is a fix rather than a widening. It used to test
+    // each line on its own, so a comment that WRAPS lost the exemption on every line after the
+    // first: download-facsimiles.ts carries a block explaining the owner's ruling, and its
+    // continuation line "and pdftotext and pdf.js getTextContent both carry the same ..." held
+    // neither "denylist" nor "forbidden" nor "policy" because those words were two lines up.
+    // A true explanation of the rule failed the rule.
+    //
+    // The conservative half is kept deliberately: a "//" line that opens no exempt block still
+    // flags, so commented-out CODE - `// spawnSync("pdftotext", ...)` sitting in an unrelated
+    // comment - is still reported. Only a contiguous run of "//" lines begun by a line that
+    // names the policy inherits the exemption, and any non-comment line ends the run.
+    if (trimmed.startsWith("//")) {
+      if (
+        trimmed.includes("denylist") ||
+        trimmed.includes("forbidden") ||
+        trimmed.includes("policy")
+      ) {
+        inExemptCommentBlock = true;
+      }
+      if (inExemptCommentBlock) {
+        continue;
+      }
+    } else {
+      inExemptCommentBlock = false;
     }
 
     const lineLower = line.toLowerCase();
