@@ -270,7 +270,32 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
     expect(html).toContain("Prior event: ");
     expect(html).toContain("Performed 1903");
     expect(html).toContain("Related card: ");
-    expect(html).toContain("#sutherland-1905-phil-mag");
+    // The link goes to the related card's anchor; the id itself is no longer shown as text.
+    expect(html).toContain('href="#card-sutherland-1905-phil-mag"');
+    expect(html).not.toContain(">#sutherland-1905-phil-mag<");
+
+    // Given the related card, the link names it by its date and claim.
+    const named = renderToStaticMarkup(
+      <CardDetail
+        card={cardWithPriorAndRelated}
+        relatedCard={{
+          id: "sutherland-1905-phil-mag",
+          proposition: "Diffusion formula with slip correction in Phil. Mag.",
+          status: "parallel-work",
+          sources: ["Phil. Mag. (1905)"],
+          date: {
+            earliest: "1905-06",
+            latest: "1905-06",
+            precision: "month",
+            latestYear: 1905,
+            eventKind: "published",
+          },
+        }}
+      />,
+    );
+    expect(named).toContain(
+      "Published, 1905-06: Diffusion formula with slip correction in Phil. Mag.",
+    );
 
     globalKnowledgeCardsLogger.log({
       testId: "render-prior-event-and-related-card",
