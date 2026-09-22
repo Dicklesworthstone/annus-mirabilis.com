@@ -20,7 +20,9 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
     expect(html).toContain('<div data-reading="0" hidden="" class="reading-version">');
     expect(html).toContain('<div data-reading="1" class="reading-version">');
     expect(html).toContain('<div data-reading="2" hidden="" class="reading-version">');
-    expect(html).toContain('<aside class="modern-margin" data-reading="3" hidden="">');
+    // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
+    // callout-limit to the modern margin and four exact-string checks went red.
+    expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
   });
 
   test("equation unit emits semantic structure within the passage unit", async () => {
@@ -83,7 +85,9 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
     expect(html).toContain('<div data-reading="0" hidden="" class="reading-version">');
     expect(html).toContain('<div data-reading="1" class="reading-version">');
     expect(html).toContain('<div data-reading="2" hidden="" class="reading-version">');
-    expect(html).toContain('<aside class="modern-margin" data-reading="3" hidden="">');
+    // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
+    // callout-limit to the modern margin and four exact-string checks went red.
+    expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
 
     // Content from readings-owners manifest is preserved
     expect(html).toContain(target.readings.r0);

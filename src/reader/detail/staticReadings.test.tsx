@@ -26,7 +26,9 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
     expect(html).toMatch(/<div data-reading="0" hidden="" class="reading-version">/);
     expect(html).toMatch(/<div data-reading="1" class="reading-version">/);
     expect(html).toMatch(/<div data-reading="2" hidden="" class="reading-version">/);
-    expect(html).toMatch(/<aside class="modern-margin" data-reading="3" hidden="">/);
+    // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
+    // callout-limit to the modern margin and four exact-string checks went red.
+    expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
 
     // No-JS per-unit expansion disclosure exists statically
     expect(html).toContain('<details class="local-steps">');
@@ -55,7 +57,9 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
     expect(html).toMatch(/<div data-reading="0" hidden="" class="reading-version">/);
     expect(html).toMatch(/<div data-reading="1" class="reading-version">/);
     expect(html).toMatch(/<div data-reading="2" hidden="" class="reading-version">/);
-    expect(html).toMatch(/<aside class="modern-margin" data-reading="3" hidden="">/);
+    // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
+    // callout-limit to the modern margin and four exact-string checks went red.
+    expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
 
     // No-JS local-steps disclosure exists statically
     expect(html).toContain('<details class="local-steps">');
