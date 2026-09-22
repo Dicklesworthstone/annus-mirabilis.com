@@ -268,7 +268,7 @@ export default function BrownianEncounter() {
       </header>
       <p className="reading">
         <a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
-          Why the mean square is tractable: inspect the cross-term step →
+          Why the mean square is tractable: inspect the cross-term step
         </a>
       </p>
       <section>
@@ -295,7 +295,7 @@ export default function BrownianEncounter() {
           </p>
         </details>
         <p>
-          <a href="/lab/bm-01/">Compare signed means and mean squares in the tracer ensemble →</a>
+          <a href="/lab/bm-01/">Compare signed means and mean squares in the tracer ensemble</a>
         </p>
       </section>
       <section>
@@ -319,9 +319,9 @@ export default function BrownianEncounter() {
             accepted diffusion coefficient. It is not three independent measurements.
           </p>
         </details>
-        <a href="/lab/bm-06/">Compare the observation times in the laboratory →</a>
+        <a href="/lab/bm-06/">Compare the observation times in the laboratory</a>
         <p>
-          <a href="/lab/bm-05/">Build the argument from coin, uniform and Gaussian steps →</a>
+          <a href="/lab/bm-05/">Build the argument from coin, uniform and Gaussian steps</a>
         </p>
       </section>
       <section>
@@ -360,7 +360,7 @@ export default function BrownianEncounter() {
           radius, estimate the number, and repeat the experiment to see why some confidence
           intervals miss.
         </p>
-        <a href="/lab/bm-07/">Explore the molecular-number inference laboratory →</a>
+        <a href="/lab/bm-07/">Estimate the number and repeat the experiment</a>
       </section>
       <section>
         <p className="step-number">05 / Try it yourself</p>
@@ -395,9 +395,9 @@ export default function BrownianEncounter() {
         </p>
         <div className="actions">
           <a className="button" href="/papers/brownian-motion/">
-            Read the argument with its missing steps →
+            Read the argument and open its missing steps
           </a>
-          <a href="/foundations/">Explore the foundations</a>
+          <a href="/foundations/">Open the foundations library</a>
           <a href="/papers/">Back to the paper catalogue</a>
         </div>
       </section>
