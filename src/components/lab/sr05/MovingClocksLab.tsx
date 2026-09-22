@@ -32,6 +32,13 @@ const PRESET_ORDER = [
   "sr-05-equator-note",
 ] as const;
 
+/** The worldline, in the reader's words. */
+const WORLDLINE_WORDS: Readonly<Record<string, string>> = {
+  inertial: "a straight line at constant speed",
+  "out-and-back": "out and back",
+  circle: "a circle at constant speed",
+};
+
 export function MovingClocksLab({ example }: MovingClocksLabProps) {
   const instanceId = useId();
   const session = useMemo(() => createSr05Session(instanceId, example), [instanceId, example]);
@@ -63,10 +70,7 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
     <div className="lab-surface moving-clocks-lab" data-testid="moving-clocks-lab">
       <section aria-label="Named scenarios">
         <h2>Choose a scenario</h2>
-        <p className="fine">
-          Each button applies a named preset. Typed entry is available in the run summary below;
-          visual and equivalent paths produce identical commands (this bead's action contract).
-        </p>
+        <p className="fine">Each button sets up one named case; the readings below follow it.</p>
         <fieldset className="preset-buttons">
           <legend>Worldline presets</legend>
           {PRESET_ORDER.map((id) => {
@@ -94,7 +98,7 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
             <dt>Clock speed (fraction of c)</dt>
             <dd data-field="speed">{fmt(params.speed)}</dd>
             <dt>Worldline</dt>
-            <dd data-field="worldlinePreset">{params.worldlinePreset}</dd>
+            <dd data-field="worldlinePreset">{WORLDLINE_WORDS[params.worldlinePreset]}</dd>
             <dt>Coordinate duration</dt>
             <dd data-field="coordinateDuration">{fmt(params.coordinateDuration)} s</dd>
           </dl>
@@ -102,7 +106,7 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
 
         <table>
           <caption>
-            R0. The moving clock's proper time versus the platform's coordinate time.
+            The moving clock&apos;s own time against the platform&apos;s coordinate time.
           </caption>
           <tbody>
             <tr>
@@ -126,8 +130,8 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
 
         <table>
           <caption>
-            R1. Per-second loss: the stable exact form beside the printed second-order approximation
-            ½β², never substituted for one another.
+            Loss per second: the exact form beside the printed second-order approximation ½β².
+            Neither stands in for the other.
           </caption>
           <tbody>
             <tr>
@@ -143,8 +147,8 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
 
         <table>
           <caption>
-            R2. Reunion comparison at the reunion event: both clocks' readings, with the exact lag
-            beside the printed approximation ½ t β², labeled as an approximation.
+            When the clocks meet again: the exact lag beside the printed approximation ½tβ², which
+            is labelled as one.
           </caption>
           <tbody>
             {reunionStatus === "not-applicable" ? (
@@ -173,9 +177,9 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
 
         <table>
           <caption>
-            R3. Reciprocal description: each inertial frame reports the same dilation factor for the
-            other clock's rate. Comparing separated readings needs a stated simultaneity convention;
-            only the reunion comparison above is frame-independent.
+            Each inertial frame reports the same dilation factor for the other clock&apos;s rate.
+            Comparing clocks that are apart needs a stated simultaneity convention; only the reunion
+            comparison above holds in every frame.
           </caption>
           <tbody>
             <tr>
