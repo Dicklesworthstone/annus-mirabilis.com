@@ -329,8 +329,20 @@ describe("ThemeToggle: UI reflection of active theme and user selection", () => 
     await act(async () => {
       switchOf(container).click();
     });
-    expect(status?.textContent).toBe("Theme changed to Kramgasse Night.");
+    // The announcement names the MODE the reader chose, not the edition's name for the theme.
+    // It said "Theme changed to Kramgasse Night." - a name rendered nowhere a sighted reader can
+    // see it, and one that disambiguates nothing when THEME_IDS holds exactly two entries.
+    expect(status?.textContent).toBe("Theme changed to dark.");
+    expect(status?.textContent).not.toContain("Kramgasse");
     expect(status?.className).toBe("theme-switch-announcement");
+
+    // The other direction was the worse of the two: it announced "Annalen", the journal's name,
+    // for the LIGHT theme. Asserted because a one-directional test would have left it unexamined.
+    await act(async () => {
+      switchOf(container).click();
+    });
+    expect(status?.textContent).toBe("Theme changed to light.");
+    expect(status?.textContent).not.toContain("Annalen");
 
     await act(async () => {
       root.unmount();

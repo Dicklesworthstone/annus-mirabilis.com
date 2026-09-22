@@ -4,11 +4,6 @@ import { useEffect, useState } from "react";
 import { SETTINGS_KEY_PREFIX, storageKeyRegistry } from "../../platform/storage/keys";
 import { FOLLOW_SYSTEM_VALUE, THEME_IDS, type ThemeId } from "./tokens";
 
-const THEME_LABELS: Readonly<Record<ThemeId, string>> = {
-  annalen: "Annalen",
-  "kramgasse-night": "Kramgasse Night",
-};
-
 const registration = storageKeyRegistry.get(`${SETTINGS_KEY_PREFIX}theme`);
 if (!registration) {
   throw new Error(`Storage registry has no entry for "${SETTINGS_KEY_PREFIX}theme".`);
@@ -94,7 +89,36 @@ export function ThemeToggle() {
     const next: ThemeId = isDark ? LIGHT : DARK;
     applyTheme(next);
     setTheme(next);
-    setAnnouncement(`Theme changed to ${THEME_LABELS[next]}.`);
+    // ANNOUNCE THE MODE, NOT THE EDITION'S NAME FOR IT.
+    //
+    // This said "Theme changed to Kramgasse Night." and, in the other direction, "Theme changed
+    // to Annalen." 977308cd took the same editorial names out of the control's accessible name
+    // because they render nowhere a sighted reader can see them; the question of whether an
+    // ANNOUNCEMENT may carry a name a LABEL may not is answered here rather than left implied.
+    //
+    // It may not, for two reasons that are not about frequency:
+    //
+    //   1. A confirmation's job is recognition. The reader pressed a control labelled "Dark" and
+    //      heard the name of something they have never encountered. "Annalen" is worse than
+    //      "Kramgasse Night" here - it is the journal's name, and nothing about it reads as
+    //      "light".
+    //   2. THE NAME DISAMBIGUATES NOTHING. THEME_IDS holds exactly two entries, so there is one
+    //      dark theme and one light one. With three dark themes a name would earn its place; with
+    //      one it is a synonym the reader cannot resolve.
+    //
+    // The frequency argument is real and does not rescue it: firing once per deliberate change
+    // lowers the cost of the mismatch without fixing the mismatch.
+    //
+    // If "Kramgasse Night" is worth saying - and the edition naming its dark theme after the Bern
+    // street Einstein lived on in 1905 is a good detail - it belongs somewhere themes are
+    // DESCRIBED, visible to everyone, not in a two-state toggle's confirmation.
+    //
+    // Where they survive, stated exactly rather than approximately: as COMMENTS only, and no
+    // longer at runtime. "Annalen" sits above its palette in themes.css; the display string
+    // "Kramgasse Night" appears in themes.css's header-width note and in colourChannels.ts. The
+    // ids `annalen` and `kramgasse-night` remain in tokens.ts, which is a different thing from
+    // the names.
+    setAnnouncement(`Theme changed to ${next === DARK ? "dark" : "light"}.`);
   }
 
   return (
