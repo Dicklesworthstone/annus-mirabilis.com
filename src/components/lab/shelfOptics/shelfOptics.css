@@ -1,17 +1,16 @@
-.shelf-optics-page {
-  max-width: 80rem;
-  margin-inline: auto;
+.shelf-lab :is(form, fieldset, .shelf-results) {
+  min-width: 0;
 }
-.shelf-controls-and-results {
-  display: grid;
-  grid-template-columns: minmax(14rem, 1fr) minmax(0, 2fr);
-  gap: 2rem;
-  align-items: start;
+.shelf-lab fieldset {
+  margin: 0;
+  padding: 0;
 }
-.shelf-lab :is(form, fieldset, .shelf-results) { min-width: 0; }
-.shelf-lab fieldset { margin: 0; padding: 1rem; }
-.shelf-field { margin-block: 0.8rem 1.4rem; }
-.shelf-field :is(label, small) { display: block; }
+.shelf-field {
+  margin-block: 0.8rem 1.4rem;
+}
+.shelf-field :is(label, small) {
+  display: block;
+}
 .shelf-lab :is(input[type="text"], textarea) {
   display: block;
   width: 100%;
@@ -19,37 +18,103 @@
   font: inherit;
   margin-block: 0.5rem;
 }
-.shelf-lab :is(input, button, summary) { min-height: 44px; }
-.shelf-lab textarea { resize: vertical; }
-.shelf-switch { display: flex; align-items: center; gap: 0.65rem; margin-block: 1rem; }
-.shelf-switch input { width: auto; flex: 0 0 auto; }
+.shelf-lab :is(input, button, summary) {
+  min-height: 44px;
+}
+.shelf-lab textarea {
+  resize: vertical;
+}
+.shelf-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-block: 1rem;
+}
+.shelf-switch input {
+  width: auto;
+  flex: 0 0 auto;
+}
 .shelf-lab :is(input, textarea, button, summary, .shelf-table-scroll):focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }
-.shelf-table-scroll { overflow-x: auto; margin-block: 1.5rem; }
-.shelf-lab table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-.shelf-lab :is(th, td) { text-align: start; padding: 0.65rem; border-bottom: 1px solid var(--muted); }
-.shelf-lab td { white-space: nowrap; }
-.shelf-lab caption { text-align: start; margin-block: 0.6rem; }
-.shelf-plot { margin: 1.5rem 0; padding: 1rem; border: 1px solid currentColor; }
-.shelf-plot figcaption { font-weight: 600; }
-.shelf-plot-row { margin-block: 1.2rem; }
-.shelf-plot-row strong { display: block; font-variant-numeric: tabular-nums; }
-.shelf-track { position: relative; height: 1.3rem; margin-block: 0.3rem; border-block: 1px solid var(--muted); }
-.shelf-zero { position: absolute; left: 50%; top: -0.2rem; bottom: -0.2rem; border-left: 1px solid currentColor; }
-.shelf-bar { position: absolute; top: 0.25rem; bottom: 0.25rem; background: currentColor; }
-.shelf-scale { font-size: 0.9em; }
-.shelf-lab dl > div { margin-block: 0.7rem; }
-.shelf-lab dd { margin-inline-start: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.shelf-lab :is(.shelf-later, .shelf-prediction) { border-inline-start: 3px solid currentColor; padding-inline-start: 1rem; }
-.shelf-prediction-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.shelf-table-scroll {
+  overflow-x: auto;
+  margin-block: 1.5rem;
+}
+.shelf-lab table {
+  border-collapse: collapse;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.shelf-lab :is(th, td) {
+  text-align: start;
+  padding: 0.65rem;
+  border-bottom: 1px solid var(--muted);
+}
+.shelf-lab td {
+  white-space: nowrap;
+}
+.shelf-lab caption {
+  text-align: start;
+  margin-block: 0.6rem;
+}
+.shelf-plot {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid currentColor;
+}
+.shelf-plot figcaption {
+  font-weight: 600;
+}
+.shelf-plot-row {
+  margin-block: 1.2rem;
+}
+.shelf-plot-row strong {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+.shelf-track {
+  position: relative;
+  height: 1.3rem;
+  margin-block: 0.3rem;
+  border-block: 1px solid var(--muted);
+}
+.shelf-zero {
+  position: absolute;
+  left: 50%;
+  top: -0.2rem;
+  bottom: -0.2rem;
+  border-left: 1px solid currentColor;
+}
+.shelf-bar {
+  position: absolute;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  background: currentColor;
+}
+.shelf-scale {
+  font-size: 0.9em;
+}
+.shelf-lab dl > div {
+  margin-block: 0.7rem;
+}
+.shelf-lab dd {
+  margin-inline-start: 0;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.shelf-lab :is(.shelf-later, .shelf-prediction) {
+  border-inline-start: 3px solid currentColor;
+  padding-inline-start: 1rem;
+}
+.shelf-prediction-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 /* What the accepted result does and does not show, read after the table. */
 .shelf-interpretation {
   max-width: 68ch;
   margin-block: 1.5rem;
   line-height: 1.6;
-}
-@media (max-width: 55rem) {
-  .shelf-controls-and-results { grid-template-columns: minmax(0, 1fr); }
 }
