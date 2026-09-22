@@ -1,0 +1,82 @@
+/*
+ * CHROME (pane %34): THE PAPERS INDEX AS FOUR CATALOGUE ENTRIES, EACH WITH ITS PRINTED FIRST PAGE.
+ *
+ * It was a 2x2 wall of text. Each paper is now one entry in received order: its first page as
+ * printed beside the entry, one mark per printed page under the plate (the home page's marks, at
+ * one pitch, so 3 pages and 31 pages compare), and the entry's text unchanged. On a phone the
+ * plate is a third of the width beside the titles and the rest of the entry runs full width.
+ */
+.paper-index {
+  margin: 0 0 3rem;
+  padding: 0;
+  list-style: none;
+}
+.paper-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 0 1rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--rule);
+}
+.paper-entry-plate {
+  --mark-gap: 2px;
+  font-family: var(--font-sans);
+}
+.paper-entry-plate img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--wash);
+  border: 1px solid var(--rule);
+  box-shadow: 0 14px 30px -20px rgb(0 0 0 / 0.5);
+}
+.paper-entry-plate > p {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+}
+.paper-entry-body {
+  min-width: 0;
+}
+.paper-entry-body > .eyebrow {
+  margin-top: 0;
+}
+.paper-entry-body h2 {
+  margin-top: 0.4rem;
+}
+/* Below 700px only the date and the two titles sit beside the plate; the scope, the locator and
+   the links run the full width, where a 245px column had set them four words to a line. The body
+   wrapper steps out of the layout so its children can take the entry's two columns. */
+@media (max-width: 699px) {
+  /* The fourth row takes whatever the plate is taller than the titles, so the titles stay packed
+     at the top instead of being spread over the plate's height. */
+  .paper-entry {
+    grid-template-rows: auto auto auto 1fr;
+  }
+  .paper-entry-plate {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+  }
+  .paper-entry-body {
+    display: contents;
+  }
+  .paper-entry-body > * {
+    grid-column: 1 / -1;
+  }
+  .paper-entry-body > .eyebrow,
+  .paper-entry-body > .german-title,
+  .paper-entry-body > h2 {
+    grid-column: 2;
+  }
+}
+@media (min-width: 700px) {
+  .paper-entry {
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+    gap: 0 2.5rem;
+  }
+  .paper-entry-plate {
+    --mark-gap: 3px;
+  }
+  .paper-entry-body {
+    max-width: 68ch;
+  }
+}
