@@ -258,6 +258,13 @@ describe("the real corpus: every printed number is pinned", () => {
       // the ledger, and it is the second reason this value is not a count of cross-page
       // sentences.
       //
+      // 9 -> 10 when p910 landed, and this time BOTH halves of the rule were used as a
+      // prediction in advance and both held. 909 ends with an INLINE tag, so no crossing was
+      // predicted; 910 prints the numbered item "2.", so one enumerator was. Enumerating the
+      // ten rather than diffing them: six bare enumerators ("1." "2." "1." "2." "1." "2.") and
+      // four long sentences, the long count unchanged from 909. Predicted +1, observed +1,
+      // from the named cause.
+      //
       // WHAT THIS NUMBER CANNOT SEE, so that a later reader does not mistake it for the count of
       // cross-page sentences. A crossing is visible here only when [[CONTINUES]] sits on its own
       // line. When it is written inline, glued to the last word, segmentLedger keeps it attached,
@@ -276,7 +283,7 @@ describe("the real corpus: every printed number is pinned", () => {
       // not.) Left as measured rather than repaired here: the repair
       // is either a ledger-wide rewrite touching four papers or a change to segmentLedger, and
       // both belong to am-span-recording-decision-ero2, not to a transcription pane.
-      unplaceableProposedSentences: 9,
+      unplaceableProposedSentences: 10,
     },
   };
 
