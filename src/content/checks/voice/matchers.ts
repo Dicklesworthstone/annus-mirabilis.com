@@ -168,11 +168,43 @@ export function matchRegexRule(
         severity,
         context,
         { index: m.index, matchedText: m[0] },
-        rule.repair ?? "Restructure without a joining dash; use a comma, colon, or separate sentence.",
+        rule.repair ??
+          "Restructure without a joining dash; use a comma, colon, or separate sentence.",
       ),
     );
   }
   return findings;
+}
+
+/**
+ * True when a scoring construction reaches the occurrence at `index` (am-gzxs). The search runs
+ * BACKWARDS from the occurrence, stops at the nearest sentence boundary so a scoring sentence
+ * cannot leak into the next one, and looks only at the last `maxTokensBetween` words. That bound
+ * is what separates "Earn 5 points" from the second occurrence in "Earn 5 points for every 10
+ * data points you plot", where the verb is six tokens away and the noun is ordinary.
+ */
+function scoringConstructionReaches(
+  text: string,
+  index: number,
+  triggers: readonly string[],
+  maxTokensBetween: number,
+): boolean {
+  const before = text.slice(0, index);
+  const sentenceStart = Math.max(
+    before.lastIndexOf("."),
+    before.lastIndexOf(";"),
+    before.lastIndexOf("!"),
+    before.lastIndexOf("?"),
+    before.lastIndexOf("\n"),
+  );
+  const window = before.slice(sentenceStart + 1);
+  const tokens = window
+    .split(/[^\p{L}\p{N}'-]+/u)
+    .filter((t) => t.length > 0)
+    .slice(-maxTokensBetween)
+    .map((t) => t.toLowerCase());
+  const triggerSet = new Set(triggers.map((t) => t.toLowerCase()));
+  return tokens.some((t) => triggerSet.has(t));
 }
 
 export function matchWordListRule(
@@ -215,6 +247,38 @@ export function matchWordListRule(
           `Remove or rephrase "${m.matchedText}"; state the specific claim instead.`,
         ),
       );
+    }
+  }
+
+  // Construction-gated words (am-gzxs). Kept OUT of `words` above, so the plain path never sees
+  // them: they are this rule's vocabulary only inside a scoring construction, or in a context
+  // whose entire purpose is scoring. The allowlist still applies, because a scoring context is
+  // exactly where "Plot all data points" appears as a button label.
+  if (rule.constructionGated) {
+    const gated = rule.constructionGated;
+    const inScoringContext = gated.scoringContexts.includes(context);
+    for (const word of gated.words) {
+      for (const m of findPhraseMatches(text, word)) {
+        if (overlapsAny(m.index, m.matchedText.length, allowlistRanges)) continue;
+        if (
+          !inScoringContext &&
+          !scoringConstructionReaches(text, m.index, gated.triggers, gated.maxTokensBetween)
+        ) {
+          continue;
+        }
+        let severity =
+          isQuotation && rule.quotationDowngrade ? rule.quotationDowngrade : baseSeverity;
+        if (source.layer === "translation" && severity === "error") severity = "flag";
+        findings.push(
+          finding(
+            ruleId,
+            severity,
+            context,
+            m,
+            `Remove or rephrase "${m.matchedText}"; state the specific claim instead.`,
+          ),
+        );
+      }
     }
   }
 

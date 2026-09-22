@@ -197,7 +197,6 @@ rules:
       - streak
       - badge
       - leaderboard
-      - points
       - grade
       - score
       - "% complete"
@@ -215,14 +214,72 @@ rules:
       - "✓"
       - "✗"
     markWordsProseExempt: true
-    # Technical compounds of "points". The flagged word is the plural "points", so only plural
-    # compounds can match; "data point" below is inert and kept only because it predates this entry.
-    # This list is deliberately an explicit enumeration and NOT a "<any word> points" pattern: a
-    # pattern would let "bonus points", "reward points" and "experience points" through, which is
-    # precisely the gamification this rule exists to catch. Anything not named here still fires, so
-    # the exception is precision, not relaxation. Exemption is per occurrence, not per string: in
-    # "Earn 5 points for every 10 data points you plot." the scoring "points" still errors.
-    # Extending this list is a gate change; see docs/DECISIONS.md D-2026-09-19-theater-points-compounds.
+    # CONSTRUCTION GATE for "points" (am-gzxs, 2026-09-22). This word is NOT in the `words`
+    # list above. It is gamification vocabulary when a scoring construction reaches it and an
+    # ordinary noun otherwise, and the previous remedy - enumerating exempt compounds - could
+    # not express that. Measured at HEAD 5dafd774: bare "points" produced 52 of the lint's 93
+    # flags over 16,918 items, every one in prose, and the three read in full were "the number
+    # of independently movable points in a gas model", "lines joining recorded points", and
+    # "the probability is (V/V0)^n only when the points are independent", which is Einstein's
+    # statistical mechanics. The last has NO modifier noun, so no compound enumeration could
+    # ever have reached it. D-2026-09-19-theater-points-compounds predicted this and named the
+    # remedy: move the discriminator from the modifier noun to the scoring construction.
+    #
+    # THE ALLOWLIST BELOW IS STILL REQUIRED, which answers the acceptance question directly. It
+    # no longer carries prose, where the gate now does the work; it carries the SCORING
+    # CONTEXTS, where a bare "points" is a score display by default and "Plot all data points"
+    # is a button label that must not fire. Removing it turns six existing assertions red.
+    constructionGated:
+      words:
+        - points
+      # In these three contexts the surface exists to report a reader's standing, so a bare
+      # "points" is a score unless the allowlist names it as technical.
+      scoringContexts:
+        - ui-label
+        - task-feedback
+        - reader-progress
+      # A trigger must appear within maxTokensBetween words BEFORE the occurrence and inside the
+      # same sentence. Three is deliberate: it reaches "Earn 5 points" and "You earned 10
+      # points!" and does not reach the second occurrence in "Earn 5 points for every 10 data
+      # points you plot", where the verb is six tokens back and the noun is ordinary.
+      triggers:
+        - earn
+        - earns
+        - earned
+        - earning
+        - award
+        - awards
+        - awarded
+        - collect
+        - collects
+        - collected
+        - score
+        - scores
+        - scored
+        - scoring
+        - win
+        - wins
+        - won
+        - lose
+        - loses
+        - lost
+        - redeem
+        - redeemed
+        - spend
+        - spent
+        - tally
+        - total
+        - totals
+        - accumulate
+        - accumulated
+        - bonus
+        - reward
+        - rewards
+        - experience
+        - extra
+        - achievement
+        - xp
+      maxTokensBetween: 3
     allowlist:
       - data points
       - data point

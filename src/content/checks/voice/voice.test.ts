@@ -733,3 +733,82 @@ describe("de-slop rules", () => {
     assert.match(dash?.suggestion ?? "", /Restructure without a joining dash/);
   });
 });
+
+/**
+ * am-gzxs: "points" is gated on the scoring construction, not on an enumeration of modifier
+ * compounds. The must-go-quiet cases below are REAL CORPUS TEXT, quoted from the three records
+ * the orchestrator read in full, not invented fixtures — the third is Einstein's statistical
+ * mechanics, and it has no modifier noun at all, which is why no compound enumeration could
+ * ever have reached it. The must-still-fire cases are the five positive controls
+ * D-2026-09-19-theater-points-compounds recorded; they stay red under this change by
+ * construction, and the plants below prove it.
+ */
+describe("theater: points is gated on the scoring construction (am-gzxs)", () => {
+  const theaterOf = (
+    text: string,
+    context: "prose" | "ui-label" | "task-feedback" | "reader-progress" = "prose",
+  ) => checkVoice(text, { context }).filter((f) => f.rule === "theater");
+
+  it("stops flagging the kinetic theory of gases", () => {
+    for (const text of [
+      // content/quantities/radiation.yaml:155
+      "The number of independently movable points in a gas model, paper 1 section 5's kinetic-theory analogy.",
+      // content/equations/brownian-motion/eq-model-bm-apparent-speed.json:113
+      "Lines joining recorded points are a rendering convention, not a velocity measurement.",
+      // content/experiments/tapes/the-locked-positions.yaml — Einstein's own statistical mechanics.
+      "the probability is (V/V0)^n only when the points are independent",
+    ]) {
+      assert.deepEqual(theaterOf(text), [], `must stay quiet on corpus text: ${text.slice(0, 60)}`);
+    }
+  });
+
+  it("still catches gamification in prose, where no modifier noun exists to enumerate", () => {
+    // The capability the compound enumeration never had: the verb carries the construction.
+    for (const text of [
+      "Collect points as you read.",
+      "You have lost points on that attempt.",
+      "Earn points by answering questions.",
+    ]) {
+      assert.ok(theaterOf(text).length > 0, `must still flag: ${text}`);
+    }
+  });
+
+  it("a scoring context still reports a bare points, and still exempts the technical compounds", () => {
+    // This is why the allowlist is still required after the change rather than removed: a
+    // surface whose purpose is reporting a reader's standing treats a bare "points" as a score.
+    assert.ok(has(theaterOf("points", "ui-label"), "theater", "error"));
+    assert.deepEqual(theaterOf("Plot all data points", "ui-label"), []);
+    assert.deepEqual(theaterOf("Show the grid points", "task-feedback"), []);
+    assert.deepEqual(theaterOf("12 sample points recorded", "reader-progress"), []);
+  });
+
+  it("the token bound is load-bearing: one scoring verb does not condemn a later ordinary noun", () => {
+    // NOT "Earn 5 points for every 10 data points you plot." — that sentence is suppressed twice
+    // over, because "data points" is allowlisted, so widening the bound leaves it green and the
+    // test would prove nothing about the bound. Verified by planting: bound 3 -> 50 on that
+    // sentence changed no assertion. The second occurrence here is "recorded points", which the
+    // allowlist does NOT name, so only the token bound can keep it quiet. PROSE, deliberately:
+    // a scoring context bypasses the gate by design, so the bound cannot be observed there
+    // either, and asserting it in task-feedback passes for the wrong reason. Both wrong
+    // versions of this test were written and planted against before this one.
+    const mixed = theaterOf("Earn 5 points and then mark the recorded points on the plot.");
+    assert.equal(mixed.length, 1, "only the scoring occurrence is reported");
+    assert.equal(mixed[0]?.index, 7);
+  });
+
+  it("a scoring sentence does not leak into the next one", () => {
+    // The backwards search stops at the sentence boundary, so the verb in the first sentence
+    // cannot reach the ordinary noun in the second.
+    const findings = theaterOf(
+      "You can earn a badge here. The points are independent in this model.",
+    );
+    assert.deepEqual(
+      findings.filter((f) => f.matchedText.toLowerCase() === "points"),
+      [],
+      "the scoring verb in the first sentence must not reach the noun in the second",
+    );
+    // "badge" is theater vocabulary in its own right and must still be reported, which is what
+    // makes this a test of the sentence boundary rather than of the rule being switched off.
+    assert.ok(findings.some((f) => f.matchedText.toLowerCase() === "badge"));
+  });
+});

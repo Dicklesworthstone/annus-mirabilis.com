@@ -61,6 +61,20 @@ export interface WordListRule {
   readonly markWords?: readonly string[];
   readonly markWordsProseExempt?: boolean;
   readonly allowlist?: readonly string[];
+  /**
+   * Words that are vocabulary for this rule only when a SCORING CONSTRUCTION reaches them, or
+   * when they appear in a context whose whole purpose is scoring (am-gzxs). "points" is the
+   * case this exists for: it is gamification in "earn 5 points" and an ordinary noun in "the
+   * points are independent", and no enumeration of modifier compounds can tell those apart,
+   * because the second has no modifier at all. See docs/DECISIONS.md
+   * D-2026-09-19-theater-points-compounds, whose revisit trigger named this change.
+   */
+  readonly constructionGated?: {
+    readonly words: readonly string[];
+    readonly scoringContexts: readonly VoiceContext[];
+    readonly triggers: readonly string[];
+    readonly maxTokensBetween: number;
+  };
   readonly defaultSeverity?: Severity;
   readonly severityByContext?: Readonly<Partial<Record<VoiceContext | "default", Severity>>>;
   readonly quotationDowngrade?: Severity;
