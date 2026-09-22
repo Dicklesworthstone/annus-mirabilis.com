@@ -389,21 +389,31 @@ test("foundCalculus.records: logarithms node carries 'lg' note and product-to-su
   const content = fs.readFileSync(filePath, "utf8");
   const parsed = JSON.parse(content);
 
-  const fullText = JSON.stringify(parsed);
-  // 'lg' historical note check
+  // These held three sentences of copy verbatim, one of them the ASCII "ln(A * B) = ln(A) +
+  // ln(B)" that a reader saw as programmer notation. They now hold the three properties the copy
+  // exists to state, so a rewrite that keeps them passes and one that drops any of them fails.
+  const blocks = [...parsed.explanation, ...parsed.example] as Array<{
+    kind: string;
+    text?: string;
+    latex?: string;
+  }>;
+  const prose = blocks.filter((b) => b.kind === "paragraph").map((b) => b.text ?? "");
+  const latex = blocks.filter((b) => b.kind === "formula").map((b) => b.latex ?? "");
+  // The 1905 printed 'lg' is the natural logarithm, said in one paragraph.
   assert.ok(
-    fullText.includes("In 1905 German scientific literature") &&
-      fullText.includes("'lg' denoted the natural logarithm"),
+    prose.some((t) => /\blg\b/.test(t) && t.includes("natural logarithm") && t.includes("1905")),
     "Logarithms node must explain 1905 German 'lg' convention",
   );
+  // ln 2 is contrasted with log10 2, to at least three places.
   assert.ok(
-    fullText.includes("0.693147") && fullText.includes("0.301030"),
-    "Logarithms node must contrast ln(2) approx 0.693147 with log10(2) approx 0.301030",
+    prose.some((t) => t.includes("0.693") && t.includes("0.301")),
+    "Logarithms node must contrast ln(2) approx 0.693 with log10(2) approx 0.301",
   );
-
-  // Product-to-sum relation check
+  // The product-to-sum rule as typeset mathematics: the log of a product equals a sum of logs.
   assert.ok(
-    fullText.includes("ln(A * B) = ln(A) + ln(B)") || fullText.includes("W_1 \\cdot W_2"),
+    latex.some((l) =>
+      /\\ln\s*\(\s*\w+\s*(?:\\cdot\s*)?\w+\s*\)\s*=\s*(?:\w+\s*)?\\ln\s*\(?\w+\)?\s*\+/.test(l),
+    ),
     "Logarithms node must include product-to-sum rule",
   );
 
