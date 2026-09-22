@@ -11,6 +11,7 @@ import { checkMissingStepContent } from "../../equations/missingStep/contentChec
 import type { EquationRecord } from "../../equations/record.ts";
 import { registerPrintCoverageCheck } from "../../platform/print/printCoverage.ts";
 import { registerEpistemicChecks } from "../checks/epistemic/register.ts";
+import { registerFormulaEquationsCheck } from "../checks/formulaEquations.ts";
 import { registerStructuralChecks } from "../checks/structural/structural.ts";
 import { registerVoiceCheck } from "../checks/voice/check.ts";
 import { registerKernelBindingCheck } from "../kernel/check.ts";
@@ -322,6 +323,7 @@ export async function compileContent(
   const startCheck = performance.now();
   if (listRegisteredChecks().length === 0) {
     registerStructuralChecks();
+    registerFormulaEquationsCheck();
     registerSourceManifestCheck();
     registerVoiceCheck();
     registerPrintCoverageCheck();
