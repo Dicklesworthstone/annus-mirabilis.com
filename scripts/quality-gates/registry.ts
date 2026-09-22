@@ -317,11 +317,40 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     owner: "am-gov-license-inventory-w6yz",
   },
   {
+    // THIS STEP CANNOT PASS ON A ROUTINE RUN, AND THE SCRIPT IS RIGHT TO REFUSE.
+    //
+    // coverage-report.ts reads two inputs, `--scenario-evidence <path>` and
+    // `--review-records <path>`, and the chain passes neither. It therefore opens no file, and
+    // `coverageWasMeasured` refuses rather than printing counts over an empty set - which is the
+    // defect am-9n4g was raised for and exactly the right instinct. The refusal is untouched here.
+    //
+    // MEASURED before deciding, because "wire the chain" was the obvious fix and it is not
+    // available: NOTHING IN THE TREE PRODUCES EITHER INPUT. `--scenario-evidence` appears only in
+    // coverage-report.test.ts and the ledger's own tests, which build fixtures in temp dirs;
+    // run-scenarios.ts writes no artifact at all. For review records there is code
+    // (backfill-review-records.ts, render-review-acceptance.ts) and test logs under
+    // artifacts/test-logs/review-records/, but no committed records file in the input format. So
+    // there is no path to pass, and the script's own text says why: "the remaining dimensions
+    // have no loader wired (am-cm-coverage-ledger-0ip)".
+    //
+    // So the CHAIN was wrong, not the gate. Moved from every-run to nightly:
+    //   - a routine `--family fast` run uses cadence "every-run" and now skips it, instead of
+    //     carrying a permanent red at step 18 of 28. A required gate that can never pass trains
+    //     people to discount the whole chain, which costs more than the step reports.
+    //   - a `--profile preview` or `--profile launch` run uses cadence "all" (quality-gates.ts:168),
+    //     so it STILL RUNS and still blocks there. Unmeasured coverage should stop a release, and
+    //     requiredInProfiles is unchanged.
+    //   - requiredInCi stays true and stays meaningful: quality-gates.ts:455 exempts a step
+    //     skipped for cadence (`r.reason !== "cadence"`), so this does not silently downgrade a
+    //     required step, it declines to run it on the routine cadence.
+    //
+    // This is reversible in one word. When am-cm-coverage-ledger-0ip wires a loader and something
+    // emits scenario evidence, put cadence back to every-run and pass the path in `command`.
     id: "coverage-report",
     title: "Multi-dimensional coverage ledger report",
     command: ["bun", "scripts/coverage-report.ts"],
     family: "fast",
-    cadence: "every-run",
+    cadence: "nightly",
     requiredInCi: true,
     requiredInProfiles: ["preview", "launch"],
     availability: {
