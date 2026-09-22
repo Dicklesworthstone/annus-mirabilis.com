@@ -282,18 +282,6 @@ html:is(
 .foundation-page > header h1 {
   font-size: clamp(2.4rem, 5vw, 4rem);
 }
-.foundation-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-.foundation-grid article {
-  padding: 1.2rem;
-  border-top: 1px solid var(--line);
-}
-.foundation-grid h2 {
-  font-size: var(--type-lead);
-}
 @media (max-width: 900px) {
   .reader-layout {
     grid-template-columns: 1fr;
@@ -315,8 +303,7 @@ html:is(
   }
 }
 @media (max-width: 560px) {
-  .reader-outline nav,
-  .foundation-grid {
+  .reader-outline nav {
     grid-template-columns: 1fr;
   }
   .reader-passage > h3 {
