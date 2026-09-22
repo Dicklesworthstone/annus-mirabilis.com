@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { ConfigurationComparison } from "../../../components/lab/bm03/ConfigurationLab.tsx";
+import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
 import { BM03_DEFAULTS } from "../../../experiments/bm03/definition.ts";
 import { evaluateBm03 } from "../../../experiments/bm03/session.ts";
 
@@ -26,7 +27,8 @@ export default function ConfigurationPage() {
         </h1>
         <p className="lead">
           How can a vast microscopic problem, with every solvent molecule and every suspended
-          particle in motion, yield a law as simple as &Pi; = n k_B T without solving any molecular
+          particle in motion, yield a law as simple as{" "}
+          <InlineFormula latex={String.raw`\Pi = n k_B T`} /> without solving any molecular
           equations of motion?
         </p>
       </header>

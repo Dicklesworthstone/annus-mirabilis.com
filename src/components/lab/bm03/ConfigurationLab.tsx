@@ -26,10 +26,13 @@ import "./bm03.css";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { Sci } from "../Sci.tsx";
 
+const PREDICT_REASONING =
+  "The model gives 4. Each particle's own positions double, and the two particles are placed independently, so their joint arrangements multiply: 2 × 2 = 4. For Np particles the factor is 2 to the power Np.";
+
 const STEPS: readonly { id: Bm03Step; label: string; number: number }[] = [
   { id: "one-particle", label: "1. One particle", number: 1 },
   { id: "two-particles", label: "2. Two particles", number: 2 },
-  { id: "many-particles", label: "3. Logarithm & Many", number: 3 },
+  { id: "many-particles", label: "3. Many particles, and the logarithm", number: 3 },
   { id: "derivative", label: "4. Volume derivative", number: 4 },
 ];
 
@@ -186,35 +189,31 @@ export function ConfigurationLab({
           Doubling the volume available to two independent particles multiplies the number of
           position arrangements by 2, 4, or 8?
         </p>
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
-          <button
-            type="button"
-            className={predictAnswer === "2" ? "primary" : "secondary"}
-            onClick={() => setPredictAnswer("2")}
-          >
-            Multiplies by 2
-          </button>
-          <button
-            type="button"
-            className={predictAnswer === "4" ? "primary" : "secondary"}
-            onClick={() => setPredictAnswer("4")}
-          >
-            Multiplies by 4 (correct)
-          </button>
-          <button
-            type="button"
-            className={predictAnswer === "8" ? "primary" : "secondary"}
-            onClick={() => setPredictAnswer("8")}
-          >
-            Multiplies by 8
-          </button>
+        <div className="actions" role="group" aria-label="Your prediction">
+          {(["2", "4", "8"] as const).map((factor) => (
+            <button
+              key={factor}
+              type="button"
+              aria-pressed={predictAnswer === factor}
+              className={predictAnswer === factor ? "primary" : "secondary"}
+              onClick={() => setPredictAnswer(factor)}
+            >
+              Multiplies by {factor}
+            </button>
+          ))}
         </div>
-        {predictAnswer && (
-          <p className="fine" style={{ marginTop: "0.5rem" }}>
-            {predictAnswer === "4"
-              ? "Correct! Under statistical independence, options multiply: 2 choices for particle #1 × 2 choices for particle #2 = 4 arrangement states."
-              : "Not quite. Each independent particle has its choices doubled, so their joint spatial arrangements multiply: 2 × 2 = 4 (or 2^Np in general)."}
+        {/* The model's answer comes after a choice and reads the same whichever was chosen: a
+            prediction is a starting point, never a score. Without JavaScript the buttons do
+            nothing, so the same reasoning is a disclosure a reader can open. */}
+        {predictAnswer ? (
+          <p className="fine" role="status">
+            You chose {predictAnswer}. {PREDICT_REASONING}
           </p>
+        ) : (
+          <details>
+            <summary>The model&apos;s answer</summary>
+            <p className="fine">{PREDICT_REASONING}</p>
+          </details>
         )}
       </div>
 
@@ -384,13 +383,20 @@ export function ConfigurationLab({
           {/* Step navigation */}
           <div className="step-navigation" style={{ marginBottom: "1rem" }}>
             <p>
-              <strong>Derivation step:</strong>
+              <strong>
+                Step {currentStepIdx + 1} of {STEPS.length}
+              </strong>
             </p>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", margin: "0.5rem 0" }}>
+            <div
+              role="group"
+              aria-label="Go to a step of the derivation"
+              style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", margin: "0.5rem 0" }}
+            >
               {STEPS.map((s) => (
                 <button
                   key={s.id}
                   type="button"
+                  aria-pressed={p.step === s.id}
                   className={p.step === s.id ? "primary" : "secondary"}
                   onClick={() => setStep(s.id)}
                 >
