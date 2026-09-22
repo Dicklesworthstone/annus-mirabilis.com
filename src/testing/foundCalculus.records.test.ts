@@ -298,76 +298,43 @@ test("foundCalculus.records: partial-derivatives explicitly names held-fixed qua
   const content = fs.readFileSync(filePath, "utf8");
   const parsed = JSON.parse(content);
 
-  // Check general explanation
-  const fullText = JSON.stringify(parsed);
+  // Each case must say what it holds fixed. This asserted fourteen sentences verbatim, among
+  // them five "Example N (...)" labels and the ASCII "nu", which pinned the lesson to one worked
+  // example carrying five cases. The held-fixed quantities are stated where they cannot be
+  // paraphrased away: as the subscript on each partial derivative in the typeset formulas.
+  const blocks = [...parsed.explanation, ...parsed.example] as Array<{
+    kind: string;
+    text?: string;
+    latex?: string;
+  }>;
+  const formulas = blocks
+    .filter((b) => b.kind === "formula")
+    .map((b) => (b.latex ?? "").replace(/\s+/g, ""));
+  const prose = blocks.filter((b) => b.kind === "paragraph").map((b) => b.text ?? "");
+  const held = (pattern: RegExp) => formulas.some((l) => pattern.test(l));
   assert.ok(
-    fullText.includes("holding time t strictly fixed"),
-    "Must explicitly state holding time t fixed in explanation",
+    held(/\\frac\{\\partialf\}\{\\partialx\}\\right\)_\{?t\}?/),
+    "The spatial derivative of f must carry the held-fixed time t as its subscript",
   );
   assert.ok(
-    fullText.includes("fixed position x"),
-    "Must explicitly state fixed position x in explanation",
-  );
-
-  // Check EACH example explicitly names its own fixed quantities
-  const examples = parsed.example as Array<{ kind: string; text?: string; latex?: string }>;
-  const exampleText = examples
-    .filter((e) => e.kind === "paragraph")
-    .map((e) => e.text ?? "")
-    .join("\n");
-
-  // Example 1: Time fixed when moving through space
-  assert.ok(
-    exampleText.includes("Example 1 (Time fixed when moving through space)"),
-    "Example 1 must name time fixed when moving through space",
+    held(/\\frac\{\\partialf\}\{\\partialt\}\\right\)_\{?x\}?/),
+    "The time derivative of f must carry the held-fixed position x as its subscript",
   );
   assert.ok(
-    exampleText.includes("time t is strictly fixed") || exampleText.includes("t is strictly fixed"),
-    "Example 1 must explicitly name time t as held-fixed parameter",
-  );
-
-  // Example 2: Position fixed when tracking time
-  assert.ok(
-    exampleText.includes("Example 2 (Position fixed when tracking time)"),
-    "Example 2 must name position fixed when tracking time",
+    held(/\\right\)_\{?T\}?/) && held(/\\right\)_\{?S\}?/),
+    "The thermodynamic case must show the same derivative at fixed temperature T and fixed entropy S",
   );
   assert.ok(
-    exampleText.includes("position x is strictly fixed"),
-    "Example 2 must explicitly name position x as held-fixed parameter",
-  );
-
-  // Example 3: Thermodynamic derivatives (isothermal vs adiabatic)
-  assert.ok(
-    exampleText.includes("Example 3 (Thermodynamic derivatives: isothermal versus adiabatic)"),
-    "Example 3 must distinguish isothermal versus adiabatic derivatives",
+    held(/\\right\)_\{[^}]*\\nu\}/) || held(/\\right\)_\\nu/),
+    "The radiation-entropy case must carry the held-fixed frequency nu as its subscript",
   );
   assert.ok(
-    exampleText.includes("names temperature T as the held-fixed quantity"),
-    "Example 3 must name temperature T held fixed for isothermal derivative",
+    prose.some((t) => t.includes("§6") && /held fixed/.test(t)),
+    "The relativity §6 case must say which coordinates are held fixed",
   );
   assert.ok(
-    exampleText.includes("names entropy S as the held-fixed quantity"),
-    "Example 3 must name entropy S held fixed for adiabatic derivative",
-  );
-
-  // Example 4: Light Quanta §3 radiation entropy
-  assert.ok(
-    exampleText.includes("Example 4 (Radiation entropy derivative in Light Quanta §3)"),
-    "Example 4 must name radiation entropy derivative in Light Quanta §3",
-  );
-  assert.ok(
-    exampleText.includes("volume V and radiation frequency nu are strictly held fixed"),
-    "Example 4 must explicitly name volume V and frequency nu as held-fixed parameters",
-  );
-
-  // Example 5: Special Relativity §6 transformed derivatives
-  assert.ok(
-    exampleText.includes("Example 5 (Transformed derivatives in Relativity §6)"),
-    "Example 5 must name transformed derivatives in Relativity §6",
-  );
-  assert.ok(
-    exampleText.includes("holds resting coordinates y, z, and time t fixed"),
-    "Example 5 must explicitly name resting coordinates y, z, and time t held fixed",
+    /held[ -]fixed/.test(parsed.stoppingPoint),
+    "The stopping point must name held-fixed quantities as the condition",
   );
 
   writeCalculusLog({
