@@ -42,7 +42,7 @@ function Reading({ snapshot, quantity }: { snapshot: AcceptedSnapshot; quantity:
   if (r.status === "underdetermined")
     return (
       <span data-quantity-id={quantity}>
-        Underdetermined. {r.compatibleFamily} {r.neededInformation.join(" ")}
+        Not determined by this data. {r.compatibleFamily} {r.neededInformation.join(" ")}
       </span>
     );
   if (r.status === "outside-domain")

@@ -351,7 +351,7 @@ export function LorentzMapLab({
           )}
           {family.status === "underdetermined" && (
             <p>
-              Underdetermined: <strong>{family.compatibleFamily}</strong>. Still needed:{" "}
+              Not determined by this data: <strong>{family.compatibleFamily}</strong>. Still needed:{" "}
               {family.neededInformation.join(", ")}.
             </p>
           )}

@@ -360,7 +360,7 @@ export function TwoLedgersLab({
                 onClick={() => togglePremise("relaxed")}
                 aria-pressed={p.premise === "relaxed"}
               >
-                C Relaxed (Underdetermined)
+                C Relaxed (premise dropped)
               </button>
             </div>
           </div>
