@@ -69,8 +69,7 @@
    page nine would be a false citation of the scan. It sits where page 132 (or 549, or 639)
    actually is, beside the opening.
 
-   The header and the face chooser take the composition's width so the title, the tabs and the
-   text share a left edge. Below 1200px nothing changes and the plate is not shown; with
+   The root takes the composition's width so the title, the tabs and the text share a left edge. Below 1200px nothing changes and the plate is not shown; with
    loading="lazy" a hidden image is not fetched.
    --------------------------------------------------------------------------- */
 .source-plate {
@@ -100,7 +99,10 @@
   .source-plate {
     display: block;
   }
-  .reader-root:has(.source-plate) > :is(.page-intro, .reader-controls) {
+  /* The composition's width is set ONCE, on the root, so the title, the tabs and the text inherit
+     one box. Set on each child it missed by 24px on the tabs: ch resolves against the font of the
+     element declaring it, and the tabs are set in the sans. */
+  .reader-root:has(.source-plate) {
     max-width: calc(var(--reader-measure) + 24rem);
     margin-inline: auto;
   }
