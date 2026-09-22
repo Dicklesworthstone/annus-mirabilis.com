@@ -711,15 +711,49 @@ describe("14. Static guard against local OCR and text extraction APIs", () => {
       "utf8",
     );
 
+    // COMMENTS ARE STRIPPED BEFORE THE CHECKS BELOW, and the reason is this test's own name: it
+    // asserts the file contains no prohibited strings in order to establish that the codebase
+    // contains no forbidden CALL. A comment is not a call.
+    //
+    // Without this the guard cannot tell a description of a forbidden API from a use of one, and
+    // the file paid for that: a comment recording the owner's ruling verbatim - that the denylist
+    // forbids the PURPOSE rather than the tool, so both routes to a text layer carry the same
+    // reason - turned this gate red for hours. The remedies on offer were to delete true
+    // documentation of a ruling or to write it in escaped fragments. The list below already does
+    // the second to avoid matching itself, which is the same concession made once already.
+    //
+    // The strip is deliberately narrow: block comments, and line comments only where the marker
+    // OPENS the line. A trailing marker is left alone so a URL cannot be mistaken for a comment,
+    // which means a forbidden call sharing a line with a comment is still caught. That is the
+    // direction to err in. The general defect is am-v5te.
+    const code = content
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .split("\n")
+      .filter((line) => !/^\s*(\/\/|\*)/.test(line))
+      .join("\n");
+
     const prohibitedOcr = ["tesseract", "ocrmypdf", "focr", "easyocr", "paddleocr", "pix2tex"];
     for (const tool of prohibitedOcr) {
-      expect(content.toLowerCase()).not.toContain(tool);
+      expect(code.toLowerCase()).not.toContain(tool);
     }
 
     const prohibitedExtraction = [["get", "TextContent"].join(""), "pdftotext", "extractText"];
     for (const api of prohibitedExtraction) {
-      expect(content).not.toContain(api);
+      expect(code).not.toContain(api);
     }
+
+    // PLANTED NEGATIVE, both directions, so the strip cannot quietly become a blanket exemption.
+    // A forbidden API in real code must still fail; the same text in a comment must not.
+    const asCall = `${code}\nconst t = await page.${["get", "TextContent"].join("")}();`;
+    const asComment = `${code}\n// we do not call ${["get", "TextContent"].join("")} here`;
+    const strip = (src: string) =>
+      src
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .split("\n")
+        .filter((line) => !/^\s*(\/\/|\*)/.test(line))
+        .join("\n");
+    expect(strip(asCall)).toContain(["get", "TextContent"].join(""));
+    expect(strip(asComment)).not.toContain(["get", "TextContent"].join(""));
   });
 
   test("scripts/download-facsimiles.ts never imports or invokes child_process or subprocess execution", () => {
