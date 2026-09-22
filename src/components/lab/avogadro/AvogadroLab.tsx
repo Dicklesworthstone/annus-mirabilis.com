@@ -13,6 +13,7 @@ import {
 import { createAvogadroSession } from "../../../experiments/avogadro/session.ts";
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import styles from "./AvogadroLab.module.css";
 
@@ -190,151 +191,157 @@ export function AvogadroLab() {
           restoring a bookmark requires JavaScript.
         </p>
       </noscript>
-      <details>
-        <summary>Predict before calculating</summary>
-        <p>
-          Can displacement alone distinguish a large particle from a large molecular number? With
-          the same viscosity and diffusion observations, will correcting the viscosity coefficient
-          increase or decrease the inferred radius?
-        </p>
-      </details>
-      <form onSubmit={submit} noValidate aria-label="Three-method comparison settings">
-        <fieldset disabled={!ready} className={styles.controls}>
-          <legend>Inputs, not fitted answers</legend>
-          <fieldset>
-            <legend>Shared solvent conditions for the two diffusion routes</legend>
-            <div className="input-grid">
-              {control("temperature")}
-              {control("viscosityMpaS")}
+      <div className="lab-columns">
+        <form onSubmit={submit} noValidate aria-label="Three-method comparison settings">
+          <fieldset disabled={!ready} className={styles.controls}>
+            <legend className="visually-hidden">Inputs, not fitted answers</legend>
+            <details className="lab-predict">
+              <summary>Predict first</summary>
+              <p>
+                Can displacement alone distinguish a large particle from a large molecular number?
+                With the same viscosity and diffusion observations, will correcting the viscosity
+                coefficient increase or decrease the inferred radius?
+              </p>
+            </details>
+            <fieldset>
+              <legend>Shared solvent conditions for the two diffusion routes</legend>
+              <div className="input-grid">
+                {control("temperature")}
+                {control("viscosityMpaS")}
+              </div>
+            </fieldset>
+            <div className="actions">
+              <button className="button" type="submit">
+                Compare these inputs
+              </button>
+              <button className="button" type="button" onClick={() => apply(AVOGADRO_DEFAULTS)}>
+                Reset worked example
+              </button>
             </div>
+            <ExperimentSettings contents="each route's own inputs: radiation α, the Brownian displacement record, viscosity and solute diffusion">
+              <div className={styles.panels}>
+                <fieldset>
+                  <legend>1. Radiation: vary α</legend>
+                  {control("alphaScale")}
+                  <p>
+                    One means the existing owner's corrected reference α = 6.1 × 10⁻⁵⁷ in its
+                    historical CGS convention. β, R and the speed of light remain fixed.
+                    Perturbations are sensitivity tests, not measured historical constants.
+                  </p>
+                </fieldset>
+                <fieldset>
+                  <legend>2. Brownian displacement</legend>
+                  {(
+                    [
+                      "meanSquareUm2",
+                      "observationSeconds",
+                      "coordinateCount",
+                      "radiusUm",
+                      "radiusKnown",
+                      "independentModel",
+                    ] as const
+                  ).map(control)}
+                  <p>
+                    The interval requires independent Gaussian coordinate increments, known zero
+                    drift, exact timing and calibration, and no localization noise, exposure blur,
+                    overlap or censoring. Selecting “No” refuses this model rather than narrowing an
+                    unjustified interval.
+                  </p>
+                </fieldset>
+                <fieldset>
+                  <legend>3. Viscosity plus solute diffusion</legend>
+                  {(
+                    [
+                      "soluteDiffusionUm2S",
+                      "molarConcentration",
+                      "specificViscosity",
+                      "coefficient",
+                    ] as const
+                  ).map(control)}
+                  <p>
+                    The tracer radius in panel 2 is not the solute radius in this panel. Both use
+                    the declared solvent conditions. No particle radius or target molecular number
+                    is supplied to this joint inversion.
+                  </p>
+                </fieldset>
+              </div>
+            </ExperimentSettings>
           </fieldset>
-          <div className={styles.panels}>
-            <fieldset>
-              <legend>1. Radiation: vary α</legend>
-              {control("alphaScale")}
-              <p>
-                One means the existing owner's corrected reference α = 6.1 × 10⁻⁵⁷ in its historical
-                CGS convention. β, R and the speed of light remain fixed. Perturbations are
-                sensitivity tests, not measured historical constants.
-              </p>
-            </fieldset>
-            <fieldset>
-              <legend>2. Brownian displacement</legend>
-              {(
-                [
-                  "meanSquareUm2",
-                  "observationSeconds",
-                  "coordinateCount",
-                  "radiusUm",
-                  "radiusKnown",
-                  "independentModel",
-                ] as const
-              ).map(control)}
-              <p>
-                The interval requires independent Gaussian coordinate increments, known zero drift,
-                exact timing and calibration, and no localization noise, exposure blur, overlap or
-                censoring. Selecting “No” refuses this model rather than narrowing an unjustified
-                interval.
-              </p>
-            </fieldset>
-            <fieldset>
-              <legend>3. Viscosity plus solute diffusion</legend>
-              {(
-                [
-                  "soluteDiffusionUm2S",
-                  "molarConcentration",
-                  "specificViscosity",
-                  "coefficient",
-                ] as const
-              ).map(control)}
-              <p>
-                The tracer radius in panel 2 is not the solute radius in this panel. Both use the
-                declared solvent conditions. No particle radius or target molecular number is
-                supplied to this joint inversion.
-              </p>
-            </fieldset>
-          </div>
-          <div className="actions">
-            <button className="button" type="submit">
-              Compare these inputs
-            </button>
-            <button className="button" type="button" onClick={() => apply(AVOGADRO_DEFAULTS)}>
-              Reset worked example
-            </button>
-          </div>
-        </fieldset>
-      </form>
-      {error && (
-        <p className="notice" role="alert">
-          {error}
-        </p>
-      )}
-      <p role="status" aria-live="polite">
-        {announcement}
-      </p>
-      <section
-        className={styles.tableWrap}
-        aria-label="Molecular-number comparison"
-        // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard access to a horizontally scrollable comparison
-        tabIndex={0}
-      >
-        <table>
-          <caption>One accepted revision: molecular number per mole</caption>
-          <thead>
-            <tr>
-              <th scope="col">Method</th>
-              <th scope="col">Result</th>
-              <th scope="col">What this means</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">Radiation constants</th>
-              <td>
-                <Reading snapshot={snapshot} quantity="radiationNumber" />
-              </td>
-              <td>
-                Historical reconstruction; α scaled by {display(accepted.alphaScale)}. No confidence
-                interval is asserted.
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Brownian displacement</th>
-              <td>
-                <Reading snapshot={snapshot} quantity="brownianNumber" />
-              </td>
-              <td>
-                Modern consistency check conditional on an independent radius and the admitted
-                observation model.
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Viscosity and solute diffusion</th>
-              <td>
-                <Reading snapshot={snapshot} quantity="molecularNumber" />
-              </td>
-              <td>
-                Illustrative dilute-sphere inversion with coefficient {accepted.coefficient}. Not a
-                historical dataset or uncertainty interval.
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Modern reference</th>
-              <td>
-                <Reading snapshot={snapshot} quantity="definedNumber" />
-              </td>
-              <td>
-                Exactly 6.02214076 × 10²³ mol⁻¹ by definition, not measured by this laboratory.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-      <p>
-        Do not average these rows. They have different provenance and assumptions. The modern gas
-        constant is defined using Nₐ and kᵦ; agreement in the illustrative diffusion rows is not
-        independent evidence for either constant.
-      </p>
+          {error && (
+            <p className="notice" role="alert">
+              {error}
+            </p>
+          )}
+        </form>
+        <div className="lab-results">
+          <section
+            className={styles.tableWrap}
+            aria-label="Molecular-number comparison"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard access to a horizontally scrollable comparison
+            tabIndex={0}
+          >
+            <table>
+              <caption>One accepted revision: molecular number per mole</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Method</th>
+                  <th scope="col">Result</th>
+                  <th scope="col">What this means</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Radiation constants</th>
+                  <td>
+                    <Reading snapshot={snapshot} quantity="radiationNumber" />
+                  </td>
+                  <td>
+                    Historical reconstruction; α scaled by {display(accepted.alphaScale)}. No
+                    confidence interval is asserted.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Brownian displacement</th>
+                  <td>
+                    <Reading snapshot={snapshot} quantity="brownianNumber" />
+                  </td>
+                  <td>
+                    Modern consistency check conditional on an independent radius and the admitted
+                    observation model.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Viscosity and solute diffusion</th>
+                  <td>
+                    <Reading snapshot={snapshot} quantity="molecularNumber" />
+                  </td>
+                  <td>
+                    Illustrative dilute-sphere inversion with coefficient {accepted.coefficient}.
+                    Not a historical dataset or uncertainty interval.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Modern reference</th>
+                  <td>
+                    <Reading snapshot={snapshot} quantity="definedNumber" />
+                  </td>
+                  <td>
+                    Exactly 6.02214076 × 10²³ mol⁻¹ by definition, not measured by this laboratory.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+          <p role="status" aria-live="polite">
+            {announcement}
+          </p>
+          <p>
+            Do not average these rows. They have different provenance and assumptions. The modern
+            gas constant is defined using Nₐ and kᵦ; agreement in the illustrative diffusion rows is
+            not independent evidence for either constant.
+          </p>
+        </div>
+      </div>
       <section>
         <h3>What diffusion cannot identify by itself</h3>
         <p>
