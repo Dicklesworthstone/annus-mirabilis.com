@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { getLogger } from "../../testing/log/logger.ts";
 import {
   createContainer,
@@ -302,6 +303,39 @@ describe("DataPanel component", () => {
     } finally {
       await act(async () => {
         root.unmount();
+      });
+      removeContainer(container);
+    }
+  });
+
+  // What a returning reader's browser does: the page arrives rendered by a server with no
+  // storage, and hydrates in a browser that holds a setting. Reading storage during the first
+  // render made the two disagree, and React discarded the markup (minified error #418 on
+  // /your-data/, BUILD 12). Asserted through onRecoverableError, which is where React reports it.
+  test("hydrates without a mismatch when the browser holds stored data", async () => {
+    const serverCtx = createStorageContext({ getStorage: () => new InMemoryStorage() });
+    writeSetting(ctx, "am:settings:v1:theme", "kramgasse-night");
+
+    const container = createContainer();
+    container.innerHTML = renderToString(createElement(DataPanel, { storageContext: serverCtx }));
+    const recoverable: unknown[] = [];
+    let root: ReturnType<typeof hydrateRoot> | undefined;
+
+    try {
+      await act(async () => {
+        root = hydrateRoot(container, createElement(DataPanel, { storageContext: ctx }), {
+          onRecoverableError: (error) => {
+            recoverable.push(error);
+          },
+        });
+      });
+      expect(recoverable).toEqual([]);
+      // Non-vacuity: after mounting, the panel does show what the browser holds.
+      const themeSize = container.querySelector('[data-testid="size-am:settings:v1:theme"]');
+      expect(themeSize?.textContent).not.toBe("0 B");
+    } finally {
+      await act(async () => {
+        root?.unmount();
       });
       removeContainer(container);
     }
