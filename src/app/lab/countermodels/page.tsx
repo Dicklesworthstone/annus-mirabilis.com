@@ -3,7 +3,6 @@ import generated from "../../../generated/countermodels.json";
 import { parseCountermodelCase } from "../../../reasoning/countermodel/caseSchema.ts";
 import type { PreparedCountermodelCase } from "../../../reasoning/countermodel/session.ts";
 import { CountermodelWorkbench } from "../../../reasoning/countermodel/Workbench.tsx";
-import "../../../components/lab/showTheCode.css";
 
 export const metadata: Metadata = { title: "Compare models: which observations can decide?" };
 export default function CountermodelPage() {
@@ -33,6 +32,13 @@ export default function CountermodelPage() {
           <a href="/papers/special-relativity/">Return to the paper</a>
         </div>
       </header>
+      {generated.profile === "scaffold" && (
+        <aside className="reading" aria-label="Statistical countermodel comparison">
+          <h2>A different kind of ambiguity: the same average count</h2>
+          <p>Independent points and one perfectly locked group can share the same average while predicting different fluctuations. Choose a useful measurement, then compare a count record with both models.</p>
+          <a className="button" href="/lab/countermodels/independence/">Test independence versus locked positions</a>
+        </aside>
+      )}
       {examples.map((example) => (
         <CountermodelWorkbench key={example.case.id} example={example} />
       ))}
@@ -65,18 +71,9 @@ export default function CountermodelPage() {
               <p className="digest">
                 <code>{source.hash}</code>
               </p>
-              {/* A source line does not wrap, so the listing scrolls inside a named region a
-                  keyboard can reach, not a bare scrolling <pre> (CLASS 2). */}
-              <section
-                className="show-the-code-scroll"
-                aria-label={`${source.path} source`}
-                // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
-                tabIndex={0}
-              >
-                <pre>
-                  <code>{source.text}</code>
-                </pre>
-              </section>
+              <pre style={{ overflowX: "auto", maxWidth: "100%" }}>
+                <code>{source.text}</code>
+              </pre>
             </section>
           ))}
           <details>
