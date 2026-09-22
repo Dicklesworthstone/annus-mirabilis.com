@@ -195,10 +195,20 @@ main {
  * styled in src/app/theme/themes.css, which another pane owns. Reported rather than reached for.
  */
 .header-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
+  /*
+   * display:contents, so the wrapper exists only where it earns its place.
+   *
+   * MEASURED both ways, which is the point. At desktop the header is already a single flex ROW,
+   * so its height is the tallest child - 181px. Making this a flex container of its own put the
+   * two controls in their own box, that box wrapped to two lines at 1280px, and the header went
+   * 181 -> 233px. The grouping helped the phone (456 -> 400) and hurt the desktop by 52px, which
+   * a one-viewport measurement would have shipped.
+   *
+   * Here the wrapper is removed from layout entirely and the children participate in the header's
+   * own row exactly as before. The phone rule below turns it back into a real box, where the
+   * header stacks and grouping is what saves the height.
+   */
+  display: contents;
 }
 .site-header {
   display: flex;
@@ -694,6 +704,13 @@ samp,
   }
   nav {
     gap: 0.6rem 1rem;
+  }
+  .header-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+    width: 100%;
   }
   .hero {
     padding: 2.5rem 0;
