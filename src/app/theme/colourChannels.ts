@@ -109,8 +109,6 @@ export const EXTERNAL_CHANNELS: Readonly<Record<string, string>> = Object.freeze
     "Hover is transient pointer feedback rather than encoded information, and this rule additionally swaps figure and ground (color: var(--paper) on background: var(--accent)) rather than merely re-tinting text.",
   ".error":
     'Always used together with .notice (every call site is className="notice error", e.g. src/components/lab/WalkLab.tsx:302), and .notice supplies `border-left: 3px solid` plus padding. Call sites also carry role="alert".',
-  ".concordance-card:target, .concordance-card.focused":
-    "A 3px box-shadow ring appears where there was none, which is a geometry change, and :target additionally means the URL fragment points at this card.",
   ".parameter-control.has-error":
     "Accompanied by the rendered refusal prose in .explanation-text (src/experiments/controls/ParameterControl.tsx:433), which states the problem in words.",
   ".parameter-control.beyond-track":
