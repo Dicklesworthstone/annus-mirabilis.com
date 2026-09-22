@@ -224,9 +224,10 @@ async function runChecks(
     // selector was `fieldset.theme-toggle` and matched nothing from 09:52 onward, so these
     // assertions were red in a lane nobody was running. The property is unchanged: the control
     // must switch the theme, and the theme must survive a reload.
-    const control = page.locator('button[role="switch"].theme-switch').first();
+    // The icon button (sun or moon) that replaced the switch on 2026-09-22.
+    const control = page.locator("button.theme-toggle").first();
     if ((await control.count()) === 0) {
-      throw new Error('no button[role="switch"].theme-switch on the built page');
+      throw new Error("no button.theme-toggle on the built page");
     }
     const read = () => page.evaluate(() => document.documentElement.getAttribute("data-theme"));
     const before = await read();
@@ -372,7 +373,7 @@ async function runPlant(browser: Browser, baseUrl: string, plantPath: string): P
   );
   if (foreign.length > 0) broken.push("no-third-party-requests");
 
-  const control = page.locator('button[role="switch"].theme-switch').first();
+  const control = page.locator("button.theme-toggle").first();
   if ((await control.count()) === 0) {
     broken.push("theme-toggle");
   } else {
@@ -572,9 +573,8 @@ test("am-8w0x: every part of the theme switch has area in both engines", async (
         // the knob that shows which end it is at - and any of them at zero is the same defect.
         const boxes = await page.evaluate(() => {
           const parts = [
-            ["switch", 'button[role="switch"].theme-switch'],
-            ["track", ".theme-switch-track"],
-            ["knob", ".theme-switch-knob"],
+            ["button", "button.theme-toggle"],
+            ["icon", ".theme-toggle-icon"],
           ] as const;
           const out: { label: string; width: number; height: number }[] = [];
           for (const [label, selector] of parts) {
@@ -598,12 +598,12 @@ test("am-8w0x: every part of the theme switch has area in both engines", async (
         // on a page that dropped one of them.
         assert.ok(
           boxes.length > 0,
-          `${engine.name}: no part of the theme switch found at all. "Every part has area" is true of an empty list, so this is the empty-population failure rather than a pass.`,
+          `${engine.name}: no part of the theme toggle found at all. "Every part has area" is true of an empty list, so this is the empty-population failure rather than a pass.`,
         );
         assert.deepEqual(
           boxes.map((box) => box.label).sort(),
-          ["knob", "switch", "track"],
-          `${engine.name}: the switch is missing a part. Found ${JSON.stringify(boxes.map((b) => b.label))}. The knob is the state cue and the track is what it moves along; a control missing either renders as something a reader cannot read a state from.`,
+          ["button", "icon"],
+          `${engine.name}: the theme toggle is missing a part. Found ${JSON.stringify(boxes.map((b) => b.label))}. The icon, a sun or a moon, is the state cue; a button without it is a blank target.`,
         );
         seen.push({ engine: engine.name, labels: boxes.map((box) => box.label) });
         for (const box of boxes) {
@@ -618,7 +618,7 @@ test("am-8w0x: every part of the theme switch has area in both engines", async (
         for (const box of boxes) {
           assert.ok(
             box.width > 0 && box.height > 0,
-            `${engine.name}: the switch's ${box.label} rendered ${box.width}x${box.height}, so it has no area. globals.css once sized every theme input at width:100% with min-width:0, which collapsed them to nothing in WebKit and stretched them in Chromium (am-8w0x).`,
+            `${engine.name}: the theme toggle's ${box.label} rendered ${box.width}x${box.height}, so it has no area. globals.css once sized every theme input at width:100% with min-width:0, which collapsed them to nothing in WebKit and stretched them in Chromium (am-8w0x).`,
           );
         }
         await context.close();

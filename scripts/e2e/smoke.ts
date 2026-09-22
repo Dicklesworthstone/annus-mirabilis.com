@@ -114,91 +114,57 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       });
     }
 
-    // 3. Theme toggle (am-im0x). ThemeToggle renders ONE switch, not a radio group: the owner
-    // ruled on 2026-09-22 that the edition has a single dark/light toggle. An absent control is a
-    // failure: a check that passes when the feature is missing cannot fail for the reason it
-    // exists, and this one reported a pass for eleven months of a shipped toggle because it
-    // searched for [data-theme-toggle], which the component has never carried. The selector moved
-    // with the control for the same reason - "fieldset.theme-toggle" now matches nothing, so
-    // leaving it would have restored exactly that failure.
+    // 3. Theme toggle (am-im0x). ONE icon button: a moon in the light theme, a sun in the dark
+    // (the owner, 2026-09-22: "a single toggle that is either an icon of sun or a moon"). Its
+    // accessible name is the action a press takes, "Switch to dark theme" or "Switch to light
+    // theme", chosen by CSS from data-theme, so the name is asserted before each press and again
+    // after it. An absent control is a failure: a check that passes when the feature is missing
+    // cannot fail for the reason it exists.
     const themeStarted = performance.now();
-    const THEME_SELECTOR = 'button[role="switch"].theme-switch';
+    const THEME_SELECTOR = "button.theme-toggle";
+    const DARK = "kramgasse-night";
+    const LIGHT = "annalen";
+    const nameFor = (theme: string | null) =>
+      theme === DARK ? "Switch to light theme" : "Switch to dark theme";
+    // `.and()` requires ONE element to be both the toggle and a button with that computed name.
+    // getByRole computes the name the way a screen reader does, so a hidden label that CSS failed
+    // to hide, or the wrong one shown, fails here. (A `locator.getByRole()` on the toggle itself
+    // would search its descendants, and find nothing: 23be4bef.)
+    const namedToggle = (name: string) =>
+      page.getByRole("button", { name, exact: true }).and(page.locator(THEME_SELECTOR));
     try {
-      // Check 2 left the page on the not-found route. Every check after it ran
-      // there, so the two chrome checks below were searching a page that has no
-      // chrome - which is the real reason they always took their absent branch.
+      // Check 2 left the page on the not-found route, which has no chrome.
       await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 15_000 });
       const themeToggle = page.locator(THEME_SELECTOR).first();
-      // PRESENCE AND ACCESSIBLE NAME IN ONE REFUSAL, deliberately.
-      //
-      // The switch has ONE accessible name across both states, by design: a control that renames
-      // itself tells a screen-reader user the opposite of what they just chose. Asserting the
-      // full name here is the browser-level half of the WCAG 2.5.3 contract themeInit.test.ts
-      // asserts in the DOM.
-      //
-      // It is folded into the presence check rather than added as a second throw because the two
-      // are one question - "is the control there, correctly named" - and because a separate throw
-      // took this file from 4 bare throw sites to 5 and turned the am-muyh ratchet red. The
-      // alternative was a typed error class invented to satisfy the scanner, which is apparatus
-      // where a rewrite of one condition does the job. The message names which half failed, so
-      // the refusal is no less specific than the two it replaces.
-      const NAME = "Dark theme";
+      const read = () => page.evaluate(() => document.documentElement.getAttribute("data-theme"));
+      const before = await read();
       const present = (await themeToggle.count()) > 0 && (await themeToggle.isVisible());
-      // THE NAME IS READ ON THE ELEMENT ITSELF, not searched for inside it.
-      //
-      // This read `themeToggle.getByRole("switch", { name: NAME, exact: true })` from 17104098
-      // until now. `locator.getByRole()` scopes to DESCENDANTS, and themeToggle IS the button, so
-      // it asked whether the switch contains another switch. It never does, so `named` was false
-      // on every possible page and this refusal fired on a control that was present and correctly
-      // named. A check that can never pass and a check that can never fail are the same bug with
-      // opposite signs; only executing it tells them apart, and this one was only found by
-      // porting the fixture in 23be4bef and running it.
-      //
-      // `.and()` requires ONE element to satisfy both the selector and the accessible name, which
-      // is the claim being made. Two separate counts would pass on a page carrying a differently
-      // named switch somewhere else.
-      //
-      // getByRole computes the accessible name rather than reading an attribute, which is the
-      // point: the assertion is about what a screen reader announces, and ThemeToggle builds that
-      // name from a visible "Dark" plus a clipped " theme" span. An aria-label check would pass
-      // on markup that announces something else entirely.
-      const named =
-        present &&
-        (await page
-          .getByRole("switch", { name: NAME, exact: true })
-          .and(page.locator(THEME_SELECTOR))
-          .count()) > 0;
+      const named = present && (await namedToggle(nameFor(before)).count()) > 0;
       if (!present || !named) {
         throw new Error(
           present
-            ? `The theme switch matched "${THEME_SELECTOR}" but does not carry the accessible name "${NAME}"`
+            ? `The theme toggle matched "${THEME_SELECTOR}" but is not named "${nameFor(before)}" on a page whose data-theme is ${before ?? "unset"}`
             : `No visible theme control matched "${THEME_SELECTOR}"`,
         );
       }
-      const read = () => page.evaluate(() => document.documentElement.getAttribute("data-theme"));
-      const before = await read();
-      // Two transitions, so the check cannot pass by the page already sitting on
-      // the expected theme. The homepage starts on annalen, so the FIRST step must
-      // be the other theme or this check proves nothing: removing `slate` cut this
-      // list to the single ["Annalen", "annalen"] entry and left the sentence above
-      // describing a check that no longer existed.
-      //
-      // Two transitions, so the check cannot pass by the page already sitting on the expected
-      // theme. The homepage starts on annalen, so the first press must reach the other theme.
+      // Two presses, starting from whichever theme the page is on, so the check cannot pass by the
+      // page already sitting on the expected theme; after each, the name must be the new action.
+      const first = before === DARK ? LIGHT : DARK;
       const observed: string[] = [];
-      for (const expected of ["kramgasse-night", "annalen"] as const) {
+      for (const expected of [first, first === DARK ? LIGHT : DARK]) {
         await themeToggle.click();
         await page.waitForFunction(
           (want) => document.documentElement.getAttribute("data-theme") === want,
           expected,
           { timeout: 5000 },
         );
+        await namedToggle(nameFor(expected)).waitFor({ timeout: 5000 });
         observed.push(expected);
       }
       checks.push({
         check: "theme-toggle",
         ok: true,
-        message: `data-theme started at ${before ?? "unset"} and followed the switch through ${observed.join(" then ")}`,
+        message: `data-theme started at ${before ?? "unset"} and followed the toggle through ${observed.join(" then ")}, renamed after each press`,
         durationMs: performance.now() - themeStarted,
       });
     } catch (err) {

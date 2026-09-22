@@ -21,35 +21,34 @@ const IDENTITY =
  * removed from here and from the step list.
  */
 /**
- * The theme control this fixture serves, as the site actually renders it.
+ * The theme control this fixture serves, as the site actually renders it: ONE icon button whose
+ * accessible name is the action a press takes (the owner, 2026-09-22: "a single toggle that is
+ * either an icon of sun or a moon"). It served a switch named "Dark theme" before that.
  *
- * It served a three-radio fieldset until 2026-09-22. 884dfc19 replaced that control with one
- * switch and 17104098 moved the real check in smoke.ts onto `button[role="switch"].theme-switch`
- * plus an exact accessible name, so this fixture stopped matching what the check looks for and
- * both tests below went red in the node lane.
- *
- * The fixture must stay a FAITHFUL STAND-IN, not merely something the check accepts. Three things
- * here are load-bearing and copied from the real control rather than invented:
- *   - role="switch" with aria-checked, which is how the check finds it by role.
- *   - the accessible name "Dark theme": the visible word "Dark" plus a clipped span reading
- *     " theme". %28's 977308cd dropped the edition's theme name from it, so a fixture saying
- *     "Dark theme (Kramgasse Night)" would now be testing a string the site no longer has.
- *   - starting on annalen, because the check's first expected transition is to kramgasse-night
- *     and a fixture that started dark would let it pass without the control doing anything.
+ * The fixture must stay a FAITHFUL STAND-IN, not merely something the check accepts, so the part
+ * that decides the name is copied from themes.css rather than invented: both names are in the
+ * button, visually hidden, and the one that does not apply to the current data-theme is
+ * display: none. The check computes the name through getByRole, so it sees exactly what that CSS
+ * leaves. It starts on annalen, as the home page does under a light device setting.
  */
-const THEME_GROUP = `<button type="button" role="switch" aria-checked="false" class="theme-switch">
-<span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-knob"></span></span>
-<span>Dark<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)"> theme</span></span>
+const themeButton = (hideWhenDark: string, hideWhenLight: string) => `<style>
+.theme-toggle-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+:root[data-theme="kramgasse-night"] ${hideWhenDark},:root:not([data-theme="kramgasse-night"]) ${hideWhenLight}{display:none}
+</style>
+<button type="button" class="theme-toggle"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>
+<span class="theme-toggle-name theme-toggle-to-dark">Switch to dark theme</span>
+<span class="theme-toggle-name theme-toggle-to-light">Switch to light theme</span>
 </button>
 <script>
 document.documentElement.dataset.theme = "annalen";
-document.querySelector("button.theme-switch").addEventListener("click", (event) => {
-  const control = event.currentTarget;
-  const next = control.getAttribute("aria-checked") === "true" ? "annalen" : "kramgasse-night";
-  control.setAttribute("aria-checked", next === "kramgasse-night" ? "true" : "false");
-  document.documentElement.dataset.theme = next;
+document.querySelector("button.theme-toggle").addEventListener("click", () => {
+  const root = document.documentElement;
+  root.dataset.theme = root.dataset.theme === "kramgasse-night" ? "annalen" : "kramgasse-night";
 });
 </script>`;
+const THEME_GROUP = themeButton(".theme-toggle-to-dark", ".theme-toggle-to-light");
+/** Planted wrong: the CSS keeps the name of the theme the reader is already on. */
+const THEME_WRONG_NAME = themeButton(".theme-toggle-to-light", ".theme-toggle-to-dark");
 
 function serve(
   homeBody: string,
@@ -74,7 +73,7 @@ function serve(
 }
 const close = (server: Server) => new Promise<void>((resolve) => server.close(() => resolve()));
 
-test("the theme check drives the real switch and reports the observed data-theme", async () => {
+test("the theme check drives the real toggle and reports the observed data-theme", async () => {
   const { baseUrl, server } = await serve(IDENTITY + THEME_GROUP);
   try {
     const result = await runSmokeJourney({ baseUrl });
@@ -82,6 +81,7 @@ test("the theme check drives the real switch and reports the observed data-theme
     assert.equal(theme?.ok, true);
     // The message must name what was observed, not merely that something was found.
     assert.match(theme?.message ?? "", /kramgasse-night then annalen/);
+    assert.match(theme?.message ?? "", /renamed after each press/);
   } finally {
     await close(server);
   }
@@ -94,9 +94,23 @@ test("an absent theme control fails the check instead of passing it", async () =
     const theme = result.checks.find((c) => c.check === "theme-toggle");
     assert.equal(theme?.ok, false);
     // The selector the refusal names, so a reader of a failing smoke run is told what was looked
-    // for. It named fieldset.theme-toggle until the control changed shape.
-    assert.match(theme?.message ?? "", /button\[role="switch"\]\.theme-switch/);
+    // for. It named button[role="switch"].theme-switch until the control became an icon button.
+    assert.match(theme?.message ?? "", /button\.theme-toggle/);
     assert.equal(result.ok, false);
+  } finally {
+    await close(server);
+  }
+});
+
+test("a toggle whose name says the theme it is already on fails the check", async () => {
+  // The planted wrong implementation: present, clickable, and changing data-theme, but named for
+  // the wrong action. A check that asserted presence and the theme change alone would pass it.
+  const { baseUrl, server } = await serve(IDENTITY + THEME_WRONG_NAME);
+  try {
+    const result = await runSmokeJourney({ baseUrl });
+    const theme = result.checks.find((c) => c.check === "theme-toggle");
+    assert.equal(theme?.ok, false);
+    assert.match(theme?.message ?? "", /is not named "Switch to dark theme"/);
   } finally {
     await close(server);
   }
