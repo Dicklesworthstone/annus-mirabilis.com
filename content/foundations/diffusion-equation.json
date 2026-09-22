@@ -32,7 +32,11 @@
       "text": "Holding everything else fixed, doubling D doubles the mean square at a given time and multiplies RMS displacement by √2. Four times the elapsed time doubles RMS displacement. Neither comparison specifies a single particle’s path."
     }
   ],
-  "prerequisites": ["flux-continuity", "bridge-squaring-square-roots"],
+  "exampleTitle": "Doubling the diffusion coefficient, then quadrupling the time",
+  "prerequisites": [
+    "flux-continuity",
+    "bridge-squaring-square-roots"
+  ],
   "stoppingPoint": "D has units of length squared per time; boundary conditions and model premises must be stated.",
   "citations": []
 }

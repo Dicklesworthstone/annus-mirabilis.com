@@ -31,6 +31,7 @@
       "text": "At the center x = 0, the exponential factor exp(0) = 1. At one standard deviation x = sqrt(2Dt), the exponent is -1/2 and exp(-0.5) approx 0.6065. At x = sqrt(4Dt), the exponent is -1 and exp(-1) approx 0.367879, showing symmetric bell-shaped decay."
     }
   ],
+  "exampleTitle": "The bell curve at its centre and one width out",
   "prerequisites": [
     {
       "foundationId": "foundation:derivatives",

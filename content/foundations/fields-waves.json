@@ -39,7 +39,11 @@
       "text": "At frequency nu = 600 THz (6.0e14 Hz) with light speed c = 299792458 m/s, the wavelength is lambda = c / nu = 499.65 nm. A 1 W source produces intensity I = 1 / (4 pi (1)^2) = 0.0795775 W/m^2 at 1 m, and I = 1 / (4 pi (2)^2) = 0.0198944 W/m^2 at 2 m."
     }
   ],
-  "prerequisites": ["functions-graphs", "derivatives"],
+  "exampleTitle": "A 600-terahertz wave and a one-watt lamp",
+  "prerequisites": [
+    "functions-graphs",
+    "derivatives"
+  ],
   "stoppingPoint": "A field is a value assigned to every place; observed optical intensity is a time average, not an instantaneous pulse.",
   "citations": []
 }

@@ -40,7 +40,13 @@
       "text": "Two proposed entropy functions differing by a constant have the same derivative. A boundary condition is needed to select between them. If the unresolved quantity is an entropy density, multiplying it by different volumes can make that constant matter to a total entropy difference."
     }
   ],
-  "prerequisites": ["partial-derivatives", "integration"],
+  "exampleTitle": "Three joules into a reservoir held at 300 kelvin",
+  "prerequisites": [
+    "partial-derivatives",
+    "integration"
+  ],
   "stoppingPoint": "State what is held fixed, distinguish total entropy from entropy density, and supply an integration condition before interpreting a volume-dependent difference.",
-  "citations": ["ap-17-132"]
+  "citations": [
+    "ap-17-132"
+  ]
 }

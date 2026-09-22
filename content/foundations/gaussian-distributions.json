@@ -36,7 +36,11 @@
       "text": "Substituting back gives mean square 4Dt times one half, or 2Dt. About 68.27% of the probability lies within one RMS width of the centre, not all of it."
     }
   ],
-  "prerequisites": ["integration", "mean-variance-rms"],
+  "exampleTitle": "Where 68 per cent of the probability sits",
+  "prerequisites": [
+    "integration",
+    "mean-variance-rms"
+  ],
   "stoppingPoint": "A normalized density and its moments describe an ensemble, not a required endpoint for one tracer.",
   "citations": []
 }

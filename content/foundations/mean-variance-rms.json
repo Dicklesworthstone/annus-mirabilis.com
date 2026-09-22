@@ -39,7 +39,11 @@
       ]
     }
   ],
-  "prerequisites": ["bridge-negative-numbers-direction", "bridge-squaring-square-roots"],
+  "exampleTitle": "Four displacements, four different averages",
+  "prerequisites": [
+    "bridge-negative-numbers-direction",
+    "bridge-squaring-square-roots"
+  ],
   "stoppingPoint": "Specify whether you square before averaging, average before squaring, or take absolute values.",
   "citations": []
 }

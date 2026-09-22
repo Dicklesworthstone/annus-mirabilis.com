@@ -26,7 +26,10 @@
       ]
     }
   ],
-  "prerequisites": ["bridge-fractions-ratios"],
+  "exampleTitle": "Squaring six micrometres",
+  "prerequisites": [
+    "bridge-fractions-ratios"
+  ],
   "stoppingPoint": "Every physical number must carry its units, and powers of ten apply to both coefficient and unit.",
   "citations": []
 }

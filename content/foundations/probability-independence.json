@@ -32,7 +32,11 @@
       ]
     }
   ],
-  "prerequisites": ["bridge-sum-average", "bridge-negative-numbers-direction"],
+  "exampleTitle": "Two coin steps, and what changes when the second copies the first",
+  "prerequisites": [
+    "bridge-sum-average",
+    "bridge-negative-numbers-direction"
+  ],
   "stoppingPoint": "Ask whether learning one result changes the probabilities for the next.",
   "citations": []
 }

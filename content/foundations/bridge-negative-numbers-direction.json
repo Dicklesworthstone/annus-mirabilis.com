@@ -22,7 +22,10 @@
       "text": "Two walkers both finish one unit from their start, one at −1 and the other at +1. The signed average is zero. The average distance is one."
     }
   ],
-  "prerequisites": ["bridge-sum-average"],
+  "exampleTitle": "Two walkers, opposite directions, average zero",
+  "prerequisites": [
+    "bridge-sum-average"
+  ],
   "stoppingPoint": "The sign names a direction relative to a chosen axis; it does not mean a negative distance.",
   "citations": []
 }

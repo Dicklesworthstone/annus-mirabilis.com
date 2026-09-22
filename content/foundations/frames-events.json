@@ -31,7 +31,10 @@
       "text": "If a master clock A emits a light signal at t_A = 0 seconds toward stationary clock B, and the reflected signal returns to clock A at t'_A = 10 seconds, the synchronization convention assigns the time t_B = (0 + 10) / 2 = 5 seconds to the reflection event at clock B."
     }
   ],
-  "prerequisites": ["functions-graphs"],
+  "exampleTitle": "Setting a distant clock with one light signal",
+  "prerequisites": [
+    "functions-graphs"
+  ],
   "stoppingPoint": "An event is something that happens at one place and one time; coordinate assignment is an operational measurement convention, not an absolute cosmic background.",
   "citations": []
 }

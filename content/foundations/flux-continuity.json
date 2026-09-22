@@ -27,7 +27,10 @@
       "text": "If seven particles enter and five leave during a time interval, the count rises by two. If both flows are five, the count is unchanged even though particles keep crossing."
     }
   ],
-  "prerequisites": ["bridge-sum-average"],
+  "exampleTitle": "Seven particles in, five out",
+  "prerequisites": [
+    "bridge-sum-average"
+  ],
   "stoppingPoint": "Conservation counts net crossings; it does not require each individual particle to stop.",
   "citations": []
 }

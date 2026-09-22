@@ -35,7 +35,11 @@
       "text": "A continuous laser beam absorbing 1.0 Watt of power at normal incidence delivers F = (1.0 W) / (299792458 m/s) = 3.33564e-9 N of force. If the surface reflects the entire 1.0 Watt, the force is 2(3.33564e-9 N) = 6.67128e-9 N."
     }
   ],
-  "prerequisites": ["functions-graphs", "derivatives"],
+  "exampleTitle": "The push of a one-watt beam, absorbed and reflected",
+  "prerequisites": [
+    "functions-graphs",
+    "derivatives"
+  ],
   "stoppingPoint": "Light's momentum is the push a beam gives when absorbed or reflected; it follows from Maxwell's electrodynamics without requiring quantum hypotheses.",
   "citations": []
 }

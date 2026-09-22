@@ -31,6 +31,7 @@
       "text": "If position x(t) = c t^2 with c = 3 metres per second squared, the change between t and t + Δt is c(t+Δt)^2 - ct^2 = 2ctΔt + c(Δt)^2. Dividing by Δt gives 2ct + cΔt. In the limit Δt -> 0, the instantaneous velocity is exactly 2ct = 6t metres per second."
     }
   ],
+  "exampleTitle": "The velocity of a body whose position goes as t squared",
   "prerequisites": [
     {
       "foundationId": "foundation:functions-graphs",

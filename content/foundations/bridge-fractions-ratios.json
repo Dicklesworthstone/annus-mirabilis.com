@@ -26,7 +26,10 @@
       ]
     }
   ],
-  "prerequisites": ["bridge-sum-average"],
+  "exampleTitle": "One in four, two in eight",
+  "prerequisites": [
+    "bridge-sum-average"
+  ],
   "stoppingPoint": "A ratio compares relative magnitudes; always state whether the physical units cancel or combine.",
   "citations": []
 }

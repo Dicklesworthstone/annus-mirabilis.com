@@ -39,7 +39,11 @@
       "text": "Accelerating an electron of charge e = 1.602e-19 Coulombs across an electric potential difference of Delta V = 1.0 Volt gives kinetic energy Delta W = (1.602e-19 C)(1.0 V) = 1.602e-19 Joules = 1 eV. An electron bound with effective spring constant k_s and mass m oscillates at natural frequency nu_0 = (1 / 2 pi) sqrt(k_s / m)."
     }
   ],
-  "prerequisites": ["functions-graphs", "derivatives"],
+  "exampleTitle": "An electron across one volt",
+  "prerequisites": [
+    "functions-graphs",
+    "derivatives"
+  ],
   "stoppingPoint": "Charge is the property that makes electric forces; fields mediate force between separated charges without action-at-a-distance.",
   "citations": []
 }

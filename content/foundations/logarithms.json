@@ -35,6 +35,7 @@
       "text": "Natural log of 2 is ln(2) approx 0.693147, whereas common log of 2 is log_10(2) approx 0.301030. For W_1 = 4 and W_2 = 8, W = 32: ln(4) approx 1.386294, ln(8) approx 2.079442, and ln(32) approx 3.465736 = 1.386294 + 2.079442."
     }
   ],
+  "exampleTitle": "Turning 4 times 8 into ln 4 plus ln 8",
   "prerequisites": [
     {
       "foundationId": "foundation:exponentials",

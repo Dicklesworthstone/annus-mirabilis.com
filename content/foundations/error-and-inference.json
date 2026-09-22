@@ -40,7 +40,14 @@
       ]
     }
   ],
-  "prerequisites": ["mean-variance-rms", "probability-independence"],
+  "exampleTitle": "Inverting an interval, and watching its endpoints swap",
+  "prerequisites": [
+    "mean-variance-rms",
+    "probability-independence"
+  ],
   "stoppingPoint": "State what is identifiable, which estimator and observation model you used, what is held exact, and whether the result is synthetic recovery, an independent estimate or a consistency check.",
-  "citations": ["nist-normal-variance", "bipm-si-definitions"]
+  "citations": [
+    "nist-normal-variance",
+    "bipm-si-definitions"
+  ]
 }

@@ -40,7 +40,13 @@
       "text": "This example assumes independently specified masses; it is not evidence for mass–energy equivalence. The mass-energy argument instead calculates an energy difference from emitted light and then identifies its low-speed coefficient."
     }
   ],
-  "prerequisites": ["bridge-squaring-square-roots", "bridge-fractions-ratios"],
+  "exampleTitle": "Two bodies at the same speed, different masses",
+  "prerequisites": [
+    "bridge-squaring-square-roots",
+    "bridge-fractions-ratios"
+  ],
   "stoppingPoint": "Less energy of motion at the same low speed means a smaller inertial mass within the Newtonian approximation. The comparison alone does not supply an absolute internal energy.",
-  "citations": ["ap-18-639"]
+  "citations": [
+    "ap-18-639"
+  ]
 }

@@ -31,6 +31,7 @@
       "text": "For a diffusion coefficient D = 0.5 square micrometres per second, plotting mean square displacement against time t produces a straight line through the origin with slope 2D = 1.0 square micrometres per second. At t = 1 second the value is 1.0 square micrometre; at t = 4 seconds it is 4.0 square micrometres."
     }
   ],
+  "exampleTitle": "Mean square displacement plotted against time",
   "prerequisites": [
     {
       "foundationId": "foundation:bridge-a-graph",

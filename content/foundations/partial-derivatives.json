@@ -67,6 +67,7 @@
       "text": "Example 5 (Transformed derivatives in Relativity §6): In coordinate transformations between a resting frame (x, y, z, t) and a moving frame (x', y', z', t'), the partial derivative (∂/∂x)_(y, z, t) explicitly holds resting coordinates y, z, and time t fixed. When expressed in moving coordinates via the relativistic chain rule, it becomes a combination of moving spatial derivative (∂/∂x')_(y', z', t') holding y', z', and t' fixed, and moving time derivative (∂/∂t')_(x', y', z') holding x', y', and z' fixed. Changing coordinate systems changes which physical quantities are held fixed."
     }
   ],
+  "exampleTitle": "The same diffusion profile, differentiated two ways",
   "prerequisites": [
     {
       "foundationId": "foundation:derivatives",

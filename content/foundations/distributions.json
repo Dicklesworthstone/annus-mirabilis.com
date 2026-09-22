@@ -27,7 +27,10 @@
       "text": "A uniform density of 0.25 per micrometre on a four-micrometre interval has total probability one. A one-micrometre subinterval has probability 0.25; a two-micrometre subinterval has probability 0.5."
     }
   ],
-  "prerequisites": ["bridge-sum-average"],
+  "exampleTitle": "A flat density across four micrometres",
+  "prerequisites": [
+    "bridge-sum-average"
+  ],
   "stoppingPoint": "Always distinguish curve height, interval area and an individual observation.",
   "citations": []
 }
