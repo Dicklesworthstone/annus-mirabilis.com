@@ -9,24 +9,51 @@ html {
   --reader-paragraph-gap: 1em;
 }
 
+/*
+ * THE MEASURE IS IN ch, NOT rem, SO THE TWO SETTINGS STOP DOING EACH OTHER'S JOB.
+ *
+ * ch is character-relative: it scales with the font, so a ch-based max-width holds characters
+ * per line CONSTANT as the reader enlarges type. rem does not, so these three values used to
+ * make line length a function of type size. Measured on the Brownian reading face at 1280x900,
+ * default measure, across the four type sizes:
+ *
+ *     rem (before)   81 -> 72 -> 62 -> 50 CPL      as type goes 100 -> 112 -> 125 -> 150
+ *
+ * That is the measure setting being overridden by the type-size setting. 81 is well past the
+ * readable band and 50 is near its floor, so a reader who enlarged type also silently changed
+ * line length. Narrow/Default/Wide now changes characters per line; type size changes size only.
+ *
+ * The three values are chosen against the plate rather than by taste: the 1905 Annalen setting
+ * of ap-17-549 runs ~57 characters per line, counted off printed page 554 (57, 58, 58, 55, 55,
+ * 56), so Default targets that and Narrow and Wide sit either side inside 45-75.
+ *
+ * THE ch VALUES ARE NOT THE CHARACTER COUNTS, and that is measured rather than assumed. ch is the
+ * advance of "0", which in this serif is wider than the average lowercase letter, so prose runs
+ * about 1.32 characters per ch: 48ch rendered 63 characters and 58ch rendered 77. The three values
+ * below are therefore the targets divided by that ratio - 36ch for ~48, 43ch for the plate's ~57,
+ * 53ch for ~70 - and the matrix below is what they actually render.
+ *
+ * layout.css:10 already declares the fallback as 65ch; these overrides were the only thing
+ * expressing the measure in a font-independent unit.
+ */
 html[data-measure="narrow"] {
-  --reader-measure: 32rem;
+  --reader-measure: 36ch;
 }
 html[data-measure="default"] {
-  --reader-measure: 40rem;
+  --reader-measure: 43ch;
 }
 html[data-measure="wide"] {
-  --reader-measure: 48rem;
+  --reader-measure: 53ch;
 }
 
 html[data-measure="narrow"] .reader-anatomy-host {
-  --reader-measure: 32rem;
+  --reader-measure: 36ch;
 }
 html[data-measure="default"] .reader-anatomy-host {
-  --reader-measure: 40rem;
+  --reader-measure: 43ch;
 }
 html[data-measure="wide"] .reader-anatomy-host {
-  --reader-measure: 48rem;
+  --reader-measure: 53ch;
 }
 
 html[data-type-scale="100"] {
@@ -54,7 +81,6 @@ html[data-contrast="high"] {
   --panel: #ffffff;
 }
 html[data-theme="kramgasse-night"][data-contrast="high"],
-
 .reader-root {
   font-size: calc(1em * var(--reader-type-scale));
 }

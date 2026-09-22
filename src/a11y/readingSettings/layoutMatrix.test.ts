@@ -52,6 +52,27 @@ describe("72 tested reading layouts", () => {
       new URL("../../reader/layout/layout.css", import.meta.url),
       "utf8",
     );
+    // THE MEASURE MUST BE FONT-RELATIVE, or the two settings do each other's job.
+    //
+    // ch scales with the type, so a ch-based max-width holds characters per line constant while
+    // the reader enlarges text. rem does not. Measured on the Brownian reading face at 1280x900,
+    // default measure, before this was fixed: CPL ran 81, 72, 62, 50 across the four type sizes,
+    // so enlarging type silently shortened the line. After: 55, 55, 55, 55.
+    //
+    // Asserted on the DECLARATIONS rather than on a rendered page, because this file is the one
+    // place the three values are written and a unit test cannot lay out text. The rendered proof
+    // is the CPL matrix recorded in the commit that introduced this.
+    for (const measure of MEASURE_VALUES) {
+      const rule = new RegExp(
+        `html\\[data-measure="${measure}"\\]\\s*\\{[^}]*--reader-measure:\\s*([\\d.]+)(ch|rem|px|em)`,
+      );
+      const found = readingCss.match(rule);
+      expect(found, `no --reader-measure declared for ${measure}`).not.toBeNull();
+      expect(found?.[2], `${measure} measure must be font-relative (ch), not ${found?.[2]}`).toBe(
+        "ch",
+      );
+    }
+
     expect(readingCss).toContain("max-width: min(var(--reader-measure), 100%)");
     expect(layoutCss).toContain("max-width: min(var(--reader-measure), 100%)");
     expect(layoutCss).toContain(
