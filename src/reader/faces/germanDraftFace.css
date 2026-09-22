@@ -107,3 +107,14 @@
     margin-inline: auto;
   }
 }
+
+/* INLINE MATHEMATICS AT THE TEXT'S SIZE. KaTeX sets .katex at 1.21em, sized for Computer Modern
+   beside Computer Modern; beside Newsreader it stood a size above the German around it. And it
+   cannot wrap: KaTeX breaks inline maths only after relations and operators, so brownian §2's
+   "d x_1 d y_1 d z_1, ... d x_n d y_n d z_n" was one 309px unit on a 288px line and the page
+   scrolled sideways at 320px (the browser lane's phoneOverflow e2e: 327 vs 320). At 1.05em, a
+   value already in the scale's vocabulary, the 28 German pages at 320 and 390 have none that
+   scroll sideways, where one did. Display formulas keep KaTeX's size and scroll in their line. */
+:is([data-german-draft], .source-footnotes) .katex:not(.katex-display > .katex) {
+  font-size: 1.05em;
+}
