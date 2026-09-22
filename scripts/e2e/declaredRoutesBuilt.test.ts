@@ -70,6 +70,24 @@ function visibleTextLength(html: string): number {
     .trim().length;
 }
 
+/**
+ * Source with comment bodies blanked, so prose ABOUT a route is not read as a route.
+ *
+ * Added after this gate went red on its own explanation. The comment below the cap lift quotes a
+ * route while describing the plant that proved the cap was a hole, and the check could not tell
+ * that quotation from a hard-coded declared set. AGENTS.md records the same failure in three
+ * other gates and the direction is never random: the densest prose about a construct is the
+ * documentation of why it is forbidden, so the better the comment, the likelier the misfire.
+ *
+ * Bodies are blanked rather than deleted so that offsets and line numbers still line up. The
+ * four cases that matter are asserted below, including both directions, because a stripper that
+ * blanked everything would report a clean surface forever.
+ */
+function withoutCommentBodies(source: string): string {
+  const blank = (m: string): string => m.replace(/[^\n]/g, " ");
+  return source.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\/\/[^\n]*/g, blank);
+}
+
 type DeclaredRoute = Readonly<{ route: string; dynamic: boolean }>;
 
 /**
@@ -235,8 +253,13 @@ test("the declared-route set is read from the filesystem, not written down here"
   // route, it is checked without anyone editing this file; if someone converts this to a
   // hand-maintained list, this fails and says why.
   const routes = declaredRoutes();
-  const source = readFileSync(fileURLToPath(import.meta.url), "utf8");
-  for (const { route } of routes.slice(0, 40)) {
+  const source = withoutCommentBodies(readFileSync(fileURLToPath(import.meta.url), "utf8"));
+  // EVERY declared route, not the first 40. The cap read as diligence and was a hole: with 69
+  // declared routes it asserted over 38 of them, and everything from /not-a-declared-route to /your-data
+  // could have been hard-coded here without this noticing. Demonstrated rather than reasoned:
+  // quoting "/your-data" in this file passed with the cap and fails without it. There was never
+  // a cost to justify the cap - it is one string search per route over a file already in memory.
+  for (const { route } of routes) {
     if (route === "/" || route.includes("[")) continue;
     assert.ok(
       !source.includes(`"${route}"`),
@@ -281,5 +304,39 @@ test("a private folder declares nothing, and a real one beside it still declares
       "while a real sibling must still be declared. Getting only the first half right turns " +
       "this check off; getting only the second half right restores the failure it was " +
       "changed to fix.",
+  );
+});
+
+test("comment stripping is proved in both directions, not assumed", () => {
+  // A stripper that blanked everything would make the check above pass forever, so ABSENCE and
+  // PRESENCE are both asserted. Cases 3 and 4 are the ones that go wrong quietly: a trailing //
+  // that swallows the code before it, and a block comment that swallows the code after it.
+  const inComment = withoutCommentBodies(
+    '// the route "/not-a-declared-route" is discussed here\n',
+  );
+  assert.ok(
+    !inComment.includes('"/not-a-declared-route"'),
+    "a route named in a comment must not match",
+  );
+
+  const inCode = withoutCommentBodies('const r = "/not-a-declared-route";\n');
+  assert.ok(inCode.includes('"/not-a-declared-route"'), "a route in real code MUST still match");
+
+  const trailing = withoutCommentBodies('const r = "/not-a-declared-route"; // explained here\n');
+  assert.ok(
+    trailing.includes('"/not-a-declared-route"'),
+    "a trailing comment must not swallow the code before it",
+  );
+
+  const after = withoutCommentBodies('/* note */ const r = "/not-a-declared-route";\n');
+  assert.ok(
+    after.includes('"/not-a-declared-route"'),
+    "a block comment must not swallow the code after it",
+  );
+
+  assert.equal(
+    withoutCommentBodies("a\n// x\nb\n").split("\n").length,
+    4,
+    "blanking must preserve line count so reported line numbers stay true",
   );
 });
