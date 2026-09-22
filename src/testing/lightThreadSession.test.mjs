@@ -163,27 +163,37 @@ test("every subset of the four settings publishes, so no change is left without 
 });
 
 /**
- * THE SESSION'S REMAINING THREE REFUSALS CANNOT FIRE, AND THIS IS THE MEASUREMENT.
+ * TWO OF THE SESSION'S THREE REMAINING REFUSALS CANNOT FIRE. THE THIRD CAN, AND IS DRIVEN
+ * BY THE TEST AFTER THIS ONE.
  *
- *   :90  publication-refused    the initial publish
- *   :121 no-command-for-change  no command issued for a changed setting
- *   :134 publication-refused    the publish inside apply()
+ *   :90  publication-refused    the initial publish               unreachable
+ *   :121 no-command-for-change  no command for a changed setting   unreachable
+ *   :134 publication-refused    the publish inside apply()         REACHABLE, see below
  *
  * :121 is dead by the eleven lines above it. apply() returns early when both the setup and
  * observer patches are empty, so by the time the token is checked at least one of them has a
  * key - and each non-empty patch issues its own command. There is no third bucket that could
- * be non-empty without issuing anything.
+ * be non-empty without issuing anything. It is dead a second way as well, which the original
+ * note here missed: store.issue() returns a RequestToken or throws, and never returns null,
+ * so the narrowing check the ternary forces has nothing to catch.
  *
- * :90 and :134 publish against a token the store has just issued, with stepIndex and
- * simulationTime fixed at 0 and final true. Every channel publish() can deny on - unknown
- * message keys, stale revisions, a non-monotone step, a parameter mismatch, no outstanding
- * request - is settled by construction at the call site, so the refusal has no input that
- * reaches it.
+ * :90 publishes against a token the store has just issued, inside the constructor, before any
+ * caller can hold subscribe(). Nothing can run between that issue and that publish, so every
+ * channel publish() denies on is settled by construction at the call site.
  *
- * Kept as a test rather than a comment so that it stops being true LOUDLY. If a later change
- * makes any of the three reachable, this goes red, and whoever made it reachable is the person
- * who should drive it. Verified to be a working pawl rather than a decorative one: deleting
- * the early return above :121 turns this test red.
+ * :134 WAS RECORDED HERE AS UNREACHABLE FOR THAT SAME REASON, AND THAT WAS WRONG. The claim
+ * assumed nothing runs between issue() and publish(). issue() calls emit(), which notifies
+ * listeners SYNCHRONOUSLY (instanceStore.ts:255), so a subscriber that re-enters apply()
+ * issues a newer token and the outer frame is left publishing a superseded one: publish()
+ * denies "stale-action" and :134 throws. The envelope below could not have found this - it
+ * varies parameters, and the input that reaches :134 is not a parameter. Corrected under
+ * am-r3qt by running it, not by reading it; the reading is what got it wrong the first time.
+ *
+ * What the envelope below establishes is therefore narrower than it used to claim, and still
+ * worth having: no refusal fires for any admitted PARAMETER across the single-axis space.
+ * Kept as a test rather than a comment so that it stops being true LOUDLY. Verified to be a
+ * working pawl rather than a decorative one: deleting the early return above :121 turns this
+ * test red.
  */
 test("light-thread session: :90, :121 and :134 cannot fire across the admitted envelope", () => {
   const observed = new Set();
@@ -232,4 +242,44 @@ test("light-thread session: :90, :121 and :134 cannot fire across the admitted e
   assert.ok(sessions >= 8, `expected the admitted envelope to build sessions, got ${sessions}`);
   assert.ok(applies >= 100, `expected the whole single-axis space, got ${applies} apply calls`);
   assert.deepEqual([...observed], [], "no refusal fires anywhere in the admitted envelope");
+});
+
+/**
+ * :134, driven through the one input that reaches it.
+ *
+ * The negative a naive implementation fails: if apply() published its stale token instead of
+ * refusing, the accepted snapshot would carry the OUTER call's beta while the store's action
+ * counter had already moved past it - "an old result overwrites the newest accepted run",
+ * which the runtime contract forbids in those words. So this asserts the refusal AND that the
+ * run left standing is the re-entrant one, because the refusal alone would also be satisfied
+ * by a session that threw and corrupted the snapshot on the way out.
+ */
+test("(session.ts:134) a subscriber re-entering apply() supersedes the outer token, which refuses", () => {
+  const session = createLightThreadSession("reentrant-apply");
+  const OUTER = -0.6;
+  const NESTED = 0.3;
+  let reentries = 0;
+
+  session.subscribe(() => {
+    if (reentries > 0) return;
+    reentries += 1;
+    session.apply({ ...LIGHT_THREAD_DEFAULTS, beta: NESTED });
+  });
+
+  assert.throws(
+    () => session.apply({ ...LIGHT_THREAD_DEFAULTS, beta: OUTER }),
+    (error) => {
+      assert.equal(error.code, "publication-refused");
+      assert.match(error.message, /stale-action/);
+      return true;
+    },
+  );
+
+  // Without this the test would pass against a store that never notified at all, and the
+  // throw would be coming from somewhere other than the path being claimed.
+  assert.equal(reentries, 1, "the subscriber never re-entered, so no token was superseded");
+
+  const surviving = session.getSnapshot().accepted;
+  assert.equal(surviving.parameters.beta, NESTED, "the superseded outer publish must not land");
+  assert.notEqual(surviving.parameters.beta, OUTER);
 });

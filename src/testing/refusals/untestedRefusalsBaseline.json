@@ -117,7 +117,7 @@
   "src/experiments/identity/jsonCodec.ts": 1,
   "src/experiments/identity/u64.ts": 0,
   "src/experiments/identity/urlCodec.ts": 0,
-  "src/experiments/lightThread/session.ts": 3,
+  "src/experiments/lightThread/session.ts": 2,
   "src/experiments/lq06/changes.ts": 1,
   "src/experiments/lq06/session.ts": 2,
   "src/experiments/permalink/compatibility.ts": 0,
