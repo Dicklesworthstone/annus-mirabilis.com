@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { contentIndex, loadFoundation } from "../../../content/server";
+import { lessonsBuildingOn, lessonUses } from "../../../components/foundations/lessonUses";
+import { contentIndex, loadFoundation, loadPaper } from "../../../content/server";
 import { FoundationBody } from "../../../reader/Blocks";
 import "../../../reader/reader.css";
 export const dynamicParams = false;
@@ -25,7 +26,12 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
   const foundation = await loadFoundation(concept),
     lessons = await Promise.all(
       index.payloads.filter((p) => p.kind === "foundation").map((p) => loadFoundation(p.id)),
-    );
+    ),
+    papers = await Promise.all(
+      index.payloads.filter((p) => p.kind === "paper").map((p) => loadPaper(p.id)),
+    ),
+    uses = lessonUses(concept, papers),
+    buildOn = lessonsBuildingOn(concept, lessons);
   return (
     <article className="foundation-page">
       <header>
@@ -36,14 +42,48 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
           Written for this edition, not translated from Einstein. Editorial review pending.
         </p>
       </header>
-      <FoundationBody foundation={foundation} foundations={lessons} headingLevel={2} />
-      <p className="fine">
-        If you came here from a passage, Back returns you to the exact place you left.
-      </p>
-      <p className="foundation-page-exit">
-        <a href="/foundations/">All foundation lessons</a> ·{" "}
-        <a href={foundation.exports.markdown}>Read as Markdown</a>
-      </p>
+      <div className="foundation-page-text">
+        <FoundationBody foundation={foundation} foundations={lessons} headingLevel={2} />
+        <p className="fine">
+          If you came here from a passage, Back returns you to the exact place you left.
+        </p>
+        <p className="foundation-page-exit">
+          <a href="/foundations/">All foundation lessons</a> ·{" "}
+          <a href={foundation.exports.markdown}>Read as Markdown</a>
+        </p>
+      </div>
+      {(uses.length > 0 || buildOn.length > 0) && (
+        <aside className="foundation-page-rail" aria-label="Where this lesson leads">
+          {uses.length > 0 && (
+            <section>
+              <h2>Where the papers use it</h2>
+              <ul>
+                {uses.map((use) => (
+                  <li key={use.href}>
+                    <a href={use.href}>
+                      <span className="foundation-use-where">{use.where}</span>
+                      <span className="visually-hidden">: </span>
+                      {use.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {buildOn.length > 0 && (
+            <section>
+              <h2>Lessons that build on it</h2>
+              <ul>
+                {buildOn.map((lesson) => (
+                  <li key={lesson.href}>
+                    <a href={lesson.href}>{lesson.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </aside>
+      )}
     </article>
   );
 }

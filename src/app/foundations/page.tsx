@@ -1,6 +1,7 @@
 import { contentIndex, loadFoundation, loadPaper } from "../../content/server";
 import "../../reader/reader.css";
 import "../../components/foundations/foundations.css";
+import { lessonsNamedBy, PAPER_ORDER, paperName } from "../../components/foundations/lessonUses";
 
 export const metadata = {
   title: "Foundation lessons",
@@ -70,19 +71,6 @@ const GROUPS: readonly { title: string; note: string; ids: readonly string[] }[]
   },
 ];
 
-/** The four papers in the order Annalen received them. */
-const PAPER_ORDER = ["light-quanta", "brownian-motion", "special-relativity", "mass-energy"];
-
-/** Every foundation id an argument points a reader to: inline lessons and its help links. */
-function lessonsNamedBy(value: unknown, found: Set<string>): void {
-  if (Array.isArray(value)) for (const item of value) lessonsNamedBy(item, found);
-  else if (value && typeof value === "object") {
-    const record = value as Record<string, unknown>;
-    if (record.kind === "foundation" && typeof record.id === "string") found.add(record.id);
-    for (const item of Object.values(record)) lessonsNamedBy(item, found);
-  }
-}
-
 export default async function Page() {
   const index = await contentIndex(),
     lessons = await Promise.all(
@@ -95,14 +83,10 @@ export default async function Page() {
   // Which papers send a reader to each lesson, measured from the compiled arguments.
   const usedIn = new Map<string, Set<string>>();
   for (const { paper, arguments: args } of papers)
-    for (const argument of args) {
-      const found = new Set<string>();
-      lessonsNamedBy(argument.readings, found);
-      for (const id of Object.values(argument.help ?? {}))
-        if (typeof id === "string") found.add(id);
-      for (const id of found) usedIn.set(id, (usedIn.get(id) ?? new Set()).add(paper.id));
-    }
-  const paperName = new Map(papers.map(({ paper }) => [paper.id, paper.title.split(":")[0]]));
+    for (const argument of args)
+      for (const id of lessonsNamedBy(argument))
+        usedIn.set(id, (usedIn.get(id) ?? new Set()).add(paper.id));
+  const paperNames = new Map(papers.map(({ paper }) => [paper.id, paperName(paper.title)]));
   const rank = (id: string) => (PAPER_ORDER.includes(id) ? PAPER_ORDER.indexOf(id) : 99);
 
   const byId = new Map(lessons.map((f) => [f.id, f]));
@@ -152,7 +136,7 @@ export default async function Page() {
                   <p className="lesson-card-question">{f.question}</p>
                   {uses.length > 0 && (
                     <p className="lesson-card-uses">
-                      Used in {uses.map((id) => paperName.get(id) ?? id).join(" · ")}
+                      Used in {uses.map((id) => paperNames.get(id) ?? id).join(" · ")}
                     </p>
                   )}
                 </li>
