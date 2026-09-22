@@ -812,3 +812,65 @@ describe("theater: points is gated on the scoring construction (am-gzxs)", () =>
     assert.ok(findings.some((f) => f.matchedText.toLowerCase() === "badge"));
   });
 });
+
+/**
+ * Negated theater vocabulary is a disclaimer, not an instance (am-gzxs follow-up).
+ *
+ * The must-go-quiet cases are the four REAL findings the rule produced at HEAD 81d6ec70 -
+ * every one of its remaining output, quoted from the files - not invented fixtures. The
+ * must-still-fire half is what stops this being a blinding: the gamification vocabulary the
+ * rule exists for, and the mark vocabulary the exemption is deliberately scoped away from.
+ */
+describe("theater: a negated noun is a disclaimer (am-gzxs follow-up)", () => {
+  const theaterOf = (
+    text: string,
+    context: "prose" | "ui-label" | "task-feedback" | "reader-progress" = "prose",
+  ) => checkVoice(text, { context }).filter((f) => f.rule === "theater");
+
+  it("stops reporting the site's own refusals of theater", () => {
+    for (const text of [
+      "No score, timer or answer gate is used.", // MassEnergyArgumentWorkbench.tsx:155
+      "Largest cumulative-probability gap, not a visual fit score", // WalkLab.tsx:472
+      "The composition below is the model, not a score.", // sr06/VelocityCompositionLab.tsx:139
+      "must be tested at slow speed, not certified by the easier large-number example", // entrance-mass-energy.json:22
+    ]) {
+      assert.deepEqual(
+        theaterOf(text),
+        [],
+        `a refusal must not be reported as an instance: ${text.slice(0, 50)}`,
+      );
+    }
+  });
+
+  it("still reports theater that is asserted rather than refused", () => {
+    // Without these the change reads as a blinding. The rule's whole vocabulary still fires.
+    assert.ok(theaterOf("Your score so far", "reader-progress").length > 0);
+    assert.ok(theaterOf("climb the leaderboard").length > 0);
+    assert.ok(theaterOf("a streak of three").length > 0);
+    assert.ok(theaterOf("Earn points by answering questions.").length > 0);
+    assert.ok(theaterOf("Collect a badge for each chapter.").length > 0);
+  });
+
+  it("the exemption is scoped to nouns: a negated VERDICT still grades", () => {
+    // The boundary that makes this a scoping change rather than a relaxation. "no badge" is a
+    // promise the site keeps; "your answer is not wrong" marks the attempt just as "wrong" does.
+    for (const text of ["Your answer is not wrong.", "not wrong", "That is not correct."]) {
+      assert.ok(
+        theaterOf(text, "task-feedback").length > 0,
+        `mark vocabulary must survive negation: ${text}`,
+      );
+    }
+  });
+
+  it("PINS THE KNOWN LEAK: a window cannot tell noun-negation from verb-negation", () => {
+    // "Do not lose your score" is gamification and IS exempted, because the marker sits within
+    // the window and nothing short of parsing can tell what it attaches to. Recorded here rather
+    // than left to be discovered: the shape occurs zero times in src and content today, checked
+    // before shipping. If it ever appears, this test is where the cost was written down.
+    assert.deepEqual(
+      theaterOf("Do not lose your score.", "task-feedback"),
+      [],
+      "if this starts failing, the leak has been closed and the comment above is stale",
+    );
+  });
+});

@@ -69,6 +69,20 @@ export interface WordListRule {
    * because the second has no modifier at all. See docs/DECISIONS.md
    * D-2026-09-19-theater-points-compounds, whose revisit trigger named this change.
    */
+  /**
+   * Negated occurrences of this rule's NOUN vocabulary are disclaimers rather than instances
+   * (am-gzxs follow-up). This edition's doctrine forbids theater, so its chrome repeatedly NAMES
+   * the banned vocabulary in order to refuse it: "No score, timer or answer gate is used",
+   * "not a visual fit score", "not certified by the easier large-number example".
+   *
+   * SCOPE IS STRUCTURAL AND DELIBERATE: this applies to `words` only, never to `markWords`.
+   * Negating a noun is a disclaimer ("no badge"); negating a verdict still grades the attempt
+   * ("Your answer is not wrong"), so the mark half must keep firing.
+   */
+  readonly negationExempt?: {
+    readonly markers: readonly string[];
+    readonly maxTokensBefore: number;
+  };
   readonly constructionGated?: {
     readonly words: readonly string[];
     readonly scoringContexts: readonly VoiceContext[];

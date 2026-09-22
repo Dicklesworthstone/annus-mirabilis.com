@@ -183,11 +183,11 @@ export function matchRegexRule(
  * is what separates "Earn 5 points" from the second occurrence in "Earn 5 points for every 10
  * data points you plot", where the verb is six tokens away and the noun is ordinary.
  */
-function scoringConstructionReaches(
+function precedingTokensContain(
   text: string,
   index: number,
-  triggers: readonly string[],
-  maxTokensBetween: number,
+  wanted: readonly string[],
+  maxTokens: number,
 ): boolean {
   const before = text.slice(0, index);
   const sentenceStart = Math.max(
@@ -201,10 +201,10 @@ function scoringConstructionReaches(
   const tokens = window
     .split(/[^\p{L}\p{N}'-]+/u)
     .filter((t) => t.length > 0)
-    .slice(-maxTokensBetween)
+    .slice(-maxTokens)
     .map((t) => t.toLowerCase());
-  const triggerSet = new Set(triggers.map((t) => t.toLowerCase()));
-  return tokens.some((t) => triggerSet.has(t));
+  const wantedSet = new Set(wanted.map((t) => t.toLowerCase()));
+  return tokens.some((t) => wantedSet.has(t));
 }
 
 export function matchWordListRule(
@@ -233,6 +233,19 @@ export function matchWordListRule(
     for (const m of findPhraseMatches(text, word)) {
       if (overlapsAny(m.index, m.matchedText.length, exceptionRanges)) continue;
       if (overlapsAny(m.index, m.matchedText.length, allowlistRanges)) continue;
+      // A negated noun is a disclaimer, not an instance. Deliberately NOT applied to the
+      // markWords loop below: "not wrong" still grades the attempt.
+      if (
+        rule.negationExempt &&
+        precedingTokensContain(
+          text,
+          m.index,
+          rule.negationExempt.markers,
+          rule.negationExempt.maxTokensBefore,
+        )
+      ) {
+        continue;
+      }
       let severity =
         isQuotation && rule.quotationDowngrade ? rule.quotationDowngrade : baseSeverity;
       if (source.layer === "translation" && severity === "error") {
@@ -262,7 +275,7 @@ export function matchWordListRule(
         if (overlapsAny(m.index, m.matchedText.length, allowlistRanges)) continue;
         if (
           !inScoringContext &&
-          !scoringConstructionReaches(text, m.index, gated.triggers, gated.maxTokensBetween)
+          !precedingTokensContain(text, m.index, gated.triggers, gated.maxTokensBetween)
         ) {
           continue;
         }

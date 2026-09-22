@@ -214,6 +214,42 @@ rules:
       - "✓"
       - "✗"
     markWordsProseExempt: true
+    # NEGATED VOCABULARY IS A DISCLAIMER, NOT AN INSTANCE (am-gzxs follow-up, 2026-09-22).
+    # AGENTS.md doctrine item 13 is "No theater", so this edition's chrome keeps NAMING the
+    # banned words in order to refuse them, and the rule kept reporting the refusals. Measured
+    # at HEAD 81d6ec70: ALL FOUR of the theater rule's remaining findings were negated -
+    # "No score, timer or answer gate is used", "not a visual fit score", "The composition
+    # below is the model, not a score", and "not certified by the easier large-number example".
+    # Four of four is a class, not a coincidence; the tree carries 35 sites of the same shape.
+    #
+    # Rewording to dodge the lint is Option A of D-2026-09-19-theater-points-compounds, which
+    # that decision rejected: it taxes every author forever and pushes prose away from the
+    # plainest word. This is the same move as the points construction gate, one level up.
+    #
+    # SCOPE IS STRUCTURAL: the exemption is applied in the `words` loop and NEVER to
+    # `markWords`. Negating a noun is a disclaimer ("no badge"); negating a verdict still
+    # grades the attempt, so "Your answer is not wrong" must keep firing. The counter-case is
+    # already in the tree at BrownianFirstEncounter.tsx and GlossFace.render.test.tsx.
+    #
+    # KNOWN RESIDUAL LEAK, stated rather than discovered later. A window cannot tell whether the
+    # negation attaches to the noun or to a verb before it, so "Do not lose your score" would be
+    # exempted although it is gamification. Checked before shipping: that shape occurs ZERO
+    # times in src and content today. A test pins the leak so the next author reads it here
+    # instead of finding it.
+    #
+    # Four tokens, not three: "not a visual fit score" puts the marker four words back, and
+    # that is real corpus text rather than a hypothetical.
+    negationExempt:
+      markers:
+        - "no"
+        - not
+        - never
+        - without
+        - rather
+        - instead
+        - neither
+        - nor
+      maxTokensBefore: 4
     # CONSTRUCTION GATE for "points" (am-gzxs, 2026-09-22). This word is NOT in the `words`
     # list above. It is gamification vocabulary when a scoring construction reaches it and an
     # ordinary noun otherwise, and the previous remedy - enumerating exempt compounds - could
