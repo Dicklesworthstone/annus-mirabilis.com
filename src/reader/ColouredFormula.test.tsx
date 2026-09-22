@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadReadingFiles } from "../../scripts/build-content.ts";
 import { compileReadingContent } from "../content/compiler/compile.ts";
@@ -74,13 +76,21 @@ describe("the reading shows the named records, coloured, in the formula's place"
       <ReadingBlocks blocks={full} foundations={foundations} equations={equations} />,
     );
 
-  test("with the records at hand: coloured relations, one rule per term, a legend, no plain copy", () => {
+  test("with the records at hand: coloured relations, every term coloured, a legend, no plain copy", () => {
     const html = render(paperEquations("mass-energy"));
     expect(html).toContain('data-equations="eq-model-me-offset-before eq-model-me-offset-after"');
     expect(html).toContain('data-equations="eq-model-me-kinetic-drop-difference"');
-    expect(html).toMatch(
-      /\[data-term="eq-model-me-offset-before\.t\.[A-Za-z0-9]+"\]\{--qc:var\(--q-\d\)/,
+    // Each term span in the formula has its colour rule in the generated sheet (build-equations).
+    const sheet = readFileSync(
+      fileURLToPath(new URL("../generated/quantity-colours.css", import.meta.url)),
+      "utf8",
     );
+    const terms = [...html.matchAll(/data-term="(eq-model-me-offset-(?:before|after)\.t\.\w+)"/g)];
+    expect(terms.length).toBeGreaterThan(0);
+    for (const [, term] of terms)
+      expect(sheet).toMatch(
+        new RegExp(`\\[data-term="${term?.replace(/\./g, "\\.")}"\\] \\{ --qc: var\\(--q-\\d\\);`),
+      );
     expect(html).toContain('class="equation-legend"');
     // The legend names each quantity; C is the additive constant of the two frame ledgers.
     expect(html).toContain(">Unchanged additive energy offset</span>");
