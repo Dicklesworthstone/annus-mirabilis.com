@@ -91,7 +91,11 @@ export async function PaperReader({
             <nav aria-label="Argument outline">
               {sections.map((s) => (
                 <div key={s.id}>
-                  <a data-reader-anchor={s.id} href={`#${s.id}`}>
+                  <a
+                    data-reader-anchor={s.id}
+                    href={`#${s.id}`}
+                    aria-current={section === s.id ? "page" : undefined}
+                  >
                     {s.title}
                   </a>
                   {args

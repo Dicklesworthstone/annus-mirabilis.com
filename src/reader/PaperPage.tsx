@@ -240,7 +240,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           <nav aria-label="Argument outline">
             {sections.map((s) => (
               <div key={s.id}>
-                <a data-reader-anchor={s.id} href={paperPath(paper.id, s.id)}>
+                <a
+                  data-reader-anchor={s.id}
+                  href={paperPath(paper.id, s.id)}
+                  aria-current={sectionId === s.id ? "page" : undefined}
+                >
                   {s.title}
                 </a>
                 {args

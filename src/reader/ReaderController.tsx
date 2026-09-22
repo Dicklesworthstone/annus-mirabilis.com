@@ -360,7 +360,49 @@ export function ReaderController(props: Props) {
     save();
     render();
     queueMicrotask(() => openFromSearch(document, openSearchOnMount));
+    /*
+      THE OUTLINE SAYS WHERE THE READER IS. Each section of the outline is a group whose first
+      link names a .reader-section; the section crossing the upper part of the viewport is
+      marked aria-current="location" and its group data-current, and data-spy on the nav lets
+      reader.css show passage links for that section only. Measured on BUILD 4 at 1440x900, the
+      sticky outline was 1,606px tall on light-quanta and 1,907px on special-relativity, so the
+      later sections could not be reached from it until the page ended; with one section open it
+      fits. Without JavaScript nothing is marked and every link shows.
+      Above the first section and below the last, nothing is current, which is true.
+    */
+    const outlineNav = root.querySelector<HTMLElement>(".reader-outline nav");
+    const tracked = [...(outlineNav?.children ?? [])].flatMap((group) => {
+      const link = group.querySelector<HTMLAnchorElement>(":scope > a[data-reader-anchor]");
+      const target = link ? document.getElementById(link.dataset.readerAnchor ?? "") : null;
+      return link && target?.classList.contains("reader-section")
+        ? [{ group: group as HTMLElement, link, target }]
+        : [];
+    });
+    let spy: IntersectionObserver | undefined;
+    if (outlineNav && tracked.length > 1 && typeof IntersectionObserver !== "undefined") {
+      const crossing = new Set<Element>();
+      spy = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) crossing.add(entry.target);
+            else crossing.delete(entry.target);
+          }
+          const current = tracked.find((t) => crossing.has(t.target));
+          for (const t of tracked) {
+            t.group.toggleAttribute("data-current", t === current);
+            if (t === current) t.link.setAttribute("aria-current", "location");
+            else if (t.link.getAttribute("aria-current") === "location")
+              t.link.removeAttribute("aria-current");
+          }
+        },
+        { rootMargin: "-20% 0px -70% 0px" },
+      );
+      for (const t of tracked) spy.observe(t.target);
+      outlineNav.dataset.spy = "";
+    }
     return () => {
+      spy?.disconnect();
+      if (outlineNav) delete outlineNav.dataset.spy;
       cancelReturn();
       root.removeEventListener("click", click);
       root.removeEventListener("change", changeControl);

@@ -75,20 +75,41 @@
   top: 1rem;
   margin-top: 3rem;
 }
+/* ---------------------------------------------------------------------------
+   THE OUTLINE IS NAVIGATION, NOT A PARAGRAPH OF LINKS. Measured on BUILD 4 at 1440: every one
+   of its 22 links (27 on special-relativity) was underlined, so the column read as a wall;
+   the two levels differed only by size, 15.8px against 13.2px at the same weight and colour;
+   and nothing said where the reader was. Now: no underline until hover, a hairline down each
+   section's group, sections at weight 600 and passages muted and further in, and the current
+   section carried by the accent rule, which is what the accent is for since fda72d46.
+   aria-current is "page" on a section route (static, no JavaScript) and "location" on the
+   whole paper (ReaderController's scroll spy). With the spy running, only the current
+   section's passages show, which is what brings the sticky column back inside the viewport.
+   --------------------------------------------------------------------------- */
 .reader-outline h2 {
-  font-size: var(--type-body);
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .reader-outline nav,
 .reader-outline nav > div {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 .reader-outline nav > div {
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
+  border-left: 1px solid var(--rule);
 }
 .reader-outline a {
-  padding: 0.4rem 0;
+  color: var(--ink);
+  text-decoration: none;
+  /* 2px over the group's 1px hairline, so the current mark sits on the line it marks. */
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  padding: 0.3rem 0 0.3rem 0.9rem;
   /* The outline is a list of destinations, so its rows are controls and take the floor the
      rest of the project's controls take. Measured on out/ 14:24:47 at 390px: these were
      358x35 and 358x39 - full width already, short only because nothing floored them. They
@@ -97,9 +118,28 @@
   min-height: 44px;
   align-content: center;
 }
-.reader-outline nav > div > a:not(:first-child) {
-  padding-left: 0.8rem;
+.reader-outline a:hover {
+  text-decoration: underline;
+}
+/* Both levels at one size: the difference is weight, colour and indent. At 15.8px the section
+   titles wrapped to two lines in the 240px column and kept the open outline taller than a
+   900px viewport. */
+.reader-outline nav a {
   font-size: var(--type-fine);
+}
+.reader-outline nav > div > a:first-child {
+  font-weight: 600;
+}
+.reader-outline nav > div > a:not(:first-child) {
+  padding-left: 1.8rem;
+  color: var(--muted);
+}
+.reader-outline a[aria-current] {
+  border-left-color: var(--accent);
+  color: var(--ink);
+}
+.reader-outline nav[data-spy] > div:not([data-current]) > a:not(:first-child) {
+  display: none;
 }
 .reader-body {
   min-width: 0;
