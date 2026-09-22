@@ -251,6 +251,15 @@
   text-align: left;
 }
 
+/* The chosen option in a choice group says so by more than a screen reader's "pressed": no
+   rule anywhere styled aria-pressed, so on sr-05 the worldline being shown looked exactly like
+   the six that were not. */
+.lab-choice button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
 /* Predict first: closed by default, and never a gate on the controls below it. The answer is
    revealed only after a choice, and reads the same whichever was chosen. */
 .lab-predict {

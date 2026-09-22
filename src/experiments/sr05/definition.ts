@@ -176,8 +176,8 @@ export const SR05_PRESETS: Readonly<Record<string, Sr05Preset>> = Object.freeze(
   }),
   "sr-05-low-speed-1e-4": Object.freeze({
     id: "sr-05-low-speed-1e-4",
-    label: "Low-speed loss at beta = 1e-4",
-    description: "The stable per-second loss at beta = 1e-4 beside the printed second-order form.",
+    label: "Low speed, β = 10⁻⁴",
+    description: "The stable per-second loss at β = 10⁻⁴ beside the printed second-order form.",
     parameters: Object.freeze({ ...SR05_DEFAULTS, worldlinePreset: "inertial", speed: 1e-4 }),
   }),
   "sr-05-daily-second": Object.freeze({

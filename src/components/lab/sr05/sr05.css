@@ -1,29 +1,33 @@
-/* SR-05 Moving Clocks Laboratory styles (am-vw1o) */
-
-.lab-surface,
-.moving-clocks-lab {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 1rem;
-  max-width: 64rem;
-  margin: 0 auto;
-}
-
-.preset-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 1rem 0;
-  border: none;
-  padding: 0;
-}
+/* SR-05 Moving Clocks Laboratory styles (am-vw1o). The layout is the laboratory family's
+   (.laboratory, .lab-columns, .lab-choice in labShell.css and globals.css); a 64rem centred
+   column here used to hold presets, readings and tables in one stack under two headings. */
 
 .reading-grid {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.5rem 1rem;
   margin: 1rem 0;
+}
+
+.sr05-bars {
+  max-width: 34rem;
+  margin: 0 0 1.25rem;
+}
+.sr05-bars svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.sr05-bar-platform {
+  fill: var(--muted);
+}
+.sr05-bar-moving {
+  fill: var(--ink);
+}
+.sr05-bar-end {
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
 }
 
 .equator-note {
