@@ -21,6 +21,7 @@ import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.t
 import { FaceFallback } from "./FaceFallback.tsx";
 import {
   englishFaceHasContent,
+  germanFaceHasContent,
   glossFaceHasContent,
   parallelFaceHasContent,
 } from "./faceAvailability.ts";
@@ -69,42 +70,53 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             ? await options.editionLoader(resolved.paperId)
             : await loadBilingualEdition(resolved.paperId);
 
-      // A paper with no compiled bilingual payload may still have a reviewed-or-draft
-      // ledger on disk. Before falling through to "not yet available", ask the receipt.
+      // GERMAN IS GATED BY THE SHARED PREDICATE, then dispatched to a renderer.
       //
-      // These two German branches together ARE germanFaceHasContent(blocks, draftBlocks)
-      // in faceAvailability.ts, which is what the chooser asks. The split here is about
-      // WHICH renderer, not about whether the face has content; keep them in step.
-      // This is checked BEFORE the edition branch only for the German face, because the
-      // English, parallel and gloss faces need translation units that no ledger provides
-      // and would be claiming more than exists.
-      if (resolved.face === "german" && (!edition || edition.blocks.length === 0)) {
-        const draft = loadGermanSourceFace(resolved.paperId as RouteSlug);
-        if (draft && draft.blocks.length > 0) {
-          const paperRecord = await loadPaper(resolved.paperId);
-          return (
-            <GermanDraftFace
-              face={draft}
-              paperTitle={paperRecord.paper.title}
-              germanTitle={paperRecord.paper.germanTitle}
-              sectionId={resolved.section}
-            />
-          );
+      // An earlier version of this left the two conditions inline and asserted in a
+      // comment that they "together ARE germanFaceHasContent". Nothing made that true:
+      // an equivalence held in prose between two things that can be edited
+      // independently is the same two-sources seam faceAvailability.ts exists to
+      // remove, compressed into one file. The predicate now decides WHETHER the face
+      // has content and the inner branches decide only WHICH renderer, so breaking the
+      // predicate stops German rendering rather than silently disagreeing with the
+      // chooser.
+      //
+      // A paper with no compiled bilingual payload may still have a reviewed-or-draft
+      // ledger on disk, so the receipt is read only when the edition has no blocks -
+      // unchanged, and the reason the draft is consulted for German alone: English,
+      // parallel and gloss need translation units that no ledger provides, and would
+      // be claiming more than exists.
+      if (resolved.face === "german") {
+        const editionBlocks = edition?.blocks.length ?? 0;
+        const draft =
+          editionBlocks === 0 ? loadGermanSourceFace(resolved.paperId as RouteSlug) : null;
+        if (germanFaceHasContent(editionBlocks, draft?.blocks.length ?? 0)) {
+          if (edition && editionBlocks > 0) {
+            return (
+              <GermanFace
+                paper={edition.paper}
+                blocks={edition.blocks}
+                alignment={edition.alignment}
+                editorialNotes={edition.editorialNotes}
+                sectionId={resolved.section}
+              />
+            );
+          }
+          if (draft) {
+            const paperRecord = await loadPaper(resolved.paperId);
+            return (
+              <GermanDraftFace
+                face={draft}
+                paperTitle={paperRecord.paper.title}
+                germanTitle={paperRecord.paper.germanTitle}
+                sectionId={resolved.section}
+              />
+            );
+          }
         }
       }
 
       if (edition) {
-        if (resolved.face === "german" && edition.blocks.length > 0) {
-          return (
-            <GermanFace
-              paper={edition.paper}
-              blocks={edition.blocks}
-              alignment={edition.alignment}
-              editorialNotes={edition.editorialNotes}
-              sectionId={resolved.section}
-            />
-          );
-        }
         if (resolved.face === "english" && englishFaceHasContent(edition.units.length)) {
           return (
             <EnglishFace
