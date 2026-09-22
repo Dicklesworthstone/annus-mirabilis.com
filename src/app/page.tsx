@@ -12,9 +12,10 @@ export default function Home() {
           energy weighs less afterwards.
         </p>
         <p>
-          This edition puts four things beside one another: the German page as it was printed, an
+          This edition sets four faces beside one another: the German page as it was printed, an
           English rendering checked against it, an explanation at whatever depth you ask for, and an
-          instrument you can operate yourself.
+          instrument you can operate yourself. The explanations and the instruments work today. The
+          German page is set for three of the four papers. The English rendering is not written yet.
         </p>
         <div className="actions">
           <a className="button" href="/papers/">
@@ -113,9 +114,14 @@ export default function Home() {
         <h2>Where this edition has got to</h2>
         <p>
           The explanations, the instruments and the discovery routes are written and working. The
-          German source faces and the English translation aligned to them are not: what you read on
-          a paper page today is explanatory text written for this edition, and every face that has
-          no source behind it yet says so rather than leaving you to guess.
+          German text is set for the light-quanta, Brownian motion and mass-energy papers. The
+          relativity paper is still being transcribed from the printed plates, a page at a time, and
+          its German face says so.
+        </p>
+        <p>
+          The English translation has not been started. Every English, parallel and interlinear face
+          on the site currently tells you it is unavailable instead of showing you a paraphrase and
+          letting you assume it was checked against the German.
         </p>
         <p>
           Numbers carry their origins with them. A curve computed here is labelled as computed here,
