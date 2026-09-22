@@ -293,6 +293,20 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
       for (const p of r.prerequisites) ref(p.id, "argument", r.id);
       for (const id of Object.values(r.help)) ref(id, "foundation", r.id);
       for (const reading of READING_IDS) foundationRefs(r.readings[reading], r.id);
+      // A formula that names equation records is shown AS those records, so each must exist and
+      // belong to this argument: another argument's equation would put the wrong claim in place.
+      for (const reading of READING_IDS)
+        for (const b of r.readings[reading])
+          if (b.kind === "formula")
+            for (const eq of b.equations ?? []) {
+              const record = ref(eq, "equation", r.id);
+              if (record?.kind === "equation" && record.argument !== r.id)
+                issue(
+                  "formula-equation-placement",
+                  r.id,
+                  `Formula names ${eq}, an equation of ${record.argument}.`,
+                );
+            }
       for (const id of r.experiments)
         if (!(REGISTERED_IDS as readonly string[]).includes(id))
           issue("unavailable-experiment", r.id, `No implemented preview route for ${id}.`);

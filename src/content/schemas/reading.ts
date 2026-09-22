@@ -4,7 +4,18 @@ import { ContentError } from "../compiler/json.ts";
 /** Explanatory preview records, not diplomatic source blocks or reviewed translations. */
 export type Block = Readonly<
   | { kind: "paragraph"; text: string }
-  | { kind: "formula"; latex: string; spoken: string }
+  | {
+      kind: "formula";
+      latex: string;
+      spoken: string;
+      /**
+       * The semantic equation records that express this formula, in the order it shows them.
+       * When present, the reading shows those records, coloured by quantity, in the formula's
+       * place; `latex` stays the formula's text for export, search and offline chapters. The
+       * compiler checks each id is an equation of the same paper and argument.
+       */
+      equations?: readonly string[];
+    }
   | { kind: "steps"; items: readonly string[] }
   | { kind: "foundation"; id: string; returnCaption: string }
 >;
@@ -208,9 +219,21 @@ function block(x: unknown, p: string): void {
     keys(o, p, ["kind", "text"]);
     text(o.text, `${p}.text`);
   } else if (o.kind === "formula") {
-    keys(o, p, ["kind", "latex", "spoken"]);
+    const linked = Object.hasOwn(o, "equations");
+    keys(o, p, linked ? ["kind", "latex", "spoken", "equations"] : ["kind", "latex", "spoken"]);
     validateMath(o.latex, `${p}.latex`);
     text(o.spoken, `${p}.spoken`);
+    if (linked)
+      list(
+        o.equations,
+        `${p}.equations`,
+        (x, q) => {
+          id(x, q);
+          if (!String(x).startsWith("eq-model-"))
+            error(q, "A formula names equation records by their eq-model- id.");
+        },
+        1,
+      );
   } else if (o.kind === "steps") {
     keys(o, p, ["kind", "items"]);
     list(o.items, `${p}.items`, text, 1);
