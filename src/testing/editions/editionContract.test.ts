@@ -988,3 +988,143 @@ test("receiptPrintedPages reads the page map, not every printedPage in the recei
   expect(RELATIVITY_PRINTED_PAGES[0]).toBe(891);
   expect(RELATIVITY_PRINTED_PAGES[RELATIVITY_PRINTED_PAGES.length - 1]).toBe(921);
 });
+
+/**
+ * The five refusal sites in editionContract.ts that nothing drove (am-r3qt).
+ *
+ * MEASURED BEFORE WRITING, not assumed. Each of the five was planted - its code string
+ * replaced - and run against the eight test files that import editionContract.ts. None of
+ * them reddened anything, so none was "driven but uncited" and no repoint was available.
+ * They are genuinely undriven, which is why these are new cases rather than citations added
+ * to existing ones.
+ *
+ * WHY NOT ONE PARAMETERISED RECIPE. Each check needs a DIFFERENT precondition before it will
+ * judge rather than decline: 776 needs the ledger ABSENT, 1016 needs it PRESENT, 1097 and
+ * 1429 take booleans, and 1751 needs germanIds/englishIds asymmetry. A shared fixture would
+ * have produced five tests that all fail on `ledger-absent` - one guard wearing five names,
+ * and the count is what would make it look like coverage.
+ *
+ * THE DENOMINATOR THAT MAKES THAT REAL: run against the bare brownian fixture with no ledger,
+ * this contract reports checksSpecified 15, checksJudged 2, checksDeclined 13. Thirteen of
+ * fifteen decline. A negative case that does not supply its check's precondition is not a
+ * weak test, it is a test of nothing.
+ *
+ * Each case therefore asserts TWO things: its own code is present, and the other four are
+ * absent. The second is what makes the first mean anything - without it, a fixture that
+ * broke everything would satisfy all five.
+ */
+describe("am-r3qt: the five undriven refusal sites in editionContract.ts", () => {
+  const THE_FIVE = [
+    "digest-mismatch",
+    "ledger-not-clean",
+    "display-math-bytes-differ",
+    "translation-incomplete",
+  ] as const;
+
+  function codesIn(result: { checks: readonly { code?: string | undefined }[] }): Set<string> {
+    return new Set(result.checks.map((c) => c.code).filter((c): c is string => Boolean(c)));
+  }
+
+  /** Asserts the target code fired and no OTHER member of the five did. */
+  function onlyThisOne(
+    result: { checks: readonly { code?: string | undefined }[] },
+    target: (typeof THE_FIVE)[number],
+  ): void {
+    const codes = codesIn(result);
+    expect(codes.has(target), `${target} must fire; got [${[...codes].join(", ")}]`).toBe(true);
+    for (const other of THE_FIVE) {
+      if (other === target) continue;
+      expect(codes.has(other), `${other} must NOT fire in the ${target} case`).toBe(false);
+    }
+  }
+
+  /** mini-paper carries edition.yaml, a placeholder PDF and a transcripts ledger. */
+  function miniPaperRoot(withLedger: boolean): string {
+    const root = mkdtempSync(join(tmpdir(), "am-r3qt-"));
+    cpSync("src/testing/fixtures/editions/mini-paper", root, {
+      recursive: true,
+      filter: (src) => withLedger || !src.includes(`${sep}transcripts`),
+    });
+    return root;
+  }
+
+  function corruptTheFacsimile(root: string): void {
+    const pdf = join(root, "public/papers/pdfs/ap-18-639.pdf");
+    writeFileSync(pdf, `${readFileSync(pdf, "utf8")}\n% one byte the declaration does not know\n`);
+  }
+
+  test("(editionContract.ts:776) facsimile digest, ledger ABSENT, fires digest-mismatch", () => {
+    const root = miniPaperRoot(false);
+    corruptTheFacsimile(root);
+    const result = assertEditionContract("mass-energy", { root });
+    expect(result.ledger, "776 is the ledger-absent path; with a ledger it is 1016").toBe("absent");
+    onlyThisOne(result, "digest-mismatch");
+  });
+
+  test("(editionContract.ts:1016) facsimile digest, ledger PRESENT, fires digest-mismatch", () => {
+    const root = miniPaperRoot(true);
+    corruptTheFacsimile(root);
+    // Equal id counts so translation-completeness PASSES: without them the root-based
+    // fixture supplies none, completeness is not "complete", and translation-incomplete
+    // co-fires. The isolation assertion caught that, which is what it is for.
+    const result = assertEditionContract("mass-energy", {
+      root,
+      germanIds: ["s0-p1-s1"],
+      englishIds: ["s0-p1-s1"],
+      edges: [{ sourceId: "s0-p1-s1", targetId: "s0-p1-s1" }],
+    });
+    expect(result.ledger, "1016 is the ledger-present path; without one it is 776").not.toBe(
+      "absent",
+    );
+    onlyThisOne(result, "digest-mismatch");
+  });
+
+  test("(editionContract.ts:1097) an unclean ledger fires ledger-not-clean", () => {
+    const result = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      editionText: LEDGER_EDITION_TEXT,
+      declaredLedgerDigest: createHash("sha256").update(LEDGER, "utf8").digest("hex"),
+      germanIds: ["s0-p1-s1", "s0-p1-s2"],
+      englishIds: ["s0-p1-s1", "s0-p1-s2"],
+      edges: [
+        { sourceId: "s0-p1-s1", targetId: "s0-p1-s1" },
+        { sourceId: "s0-p1-s2", targetId: "s0-p1-s2" },
+      ],
+      displayMathMatches: true,
+      ledgerClean: false,
+    });
+    onlyThisOne(result, "ledger-not-clean");
+  });
+
+  test("(editionContract.ts:1429) differing display math fires display-math-bytes-differ", () => {
+    const result = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      editionText: LEDGER_EDITION_TEXT,
+      declaredLedgerDigest: createHash("sha256").update(LEDGER, "utf8").digest("hex"),
+      germanIds: ["s0-p1-s1", "s0-p1-s2"],
+      englishIds: ["s0-p1-s1", "s0-p1-s2"],
+      edges: [
+        { sourceId: "s0-p1-s1", targetId: "s0-p1-s1" },
+        { sourceId: "s0-p1-s2", targetId: "s0-p1-s2" },
+      ],
+      ledgerClean: true,
+      displayMathMatches: false,
+    });
+    onlyThisOne(result, "display-math-bytes-differ");
+  });
+
+  test("(editionContract.ts:1751) an unaligned German id fires translation-incomplete", () => {
+    const result = assertEditionContract("brownian-motion", {
+      ledgerText: LEDGER,
+      editionText: LEDGER_EDITION_TEXT,
+      declaredLedgerDigest: createHash("sha256").update(LEDGER, "utf8").digest("hex"),
+      // One German alignable with no English unit: the asymmetry IS the refusal.
+      germanIds: ["s0-p1-s1", "s0-p1-s2"],
+      englishIds: ["s0-p1-s1"],
+      edges: [{ sourceId: "s0-p1-s1", targetId: "s0-p1-s1" }],
+      ledgerClean: true,
+      displayMathMatches: true,
+    });
+    onlyThisOne(result, "translation-incomplete");
+  });
+});

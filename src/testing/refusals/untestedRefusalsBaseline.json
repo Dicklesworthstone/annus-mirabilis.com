@@ -46,7 +46,6 @@
   "src/content/dimensions/runtimeMapping.ts": 0,
   "src/content/editions/alignment.ts": 2,
   "src/content/editions/brownianInventory.ts": 1,
-  "src/content/editions/editionContract.ts": 5,
   "src/content/editions/editionDeclaration.ts": 0,
   "src/content/editions/reconciliation.ts": 2,
   "src/content/editions/reviewState.ts": 0,
