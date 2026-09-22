@@ -247,12 +247,18 @@ export function packageOfflineChapter(
   const appendix = foundations
     .map((foundation) => {
       for (const name of foundation.citations) neededCitations.add(name);
-      return `<section id="foundation-${id(foundation.id)}" tabindex="-1"><h3>${e(foundation.title)}</h3><p class="question">${e(foundation.question)}</p>${blocks(foundation.explanation)}<h4>Worked example</h4>${blocks(foundation.example)}<p>Stopping point: ${e(foundation.stoppingPoint)}</p>${foundation.prerequisites
-        .map((p) => {
-          const pId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
-          return `<p><a href="#foundation-${id(pId)}">Prerequisite: ${e(pId)}</a></p>`;
-        })
-        .join("")}<a href="#${section.id}">Return to the chapter</a></section>`;
+      // The parts and headings FoundationBody renders on the lesson's own page. The prerequisite
+      // links printed the record id ("Prerequisite: mean-variance-rms"); the closure holds every
+      // prerequisite, so each link carries its lesson's title.
+      const prerequisites = foundation.prerequisites.map((p) => {
+        const pId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
+        const title = foundations.find((f) => f.id === pId)?.title ?? pId;
+        return `<li><a href="#foundation-${id(pId)}">${e(title)}</a></li>`;
+      });
+      const example = foundation.exampleTitle
+        ? `Worked example: ${e(foundation.exampleTitle)}`
+        : "One worked example";
+      return `<section id="foundation-${id(foundation.id)}" tabindex="-1"><h3>${e(foundation.title)}</h3><h4 class="question">${e(foundation.question)}</h4>${blocks(foundation.explanation)}<h4>${example}</h4>${blocks(foundation.example)}<h4>Where this lesson stops</h4><p>${e(foundation.stoppingPoint)}</p>${prerequisites.length > 0 ? `<h4>This lesson builds on</h4><ul>${prerequisites.join("")}</ul>` : ""}<a href="#${section.id}">Return to the chapter</a></section>`;
     })
     .join("\n");
   const worked = [...instrumentIds]
