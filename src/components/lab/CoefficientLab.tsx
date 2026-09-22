@@ -27,6 +27,7 @@ import { deriveHostExecution } from "../../experiments/provenance/executionState
 import { parseResult } from "../../experiments/results/codec.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { PredictPanel } from "./PredictPanel.tsx";
 import "./coefficientLab.css";
 import { display, identity, result } from "./presentation.ts";
@@ -90,47 +91,50 @@ function CoefficientBars({ snapshot, clipId }: { snapshot: AcceptedSnapshot; cli
       label: "Exact L(γ−1)",
       value: exact,
       width: barLength(exact, energyPeak),
-      y: 28,
+      y: 40,
     },
     {
       id: "quadratic",
       label: "Quadratic",
       value: quadratic,
       width: barLength(quadratic, energyPeak),
-      y: 52,
+      y: 68,
     },
     {
       id: "proxy",
       label: "Finite-speed proxy",
       value: proxy,
       width: barLength(proxy, massPeak),
-      y: 92,
+      y: 126,
     },
     {
       id: "limit",
       label: "Limit L/c²",
       value: limit,
       width: barLength(limit, massPeak),
-      y: 116,
+      y: 154,
     },
   ] as const;
   return (
     <svg
       role="img"
       aria-labelledby={`${clipId}-chart`}
-      viewBox="0 0 320 148"
+      viewBox="0 0 320 172"
       width="100%"
-      height="148"
+      height="172"
     >
       <title id={`${clipId}-chart`}>
         Bar comparison of exact versus quadratic energy drop, and of the finite-speed proxy versus
         the limiting coefficient. Length encodes the accepted snapshot values; labels do not rely on
         colour.
       </title>
-      <text x="8" y="14" fontSize="11">
+      {/* Rows sit 28 units apart and each label 4 above its bar: laid out for the 11-unit
+          text .me02-bars sets. At the old 24-unit pitch a group title and its first label
+          overlapped ("Energy of motion drop" over "Exact L(γ−1)"). */}
+      <text x="8" y="16" fontSize="11">
         Energy of motion drop
       </text>
-      <text x="8" y="78" fontSize="11">
+      <text x="8" y="102" fontSize="11">
         Mass coefficient
       </text>
       {rows.map((row) => (
@@ -324,78 +328,80 @@ export function CoefficientLab({
                   </button>
                 </div>
               </div>
-              <div className="input-grid">
-                <div className="input-field">
-                  <label htmlFor={`${id}-beta`}>Observer speed v/c</label>
-                  <input
-                    id={`${id}-beta`}
-                    type="number"
-                    name="beta"
-                    inputMode="decimal"
-                    step="0.01"
-                    min="-0.95"
-                    max="0.95"
-                    value={draft.beta}
-                    onChange={(event) =>
-                      setDraft({ ...draft, beta: Number(event.currentTarget.value) })
-                    }
-                  />
-                </div>
-                <div className="input-field">
-                  <label htmlFor={`${id}-emittedEnergy`}>Emitted energy L</label>
-                  <input
-                    id={`${id}-emittedEnergy`}
-                    type="number"
-                    name="emittedEnergy"
-                    inputMode="decimal"
-                    min="0"
-                    step="any"
-                    value={draft.emittedEnergy}
-                    onChange={(event) =>
-                      setDraft({ ...draft, emittedEnergy: Number(event.currentTarget.value) })
-                    }
-                  />
-                </div>
-                <div className="input-field">
-                  <label htmlFor={`${id}-energyUnit`}>Energy unit</label>
-                  <select
-                    id={`${id}-energyUnit`}
-                    name="energyUnit"
-                    value={draft.energyUnit}
-                    onChange={(event) =>
-                      setDraft({
-                        ...draft,
-                        energyUnit: event.currentTarget.value as Me02Parameters["energyUnit"],
-                      })
-                    }
-                  >
-                    <option value="normalized">normalized (c = 1)</option>
-                    <option value="erg">erg</option>
-                    <option value="joule">joule</option>
-                  </select>
-                </div>
-              </div>
-              <label className="check">
+              <div className="input-field">
+                <label htmlFor={`${id}-beta`}>Observer speed v/c</label>
                 <input
-                  type="checkbox"
-                  checked={draft.showNaive}
+                  id={`${id}-beta`}
+                  type="number"
+                  name="beta"
+                  inputMode="decimal"
+                  step="0.01"
+                  min="-0.95"
+                  max="0.95"
+                  value={draft.beta}
                   onChange={(event) =>
-                    setDraft({ ...draft, showNaive: event.currentTarget.checked })
+                    setDraft({ ...draft, beta: Number(event.currentTarget.value) })
                   }
-                />{" "}
-                Show the naive evaluation of gamma minus one (diagnostic only)
-              </label>
-              <p className="fine">
-                Changing the input unit reinterprets the entered number and creates a new setup.
-                Physical outputs use joules and kilograms; normalized mode uses c = 1 and normalized
-                energy and mass units.
-              </p>
+                />
+              </div>
               <button type="submit">Apply settings</button>
-              <p>
-                <a data-settings-permalink href={encodeMe02Settings(p)}>
-                  Permalink to the accepted configuration
-                </a>
-              </p>
+              <ExperimentSettings contents="emitted energy, energy unit, a diagnostic, a link to these settings">
+                <div className="input-grid">
+                  <div className="input-field">
+                    <label htmlFor={`${id}-emittedEnergy`}>Emitted energy L</label>
+                    <input
+                      id={`${id}-emittedEnergy`}
+                      type="number"
+                      name="emittedEnergy"
+                      inputMode="decimal"
+                      min="0"
+                      step="any"
+                      value={draft.emittedEnergy}
+                      onChange={(event) =>
+                        setDraft({ ...draft, emittedEnergy: Number(event.currentTarget.value) })
+                      }
+                    />
+                  </div>
+                  <div className="input-field">
+                    <label htmlFor={`${id}-energyUnit`}>Energy unit</label>
+                    <select
+                      id={`${id}-energyUnit`}
+                      name="energyUnit"
+                      value={draft.energyUnit}
+                      onChange={(event) =>
+                        setDraft({
+                          ...draft,
+                          energyUnit: event.currentTarget.value as Me02Parameters["energyUnit"],
+                        })
+                      }
+                    >
+                      <option value="normalized">normalized (c = 1)</option>
+                      <option value="erg">erg</option>
+                      <option value="joule">joule</option>
+                    </select>
+                  </div>
+                </div>
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    checked={draft.showNaive}
+                    onChange={(event) =>
+                      setDraft({ ...draft, showNaive: event.currentTarget.checked })
+                    }
+                  />{" "}
+                  Show the naive evaluation of gamma minus one (diagnostic only)
+                </label>
+                <p className="fine">
+                  Changing the input unit reinterprets the entered number and creates a new setup.
+                  Physical outputs use joules and kilograms; normalized mode uses c = 1 and
+                  normalized energy and mass units.
+                </p>
+                <p>
+                  <a data-settings-permalink href={encodeMe02Settings(p)}>
+                    Permalink to the accepted configuration
+                  </a>
+                </p>
+              </ExperimentSettings>
               {error ? (
                 <p id={`${id}-error`} className="notice" role="alert">
                   {error}
