@@ -146,157 +146,155 @@ body {
 }
 
 /*
- * ONE SWITCH, NOT THREE CHIPS.
+ * ONE ICON BUTTON: A MOON IN THE LIGHT THEME, A SUN IN THE DARK (chrome, pane %44).
  *
- * The owner ruled on 2026-09-22 that the edition needs "a single dark/light toggle". What stood
- * here was a three-radio fieldset whose chips wrapped because the edition's theme names are long:
- * "Annalen" (101px) and "Kramgasse Night" (158px) already fill a 358px content box, so "Follow
- * system" (139px) took a third row. The previous pass kept the radios and shortened the words,
- * which bought a row; this removes two of the three controls outright, because system preference
- * is a DEFAULT and was never a third thing to choose.
+ * The owner, 2026-09-22: "a single toggle that is either an icon of sun or a moon ... make it
+ * super slick and nice". It replaced a switch with a track, a knob and the word "Dark", which
+ * followed three radio chips (Light, Dark, System). The icon names where a press takes the
+ * reader, and so does the accessible name.
  *
- * The control is sized in ch and rem rather than px so it tracks the reader's text size. At the
- * 320px minimum AGENTS.md requires, the track (2.25rem) plus the gap plus "Dark" is well inside
- * one row, which is why no wrap rule is needed here where the chip row needed one.
+ * Everything here keys on `data-theme`, which the pre-paint script sets before the first frame, so
+ * the icon and the name are right at first paint and after every press with no state in React:
+ * - the moon shows by default and the sun under the dark theme; the other one is turned a quarter
+ *   and shrunk to nothing, so a press crossfades and rotates one into the other;
+ * - both names are in the button, visually hidden, and the wrong one is display: none, which also
+ *   takes it out of the accessible name;
+ * - with no `data-theme` at all, JavaScript is off: the button cannot work, so it is not shown,
+ *   and the page follows the device through the media query at the top of this file.
  */
-.theme-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font: 0.85rem / 1.4 var(--font-sans);
-  color: inherit;
-  background: none;
-  border: none;
-  padding: 0.15rem 0;
-  cursor: pointer;
-}
-
-/* The track and knob are the STATE CUE, and it is positional rather than chromatic: the knob sits
-   left when the switch is off and right when it is on. A monochrome display, a forced-colours
-   palette and a reader who cannot separate the accent from the rule all still see which end it is
-   at. AGENTS.md: colour never carries meaning alone. */
-.theme-switch-track {
+button.theme-toggle {
   position: relative;
+  display: inline-grid;
+  place-items: center;
   flex: none;
-  width: 2.25rem;
-  height: 1.15rem;
-  border: 1px solid var(--muted);
-  border-radius: 1rem;
-  background: var(--wash);
-}
-
-.theme-switch-knob {
-  position: absolute;
-  top: 50%;
-  left: 2px;
-  width: 0.8rem;
-  height: 0.8rem;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  margin: -6px -8px -6px 0;
+  padding: 0;
+  border: 1px solid transparent;
   border-radius: 50%;
-  background: var(--ink);
-  transform: translate(0, -50%);
-  transition: transform 120ms ease;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 120ms ease;
 }
-
-.theme-switch[aria-checked="true"] .theme-switch-knob {
-  background: var(--accent);
-  transform: translate(calc(2.25rem - 0.8rem - 6px), -50%);
+/* The site's `button:hover` paints every button in the accent. Here that would be a red or amber
+   disc behind the icon, and on a phone, which keeps :hover after a tap, it stayed there. So this
+   button never takes it, and a pointer that really hovers gets a soft wash instead. */
+button.theme-toggle:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
 }
-
-/* The position cue is the point of the control, so the knob still moves; only the animation of
-   the move is dropped. Removing the transform as well would take the state with it. */
-@media (prefers-reduced-motion: reduce) {
-  .theme-switch-knob {
-    transition: none;
+@media (hover: hover) {
+  button.theme-toggle:hover:not(:disabled) {
+    background: var(--wash);
+    border-color: var(--line);
+    color: var(--ink);
   }
 }
-
-/* In forced colours the theme tokens are discarded by the user agent, so the track and knob must
-   draw from the system palette or the control disappears into its own background. */
-@media (forced-colors: active) {
-  .theme-switch-track {
-    border-color: CanvasText;
-  }
-  .theme-switch-knob {
-    background: CanvasText;
-  }
+button.theme-toggle:active {
+  transform: scale(0.9);
 }
-
-/* The knob follows the theme on <html> as well as aria-checked. The server HTML always says
-   aria-checked="false", because only the browser knows the device's setting; keyed on the
-   attribute alone, a reader whose device is dark saw the knob on the light side until hydration. */
-:root[data-theme="kramgasse-night"] .theme-switch-knob {
-  background: var(--accent);
-  transform: translate(calc(2.25rem - 0.8rem - 6px), -50%);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .theme-switch-knob {
-    background: var(--accent);
-    transform: translate(calc(2.25rem - 0.8rem - 6px), -50%);
-  }
-}
-/* Forced colours discard var(--accent), so a knob painted with it would vanish on the dark side.
-   These three selectors tie the ones above in specificity and win by coming later. */
-@media (forced-colors: active) {
-  :root .theme-switch .theme-switch-knob,
-  .theme-switch[aria-checked="true"] .theme-switch-knob,
-  :root:not([data-theme]) .theme-switch-knob {
-    background: CanvasText;
-  }
-}
-
-.theme-switch:focus-visible {
+button.theme-toggle:focus-visible {
   outline: 2px solid var(--focus-ring, var(--accent));
-  outline-offset: 3px;
+  outline-offset: 2px;
+}
+:root:not([data-theme]) .theme-toggle {
+  display: none;
 }
 
-.theme-switch-full-name,
-.theme-switch-announcement {
+.theme-toggle-icon {
+  display: block;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.theme-toggle-moon,
+.theme-toggle-sun {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  transition:
+    opacity 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* The light theme, and the default: the moon, because a press goes dark. */
+.theme-toggle-moon {
+  opacity: 1;
+  transform: none;
+}
+.theme-toggle-sun {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.4);
+}
+/* The dark theme: the sun, because a press goes light. */
+:root[data-theme="kramgasse-night"] .theme-toggle-moon {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.4);
+}
+:root[data-theme="kramgasse-night"] .theme-toggle-sun {
+  opacity: 1;
+  transform: none;
+}
+
+.theme-toggle-name {
   position: absolute;
   width: 1px;
   height: 1px;
   margin: -1px;
   padding: 0;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
 }
+:root[data-theme="kramgasse-night"] .theme-toggle-to-dark,
+:root:not([data-theme="kramgasse-night"]) .theme-toggle-to-light {
+  display: none;
+}
 
-/*
- * CHROME (pane %34): BELOW 360px THE SWITCH SHARES THE WORDMARK'S ROW AND DROPS ITS WORD.
- *
- * Wordmark, "Reading" and a 73px switch need 272px plus gaps against a 288px line at 320, so the
- * visible "Dark" goes and the button keeps a 44px target. The span is clipped rather than
- * removed, so "Dark theme" is still the accessible name. A crescent in the empty half of the
- * track says what the switch does; once it is on, the knob sits there and the crescent goes.
- */
-@media (max-width: 359px) {
-  .theme-switch {
-    min-width: 44px;
-    justify-content: center;
+/* While the reader's press changes the theme, the page's colours cross-fade instead of cutting.
+   ThemeToggle.tsx adds the class for THEME_FADE_MS and removes it; it never adds it under reduced
+   motion. Opacity and transform are listed so the icon's own crossfade survives the override. */
+:root.theme-fading,
+:root.theme-fading *,
+:root.theme-fading *::before,
+:root.theme-fading *::after {
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease,
+    text-decoration-color 220ms ease,
+    fill 220ms ease,
+    stroke 220ms ease,
+    opacity 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.theme-toggle,
+  .theme-toggle-moon,
+  .theme-toggle-sun {
+    transition: none;
   }
-  .theme-switch > span:last-child {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
+}
+
+/* Forced colours discard the theme tokens; the icon is drawn in currentColor, which becomes the
+   system's button text, and the button keeps a visible edge. */
+@media (forced-colors: active) {
+  button.theme-toggle {
+    border-color: ButtonText;
   }
-  .theme-switch-track::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 4px;
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
-    box-shadow: inset -0.18rem 0.05rem 0 0 var(--muted);
-    transform: translateY(-50%);
-  }
-  .theme-switch[aria-checked="true"] .theme-switch-track::after,
-  :root[data-theme="kramgasse-night"] .theme-switch-track::after {
-    opacity: 0;
+  .theme-toggle-icon {
+    stroke: ButtonText;
   }
 }

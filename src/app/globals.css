@@ -1327,8 +1327,8 @@ samp,
     gap: 0.35rem 0.75rem;
   }
   /* The two controls share the wordmark's row, which leaves room for "Reading" and not for
-     "Reading preferences". At 320 that is 135 + 64 + 44px against a 288px line, with the theme
-     switch dropping its word below 360px (themes.css). */
+     "Reading preferences". At 320 that is 135 + 64 + 44px against a 288px line; the 44px is the
+     theme button, an icon with no word (themes.css). */
   .site-header > .header-controls {
     gap: 0.9rem;
   }

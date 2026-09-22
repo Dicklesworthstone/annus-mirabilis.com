@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SETTINGS_KEY_PREFIX, storageKeyRegistry } from "../../platform/storage/keys";
 import { FOLLOW_SYSTEM_VALUE, THEME_IDS, type ThemeId } from "./tokens";
 
@@ -10,166 +10,109 @@ if (!registration) {
 }
 const THEME_KEY = registration.key;
 
-type StoredValue = ThemeId | typeof FOLLOW_SYSTEM_VALUE;
-
 const DARK: ThemeId = "kramgasse-night";
 const LIGHT: ThemeId = "annalen";
 
-function readStored(): StoredValue | null {
+/** How long the page's colours cross-fade when the reader switches; themes.css matches it. */
+export const THEME_FADE_MS = 220;
+
+function readStored(): string | null {
   try {
-    const value = localStorage.getItem(THEME_KEY);
-    if (value === FOLLOW_SYSTEM_VALUE) return value;
-    return (THEME_IDS as readonly string[]).includes(value ?? "") ? (value as ThemeId) : null;
+    return localStorage.getItem(THEME_KEY);
   } catch {
     return null;
   }
 }
 
-function systemPrefersDark(): boolean {
-  return typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches;
+/** True until the reader has pressed the button once: the page follows the device. */
+function followsDevice(): boolean {
+  const stored = readStored();
+  return (
+    stored === null || stored === FOLLOW_SYSTEM_VALUE || !THEME_IDS.includes(stored as ThemeId)
+  );
 }
 
-/** Resolves a stored value, or the absence of one, to the theme actually on the page. */
-function resolve(value: StoredValue | null): ThemeId {
-  if (value === LIGHT || value === DARK) return value;
-  return systemPrefersDark() ? DARK : LIGHT;
+function prefersReducedMotion(): boolean {
+  return typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function applyTheme(theme: ThemeId): void {
-  document.documentElement.dataset.theme = theme;
-  try {
-    localStorage.setItem(THEME_KEY, theme);
-  } catch {
-    /* The choice still applies to this page; it just will not persist. */
+let fadeTimer: ReturnType<typeof setTimeout> | undefined;
+
+/** Sets the theme on <html>, fading the page's colours across unless the reader asked for less motion. */
+function setTheme(theme: ThemeId, fade: boolean): void {
+  const root = document.documentElement;
+  if (fade && !prefersReducedMotion()) {
+    root.classList.add("theme-fading");
+    clearTimeout(fadeTimer);
+    fadeTimer = setTimeout(() => root.classList.remove("theme-fading"), THEME_FADE_MS + 80);
   }
+  root.dataset.theme = theme;
 }
 
 /**
- * ONE CONTROL, NOT THREE.
+ * ONE ICON BUTTON: A MOON IN THE LIGHT THEME, A SUN IN THE DARK.
  *
- * The owner's ruling, 2026-09-22, verbatim: "We don't need 4 themes, we need a single dark/light
- * toggle and for the UI/UX to not be HORRIBLE." What stood here was a three-radio fieldset
- * (Light / Dark / System) that read as a form in the middle of the site chrome and was, measured
- * at 390x844, the largest single block in a header the reader meets before any content.
+ * The owner, 2026-09-22: "instead of "Light(Annalen) Dark(Kramgasse Night) System" we need to have
+ * a single toggle that is either an icon of sun or a moon, don't make this harder than it needs to
+ * be!!! make it super slick and nice!!!" The icon names where a press takes the reader, and so does
+ * the accessible name: "Switch to dark theme" or "Switch to light theme".
  *
- * SYSTEM PREFERENCE IS THE DEFAULT, NOT A THIRD CHOICE. With nothing stored the switch reflects
- * `prefers-color-scheme`, and the pre-paint script has already applied it, so what the control
- * shows is what the page is. The first press writes an explicit theme id and the reader's choice
- * wins from then on. A reader who stored "follow-system" under the old control still has it
- * honoured on read; nothing writes that value any more.
+ * NOTHING ON THIS BUTTON WAITS FOR REACT. The icon and the name are both chosen by CSS from
+ * `data-theme`, which the pre-paint script sets before the first frame (themeInit.inline.ts). The
+ * SVG holds a moon and a sun, and the button holds both names, visually hidden; themes.css shows the
+ * one that matches the theme and gives the other `display: none`, which also takes it out of the
+ * accessible name. So the reader sees the right icon and a screen reader hears the right action from
+ * first paint, before hydration, and after every press, with no state to fall out of step. Without
+ * JavaScript the pre-paint script never runs, `data-theme` is absent, and themes.css hides the button
+ * rather than show a control that cannot work; the page follows the device through its media query.
  *
- * WHY A SWITCH AND NOT A BUTTON THAT RENAMES ITSELF. A control labelled "Switch to dark" changes
- * its own label when pressed, so a screen-reader user who re-reads it hears the opposite of what
- * they just chose and cannot tell the current state from the name. `role="switch"` keeps the name
- * fixed and puts the state in `aria-checked`, where assistive technology already knows to look.
- *
- * THE STATE IS NOT CARRIED BY HUE. The knob moves across the track, which is a position cue that
- * survives a monochrome display, forced colours, and a reader who cannot distinguish the accent
- * from the rule. AGENTS.md requires that colour never carries meaning alone; contrast.test.ts
- * asserts the structural cue is present in the stylesheet.
+ * Until the first press the page follows the device, including a change made while the page is open.
+ * The press writes an explicit theme and the reader's choice wins from then on. There is no visible
+ * third option: following the device is the default, not a thing to choose.
  */
 export function ThemeToggle() {
-  // `null` until the effect runs: the server and the first client paint agree on the same markup,
-  // and the pre-paint script owns what the page actually looks like before this mounts.
-  const [theme, setTheme] = useState<ThemeId | null>(null);
-  const [announcement, setAnnouncement] = useState("");
-
   useEffect(() => {
-    const current = document.documentElement.dataset.theme;
-    if (current === LIGHT || current === DARK) {
-      setTheme(current);
-      return;
-    }
-    setTheme(resolve(readStored()));
+    if (typeof matchMedia !== "function") return;
+    const query = matchMedia("(prefers-color-scheme: dark)");
+    const follow = () => {
+      if (followsDevice()) setTheme(query.matches ? DARK : LIGHT, true);
+    };
+    query.addEventListener("change", follow);
+    return () => query.removeEventListener("change", follow);
   }, []);
 
-  const isDark = theme === DARK;
-
   function toggle() {
-    const next: ThemeId = isDark ? LIGHT : DARK;
-    applyTheme(next);
-    setTheme(next);
-    // ANNOUNCE THE MODE, NOT THE EDITION'S NAME FOR IT.
-    //
-    // This said "Theme changed to Kramgasse Night." and, in the other direction, "Theme changed
-    // to Annalen." 977308cd took the same editorial names out of the control's accessible name
-    // because they render nowhere a sighted reader can see them; the question of whether an
-    // ANNOUNCEMENT may carry a name a LABEL may not is answered here rather than left implied.
-    //
-    // It may not, for two reasons that are not about frequency:
-    //
-    //   1. A confirmation's job is recognition. The reader pressed a control labelled "Dark" and
-    //      heard the name of something they have never encountered. "Annalen" is worse than
-    //      "Kramgasse Night" here - it is the journal's name, and nothing about it reads as
-    //      "light".
-    //   2. THE NAME DISAMBIGUATES NOTHING. THEME_IDS holds exactly two entries, so there is one
-    //      dark theme and one light one. With three dark themes a name would earn its place; with
-    //      one it is a synonym the reader cannot resolve.
-    //
-    // The frequency argument is real and does not rescue it: firing once per deliberate change
-    // lowers the cost of the mismatch without fixing the mismatch.
-    //
-    // If "Kramgasse Night" is worth saying - and the edition naming its dark theme after the Bern
-    // street Einstein lived on in 1905 is a good detail - it belongs somewhere themes are
-    // DESCRIBED, visible to everyone, not in a two-state toggle's confirmation.
-    //
-    // Where they survive, stated exactly rather than approximately: as COMMENTS only, and no
-    // longer at runtime. "Annalen" sits above its palette in themes.css; the display string
-    // "Kramgasse Night" appears in themes.css's header-width note and in colourChannels.ts. The
-    // ids `annalen` and `kramgasse-night` remain in tokens.ts, which is a different thing from
-    // the names.
-    setAnnouncement(`Theme changed to ${next === DARK ? "dark" : "light"}.`);
+    const next: ThemeId = document.documentElement.dataset.theme === DARK ? LIGHT : DARK;
+    setTheme(next, true);
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      /* The choice still applies to this page; it just will not persist. */
+    }
   }
 
   return (
-    <>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={isDark}
-        className="theme-switch"
-        onClick={toggle}
+    <button type="button" className="theme-toggle" onClick={toggle}>
+      <svg
+        className="theme-toggle-icon"
+        viewBox="0 0 24 24"
+        width="22"
+        height="22"
+        aria-hidden="true"
+        focusable="false"
       >
-        <span className="theme-switch-track" aria-hidden="true">
-          <span className="theme-switch-knob" />
-        </span>
-        {/*
-          A plain span, deliberately unclassed. It groups the visible word with the
-          visually-hidden remainder so the two read as one accessible name, and it needs no rule
-          of its own: the button is the flex container and this is simply its second item.
-          It carried a label class until the declared-classes ratchet (am-vw1o) caught it,
-          correctly - no stylesheet declared that token, so the name claimed a styling contract
-          that did not exist. A class nothing styles is a promise to the next reader that there is
-          something to find.
-
-          The token is NOT spelled out above, and that is deliberate. This scanner reads raw
-          source, so a comment quoting the removed name puts it straight back into the file the
-          scanner examines: my first attempt at this fix left the gate red while the code was
-          already correct. AGENTS.md records the same shape - text that DESCRIBES a forbidden
-          construct is not the construct, and the better the comment the likelier the misfire.
-        */}
-        <span>
-          Dark
-          {/* "Dark" alone is not a control's job description, so the hidden span completes it to
-              "Dark theme". WCAG 2.5.3 wants the accessible name to CONTAIN the visible label, so
-              the visible word comes first and the span is appended, never substituted.
-
-              IT USED TO APPEND THE EDITION'S NAME FOR THE THEME TOO - "Dark theme (Kramgasse
-              Night)". That was deliberate and it was backwards. `.theme-switch-full-name` is
-              clipped to 1px, and "Kramgasse Night" is rendered nowhere else a reader can see:
-              not here, not in the reading-preferences panel. So the flavour reached screen-reader
-              users ONLY, as a parenthetical heard on every one of 300-odd pages, while sighted
-              readers never learned the theme had a name at all. That is not equal access to the
-              edition's voice, it is verbosity charged to one audience. If the name should be
-              surfaced, it should be surfaced to everyone, where themes are described. */}
-          <span className="theme-switch-full-name"> theme</span>
-        </span>
-      </button>
-      {/* Visually hidden: left visible it added a row to the header after the first press, so the
-          page moved under the reader in response to their own action. */}
-      <p className="theme-switch-announcement" role="status" aria-live="polite">
-        {announcement}
-      </p>
-    </>
+        <g className="theme-toggle-moon">
+          {/* A disc of radius 8.5 about the centre with a disc of radius 7.2, offset up and to the
+              right, taken out of it; the two arcs meet where the circles cross. */}
+          <path d="M10.14 3.7A8.5 8.5 0 1 0 20.37 13.47A7.2 7.2 0 0 1 10.14 3.7Z" />
+        </g>
+        <g className="theme-toggle-sun">
+          <circle cx="12" cy="12" r="4.2" />
+          <path d="M12 2.4v2.2M12 19.4v2.2M2.4 12h2.2M19.4 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M5.2 18.8l1.6-1.6M17.2 6.8l1.6-1.6" />
+        </g>
+      </svg>
+      <span className="theme-toggle-name theme-toggle-to-dark">Switch to dark theme</span>
+      <span className="theme-toggle-name theme-toggle-to-light">Switch to light theme</span>
+    </button>
   );
 }
