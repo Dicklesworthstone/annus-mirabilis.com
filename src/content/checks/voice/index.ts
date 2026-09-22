@@ -24,6 +24,7 @@ import {
   matchPhraseListRule,
   matchRegexRule,
   matchStatusEnumLeak,
+  matchTitleCase,
   matchWordListRule,
 } from "./matchers.ts";
 import type {
@@ -33,6 +34,7 @@ import type {
   PhraseListRule,
   RegexRule,
   StatusEnumLeakRule,
+  TitleCaseRule,
   VoiceContext,
   WordListRule,
 } from "./rules.ts";
@@ -214,6 +216,15 @@ export function checkVoice(text: string, options: CheckVoiceOptions): VoiceFindi
       text,
       rules.rules["unverified-count"] as RegexRule,
       "unverified-count",
+      context,
+      source,
+    ),
+  );
+  findings.push(
+    ...matchTitleCase(
+      text,
+      rules.rules["title-case-heading"] as TitleCaseRule,
+      "title-case-heading",
       context,
       source,
     ),

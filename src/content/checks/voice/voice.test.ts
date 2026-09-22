@@ -911,3 +911,102 @@ describe("status-enum-leak: a typed enum field is data, not prose", () => {
     );
   });
 });
+
+/**
+ * Title Case headings (am-edit-voice-lint-trmf). The gate that makes 04dffb1b permanent: before
+ * it, four browser tests incidentally pinned capitalisation - wrongly, as Title Case - and
+ * cca97b8e made them case-blind, leaving the standard unenforced.
+ *
+ * THE SCOPING IS THE DESIGN. A first attempt discriminated on construction alone, with a
+ * heading-SHAPE test standing in for knowing the string was a heading. Measured across the tree
+ * it produced 293 findings: button labels, legends, telemetry captions and, fatally, bibliography
+ * entries - including "A. Einstein, Zur Elektrodynamik bewegter Körper", a printed German title.
+ * A rule that flags Einstein's own title is a boundary violation wearing a lint's clothes.
+ * componentText.ts now marks h1-h6, content records never carry that marker, and the same corpus
+ * gives 69 findings, all real headings.
+ */
+describe("title-case-heading (am-edit-voice-lint-trmf)", () => {
+  const heading = (text: string) =>
+    checkVoice(text, { context: "prose", source: { element: "heading" } }).filter(
+      (f) => f.rule === "title-case-heading",
+    );
+  const notHeading = (text: string) =>
+    checkVoice(text, { context: "prose" }).filter((f) => f.rule === "title-case-heading");
+
+  it("flags real Title Case headings from this corpus", () => {
+    for (const t of [
+      "Independent Configurations and the Gas Analogy",
+      "The Two Historical Deviation Cases",
+      "Page Map & Content Concordance",
+      "Spacetime Event Diagram",
+      "Discovery Mode: Predict Before Calculating",
+      "Stokes’s Rule and the Single-Quantum Energy Budget",
+    ]) {
+      assert.equal(heading(t).length, 1, `must flag: ${t}`);
+    }
+  });
+
+  it("leaves real sentence-case headings alone", () => {
+    for (const t of [
+      "Mean quantum energy over a Wien spectrum",
+      "§2: the relativity of simultaneity",
+      "The physical argument in Section 3",
+      "Why the applied force drops out",
+      "The entropy volume laws placed side by side",
+    ]) {
+      assert.deepEqual(heading(t), [], `must stay quiet: ${t}`);
+    }
+  });
+
+  it("a heading whose capitals are all names is not a style choice", () => {
+    // These three pass on the token-count floor rather than on the proper-noun list - each has
+    // fewer than minContentWords once the first word is dropped. Kept because they are real
+    // shapes, but the case BELOW is the one that drives the exception.
+    for (const t of ["Einstein 1905 §7", "Maxwell-Hertz equations", "Wien and Planck"]) {
+      assert.deepEqual(heading(t), [], `proper nouns are not Title Case: ${t}`);
+    }
+  });
+
+  it("the proper-noun exception is load-bearing, and this is the case that proves it", () => {
+    // MEASURED: emptying properNouns leaves the whole-tree count at 69, unchanged, so the list
+    // decides nothing on today's corpus and its value is prospective. An exception nothing drives
+    // is decoration, and decoration that looks like protection is worse than none - so the rule
+    // gets a case where the list alone is the difference. Here all three content words are
+    // capitalised, but two of them are names, leaving one non-proper capital and no violation.
+    // With the list emptied this string flags.
+    assert.deepEqual(heading("The Einstein Wien Comparison"), []);
+    // And the same shape with one more ordinary capital IS Title Case.
+    assert.equal(heading("The Einstein Wien Comparison Table").length, 1);
+  });
+
+  it("THE BOUNDARY: a citation or a printed German title is unreachable, not allowlisted", () => {
+    // These are the strings the unscoped first attempt flagged. They reach checkVoice from
+    // content records, which never carry the heading marker, so no list has to protect them.
+    for (const t of [
+      "A. Einstein, Zur Elektrodynamik bewegter Körper",
+      "R. A. Millikan, A Direct Photoelectric Determination of Planck's h",
+      "Physical Review, Ser. 2, Vol. 7, No. 3, pp. 355-389",
+    ]) {
+      assert.deepEqual(notHeading(t), [], `a record field is not a heading: ${t}`);
+    }
+  });
+
+  it("the same Title Case string is flagged as a heading and ignored as a label", () => {
+    // The scoping stated as a contrast, so it cannot pass because the rule is off entirely.
+    const t = "Accepted Laboratory Telemetry Snapshot";
+    assert.equal(heading(t).length, 1);
+    assert.deepEqual(notHeading(t), []);
+  });
+
+  it("a translated or quoted heading is never judged for case", () => {
+    for (const layer of ["translation", "quotation"] as const) {
+      assert.deepEqual(
+        checkVoice("The Two Historical Deviation Cases", {
+          context: "prose",
+          source: { element: "heading", layer, attribution: "some-source" },
+        }).filter((f) => f.rule === "title-case-heading"),
+        [],
+      );
+    }
+  });
+});

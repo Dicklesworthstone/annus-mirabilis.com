@@ -129,6 +129,21 @@ export interface OverclaimRule {
   readonly severityByContext: Readonly<Partial<Record<VoiceContext | "default", Severity>>>;
 }
 
+export interface TitleCaseRule {
+  readonly kind: "title-case";
+  readonly description: string;
+  /** Closed grammatical class, not a vocabulary: words Title Case leaves lowercase anyway. */
+  readonly functionWords: readonly string[];
+  /** The exception, enumerated: capitals these carry are names, not style. */
+  readonly properNouns: readonly string[];
+  /** Heading shape. The linter cannot see HTML, so the string must look like a heading. */
+  readonly maxWords: number;
+  readonly minContentWords: number;
+  readonly minCapitalisedRatio: number;
+  readonly minNonProperCapitals: number;
+  readonly defaultSeverity: Severity;
+}
+
 export interface DataOnlyRule {
   readonly kind: "data-only";
   readonly description: string;
@@ -142,7 +157,8 @@ export type VoiceRule =
   | PhraseListRule
   | StatusEnumLeakRule
   | OverclaimRule
-  | DataOnlyRule;
+  | DataOnlyRule
+  | TitleCaseRule;
 
 export type RuleId =
   | "em-dash"
@@ -165,7 +181,8 @@ export type RuleId =
   | "copula-avoidance"
   | "significance-inflation"
   | "heres-why"
-  | "unverified-count";
+  | "unverified-count"
+  | "title-case-heading";
 
 export const RULE_IDS: readonly RuleId[] = [
   "em-dash",
@@ -189,6 +206,7 @@ export const RULE_IDS: readonly RuleId[] = [
   "significance-inflation",
   "heres-why",
   "unverified-count",
+  "title-case-heading",
 ];
 
 export interface VoiceRules {

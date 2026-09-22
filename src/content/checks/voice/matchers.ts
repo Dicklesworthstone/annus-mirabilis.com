@@ -15,6 +15,7 @@ import type {
   RuleId,
   Severity,
   StatusEnumLeakRule,
+  TitleCaseRule,
   VoiceContext,
   WordListRule,
 } from "./rules.ts";
@@ -31,6 +32,13 @@ export interface VoiceFinding {
 export interface MatchSource {
   readonly layer?: "prose" | "translation" | "quotation" | undefined;
   readonly attribution?: string | undefined;
+  /**
+   * The element a string came from, where that changes what it IS rather than how it reads
+   * (am-edit-voice-lint-trmf). Set only for h1-h6 by componentText.ts. Content records never
+   * carry it, which is what keeps a bibliography entry or a printed German title structurally
+   * out of reach of the heading rule rather than allowlisted out of it.
+   */
+  readonly element?: "heading" | undefined;
 }
 
 interface TextMatch {
@@ -480,4 +488,67 @@ export function matchDataOnly(
     }
   }
   return findings;
+}
+
+/**
+ * Title Case in a heading (am-edit-voice-lint-trmf). The discriminator is a CONSTRUCTION - the
+ * proportion of content words carrying a capital - rather than a list of offending words, because
+ * Title Case is a shape and any word can appear in it.
+ *
+ * TWO THINGS IT CANNOT DO, both stated rather than hidden:
+ *
+ * 1. It cannot see that a string is a heading. componentText.ts hands every JSX text node over as
+ *    `prose`, so a heading and a paragraph arrive indistinguishable. The substitute is a SHAPE
+ *    test - at most maxWords words, and no sentence-ending punctuation - which is what keeps the
+ *    rule off ordinary prose. If a `heading` context is ever added to the extractor, this test
+ *    should be replaced by it rather than kept alongside.
+ * 2. It cannot tell a proper noun from a style choice. "Stokes's Rule and the Drag Force" is Title
+ *    Case; "Einstein 1905 §7" is a name and a citation. The exception is therefore enumerated -
+ *    properNouns - and the rule additionally requires minNonProperCapitals capitalised words that
+ *    are NOT on that list, so a heading whose capitals are all names cannot trip it.
+ */
+export function matchTitleCase(
+  text: string,
+  rule: TitleCaseRule,
+  ruleId: RuleId,
+  context: VoiceContext,
+  source: MatchSource,
+): VoiceFinding[] {
+  if (source.element !== "heading") return [];
+  if (source.layer === "translation" || source.layer === "quotation") return [];
+  const trimmed = text.trim();
+  if (/[.!?]$/.test(trimmed)) return [];
+  const tokens = trimmed.match(/[\p{L}][\p{L}'\u2019-]*/gu) ?? [];
+  if (tokens.length < 2 || tokens.length > rule.maxWords) return [];
+
+  const fn = new Set(rule.functionWords.map((w) => w.toLowerCase()));
+  const proper = new Set(rule.properNouns.map((w) => w.toLowerCase()));
+  const isProper = (w: string) => {
+    const bare = w.toLowerCase().replace(/[''\u2019]s$/, "");
+    return (
+      proper.has(w.toLowerCase()) ||
+      proper.has(bare) ||
+      w.split("-").every((p) => proper.has(p.toLowerCase()))
+    );
+  };
+  // The first word is capitalised in BOTH styles, so it carries no information and is excluded.
+  const content = tokens.slice(1).filter((w) => !fn.has(w.toLowerCase()));
+  if (content.length < rule.minContentWords) return [];
+  const capitalised = content.filter(
+    (w) => w[0] === w[0]?.toUpperCase() && w[0] !== w[0]?.toLowerCase(),
+  );
+  // An all-caps token is an acronym, not a style choice.
+  const styled = capitalised.filter((w) => w !== w.toUpperCase());
+  const nonProper = styled.filter((w) => !isProper(w));
+  if (capitalised.length / content.length < rule.minCapitalisedRatio) return [];
+  if (nonProper.length < rule.minNonProperCapitals) return [];
+  return [
+    finding(
+      ruleId,
+      rule.defaultSeverity,
+      context,
+      { index: 0, matchedText: trimmed },
+      "Use sentence case: capitalise the first word and proper nouns only.",
+    ),
+  ];
 }

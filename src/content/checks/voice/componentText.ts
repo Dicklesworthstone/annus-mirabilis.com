@@ -118,6 +118,12 @@ export function extractStringsFromTsx(
 
   const results: ExtractedComponentString[] = [];
 
+  /** h1-h6 only. The heading rule needs to know a string IS a heading; nothing else does. */
+  function isHeadingElement(node: ts.Node): boolean {
+    if (!ts.isJsxElement(node)) return false;
+    return /^h[1-6]$/.test(node.openingElement.tagName.getText(sourceFile));
+  }
+
   function isQuotationElement(node: ts.Node): boolean {
     if (ts.isJsxElement(node)) {
       const tagName = node.openingElement.tagName.getText(sourceFile);
@@ -215,7 +221,13 @@ export function extractStringsFromTsx(
           column: character + 1,
           text,
           context: "prose",
-          source: layer ? { layer } : undefined,
+          source:
+            layer || isHeadingElement(node)
+              ? {
+                  ...(layer ? { layer } : {}),
+                  ...(isHeadingElement(node) ? { element: "heading" as const } : {}),
+                }
+              : undefined,
         });
       }
     }

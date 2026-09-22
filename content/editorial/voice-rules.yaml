@@ -567,3 +567,105 @@ rules:
     codeSpanExempt: true
     translationSeverity: flag
     repair: "Verify the count and record the command that produced it, or write the sentence without a number."
+
+  title-case-heading:
+    description: "A heading set in Title Case, where this edition uses sentence case."
+    # WHY THIS EXISTS, and it is a gap I opened myself. cca97b8e made four browser tests compare
+    # headings case-insensitively, which was right - they pinned capitalisation in order to check
+    # that a SECTION IS PRESENT - but it left the standard unenforced. Before that commit those
+    # four tests incidentally pinned the capitalisation, and wrongly, as Title Case; afterwards
+    # nothing pinned it at all. A fix with no gate regresses, and 04dffb1b fixed eight pages by
+    # hand with nothing to stop the ninth.
+    #
+    # THE HOUSE STYLE IS MEASURED, NOT ASSERTED: 111 headings in sentence case against 0 in Title
+    # Case across src/app after 04dffb1b, and 62 remaining across 36 files elsewhere in src.
+    #
+    # THE DISCRIMINATOR IS A CONSTRUCTION - the proportion of content words carrying a capital -
+    # because Title Case is a shape and any word can appear in it. functionWords below is a closed
+    # grammatical class, not a vocabulary of offending terms; properNouns is the enumerated
+    # exception, in the shape D-2026-09-19-theater-points-compounds requires.
+    #
+    # SEVERITY IS flag AND NOT error, deliberately and temporarily. 62 true violations exist
+    # today; shipping at error would take the lint from exit 0 to exit 1 across 36 files that
+    # mostly belong to other beads. These 62 are a BACKLOG, not noise - noise is false positives,
+    # and every one of these is a real Title Case heading. REVISIT TRIGGER: when the 62 are
+    # converted, raise this to error, which is the only state in which it actually gates.
+    kind: title-case
+    maxWords: 12
+    minContentWords: 2
+    minCapitalisedRatio: 0.8
+    minNonProperCapitals: 2
+    defaultSeverity: flag
+    functionWords:
+      - a
+      - an
+      - the
+      - and
+      - or
+      - of
+      - in
+      - on
+      - to
+      - for
+      - with
+      - from
+      - at
+      - by
+      - as
+      - is
+      - are
+      - was
+      - were
+      - not
+      - that
+      - this
+      - its
+      - it
+      - into
+      - than
+      - versus
+      - vs
+      - per
+      - over
+      - under
+      - between
+      - without
+      - but
+      - nor
+      - so
+      - yet
+      - if
+      - when
+      - while
+      - after
+      - before
+      - about
+      - across
+      - through
+    # The physicists, instruments and standards whose capitals are names rather than style. A
+    # heading whose capitalised words are ALL on this list cannot trip the rule, which is what
+    # keeps "Einstein 1905 §7" and "Stokes's rule" out of it.
+    properNouns:
+      - einstein
+      - wien
+      - planck
+      - stokes
+      - maxwell
+      - hertz
+      - millikan
+      - nägeli
+      - avogadro
+      - boltzmann
+      - lorentz
+      - brownian
+      - gaussian
+      - doppler
+      - perrin
+      - smoluchowski
+      - minkowski
+      - fourier
+      - newton
+      - annalen
+      - physik
+      - javascript
+      - codata
