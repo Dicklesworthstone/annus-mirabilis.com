@@ -978,6 +978,7 @@ summary {
   background: var(--paper);
   border: 1px solid var(--line);
   border-top: 0;
+  box-shadow: 0 18px 28px -18px rgb(0 0 0 / 0.35);
 }
 code,
 pre,
