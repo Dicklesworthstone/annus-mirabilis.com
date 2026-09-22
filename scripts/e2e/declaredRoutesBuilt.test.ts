@@ -29,7 +29,16 @@
  */
 
 import assert from "node:assert/strict";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -63,21 +72,49 @@ function visibleTextLength(html: string): number {
 
 type DeclaredRoute = Readonly<{ route: string; dynamic: boolean }>;
 
-/** Every route declared by a page.tsx under src/app, as a URL path. */
-function declaredRoutes(): DeclaredRoute[] {
+/**
+ * Every route declared by a page.tsx under src/app, as a URL path.
+ *
+ * A FOLDER WHOSE NAME BEGINS WITH "_" DECLARES NOTHING. Next treats it as a private folder
+ * and excludes it and everything beneath it from routing, so a page.tsx inside one can never
+ * produce a page in out/. This check read the filesystem more literally than Next does and
+ * counted such a file as a declared route that had silently failed to build.
+ *
+ * THE CASE THAT FOUND IT, named because the next reader will meet its remains. On 2026-09-22
+ * `/discover/[paper]` stopped being buildable: it existed to serve discovery routes that had
+ * no hand-authored page, the fourth route was written, its param list became empty, and under
+ * `output: export` Next reads an empty list as a missing generateStaticParams. The segment was
+ * retired by renaming it to `_retired_paper_route`, which stops it routing without deleting it
+ * (RULE 1). Next then correctly built nothing for it, and this check then incorrectly reported
+ * "/discover/_retired_paper_route is declared and is not in out/". The file is still there and
+ * is meant to be.
+ *
+ * SCOPE, stated because a silent second divergence is how these go wrong. Next has other
+ * folder conventions this function does not model: route groups `(name)`, which route but
+ * contribute nothing to the URL, and parallel slots `@name`. Measured on 2026-09-22, src/app
+ * contains no instance of either, so modelling them now would be untestable speculation. If one
+ * appears, this function will compute a URL that never exists in out/ and the check will fail
+ * loudly rather than pass wrongly, which is the safe direction and the right moment to extend.
+ *
+ * `appRoot` is a parameter only so the rule above can be proved against a fixture tree. Nothing
+ * in the repository calls it with an argument.
+ */
+function declaredRoutes(appRoot: string = APP_ROOT): DeclaredRoute[] {
   const found: DeclaredRoute[] = [];
   const walk = (dir: string): void => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const full = join(dir, entry.name);
-      if (entry.isDirectory()) walk(full);
-      else if (entry.name === "page.tsx") {
-        const rel = relative(APP_ROOT, dirname(full));
+      if (entry.isDirectory()) {
+        if (entry.name.startsWith("_")) continue;
+        walk(full);
+      } else if (entry.name === "page.tsx") {
+        const rel = relative(appRoot, dirname(full));
         const route = rel === "" ? "/" : `/${rel.split(/[\\/]/).join("/")}`;
         found.push({ route, dynamic: route.includes("[") });
       }
     }
   };
-  walk(APP_ROOT);
+  walk(appRoot);
   return found.sort((a, b) => a.route.localeCompare(b.route));
 }
 
@@ -207,4 +244,42 @@ test("the declared-route set is read from the filesystem, not written down here"
         "that it cannot drift from the routes it describes.",
     );
   }
+});
+
+test("a private folder declares nothing, and a real one beside it still declares", () => {
+  // PROVED IN BOTH DIRECTIONS ON PURPOSE. A rule that excluded everything would report an
+  // empty declared set and this check would pass forever over nothing, which is the failure
+  // the reachability assertion above already refuses. So the fixture asserts what must be
+  // ABSENT and what must still be PRESENT from one tree, and compares the whole set rather
+  // than probing for one member: an exclusion that swallowed the real route too would go red
+  // here, and a `.includes` style probe would not have caught it.
+  //
+  // It runs against a fixture tree rather than src/app because a probe route under src/ is
+  // typechecked for every pane the moment it lands, and RULE 1 means nobody could remove it
+  // afterwards. The temp tree is deliberately not cleaned up for the same reason: this file
+  // contains no deletion.
+  const root = mkdtempSync(join(tmpdir(), "declared-routes-fixture-"));
+  const page = "export default function P() {\n  return null;\n}\n";
+  for (const dir of ["fixture-visible-route", "_private", join("_private", "nested")]) {
+    mkdirSync(join(root, dir), { recursive: true });
+    writeFileSync(join(root, dir, "page.tsx"), page);
+  }
+
+  // The fixture must actually contain what the assertion is about. A tree that failed to
+  // write would produce the same green as a rule that works, which is the distinction
+  // between a clean run and an empty one.
+  assert.ok(existsSync(join(root, "_private", "page.tsx")), "fixture did not write _private");
+  assert.ok(
+    existsSync(join(root, "_private", "nested", "page.tsx")),
+    "fixture did not write the nested page, so the subtree claim would be vacuous",
+  );
+
+  assert.deepEqual(
+    declaredRoutes(root).map((r) => r.route),
+    ["/fixture-visible-route"],
+    "A folder beginning with _ must declare no route and neither must anything beneath it, " +
+      "while a real sibling must still be declared. Getting only the first half right turns " +
+      "this check off; getting only the second half right restores the failure it was " +
+      "changed to fix.",
+  );
 });
