@@ -107,7 +107,33 @@ export async function loadFacsimileDocument(
     const inventory =
       (await optionalMetadata(join(inventoryDirectory, "manifest.yaml"))) ??
       (await optionalMetadata(join(inventoryDirectory, "manifest.json")));
-    const document = projectFacsimileDocument(paperId, key, config, inventory);
+    /*
+      THE INVENTORY IS A SEPARATE FAILURE FROM THE SCAN, and saying so is the whole point.
+
+      `pin` above is the same projection WITHOUT the inventory, so reaching this line means the
+      scan is admitted and only the source-unit record is unreadable. It does NOT mean the digest
+      has verified: verifyFacsimilePdf runs AFTER this point, so this message says "pinned and
+      admitted" and must not say "verified". Both failures used to arrive at the generic catch below and a reader was told
+      "The scan or its page map did not pass the source checks" - which names the scan, and is
+      false here. Measured on 2026-09-22: brownian-motion projects 12 pages and
+      special-relativity 31 without their inventories and throw with them, so 15 of 28 facsimile
+      routes were blaming a verified scan for a manifest record.
+
+      The refusal is still total - a page inventory this build cannot read is not a page
+      inventory it may partly trust - but it now names the thing that actually failed.
+    */
+    let document: ReturnType<typeof projectFacsimileDocument>;
+    try {
+      document = projectFacsimileDocument(paperId, key, config, inventory);
+    } catch (inventoryError) {
+      if (inventoryError instanceof FacsimileDataError) {
+        return unavailable(
+          "facsimile-inventory-invalid",
+          "The scanned pages for this paper are pinned and admitted for display. The record that maps those pages to the paper's sections carries an entry this build cannot read, so page links are withheld rather than guessed. The explanation remains available.",
+        );
+      }
+      throw inventoryError;
+    }
     if (document === null) {
       return unavailable(
         "facsimile-not-published",

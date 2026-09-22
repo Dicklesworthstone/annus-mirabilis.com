@@ -72,6 +72,44 @@ test("server joins the existing YAML parser, page projection and verified file b
   assert.equal(result.document.pdfUrl, "/papers/pdfs/ap-18-639.pdf");
   assert.equal(JSON.stringify(result).includes(bytes.toString()), false);
 });
+test("an unreadable inventory refuses as an inventory fault, never as a scan fault", async () => {
+  // No (server.ts:NN) citation on purpose. The refusal ratchet records six sites in server.ts and
+  // none of them is this one: it counts `throw new SomeError("code")` and standalone code: fields,
+  // not a helper call like unavailable("code", message). Citing a line the scanner does not track
+  // would be a claim nobody can check, which is the laundering that ratchet exists to stop.
+  // The scan is admitted and its digest verifies; only the source-unit record is malformed. Both
+  // used to reach the same catch, so a reader was told "The scan or its page map did not pass the
+  // source checks" - which names the scan, and is false here. Measured on the real corpus:
+  // brownian-motion and special-relativity project 12 and 31 pages WITHOUT their inventories and
+  // throw with them, so 15 of 28 facsimile routes carried that wrong attribution.
+  const f = await fixture({
+    manifest: inventory.replace("    kind: paragraph\n", ""), // a unit with an id and no kind
+  });
+  const result = await load(f);
+  assert.equal(result.kind, "unavailable");
+  assert.equal(result.code, "facsimile-inventory-invalid");
+  // The distinction is the point, so it is asserted rather than left to the code string.
+  assert.equal(
+    result.message.includes("pinned and admitted for display"),
+    true,
+    "the refusal must clear the scan, not blame it",
+  );
+  assert.equal(
+    result.message.includes("did not pass the source checks"),
+    false,
+    "the generic scan-blaming wording must not survive here",
+  );
+});
+test("a genuinely malformed CONFIG still refuses as a source-data fault, not an inventory one", async () => {
+  // The negative half: this must NOT collect the inventory code, or the new branch would simply
+  // swallow every data failure and the distinction it exists to draw would be decorative.
+  const f = await fixture({
+    text: config().replace("printedFirst: 639", "printedFirst: notanumber"),
+  });
+  const result = await load(f);
+  assert.equal(result.kind, "unavailable");
+  assert.notEqual(result.code, "facsimile-inventory-invalid");
+});
 test("local-only and reference-only pins never read malformed inventory or missing PDF", async () => {
   for (const decision of ["pin-local-only", "reference-only"]) {
     const f = await fixture({
@@ -156,8 +194,12 @@ test("a bad source-page map is not downgraded to an apparently unlocated valid s
   const wrong = inventory.replace("page: 641", "page: 642");
   assert.notEqual(wrong, inventory);
   const result = await load(await fixture({ manifest: wrong }));
+  // The property this test is named for - a bad page map must never be downgraded to an
+  // available scan with no anchors - is this line, and it is unchanged.
   assert.equal(result.kind, "unavailable");
-  assert.equal(result.code, "facsimile-data-invalid");
+  // The CODE changed deliberately: a bad locator lives in the inventory, so it now refuses as an
+  // inventory fault rather than under the generic source-data code that also names the scan.
+  assert.equal(result.code, "facsimile-inventory-invalid");
 });
 test("a pin without inventory remains readable but has no manufactured source anchors", async () => {
   const result = await load(await fixture({ manifest: null }));
