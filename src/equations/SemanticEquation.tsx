@@ -314,11 +314,13 @@ export function SemanticEquation({
               const b = equation.bindings.find((b) => b.termId === t.termId),
                 v = readTermValue(t, b ? slot : null);
               return (
-                <div key={t.termId} data-quantity-id={t.quantityId}>
-                  <dt
-                    className={paperColours[t.quantityId] ? "equation-quantity" : undefined}
-                    style={colourStyle(paperColours[t.quantityId])}
-                  >
+                <div
+                  key={t.termId}
+                  data-quantity-id={t.quantityId}
+                  className={paperColours[t.quantityId] ? "equation-quantity" : undefined}
+                  style={colourStyle(paperColours[t.quantityId])}
+                >
+                  <dt>
                     {t.quantity.name}
                     {(t.scale.num !== 1 || t.scale.den !== 1) &&
                       ` (shown × ${t.scale.num}/${t.scale.den})`}
