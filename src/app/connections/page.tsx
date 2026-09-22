@@ -15,10 +15,11 @@ export default function ConnectionsPage() {
         <h1>What crosses the paper boundary?</h1>
         <p className="lead">
           The four papers share more than a year. The same constants, the same counting arguments
-          and the same light pulse turn up in several of them, and the connections are of different
-          kinds: some are a premise one paper borrows from another, some are only a shared piece of
-          mathematics, and some were drawn by physicists decades later. This page keeps those three
-          apart and says which is which.
+          and the same light pulse turn up in several of them, and the connections are of several
+          kinds: a premise one paper borrows from another; a shared piece of mathematics and
+          nothing more; separate routes that arrive at the same number; a link drawn by physicists
+          decades later. This page says which kind each one is, because the difference between them
+          is the difference between evidence and resemblance.
         </p>
       </header>
       <section className="reading" id="light-thread">
@@ -36,7 +37,7 @@ export default function ConnectionsPage() {
         </p>
       </section>
       <section className="reading" id="molecular-number">
-        <p className="eyebrow">Three methods · Companion preview</p>
+        <p className="eyebrow">Separate routes to one number · Companion preview</p>
         <h2>What information lets you infer a molecular number?</h2>
         <p>
           Compare the radiation-constant calculation with Brownian displacement and a joint
