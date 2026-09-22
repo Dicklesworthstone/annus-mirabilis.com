@@ -748,10 +748,61 @@ summary {
   margin: 0;
   padding: 0;
 }
+/*
+ * THE PREFERENCES DISCLOSURE READS AS A CONTROL, NOT AS A SIXTH NAV ITEM.
+ *
+ * The owner's homepage complaint, 2026-09-22: "A settings panel sits above the H1 ... A reader
+ * arriving at a critical edition meets a control panel before content." It is in the layout, so
+ * it was doing that on EVERY page, not only the homepage.
+ *
+ * Measured on build AQ-ONvvttOwzTzS11vKf5 before this rule: the summary rendered at the body
+ * size and the body ink, wrapped to two lines at 1280px ("Reading / preferences"), and sat in
+ * the header at the same visual weight as "Papers" and "Instruments" - so a reader scanning the
+ * chrome met seven things that look like navigation, one of which is a settings panel.
+ *
+ * It is not moved out of the header and not hidden: a reading-only setting and a line-length
+ * setting belong within reach on every page, and AGENTS.md requires them reachable without
+ * JavaScript, which a <details> already is. What changes is its RANK. Smaller, muted, and
+ * carrying a disclosure triangle so it announces itself as something that opens rather than
+ * something that navigates.
+ *
+ * The 44px target is kept. Rank is a matter of type and colour here, never of hit area.
+ */
 .site-header summary {
   min-height: 44px;
   display: flex;
   align-items: center;
+  gap: 0.35rem;
+  font: 0.85rem / 1.4 var(--font-sans);
+  color: var(--muted);
+  cursor: pointer;
+  /* The default marker is removed only so the triangle can be drawn on the correct side of the
+     text at a size that matches the smaller type; it is replaced immediately below, never
+     dropped. A disclosure with no affordance is the defect this rule exists to avoid. */
+  list-style: none;
+}
+.site-header summary::-webkit-details-marker {
+  display: none;
+}
+.site-header summary::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 0.32rem solid currentColor;
+  border-top: 0.28rem solid transparent;
+  border-bottom: 0.28rem solid transparent;
+  transition: transform 120ms ease;
+}
+.site-header details[open] summary::before {
+  transform: rotate(90deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header summary::before {
+    transition: none;
+  }
+}
+.site-header summary:hover {
+  color: var(--ink);
 }
 code,
 pre,
