@@ -26,6 +26,8 @@ export interface EnrichedConcordanceEntry extends ConcordanceEntry {
   readonly searchKeywords: readonly string[];
   /** Where the meaning holds, in the reader's words: "§2, §5 and §8", "introduction", "note 1". */
   readonly whereLabel: string;
+  /** One label per `scope` token, in the same order, for the section filter's options. */
+  readonly whereLabelParts: readonly string[];
   /** "Checked against the printed page on 19 September 2026.", or that it has not been. */
   readonly checkedLabel: string;
   /** The other entries printed with the same symbol: the collisions, readable. */
@@ -104,10 +106,14 @@ export interface PaperNotationSection {
   readonly paperSlug: string;
   readonly paperTitle: string;
   readonly paperNumber: number;
+  /** "Paper 3 · 1905", or for the companion "The dissertation · 1906". */
+  readonly eyebrow: string;
   readonly locator: string;
   readonly entries: readonly EnrichedConcordanceEntry[];
   readonly modernOnlySymbols: readonly (ModernOnlySymbol & {
     readonly glyphRendered: RenderedMath;
+    /** formatScope of the symbol's scope, computed here so client components import no value. */
+    readonly whereLabel: string;
   })[];
 }
 
@@ -195,7 +201,7 @@ const PAPER_METADATA: Record<string, { title: string; number: number; locator: s
     locator: "Ann. Phys. (4) 18, 639–641 (1905)",
   },
   "molecular-dimensions": {
-    title: "Molecular dimensions (the dissertation)",
+    title: "Molecular dimensions",
     number: 5,
     locator: "Ann. Phys. (4) 19, 289–306 (1906)",
   },
@@ -382,6 +388,7 @@ export function loadNotationPageData(
         firstUseUrl,
         searchKeywords,
         whereLabel: formatScope(entry.paper, entry.scope),
+        whereLabelParts: entry.scope.map((token) => formatScopeToken(entry.paper, token)),
         checkedLabel: formatCheckedLabel(entry),
         alsoPrinted: [],
       };
@@ -407,11 +414,13 @@ export function loadNotationPageData(
       paperSlug: pc.paper,
       paperTitle: meta.title,
       paperNumber: meta.number,
+      eyebrow: meta.number <= 4 ? `Paper ${meta.number} · 1905` : "The dissertation · 1906",
       locator: meta.locator,
       entries: paperEntries,
       modernOnlySymbols: (pc.modernOnlySymbols ?? []).map((symbol) => ({
         ...symbol,
         glyphRendered: renderStaticKatex(symbol.glyph.latex || symbol.glyph.unicode),
+        whereLabel: formatScope(pc.paper, symbol.scope),
       })),
     });
   }
@@ -455,16 +464,21 @@ export function loadNotationPageData(
     const sample = entries[0];
     if (!sample) continue;
 
+    // Said in counts, not by listing titles: "Light quanta and Mass and energy" cannot be parsed,
+    // and the list under each cluster names every paper anyway. A lone entry's collision is with
+    // a meaning the page does not print, usually the modern one; its ids stay off the page.
     let desc = "";
     if (entries.length > 1) {
       const distinctPapers = new Set(entries.map((e) => e.paperTitle));
-      if (distinctPapers.size > 1) {
-        desc = `Cross-paper collision across ${Array.from(distinctPapers).join(" and ")}.`;
-      } else {
-        desc = `Within-paper scope collision in ${sample.paperTitle}.`;
-      }
+      desc =
+        distinctPapers.size > 1
+          ? `${entries.length} meanings across ${distinctPapers.size} papers.`
+          : `${entries.length} meanings within ${sample.paperTitle}.`;
     } else if (sample.collision) {
-      desc = `Collision with ${sample.collision.collidesWith.join(", ")}.`;
+      desc =
+        sample.collision.kind === "cross-toggle"
+          ? "Means something else in modern notation."
+          : "Printed with another meaning elsewhere.";
     }
 
     collisionClusters.push({

@@ -96,18 +96,8 @@
 }
 
 .search-input-wrapper input {
-  padding-left: 2.25rem;
   height: 44px;
   font-size: var(--type-small);
-}
-
-.search-icon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  pointer-events: none;
 }
 
 .clear-search-btn {
@@ -181,92 +171,69 @@
   gap: 0.5rem;
 }
 
-/* Collision Warning Highlight Clusters */
+/*
+ * SYMBOLS WITH MORE THAN ONE MEANING (chrome, pane %44).
+ *
+ * Grouped by symbol, in the entries' own idiom: the symbol, a count, and each meaning linked to
+ * its entry. The block was framed in #e17055 with a #c0392b heading and tags in #fde8e4 and
+ * #fef5e7, a palette from outside the theme that did not change in the dark. Now it takes the
+ * theme's tokens, and the one accent is the "Easily misread" flag on the dangerous symbols.
+ */
 .collision-cluster-section {
   margin-bottom: 3rem;
-  padding: 1.5rem;
-  background: var(--wash);
-  border: 2px solid #e17055;
-  border-radius: 6px;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
 }
-
 .collision-cluster-header {
-  margin-bottom: 1rem;
+  max-width: 64ch;
+  margin-bottom: 1.5rem;
 }
-
 .collision-cluster-header h2 {
-  font-size: var(--type-lead);
-  margin: 0 0 0.35rem;
-  color: #c0392b;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  margin: 0 0 0.5rem;
 }
-
 .collision-cluster-header p {
   margin: 0;
-  font-size: var(--type-small);
   color: var(--muted);
 }
-
 .collision-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+  gap: 0 2.5rem;
 }
-
 .collision-card {
-  background: var(--panel);
-  border: 1px solid #e17055;
-  border-left: 5px solid #c0392b;
-  border-radius: 4px;
-  padding: 1rem;
+  min-width: 0;
+  padding: 1rem 0 1.25rem;
+  border-top: 1px solid var(--line);
 }
-
-.collision-card.caution {
-  border-color: #f39c12;
-  border-left-color: #d35400;
+.collision-card.danger {
+  box-shadow: inset 2px 0 0 var(--accent);
+  padding-left: 0.85rem;
 }
-
 .collision-card-top {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  margin: 0;
 }
-
 .collision-glyph {
-  font-size: var(--type-lead);
-  font-weight: 700;
+  font-size: 1.55rem;
 }
-
-.collision-severity-tag {
-  font-size: var(--type-micro);
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.collision-severity-tag.danger {
-  background: #fde8e4;
-  color: #c0392b;
-  border: 1px solid #c0392b;
-}
-
-.collision-severity-tag.caution {
-  background: #fef5e7;
-  color: #b7791f;
-  border: 1px solid #b7791f;
-}
-
 .collision-card-desc {
+  margin: 0.25rem 0 0.5rem;
+  font-family: var(--font-sans);
   font-size: var(--type-fine);
+  color: var(--muted);
+}
+.collision-entries-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--type-small);
   line-height: 1.5;
-  margin: 0.5rem 0;
+}
+.collision-entries-list > li + li {
+  margin-top: 0.35rem;
 }
 
 /* Paper Section & Entries Catalogue */
@@ -400,54 +367,23 @@
   color: var(--muted);
   cursor: pointer;
 }
-/* The collision view's links to entries (CollisionClusterView.tsx). */
-.card-anchor-link {
-  overflow-wrap: anywhere;
-}
 .notation-entry-more > p {
   margin: 0.25rem 0 0.6rem;
   line-height: 1.55;
 }
 
-/* Modern-Only Symbols Section */
+/* Symbols this edition adds: the entries' own rows, under a quiet heading. */
 .modern-only-section {
-  margin-top: 2rem;
-  padding: 1.25rem;
-  background: var(--panel);
-  border: 1px dashed var(--line);
-  border-radius: 6px;
+  margin-top: 2.5rem;
 }
-
 .modern-only-section h3 {
-  font-size: var(--type-body);
   margin: 0 0 0.35rem;
-  color: var(--ink);
+  font-size: var(--type-body);
 }
-
-.modern-only-section .disclaimer {
-  font-size: var(--type-fine);
-  color: var(--muted);
-  margin: 0 0 1rem;
-}
-
-.modern-symbols-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--type-fine);
-}
-
-.modern-symbols-table th,
-.modern-symbols-table td {
-  padding: 0.6rem 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--line);
-}
-
-.modern-symbols-table th {
-  background: var(--wash);
-  font-weight: 600;
-  font-size: var(--type-fine);
-  text-transform: uppercase;
+.modern-only-intro {
+  max-width: 64ch;
+  margin: 0 0 0.75rem;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 
@@ -515,16 +451,6 @@
     font-size: var(--type-fine);
     font-weight: 400;
   }
-}
-
-.collision-entries-list {
-  list-style: none;
-  padding-left: 0;
-  margin: 0.5rem 0;
-}
-
-.collision-entry-summary {
-  font-size: var(--type-fine);
 }
 
 .notation-client-root,

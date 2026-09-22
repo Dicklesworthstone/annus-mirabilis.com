@@ -24,17 +24,18 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
   const [collisionFilter, setCollisionFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"catalogue" | "collisions">("catalogue");
 
-  // Get available sections based on chosen paper
+  // The sections the chosen paper's entries use, each with the words the entries show for it
+  // ("§3", "§1, note 1"). With every paper shown, the paper is named, since each has a §1.
   const availableSections = useMemo(() => {
-    const set = new Set<string>();
+    const labels = new Map<string, string>();
     for (const entry of initialData.allEntries) {
-      if (paperFilter === "all" || entry.paper === paperFilter) {
-        for (const s of entry.scope) {
-          set.add(s);
-        }
-      }
+      if (paperFilter !== "all" && entry.paper !== paperFilter) continue;
+      entry.scope.forEach((token, i) => {
+        const words = entry.whereLabelParts[i] ?? token;
+        labels.set(token, paperFilter === "all" ? `${entry.paperTitle}, ${words}` : words);
+      });
     }
-    return Array.from(set).sort();
+    return [...labels.entries()].sort(([a], [b]) => a.localeCompare(b, "en", { numeric: true }));
   }, [initialData.allEntries, paperFilter]);
 
   // Run search & filter
@@ -88,15 +89,12 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
       <section className="notation-controls" aria-label="Notation search and filters">
         <div className="search-box-row">
           <div className="search-input-wrapper">
-            <span className="search-icon" aria-hidden="true">
-              🔍
-            </span>
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by glyph (β, k, V, x'), meaning, modern symbol (c, γ, kB), quantity ID, or section..."
-              aria-label="Search notation concordance"
+              placeholder="β, viscosity, c, §3"
+              aria-label="Find a symbol, a meaning, a modern symbol or a section"
             />
             {query && (
               <button
@@ -105,7 +103,7 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
                 onClick={() => setQuery("")}
                 aria-label="Clear search text"
               >
-                ✕ Clear
+                Clear
               </button>
             )}
           </div>
@@ -132,7 +130,7 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
           </div>
 
           <div className="filter-group">
-            <label htmlFor="section-select">Section scope</label>
+            <label htmlFor="section-select">Section</label>
             <select
               id="section-select"
               value={sectionFilter}
@@ -140,61 +138,56 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
               disabled={availableSections.length === 0}
             >
               <option value="all">All sections</option>
-              {availableSections.map((s) => (
-                <option key={s} value={s}>
-                  {s.replace(/^[a-z]+-/, "")}
+              {availableSections.map(([token, label]) => (
+                <option key={token} value={token}>
+                  {label}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="filter-group">
-            <label htmlFor="operation-select">Operation kind</label>
+            <label htmlFor="operation-select">In modern notation</label>
             <select
               id="operation-select"
               value={opFilter}
               onChange={(e) => setOpFilter(e.target.value)}
             >
-              <option value="all">All operations</option>
-              <option value="rename">Rename only</option>
-              <option value="unitConversion">Unit system conversion</option>
-              <option value="modernization">Substantive modernization</option>
+              <option value="all">Any entry</option>
+              <option value="rename">Only the symbol changes</option>
+              <option value="unitConversion">The units change</option>
+              <option value="modernization">The argument changes</option>
             </select>
           </div>
 
           <div className="filter-group">
-            <label htmlFor="collision-select">Collision severity</label>
+            <label htmlFor="collision-select">Other meanings</label>
             <select
               id="collision-select"
               value={collisionFilter}
               onChange={(e) => setCollisionFilter(e.target.value)}
             >
-              <option value="all">All entries</option>
-              <option value="danger">
-                Danger collisions only ({initialData.dangerCollisionsCount})
+              <option value="all">Any entry</option>
+              <option value="danger">Easily misread ({initialData.dangerCollisionsCount})</option>
+              <option value="caution">Other meanings, not easily misread</option>
+              <option value="any">
+                Any symbol with another meaning ({initialData.totalCollisionsCount})
               </option>
-              <option value="caution">Caution collisions only</option>
-              <option value="any">All collisions ({initialData.totalCollisionsCount})</option>
             </select>
           </div>
         </div>
 
         <div className="filter-summary-row">
           <div className="results-count" aria-live="polite">
-            Showing {searchResult.totalMatches} of {initialData.totalEntriesCount} concordance
-            entries
-            {hasActiveFilters && " (filtered)"}
+            {hasActiveFilters
+              ? `${searchResult.totalMatches} of ${initialData.totalEntriesCount} entries`
+              : `All ${initialData.totalEntriesCount} entries`}
           </div>
 
           <div className="view-mode-toggle">
             {hasActiveFilters && (
-              <button
-                type="button"
-                className="secondary"
-                onClick={handleResetFilters}
-                aria-label="Reset all search filters"
-              >
-                Reset filters
+              <button type="button" className="secondary" onClick={handleResetFilters}>
+                Clear the filters
               </button>
             )}
             <button
@@ -203,7 +196,9 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
               onClick={() => setViewMode(viewMode === "catalogue" ? "collisions" : "catalogue")}
               aria-pressed={viewMode === "collisions"}
             >
-              {viewMode === "catalogue" ? "View Collision Matrix ⚠️" : "View Full Catalogue"}
+              {viewMode === "catalogue"
+                ? "Symbols with more than one meaning"
+                : "Every entry, paper by paper"}
             </button>
           </div>
         </div>
@@ -219,10 +214,10 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
         <div className="catalogue-container">
           {filteredPapers.length === 0 ? (
             <div className="empty-results" role="status">
-              <h3>No concordance entries match your search.</h3>
-              <p>Try searching for a different glyph, meaning, or clearing active filters.</p>
+              <h3>No entry matches.</h3>
+              <p>Try a single symbol or one word of its meaning, or clear the filters.</p>
               <button type="button" className="button" onClick={handleResetFilters}>
-                Reset all filters
+                Clear the filters
               </button>
             </div>
           ) : (
@@ -234,7 +229,7 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
                 aria-labelledby={`heading-paper-${paper.paperSlug}`}
               >
                 <header className="paper-section-header">
-                  <p className="eyebrow">Paper {paper.paperNumber} · 1905</p>
+                  <p className="eyebrow">{paper.eyebrow}</p>
                   <h2 id={`heading-paper-${paper.paperSlug}`}>{paper.paperTitle}</h2>
                   <p className="fine">{paper.locator}</p>
                 </header>
@@ -250,6 +245,7 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
                   paper.modernOnlySymbols.length > 0 &&
                   !hasActiveFilters && (
                     <ModernOnlySymbolsView
+                      paperSlug={paper.paperSlug}
                       paperTitle={paper.paperTitle}
                       symbols={paper.modernOnlySymbols}
                     />
