@@ -89,10 +89,11 @@
   line-height: 1.2;
 }
 /* The stopping point is the sentence a reader carries back to the passage, so on the lesson's
-   own page the sentence is set large and its heading is a label. */
+   own page the sentence is set large and its heading is a label. Leading as .lead's, the other
+   text at this size; 1.45 was a fourteenth line-height the type ratchet refuses. */
 .foundation-page .foundation-lesson .foundation-stop p {
   font-size: var(--type-lead);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 /* Last, so it wins over the page-size rule above at equal specificity: the two closing parts
    are headed by labels, in every place the lesson renders. */
