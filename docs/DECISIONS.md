@@ -782,3 +782,33 @@ Schema-test JSONL (gitignored artifacts): `artifacts/test-logs/perf-profiles/202
 - **Consequence for the graph:** 20 of 417 open beads reason about workflows or GitHub Actions and need re-scoping. `am-h0nb` ("quality-gates.yml can essentially never complete") is a bead about a runner we do not use. `ciGateWiring.test.ts` (`9a471c86`) is well-built and verified red-on-removal by plant, but asserts "every `requiredInCi` gate is executed by some **workflow job**" — the right assertion pointed at the wrong artefact, and its referent must become the dsr `checks` chain.
 - **Date:** 2026-09-22.
 - **Revisit trigger:** dsr gains or loses the ability to run a check chain for a non-binary project, or the gate chain grows a step that needs a build host rather than this machine.
+
+## D-2026-09-22-equation-colour-per-quantity
+
+- **Question:** the owner asked "what happened to the colored latex equations?". Measured, colour had not been removed.
+  It only ever reached the equations with semantic records (3 brownian-motion, 15 mass-energy, on 7 built pages), and the
+  live site matched the build. Light-quanta and special-relativity equations render as plain KaTeX. Extending colour to
+  every explanation-face equation required choosing the colour channel: three role colours (inputs, results,
+  constants, as shipped on those 7 pages) or one colour per quantity.
+- **Decision:** colour is **per quantity**. Each canonical quantity has one colour, used identically in the equation,
+  the sentence around it, the legend and the show-the-code view. Colours are keyed by canonical quantity id, never by
+  glyph, so the same printed glyph with two meanings gets two colours. Every quantity colour passes WCAG AA as text in
+  both themes, and a non-colour channel is kept (colour never carries meaning alone). The German source face and the
+  facsimile stay as printed.
+- **Decider:** the project owner, 2026-09-22, by selecting verbatim **"Per quantity (Recommended)"**, whose option text
+  read "Each quantity gets its own colour (D, t, η, T…), used identically in the equation, the sentence around it, the
+  legend and the code view. This is the Classic Patents look." The alternative offered was "By role (current)".
+- **Not decided here:** the route is the semantic `Equation` record rendered by `SemanticEquation`. The fenced donor
+  component `src/equations/legacy/ColorizedEquation.tsx` stays fenced.
+- **Date:** 2026-09-22.
+
+## D-2026-09-22-modals-close-outside-and-have-an-x
+
+- **Decision:** every modal (anything that overlays the page: dialogs, sheets, palettes, popovers) closes when the
+  reader clicks or taps anywhere outside it, and always has an X close button in its upper-right corner. Implemented once
+  as a shared behaviour, which also closes on Escape and returns focus to the control that opened it. An inline
+  disclosure that pushes content down (`<details>`, an inline settings drawer) is not a modal and is not required to carry an X.
+- **Decider:** the project owner, 2026-09-22, verbatim: **"any modal should be able to be closed by clicking/tapping
+  anywhere outside of it, and should always have an X button in the upper right corner for good UX"**. The
+  inline-disclosure boundary is the orchestrator's reading (agent:TanElk), not the owner's words. The owner may overrule it.
+- **Date:** 2026-09-22.
