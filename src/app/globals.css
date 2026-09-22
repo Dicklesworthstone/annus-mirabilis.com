@@ -1156,11 +1156,6 @@ samp,
   align-items: baseline;
   gap: 0.5rem;
 }
-.instrument-id {
-  font-family: var(--font-mono);
-  font-size: var(--type-small);
-  color: var(--muted);
-}
 
 .paper-catalogue,
 .journey-catalogue {
