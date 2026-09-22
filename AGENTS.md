@@ -107,11 +107,58 @@ still ran.
 
 ---
 
+## A Tool's Exit Code Is Not Evidence Until You Know What It Examined
+
+A command exits 0 and gets cited as proof. Nobody asks how many things it looked at.
+When the answer is zero, the citation establishes nothing and reads exactly like a
+clean result. This rule was treated as understood for weeks and never written down,
+which is why the four instances below all happened in one session.
+
+**Zero files checked reads as clean. So does zero tests run, zero sites scanned, and
+zero records judged.**
+
+The four, each with the mechanism rather than the moral:
+
+- `bunx biome check $F`, with the paths in a shell variable. **zsh does not
+  word-split an unquoted parameter**, so biome received ONE argument naming no file
+  and printed `Checked 0 files in 1629µs`. The chain continued and "biome clean on
+  all four" went into a commit message. Verify it: in zsh, `F="a b"; set -- $F`
+  gives `$# == 1`; in bash it gives 2. The same mechanism cost a second agent
+  fifteen planted negatives later the same night, where `bun test $SUITES` ran
+  nothing and every plant read as passing.
+- `${PIPESTATUS[0]}` read after a pipe, which returned `tail`'s exit code rather
+  than the command's. **zsh's array is 1-indexed**, so index 0 names the wrong
+  element. Use `${pipestatus[1]}` in zsh, and say which shell you are in.
+- A grep cited as three hits, where the three hits were route listings rather than
+  call sites. The count was right and the population was not the one being described.
+- `cmd | head -1 || echo "(none)"`. **`head` exits 0 on empty input**, so the
+  fallback never fires and four blank lines read as four findings.
+
+The direction is the same every time: a vacuous run is indistinguishable from a clean
+one, and both are green. Nothing in a passing command says "I examined nothing", so
+the absence of an error reads as the presence of a result.
+
+Practically: pass file lists as explicit arguments or an array, never an unquoted
+variable; print what the tool says it examined (`Checked N files`, `Ran N tests`)
+beside the verdict, and treat `N == 0` as a failed citation rather than a pass; run a
+positive control when a sweep comes back clean, because a sweep that cannot fail and
+a sweep with nothing to find look identical; and when a plant is the evidence, print
+what actually landed in the file before reading the verdict, because an anchor that
+did not match produces a green that means nothing.
+
+This is the practice half of the same proposition that `summarize()` got wrong in code
+(am-1hst): a result computed over an empty population is not a clean result. The
+difference is where it lives. That one was a boolean ignoring an argument and was
+fixed in one function; this one is a citation habit with no single site to repair,
+which is why it is recorded here instead.
+
+---
+
 ## A Count Used As Evidence Is Anchored, And Names Its Denominator
 
 A number offered as proof carries two obligations, not one. The denominator rule is
-already law here. This is its other half: **the pattern that produced the count must
-be anchored to the thing being counted.**
+stated in the section above. This is its other half: **the pattern that produced the
+count must be anchored to the thing being counted.**
 
 Four independent instances in a single session, in four different measurements:
 
