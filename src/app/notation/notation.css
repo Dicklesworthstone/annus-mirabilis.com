@@ -226,7 +226,8 @@
   margin: 0;
 }
 .collision-glyph {
-  font-size: 1.55rem;
+  /* A step of the scale, not an invented 1.55rem: typeScaleRatchet counts distinct sizes. */
+  font-size: var(--type-lead);
 }
 .collision-card-desc {
   margin: 0.25rem 0 0.5rem;
@@ -318,7 +319,7 @@
   flex: 0 0 auto;
   min-width: 3rem;
   max-width: 100%;
-  font-size: 1.55rem;
+  font-size: var(--type-lead);
   line-height: 1.2;
 }
 .notation-entry-body {
