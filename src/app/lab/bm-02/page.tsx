@@ -23,7 +23,7 @@ export default function OsmoticPartitionPage() {
         </p>
         <p>
           <a href="/papers/brownian-motion/#arg-bm-observable">
-            Read the argument and open its missing steps →
+            Read the argument and open its missing steps
           </a>
         </p>
       </header>
@@ -57,7 +57,7 @@ export default function OsmoticPartitionPage() {
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-01/">
-            Return to the tracer ensemble →
+            Return to the tracer ensemble
           </a>
           <a href="/papers/brownian-motion/">Return to the argument</a>
         </div>

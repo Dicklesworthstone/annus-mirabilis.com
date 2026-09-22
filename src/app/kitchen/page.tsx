@@ -84,7 +84,7 @@ export default function KitchenGuide() {
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-07/kitchen/">
-            Analyze a local CSV (requires JavaScript) →
+            Analyze a local CSV (requires JavaScript)
           </a>
           <a href="/edition/kitchen/practice.csv" download>
             Download synthetic practice observations
@@ -212,7 +212,7 @@ export default function KitchenGuide() {
           </p>
         </details>
         <div className="actions">
-          <a href="/lab/bm-08/">Explore what a camera changes →</a>
+          <a href="/lab/bm-08/">Explore what a camera changes</a>
           <a href="/papers/brownian-motion/#arg-bm-inference">
             Return to the Brownian inference argument
           </a>

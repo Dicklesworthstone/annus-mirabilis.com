@@ -15,7 +15,7 @@ export default function BrownianDataPage() {
           the selected observation model admits them before interpreting an estimate.
         </p>
         <p>
-          <a href="/lab/bm-07/">Return to the synthetic inference exercise and derivation →</a>
+          <a href="/lab/bm-07/">Return to the synthetic inference exercise and derivation</a>
         </p>
       </header>
       <section className="reading" aria-labelledby="trajectory-format">
@@ -49,11 +49,11 @@ export default function BrownianDataPage() {
           diagnostic, never silently replaced by a plausible positive answer.
         </p>
         <p>
-          <a href="/lab/bm-08/">Explore how a camera changes the inference →</a>
+          <a href="/lab/bm-08/">Explore how a camera changes the inference</a>
         </p>
         <p>
           <a href="/papers/brownian-motion/#arg-bm-inference">
-            Return to the paper’s inverse argument →
+            Return to the paper’s inverse argument
           </a>
         </p>
       </section>

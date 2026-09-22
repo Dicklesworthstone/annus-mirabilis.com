@@ -24,7 +24,7 @@ export default function LightThreadPage() {
           paper’s conclusion into another’s hidden premise.
         </p>
         <p>
-          <a href="/connections">Explore the connections among the papers →</a>
+          <a href="/connections">Explore the connections among the papers</a>
         </p>
       </header>
       <LightThreadLab />

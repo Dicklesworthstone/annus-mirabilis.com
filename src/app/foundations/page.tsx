@@ -25,7 +25,7 @@ export default async function Page() {
         <p className="fine">
           Newly authored explanatory previews; editorial review remains pending.
         </p>
-        <a href="/papers/brownian-motion/">Read the Brownian argument →</a>
+        <a href="/papers/brownian-motion/">Read the Brownian argument</a>
       </header>
       <div className="foundation-grid">
         {lessons.map((f) => (

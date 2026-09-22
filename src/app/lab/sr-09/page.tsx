@@ -27,7 +27,7 @@ export default function DopplerAberrationPage() {
           How do the frequency and propagation direction of light transform between frames?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s7">Read §7 of the 1905 relativity paper →</a>
+          <a href="/papers/special-relativity/#s7">Read §7 of the 1905 relativity paper</a>
         </p>
       </header>
 
@@ -53,7 +53,7 @@ export default function DopplerAberrationPage() {
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s7">
-            Return to paper section 7 →
+            Return to paper section 7
           </a>
         </div>
       </section>

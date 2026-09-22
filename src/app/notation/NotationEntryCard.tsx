@@ -192,7 +192,7 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
           data-first-use-anchor={entry.sources.anchor}
         >
           First use in edition: {entry.sources.anchor}
-          {entry.sources.facsimilePage ? ` (p. ${entry.sources.facsimilePage})` : ""} →
+          {entry.sources.facsimilePage ? ` (p. ${entry.sources.facsimilePage})` : ""}
         </a>
       </footer>
     </article>

@@ -28,7 +28,7 @@ export default function ElectronDynamicsPage() {
           electron, and why do two different &ldquo;transverse masses&rdquo; appear?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s10">Read §10 of the 1905 relativity paper →</a>
+          <a href="/papers/special-relativity/#s10">Read §10 of the 1905 relativity paper</a>
         </p>
       </header>
 
@@ -77,7 +77,7 @@ export default function ElectronDynamicsPage() {
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s10">
-            Return to paper section 10 →
+            Return to paper section 10
           </a>
         </div>
       </section>

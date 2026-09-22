@@ -27,7 +27,7 @@ export default function FieldEquationsPage() {
           the electric and magnetic fields do?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s6">Read §6 of the 1905 relativity paper →</a>
+          <a href="/papers/special-relativity/#s6">Read §6 of the 1905 relativity paper</a>
         </p>
       </header>
       <FieldEquationsComparison
@@ -51,7 +51,7 @@ export default function FieldEquationsPage() {
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s6">
-            Return to paper section 6 →
+            Return to paper section 6
           </a>
           <a href="/lab/sr-08/">SR-08: Fields in two frames</a>
         </div>

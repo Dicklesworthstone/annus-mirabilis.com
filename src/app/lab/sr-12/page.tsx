@@ -28,7 +28,7 @@ export default function ChargeCurrentPage() {
           neutral current-carrying wire charged in a moving frame?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s9">Read §9 of the 1905 relativity paper →</a>
+          <a href="/papers/special-relativity/#s9">Read §9 of the 1905 relativity paper</a>
         </p>
       </header>
 
@@ -65,7 +65,7 @@ export default function ChargeCurrentPage() {
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s9">
-            Return to paper section 9 →
+            Return to paper section 9
           </a>
           <a href="/lab/sr-08/">SR-08: Field frame change</a>
         </div>

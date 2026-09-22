@@ -23,8 +23,8 @@ export default function BrownianInvestigationPage() {
           measurement.
         </p>
         <div className="actions">
-          <a href="/discover/brownian-motion/">Read the no-algebra encounter →</a>
-          <a href="/papers/brownian-motion/#arg-bm-observable">Return to the paper’s argument →</a>
+          <a href="/discover/brownian-motion/">Read the no-algebra encounter</a>
+          <a href="/papers/brownian-motion/#arg-bm-observable">Return to the paper’s argument</a>
         </div>
       </header>
       <BrownianInvestigation tracerExample={tracerExample} spreadExample={spreadExample} />

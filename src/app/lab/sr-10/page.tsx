@@ -27,7 +27,7 @@ export default function LightComplexPage() {
           How do the energy and volume of a bounded light complex transform between frames?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s8">Read §8 of the 1905 relativity paper →</a>
+          <a href="/papers/special-relativity/#s8">Read §8 of the 1905 relativity paper</a>
         </p>
       </header>
 
@@ -71,7 +71,7 @@ export default function LightComplexPage() {
         />
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s8">
-            Return to paper section 8 →
+            Return to paper section 8
           </a>
         </div>
       </section>

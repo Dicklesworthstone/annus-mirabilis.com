@@ -18,20 +18,20 @@ export default function TracerPage() {
           from growth of their squares, and see why looking more often does not reveal one intrinsic
           Brownian speed.
         </p>
-        <a href="/discover/brownian-motion/">Start with the no-algebra encounter →</a>
+        <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>
         <p>
           <a href="/papers/brownian-motion/#arg-bm-observable">
-            Read the argument and open its missing steps →
+            Read the argument and open its missing steps
           </a>
         </p>
         <p>
           <a className="button" href="/discover/brownian-motion/investigate/">
-            Pin a trial, compare intervals, and carry D into the spreading lab →
+            Pin a trial, compare intervals, and carry D into the spreading lab
           </a>
         </p>
         <p>
           <a className="button" href="/lab/bm-01/compare/">
-            Change one input: compare radius, viscosity, temperature or observation interval →
+            Change one input: compare radius, viscosity, temperature or observation interval
           </a>
         </p>
       </header>
@@ -59,7 +59,7 @@ export default function TracerPage() {
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-06/">
-            Ask an interval-probability question →
+            Ask an interval-probability question
           </a>
           <a href="/discover/brownian-motion/">Return to the argument</a>
         </div>

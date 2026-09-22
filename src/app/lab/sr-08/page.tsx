@@ -28,7 +28,7 @@ export default function FieldFrameChangePage() {
           test charge experience in each frame?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s6">Read §6 of the 1905 relativity paper →</a>
+          <a href="/papers/special-relativity/#s6">Read §6 of the 1905 relativity paper</a>
         </p>
       </header>
 
@@ -57,7 +57,7 @@ export default function FieldFrameChangePage() {
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s6">
-            Return to paper section 6 →
+            Return to paper section 6
           </a>
           <a href="/lab/sr-02/">SR-02: Magnet and conductor</a>
         </div>

@@ -59,8 +59,8 @@ export default function NotebookPage() {
         </p>
       </noscript>
       <div className="actions">
-        <a href="/papers/">Open the papers and outlines →</a>
-        <a href="/discover/brownian-motion/">Start with the Brownian encounter →</a>
+        <a href="/papers/">Open the papers and outlines</a>
+        <a href="/discover/brownian-motion/">Start with the Brownian encounter</a>
       </div>
     </article>
   );

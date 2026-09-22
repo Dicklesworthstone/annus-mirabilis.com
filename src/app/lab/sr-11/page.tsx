@@ -29,7 +29,7 @@ export default function MovingMirrorPage() {
           mirror&apos;s mechanical work?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s8">Read §8 of the 1905 relativity paper →</a>
+          <a href="/papers/special-relativity/#s8">Read §8 of the 1905 relativity paper</a>
         </p>
       </header>
 
@@ -72,7 +72,7 @@ export default function MovingMirrorPage() {
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s8">
-            Return to paper section 8 →
+            Return to paper section 8
           </a>
         </div>
       </section>

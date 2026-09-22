@@ -22,10 +22,10 @@ export default function WalkPage() {
           changing its variance. Then see what adding many independent steps preserves, and which
           assumptions the argument needs.
         </p>
-        <a href="/discover/brownian-motion/">Start with the no-algebra encounter →</a>
+        <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>
         <p>
           <a href="/papers/brownian-motion/#arg-bm-independent-steps">
-            Read the argument and open its missing steps →
+            Read the argument and open its missing steps
           </a>
         </p>
       </header>
@@ -74,7 +74,7 @@ export default function WalkPage() {
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-06/">
-            Explore the resulting Gaussian spread →
+            Explore the resulting Gaussian spread
           </a>
           <a href="/lab/bm-01/">Return to the tracer ensemble</a>
         </div>

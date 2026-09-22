@@ -23,10 +23,10 @@ export default function InferencePage() {
           independently?
         </p>
         <p>
-          <a href="/papers/brownian-motion/#arg-bm-inference">Read the inference argument →</a>
+          <a href="/papers/brownian-motion/#arg-bm-inference">Read the inference argument</a>
         </p>
         <p>
-          <a href="/lab/brownian-data/">Bring your own calibrated trajectory CSV →</a>
+          <a href="/lab/brownian-data/">Bring your own calibrated trajectory CSV</a>
         </p>
       </header>
       <InferenceComparison example={{ ...example, parameters: checked.data }} />
@@ -134,12 +134,12 @@ export default function InferencePage() {
         </p>
         <p>
           <a href="/lab/bm-08/">
-            Next: keep the particle, change the camera, and test the inference →
+            Next: keep the particle, change the camera, and test the inference
           </a>
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-01/">
-            Return to the tracer ensemble →
+            Return to the tracer ensemble
           </a>
           <a href="/lab/bm-06/">Compare with the predicted spread</a>
         </div>

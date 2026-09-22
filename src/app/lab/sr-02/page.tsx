@@ -26,7 +26,7 @@ export default function MagnetConductorPage() {
           agree on what is measured to first order in v/c.
         </p>
         <p>
-          <a href="/papers/">The four-paper catalogue (source edition in preparation) →</a>
+          <a href="/papers/">The four-paper catalogue (source edition in preparation)</a>
         </p>
       </header>
       <MagnetConductorComparison example={{ ...example, parameters: checked.data }} />
@@ -52,7 +52,7 @@ export default function MagnetConductorPage() {
         </p>
         <div className="actions">
           <a className="button" href="/papers/">
-            Return to the four papers →
+            Return to the four papers
           </a>
           <a href="/lab/me-02/">A mass-energy laboratory that is already open</a>
         </div>

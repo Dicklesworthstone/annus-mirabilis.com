@@ -29,7 +29,7 @@ export default function CoefficientPage() {
         </p>
         <p>
           <a href="/papers/mass-energy/#arg-me-small-speed">
-            Read the coefficient argument (explanatory preview) →
+            Read the coefficient argument (explanatory preview)
           </a>
         </p>
       </header>
@@ -77,7 +77,7 @@ export default function CoefficientPage() {
         </p>
         <div className="actions">
           <a className="button" href="/papers/mass-energy/#arg-me-small-speed">
-            Return to the small-speed argument →
+            Return to the small-speed argument
           </a>
           <a href="/papers/mass-energy/#entry-mass-energy">
             Compare two energy accounts without algebra

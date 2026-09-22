@@ -25,7 +25,7 @@ export default async function OfflinePage() {
           translation, and review remain separate work. No private notebook data is read or
           included.
         </p>
-        <a href="/papers/">Return to the papers →</a>
+        <a href="/papers/">Return to the papers</a>
       </header>
       {papers.length > 0 ? (
         papers.map((paperId) => <OfflineChapterLinks key={paperId} paperId={paperId} />)

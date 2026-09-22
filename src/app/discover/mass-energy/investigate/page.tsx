@@ -69,9 +69,9 @@ export default function MassEnergyArgumentPage() {
           E = K + C. Whether that offset changes is a premise to inspect, not an algebraic detail.
         </p>
         <p>
-          <a href="/lab/sr-10/">Inspect the imported finite-light-complex transformation →</a>{" "}
+          <a href="/lab/sr-10/">Inspect the imported finite-light-complex transformation</a>{" "}
           <a href="/lab/me-01/#two-ledgers-argument">
-            Read the two-ledger equations and their source context →
+            Read the two-ledger equations and their source context
           </a>
         </p>
       </section>
@@ -123,7 +123,7 @@ export default function MassEnergyArgumentPage() {
             v approaches zero. A zero-speed run alone gives zero kinetic-energy difference; dividing
             that result by zero is not the limit calculation.
           </p>
-          <a href="/lab/me-02/">Compare the proxy, approximation and analytic limit in ME-02 →</a>
+          <a href="/lab/me-02/">Compare the proxy, approximation and analytic limit in ME-02</a>
         </details>
         <details>
           <summary>Include the emitted light inside your system boundary. What changed?</summary>
@@ -133,7 +133,7 @@ export default function MassEnergyArgumentPage() {
             statement about energy lost by the body to that larger system without a new account.
             Unequal pulses would also require a recoil calculation absent from this reconstruction.
           </p>
-          <a href="/lab/me-03/">Change the system boundary in ME-03 →</a>
+          <a href="/lab/me-03/">Change the system boundary in ME-03</a>
         </details>
       </section>
 
@@ -151,7 +151,7 @@ export default function MassEnergyArgumentPage() {
       </section>
       <footer className="reading actions">
         <a className="button" href="/papers/mass-energy/#arg-me-two-ledgers">
-          Return to the explanatory paper preview →
+          Return to the explanatory paper preview
         </a>
         <a href="/discover/mass-energy/">See the full discovery journey’s publication status</a>
         <a href="/lab/me-02/">Continue to the small-speed coefficient</a>

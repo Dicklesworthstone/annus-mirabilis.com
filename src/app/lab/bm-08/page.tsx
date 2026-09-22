@@ -25,7 +25,7 @@ export default function CameraPage() {
           same path.
         </p>
         <p>
-          <a href="/lab/bm-07/">Start with ideal molecular-number inference →</a> ·{" "}
+          <a href="/lab/bm-07/">Start with ideal molecular-number inference</a> ·{" "}
           <a href="/papers/brownian-motion/#arg-bm-inference">Return to the argument</a>
         </p>
       </header>
@@ -113,7 +113,7 @@ export default function CameraPage() {
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-07/">
-            Return to ideal inference →
+            Return to ideal inference
           </a>
           <a href="/lab/bm-01/">Return to the tracer ensemble</a>
         </div>

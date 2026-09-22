@@ -28,7 +28,7 @@ export default function ConnectionsPage() {
         </p>
         <p>
           <a className="button" href="/lab/light-thread">
-            Open the light-thread laboratory →
+            Open the light-thread laboratory
           </a>
         </p>
       </section>
@@ -44,7 +44,7 @@ export default function ConnectionsPage() {
         </p>
         <p>
           <a className="button" href="/lab/avogadro-lab">
-            Open the three-method comparison →
+            Open the three-method comparison
           </a>
         </p>
       </section>
@@ -89,7 +89,7 @@ export default function ConnectionsPage() {
           testing that law.
         </p>
         <p>
-          <a href="/">Return to the four papers →</a>
+          <a href="/">Return to the four papers</a>
         </p>
       </section>
     </>

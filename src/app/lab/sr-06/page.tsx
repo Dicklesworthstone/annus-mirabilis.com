@@ -27,7 +27,7 @@ export default function VelocityCompositionPage() {
           along one line?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s5">Read §5 of the 1905 kinematics paper →</a>
+          <a href="/papers/special-relativity/#s5">Read §5 of the 1905 kinematics paper</a>
         </p>
       </header>
       <VelocityCompositionComparison
