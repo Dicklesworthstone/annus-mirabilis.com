@@ -135,12 +135,21 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // computes overflow-x VISIBLE on the page - measured 358px wide with scrollWidth 453 at 390px.
   // Wiring that stylesheet up changes 42 pages, which is an ownership decision, not a mobile fix:
   // am-orphaned-stylesheets-5u3c.
-  "/foundations/logarithms/@320", // +149px
-  "/foundations/logarithms/@360", // +109px
-  "/foundations/logarithms/@390", // +79px
   "/foundations/taylor-expansion/@320", // +85px
   "/foundations/taylor-expansion/@360", // +45px
   "/foundations/taylor-expansion/@390", // +15px
+  // WHAT THE ORPHANED-STYLESHEET WIRING REACHED, AND WHAT IT COULD NOT.
+  //
+  // 0e50a762 and e684aae1 made foundations.css live, so its
+  // `.construction-table-wrap { overflow-x: auto }` finally applies. Measured on build
+  // oHPd2JiH5los7k6SuuBJz: /foundations/logarithms/ at all three widths and
+  // /foundations/exponentials/@320 are contained and have left this list.
+  //
+  // The two that remain do not use that wrapper, which is why a stylesheet fix could not reach
+  // them - counted in the built HTML rather than assumed: logarithms 1, exponentials 1,
+  // partial-derivatives 0, taylor-expansion 0. partial-derivatives wraps its table in
+  // div.thermodynamics-held-fixed-comparison, which has no overflow rule; taylor-expansion has no
+  // wrapper at all, its table.data-table being a direct child of the section.
   "/foundations/partial-derivatives/@320", // +47px
   // Added one cycle after the rest of this list, and the gate is how it was found rather than a
   // guess. It was NOT overflowing at 360 when the baseline was derived; a type-scale change landed
@@ -152,7 +161,6 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // /foundations/exponentials/ was filed under "rendered mathematics" and belongs here: its
   // offender is table.data-table inside div.construction-table-wrap, the same inert wrapper as
   // its three siblings above. Re-measured, not inherited.
-  "/foundations/exponentials/@320",
 
   // A ROW THAT WILL NOT WRAP. Same class as the .predict-mode-tabs defect already repaired on
   // /lab/me-02/: two 240px button.secondary elements side by side on /lab/lq-07/, a 167px
