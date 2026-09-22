@@ -191,14 +191,6 @@ export function CameraLab({
           <p className="eyebrow">BM-08 · Observe, then infer</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <ExecutionChrome
-          state={isStatic ? "static-example" : "host-accepted"}
-          view={view}
-          modelNote={modelNoteFromView(view, {
-            notModeled:
-              "Higher-order optical aberrations; only uniform exposure blur and Gaussian localization error.",
-          })}
-        />
       </header>
       <noscript>
         <p className="notice">
@@ -286,7 +278,7 @@ export function CameraLab({
                 not clicks on the moving particle.
               </p>
             </fieldset>
-            <details>
+            <details className="experiment-settings">
               <summary>3 · Change the physical setup</summary>
               <fieldset disabled={!ready}>
                 <legend>These changes start a new physical run</legend>
@@ -395,9 +387,6 @@ export function CameraLab({
           {note && <p className="notice">{note}</p>}
         </div>
         <div className="lab-results camera-results">
-          <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
-            {status}
-          </p>
           {view.refusal && (
             <div className="notice error" data-refusal-code={view.refusal.code}>
               <p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>
@@ -427,12 +416,6 @@ export function CameraLab({
               </button>
             </div>
           )}
-          <p className="accepted-caption">
-            Accepted physical seed {p.seed}; D = {display(p.D, 1e12)} μm²/s; {p.M + 1} frames in{" "}
-            {p.d} coordinate{p.d === 1 ? "" : "s"}; spacing {display(p.dt)} s; exposure{" "}
-            {display(p.exposure)} s; localization error {display(p.sigma, 1e6)} μm. Stage drift{" "}
-            {display(p.stageDrift, 1e6)} μm/s; fluid drift {display(p.flowDrift, 1e6)} μm/s.
-          </p>
           <CameraPath snapshot={snapshot} />
           <h3>Four estimates, different assumptions</h3>
           <table>
@@ -456,6 +439,25 @@ export function CameraLab({
               ))}
             </tbody>
           </table>
+          <div className="lab-status-row">
+            <ExecutionChrome
+              state={isStatic ? "static-example" : "host-accepted"}
+              view={view}
+              modelNote={modelNoteFromView(view, {
+                notModeled:
+                  "Higher-order optical aberrations; only uniform exposure blur and Gaussian localization error.",
+              })}
+            />
+          </div>
+          <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
+            {status}
+          </p>
+          <p className="accepted-caption">
+            Accepted physical seed {p.seed}; D = {display(p.D, 1e12)} μm²/s; {p.M + 1} frames in{" "}
+            {p.d} coordinate{p.d === 1 ? "" : "s"}; spacing {display(p.dt)} s; exposure{" "}
+            {display(p.exposure)} s; localization error {display(p.sigma, 1e6)} μm. Stage drift{" "}
+            {display(p.stageDrift, 1e6)} μm/s; fluid drift {display(p.flowDrift, 1e6)} μm/s.
+          </p>
           <p className="fine">
             The covariance estimate uses the explicitly known synthetic drift, not a secretly fitted
             mean. It has no general confidence interval here. The pair procedure fits drift within
