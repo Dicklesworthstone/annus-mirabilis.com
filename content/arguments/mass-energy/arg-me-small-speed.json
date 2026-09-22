@@ -59,7 +59,7 @@
           "Replace β² by v²/c² and compare with the Newtonian coefficient (m₀ − m₁)/2.",
           "At a nonzero finite speed the ratio 2L(γ − 1)/v² still contains higher-order terms. It is not the limiting coefficient.",
           "At exactly zero speed do not calculate 0/0. Evaluate the analytic limit separately.",
-          "ME-02 displays the exact drop, quadratic estimate, finite-speed proxy, and limiting coefficient as distinct quantities."
+          "The kinetic-energy laboratory displays the exact drop, quadratic estimate, finite-speed proxy, and limiting coefficient as distinct quantities."
         ]
       }
     ],

@@ -43,7 +43,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Keep a non-integer effective coefficient as it stands. The entropy comparison concerns a macroscopic relation, not a directly observed list of individual packets. In LQ-06, compare the coefficients before revealing their interpretation."
+        "text": "Keep a non-integer effective coefficient as it stands. The entropy comparison concerns a macroscopic relation, not a directly observed list of individual packets. In the entropy-comparison laboratory, compare the coefficients before revealing their interpretation."
       },
       {
         "kind": "foundation",

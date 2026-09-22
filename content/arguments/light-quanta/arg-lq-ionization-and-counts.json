@@ -47,7 +47,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "LQ-09 separates incident energy, absorbed fraction, threshold, and conversion assumptions. Its historical checks use their own stated units; this explanation does not infer a new gas species or a real-material yield from a threshold slider."
+        "text": "The ionization laboratory separates incident energy, absorbed fraction, threshold, and conversion assumptions. Its historical checks use their own stated units; this explanation does not infer a new gas species or a real-material yield from a threshold slider."
       },
       {
         "kind": "foundation",

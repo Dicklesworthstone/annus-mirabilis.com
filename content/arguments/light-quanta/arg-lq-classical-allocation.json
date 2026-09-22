@@ -41,7 +41,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "At fixed positive temperature, doubling the cutoff multiplies this finite-range total by eight. Extending the model to arbitrarily high frequencies produces an unbounded total. LQ-02 keeps that failure distinct from the finite portion displayed on screen."
+        "text": "At fixed positive temperature, doubling the cutoff multiplies this finite-range total by eight. Extending the model to arbitrarily high frequencies produces an unbounded total. The resonator laboratory keeps that failure distinct from the finite portion displayed on screen."
       },
       {
         "kind": "foundation",

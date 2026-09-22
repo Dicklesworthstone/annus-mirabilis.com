@@ -36,7 +36,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Charge conservation requires density and current to satisfy the continuity equation together. SR-12 compares these quantities and the total charge of a specified body. Integrating the same body over each frame’s simultaneous slice preserves its total charge; arbitrary open spatial boxes are a different comparison."
+        "text": "Charge conservation requires density and current to satisfy the continuity equation together. The charge-and-current laboratory compares these quantities and the total charge of a specified body. Integrating the same body over each frame’s simultaneous slice preserves its total charge; arbitrary open spatial boxes are a different comparison."
       },
       {
         "kind": "foundation",

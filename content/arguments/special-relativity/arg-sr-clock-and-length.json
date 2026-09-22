@@ -36,7 +36,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "For the clock, use ticks at the same place in its rest frame. For the rod, set the endpoint measurement times equal in the measuring frame. SR-03 and SR-05 let the reader inspect those constraints separately."
+        "text": "For the clock, use ticks at the same place in its rest frame. For the rod, set the endpoint measurement times equal in the measuring frame. The simultaneity laboratory and the moving-clock laboratory let the reader inspect those constraints separately."
       },
       {
         "kind": "formula",
