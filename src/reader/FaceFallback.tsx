@@ -16,6 +16,22 @@ export interface FaceFallbackOptions {
   readonly facsimileLoader?: typeof loadFacsimileDocument;
 }
 
+/*
+  What each face is called inside a sentence. It was the chooser label lowercased, which wrote
+  "The english translation for this paper is not yet available" on all four papers - a language
+  name is capitalised in English - and "The parallel bilingual for this paper", an adjective with
+  no noun. One phrase per face, and the Record makes a new face bring its own.
+*/
+const FACE_IN_A_SENTENCE: Readonly<Record<FaceFallbackId, string>> = {
+  german: "German source text",
+  english: "English translation",
+  gloss: "interlinear gloss",
+  parallel: "parallel German and English text",
+  results: "results summary",
+  facsimile: "facsimile",
+  split: "split view",
+};
+
 export async function FaceFallback(
   {
     paperId,
@@ -134,8 +150,8 @@ export async function FaceFallback(
               facsimile.message
             ) : (
               <>
-                The {label.toLowerCase()} for this paper is not yet available. The explanation does
-                not stand in for that source layer.
+                The {FACE_IN_A_SENTENCE[face]} for this paper is not yet available. The explanation
+                does not stand in for that source layer.
               </>
             )}
           </p>
