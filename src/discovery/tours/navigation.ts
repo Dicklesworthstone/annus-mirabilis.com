@@ -1,4 +1,4 @@
-import { getGuidedTour, getTourStop, type GuidedTour, type TourStop } from "./catalogue.ts";
+import { type GuidedTour, getGuidedTour, getTourStop, type TourStop } from "./catalogue.ts";
 
 const KEYS = ["tour", "tourStop", "tourRevision"] as const;
 export const TOUR_LINK_LIMIT = 4096;
@@ -10,6 +10,33 @@ export type TourDecode =
   | Readonly<{ kind: "position"; position: TourPosition }>;
 const invalid = (message: string): TourDecode => ({ kind: "invalid", message });
 
+export type TourRefusalCode =
+  | "tour-position-unknown"
+  | "tour-destination-external"
+  | "tour-path-not-local";
+
+/** A refused tour navigation, carrying a code the refusal scanner and the tests can name. */
+export class TourNavigationError extends Error {
+  readonly code: TourRefusalCode;
+  constructor(code: TourRefusalCode, message: string) {
+    super(message);
+    this.name = "TourNavigationError";
+    this.code = code;
+  }
+}
+
+/** A stop's href resolved against the edition. A stop whose href leaves the edition is refused. */
+export function localTourUrl(href: string): URL {
+  const url = new URL(href, "https://tour.invalid");
+  if (url.origin !== "https://tour.invalid" || !href.startsWith("/")) {
+    throw new TourNavigationError(
+      "tour-destination-external",
+      "A guided tour must stay in the edition.",
+    );
+  }
+  return url;
+}
+
 export function resolveTourPosition(position: TourPosition): TourSelection | null {
   const tour = getGuidedTour(position.tourId);
   if (!tour || tour.revision !== position.revision) return null;
@@ -20,7 +47,8 @@ export function resolveTourPosition(position: TourPosition): TourSelection | nul
 
 export function tourPosition(tour: GuidedTour, stop: TourStop): TourPosition {
   const position = { tourId: tour.id, stopId: stop.id, revision: tour.revision };
-  if (!resolveTourPosition(position)) throw new Error("Unknown guided tour position.");
+  if (!resolveTourPosition(position))
+    throw new TourNavigationError("tour-position-unknown", "Unknown guided tour position.");
   return position;
 }
 
@@ -36,7 +64,9 @@ export function decodeTourPosition(search: string): TourDecode {
   if (!tour) return invalid("This guided tour is not in the catalogue.");
   // Exact revision comparison: do not silently put an old bookmark into a changed sequence.
   if (query.get("tourRevision") !== String(tour.revision)) {
-    return invalid("This bookmark uses a different tour revision. Choose a stop from the current tour outline.");
+    return invalid(
+      "This bookmark uses a different tour revision. Choose a stop from the current tour outline.",
+    );
   }
   const stop = getTourStop(tour, query.get("tourStop") ?? "");
   return stop
@@ -47,11 +77,9 @@ export function decodeTourPosition(search: string): TourDecode {
 /** The only destinations are authored local paths. No caller-supplied redirect is accepted. */
 export function tourDestination(position: TourPosition): string {
   const selected = resolveTourPosition(position);
-  if (!selected) throw new Error("Unknown guided tour position.");
-  const url = new URL(selected.stop.href, "https://tour.invalid");
-  if (url.origin !== "https://tour.invalid" || !selected.stop.href.startsWith("/")) {
-    throw new Error("A guided tour must stay in the edition.");
-  }
+  if (!selected)
+    throw new TourNavigationError("tour-position-unknown", "Unknown guided tour position.");
+  const url = localTourUrl(selected.stop.href);
   url.searchParams.set("tour", selected.tour.id);
   url.searchParams.set("tourStop", selected.stop.id);
   url.searchParams.set("tourRevision", String(selected.tour.revision));
@@ -64,7 +92,10 @@ export function tourOutline(position: TourPosition): string {
   return `/tours/${selected.tour.id}/#tour-stop-${selected.stop.id}`;
 }
 
-export function adjacentTourPosition(position: TourPosition, direction: -1 | 1): TourPosition | null {
+export function adjacentTourPosition(
+  position: TourPosition,
+  direction: -1 | 1,
+): TourPosition | null {
   const selected = resolveTourPosition(position);
   if (!selected) return null;
   const stop = selected.tour.stops[selected.index + direction];
@@ -83,7 +114,7 @@ export function tourMatchesPath(position: TourPosition, pathname: string): boole
 /** End a tour without throwing away experiment settings, reader options, or the source anchor. */
 export function leaveTourHref(pathname: string, search: string, hash: string): string {
   if (!/^\/(?!\/)/.test(pathname) || /[?#\\\r\n]/.test(pathname)) {
-    throw new Error("Expected a local edition path.");
+    throw new TourNavigationError("tour-path-not-local", "Expected a local edition path.");
   }
   const query = new URLSearchParams(search);
   for (const key of KEYS) query.delete(key);
