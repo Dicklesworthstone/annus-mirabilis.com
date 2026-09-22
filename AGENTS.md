@@ -154,6 +154,39 @@ which is why it is recorded here instead.
 
 ---
 
+## A Count Is For Reporting, Not For Asserting
+
+The section below is about counts offered as **evidence**. This is its boundary, and it was
+learned by the rule above doing harm.
+
+`receipt.test.ts` asserted `typos.length === 6` under a comment reading *"Denominator named: six
+records on this receipt, three of them retracted"*. That is the anchoring rule, applied
+faithfully, to the wrong kind of statement. Naming a denominator makes a **measurement**
+auditable. Freezing one into an equality makes a **test** brittle. The receipt's list of
+typographical errors grows every time a plate turns up a misprint, so the assertion broke on
+correct work within the day: recording `err-typo-p908-1`, a comma the 1905 compositor dropped,
+took the file from six records to seven and turned the test red while nothing it protects had
+changed.
+
+Worse, the stale census sat **above** the checks that mattered, so it aborted the test before
+the retraction property was ever evaluated. A brittle count does not merely fail; it hides what
+it was standing in front of. The same shape cost a session earlier when
+`assert.equal(units.length, 87)` aborted above the assertion someone was reasoning about.
+
+So:
+
+- **Report** a count: anchor it, name its denominator, say what command produced it.
+- **Assert** a property: every record is in exactly one bucket; a retracted correction is never
+  served as live; a record with no retraction is always served as live. These hold at any size.
+- **Assert identity, not census, when the members are permanent.** A retraction is kept and
+  marked, never deleted, so naming `typo-h-for-y-axis-p899`, `err-typo-p899-1` and
+  `err-typo-p902-1` by id is stable in a way counting them is not, and it states the historical
+  fact the receipt exists to record rather than an arithmetic coincidence.
+- **Replace the census with explicit non-vacuity.** A count assertion often guards emptiness by
+  accident: drop it and a receipt whose records were all live would iterate the retraction loop
+  zero times and pass while proving nothing. Assert `retracted.length > 0` and `live.length > 0`
+  on purpose, with the reason written down.
+
 ## A Count Used As Evidence Is Anchored, And Names Its Denominator
 
 A number offered as proof carries two obligations, not one. The denominator rule is
