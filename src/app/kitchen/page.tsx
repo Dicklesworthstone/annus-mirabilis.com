@@ -29,13 +29,16 @@ export default function KitchenGuide() {
           <br />
           Keep the evidence.
         </h1>
-        <p className="notice">
-          Start with the supplied synthetic CSV. You do not need biological samples, powders,
-          ultraviolet sources or radioactive materials.
-        </p>
         <p className="lead">
           A visible wandering track, a diffusion measurement and a molecular-number inference answer
           different questions. You can stop after observing without having failed to count anything.
+        </p>
+        {/* After the lead, not before it: the page used to open on this box, so the first thing a
+            reader met was a list of materials they would not need, radioactive ones included,
+            before being told what the page is for. */}
+        <p className="callout-note">
+          Start with the synthetic practice file this page supplies. You need no biological samples,
+          powders, ultraviolet sources or radioactive materials.
         </p>
       </header>
       <section className="reading">
