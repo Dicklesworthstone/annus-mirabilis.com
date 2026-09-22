@@ -1,5 +1,5 @@
 /**
- * Design tokens for the three themes (am-design-themes-typography-288q).
+ * Design tokens for the two themes (am-design-themes-typography-288q).
  * Values are verified against real WCAG contrast math in contrast.test.ts,
  * which imports contrastRatio from src/a11y/readingSettings/contrast.ts
  * rather than reimplementing it (that module already owns the ratio
@@ -27,12 +27,17 @@ export interface ThemeTokens {
   /**
    * The panel tint used behind notices, tables and inset blocks.
    * It existed only in globals.css's :root and was never given a per-theme
-   * value, so every `background: var(--wash)` rule painted Annalen's light
-   * beige in the dark themes too: near-white --ink on #e5ded0 is 1.07:1 in
-   * Kramgasse Night and 1.16:1 in Slate, which is unreadable body copy, not a
-   * cosmetic slip. The dark values below are derived to reproduce Annalen's
-   * OWN relationships rather than invented: Annalen reads ink 13.14, muted
-   * 5.50, and wash-vs-paper 1.086.
+   * value, so every `background: var(--wash)` rule painted Annalen's paper
+   * tone in the dark themes too, which is unreadable body copy rather than a
+   * cosmetic slip. Both themes now carry the same four relationships, so a
+   * token added to one has an unambiguous counterpart in the other.
+   *
+   * The figures this comment used to quote were wrong, which is worth
+   * recording because they were quoted onward as if measured: it claimed
+   * "Annalen reads ink 13.14, muted 5.50". Recomputed with contrastRatio
+   * against the palette that was actually in the file, Annalen read ink
+   * 14.271 and muted 5.974. Only wash-vs-paper 1.086 was right. The new dark
+   * theme is derived against the RECOMPUTED light ratios, not the quoted ones.
    */
   readonly wash: string;
   readonly plotDarkfield: string;
@@ -55,30 +60,77 @@ export const DEFAULT_THEME: ThemeId = "annalen";
 export const FOLLOW_SYSTEM_VALUE = "follow-system";
 
 /**
- * Annalen's values are the placeholder's own reference implementation
- * (docs/design/placeholder/style.css), which the project owner asked to
- * keep; they may change only with a recorded reason and a contrast rerun.
+ * ANNALEN IS MEASURED FROM THE PLATES. The values were the placeholder's own
+ * reference implementation (docs/design/placeholder/style.css), kept on the
+ * owner's instruction under a stated change procedure: "they may change only
+ * with a recorded reason and a contrast rerun". This is that change. The
+ * recorded reason is the owner's, 2026-09-22: the design is abysmal, and
+ * #eee7d7 is a warm cream near #F4F1EA, which is the first of the three looks
+ * AI design collapses into regardless of subject. The contrast rerun is
+ * contrast.test.ts, which pins every value below.
+ *
+ * HOW THEY WERE MEASURED, so the next person can re-derive rather than trust.
+ * artifacts/page-images holds 200 dpi renders of the 1905 printing. Over all
+ * 100 PNGs, cropped to the central 80% so the scanner's dark page edge cannot
+ * pose as ink, per-page histograms give:
+ *
+ *   paper = the dominant tone   median 251   (min 242, p25 250, p75 252, max 255)
+ *   ink   = the 0.5th percentile median  63   (min  11, p25  51, p75  72, max  95)
+ *
+ * Spot check at full resolution, artifacts/page-images/ap-17-549/page-02.png,
+ * central crop 802x1277: heavy type at 40x40+200+760 runs min 40, p05 88;
+ * blank stock at 40x40+680+160 is a flat 255.
+ *
+ * THE PLATES CARRY NO HUE AND CANNOT SUPPLY ONE. All 100 encode as PNG type
+ * Grayscale, maximum HSL saturation is exactly 0 on every file, and max|R-G|
+ * is 0 at full resolution. They were greyscaled before this project received
+ * them. So a warm cream is not a thing these scans disagree with; it is a
+ * thing they cannot speak to at all, and any hue in the light theme would be
+ * invented and then described as derived. paper and ink are therefore neutral,
+ * and the scan has clipped some pages to 255, so 251 is the scanner's
+ * rendering of the stock rather than the stock itself. That is the honest
+ * limit of what a clipped greyscale scan can establish.
+ *
+ * muted, rule and wash are NOT sampled. The intermediate tones on a scan are
+ * dominated by paper-side noise rather than by a designed mid-tone, so they are
+ * solved to reproduce the ratios Annalen already had: muted 5.974, rule 1.449,
+ * wash 1.086. accent is editorial (AGENTS.md reserves red for emphasis and the
+ * move step), not plate-derived, and is unchanged.
  */
 export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freeze({
   annalen: Object.freeze({
-    paper: "#eee7d7",
-    ink: "#1a1916",
-    muted: "#5c554a",
-    rule: "#cbc1ac",
+    // ink 10.177, muted 5.985, rule 1.447, wash 1.082, accent 6.695
+    paper: "#fbfbfb",
+    ink: "#3f3f3f",
+    muted: "#616161",
+    rule: "#d3d3d3",
     accent: "#ae2119",
-    focusRing: "#1a1916",
-    wash: "#e5ded0",
+    focusRing: "#3f3f3f",
+    wash: "#f2f2f2",
     plotDarkfield: "#0f172a",
   }),
   "kramgasse-night": Object.freeze({
+    // muted 5.978, rule 1.450, wash 1.086 -- the light theme's own figures,
+    // solved by holding each token's hue and saturation and moving only its
+    // lightness, so the lamplight character survives the re-derivation.
+    //
+    // INK IS THE ONE RELATIONSHIP THAT IS NOT CARRIED OVER, and the reason is
+    // arithmetic rather than taste. Matching the light theme's ink would put
+    // this ink at 10.18 against this paper, where the amber accent sits at
+    // 7.414 against the same paper -- so their mutual contrast would be exactly
+    // 10.18 / 7.414 = 1.373, under the 1.5 accent-distinctness floor asserted
+    // below. Hue cannot repair that: the quotient depends only on the two
+    // ratios. The alternatives are to darken the amber to 6.79 or lower, which
+    // spends the palette's one bold colour to fix a neutral, or to leave ink at
+    // 12.976 where the quotient is 1.750. It is left. I tried the other way
+    // first and this file's own gate refused it.
     paper: "#1c2128",
     ink: "#e8e6e1",
-    muted: "#9aa0a8",
-    rule: "#33393f",
+    muted: "#979ea6",
+    rule: "#363c42",
     accent: "#e0a458",
     focusRing: "#e8e6e1",
-    // ink 11.62, muted 5.50 (Annalen's muted figure exactly), wash-vs-paper 1.116
-    wash: "#232a32",
+    wash: "#21282f",
     plotDarkfield: "#0d1117",
   }),
 });

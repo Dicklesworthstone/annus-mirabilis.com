@@ -8,7 +8,9 @@
  *
  * Modifications:
  * - Decoupled from patent types; exports standalone ColorVariant and semantic color structures.
- * - Text color hexes calibrated to guarantee WCAG AA contrast (>= 4.5:1) against Annalen (#eee7d7),
+ * - Text color hexes calibrated to guarantee WCAG AA contrast (>= 4.5:1) against Annalen (#fbfbfb,
+ *   measured from the plates; every ratio below RECOMPUTED against it, not carried over from the
+ *   #eee7d7 cream, where the same hexes read 0.8 to 1.2 lower),
  *   Kramgasse Night (#1c2128), and Slate (#14181a) theme backgrounds.
  * - Preserved prepareInteractiveLatex, KaTeX color wrappers, and balanced group parser.
  */
@@ -48,7 +50,7 @@ export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
     badgeLabel: "Penalty / Thermal / Flux Sink",
     hexLight: "#dc2626",
     hexDark: "#f87171",
-    textHexLight: "#b91c1c", // Red-700: 5.25:1 on Annalen
+    textHexLight: "#b91c1c", // Red-700: 6.25:1 on Annalen
     textHexDark: "#f87171", // Red-400: 5.85:1 on Kramgasse, 6.46:1 on Slate
     textClass: "text-red-700 dark:text-red-400",
     badgeBg: "bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800/80",
@@ -62,7 +64,7 @@ export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
     badgeLabel: "Core Velocity / Voltage / Wave",
     hexLight: "#2563eb",
     hexDark: "#60a5fa",
-    textHexLight: "#1d4ed8", // Blue-700: 5.44:1 on Annalen
+    textHexLight: "#1d4ed8", // Blue-700: 6.48:1 on Annalen
     textHexDark: "#60a5fa", // Blue-400: 6.37:1 on Kramgasse, 7.03:1 on Slate
     textClass: "text-blue-700 dark:text-blue-400",
     badgeBg: "bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800/80",
@@ -76,7 +78,7 @@ export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
     badgeLabel: "Output / Lift / Work / Power",
     hexLight: "#059669",
     hexDark: "#34d399",
-    textHexLight: "#065f46", // Emerald-800: 6.24:1 on Annalen
+    textHexLight: "#065f46", // Emerald-800: 7.43:1 on Annalen
     textHexDark: "#34d399", // Emerald-400: 8.42:1 on Kramgasse, 9.29:1 on Slate
     textClass: "text-emerald-800 dark:text-emerald-400",
     badgeBg: "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800/80",
@@ -90,7 +92,7 @@ export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
     badgeLabel: "Frequency / Geometry / Geometry Constant",
     hexLight: "#d97706",
     hexDark: "#fbbf24",
-    textHexLight: "#92400e", // Amber-800: 5.76:1 on Annalen
+    textHexLight: "#92400e", // Amber-800: 6.85:1 on Annalen
     textHexDark: "#fbbf24", // Amber-400: 9.69:1 on Kramgasse, 10.70:1 on Slate
     textClass: "text-amber-800 dark:text-amber-400",
     badgeBg: "bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800/80",
@@ -104,7 +106,7 @@ export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
     badgeLabel: "Energy / State Vector / Identity",
     hexLight: "#9333ea",
     hexDark: "#c084fc",
-    textHexLight: "#7e22ce", // Purple-700: 5.67:1 on Annalen
+    textHexLight: "#7e22ce", // Purple-700: 6.75:1 on Annalen
     textHexDark: "#c084fc", // Purple-400: 6.12:1 on Kramgasse, 6.76:1 on Slate
     textClass: "text-purple-700 dark:text-purple-400",
     badgeBg: "bg-purple-50 dark:bg-purple-950/50 border-purple-200 dark:border-purple-800/80",
@@ -118,7 +120,7 @@ export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
     badgeLabel: "Flux Density / Capacitance / Charge",
     hexLight: "#0891b2",
     hexDark: "#22d3ee",
-    textHexLight: "#155e75", // Cyan-800: 5.90:1 on Annalen
+    textHexLight: "#155e75", // Cyan-800: 7.02:1 on Annalen
     textHexDark: "#22d3ee", // Cyan-400: 8.96:1 on Kramgasse, 9.89:1 on Slate
     textClass: "text-cyan-800 dark:text-cyan-400",
     badgeBg: "bg-cyan-50 dark:bg-cyan-950/50 border-cyan-200 dark:border-cyan-800/80",
@@ -132,7 +134,7 @@ export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
     badgeLabel: "Current / Resistance / Acceleration",
     hexLight: "#ea580c",
     hexDark: "#fb923c",
-    textHexLight: "#9a3412", // Orange-800: 5.93:1 on Annalen
+    textHexLight: "#9a3412", // Orange-800: 7.06:1 on Annalen
     textHexDark: "#fb923c", // Orange-400: 7.15:1 on Kramgasse, 7.89:1 on Slate
     textClass: "text-orange-800 dark:text-orange-400",
     badgeBg: "bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800/80",
@@ -146,7 +148,7 @@ export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
     badgeLabel: "Time Rate / Decay / Radiation",
     hexLight: "#e11d48",
     hexDark: "#fb7185",
-    textHexLight: "#be123c", // Rose-700: 5.10:1 on Annalen
+    textHexLight: "#be123c", // Rose-700: 6.07:1 on Annalen
     textHexDark: "#fb7185", // Rose-400: 6.01:1 on Kramgasse, 6.64:1 on Slate
     textClass: "text-rose-700 dark:text-rose-400",
     badgeBg: "bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800/80",
@@ -160,7 +162,7 @@ export const COLOR_STYLES: Record<ColorVariant, ColorStyleConfig> = {
     badgeLabel: "Material Constant / Permeability",
     hexLight: "#0d9488",
     hexDark: "#2dd4bf",
-    textHexLight: "#115e59", // Teal-800: 6.16:1 on Annalen
+    textHexLight: "#115e59", // Teal-800: 7.33:1 on Annalen
     textHexDark: "#2dd4bf", // Teal-400: 8.69:1 on Kramgasse, 9.60:1 on Slate
     textClass: "text-teal-800 dark:text-teal-400",
     badgeBg: "bg-teal-50 dark:bg-teal-950/50 border-teal-200 dark:border-teal-800/80",

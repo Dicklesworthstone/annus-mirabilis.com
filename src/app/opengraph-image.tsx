@@ -33,7 +33,7 @@ export default async function Image() {
         flexDirection: "column",
         alignItems: "flex-start",
         justifyContent: "space-between",
-        backgroundColor: "#eee7d7",
+        backgroundColor: "#fbfbfb",
         padding: "60px 70px",
         border: "16px solid #ae2119",
         fontFamily: "serif",
@@ -101,7 +101,7 @@ export default async function Image() {
               fontSize: "28px",
               fontWeight: "bold",
               letterSpacing: "3px",
-              color: "#1a1916",
+              color: "#3f3f3f",
               display: "flex",
             }}
           >
@@ -113,9 +113,9 @@ export default async function Image() {
           style={{
             padding: "6px 16px",
             borderRadius: "999px",
-            backgroundColor: "#cbc1ac",
-            border: "2px solid #5c554a",
-            color: "#1a1916",
+            backgroundColor: "#d3d3d3",
+            border: "2px solid #616161",
+            color: "#3f3f3f",
             fontSize: "15px",
             fontFamily: "monospace",
             fontWeight: "bold",
@@ -152,7 +152,7 @@ export default async function Image() {
             maxWidth: "1028px",
             fontSize: "54px",
             fontWeight: "bold",
-            color: "#1a1916",
+            color: "#3f3f3f",
             lineHeight: 1.15,
             margin: 0,
           }}
@@ -163,7 +163,7 @@ export default async function Image() {
         <p
           style={{
             fontSize: "22px",
-            color: "#5c554a",
+            color: "#616161",
             maxWidth: "920px",
             margin: 0,
             fontStyle: "italic",
@@ -181,7 +181,7 @@ export default async function Image() {
           alignItems: "center",
           gap: "16px",
           width: "100%",
-          borderTop: "2px solid #cbc1ac",
+          borderTop: "2px solid #d3d3d3",
           paddingTop: "24px",
         }}
       >
@@ -195,7 +195,7 @@ export default async function Image() {
         >
           Light Quanta (17, 132)
         </div>
-        <span style={{ color: "#5c554a" }}>•</span>
+        <span style={{ color: "#616161" }}>•</span>
         <div
           style={{
             fontSize: "15px",
@@ -206,7 +206,7 @@ export default async function Image() {
         >
           Brownian Motion (17, 549)
         </div>
-        <span style={{ color: "#5c554a" }}>•</span>
+        <span style={{ color: "#616161" }}>•</span>
         <div
           style={{
             fontSize: "15px",
@@ -217,7 +217,7 @@ export default async function Image() {
         >
           Special Relativity (17, 891)
         </div>
-        <span style={{ color: "#5c554a" }}>•</span>
+        <span style={{ color: "#616161" }}>•</span>
         <div
           style={{
             fontSize: "15px",
@@ -228,12 +228,12 @@ export default async function Image() {
         >
           E = mc² (18, 639)
         </div>
-        <span style={{ color: "#5c554a" }}>•</span>
+        <span style={{ color: "#616161" }}>•</span>
         <div
           style={{
             fontSize: "15px",
             fontFamily: "monospace",
-            color: "#5c554a",
+            color: "#616161",
           }}
         >
           annus-mirabilis.com

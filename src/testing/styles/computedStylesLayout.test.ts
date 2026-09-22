@@ -82,7 +82,7 @@ describe("computed styles layout verification (am-vw1o)", () => {
       // Resolve the design tokens from the page itself rather than hardcoding
       // literals. This assertion previously compared against rgb(36, 42, 41) while
       // its own message claimed "must match --ink design token" - and --ink is
-      // #1a1916, rgb(26, 25, 22). The literal had drifted from the token it named,
+      // #1a1916 at the time, rgb(26, 25, 22). The literal had drifted from the token
       // so the test was failing the component for using the token correctly.
       // Reading the token here means the assertion means what it says: it fails if
       // the button stops using --ink, and survives an intentional change to --ink.

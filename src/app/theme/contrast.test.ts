@@ -56,13 +56,16 @@ describe("contrast: the focus ring meets the stricter UI non-text minimum (3:1)"
 
 describe("contrast: forbidden low-contrast pairs documented with exact ratios to prevent regression", () => {
   test("identical colors yield exactly 1.0 (asserted forbidden for normal text < 4.5)", () => {
-    const ratio = contrastRatio("#eee7d7", "#eee7d7");
+    const ratio = contrastRatio(THEME_TOKENS.annalen.paper, THEME_TOKENS.annalen.paper);
     expect(ratio).toBe(1);
     expect(ratio).toBeLessThan(NORMAL_TEXT_MIN);
   });
-  test("border on paper yields 1.44:1 (asserted forbidden for UI boundary < 3.0)", () => {
-    const ratio = contrastRatio("#c8c2b4", "#eee7d7");
-    expect(ratio).toBeCloseTo(1.44, 2);
+  test("the section rule on paper yields 1.45:1 (asserted forbidden for UI boundary < 3.0)", () => {
+    // Recomputed against the measured paper, not carried over: the old pair was
+    // #c8c2b4 on #eee7d7 at 1.44, and reusing that number here would have made
+    // the test pass for a ratio it no longer describes.
+    const ratio = contrastRatio(THEME_TOKENS.annalen.rule, THEME_TOKENS.annalen.paper);
+    expect(ratio).toBeCloseTo(1.447, 2);
     expect(ratio).toBeLessThan(UI_BOUNDARY_MIN);
   });
   test("hardcoded white on Kramgasse Night amber accent yields 2.18:1 (asserted forbidden for normal text < 4.5, proving why var(--paper) is required)", () => {
@@ -163,14 +166,37 @@ describe("contrast: color never carries meaning alone (AGENTS.md constraint)", (
   });
 });
 
-describe("contrast: Annalen's reference values match the kept placeholder implementation exactly", () => {
+describe("contrast: Annalen's neutrals are the values measured from the plates", () => {
   const annalen = THEME_TOKENS.annalen;
-  test("paper, ink, muted, rule, and accent are docs/design/placeholder/style.css's own values", () => {
-    expect(annalen.paper).toBe("#eee7d7");
-    expect(annalen.ink).toBe("#1a1916");
-    expect(annalen.muted).toBe("#5c554a");
-    expect(annalen.rule).toBe("#cbc1ac");
+
+  test("paper and ink are the corpus medians from artifacts/page-images, not a chosen cream", () => {
+    // 100 of 100 plates, central 80% crop so the scan edge cannot pose as ink.
+    // paper = dominant tone, median 251 = 0xfb. ink = 0.5th percentile, median 63 = 0x3f.
+    expect(annalen.paper).toBe("#fbfbfb");
+    expect(annalen.ink).toBe("#3f3f3f");
+    // And they are NEUTRAL because the plates are greyscale and cannot supply a
+    // hue: every channel equal is the measurement, not a style preference. This
+    // is the assertion that refuses a future reintroduction of a warm cream on
+    // the grounds that it "looks like 1905", which is how #eee7d7 got here.
+    for (const token of [annalen.paper, annalen.ink, annalen.muted, annalen.rule, annalen.wash]) {
+      const [r, g, b] = [1, 3, 5].map((i) => token.slice(i, i + 2));
+      expect(r).toBe(g);
+      expect(g).toBe(b);
+    }
+  });
+
+  test("muted, rule and wash reproduce the ratios Annalen had before the palette moved", () => {
+    // Solved rather than sampled: a scan's intermediate tones are paper-side
+    // noise, not a designed mid-tone. The targets are the RECOMPUTED figures
+    // (5.974, 1.449, 1.086), not the 13.14/5.50 the old docblock quoted.
+    expect(contrastRatio(annalen.muted, annalen.paper)).toBeCloseTo(5.985, 2);
+    expect(contrastRatio(annalen.rule, annalen.paper)).toBeCloseTo(1.447, 2);
+    expect(contrastRatio(annalen.wash, annalen.paper)).toBeCloseTo(1.082, 2);
+  });
+
+  test("the accent is unchanged, because it is editorial rather than plate-derived", () => {
     expect(annalen.accent).toBe("#ae2119");
+    expect(contrastRatio(annalen.accent, annalen.paper)).toBeGreaterThanOrEqual(NORMAL_TEXT_MIN);
   });
 });
 
@@ -189,7 +215,10 @@ describe("auditThemeTokensContrast: automated token contrast check (AC 3)", () =
       ...THEME_TOKENS,
       annalen: {
         ...THEME_TOKENS.annalen,
-        muted: "#999999", // contrast against #eee7d7 is ~2.22 (< 4.5)
+        // Recomputed against the measured paper #fbfbfb: 2.753, still under 4.5.
+        // Carried over unchecked it would have said 2.22, a number for a paper
+        // that no longer exists.
+        muted: "#999999",
       },
     };
     const result = auditThemeTokensContrast(mutatedTokens);
@@ -481,10 +510,10 @@ describe("contrast: the result weave stays readable and as prominent as authored
   // edition's own body copy. Read from the real stylesheet, never a copy.
   const READER_CSS = readFileSync(join(REPO_ROOT, "src/reader/reader.css"), "utf8");
   const MEANINGS = [
-    { name: "assumption-active", border: "#4338ca", authoredFill: "#eef2ff", style: "dotted" },
-    { name: "quantity-compared", border: "#15803d", authoredFill: "#f0fdf4", style: "solid" },
-    { name: "agreement-within-bound", border: "#0e7490", authoredFill: "#ecfeff", style: "double" },
-    { name: "outside-domain", border: "#c2410c", authoredFill: "#fff7ed", style: "dashed" },
+    { name: "assumption-active", border: "#4338ca", authoredFill: "#ecf0fd", style: "dotted" },
+    { name: "quantity-compared", border: "#15803d", authoredFill: "#dfece3", style: "solid" },
+    { name: "agreement-within-bound", border: "#0e7490", authoredFill: "#daeced", style: "double" },
+    { name: "outside-domain", border: "#c2410c", authoredFill: "#f1e9df", style: "dashed" },
   ] as const;
 
   function darkFill(theme: string, meaning: string): string {

@@ -4,26 +4,36 @@
  * parses this file and asserts that.
  */
 
+/* Annalen is measured from artifacts/page-images: paper is the corpus median
+   dominant tone (251) and ink the corpus median 0.5th percentile (63), over all
+   100 plates. The plates are greyscale - PNG type Grayscale, max saturation 0,
+   max|R-G| 0 - so they cannot supply a hue and these are neutral. The full
+   derivation, including why muted/rule/wash are solved rather than sampled,
+   is in tokens.ts's docblock. */
 :root,
 :root[data-theme="annalen"] {
-  --paper: #eee7d7;
-  --ink: #1a1916;
-  --muted: #5c554a;
-  --rule: #cbc1ac;
+  --paper: #fbfbfb;
+  --ink: #3f3f3f;
+  --muted: #616161;
+  --rule: #d3d3d3;
   --accent: #ae2119;
-  --focus-ring: #1a1916;
-  --wash: #e5ded0;
+  --focus-ring: #3f3f3f;
+  --wash: #f2f2f2;
   --plot-darkfield: #0f172a;
 }
 
+/* muted, rule and wash re-derived to carry Annalen's own ratios (5.98 / 1.45 /
+   1.086) by holding each token's hue and saturation and moving only its
+   lightness. --ink is NOT re-derived; tokens.ts records the arithmetic that
+   refuses it. */
 :root[data-theme="kramgasse-night"] {
   --paper: #1c2128;
   --ink: #e8e6e1;
-  --muted: #9aa0a8;
-  --rule: #33393f;
+  --muted: #979ea6;
+  --rule: #363c42;
   --accent: #e0a458;
   --focus-ring: #e8e6e1;
-  --wash: #232a32;
+  --wash: #21282f;
   --plot-darkfield: #0d1117;
   color-scheme: dark;
 }

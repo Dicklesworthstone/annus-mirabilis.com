@@ -23,17 +23,24 @@
   font-display: swap;
 }
 
+/* A SECOND COPY of the Annalen tokens, and it has to stay in step with
+   src/app/theme/themes.css by hand: themes.css wins wherever data-theme is set,
+   which the pre-paint script does, so this block is what a reader with
+   JavaScript disabled actually sees. Left unchanged when the palette moved, it
+   would have served the old cream to exactly the readers who cannot re-theme.
+   Values measured from artifacts/page-images; the derivation is in
+   src/app/theme/tokens.ts. */
 :root {
   color-scheme: light;
-  --paper: #eee7d7;
-  --ink: #1a1916;
-  --muted: #5c554a;
-  --rule: #cbc1ac;
+  --paper: #fbfbfb;
+  --ink: #3f3f3f;
+  --muted: #616161;
+  --rule: #d3d3d3;
   --line: var(--rule);
   --accent: #ae2119;
-  --focus-ring: #1a1916;
+  --focus-ring: #3f3f3f;
   --panel: var(--paper);
-  --wash: #e5ded0;
+  --wash: #f2f2f2;
   --plot: #254f49;
   --plot-darkfield: #0f172a;
   --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;

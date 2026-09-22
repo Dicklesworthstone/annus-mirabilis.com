@@ -394,20 +394,29 @@ html:is(
   }
 }
 
+/* The four light fills were re-derived when the paper moved from the #eee7d7
+   cream to the measured #fbfbfb (src/app/theme/tokens.ts). Their PROMINENCE is
+   what is preserved, not their hex: each keeps its contrast against paper to
+   within 0.004 of what the author gave it (1.102, 1.177, 1.184, 1.160), and each
+   keeps its own distance from neutral (17, 13, 19, 18 of 255) so it stays a
+   tint rather than becoming a colour. Holding hue and HSL saturation instead
+   produced #8ef9ff, because a pale tint has HIGH saturation and low lightness
+   is what makes it shout. The kramgasse-night fills below already match the
+   preserved targets within 0.009 and are unchanged. */
 .weave-assumption-active {
-  background: #eef2ff;
+  background: #ecf0fd;
   border-bottom: 2px dotted #4338ca;
 }
 .weave-quantity-compared {
-  background: #f0fdf4;
+  background: #dfece3;
   border-bottom: 2px solid #15803d;
 }
 .weave-agreement-within-bound {
-  background: #ecfeff;
+  background: #daeced;
   border-bottom: 3px double #0e7490;
 }
 .weave-outside-domain {
-  background: #fff7ed;
+  background: #f1e9df;
   border-bottom: 2px dashed #c2410c;
 }
 
@@ -442,7 +451,6 @@ html:is(
 [data-theme="kramgasse-night"] .weave-outside-domain {
   background: #3a2723;
 }
-
 
 .weave-pointer {
   display: block;
