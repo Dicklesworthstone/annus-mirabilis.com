@@ -295,7 +295,7 @@ export function LowSpeedExplorer({
         </a>
       </p>
       <details>
-        <summary>What the check establishes—and what it does not</summary>
+        <summary>What the check establishes, and what it does not</summary>
         <p>{proof.certificate.scope}</p>
         <p>
           The binomial-series identity used by the checker is documented in{" "}

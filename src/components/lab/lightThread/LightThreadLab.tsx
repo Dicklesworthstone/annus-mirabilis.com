@@ -361,8 +361,8 @@ export function LightThreadLab() {
         <p>
           The idealization is a unidirectional, monochromatic vacuum pulse between inertial frames.
           This does not model finite spectral bandwidth, diffraction, media, gravitational shifts,
-          detector response, or the recoil caused by unbalanced single-pulse emission. The control
-          bounds are numerical admission limits, not claims of physical impossibility.
+          detector response, or the recoil from unbalanced single-pulse emission. The control bounds
+          are numerical admission limits, not claims of physical impossibility.
         </p>
         <p>
           The frequency and energy factors come from the existing relativistic wave owners. One

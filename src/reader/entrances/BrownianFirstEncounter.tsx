@@ -666,7 +666,7 @@ export function BrownianFirstEncounter({
           <p>
             Now assume the displacements over the chosen time intervals are independent and each has
             zero mean. Independence makes the average product equal the product of the averages, so
-            the cross term vanishes on averaging—not in every outcome. Equal finite step mean
+            the cross term vanishes on averaging, not in every outcome. Equal finite step mean
             squares then add in proportion to the number of intervals. This coarse-grained
             assumption is not a claim about molecular motion at arbitrarily short times.
           </p>

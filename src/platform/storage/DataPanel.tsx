@@ -299,7 +299,7 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
                         Clear
                       </button>
                     ) : (
-                      <span className="data-panel-dash">—</span>
+                      <span className="data-panel-dash">–</span>
                     )}
                   </td>
                 </tr>
