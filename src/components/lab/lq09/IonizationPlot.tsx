@@ -46,7 +46,7 @@ export function IonizationThresholdLadderPlot({
           color: "var(--ink)",
         }}
       >
-        Single-Quantum Ionization Energy Ladder
+        Single-quantum ionization energy ladder
       </h3>
       <p
         style={{

@@ -56,7 +56,7 @@ export function CoefficientMatchSideBySidePlot({
             margin: 0,
           }}
         >
-          Side-by-Side Entropy Volume Laws (§6 The Move)
+          Side-by-side entropy volume laws (§6, the move)
         </h3>
         <span
           className="fine"
@@ -386,7 +386,7 @@ export function MeanEnergyStripPlot({
             margin: 0,
           }}
         >
-          Wien Spectrum Mean Quantum Energy vs Molecule Kinetic Energy (§6)
+          Wien spectrum mean quantum energy vs molecule kinetic energy (§6)
         </h4>
         <span
           className="fine"

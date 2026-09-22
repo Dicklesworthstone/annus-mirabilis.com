@@ -615,9 +615,7 @@ export function FluorescenceLab({
           paddingTop: "1.5rem",
         }}
       >
-        <h3 style={{ marginBottom: "1rem" }}>
-          Calculated Energy Ledger &amp; Transition Quantities
-        </h3>
+        <h3 style={{ marginBottom: "1rem" }}>Calculated energy ledger and transition quantities</h3>
 
         <section
           className="table-scroll"

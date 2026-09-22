@@ -412,7 +412,7 @@ export function CardDetail({
               marginBottom: "0.25rem",
             }}
           >
-            Primary Evidence & Sources
+            Primary evidence and sources
           </h4>
           <ul style={{ margin: 0, paddingLeft: "1.25rem", listStyleType: "disc" }}>
             {card.sources.map((src) => {

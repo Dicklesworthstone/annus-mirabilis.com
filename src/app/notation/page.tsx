@@ -18,7 +18,7 @@ export default function NotationPage() {
     <div className="notation-page" data-page="notation">
       <header className="notation-header">
         <p className="eyebrow">Critical Edition · Reference Apparatus</p>
-        <h1>Scoped Notation Concordance</h1>
+        <h1>Scoped notation concordance</h1>
         <p className="lead">
           In 1905, notation was local. A glyph meant one thing in an electrodynamics derivation,
           another in molecular kinetics, and another in radiation thermodynamics. Here you can
@@ -30,7 +30,7 @@ export default function NotationPage() {
       <aside className="honesty-banner" role="status" aria-label="Editorial verification status">
         <h2>
           <span aria-hidden="true">📋</span>
-          <span>Editorial Status: Pending Facsimile Verification</span>
+          <span>Editorial status: pending facsimile verification</span>
         </h2>
         <p>{data.honestyNotice.message}</p>
       </aside>

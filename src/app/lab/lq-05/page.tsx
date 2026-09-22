@@ -34,7 +34,7 @@ export default function IndependentConfigurationsPage() {
           LQ-05 · Light Quanta · Paper 1, §5 Heuristic Foundation
         </p>
         <h1 style={{ fontFamily: "var(--font-serif, serif)" }}>
-          Independent Configurations and the Gas Analogy
+          Independent configurations and the gas analogy
         </h1>
         <p className="lead" style={{ maxWidth: "42rem", margin: "0.5rem auto 0" }}>
           How counting independent configurations produces an entropy law depending on volume as n
@@ -56,7 +56,7 @@ export default function IndependentConfigurationsPage() {
         }}
       >
         <h2 style={{ fontFamily: "var(--font-serif, serif)" }}>
-          The Independence Argument in Einstein 1905 §5
+          The independence argument in Einstein 1905 §5
         </h2>
         <p>
           In §5 of the 1905 light-quanta paper, Einstein applies Boltzmann&apos;s principle{" "}

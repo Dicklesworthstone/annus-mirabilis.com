@@ -56,7 +56,7 @@ export function PpeTask({ task }: PpeTaskProps) {
               margin: "0.25rem 0 0",
             }}
           >
-            Physical Insight Challenge
+            Physical insight challenge
           </h3>
         </div>
         <span

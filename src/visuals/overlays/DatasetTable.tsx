@@ -233,7 +233,7 @@ export function DatasetTable({
               margin: "0 0 0.5rem",
             }}
           >
-            Historical Fits & Parameters
+            Historical fits and parameters
           </h4>
           {relevantFits.map((fit) => (
             <div

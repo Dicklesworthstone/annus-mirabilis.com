@@ -70,7 +70,7 @@ describe("LQ-05 UI components and route", () => {
     expect(html).toContain("JavaScript disabled");
     expect(html).toContain("Predict Mode");
     expect(html).toContain("Presets");
-    expect(html).toContain("Calculated Microstate &amp; Entropy Outputs");
+    expect(containsHeading(html, "Calculated microstate and entropy outputs")).toBe(true);
     expect(html).toContain("Relative State Probability");
     expect(html).toContain("Dimensionless Entropy Change ΔS/k_B");
   });

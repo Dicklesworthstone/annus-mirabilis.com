@@ -137,7 +137,7 @@ export function BoundaryChannelSelector({
             marginBottom: "0.5rem",
           }}
         >
-          System Boundary & Energy Accounting
+          System boundary and energy accounting
         </h4>
 
         {/* Visual Boundary Presets */}

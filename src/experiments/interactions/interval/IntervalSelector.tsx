@@ -117,7 +117,7 @@ export function IntervalSelector({
               color: "var(--ink)",
             }}
           >
-            Observation Interval Selector
+            Observation interval selector
           </h4>
           <span
             style={{

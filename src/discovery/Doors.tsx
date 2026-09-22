@@ -50,7 +50,7 @@ export function Doors({ doors }: DoorsProps) {
             marginBottom: 0,
           }}
         >
-          Multiple Routes, One Arrival Point
+          Multiple routes, one arrival point
         </h3>
         <p
           className="fine"

@@ -30,7 +30,7 @@ export function SupportLadder({ support }: SupportLadderProps) {
           margin: 0,
         }}
       >
-        Support Ladder · Five Rungs of Understanding
+        Support ladder · five rungs of understanding
       </h4>
 
       {/* Rung 1: Worked Example */}

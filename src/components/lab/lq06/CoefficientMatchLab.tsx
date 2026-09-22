@@ -176,7 +176,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           <div>
             <p className="eyebrow">Interactive Critical Edition · Instrument LQ-06</p>
             <h2 style={{ margin: "0.25rem 0" }}>
-              Matching the Entropy Laws to Derive the Light Quantum (§6 The Move)
+              Matching the entropy laws to derive the light quantum (§6, the move)
             </h2>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -707,7 +707,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             }}
           >
             <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
-              Accepted Telemetry Snapshot
+              Accepted telemetry snapshot
             </h4>
             <section className="table-scroll" aria-label="Accepted telemetry snapshot table">
               <table aria-label="Accepted telemetry snapshot">
@@ -931,7 +931,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         }}
       >
         <h4 className="eyebrow" style={{ marginBottom: "0.75rem" }}>
-          Limits of this Reference Model (Not Modeled)
+          Limits of this reference model (not modeled)
         </h4>
         <ul
           className="fine"

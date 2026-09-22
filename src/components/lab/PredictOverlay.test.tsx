@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { containsHeading } from "../../testing/headingText.ts";
 import { PredictOverlay } from "./PredictOverlay.tsx";
 
 describe("PredictOverlay (am-inst-predict-mode-ti7m)", () => {
@@ -44,7 +45,7 @@ describe("PredictOverlay (am-inst-predict-mode-ti7m)", () => {
     // Screen reader accessible descriptions and figure
     expect(html).toContain('<figure class="predict-overlay"');
     expect(html).toContain('data-predict-overlay=""');
-    expect(html).toContain("Prediction &amp; Result Comparison");
+    expect(containsHeading(html, "Prediction and result comparison")).toBe(true);
     expect(html).toContain(
       "Distinguished by pattern: prediction is dashed with square markers; result is solid with circular markers.",
     );

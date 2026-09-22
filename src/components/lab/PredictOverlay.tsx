@@ -94,7 +94,7 @@ export function PredictOverlay({
       aria-label="Prediction and model result comparison"
     >
       <div className="predict-overlay-header">
-        <h4 className="predict-overlay-title">Prediction & Result Comparison</h4>
+        <h4 className="predict-overlay-title">Prediction and result comparison</h4>
         {onClear ? (
           <button
             type="button"

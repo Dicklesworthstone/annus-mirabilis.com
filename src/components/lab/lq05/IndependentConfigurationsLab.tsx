@@ -261,7 +261,7 @@ export function IndependentConfigurationsLab({
           paddingTop: "1.5rem",
         }}
       >
-        <h3 style={{ fontSize: "1rem", margin: "0 0 1rem" }}>Interactive Parameter Controls</h3>
+        <h3 style={{ fontSize: "1rem", margin: "0 0 1rem" }}>Interactive parameter controls</h3>
 
         <form
           onSubmit={submit}
@@ -467,7 +467,7 @@ export function IndependentConfigurationsLab({
         style={{ marginTop: "2rem", borderTop: "1px solid var(--line)", paddingTop: "1.5rem" }}
       >
         <h3 style={{ fontSize: "1rem", margin: "0 0 1rem" }}>
-          Calculated Microstate & Entropy Outputs
+          Calculated microstate and entropy outputs
         </h3>
 
         <section

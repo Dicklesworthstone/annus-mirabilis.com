@@ -52,7 +52,7 @@ export function EnergyLadderPlot({
           color: "var(--ink)",
         }}
       >
-        Single-Quantum Energy Conservation Ladder
+        Single-quantum energy conservation ladder
       </h3>
       <p className="fine" style={{ margin: "0 0 0.5rem" }}>
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>

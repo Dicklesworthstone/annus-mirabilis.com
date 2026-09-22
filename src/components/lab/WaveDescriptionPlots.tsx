@@ -318,7 +318,7 @@ export function WavefrontPlot({
             margin: 0,
           }}
         >
-          2D Wavefield Crest Superposition
+          2D wavefield crest superposition
         </h3>
         <span
           className="fine"

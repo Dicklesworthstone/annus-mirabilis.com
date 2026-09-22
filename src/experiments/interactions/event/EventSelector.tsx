@@ -127,7 +127,7 @@ export function EventSelector({
             marginBottom: "0.5rem",
           }}
         >
-          Space-Time Event Selection
+          Space-time event selection
         </h4>
         <div
           style={{
@@ -226,7 +226,7 @@ export function EventSelector({
             marginBottom: "0.25rem",
           }}
         >
-          Accessible Event Roster & Simultaneity
+          Accessible event roster and simultaneity
         </h5>
         <table
           style={{

@@ -72,14 +72,19 @@ describe("LQ-07 UI components and route", () => {
     expect(html).toContain("JavaScript disabled");
     expect(html).toContain("Predict Mode");
     expect(html).toContain("Presets");
-    expect(html).toContain("Calculated Energy Ledger &amp; Transition Quantities");
+    expect(containsHeading(html, "Calculated energy ledger and transition quantities")).toBe(true);
     expect(html).toContain("Budget Verdict");
     expect(html).toContain("Maximum Allowed Frequency");
   });
 
   test("FluorescencePage route renders without errors and includes article sections", () => {
     const html = renderToStaticMarkup(<FluorescencePage />);
-    expect(html).toContain("Single-Quantum Energy Budget");
+    // Was `toContain("Single-Quantum Energy Budget")`, a FRAGMENT of a heading, which is why
+    // the pin-scan for this de-slop pass missed it: that scan searched for complete heading
+    // strings. The fragment was also carried by the §7 h2 asserted eleven lines above, so a
+    // fragment check here could not fail while that section rendered - planted and
+    // confirmed. It now names the h1 it was about, which does discriminate.
+    expect(containsHeading(html, "Stokes's rule and the single-quantum energy budget")).toBe(true);
     expect(containsHeading(html, "The Single-Quantum Energy Budget in Einstein 1905 §7")).toBe(
       true,
     );

@@ -296,7 +296,7 @@ export function ForceCancellationPanel({
       }}
     >
       <h3 style={{ margin: 0, fontSize: "1.125rem", fontFamily: "var(--font-serif)" }}>
-        The Force Cancellation Principle
+        The force cancellation principle
       </h3>
       <p style={{ margin: 0, fontSize: "0.9375rem", lineHeight: 1.5 }}>
         In §3, Einstein equates the directional Stokes drift with the opposing Brownian diffusion.
@@ -357,7 +357,7 @@ export function ForceCancellationPanel({
           }}
         >
           <h4 style={{ margin: "0 0 0.5rem", fontSize: "0.875rem", fontWeight: 600 }}>
-            Osmotic Decay Length (Thermodynamic)
+            Osmotic decay length (thermodynamic)
           </h4>
           <p
             style={{ margin: "0 0 0.5rem", fontSize: "0.875rem", fontFamily: "var(--font-serif)" }}
@@ -400,7 +400,7 @@ export function ForceCancellationPanel({
           }}
         >
           <h4 style={{ margin: "0 0 0.5rem", fontSize: "0.875rem", fontWeight: 600 }}>
-            Kinetic Decay Length (Stepper)
+            Kinetic decay length (stepper)
           </h4>
           <p
             style={{ margin: "0 0 0.5rem", fontSize: "0.875rem", fontFamily: "var(--font-serif)" }}

@@ -298,7 +298,7 @@ export function BoundaryLedgerLab({
                 color: "var(--ink)",
               }}
             >
-              Case Study Facts: {card.label}
+              Case study facts: {card.label}
             </h3>
             <p
               style={{

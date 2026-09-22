@@ -104,7 +104,7 @@ export function ChargeCurrentPlot({
             margin: 0,
           }}
         >
-          Relativistic Four-Current Visualization
+          Relativistic four-current visualization
         </h3>
         <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
           Mode: <strong style={{ color: "var(--ink)" }}>{mode}</strong> (v ={" "}

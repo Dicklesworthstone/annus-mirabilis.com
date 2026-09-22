@@ -369,7 +369,7 @@ export function JourneyPage({ journey }: JourneyPageProps) {
               margin: 0,
             }}
           >
-            World Checks · Testing the Consequences
+            World checks · testing the consequences
           </h3>
           <div
             style={{

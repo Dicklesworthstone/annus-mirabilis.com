@@ -112,7 +112,7 @@ export function CoefficientEditor({
             marginBottom: "0.5rem",
           }}
         >
-          Field & Coordinate Transformation Coefficients
+          Field and coordinate transformation coefficients
         </h4>
 
         <div
@@ -252,7 +252,7 @@ export function CoefficientEditor({
                 marginBottom: "0.25rem",
               }}
             >
-              Transformed Quantities in Moving Frame
+              Transformed quantities in moving frame
             </h5>
             <div
               style={{

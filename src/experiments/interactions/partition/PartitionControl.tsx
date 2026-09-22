@@ -125,7 +125,7 @@ export function PartitionControl({
               margin: 0,
             }}
           >
-            Constrained Subvolume Partition
+            Constrained subvolume partition
           </h4>
           <span
             style={{

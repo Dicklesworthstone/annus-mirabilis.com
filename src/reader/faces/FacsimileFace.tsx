@@ -139,7 +139,7 @@ export function FacsimileFace({
 
       {isPinLocal && (
         <div className="facsimile-notice local-only-notice" role="note">
-          <h3>Local Verification Scan</h3>
+          <h3>Local verification scan</h3>
           <p>
             This scan is pinned locally for verification only and is not distributed publicly under
             its source terms.
@@ -162,7 +162,7 @@ export function FacsimileFace({
 
       {isReferenceOnly && (
         <div className="facsimile-notice reference-only-notice" role="note">
-          <h3>Reference Only Document</h3>
+          <h3>Reference only document</h3>
           <p>Reference only; scan not hosted.</p>
           {sourceAsset.rights?.statement && (
             <blockquote className="verbatim-rights-statement">
@@ -212,7 +212,7 @@ export function FacsimileFace({
 
       {/* Page Map Table */}
       <section className="facsimile-pagemap-section" aria-label="Facsimile page map and jumps">
-        <h2 className="pagemap-heading">Page Map & Content Concordance</h2>
+        <h2 className="pagemap-heading">Page map and content concordance</h2>
         <section
           className="pagemap-table-container"
           aria-label="Facsimile page map concordance"

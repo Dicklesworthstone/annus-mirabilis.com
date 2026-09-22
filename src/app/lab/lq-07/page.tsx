@@ -34,7 +34,7 @@ export default function FluorescencePage() {
           LQ-07 · Light Quanta · Paper 1, §7 Energy Conservation
         </p>
         <h1 style={{ fontFamily: "var(--font-serif, serif)" }}>
-          Stokes's Rule and the Single-Quantum Energy Budget
+          Stokes's rule and the single-quantum energy budget
         </h1>
         <p className="lead" style={{ maxWidth: "42rem", margin: "0.5rem auto 0" }}>
           Why the frequency of emitted fluorescent light cannot exceed that of the exciting light
@@ -57,7 +57,7 @@ export default function FluorescencePage() {
         }}
       >
         <h2 style={{ fontFamily: "var(--font-serif, serif)" }}>
-          The Single-Quantum Energy Budget in Einstein 1905 §7
+          The single-quantum energy budget in Einstein 1905 §7
         </h2>
         <p>
           In 1852, George Gabriel Stokes formulated the empirical rule that fluorescent light always
@@ -97,7 +97,7 @@ export default function FluorescencePage() {
         </div>
 
         <h3 style={{ fontFamily: "var(--font-serif, serif)", paddingTop: "0.5rem" }}>
-          The Two Historical Deviation Cases
+          The two historical deviation cases
         </h3>
         <p>
           Rather than stating Stokes's rule as an unbreakable law, Einstein explicitly deduced the

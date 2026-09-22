@@ -50,7 +50,7 @@ export function TaylorBinomialExtension() {
           Extension · Planned callers: Special Relativity §4, Mass–Energy
         </p>
         <h3 id="taylor-binomial-heading" style={{ margin: "0 0 0.5rem 0" }}>
-          Binomial Series Expansion for the Relativistic Lorentz Factor γ
+          Binomial series expansion for the relativistic Lorentz factor γ
         </h3>
       </header>
 

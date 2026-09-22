@@ -58,7 +58,7 @@ export function EntropyComparisonPlot({
             margin: 0,
           }}
         >
-          Entropy Volume Law Comparison (§6)
+          Entropy volume law comparison (§6)
         </h3>
         <span
           style={{
