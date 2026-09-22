@@ -24,7 +24,7 @@ export default function ModeAllocationPage() {
           radiation.
         </p>
         <p>
-          <a href="/papers/light-quanta/#s1">Read §1's resonator model and its verdict &rarr;</a>
+          <a href="/papers/light-quanta/#s1">Read §1's resonator model and its verdict</a>
         </p>
       </header>
 
@@ -59,7 +59,7 @@ export default function ModeAllocationPage() {
         </p>
         <div className="actions">
           <a className="button" href="/lab/lq-01/">
-            Return to the wave description &rarr;
+            Return to the wave description
           </a>
           <a href="/papers/light-quanta/">Return to the argument</a>
         </div>

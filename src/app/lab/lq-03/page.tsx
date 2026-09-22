@@ -29,7 +29,7 @@ export default function SpectrumPage() {
           actually measure?
         </p>
         <p>
-          <a href="/papers/light-quanta/#s2">Read &sect;2's classical-regime conclusion &rarr;</a>
+          <a href="/papers/light-quanta/#s2">Read &sect;2's classical-regime conclusion</a>
         </p>
       </header>
 
@@ -59,7 +59,7 @@ export default function SpectrumPage() {
 
         <div className="actions">
           <a className="button" href="/lab/bm-01/">
-            Compare with the tracer ensemble &rarr;
+            Compare with the tracer ensemble
           </a>
         </div>
       </section>

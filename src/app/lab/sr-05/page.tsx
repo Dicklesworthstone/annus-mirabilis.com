@@ -26,7 +26,7 @@ export default function MovingClocksPage() {
           it moves past, and read both clocks' faces at the reunion event.
         </p>
         <p>
-          <a href="/papers/relativity/#s4">Read Section 4 of Einstein&rsquo;s 1905 paper &rarr;</a>
+          <a href="/papers/relativity/#s4">Read Section 4 of Einstein&rsquo;s 1905 paper</a>
         </p>
       </header>
 

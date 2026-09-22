@@ -137,7 +137,7 @@ export default function FluorescencePage() {
               gap: "0.25rem",
             }}
           >
-            Read the original German source text and translation for §7 &rarr;
+            Read the original German source text and translation for §7
           </a>
         </div>
       </section>

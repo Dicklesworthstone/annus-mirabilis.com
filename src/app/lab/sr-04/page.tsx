@@ -28,9 +28,7 @@ export default function LorentzMapPage() {
           decide?
         </p>
         <p>
-          <a href="/papers/special-relativity/#s3">
-            Read &sect;3&apos;s functional-equation route &rarr;
-          </a>
+          <a href="/papers/special-relativity/#s3">Read &sect;3&apos;s functional-equation route</a>
         </p>
       </header>
 
@@ -61,7 +59,7 @@ export default function LorentzMapPage() {
 
         <div className="actions">
           <a className="button" href="/lab/sr-03/">
-            Compare with rod measurement and simultaneity &rarr;
+            Compare with rod measurement and simultaneity
           </a>
         </div>
       </section>

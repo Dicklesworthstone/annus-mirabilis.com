@@ -23,7 +23,7 @@ export default function PhotoelectricPage() {
           higher intensity?
         </p>
         <p>
-          <a href="/papers/light-quanta/#s8">Read Section 8 of Einstein’s 1905 paper &rarr;</a>
+          <a href="/papers/light-quanta/#s8">Read Section 8 of Einstein’s 1905 paper</a>
         </p>
       </header>
 
@@ -110,7 +110,7 @@ export default function PhotoelectricPage() {
 
         <div className="actions">
           <a className="button" href="/papers/light-quanta/#s8">
-            Return to the Light Quanta Paper &rarr;
+            Return to the Light Quanta Paper
           </a>
           <a href="/discover/light-quanta/">Explore the Discovery Journey</a>
         </div>

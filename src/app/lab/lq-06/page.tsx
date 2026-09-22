@@ -25,7 +25,7 @@ export default function CoefficientMatchPage() {
           <Formula latex={String.raw`R\beta\nu / N = h\nu`} />?
         </p>
         <p>
-          <a href="/papers/light-quanta/#s6">Read Section 6 of Einstein’s 1905 paper &rarr;</a>
+          <a href="/papers/light-quanta/#s6">Read Section 6 of Einstein’s 1905 paper</a>
         </p>
       </header>
 
@@ -136,7 +136,7 @@ export default function CoefficientMatchPage() {
 
         <div className="actions">
           <a className="button" href="/papers/light-quanta/#s6">
-            Return to the Light Quanta Paper &rarr;
+            Return to the Light Quanta Paper
           </a>
           <a href="/discover/light-quanta/">Explore the Discovery Journey</a>
         </div>

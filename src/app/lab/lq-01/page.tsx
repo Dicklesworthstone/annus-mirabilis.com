@@ -28,9 +28,7 @@ export default function WaveDescriptionPage() {
           intensity measure?
         </p>
         <p>
-          <a href="/papers/light-quanta/#s0">
-            Read the Introduction of Einstein’s 1905 paper &rarr;
-          </a>
+          <a href="/papers/light-quanta/#s0">Read the Introduction of Einstein’s 1905 paper</a>
         </p>
       </header>
 
@@ -96,9 +94,9 @@ export default function WaveDescriptionPage() {
 
         <div className="actions">
           <a className="button" href="/papers/light-quanta/#s0">
-            Return to the Light Quanta Paper &rarr;
+            Return to the Light Quanta Paper
           </a>
-          <a href="/discover/light-quanta/">Explore Journey I &rarr;</a>
+          <a href="/discover/light-quanta/">Explore Journey I</a>
         </div>
       </section>
     </>

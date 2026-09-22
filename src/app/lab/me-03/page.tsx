@@ -24,9 +24,7 @@ export default function BoundaryLedgerPage() {
           a thermodynamic boundary around the components and inspect what energy crosses it.
         </p>
         <p>
-          <a href="/papers/mass-energy/#arg-me-scope">
-            Read the explanatory preview and its scope &rarr;
-          </a>
+          <a href="/papers/mass-energy/#arg-me-scope">Read the explanatory preview and its scope</a>
         </p>
       </header>
 
@@ -75,9 +73,9 @@ export default function BoundaryLedgerPage() {
 
         <div className="actions">
           <a className="button" href="/lab/me-01/">
-            Explore the two-ledger derivation (ME-01) &rarr;
+            Explore the two-ledger derivation (ME-01)
           </a>
-          <a href="/lab/me-02/">Explore the small-speed coefficient (ME-02) &rarr;</a>
+          <a href="/lab/me-02/">Explore the small-speed coefficient (ME-02)</a>
         </div>
       </section>
     </>

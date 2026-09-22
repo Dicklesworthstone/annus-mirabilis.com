@@ -107,7 +107,7 @@ export default function IndependentConfigurationsPage() {
               gap: "0.25rem",
             }}
           >
-            Read the original German source text and translation for §5 &rarr;
+            Read the original German source text and translation for §5
           </a>
         </div>
       </section>

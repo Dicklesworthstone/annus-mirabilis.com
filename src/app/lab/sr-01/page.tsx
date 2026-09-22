@@ -26,7 +26,7 @@ export default function ClockSyncPage() {
         </p>
         <p>
           <a href="/papers/special-relativity/s1/#arg-sr-synchronization">
-            Read the synchronization argument (explanatory preview) &rarr;
+            Read the synchronization argument (explanatory preview)
           </a>
         </p>
       </header>

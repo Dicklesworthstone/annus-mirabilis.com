@@ -31,7 +31,7 @@ export default function ConfigurationPage() {
         </p>
         <p>
           <a href="/papers/brownian-motion/#arg-bm-configuration">
-            Read the statistical argument and open its derivation steps &rarr;
+            Read the statistical argument and open its derivation steps
           </a>
         </p>
       </header>
@@ -80,7 +80,7 @@ export default function ConfigurationPage() {
 
         <div className="actions">
           <a className="button" href="/lab/bm-01/">
-            Explore the tracer ensemble &rarr;
+            Explore the tracer ensemble
           </a>
           <a href="/lab/bm-05/">From random steps to diffusion</a>
         </div>

@@ -26,7 +26,7 @@ export default function TwoLedgersPage() {
         </p>
         <p>
           <a href="/papers/mass-energy/#arg-me-two-ledgers">
-            Read the two-ledger argument (explanatory preview) &rarr;
+            Read the two-ledger argument (explanatory preview)
           </a>
         </p>
       </header>
@@ -105,7 +105,7 @@ export default function TwoLedgersPage() {
 
         <div className="actions">
           <a className="button" href="/lab/me-02/">
-            Explore the small-speed coefficient (ME-02) &rarr;
+            Explore the small-speed coefficient (ME-02)
           </a>
           <a href="/papers/mass-energy/#entry-mass-energy">
             Start with two concrete energy accounts

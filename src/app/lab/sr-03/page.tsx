@@ -29,7 +29,7 @@ export default function RodSimultaneityPage() {
         </p>
         <p>
           <a href="/papers/special-relativity/#s2">
-            Read §2 (On the Relativity of Lengths and Times) of Einstein’s 1905 paper &rarr;
+            Read §2 (On the Relativity of Lengths and Times) of Einstein’s 1905 paper
           </a>
         </p>
       </header>
@@ -116,11 +116,9 @@ export default function RodSimultaneityPage() {
 
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s2">
-            Read §2 of the Special Relativity Paper &rarr;
+            Read §2 of the Special Relativity Paper
           </a>
-          <a href="/papers/special-relativity/#s4">
-            Read §4 (Physical Meaning of Moving Bodies) &rarr;
-          </a>
+          <a href="/papers/special-relativity/#s4">Read §4 (Physical Meaning of Moving Bodies)</a>
         </div>
       </section>
     </>

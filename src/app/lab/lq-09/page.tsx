@@ -23,7 +23,7 @@ export default function IonizationPage() {
           quanta?
         </p>
         <p>
-          <a href="/papers/light-quanta/#s9">Read Section 9 of Einstein’s 1905 paper &rarr;</a>
+          <a href="/papers/light-quanta/#s9">Read Section 9 of Einstein’s 1905 paper</a>
         </p>
       </header>
 
@@ -123,7 +123,7 @@ export default function IonizationPage() {
 
         <div className="actions">
           <a className="button" href="/papers/light-quanta/#s9">
-            Return to the Light Quanta Paper &rarr;
+            Return to the Light Quanta Paper
           </a>
           <a href="/discover/light-quanta/">Explore the Discovery Journey</a>
         </div>
