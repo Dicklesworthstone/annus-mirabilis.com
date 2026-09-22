@@ -144,9 +144,9 @@ export function ModeAllocationLab({
         </div>
         {predictWiden && (
           <p className="fine">
-            {predictWiden === "1000x"
-              ? "Correct. The classical energy density grows as the cube of the cutoff frequency, so a tenfold widening multiplies the energy by 1000."
-              : "Not quite. Try the widen-tenfold action below and compare the readout: the energy up to the cutoff grows as the cube of the cutoff frequency."}
+            The model: the classical energy density grows as the cube of the cutoff frequency, so
+            widening tenfold multiplies the energy up to the cutoff by 1000. The widen-tenfold
+            action below shows it.
           </p>
         )}
         <p className="fine">
@@ -170,9 +170,9 @@ export function ModeAllocationLab({
         </div>
         {predictDiverge && (
           <p className="fine">
-            {predictDiverge === "no"
-              ? "Correct. Every resonator frequency receives the same mean energy, so widening the range without limit grows the total without bound."
-              : 'Not quite. Press "remove the upper limit" below and read the refusal: this model\'s total has no finite value.'}
+            The model: every resonator frequency receives the same mean energy, so widening the
+            range without limit grows the total without bound. Press &ldquo;remove the upper
+            limit&rdquo; below and read the refusal: this model&apos;s total has no finite value.
           </p>
         )}
       </div>

@@ -442,11 +442,7 @@ export function TwoLedgersLab({
         </div>
         {predictRevealed && (
           <section className="predict-reveal" aria-live="polite">
-            <p className="reveal-title">
-              {predictAnswer === "me-01-candidate-sum-unchanged"
-                ? "✓ Correct prediction!"
-                : "Outcome:"}
-            </p>
+            <p className="reveal-title">What the model says</p>
             <p>{prompt.explanation}</p>
           </section>
         )}

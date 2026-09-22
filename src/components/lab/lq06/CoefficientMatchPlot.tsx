@@ -296,11 +296,11 @@ export function CoefficientMatchSideBySidePlot({
                 x="330"
                 y="24"
                 textAnchor="middle"
-                fill="var(--accent)"
+                fill="var(--ink)"
                 fontSize="12"
                 fontWeight="bold"
               >
-                ✗ Subexpression Mismatch
+                With this term the two laws differ
               </text>
               <text x="330" y="44" textAnchor="middle" fill="var(--ink)" fontSize="12">
                 The selected term does not match the dimensionless exponent n in S - S₀ = (R/N) n

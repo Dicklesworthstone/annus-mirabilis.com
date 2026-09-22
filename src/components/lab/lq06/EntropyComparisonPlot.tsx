@@ -327,17 +327,15 @@ export function EntropyComparisonPlot({
           >
             {isMatch ? (
               <tspan fill="var(--plot)">
-                ✓ Correspondence: n_eff = (N·E)/(R·β·ν) = E/(h·ν) ⟹ Energy per quantum ε = R·β·ν/N =
-                h·ν = {quantumEnergyEv.toFixed(4)} eV
+                The laws match: n_eff = NE/(Rβν) = E/(hν), so each quantum carries ε = Rβν/N = hν ={" "}
+                {quantumEnergyEv.toFixed(4)} eV
               </tspan>
             ) : selectedSubexpression !== "none" ? (
-              <tspan fill="var(--accent)">
-                ✗ Proposed candidate does not match the dimensionless particle count n
+              <tspan fill="var(--ink)">
+                With this term the two laws differ: it is not the particle count n
               </tspan>
             ) : (
-              <tspan fill="var(--muted)">
-                Select a subexpression in Discovery Mode to test the coefficient match
-              </tspan>
+              <tspan fill="var(--muted)">Choose an expression to test the match</tspan>
             )}
           </text>
         </g>

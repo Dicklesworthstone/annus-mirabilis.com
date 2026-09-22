@@ -712,9 +712,7 @@ export function BoundaryLedgerLab({
         </div>
         {predictRevealed && (
           <section className="predict-reveal" aria-live="polite">
-            <p className="reveal-title">
-              {predictAnswer === prompt.settledCandidateId ? "✓ Correct prediction!" : "Outcome:"}
-            </p>
+            <p className="reveal-title">What the model says</p>
             <p>{prompt.explanation}</p>
           </section>
         )}

@@ -244,9 +244,9 @@ export function OsmoticPartitionLab({
         </div>
         {predictAnswer && (
           <p className="fine">
-            {predictAnswer === "same"
-              ? "Correct. The ideal osmotic pressure depends on the number of particles per volume, not their size. Try the size-independence comparison below to see the calculation."
-              : "Not quite. Try the size-independence comparison below: the calculated pressure is identical at 0.5 nm and 500 nm, for the same count per volume."}
+            The model: the ideal osmotic pressure depends on the number of particles per volume, not
+            on their size. The size-independence comparison below shows it, with the same calculated
+            pressure at 0.5 nm and at 500 nm for the same count per volume.
           </p>
         )}
       </div>

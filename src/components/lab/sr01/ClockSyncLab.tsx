@@ -405,9 +405,7 @@ export function ClockSyncLab({
         </div>
         {predictRevealed && (
           <section className="predict-reveal" aria-live="polite">
-            <p className="reveal-title">
-              {predictAnswer === settledAnswer ? "✓ Correct prediction!" : "Outcome:"}
-            </p>
+            <p className="reveal-title">What the model says</p>
             <p>
               {
                 SR01_PREDICT_MOVING_PAIR.candidates.find((c) => c.id === settledAnswer)

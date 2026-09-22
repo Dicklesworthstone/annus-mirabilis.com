@@ -215,19 +215,12 @@ export function FluorescenceLab({
               background: "var(--panel)",
             }}
           >
-            {predictAnswer1 === "never" ? (
-              <p style={{ margin: 0, fontWeight: 500, color: "var(--plot)" }}>
-                ✓ Correct! In each elementary process, one quantum of energy hν₁ is absorbed. Since
-                energy is conserved (hν₁ = hν₂ + E_other with E_other ≥ 0), the emitted quantum hν₂
-                cannot exceed hν₁, so ν₂ ≤ ν₁.
-              </p>
-            ) : (
-              <p style={{ margin: 0, color: "var(--accent)" }}>
-                Notice: In the light-quantum hypothesis, absorption is an elementary process between
-                individual quanta. Increasing beam intensity delivers more quanta per second, but
-                does not increase the energy of each individual quantum.
-              </p>
-            )}
+            <p style={{ margin: 0 }}>
+              The model: in each elementary process one quantum of energy hν₁ is absorbed. Energy is
+              conserved (hν₁ = hν₂ + E_other, with E_other ≥ 0), so the emitted quantum hν₂ cannot
+              exceed hν₁, and ν₂ ≤ ν₁. A brighter beam delivers more quanta each second, not more
+              energy in each one.
+            </p>
           </div>
         )}
       </section>
@@ -285,19 +278,12 @@ export function FluorescenceLab({
               background: "var(--panel)",
             }}
           >
-            {predictAnswer2 === "linear" ? (
-              <p style={{ margin: 0, fontWeight: 500, color: "var(--plot)" }}>
-                ✓ Correct! Because each absorbed quantum acts independently with probability Y, the
-                emitted rate is strictly proportional to absorbed power even down to single photons
-                with zero intensity threshold.
-              </p>
-            ) : (
-              <p style={{ margin: 0, color: "var(--accent)" }}>
-                Notice: Wave theories might predict a threshold or time lag for energy accumulation,
-                but the light-quantum picture predicts immediate emission proportional to absorbed
-                power at any intensity.
-              </p>
-            )}
+            <p style={{ margin: 0 }}>
+              The model: each absorbed quantum acts independently, with probability Y, so the
+              emitted rate is proportional to the absorbed power however weak the light, with no
+              threshold. A wave picture might predict a threshold, or a delay while energy
+              accumulates; the light-quantum picture predicts neither.
+            </p>
           </div>
         )}
       </section>

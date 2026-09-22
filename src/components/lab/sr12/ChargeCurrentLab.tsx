@@ -633,9 +633,7 @@ export function ChargeCurrentLab({
               fontSize: "0.8rem",
             }}
           >
-            <p style={{ margin: "0 0 0.25rem", fontWeight: 600 }}>
-              {prediction === "negatively-charged" ? "✓ Correct!" : "Explanation:"}
-            </p>
+            <p style={{ margin: "0 0 0.25rem", fontWeight: 600 }}>What the model says</p>
             <p style={{ margin: 0 }}>
               Because charge density and current density transform together like a four-vector,
               ρ&apos; = γ(ρ - vJx/c²). When ρ = 0 and Jx &gt; 0 with v &gt; 0, ρ&apos; = -γ v Jx /
