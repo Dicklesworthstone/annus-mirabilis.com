@@ -10,7 +10,9 @@
 
    The footnotes share the column, so a note reads at the width of the text it annotates, and
    so do the draft notice and its sticky label: at 1440 they spanned 1,320px above a 450px
-   column, a banner for the page rather than a qualification of the text under it.
+   column, a banner for the page rather than a qualification of the text under it. The measure
+   sits on .source-column, which holds all four, because ch resolves against the font of the
+   element declaring it and the label is set smaller than the text.
 
    HYPHENATION is on because German compounds are long and a 43ch column without it runs
    very ragged: "Parallel-Translationsbewegung", "Zustandsänderungen". It is presentation
@@ -18,9 +20,7 @@
    Einstein's words as printed, and every <p> here already carries lang="de", which is what
    selects the German hyphenation dictionary.
    --------------------------------------------------------------------------- */
-[data-german-draft],
-.source-footnotes,
-.reader-root:has(> [data-german-draft]) > :is(.source-draft-notice, .source-draft-notice__persistent) {
+.source-column {
   max-width: min(var(--reader-measure), 100%);
 }
 [data-german-draft] p {
@@ -34,7 +34,7 @@
    full width (100cqi, against the container declared on the face's root). A short formula still
    centres in the column (min-width: 100%). On a phone the page is the column, 100cqi equals it,
    and the formulas that are wider scroll inside their line as before. */
-.reader-root:has(> [data-german-draft]) {
+.reader-root:has(> .source-column) {
   container-type: inline-size;
 }
 [data-german-draft] .source-equation {

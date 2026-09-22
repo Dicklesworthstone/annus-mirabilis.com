@@ -88,50 +88,59 @@ export function GermanDraftFace({
       </header>
 
       {/*
-        Emitted before the first word of German, unconditionally. It is not behind a
-        condition in this component: the notice decides for itself whether to render,
-        from the receipt, so a paper that becomes reviewed stops being labelled here
-        without this file changing.
+        ONE COLUMN FOR THE TEXT AND EVERYTHING THAT QUALIFIES IT. The notice, its sticky
+        label, the German and the footnotes share a measure, and the measure is declared once
+        here rather than on each: `ch` resolves against the font of the element that declares
+        it, so the label - set smaller - came out 360px over a 450px column when it carried
+        the same 43ch itself.
       */}
-      <SourceFaceNotice notice={face.notice} />
+      <div className="source-column">
+        {/*
+          Emitted before the first word of German, unconditionally. It is not behind a
+          condition in this component: the notice decides for itself whether to render,
+          from the receipt, so a paper that becomes reviewed stops being labelled here
+          without this file changing.
+        */}
+        <SourceFaceNotice notice={face.notice} />
 
-      <div data-face-source data-german-draft={face.bibKey}>
-        {body.map((block) =>
-          MASTHEAD_KINDS.has(block.kind) ? (
-            <p key={block.id} id={block.id} className="source-masthead" lang="de">
-              {renderSourceMarkup(block.text, block.id)}
-            </p>
-          ) : HEADING_KINDS.has(block.kind) ? (
-            <h2 key={block.id} id={block.id} lang="de">
-              {renderSourceMarkup(block.text, block.id)}
-            </h2>
-          ) : block.kind === "equation" ? (
-            sourceDisplayEquation(block.text, block.label, block.id, block.id)
-          ) : (
-            <p
-              key={block.id}
-              id={block.id}
-              className="source-paragraph"
-              lang="de"
-              data-block-kind={block.kind}
-            >
-              {renderSourceMarkup(block.text, block.id, block.displayEquationIds)}
-            </p>
-          ),
-        )}
+        <div data-face-source data-german-draft={face.bibKey}>
+          {body.map((block) =>
+            MASTHEAD_KINDS.has(block.kind) ? (
+              <p key={block.id} id={block.id} className="source-masthead" lang="de">
+                {renderSourceMarkup(block.text, block.id)}
+              </p>
+            ) : HEADING_KINDS.has(block.kind) ? (
+              <h2 key={block.id} id={block.id} lang="de">
+                {renderSourceMarkup(block.text, block.id)}
+              </h2>
+            ) : block.kind === "equation" ? (
+              sourceDisplayEquation(block.text, block.label, block.id, block.id)
+            ) : (
+              <p
+                key={block.id}
+                id={block.id}
+                className="source-paragraph"
+                lang="de"
+                data-block-kind={block.kind}
+              >
+                {renderSourceMarkup(block.text, block.id, block.displayEquationIds)}
+              </p>
+            ),
+          )}
+        </div>
+
+        {footnotes.length > 0 ? (
+          <section className="source-footnotes" aria-label="Footnotes">
+            <h2>Fußnoten</h2>
+            {footnotes.map((block) => (
+              <p key={block.id} id={block.id} className="source-footnote" lang="de">
+                {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
+                {renderSourceMarkup(block.text, block.id)}
+              </p>
+            ))}
+          </section>
+        ) : null}
       </div>
-
-      {footnotes.length > 0 ? (
-        <section className="source-footnotes" aria-label="Footnotes">
-          <h2>Fußnoten</h2>
-          {footnotes.map((block) => (
-            <p key={block.id} id={block.id} className="source-footnote" lang="de">
-              {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
-              {renderSourceMarkup(block.text, block.id)}
-            </p>
-          ))}
-        </section>
-      ) : null}
     </div>
   );
 }
