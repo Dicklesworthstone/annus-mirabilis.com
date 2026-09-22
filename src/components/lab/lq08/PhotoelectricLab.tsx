@@ -520,7 +520,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         }}
       >
         <h3 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
-          Accepted Laboratory Snapshot (Instance Telemetry)
+          Accepted laboratory snapshot (instance telemetry)
         </h3>
         <section className="table-scroll" aria-label="Accepted laboratory snapshot telemetry table">
           <table
@@ -587,10 +587,10 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         </section>
       </div>
 
-      {/* Historical Readout: Einstein 1905 §8 Order-of-Magnitude Check */}
+      {/* Historical readout: Einstein 1905 §8 order-of-magnitude check */}
       <div className="notice" style={{ marginTop: "1.5rem" }}>
         <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
-          Historical Readout: Einstein 1905 §8 Order-of-Magnitude Check
+          Historical readout: Einstein 1905 §8 order-of-magnitude check
         </h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           <div
@@ -673,13 +673,13 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
       <section
         className="notice"
         style={{ marginTop: "1.5rem" }}
-        aria-label="Discovery Mode: Predict Before Interacting"
+        aria-label="Discovery mode: predict before interacting"
       >
         <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
-          Discovery Mode: Predict Before Interacting
+          Discovery mode: predict before interacting
         </h3>
         <p className="fine" style={{ margin: "0 0 0.75rem" }}>
-          Select an inquiry to test your deductive understanding of light-quantum mechanics:
+          Choose a question and predict the answer before you change a control:
         </p>
         <div className="preset-list" style={{ marginBottom: "0.75rem" }}>
           {PREDICT_PROMPTS.map((p, idx) => (
@@ -693,7 +693,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
               className={`button ${activePromptIndex === idx ? "" : "secondary"}`}
               style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
             >
-              Inquiry {idx + 1}
+              Question {idx + 1}
             </button>
           ))}
         </div>
@@ -771,7 +771,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         }}
       >
         <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
-          Limits of this Reference Model (Not Modeled)
+          Limits of this reference model (not modeled)
         </h3>
         <p className="fine" style={{ margin: "0 0 0.5rem" }}>
           This reference owner implements Einstein’s 1905 single-quantum absorption and escape
