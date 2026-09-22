@@ -27,6 +27,23 @@
  * output and neither is fine for arbitrary HTML.
  */
 
+/**
+ * A typed refusal, not a bare Error. The one refusal in this file is load-bearing: an empty
+ * needle is contained by every string, so `containsHeading(html, "")` would return true on a
+ * page with no heading at all, and the assertion built on it would report a section present
+ * that is not there. That is the exact failure this module exists to prevent, arriving through
+ * the module itself, so it refuses with a code that a test can name rather than a message a
+ * test can only match loosely.
+ */
+export class HeadingAssertionError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(`${code}: ${message}`);
+    this.name = "HeadingAssertionError";
+    this.code = code;
+  }
+}
+
 const HEADING_ELEMENT = /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi;
 
 const ENTITIES: Readonly<Record<string, string>> = {
@@ -62,6 +79,11 @@ export function headingTexts(html: string): string[] {
  */
 export function containsHeading(html: string, heading: string): boolean {
   const needle = heading.replace(/\s+/g, " ").trim().toLowerCase();
-  if (needle.length === 0) throw new Error("containsHeading: empty heading");
+  if (needle.length === 0) {
+    throw new HeadingAssertionError(
+      "empty-heading-needle",
+      "containsHeading was given a blank heading, which every heading contains and every page without a heading also satisfies.",
+    );
+  }
   return headingTexts(html).some((text) => text.toLowerCase().includes(needle));
 }

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { containsHeading, headingTexts } from "./headingText.ts";
+import { containsHeading, HeadingAssertionError, headingTexts } from "./headingText.ts";
 
 /**
  * The first case below is the defect this helper exists for, written from the measurement that
@@ -36,7 +36,21 @@ describe("containsHeading (am-edit-voice-lint-trmf)", () => {
     expect(headingTexts(html)).toEqual(["One", "Three"]);
   });
 
-  test("an empty needle is refused rather than matching everything", () => {
-    expect(() => containsHeading(`<h1>One</h1>`, "   ")).toThrow();
+  test("an empty needle is refused by code, rather than matching everything", () => {
+    // Named by code, not by message: the refusal is what stops containsHeading reporting a
+    // section present on a page with no heading at all, and a bare .toThrow() would be
+    // satisfied by a typo in the call site just as happily.
+    let thrown: unknown;
+    try {
+      containsHeading(`<h1>One</h1>`, "   ");
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(HeadingAssertionError);
+    expect((thrown as HeadingAssertionError).code).toBe("empty-heading-needle");
+    // And the refusal is doing real work: without it the blank needle would match this page,
+    // which has no heading whatsoever.
+    expect(headingTexts(`<p>no heading here</p>`)).toEqual([]);
+    expect(`<p>no heading here</p>`.includes("")).toBe(true);
   });
 });
