@@ -125,24 +125,39 @@ describe("assignQuantityColours", () => {
   };
 
   test("an equation with more quantities than colours is refused, not coloured twice", () => {
-    const nine = Array.from({ length: 9 }, (_, i) => `q${i}`);
+    const ten = Array.from({ length: QUANTITY_PALETTE.length + 1 }, (_, i) => `q${i}`);
     expect(
       refusal(() =>
-        assignQuantityColours([{ id: "eq-model-x-nine", argument: "arg-x", quantityIds: nine }]),
+        assignQuantityColours([{ id: "eq-model-x-ten", argument: "arg-x", quantityIds: ten }]),
       ),
     ).toBe("equation-exceeds-palette");
   });
 
-  test("a paper that no eight colours can serve is refused, even when every equation fits", () => {
-    // Nine quantities, every pair of them in some two-term equation: each needs a colour unlike
-    // the other eight, so nine are needed although no single equation shows more than two.
-    const nine = Array.from({ length: 9 }, (_, i) => `q${i}`);
-    const pairs = nine.flatMap((a, i) =>
-      nine
+  test("a paper that the palette cannot serve is refused, even when every equation fits", () => {
+    // One quantity more than the palette has colours, every pair of them in some two-term
+    // equation: each needs a colour unlike all the others, although no equation shows more than two.
+    const many = Array.from({ length: QUANTITY_PALETTE.length + 1 }, (_, i) => `q${i}`);
+    const pairs = many.flatMap((a, i) =>
+      many
         .slice(i + 1)
         .map((b) => ({ id: `eq-model-x-${a}-${b}`, argument: "arg-x", quantityIds: [a, b] })),
     );
-    expect(pairs.length).toBe(36);
+    expect(pairs.length).toBe((many.length * (many.length - 1)) / 2);
     expect(refusal(() => assignQuantityColours(pairs))).toBe("paper-not-colourable");
+  });
+
+  test("equations shown side by side are one view: their quantities never share a colour", () => {
+    // Each equation fills the palette with eight shared quantities and one of its own, so apart,
+    // qa and qb MUST take the same last slot. Shown together they are ten quantities in one view.
+    const shared = Array.from({ length: QUANTITY_PALETTE.length - 1 }, (_, i) => `s${i}`);
+    const eqs = [
+      { id: "eq-model-x-a", argument: "arg-x", quantityIds: [...shared, "qa"] },
+      { id: "eq-model-x-b", argument: "arg-x", quantityIds: [...shared, "qb"] },
+    ];
+    const apart = assignQuantityColours(eqs);
+    expect(apart.qa).toBe(apart.qb as number);
+    expect(refusal(() => assignQuantityColours(eqs, [["eq-model-x-a", "eq-model-x-b"]]))).toBe(
+      "view-exceeds-palette",
+    );
   });
 });
