@@ -527,7 +527,7 @@ export const SPECIAL_RELATIVITY_QUANTITIES: QuantityRegistry = Object.freeze(
       ),
       quantity(
         "magneticFieldStationary",
-        "Magnetic field",
+        "Magnetic field, stationary system",
         "B",
         magneticField,
         "T",
