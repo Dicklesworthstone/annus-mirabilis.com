@@ -262,15 +262,16 @@ export default function BrownianEncounter() {
           What should you measure?
         </h1>
         <p className="lead">
-          This is a route through a model’s argument, not a claim about Einstein’s private thought
-          process. You can read every step without running a simulation.
+          If heat really is the motion of molecules, then something small enough to see under a
+          microscope has to be shoved about hard enough to watch. Einstein turned that thought into
+          a number a laboratory could go and check. You can arrive at the same number here, deciding
+          at each step what is worth measuring.
+        </p>
+        <p className="fine">
+          A route you could take, not a transcript of Einstein’s private thoughts. Every step can be
+          read without running a simulation.
         </p>
       </header>
-      <p className="reading">
-        <a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
-          Why the mean square is tractable: inspect the cross-term step
-        </a>
-      </p>
       <section>
         <p className="step-number">01 / Choose a quantity</p>
         <h2>Averages can hide motion.</h2>
@@ -294,6 +295,11 @@ export default function BrownianEncounter() {
             in the derivation, not just a convenient sign.
           </p>
         </details>
+        <p>
+          <a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
+            See the step where the cross terms drop out
+          </a>
+        </p>
         <p>
           <a href="/lab/bm-01/">Compare signed means and mean squares in the tracer ensemble</a>
         </p>
