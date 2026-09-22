@@ -63,6 +63,12 @@ export function dayAndMonth(iso: string): string {
   return `${Number(match[3])} ${MONTHS[Number(match[2]) - 1]}`;
 }
 
+/** "1905-03-18" -> { day: "18", month: "March" }, for a label set as a numeral over a month. */
+export function dayMonthParts(iso: string): { day: string; month: string } {
+  const [day = "", month = ""] = dayAndMonth(iso).split(" ");
+  return { day, month };
+}
+
 /** Fraction of 1905 elapsed at the start of the given day. 1905 is not a leap year. */
 export function fractionOf1905(iso: string): number {
   const day = Date.UTC(
