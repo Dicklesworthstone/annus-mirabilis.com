@@ -1,0 +1,14 @@
+/* LQ-05, independent configurations (IndependentConfigurationsLab.tsx). The drawing comes first;
+   the prediction sits in a closed disclosure under it, then the presets. */
+.lq05-predict,
+.lq05-try {
+  max-width: 44rem;
+}
+
+.lq05-prompt {
+  margin-block: 0.75rem 1.25rem;
+}
+
+.lq05-prompt h3 {
+  font-size: var(--type-small);
+}

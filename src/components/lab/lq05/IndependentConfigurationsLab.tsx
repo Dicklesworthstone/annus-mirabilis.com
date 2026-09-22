@@ -19,6 +19,7 @@ import {
 import { identity } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
+import "./independentConfigurationsLab.css";
 
 export function IndependentConfigurationsLab({
   example,
@@ -151,101 +152,90 @@ export function IndependentConfigurationsLab({
             {title}
           </h2>
           <p className="fine" style={{ margin: "0.5rem 0 0" }}>
-            How counting independent configurations produces an entropy depending on volume as n ln
-            V, and why locking the positions together gives V rather than V^n.
+            How counting independent configurations gives an entropy that depends on the volume, and
+            what changes when the positions are locked together.
           </p>
         </div>
       </header>
 
-      {/* Predict Mode Card */}
-      <section
-        className="notice"
-        style={{ marginBottom: "1.5rem" }}
-        aria-label="Predict Mode: Microstate Reasoning"
-      >
-        <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          Predict mode · Microstate reasoning
-        </p>
-        <h3 style={{ fontSize: "1rem", margin: "0.25rem 0 0.5rem" }}>
-          With 10 independent points, what is the chance that all sit in the left half (f = 1/2)?
-        </h3>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", margin: "0.75rem 0" }}>
-          <button
-            type="button"
-            className={`button ${predictAnswer === "1/2" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
-            onClick={() => setPredictAnswer("1/2")}
-          >
-            <strong style={{ display: "block" }}>A. About 1 in 2</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              One point decides for all
-            </span>
-          </button>
-          <button
-            type="button"
-            className={`button ${predictAnswer === "1/20" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
-            onClick={() => setPredictAnswer("1/20")}
-          >
-            <strong style={{ display: "block" }}>B. About 1 in 20</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              Linear reduction with n
-            </span>
-          </button>
-          <button
-            type="button"
-            className={`button ${predictAnswer === "1/1000" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
-            onClick={() => setPredictAnswer("1/1000")}
-          >
-            <strong style={{ display: "block" }}>C. About 1 in 1 000</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              Each point halves the chance again
-            </span>
-          </button>
-        </div>
-        {predictAnswer && (
-          <div
-            className="notice"
-            style={{
-              marginTop: "0.75rem",
-              padding: "0.75rem",
-              background: "var(--panel)",
-              border: "1px solid var(--line)",
-            }}
-          >
-            <p className="fine" style={{ margin: 0, color: "var(--ink)" }}>
-              The model: the points move independently, so every additional point halves the chance
-              again. Ten independent points need ten independent successes, W = (1/2)¹⁰ = 1/1 024 ≈
-              0.000977.
-            </p>
-          </div>
-        )}
-      </section>
-
-      {/* Presets Bar */}
-      <nav
-        aria-label="Presets"
-        className="preset-list"
-        style={{ alignItems: "center", marginBottom: "1.5rem" }}
-      >
-        <span className="fine" style={{ fontWeight: 600, marginRight: "0.25rem" }}>
-          Presets:
-        </span>
-        {(Object.keys(LQ05_PRESETS) as (keyof typeof LQ05_PRESETS)[]).map((key) => (
-          <button
-            key={key}
-            type="button"
-            className="button secondary"
-            onClick={() => setPreset(key)}
-          >
-            {LQ05_PRESETS[key]?.label}
-          </button>
-        ))}
-      </nav>
-
       {/* Main Plot & Visualization */}
       <IndependentConfigurationsPlot parameters={p} evaluation={evaluation} />
+
+      <details className="lab-predict lq05-predict">
+        <summary>Predict first</summary>
+        {/* Predict Mode Card */}
+        <section className="lq05-prompt" aria-label="Predict Mode: Microstate Reasoning">
+          <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
+            Predict mode · Microstate reasoning
+          </p>
+          <h3 style={{ fontSize: "1rem", margin: "0.25rem 0 0.5rem" }}>
+            With 10 independent points, what is the chance that all sit in the left half (f = 1/2)?
+          </h3>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", margin: "0.75rem 0" }}>
+            <button
+              type="button"
+              className={`button ${predictAnswer === "1/2" ? "" : "secondary"}`}
+              style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
+              onClick={() => setPredictAnswer("1/2")}
+            >
+              <strong style={{ display: "block" }}>A. About 1 in 2</strong>
+              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+                One point decides for all
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`button ${predictAnswer === "1/20" ? "" : "secondary"}`}
+              style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
+              onClick={() => setPredictAnswer("1/20")}
+            >
+              <strong style={{ display: "block" }}>B. About 1 in 20</strong>
+              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+                Linear reduction with n
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`button ${predictAnswer === "1/1000" ? "" : "secondary"}`}
+              style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
+              onClick={() => setPredictAnswer("1/1000")}
+            >
+              <strong style={{ display: "block" }}>C. About 1 in 1 000</strong>
+              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+                Each point halves the chance again
+              </span>
+            </button>
+          </div>
+          {predictAnswer && (
+            <div
+              className="notice"
+              style={{
+                marginTop: "0.75rem",
+                padding: "0.75rem",
+                background: "var(--panel)",
+                border: "1px solid var(--line)",
+              }}
+            >
+              <p className="fine" style={{ margin: 0, color: "var(--ink)" }}>
+                The model: the points move independently, so every additional point halves the
+                chance again. Ten independent points need ten independent successes, W = (1/2)¹⁰ =
+                1/1 024 ≈ 0.000977.
+              </p>
+            </div>
+          )}
+        </section>
+      </details>
+
+      <fieldset className="lab-choice lq05-try">
+        <legend>Try</legend>
+        <div className="actions">
+          {(Object.keys(LQ05_PRESETS) as (keyof typeof LQ05_PRESETS)[]).map((key) => (
+            <button key={key} type="button" className="secondary" onClick={() => setPreset(key)}>
+              {LQ05_PRESETS[key]?.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       {/* Controls Section */}
       <section
