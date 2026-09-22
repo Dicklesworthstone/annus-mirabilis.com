@@ -287,7 +287,7 @@ export const ME03_PROMPTS = Object.freeze({
     promptId: "me-03-predict-box-light-mass",
     controlId: "assignLightMass",
     question:
-      "When a light pulse traverses a closed box and hits the other side, what happens to the total center of mass of the system if light is assumed to carry no mass?",
+      "A light pulse crosses a closed, isolated box and is absorbed at the far wall; the box recoils while the pulse is in flight. What happens to the center of mass of the whole system?",
     candidates: Object.freeze([
       Object.freeze({
         id: "com-shifts",

@@ -213,15 +213,14 @@ export const ME01_PROMPTS = Object.freeze({
       "If the body emits the two opposite pulses at an angle φ = 60° rather than along the direction of motion (φ = 0°), what happens to the total energy of the two light pulses measured by the moving observer?",
     candidates: Object.freeze([
       {
-        id: "me-01-candidate-sum-unchanged",
-        label:
-          "The total light energy in the moving frame is unchanged (still γL), because the angle terms cancel in the sum.",
-        isCorrect: true,
-      },
-      {
         id: "me-01-candidate-sum-decreases",
         label: "The total light energy decreases because the forward pulse is less blue-shifted.",
         isCorrect: false,
+      },
+      {
+        id: "me-01-candidate-sum-unchanged",
+        label: "The total light energy is unchanged, because what one pulse gains the other loses.",
+        isCorrect: true,
       },
       {
         id: "me-01-candidate-sum-increases",

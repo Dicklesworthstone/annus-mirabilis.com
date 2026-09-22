@@ -173,17 +173,6 @@ export function FluorescenceLab({
         >
           <button
             type="button"
-            className={`button ${predictAnswer1 === "never" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.75rem" }}
-            onClick={() => setPredictAnswer1("never")}
-          >
-            <strong>Never</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              hν₂ ≤ hν₁ (Stokes's rule)
-            </span>
-          </button>
-          <button
-            type="button"
             className={`button ${predictAnswer1 === "intensity" ? "" : "secondary"}`}
             style={{ textAlign: "left", padding: "0.75rem" }}
             onClick={() => setPredictAnswer1("intensity")}
@@ -202,6 +191,17 @@ export function FluorescenceLab({
             <strong>Always possible</strong>
             <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
               Medium shifts frequencies freely
+            </span>
+          </button>
+          <button
+            type="button"
+            className={`button ${predictAnswer1 === "never" ? "" : "secondary"}`}
+            style={{ textAlign: "left", padding: "0.75rem" }}
+            onClick={() => setPredictAnswer1("never")}
+          >
+            <strong>Never</strong>
+            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+              One quantum in, one quantum&apos;s energy at most out
             </span>
           </button>
         </div>
@@ -229,10 +229,10 @@ export function FluorescenceLab({
       <section
         className="notice"
         style={{ margin: "1.5rem 0" }}
-        aria-label="Predict Mode: Weak-Illumination Linearity"
+        aria-label="Predict mode: very weak light"
       >
         <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          Predict mode · Weak-Illumination linearity
+          Predict mode · Very weak light
         </p>
         <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
           How does the emission rate behave as the incident light becomes extremely weak?
@@ -247,24 +247,24 @@ export function FluorescenceLab({
         >
           <button
             type="button"
-            className={`button ${predictAnswer2 === "linear" ? "" : "secondary"}`}
-            style={{ textAlign: "left", padding: "0.75rem" }}
-            onClick={() => setPredictAnswer2("linear")}
-          >
-            <strong>Strictly proportional, zero threshold</strong>
-            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              Ṅ₂ = Y · Ṅ₁ at any power
-            </span>
-          </button>
-          <button
-            type="button"
             className={`button ${predictAnswer2 === "threshold" ? "" : "secondary"}`}
             style={{ textAlign: "left", padding: "0.75rem" }}
             onClick={() => setPredictAnswer2("threshold")}
           >
             <strong>Stops below an intensity threshold</strong>
             <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              Needs minimum power to trigger
+              Energy must build up first
+            </span>
+          </button>
+          <button
+            type="button"
+            className={`button ${predictAnswer2 === "linear" ? "" : "secondary"}`}
+            style={{ textAlign: "left", padding: "0.75rem" }}
+            onClick={() => setPredictAnswer2("linear")}
+          >
+            <strong>Strictly proportional, zero threshold</strong>
+            <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
+              Each absorbed quantum can emit on its own
             </span>
           </button>
         </div>

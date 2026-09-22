@@ -424,9 +424,9 @@ export function FieldFrameChangeLab({
         {prediction ? (
           <div className="predict-feedback" role="status">
             <p>
-              {prediction === "perp"
-                ? "Correct. In the moving frame, B′z = −γ(v/c²)Ey = −2.5017×10⁻⁹ T appears perpendicular to both the boost and the electric field."
-                : "According to Einstein §6, a boost transforms a transverse electric field into both an electric field E′y = γEy and a magnetic field B′z = −γ(v/c²)Ey."}
+              The model: in Einstein&apos;s §6 a boost turns a transverse electric field into both
+              an electric field E′y = γEy and a magnetic field B′z = −γ(v/c²)Ey, here −2.5017×10⁻⁹
+              T, perpendicular to both the boost and the electric field.
             </p>
           </div>
         ) : null}

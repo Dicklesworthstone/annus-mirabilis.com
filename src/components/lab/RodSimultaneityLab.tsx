@@ -285,9 +285,6 @@ export function RodSimultaneityLab({
                 <strong>{c.label}</strong>
               </div>
               <span className="fine">{c.description}</span>
-              <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                {c.separatingAssumption}
-              </span>
             </label>
           ))}
         </div>
@@ -298,6 +295,16 @@ export function RodSimultaneityLab({
               Model reveal:{" "}
             </span>
             {currentPrompt.modelReveal}
+            {/* The assumption behind each option is shown only for the one the reader chose:
+                listed under every option before a choice, it named the right one ("= -6.0 s")
+                and the wrong ones ("Wrong sign..."). */}
+            <p className="fine" style={{ margin: "0.5rem 0 0" }}>
+              Your choice rests on:{" "}
+              {
+                currentPrompt.candidates.find((c) => c.id === selectedCandidates[currentPrompt.id])
+                  ?.separatingAssumption
+              }
+            </p>
           </div>
         )}
       </section>

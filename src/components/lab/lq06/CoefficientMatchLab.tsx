@@ -40,8 +40,8 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
     question:
       "The radiation's entropy is S − S₀ = (R/N) ln[(V/V₀)^(NE/(Rβν))], and a gas of n molecules has S − S₀ = (R/N) n ln(V/V₀). Which expression plays the part of n?",
     options: [
-      "NE/(Rβν), which is E/(hν): the exponent of the volume ratio.",
       "E, the total radiant energy.",
+      "NE/(Rβν), which is E/(hν).",
       "E/(βν), the radiation's own entropy coefficient.",
     ],
     explanation:
@@ -52,9 +52,9 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
     question:
       "Over a Wien spectrum the mean energy of a light quantum is ⟨ε⟩ = 3k_BT. A gas molecule's mean kinetic energy is (3/2)k_BT. How do they compare at one temperature?",
     options: [
-      "The quantum's is twice the molecule's.",
       "They are equal, by equipartition.",
       "The quantum's is unboundedly larger, because the field has infinitely many modes.",
+      "The quantum's is twice the molecule's.",
     ],
     explanation:
       "In §6 Einstein finds ⟨ε⟩ = 3(R/N)T by integrating the Wien distribution, exactly twice the (3/2)(R/N)T of a monatomic gas molecule.",
@@ -63,12 +63,8 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
 
 /** The candidate expressions for "the number of things", in the reader's words. */
 const SUBEXPRESSIONS: readonly { id: Lq06SubexpressionChoice; label: string; desc: string }[] = [
-  {
-    id: "N_E_over_R_beta_nu",
-    label: "NE/(Rβν), or E/(hν)",
-    desc: "the exponent of the volume ratio",
-  },
   { id: "E", label: "E", desc: "the total radiation energy, in joules" },
+  { id: "N_E_over_R_beta_nu", label: "NE/(Rβν), or E/(hν)", desc: "a pure number" },
   { id: "nu", label: "ν", desc: "the frequency, in hertz" },
   { id: "E_over_beta_nu", label: "E/(βν)", desc: "the radiation entropy coefficient, in J/K" },
   { id: "V", label: "V", desc: "the volume, in m³" },
@@ -97,7 +93,7 @@ const FIELDS: Readonly<Record<FieldKey, { label: string; scale: number; digits: 
 const VALUE_ROWS: readonly { id: string; label: string; unit: string; scale?: number }[] = [
   {
     id: "effectiveIndependentCount",
-    label: "Number of independent quanta, n_eff = E/(hν)",
+    label: "Number of independent quanta, n_eff",
     unit: "",
   },
   { id: "quantumEnergy", label: "Energy of each, hν", unit: "J" },
@@ -315,7 +311,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             >
               <option value="none">Not chosen yet</option>
               <option value="independent-quanta">
-                Radiation behaves as independent quanta of energy hν (Einstein’s move)
+                Radiation behaves as independent quanta of energy hν
               </option>
               <option value="coincidence">A formal coincidence: the waves stay continuous</option>
             </select>
@@ -383,29 +379,34 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         </div>
       </div>
 
-      <div className="lq06-roles">
-        <div>
-          <h3>1. Derivation (Algebra)</h3>
-          <p>
-            The Wien radiation entropy and the Boltzmann gas entropy have the same form exactly when
-            n = NE/(Rβν) = E/(hν).
-          </p>
+      {/* The derivation card states the answer to the lab's question, so the three roles are a
+          closed disclosure: in the HTML for every reader, open only when asked for. */}
+      <details className="lq06-roles-wrap">
+        <summary>The three logical roles of the match</summary>
+        <div className="lq06-roles">
+          <div>
+            <h3>1. Derivation (Algebra)</h3>
+            <p>
+              The Wien radiation entropy and the Boltzmann gas entropy have the same form exactly
+              when n = NE/(Rβν) = E/(hν).
+            </p>
+          </div>
+          <div>
+            <h3>2. Heuristic Inference</h3>
+            <p>
+              Monochromatic radiation of low density, in the Wien regime, behaves thermodynamically{" "}
+              <em>as though</em> it consisted of independent energy quanta of size hν.
+            </p>
+          </div>
+          <div>
+            <h3>3. Further Hypothesis</h3>
+            <p>
+              Are the production of light (Stokes's rule, §7) and its transformation (the
+              photoelectric effect, §8; ionization, §9) also exchanges in amounts of hν?
+            </p>
+          </div>
         </div>
-        <div>
-          <h3>2. Heuristic Inference</h3>
-          <p>
-            Monochromatic radiation of low density, in the Wien regime, behaves thermodynamically{" "}
-            <em>as though</em> it consisted of independent energy quanta of size hν.
-          </p>
-        </div>
-        <div>
-          <h3>3. Further Hypothesis</h3>
-          <p>
-            Are the production of light (Stokes's rule, §7) and its transformation (the
-            photoelectric effect, §8; ionization, §9) also exchanges in amounts of hν?
-          </p>
-        </div>
-      </div>
+      </details>
 
       <div className="lab-values">
         <h3>Values at these settings</h3>

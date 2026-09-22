@@ -200,7 +200,7 @@ export function IndependentConfigurationsLab({
           >
             <strong style={{ display: "block" }}>C. About 1 in 1 000</strong>
             <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-              (1/2)¹⁰ = 1/1 024 (Independent product)
+              Each point halves the chance again
             </span>
           </button>
         </div>
@@ -214,18 +214,11 @@ export function IndependentConfigurationsLab({
               border: "1px solid var(--line)",
             }}
           >
-            {predictAnswer === "1/1000" ? (
-              <p className="fine" style={{ margin: 0, fontWeight: 600, color: "var(--ink)" }}>
-                Because the particles move independently, their individual probabilities multiply: W
-                = (1/2)¹⁰ = 1/1 024 ≈ 0.0009765.
-              </p>
-            ) : (
-              <p className="fine" style={{ margin: 0, color: "var(--accent)" }}>
-                Notice: if the particles are independent, every additional particle halves the
-                probability again. 10 independent particles require 10 independent successes, giving
-                (1/2)¹⁰ = 1/1 024.
-              </p>
-            )}
+            <p className="fine" style={{ margin: 0, color: "var(--ink)" }}>
+              The model: the points move independently, so every additional point halves the chance
+              again. Ten independent points need ten independent successes, W = (1/2)¹⁰ = 1/1 024 ≈
+              0.000977.
+            </p>
           </div>
         )}
       </section>

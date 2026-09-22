@@ -125,7 +125,7 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
         id: "lines-parallel",
         label: "Parallel, with different starting thresholds",
         description:
-          "In Einstein's equation the slope is h/e for every metal; the work function only moves the threshold.",
+          "The slope is h/e whatever the metal; the work function only moves where each line starts.",
         separatingAssumption:
           "Universal quantum slope: the stopping line slope is universal and independent of the material.",
         correct: true,

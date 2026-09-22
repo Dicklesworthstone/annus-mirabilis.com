@@ -235,19 +235,19 @@ export const SR03_PROMPTS: Readonly<Record<Sr03PromptKey, PredictPrompt>> = Obje
         label: "Front end earlier (dt' < 0)",
         description:
           "The front end measurement occurs earlier than the rear end measurement in the rod frame.",
-        separatingAssumption: "Relativity of simultaneity: dt' = -gamma * v * dx / c^2 = -6.0 s.",
+        separatingAssumption: "Relativity of simultaneity: dt′ = −γv dx/c², here −6.0 s.",
       },
       {
         id: "still-simultaneous",
         label: "Simultaneous in both frames (dt' = 0)",
         description: "Events simultaneous in one frame must be simultaneous in all frames.",
-        separatingAssumption: "Classical absolute time assumption.",
+        separatingAssumption: "Absolute time: one clock reading holds in every frame.",
       },
       {
         id: "later-trailing",
         label: "Front end later (dt' > 0)",
         description: "The front end measurement occurs later than the rear end measurement in k.",
-        separatingAssumption: "Wrong sign for Lorentz coordinate boost.",
+        separatingAssumption: "The coordinate boost applied with the opposite sign of v.",
       },
     ],
     modelReveal:
@@ -269,7 +269,7 @@ export const SR03_PROMPTS: Readonly<Record<Sr03PromptKey, PredictPrompt>> = Obje
         label: "Time order reverses",
         description: "At sufficiently high relative speed, the time order reverses.",
         separatingAssumption:
-          "Confusing spacelike order dependence with timelike order invariance.",
+          "That the order of these two events can depend on the frame, as it can for events too far apart for any signal to connect.",
       },
       {
         id: "becomes-simultaneous",

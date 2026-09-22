@@ -88,8 +88,10 @@ export function PredictPanel({
   // Verbal state
   const directions = prompt.verbalChoices?.directionChoices ?? DEFAULT_DIRECTIONS;
   const shapes = prompt.verbalChoices?.shapeChoices ?? DEFAULT_SHAPES;
-  const [selectedDirection, setSelectedDirection] = useState<string>(directions[0]?.id ?? "");
-  const [selectedShape, setSelectedShape] = useState<string>(shapes[0]?.id ?? "");
+  // Nothing is chosen until the reader chooses: a pre-checked "Increases" is a prediction the
+  // reader never made, recorded as theirs if they press Record without looking.
+  const [selectedDirection, setSelectedDirection] = useState<string>("");
+  const [selectedShape, setSelectedShape] = useState<string>("");
 
   // Values state
   const targets = prompt.valueTargets ?? [];
@@ -457,7 +459,12 @@ export function PredictPanel({
             ))}
           </div>
           {record.state === "hidden" && (
-            <button type="button" style={{ marginTop: "0.5rem" }} onClick={handleCommitVerbal}>
+            <button
+              type="button"
+              style={{ marginTop: "0.5rem" }}
+              disabled={!selectedDirection || !selectedShape}
+              onClick={handleCommitVerbal}
+            >
               Record verbal prediction
             </button>
           )}

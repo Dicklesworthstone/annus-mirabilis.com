@@ -43,8 +43,8 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
     question:
       "A quantum's energy hν is below the energy J needed to ionize one molecule. How many molecules does the light ionize, one quantum at a time?",
     options: [
-      "None, however bright the light.",
       "Some, if the light is concentrated to a high intensity.",
+      "None, however bright the light.",
       "Some, once a molecule has absorbed enough energy gradually.",
     ],
     explanation:
@@ -55,9 +55,9 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
     question:
       "Double the light's power at the same frequency. What happens to the number of molecules ionized?",
     options: [
-      "It doubles.",
       "It stays the same, because each quantum's energy is unchanged.",
       "It grows fourfold, as the square of the power.",
+      "It doubles.",
     ],
     explanation:
       "Under the paper's hypothesis the number ionized is proportional to the light energy absorbed, j = L / (Rβν). Twice the power absorbs twice the quanta, so twice the molecules.",
