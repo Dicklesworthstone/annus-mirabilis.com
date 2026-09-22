@@ -440,6 +440,13 @@ export const AUDITED_SCROLL_CLASSES = [
   // gives each one tabIndex={0} plus aria-label={example.title}, with a :focus-visible outline in
   // investigation.css. Focusable, named, and visibly focused, which is what audited means here.
   "sr-event-table",
+  // shelf-table-scroll: overflow-x: auto on the div around each shelf-optics comparison table.
+  // Measured on BUILD 6 (15:37:12): 3 elements on 3 pages, 0 lack tabindex="0", 0 lack an
+  // aria-label. ShelfOpticsLab.tsx gives it role="region", aria-label="Computed model
+  // comparison, scroll horizontally if needed" and tabIndex={0}, and shelfOptics.css gives it a
+  // :focus-visible outline. It arrived with the origin shelf-optics commits already compliant;
+  // it was red only because nobody had recorded it.
+  "shelf-table-scroll",
   "table-scroll",
   "kitchen-schema",
   "step-math",
