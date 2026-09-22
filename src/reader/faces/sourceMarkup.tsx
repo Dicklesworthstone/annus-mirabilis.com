@@ -96,11 +96,29 @@ const STANDALONE: Record<string, (arg: string | undefined, key: string) => React
  */
 const STRUCTURAL = new Set(["CONTINUES", "DATELINE", "RECEIVED", "PAGE", "COL"]);
 
+/**
+ * A refusal to typeset the ledger. Both codes are build-time data failures, raised while the
+ * static page is rendered, so the build stops and names the block rather than serving TeX or a
+ * misplaced anchor:
+ *   source-math-malformed        a formula fails the ledger's KaTeX policy (parseLedgerMath)
+ *   source-display-ids-mismatch  a paragraph names a different number of display equations
+ *                                than its text holds, so an id would land on the wrong formula
+ */
+export class SourceMarkupError extends Error {
+  readonly code: "source-math-malformed" | "source-display-ids-mismatch";
+  constructor(code: SourceMarkupError["code"], message: string) {
+    super(message);
+    this.code = code;
+    this.name = "SourceMarkupError";
+  }
+}
+
 /** One ledger formula as KaTeX HTML plus MathML, or a thrown error naming where it failed. */
 function typesetLedgerMath(latex: string, displayMode: boolean, where: string): string {
   const check = parseLedgerMath(latex, displayMode);
   if (!check.ok) {
-    throw new Error(
+    throw new SourceMarkupError(
+      "source-math-malformed",
       `Ledger mathematics at ${where} does not parse (${check.code}): ${check.error} :: ${latex}`,
     );
   }
@@ -161,7 +179,8 @@ export function renderSourceMarkup(
 
   const displays = findDisplayMathRegions(text);
   if (displayIds.length > 0 && displayIds.length !== displays.length) {
-    throw new Error(
+    throw new SourceMarkupError(
+      "source-display-ids-mismatch",
       `${keyPrefix}: ${displayIds.length} display equation id(s) for ${displays.length} display formula(s) in the text`,
     );
   }
