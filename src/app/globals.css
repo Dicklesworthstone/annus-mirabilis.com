@@ -411,7 +411,17 @@ h3 {
   max-width: 920px;
 }
 .page-intro h1 {
-  font-size: clamp(2.5rem, 5vw, 4.6rem);
+  /* A READING PAGE'S TITLE, NOT A HERO. This was clamp(2.5rem, 5vw, 4.6rem), which
+     put a section title at 72px in a 920px column above a 450px reading column -
+     poster scale for the thing that introduces the prose. Measured on
+     /papers/brownian-motion/s4/: the section title went from two lines to ONE at
+     1280 and 1440, and from three to two at 390, with no overflow at 390/768/1280/
+     1440/1920 and never more lines than before on any route tested.
+
+     It buys 95px of the 1134px above the first line of prose, and that is all it
+     buys - the section opening is long because the copy in it is long, not because
+     the title is large. See the commit for the block-by-block budget. */
+  font-size: clamp(2.1rem, 3.6vw, 3.4rem);
 }
 .encounter header {
   margin-bottom: 3rem;
