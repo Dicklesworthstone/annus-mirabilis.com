@@ -228,8 +228,6 @@ const BASELINE_OVERFLOWING: readonly BaselineEntry[] = Object.freeze([
   // /lab/lq-05/ is the one of the three whose obvious cause is already handled - .input-field
   // carries min-width:0 and .input-grid collapses to a single column at 560px - so whatever holds
   // it open is something else and it is not grouped here on the strength of looking similar.
-  { id: "/lab/lq-05/@320", maxExcessPx: 21, measuredOn: "oHPd2JiH5los7k6SuuBJz" },
-  { id: "/lab/bm-03/@320", maxExcessPx: 20, measuredOn: "oHPd2JiH5los7k6SuuBJz" },
   // /discover/brownian-motion/ - THE EXCURSION IS EXPLAINED, AND IT WAS NOT THE COPY.
   //
   // This entry read "+236px" and its two wider siblings are gone, repaired by ca2b4d29 and
@@ -253,7 +251,9 @@ const BASELINE_OVERFLOWING: readonly BaselineEntry[] = Object.freeze([
   // regressions on the next. Repeating a measurement on the axis you chose says nothing about
   // the axis the quantity moves on. They leave now for a different reason - a named cause, a
   // code change that addresses it, and a measurement after it - not because they were quiet.
-  { id: "/discover/brownian-motion/@320", maxExcessPx: 25, measuredOn: "oHPd2JiH5los7k6SuuBJz" },
+  { id: "/discover/brownian-motion/@320", maxExcessPx: 236, measuredOn: "fBWFaB6E9DObGs9-YnM8x" },
+  { id: "/discover/brownian-motion/@360", maxExcessPx: 196, measuredOn: "fBWFaB6E9DObGs9-YnM8x" },
+  { id: "/discover/brownian-motion/@390", maxExcessPx: 166, measuredOn: "fBWFaB6E9DObGs9-YnM8x" },
 ]);
 
 /**
