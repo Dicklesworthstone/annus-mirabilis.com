@@ -1050,6 +1050,43 @@ select {
   margin-top: 1rem;
 }
 
+/*
+ * A data table that is not in a .table-wrapper still gets the wrapper's behaviour.
+ *
+ * am-a3f1. /foundations/partial-derivatives/ measured a CONSTANT scrollWidth of 391 at 320, 360
+ * and 390 alike, and three remedies moved it by exactly zero: min-width: 0 on the panel, on
+ * .formula, and on both. I concluded from that there was no shrink constraint. That inference
+ * was one step too strong, and pane31 found the general form of the error on a different route:
+ * an element that CAN shrink and is FORBIDDEN to looks identical from outside to one that
+ * cannot. min-width: 0 rules out a min-content floor. It says nothing about a prohibition.
+ *
+ * The prohibition here is the table layout algorithm. An `auto` table's used width is at least
+ * its min-content width, and `width: 100%` - which .data-table already sets - does not override
+ * that. Measured on the page:
+ *
+ *   table.data-table                        renders 350.3, min-content 350.3   AT its floor
+ *   div.thermodynamics-held-fixed-comparison        308                        its container
+ *   .foundation-construction content box     358 - 48 padding - 2 border = 308
+ *   table right edge 391.3 against a 390 viewport                              the +1
+ *
+ * So the table overflows its parent by 42.3px and the page by 1.3. That also explains the
+ * earlier bisect, where removing EITHER the border OR the padding of .foundation-construction
+ * returned 390: those were not the cause, they were the last pixels of slack in the budget.
+ * The 61 overflowing MathML nodes at white-space: nowrap were a red herring - hiding every one
+ * of them leaves scrollWidth at 391.
+ *
+ * WHY SCROLLING AND NOT `table-layout: fixed`. Both fix the page. Measured over all 36 built
+ * pages carrying .data-table at 320, 360 and 390: fixed layout repairs 6 measurements and makes
+ * none worse, but at 320 it leaves 112 cells whose content no longer fits its box - unbreakable
+ * tokens like `251530000000000 s⁻¹` at 127px in a 96px cell. It trades one page overflow for a
+ * hundred cell overflows. This rule repairs 3 and leaves 0 of 2937 cells overflowing, because
+ * the table keeps its natural width and the container scrolls, which is what .table-wrapper
+ * above was already for. The component simply does not use it.
+ */
+div:has(> table.data-table) {
+  overflow-x: auto;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
