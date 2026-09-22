@@ -13,7 +13,8 @@ import type { ScientificResult } from "../results/types.ts";
 import { parseShelfParameters, type ShelfParameters } from "./definition.ts";
 import type { ShelfMetric, ShelfReport, ShelfRow } from "./state.ts";
 
-function metric(label: string, unit: string, result: ScientificResult): ShelfMetric {
+/** An owner result as a labeled metric; a refusal or a nonfinite value is refused, never shown. */
+export function metric(label: string, unit: string, result: ScientificResult): ShelfMetric {
   if (
     result.status !== "value" ||
     typeof result.value !== "number" ||
@@ -34,7 +35,8 @@ function metric(label: string, unit: string, result: ScientificResult): ShelfMet
   };
 }
 
-function scalar(
+/** A number the owner computed outside a ScientificResult, admitted only when finite. */
+export function scalar(
   label: string,
   unit: string,
   value: number,
@@ -43,11 +45,25 @@ function scalar(
 ): ShelfMetric {
   if (!Number.isFinite(value))
     throw new ExperimentRuntimeError(
-      "owner-result-nonfinite",
+      "owner-scalar-nonfinite",
       `Nonfinite owner output: ${label}`,
       "shelf-optics",
     );
   return { label, unit, value, quantityId, ownerId: `shelf-optics.${functionName}` };
+}
+
+/**
+ * Every owner call narrows the same way: the owner's own refusal, with its reason, becomes a
+ * typed error. One helper where there were four identical inline guards, so the refusal has one
+ * site and one test (evaluation.test.mjs) instead of four sites no test could reach.
+ */
+export function requireOwnerValue(result: { status: string; reason?: string | undefined }): void {
+  if (result.status !== "value")
+    throw new ExperimentRuntimeError(
+      "owner-refused",
+      result.reason ?? "The owner refused without stating a reason.",
+      "shelf-optics",
+    );
 }
 
 export function evaluateShelfOptics(input: ShelfParameters): ShelfReport {
@@ -67,12 +83,7 @@ export function evaluateShelfOptics(input: ShelfParameters): ShelfReport {
           contraction,
           constantSet,
         });
-        if (result.status !== "value")
-          throw new ExperimentRuntimeError(
-            "owner-refused",
-            result.reason ?? "The owner refused without stating a reason.",
-            "shelf-optics",
-          );
+        requireOwnerValue(result);
         return {
           modelId: result.modelIdentity,
           label: contraction ? "Ether with longitudinal contraction" : "Ether without contraction",
@@ -117,12 +128,7 @@ export function evaluateShelfOptics(input: ShelfParameters): ShelfReport {
           dragHypothesis,
           constantSet,
         });
-        if (result.status !== "value")
-          throw new ExperimentRuntimeError(
-            "owner-refused",
-            result.reason ?? "The owner refused without stating a reason.",
-            "shelf-optics",
-          );
+        requireOwnerValue(result);
         return {
           modelId: result.modelIdentity,
           label: labels[dragHypothesis],
@@ -143,12 +149,7 @@ export function evaluateShelfOptics(input: ShelfParameters): ShelfReport {
           waterSpeed: p.waterSpeed,
           constantSet,
         });
-        if (result.status !== "value")
-          throw new ExperimentRuntimeError(
-            "owner-refused",
-            result.reason ?? "The owner refused without stating a reason.",
-            "shelf-optics",
-          );
+        requireOwnerValue(result);
         later.push(
           metric("Relativistic forward speed", "m/s", result.draggedSpeed),
           metric("Relativistic velocity increment", "m/s", result.velocityIncrement),
@@ -174,12 +175,7 @@ export function evaluateShelfOptics(input: ShelfParameters): ShelfReport {
           wavenumber: p.wavenumber,
           constantSet,
         });
-        if (result.status !== "value")
-          throw new ExperimentRuntimeError(
-            "owner-refused",
-            result.reason ?? "The owner refused without stating a reason.",
-            "shelf-optics",
-          );
+        requireOwnerValue(result);
         return {
           modelId: result.modelIdentity,
           label: map === "galilean" ? "Galilean substitution" : "Lorentz substitution",
