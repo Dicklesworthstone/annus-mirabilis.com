@@ -4,7 +4,7 @@ import { EntropyWorkbenchComparison } from "../../../components/lab/lq04/Entropy
 import example from "../../../generated/lq04-example.json";
 
 export const metadata: Metadata = {
-  title: "LQ-04: Radiation Entropy Workbench",
+  title: "LQ-04: Radiation entropy workbench",
 };
 
 export default function EntropyWorkbenchPage() {

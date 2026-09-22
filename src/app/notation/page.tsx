@@ -6,9 +6,9 @@ import { NotationPageClient } from "./NotationPageClient.tsx";
 import { loadNotationPageData } from "./notationData.ts";
 
 export const metadata: Metadata = {
-  title: "Notation Concordance · Annus Mirabilis",
+  title: "Notation concordance",
   description:
-    "Scoped notation concordance, historical symbol mappings, unit system conversions, and notation collision analysis for the 1905 papers.",
+    "Scoped symbol meanings, historical mappings, unit-system conversions, and the collisions between them in the 1905 papers.",
 };
 
 export default function NotationPage() {

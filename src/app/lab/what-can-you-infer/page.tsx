@@ -6,7 +6,7 @@ import { FamilyWorkbench } from "../../../reasoning/infer/FamilyWorkbench.tsx";
 export const metadata: Metadata = {
   title: "What can you infer? Keep the data, add independent information",
   description:
-    "Explore compatible Brownian parameter families and distinguish additional information from additional assumptions. Synthetic worked examples, not historical observations.",
+    "Compare compatible Brownian parameter families, and distinguish additional information from additional assumptions. Synthetic worked examples, not historical observations.",
 };
 export default function InferenceWorkbenchPage() {
   const examples = generated.examples.map((example) => ({

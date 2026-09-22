@@ -9,7 +9,7 @@ import generatedExample from "../../../generated/sr05-example.json";
 // runtime shape genuinely matches -- this assertion recovers the type JSON import cannot carry.
 const example = generatedExample as PreparedSr05Example;
 
-export const metadata: Metadata = { title: "SR-05: The Light Clock and Moving Clocks" };
+export const metadata: Metadata = { title: "SR-05: The light clock and moving clocks" };
 
 export default function MovingClocksPage() {
   return (

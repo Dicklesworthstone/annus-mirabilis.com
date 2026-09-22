@@ -4,9 +4,9 @@ import { LQ05_DEFAULTS } from "../../../experiments/lq05/definition.ts";
 import { evaluateLq05, type PreparedLq05Example } from "../../../experiments/lq05/session.ts";
 
 export const metadata: Metadata = {
-  title: "LQ-05: Independent Configurations & Boltzmann Entropy",
+  title: "LQ-05: Independent configurations and Boltzmann entropy",
   description:
-    "Explore how Boltzmann's principle S - S_0 = k_B ln W yields an entropy depending on volume as n ln V, and how locking the positions demonstrates the role of statistical independence.",
+    "Boltzmann's principle S - S_0 = k_B ln W gives an entropy that depends on volume as n ln V, and locking the positions shows where statistical independence enters.",
 };
 
 export default function IndependentConfigurationsPage() {

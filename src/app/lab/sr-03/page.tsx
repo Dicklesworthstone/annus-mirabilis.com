@@ -5,7 +5,7 @@ import { validateSr03Parameters } from "../../../experiments/sr03/parameters.ts"
 import example from "../../../generated/sr03-example.json";
 
 export const metadata: Metadata = {
-  title: "SR-03: Rod Measurement and Simultaneity",
+  title: "SR-03: Rod measurement and simultaneity",
 };
 
 export default function RodSimultaneityPage() {

@@ -8,7 +8,7 @@ import "./investigation.css";
 export const metadata: Metadata = {
   title: "Investigate light quanta: entropy, counting and emission",
   description:
-    "A connected worked investigation of the Wien entropy correspondence and its conditional photoelectric consequences.",
+    "A worked investigation of the Wien entropy correspondence and its conditional photoelectric consequences.",
   robots: { index: false },
 };
 

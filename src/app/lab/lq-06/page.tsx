@@ -5,7 +5,7 @@ import type { PreparedLq06Example } from "../../../experiments/lq06/session.ts";
 import example from "../../../generated/lq06-example.json";
 
 export const metadata: Metadata = {
-  title: "LQ-06: Matching the Entropy Coefficients to Derive the Light Quantum",
+  title: "LQ-06: Matching the entropy coefficients to derive the light quantum",
 };
 
 export default function CoefficientMatchPage() {

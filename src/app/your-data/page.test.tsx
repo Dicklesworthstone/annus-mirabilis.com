@@ -28,7 +28,22 @@ describe("YourDataPage", () => {
   });
 
   test("page metadata declares expected title and description", () => {
-    expect(metadata.title).toBe("Your data on this device · Annus Mirabilis");
+    // The property first, deliberately. A plant that puts the suffix back also breaks the
+    // value assertion below, and whichever assertion runs first is the only one that ever
+    // reaches a verdict - so the one carrying the reasoning goes first, or it is never proven.
+    // The suffix is the ROOT LAYOUT's job. layout.tsx declares
+    // title.template = "%s · Annus Mirabilis", which wraps every child segment's title, so a
+    // page that spells the suffix itself ships it twice. Confirmed in the built HTML before this
+    // was changed, not inferred:
+    //   out/your-data/index.html
+    //     <title>Your data on this device · Annus Mirabilis · Annus Mirabilis</title>
+    //   out/papers/index.html
+    //     <title>The four papers · Annus Mirabilis</title>
+    // This assertion is the property rather than the value, so it survives a rewording of the
+    // name and still refuses the doubling.
+    expect(metadata.title).not.toContain("· Annus Mirabilis");
+
+    expect(metadata.title).toBe("Your data on this device");
     expect(metadata.description).toContain("Review, export, or clear");
 
     logger.log({

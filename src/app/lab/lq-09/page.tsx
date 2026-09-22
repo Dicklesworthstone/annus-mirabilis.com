@@ -4,7 +4,7 @@ import { IonizationComparison } from "../../../components/lab/lq09/IonizationLab
 import example from "../../../generated/lq09-example.json";
 
 export const metadata: Metadata = {
-  title: "LQ-09: Gas Ionization Bounds and Counting Model",
+  title: "LQ-09: Gas ionization bounds and counting model",
 };
 
 export default function IonizationPage() {

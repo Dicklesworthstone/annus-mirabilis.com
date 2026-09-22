@@ -3,7 +3,7 @@ import { DataPanel } from "../../platform/storage/DataPanel.tsx";
 import "../../platform/storage/dataPanel.css";
 
 export const metadata: Metadata = {
-  title: "Your data on this device · Annus Mirabilis",
+  title: "Your data on this device",
   description:
     "Review, export, or clear the reading preferences, notes, predictions, and tour progress stored locally on your device.",
 };

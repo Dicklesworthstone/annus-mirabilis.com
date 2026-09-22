@@ -4,9 +4,9 @@ import { LQ07_DEFAULTS } from "../../../experiments/lq07/definition.ts";
 import { evaluateLq07, type PreparedLq07Example } from "../../../experiments/lq07/session.ts";
 
 export const metadata: Metadata = {
-  title: "LQ-07: Fluorescence Energy Budget & Stokes's Rule",
+  title: "LQ-07: Fluorescence energy budget and Stokes's rule",
   description:
-    "Explore how single-quantum energy conservation hν₁ = hν₂ + E_other explains Stokes's rule and predicts multi-quantum and thermal deviation conditions in Einstein's 1905 paper.",
+    "Single-quantum energy conservation hν₁ = hν₂ + E_other explains Stokes's rule and sets the conditions for multi-quantum and thermal deviations in Einstein's 1905 paper.",
 };
 
 export default function FluorescencePage() {
