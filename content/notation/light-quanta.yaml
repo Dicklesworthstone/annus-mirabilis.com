@@ -1302,7 +1302,7 @@ entries:
       firstUseBySection:
         - sectionId: lq-s8
           anchor: lq-s8-p1
-    notes: "Modern notation writes Φₘ; that choice is not yet confirmed by a reviewer. Distinct from P and from p."
+    notes: "The modern symbol shown here is not yet confirmed by a reviewer. Distinct from P and from p."
     sources:
       facsimilePage: 145
       anchor: lq-s8-p1
