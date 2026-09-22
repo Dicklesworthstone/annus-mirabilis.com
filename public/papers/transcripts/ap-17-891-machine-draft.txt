@@ -567,10 +567,36 @@ Aus der Gleichung für $\omega'$ folgt: Ist ein Beobachter relativ zu einer unen
 $$
 \nu' = \nu \frac{1 - \cos \varphi \frac{v}{V}}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} .
 $$
-Dies ist das [[SPERR]]Doppeler[[/SPERR]]sche Prinzip für beliebige Geschwindigkeiten[[CONTINUES]]
+Dies ist das [[SPERR]]Doppeler[[/SPERR]]sche Prinzip für beliebige Geschwindigkeiten.[[CONTINUES]]
 
 --- MACHINE DRAFT TRANSCRIPTION PAGE 22 OF 31 ---
 [[ANNALEN-PAGE 912]]
+
+Für $\varphi = 0$ nimmt die Gleichung die übersichtliche Form an:
+$$
+\nu' = \nu \sqrt{\frac{1 - \frac{v}{V}}{1 + \frac{v}{V}}} .
+$$
+Man sieht, daß — im Gegensatz zu der üblichen Auffassung — für $v = -\infty$, $\nu = \infty$ ist.
+
+Nennt man $\varphi'$ den Winkel zwischen Wellennormale (Strahlrichtung) im bewegten System und der Verbindungslinie „Lichtquelle–Beobachter“, so nimmt die Gleichung für $a'$ die Form an:
+$$
+\cos \varphi' = \frac{\cos \varphi - \frac{v}{V}}{1 - \frac{v}{V} \cos \varphi} .
+$$
+Diese Gleichung drückt das Aberrationsgesetz in seiner allgemeinsten Form aus. Ist $\varphi = \pi/2$, so nimmt die Gleichung die einfache Gestalt an:
+$$
+\cos \varphi' = - \frac{v}{V} .
+$$
+
+Wir haben nun noch die Amplitude der Wellen, wie dieselbe im bewegten System erscheint, zu suchen. Nennt man $A$ bez. $A'$ die Amplitude der elektrischen oder magnetischen Kraft im ruhenden bez. im bewegten System gemessen, so erhält man:
+$$
+A'^2 = A^2 \frac{\left( 1 - \frac{v}{V} \cos \varphi \right)^2}{1 - \left( \frac{v}{V} \right)^2} ,
+$$
+welche Gleichung für $\varphi = 0$ in die einfachere übergeht:
+$$
+A'^2 = A^2 \frac{1 - \frac{v}{V}}{1 + \frac{v}{V}} .
+$$
+
+Es folgt aus den entwickelten Gleichungen, daß für einen Beobachter, der sich mit der Geschwindigkeit $V$ einer Lichtquelle näherte, diese Lichtquelle unendlich intensiv erscheinen müßte.
 
 --- MACHINE DRAFT TRANSCRIPTION PAGE 23 OF 31 ---
 [[ANNALEN-PAGE 913]]
