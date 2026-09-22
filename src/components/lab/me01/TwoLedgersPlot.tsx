@@ -1,5 +1,6 @@
 import type { Me01Parameters } from "../../../experiments/me01/definition.ts";
 import type { Me01Snapshot } from "../../../experiments/me01/session.ts";
+import "./me01.css";
 
 export interface TwoLedgersPlotProps {
   parameters: Me01Parameters;

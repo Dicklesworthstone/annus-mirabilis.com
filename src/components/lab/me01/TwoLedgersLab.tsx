@@ -22,6 +22,7 @@ import {
   type PreparedMe01Example,
 } from "../../../experiments/me01/session.ts";
 import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
+import "./me01.css";
 
 const STEPS: readonly { id: Me01Step; label: string; number: number }[] = [
   { id: "intro", label: "1. The setup", number: 1 },

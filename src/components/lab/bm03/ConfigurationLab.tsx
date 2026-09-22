@@ -22,6 +22,7 @@ import {
 } from "../../../experiments/bm03/session.ts";
 import { identity } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
+import "./bm03.css";
 
 const STEPS: readonly { id: Bm03Step; label: string; number: number }[] = [
   { id: "one-particle", label: "1. One particle", number: 1 },

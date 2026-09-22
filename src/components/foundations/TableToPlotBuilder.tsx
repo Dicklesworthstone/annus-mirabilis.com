@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import "./foundations.css";
 
 export interface DataPoint {
   readonly t: number;

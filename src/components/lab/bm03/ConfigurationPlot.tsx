@@ -1,5 +1,6 @@
 import type { Bm03Parameters } from "../../../experiments/bm03/definition.ts";
 import type { Bm03Evaluation } from "../../../experiments/bm03/session.ts";
+import "./bm03.css";
 
 export interface ConfigurationPlotProps {
   parameters: Bm03Parameters;

@@ -5,6 +5,8 @@
  * Receives ONLY bibliographic props so draft content cannot leak.
  */
 
+import "./discovery.css";
+
 export interface JourneyInPreparationProps {
   readonly paperId: string;
   readonly germanTitle: string;

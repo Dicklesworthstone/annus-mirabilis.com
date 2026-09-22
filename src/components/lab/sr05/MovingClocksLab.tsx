@@ -3,6 +3,7 @@
 import { useId, useMemo, useSyncExternalStore } from "react";
 import { SR05_PRESETS, type Sr05Parameters } from "../../../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../../../experiments/sr05/session.ts";
+import "./sr05.css";
 
 export type MovingClocksLabProps = Readonly<{
   example?: PreparedSr05Example | undefined;

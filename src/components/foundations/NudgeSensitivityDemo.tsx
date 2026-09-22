@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PLANCK_TO_ELEMENTARY_CHARGE_RATIO } from "../../foundations/calculus.ts";
+import "./foundations.css";
 
 export interface NudgeStep {
   readonly label: string;

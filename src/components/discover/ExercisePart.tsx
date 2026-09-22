@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
+import "../../discovery/discovery.css";
 import {
   type AnswerVerdict,
   checkExerciseAnswer,
