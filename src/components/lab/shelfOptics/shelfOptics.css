@@ -44,6 +44,12 @@
 .shelf-lab dd { margin-inline-start: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .shelf-lab :is(.shelf-later, .shelf-prediction) { border-inline-start: 3px solid currentColor; padding-inline-start: 1rem; }
 .shelf-prediction-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+/* What the accepted result does and does not show, read after the table. */
+.shelf-interpretation {
+  max-width: 68ch;
+  margin-block: 1.5rem;
+  line-height: 1.6;
+}
 @media (max-width: 55rem) {
   .shelf-controls-and-results { grid-template-columns: minmax(0, 1fr); }
 }
