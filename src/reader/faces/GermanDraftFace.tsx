@@ -46,7 +46,7 @@ export function GermanDraftFace({
   readonly paperId: string;
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
   /** The paper's first printed page, set beside the opening of the text on wide screens. */
-  readonly plate?: Readonly<{ src: string; scanHref: string; citation: string }> | undefined;
+  readonly plate?: Readonly<{ src: string; scanHref: string; printedAt: string }> | undefined;
   readonly paperTitle: string;
   /** The paper's own German title, from its metadata record. Used when no masthead block is in scope. */
   readonly germanTitle: string;
@@ -168,11 +168,11 @@ export function GermanDraftFace({
                 width={400}
                 height={662}
                 loading="lazy"
-                alt={`The first printed page of this paper, ${plate.citation}: its title block and opening paragraphs as set in 1905.`}
+                alt={`The first printed page of this paper, ${plate.printedAt}: its title block and opening paragraphs.`}
               />
             </a>
             <figcaption>
-              The first page as printed, {plate.citation}.{" "}
+              The first page as printed, {plate.printedAt}.{" "}
               <a href={plate.scanHref}>Open the whole scan (PDF)</a>
             </figcaption>
           </figure>

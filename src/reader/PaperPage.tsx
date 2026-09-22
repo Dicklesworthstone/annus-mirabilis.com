@@ -119,13 +119,18 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             // The paper's first printed page, beside the opening of the text - only on the
             // whole paper, where that page IS the opening; a section view starts elsewhere.
             // Offered only when the rendered plate is actually in public/.
+            // Where it was printed comes from the key's own grammar, ap-<volume>-<first page>
+            // (AGENTS.md, bibliographic keys). The record's `citation` field is that key, and
+            // the bibliography locator can carry notes about later translations, so neither
+            // is a caption. A key that does not parse gets no plate rather than a raw id.
+            const printed = /^ap-(\d+)-(\d+)$/.exec(draft.bibKey);
             const platePath = `/figures/plates/${draft.bibKey}-first-page-400.webp`;
             const plate =
-              !resolved.section && existsSync(join(process.cwd(), "public", platePath))
+              printed && !resolved.section && existsSync(join(process.cwd(), "public", platePath))
                 ? {
                     src: platePath,
                     scanHref: `/papers/pdfs/${draft.bibKey}.pdf`,
-                    citation: paperRecord.paper.citation,
+                    printedAt: `Annalen der Physik, volume ${printed[1]}, page ${printed[2]}`,
                   }
                 : undefined;
             return (
