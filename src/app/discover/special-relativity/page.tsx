@@ -183,13 +183,12 @@ export default function SpecialRelativityRoute() {
           disagree about the times and distances that go into it.
         </p>
         <details>
-          <summary>What the moving clock is not</summary>
+          <summary>What the moving clock reading means</summary>
           <p>
-            It is not an optical illusion and it is not about what a camera records. What a camera
-            records also involves how long the light took to reach it, which is a separate effect
-            and can be calculated separately. The statement here is about what the moving clock
-            reads when it arrives, compared with what your clocks read, both measured in the
-            ordinary way.
+            The claim is about what the clock itself reads when it arrives, compared with what your
+            clocks read, both measured in the ordinary way. A camera is a separate question: what it
+            records also involves how long the light took to reach it, and that contribution can be
+            calculated on its own. Keeping the two apart is the whole of the distinction.
           </p>
         </details>
         <p>
