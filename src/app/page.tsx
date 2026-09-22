@@ -14,9 +14,11 @@ export default function Home() {
             Open the Brownian motion journey
           </a>
           <a href="/papers/brownian-motion/">Read the Brownian motion paper</a>
-          <a href="/papers/light-quanta/#entry-light-quanta">Read the light-quanta paper</a>
+          <a href="/papers/light-quanta/#entry-light-quanta">
+            Start with the light-quanta first encounter
+          </a>
           <a href="/papers/special-relativity/#entry-special-relativity">
-            Read the special relativity paper
+            Start by setting a distant clock
           </a>
         </div>
       </section>
@@ -40,7 +42,7 @@ export default function Home() {
             return without restarting the trial you had running.
           </p>
           <p>
-            <a href="/papers/brownian-motion/">Open the reading path for Brownian motion</a>
+            <a href="/papers/brownian-motion/">Read the Brownian motion paper</a>
           </p>
           <p>
             The worked example stays readable with JavaScript off. The interactive calculation

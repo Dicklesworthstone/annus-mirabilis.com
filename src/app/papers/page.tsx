@@ -46,14 +46,10 @@ export default function Papers() {
     <>
       <header className="page-intro">
         <p className="eyebrow">The corpus</p>
-        <h1>
-          Four arguments.
-          <br />
-          Not four summaries.
-        </h1>
+        <h1>The four papers of 1905</h1>
         <p className="lead">
-          The planned edition gives every paragraph, equation and qualification a place. Its
-          source-ledger and translation review is still in progress.
+          Every paragraph, equation and qualification in these papers has a place in the planned
+          edition. The source ledgers and the translation review are still in progress.
         </p>
       </header>
       <div className="paper-catalogue">
@@ -86,49 +82,47 @@ export default function Papers() {
             <p className="badge">{paper.status}</p>
             {i === 0 && (
               <div className="actions">
-                <a href="/papers/light-quanta/">Read the entropy and light-quantum argument →</a>
-                <a href="/papers/light-quanta/#entry-light-quanta">
-                  Show me a counting example first →
-                </a>
-                <a href="/lab/lq-01/">Wave description & energy spreading →</a>
-                <a href="/lab/lq-06/">Compare the entropy coefficients →</a>
+                <a href="/papers/light-quanta/">Read the entropy and light-quantum argument</a>
+                <a href="/papers/light-quanta/#entry-light-quanta">Start with a counting example</a>
+                <a href="/lab/lq-01/">Compare wave interference with spherical spreading</a>
+                <a href="/lab/lq-06/">Match radiation entropy to gas entropy</a>
               </div>
             )}
             {i === 1 && (
               <div className="actions">
-                <a href="/papers/brownian-motion/">Read the displacement argument →</a>
+                <a href="/papers/brownian-motion/">Read the displacement argument</a>
                 {paper.firstEncounterAnchor && (
-                  <a href={paper.firstEncounterAnchor}>Show me one example first →</a>
+                  <a href={paper.firstEncounterAnchor}>Start with one worked example</a>
                 )}
-                <a href="/discover/brownian-motion/">First encounter →</a>
-                <a href="/lab/bm-06/">Spreading laboratory →</a>
+                <a href="/discover/brownian-motion/">Open the Brownian motion journey</a>
+                <a href="/lab/bm-06/">Open the spreading laboratory</a>
               </div>
             )}
             {i === 2 && (
               <div className="actions">
-                <a href="/papers/special-relativity/">Read from clocks to electrodynamics →</a>
+                <a href="/papers/special-relativity/">Read from clocks to electrodynamics</a>
                 <a href="/papers/special-relativity/#entry-special-relativity">
-                  Start by setting a distant clock →
+                  Start by setting a distant clock
                 </a>
-                <a href="/lab/sr-02/">Magnet and conductor →</a>
-                <a href="/lab/sr-03/">Rod measurement & simultaneity →</a>
-                <a href="/lab/sr-10/">Finite light complex →</a>
-                <a href="/lab/sr-13/">Electron dynamics & mass conventions →</a>
+                <a href="/lab/sr-02/">Compare both descriptions of the magnet and conductor</a>
+                <a href="/lab/sr-03/">Measure moving rods, simultaneity, and causal order</a>
+                <a href="/lab/sr-10/">Transform the energy and volume of a finite light complex</a>
+                <a href="/lab/sr-13/">Examine electron dynamics under both force conventions</a>
               </div>
             )}
             {i === 3 && (
               <div className="actions">
-                <a href="/papers/mass-energy/">Read the two-account argument →</a>
-                <a href="/papers/mass-energy/#entry-mass-energy">Show me one example first →</a>
-                <a href="/lab/me-01/">Two-ledger laboratory →</a>
-                <a href="/lab/me-02/">Inertia from the small-speed coefficient →</a>
+                <a href="/papers/mass-energy/">Read the two-account argument</a>
+                <a href="/papers/mass-energy/#entry-mass-energy">Start with one worked example</a>
+                <a href="/lab/me-01/">Open the two-ledger laboratory</a>
+                <a href="/lab/me-02/">Trace inertia from a drop in energy of motion</a>
               </div>
             )}
           </article>
         ))}
       </div>
       <section className="reading">
-        <h2>A companion, not a fifth flagship</h2>
+        <h2>The molecular-dimensions companion</h2>
         <p>
           The molecular-dimensions dissertation is a planned companion record. It is not presented
           as an available reading or included in the four papers above.
