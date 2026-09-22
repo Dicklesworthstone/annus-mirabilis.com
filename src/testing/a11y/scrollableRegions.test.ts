@@ -460,6 +460,34 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   ["video-observation-scroll", 1],
 ]);
 
+/**
+ * CSS with comment bodies blanked, so a class NAMED IN PROSE is not read as a selector.
+ *
+ * The rule matcher below takes everything between the previous `}` and the next `{` as the
+ * selector. A block comment sitting above a rule therefore lands inside that span, and every
+ * `.class` mentioned in it is harvested as though it were part of the selector.
+ *
+ * Measured on 2026-09-22 rather than reasoned about. globals.css gained one rule,
+ * `div:has(> table.data-table) { overflow-x: auto }`, under a comment explaining the mechanism
+ * it repairs - a comment that names `.foundation-construction` and
+ * `div.thermodynamics-held-fixed-comparison` while doing the arithmetic. The gate reported all
+ * THREE classes as declaring a scrolling overflow. Deleting the comment and leaving the rule
+ * byte-identical dropped it to one. Neither of the other two declares overflow anywhere.
+ *
+ * So two of the three were phantoms, and the direction is the one AGENTS.md records: the prose
+ * densest in `.class` names near an overflow rule is the documentation ABOUT that rule, so the
+ * better the comment, the more phantoms it produces. Recording those two as unaudited scrollable
+ * regions would have been recording work that does not exist, and adding tabIndex to them would
+ * have created two phantom tab stops - the exact harm the RECORDED_NON_OVERFLOWING map exists to
+ * prevent.
+ *
+ * Bodies are blanked rather than deleted so byte offsets and line numbers are unchanged for any
+ * caller that reports them.
+ */
+export function stripCssComments(css: string): string {
+  return css.replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/[^\n]/g, " "));
+}
+
 export function deriveScrollClassesFromCss(rootDir: string = ROOT): ReadonlySet<string> {
   const found = new Set<string>();
   const walk = (dir: string): void => {
@@ -474,7 +502,7 @@ export function deriveScrollClassesFromCss(rootDir: string = ROOT): ReadonlySet<
       const full = join(dir, entry.name);
       if (entry.isDirectory()) walk(full);
       else if (entry.name.endsWith(".css")) {
-        const css = readFileSync(full, "utf8");
+        const css = stripCssComments(readFileSync(full, "utf8"));
         for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/gs)) {
           if (!/overflow(?:-x|-y)?\s*:\s*(?:auto|scroll)\b/.test(body ?? "")) continue;
           for (const [, cls] of (selector ?? "").matchAll(/\.([A-Za-z_][A-Za-z0-9_-]*)/g)) {
@@ -879,5 +907,48 @@ describe("the recorded measurements are read, not merely stored (am-uj6w)", () =
         );
       }
     }
+  });
+});
+
+describe("the CSS reader reads rules, not the prose about them", () => {
+  // Both directions, because a stripper that removed everything would report no scrolling
+  // classes at all and this gate would pass forever. The phantom case is the one that actually
+  // happened: see stripCssComments.
+  test("a class named only inside a comment is not a selector", () => {
+    const css = `
+/* .foundation-construction content box is 358 - 48 padding, and .phantom-class too */
+div:has(> table.data-table) {
+  overflow-x: auto;
+}
+`;
+    const stripped = stripCssComments(css);
+    assert.ok(!stripped.includes("foundation-construction"), "comment class must not survive");
+    assert.ok(!stripped.includes("phantom-class"), "comment class must not survive");
+    assert.ok(stripped.includes("table.data-table"), "the real selector must survive");
+    assert.ok(stripped.includes("overflow-x: auto"), "the real declaration must survive");
+  });
+
+  test("a comment between a closing brace and a selector does not swallow the selector", () => {
+    // This is the exact shape that produced the phantoms: the rule matcher treats everything
+    // since the previous } as the selector, so the comment has to be blanked in place rather
+    // than left to merge the two.
+    const css = `.a { color: red; }\n/* .commented-only */\n.real-scroller { overflow-y: scroll; }`;
+    const stripped = stripCssComments(css);
+    assert.ok(stripped.includes(".real-scroller"), "the following selector must survive");
+    assert.ok(!stripped.includes("commented-only"), "the comment class must not");
+  });
+
+  test("line numbers are preserved so any reported offset still points at the right line", () => {
+    const css = "/* one\n   two\n   three */\n.x { overflow: auto; }";
+    assert.equal(stripCssComments(css).split("\n").length, css.split("\n").length);
+  });
+
+  test("the derived set is not empty, or the phantom fix would have silenced the gate", () => {
+    // A positive control over the real tree. Stripping comments removes classes; if it removed
+    // all of them this gate would report a clean repository and mean nothing.
+    assert.ok(
+      deriveScrollClassesFromCss().size > 5,
+      "stripping comments must not empty the scrolling-class population",
+    );
   });
 });
