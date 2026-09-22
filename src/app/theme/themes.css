@@ -119,13 +119,19 @@ body {
  * `:root`, not `:root:where([data-theme])`: the same (0,2,1) specificity, but it also matches when
  * JavaScript is off and nothing has set data-theme. Gated on the attribute, links went back to
  * the old red in a no-JS page while staying ink everywhere else.
+ *
+ * `.skip-link` is excluded like `.button`, because it is the same kind of control: paper text on
+ * an ink ground. This rule outranked `.skip-link` (0,1,0) and set its text to ink as well, so the
+ * first thing a keyboard reader met on every page, "Skip to the content", was an ink block with
+ * ink text: 1.00:1 in both themes, measured focused on BUILD 20. Adding it inside the same :not()
+ * keeps the specificity at (0,2,1), which stepDoor.css relies on.
  */
-:root a:not(.button) {
+:root a:not(.button, .skip-link) {
   color: var(--ink);
   text-decoration-color: var(--link-underline);
   text-decoration-thickness: 1px;
 }
-:root a:not(.button):hover {
+:root a:not(.button, .skip-link):hover {
   color: var(--accent);
   /* The underline thickens as well as changing colour, so hover is not a colour-only cue. */
   text-decoration: underline 2px;
