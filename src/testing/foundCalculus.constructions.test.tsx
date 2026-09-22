@@ -78,9 +78,10 @@ test("foundCalculus.constructions: NudgeSensitivityDemo reports Δν, ΔV, and s
   assert.ok(html.includes("V·s (or V/Hz)"));
   assert.ok(html.includes("4.135667696e-15"));
 
-  // Textual equivalent
+  // Textual equivalent. It must name the derivative's units in words; the sentence around them
+  // is copy and was rewritten on 2026-09-22, so the assertion holds the units, not the phrasing.
   assert.ok(html.includes("Textual summary of the construction"));
-  assert.ok(html.includes("A derivative is not a dimensionless number"));
+  assert.ok(html.includes("volt-seconds"));
 
   writeCalculusLog({
     testId: "nudge-sensitivity-demo-units",
