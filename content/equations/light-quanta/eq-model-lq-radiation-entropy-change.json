@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-radiation-entropy-change",
+  "paper": "light-quanta",
+  "argument": "arg-lq-entropy-correspondence",
+  "title": "The radiation side of the comparison",
+  "spoken": "The radiation entropy change equals E over B times the frequency, times the natural logarithm of f.",
+  "explanation": "Section 4's result for dilute radiation of fixed energy and band: the same logarithm of the volume ratio, with the coefficient E over B nu.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Dilute radiation of fixed energy in a fixed narrow band, described by Wien's law.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-radiation-entropy-change.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-radiation-entropy-change.t.change",
+      "quantityId": "radiationEntropyChange"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-radiation-entropy-change.t.energy",
+            "quantityId": "radiationEnergy"
+          },
+          "denominator": {
+            "kind": "product",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-lq-radiation-entropy-change.t.beta",
+                "quantityId": "wienConstantBeta"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-lq-radiation-entropy-change.t.frequency",
+                "quantityId": "frequency"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "function",
+          "name": "ln",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-radiation-entropy-change.t.ratio",
+            "quantityId": "volumeRatio"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.change",
+      "title": "Entropy change of the radiation",
+      "explanation": "From Wien's law, integrated at fixed energy and band.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.energy",
+      "title": "Energy in the band",
+      "explanation": "Held fixed while the volume changes.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.beta",
+      "title": "Spectral constant B",
+      "explanation": "Wien's beta.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.frequency",
+      "title": "Frequency of the band",
+      "explanation": "The coefficient falls as the frequency rises.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.ratio",
+      "title": "Volume ratio",
+      "explanation": "The same factor as on the gas side.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-radiation-entropy-change.op.relation",
+      "title": "The same form as the gas",
+      "explanation": "A coefficient times ln f, like the gas. That shared form is what the comparison rests on.",
+      "foundation": "logarithms"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The radiation's entropy change",
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.change"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "its energy",
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.energy"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.beta"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.frequency"
+    },
+    {
+      "text": ", times the logarithm of "
+    },
+    {
+      "text": "the volume ratio",
+      "nodeId": "eq-model-lq-radiation-entropy-change.t.ratio"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

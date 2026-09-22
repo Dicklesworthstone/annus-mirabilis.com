@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-ionization-threshold",
+  "paper": "light-quanta",
+  "argument": "arg-lq-ionization-and-counts",
+  "title": "A quantum must at least pay for one ionization",
+  "spoken": "h times the frequency is at least the energy to ionize one molecule.",
+  "explanation": "If one quantum ionizes one molecule, only light whose quantum is at least the ionization energy can ionize the gas at all.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "One absorbed quantum ionizes at most one molecule.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-ionization-threshold.op.relation",
+    "operator": "ge",
+    "left": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-ionization-threshold.t.planck",
+          "quantityId": "planckConstant"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-ionization-threshold.t.frequency",
+          "quantityId": "frequency"
+        }
+      ]
+    },
+    "right": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-ionization-threshold.t.ionization",
+      "quantityId": "ionizationEnergyPerMolecule"
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-ionization-threshold.t.planck",
+      "title": "Planck's constant",
+      "explanation": "With the frequency, one quantum's energy.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-lq-ionization-threshold.t.frequency",
+      "title": "Frequency of the light",
+      "explanation": "It must be high enough for its quantum to reach the ionization energy.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-ionization-threshold.t.ionization",
+      "title": "Energy to ionize one molecule",
+      "explanation": "A property of the gas, set against the light's quantum.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-ionization-threshold.op.relation",
+      "title": "At least, a threshold",
+      "explanation": "Below it, no amount of light ionizes the gas in this model. That is the model's consequence, to be checked against experiment.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "One quantum",
+      "nodeId": "eq-model-lq-ionization-threshold.t.frequency"
+    },
+    {
+      "text": " must reach "
+    },
+    {
+      "text": "the ionization energy",
+      "nodeId": "eq-model-lq-ionization-threshold.t.ionization"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

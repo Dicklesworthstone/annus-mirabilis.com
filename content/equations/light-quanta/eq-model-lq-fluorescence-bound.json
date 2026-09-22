@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-fluorescence-bound",
+  "paper": "light-quanta",
+  "argument": "arg-lq-fluorescence-budget",
+  "title": "No quantum comes out larger than one went in",
+  "spoken": "h times the emitted frequency is at most h times the absorbed frequency.",
+  "explanation": "If each emitted quantum is made from one absorbed quantum, it cannot carry more energy than that quantum brought, so the emitted light is no higher in frequency. This is Stokes's rule, read as an energy budget.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Each emitted quantum is made from a single absorbed quantum.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-fluorescence-bound.op.relation",
+    "operator": "le",
+    "left": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-fluorescence-bound.t.planck",
+          "quantityId": "planckConstant"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-fluorescence-bound.t.out",
+          "quantityId": "emittedFrequency"
+        }
+      ]
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-fluorescence-bound.t.planck2",
+          "quantityId": "planckConstant"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-fluorescence-bound.t.in",
+          "quantityId": "incidentFrequency"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-fluorescence-bound.t.planck",
+      "title": "Planck's constant",
+      "explanation": "Turns the emitted frequency into the emitted quantum's energy.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-lq-fluorescence-bound.t.out",
+      "title": "Frequency of the emitted light",
+      "explanation": "What the fluorescent body gives out.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-fluorescence-bound.t.planck2",
+      "title": "Planck's constant",
+      "explanation": "The same constant, on the absorbed side.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-lq-fluorescence-bound.t.in",
+      "title": "Frequency of the absorbed light",
+      "explanation": "What the body takes in.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-fluorescence-bound.op.relation",
+      "title": "At most, not equal",
+      "explanation": "Some energy can stay in the body, so the emitted quantum may be smaller. The bound holds only if each emitted quantum comes from one absorbed quantum; the paper says where that assumption may fail.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The emitted quantum",
+      "nodeId": "eq-model-lq-fluorescence-bound.t.out"
+    },
+    {
+      "text": " carries no more than "
+    },
+    {
+      "text": "the absorbed one",
+      "nodeId": "eq-model-lq-fluorescence-bound.t.in"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

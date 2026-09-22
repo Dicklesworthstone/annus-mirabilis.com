@@ -34,7 +34,8 @@
       {
         "kind": "formula",
         "latex": "h\\nu\\ge I",
-        "spoken": "One-quantum ionization requires quantum energy at least equal to the specified ionization energy."
+        "spoken": "One-quantum ionization requires quantum energy at least equal to the specified ionization energy.",
+        "equations": ["eq-model-lq-ionization-threshold"]
       },
       {
         "kind": "paragraph",
@@ -43,7 +44,8 @@
       {
         "kind": "formula",
         "latex": "n_{\\mathrm{ions}}\\le\\frac{E_{\\mathrm{abs}}}{h\\nu}",
-        "spoken": "The ionization count is at most absorbed energy divided by quantum energy, under the at-most-one-ionization assumption."
+        "spoken": "The ionization count is at most absorbed energy divided by quantum energy, under the at-most-one-ionization assumption.",
+        "equations": ["eq-model-lq-ion-count-bound"]
       },
       {
         "kind": "paragraph",

@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-ion-count-bound",
+  "paper": "light-quanta",
+  "argument": "arg-lq-ionization-and-counts",
+  "title": "No more ions than quanta",
+  "spoken": "The number of ionized molecules is at most the absorbed energy divided by h times the frequency.",
+  "explanation": "The absorbed energy divided by one quantum's energy is the number of quanta absorbed; if each ionizes at most one molecule, that number bounds the ions.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "One absorbed quantum ionizes at most one molecule.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-ion-count-bound.op.relation",
+    "operator": "le",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-ion-count-bound.t.ions",
+      "quantityId": "ionCount"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-ion-count-bound.t.absorbed",
+        "quantityId": "absorbedLightEnergy"
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-ion-count-bound.t.planck",
+            "quantityId": "planckConstant"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-ion-count-bound.t.frequency",
+            "quantityId": "frequency"
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-ion-count-bound.t.ions",
+      "title": "Number of ionized molecules",
+      "explanation": "Counted one by one. The paper counts gram-molecules, j.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-lq-ion-count-bound.t.absorbed",
+      "title": "Light energy absorbed",
+      "explanation": "What the gas takes in; the paper prints it L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-ion-count-bound.t.planck",
+      "title": "Planck's constant",
+      "explanation": "With the frequency, the size of one quantum.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-lq-ion-count-bound.t.frequency",
+      "title": "Frequency of the light",
+      "explanation": "Higher frequency means fewer, larger quanta for the same energy.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-ion-count-bound.op.relation",
+      "title": "At most one ion per quantum",
+      "explanation": "Energy that heats the gas instead produces no ions, so the count can fall short of the bound, never exceed it.",
+      "foundation": "bridge-fractions-ratios"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The ions",
+      "nodeId": "eq-model-lq-ion-count-bound.t.ions"
+    },
+    {
+      "text": " number at most "
+    },
+    {
+      "text": "the absorbed energy",
+      "nodeId": "eq-model-lq-ion-count-bound.t.absorbed"
+    },
+    {
+      "text": " over one quantum."
+    }
+  ]
+}

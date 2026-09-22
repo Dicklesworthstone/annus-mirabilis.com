@@ -34,7 +34,8 @@
       {
         "kind": "formula",
         "latex": "h\\nu_{\\mathrm{out}}\\le h\\nu_{\\mathrm{in}}",
-        "spoken": "The emitted quantum energy is at most the absorbed quantum energy in the restricted event budget."
+        "spoken": "The emitted quantum energy is at most the absorbed quantum energy in the restricted event budget.",
+        "equations": ["eq-model-lq-fluorescence-bound"]
       },
       {
         "kind": "paragraph",

@@ -30,7 +30,8 @@
       {
         "kind": "formula",
         "latex": "\\Delta S_{\\mathrm{gas}}=nk_B\\ln f,\\qquad\\Delta S_{\\mathrm{rad}}=\\frac{E}{B\\nu}\\ln f",
-        "spoken": "The gas entropy change has coefficient n k B; the radiation change has coefficient E over B frequency."
+        "spoken": "The gas entropy change has coefficient n k B; the radiation change has coefficient E over B frequency.",
+        "equations": ["eq-model-lq-gas-entropy-change", "eq-model-lq-radiation-entropy-change"]
       },
       {
         "kind": "paragraph",

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-gas-entropy-change",
+  "paper": "light-quanta",
+  "argument": "arg-lq-entropy-correspondence",
+  "title": "The gas side of the comparison",
+  "spoken": "The gas entropy change equals n times k B times the natural logarithm of f.",
+  "explanation": "For n independent points, the chance of finding all of them in a fraction f of the volume is f to the n, so the entropy changes by n k_B ln f.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The points move independently of one another.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-gas-entropy-change.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-gas-entropy-change.t.change",
+      "quantityId": "gasEntropyChange"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-gas-entropy-change.t.count",
+          "quantityId": "independentPointCount"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-gas-entropy-change.t.boltzmann",
+          "quantityId": "boltzmannConstant"
+        },
+        {
+          "kind": "function",
+          "name": "ln",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-gas-entropy-change.t.ratio",
+            "quantityId": "volumeRatio"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-gas-entropy-change.t.change",
+      "title": "Entropy change of the gas",
+      "explanation": "A difference of entropies between the two volumes.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-gas-entropy-change.t.count",
+      "title": "Number of independent points",
+      "explanation": "The coefficient's count: each point contributes k_B ln f.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-lq-gas-entropy-change.t.boltzmann",
+      "title": "Boltzmann's constant",
+      "explanation": "R over N in the paper's notation.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-gas-entropy-change.t.ratio",
+      "title": "Volume ratio",
+      "explanation": "The factor by which the volume changes.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-gas-entropy-change.op.relation",
+      "title": "Independence gives the logarithm",
+      "explanation": "The probability f to the n becomes n ln f once the logarithm is taken.",
+      "foundation": "logarithms"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The gas entropy change",
+      "nodeId": "eq-model-lq-gas-entropy-change.t.change"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "n",
+      "nodeId": "eq-model-lq-gas-entropy-change.t.count"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "k_B",
+      "nodeId": "eq-model-lq-gas-entropy-change.t.boltzmann"
+    },
+    {
+      "text": " times the logarithm of "
+    },
+    {
+      "text": "the volume ratio",
+      "nodeId": "eq-model-lq-gas-entropy-change.t.ratio"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
