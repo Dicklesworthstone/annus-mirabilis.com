@@ -476,8 +476,8 @@ export const FIXTURE_MASS_ENERGY_TRANSLATION_UNITS: readonly TranslationUnit[] =
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     editor: {
@@ -500,8 +500,8 @@ export const FIXTURE_MASS_ENERGY_TRANSLATION_UNITS: readonly TranslationUnit[] =
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     editor: {
@@ -524,8 +524,8 @@ export const FIXTURE_MASS_ENERGY_TRANSLATION_UNITS: readonly TranslationUnit[] =
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     revision: 1,
@@ -542,8 +542,8 @@ export const FIXTURE_MASS_ENERGY_TRANSLATION_UNITS: readonly TranslationUnit[] =
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     revision: 1,
