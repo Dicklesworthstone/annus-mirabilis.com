@@ -172,12 +172,12 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
       {
         file: "src/components/lab/RodSimultaneityLab.tsx",
         className: "table-scroll",
-        ariaLabel: "Accepted laboratory telemetry snapshot table",
+        ariaLabel: "Values at these settings",
         url: "/lab/sr-03/",
-        measurements: "320px: 216px/216px (diff 0); 1280px: 1116px/1116px (diff 0)",
+        measurements: "320px: 254px/254px (diff 0); 1280px: 704px/704px (diff 0)",
         reason:
-          "This file holds TWO elements of class table-scroll and they differ: the spacetime-coordinates table at :688 overflows at 320px (325/216) and keeps its tabIndex, and this telemetry snapshot at :749 fits. Distinguished by accessible name because file-plus-class cannot tell them apart. Four short quantity-id columns that do not grow with reader input.",
-        measuredBy: "am-bc6s",
+          "This file holds TWO elements of class table-scroll and they differ: the spacetime-coordinates table overflows at 320px (322/217) and keeps its tabIndex, and this values table fits. Distinguished by accessible name because file-plus-class cannot tell them apart. Renamed from 'Accepted laboratory telemetry snapshot table' when the table became two columns, quantity name and value (c043794f); re-measured then, with the lab rendered from source into BUILD 14.",
+        measuredBy: "BoldCanyon",
       },
       {
         file: "src/components/lab/TracerLab.tsx",
@@ -910,11 +910,10 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
   const rodRecord = {
     file: ROD,
     className: "table-scroll",
-    ariaLabel: "Accepted laboratory telemetry snapshot table",
+    ariaLabel: "Values at these settings",
     url: "/lab/sr-04/",
-    measurements: "320px: 216px/216px (diff 0); 1280px: 1116px/1116px (diff 0)",
-    reason:
-      "the telemetry snapshot table fits at both viewports; the event table above it does not",
+    measurements: "320px: 254px/254px (diff 0); 1280px: 704px/704px (diff 0)",
+    reason: "the values table fits at both viewports; the event table above it does not",
     measuredBy: "test",
   } as const;
 
