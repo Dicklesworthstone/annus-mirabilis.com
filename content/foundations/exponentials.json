@@ -9,7 +9,7 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Suppose a quantity changes at a rate proportional to its own size. A radioactive sample loses the same fraction of its atoms every hour; a beam of light loses the same fraction of its intensity in every millimetre of absorbing glass. Equal steps then multiply the quantity by equal factors, and its graph is an exponential. The function eˣ, with e about 2.718, is the one whose rate of change equals its own value everywhere, which is why it describes this kind of change:"
+      "text": "Suppose a quantity changes at a rate proportional to its own size. A radioactive sample loses the same fraction of its atoms every hour; a beam of light loses the same fraction of its intensity in every millimetre of absorbing glass. Equal steps then multiply the quantity by equal factors, and its graph is an exponential. The function e to the power x, with e about 2.718, is the one whose rate of change equals its own value everywhere, which is why it describes this kind of change:"
     },
     {
       "kind": "formula",
@@ -18,7 +18,16 @@
     },
     {
       "kind": "paragraph",
-      "text": "Whatever sits in the exponent must be a pure number with no units. The reason is the series eˣ = 1 + x + x²/2 + x³/6 + …: if x were a length, the series would add a length to an area to a volume, which has no meaning. In the decay law, k is a rate per hour and t is in hours, so kt is a pure number."
+      "text": "Whatever sits in the exponent must be a pure number with no units. The reason is the series that defines e to the power x:"
+    },
+    {
+      "kind": "formula",
+      "latex": "e^{x} = 1 + x + \\frac{x^{2}}{2} + \\frac{x^{3}}{6} + \\ldots",
+      "spoken": "e to the x equals one plus x plus x squared over two plus x cubed over six, and so on."
+    },
+    {
+      "kind": "paragraph",
+      "text": "If x were a length, the series would add a length to an area to a volume, which has no meaning. In the decay law, k is a rate per hour and t is in hours, so kt is a pure number."
     },
     {
       "kind": "paragraph",
