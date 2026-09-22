@@ -59,6 +59,27 @@ describe("Root OpenGraph Image Generator", () => {
     expect(escaped).toEqual([]);
   });
 
+  // am-ecuf, SETTLED BY MEASUREMENT AND STILL REACHABLE. The string this bead named is gone:
+  // 1eb7da05 replaced "Albert Einstein's Miraculous Year," / "Decoded & Made Interactive." with
+  // the current two lines, so "loses Made Interactive" cannot happen by construction. The gutter
+  // check above passes, and it is not passing because the card is blank - the headline band
+  // x[86,1114) y[180,340) carries 18,427 non-background pixels, first row y=225.
+  //
+  // WHAT FIXED IT IS NOT WHAT THE SOURCE SAYS FIXED IT. opengraph-image.tsx attributes the repair
+  // to `maxWidth: 1028px`: "A headline longer than one line now wraps inside the card instead of
+  // leaving it." That is not load-bearing. Planted against it directly - ceiling lifted to 4000px
+  // AND the two lines joined into one long wrappable run - and the gutter check still PASSED,
+  // because Satori wraps at the parent flex container's width regardless of the ceiling. The half
+  // that does the work is the other one: two explicit children of a column flex container in
+  // place of a <br />, which Satori does not treat as a line break.
+  //
+  // THE MECHANISM IS LATENT, NOT REMOVED. Text that cannot break still escapes the card. Planted
+  // a 62-character unbreakable run in place of the first line and the right gutter x[1114,1184)
+  // reported 924 non-background pixels at y=228, failing the check above. No authored string
+  // triggers it today. The change that re-opens this bead is a headline that stops being authored
+  // prose - an id, a URL, a hyphen-free compound, anything data-driven - and at that point the
+  // repair is a break rule on the h1, not a wider ceiling, for the reason the plant above gives.
+
   // am-jfyo. Every build printed "Failed to load dynamic font for ✦ . Error: Failed to
   // download dynamic font. Status: 400" and shipped the brand mark as an empty
   // missing-glyph box. next/og reaches the NETWORK for any glyph its built-in font does
