@@ -282,8 +282,8 @@ export default function LightQuantaRoute() {
           The paper runs to seventeen pages and nine numbered sections. The divergence is section 1,
           the entropy of radiation is sections 3 and 4, the gas comparison is section 5, the
           conclusion this route builds towards is section 6, and the three checks are sections 7 to
-          9. Its German text is set in this edition; the English translation is not written yet, and
-          the source face says so.
+          9. Its German text is on this site, not yet reviewed; the English translation is not
+          written yet.
         </p>
         <div className="actions">
           <a className="button" href="/papers/light-quanta/">
