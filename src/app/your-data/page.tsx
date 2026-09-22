@@ -10,7 +10,9 @@ export const metadata: Metadata = {
 
 export default function YourDataPage() {
   return (
-    <main className="your-data-page">
+    // A <div>: the layout already renders the page's one <main id="main">, and a second nested
+    // inside it gave this page two main landmarks.
+    <div className="your-data-page">
       <header className="page-intro">
         <p className="eyebrow">Privacy &amp; local storage</p>
         <h1>Your data stays on your device.</h1>
@@ -23,7 +25,7 @@ export default function YourDataPage() {
 
       <section
         data-testid="privacy-guarantees"
-        aria-label="Privacy Guarantees"
+        aria-label="What this site promises about your data"
         className="privacy-guarantees"
       >
         <div className="privacy-card">
@@ -45,8 +47,8 @@ export default function YourDataPage() {
         <div className="privacy-card">
           <h2 className="privacy-card-title">Delete it yourself</h2>
           <p className="privacy-card-desc">
-            Clear individual namespaces or wipe all stored data with a single click. Clearing is
-            strictly local to your browser.
+            Clear one kind of saved data, or all of it, from the panel below. Clearing affects this
+            browser only.
           </p>
         </div>
       </section>
@@ -62,9 +64,9 @@ export default function YourDataPage() {
         </div>
       </noscript>
 
-      <section aria-label="Local Data Management" className="data-management-section">
+      <section aria-label="The data stored in this browser" className="data-management-section">
         <DataPanel />
       </section>
-    </main>
+    </div>
   );
 }
