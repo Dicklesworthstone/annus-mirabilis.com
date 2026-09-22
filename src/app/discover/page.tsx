@@ -102,9 +102,9 @@ export default function DiscoverIndex() {
           <p>
             A speck of pollen in still water never settles. The route starts from that, and asks
             what you would measure if you wanted to decide whether molecules are shoving it: not how
-            fast it moves, which turns out to be the wrong question, but how far it gets. Eight
-            sections, four instruments you operate, and the 1904 shelf laid out so you can see what
-            you are allowed to use.
+            fast it moves, which turns out to be the wrong question, but how far it gets. Five
+            steps, four instruments you operate, and the 1904 shelf laid out so you can see what you
+            are allowed to use.
           </p>
           <div className="actions">
             <a className="button" href="/discover/brownian-motion/">
