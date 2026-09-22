@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { loadFirstPages } from "../../components/home/firstPages.ts";
 import type { SearchType } from "../../search/core.ts";
 import { parseSearchShard } from "../../search/protocol.ts";
 import { readCurrentSearchShard, readSearchManifest } from "../../search/server.ts";
@@ -106,11 +107,47 @@ async function readIndex(): Promise<readonly Entry[]> {
   }
   // Stable, readable order within a type. The shards are content-addressed, so their own order is
   // a hashing artefact and would reshuffle a reader's page for no reason on an unrelated edit.
-  return out.sort((a, b) => a.title.localeCompare(b.title));
+  // Numeric, so "§2" comes before "§10".
+  return out.sort((a, b) => a.title.localeCompare(b.title, "en", { numeric: true }));
+}
+
+/**
+ * Within each kind, entries are grouped under the paper they belong to, in the order the journal
+ * received the papers, and the paper is named once above its group. Each entry used to carry its
+ * paper as a monospace slug ("brownian motion") under the link, 191 times, and the one
+ * alphabetical list put "§1 · classical energy allocation" (light quanta) beside "§1 ·
+ * operational simultaneity" (relativity) and "§10" before "§2". A kind with one entry per paper,
+ * the papers themselves, is listed without the groups.
+ */
+function groupByPaper(list: readonly Entry[], titles: ReadonlyMap<string, string>) {
+  const order = [...titles.keys(), "molecular-dimensions", "cross-paper"];
+  const groups = new Map<string, Entry[]>();
+  for (const entry of list) {
+    const key = entry.paper || "cross-paper";
+    groups.set(key, [...(groups.get(key) ?? []), entry]);
+  }
+  const rank = (key: string) => {
+    const i = order.indexOf(key);
+    return i === -1 ? order.length : i;
+  };
+  return [...groups.entries()]
+    .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b))
+    .map(([key, entries]) => ({
+      key,
+      label:
+        titles.get(key) ??
+        (key === "cross-paper"
+          ? "Across the papers"
+          : key === "molecular-dimensions"
+            ? "Molecular dimensions (the dissertation)"
+            : key.replaceAll("-", " ")),
+      entries,
+    }));
 }
 
 export default async function SearchIndexPage() {
   const entries = await readIndex();
+  const titles = new Map(loadFirstPages().map((p) => [p.slug, p.title]));
   const byType = new Map<string, Entry[]>();
   for (const entry of entries) {
     const list = byType.get(entry.type) ?? [];
@@ -118,6 +155,7 @@ export default async function SearchIndexPage() {
     byType.set(entry.type, list);
   }
   const sections = TYPE_ORDER.filter((type) => (byType.get(type)?.length ?? 0) > 0);
+  const href = (entry: Entry) => (entry.anchor ? `${entry.route}#${entry.anchor}` : entry.route);
 
   return (
     <>
@@ -138,27 +176,37 @@ export default async function SearchIndexPage() {
 
       {sections.map((type) => {
         const list = byType.get(type) ?? [];
+        const groups = groupByPaper(list, titles);
+        const flat = groups.every((g) => g.entries.length === 1);
         return (
-          <section className="instrument-group" key={type}>
-            <h2>
-              {TYPE_LABELS[type] ?? type} <span className="instrument-id">{list.length}</span>
+          <section className="search-index-kind" key={type} aria-labelledby={`kind-${type}`}>
+            <h2 id={`kind-${type}`}>
+              {TYPE_LABELS[type] ?? type} <span className="search-index-count">{list.length}</span>
             </h2>
-            <ul className="instrument-list">
-              {list.map((entry) => (
-                <li key={entry.id}>
-                  <a href={entry.anchor ? `${entry.route}#${entry.anchor}` : entry.route}>
-                    {entry.title}
-                  </a>
-                  {entry.paper ? (
-                    <span className="instrument-id">
-                      {entry.paper === "cross-paper"
-                        ? "across papers"
-                        : entry.paper.replaceAll("-", " ")}
-                    </span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
+            {flat ? (
+              <ul className="search-index-list">
+                {list.map((entry) => (
+                  <li key={entry.id}>
+                    <a href={href(entry)}>{entry.title}</a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="search-index-groups">
+                {groups.map((group) => (
+                  <div className="search-index-group" key={group.key}>
+                    <h3>{group.label}</h3>
+                    <ul className="search-index-list">
+                      {group.entries.map((entry) => (
+                        <li key={entry.id}>
+                          <a href={href(entry)}>{entry.title}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         );
       })}
