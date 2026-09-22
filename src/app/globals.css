@@ -317,6 +317,26 @@ main {
     column-gap: 1rem;
   }
 }
+/* Where the six do not fit one row, they sit in three even columns rather than wrapping ragged.
+   The wrap left "Search Notebook" alone under four links from 375 to 547px, which covers most
+   phones held upright, and "Notebook" alone at 561-579px. Three columns spread edge to edge make
+   the same two rows read as a grid; below 320px, two columns, because three clip there. Swept on
+   BUILD 17 from 280 to 620px on /papers/, a section page and a laboratory: every width is 2+2+2,
+   3+3 or one row, with no link past the nav's edge and no sideways scroll. The one width band
+   that pays a row for it is 548-560px, where all six fit on one line. */
+@media (max-width: 579px) {
+  .site-header > nav {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: space-between;
+    column-gap: 0.75rem;
+  }
+}
+@media (max-width: 319px) {
+  .site-header > nav {
+    grid-template-columns: repeat(2, auto);
+  }
+}
 @media (min-width: 1200px) {
   .site-header {
     grid-template-columns: auto minmax(0, 1fr) auto;
