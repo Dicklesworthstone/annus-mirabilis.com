@@ -1093,6 +1093,43 @@ samp,
        themselves, and the gap was paying for separation the size now provides. See `nav a`. */
     row-gap: 0.15rem;
   }
+
+  /*
+   * 21px OF PHONE HEADER BACK, WITHOUT HIDING ANYTHING.
+   *
+   * The header is what a phone reader meets before any content, and it was 282px at 320px on an
+   * 844px screen - a third of the first view. Decomposed on build IPOoHUBM-KjOXh8fVyF9P:
+   *
+   *     padding 14.4 x2   28.8      nav       137  (6 links, 3 rows)
+   *     wordmark           52       controls   44  (preferences + theme switch, one row)
+   *
+   * The nav is half of it and cannot shrink without shortening labels or hiding items, which are
+   * a copy decision and an IA decision rather than a layout one. These two are neither.
+   *
+   * The wordmark set on two lines because "Annus Mirabilis" at the desktop size does not fit a
+   * 288px content box. At 1.25rem it is 143px wide on one line, with the tagline kept below it.
+   * The chrome padding and gap were desktop values applied at every width.
+   *
+   * MEASURED, all four widths, with the nav fix applied so this is the marginal effect:
+   *
+   *      320px   header 282 -> 261  (-21)   wordmark 52 -> 45   scrollWidth 320, unchanged
+   *      360px   header 235 -> 214  (-21)                       first paragraph y 383 -> 362
+   *      390px   header 235 -> 214  (-21)
+   *     1280px   header 140 -> 140    (0)   wordmark unchanged at 82
+   *
+   * Desktop is untouched, every nav link is still 44px, and no navigation item is hidden. The
+   * tagline stays: dropping it would buy another 14px and it is the only line that tells a reader
+   * arriving cold what the site is, so that is a decision rather than a tidy-up.
+   */
+  .wordmark {
+    font-size: 1.25rem;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+  header.site-header {
+    padding: 0.7rem 0;
+    gap: 0.35rem;
+  }
   .header-controls {
     display: flex;
     flex-wrap: wrap;
