@@ -3,19 +3,12 @@ export default function Home() {
     <>
       <section className="hero">
         <p className="eyebrow">Annalen der Physik · 1905</p>
-        <h1>Einstein&rsquo;s four papers of 1905</h1>
+        <h1>Four papers, March to September</h1>
         <p className="lead">
-          In seven months one journal received four papers from the same author. Each takes up a
-          question its century had not settled: whether light gives up its energy in whole pieces,
-          whether a visible speck in still water is being shoved by molecules, whether two observers
-          can disagree about what happened at the same moment, and whether a body that radiates
-          energy weighs less afterwards.
-        </p>
-        <p>
-          This edition sets four faces beside one another: the German page as it was printed, an
-          English rendering checked against it, an explanation at whatever depth you ask for, and an
-          instrument you can operate yourself. The explanations and the instruments work today. The
-          German page is set for three of the four papers. The English rendering is not written yet.
+          In 1905 one journal received four papers from Albert Einstein. Each unsettled something
+          that had looked settled: how light carries its energy, whether molecules are real, what it
+          means for two events to happen at once, and where a body&rsquo;s mass goes when it gives
+          off light.
         </p>
         <div className="actions">
           <a className="button" href="/papers/">
