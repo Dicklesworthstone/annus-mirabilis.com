@@ -3,13 +3,13 @@
   "kind": "foundation",
   "id": "entropy-temperature",
   "title": "Entropy, temperature, and a stated constraint",
-  "question": "Why does inverse temperature describe entropy gained per added energy?",
-  "summary": "At fixed volume and other stated constraints, the equilibrium entropy derivative with respect to energy is inverse absolute temperature. The derivative does not determine an additive constant.",
+  "question": "What does temperature have to do with entropy?",
+  "summary": "Add a little energy to a body at fixed volume and its entropy rises by that energy divided by its absolute temperature. The same energy raises the entropy of a cold body more than that of a hot one.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Entropy is a state quantity. For a reversible transfer of heat into a system at absolute temperature T, the transferred entropy is heat divided by T. At fixed volume, with no other work or exchanged matter, that heat transfer changes the internal energy."
+      "text": "Add a small amount of heat to a body, slowly and reversibly, and keep its volume fixed so that it does no work. Its energy rises by that amount, and its entropy rises by the energy divided by the absolute temperature T:"
     },
     {
       "kind": "formula",
@@ -18,11 +18,15 @@
     },
     {
       "kind": "paragraph",
-      "text": "The subscript matters: allowing work from changing volume introduces an additional term. An entropy derivative describes a local change along specified constraints, not every possible process."
+      "text": "So one joule raises the entropy of a cold body more than that of a hot one: at 100 kelvin by 0.01 joule per kelvin, at 1000 kelvin by 0.001. Read the other way round, 1/T is how steeply a body's entropy climbs as its energy grows."
     },
     {
       "kind": "paragraph",
-      "text": "When energy is shared among equilibrium subsystems, a redistribution that conserves total energy cannot increase the already maximized entropy. The entropy slopes are therefore equal, so the temperatures agree."
+      "text": "The subscript V matters. If the volume can change, the body can do work while it takes in energy, and the relation gains another term. The derivative describes one kind of change, at fixed volume, not every process."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The relation also says why bodies in contact end at one temperature. Share a fixed total of energy between two bodies, and the total entropy is greatest when moving a little energy from one to the other no longer changes it: when their entropy slopes, and so their temperatures, are equal. §3 of the light-quanta paper uses the same relation for radiation, setting its entropy slope equal to 1/T."
     },
     {
       "kind": "foundation",
@@ -32,16 +36,21 @@
   ],
   "example": [
     {
-      "kind": "paragraph",
-      "text": "An ideal reservoir remains at 300 kelvin while it receives 3 joules reversibly. Its entropy increases by 0.01 joule per kelvin. For a finite body whose temperature changes, integrate dE/T(E) instead of dividing by an arbitrarily selected temperature."
+      "kind": "steps",
+      "items": [
+        "A reservoir so large that its temperature stays at 300 kelvin receives 3 joules of heat, slowly.",
+        "Its entropy rises by 3 J ÷ 300 K = 0.01 joule per kelvin.",
+        "The same 3 joules given to a reservoir at 150 kelvin would raise its entropy by 0.02 joule per kelvin, twice as much.",
+        "A small body warms as it takes in heat, so its temperature changes on the way. Its entropy change is found by adding dE/T over the warming, not by dividing by one temperature."
+      ]
     },
     {
       "kind": "paragraph",
-      "text": "Two proposed entropy functions differing by a constant have the same derivative. A boundary condition is needed to select between them. If the unresolved quantity is an entropy density, multiplying it by different volumes can make that constant matter to a total entropy difference."
+      "text": "The relation fixes how entropy changes, not its absolute value: two entropy formulas that differ by a constant have the same slope everywhere, and a separate condition is needed to fix the constant. For an entropy per unit volume, that constant multiplied by two different volumes can change the difference between two states."
     }
   ],
   "exampleTitle": "Three joules into a reservoir held at 300 kelvin",
   "prerequisites": ["partial-derivatives", "integration"],
-  "stoppingPoint": "State what is held fixed, distinguish total entropy from entropy density, and supply an integration condition before interpreting a volume-dependent difference.",
+  "stoppingPoint": "Before using 1/T as an entropy slope, say what is held fixed. Before comparing two entropies, say whether they are totals or per unit volume, and what fixes the constant.",
   "citations": ["ap-17-132"]
 }
