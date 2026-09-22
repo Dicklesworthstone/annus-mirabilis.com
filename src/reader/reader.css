@@ -135,7 +135,11 @@
   color: var(--muted);
 }
 .reader-outline a[aria-current] {
-  border-left-color: var(--accent);
+  /* Two cues that do not depend on telling red from ink: the bar is DRAWN here (the other rows
+     carry a transparent one), so a shape appears beside the current section, and the section
+     name goes from weight 600 to 700. */
+  border-left: 2px solid var(--accent);
+  font-weight: 700;
   color: var(--ink);
 }
 .reader-outline nav[data-spy] > div:not([data-current]) > a:not(:first-child) {
