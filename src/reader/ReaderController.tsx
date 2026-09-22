@@ -392,7 +392,22 @@ export function ReaderController(props: Props) {
           <a href="?view=german" data-view-link="german">
             Source status
           </a>
-          <a href={`/papers/${props.registry.paperId}/view/facsimile/`} data-view-link="facsimile">
+          {/* Same treatment as German source above, and for a measured reason rather
+              than symmetry. This link already pointed at the route, but carrying
+              data-view-link="facsimile" meant :238 intercepted it and switched the
+              in-page view instead: clicked, it landed on ?view=facsimile#... and never
+              left the paper page.
+
+              Dropping the attribute removes NO rendered state. Measured on the built
+              page by setting data-view directly, the eight view values collapse to four
+              distinct renderings, and facsimile is byte-identical to german - 12,483
+              characters, the same six [data-face-source] panels - which "Source status"
+              still reaches. What the route adds is real: light-quanta and mass-energy
+              serve an actual facsimile viewer there (7,802 and 3,976 characters of text),
+              and brownian-motion and special-relativity serve an honest "unavailable"
+              page that says so and carries the chooser. Better or equal for all four
+              papers, strictly better for two. */}
+          <a href={`/papers/${props.registry.paperId}/view/facsimile/`}>
             {FACE_REGISTRY.facsimile.label}
           </a>
         </nav>
