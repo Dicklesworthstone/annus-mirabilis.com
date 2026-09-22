@@ -25,14 +25,21 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
     // Check reading-version containers
     expect(html).toMatch(/<div data-reading="0" hidden="" class="reading-version">/);
     expect(html).toMatch(/<div data-reading="1" class="reading-version">/);
-    expect(html).toMatch(/<div data-reading="2" hidden="" class="reading-version">/);
+    // R2 is rendered ONCE, as the per-passage disclosure: closed and not hidden, so it opens
+    // without JavaScript, and ReaderController opens it at "Show every step". It used to be a
+    // hidden div AND the same blocks again in a separate disclosure (149,096 bytes twice on the
+    // Brownian page), so no div copy may come back.
+    expect(html).toMatch(/<details class="local-steps reading-version" data-reading="2">/);
+    expect(html).not.toContain('<div data-reading="2"');
     // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
     // callout-limit to the modern margin and four exact-string checks went red.
     expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
 
-    // No-JS per-unit expansion disclosure exists statically
-    expect(html).toContain('<details class="local-steps">');
-    expect(html).toContain("<summary>Show every step here:");
+    // The same element is the no-JS per-passage expansion, exactly once per passage.
+    const units = (html.match(/<article\b[^>]*\sdata-unit="/g) ?? []).length;
+    expect(units).toBeGreaterThan(0);
+    expect((html.match(/data-reading="2"/g) ?? []).length).toBe(units);
+    expect((html.match(/<summary>Show every step here:/g) ?? []).length).toBe(units);
 
     // Passage actions include Why? link for arg-bm-observable (am-10ba)
     expect(html).toContain('href="/foundations/mean-variance-rms/"');
@@ -56,14 +63,18 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
     // R1 visible by default; others hidden
     expect(html).toMatch(/<div data-reading="0" hidden="" class="reading-version">/);
     expect(html).toMatch(/<div data-reading="1" class="reading-version">/);
-    expect(html).toMatch(/<div data-reading="2" hidden="" class="reading-version">/);
+    // R2 once, as the closed per-passage disclosure (see the PaperReader test above).
+    expect(html).toMatch(/<details class="local-steps reading-version" data-reading="2">/);
+    expect(html).not.toContain('<div data-reading="2"');
     // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
     // callout-limit to the modern margin and four exact-string checks went red.
     expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
 
-    // No-JS local-steps disclosure exists statically
-    expect(html).toContain('<details class="local-steps">');
-    expect(html).toContain("<summary>Show every step here:");
+    // The same element is the no-JS per-passage expansion, exactly once per passage.
+    const units = (html.match(/<article\b[^>]*\sdata-unit="/g) ?? []).length;
+    expect(units).toBeGreaterThan(0);
+    expect((html.match(/data-reading="2"/g) ?? []).length).toBe(units);
+    expect((html.match(/<summary>Show every step here:/g) ?? []).length).toBe(units);
 
     // Passage actions include Why? link for arg-bm-observable (am-10ba)
     expect(html).toContain('href="/foundations/mean-variance-rms/"');

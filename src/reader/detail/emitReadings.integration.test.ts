@@ -19,7 +19,9 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
     // Verify readings R0 to R3
     expect(html).toContain('<div data-reading="0" hidden="" class="reading-version">');
     expect(html).toContain('<div data-reading="1" class="reading-version">');
-    expect(html).toContain('<div data-reading="2" hidden="" class="reading-version">');
+    // R2 once, as the closed per-passage disclosure (see staticReadings.test.tsx).
+    expect(html).toContain('<details class="local-steps reading-version" data-reading="2">');
+    expect(html).not.toContain('<div data-reading="2"');
     // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
     // callout-limit to the modern margin and four exact-string checks went red.
     expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
@@ -38,8 +40,9 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
     const page = await PaperReader({ section: "s4" });
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain('<details class="local-steps">');
-    expect(html).toContain("<summary>Show every step here:");
+    expect(html).toContain(
+      '<details class="local-steps reading-version" data-reading="2"><summary>Show every step here:',
+    );
   });
 
   test("static paper route produces all four readings for each argument unit", async () => {
