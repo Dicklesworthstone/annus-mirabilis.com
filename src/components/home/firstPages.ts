@@ -1,4 +1,7 @@
-import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
+import {
+  type LoadReceiptsOptions,
+  loadProvenanceReceipts,
+} from "../../content/provenance/loadReceipts.ts";
 
 /**
  * The four papers as the journal received them, read from the provenance receipts at build time.
@@ -79,8 +82,9 @@ export function fractionOf1905(iso: string): number {
   return (day - Date.UTC(1905, 0, 1)) / (365 * 86_400_000);
 }
 
-export function loadFirstPages(): readonly FirstPage[] {
-  const loaded = loadProvenanceReceipts();
+/** `options` reaches the receipt loader unchanged; the site passes none and reads docs/provenance. */
+export function loadFirstPages(options: LoadReceiptsOptions = {}): readonly FirstPage[] {
+  const loaded = loadProvenanceReceipts(options);
   return PAPERS.map(({ key, title }) => {
     const receipt = loaded.receipts.find((r) => r.key === key)?.receipt;
     if (!receipt) throw new FirstPagesError("missing-receipt", `No provenance receipt for ${key}.`);
