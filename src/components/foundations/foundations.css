@@ -21,6 +21,35 @@
   margin-top: 1rem;
 }
 
+/*
+ * Phone panels give the content back the 48px the padding was taking.
+ *
+ * agent:TanElk, deciding between this and `table-layout: fixed` after both were measured:
+ * "48px of horizontal padding at a 320px viewport is 15% of the screen. That is a phone-layout
+ * defect on its own terms, independent of this gate."
+ *
+ * What it does and does not do, measured on /foundations/partial-derivatives/ against out/ with
+ * the scroll container neutralised, so the padding is the only variable:
+ *
+ *   viewport   padding 24px      padding 12px      padding 0px
+ *   390        391  (+1)         390  (ok)         390  (ok)
+ *   360        391  (+31)        379  (+19)        367  (+7)
+ *   320        391  (+71)        379  (+59)        367  (+47)
+ *
+ * So it repairs 390 and it CANNOT repair 360 or 320. A data table whose columns need 350.3px
+ * does not fit a 320px viewport at any padding: 350.3 + 16 main margin + 1 border = 367.3 is a
+ * floor, and 367 is what those two widths return at zero padding. The 24px this removes is
+ * nonetheless the whole of the regression 0e50a762 introduced at 320, where the recorded
+ * baseline was 367 and the measurement had become 391.
+ */
+@media (max-width: 480px) {
+  .foundation-construction,
+  .foundation-extension {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
 .construction-text-equivalent {
   margin-top: 1rem;
   font-size: var(--type-fine);
