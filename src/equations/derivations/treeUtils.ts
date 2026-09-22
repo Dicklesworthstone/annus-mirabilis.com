@@ -18,6 +18,11 @@ function scaleEqual(a: ExactScale | undefined, b: ExactScale | undefined): boole
   return an.num === bn.num && an.den === bn.den;
 }
 
+function optionalEqual(a: Expression | undefined, b: Expression | undefined): boolean {
+  if (a === undefined || b === undefined) return a === b;
+  return structurallyEqual(a, b);
+}
+
 /** Deep structural equality: same shape and same authored ids, ignoring nothing. */
 export function structurallyEqual(a: Expression, b: Expression): boolean {
   if (a.kind !== b.kind) return false;
@@ -27,7 +32,9 @@ export function structurallyEqual(a: Expression, b: Expression): boolean {
         b.kind === "symbol" &&
         a.termId === b.termId &&
         a.quantityId === b.quantityId &&
-        scaleEqual(a.scale, b.scale)
+        scaleEqual(a.scale, b.scale) &&
+        a.index === b.index &&
+        optionalEqual(a.at, b.at)
       );
     case "constant":
       return b.kind === "constant" && a.name === b.name;
@@ -86,8 +93,12 @@ export function structurallyEqual(a: Expression, b: Expression): boolean {
       return (
         b.kind === "integral" &&
         structurallyEqual(a.expression, b.expression) &&
-        structurallyEqual(a.variable, b.variable)
+        structurallyEqual(a.variable, b.variable) &&
+        optionalEqual(a.lower, b.lower) &&
+        optionalEqual(a.upper, b.upper)
       );
+    case "partialOperator":
+      return b.kind === "partialOperator" && structurallyEqual(a.variable, b.variable);
   }
 }
 
@@ -100,6 +111,7 @@ export function substituteNode(
   if (nodeId(root) === targetId) return replacement;
   switch (root.kind) {
     case "symbol":
+      return root.at ? { ...root, at: substituteNode(root.at, targetId, replacement) } : root;
     case "constant":
     case "number":
       return root;
@@ -129,8 +141,20 @@ export function substituteNode(
         right: substituteNode(root.right, targetId, replacement),
       };
     case "derivative":
-    case "integral":
       return { ...root, expression: substituteNode(root.expression, targetId, replacement) };
+    case "integral":
+      return {
+        ...root,
+        expression: substituteNode(root.expression, targetId, replacement),
+        ...(root.lower && root.upper
+          ? {
+              lower: substituteNode(root.lower, targetId, replacement),
+              upper: substituteNode(root.upper, targetId, replacement),
+            }
+          : {}),
+      };
+    case "partialOperator":
+      return root;
   }
 }
 
@@ -143,6 +167,7 @@ export function containsId(root: Expression, id: string): boolean {
 function childrenOf(n: Expression): readonly Expression[] {
   switch (n.kind) {
     case "symbol":
+      return n.at ? [n.at] : [];
     case "number":
     case "constant":
       return [];
@@ -163,8 +188,16 @@ function childrenOf(n: Expression): readonly Expression[] {
     case "relation":
       return [n.left, n.right];
     case "derivative":
-    case "integral":
       return [n.expression, n.variable];
+    case "integral":
+      return [
+        n.expression,
+        n.variable,
+        ...(n.lower ? [n.lower] : []),
+        ...(n.upper ? [n.upper] : []),
+      ];
+    case "partialOperator":
+      return [n.variable];
   }
 }
 

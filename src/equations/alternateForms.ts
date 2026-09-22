@@ -144,7 +144,15 @@ export function isTreeEquivalentUpToRenames(
 
   switch (a.kind) {
     case "symbol": {
-      return b.kind === "symbol" && a.quantityId === b.quantityId && scaleEqual(a.scale, b.scale);
+      return (
+        b.kind === "symbol" &&
+        a.quantityId === b.quantityId &&
+        scaleEqual(a.scale, b.scale) &&
+        a.index === b.index &&
+        (a.at === undefined || b.at === undefined
+          ? a.at === b.at
+          : isTreeEquivalentUpToRenames(a.at, b.at, options))
+      );
     }
     case "constant": {
       return b.kind === "constant" && a.name === b.name;
@@ -214,10 +222,19 @@ export function isTreeEquivalentUpToRenames(
       );
     }
     case "integral": {
+      const bounds = (x: Expression | undefined, y: Expression | undefined) =>
+        x === undefined || y === undefined ? x === y : isTreeEquivalentUpToRenames(x, y, options);
       return (
         b.kind === "integral" &&
         isTreeEquivalentUpToRenames(a.expression, b.expression, options) &&
-        isTreeEquivalentUpToRenames(a.variable, b.variable, options)
+        isTreeEquivalentUpToRenames(a.variable, b.variable, options) &&
+        bounds(a.lower, b.lower) &&
+        bounds(a.upper, b.upper)
+      );
+    }
+    case "partialOperator": {
+      return (
+        b.kind === "partialOperator" && isTreeEquivalentUpToRenames(a.variable, b.variable, options)
       );
     }
   }

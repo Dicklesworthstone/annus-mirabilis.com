@@ -4,7 +4,19 @@ import type { QuantityRegistry } from "./quantities.ts";
 export type ExactScale = Readonly<{ num: number; den: number }>;
 type Op = Readonly<{ opId?: string }>;
 export type Expression =
-  | Readonly<{ kind: "symbol"; termId: string; quantityId: string; scale?: ExactScale }>
+  | Readonly<{
+      kind: "symbol";
+      termId: string;
+      quantityId: string;
+      scale?: ExactScale;
+      /**
+       * A component (x, y, z) or an instance label (0, 1) of the same quantity, printed as a
+       * subscript: E_y, t_0. It does not change the quantity, its dimension or its colour.
+       */
+      index?: string;
+      /** The quantity's value at an argument, printed glyph(argument): gamma(u), u(t). */
+      at?: Expression;
+    }>
   | Readonly<{ kind: "constant"; name: "pi" }>
   | Readonly<{ kind: "number"; value: string }>
   | (Op & Readonly<{ kind: "sum" | "product"; args: readonly Expression[] }>)
@@ -29,10 +41,22 @@ export type Expression =
         order: number;
         partial: boolean;
       }>)
-  | (Op & Readonly<{ kind: "integral"; expression: Expression; variable: Expression }>);
+  | (Op &
+      Readonly<{
+        kind: "integral";
+        expression: Expression;
+        variable: Expression;
+        /** Both or neither: a definite integral from lower to upper. */
+        lower?: Expression;
+        upper?: Expression;
+      }>)
+  /** The operator "partial derivative with respect to variable", standing alone: an identity
+      between operators (paper 3, section 6) relates these, not quantities. */
+  | (Op & Readonly<{ kind: "partialOperator"; variable: Expression }>);
 export function children(n: Expression): readonly Expression[] {
   switch (n.kind) {
     case "symbol":
+      return n.at ? [n.at] : [];
     case "number":
     case "constant":
       return [];
@@ -53,8 +77,16 @@ export function children(n: Expression): readonly Expression[] {
     case "relation":
       return [n.left, n.right];
     case "derivative":
-    case "integral":
       return [n.expression, n.variable];
+    case "integral":
+      return [
+        n.expression,
+        n.variable,
+        ...(n.lower ? [n.lower] : []),
+        ...(n.upper ? [n.upper] : []),
+      ];
+    case "partialOperator":
+      return [n.variable];
   }
 }
 export const nodeId = (n: Expression): string | null =>
@@ -145,6 +177,7 @@ export function parseExpression(
       relation: ["operator", "left", "right"],
       derivative: ["expression", "variable", "order", "partial"],
       integral: ["expression", "variable"],
+      partialOperator: ["variable"],
     };
     if (typeof kind !== "string" || !Object.hasOwn(fields, kind))
       fail(path, "Unsupported expression kind.");
@@ -154,13 +187,23 @@ export function parseExpression(
       x,
       path,
       ["kind", ...kindFields],
-      kind === "symbol" ? ["scale"] : ["number", "constant"].includes(kind) ? [] : ["opId"],
+      kind === "symbol"
+        ? ["scale", "index", "at"]
+        : kind === "integral"
+          ? ["opId", "lower", "upper"]
+          : ["number", "constant"].includes(kind)
+            ? []
+            : ["opId"],
     );
     if (kind === "symbol") {
       identity(o.termId, "t", path);
       if (typeof o.quantityId !== "string" || !Object.hasOwn(registry, o.quantityId))
         fail(path, "Bind to an exact registered quantity id, not a glyph or label.");
       if (Object.hasOwn(o, "scale")) exactScale(o.scale, path, true);
+      // A label printed as a subscript, never TeX: one or two lower-case letters or digits.
+      if (Object.hasOwn(o, "index") && !/^[a-z0-9]{1,2}$/.test(String(o.index)))
+        fail(path, "An index is a component or instance label of one or two letters or digits.");
+      if (Object.hasOwn(o, "at")) parse(o.at, `${path}.at`, depth + 1);
     } else if (kind === "constant") {
       if (o.name !== "pi") fail(path, "Unsupported mathematical constant.");
     } else if (kind === "number") {
@@ -206,10 +249,18 @@ export function parseExpression(
       )
         fail(path, "Unsupported derivative order.");
       if (
-        (kind === "derivative" || kind === "integral") &&
+        (kind === "derivative" || kind === "integral" || kind === "partialOperator") &&
         (o.variable as Expression).kind !== "symbol"
       )
         fail(path, "The variable must be a bound symbol.");
+      if (kind === "integral") {
+        if (Object.hasOwn(o, "lower") !== Object.hasOwn(o, "upper"))
+          fail(path, "A definite integral states both limits.");
+        if (Object.hasOwn(o, "lower")) {
+          parse(o.lower, `${path}.lower`, depth + 1);
+          parse(o.upper, `${path}.upper`, depth + 1);
+        }
+      }
     }
     return x as Expression;
   }

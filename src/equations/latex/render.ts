@@ -54,6 +54,11 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
       case "symbol": {
         const resolved = resolveSymbolGlyph(n, options);
         s = resolved.glyph;
+        // A component or instance label is part of the term, inside its colour: E_y, t_0. A glyph
+        // that already carries a subscript is braced first, so the label never doubles one.
+        if (n.index !== undefined) {
+          s = s.includes("_") ? `{${s}}_{${n.index}}` : `${s}_{${n.index}}`;
+        }
 
         if (n.scale && (n.scale.num !== 1 || n.scale.den !== 1)) {
           s = `\\frac{${n.scale.num}}{${n.scale.den}}\\left(${s}\\right)`;
@@ -66,6 +71,8 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
             s = wrapHtmlData("term", id, s);
           }
         }
+        // The argument sits outside the term's colour: in gamma(u) the u is its own term.
+        if (n.at) s = `${s}\\left(${render(n.at)}\\right)`;
         return s;
       }
 
@@ -239,8 +246,14 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
         break;
       }
 
-      case "integral":
-        s = `\\int ${render(n.expression)}\\,\\mathrm{d}${render(n.variable)}`;
+      case "integral": {
+        const limits = n.lower && n.upper ? `_{${render(n.lower)}}^{${render(n.upper)}}` : "";
+        s = `\\int${limits} ${render(n.expression)}\\,\\mathrm{d}${render(n.variable)}`;
+        break;
+      }
+
+      case "partialOperator":
+        s = `\\partial_{${render(n.variable)}}`;
         break;
     }
 

@@ -274,6 +274,9 @@ export function checkDimensions(
         if (!res.ok) {
           return stop(n, res.status, res.reason);
         }
+        // gamma(u), u(t): the value of the quantity at an argument has the quantity's own
+        // dimension. The argument is still checked, so an inconsistent one is not waved through.
+        if (node.at) visit(node.at, depth + 1);
         // An exact `scale` (paper 2's κ at 1/2) is a numeric factor. It never
         // changes a dimension; exactness of the number lives on the constant set.
         return res.dimension;
@@ -406,7 +409,23 @@ export function checkDimensions(
       case "integral": {
         const exprDim = visit(node.expression, depth + 1);
         const varDim = visit(node.variable, depth + 1);
+        // A limit is a value of the variable, so it carries the variable's dimension and kind.
+        // A literal zero is the one exception: 0 s and 0 m/s are both written 0.
+        for (const bound of [node.lower, node.upper]) {
+          if (bound === undefined) continue;
+          const b = bound as Record<string, unknown>;
+          if (b.kind === "number" && Number(b.value) === 0) continue;
+          equal(n, node.variable, bound);
+        }
         return combine(exprDim, varDim);
+      }
+
+      case "partialOperator": {
+        // The partial derivative with respect to a variable, standing alone, has the inverse
+        // of the variable's dimension: an operator identity balances these, per metre or per
+        // second.
+        const varDim = visit(node.variable, depth + 1);
+        return combine(DIMENSIONLESS, varDim, -1);
       }
 
       case "matrix": {

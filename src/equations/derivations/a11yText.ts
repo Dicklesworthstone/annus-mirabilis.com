@@ -46,6 +46,25 @@ export function ruleInWords(kind: RuleKind): string {
   }
 }
 
+/** The spoken name of a symbol, before its index or argument. */
+function symbolName(expr: Extract<Expression, { kind: "symbol" }>): string {
+  const name = expr.termId || expr.quantityId;
+  // Convert common subscript notations like x_sum -> sum of x, Delta_i -> Delta i
+  if (name === "x_sum") return "sum of x";
+  if (name === "x2") return "x squared";
+  if (name === "Delta_i") return "Delta i";
+  if (name === "lambda_x") return "lambda x";
+  if (name === "k_B") return "k sub B";
+  if (name.includes("_")) {
+    const [base, sub] = name.split("_");
+    return `${base} sub ${sub}`;
+  }
+  if (expr.scale && (expr.scale.num !== 1 || expr.scale.den !== 1)) {
+    return `${expr.scale.num} over ${expr.scale.den} times ${name}`;
+  }
+  return name;
+}
+
 /**
  * Converts a symbolic Expression tree to a clear spoken English sentence.
  */
@@ -63,23 +82,10 @@ export function expressionToSpokenText(expr: Expression): string {
       return "pi";
 
     case "symbol": {
-      const name = expr.termId || expr.quantityId;
-      // Convert common subscript notations like x_sum -> sum of x, Delta_i -> Delta i
-      if (name === "x_sum") return "sum of x";
-      if (name === "x2") return "x squared";
-      if (name === "Delta_i") return "Delta i";
-      if (name === "lambda_x") return "lambda x";
-      if (name === "k_B") return "k sub B";
-      if (name.includes("_")) {
-        const [base, sub] = name.split("_");
-        return `${base} sub ${sub}`;
-      }
-      if (expr.scale && (expr.scale.num !== 1 || expr.scale.den !== 1)) {
-        return `${expr.scale.num} over ${expr.scale.den} times ${name}`;
-      }
-      return name;
+      const base = symbolName(expr);
+      const indexed = expr.index === undefined ? base : `${base} sub ${expr.index}`;
+      return expr.at ? `${indexed} of ${expressionToSpokenText(expr.at)}` : indexed;
     }
-
     case "sum":
       return expr.args.map(expressionToSpokenText).join(" plus ");
 
@@ -135,8 +141,16 @@ export function expressionToSpokenText(expr: Expression): string {
       return `${order}${kind} of ${expressionToSpokenText(expr.expression)} with respect to ${expressionToSpokenText(expr.variable)}`;
     }
 
-    case "integral":
-      return `integral of ${expressionToSpokenText(expr.expression)} with respect to ${expressionToSpokenText(expr.variable)}`;
+    case "integral": {
+      const limits =
+        expr.lower && expr.upper
+          ? ` from ${expressionToSpokenText(expr.lower)} to ${expressionToSpokenText(expr.upper)}`
+          : "";
+      return `integral${limits} of ${expressionToSpokenText(expr.expression)} with respect to ${expressionToSpokenText(expr.variable)}`;
+    }
+
+    case "partialOperator":
+      return `partial derivative with respect to ${expressionToSpokenText(expr.variable)}`;
 
     default:
       return "expression";
