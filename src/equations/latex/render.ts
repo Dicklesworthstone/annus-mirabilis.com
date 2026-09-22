@@ -218,7 +218,16 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
       }
 
       case "relation": {
-        const op = n.operator === "approx" ? "\\approx" : n.operator === "define" ? ":=" : "=";
+        const op =
+          n.operator === "approx"
+            ? "\\approx"
+            : n.operator === "define"
+              ? ":="
+              : n.operator === "le"
+                ? "\\le"
+                : n.operator === "ge"
+                  ? "\\ge"
+                  : "=";
         s = `${render(n.left)} ${op} ${render(n.right)}`;
         break;
       }

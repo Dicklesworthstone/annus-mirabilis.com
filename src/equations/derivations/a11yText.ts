@@ -121,7 +121,11 @@ export function expressionToSpokenText(expr: Expression): string {
           ? "is approximately equal to"
           : expr.operator === "define"
             ? "is defined as"
-            : "equals";
+            : expr.operator === "le"
+              ? "is at most"
+              : expr.operator === "ge"
+                ? "is at least"
+                : "equals";
       return `${expressionToSpokenText(expr.left)} ${opWord} ${expressionToSpokenText(expr.right)}`;
     }
 

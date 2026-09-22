@@ -16,7 +16,8 @@ export type Expression =
   | (Op &
       Readonly<{
         kind: "relation";
-        operator: "=" | "approx" | "define";
+        /** "le" and "ge" state a bound: an energy budget, a threshold, a count at most. */
+        operator: "=" | "approx" | "define" | "le" | "ge";
         left: Expression;
         right: Expression;
       }>)
@@ -191,7 +192,10 @@ export function parseExpression(
         fail(path, "Root degree must be 2–32.");
       if (kind === "function" && !["exp", "ln", "sin", "cos"].includes(String(o.name)))
         fail(path, "Unsupported function.");
-      if (kind === "relation" && !["=", "approx", "define"].includes(String(o.operator)))
+      if (
+        kind === "relation" &&
+        !["=", "approx", "define", "le", "ge"].includes(String(o.operator))
+      )
         fail(path, "Unsupported relation.");
       if (
         kind === "derivative" &&
