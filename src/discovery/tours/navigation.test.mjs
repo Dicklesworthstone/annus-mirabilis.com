@@ -2,8 +2,16 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { GUIDED_TOURS, getGuidedTour, getTourStop } from "./catalogue.ts";
 import {
-  adjacentTourPosition, decodeTourPosition, leaveTourHref, resolveTourPosition,
-  TOUR_LINK_LIMIT, tourDestination, tourMatchesPath, tourOutline, tourPosition,
+  adjacentTourPosition,
+  decodeTourPosition,
+  leaveTourHref,
+  localTourUrl,
+  resolveTourPosition,
+  TOUR_LINK_LIMIT,
+  tourDestination,
+  tourMatchesPath,
+  tourOutline,
+  tourPosition,
 } from "./navigation.ts";
 
 const tour = getGuidedTour("special-relativity");
@@ -52,7 +60,10 @@ for (const item of GUIDED_TOURS) {
       if (next) assert.deepEqual(adjacentTourPosition(next, -1), position);
       position = next;
     }
-    assert.deepEqual(seen, item.stops.map((stop) => stop.id));
+    assert.deepEqual(
+      seen,
+      item.stops.map((stop) => stop.id),
+    );
   });
 }
 
@@ -88,7 +99,9 @@ test("overlong query refuses before decoding", () => {
 
 test("no free-form URL, note, prediction or completion assertion can affect navigation", () => {
   const query = new URL(tourDestination(first), "https://example.test").search;
-  const parsed = decodeTourPosition(`${query}&redirect=https://evil.test&note=private&completed=true`);
+  const parsed = decodeTourPosition(
+    `${query}&redirect=https://evil.test&note=private&completed=true`,
+  );
   assert.deepEqual(parsed, { kind: "position", position: first });
   assert.ok(!tourDestination(parsed.position).includes("evil"));
   assert.ok(!tourDestination(parsed.position).includes("private"));
@@ -103,19 +116,34 @@ test("a guide never describes a different laboratory", () => {
 });
 
 test("leaving preserves unrelated repeated parameters and the exact source anchor", () => {
-  const result = leaveTourHref("/papers/special-relativity/", "?tour=special-relativity&view=german&open=x&open=y&tourStop=flash&tourRevision=1", "#entry-special-relativity");
+  const result = leaveTourHref(
+    "/papers/special-relativity/",
+    "?tour=special-relativity&view=german&open=x&open=y&tourStop=flash&tourRevision=1",
+    "#entry-special-relativity",
+  );
   const url = new URL(result, "https://example.test");
   assert.equal(url.searchParams.get("view"), "german");
   assert.deepEqual(url.searchParams.getAll("open"), ["x", "y"]);
-  for (const key of ["tour", "tourStop", "tourRevision"]) assert.equal(url.searchParams.has(key), false);
+  for (const key of ["tour", "tourStop", "tourRevision"])
+    assert.equal(url.searchParams.has(key), false);
   assert.equal(url.hash, "#entry-special-relativity");
 });
 
 test("leaving an otherwise bare URL does not add a question mark", () => {
-  assert.equal(leaveTourHref("/lab/me-01/", "?tour=mass-energy&tourStop=ledgers&tourRevision=1", ""), "/lab/me-01/");
+  assert.equal(
+    leaveTourHref("/lab/me-01/", "?tour=mass-energy&tourStop=ledgers&tourRevision=1", ""),
+    "/lab/me-01/",
+  );
 });
 
-for (const path of ["https://evil.test/", "//evil.test/", "/\\evil.test/", "/lab/?x=1", "/lab/#x", "/lab/\n"]) {
+for (const path of [
+  "https://evil.test/",
+  "//evil.test/",
+  "/\\evil.test/",
+  "/lab/?x=1",
+  "/lab/#x",
+  "/lab/\n",
+]) {
   test(`leaving refuses a non-local or ambiguous path ${JSON.stringify(path)}`, () => {
     assert.throws(() => leaveTourHref(path, "", ""));
   });
@@ -123,7 +151,9 @@ for (const path of ["https://evil.test/", "//evil.test/", "/\\evil.test/", "/lab
 
 test("unknown positions cannot produce navigation destinations", () => {
   for (const position of [
-    { ...first, tourId: "unknown" }, { ...first, stopId: "unknown" }, { ...first, revision: 2 },
+    { ...first, tourId: "unknown" },
+    { ...first, stopId: "unknown" },
+    { ...first, revision: 2 },
   ]) {
     assert.equal(resolveTourPosition(position), null);
     assert.equal(adjacentTourPosition(position, 1), null);
@@ -133,4 +163,28 @@ test("unknown positions cannot produce navigation destinations", () => {
   }
   assert.equal(getGuidedTour("constructor"), null);
   assert.equal(getTourStop(tour, "constructor"), null);
+});
+
+// One test per refusal site: each names its code, so the refusal scanner can see it tested.
+test("tour-position-unknown: tourPosition refuses a stop that is not in its tour (navigation.ts:51)", () => {
+  const stray = { ...tour.stops[0], id: "not-a-stop" };
+  assert.throws(() => tourPosition(tour, stray), { code: "tour-position-unknown" });
+});
+
+test("tour-position-unknown: tourDestination refuses a position the catalogue does not hold (navigation.ts:81)", () => {
+  const unknown = { tourId: "no-such-tour", stopId: "no-such-stop", revision: 1 };
+  assert.throws(() => tourDestination(unknown), { code: "tour-position-unknown" });
+});
+
+test("tour-destination-external: a stop's href must stay in the edition", () => {
+  assert.throws(() => localTourUrl("https://example.org/"), { code: "tour-destination-external" });
+  assert.throws(() => localTourUrl("//example.org/lab/"), { code: "tour-destination-external" });
+  assert.equal(localTourUrl("/lab/bm-01/#top").pathname, "/lab/bm-01/");
+});
+
+test("tour-path-not-local: leaving a tour needs a local edition path", () => {
+  assert.throws(() => leaveTourHref("https://example.org/", "", ""), {
+    code: "tour-path-not-local",
+  });
+  assert.throws(() => leaveTourHref("//example.org/", "", ""), { code: "tour-path-not-local" });
 });
