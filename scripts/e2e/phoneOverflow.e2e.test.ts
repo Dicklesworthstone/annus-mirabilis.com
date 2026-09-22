@@ -123,6 +123,10 @@ const PLANT_WIDTH = 320;
  * the page and the foundation tables have no container. Wiring it up changes 42 pages and is an
  * ownership decision.
  */
+// The `// +Npx` annotations are INDICATIVE, not asserted. Only the route@width identities are
+// enforced, because the magnitudes move with copy and type scale while the defect does not:
+// /lab/bm-03/ has read +23 and +20, /foundations/exponentials/ +14 and +22, on builds a few hours
+// apart with no commit touching either page.
 const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // TABLE WITH NO WORKING SCROLL CONTAINER. A table is at least its min-content width, so
   // `width: 100%` cannot contain it and the document grows instead. The foundations three are
@@ -145,23 +149,41 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // because a 6px excess is exactly the size that could have been noise: 5/5 overflowing at 320
   // and at 360, 0/5 at 390. Same cause as its sibling entries - am-orphaned-stylesheets-5u3c.
   "/foundations/partial-derivatives/@360", // +6px
+  // /foundations/exponentials/ was filed under "rendered mathematics" and belongs here: its
+  // offender is table.data-table inside div.construction-table-wrap, the same inert wrapper as
+  // its three siblings above. Re-measured, not inherited.
+  "/foundations/exponentials/@320",
 
-  // RENDERED MATHEMATICS WIDER THAN THE COLUMN. The unclipped offender on each of these is a
-  // KaTeX <semantics>/<mrow> subtree - 431px on /lab/lq-01/, 654px on /lab/bm-03/ - not a table.
-  // A formula cannot be broken at an arbitrary point the way an identifier can, so the remedy is
-  // a scrollable, focusable region (the .formula path that formulaOverflow.inline.ts already
-  // maintains for the reader faces) rather than a wrap rule. Not yet applied here.
-  "/lab/lq-01/@320", // +33px
-  "/lab/lq-06/@320", // +33px
-  "/lab/lq-09/@320", // +33px
-  "/lab/bm-03/@320", // +23px
-  "/foundations/exponentials/@320", // +14px
+  // A 320px ELEMENT INSIDE A 254px FLEX, CAUSE NOT YET IDENTIFIED.
+  //
+  // These two were filed under "rendered mathematics wider than the column" on the strength of an
+  // early offender dump that showed a KaTeX <semantics> subtree. THAT WAS WRONG, and re-measuring
+  // is what found it: the unclipped offender is `section.laboratory > div > div`, a block sitting
+  // at exactly 320px - the viewport width - inside a flex parent measuring 254px. No mathematics
+  // is involved.
+  //
+  // Three remedies were tried and NONE moved it, and the injection was verified to have applied
+  // rather than assumed: min-width:0 on the flex items took the item's computed minWidth from
+  // `auto` to `0px`, max-width:100% took the svg's from `none` to `100%`, and the element stayed
+  // 320px wide and the document stayed 353 in every case. So the item is not being held by a
+  // min-content floor, which is what the usual repair addresses, and the real cause is not known.
+  // Recorded as measured rather than named, because a baseline comment that confidently misnames
+  // a cause sends the next reader somewhere the defect is not - which is what the previous
+  // version of this comment did.
+  "/lab/lq-01/@320",
+  "/lab/lq-06/@320",
+  "/lab/lq-09/@320",
 
   // A ROW THAT WILL NOT WRAP. Same class as the .predict-mode-tabs defect already repaired on
-  // /lab/me-02/: two 240px button.secondary elements side by side on /lab/lq-07/, and a 280px
-  // div.input-field on /lab/lq-05/.
-  "/lab/lq-05/@320", // +25px
-  "/lab/lq-07/@320", // +6px
+  // /lab/me-02/: two 240px button.secondary elements side by side on /lab/lq-07/, a 167px
+  // button.secondary on /lab/bm-03/, and a 280px div.input-field on /lab/lq-05/.
+  //
+  // /lab/lq-05/ is the one of the three whose obvious cause is already handled - .input-field
+  // carries min-width:0 and .input-grid collapses to a single column at 560px - so whatever holds
+  // it open is something else and it is not grouped here on the strength of looking similar.
+  "/lab/lq-05/@320",
+  "/lab/lq-07/@320",
+  "/lab/bm-03/@320",
 
   // CAUSE NOT YET DIAGNOSED, recorded as measured rather than guessed at.
   // /lab/sr-03/ reports only clipped KaTeX <path> elements among its offenders, so the element
