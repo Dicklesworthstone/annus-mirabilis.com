@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-effective-count",
+  "paper": "light-quanta",
+  "argument": "arg-lq-entropy-correspondence",
+  "title": "How many independent points the radiation behaves like",
+  "spoken": "The effective count equals the energy divided by k B times B times the frequency.",
+  "explanation": "Matching the radiation's entropy change to a gas of independent points gives the number of points the gas would need. It is read off a comparison, not counted.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Dilute radiation: the density is low enough, relative to temperature, that Wien's law describes the spectrum.",
+    "These are modern teaching equations in SI notation, with A and B for the paper's alpha and beta; they are not a transcription of the printed paper.",
+    "The gas comparison assumes n independent points whose chance of all lying in a fraction f of the volume is f to the n."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-effective-count.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-effective-count.t.count",
+      "quantityId": "effectiveIndependentCount"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-effective-count.t.energy",
+        "quantityId": "radiationEnergy"
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-effective-count.t.boltzmann",
+            "quantityId": "boltzmannConstant"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-effective-count.t.beta",
+            "quantityId": "wienConstantBeta"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-effective-count.t.frequency",
+            "quantityId": "frequency"
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-effective-count.t.count",
+      "title": "Effective count",
+      "explanation": "The number of independent points a gas would need to show the same logarithmic entropy change. Nothing here observes points.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-lq-effective-count.t.energy",
+      "title": "Energy in the band",
+      "explanation": "The radiation's energy within the narrow band, held fixed while the volume changes.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-effective-count.t.boltzmann",
+      "title": "Boltzmann's constant",
+      "explanation": "The gas side of the comparison: n points change entropy by n k_B ln f.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-effective-count.t.beta",
+      "title": "Spectral constant B",
+      "explanation": "From the Wien spectrum; B times the frequency divided by the temperature is a pure number.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-effective-count.t.frequency",
+      "title": "Frequency of the band",
+      "explanation": "The band's frequency. The count falls as the frequency rises for the same energy.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-effective-count.op.relation",
+      "title": "Two coefficients set equal",
+      "explanation": "Both entropy changes are a coefficient times ln f. Setting the coefficients equal is the comparison; it is a correspondence, not a derivation that light is made of points.",
+      "foundation": "logarithms"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The effective count",
+      "nodeId": "eq-model-lq-effective-count.t.count"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the energy",
+      "nodeId": "eq-model-lq-effective-count.t.energy"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "k_B",
+      "nodeId": "eq-model-lq-effective-count.t.boltzmann"
+    },
+    {
+      "text": ", "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-effective-count.t.beta"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-effective-count.t.frequency"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-coefficient-match",
+  "paper": "light-quanta",
+  "argument": "arg-lq-planck-constants",
+  "title": "Two coefficients that must agree",
+  "spoken": "A over B equals eight pi R over N times the speed of light cubed.",
+  "explanation": "The low-frequency limit of Planck's law and the classical allocation of energy both grow as the frequency squared times the temperature, so their coefficients can be set equal.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Planck's radiation law, taken as given, with A and B for its constants.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-coefficient-match.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-coefficient-match.t.alpha",
+        "quantityId": "wienConstantAlpha"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-coefficient-match.t.beta",
+        "quantityId": "wienConstantBeta"
+      }
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "number",
+            "value": "8"
+          },
+          {
+            "kind": "constant",
+            "name": "pi"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-coefficient-match.t.gas",
+            "quantityId": "molarGasConstant"
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-coefficient-match.t.avogadro",
+            "quantityId": "avogadroConstant"
+          },
+          {
+            "kind": "power",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-lq-coefficient-match.t.light",
+              "quantityId": "speedOfLight"
+            },
+            "exponent": {
+              "num": 3,
+              "den": 1
+            }
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-coefficient-match.t.alpha",
+      "title": "Spectral constant A",
+      "explanation": "From fitting Planck's law to measurement.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-coefficient-match.t.beta",
+      "title": "Spectral constant B",
+      "explanation": "From the same fit.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-coefficient-match.t.gas",
+      "title": "Gas constant",
+      "explanation": "Known from gases.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-coefficient-match.t.avogadro",
+      "title": "Avogadro's number",
+      "explanation": "The unknown this match can determine.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-lq-coefficient-match.t.light",
+      "title": "Speed of light",
+      "explanation": "Cubed, from counting the modes of the radiation per unit volume.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-lq-coefficient-match.op.relation",
+      "title": "Coefficients set equal",
+      "explanation": "Two laws with the same form at low frequency must have the same coefficient if both hold there. This uses the classical result only in the limit where it agrees with Planck's.",
+      "foundation": "functions-graphs"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "A",
+      "nodeId": "eq-model-lq-coefficient-match.t.alpha"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-coefficient-match.t.beta"
+    },
+    {
+      "text": " must equal eight pi times "
+    },
+    {
+      "text": "the gas constant",
+      "nodeId": "eq-model-lq-coefficient-match.t.gas"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "Avogadro's number",
+      "nodeId": "eq-model-lq-coefficient-match.t.avogadro"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "the speed of light",
+      "nodeId": "eq-model-lq-coefficient-match.t.light"
+    },
+    {
+      "text": " cubed."
+    }
+  ]
+}

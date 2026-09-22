@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-wien-inverse-temperature",
+  "paper": "light-quanta",
+  "argument": "arg-lq-wien-integration",
+  "title": "Wien's law solved for the temperature",
+  "spoken": "One over the temperature equals minus one over B times the frequency, times the natural logarithm of the density over A times the frequency cubed.",
+  "explanation": "Taking the logarithm of Wien's law and solving for one over the temperature expresses the temperature through the density. With one over T equal to the entropy's slope, this is what gets integrated.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Dilute radiation: the density is low enough, relative to temperature, that Wien's law describes the spectrum.",
+    "These are modern teaching equations in SI notation, with A and B for the paper's alpha and beta; they are not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-wien-inverse-temperature.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "number",
+        "value": "1"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-wien-inverse-temperature.t.temperature",
+        "quantityId": "temperature"
+      }
+    },
+    "right": {
+      "kind": "negate",
+      "argument": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "quotient",
+            "numerator": {
+              "kind": "number",
+              "value": "1"
+            },
+            "denominator": {
+              "kind": "product",
+              "args": [
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-lq-wien-inverse-temperature.t.beta",
+                  "quantityId": "wienConstantBeta"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-lq-wien-inverse-temperature.t.frequency",
+                  "quantityId": "frequency"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "function",
+            "name": "ln",
+            "argument": {
+              "kind": "quotient",
+              "numerator": {
+                "kind": "symbol",
+                "termId": "eq-model-lq-wien-inverse-temperature.t.density",
+                "quantityId": "frequencyEnergyDensity"
+              },
+              "denominator": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-lq-wien-inverse-temperature.t.alpha",
+                    "quantityId": "wienConstantAlpha"
+                  },
+                  {
+                    "kind": "power",
+                    "base": {
+                      "kind": "symbol",
+                      "termId": "eq-model-lq-wien-inverse-temperature.t.frequency2",
+                      "quantityId": "frequency"
+                    },
+                    "exponent": {
+                      "num": 3,
+                      "den": 1
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-wien-inverse-temperature.t.temperature",
+      "title": "Temperature",
+      "explanation": "Its reciprocal, which the entropy's slope with respect to energy equals.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-inverse-temperature.t.beta",
+      "title": "Spectral constant B",
+      "explanation": "Divides out of the exponent when the logarithm is taken.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-inverse-temperature.t.frequency",
+      "title": "Frequency",
+      "explanation": "Held fixed: each frequency band is treated on its own.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-inverse-temperature.t.density",
+      "title": "Spectral energy density",
+      "explanation": "The variable the entropy will be integrated over.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-inverse-temperature.t.alpha",
+      "title": "Spectral constant A",
+      "explanation": "The paper's alpha, inside the logarithm.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-inverse-temperature.t.frequency2",
+      "title": "Frequency",
+      "explanation": "Cubed, as in Wien's law.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-inverse-temperature.op.relation",
+      "title": "The law turned inside out",
+      "explanation": "The same law with the logarithm taken, so the temperature is given by the density rather than the other way round.",
+      "foundation": "logarithms"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "One over "
+    },
+    {
+      "text": "the temperature",
+      "nodeId": "eq-model-lq-wien-inverse-temperature.t.temperature"
+    },
+    {
+      "text": " is fixed by "
+    },
+    {
+      "text": "the density",
+      "nodeId": "eq-model-lq-wien-inverse-temperature.t.density"
+    },
+    {
+      "text": ", through a logarithm and "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-wien-inverse-temperature.t.beta"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

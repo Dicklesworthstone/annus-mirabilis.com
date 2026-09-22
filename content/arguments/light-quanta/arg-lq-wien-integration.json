@@ -28,7 +28,8 @@
       {
         "kind": "formula",
         "latex": "\\rho_\\nu=A\\nu^3\\exp(-B\\nu/T)",
-        "spoken": "Wien spectral energy density is A times frequency cubed times the exponential of minus B frequency over temperature."
+        "spoken": "Wien spectral energy density is A times frequency cubed times the exponential of minus B frequency over temperature.",
+        "equations": ["eq-model-lq-wien-spectrum"]
       },
       {
         "kind": "paragraph",
@@ -37,7 +38,8 @@
       {
         "kind": "formula",
         "latex": "\\frac{1}{T}=-\\frac{1}{B\\nu}\\ln\\frac{\\rho_\\nu}{A\\nu^3}",
-        "spoken": "Inverse temperature is minus one over B frequency times the natural logarithm of density over A frequency cubed."
+        "spoken": "Inverse temperature is minus one over B frequency times the natural logarithm of density over A frequency cubed.",
+        "equations": ["eq-model-lq-wien-inverse-temperature"]
       },
       {
         "kind": "formula",

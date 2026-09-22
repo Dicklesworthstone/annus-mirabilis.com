@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-wien-spectrum",
+  "paper": "light-quanta",
+  "argument": "arg-lq-wien-integration",
+  "title": "Wien's spectrum",
+  "spoken": "The spectral energy density equals A times the frequency cubed times the exponential of minus B times the frequency over the temperature.",
+  "explanation": "Wien's law for the energy density on the frequency axis. It fits the measured spectrum where B times the frequency is large compared with the temperature, and fails where it is small.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Dilute radiation: the density is low enough, relative to temperature, that Wien's law describes the spectrum.",
+    "These are modern teaching equations in SI notation, with A and B for the paper's alpha and beta; they are not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-wien-spectrum.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-wien-spectrum.t.density",
+      "quantityId": "frequencyEnergyDensity"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-wien-spectrum.t.alpha",
+          "quantityId": "wienConstantAlpha"
+        },
+        {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-wien-spectrum.t.frequency",
+            "quantityId": "frequency"
+          },
+          "exponent": {
+            "num": 3,
+            "den": 1
+          }
+        },
+        {
+          "kind": "function",
+          "name": "exp",
+          "argument": {
+            "kind": "negate",
+            "argument": {
+              "kind": "quotient",
+              "numerator": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-lq-wien-spectrum.t.beta",
+                    "quantityId": "wienConstantBeta"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-lq-wien-spectrum.t.frequency2",
+                    "quantityId": "frequency"
+                  }
+                ]
+              },
+              "denominator": {
+                "kind": "symbol",
+                "termId": "eq-model-lq-wien-spectrum.t.temperature",
+                "quantityId": "temperature"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-wien-spectrum.t.density",
+      "title": "Spectral energy density",
+      "explanation": "Energy per unit volume per unit frequency interval.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-spectrum.t.alpha",
+      "title": "Spectral constant A",
+      "explanation": "The paper's alpha, fitted to measurement.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-spectrum.t.frequency",
+      "title": "Frequency",
+      "explanation": "Cubed in front, so the spectrum rises steeply before the exponential turns it down.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-spectrum.t.beta",
+      "title": "Spectral constant B",
+      "explanation": "The paper's beta, in the exponent. Its product with the frequency over the temperature is a pure number.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-spectrum.t.frequency2",
+      "title": "Frequency",
+      "explanation": "The same frequency, in the exponent.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-spectrum.t.temperature",
+      "title": "Temperature",
+      "explanation": "A hotter body moves the peak to higher frequency.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-wien-spectrum.op.relation",
+      "title": "Wien's law",
+      "explanation": "A measured law, taken as given in the dilute regime. The paper builds on it; it does not derive it.",
+      "foundation": "exponentials"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The spectral energy density",
+      "nodeId": "eq-model-lq-wien-spectrum.t.density"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "A",
+      "nodeId": "eq-model-lq-wien-spectrum.t.alpha"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-wien-spectrum.t.frequency"
+    },
+    {
+      "text": " cubed, damped by an exponential in "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-wien-spectrum.t.beta"
+    },
+    {
+      "text": " times the frequency over "
+    },
+    {
+      "text": "the temperature",
+      "nodeId": "eq-model-lq-wien-spectrum.t.temperature"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

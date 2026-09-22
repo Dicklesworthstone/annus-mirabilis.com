@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-energy-per-point",
+  "paper": "light-quanta",
+  "argument": "arg-lq-entropy-correspondence",
+  "title": "The energy each point would carry",
+  "spoken": "The energy divided by the effective count equals k B times B times the frequency, which equals h times the frequency.",
+  "explanation": "Dividing the band's energy among the effective points gives the same amount per point at every volume: k_B B nu, which modern notation writes h nu.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Dilute radiation: the density is low enough, relative to temperature, that Wien's law describes the spectrum.",
+    "These are modern teaching equations in SI notation, with A and B for the paper's alpha and beta; they are not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-energy-per-point.op.modern",
+    "operator": "=",
+    "left": {
+      "kind": "relation",
+      "opId": "eq-model-lq-energy-per-point.op.perPoint",
+      "operator": "=",
+      "left": {
+        "kind": "quotient",
+        "numerator": {
+          "kind": "symbol",
+          "termId": "eq-model-lq-energy-per-point.t.energy",
+          "quantityId": "radiationEnergy"
+        },
+        "denominator": {
+          "kind": "symbol",
+          "termId": "eq-model-lq-energy-per-point.t.count",
+          "quantityId": "effectiveIndependentCount"
+        }
+      },
+      "right": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-energy-per-point.t.boltzmann",
+            "quantityId": "boltzmannConstant"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-energy-per-point.t.beta",
+            "quantityId": "wienConstantBeta"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-energy-per-point.t.frequency",
+            "quantityId": "frequency"
+          }
+        ]
+      }
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-energy-per-point.t.planck",
+          "quantityId": "planckConstant"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-energy-per-point.t.frequency2",
+          "quantityId": "frequency"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-energy-per-point.t.energy",
+      "title": "Energy in the band",
+      "explanation": "The radiation's energy in the band, the same energy the count was read from.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point.t.count",
+      "title": "Effective count",
+      "explanation": "The effective number of independent points from the entropy comparison.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point.t.boltzmann",
+      "title": "Boltzmann's constant",
+      "explanation": "R over N in the paper's notation.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point.t.beta",
+      "title": "Spectral constant B",
+      "explanation": "Wien's beta. With k_B it makes an energy per unit frequency.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point.t.frequency",
+      "title": "Frequency of the band",
+      "explanation": "The energy per point is proportional to the frequency.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point.t.planck",
+      "title": "Planck's constant",
+      "explanation": "The later name for k_B times B, which is R beta over N in the paper.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point.t.frequency2",
+      "title": "Frequency of the band",
+      "explanation": "The same frequency, in the modern form of the product.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point.op.perPoint",
+      "title": "Energy per point",
+      "explanation": "The step Einstein calls heuristic: radiation of low density behaves, for its entropy, as if it consisted of independent quanta of this size.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-lq-energy-per-point.op.modern",
+      "title": "The same product in modern notation",
+      "explanation": "Writing k_B B as h renames the constant; it does not add a premise.",
+      "foundation": "momentum-energy-light"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The energy",
+      "nodeId": "eq-model-lq-energy-per-point.t.energy"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "the effective count",
+      "nodeId": "eq-model-lq-energy-per-point.t.count"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "k_B",
+      "nodeId": "eq-model-lq-energy-per-point.t.boltzmann"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-energy-per-point.t.beta"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-energy-per-point.t.frequency"
+    },
+    {
+      "text": ", which modern notation writes "
+    },
+    {
+      "text": "h",
+      "nodeId": "eq-model-lq-energy-per-point.t.planck"
+    },
+    {
+      "text": " times the frequency."
+    }
+  ]
+}

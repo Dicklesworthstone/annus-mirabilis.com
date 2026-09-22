@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-planck-low-frequency",
+  "paper": "light-quanta",
+  "argument": "arg-lq-planck-constants",
+  "title": "Planck's law at low frequency",
+  "spoken": "A times the frequency cubed over the exponential of B frequency over temperature minus one is approximately A over B times the frequency squared times the temperature.",
+  "explanation": "Where B times the frequency is small compared with the temperature, the exponential is close to one plus its argument, and Planck's law becomes proportional to the temperature.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Planck's radiation law, taken as given, with A and B for its constants.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper.",
+    "B times the frequency is small compared with the temperature."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-planck-low-frequency.op.relation",
+    "operator": "approx",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-planck-low-frequency.t.alpha",
+            "quantityId": "wienConstantAlpha"
+          },
+          {
+            "kind": "power",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-lq-planck-low-frequency.t.frequency",
+              "quantityId": "frequency"
+            },
+            "exponent": {
+              "num": 3,
+              "den": 1
+            }
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "function",
+            "name": "exp",
+            "argument": {
+              "kind": "quotient",
+              "numerator": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-lq-planck-low-frequency.t.beta",
+                    "quantityId": "wienConstantBeta"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-lq-planck-low-frequency.t.frequency2",
+                    "quantityId": "frequency"
+                  }
+                ]
+              },
+              "denominator": {
+                "kind": "symbol",
+                "termId": "eq-model-lq-planck-low-frequency.t.temperature",
+                "quantityId": "temperature"
+              }
+            }
+          },
+          {
+            "kind": "number",
+            "value": "-1"
+          }
+        ]
+      }
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-planck-low-frequency.t.alpha2",
+            "quantityId": "wienConstantAlpha"
+          },
+          "denominator": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-planck-low-frequency.t.beta2",
+            "quantityId": "wienConstantBeta"
+          }
+        },
+        {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-planck-low-frequency.t.frequency3",
+            "quantityId": "frequency"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-lq-planck-low-frequency.t.temperature2",
+          "quantityId": "temperature"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.t.alpha",
+      "title": "Spectral constant A",
+      "explanation": "Planck's alpha.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.t.frequency",
+      "title": "Frequency",
+      "explanation": "Cubed in the numerator.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.t.beta",
+      "title": "Spectral constant B",
+      "explanation": "Planck's beta; B times the frequency over the temperature is the small number here.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.t.frequency2",
+      "title": "Frequency",
+      "explanation": "In the exponent.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.t.temperature",
+      "title": "Temperature",
+      "explanation": "In the exponent's denominator.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.t.alpha2",
+      "title": "Spectral constant A",
+      "explanation": "The same A, now over B.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.t.beta2",
+      "title": "Spectral constant B",
+      "explanation": "The same B, divided into A.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.t.frequency3",
+      "title": "Frequency",
+      "explanation": "Squared: one power of the frequency cancelled against the expansion.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.t.temperature2",
+      "title": "Temperature",
+      "explanation": "Now a plain factor: the low-frequency spectrum rises in proportion to the temperature.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-planck-low-frequency.op.relation",
+      "title": "Approximately, not equal",
+      "explanation": "Replacing the exponential by one plus its argument is an approximation that holds only for small B nu over T.",
+      "foundation": "taylor-expansion"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "At low frequency, Planck's law is close to "
+    },
+    {
+      "text": "A",
+      "nodeId": "eq-model-lq-planck-low-frequency.t.alpha2"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-planck-low-frequency.t.beta2"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-planck-low-frequency.t.frequency3"
+    },
+    {
+      "text": " squared times "
+    },
+    {
+      "text": "the temperature",
+      "nodeId": "eq-model-lq-planck-low-frequency.t.temperature2"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

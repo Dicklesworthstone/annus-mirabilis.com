@@ -39,7 +39,8 @@
       {
         "kind": "formula",
         "latex": "n_{\\mathrm{eff}}=\\frac{E}{k_BB\\nu},\\qquad\\frac{E}{n_{\\mathrm{eff}}}=k_BB\\nu=h\\nu",
-        "spoken": "The effective coefficient is E over k B B frequency. The implied energy scale is k B B frequency, written h frequency in modern notation."
+        "spoken": "The effective coefficient is E over k B B frequency. The implied energy scale is k B B frequency, written h frequency in modern notation.",
+        "equations": ["eq-model-lq-effective-count", "eq-model-lq-energy-per-point"]
       },
       {
         "kind": "paragraph",

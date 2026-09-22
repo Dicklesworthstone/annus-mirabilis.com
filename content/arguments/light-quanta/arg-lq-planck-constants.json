@@ -32,12 +32,14 @@
       {
         "kind": "formula",
         "latex": "\\frac{A\\nu^3}{\\exp(B\\nu/T)-1}\\approx\\frac{A}{B}\\nu^2T",
-        "spoken": "At low frequency relative to temperature, the spectrum approaches A over B times frequency squared times temperature."
+        "spoken": "At low frequency relative to temperature, the spectrum approaches A over B times frequency squared times temperature.",
+        "equations": ["eq-model-lq-planck-low-frequency"]
       },
       {
         "kind": "formula",
         "latex": "\\frac{A}{B}=\\frac{8\\pi R}{Nc^3},\\qquad N=\\frac{B}{A}\\frac{8\\pi R}{c^3}",
-        "spoken": "Equating the coefficients gives N equal to B over A times eight pi R over light speed cubed."
+        "spoken": "Equating the coefficients gives N equal to B over A times eight pi R over light speed cubed.",
+        "equations": ["eq-model-lq-coefficient-match", "eq-model-lq-avogadro-from-spectrum"]
       },
       {
         "kind": "paragraph",

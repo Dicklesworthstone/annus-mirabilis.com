@@ -12,6 +12,15 @@ const action = ["2", "1", "-1", "0", "0", "0"] as const;
 const rate = ["0", "0", "-1", "0", "0", "0"] as const;
 const charge = ["0", "0", "1", "0", "1", "0"] as const;
 const potential = ["2", "1", "-3", "0", "-1", "0"] as const;
+const temperature = ["0", "0", "0", "1", "0", "0"] as const;
+const entropyPerKelvin = ["2", "1", "-2", "-1", "0", "0"] as const;
+const spectralDensity = ["-1", "1", "-1", "0", "0", "0"] as const;
+const alphaDimension = ["-1", "1", "2", "0", "0", "0"] as const;
+const betaDimension = ["0", "0", "1", "1", "0", "0"] as const;
+const molarGas = ["2", "1", "-2", "-1", "0", "-1"] as const;
+const perAmount = ["0", "0", "0", "0", "0", "-1"] as const;
+const speed = ["1", "0", "-1", "0", "0", "0"] as const;
+const count = ["0", "0", "0", "0", "0", "0"] as const;
 function quantity(
   id: string,
   name: string,
@@ -107,6 +116,106 @@ export const LIGHT_QUANTA_QUANTITIES: QuantityRegistry = Object.freeze(
         "stopping-potential-magnitude",
         "input",
         "The size of the retarding potential that just stops the fastest electrons from reaching the collector. It is measured, and its product with the electron's charge is an energy.",
+      ),
+      quantity(
+        "frequencyEnergyDensity",
+        "Spectral energy density",
+        "\\rho_\\nu",
+        spectralDensity,
+        "J s m^-3",
+        "frequency-basis-spectral-energy-density",
+        "input",
+        "Radiation energy per unit volume per unit frequency interval, the quantity the paper writes rho_nu. It is a density on the frequency axis, so it cannot be read off a wavelength plot without converting.",
+      ),
+      quantity(
+        "wienConstantAlpha",
+        "Spectral constant A",
+        "A",
+        alphaDimension,
+        "J s^4 m^-3",
+        "wien-alpha",
+        "constant",
+        "The constant in front of the Wien spectrum, fitted to measured radiation. The paper writes it alpha; it carries whatever units make A nu cubed a spectral energy density.",
+      ),
+      quantity(
+        "wienConstantBeta",
+        "Spectral constant B",
+        "B",
+        betaDimension,
+        "K s",
+        "wien-beta",
+        "constant",
+        "The constant in the exponent of the Wien spectrum; B nu over T is a pure number. The paper writes it beta, and in modern terms it is h over k_B.",
+      ),
+      quantity(
+        "temperature",
+        "Temperature of the radiation",
+        "T",
+        temperature,
+        "K",
+        "absolute-temperature",
+        "input",
+        "The absolute temperature of the black-body radiation, in kelvin.",
+      ),
+      quantity(
+        "boltzmannConstant",
+        "Boltzmann's constant",
+        "k_B",
+        entropyPerKelvin,
+        "J/K",
+        "boltzmann-constant",
+        "constant",
+        "The gas constant divided by Avogadro's number, R over N, which is how the 1905 paper writes it. The name k_B came later.",
+      ),
+      quantity(
+        "radiationEnergy",
+        "Radiation energy in the band",
+        "E",
+        energy,
+        "J",
+        "band-radiation-energy",
+        "input",
+        "The energy of the radiation inside a fixed narrow band of frequencies, held fixed while the volume changes.",
+      ),
+      quantity(
+        "effectiveIndependentCount",
+        "Effective number of independent points",
+        "n_{\\mathrm{eff}}",
+        count,
+        "1",
+        "effective-independent-count",
+        "result",
+        "The number of independent points a gas would need to show the same entropy change as the radiation. It is read off by comparison; it is not a count of anything observed.",
+      ),
+      quantity(
+        "molarGasConstant",
+        "Gas constant",
+        "R",
+        molarGas,
+        "J/(K mol)",
+        "molar-gas-constant",
+        "constant",
+        "The gas constant per gram-molecule, known in 1905 from gas measurements.",
+      ),
+      quantity(
+        "avogadroConstant",
+        "Avogadro's number",
+        "N",
+        perAmount,
+        "1/mol",
+        "avogadro-constant",
+        "constant",
+        "The number of molecules in a gram-molecule. The paper solves for it from the constants of Planck's radiation formula; the value it gets is an estimate from those constants.",
+      ),
+      quantity(
+        "speedOfLight",
+        "Speed of light",
+        "c",
+        speed,
+        "m/s",
+        "speed-of-light",
+        "constant",
+        "The speed of light in empty space, which the paper writes L.",
       ),
     ].map((q) => [q.id, q]),
   ),

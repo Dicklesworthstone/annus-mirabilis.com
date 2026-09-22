@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-avogadro-from-spectrum",
+  "paper": "light-quanta",
+  "argument": "arg-lq-planck-constants",
+  "title": "Avogadro's number from the spectrum",
+  "spoken": "N equals B over A times eight pi R over the speed of light cubed.",
+  "explanation": "Solving the coefficient match for N gives Avogadro's number from the constants of the radiation law. The paper's value, from Planck's printed constants, is 6.17 times ten to the 23 per gram-molecule.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Planck's radiation law, taken as given, with A and B for its constants.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-avogadro-from-spectrum.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-avogadro-from-spectrum.t.avogadro",
+      "quantityId": "avogadroConstant"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-avogadro-from-spectrum.t.beta",
+            "quantityId": "wienConstantBeta"
+          },
+          "denominator": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-avogadro-from-spectrum.t.alpha",
+            "quantityId": "wienConstantAlpha"
+          }
+        },
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "product",
+            "args": [
+              {
+                "kind": "number",
+                "value": "8"
+              },
+              {
+                "kind": "constant",
+                "name": "pi"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-lq-avogadro-from-spectrum.t.gas",
+                "quantityId": "molarGasConstant"
+              }
+            ]
+          },
+          "denominator": {
+            "kind": "power",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-lq-avogadro-from-spectrum.t.light",
+              "quantityId": "speedOfLight"
+            },
+            "exponent": {
+              "num": 3,
+              "den": 1
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.avogadro",
+      "title": "Avogadro's number",
+      "explanation": "Here a result: an estimate from the radiation constants, not an input.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.beta",
+      "title": "Spectral constant B",
+      "explanation": "Measured, through the spectrum.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.alpha",
+      "title": "Spectral constant A",
+      "explanation": "Measured, through the spectrum.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.gas",
+      "title": "Gas constant",
+      "explanation": "Measured, through gases.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.light",
+      "title": "Speed of light",
+      "explanation": "Measured independently.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.op.relation",
+      "title": "An estimate from radiation",
+      "explanation": "Every quantity on the right is measured, so the spectrum gives N. The estimate is only as good as the fit of Planck's constants.",
+      "foundation": "bridge-scientific-notation-units"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "Avogadro's number",
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.avogadro"
+    },
+    {
+      "text": " follows from "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.beta"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "A",
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.alpha"
+    },
+    {
+      "text": ", "
+    },
+    {
+      "text": "the gas constant",
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.gas"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "the speed of light",
+      "nodeId": "eq-model-lq-avogadro-from-spectrum.t.light"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
