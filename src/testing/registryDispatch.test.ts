@@ -74,9 +74,24 @@ describe("owners: every registered id names exactly one real binding", () => {
       if (perInstrument) {
         expect(binding.function.toLowerCase()).toContain(directoryId.toLowerCase());
       } else {
-        // A family owner: at least two registered ids share this exact module and function.
+        // A family owner: at least two registered ids share this exact module and function,
+        // all members share the id prefix (`shelf-`), the module lives under a directory named
+        // from that prefix (src/experiments/shelfOptics/), and it is no member's own
+        // per-instrument session. Without the last three, lq-01 could "join" the shelf family,
+        // or lq-02 could point at lq01/session.ts and call the pair a family.
         const family = sharers.get(`${binding.module}#${binding.function}`) ?? [];
-        expect({ id, family: family.length >= 2 }).toEqual({ id, family: true });
+        const prefix = id.split("-")[0] ?? id;
+        const camel = (f: string) => f.replace(/-([a-z0-9])/g, (_, c: string) => c.toUpperCase());
+        const genuineFamily =
+          family.length >= 2 &&
+          family.every((f) => f.split("-")[0] === prefix) &&
+          binding.module.startsWith(`src/experiments/${prefix}`) &&
+          family.every((f) => binding.module !== `src/experiments/${camel(f)}/session.ts`);
+        expect({ id, module: binding.module, genuineFamily }).toEqual({
+          id,
+          module: binding.module,
+          genuineFamily: true,
+        });
         familyBindings += 1;
       }
       // "naming their real session module" is a claim about the filesystem, so it is checked
