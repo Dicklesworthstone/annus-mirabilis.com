@@ -220,4 +220,168 @@ export function QuoteComponent() {
     const overclaimFindings = findings.filter((f) => f.rule === "overclaim");
     assert.equal(overclaimFindings.length, 0, "Quotation layer must exempt overclaim");
   });
+
+  /**
+   * Module-level route metadata (am-edit-voice-lint-trmf).
+   *
+   * These two arms are written from a plant that was run against the real tree rather than
+   * imagined. Before this extraction existed, the identical slopped string in three positions
+   * gave: JSX text 2 errors, `export const alt` 0, `export const metadata` 0. The gap had
+   * already shipped a live defect - layout.tsx's default <title> carried an em dash on every
+   * route of the deployed site and was found by a person, not by this gate.
+   *
+   * Both arms are here because an extractor that REACHES a declaration but never evaluates it
+   * looks exactly like one that works. The first arm proves the words arrive at checkVoice; the
+   * second proves a clean constant does not manufacture a finding on the way.
+   */
+  const METADATA_TSX = `
+import type { Metadata } from "next";
+
+export const alt = "SLOPPED_ALT";
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://annus-mirabilis.com"),
+  title: { default: "SLOPPED_TITLE", template: "%s \u00b7 Annus Mirabilis" },
+  description: "SLOPPED_DESCRIPTION",
+  alternates: { canonical: "https://annus-mirabilis.com/" },
+  other: { "route-theme": "kramgasse-night" },
+};
+`;
+
+  function metadataStrings(alt: string, title: string, description: string) {
+    const code = METADATA_TSX.replace("SLOPPED_ALT", alt)
+      .replace("SLOPPED_TITLE", title)
+      .replace("SLOPPED_DESCRIPTION", description);
+    return extractStringsFromTsx("src/app/layout.tsx", code);
+  }
+
+  /**
+   * The bare-string title form, which is 53 of the 54 titles in this tree; the nested
+   * `title: { default }` above is the remaining 1, in src/app/layout.tsx. The two forms are
+   * separate branches of visitMetadataObject, and a fixture that exercised only the rarer one
+   * would leave the common one untested - which is how the first plant against these arms came
+   * back green and told me so.
+   */
+  const PAGE_METADATA_TSX = `
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "SLOPPED_TITLE",
+  description: "SLOPPED_DESCRIPTION",
+};
+`;
+
+  function pageMetadataStrings(title: string, description: string) {
+    const code = PAGE_METADATA_TSX.replace("SLOPPED_TITLE", title).replace(
+      "SLOPPED_DESCRIPTION",
+      description,
+    );
+    return extractStringsFromTsx("src/app/lab/lq-05/page.tsx", code);
+  }
+
+  it("the bare-string title form is extracted and evaluated, not only the nested one", () => {
+    const extracted = pageMetadataStrings(
+      "LQ-05 \u2014 a pivotal laboratory",
+      "A clean description of the laboratory.",
+    );
+    const title = extracted.find((e) => e.attributeName === "title");
+    assert.ok(title, "must extract a bare-string metadata title");
+    assert.equal(title?.context, "ui-label");
+    assert.ok(
+      checkVoice(title?.text ?? "", { context: "ui-label" }).some((f) => f.rule === "em-dash"),
+      "a bare-string title must be EVALUATED",
+    );
+
+    // Not "independent configurations": that phrase fires independence-claim at info severity,
+    // which is the rule doing its job and would make this arm assert the wrong thing.
+    const clean = pageMetadataStrings("LQ-05: counting arrangements", "A clean description.");
+    for (const item of clean) {
+      assert.deepEqual(
+        checkVoice(item.text, { context: item.context }).map((f) => f.rule),
+        [],
+      );
+    }
+  });
+
+  it("a slopped metadata constant reaches checkVoice and goes red", () => {
+    const extracted = metadataStrings(
+      "Annus Mirabilis \u2014 a pivotal tapestry",
+      "Annus Mirabilis \u2014 four papers",
+      "A pivotal edition that will unlock the 1905 papers.",
+    );
+
+    for (const field of ["alt", "title.default", "description"]) {
+      const item = extracted.find((e) => e.attributeName === field);
+      assert.ok(item, `must extract ${field}`);
+      assert.equal(item?.context, "ui-label", `${field} carries the same context as its JSX twin`);
+      const rules = checkVoice(item.text, {
+        context: item.context,
+        ...(item.source ? { source: item.source } : {}),
+      }).map((f) => f.rule);
+      assert.ok(rules.length > 0, `${field} must be EVALUATED, not merely extracted`);
+    }
+
+    const altItem = extracted.find((e) => e.attributeName === "alt");
+    const titleItem = extracted.find((e) => e.attributeName === "title.default");
+    const descriptionItem = extracted.find((e) => e.attributeName === "description");
+    assert.ok(
+      checkVoice(altItem?.text ?? "", { context: "ui-label" }).some((f) => f.rule === "em-dash"),
+    );
+    assert.ok(
+      checkVoice(titleItem?.text ?? "", { context: "ui-label" }).some((f) => f.rule === "em-dash"),
+    );
+    assert.ok(
+      checkVoice(descriptionItem?.text ?? "", { context: "ui-label" }).some(
+        (f) => f.rule === "hype-word",
+      ),
+    );
+  });
+
+  it("a clean metadata constant stays silent, and the non-prose fields are never scanned", () => {
+    const extracted = metadataStrings(
+      "Annus Mirabilis: a critical edition of Einstein's four papers of 1905",
+      "Annus Mirabilis: four papers, one year",
+      "The German, a translation, and instruments for the four 1905 papers.",
+    );
+
+    for (const item of extracted) {
+      const options = {
+        context: item.context,
+        ...(item.source ? { source: item.source } : {}),
+      };
+      assert.deepEqual(
+        checkVoice(item.text, options).map((f) => f.rule),
+        [],
+        `clean constant ${item.attributeName} must produce no finding, got text ${item.text}`,
+      );
+    }
+
+    // The allowlist is of WHOLE PATHS. A canonical URL, a route-theme token and the "%s" title
+    // template are not sentences, and scanning them would report findings against machinery.
+    const scanned = extracted.map((e) => e.attributeName);
+    assert.deepEqual(scanned.sort(), ["alt", "description", "title.default"]);
+  });
+
+  it("a Title Cased page title is not a heading, so the title-case rule leaves it alone", () => {
+    // 54 page titles in this tree are Title Case. A <title> is a browser tab and a search
+    // result, where Title Case is ordinary typography, so `source.element` is deliberately not
+    // set for metadata and the heading backlog does not swallow the whole app.
+    const extracted = metadataStrings(
+      "Annus Mirabilis",
+      "LQ-05: Independent Configurations and Boltzmann Entropy",
+      "A clean description.",
+    );
+    const title = extracted.find((e) => e.attributeName === "title.default");
+    assert.ok(title);
+    assert.equal(title?.source, undefined, "metadata carries no heading marker");
+    // `source` is omitted rather than passed as undefined: exactOptionalPropertyTypes is on, and
+    // the assertion above is what establishes that metadata carries no source at all.
+    const rules = checkVoice(title?.text ?? "", { context: "ui-label" }).map((f) => f.rule);
+    assert.ok(!rules.includes("title-case-heading"), "a page title is not a heading");
+    // This exact title is in the tree, and widening the extractor moved the repository run from
+    // Info 549 to Info 551 for it and one other: `independence-claim` is an info-severity prompt
+    // for a human, firing here on "Independent Configurations", which is the name of Einstein's
+    // counting argument. Recorded rather than tuned away, so the +2 is not mistaken for noise.
+    assert.deepEqual(rules, ["independence-claim"]);
+  });
 });

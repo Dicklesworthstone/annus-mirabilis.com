@@ -11,6 +11,9 @@
  *   rather than the fragments an author's markup happens to produce (am-dbpk).
  * - Extracts string literals from accessible-name and descriptive attributes:
  *   aria-label, aria-description, title, alt, placeholder, label.
+ * - Extracts visitor-facing text from module-level route metadata: `export const metadata`
+ *   and `export const alt`, which are declarations rather than JSX and so were invisible to
+ *   everything above until 2026-09-22 (am-edit-voice-lint-trmf).
  * - Records file path, 1-based line, 1-based column, text, context, and optional attribute.
  *
  * Spec: AGENTS.md "Editorial Voice" and am-edit-voice-lint-trmf
@@ -40,6 +43,47 @@ export const ACCESSIBLE_ATTRIBUTES = new Set([
   "placeholder",
   "label",
 ]);
+
+/**
+ * Field paths inside an exported Next.js `metadata` object whose value a visitor reads.
+ *
+ * This is an ALLOWLIST OF WHOLE PATHS, not a set of field names matched at any depth. A
+ * name-anywhere match would pick up `alternates.canonical` (a URL), `other.route-theme` (a
+ * machine value) and anything a later Next.js version nests under a familiar word, and every
+ * substring gate this repository has gotten wrong had its allowlist one lookup away.
+ *
+ * `title.template` is deliberately absent. It is "%s · Annus Mirabilis", a format string that no
+ * reader ever sees whole, and scanning it would report findings against a placeholder.
+ *
+ * Measured against this tree on 2026-09-22: `title` 53 strings, `title.default` 1, `description`
+ * 14, across the 55 files that declare an exported metadata object. The five openGraph and
+ * twitter paths match NOTHING here today and are carried because they are the standard Next.js
+ * fields for the same two sentences; they are exercised by fixtures in componentText.test.ts, so
+ * they are not an untested branch, but nobody should read them as coverage of anything shipped.
+ */
+const METADATA_TEXT_PATHS = new Set([
+  "title",
+  "title.default",
+  "title.absolute",
+  "description",
+  "openGraph.title",
+  "openGraph.description",
+  "openGraph.siteName",
+  "twitter.title",
+  "twitter.description",
+]);
+
+/**
+ * Exported module constants that Next.js renders as reader-facing text. `alt` is the accessible
+ * name of an opengraph-image or twitter-image route, which is read aloud rather than looked at.
+ *
+ * NOT reached, and named rather than left to be discovered: `generateMetadata`, an exported
+ * async FUNCTION in 9 files of this tree. Its return value is assembled at request time from
+ * route parameters, so a constant extractor cannot see it, and pretending otherwise by matching
+ * string literals inside the function body would scan fragments that no reader meets as a
+ * sentence.
+ */
+const MODULE_TEXT_CONSTANTS = new Set(["alt"]);
 
 /**
  * HTML elements that do not interrupt a sentence. Text inside one of these belongs to the
@@ -202,6 +246,63 @@ export function extractStringsFromTsx(
     return { text: text.replace(/\s+/gu, " ").trim(), first };
   }
 
+  function isExported(node: ts.VariableStatement): boolean {
+    return node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword) ?? false;
+  }
+
+  /** The literal text of a node, or null when its value is computed and cannot be read here. */
+  function literalText(node: ts.Expression): string | null {
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+    return null;
+  }
+
+  /**
+   * Emits one metadata string. The context is `ui-label` for every one of them, on the rule that
+   * a string must not change severity because it changed declaration form: `alt` and `title` as
+   * JSX attributes are already ui-label in section 2, and the same words in `export const alt`
+   * are the same words.
+   *
+   * No `source.element` is set, deliberately. A <title> in Title Case is ordinary typography for
+   * a browser tab and a search result, and the title-case rule only fires on a heading element,
+   * so leaving this undefined is what keeps 54 page titles out of that backlog.
+   */
+  function emitMetadataString(node: ts.Expression, fieldPath: string): void {
+    const text = literalText(node);
+    if (!text?.trim()) return;
+    const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+    results.push({
+      file: relativeFile,
+      line: line + 1,
+      column: character + 1,
+      text: text.trim(),
+      context: "ui-label",
+      attributeName: fieldPath,
+    });
+  }
+
+  function emitConstantText(initializer: ts.Expression, declaredName: string): void {
+    emitMetadataString(initializer, declaredName);
+  }
+
+  /** Walks an exported metadata object, emitting only the whole paths on the allowlist. */
+  function visitMetadataObject(object: ts.ObjectLiteralExpression, prefix: string): void {
+    for (const property of object.properties) {
+      if (!ts.isPropertyAssignment(property)) continue;
+      const name = ts.isIdentifier(property.name)
+        ? property.name.text
+        : ts.isStringLiteral(property.name)
+          ? property.name.text
+          : null;
+      if (name === null) continue;
+      const fieldPath = prefix ? `${prefix}.${name}` : name;
+      if (ts.isObjectLiteralExpression(property.initializer)) {
+        visitMetadataObject(property.initializer, fieldPath);
+      } else if (METADATA_TEXT_PATHS.has(fieldPath)) {
+        emitMetadataString(property.initializer, fieldPath);
+      }
+    }
+  }
+
   function visit(node: ts.Node, currentLayer?: "quotation" | "translation"): void {
     let layer = currentLayer;
     if (isQuotationElement(node)) {
@@ -282,6 +383,26 @@ export function extractStringsFromTsx(
             attributeName: attrName,
             source: layer ? { layer } : undefined,
           });
+        }
+      }
+    }
+
+    // 3. Module-level route metadata (am-edit-voice-lint-trmf). `export const metadata` and
+    // `export const alt` are declarations, not JSX, so sections 1 and 2 never saw them. The gap
+    // was not theoretical: layout.tsx's default <title> carried an em dash on every route of the
+    // deployed site until a person following a hunch found it by hand.
+    if (ts.isVariableStatement(node) && isExported(node)) {
+      for (const declaration of node.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name) || !declaration.initializer) continue;
+        const declaredName = declaration.name.text;
+
+        if (MODULE_TEXT_CONSTANTS.has(declaredName)) {
+          emitConstantText(declaration.initializer, declaredName);
+        } else if (
+          declaredName === "metadata" &&
+          ts.isObjectLiteralExpression(declaration.initializer)
+        ) {
+          visitMetadataObject(declaration.initializer, "");
         }
       }
     }
