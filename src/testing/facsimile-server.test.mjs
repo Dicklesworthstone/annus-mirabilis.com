@@ -88,7 +88,7 @@ test("a stale same-length PDF fails the pinned digest without exposing a usable 
   assert.equal(result.code, "facsimile-digest-mismatch");
   assert.equal("document" in result, false);
 });
-test("correctly hashed non-PDF bytes and too-small files are rejected (server.ts:50)", async () => {
+test("correctly hashed non-PDF bytes and too-small files are rejected (server.ts:51)", async () => {
   const html = Buffer.from("<html>Not an original scan</html>");
   const hash = createHash("sha256").update(html).digest("hex");
   assert.equal((await load(await fixture({ source: html, text: config("publish", hash) }))).code, "facsimile-not-pdf");
@@ -97,7 +97,7 @@ test("correctly hashed non-PDF bytes and too-small files are rejected (server.ts
   assert.equal((await load(await fixture({ source: Buffer.from("PDF") }))).code, "facsimile-file-invalid");
 });
 
-test("metadata that is not a readable file is refused, not read as absent (server.ts:28)", async () => {
+test("metadata that is not a readable file is refused, not read as absent (server.ts:26)", async () => {
   // Nothing drove this site: planting its code left 11 pass 0 fail, and a marker on it was
   // never reached. It is reachable, though, and the branch that reaches it deterministically
   // is `!info.isFile()` rather than the 2 MB size limit, so no large fixture is needed.

@@ -77,7 +77,7 @@ test("rejects unsafe URLs, mismatched identity, unknown decisions and invalid pi
   // "https://user:password@..." both construct fine and are refused by the protocol guard - so
   // the catch around `new URL` was driven by nothing in this file until now.
   const unparseable=config();unparseable.pinned.originUrl="not a url";
-  refusesWith(()=>project(unparseable),"facsimile-data-invalid","(document.ts:86)");
+  refusesWith(()=>project(unparseable),"facsimile-data-invalid","(document.ts:110)");
 });
 test("same-length wrong page window, stale extract map and out-of-parent pages are rejected", () => {
   // Deleting the anchor leaves `config.verifiedAnchor ?? article.verifiedAnchor` undefined, so
@@ -113,7 +113,7 @@ test("malformed and unknown fragments never fabricate a matching page", () => {
   for (const hash of ["", "#%E0%A4%A", "#facsimile-page-640junk", "#facsimile-page-1", "#s0-p999", "#arg-me-subtraction", "#s999", "x".repeat(513)]) {
     assert.equal(resolveFacsimileTarget(project(),hash),null);
   }
-  for(const page of [0,4,1.5,NaN,Infinity])refusesWith(()=>facsimilePdfHref(project(),page),"facsimile-page-out-of-range","(document.ts:156)");
+  for(const page of [0,4,1.5,NaN,Infinity])refusesWith(()=>facsimilePdfHref(project(),page),"facsimile-page-out-of-range","(document.ts:268)");
 });
 test("inventory identity, page ranges, missing locators, duplicate ids and unsafe aliases fail closed", () => {
   const mutations=[i=>i.paper="brownian-motion", i=>i.document="ap-17-549", i=>i.pageRange=[639,642],

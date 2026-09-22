@@ -33,25 +33,25 @@ describe("csv.ts refusals: the tokenizer", () => {
     expect(err.message).toContain("too many columns.");
   });
 
-  test("a quote must begin a field or be doubled (csv.ts:62)", () => {
+  test("a quote must begin a field or be doubled (csv.ts:63)", () => {
     const err = refusalFor(`${HEADER}point_id,t_s\nab"cd,1\n`);
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("a quote must begin a field or be doubled");
   });
 
-  test("characters after a closing quote (csv.ts:75)", () => {
+  test("characters after a closing quote (csv.ts:77)", () => {
     const err = refusalFor(`${HEADER}point_id,t_s\n"ab"cd,1\n`);
     expect(err.code).toBe("csv-shape-invalid");
     expect(err.message).toContain("unexpected characters after a closing quote.");
   });
 
-  test("a cell over the text limit (csv.ts:79)", () => {
+  test("a cell over the text limit (csv.ts:86)", () => {
     const err = refusalFor(`${HEADER}point_id\n${"x".repeat(KITCHEN_LIMITS.cell + 1)}\n`);
     expect(err.code).toBe("csv-shape-invalid");
     expect(err.message).toContain("this cell exceeds the text limit.");
   });
 
-  test("an unclosed quoted field (csv.ts:81)", () => {
+  test("an unclosed quoted field (csv.ts:94)", () => {
     const err = refusalFor(`${HEADER}point_id,t_s\n"unterminated,1\n`);
     expect(err.code).toBe("csv-shape-invalid");
     expect(err.message).toContain("the quoted field is not closed.");
@@ -59,37 +59,37 @@ describe("csv.ts refusals: the tokenizer", () => {
 });
 
 describe("csv.ts refusals: the file and its metadata block", () => {
-  test("a file over 2 MiB (csv.ts:119)", () => {
+  test("a file over 2 MiB (csv.ts:138)", () => {
     const err = refusalFor("x".repeat(KITCHEN_LIMITS.bytes + 1));
     expect(err.code).toBe("csv-shape-invalid");
     expect(err.message).toContain("the CSV must be at most 2 MiB.");
   });
 
-  test("a metadata line with no equals sign (csv.ts:136)", () => {
+  test("a metadata line with no equals sign (csv.ts:156)", () => {
     const err = refusalFor("# sample\npoint_id\n");
     expect(err.code).toBe("metadata-invalid");
     expect(err.message).toContain("use # key=value.");
   });
 
-  test("an unknown metadata key (csv.ts:147)", () => {
+  test("an unknown metadata key (csv.ts:167)", () => {
     const err = refusalFor("# not_a_real_key=1\npoint_id\n");
     expect(err.code).toBe("metadata-invalid");
     expect(err.message).toContain("unknown metadata key.");
   });
 
-  test("a duplicated metadata key (csv.ts:149)", () => {
+  test("a duplicated metadata key (csv.ts:169)", () => {
     const err = refusalFor("# sample=A\n# sample=B\npoint_id\n");
     expect(err.code).toBe("metadata-invalid");
     expect(err.message).toContain("duplicate metadata declaration.");
   });
 
-  test("metadata text over its length limit (csv.ts:106)", () => {
+  test("metadata text over its length limit (csv.ts:124)", () => {
     const err = refusalFor(`# sample=${"n".repeat(513)}\npoint_id\n`);
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("text characters and no control codes.");
   });
 
-  test("the deprecated scale mixed with per-axis scales (csv.ts:163)", () => {
+  test("the deprecated scale mixed with per-axis scales (csv.ts:188)", () => {
     const err = refusalFor("# pixels_per_um=10\n# pixels_per_um_x=10\npoint_id\n");
     expect(err.code).toBe("observations-inconsistent");
     expect(err.message).toContain("do not mix deprecated and per-axis scales.");

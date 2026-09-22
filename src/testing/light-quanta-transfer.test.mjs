@@ -67,7 +67,7 @@ const refuses = (fn, code, site) => {
 test("a source revision is retained rather than hidden by the decoder",()=>{
   const other=`source:sha256:${"b".repeat(64)}`;
   assert.equal(decode(encode(defaults,other)).sourceDigest,other);
-  refuses(()=>encode(defaults,"no-digest"),"source-digest-invalid","(transfer.ts:30)");
+  refuses(()=>encode(defaults,"no-digest"),"source-digest-invalid","(transfer.ts:34)");
 });
 test("exports preserve both accepted columns, typed output contracts and changed fields",()=>{
   const s=session(),before=s.getSnapshot().accepted;
@@ -100,11 +100,11 @@ test("cross-instance, partial, malformed and owner-mismatched evidence is refuse
   // reader, and the digest check at :82 runs BEFORE the instance check at :83 - so a valid
   // digest is what lets the first assertion reach the instance guard at all.
   const a=session().getSnapshot().accepted,b=createLightInvestigationSession("other").getSnapshot().accepted;
-  refuses(()=>exportEvidence(a,b,digest),"evidence-instance-mismatch","(transfer.ts:83)");
+  refuses(()=>exportEvidence(a,b,digest),"evidence-instance-mismatch","(transfer.ts:135)");
   for(const patch of [{final:false},{snapshotVersion:0},{experimentId:"wrong"},{outputs:a.outputs.slice(1)},
       {outputs:[a.outputs[0],...a.outputs.slice(0,-1)]},
       {outputs:a.outputs.map((o,i)=>i===0?{...o,ownerId:"pretend-owner"}:o)}])
-    refuses(()=>exportEvidence(a,{...a,...patch},digest),"evidence-snapshot-invalid","(transfer.ts:60)");
+    refuses(()=>exportEvidence(a,{...a,...patch},digest),"evidence-snapshot-invalid","(transfer.ts:82)");
 
   // A NONFINITE VALUE IS REFUSED BY A DIFFERENT LAYER, and this test could not previously say
   // so. It sat in the list above under a bare assert.throws, so it read as one more case of the
@@ -120,7 +120,7 @@ test("cross-instance, partial, malformed and owner-mismatched evidence is refuse
     assert.equal(err.code,undefined,"ResultDecodeError carries no refusal code");
     return true;
   });
-  refuses(()=>exportEvidence(a,a,"not-a-digest"),"source-digest-invalid","(transfer.ts:82)");
+  refuses(()=>exportEvidence(a,a,"not-a-digest"),"source-digest-invalid","(transfer.ts:130)");
 });
 test("coefficient handoff reaches the real existing codec with exact accepted energy",()=>{
   const s=session();s.apply({...defaults,frequency:660000000000000,volumeRatio:0.3,pointCount:5});

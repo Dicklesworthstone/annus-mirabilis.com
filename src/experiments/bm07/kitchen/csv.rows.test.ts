@@ -93,25 +93,25 @@ describe("csv.ts refusals: the file shape around the rows", () => {
     expect(err.message).toContain("at most 20000 observations are supported.");
   });
 
-  test("a deprecated uncertainty with no deprecated scale (csv.ts:175)", () => {
+  test("a deprecated uncertainty with no deprecated scale (csv.ts:205)", () => {
     const err = refusalForCsv(`# pixels_per_um_uncertainty=1\n${COLUMNS}\n${GOOD_ROW}\n`);
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("a deprecated uncertainty needs its deprecated scale.");
   });
 
-  test("a header that is not the declared column order (csv.ts:185)", () => {
+  test("a header that is not the declared column order (csv.ts:216)", () => {
     const err = refusalForCsv(`kind,schema_version\n${GOOD_ROW}\n`);
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("use these columns in order: schema_version, kind,");
   });
 
-  test("a header with no observations under it (csv.ts:191)", () => {
+  test("a header with no observations under it (csv.ts:223)", () => {
     const err = refusalForCsv(`${COLUMNS}\n`);
     expect(err.code).toBe("observation-incomplete");
     expect(err.message).toContain("include at least one observation.");
   });
 
-  test("a row with fewer cells than its header declares (csv.ts:208)", () => {
+  test("a row with fewer cells than its header declares (csv.ts:250)", () => {
     const err = refusalForCsv(csv("2,particle,p1,0,100,200,0,,measured,,cal-1"));
     expect(err.code).toBe("csv-shape-invalid");
     expect(err.message).toContain("each row must have exactly the columns declared in its header.");
@@ -119,38 +119,38 @@ describe("csv.ts refusals: the file shape around the rows", () => {
 });
 
 describe("csv.ts refusals: one observation", () => {
-  test("a schema version this importer does not read (csv.ts:228)", () => {
+  test("a schema version this importer does not read (csv.ts:271)", () => {
     const err = refusalForCsv(csv("1,particle,p1,0,100,200,0,,measured,,cal-1,"));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("this importer reads schema 2.");
   });
 
-  test("a kind outside the fixed choice (csv.ts:203)", () => {
+  test("a kind outside the fixed choice (csv.ts:240)", () => {
     const err = refusalForCsv(csv("2,blob,p1,0,100,200,0,,measured,,cal-1,"));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("choose particle, stationary, calibration.");
     expect(err.field).toBe("kind");
   });
 
-  test("an empty object_id (csv.ts:237)", () => {
+  test("an empty object_id (csv.ts:281)", () => {
     const err = refusalForCsv(csv("2,particle,,0,100,200,0,,measured,,cal-1,"));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("object_id and calibration_id must not be empty.");
   });
 
-  test("a time past the supported duration (csv.ts:244)", () => {
+  test("a time past the supported duration (csv.ts:289)", () => {
     const err = refusalForCsv(csv("2,particle,p1,601,100,200,0,,measured,,cal-1,"));
     expect(err.code).toBe("observation-incomplete");
     expect(err.message).toContain("use actual times from 0 to 600 seconds.");
   });
 
-  test("a lost flag that disagrees with the status (csv.ts:254)", () => {
+  test("a lost flag that disagrees with the status (csv.ts:304)", () => {
     const err = refusalForCsv(csv("2,particle,p1,0,100,200,1,,measured,,cal-1,"));
     expect(err.code).toBe("observations-inconsistent");
     expect(err.message).toContain("lost, point_status and loss_reason must agree.");
   });
 
-  test("an exclusion reason on a point that is not excluded (csv.ts:256)", () => {
+  test("an exclusion reason on a point that is not excluded (csv.ts:311)", () => {
     const err = refusalForCsv(csv("2,particle,p1,0,100,200,0,,measured,blurred,cal-1,"));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain(
@@ -158,7 +158,7 @@ describe("csv.ts refusals: one observation", () => {
     );
   });
 
-  test("a coordinate outside the source frame (csv.ts:265)", () => {
+  test("a coordinate outside the source frame (csv.ts:321)", () => {
     const err = refusalForCsv(csv("2,particle,p1,0,200000,200,0,,measured,,cal-1,"));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("coordinates must be within ±100000 source pixels.");
@@ -167,13 +167,13 @@ describe("csv.ts refusals: one observation", () => {
 });
 
 describe("csv.ts refusals: one label across several observations", () => {
-  test("a particle time that does not strictly increase (csv.ts:285)", () => {
+  test("a particle time that does not strictly increase (csv.ts:342)", () => {
     const err = refusalForCsv(csv(GOOD_ROW, "2,particle,p1,0,110,200,0,,measured,,cal-1,"));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("particle times must strictly increase");
   });
 
-  test("a reacquisition with no identity decision (csv.ts:291)", () => {
+  test("a reacquisition with no identity decision (csv.ts:349)", () => {
     const err = refusalForCsv(
       csv("2,particle,p1,0,,,1,edge,lost,,cal-1,", "2,particle,p1,1,100,200,0,,measured,,cal-1,"),
     );
@@ -181,13 +181,13 @@ describe("csv.ts refusals: one label across several observations", () => {
     expect(err.message).toContain("choose reacquired-same or new-object after losing this label.");
   });
 
-  test("an identity decision where nothing was lost (csv.ts:297)", () => {
+  test("an identity decision where nothing was lost (csv.ts:356)", () => {
     const err = refusalForCsv(csv("2,particle,p1,0,100,200,0,,measured,,cal-1,reacquired-same"));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("an identity decision belongs on the first point after a loss.");
   });
 
-  test("a stationary row that is not a measured click (csv.ts:303)", () => {
+  test("a stationary row that is not a measured click (csv.ts:363)", () => {
     const err = refusalForCsv(csv("2,stationary,s1,0,100,200,0,,interpolated,,cal-1,"));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain(
@@ -197,19 +197,19 @@ describe("csv.ts refusals: one label across several observations", () => {
 });
 
 describe("csv.ts refusals: the frame stamp", () => {
-  test("a frame identity outside its range (csv.ts:332)", () => {
+  test("a frame identity outside its range (csv.ts:398)", () => {
     const err = refusalFrom(() => parseKitchenCsv(framed(`${GOOD_ROW},0,frame-callback,1,0`)));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("invalid frame identity, time or timing provenance.");
   });
 
-  test("timing provenance that disagrees with the times (csv.ts:344)", () => {
+  test("timing provenance that disagrees with the times (csv.ts:411)", () => {
     const err = refusalFrom(() => parseKitchenCsv(framed(`${GOOD_ROW},1,frame-callback,1,1`)));
     expect(err.code).toBe("kitchen-input-invalid");
     expect(err.message).toContain("timing provenance disagrees with the actual/requested times");
   });
 
-  test("one frame id carrying two different stamps (csv.ts:351)", () => {
+  test("one frame id carrying two different stamps (csv.ts:419)", () => {
     const err = refusalFrom(() =>
       parseKitchenCsv(
         framed(
@@ -232,7 +232,7 @@ describe("csv.ts refusals: the frame stamp", () => {
 });
 
 describe("csv.ts refusals: the export side", () => {
-  test("a metadata value carrying a newline (csv.ts:387)", () => {
+  test("a metadata value carrying a newline (csv.ts:456)", () => {
     const document = parseKitchenCsv(csv(GOOD_ROW));
     const broken = { ...document, metadata: { ...document.metadata, sample: "one\ntwo" } };
     const err = refusalFrom(() => exportKitchenCsv(broken));
