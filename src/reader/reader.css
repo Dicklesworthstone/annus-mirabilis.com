@@ -121,6 +121,14 @@
 .reader-passage h4 {
   font-size: var(--type-small);
 }
+/* The chooser's derived state marker. A face with no content stays a LINK - the page
+   behind it explains what is missing and offers the explanation instead - so this is a
+   quiet annotation rather than a disabled control or an apology. Tokens only: no new
+   line-height or raw size enters the scale. */
+.reader-controls .face-state {
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
 .spoken-math {
   font-family: var(--font-sans);
   font-size: var(--type-fine);

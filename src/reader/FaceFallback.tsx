@@ -1,5 +1,8 @@
+import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { loadPaper } from "../content/server.ts";
 import { FaceChooser } from "./FaceChooser.tsx";
+import { faceAvailability } from "./faceAvailability.ts";
+import { loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
 import { FacsimilePanel } from "./facsimile/FacsimilePanel.tsx";
 import { loadFacsimileDocument } from "./facsimile/server.ts";
@@ -35,6 +38,22 @@ export async function FaceFallback(
     face === "facsimile"
       ? await (options.facsimileLoader ?? loadFacsimileDocument)(paperId, paper.citation)
       : null;
+  // DERIVED, from the same values the renderer decides on - no authored flag. Both
+  // loads are cheap: the edition is compiled JSON and the draft is one provenance
+  // receipt. The PDF is NOT read here; `facsimile` is passed through only when this
+  // page already resolved it for its own sake, and is left unknown otherwise, so a
+  // chooser never costs a multi-megabyte hash.
+  const edition = await loadBilingualEdition(paperId).catch(() => null);
+  const germanDraft = loadGermanSourceFace(paperId as Parameters<typeof loadGermanSourceFace>[0]);
+  const availability = faceAvailability({
+    blocks: edition?.blocks.length ?? 0,
+    units: edition?.units.length ?? 0,
+    glossUnits: edition?.glossUnits?.length ?? 0,
+    germanDraftBlocks: germanDraft?.blocks.length ?? 0,
+    ...(facsimile
+      ? { facsimile: facsimile.kind === "available" ? ("available" as const) : ("empty" as const) }
+      : {}),
+  });
   return (
     <div data-reader-root data-ready="true" data-view={face} className="reader-root">
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
@@ -53,7 +72,7 @@ export async function FaceFallback(
             : paper.sourceNotice}
         </p>
       </header>
-      <FaceChooser paperId={paperId} section={section} current={face} />
+      <FaceChooser paperId={paperId} section={section} current={face} availability={availability} />
       {facsimile?.kind === "available" && (
         <FacsimilePanel
           document={facsimile.document}

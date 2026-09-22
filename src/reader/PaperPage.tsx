@@ -19,6 +19,11 @@ import { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter
 import { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
 import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
 import { FaceFallback } from "./FaceFallback.tsx";
+import {
+  englishFaceHasContent,
+  glossFaceHasContent,
+  parallelFaceHasContent,
+} from "./faceAvailability.ts";
 import { type BilingualEdition, loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { EnglishFace } from "./faces/EnglishFace.tsx";
 import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
@@ -66,6 +71,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
 
       // A paper with no compiled bilingual payload may still have a reviewed-or-draft
       // ledger on disk. Before falling through to "not yet available", ask the receipt.
+      //
+      // These two German branches together ARE germanFaceHasContent(blocks, draftBlocks)
+      // in faceAvailability.ts, which is what the chooser asks. The split here is about
+      // WHICH renderer, not about whether the face has content; keep them in step.
       // This is checked BEFORE the edition branch only for the German face, because the
       // English, parallel and gloss faces need translation units that no ledger provides
       // and would be claiming more than exists.
@@ -96,7 +105,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             />
           );
         }
-        if (resolved.face === "english" && edition.units.length > 0) {
+        if (resolved.face === "english" && englishFaceHasContent(edition.units.length)) {
           return (
             <EnglishFace
               paper={edition.paper}
@@ -108,7 +117,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             />
           );
         }
-        if (resolved.face === "parallel" && edition.blocks.length > 0 && edition.units.length > 0) {
+        if (
+          resolved.face === "parallel" &&
+          parallelFaceHasContent(edition.blocks.length, edition.units.length)
+        ) {
           return (
             <ParallelFace
               paper={edition.paper}
@@ -129,9 +141,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         }
         if (
           resolved.face === "gloss" &&
-          edition.blocks.length > 0 &&
+          // The `&& edition.glossUnits` is load-bearing for TYPE NARROWING, not only for
+          // the condition: the prop below needs it non-undefined. Replacing it with
+          // `?.length ?? 0` alone compiles the predicate and breaks the prop.
           edition.glossUnits &&
-          edition.glossUnits.length > 0
+          glossFaceHasContent(edition.blocks.length, edition.glossUnits.length)
         ) {
           return (
             <GlossFace

@@ -25,6 +25,7 @@
  * is a copy decision and is deliberately not made here.
  */
 
+import type { FaceAvailability } from "./faceAvailability.ts";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
 import { FACE_FALLBACK_IDS, faceLinkHref } from "./paperRoutes.ts";
 
@@ -32,12 +33,25 @@ export function FaceChooser({
   paperId,
   section,
   current,
+  availability,
 }: {
   readonly paperId: string;
   readonly section?: string | undefined;
   /** The face being displayed, marked `aria-current="page"`. */
   readonly current?: FaceId | undefined;
+  /**
+   * Derived, never authored (routed 2026-09-22). Faces reported `empty` are still
+   * LINKS - the page behind them explains what is missing and offers the explanation
+   * instead, which is more use than a disabled control - but they are marked, so the
+   * chooser stops offering eight equal doors when four of them are stubs. A face
+   * whose availability is `unknown`, or absent from the table, is left unmarked:
+   * facsimile cannot be decided without hashing a multi-megabyte PDF, and guessing
+   * would claim a scan nobody verified.
+   */
+  readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
 }) {
+  const mark = (id: FaceId) =>
+    availability?.[id] === "empty" ? <span className="face-state"> · not set yet</span> : null;
   return (
     <nav className="reader-controls" aria-label="Reading face">
       <a
@@ -53,8 +67,10 @@ export function FaceChooser({
           href={faceLinkHref(paperId, id, section)}
           data-view-link={id}
           aria-current={id === current ? "page" : undefined}
+          data-face-state={availability?.[id] ?? undefined}
         >
           {FACE_REGISTRY[id].label}
+          {mark(id)}
         </a>
       ))}
     </nav>
