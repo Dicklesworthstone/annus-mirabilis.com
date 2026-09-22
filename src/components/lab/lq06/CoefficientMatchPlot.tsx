@@ -1,6 +1,6 @@
 "use client";
 
-import { SciSvg } from "../Sci.tsx";
+import { Sci } from "../Sci.tsx";
 
 export type CoefficientMatchPlotProps = Readonly<{
   radiationEnergyJ: number;
@@ -13,8 +13,20 @@ export type CoefficientMatchPlotProps = Readonly<{
   gasVolumeCoeff: number;
   isMatch: boolean;
   hasSelection: boolean;
+  /** The expression the reader put in the bracket, as it is printed, or undefined before a choice. */
+  selectedLabel?: string | undefined;
 }>;
 
+/**
+ * The two entropy laws, side by side, with the bracket the lab's question is about.
+ *
+ * This was a 700-unit SVG of two formula cards, so on a 390px phone its text drew at 5.5px. It is
+ * now HTML: the cards sit side by side where there is room, stack on a phone, and set their text
+ * at the page's own sizes. The radiation card used to print the rewritten law with the answer
+ * already in the bracket, "(R/N) · [N·E/(R·β·ν)] · ln(V/V₀)", beside the gas law's "[n]", which
+ * answered the question before the reader chose. The bracket now holds "?" until a choice, then
+ * the chosen expression, with "=" when it reproduces the law and "≠" when it does not.
+ */
 export function CoefficientMatchSideBySidePlot({
   radiationEnergyJ,
   frequencyHz,
@@ -26,315 +38,61 @@ export function CoefficientMatchSideBySidePlot({
   gasVolumeCoeff,
   isMatch,
   hasSelection,
+  selectedLabel,
 }: CoefficientMatchPlotProps) {
   const freqTHz = (frequencyHz / 1e12).toFixed(1);
   const energyNJ = (radiationEnergyJ * 1e9).toFixed(3);
+  const bracket = hasSelection && selectedLabel ? selectedLabel : "?";
+  const relation = !hasSelection ? "=" : isMatch ? "=" : "≠";
 
   return (
-    <div
-      style={{
-        border: "1px solid var(--line)",
-        borderRadius: "0.5rem",
-        padding: "1rem",
-        background: "var(--panel)",
-      }}
-      data-view-id="lq-06-side-by-side"
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "0.75rem",
-          flexWrap: "wrap",
-          gap: "0.25rem",
-        }}
-      >
-        <h3
-          style={{
-            fontSize: "0.875rem",
-            fontWeight: "bold",
-            color: "var(--ink)",
-            margin: 0,
-          }}
-        >
-          Side-by-side entropy volume laws (§6, the move)
-        </h3>
-        <span
-          className="fine"
-          style={{
-            fontSize: "0.75rem",
-            fontFamily: "var(--font-mono, monospace)",
-            padding: "0.125rem 0.5rem",
-            borderRadius: "0.25rem",
-            background: "var(--wash)",
-            color: "var(--muted)",
-            border: "1px solid var(--line)",
-          }}
-        >
-          V/V₀ = {volumeRatio.toFixed(2)}
+    <figure className="lq06-laws" data-view-id="lq-06-side-by-side">
+      <figcaption className="lq06-laws-head">
+        <h3>Side-by-side entropy volume laws (§6, the move)</h3>
+        <span className="lq06-laws-ratio">V/V₀ = {volumeRatio.toFixed(2)}</span>
+      </figcaption>
+      <div className="lq06-laws-pair">
+        <section className="lq06-law lq06-law-radiation" aria-label="Radiation">
+          <h4>Wien Monochromatic Radiation (§4)</h4>
+          <p className="lq06-law-given">
+            E = {energyNJ} nJ, ν = {freqTHz} THz
+          </p>
+          <p className="lq06-law-eq">S − S₀ = (E/βν) · ln(V/V₀)</p>
+          <p className="lq06-law-given">Written with Boltzmann’s constant, k = R/N:</p>
+          <p className="lq06-law-eq" data-bracket={hasSelection ? "chosen" : "empty"}>
+            {relation} (R/N) · [ <span className="lq06-law-bracket">{bracket}</span> ] · ln(V/V₀)
+          </p>
+        </section>
+        <span className="lq06-laws-link" aria-hidden="true">
+          ≡
         </span>
+        <section className="lq06-law lq06-law-gas" aria-label="Gas">
+          <h4>Ideal Gas / Solute Molecules (§5)</h4>
+          <p className="lq06-law-given">n = {gasParticles} independent particles</p>
+          <p className="lq06-law-eq">S − S₀ = (R/N) · ln W</p>
+          <p className="lq06-law-given">Independent positions, W = (V/V₀)ⁿ:</p>
+          <p className="lq06-law-eq">
+            = (R/N) · [ <span className="lq06-law-bracket">n</span> ] · ln(V/V₀)
+          </p>
+        </section>
       </div>
-
-      <svg
-        viewBox="0 0 700 280"
-        style={{ width: "100%", height: "auto" }}
-        role="img"
-        aria-label="Side-by-side comparison of Wien radiation entropy and Boltzmann gas entropy laws"
-      >
-        <defs>
-          <marker
-            id="arrow"
-            viewBox="0 0 10 10"
-            refX="5"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto-start-reverse"
-          >
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)" />
-          </marker>
-        </defs>
-
-        {/* Left Box: Radiation Side (Data series stroke kept literal #f43f5e) */}
-        <g transform="translate(20, 20)">
-          <rect
-            x="0"
-            y="0"
-            width="300"
-            height="180"
-            rx="8"
-            fill="var(--wash)"
-            stroke="#f43f5e"
-            strokeWidth="1.5"
-          />
-          <text x="15" y="28" fill="var(--ink)" fontSize="12" fontWeight="bold">
-            Wien Monochromatic Radiation (§4)
-          </text>
-          <text x="15" y="52" fill="var(--muted)" fontSize="11">
-            E = {energyNJ} nJ · ν = {freqTHz} THz
-          </text>
-
-          {/* Radiation Entropy Formula */}
-          <rect
-            x="15"
-            y="65"
-            width="270"
-            height="42"
-            rx="4"
-            fill="var(--panel)"
-            stroke="var(--line)"
-            strokeWidth="1"
-          />
-          <text
-            x="150"
-            y="92"
-            textAnchor="middle"
-            fill="var(--ink)"
-            fontSize="12"
-            fontFamily="monospace"
-            fontWeight="bold"
-          >
-            S - S₀ = (E / βν) · ln(V/V₀)
-          </text>
-
-          <text x="15" y="128" fill="var(--muted)" fontSize="11">
-            With Boltzmann&apos;s constant k_B = R/N:
-          </text>
-          <rect
-            x="15"
-            y="136"
-            width="270"
-            height="34"
-            rx="4"
-            fill="var(--wash)"
-            stroke="var(--line)"
-            strokeWidth="1"
-          />
-          <text
-            x="150"
-            y="158"
-            textAnchor="middle"
-            fill="var(--ink)"
-            fontSize="12"
-            fontFamily="monospace"
-            fontWeight="bold"
-          >
-            = (R/N) · [ N·E / (R·β·ν) ] · ln(V/V₀)
-          </text>
-        </g>
-
-        {/* Right Box: Ideal Gas Side (Data series stroke kept literal #0ea5e9) */}
-        <g transform="translate(380, 20)">
-          <rect
-            x="0"
-            y="0"
-            width="300"
-            height="180"
-            rx="8"
-            fill="var(--wash)"
-            stroke="#0ea5e9"
-            strokeWidth="1.5"
-          />
-          <text x="15" y="28" fill="var(--ink)" fontSize="12" fontWeight="bold">
-            Ideal Gas / Solute Molecules (§5)
-          </text>
-          <text x="15" y="52" fill="var(--muted)" fontSize="11">
-            n = {gasParticles} independent particles
-          </text>
-
-          {/* Gas Entropy Formula */}
-          <rect
-            x="15"
-            y="65"
-            width="270"
-            height="42"
-            rx="4"
-            fill="var(--panel)"
-            stroke="var(--line)"
-            strokeWidth="1"
-          />
-          <text
-            x="150"
-            y="92"
-            textAnchor="middle"
-            fill="var(--ink)"
-            fontSize="12"
-            fontFamily="monospace"
-            fontWeight="bold"
-          >
-            S - S₀ = (R/N) · ln W
-          </text>
-
-          <text x="15" y="128" fill="var(--muted)" fontSize="11">
-            Independent points W = (V/V₀)ⁿ:
-          </text>
-          <rect
-            x="15"
-            y="136"
-            width="270"
-            height="34"
-            rx="4"
-            fill="var(--wash)"
-            stroke="var(--line)"
-            strokeWidth="1"
-          />
-          <text
-            x="150"
-            y="158"
-            textAnchor="middle"
-            fill="var(--ink)"
-            fontSize="12"
-            fontFamily="monospace"
-            fontWeight="bold"
-          >
-            = (R/N) · [ n ] · ln(V/V₀)
-          </text>
-        </g>
-
-        {/* Center Connection Arrow & Verdict */}
-        <g transform="translate(320, 95)">
-          <path d="M 0 15 L 60 15" stroke="var(--line)" strokeWidth="2" strokeDasharray="3 3" />
-          <circle
-            cx="30"
-            cy="15"
-            r="14"
-            fill="var(--panel)"
-            stroke="var(--line)"
-            strokeWidth="1.5"
-          />
-          <text x="30" y="19" textAnchor="middle" fill="var(--ink)" fontSize="12" fontWeight="bold">
-            ≡
-          </text>
-        </g>
-
-        {/* Bottom Equivalence Banner */}
-        <g transform="translate(20, 215)">
-          <rect
-            x="0"
-            y="0"
-            width="660"
-            height="55"
-            rx="6"
-            fill="var(--wash)"
-            stroke={
-              hasSelection && isMatch
-                ? "var(--ink)"
-                : hasSelection
-                  ? "var(--accent)"
-                  : "var(--line)"
-            }
-            strokeWidth="1.5"
-          />
-          {hasSelection && isMatch ? (
-            <>
-              <text
-                x="330"
-                y="24"
-                textAnchor="middle"
-                fill="var(--ink)"
-                fontSize="12"
-                fontWeight="bold"
-              >
-                ✓ Exact Functional Identification: n_eff = N·E / (R·β·ν) = E / (h·ν)
-              </text>
-              <text
-                x="330"
-                y="44"
-                textAnchor="middle"
-                fill="var(--muted)"
-                fontSize="12"
-                fontFamily="monospace"
-              >
-                n_eff = <SciSvg value={effectiveCount} digits={4} /> quanta · ε ={" "}
-                {quantumEnergyEv.toFixed(4)} eV ({quantumEnergyEv.toFixed(2)} eV / packet)
-              </text>
-            </>
-          ) : hasSelection ? (
-            <>
-              <text
-                x="330"
-                y="24"
-                textAnchor="middle"
-                fill="var(--ink)"
-                fontSize="12"
-                fontWeight="bold"
-              >
-                With this term the two laws differ
-              </text>
-              <text x="330" y="44" textAnchor="middle" fill="var(--ink)" fontSize="12">
-                The selected term does not match the dimensionless exponent n in S - S₀ = (R/N) n
-                ln(V/V₀).
-              </text>
-            </>
-          ) : (
-            <>
-              <text
-                x="330"
-                y="24"
-                textAnchor="middle"
-                fill="var(--muted)"
-                fontSize="12"
-                fontWeight="500"
-              >
-                Select the subexpression in the controls above to test the correspondence
-              </text>
-              <text
-                x="330"
-                y="44"
-                textAnchor="middle"
-                fill="var(--muted)"
-                fontSize="11"
-                fontFamily="monospace"
-              >
-                Radiation coeff: <SciSvg value={radVolumeCoeff} digits={3} /> J/K ↔ Gas coeff:{" "}
-                <SciSvg value={gasVolumeCoeff} digits={3} /> J/K
-              </text>
-            </>
-          )}
-        </g>
-      </svg>
-    </div>
+      <p className="lq06-laws-verdict" role="status">
+        {hasSelection && isMatch ? (
+          <>
+            The laws match: n_eff = NE/(Rβν) = E/(hν) = <Sci value={effectiveCount} digits={4} />{" "}
+            quanta, each carrying ε = hν = {quantumEnergyEv.toFixed(4)} eV.
+          </>
+        ) : hasSelection ? (
+          <>With this term the two laws differ: it is not the exponent n of the gas law.</>
+        ) : (
+          <>
+            Which expression goes in the bracket? Choose one in the controls. Coefficients of
+            ln(V/V₀) now: radiation <Sci value={radVolumeCoeff} digits={3} /> J/K, gas{" "}
+            <Sci value={gasVolumeCoeff} digits={3} /> J/K.
+          </>
+        )}
+      </p>
+    </figure>
   );
 }
 

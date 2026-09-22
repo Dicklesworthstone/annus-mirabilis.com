@@ -48,3 +48,103 @@
   white-space: pre-wrap;
   font-size: var(--type-fine);
 }
+
+/* The two entropy laws (CoefficientMatchSideBySidePlot): two cards and the bracket the question
+   is about. Side by side where there is room, stacked on a phone, at the page's own text sizes. */
+.lq06 .lq06-laws {
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.lq06 .lq06-laws-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.lq06 .lq06-laws-head h3 {
+  margin: 0;
+  font-size: var(--type-small);
+}
+
+.lq06 .lq06-laws-ratio {
+  font-family: var(--font-mono);
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+
+.lq06 .lq06-laws-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.lq06 .lq06-law {
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-top-width: 3px;
+  background: var(--wash);
+}
+
+.lq06 .lq06-law-radiation {
+  border-top-color: var(--plot);
+}
+
+.lq06 .lq06-law-gas {
+  border-top-color: var(--muted);
+}
+
+.lq06 .lq06-law h4 {
+  margin: 0 0 0.3rem;
+  font-size: var(--type-fine);
+}
+
+.lq06 .lq06-law-given {
+  margin: 0.4rem 0 0.2rem;
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+
+.lq06 .lq06-law-eq {
+  margin: 0;
+  padding: 0.4rem 0.5rem;
+  background: var(--panel);
+  font-family: var(--font-serif);
+  font-size: var(--type-small);
+  font-style: italic;
+}
+
+.lq06 .lq06-law-bracket {
+  font-style: normal;
+  font-weight: 600;
+}
+
+.lq06 .lq06-law-eq[data-bracket="empty"] .lq06-law-bracket {
+  color: var(--muted);
+}
+
+.lq06 .lq06-laws-link {
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+
+.lq06 .lq06-laws-verdict {
+  margin: 0.75rem 0 0;
+  font-size: var(--type-fine);
+}
+
+@media (max-width: 40rem) {
+  .lq06 .lq06-laws-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lq06 .lq06-laws-link {
+    justify-self: center;
+  }
+}

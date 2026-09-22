@@ -368,6 +368,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
               gasVolumeCoeff={gasVolumeCoeff}
               isMatch={isMatch}
               hasSelection={hasSelection}
+              selectedLabel={
+                SUBEXPRESSIONS.find((x) => x.id === currentParams.selectedSubexpression)?.label
+              }
             />
             <MeanEnergyStripPlot
               meanQuantumEnergyEv={meanQuantumEnergyEv}
