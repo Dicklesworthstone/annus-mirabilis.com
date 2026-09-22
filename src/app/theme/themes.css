@@ -42,6 +42,8 @@
 }
 
 :root {
+  /* Between rule and ink: 1px of #d3d3d3 under a word is too faint to find. */
+  --link-underline: color-mix(in srgb, var(--ink) 38%, var(--paper));
   --line: var(--rule);
   --panel: var(--paper);
   --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
@@ -88,8 +90,25 @@ body {
  * threshold - on all 36 a.button links across 34 built pages, in the default
  * Annalen theme. Found when the browser suite finally reached its axe audit.
  */
+/*
+ * CHROME (pane %34): A LINK IS INK WITH AN UNDERLINE; THE ACCENT IS FOR WHERE YOU ARE.
+ *
+ * Every link was the accent. Measured on BUILD 2 (out/ 15:05:03), visible text in the accent
+ * colour at 1440: home 32 elements, /papers/brownian-motion/ 231, /lab/bm-01/ 58,
+ * /foundations/derivatives/ 19. A colour on everything marks nothing. Links are now ink, told
+ * apart from prose by the underline (a cue that is not colour), and turn to the accent on hover.
+ * The accent is left for the wordmark, the current section in the nav, focus and hover. With this
+ * and the header rules in globals.css injected into that build the same four pages carry 2, 19,
+ * 2 and 4, in both themes; the 17 left on the paper page are callout rules and labels.
+ */
 :root:where([data-theme]) a:not(.button) {
+  color: var(--ink);
+  text-decoration-color: var(--link-underline);
+  text-decoration-thickness: 1px;
+}
+:root:where([data-theme]) a:not(.button):hover {
   color: var(--accent);
+  text-decoration-color: currentColor;
 }
 
 :where(button, [role="radio"], a, input, select, summary):focus-visible {

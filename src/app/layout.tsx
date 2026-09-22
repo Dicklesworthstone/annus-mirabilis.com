@@ -6,6 +6,7 @@ import "./theme/themes.css";
 import "../a11y/readingSettings/readingSettings.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
+import { PrimaryNavLinks } from "../components/chrome/PrimaryNavLinks.tsx";
 import { FORMULA_OVERFLOW_SOURCE } from "../components/edition/formulaOverflow.inline";
 import { PermalinkRobotsManager } from "../experiments/permalink/PermalinkRobotsManager.tsx";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
@@ -41,12 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             Annus Mirabilis<span>Einstein in 1905</span>
           </a>
           <nav aria-label="Main navigation">
-            <a href="/papers/">Papers</a>
-            {/* Short labels so the six fit two rows on a 320px phone at full size: "Discover" is
-                the edition's name for the activity, "Connections" is the page's own title. */}
-            <a href="/discover/">Discover</a>
-            <a href="/instruments/">Instruments</a>
-            <a href="/connections/">Connections</a>
+            <PrimaryNavLinks />
             <SearchLauncher />
             <NotebookLauncher />
           </nav>

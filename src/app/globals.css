@@ -262,6 +262,20 @@ main {
   align-items: center;
   gap: 1.25rem;
 }
+/* Position says these are links, so they carry no underline until hovered; the current section
+   takes the accent (aria-current, set per page by PrimaryNavLinks). Heading links are the same case. */
+.site-header nav a,
+:is(h1, h2, h3) > a {
+  text-decoration: none;
+}
+.site-header nav a:hover,
+:is(h1, h2, h3) > a:hover {
+  text-decoration: underline;
+}
+:root:where([data-theme]) .site-header nav a[aria-current],
+:root:where([data-theme]) .site-header a.wordmark {
+  color: var(--accent);
+}
 .site-header > nav {
   grid-area: 2 / 1 / 3 / -1;
   /* Rows of 44px targets separate themselves; the 1.5rem gap every nav inherits is for prose. */
@@ -389,7 +403,9 @@ h3 {
   font-size: var(--type-micro);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--accent);
+  /* Muted, not the accent: every page opened with one or more red eyebrows, which spent the
+     accent before the reader reached anything it should mark. */
+  color: var(--muted);
   font-weight: 700;
 }
 .lead {
