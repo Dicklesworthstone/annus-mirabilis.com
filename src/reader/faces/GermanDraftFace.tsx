@@ -24,6 +24,7 @@ import { FACE_REGISTRY } from "./registry.ts";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
 import { renderSourceMarkup, sourceDisplayEquation } from "./sourceMarkup.tsx";
 import "../reader.css";
+import "./germanDraftFace.css";
 
 const HEADING_KINDS = new Set(["heading", "part-heading"]);
 const MASTHEAD_KINDS = new Set(["masthead-title", "masthead-author"]);
@@ -110,7 +111,7 @@ export function GermanDraftFace({
             <p
               key={block.id}
               id={block.id}
-              className="reader-passage"
+              className="source-paragraph"
               lang="de"
               data-block-kind={block.kind}
             >

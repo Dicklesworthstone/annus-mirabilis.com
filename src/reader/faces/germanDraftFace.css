@@ -1,0 +1,59 @@
+/* ---------------------------------------------------------------------------
+   The German source face, set as a text.
+
+   THE MEASURE. The face had none: the German ran the full width of the page, and at 1440px
+   that measured 162 characters a line (median of full lines, 41 paragraphs, trailing partial
+   lines dropped; 117 at 1024px). The reader's own measure setting did not reach it either,
+   because readingSettings.css applies --reader-measure to .reading-column and .reader-main,
+   and this face is neither. It takes the same variable, so its default is the plate's
+   ~57 characters and Narrow and Wide in Reading preferences now change it.
+
+   The footnotes share the column, so a note reads at the width of the text it annotates, and
+   so do the draft notice and its sticky label: at 1440 they spanned 1,320px above a 450px
+   column, a banner for the page rather than a qualification of the text under it.
+
+   HYPHENATION is on because German compounds are long and a 43ch column without it runs
+   very ragged: "Parallel-Translationsbewegung", "Zustandsänderungen". It is presentation
+   only. A browser inserts no character into the text, so copying a passage copies
+   Einstein's words as printed, and every <p> here already carries lang="de", which is what
+   selects the German hyphenation dictionary.
+   --------------------------------------------------------------------------- */
+[data-german-draft],
+.source-footnotes,
+.reader-root:has(> [data-german-draft]) > :is(.source-draft-notice, .source-draft-notice__persistent) {
+  max-width: min(var(--reader-measure), 100%);
+}
+[data-german-draft] p {
+  hyphens: auto;
+}
+
+/* A DISPLAY FORMULA MAY BE WIDER THAN THE MEASURE, NEVER WIDER THAN THE PAGE. With the column at
+   43ch, two light-quanta formulas (s1-eq4 at 500px, s1-eq5 at 575px) no longer fit its 450px at
+   1440 and would scroll inside a small box beside 870px of empty margin. So a formula sizes to
+   its own width, starts where the text starts, and runs into the margin, capped at the face's
+   full width (100cqi, against the container declared on the face's root). A short formula still
+   centres in the column (min-width: 100%). On a phone the page is the column, 100cqi equals it,
+   and the formulas that are wider scroll inside their line as before. */
+.reader-root:has(> [data-german-draft]) {
+  container-type: inline-size;
+}
+[data-german-draft] .source-equation {
+  width: max-content;
+  min-width: 100%;
+  max-width: 100cqi;
+}
+
+/* A section heading of the paper, not of the page. The global h2 is sized for page sections
+   (40px at 1440) and set Einstein's "§ 4. Grenzgesetz für die Entropie der monochromatischen
+   Strahlung bei geringer Strahlungsdichte." across five lines of a 43ch column. */
+[data-german-draft] h2 {
+  font-size: var(--type-title);
+  margin-top: 2.5rem;
+}
+
+/* An anchor jump lands the target below the sticky draft label, not under it. The label is
+   about 35px tall at the default type size. */
+[data-german-draft] [id],
+.source-footnotes [id] {
+  scroll-margin-top: 3rem;
+}

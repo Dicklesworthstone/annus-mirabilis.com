@@ -22,6 +22,12 @@
 }
 .source-equation-math {
   flex: 1 0 auto;
+  /* KaTeX sets `.katex .vlist-t2 { margin-right: -2px }`, so a formula with a fraction or a
+     root reports an intrinsic width 2px narrower than the width it draws. Sized to its content,
+     such a formula overflowed its own line by exactly 2px (brownian s4-eq7 585/583, mass-energy
+     s0-eq3 452/450 at 1440) and became a scroll box with nothing to scroll. The padding is
+     where those 2px land. */
+  padding-inline-end: 2px;
 }
 .source-equation-math > .katex-display {
   margin: 0;
