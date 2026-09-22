@@ -142,6 +142,58 @@ test("THE PAWL: a real commit touching src/app after the build makes out/ STALE"
   assert.match(result.reason ?? "", /src\/app\/page\.tsx/);
 });
 
+test("am-1bso: a staleness refusal reports HOW MANY static commits landed and over how long", () => {
+  // A refusal that says only "stale" cannot distinguish a burst of commits from a window that
+  // is never open, and the difference decides whether to rebuild now or wait. Measured over the
+  // 24 hours to 2026-09-22: 68 of 404 commits touched a static source, 28% of the gaps between
+  // them were under two minutes, and half fell inside two hours. The shape is the finding, so
+  // the refusal carries it.
+  const root = makeRepoFixture();
+  const gitAt = (whenIso: string, ...args: string[]) =>
+    execFileSync("git", args, {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      env: { ...process.env, GIT_COMMITTER_DATE: whenIso, GIT_AUTHOR_DATE: whenIso },
+    });
+
+  // out/ must sit AFTER the fixture's base commit, which makeRepoFixture backdates by two
+  // minutes, or there is no commit before out/ at all and the committed-diff branch is skipped.
+  // A first draft of this arm aged out/ by ten minutes, landing before the base commit, and the
+  // gate reported FRESH - the fixture never reached the state it was asserting about.
+  const aged = new Date(Date.now() - 90_000);
+  utimesSync(join(root, "out/index.html"), aged, aged);
+  utimesSync(join(root, "out"), aged, aged);
+
+  // Two static-source commits 30s apart, both AFTER out/'s mtime. The offsets are computed
+  // from that mtime rather than pinned to a wall-clock string: the build commit is whichever
+  // commit last precedes out/, so a fixed date in the past is attributed TO the build and the
+  // committed-diff branch never runs - the first draft of this arm did exactly that and
+  // reported fresh. And the dates are controlled rather than taken from the clock because git
+  // records %ct at one-second resolution, so two fixture commits in the same second would make
+  // the span zero and the assertion vacuous.
+  const first = new Date(aged.getTime() + 30_000).toISOString();
+  const second = new Date(aged.getTime() + 60_000).toISOString();
+
+  writeFileSync(join(root, "src/app/page.tsx"), "export default function Page() { return 2; }\n");
+  gitAt(first, "add", "-A");
+  gitAt(first, "commit", "-q", "-m", "first static change after the build");
+
+  writeFileSync(join(root, "src/app/page.tsx"), "export default function Page() { return 3; }\n");
+  gitAt(second, "add", "-A");
+  gitAt(second, "commit", "-q", "-m", "second static change after the build");
+
+  const result = checkOutFreshness("out", root);
+  assert.equal(result.fresh, false, "two committed static changes after the build is staleness");
+  assert.equal(
+    result.staleCommitCount,
+    2,
+    "both static commits must be counted, not just the diff",
+  );
+  assert.equal(result.staleSpanMs, 30_000, "the span between the first and last must be reported");
+  assert.match(result.reason ?? "", /2 such commits over 0\.5 min/);
+});
+
 test("am-wkod GREEN ARM: a real commit touching only a .test.tsx under src/app stays FRESH", () => {
   const root = makeRepoFixture();
   const gitNow = (...args: string[]) =>

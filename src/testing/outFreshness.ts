@@ -17,6 +17,21 @@ export interface OutFreshnessResult {
    * why this stopped being a failure on 2026-09-21.
    */
   readonly dirtyStaticSources?: readonly string[] | undefined;
+  /**
+   * How many commits between the build commit and HEAD touched a static source, and over how
+   * long. Reported on a staleness refusal so a reader can tell a BURST from a structural
+   * problem without re-deriving it (am-1bso).
+   *
+   * Measured over the 24 hours to 2026-09-22: 404 commits, of which 68 touched a static source
+   * under this same pathspec - so excluding tests (am-wkod) already removes 83% of commits from
+   * this question. Of the gaps between those 68, 28% are under two minutes, and 34 of the 68
+   * fall inside the two hours 02:00-04:00. The arrival is BURSTY, not steady, and that is the
+   * whole difference between "the window is structurally too short" and "you built during a
+   * burst". Length-biased, a build started at a random moment survives to a completed gate run
+   * 82-87% of the time, taking the slower and faster of the two build durations on record.
+   */
+  readonly staleCommitCount?: number | undefined;
+  readonly staleSpanMs?: number | undefined;
 }
 
 /**
@@ -259,6 +274,32 @@ export function checkOutFreshness(
 
         if (diffFiles.length > 0) {
           const files = diffFiles.split("\n").filter(Boolean);
+
+          // How concentrated were those changes? A refusal that says only "stale" cannot
+          // distinguish one burst of commits from a window that is never open, and the
+          // difference decides whether to rebuild now or wait. See staleCommitCount above.
+          const stamps = git([
+            "log",
+            "--format=%ct",
+            `${buildCommit}..HEAD`,
+            "--",
+            "src/app",
+            "src/components",
+            "content",
+            ":(exclude)**/*.test.*",
+            ":(exclude)**/*.spec.*",
+          ])
+            .split("\n")
+            .map((line) => Number.parseInt(line.trim(), 10))
+            .filter((value) => Number.isFinite(value));
+          const staleCommitCount = stamps.length;
+          const staleSpanMs =
+            stamps.length > 1 ? (Math.max(...stamps) - Math.min(...stamps)) * 1000 : 0;
+          const burst =
+            staleCommitCount > 1
+              ? `; ${staleCommitCount} such commits over ${(staleSpanMs / 60000).toFixed(1)} min`
+              : "";
+
           return {
             present: true,
             fresh: false,
@@ -266,7 +307,9 @@ export function checkOutFreshness(
             expectedDigest: currentBuildDigest ?? undefined,
             outMtimeMs,
             headCommitMs,
-            reason: `Static source files modified since out/ build commit ${buildCommit.slice(0, 8)}: ${files.slice(0, 3).join(", ")}${files.length > 3 ? ` (+${files.length - 3} more)` : ""}`,
+            staleCommitCount,
+            staleSpanMs,
+            reason: `Static source files modified since out/ build commit ${buildCommit.slice(0, 8)}: ${files.slice(0, 3).join(", ")}${files.length > 3 ? ` (+${files.length - 3} more)` : ""}${burst}`,
           };
         }
       }
