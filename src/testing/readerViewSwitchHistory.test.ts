@@ -130,6 +130,41 @@ describe("view-switch preservation: an existing query key and hash survive the s
     });
   });
 
+  /*
+    A fragment the reader never followed must not be invented. The site-wide fragment handler
+    (search/launcher.ts) focuses whatever the fragment names, so an invented #<first passage>
+    put the 3px focus ring round the first passage of every paper on load.
+  */
+  test("a page opened without a fragment is not given one, on mount or on a face switch", async () => {
+    window.history.pushState(null, "", "/papers/brownian-motion/");
+    const { pageRoot, reactRoot } = await mount();
+    expect(location.hash).toBe("");
+    await act(async () => {
+      clickViewLink(pageRoot, "results");
+    });
+    expect(location.hash).toBe("");
+    expect(new URL(location.href).searchParams.get("view")).toBe("results");
+    act(() => {
+      reactRoot.unmount();
+    });
+  });
+
+  test("choosing a passage names it in the address", async () => {
+    window.history.pushState(null, "", "/papers/brownian-motion/");
+    const { pageRoot, reactRoot } = await mount();
+    const link = document.createElement("a");
+    link.setAttribute("data-reader-anchor", "s1");
+    link.setAttribute("href", "#s1");
+    pageRoot.appendChild(link);
+    await act(async () => {
+      link.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+    });
+    expect(location.hash).toBe("#s1");
+    act(() => {
+      reactRoot.unmount();
+    });
+  });
+
   test("switching back to the default 'reading' face removes ?view= rather than writing the fallback back", async () => {
     window.history.pushState(null, "", "/papers/brownian-motion/?q=term&view=results#s1");
     const { pageRoot, reactRoot } = await mount();
