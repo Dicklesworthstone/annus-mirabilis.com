@@ -15,12 +15,10 @@ export default function ConnectionsPage() {
         <p className="eyebrow">Four papers · Different kinds of connection</p>
         <h1>What crosses the paper boundary?</h1>
         <p className="lead">
-          The four papers share more than a year. The same constants, the same counting arguments
-          and the same light pulse turn up in several of them, and the connections are of several
-          kinds: a premise one paper borrows from another; a shared piece of mathematics and nothing
-          more; separate routes that arrive at the same number; a link drawn by physicists decades
-          later. This page says which kind each one is, because the difference between them is the
-          difference between evidence and resemblance.
+          The same constants, the same counting arguments and the same light pulse turn up in more
+          than one of the four papers. The map says which kind of connection each one is, from a
+          premise one paper borrows to a link drawn by physicists decades later, because the
+          difference between them is the difference between evidence and resemblance.
         </p>
       </header>
       <ConnectionMap />

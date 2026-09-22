@@ -9,6 +9,10 @@
  */
 .connection-map {
   --map-cols: minmax(0, 1fr) repeat(4, minmax(0, 1fr));
+  /* Block, not the flex row every <nav> gets from globals.css: as flex items the paper headings and
+     the rows sat side by side, and at 1440 the headings' centres (236-587px) missed the rows' dots
+     (457-1248px). */
+  display: block;
   margin: 0 0 3rem;
   font-family: var(--font-sans);
 }
