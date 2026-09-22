@@ -29,6 +29,36 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "
 const CSS_ROOT = join(REPO_ROOT, "src");
 
 /** Distinct font-size values, whitespace-normalised so `0.85rem` and `0.85rem ` are one value. */
+export function distinctValues(
+  prop: "font-size" | "line-height" | "font-weight",
+  root: string = CSS_ROOT,
+): { values: string[]; declarations: number; files: number } {
+  const seen = new Set<string>();
+  let declarations = 0;
+  const filesWith = new Set<string>();
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir)) {
+      if (entry === "node_modules" || entry.startsWith(".")) continue;
+      const p = join(dir, entry);
+      if (statSync(p).isDirectory()) {
+        walk(p);
+        continue;
+      }
+      if (!p.endsWith(".css")) continue;
+      const text = readFileSync(p, "utf8");
+      for (const m of text.matchAll(new RegExp(`(?<![\\w-])${prop}\\s*:\\s*([^;{}]+)[;}]`, "g"))) {
+        const value = (m[1] ?? "").split(/\s+/).filter(Boolean).join(" ");
+        if (value.startsWith("var(")) continue;
+        seen.add(value);
+        declarations++;
+        filesWith.add(relative(REPO_ROOT, p));
+      }
+    }
+  };
+  walk(root);
+  return { values: [...seen].sort(), declarations, files: filesWith.size };
+}
+
 export function distinctFontSizes(root: string = CSS_ROOT): {
   values: string[];
   declarations: number;
@@ -72,7 +102,50 @@ export function distinctFontSizes(root: string = CSS_ROOT): {
  */
 const DISTINCT_FONT_SIZE_BASELINE = 41;
 
+/**
+ * The other two classes of the same defect, measured 2026-09-22 and held shrink-only.
+ *
+ * line-height 15 values over 54 declarations; the 1.4/1.45/1.5/1.55/1.6 cluster is 38 of them.
+ * NOT collapsed in this pass: line-height sets vertical rhythm and the reading matrix depends on
+ * it, so it wants its own measured pass rather than a nearest-value sweep.
+ *
+ * font-weight 10 values, of which `bold`/`700` and `normal`/`400` are one weight spelled two ways.
+ * Thirty-three declarations were normalised across ten files; the count is still 10 because THREE
+ * declarations in src/reader/reader.css keep `bold` and `normal` alive, and that file belongs to
+ * another pane. `200 800` and `100 800` are variable-font axis RANGES in @font-face, not weights,
+ * and are correctly left alone.
+ */
+const LINE_HEIGHT_BASELINE = 15;
+const FONT_WEIGHT_BASELINE = 10;
+
 describe("type scale scatter ratchet", () => {
+  test("line-height and font-weight vocabularies never grow", () => {
+    const lh = distinctValues("line-height");
+    const fw = distinctValues("font-weight");
+    console.log(
+      `[type scatter] line-height ${lh.values.length}/${LINE_HEIGHT_BASELINE} in ${lh.declarations} declarations; font-weight ${fw.values.length}/${FONT_WEIGHT_BASELINE} in ${fw.declarations}`,
+    );
+    expect(lh.values.length).toBeGreaterThan(0);
+    expect(fw.values.length).toBeGreaterThan(0);
+    expect(
+      lh.values.length,
+      `line-height vocabulary grew to ${lh.values.length}: ${lh.values.join(", ")}`,
+    ).toBeLessThanOrEqual(LINE_HEIGHT_BASELINE);
+    expect(
+      fw.values.length,
+      `font-weight vocabulary grew to ${fw.values.length}: ${fw.values.join(", ")}`,
+    ).toBeLessThanOrEqual(FONT_WEIGHT_BASELINE);
+    // The pawl, both classes.
+    expect(
+      lh.values.length,
+      `Pawl: line-height is down to ${lh.values.length}; tighten LINE_HEIGHT_BASELINE.`,
+    ).toBeGreaterThanOrEqual(LINE_HEIGHT_BASELINE);
+    expect(
+      fw.values.length,
+      `Pawl: font-weight is down to ${fw.values.length}; tighten FONT_WEIGHT_BASELINE.`,
+    ).toBeGreaterThanOrEqual(FONT_WEIGHT_BASELINE);
+  });
+
   test("the font-size vocabulary never grows, and shrinking tightens the baseline", () => {
     const { values, declarations, files } = distinctFontSizes();
 

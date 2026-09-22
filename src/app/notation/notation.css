@@ -276,7 +276,7 @@
 
 .collision-glyph {
   font-size: var(--type-lead);
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .collision-severity-tag {
@@ -735,7 +735,7 @@
   .first-use-link::after {
     content: " (" attr(href) ")";
     font-size: var(--type-fine);
-    font-weight: normal;
+    font-weight: 400;
   }
 }
 

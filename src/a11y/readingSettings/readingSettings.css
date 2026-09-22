@@ -121,7 +121,7 @@ html[data-reading-only="on"] [data-autoplay] {
   padding: 0.75rem 1rem;
 }
 .reading-settings legend {
-  font-weight: bold;
+  font-weight: 700;
 }
 .reading-settings label {
   display: block;

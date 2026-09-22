@@ -202,5 +202,5 @@ body {
 
 .theme-toggle label:has(input:checked) {
   border-color: var(--accent);
-  font-weight: bold;
+  font-weight: 700;
 }

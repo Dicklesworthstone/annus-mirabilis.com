@@ -257,7 +257,7 @@ main {
 }
 .wordmark {
   font-size: var(--type-title);
-  font-weight: bold;
+  font-weight: 700;
   color: var(--ink);
   text-decoration: none;
   line-height: 1.1;
@@ -266,7 +266,7 @@ main {
   display: block;
   font-size: var(--type-micro);
   font-family: var(--font-sans);
-  font-weight: normal;
+  font-weight: 400;
   letter-spacing: 0.12em;
   margin-top: 0.6rem;
   text-transform: uppercase;
@@ -341,7 +341,7 @@ p {
 }
 h1 {
   font-size: clamp(2.5rem, 6.5vw, 5.9rem);
-  font-weight: normal;
+  font-weight: 400;
   line-height: 1.03;
   letter-spacing: -0.045em;
   margin: 0.75rem 0 1.6rem;
@@ -351,7 +351,7 @@ h1 em {
 }
 h2 {
   font-size: clamp(1.65rem, 3vw, 2.5rem);
-  font-weight: normal;
+  font-weight: 400;
   line-height: 1.15;
   margin: 0.65rem 0 1.2rem;
 }
@@ -364,7 +364,7 @@ h3 {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--accent);
-  font-weight: bold;
+  font-weight: 700;
 }
 .lead {
   font-size: var(--type-lead);
@@ -467,7 +467,7 @@ legend {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 0 0 1rem;
-  font-weight: bold;
+  font-weight: 700;
 }
 .input-grid {
   display: grid;
@@ -610,7 +610,7 @@ caption {
   text-align: left;
   font-size: var(--type-fine);
   padding: 0.7rem 0;
-  font-weight: bold;
+  font-weight: 700;
   font-family: var(--font-sans);
 }
 th,
@@ -621,13 +621,13 @@ td {
   font-variant-numeric: tabular-nums;
 }
 th {
-  font-weight: normal;
+  font-weight: 400;
 }
 td {
   text-align: right;
 }
 thead th {
-  font-weight: bold;
+  font-weight: 700;
 }
 tbody th {
   width: 58%;

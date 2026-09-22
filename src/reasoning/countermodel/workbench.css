@@ -71,7 +71,7 @@
   margin-block: 0.65rem;
 }
 .countermodel-outcome {
-  font-weight: bold;
+  font-weight: 700;
   border-inline-start: 3px solid var(--ink);
   padding-inline-start: 0.6rem;
 }
@@ -86,7 +86,7 @@
   display: block;
 }
 .countermodel-readouts dt {
-  font-weight: bold;
+  font-weight: 700;
 }
 .countermodel-readouts dd {
   margin-inline-start: 0;
@@ -104,7 +104,7 @@
 }
 .countermodel-mobile-label {
   display: none;
-  font-weight: bold;
+  font-weight: 700;
 }
 @media (max-width: 65rem) {
   .countermodel-matrix,

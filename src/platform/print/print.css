@@ -232,7 +232,7 @@
     content: " (" attr(href) ")";
     font-size: 0.85em;
     font-family: var(--font-mono, "JetBrains Mono", monospace);
-    font-weight: normal;
+    font-weight: 400;
     word-break: break-all;
   }
 
@@ -240,7 +240,7 @@
     content: " (" attr(data-print-locator) ")";
     font-size: 0.85em;
     font-family: inherit;
-    font-weight: normal;
+    font-weight: 400;
   }
 
   a:not([href])::after,

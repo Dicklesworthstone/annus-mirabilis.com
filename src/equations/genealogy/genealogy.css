@@ -188,7 +188,7 @@
 
 .genealogy-badge {
   font-size: var(--type-micro);
-  font-weight: bold;
+  font-weight: 700;
   padding: 0.1rem 0.35rem;
   border-radius: 0.2rem;
   background: #eee7d8;
