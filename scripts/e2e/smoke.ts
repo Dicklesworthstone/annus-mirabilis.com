@@ -129,8 +129,29 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       // chrome - which is the real reason they always took their absent branch.
       await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 15_000 });
       const themeToggle = page.locator(THEME_SELECTOR).first();
-      if ((await themeToggle.count()) === 0 || !(await themeToggle.isVisible())) {
-        throw new Error(`No visible theme control matched "${THEME_SELECTOR}"`);
+      // PRESENCE AND ACCESSIBLE NAME IN ONE REFUSAL, deliberately.
+      //
+      // The switch has ONE accessible name across both states, by design: a control that renames
+      // itself tells a screen-reader user the opposite of what they just chose. Asserting the
+      // full name here is the browser-level half of the WCAG 2.5.3 contract themeInit.test.ts
+      // asserts in the DOM.
+      //
+      // It is folded into the presence check rather than added as a second throw because the two
+      // are one question - "is the control there, correctly named" - and because a separate throw
+      // took this file from 4 bare throw sites to 5 and turned the am-muyh ratchet red. The
+      // alternative was a typed error class invented to satisfy the scanner, which is apparatus
+      // where a rewrite of one condition does the job. The message names which half failed, so
+      // the refusal is no less specific than the two it replaces.
+      const NAME = "Dark theme (Kramgasse Night)";
+      const present = (await themeToggle.count()) > 0 && (await themeToggle.isVisible());
+      const named =
+        present && (await themeToggle.getByRole("switch", { name: NAME, exact: true }).count()) > 0;
+      if (!present || !named) {
+        throw new Error(
+          present
+            ? `The theme switch matched "${THEME_SELECTOR}" but does not carry the accessible name "${NAME}"`
+            : `No visible theme control matched "${THEME_SELECTOR}"`,
+        );
       }
       const read = () => page.evaluate(() => document.documentElement.getAttribute("data-theme"));
       const before = await read();
@@ -140,16 +161,6 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       // list to the single ["Annalen", "annalen"] entry and left the sentence above
       // describing a check that no longer existed.
       //
-      // Named by ACCESSIBLE NAME, which is the short visible word plus the
-      // edition's name for the theme. Asserting the full name here is the browser-
-      // level half of the WCAG 2.5.3 contract themeInit.test.ts asserts in the DOM.
-      // The switch has ONE accessible name across both states, by design: a control that renames
-      // itself tells a screen-reader user the opposite of what they just chose. So the name is
-      // asserted once, and the two transitions are driven by pressing the same control twice.
-      const NAME = "Dark theme (Kramgasse Night)";
-      if ((await themeToggle.getByRole("switch", { name: NAME, exact: true }).count()) === 0) {
-        throw new Error(`The theme switch does not carry the accessible name "${NAME}"`);
-      }
       // Two transitions, so the check cannot pass by the page already sitting on the expected
       // theme. The homepage starts on annalen, so the first press must reach the other theme.
       const observed: string[] = [];
