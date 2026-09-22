@@ -15,9 +15,10 @@ import {
   shelfSnapshot,
 } from "../../../experiments/shelfOptics/state.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { readablePowers } from "../presentation.ts";
 
 function number(value: number): string {
-  return value === 0 ? "0" : Number(value.toPrecision(10)).toString();
+  return value === 0 ? "0" : readablePowers(Number(value.toPrecision(10)).toString());
 }
 
 /** Display geometry only. Bars, numbers and tables select the same accepted owner outputs. */
@@ -204,7 +205,9 @@ export function ShelfOpticsLab({
           onChange={(event) => edit(field.key, event.currentTarget.value)}
         />
         <small id={`${instance}-${field.key}-range`}>
-          Supported range: {field.min} to {field.max} {field.unit}. Scientific notation is accepted.
+          Supported range: {readablePowers(String(field.min))} to{" "}
+          {readablePowers(String(field.max))} {field.unit}. Scientific notation is accepted: type
+          10⁻⁹ as 1e-9.
         </small>
       </div>
     );
@@ -307,7 +310,8 @@ export function ShelfOpticsLab({
                       key}
                   </dt>
                   <dd>
-                    {String(value)} {definition.fields.find((field) => field.key === key)?.unit}
+                    {readablePowers(String(value))}{" "}
+                    {definition.fields.find((field) => field.key === key)?.unit}
                   </dd>
                 </div>
               ))}

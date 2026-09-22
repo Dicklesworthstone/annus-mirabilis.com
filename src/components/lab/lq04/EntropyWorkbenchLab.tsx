@@ -225,7 +225,7 @@ export function EntropyWorkbenchLab({
               value={draft.bandwidth}
               onChange={(e) => setDraft({ ...draft, bandwidth: e.target.value })}
             />
-            <label htmlFor={`${id}-v0`}>Reference volume V0 (m^3)</label>
+            <label htmlFor={`${id}-v0`}>Reference volume V₀ (m³)</label>
             <input
               id={`${id}-v0`}
               type="number"

@@ -14,7 +14,7 @@ import { createAvogadroSession } from "../../../experiments/avogadro/session.ts"
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { display, identity, result } from "../presentation.ts";
+import { display, identity, result, unitText } from "../presentation.ts";
 import styles from "./AvogadroLab.module.css";
 
 const draftOf = (p: AvogadroParameters) =>
@@ -28,13 +28,13 @@ function Reading({ snapshot, quantity }: { snapshot: AcceptedSnapshot; quantity:
   if (r.status === "value" && typeof r.value === "number")
     return (
       <span data-quantity-id={quantity}>
-        {display(r.value)} {r.unit}
+        {display(r.value)} {unitText(r.unit)}
         {r.uncertainty?.kind === "statistical-interval" && (
           <>
             <br />
             <small>
               Conditional {100 * r.uncertainty.coverage}% interval: {display(r.uncertainty.lower)}{" "}
-              to {display(r.uncertainty.upper)} {r.unit}
+              to {display(r.uncertainty.upper)} {unitText(r.unit)}
             </small>
           </>
         )}
