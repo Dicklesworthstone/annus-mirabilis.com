@@ -1,0 +1,88 @@
+.guided-tour-page {
+  max-width: 70rem;
+  margin-inline: auto;
+}
+
+.guided-tour-catalogue {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 2rem;
+}
+
+.guided-tour-catalogue > section,
+.guided-tour-stops > li {
+  border-block-start: 1px solid var(--rule, currentColor);
+  padding-block: 1.25rem;
+  min-width: 0;
+}
+
+.guided-tour-stops {
+  list-style: none;
+  padding: 0;
+}
+
+.guided-tour-page :is(li, section) {
+  scroll-margin-top: 1rem;
+}
+
+.guided-tour-guide,
+.guided-tour-loading {
+  max-width: 70rem;
+  margin: 1rem auto;
+  padding: 1rem;
+}
+
+.guided-tour-guide {
+  border-inline-start: 2px solid var(--muted, currentColor);
+  background: var(--wash, transparent);
+  overflow-wrap: anywhere;
+}
+
+.guided-tour-guide h2 {
+  font-size: 1.25rem;
+  margin-block: 0.3rem 0.6rem;
+}
+
+.guided-tour-guide p {
+  margin-block: 0.5rem;
+}
+
+.guided-tour-guide details {
+  border: 0;
+  padding: 0;
+  margin-block: 0.5rem;
+}
+
+.guided-tour-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  align-items: center;
+}
+
+.guided-tour-actions :is(a, button),
+.guided-tour-guide summary,
+.guided-tour-page summary {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.guided-tour-actions :is(a, button) {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.guided-tour-page :is(a, button, summary):focus-visible,
+.guided-tour-guide :is(a, button, summary):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media print {
+  .guided-tour-guide,
+  .guided-tour-actions {
+    display: none;
+  }
+}

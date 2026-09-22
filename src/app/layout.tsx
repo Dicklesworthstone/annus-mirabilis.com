@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 import "./theme/themes.css";
@@ -8,6 +8,7 @@ import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
 import { PrimaryNavLinks } from "../components/chrome/PrimaryNavLinks.tsx";
 import { FORMULA_OVERFLOW_SOURCE } from "../components/edition/formulaOverflow.inline";
+import { GuidedTourTrail } from "../discovery/tours/GuidedTourTrail.tsx";
 import { PermalinkRobotsManager } from "../experiments/permalink/PermalinkRobotsManager.tsx";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
 import { NotebookLauncher } from "../reader/notebook/NotebookLauncher.tsx";
@@ -52,7 +53,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
         <PermalinkRobotsManager />
+        <Suspense fallback={null}><GuidedTourTrail /></Suspense>
         <main id="main">{children}</main>
+        <Suspense fallback={null}><GuidedTourTrail compact /></Suspense>
         {/*
           THE FOOTER CARRIES THE PAGE THAT EXPLAINS WHAT THE SITE STORES.
           Measured 2026-09-22 across every .tsx in src/: `href="/your-data/"` appeared ZERO times.
@@ -67,6 +70,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             say so where each one appears; none of them is a measurement of nature.
           </p>
           <nav aria-label="About this site">
+            <a href="/tours/">Guided reading paths</a>
             <a href="/your-data/">What this site stores</a>
             <a href="/offline/">Read without a connection</a>
             <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com">
