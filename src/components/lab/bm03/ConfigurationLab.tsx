@@ -311,7 +311,9 @@ export function ConfigurationLab({
               <div>
                 <strong>Particle placement model</strong>
               </div>
-              <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
+              <div
+                style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.25rem" }}
+              >
                 <button
                   type="button"
                   className={p.model === "independent" ? "primary" : "secondary"}
@@ -333,7 +335,9 @@ export function ConfigurationLab({
               <div>
                 <strong>Notation</strong>
               </div>
-              <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
+              <div
+                style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.25rem" }}
+              >
                 <button
                   type="button"
                   className={p.notation === "printed" ? "primary" : "secondary"}
@@ -391,7 +395,7 @@ export function ConfigurationLab({
                 </button>
               ))}
             </div>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
               <button
                 type="button"
                 className="secondary"

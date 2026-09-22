@@ -372,7 +372,7 @@ export function IndependentConfigurationsLab({
             >
               Display View:
             </span>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
               <button
                 type="button"
                 className={`button ${p.view === "enumeration" ? "" : "secondary"}`}
