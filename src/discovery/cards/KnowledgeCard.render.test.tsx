@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CardDetail, formatEventDateLine } from "./CardDetail.tsx";
+import { CardDetail, formatEventDateLine, stepsLine } from "./CardDetail.tsx";
 import { KnowledgeCardView } from "./KnowledgeCard.tsx";
 import { globalKnowledgeCardsLogger } from "./knowledgeCardsLogger.ts";
 import { StatusLabel } from "./StatusLabel.tsx";
@@ -211,19 +211,22 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
     const html = renderToStaticMarkup(<CardDetail card={cardWithEinstein} backlinks={backlinks} />);
 
     // Section 1: Available by
-    expect(html).toContain("1. Available by");
+    // The four parts are named, not numbered: numbered, they read 1, 2, 4 on every card with no
+    // Einstein-knowledge evidence.
+    expect(html).toContain(">Available by<");
+    expect(html).not.toContain("1. Available by");
     expect(html).toContain("Published 1855");
 
     // Section 2: What the paper itself cites or asserts
-    expect(html).toContain("2. What the paper itself cites or asserts");
+    expect(html).toContain(">What the paper itself cites or asserts<");
     expect(html).toContain("Explicitly references Fick");
 
     // Section 3: Evidence that Einstein knew it
-    expect(html).toContain("3. Evidence that Einstein knew it");
+    expect(html).toContain(">Evidence that Einstein knew it<");
     expect(html).toContain("Letter to Marcel Grossmann, 1901");
 
     // Section 4: Where this site uses it
-    expect(html).toContain("4. Where this site uses it");
+    expect(html).toContain(">Where this site uses it<");
     expect(html).toContain("stage-bm-03");
     expect(html).toContain("desk-fick-cylinder");
     expect(html).toContain("tl-1855");
@@ -373,5 +376,20 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
     expect(html).toContain("bound volume");
     expect(html).toContain("ETH Library Shelfmark 1855-POGG-94-59");
     expect(html).toContain("A. Fick, Poggendorffs Annalen 94 (1855) 59-86");
+  });
+
+  test("a card with no recorded citation says so, instead of saying the paper cites nothing", () => {
+    const html = renderToStaticMarkup(<CardDetail card={sampleCard} />);
+    expect(sampleCard.paperCitesOrAsserts ?? []).toHaveLength(0);
+    expect(html).toContain("Not yet recorded for this card.");
+    expect(html).not.toContain("No direct citation");
+  });
+
+  test("stepsLine reads a route's stage ids as its numbered steps, and leaves other ids alone", () => {
+    expect(stepsLine(["stage-03"])).toBe("Step 3 of this route");
+    expect(stepsLine(["stage-03", "stage-06"])).toBe("Steps 3 and 6 of this route");
+    expect(stepsLine(["stage-01", "stage-02", "stage-07"])).toBe("Steps 1, 2 and 7 of this route");
+    // One id of another form and the line is shown as recorded, not half translated.
+    expect(stepsLine(["stage-03", "stage-bm-04"])).toBe("stage-03, stage-bm-04");
   });
 });
