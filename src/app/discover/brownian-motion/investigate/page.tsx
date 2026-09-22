@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BrownianInvestigation } from "../../../../components/discover/BrownianInvestigation.tsx";
 import tracerExample from "../../../../generated/bm01-example.json";
 import spreadExample from "../../../../generated/bm06-example.json";
+import "../../../../discovery/investigationPage.css";
 
 export const metadata: Metadata = {
   title: "Investigate Brownian motion: from a trial to a probability",
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function BrownianInvestigationPage() {
   return (
-    <>
+    <article className="investigation-page">
       <header className="page-intro">
         <p className="eyebrow">Discover · Brownian motion · Guided investigation</p>
         <h1>One trial. Two questions. Evidence you can keep.</h1>
@@ -28,6 +29,6 @@ export default function BrownianInvestigationPage() {
         </div>
       </header>
       <BrownianInvestigation tracerExample={tracerExample} spreadExample={spreadExample} />
-    </>
+    </article>
   );
 }

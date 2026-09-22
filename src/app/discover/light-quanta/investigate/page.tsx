@@ -3,6 +3,7 @@ import { LightQuantaInvestigation } from "../../../../components/discover/LightQ
 import { Formula } from "../../../../components/edition/Formula.tsx";
 import type { PreparedLightInvestigation } from "../../../../discovery/lightQuanta/investigation.ts";
 import example from "../../../../generated/light-quanta-investigation.json";
+import "../../../../discovery/investigationPage.css";
 import "./investigation.css";
 
 export const metadata: Metadata = {
@@ -34,7 +35,7 @@ export default function LightQuantaInvestigationPage() {
   };
   return (
     <article
-      className="light-investigation-page"
+      className="light-investigation-page investigation-page"
       data-discovery-workbench="light-quanta"
       data-edition-status="explanatory-preview"
     >

@@ -1,7 +1,4 @@
 .mass-energy-investigation {
-  max-width: 76rem;
-  margin-inline: auto;
-  padding-inline: clamp(0.5rem, 2vw, 1.5rem);
   overflow-wrap: anywhere;
 }
 .argument-workbench {

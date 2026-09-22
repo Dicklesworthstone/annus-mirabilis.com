@@ -1,0 +1,35 @@
+/*
+ * DISCOVER (pane %43): THE FOUR INVESTIGATE PAGES ON TWO CENTRED MEASURES.
+ *
+ * Each investigate page ran three column systems at once. Measured at 1440 on BUILD 10: the
+ * header left-aligned at 920px, the prose centred at 760px, the workbenches at a fourth width
+ * per page (1152, 1320, 1216, 1168px), so every page had three different left edges (light
+ * quanta: 144, 340, 144). Now the header sits in the prose column, and every workbench shares one
+ * wide measure centred on the same axis. The title is set as the journeys set their questions.
+ */
+.investigation-page {
+  max-width: 73rem;
+  margin-inline: auto;
+}
+.investigation-page > .page-intro {
+  max-width: 760px;
+  margin-inline: auto;
+}
+.investigation-page > .page-intro h1 {
+  font-size: var(--type-display);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+/* A section's heading stays a step below the page's question, as on the journeys: at the global
+   h2 size, 40px at 1440, "Begin with what the wave description preserves" outranked it. */
+.investigation-page h2 {
+  font-size: var(--type-title);
+  line-height: 1.2;
+}
+/* The stage links under the title were 17px tall at 390 and 19px at 1440. */
+.investigation-page > .page-intro .actions a:not(.button) {
+  display: inline-block;
+  min-height: 44px;
+  align-content: center;
+}

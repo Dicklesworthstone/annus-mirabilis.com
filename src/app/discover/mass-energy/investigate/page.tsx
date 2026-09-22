@@ -8,6 +8,7 @@ import {
   WORKED_ARGUMENT,
 } from "../../../../discovery/massEnergyArgument.ts";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../../experiments/me01/session.ts";
+import "../../../../discovery/investigationPage.css";
 import "./argument.css";
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export default function MassEnergyArgumentPage() {
   );
   return (
     <article
-      className="mass-energy-investigation"
+      className="mass-energy-investigation investigation-page"
       data-discovery-workbench="mass-energy"
       data-edition-status="explanatory-preview"
     >

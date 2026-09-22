@@ -6,6 +6,7 @@ import {
   RELATIVITY_CARDS,
   RELATIVITY_MEASUREMENTS,
 } from "../../../../discovery/specialRelativityInvestigation.ts";
+import "../../../../discovery/investigationPage.css";
 import "./investigation.css";
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function SpecialRelativityInvestigationPage() {
   ) as Parameters<typeof SpecialRelativityInvestigation>[0]["equations"];
   return (
     <article
-      className="sr-investigation-page"
+      className="sr-investigation-page investigation-page"
       data-discovery-workbench="special-relativity"
       data-edition-status="explanatory-preview"
     >
