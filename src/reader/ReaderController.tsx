@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useId } from "react";
+import { FACE_REGISTRY } from "./faces/registry.ts";
 import { InlineFacsimile } from "./facsimile/InlineFacsimile.tsx";
 import {
   DETAIL_STORAGE_KEY,
@@ -353,18 +354,32 @@ export function ReaderController(props: Props) {
   return (
     <>
       <div className="reader-controls">
+        {/* LABELS COME FROM FACE_REGISTRY, never from a literal here (ruling 2026-09-22).
+            Four literals restating a declared table are four places for it to drift, and
+            they had already drifted: "Argument synopsis" for Results and "Original scan"
+            for Facsimile, against the registry's own names used on every face page.
+
+            "Source status" is NOT one of them and is deliberately still a literal. It does
+            not name a face: measured on the running app, this link sets data-view="german",
+            which hides [data-face-reading] and reveals six [data-face-source] notices
+            reading "The reviewed German, aligned English, gloss, facsimile, and split view
+            for this passage are not yet available." The registry's "German source" is the
+            ROUTE /papers/<x>/view/german/, which renders 23,608 characters of actual
+            German. Giving this link the registry's label would put the registry's name on
+            something that says the opposite of what the registry's route shows. It is a
+            per-passage source-status panel and it is named for what it does. */}
         <nav aria-label="Reading face">
           <a href="?view=reading" data-view-link="reading">
-            Explanation
+            {FACE_REGISTRY.reading.label}
           </a>
           <a href="?view=results" data-view-link="results">
-            Argument synopsis
+            {FACE_REGISTRY.results.label}
           </a>
           <a href="?view=german" data-view-link="german">
             Source status
           </a>
           <a href={`/papers/${props.registry.paperId}/view/facsimile/`} data-view-link="facsimile">
-            Original scan
+            {FACE_REGISTRY.facsimile.label}
           </a>
         </nav>
         <div className="reader-options">
