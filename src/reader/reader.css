@@ -2358,3 +2358,14 @@ html:is(
   margin-inline-start: 0.6em;
   color: var(--muted);
 }
+
+/* What kind of step a passage is (passageKind.ts), said in words above its title. It was the
+   record's taxonomy in letterspaced capitals, "DERIVATION · WITHIN THE STATED MODEL", above every
+   passage; now a quiet line in the interface voice, and the model status only where it is an
+   approximation. */
+.passage-kind {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--muted);
+}

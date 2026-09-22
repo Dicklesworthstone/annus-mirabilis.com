@@ -42,6 +42,7 @@ import {
   resolvePaperRoute,
 } from "./paperRoutes.ts";
 import { PaperStatus } from "./paperStatus.tsx";
+import { passageKind } from "./passageKind.ts";
 import { ReaderController } from "./ReaderController.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
 import "./reader.css";
@@ -327,12 +328,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     tabIndex={-1}
                     className="reader-passage"
                   >
-                    <p className="eyebrow">
-                      {a.meaning.logicalRole} ·{" "}
-                      {a.meaning.modelStatus === "approximation"
-                        ? "Model approximation"
-                        : "Within the stated model"}
-                    </p>
+                    <p className="passage-kind">{passageKind(a.meaning)}</p>
                     <h3>{a.title}</h3>
                     <p className="passage-question">{a.question}</p>
                     <div data-face-reading>

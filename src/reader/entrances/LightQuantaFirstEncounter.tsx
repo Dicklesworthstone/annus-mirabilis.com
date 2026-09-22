@@ -282,8 +282,8 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
           </a>
         </p>
         <p className="fine">
-          These are draft explanatory destinations. The reviewed source transcription and
-          sentence-aligned translation are still in preparation.
+          Both links lead to our explanation of those sections, which is a draft. A reviewed German
+          text, and an English translation aligned to it sentence by sentence, are not ready yet.
         </p>
       </section>
     </section>
