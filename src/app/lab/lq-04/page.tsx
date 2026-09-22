@@ -30,7 +30,7 @@ export default function EntropyWorkbenchPage() {
       <EntropyWorkbenchComparison example={example} />
 
       <section className="reading" id="radiation-entropy-theory">
-        <p className="eyebrow">The Physical Argument</p>
+        <p className="eyebrow">The physical argument</p>
         <h2>Wien&apos;s variational argument (§3)</h2>
         <p>
           Einstein attributes the entropy argument to Wien and uses it to fix the temperature

@@ -173,7 +173,7 @@ export function Branch({ branch }: BranchProps) {
               marginBottom: "0.25rem",
             }}
           >
-            Valid When
+            Valid when
           </span>
           <p style={{ margin: 0, color: "var(--ink)", lineHeight: 1.5 }}>{worksWhen}</p>
         </div>

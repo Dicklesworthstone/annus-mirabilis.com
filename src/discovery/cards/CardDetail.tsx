@@ -91,7 +91,7 @@ export function CardDetail({
               fontSize: "0.75rem",
             }}
           >
-            Knowledge Card · #{card.id}
+            Knowledge card · #{card.id}
           </span>
           <h3
             style={{
@@ -140,7 +140,7 @@ export function CardDetail({
             marginBottom: "0.25rem",
           }}
         >
-          Historical Context
+          Historical context
         </h4>
         {card.admittedImport ? (
           <p style={{ margin: 0, color: "var(--ink)" }}>

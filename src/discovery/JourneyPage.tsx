@@ -171,7 +171,7 @@ export function JourneyPage({ journey }: JourneyPageProps) {
               display: "block",
             }}
           >
-            The Nagging Fact
+            The nagging fact
           </span>
           <p
             style={{
@@ -209,7 +209,7 @@ export function JourneyPage({ journey }: JourneyPageProps) {
               display: "block",
             }}
           >
-            The First Honest Question
+            The first honest question
           </span>
           <p
             style={{
@@ -282,7 +282,7 @@ export function JourneyPage({ journey }: JourneyPageProps) {
                 display: "block",
               }}
             >
-              Admitted Cross-Paper Imports ({admittedImports.length})
+              Admitted cross-paper imports ({admittedImports.length})
             </span>
             <ul
               style={{

@@ -17,7 +17,7 @@ export default function NotationPage() {
   return (
     <div className="notation-page" data-page="notation">
       <header className="notation-header">
-        <p className="eyebrow">Critical Edition · Reference Apparatus</p>
+        <p className="eyebrow">Critical edition · Reference apparatus</p>
         <h1>Scoped notation concordance</h1>
         <p className="lead">
           In 1905, notation was local. A glyph meant one thing in an electrodynamics derivation,

@@ -32,7 +32,7 @@ export default function CoefficientMatchPage() {
       <CoefficientMatchEntry example={example as unknown as PreparedLq06Example} />
 
       <section className="reading" id="the-move-theory">
-        <p className="eyebrow">The Physical Argument</p>
+        <p className="eyebrow">The physical argument</p>
         <h2>The entropy volume laws placed side by side</h2>
         <p>
           In &sect;4, Einstein showed that for monochromatic radiation of energy{" "}

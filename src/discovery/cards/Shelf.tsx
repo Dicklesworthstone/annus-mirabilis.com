@@ -75,7 +75,7 @@ export function Shelf({
             marginBottom: "0.25rem",
           }}
         >
-          Historical Shelf · Reconstruction Constraints
+          Historical shelf · Reconstruction constraints
         </span>
         <h2
           style={{

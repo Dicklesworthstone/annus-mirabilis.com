@@ -17,7 +17,7 @@ export default function RodSimultaneityPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Special Relativity · Kinematics §2 &amp; §4</p>
+        <p className="eyebrow">Special relativity · Kinematics §2 &amp; §4</p>
         <h1>
           Simultaneity is relative;
           <br />
@@ -37,7 +37,7 @@ export default function RodSimultaneityPage() {
       <RodSimultaneityLab example={{ ...example, parameters: checked.data }} />
 
       <section className="reading" id="simultaneity-theory">
-        <p className="eyebrow">The Physical Context</p>
+        <p className="eyebrow">The physical context</p>
         <h2>§2: the relativity of simultaneity</h2>
         <p>
           In §2 of <em>Zur Elektrodynamik bewegter Körper</em>, Einstein investigates a rigid rod of

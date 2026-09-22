@@ -118,7 +118,7 @@ export function Stage({ stage, index }: StageProps) {
               marginBottom: "0.25rem",
             }}
           >
-            Deduction from the 1904 Shelf
+            Deduction from the 1904 shelf
           </span>
           <p
             className="fine"

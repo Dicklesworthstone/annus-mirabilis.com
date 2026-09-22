@@ -12,7 +12,7 @@ export default function YourDataPage() {
   return (
     <main className="your-data-page">
       <header className="page-intro">
-        <p className="eyebrow">Privacy &amp; Local Storage</p>
+        <p className="eyebrow">Privacy &amp; local storage</p>
         <h1>Your data stays on your device.</h1>
         <p className="lead">
           Annus Mirabilis has no accounts, no logins, no advertising, and no tracking cookies. All

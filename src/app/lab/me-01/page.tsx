@@ -13,7 +13,7 @@ export default function TwoLedgersPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Mass–Energy · The Two-Ledger Derivation</p>
+        <p className="eyebrow">Mass–Energy · The two-ledger derivation</p>
         <h1>
           Opposite pulses
           <br />

@@ -234,7 +234,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           aria-label="Predict Mode: Deduce The Move"
         >
           <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-            Predict Mode: Deduce The Move
+            Predict mode: deduce the move
           </p>
           <p className="fine" style={{ margin: "0.25rem 0 1rem" }}>
             Test your deductive reasoning on why the identical functional form implies discrete

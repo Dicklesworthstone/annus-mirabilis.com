@@ -30,7 +30,7 @@ export default function IonizationPage() {
       <IonizationComparison example={example} />
 
       <section className="reading" id="ionization-theory">
-        <p className="eyebrow">The Physical Argument</p>
+        <p className="eyebrow">The physical argument</p>
         <h2>The single-quantum ionization conservation law</h2>
         <p>
           In &sect;9 of his 1905 paper, Einstein extends the light-quantum hypothesis from surface

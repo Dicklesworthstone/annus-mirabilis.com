@@ -35,7 +35,7 @@ export default function WaveDescriptionPage() {
       <WaveDescriptionLab example={{ ...example, parameters: checked.data }} />
 
       <section className="reading" id="wave-theory">
-        <p className="eyebrow">The Physical Context</p>
+        <p className="eyebrow">The physical context</p>
         <h2>The successes of continuous wave optics</h2>
         <p>
           In the opening paragraph of his 1905 paper, Einstein contrasts the continuous spatial

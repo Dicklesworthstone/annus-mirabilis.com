@@ -560,7 +560,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
             }}
           >
             <h4 className="eyebrow" style={{ margin: 0 }}>
-              Einstein&apos;s 1905 Historical Checks (§9)
+              Einstein&apos;s 1905 historical checks (§9)
             </h4>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <div

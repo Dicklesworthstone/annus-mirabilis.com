@@ -60,7 +60,7 @@ export function WorldCheck({ check }: WorldCheckProps) {
             color: "var(--accent)",
           }}
         >
-          World Check · #{id}
+          World check · #{id}
         </span>
         <span
           style={{
@@ -120,7 +120,7 @@ export function WorldCheck({ check }: WorldCheckProps) {
               letterSpacing: "0.05em",
             }}
           >
-            Static Worked Reference
+            Static worked reference
           </span>
           <p style={{ margin: 0, fontWeight: 500, color: "var(--ink)" }}>
             {staticWorkedExample.label}
@@ -167,7 +167,7 @@ export function WorldCheck({ check }: WorldCheckProps) {
               letterSpacing: "0.05em",
             }}
           >
-            Live Instrument Check
+            Live instrument check
           </span>
           <p style={{ margin: 0, color: "var(--ink)" }}>
             Instrument:{" "}

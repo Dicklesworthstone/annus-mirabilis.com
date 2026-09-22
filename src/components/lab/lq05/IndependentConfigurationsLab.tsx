@@ -163,7 +163,7 @@ export function IndependentConfigurationsLab({
         aria-label="Predict Mode: Microstate Reasoning"
       >
         <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          Predict Mode · Microstate Reasoning
+          Predict mode · Microstate reasoning
         </p>
         <h3 style={{ fontSize: "1rem", margin: "0.25rem 0 0.5rem" }}>
           With 10 independent points, what is the chance that all sit in the left half (f = 1/2)?
@@ -575,7 +575,7 @@ export function IndependentConfigurationsLab({
       >
         <div style={{ marginBottom: "1rem" }}>
           <h4 className="eyebrow" style={{ marginBottom: "0.5rem" }}>
-            Paper Assumptions (§5 as printed)
+            Paper assumptions (§5 as printed)
           </h4>
           <ul
             className="fine"

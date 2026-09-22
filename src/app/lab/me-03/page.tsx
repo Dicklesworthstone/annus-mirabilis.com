@@ -13,7 +13,7 @@ export default function BoundaryLedgerPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Mass–Energy · System Boundaries & Empirical Checks</p>
+        <p className="eyebrow">Mass–Energy · System boundaries & empirical checks</p>
         <h1>
           System boundaries
           <br />

@@ -12,7 +12,7 @@ export default function ClockSyncPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Special Relativity &middot; Clock Synchronization</p>
+        <p className="eyebrow">Special relativity &middot; Clock synchronization</p>
         <h1>
           How do distant clocks
           <br />

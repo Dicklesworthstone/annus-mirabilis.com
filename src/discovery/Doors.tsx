@@ -113,7 +113,7 @@ export function Doors({ doors }: DoorsProps) {
                 letterSpacing: "0.05em",
               }}
             >
-              Front Door · Primary Route
+              Front door · Primary route
             </span>
             <span
               style={{
@@ -182,7 +182,7 @@ export function Doors({ doors }: DoorsProps) {
                   letterSpacing: "0.05em",
                 }}
               >
-                Side Door · Alternative Perspective
+                Side door · Alternative perspective
               </span>
               <span
                 style={{

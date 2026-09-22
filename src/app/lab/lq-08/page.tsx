@@ -30,7 +30,7 @@ export default function PhotoelectricPage() {
       <PhotoelectricComparison example={example} />
 
       <section className="reading" id="photoelectric-theory">
-        <p className="eyebrow">The Physical Argument</p>
+        <p className="eyebrow">The physical argument</p>
         <h2>The single-quantum energy conservation law</h2>
         <p>
           In &sect;8 of his 1905 paper, Einstein applies the light-quantum hypothesis to the

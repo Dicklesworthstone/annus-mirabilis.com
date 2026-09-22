@@ -15,7 +15,7 @@ export default function MovingClocksPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">SR-05 · Special Relativity · Section 4</p>
+        <p className="eyebrow">SR-05 · Special relativity · Section 4</p>
         <h1>
           A moving clock loses time.
           <br />
@@ -33,7 +33,7 @@ export default function MovingClocksPage() {
       <MovingClocksLab example={example} />
 
       <section className="reading" id="moving-clocks-theory">
-        <p className="eyebrow">The Physical Argument</p>
+        <p className="eyebrow">The physical argument</p>
         <h2>Two different questions, kept apart</h2>
         <p>
           &ldquo;What does the clock read at a shared event?&rdquo; and &ldquo;What does a camera

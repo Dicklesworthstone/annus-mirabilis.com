@@ -121,7 +121,7 @@ export function BrownianFirstEncounter({
     >
       {/* Header */}
       <header>
-        <span className="eyebrow">First Encounter · Zero Algebra Entrance</span>
+        <span className="eyebrow">First encounter · Zero algebra entrance</span>
         <h2>
           {record?.question ?? "Do particles that wander in all directions ever get anywhere?"}
         </h2>
@@ -741,7 +741,7 @@ export function BrownianFirstEncounter({
         {/* 3 required bridge parts */}
         <div className="notice" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div>
-            <h5 className="eyebrow">New Skill</h5>
+            <h5 className="eyebrow">New skill</h5>
             <p style={{ margin: "0.25rem 0 0" }}>
               {record?.bridge?.newSkill ??
                 "keeping track of how far things went by squaring, so opposite directions stop cancelling."}

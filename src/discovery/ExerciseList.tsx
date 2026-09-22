@@ -42,7 +42,7 @@ export function ExerciseList({ exercises }: ExerciseListProps) {
               color: "var(--accent)",
             }}
           >
-            Instrumented Checks ({instrumented.length})
+            Instrumented checks ({instrumented.length})
           </h4>
           <div
             style={{
@@ -117,7 +117,7 @@ export function ExerciseList({ exercises }: ExerciseListProps) {
               color: "var(--muted)",
             }}
           >
-            Explanation Exercises ({explanation.length})
+            Explanation exercises ({explanation.length})
           </h4>
           <div
             style={{

@@ -114,7 +114,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
 
     // Step 10: The Bridge
     expect(html).toContain("The Bridge to the Argument");
-    expect(html).toContain("New Skill");
+    expect(html).toContain("New skill");
     expect(lower(html)).toContain(lower("Why Useful in the Paper"));
     expect(lower(html)).toContain(lower("Continue With Your Choice of Guidance"));
 

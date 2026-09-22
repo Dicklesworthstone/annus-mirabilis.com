@@ -137,7 +137,7 @@ export function ExpressionActionPicker({
               color: "var(--ink)",
             }}
           >
-            Derivation Chain:{" "}
+            Derivation chain:{" "}
             <span
               style={{
                 fontFamily: "var(--font-mono, monospace)",

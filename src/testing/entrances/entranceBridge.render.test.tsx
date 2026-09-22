@@ -81,7 +81,7 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     expect(html).toContain('data-encounter-id="entrance-brownian-motion"');
 
     // 2. Part 1: newSkill
-    expect(html).toContain("New Skill");
+    expect(html).toContain("New skill");
     expect(html).toContain(
       "keeping track of how far things went by squaring, so opposite directions stop cancelling.",
     );
@@ -101,7 +101,7 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     expect(html).toContain('data-instrument-id="bm-01"');
 
     // Verify ordering in output string
-    const skillIndex = html.indexOf("New Skill");
+    const skillIndex = html.indexOf("New skill");
     const whyIndex = lower(html).indexOf(lower("Why Useful in the Paper"));
     const routesIndex = lower(html).indexOf(lower("Continue With Your Choice of Guidance"));
 

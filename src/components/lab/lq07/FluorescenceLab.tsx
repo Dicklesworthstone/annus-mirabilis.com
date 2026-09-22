@@ -157,7 +157,7 @@ export function FluorescenceLab({
         aria-label="Predict Mode: Energy Conservation"
       >
         <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          Predict Mode · Energy Conservation
+          Predict mode · Energy conservation
         </p>
         <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
           Can fluorescent emission occur at higher frequency than the exciting light (ν₂ &gt; ν₁)
@@ -239,7 +239,7 @@ export function FluorescenceLab({
         aria-label="Predict Mode: Weak-Illumination Linearity"
       >
         <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          Predict Mode · Weak-Illumination Linearity
+          Predict mode · Weak-Illumination linearity
         </p>
         <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
           How does the emission rate behave as the incident light becomes extremely weak?
@@ -716,7 +716,7 @@ export function FluorescenceLab({
       >
         <div style={{ marginBottom: "1rem" }}>
           <h4 className="eyebrow" style={{ marginBottom: "0.5rem" }}>
-            Paper Assumptions (§7 as printed)
+            Paper assumptions (§7 as printed)
           </h4>
           <ul className="fine" style={{ paddingLeft: "1.25rem", margin: 0 }}>
             {LQ07_MODEL.assumptions.map((note) => (

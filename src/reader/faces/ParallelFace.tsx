@@ -78,7 +78,7 @@ export function ParallelFace({
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro">
-        <p className="eyebrow">Parallel Edition · {paper.titleEnglishWorking}</p>
+        <p className="eyebrow">Parallel edition · {paper.titleEnglishWorking}</p>
         <h1 className="parallel-paper-title">{paper.titleEnglishWorking}</h1>
         <p className="parallel-german-title" lang="de">
           <em>{paper.titleGerman}</em>
