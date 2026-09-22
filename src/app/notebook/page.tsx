@@ -42,8 +42,9 @@ export default function NotebookPage() {
           <h2 id="notebook-add">What goes in it</h2>
           <ul>
             <li>
+              The bookmark beside each passage heading on a paper page opens{" "}
               <strong>Save question</strong>, <strong>Save next step</strong> and{" "}
-              <strong>Add a note</strong> sit beside each passage on a paper page.
+              <strong>Add a note</strong>. With a mouse it appears when you point at the passage.
             </li>
             <li>
               <strong>Save example</strong> appears where a worked example exists; a saved example

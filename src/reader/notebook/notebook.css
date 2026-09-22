@@ -19,16 +19,13 @@
 .notebook-dialog::backdrop {
   background: rgb(0 0 0 / 45%);
 }
-.notebook-dialog .actions,
-.notebook-passage-actions {
+.notebook-dialog .actions {
   display: flex;
   flex-wrap: wrap;
   align-items: start;
   gap: 0.5rem;
 }
-.notebook-dialog button,
-.notebook-passage-actions button,
-.notebook-recap button {
+.notebook-dialog button {
   min-height: 44px;
   max-width: 100%;
   white-space: normal;
@@ -66,18 +63,136 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-.notebook-recap {
-  border: 1px solid var(--line, currentColor);
-  padding: 1rem;
-  margin-block: 1rem;
+/*
+ * SAVE TO NOTEBOOK (labs pane %45). The owner, 2026-09-22: "these reading reminder things are
+ * super annoying". Every passage used to end in four full-size buttons (Save question, Save next
+ * step, Add a note, Save example): 16 on the Brownian §4 page alone. Now there is one bookmark
+ * beside each passage's heading. With a mouse it shows while the pointer is over the passage or
+ * the button has focus; on a touch screen, where nothing hovers, it stays, small and muted. A
+ * passage the notebook already holds something from keeps a filled bookmark on any device.
+ * Pressing it opens a small menu that closes on its X, a press outside, or Escape.
+ */
+.notebook-passage-actions {
+  position: relative;
+  z-index: 2;
+  float: right;
+  margin: 0 0 0.25rem 0.75rem;
 }
-.notebook-recap button {
+button.notebook-save-toggle {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+}
+button.notebook-save-toggle svg,
+button.notebook-recap-dismiss svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+button.notebook-save-toggle[data-saved] {
+  color: var(--ink);
+}
+button.notebook-save-toggle[data-saved] svg {
+  fill: currentColor;
+}
+button.notebook-save-toggle:hover:not(:disabled),
+button.notebook-save-toggle[aria-expanded="true"] {
+  background: var(--wash);
+  border-color: var(--line);
+  color: var(--ink);
+}
+@media (hover: hover) and (pointer: fine) {
+  button.notebook-save-toggle:not([data-saved]):not([aria-expanded="true"]) {
+    opacity: 0;
+  }
+  .reader-passage:hover button.notebook-save-toggle,
+  .notebook-passage-actions button.notebook-save-toggle:focus-visible {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  button.notebook-save-toggle {
+    transition: opacity 120ms ease;
+  }
+}
+.notebook-save-menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  width: max-content;
+  min-width: 13rem;
+  max-width: min(18rem, calc(100vw - 2rem));
+  padding: 0.25rem 0.25rem 0.5rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 12%);
+}
+.notebook-save-heading {
+  margin: 0;
+  padding: 0.75rem 0.5rem 0.5rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+.notebook-save-menu button.notebook-save-item {
   display: block;
-  margin-top: 0.5rem;
+  clear: both;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  padding: 0.6rem 0.5rem;
+  text-align: left;
+}
+.notebook-save-menu button.notebook-save-item:hover:not(:disabled) {
+  background: var(--wash);
+  color: var(--ink);
 }
 .notebook-action-note {
-  flex-basis: 100%;
+  margin: 0.25rem 0.5rem 0;
+  font-family: var(--font-sans);
   font-size: var(--type-fine);
+  color: var(--muted);
+}
+/* One quiet line, on the home page and /papers/ only, with its own X. */
+.notebook-recap {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0 0 1rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+button.notebook-recap-dismiss {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+}
+button.notebook-recap-dismiss:hover:not(:disabled) {
+  background: var(--wash);
+  border-color: var(--line);
+  color: var(--ink);
 }
 .notebook-announcement {
   position: absolute;

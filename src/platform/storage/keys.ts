@@ -296,6 +296,10 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     maxBytes: 128_000,
   }),
   document_("am:notebook:v1", "am-read-notebook-tde", 1, "Notebook", { maxBytes: 1_048_576 }),
+  // Which saved place the reader dismissed "Continue where you left off" for (reader/notebook/browser.ts).
+  document_("am:notebook-recap:v1", "am-read-notebook-tde", 1, "Dismissed continue-reading line", {
+    maxBytes: 1_024,
+  }),
   document_("am:tours:v1", "am-tours-infra-g518", 1, "Tour progress"),
   document_("am:predictions:v1", "am-inst-predict-mode-ti7m", 1, "Saved predictions"),
   document_(
