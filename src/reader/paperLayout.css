@@ -1,0 +1,48 @@
+/* ---------------------------------------------------------------------------
+   THE PAPER PAGE'S OWN LAYOUT, loaded by PaperPage.tsx and by nothing else.
+
+   These rules lived in reader.css, which every reading surface loads, including the Brownian
+   reading face (PaperReader), whose layout is the anatomy grid in layout/layout.css and which
+   never renders .reader-layout. On BUILD 17 that route's first-route JS and CSS came to 204,916
+   brotli bytes against a 204,800 budget. Removing these rules from the built reader.css chunk and
+   recompressing saved 129 bytes on that route, so they are here, where only the pages that use
+   them load them. Nothing was trimmed: every rule below is the one that was in reader.css.
+
+   THE PAPER PAGE IS ONE CENTRED COMPOSITION AT THE READING MEASURE (2026-09-22, the owner: "stuff
+   is way too skinny on desktop browsers"). Light quanta, relativity and mass-energy had no
+   measure: a fixed 780px track of 19px type, 98 to 100 characters a line on BUILD 15 (true line
+   breaks, 1440), pushed to the right edge of the frame, 300px from the outline. Now the text
+   track is the reader's measure times the desktop step (readingSettings.css), 703px of 22.8px
+   type at 72-73 characters a line, and the outline and the text sit together in the middle of
+   the frame. The page's own title, notice and tabs take the same width, so everything on the
+   page shares one left edge. On a tablet (one column) the text keeps the measure too: 586px
+   where it ran the full 704px at 90 characters a line. There is no empty right column to fill:
+   the composition is only as wide as what it holds.
+   --------------------------------------------------------------------------- */
+.reader-layout {
+  --reader-track: calc(var(--reader-measure) * var(--reader-step));
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, var(--reader-track));
+  gap: 3rem 4rem;
+  justify-content: center;
+}
+.reader-layout > .reader-body {
+  max-width: min(var(--reader-measure), 100%);
+}
+@media (min-width: 901px) {
+  .reader-root:has(> .reader-layout) {
+    max-width: calc(15rem + 4rem + var(--reader-measure) * var(--reader-step));
+    margin-inline: auto;
+  }
+}
+@media (max-width: 900px) {
+  .reader-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+@media print {
+  .reader-layout {
+    display: block;
+  }
+}

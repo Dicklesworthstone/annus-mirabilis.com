@@ -47,6 +47,7 @@ import { passageKind } from "./passageKind.ts";
 import { ReaderController } from "./ReaderController.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
 import "./reader.css";
+import "./paperLayout.css";
 
 export interface PaperPageOptions {
   readonly edition?: BilingualEdition | null | undefined;

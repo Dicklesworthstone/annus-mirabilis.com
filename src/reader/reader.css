@@ -101,31 +101,6 @@
 .reader-announcement {
   min-height: 1.5em;
 }
-/* ---------------------------------------------------------------------------
-   THE PAPER PAGE IS ONE CENTRED COMPOSITION AT THE READING MEASURE (2026-09-22, the owner: "stuff
-   is way too skinny on desktop browsers"). Light quanta, relativity and mass-energy had no
-   measure: a fixed 780px track of 19px type, 98 to 100 characters a line on BUILD 15 (true line
-   breaks, 1440), pushed to the right edge of the frame, 300px from the outline. Now the text
-   track is the reader's measure times the desktop step (readingSettings.css), 703px of 22.8px
-   type at 72-73 characters a line, and the outline and the text sit together in the middle of
-   the frame. The page's own title, notice and tabs take the same width, so everything on the
-   page shares one left edge. On a tablet (one column) the text keeps the measure too: 586px
-   where it ran the full 704px at 90 characters a line. There is no empty right column to fill:
-   the composition is only as wide as what it holds.
-   --------------------------------------------------------------------------- */
-.reader-layout {
-  --reader-track: calc(var(--reader-measure) * var(--reader-step));
-  display: grid;
-  grid-template-columns: minmax(0, 15rem) minmax(0, var(--reader-track));
-  gap: 3rem 4rem;
-  justify-content: center;
-}
-@media (min-width: 901px) {
-  .reader-root:has(> .reader-layout) {
-    max-width: calc(15rem + 4rem + var(--reader-measure) * var(--reader-step));
-    margin-inline: auto;
-  }
-}
 .reader-outline {
   align-self: start;
   position: sticky;
@@ -209,9 +184,6 @@
 }
 .reader-body {
   min-width: 0;
-  /* The measure holds in one column too (a tablet), where the track is the whole width. Inside
-     .reader-main (Brownian) the column already carries this cap, at the same font. */
-  max-width: min(var(--reader-measure), 100%);
 }
 .reader-section {
   margin-top: 3rem;
@@ -393,10 +365,6 @@ html:is(
   font-size: clamp(2.4rem, 5vw, 4rem);
 }
 @media (max-width: 900px) {
-  .reader-layout {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
   .reader-outline {
     position: static;
     margin-top: 1.5rem;
@@ -448,9 +416,6 @@ html:is(
   .clarification-dialog,
   .reader-downloads {
     display: none !important;
-  }
-  .reader-layout {
-    display: block;
   }
   .reader-passage {
     break-before: auto;
