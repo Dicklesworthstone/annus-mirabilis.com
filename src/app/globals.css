@@ -652,10 +652,38 @@ legend {
   line-height: 1.65;
   color: var(--muted);
 }
-.notice {
-  background: var(--wash);
-  border-left: 3px solid var(--plot);
+/* ---------------------------------------------------------------------------
+   CALLOUTS: one construction, three kinds. (Reading surface, pane %32; S3 of the 19:10Z audit.)
+
+   A callout is a tinted field with a thin rule on its leading edge. Never a border round a box,
+   and never the accent: the accent marks where you are and what you point at, and a box drawn
+   in it reads as an error. The kind is carried by the rule, so the three stay quiet together.
+
+     .callout-note    the edition talking about itself: status, provenance, what an example is
+     .callout-aside   a side trip the reader may take: a tool for this step, a first encounter
+     .callout-limit   where a claim stops: a model limit, a modern qualification
+
+   .notice is the note kind under its older name; it was a 3px rule in --plot, a chart colour.
+   To adopt, add the class. To keep a rule of your own, set --callout-rule on the element rather
+   than redeclaring border-left, so the width and field stay the family's.
+   .notice.error below keeps the accent: an error is the one callout that should shout.
+   --------------------------------------------------------------------------- */
+.notice,
+.callout-note,
+.callout-aside,
+.callout-limit {
   padding: 0.9rem 1.1rem;
+  border-left: 2px solid var(--callout-rule, var(--muted));
+  background: var(--callout-field, var(--wash));
+}
+.callout-aside {
+  --callout-rule: var(--rule);
+  --callout-field: transparent;
+}
+.callout-limit {
+  --callout-rule: var(--ink);
+}
+.notice {
   font-size: var(--type-small);
 }
 .error {

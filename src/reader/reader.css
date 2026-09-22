@@ -153,11 +153,10 @@
   padding-left: 0.25rem;
   margin: 0.8rem 0;
 }
+/* The rule, field and padding are the callout family's aside kind (globals.css, CALLOUTS),
+   carried by the callout-aside class in Blocks.tsx. Only the spacing is this element's. */
 .foundation-inline {
-  border-left: 3px solid var(--line);
-  padding: 1rem 1.3rem;
   margin: 1.7rem 0;
-  background: var(--panel);
 }
 .foundation-inline h4 {
   margin-top: 0;
@@ -166,9 +165,11 @@
 .foundation-inline li {
   font-size: var(--type-small);
 }
+/* A modern qualification is where a claim stops, so it is the callout family's limit kind
+   (globals.css, CALLOUTS), carried by callout-limit on its three render sites. It was a 3px
+   accent rule, 84 of them across 28 paper pages once the lens is on: the page's red spent on a
+   caveat. */
 .modern-margin {
-  border-left: 3px solid var(--accent);
-  padding: 0.4rem 1.2rem;
   margin: 1rem 0;
   font-size: var(--type-small);
 }

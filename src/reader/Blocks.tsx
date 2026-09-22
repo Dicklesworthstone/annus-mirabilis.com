@@ -59,7 +59,7 @@ export function ReadingBlocks({
         if (!foundation) throw new Error(`Unresolved foundation ${block.id}.`);
         return embed ? (
           <aside
-            className="foundation-inline"
+            className="foundation-inline callout-aside"
             key={`foundation-${block.id}`}
             aria-label={
               contextLabel

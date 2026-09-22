@@ -330,7 +330,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           contextLabel={`${a.title}, local steps`}
                         />
                       </details>
-                      <aside className="modern-margin" data-reading="3" hidden>
+                      <aside className="modern-margin callout-limit" data-reading="3" hidden>
                         <h4>Modern qualifications</h4>
                         <ReadingBlocks blocks={a.readings.margin} foundations={foundations} />
                       </aside>

@@ -39,7 +39,7 @@ export function CaptionReadingUnit({ id, readings, title, children }: CaptionRea
       <div data-reading="2" hidden className="reading-version">
         <p>{readings.r2}</p>
       </div>
-      <aside className="modern-margin" data-reading="3" hidden>
+      <aside className="modern-margin callout-limit" data-reading="3" hidden>
         <p>{readings.r3}</p>
       </aside>
     </figure>
