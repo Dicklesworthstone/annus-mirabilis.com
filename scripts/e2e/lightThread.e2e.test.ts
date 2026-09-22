@@ -30,6 +30,7 @@ import { dirname, extname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
+import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT_DIR = join(REPO_ROOT, "out");
@@ -98,16 +99,30 @@ async function readQuantities(page: import("playwright").Page): Promise<Record<s
   });
 }
 
-function missingBuild(t: import("node:test").TestContext): boolean {
-  if (existsSync(join(OUT_DIR, "lab", "light-thread", "index.html"))) return false;
-  t.skip(
-    `${ROUTE} is not in out/: not-available, not a pass. The route postdates the build; run bun run build.`,
+/**
+ * Refuses rather than skips, and separates the two reasons the route can be
+ * missing. A skip reports green forever on any machine where out/ happens to be
+ * missing, which is how a stale assertion in this directory stayed invisible
+ * until the node lane could finally start (am-ii21).
+ *
+ * Freshness first: a build behind HEAD is refused with its own message, so "the
+ * route postdates the build" is answered by rebuilding rather than by passing.
+ * If out/ is FRESH and the route is still absent, that is a real defect -
+ * declaredRoutesBuilt.test.ts exists to catch exactly that - and it fails here
+ * too rather than being waved through.
+ */
+function requireBuiltRoute(): void {
+  assertOutFreshness();
+  if (existsSync(join(OUT_DIR, "lab", "light-thread", "index.html"))) return;
+  assert.fail(
+    `${ROUTE} is not in out/, so what a reader meets cannot be checked. Run bun run build. ` +
+      "This is not-available rather than a pass: out/ is fresh, so the route is genuinely " +
+      "absent from the build rather than merely older than it.",
   );
-  return true;
 }
 
 test("light-thread: the worked example is readable with JavaScript disabled, in both engines", async (t) => {
-  if (missingBuild(t)) return;
+  requireBuiltRoute();
   const { baseUrl, server } = await startStaticServer();
   try {
     for (const engine of ENGINES) {
@@ -158,7 +173,7 @@ test("light-thread: the worked example is readable with JavaScript disabled, in 
 });
 
 test("light-thread: changing the observer moves the moving-frame readings and nothing else", async (t) => {
-  if (missingBuild(t)) return;
+  requireBuiltRoute();
   const { baseUrl, server } = await startStaticServer();
   try {
     for (const engine of ENGINES) {
@@ -261,7 +276,7 @@ test("light-thread: changing the observer moves the moving-frame readings and no
 });
 
 test("light-thread: a refused setting alerts and leaves the accepted example displayed", async (t) => {
-  if (missingBuild(t)) return;
+  requireBuiltRoute();
   const { baseUrl, server } = await startStaticServer();
   const refusalRoute: string[] = [];
   try {
@@ -339,7 +354,7 @@ test("light-thread: a refused setting alerts and leaves the accepted example dis
 });
 
 test("light-thread planted negative: without the invalid handler the widget answers again", async (t) => {
-  if (missingBuild(t)) return;
+  requireBuiltRoute();
   const { baseUrl, server } = await startStaticServer();
   try {
     for (const engine of ENGINES) {
@@ -411,7 +426,7 @@ test("light-thread planted negative: without the invalid handler the widget answ
 });
 
 test("light-thread: the three table-scroll regions, measured at 320 and 1280", async (t) => {
-  if (missingBuild(t)) return;
+  requireBuiltRoute();
   const { baseUrl, server } = await startStaticServer();
   const report: string[] = [];
   try {

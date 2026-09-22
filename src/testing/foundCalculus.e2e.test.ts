@@ -66,8 +66,12 @@ async function startStaticServer(rootDir: string = "out"): Promise<TestServer | 
 test("foundCalculus.e2e: E2E 1 - From Brownian §4, static route linkage to foundation:partial-derivatives and worked example verification", async (t: TestContext) => {
   const server = await startStaticServer();
   if (!server) {
-    t.skip("out/ directory not present; skipping static build checks");
-    return;
+    assert.fail(
+      "out/ is absent, so the static build checks cannot run. Run bun run build. This is " +
+        "not-available rather than a pass: a skip here reports green forever on any machine " +
+        "where out/ happens to be missing. Staleness is already refused by startStaticServer, " +
+        "which throws rather than returning null when out/ is present but behind HEAD.",
+    );
   }
 
   try {
@@ -126,8 +130,12 @@ test("foundCalculus.e2e: E2E 1 - From Brownian §4, static route linkage to foun
 test("foundCalculus.e2e: E2E 2 - From Brownian §5, static route linkage to foundation:functions-graphs and mean displacement scaling", async (t: TestContext) => {
   const server = await startStaticServer();
   if (!server) {
-    t.skip("out/ directory not present; skipping static build checks");
-    return;
+    assert.fail(
+      "out/ is absent, so the static build checks cannot run. Run bun run build. This is " +
+        "not-available rather than a pass: a skip here reports green forever on any machine " +
+        "where out/ happens to be missing. Staleness is already refused by startStaticServer, " +
+        "which throws rather than returning null when out/ is present but behind HEAD.",
+    );
   }
 
   try {
@@ -165,8 +173,12 @@ test("foundCalculus.e2e: E2E 2 - From Brownian §5, static route linkage to foun
 test("foundCalculus.e2e: E2E 3 - Open foundation:logarithms with JavaScript disabled and assert 'lg' note renders", async (t: TestContext) => {
   const server = await startStaticServer();
   if (!server) {
-    t.skip("out/ directory not present; skipping static build checks");
-    return;
+    assert.fail(
+      "out/ is absent, so the static build checks cannot run. Run bun run build. This is " +
+        "not-available rather than a pass: a skip here reports green forever on any machine " +
+        "where out/ happens to be missing. Staleness is already refused by startStaticServer, " +
+        "which throws rather than returning null when out/ is present but behind HEAD.",
+    );
   }
 
   try {
@@ -210,15 +222,19 @@ test("foundCalculus.e2e: planted negative - missing build directory returns null
   assert.equal(
     missingServer,
     null,
-    "Planted negative: startStaticServer must return null when directory is absent so honest runner skip is triggered",
+    "Planted negative: startStaticServer must return null when the directory is absent, which is\n      what every call site turns into a refusal. The null contract is kept deliberately - the\n      probe directory above is absent ON PURPOSE - while the callers no longer skip on it.",
   );
 });
 
 test("foundCalculus.e2e: planted negative - static route content gate fails when required mathematical proof element is missing", async (t: TestContext) => {
   const server = await startStaticServer();
   if (!server) {
-    t.skip("out/ directory not present; skipping static build checks");
-    return;
+    assert.fail(
+      "out/ is absent, so the static build checks cannot run. Run bun run build. This is " +
+        "not-available rather than a pass: a skip here reports green forever on any machine " +
+        "where out/ happens to be missing. Staleness is already refused by startStaticServer, " +
+        "which throws rather than returning null when out/ is present but behind HEAD.",
+    );
   }
 
   try {
