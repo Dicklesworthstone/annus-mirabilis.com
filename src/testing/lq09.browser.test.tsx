@@ -5,6 +5,7 @@ import { IonizationLab } from "../components/lab/lq09/IonizationLab.tsx";
 import { createLq09Session } from "../experiments/lq09/session.ts";
 import type { AcceptedSnapshot } from "../experiments/store/instanceStore.ts";
 import example from "../generated/lq09-example.json";
+import { containsHeading } from "./headingText.ts";
 
 /**
  * Heading assertions below compare case-insensitively (am-edit-voice-lint-trmf). They asserted
@@ -18,8 +19,6 @@ import example from "../generated/lq09-example.json";
  * page and none on the individual headings. Recorded rather than left implicit, so the next
  * person who hits this knows the ceiling of what is here.
  */
-const containsHeading = (html: string, heading: string) =>
-  html.toLowerCase().includes(heading.toLowerCase());
 
 function getNumericValue(snap: AcceptedSnapshot | null, quantityId: string): number {
   if (!snap) throw new Error("Missing snapshot");
@@ -46,8 +45,8 @@ describe("LQ-09 Gas Ionization Lab View & Route", () => {
     expect(containsHeading(html, "The Single-Quantum Ionization Conservation Law")).toBe(true);
     expect(html).toContain('data-view-id="lq-09-energy-ladder"');
     expect(html).toContain('data-view-id="lq-09-rate-budget"');
-    expect(html).toContain("Accepted Laboratory Telemetry Snapshot");
-    expect(html).toContain("Limits of this Reference Model (Not Modeled)");
+    expect(containsHeading(html, "Accepted Laboratory Telemetry Snapshot")).toBe(true);
+    expect(containsHeading(html, "Limits of this Reference Model (Not Modeled)")).toBe(true);
     expect(html).toContain("Secondary ionization and cascade ionization");
   });
 

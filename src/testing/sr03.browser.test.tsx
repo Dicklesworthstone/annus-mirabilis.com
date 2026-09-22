@@ -4,6 +4,7 @@ import RodSimultaneityPage from "../app/lab/sr-03/page.tsx";
 import { RodSimultaneityLab } from "../components/lab/RodSimultaneityLab.tsx";
 import { createSr03Session } from "../experiments/sr03/session.ts";
 import example from "../generated/sr03-example.json";
+import { containsHeading } from "./headingText.ts";
 
 /**
  * Heading assertions below compare case-insensitively (am-edit-voice-lint-trmf). They asserted
@@ -17,8 +18,6 @@ import example from "../generated/sr03-example.json";
  * page and none on the individual headings. Recorded rather than left implicit, so the next
  * person who hits this knows the ceiling of what is here.
  */
-const containsHeading = (html: string, heading: string) =>
-  html.toLowerCase().includes(heading.toLowerCase());
 
 describe("SR-03 Rod Measurement and Simultaneity Lab View & Route (am-sr-03-rod-simultaneity-0l5i)", () => {
   test("static page renders cleanly without JavaScript and includes key sections and mathematical explanations", () => {
@@ -42,10 +41,14 @@ describe("SR-03 Rod Measurement and Simultaneity Lab View & Route (am-sr-03-rod-
     );
     expect(html).toContain('data-instrument-id="sr-03"');
     expect(html).toContain("SR-03 · An executable laboratory");
-    expect(html).toContain("Discovery Mode: Predict Before Calculating");
+    expect(containsHeading(html, "Discovery Mode: Predict Before Calculating")).toBe(true);
+    // Not a heading assertion: "Relativity of Simultaneity" is a predict-prompt BUTTON label
+    // here, and scoping containsHeading to heading elements is what revealed that. It stays a
+    // plain substring check, and it is case-sensitive on purpose - the title-case rule does not
+    // reach button labels, so nothing is about to change this string underneath it.
     expect(html).toContain("Relativity of Simultaneity");
-    expect(html).toContain("Spacetime Event Diagram");
-    expect(html).toContain("Spatial Rod Strip Projection");
+    expect(containsHeading(html, "Spacetime Event Diagram")).toBe(true);
+    expect(containsHeading(html, "Spatial Rod Strip Projection")).toBe(true);
   });
 
   test("session initializes with accepted snapshot and preserves parameters", () => {

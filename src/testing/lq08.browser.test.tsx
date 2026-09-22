@@ -5,6 +5,7 @@ import { PhotoelectricLab } from "../components/lab/lq08/PhotoelectricLab.tsx";
 import { createLq08Session } from "../experiments/lq08/session.ts";
 import type { AcceptedSnapshot } from "../experiments/store/instanceStore.ts";
 import example from "../generated/lq08-example.json";
+import { containsHeading } from "./headingText.ts";
 
 /**
  * Heading assertions below compare case-insensitively (am-edit-voice-lint-trmf). They asserted
@@ -18,8 +19,6 @@ import example from "../generated/lq08-example.json";
  * page and none on the individual headings. Recorded rather than left implicit, so the next
  * person who hits this knows the ceiling of what is here.
  */
-const containsHeading = (html: string, heading: string) =>
-  html.toLowerCase().includes(heading.toLowerCase());
 
 function getNumericValue(snap: AcceptedSnapshot | null, quantityId: string): number {
   if (!snap) throw new Error("Missing snapshot");
