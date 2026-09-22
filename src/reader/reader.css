@@ -2176,9 +2176,11 @@ html:is(
   min-width: 16rem;
   max-width: 24rem;
   padding: 0.75rem 1rem;
-  background: var(--bg, #fff);
-  color: var(--fg, #111);
-  border: 1px solid var(--line, #ccc);
+  /* Theme tokens: --bg and --fg are not defined anywhere, so this was #fff under #111 in both
+     themes, a white box on the dark page. */
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule);
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-size: var(--type-fine);

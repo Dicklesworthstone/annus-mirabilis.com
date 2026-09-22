@@ -1,7 +1,9 @@
 "use client";
 
 import type React from "react";
-import { useCallback, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { makeDismissible } from "../../a11y/modal/dismiss.ts";
+import { ModalCloseButton } from "../../a11y/modal/ModalCloseButton.tsx";
 
 export interface TermAnnotationProps {
   readonly termId: string;
@@ -19,6 +21,30 @@ export interface TermAnnotationProps {
 export function TermAnnotation({ termId, text, definition, lang, dir }: TermAnnotationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const popoverId = useId();
+  const trigger = useRef<HTMLButtonElement>(null);
+  const popover = useRef<HTMLSpanElement>(null);
+  const close = useRef<HTMLButtonElement>(null);
+  /*
+    The owner's rule for every overlay: an X at the top right, and a tap outside closes it. The
+    trigger counts as inside, so its own toggle keeps working; Escape closes too, and focus goes
+    back to the term after the X or Escape, not after a tap elsewhere.
+  */
+  useEffect(() => {
+    const panel = popover.current;
+    if (!isOpen || !panel) return;
+    const dismissal = new AbortController();
+    makeDismissible(panel, {
+      signal: dismissal.signal,
+      isOpen: () => true,
+      inside: trigger.current ? [trigger.current] : [],
+      closeButton: close.current,
+      onDismiss: (reason) => {
+        setIsOpen(false);
+        if (reason !== "outside") trigger.current?.focus();
+      },
+    });
+    return () => dismissal.abort();
+  }, [isOpen]);
 
   const handleToggle = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -49,6 +75,7 @@ export function TermAnnotation({ termId, text, definition, lang, dir }: TermAnno
         expansion in its title, because the term IS a period abbreviation.
       */}
       <button
+        ref={trigger}
         type="button"
         className="term-annotation"
         data-term-id={termId}
@@ -64,27 +91,22 @@ export function TermAnnotation({ termId, text, definition, lang, dir }: TermAnno
       </button>
       {isOpen && definition && (
         <span
+          ref={popover}
           id={popoverId}
           role="dialog"
           aria-label={text}
           className="term-annotation-popover"
           data-term-popover={termId}
         >
+          <ModalCloseButton
+            ref={close}
+            label="Close term definition"
+            className="term-annotation-close"
+            data-term-close={termId}
+          />
           <span className="term-annotation-definition" lang={lang} dir={dir}>
             {definition}
           </span>
-          <button
-            type="button"
-            className="term-annotation-close"
-            data-term-close={termId}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsOpen(false);
-            }}
-            aria-label="Close term definition"
-          >
-            ×
-          </button>
         </span>
       )}
     </span>
