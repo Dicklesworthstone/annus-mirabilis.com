@@ -27,24 +27,29 @@ export default function CoefficientPage() {
           1). What does that drop tell you about the body&apos;s inertia, and why does the
           conclusion come from low speeds rather than from a slogan assigned in advance?
         </p>
-        <p>
-          <a href="/papers/mass-energy/#arg-me-small-speed">
-            Read the coefficient argument (explanatory preview)
-          </a>
-        </p>
       </header>
       <CoefficientComparison
         example={{ ...example, parameters: checked.data }}
         equations={massEnergyEquations.equations as readonly CompiledEquation[]}
       />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/mass-energy/#arg-me-small-speed">
+              Read the coefficient argument (explanatory preview)
+            </a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" id="coefficient-argument">
         <p className="eyebrow">Open the coefficient argument</p>
         <h2>The exact drop, then the Newtonian coefficient</h2>
         <p>
           The two-ledger subtraction (ME-01) gives the change in energy of motion at speed v. This
-          laboratory never assigns the body a rest energy Mc² or γMc² to begin with. The printed
-          glyph Einstein used for the Lorentz factor in paper 4 is UNKNOWN until the facsimile is
-          pinned; the formulas below use the modern γ.
+          laboratory never assigns the body a rest energy Mc² or γMc² to begin with. Paper 4 prints
+          the Lorentz factor as an explicit radical, 1/√(1 − v²/V²), every time it appears, and
+          never writes β for it; the formulas below write it as the modern γ.
         </p>
         <Formula
           latex={String.raw`K_0-K_1=L(\gamma-1)=L\frac{\gamma^2\beta^2}{\gamma+1},\qquad \beta=\frac{v}{c}`}

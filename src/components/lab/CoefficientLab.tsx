@@ -28,6 +28,7 @@ import { parseResult } from "../../experiments/results/codec.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { PredictPanel } from "./PredictPanel.tsx";
+import "./coefficientLab.css";
 import { display, identity, result } from "./presentation.ts";
 
 type Output = ScientificResult | PublishedResult;
@@ -275,125 +276,140 @@ export function CoefficientLab({
       <p data-detail="3" hidden>
         {ME02_CAPTION.r3}
       </p>
-      <p>
-        Type a speed, choose what to read, and compare 0.6c with 0.01c. The plot and table change
-        together after you apply valid settings. No dragging is required.
-      </p>
       <div className="lab-columns">
-        <form
-          onSubmit={submit}
-          aria-label="Mass-energy coefficient settings"
-          aria-describedby={error ? `${id}-error` : undefined}
-        >
-          <fieldset disabled={!ready}>
-            <legend>Set the observer speed and the emitted energy</legend>
-            <div className="input-grid">
-              <div className="input-field">
-                <label htmlFor={`${id}-beta`}>Observer speed v/c</label>
+        <div>
+          <details className="lab-predict">
+            <summary>Predict before the numbers</summary>
+            <PredictPanel
+              prompt={ME02_PREDICT_PROMPT}
+              record={predictRecord}
+              onRecord={(choice) =>
+                setPredictRecord((current) => submitPrediction(current, choice))
+              }
+              onSkip={() => setPredictRecord((current) => skipPrediction(current))}
+              onKeepToSelf={() => setPredictRecord((current) => keepToSelf(current))}
+              onAmend={(choice) => setPredictRecord((current) => amendAfterReveal(current, choice))}
+            />
+          </details>
+          <form
+            onSubmit={submit}
+            aria-label="Mass-energy coefficient settings"
+            aria-describedby={error ? `${id}-error` : undefined}
+          >
+            <fieldset disabled={!ready}>
+              <legend>Set the observer speed and the emitted energy</legend>
+              <div className="lab-choice">
+                <p className="fine">Compare 0.6c with 0.01c, or type a speed below.</p>
+                <div className="actions">
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => apply({ ...p, beta: 0.6 })}
+                  >
+                    Show 0.6c
+                  </button>
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => apply({ ...p, beta: 0.01 })}
+                  >
+                    Show 0.01c
+                  </button>
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => apply({ ...p, beta: 0 })}
+                  >
+                    Show vanishing speed
+                  </button>
+                </div>
+              </div>
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-beta`}>Observer speed v/c</label>
+                  <input
+                    id={`${id}-beta`}
+                    type="number"
+                    name="beta"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="-0.95"
+                    max="0.95"
+                    value={draft.beta}
+                    onChange={(event) =>
+                      setDraft({ ...draft, beta: Number(event.currentTarget.value) })
+                    }
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-emittedEnergy`}>Emitted energy L</label>
+                  <input
+                    id={`${id}-emittedEnergy`}
+                    type="number"
+                    name="emittedEnergy"
+                    inputMode="decimal"
+                    min="0"
+                    step="any"
+                    value={draft.emittedEnergy}
+                    onChange={(event) =>
+                      setDraft({ ...draft, emittedEnergy: Number(event.currentTarget.value) })
+                    }
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-energyUnit`}>Energy unit</label>
+                  <select
+                    id={`${id}-energyUnit`}
+                    name="energyUnit"
+                    value={draft.energyUnit}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        energyUnit: event.currentTarget.value as Me02Parameters["energyUnit"],
+                      })
+                    }
+                  >
+                    <option value="normalized">normalized (c = 1)</option>
+                    <option value="erg">erg</option>
+                    <option value="joule">joule</option>
+                  </select>
+                </div>
+              </div>
+              <label className="check">
                 <input
-                  id={`${id}-beta`}
-                  type="number"
-                  name="beta"
-                  inputMode="decimal"
-                  step="0.01"
-                  min="-0.95"
-                  max="0.95"
-                  value={draft.beta}
+                  type="checkbox"
+                  checked={draft.showNaive}
                   onChange={(event) =>
-                    setDraft({ ...draft, beta: Number(event.currentTarget.value) })
+                    setDraft({ ...draft, showNaive: event.currentTarget.checked })
                   }
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-emittedEnergy`}>Emitted energy L</label>
-                <input
-                  id={`${id}-emittedEnergy`}
-                  type="number"
-                  name="emittedEnergy"
-                  inputMode="decimal"
-                  min="0"
-                  step="any"
-                  value={draft.emittedEnergy}
-                  onChange={(event) =>
-                    setDraft({ ...draft, emittedEnergy: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-energyUnit`}>Energy unit</label>
-                <select
-                  id={`${id}-energyUnit`}
-                  name="energyUnit"
-                  value={draft.energyUnit}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      energyUnit: event.currentTarget.value as Me02Parameters["energyUnit"],
-                    })
-                  }
-                >
-                  <option value="normalized">normalized (c = 1)</option>
-                  <option value="erg">erg</option>
-                  <option value="joule">joule</option>
-                </select>
-              </div>
-            </div>
-            <div className="preset-list">
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => apply({ ...p, beta: 0.6 })}
-              >
-                Show 0.6c
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => apply({ ...p, beta: 0.01 })}
-              >
-                Show 0.01c
-              </button>
-              <button type="button" className="secondary" onClick={() => apply({ ...p, beta: 0 })}>
-                Show vanishing speed
-              </button>
-            </div>
-            <label className="check">
-              <input
-                type="checkbox"
-                checked={draft.showNaive}
-                onChange={(event) => setDraft({ ...draft, showNaive: event.currentTarget.checked })}
-              />{" "}
-              Show the naive evaluation of gamma minus one (diagnostic only)
-            </label>
-            <p className="fine">
-              Changing the input unit reinterprets the entered number and creates a new setup.
-              Physical outputs use joules and kilograms; normalized mode uses c = 1 and normalized
-              energy and mass units.
-            </p>
-            <button type="submit">Apply settings</button>
-            <p>
-              <a data-settings-permalink href={encodeMe02Settings(p)}>
-                Permalink to the accepted configuration
-              </a>
-            </p>
-            {error ? (
-              <p id={`${id}-error`} className="notice" role="alert">
-                {error}
+                />{" "}
+                Show the naive evaluation of gamma minus one (diagnostic only)
+              </label>
+              <p className="fine">
+                Changing the input unit reinterprets the entered number and creates a new setup.
+                Physical outputs use joules and kilograms; normalized mode uses c = 1 and normalized
+                energy and mass units.
               </p>
-            ) : null}
-          </fieldset>
-        </form>
+              <button type="submit">Apply settings</button>
+              <p>
+                <a data-settings-permalink href={encodeMe02Settings(p)}>
+                  Permalink to the accepted configuration
+                </a>
+              </p>
+              {error ? (
+                <p id={`${id}-error`} className="notice" role="alert">
+                  {error}
+                </p>
+              ) : null}
+            </fieldset>
+          </form>
+        </div>
         <div className="lab-results">
-          <PredictPanel
-            prompt={ME02_PREDICT_PROMPT}
-            record={predictRecord}
-            onRecord={(choice) => setPredictRecord((current) => submitPrediction(current, choice))}
-            onSkip={() => setPredictRecord((current) => skipPrediction(current))}
-            onKeepToSelf={() => setPredictRecord((current) => keepToSelf(current))}
-            onAmend={(choice) => setPredictRecord((current) => amendAfterReveal(current, choice))}
-          />
           <div data-response="">
-            <h3>Accepted snapshot</h3>
+            <div className="me02-bars">
+              <CoefficientBars snapshot={snapshot} clipId={id} />
+            </div>
+            <h3>Values at these settings</h3>
             <table>
               <caption>
                 Outputs from the host calculation. Presentation does not recompute them.
@@ -442,7 +458,6 @@ export function CoefficientLab({
                 ) : null}
               </tbody>
             </table>
-            <CoefficientBars snapshot={snapshot} clipId={id} />
             <h3>Named-speed comparison (worked example)</h3>
             <p>
               At 0.6c versus 0.01c, with L = 1 in normalized units. These two columns were

@@ -10,9 +10,9 @@ targets:
     paper: mass-energy
     readings:
       r0: "At low speed the drop in energy of motion looks exactly like a body that became lighter by the energy it sent out divided by the speed of light squared."
-      r1: "The exact difference is L(gamma - 1). The quadratic estimate is half L times (v/c) squared. The finite-speed proxy is 2 L (gamma - 1) / v^2, never labeled the exact mass loss. The limiting coefficient L/c^2 is an analytic limit at vanishing speed."
-      r2: "Expand the Lorentz factor gamma = (1 - beta^2)^(-1/2) by the binomial series as 1 + (1/2) beta^2 + (3/8) beta^4 + (5/16) beta^6 + ... . Subtracting 1 isolates the relativistic kinetic factor (1/2) beta^2 + (3/8) beta^4 + ... . Dividing by beta^2 and multiplying by 2 yields 2(gamma - 1)/beta^2 = 1 + (3/4) beta^2 + (5/8) beta^4 + ... . In the limit as beta vanishes, every higher-order term vanishes identically, leaving exactly 1. Multiplying by L gives the low-speed kinetic difference (1/2) (L/c^2) v^2, identifying the effective mass decrease as L/c^2."
-      r3: "Paper 4 prints the step as neglecting magnitudes of fourth and higher order. The printed conversion L / 9e20 uses Einstein's rounded V^2. The Newtonian 1/2 m v^2 is the premise that identifies the coefficient. The printed glyph for the Lorentz factor in paper 4 is UNKNOWN until the facsimile is pinned."
+      r1: "The exact difference is L(γ − 1). The quadratic estimate is ½L(v/c)². The finite-speed proxy, 2L(γ − 1)/v², is never called the exact mass loss. The limiting coefficient L/c² is an analytic limit at vanishing speed."
+      r2: "Expand the Lorentz factor γ = 1/√(1 − β²) by the binomial series: 1 + ½β² + ⅜β⁴ + (5/16)β⁶ + …. Subtracting 1 leaves ½β² + ⅜β⁴ + …. Dividing by β² and multiplying by 2 gives 2(γ − 1)/β² = 1 + ¾β² + ⅝β⁴ + …. As β goes to zero every higher-order term vanishes, leaving exactly 1. Multiplying by L gives the low-speed kinetic difference ½(L/c²)v², which identifies the effective mass decrease as L/c²."
+      r3: "Paper 4 prints the step as neglecting magnitudes of fourth and higher order. Its conversion L/(9·10²⁰) uses Einstein's rounded V². The Newtonian ½mv² is the premise that identifies the coefficient. Paper 4 prints the Lorentz factor as the explicit radical 1/√(1 − v²/V²) every time it appears, and never writes β for it."
       r3Citations:
         - "Einstein, A. (1905). Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig? Annalen der Physik 18, 639–641."
 

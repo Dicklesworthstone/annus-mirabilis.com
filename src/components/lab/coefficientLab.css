@@ -1,0 +1,15 @@
+/* ME-02, the small-speed coefficient (CoefficientLab.tsx). The family's shell in labShell.css does
+   the layout; these rules set only what is particular to this instrument. */
+
+/* The bar drawing is 320 units wide. The site rule sets its SVG to height: auto, so across the
+   760px results column it drew 2.4 times its size: labels at about 31px, overlapping the bars
+   they name. Capped at 26rem it is 1.3 times its size; its labels take the micro step, which
+   is the size the drawing was laid out for. */
+.me02-bars {
+  max-width: 26rem;
+  margin-bottom: 1rem;
+}
+
+.me02-bars svg[role="img"] text {
+  font-size: var(--type-micro);
+}
