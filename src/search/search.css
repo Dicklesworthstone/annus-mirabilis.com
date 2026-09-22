@@ -130,7 +130,7 @@ button.search-page-field {
   border-radius: 0.5rem;
   color: var(--muted);
   background: var(--paper);
-  font-size: 1.05rem;
+  font-size: var(--type-body);
   text-align: left;
   cursor: text;
 }

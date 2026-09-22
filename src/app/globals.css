@@ -1096,7 +1096,7 @@ summary {
 }
 .reading-settings-glyph {
   font-family: var(--font-serif);
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.02em;
