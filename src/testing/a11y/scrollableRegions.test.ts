@@ -401,6 +401,11 @@ export function staleReason(
  * Classes that specify scrolling in CSS and must be focusable when rendered.
  */
 export const AUDITED_SCROLL_CLASSES = [
+  // sr-event-table: overflow-x: auto on a section that wraps a wide event table. Measured on the
+  // 11:59:54 build - 4 elements carry it and 0 lack a tabIndex - and RelativityEventTable.tsx
+  // gives each one tabIndex={0} plus aria-label={example.title}, with a :focus-visible outline in
+  // investigation.css. Focusable, named, and visibly focused, which is what audited means here.
+  "sr-event-table",
   "table-scroll",
   "kitchen-schema",
   "step-math",
@@ -468,6 +473,24 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   ["search-dialog", 0],
   ["search-results", 0],
   ["show-the-code", 4],
+  /*
+    sr-investigation-page is an ANCESTOR, not a scrolling element. It reaches this list because
+    deriveScrollClassesFromCss takes every class in a selector, and the only rule that scrolls is
+    `.sr-investigation-page .sr-event-table { overflow-x: auto }` - the subject is the table.
+
+    It is recorded rather than excluded because that over-approximation is the safe direction for
+    a coverage ratchet, and because it is not a special case: measured across src/**\/*.css, 10 of
+    the 51 derived classes never appear as the subject of an overflow rule, and 9 of them were
+    already in these lists (camera-results, controlled-comparison, inference-workbench,
+    kitchen-guide, kitchen-lab, linear-formula, mass-energy-investigation, notebook-replay,
+    show-the-code). This is the tenth, recorded the same way.
+
+    The 1 is the count the list's own contract asks for - elements carrying the class with no
+    tabIndex - and it is honest rather than a debt anyone should pay: a page wrapper that does
+    not scroll must NOT acquire a tab stop, which is exactly what the docblock above warns
+    against. If this entry is ever "cleared", check that the class became a subject first.
+  */
+  ["sr-investigation-page", 1],
   ["source-equation", 1],
   ["sr07-components", 1],
   ["sr07-equation", 1],
