@@ -130,10 +130,15 @@ export function ReadingSettingsPanel() {
 
   return (
     <details className="reading-settings" data-reading-settings ref={panel}>
-      {/* On a phone only "Reading" shows, so the control fits beside the wordmark; the rest of
-          the name stays in the accessibility tree, and the visible word is its first word. */}
+      {/* An icon button beside the sun/moon, the same size and weight: "Aa" in the reading serif,
+          which is what these settings change. The glyph is hidden from assistive technology and
+          the name is the visually hidden text, so the control is announced as "Reading
+          preferences" with its expanded or collapsed state, as a summary is. */}
       <summary>
-        Reading<span className="reading-settings-summary-rest"> preferences</span>
+        <span className="reading-settings-glyph" aria-hidden="true">
+          Aa
+        </span>
+        <span className="reading-settings-name">Reading preferences</span>
       </summary>
       {/* One box for everything the disclosure reveals, so a phone can lay it out as a single
           sheet under the header instead of inside the 64px column the summary occupies. */}

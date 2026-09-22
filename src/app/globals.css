@@ -282,7 +282,7 @@ main {
   grid-area: 1 / 2;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.25rem;
 }
 /* Position says these are links, so they carry no underline until hovered; the current section
    takes the accent (aria-current, set per page by PrimaryNavLinks). Heading links are the same case. */
@@ -1042,74 +1042,78 @@ summary {
   padding: 0;
 }
 /*
- * THE PREFERENCES DISCLOSURE READS AS A CONTROL, NOT AS A SIXTH NAV ITEM.
+ * READING PREFERENCES IS AN ICON BUTTON, THE SUN/MOON'S TWIN (chrome, pane %44).
  *
- * The owner's homepage complaint, 2026-09-22: "A settings panel sits above the H1 ... A reader
- * arriving at a critical edition meets a control panel before content." It is in the layout, so
- * it was doing that on EVERY page, not only the homepage.
+ * It was the words "Reading preferences" ("Reading" on a phone) with a disclosure triangle, in
+ * muted sans, beside the sun/moon icon: two controls in two idioms. It is now the same 44px circle
+ * as the theme button, holding "Aa" in the reading serif (themes.css draws the sun/moon's box the
+ * same way). The name, "Reading preferences", is visually hidden text inside the summary, so it is
+ * still announced as a disclosure with its state. While the sheet is open the button stays
+ * pressed. The sheet itself, its X, a press outside and Escape are unchanged.
  *
- * Measured on build AQ-ONvvttOwzTzS11vKf5 before this rule: the summary rendered at the body
- * size and the body ink, wrapped to two lines at 1280px ("Reading / preferences"), and sat in
- * the header at the same visual weight as "Papers" and "Instruments" - so a reader scanning the
- * chrome met seven things that look like navigation, one of which is a settings panel.
- *
- * It is not moved out of the header and not hidden: a reading-only setting and a line-length
- * setting belong within reach on every page, and AGENTS.md requires them reachable without
- * JavaScript, which a <details> already is. What changes is its RANK. Smaller, muted, and
- * carrying a disclosure triangle so it announces itself as something that opens rather than
- * something that navigates.
- *
- * The 44px target is kept. Rank is a matter of type and colour here, never of hit area.
+ * Without JavaScript these settings cannot apply (each is set by script on <html>), so, like the
+ * theme button, the control is not shown rather than offered dead. The pre-paint script is what
+ * sets data-theme, so its absence is the no-script signal.
  */
 .site-header summary {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
   min-height: 44px;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font: 0.85rem / 1.4 var(--font-sans);
-  color: var(--muted);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  color: var(--ink);
   cursor: pointer;
-  /*
-   * MEASURED, because the reason is not the one it looks like. At 1280px the summary is a 141px
-   * flex item and its text sets on two lines, "Reading / preferences". That costs NO height: the
-   * box is 44px either way, held by the min-height above, so this is tidiness rather than layout.
-   * Injecting `white-space: nowrap` into build c4p2BidRuiV3E8jfGXeCU moved the box 141x44 ->
-   * 146x44 at 1280 and changed nothing at all at 390 or 320, where it already fits on one line.
-   * documentElement.scrollWidth stayed equal to the viewport at all three widths, so the 5px is
-   * taken from slack in the header row and not from the page.
-   *
-   * It is here because two stacked grey words beside a one-line switch read as a fragment rather
-   * than as a control, not because it was costing a row. Saying which it is matters: the last
-   * three header numbers on this project were each quoted onward as a height saving.
-   */
-  white-space: nowrap;
-  /* The default marker is removed only so the triangle can be drawn on the correct side of the
-     text at a size that matches the smaller type; it is replaced immediately below, never
-     dropped. A disclosure with no affordance is the defect this rule exists to avoid. */
   list-style: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 120ms ease;
 }
 .site-header summary::-webkit-details-marker {
   display: none;
 }
-.site-header summary::before {
-  content: "";
-  width: 0;
-  height: 0;
-  border-left: 0.32rem solid currentColor;
-  border-top: 0.28rem solid transparent;
-  border-bottom: 0.28rem solid transparent;
-  transition: transform 120ms ease;
+.site-header summary:active {
+  transform: scale(0.9);
 }
-.site-header details[open] summary::before {
-  transform: rotate(90deg);
+@media (hover: hover) {
+  .site-header summary:hover {
+    background: var(--wash);
+    border-color: var(--line);
+  }
+}
+.site-header details[open] > summary {
+  background: var(--wash);
+  border-color: var(--line);
 }
 @media (prefers-reduced-motion: reduce) {
-  .site-header summary::before {
+  .site-header summary {
     transition: none;
   }
 }
-.site-header summary:hover {
-  color: var(--ink);
+.reading-settings-glyph {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.reading-settings-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+:root:not([data-theme]) .site-header .reading-settings {
+  display: none;
 }
 /*
  * The open panel is a sheet hanging from the header, not a column inside it. In the flow it made
@@ -1347,23 +1351,6 @@ samp,
   header.site-header {
     padding: 0.7rem 0;
     gap: 0.35rem 0.75rem;
-  }
-  /* The two controls share the wordmark's row, which leaves room for "Reading" and not for
-     "Reading preferences". At 320 that is 135 + 64 + 44px against a 288px line; the 44px is the
-     theme button, an icon with no word (themes.css). */
-  .site-header > .header-controls {
-    gap: 0.9rem;
-  }
-  .reading-settings-summary-rest {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
   .site-header details[open] > .reading-settings-body {
     left: 0;
