@@ -147,6 +147,19 @@
   display: none;
 }
 
+/* A page that holds several cases keeps each case's title: on /lab/what-can-you-infer/ the two
+   cases ask different questions ("Can displacements tell radius and molecular number apart?",
+   "Motion or localization error?") and the rule above hid both. A case heading opts in. */
+.lab-route .laboratory > .lab-heading[data-case-heading] :is(.eyebrow, h2) {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
 /* The execution label, currency and model note as one line under the plot, not a stacked
    panel above it (bm-01 first; ExecutionChrome's own stacked layout stays the default). */
 .lab-status-row {
