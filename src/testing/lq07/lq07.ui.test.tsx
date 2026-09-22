@@ -70,8 +70,10 @@ describe("LQ-07 UI components and route", () => {
     expect(html).toContain('data-execution-label="host"');
     expect(html).toContain("<noscript>");
     expect(html).toContain("JavaScript disabled");
-    expect(html).toContain("Predict Mode");
-    expect(html).toContain("Presets");
+    // Both predictions sit in one closed disclosure under the drawing, and the presets are the
+    // family's "Try" group (lq-07 instrument-first).
+    expect(html).toContain("<summary>Predict first</summary>");
+    expect(html).toContain("<legend>Try</legend>");
     expect(containsHeading(html, "Calculated energy ledger and transition quantities")).toBe(true);
     expect(html).toContain("Budget Verdict");
     expect(html).toContain("Maximum Allowed Frequency");
