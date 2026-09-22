@@ -60,8 +60,8 @@ const PINNED_GOLDENS = {
     modern_plain: "\\sqrt{\\langle x^2 \\rangle} = \\sqrt{2\\,D\\,t}",
   },
   paper3_boost: {
-    printed_plain: "\\tau = \\beta\\,\\left(t - \\frac{v}{\\left(V\\right)^{2}}\\,x\\right)",
-    modern_plain: "t' = \\gamma\\,\\left(t - \\frac{v}{\\left(c\\right)^{2}}\\,x\\right)",
+    printed_plain: "\\tau = \\beta\\,\\left(t - \\frac{v}{V^{2}}\\,x\\right)",
+    modern_plain: "t' = \\gamma\\,\\left(t - \\frac{v}{c^{2}}\\,x\\right)",
   },
   paper3_field_transform: {
     printed_plain: "Y' = \\beta\\,\\left(Y - \\frac{v}{V}\\,N\\right)",

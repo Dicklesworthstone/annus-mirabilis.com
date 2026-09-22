@@ -308,11 +308,11 @@ test("toggle.test: Paper 3 boost coordinate toggle preserves term bindings acros
 
   assert.equal(
     printedPlain.latex,
-    "\\tau = \\beta\\,\\left(t - \\frac{v}{\\left(V\\right)^{2}}\\,x\\right)",
+    "\\tau = \\beta\\,\\left(t - \\frac{v}{V^{2}}\\,x\\right)",
   );
   assert.equal(
     modernPlain.latex,
-    "t' = \\gamma\\,\\left(t - \\frac{v}{\\left(c\\right)^{2}}\\,x\\right)",
+    "t' = \\gamma\\,\\left(t - \\frac{v}{c^{2}}\\,x\\right)",
   );
 
   // Colorized toggle
