@@ -528,8 +528,20 @@ h3 {
 .encounter header {
   margin-bottom: 3rem;
 }
+/* Discover (pane %33). A route opens on a two-sentence question the reader has to read twice,
+   so it is set for reading: at 68.8px it ran four lines in a 760px column at 1440. */
 .encounter h1 {
-  font-size: clamp(2.5rem, 5vw, 4.3rem);
+  font-size: clamp(2rem, 1.4rem + 1.8vw, 2.75rem);
+  line-height: 1.15;
+  /* The global -0.045em is set for 90px display type and crowds the letters at 44px. */
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+/* Each step's heading stays below the route's question: at the global h2 size, 40px at 1440,
+   "The wave theory is not the problem" nearly matched the 44px question above it. */
+.encounter section h2 {
+  font-size: clamp(1.45rem, 1.1rem + 1vw, 1.9rem);
+  line-height: 1.2;
 }
 .encounter section {
   border-top: 1px solid var(--line);
@@ -540,7 +552,9 @@ h3 {
   font-family: var(--font-sans);
   font-size: var(--type-fine);
   letter-spacing: 0.1em;
-  color: var(--accent);
+  /* Muted, like the eyebrows (fda72d46): a number on every step marks the sequence, and in the
+     accent it spent the page's one red a dozen times. */
+  color: var(--muted);
 }
 .formula {
   overflow: auto;
