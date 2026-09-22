@@ -4,7 +4,10 @@
    cannot blow the header off a 320 px screen. */
 
 html {
-  --reader-measure: 40rem;
+  /* Matches data-measure="default". It was 40rem, the font-dependent unit the
+     comment below exists to get rid of, so a reader before the attribute is set
+     got a different line length than after. */
+  --reader-measure: 49ch;
   --reader-type-scale: 1;
   --reader-paragraph-gap: 1em;
 }
@@ -29,31 +32,48 @@ html {
  *
  * THE ch VALUES ARE NOT THE CHARACTER COUNTS, and that is measured rather than assumed. ch is the
  * advance of "0", which in this serif is wider than the average lowercase letter, so prose runs
- * about 1.32 characters per ch: 48ch rendered 63 characters and 58ch rendered 77. The three values
- * below are therefore the targets divided by that ratio - 36ch for ~48, 43ch for the plate's ~57,
- * 53ch for ~70 - and the matrix below is what they actually render.
+ * MORE characters than ch units. The three values are the targets divided by that ratio.
+ *
+ * THE RATIO WAS 1.32 AND IS 1.17, so every setting landed short of the target it names. Re-measured
+ * 2026-09-22 on the built Brownian reading face at 1440x1000, over the 72 pure-prose paragraphs of
+ * .reader-passage (characters divided by line boxes, from height / line-height; paragraphs carrying
+ * math, links or code excluded because their glyph mix is not prose):
+ *
+ *     value    column   chars/line    target
+ *     36ch     377px      42.5        48      <- the old narrow, BELOW the 45-75 band
+ *     43ch     450px      50.5        57      <- the old default, 6.5 short of the plate
+ *     53ch     555px      60.5        70      <- the old wide
+ *
+ *     41ch     429px      48.0        48      <- narrow now
+ *     49ch     513px      56.8        57      <- default now, the plate
+ *     58ch     607px      70.0        70      <- wide now
+ *
+ * A ratio measured on one face and one type size does not transfer by arithmetic to another, which
+ * is why the values are now read off a sweep of the rendered page rather than divided out of a
+ * constant. Re-measure the sweep, do not rescale these numbers, if the reading face or the serif
+ * changes.
  *
  * layout.css:10 already declares the fallback as 65ch; these overrides were the only thing
  * expressing the measure in a font-independent unit.
  */
 html[data-measure="narrow"] {
-  --reader-measure: 36ch;
+  --reader-measure: 41ch;
 }
 html[data-measure="default"] {
-  --reader-measure: 43ch;
+  --reader-measure: 49ch;
 }
 html[data-measure="wide"] {
-  --reader-measure: 53ch;
+  --reader-measure: 58ch;
 }
 
 html[data-measure="narrow"] .reader-anatomy-host {
-  --reader-measure: 36ch;
+  --reader-measure: 41ch;
 }
 html[data-measure="default"] .reader-anatomy-host {
-  --reader-measure: 43ch;
+  --reader-measure: 49ch;
 }
 html[data-measure="wide"] .reader-anatomy-host {
-  --reader-measure: 53ch;
+  --reader-measure: 58ch;
 }
 
 html[data-type-scale="100"] {
