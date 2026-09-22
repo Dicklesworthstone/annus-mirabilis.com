@@ -117,9 +117,6 @@ export async function PaperReader({
                 </div>
               ))}
             </nav>
-            <p className="fine">
-              These are explanatory anchors, not invented source-sentence identifiers.
-            </p>
           </>
         }
         companion={
