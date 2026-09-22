@@ -44,7 +44,8 @@
       {
         "kind": "formula",
         "latex": "s_\\nu=-\\frac{\\rho_\\nu}{B\\nu}\\left[\\ln\\frac{\\rho_\\nu}{A\\nu^3}-1\\right]+C(\\nu)",
-        "spoken": "The integrated entropy density is minus density over B frequency times the bracketed logarithm minus one, plus a frequency-dependent constant."
+        "spoken": "The integrated entropy density is minus density over B frequency times the bracketed logarithm minus one, plus a frequency-dependent constant.",
+        "equations": ["eq-model-lq-wien-entropy-density"]
       },
       {
         "kind": "paragraph",

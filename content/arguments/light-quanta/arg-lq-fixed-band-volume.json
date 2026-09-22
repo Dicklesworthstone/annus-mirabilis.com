@@ -33,7 +33,8 @@
       {
         "kind": "formula",
         "latex": "S(V)-S(V_0)=\\frac{E}{B\\nu}\\ln\\frac{V}{V_0}",
-        "spoken": "The entropy difference is E over B frequency times the natural logarithm of the volume ratio."
+        "spoken": "The entropy difference is E over B frequency times the natural logarithm of the volume ratio.",
+        "equations": ["eq-model-lq-volume-entropy"]
       },
       {
         "kind": "paragraph",
@@ -42,7 +43,8 @@
       {
         "kind": "formula",
         "latex": "\\Delta S_C=\\Delta\\nu\\,C(\\nu)(V-V_0)",
-        "spoken": "An unfixed entropy-density constant would add bandwidth times C of frequency times the volume difference."
+        "spoken": "An unfixed entropy-density constant would add bandwidth times C of frequency times the volume difference.",
+        "equations": ["eq-model-lq-unfixed-constant"]
       },
       {
         "kind": "paragraph",
