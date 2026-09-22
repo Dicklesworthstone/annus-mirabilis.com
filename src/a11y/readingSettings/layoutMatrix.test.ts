@@ -52,31 +52,33 @@ describe("72 tested reading layouts", () => {
       new URL("../../reader/layout/layout.css", import.meta.url),
       "utf8",
     );
-    // A STATED CONSTRAINT, NOT OPEN DEBT: nine of the twelve phone combinations sit below the
+    // A STATED CONSTRAINT, NOT OPEN DEBT: all twelve phone combinations sit below the
     // conventional 45-character floor, and they must.
     //
-    // Measured with cpl2.mjs, which reads TRUE line breaks from rendered line boxes rather than
-    // estimating an advance, at 390x844:
+    // Measured on BUILD 21 (2026-09-22) with readingMatrix.e2e.test.ts's own measure(), which reads
+    // TRUE line breaks from rendered line boxes rather than estimating an advance, at 390x844:
     //
-    //     narrow    46  43  38  31        across type 100 / 112 / 125 / 150
-    //     default   49  43  38  31
-    //     wide      49  43  38  31
+    //     narrow    43  38  34  28     across type 100 / 112 / 125 / 150
+    //     default   43  38  34  28
+    //     wide      43  38  34  28
     //
-    // ELEVEN of the twelve are viewport-bound: the column is 358px whatever the measure says,
-    // because at 390px the viewport is narrower than the setting. The twelfth is not - narrow at
-    // 100% renders 342px, so that one cell is measure-bound. An earlier draft of this note said
-    // "358px at every measure", which was true before the measure moved to ch and is now wrong for
-    // that cell; it is corrected here rather than left as a plausible sentence nobody rechecks.
+    // ALL TWELVE are viewport-bound: the column is 358px whatever the measure says, because at
+    // 390px the viewport is narrower than every setting. Until 2026-09-22 one cell was not - narrow
+    // at 100% was measure-bound at 342px when Narrow was 36ch - and this note said "eleven". Narrow
+    // is now 44ch, wider than a phone at every type size. An earlier draft said "358px at every
+    // measure" when that was false; this one says it now that it is true, and the e2e gate asserts
+    // the count, so the sentence cannot outlive the fact again.
     //
-    // That is arithmetic, not a defect in the scale: 358px at 25.5px type IS about 31 characters.
+    // That is arithmetic, not a defect in the scale: 358px at 28.5px type IS about 28 characters.
     // The only lever that would raise those rows is shrinking the font - which is precisely the
     // setting the reader just used to enlarge it. So DO NOT "fix" this by capping the type scale
     // on narrow viewports; that trades an accessibility affordance for a number.
     //
-    // Desktop 1280x900 holds the band at 12 of 12 (46/46/46/46, 55/55/55/55, 67/67/67/62), and the
-    // anchor is the 1905 setting itself: printed page 554 of ap-17-549 measures 57, 58, 58, 55, 55,
-    // 56 characters per line. Where a 390px screen and that anchor disagree, the screen wins and
-    // the reason is recorded here rather than left looking like something to clean up.
+    // Desktop 1280x900 holds the band at 12 of 12 on BUILD 21 (narrow 57/57/55/50, default
+    // 67/67/62/50, wide 73/67/62/50), and the anchor is the 1905 setting itself: printed page 554
+    // of ap-17-549 measures 57, 58, 58, 55, 55, 56 characters per line, which Narrow reproduces.
+    // Where a 390px screen and that anchor disagree, the screen wins and the reason is recorded
+    // here rather than left looking like something to clean up.
 
     // THE MEASURE MUST BE FONT-RELATIVE, or the two settings do each other's job.
     //

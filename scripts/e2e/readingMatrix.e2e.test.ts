@@ -19,9 +19,10 @@ import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
  * This file closes both halves the orchestrator asked for:
  *
  *   1. A combination that moves OUT of the band fails.
- *   2. A RECORDED REASON that stops holding fails too. The eleven-at-358px and one-at-342px split
- *      is asserted, not narrated, so changing a measure token breaks the explanation rather than
- *      leaving a plausible sentence behind.
+ *   2. A RECORDED REASON that stops holding fails too. Which phone cells are viewport-bound is
+ *      asserted, not narrated, so changing a measure token breaks the explanation rather than
+ *      leaving a plausible sentence behind. (It did: when Narrow went from 36ch to 44ch, the one
+ *      measure-bound cell became viewport-bound and this failed until the record was re-taken.)
  *
  * CPL is counted from TRUE line breaks - the character index at which the client rect's top
  * changes - not from an estimated advance. An earlier attempt used the font shorthand to measure
@@ -30,8 +31,8 @@ import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
  *
  * THE BAND IS 45-75 AND THE ANCHOR IS THE PLATE. Printed page 554 of ap-17-549 measures 57, 58,
  * 58, 55, 55, 56 characters per line. Desktop is held to the band. PHONE IS NOT, DELIBERATELY: at
- * 390px the column is at most 358px, so CPL is set by type size alone and 358px at 25.5px type IS
- * about 31 characters. Raising those rows would mean shrinking the type the reader just enlarged.
+ * 390px the column is at most 358px, so CPL is set by type size alone and 358px at 28.5px type IS
+ * about 28 characters. Raising those rows would mean shrinking the type the reader just enlarged.
  * Those values are pinned as EXPECTED, so they cannot drift unnoticed in either direction.
  */
 
@@ -80,20 +81,33 @@ const MEASURES = ["narrow", "default", "wide"] as const;
 const TYPE_SCALES = ["100", "112", "125", "150"] as const;
 const BAND = { min: 45, max: 75 } as const;
 
-/** Pinned: the phone rows and the column widths that explain them. Change one, and this fails. */
+/**
+ * Pinned: the phone rows and the column widths that explain them. Change one, and this fails.
+ *
+ * RE-TAKEN 2026-09-22 FROM BUILD 21 with this file's own measure(). The record of 03:54 had
+ * narrow/100 measure-bound at 342px (36ch) and the rest at 46-49 / 43 / 38 / 31 CPL. Two things
+ * moved:
+ * - Narrow is now 44ch (41964faa), which is wider than a phone at every type size, so narrow/100
+ *   is viewport-bound at 358px like the other eleven cells.
+ * - The paragraph measured, the Brownian first encounter's "Now assume the displacements...", is
+ *   set at the reading body's 19px (1ch = 10.47px, measured). The old record's own 342px for 36ch
+ *   implies about 17.2px then (1ch = 9.5px). Which commit brought it to 19px was not identified;
+ *   19px is --type-body, the site's stated reading size, so the new values are the intended ones.
+ * The values follow the arithmetic: 358px / 10.47px per ch x ~1.27 characters per ch = 43.
+ */
 const PHONE_EXPECTED: Readonly<Record<string, { cpl: number; width: number }>> = {
-  "narrow/100": { cpl: 46, width: 342 },
-  "narrow/112": { cpl: 43, width: 358 },
-  "narrow/125": { cpl: 38, width: 358 },
-  "narrow/150": { cpl: 31, width: 358 },
-  "default/100": { cpl: 49, width: 358 },
-  "default/112": { cpl: 43, width: 358 },
-  "default/125": { cpl: 38, width: 358 },
-  "default/150": { cpl: 31, width: 358 },
-  "wide/100": { cpl: 49, width: 358 },
-  "wide/112": { cpl: 43, width: 358 },
-  "wide/125": { cpl: 38, width: 358 },
-  "wide/150": { cpl: 31, width: 358 },
+  "narrow/100": { cpl: 43, width: 358 },
+  "narrow/112": { cpl: 38, width: 358 },
+  "narrow/125": { cpl: 34, width: 358 },
+  "narrow/150": { cpl: 28, width: 358 },
+  "default/100": { cpl: 43, width: 358 },
+  "default/112": { cpl: 38, width: 358 },
+  "default/125": { cpl: 34, width: 358 },
+  "default/150": { cpl: 28, width: 358 },
+  "wide/100": { cpl: 43, width: 358 },
+  "wide/112": { cpl: 38, width: 358 },
+  "wide/125": { cpl: 34, width: 358 },
+  "wide/150": { cpl: 28, width: 358 },
 };
 
 async function measure(
@@ -180,7 +194,7 @@ test("the twelve reading combinations: desktop holds the band, phone holds its r
     );
     await desktop.close();
 
-    // THE RECORDED REASON, ASSERTED. Eleven cells are viewport-bound at 358px and one is not.
+    // THE RECORDED REASON, ASSERTED. All twelve cells are viewport-bound at 358px.
     const phone = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await phone.goto(PAGE, { waitUntil: "domcontentloaded" });
     await phone.evaluate(() => document.fonts.ready);
@@ -204,8 +218,8 @@ test("the twelve reading combinations: desktop holds the band, phone holds its r
     }
     assert.equal(
       viewportBound,
-      11,
-      `the recorded reason says ELEVEN phone cells are viewport-bound at 358px and one (narrow/100) is not; ${viewportBound} are. The explanation in layoutMatrix.test.ts is now wrong and must be re-measured, not re-worded.`,
+      12,
+      `the recorded reason says all TWELVE phone cells are viewport-bound at 358px (every measure is wider than a 390px phone); ${viewportBound} are. The explanation in layoutMatrix.test.ts is now wrong and must be re-measured, not re-worded.`,
     );
     assert.deepEqual(
       drift,
