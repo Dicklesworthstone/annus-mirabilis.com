@@ -19,8 +19,11 @@
  * does, rather than appearing inline where the ledger happened to put them.
  */
 
+import Image from "next/image";
 import type { GermanSourceFace } from "../../content/editions/germanSourceFace.ts";
-import { FACE_REGISTRY } from "./registry.ts";
+import { FaceChooser } from "../FaceChooser.tsx";
+import type { FaceAvailability } from "../faceAvailability.ts";
+import { FACE_REGISTRY, type FaceId } from "./registry.ts";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
 import { renderSourceMarkup, sourceDisplayEquation } from "./sourceMarkup.tsx";
 import "../reader.css";
@@ -31,11 +34,19 @@ const MASTHEAD_KINDS = new Set(["masthead-title", "masthead-author"]);
 
 export function GermanDraftFace({
   face,
+  paperId,
   paperTitle,
   germanTitle,
   sectionId,
+  availability,
+  plate,
 }: {
   readonly face: GermanSourceFace;
+  /** For the face chooser. Without it this page had no way to another face but Back. */
+  readonly paperId: string;
+  readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
+  /** The paper's first printed page, set beside the opening of the text on wide screens. */
+  readonly plate?: Readonly<{ src: string; scanHref: string; citation: string }> | undefined;
   readonly paperTitle: string;
   /** The paper's own German title, from its metadata record. Used when no masthead block is in scope. */
   readonly germanTitle: string;
@@ -87,58 +98,84 @@ export function GermanDraftFace({
         </h1>
       </header>
 
-      {/*
+      <FaceChooser
+        paperId={paperId}
+        section={sectionId}
+        current="german"
+        availability={availability}
+      />
+
+      <div className="source-body">
+        {/*
         ONE COLUMN FOR THE TEXT AND EVERYTHING THAT QUALIFIES IT. The notice, its sticky
         label, the German and the footnotes share a measure, and the measure is declared once
         here rather than on each: `ch` resolves against the font of the element that declares
         it, so the label - set smaller - came out 360px over a 450px column when it carried
         the same 43ch itself.
       */}
-      <div className="source-column">
-        {/*
+        <div className="source-column">
+          {/*
           Emitted before the first word of German, unconditionally. It is not behind a
           condition in this component: the notice decides for itself whether to render,
           from the receipt, so a paper that becomes reviewed stops being labelled here
           without this file changing.
         */}
-        <SourceFaceNotice notice={face.notice} />
+          <SourceFaceNotice notice={face.notice} />
 
-        <div data-face-source data-german-draft={face.bibKey}>
-          {body.map((block) =>
-            MASTHEAD_KINDS.has(block.kind) ? (
-              <p key={block.id} id={block.id} className="source-masthead" lang="de">
-                {renderSourceMarkup(block.text, block.id)}
-              </p>
-            ) : HEADING_KINDS.has(block.kind) ? (
-              <h2 key={block.id} id={block.id} lang="de">
-                {renderSourceMarkup(block.text, block.id)}
-              </h2>
-            ) : block.kind === "equation" ? (
-              sourceDisplayEquation(block.text, block.label, block.id, block.id)
-            ) : (
-              <p
-                key={block.id}
-                id={block.id}
-                className="source-paragraph"
-                lang="de"
-                data-block-kind={block.kind}
-              >
-                {renderSourceMarkup(block.text, block.id, block.displayEquationIds)}
-              </p>
-            ),
-          )}
+          <div data-face-source data-german-draft={face.bibKey}>
+            {body.map((block) =>
+              MASTHEAD_KINDS.has(block.kind) ? (
+                <p key={block.id} id={block.id} className="source-masthead" lang="de">
+                  {renderSourceMarkup(block.text, block.id)}
+                </p>
+              ) : HEADING_KINDS.has(block.kind) ? (
+                <h2 key={block.id} id={block.id} lang="de">
+                  {renderSourceMarkup(block.text, block.id)}
+                </h2>
+              ) : block.kind === "equation" ? (
+                sourceDisplayEquation(block.text, block.label, block.id, block.id)
+              ) : (
+                <p
+                  key={block.id}
+                  id={block.id}
+                  className="source-paragraph"
+                  lang="de"
+                  data-block-kind={block.kind}
+                >
+                  {renderSourceMarkup(block.text, block.id, block.displayEquationIds)}
+                </p>
+              ),
+            )}
+          </div>
+
+          {footnotes.length > 0 ? (
+            <section className="source-footnotes" aria-label="Footnotes">
+              <h2>Fußnoten</h2>
+              {footnotes.map((block) => (
+                <p key={block.id} id={block.id} className="source-footnote" lang="de">
+                  {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
+                  {renderSourceMarkup(block.text, block.id)}
+                </p>
+              ))}
+            </section>
+          ) : null}
         </div>
-
-        {footnotes.length > 0 ? (
-          <section className="source-footnotes" aria-label="Footnotes">
-            <h2>Fußnoten</h2>
-            {footnotes.map((block) => (
-              <p key={block.id} id={block.id} className="source-footnote" lang="de">
-                {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
-                {renderSourceMarkup(block.text, block.id)}
-              </p>
-            ))}
-          </section>
+        {plate ? (
+          <figure className="source-plate">
+            <a href={plate.scanHref}>
+              <Image
+                src={plate.src}
+                width={400}
+                height={662}
+                loading="lazy"
+                alt={`The first printed page of this paper, ${plate.citation}: its title block and opening paragraphs as set in 1905.`}
+              />
+            </a>
+            <figcaption>
+              The first page as printed, {plate.citation}.{" "}
+              <a href={plate.scanHref}>Open the whole scan (PDF)</a>
+            </figcaption>
+          </figure>
         ) : null}
       </div>
     </div>

@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { notFound } from "next/navigation";
 import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-light-quanta.json";
 import clockEntranceRaw from "../../content/arguments/special-relativity/entrance-special-relativity.json";
@@ -21,6 +23,7 @@ import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.t
 import { FaceFallback } from "./FaceFallback.tsx";
 import {
   englishFaceHasContent,
+  faceAvailability,
   germanFaceHasContent,
   glossFaceHasContent,
   parallelFaceHasContent,
@@ -105,12 +108,35 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           }
           if (draft) {
             const paperRecord = await loadPaper(resolved.paperId);
+            // The chooser's availability, derived from the same counts the dispatch decides
+            // on, as FaceFallback does. The PDF is not hashed, so facsimile stays unknown.
+            const availability = faceAvailability({
+              blocks: editionBlocks,
+              units: edition?.units.length ?? 0,
+              glossUnits: edition?.glossUnits?.length ?? 0,
+              germanDraftBlocks: draft.blocks.length,
+            });
+            // The paper's first printed page, beside the opening of the text - only on the
+            // whole paper, where that page IS the opening; a section view starts elsewhere.
+            // Offered only when the rendered plate is actually in public/.
+            const platePath = `/figures/plates/${draft.bibKey}-first-page-400.webp`;
+            const plate =
+              !resolved.section && existsSync(join(process.cwd(), "public", platePath))
+                ? {
+                    src: platePath,
+                    scanHref: `/papers/pdfs/${draft.bibKey}.pdf`,
+                    citation: paperRecord.paper.citation,
+                  }
+                : undefined;
             return (
               <GermanDraftFace
                 face={draft}
+                paperId={resolved.paperId}
                 paperTitle={paperRecord.paper.title}
                 germanTitle={paperRecord.paper.germanTitle}
                 sectionId={resolved.section}
+                availability={availability}
+                plate={plate}
               />
             );
           }

@@ -34,7 +34,7 @@
    full width (100cqi, against the container declared on the face's root). A short formula still
    centres in the column (min-width: 100%). On a phone the page is the column, 100cqi equals it,
    and the formulas that are wider scroll inside their line as before. */
-.reader-root:has(> .source-column) {
+.reader-root:has(.source-column) {
   container-type: inline-size;
 }
 [data-german-draft] .source-equation {
@@ -56,4 +56,52 @@
 [data-german-draft] [id],
 .source-footnotes [id] {
   scroll-margin-top: 3rem;
+}
+
+/* ---------------------------------------------------------------------------
+   THE TEXT BESIDE THE PAGE IT WAS SET ON. From 1200px the whole-paper face is one centred
+   composition: the German at the reader's measure, and beside its opening the paper's first
+   printed page, linking to the whole scan. Measured on BUILD 7 at 1440 before this, the column
+   sat 450px wide against the left edge with about two-thirds of the screen empty beside it.
+
+   The plate is the FIRST page and it is not sticky: the draft's blocks carry no page locators,
+   so nothing here knows which page a paragraph was printed on, and a first page riding beside
+   page nine would be a false citation of the scan. It sits where page 132 (or 549, or 639)
+   actually is, beside the opening.
+
+   The header and the face chooser take the composition's width so the title, the tabs and the
+   text share a left edge. Below 1200px nothing changes and the plate is not shown; with
+   loading="lazy" a hidden image is not fetched.
+   --------------------------------------------------------------------------- */
+.source-plate {
+  display: none;
+  margin: 0;
+}
+.source-plate img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+}
+.source-plate figcaption {
+  margin-top: 0.6rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+@media (min-width: 75em) {
+  .source-body:has(> .source-plate) {
+    display: grid;
+    grid-template-columns: minmax(0, var(--reader-measure)) 20rem;
+    column-gap: 4rem;
+    justify-content: center;
+    align-items: start;
+  }
+  .source-plate {
+    display: block;
+  }
+  .reader-root:has(.source-plate) > :is(.page-intro, .reader-controls) {
+    max-width: calc(var(--reader-measure) + 24rem);
+    margin-inline: auto;
+  }
 }
