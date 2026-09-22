@@ -243,6 +243,21 @@ describe("the real corpus: every printed number is pinned", () => {
       // beta = ..." joined across 907/908 the moment 908 existed. The rule has now been right
       // once in advance, so treat a movement it does NOT predict as worth investigating.
       //
+      // 8 -> 9 when p909 landed, AND THE RULE ABOVE DID NOT PREDICT IT, so it was investigated
+      // instead of bumped. There is no new crossing: 908 ends in prose and 909 opens a fresh
+      // indented paragraph, so the rule was right that no sentence spans 908/909. The movement
+      // came from a SECOND category the comment had not named. Enumerating the nine shows it:
+      //
+      //     "1."  "2."  "1."  "2."  "1."          five bare enumerators
+      //     four long sentences                   the crossings and the p897 light-ray sentence
+      //
+      // segmentLedger splits a list enumerator off at its period, so "1." from p909's numbered
+      // item is emitted as a whole "sentence" whose text occurs on many pages and therefore
+      // resolves to more than one. FIVE OF THE NINE ARE NOT SENTENCES. Expect one more per
+      // enumerated item as sections 6 and 7 land. That is a property of the segmenter, not of
+      // the ledger, and it is the second reason this value is not a count of cross-page
+      // sentences.
+      //
       // WHAT THIS NUMBER CANNOT SEE, so that a later reader does not mistake it for the count of
       // cross-page sentences. A crossing is visible here only when [[CONTINUES]] sits on its own
       // line. When it is written inline, glued to the last word, segmentLedger keeps it attached,
@@ -261,7 +276,7 @@ describe("the real corpus: every printed number is pinned", () => {
       // not.) Left as measured rather than repaired here: the repair
       // is either a ledger-wide rewrite touching four papers or a change to segmentLedger, and
       // both belong to am-span-recording-decision-ero2, not to a transcription pane.
-      unplaceableProposedSentences: 8,
+      unplaceableProposedSentences: 9,
     },
   };
 
