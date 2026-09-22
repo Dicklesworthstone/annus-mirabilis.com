@@ -25,12 +25,17 @@ export default function CoefficientMatchPage() {
           independent energy quanta of magnitude{" "}
           <InlineFormula latex={String.raw`R\beta\nu / N = h\nu`} />?
         </p>
-        <p>
-          <a href="/papers/light-quanta/#s6">Read Section 6 of Einstein’s 1905 paper</a>
-        </p>
       </header>
 
       <CoefficientMatchEntry example={example as unknown as PreparedLq06Example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/light-quanta/#s6">Read Section 6 of Einstein’s 1905 paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="the-move-theory">
         <p className="eyebrow">The physical argument</p>

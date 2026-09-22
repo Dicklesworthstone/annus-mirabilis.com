@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useId, useMemo, useState, useSyncExternalStore } from "react";
 import {
   LQ06_DEFAULTS,
+  LQ06_MODEL,
   LQ06_NOT_MODELED,
   LQ06_PRESETS,
   type Lq06ForkAChoice,
@@ -10,8 +11,13 @@ import {
   type Lq06SubexpressionChoice,
 } from "../../../experiments/lq06/definition.ts";
 import { createLq06Session, type PreparedLq06Example } from "../../../experiments/lq06/session.ts";
+import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
+import { SliderField } from "../SliderField.tsx";
 import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
+import "./coefficientMatchLab.css";
 
 export type CoefficientMatchLabProps = Readonly<{
   example?: PreparedLq06Example | undefined;
@@ -20,57 +26,126 @@ export type CoefficientMatchLabProps = Readonly<{
 type PredictPrompt = Readonly<{
   id: string;
   question: string;
-  options: readonly { text: string; correct: boolean }[];
+  options: readonly string[];
   explanation: string;
 }>;
 
+/**
+ * Two predictions. The answer is revealed after a choice and reads the same whichever option
+ * was chosen: a prediction is a starting point, never a score.
+ */
 const PREDICT_PROMPTS: readonly PredictPrompt[] = [
   {
     id: "subexpression-role",
     question:
-      "In the radiation entropy equation S - S₀ = (R/N) ln[(V/V₀)^(N·E / (R·β·ν))], what expression plays the mathematical role of the particle count n in S - S₀ = (R/N) n ln(V/V₀)?",
+      "The radiation's entropy is S − S₀ = (R/N) ln[(V/V₀)^(NE/(Rβν))], and a gas of n molecules has S − S₀ = (R/N) n ln(V/V₀). Which expression plays the part of n?",
     options: [
-      {
-        text: "n_eff = N·E / (R·β·ν) = E / (h·ν), the exponent of the volume ratio.",
-        correct: true,
-      },
-      {
-        text: "n_eff = E, the total radiant energy.",
-        correct: false,
-      },
-      {
-        text: "n_eff = E / (β·ν), the unscaled radiation coefficient.",
-        correct: false,
-      },
+      "NE/(Rβν), which is E/(hν): the exponent of the volume ratio.",
+      "E, the total radiant energy.",
+      "E/(βν), the radiation's own entropy coefficient.",
     ],
     explanation:
-      "The exponent of the volume ratio V/V₀ directly corresponds to the count of independent particles n. This identifies n_eff = N·E / (R·β·ν) = E / (h·ν) and quantum energy ε = E / n_eff = h·ν.",
+      "The exponent of V/V₀ is what counts independent things in the gas law. So n_eff = NE/(Rβν) = E/(hν), and each of those things carries E/n_eff = hν.",
   },
   {
     id: "mean-energy-ratio",
     question:
-      "How does the mean energy of light quanta in a Wien spectrum ⟨ε⟩ = 3 k_B T compare to the mean translational kinetic energy of a gas molecule ⟨E_kin⟩ = (3/2) k_B T at the same temperature?",
+      "Over a Wien spectrum the mean energy of a light quantum is ⟨ε⟩ = 3k_BT. A gas molecule's mean kinetic energy is (3/2)k_BT. How do they compare at one temperature?",
     options: [
-      {
-        text: "Exactly twice as large: the ratio is 3 k_B T / (1.5 k_B T) = 2.",
-        correct: true,
-      },
-      {
-        text: "Exactly equal: thermal equipartition gives the same energy to both.",
-        correct: false,
-      },
-      {
-        text: "Infinitely larger because electromagnetic fields have infinite modes.",
-        correct: false,
-      },
+      "The quantum's is twice the molecule's.",
+      "They are equal, by equipartition.",
+      "The quantum's is unboundedly larger, because the field has infinitely many modes.",
     ],
     explanation:
-      "Einstein §6 integrates the Wien energy and quantum distributions to find ⟨ε⟩ = 3(R/N)T, which is exactly twice the average kinetic energy of a monoatomic gas molecule (3/2)(R/N)T.",
+      "In §6 Einstein finds ⟨ε⟩ = 3(R/N)T by integrating the Wien distribution, exactly twice the (3/2)(R/N)T of a monatomic gas molecule.",
   },
 ];
 
+/** The candidate expressions for "the number of things", in the reader's words. */
+const SUBEXPRESSIONS: readonly { id: Lq06SubexpressionChoice; label: string; desc: string }[] = [
+  {
+    id: "N_E_over_R_beta_nu",
+    label: "NE/(Rβν), or E/(hν)",
+    desc: "the exponent of the volume ratio",
+  },
+  { id: "E", label: "E", desc: "the total radiation energy, in joules" },
+  { id: "nu", label: "ν", desc: "the frequency, in hertz" },
+  { id: "E_over_beta_nu", label: "E/(βν)", desc: "the radiation entropy coefficient, in J/K" },
+  { id: "V", label: "V", desc: "the volume, in m³" },
+];
+
+/** Presets, named for what they set up. The parameters stay in definition.ts. */
+const PRESET_ORDER = [
+  ["theMove", "Einstein’s §6 case: 600 THz, 9.06 nJ"],
+  ["historicalConstants", "With the 1905 printed constants R, β, N"],
+  ["forkACoincidence", "Read the match as a coincidence"],
+  ["unrevealedPrompt", "Start again with nothing chosen"],
+] as const satisfies readonly (readonly [keyof typeof LQ06_PRESETS, string])[];
+
+type FieldKey = "radiationEnergy" | "frequency" | "volumeRatio" | "gasParticles" | "temperature";
+
+/** Display units for the typed fields: the value shown is the model's value divided by `scale`. */
+const FIELDS: Readonly<Record<FieldKey, { label: string; scale: number; digits: number }>> = {
+  radiationEnergy: { label: "Radiation energy E", scale: 1e-9, digits: 3 },
+  frequency: { label: "Frequency ν", scale: 1e12, digits: 1 },
+  volumeRatio: { label: "Volume ratio V/V₀", scale: 1, digits: 3 },
+  gasParticles: { label: "Molecules in the comparison gas, n", scale: 1, digits: 0 },
+  temperature: { label: "Temperature T", scale: 1, digits: 0 },
+};
+
+/** The values table, in the reader's words. */
+const VALUE_ROWS: readonly { id: string; label: string; unit: string; scale?: number }[] = [
+  {
+    id: "effectiveIndependentCount",
+    label: "Number of independent quanta, n_eff = E/(hν)",
+    unit: "",
+  },
+  { id: "quantumEnergy", label: "Energy of each, hν", unit: "J" },
+  { id: "quantumEnergyEv", label: "Energy of each, hν", unit: "eV" },
+  { id: "entropyVolumeCoefficient", label: "Radiation: coefficient of ln(V/V₀)", unit: "J/K" },
+  { id: "gasEntropyVolumeCoefficient", label: "Gas: coefficient of ln(V/V₀)", unit: "J/K" },
+  { id: "radiationEntropy", label: "Radiation: entropy change", unit: "J/K" },
+  { id: "gasEntropy", label: "Gas: entropy change", unit: "J/K" },
+  {
+    id: "meanQuantumEnergyWienEv",
+    label: "Mean quantum energy over a Wien spectrum, 3k_BT",
+    unit: "eV",
+  },
+  {
+    id: "moleculeMeanKineticEnergyEv",
+    label: "Mean kinetic energy of a gas molecule, (3/2)k_BT",
+    unit: "eV",
+  },
+  { id: "meanEnergyRatio", label: "Ratio of the two", unit: "" },
+];
+
+function formatOutput(out: PublishedResult | undefined, unit: string) {
+  if (!out) return <>Not reported</>;
+  if (out.status === "value" && typeof out.value === "number") {
+    const v = out.value;
+    const text =
+      v !== 0 && (Math.abs(v) >= 1e4 || Math.abs(v) < 1e-3) ? (
+        <Sci value={v} digits={4} />
+      ) : (
+        String(Number(v.toPrecision(5)))
+      );
+    return (
+      <>
+        {text}
+        {unit && ` ${unit}`}
+      </>
+    );
+  }
+  if (out.status === "not-applicable") return <>Not applicable: {out.reason}</>;
+  if (out.status === "underdetermined")
+    return <>Not fixed by these settings. Needs: {out.neededInformation.join("; ")}</>;
+  if ("reason" in out) return <>{String(out.reason)}</>;
+  return <>Not determined</>;
+}
+
 export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
   const session = useMemo(() => createLq06Session("lq06-interactive-session", example), [example]);
+  const uid = useId();
 
   const snapshot = useSyncExternalStore(
     session.subscribe,
@@ -83,20 +158,16 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
     return (accepted?.parameters ?? LQ06_DEFAULTS) as unknown as Lq06Parameters;
   }, [accepted]);
 
-  const getOutput = (quantityId: string) => {
-    return accepted?.outputs.find((o) => o.quantityId === quantityId);
-  };
+  const getOutput = (quantityId: string) =>
+    accepted?.outputs.find((o) => o.quantityId === quantityId);
 
   const getOutputValue = (quantityId: string): number | null => {
-    const out = accepted?.outputs.find((o) => o.quantityId === quantityId);
+    const out = getOutput(quantityId);
     return out && out.status === "value" && typeof out.value === "number" ? out.value : null;
   };
 
   const effectiveCount = getOutputValue("effectiveIndependentCount") ?? 2.277774e10;
-  const quantumEnergyJ = getOutputValue("quantumEnergy") ?? 3.975642e-19;
   const quantumEnergyEv = getOutputValue("quantumEnergyEv") ?? 2.4814;
-  const radEntropy = getOutputValue("radiationEntropy") ?? -2.1798e-13;
-  const gasEntropy = getOutputValue("gasEntropy") ?? -9.5699e-23;
   const radVolumeCoeff = getOutputValue("entropyVolumeCoefficient") ?? 3.1448e-13;
   const gasVolumeCoeff = getOutputValue("gasEntropyVolumeCoefficient") ?? 1.3806e-22;
   const meanQuantumEnergyEv = getOutputValue("meanQuantumEnergyWienEv") ?? 0.7756;
@@ -111,856 +182,291 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
   );
   const hasSelection = currentParams.selectedSubexpression !== "none";
 
-  // Predict mode state
-  const [predictActive, setPredictActive] = useState(false);
-  const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
-  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
+  const [error, setError] = useState("");
 
-  // Show the code state
-  const [showCode, setShowCode] = useState(false);
+  function apply(patch: Partial<Lq06Parameters>) {
+    const outcome = session.apply(patch);
+    if (outcome.kind === "refused") {
+      const req = outcome.refusal.details?.requirements;
+      setError(typeof req === "string" ? req : outcome.refusal.message);
+      return false;
+    }
+    setError("");
+    return true;
+  }
 
-  // Local draft sliders
-  const [eNanoJ, setENanoJ] = useState((currentParams.radiationEnergy * 1e9).toFixed(3));
-  const [freqTHz, setFreqTHz] = useState((currentParams.frequency / 1e12).toFixed(1));
-  const [gasN, setGasN] = useState(String(currentParams.gasParticles));
-  const [volRatio, setVolRatio] = useState(currentParams.volumeRatio.toFixed(2));
-  const [tempK, setTempK] = useState(String(currentParams.temperature));
+  function shown(key: FieldKey): string {
+    const field = FIELDS[key];
+    return String(Number((currentParams[key] / field.scale).toFixed(field.digits)));
+  }
 
-  useEffect(() => {
-    setENanoJ((currentParams.radiationEnergy * 1e9).toFixed(3));
-    setFreqTHz((currentParams.frequency / 1e12).toFixed(1));
-    setGasN(String(currentParams.gasParticles));
-    setVolRatio(currentParams.volumeRatio.toFixed(2));
-    setTempK(String(currentParams.temperature));
-  }, [currentParams]);
+  function commit(key: FieldKey, text: string) {
+    const n = Number(text.trim());
+    if (text.trim() === "" || !Number.isFinite(n)) {
+      setDrafts((d) => ({ ...d, [key]: text }));
+      setError(`${FIELDS[key].label}: enter a number.`);
+      return;
+    }
+    if (apply({ [key]: n * FIELDS[key].scale })) {
+      setDrafts((d) => {
+        const { [key]: _done, ...rest } = d;
+        return rest;
+      });
+    } else {
+      setDrafts((d) => ({ ...d, [key]: text }));
+    }
+  }
 
-  const handleApply = (patch: Partial<Lq06Parameters>) => {
-    session.apply(patch);
-  };
+  function field(key: FieldKey) {
+    return {
+      id: `${uid}-${key}`,
+      label: FIELDS[key].label,
+      value: drafts[key] ?? shown(key),
+      onDraft: (v: string) => setDrafts((d) => ({ ...d, [key]: v })),
+      onCommit: (v: string) => commit(key, v),
+    };
+  }
 
-  const handlePreset = (presetParams: Lq06Parameters) => {
-    session.apply(presetParams);
-  };
+  function preset(key: keyof typeof LQ06_PRESETS) {
+    const chosen = LQ06_PRESETS[key];
+    if (!chosen) return;
+    setDrafts({});
+    apply(chosen.parameters);
+  }
 
   return (
     <section
-      className="laboratory"
+      className="laboratory lq06"
       data-instrument-id="lq-06"
       data-testid="lq06-coefficient-match-lab"
+      data-execution-label="host"
+      {...(accepted ? identity(accepted) : {})}
     >
+      <header className="lab-heading">
+        <p className="eyebrow">LQ-06 · The move in §6</p>
+        <h2>Matching the entropy laws to find the light quantum</h2>
+        <span className="badge">{LQ06_MODEL.label}</span>
+      </header>
+
       <noscript>
         <p className="notice">
-          <strong>JavaScript disabled:</strong> Viewing static worked example and reference
-          calculation. Interactive exploration, sliders, and predict mode require JavaScript.
+          JavaScript is off. This is the worked example calculated when the site was built; choosing
+          an expression and moving the settings need JavaScript.
         </p>
       </noscript>
 
-      {/* Header & Presets */}
-      <header
-        className="lab-heading"
-        style={{
-          borderBottom: "1px solid var(--line)",
-          paddingBottom: "1rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "1rem",
-            width: "100%",
-          }}
-        >
-          <div>
-            <p className="eyebrow">Interactive critical edition · Instrument LQ-06</p>
-            <h2 style={{ margin: "0.25rem 0" }}>
-              Matching the entropy laws to derive the light quantum (§6, the move)
-            </h2>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <button
-              type="button"
-              onClick={() => setPredictActive(!predictActive)}
-              className={`button ${predictActive ? "" : "secondary"}`}
-            >
-              {predictActive ? "Exit Predict Mode" : "Enter Predict Mode"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowCode(!showCode)}
-              className="button secondary"
-            >
-              {showCode ? "Hide Kernel Source" : "Show the Code"}
-            </button>
-          </div>
-        </div>
-
-        {/* Presets */}
-        <nav
-          aria-label="Presets"
-          className="preset-list"
-          style={{
-            width: "100%",
-            marginTop: "1rem",
-            paddingTop: "0.75rem",
-            borderTop: "1px solid var(--line)",
-            alignItems: "center",
-          }}
-        >
-          <span className="fine" style={{ fontWeight: 600, marginRight: "0.25rem" }}>
-            Presets:
-          </span>
-          {Object.values(LQ06_PRESETS).map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => handlePreset(p.parameters as unknown as Lq06Parameters)}
-              className="button secondary"
-              title={p.description}
-            >
-              {p.label}
-            </button>
-          ))}
-        </nav>
-      </header>
-
-      {/* Predict Mode */}
-      {predictActive && (
-        <section
-          className="notice"
-          style={{ margin: "1.5rem 0" }}
-          aria-label="Predict Mode: Deduce The Move"
-        >
-          <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-            Predict mode: deduce the move
-          </p>
-          <p className="fine" style={{ margin: "0.25rem 0 1rem" }}>
-            Test your deductive reasoning on why the identical functional form implies discrete
-            energy quanta before revealing the calculation.
-          </p>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div className="lab-columns">
+        <div>
+          <details className="lab-predict">
+            <summary>Predict first</summary>
             {PREDICT_PROMPTS.map((prompt) => (
-              <div
-                key={prompt.id}
-                style={{
-                  background: "var(--panel)",
-                  border: "1px solid var(--line)",
-                  borderRadius: "4px",
-                  padding: "1rem",
-                }}
-              >
-                <p style={{ fontWeight: 600, margin: "0 0 0.5rem" }}>{prompt.question}</p>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                    marginBottom: "0.75rem",
-                  }}
-                >
-                  {prompt.options.map((opt) => (
-                    <label
-                      key={opt.text}
-                      style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: "0.5rem",
-                        padding: "0.5rem",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        border:
-                          userAnswers[prompt.id] === prompt.options.indexOf(opt)
-                            ? "1px solid var(--plot)"
-                            : "1px solid transparent",
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name={prompt.id}
-                        checked={userAnswers[prompt.id] === prompt.options.indexOf(opt)}
-                        onChange={() =>
-                          setUserAnswers({
-                            ...userAnswers,
-                            [prompt.id]: prompt.options.indexOf(opt),
-                          })
-                        }
-                        disabled={revealed[prompt.id]}
-                        style={{ marginTop: "0.2rem" }}
-                      />
-                      <span className="fine" style={{ color: "var(--ink)" }}>
-                        {opt.text}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-
-                {!revealed[prompt.id] ? (
-                  <button
-                    type="button"
-                    disabled={userAnswers[prompt.id] === undefined}
-                    onClick={() => setRevealed({ ...revealed, [prompt.id]: true })}
-                    className="button"
-                  >
-                    Check Deduction
-                  </button>
-                ) : (
-                  <div
-                    className="notice"
-                    style={{
-                      padding: "0.75rem",
-                      marginTop: "0.5rem",
-                    }}
-                  >
-                    <p style={{ fontWeight: "bold", margin: "0 0 0.25rem" }}>
-                      {prompt.options[userAnswers[prompt.id] ?? 0]?.correct
-                        ? "✓ Correct Deduction"
-                        : "✗ Alternative Hypothesis Disproved"}
-                    </p>
-                    <p className="fine" style={{ margin: 0 }}>
-                      {prompt.explanation}
-                    </p>
-                  </div>
+              <fieldset key={prompt.id}>
+                <legend>{prompt.question}</legend>
+                {prompt.options.map((option, idx) => (
+                  <label key={option} className="lab-predict-candidate">
+                    <input
+                      type="radio"
+                      name={`${uid}-${prompt.id}`}
+                      checked={answers[prompt.id] === idx}
+                      onChange={() => setAnswers((a) => ({ ...a, [prompt.id]: idx }))}
+                    />
+                    <span>{option}</span>
+                  </label>
+                ))}
+                {answers[prompt.id] !== undefined && (
+                  <p className="lab-predict-reveal">{prompt.explanation}</p>
                 )}
-              </div>
+              </fieldset>
             ))}
-          </div>
-        </section>
-      )}
+          </details>
 
-      {/* Main Grid: Controls & Visualizations */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(320px, 100%), 1fr))",
-          gap: "1.5rem",
-        }}
-      >
-        {/* Controls Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {/* Subexpression Match Selector */}
-          <div
-            style={{
-              background: "var(--panel)",
-              border: "1px solid var(--line)",
-              padding: "1rem",
-              borderRadius: "4px",
-            }}
-          >
-            <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
-              Select the Subexpression for &quot;Number of Things (n)&quot;
-            </h3>
-            <p className="fine" style={{ margin: "0 0 0.75rem" }}>
-              Compare S - S₀ = (R/N) ln[(V/V₀)^n_eff] with S - S₀ = (R/N) n ln(V/V₀). Which term
-              plays the role of n?
-            </p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {[
-                {
-                  id: "N_E_over_R_beta_nu",
-                  label: "N·E / (R·β·ν)  [or E / (h·ν)]",
-                  desc: "Exponent of volume ratio (Correct)",
-                },
-                { id: "E", label: "E", desc: "Total radiation energy (Units: Joules)" },
-                { id: "nu", label: "ν", desc: "Frequency (Units: Hz)" },
-                {
-                  id: "E_over_beta_nu",
-                  label: "E / (β·ν)",
-                  desc: "Radiation entropy coeff (Units: J/K)",
-                },
-                { id: "V", label: "V", desc: "Volume (Units: m³)" },
-              ].map((item) => (
+          <fieldset className="lab-choice lq06-subexpressions">
+            <legend>Which expression plays the part of n, the number of things?</legend>
+            <div className="actions">
+              {SUBEXPRESSIONS.map((item) => (
                 <button
                   key={item.id}
                   type="button"
+                  aria-pressed={currentParams.selectedSubexpression === item.id}
+                  className={
+                    currentParams.selectedSubexpression === item.id ? "primary" : "secondary"
+                  }
                   onClick={() =>
-                    handleApply({
-                      selectedSubexpression: item.id as Lq06SubexpressionChoice,
+                    apply({
+                      selectedSubexpression: item.id,
                       proposedEnergyElement: item.id === "N_E_over_R_beta_nu" ? "h_nu" : "none",
                     })
                   }
-                  className={`button ${
-                    currentParams.selectedSubexpression === item.id ? "" : "secondary"
-                  }`}
-                  style={{
-                    textAlign: "left",
-                    padding: "0.6rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                  }}
                 >
-                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                    {item.label}
-                  </span>
-                  <span className="fine" style={{ fontSize: "0.75rem" }}>
-                    {item.desc}
-                  </span>
+                  <strong>{item.label}</strong> {item.desc}
                 </button>
               ))}
             </div>
+          </fieldset>
+
+          <div className="input-field lq06-reading">
+            <label htmlFor={`${uid}-fork`}>How to read the match</label>
+            <select
+              id={`${uid}-fork`}
+              value={currentParams.forkAChoice}
+              onChange={(e) => apply({ forkAChoice: e.target.value as Lq06ForkAChoice })}
+            >
+              <option value="none">Not chosen yet</option>
+              <option value="independent-quanta">
+                Radiation behaves as independent quanta of energy hν (Einstein’s move)
+              </option>
+              <option value="coincidence">A formal coincidence: the waves stay continuous</option>
+            </select>
           </div>
 
-          {/* Physical Sliders */}
-          <div
-            style={{
-              background: "var(--panel)",
-              border: "1px solid var(--line)",
-              padding: "1rem",
-              borderRadius: "4px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-            }}
-          >
-            <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>State Parameters</h3>
+          <SliderField {...field("radiationEnergy")} unit="nJ" min={1} max={50} step={0.5} />
+          <SliderField
+            {...field("frequency")}
+            unit="THz"
+            min={200}
+            max={1200}
+            step={10}
+            readout={`${(currentParams.frequency / 1e12).toFixed(1)} THz: each quantum carries ${quantumEnergyEv.toFixed(3)} eV`}
+          />
 
-            {/* Radiation Energy */}
-            <div className="input-field">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <label htmlFor="energy-slider">Radiation Energy (E)</label>
-                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                  {eNanoJ} nJ
-                </span>
-              </div>
-              <input
-                id="energy-slider"
-                type="range"
-                min="1"
-                max="50"
-                step="0.5"
-                value={eNanoJ}
-                onChange={(e) => {
-                  setENanoJ(e.target.value);
-                  handleApply({ radiationEnergy: Number.parseFloat(e.target.value) * 1e-9 });
-                }}
-                style={{ width: "100%", marginTop: "0.25rem" }}
-              />
+          <fieldset className="lab-choice">
+            <legend>Try</legend>
+            <div className="actions">
+              {PRESET_ORDER.map(([key, label]) => (
+                <button key={key} type="button" className="secondary" onClick={() => preset(key)}>
+                  {label}
+                </button>
+              ))}
             </div>
+          </fieldset>
 
-            {/* Frequency */}
-            <div className="input-field">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <label htmlFor="freq-slider">Frequency (ν)</label>
-                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                  {freqTHz} THz
-                </span>
-              </div>
-              <input
-                id="freq-slider"
-                type="range"
-                min="200"
-                max="1200"
-                step="10"
-                value={freqTHz}
-                onChange={(e) => {
-                  setFreqTHz(e.target.value);
-                  handleApply({ frequency: Number.parseFloat(e.target.value) * 1e12 });
-                }}
-                style={{ width: "100%", marginTop: "0.25rem" }}
-              />
-            </div>
+          <ExperimentSettings contents="volume ratio, the comparison gas, temperature">
+            <SliderField {...field("volumeRatio")} unit="ratio" min={0.05} max={2} step={0.05} />
+            <SliderField {...field("gasParticles")} unit="count" min={1} max={100} step={1} />
+            <SliderField {...field("temperature")} unit="K" min={500} max={6000} step={100} />
+          </ExperimentSettings>
 
-            {/* Volume Ratio */}
-            <div className="input-field">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <label htmlFor="vol-slider">Volume Ratio (V / V₀)</label>
-                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                  {volRatio}
-                </span>
-              </div>
-              <input
-                id="vol-slider"
-                type="range"
-                min="0.05"
-                max="2.0"
-                step="0.05"
-                value={volRatio}
-                onChange={(e) => {
-                  setVolRatio(e.target.value);
-                  handleApply({ volumeRatio: Number.parseFloat(e.target.value) });
-                }}
-                style={{ width: "100%", marginTop: "0.25rem" }}
-              />
-            </div>
-
-            {/* Gas Particles */}
-            <div className="input-field">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <label htmlFor="gas-slider">Comparison Gas Particles (n)</label>
-                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                  {gasN}
-                </span>
-              </div>
-              <input
-                id="gas-slider"
-                type="range"
-                min="1"
-                max="100"
-                step="1"
-                value={gasN}
-                onChange={(e) => {
-                  setGasN(e.target.value);
-                  handleApply({ gasParticles: Number.parseInt(e.target.value, 10) });
-                }}
-                style={{ width: "100%", marginTop: "0.25rem" }}
-              />
-            </div>
-
-            {/* Blackbody Temperature */}
-            <div className="input-field">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <label htmlFor="temp-slider">Blackbody Temperature (T)</label>
-                <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                  {tempK} K
-                </span>
-              </div>
-              <input
-                id="temp-slider"
-                type="range"
-                min="500"
-                max="6000"
-                step="100"
-                value={tempK}
-                onChange={(e) => {
-                  setTempK(e.target.value);
-                  handleApply({ temperature: Number.parseFloat(e.target.value) });
-                }}
-                style={{ width: "100%", marginTop: "0.25rem" }}
-              />
-            </div>
-
-            {/* Fork A Choice */}
-            <div className="input-field">
-              <label htmlFor="fork-select" style={{ display: "block", marginBottom: "0.25rem" }}>
-                Fork A: Epistemic Interpretation
-              </label>
-              <select
-                id="fork-select"
-                value={currentParams.forkAChoice}
-                onChange={(e) => {
-                  handleApply({ forkAChoice: e.target.value as Lq06ForkAChoice });
-                }}
-                style={{ width: "100%", padding: "0.4rem" }}
-              >
-                <option value="none">No philosophical stance chosen</option>
-                <option value="independent-quanta">
-                  Light Quanta Hypothesis: Radiation behaves as independent energy packets (The
-                  Move)
-                </option>
-                <option value="coincidence">
-                  Formal Coincidence: Purely an algebraic curiosity, waves remain continuous
-                </option>
-              </select>
-            </div>
-          </div>
+          {error && (
+            <p role="alert" className="notice error">
+              {error}
+            </p>
+          )}
         </div>
 
-        {/* Visualizations Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <CoefficientMatchSideBySidePlot
-            radiationEnergyJ={currentParams.radiationEnergy}
-            frequencyHz={currentParams.frequency}
-            volumeRatio={currentParams.volumeRatio}
-            gasParticles={currentParams.gasParticles}
-            effectiveCount={effectiveCount}
-            quantumEnergyEv={quantumEnergyEv}
-            radVolumeCoeff={radVolumeCoeff}
-            gasVolumeCoeff={gasVolumeCoeff}
-            isMatch={isMatch}
-            hasSelection={hasSelection}
-          />
-
-          <MeanEnergyStripPlot
-            meanQuantumEnergyEv={meanQuantumEnergyEv}
-            moleculeKineticEnergyEv={moleculeKineticEnergyEv}
-            temperatureK={currentParams.temperature}
-            ratio={meanEnergyRatio}
-            ratioAt600THz={ratioAt600THz}
-          />
-
-          {/* Three Logical-Role Cards */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))",
-              gap: "0.75rem",
-            }}
-          >
-            <div
-              style={{
-                background: "var(--panel)",
-                border: "1px solid var(--line)",
-                borderRadius: "4px",
-                padding: "0.75rem",
-              }}
-            >
-              <span
-                style={{
-                  fontWeight: "bold",
-                  display: "block",
-                  borderBottom: "1px solid var(--line)",
-                  paddingBottom: "0.25rem",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                1. Derivation (Algebra)
-              </span>
-              <p className="fine" style={{ margin: 0 }}>
-                The functional forms of Wien radiation entropy and Boltzmann gas entropy agree
-                identically if and only if n = N·E / (R·β·ν) = E / (h·ν).
-              </p>
-            </div>
-
-            <div
-              style={{
-                background: "var(--panel)",
-                border: "1px solid var(--line)",
-                borderRadius: "4px",
-                padding: "0.75rem",
-              }}
-            >
-              <span
-                style={{
-                  fontWeight: "bold",
-                  display: "block",
-                  borderBottom: "1px solid var(--line)",
-                  paddingBottom: "0.25rem",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                2. Heuristic Inference
-              </span>
-              <p className="fine" style={{ margin: 0 }}>
-                Monochromatic radiation of low density in the Wien regime behaves thermodynamically
-                <strong> as though</strong> it consists of independent energy quanta of magnitude
-                h·ν.
-              </p>
-            </div>
-
-            <div
-              style={{
-                background: "var(--panel)",
-                border: "1px solid var(--line)",
-                borderRadius: "4px",
-                padding: "0.75rem",
-              }}
-            >
-              <span
-                style={{
-                  fontWeight: "bold",
-                  display: "block",
-                  borderBottom: "1px solid var(--line)",
-                  paddingBottom: "0.25rem",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                3. Further Hypothesis
-              </span>
-              <p className="fine" style={{ margin: 0 }}>
-                Are the laws of production (Stokes rule §7) and transformation (photoelectric §8,
-                ionization §9) also governed by discrete energy exchanges of size h·ν?
-              </p>
-            </div>
-          </div>
-
-          {/* Quantitative Telemetry Table */}
-          <div
-            style={{
-              background: "var(--panel)",
-              border: "1px solid var(--line)",
-              padding: "1rem",
-              borderRadius: "4px",
-            }}
-          >
-            <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
-              Accepted telemetry snapshot
-            </h4>
-            <section className="table-scroll" aria-label="Accepted telemetry snapshot table">
-              <table aria-label="Accepted telemetry snapshot">
-                <thead>
-                  <tr>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Symbol</th>
-                    <th scope="col">Status</th>
-                    <th scope="col" style={{ textAlign: "right" }}>
-                      Value
-                    </th>
-                  </tr>
-                </thead>
-                <tbody style={{ fontFamily: "var(--font-mono)" }}>
-                  <tr data-quantity-id="radiationEnergy">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Radiation Energy
-                    </th>
-                    <td>E</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>{(currentParams.radiationEnergy * 1e9).toFixed(4)} nJ</td>
-                  </tr>
-                  <tr data-quantity-id="frequency">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Frequency
-                    </th>
-                    <td>ν</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>{(currentParams.frequency / 1e12).toFixed(2)} THz</td>
-                  </tr>
-                  <tr data-quantity-id="volumeRatio">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Volume Ratio
-                    </th>
-                    <td>V/V₀</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>{currentParams.volumeRatio.toFixed(4)}</td>
-                  </tr>
-                  <tr data-quantity-id="effectiveIndependentCount">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Effective Quanta Count (Never Rounded)
-                    </th>
-                    <td>n_eff</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>
-                      <Sci value={effectiveCount} digits={6} />
-                    </td>
-                  </tr>
-                  <tr data-quantity-id="quantumEnergy">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Energy per Quantum (SI)
-                    </th>
-                    <td>ε = hν</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>
-                      <Sci value={quantumEnergyJ} digits={6} /> J
-                    </td>
-                  </tr>
-                  <tr data-quantity-id="quantumEnergyEv">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Energy per Quantum (eV)
-                    </th>
-                    <td>ε_eV</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>{quantumEnergyEv.toFixed(6)} eV</td>
-                  </tr>
-                  <tr data-quantity-id="entropyVolumeCoefficient">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Radiation Entropy Volume Coeff
-                    </th>
-                    <td>E / (βν)</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>
-                      <Sci value={radVolumeCoeff} digits={6} /> J/K
-                    </td>
-                  </tr>
-                  <tr data-quantity-id="gasEntropyVolumeCoefficient">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Gas Entropy Volume Coeff
-                    </th>
-                    <td>(R/N) n</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>
-                      <Sci value={gasVolumeCoeff} digits={6} /> J/K
-                    </td>
-                  </tr>
-                  <tr data-quantity-id="radiationEntropy">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Radiation Entropy Change
-                    </th>
-                    <td>ΔS_rad</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>
-                      <Sci value={radEntropy} digits={6} /> J/K
-                    </td>
-                  </tr>
-                  <tr data-quantity-id="gasEntropy">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Gas Entropy Change
-                    </th>
-                    <td>ΔS_gas</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>
-                      <Sci value={gasEntropy} digits={6} /> J/K
-                    </td>
-                  </tr>
-                  <tr data-quantity-id="meanQuantumEnergyWienEv">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Wien Mean Quantum Energy
-                    </th>
-                    <td>⟨ε⟩ = 3 k_B T</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>{meanQuantumEnergyEv.toFixed(6)} eV</td>
-                  </tr>
-                  <tr data-quantity-id="moleculeMeanKineticEnergyEv">
-                    <th
-                      scope="row"
-                      style={{ fontFamily: "var(--font-sans)", fontWeight: "normal" }}
-                    >
-                      Gas Molecule Kinetic Energy
-                    </th>
-                    <td>⟨E_kin⟩ = 1.5 k_B T</td>
-                    <td>
-                      <span className="badge">value</span>
-                    </td>
-                    <td>{moleculeKineticEnergyEv.toFixed(6)} eV</td>
-                  </tr>
-                </tbody>
-              </table>
-            </section>
+        <div className="lab-results">
+          <div className="lq06-plots">
+            <CoefficientMatchSideBySidePlot
+              radiationEnergyJ={currentParams.radiationEnergy}
+              frequencyHz={currentParams.frequency}
+              volumeRatio={currentParams.volumeRatio}
+              gasParticles={currentParams.gasParticles}
+              effectiveCount={effectiveCount}
+              quantumEnergyEv={quantumEnergyEv}
+              radVolumeCoeff={radVolumeCoeff}
+              gasVolumeCoeff={gasVolumeCoeff}
+              isMatch={isMatch}
+              hasSelection={hasSelection}
+            />
+            <MeanEnergyStripPlot
+              meanQuantumEnergyEv={meanQuantumEnergyEv}
+              moleculeKineticEnergyEv={moleculeKineticEnergyEv}
+              temperatureK={currentParams.temperature}
+              ratio={meanEnergyRatio}
+              ratioAt600THz={ratioAt600THz}
+            />
           </div>
         </div>
       </div>
 
-      {/* Show the Code */}
-      {showCode && (
-        <section
-          className="notice"
-          style={{
-            margin: "1.5rem 0",
-            fontFamily: "var(--font-mono)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              borderBottom: "1px solid var(--line)",
-              paddingBottom: "0.5rem",
-              marginBottom: "0.5rem",
-            }}
-          >
-            <span>Pinned Kernel Evaluator: src/physics/reference/radiation/quanta.ts</span>
-            <span className="badge">TypeScript Reference Owner</span>
-          </div>
-          <pre style={{ margin: 0, overflowX: "auto" }}>
-            <code>{`// Paper 1, §6 The Move: Matching Entropy Coefficients
-// Radiation entropy: S - S_0 = (E / (beta * nu)) * ln(V / V_0)
+      <div className="lq06-roles">
+        <div>
+          <h3>1. Derivation (Algebra)</h3>
+          <p>
+            The Wien radiation entropy and the Boltzmann gas entropy have the same form exactly when
+            n = NE/(Rβν) = E/(hν).
+          </p>
+        </div>
+        <div>
+          <h3>2. Heuristic Inference</h3>
+          <p>
+            Monochromatic radiation of low density, in the Wien regime, behaves thermodynamically{" "}
+            <em>as though</em> it consisted of independent energy quanta of size hν.
+          </p>
+        </div>
+        <div>
+          <h3>3. Further Hypothesis</h3>
+          <p>
+            Are the production of light (Stokes's rule, §7) and its transformation (the
+            photoelectric effect, §8; ionization, §9) also exchanges in amounts of hν?
+          </p>
+        </div>
+      </div>
+
+      <div className="lab-values">
+        <h3>Values at these settings</h3>
+        <section className="table-scroll" aria-label="Values at these settings">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Quantity</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-quantity-id="radiationEnergy">
+                <th scope="row">Radiation energy E</th>
+                <td>{(currentParams.radiationEnergy * 1e9).toFixed(3)} nJ</td>
+              </tr>
+              <tr data-quantity-id="frequency">
+                <th scope="row">Frequency ν</th>
+                <td>{(currentParams.frequency / 1e12).toFixed(1)} THz</td>
+              </tr>
+              <tr data-quantity-id="volumeRatio">
+                <th scope="row">Volume ratio V/V₀</th>
+                <td>{currentParams.volumeRatio}</td>
+              </tr>
+              {VALUE_ROWS.map((row) => (
+                <tr key={row.id} data-quantity-id={row.id}>
+                  <th scope="row">{row.label}</th>
+                  <td data-output={row.id}>{formatOutput(getOutput(row.id), row.unit)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <div className="lab-bottom">
+        <div className="not-modeled">
+          <h3>What this model leaves out</h3>
+          <ul>
+            {LQ06_NOT_MODELED.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+        <details className="lq06-code">
+          <summary>The rule this laboratory evaluates</summary>
+          <p className="fine">
+            From src/physics/reference/radiation/quanta.ts, the audited TypeScript reference
+            evaluator.
+          </p>
+          <pre>
+            <code>{`// Paper 1, §6: matching the entropy coefficients
+// Radiation entropy:     S - S_0 = (E / (beta * nu)) * ln(V / V_0)
 // Boltzmann gas entropy: S - S_0 = (R / N) * n * ln(V / V_0)
 //
 // Equating the exponents in W = (V / V_0)^n:
 // n_eff = (N / R) * (E / (beta * nu)) = E / (h * nu)
 // Energy per quantum: epsilon = E / n_eff = (R * beta * nu) / N = h * nu
 //
-// Mean quantum energy over Wien spectrum:
-// <epsilon> = 3 * (R / N) * T = 3 * k_B * T  (exactly 2x molecule kinetic energy 1.5 * k_B * T)`}</code>
+// Mean quantum energy over a Wien spectrum:
+// <epsilon> = 3 * (R / N) * T = 3 * k_B * T, twice a molecule's 1.5 * k_B * T`}</code>
           </pre>
-        </section>
-      )}
-
-      {/* Limits of this Reference Model */}
-      <footer
-        style={{
-          marginTop: "2rem",
-          borderTop: "1px solid var(--line)",
-          paddingTop: "1.5rem",
-        }}
-      >
-        <h4 className="eyebrow" style={{ marginBottom: "0.75rem" }}>
-          Limits of this reference model (not modeled)
-        </h4>
-        <ul
-          className="fine"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
-            gap: "0.5rem",
-            paddingLeft: "1.25rem",
-            margin: 0,
-          }}
-        >
-          {LQ06_NOT_MODELED.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </footer>
+        </details>
+      </div>
     </section>
   );
 }

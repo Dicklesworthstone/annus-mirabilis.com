@@ -1,0 +1,50 @@
+/* LQ-06, matching the entropy laws (CoefficientMatchLab.tsx). The family's shell in labShell.css
+   does the layout; these rules set only what is particular to this instrument. */
+
+.lq06 .lq06-plots {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* The choice is a question, so its legend reads as a sentence, not as a capitalised label. */
+.lq06 .lq06-subexpressions > legend {
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: var(--font-serif);
+  font-size: var(--type-small);
+  font-weight: 600;
+  padding-bottom: 0.3rem;
+}
+
+/* Each candidate expression is a full-width choice: the expression, then what it is. */
+.lq06 .lq06-subexpressions .actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.lq06 .lq06-reading {
+  margin-top: 1.1rem;
+}
+
+/* The three logical roles of the match: derivation, heuristic, further hypothesis. */
+.lq06 .lq06-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.lq06 .lq06-roles h3 {
+  margin: 0 0 0.3rem;
+  font-size: var(--type-small);
+}
+
+.lq06 .lq06-roles p {
+  margin: 0;
+  font-size: var(--type-fine);
+}
+
+.lq06 .lq06-code pre {
+  white-space: pre-wrap;
+  font-size: var(--type-fine);
+}
