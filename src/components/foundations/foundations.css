@@ -447,9 +447,24 @@ article.foundation-page {
 .foundation-page .foundation-page-rail a:hover {
   text-decoration: underline;
 }
+/* Each paper named once, above its passages; a passage keeps only its section label. */
+.foundation-page .foundation-page-rail .foundation-use-group ul {
+  margin-bottom: 1.25rem;
+}
+.foundation-use-group h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-micro);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  color: var(--muted);
+}
+/* The section label leads the passage's title on its line: "§4  Zero average is not no movement". */
 .foundation-use-where {
-  display: block;
-  margin-bottom: 0.15rem;
+  display: inline-block;
+  min-width: 2.25em;
+  margin-right: 0.5rem;
   font-family: var(--font-sans);
   font-size: var(--type-micro);
   letter-spacing: 0.06em;

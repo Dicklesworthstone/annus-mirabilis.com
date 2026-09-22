@@ -31,7 +31,14 @@ type LessonLike = Readonly<{
   prerequisites: readonly (string | Readonly<{ foundationId: string }>)[];
 }>;
 
-export type LessonUse = Readonly<{ href: string; where: string; title: string }>;
+/** `section` is the printed label ("§4", "Introduction"), or null when the paper has one section. */
+export type LessonUse = Readonly<{
+  href: string;
+  paper: string;
+  section: string | null;
+  title: string;
+}>;
+export type LessonUseGroup = Readonly<{ paper: string; uses: readonly LessonUse[] }>;
 export type LessonLink = Readonly<{ href: string; title: string }>;
 
 function collect(value: unknown, found: Set<string>): void {
@@ -62,8 +69,8 @@ export function paperName(title: string): string {
 
 /**
  * Each passage that sends a reader to `lessonId`, in reading order: papers as Annalen received
- * them, sections as printed, arguments as the section lists them. `where` names the paper, and
- * the section by its printed label ("§4", "Introduction") unless the paper has only one.
+ * them, sections as printed, arguments as the section lists them. Each names its paper, and its
+ * section by the printed label ("§4", "Introduction") unless the paper has only one.
  */
 export function lessonUses(lessonId: string, papers: readonly PaperLike[]): LessonUse[] {
   const rank = (id: string) => (PAPER_ORDER.includes(id) ? PAPER_ORDER.indexOf(id) : 99);
@@ -79,15 +86,28 @@ export function lessonUses(lessonId: string, papers: readonly PaperLike[]): Less
         const label = section.title.split(" · ")[0] ?? section.title;
         uses.push({
           href: `/papers/${paper.id}/${section.id}/#${argument.id}`,
-          where:
-            paper.sections.length > 1
-              ? `${paperName(paper.title)} · ${label}`
-              : paperName(paper.title),
+          paper: paperName(paper.title),
+          section: paper.sections.length > 1 ? label : null,
           title: argument.title,
         });
       }
   }
   return uses;
+}
+
+/**
+ * The passages gathered under their paper, keeping the reading order, so a paper that sends a
+ * reader here five times is named once rather than five times: the energy lesson's rail repeated
+ * "Mass and energy" above five consecutive links on BUILD 19.
+ */
+export function groupByPaper(uses: readonly LessonUse[]): LessonUseGroup[] {
+  const groups: { paper: string; uses: LessonUse[] }[] = [];
+  for (const use of uses) {
+    const last = groups.at(-1);
+    if (last?.paper === use.paper) last.uses.push(use);
+    else groups.push({ paper: use.paper, uses: [use] });
+  }
+  return groups;
 }
 
 /** The lessons that list `lessonId` among their prerequisites, in the order given. */

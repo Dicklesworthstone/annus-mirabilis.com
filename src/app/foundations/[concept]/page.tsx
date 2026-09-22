@@ -1,5 +1,9 @@
 import { notFound } from "next/navigation";
-import { lessonsBuildingOn, lessonUses } from "../../../components/foundations/lessonUses";
+import {
+  groupByPaper,
+  lessonsBuildingOn,
+  lessonUses,
+} from "../../../components/foundations/lessonUses";
 import { contentIndex, loadFoundation, loadPaper } from "../../../content/server";
 import { FoundationBody } from "../../../reader/Blocks";
 import "../../../reader/reader.css";
@@ -30,7 +34,7 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
     papers = await Promise.all(
       index.payloads.filter((p) => p.kind === "paper").map((p) => loadPaper(p.id)),
     ),
-    uses = lessonUses(concept, papers),
+    uses = groupByPaper(lessonUses(concept, papers)),
     buildOn = lessonsBuildingOn(concept, lessons);
   return (
     <article className="foundation-page">
@@ -57,17 +61,28 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
           {uses.length > 0 && (
             <section>
               <h2>Where the papers use it</h2>
-              <ul>
-                {uses.map((use) => (
-                  <li key={use.href}>
-                    <a href={use.href}>
-                      <span className="foundation-use-where">{use.where}</span>
-                      <span className="visually-hidden">: </span>
-                      {use.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              {uses.map((group) => (
+                <div className="foundation-use-group" key={group.paper}>
+                  <h3>{group.paper}</h3>
+                  <ul>
+                    {group.uses.map((use) => (
+                      <li key={use.href}>
+                        <a href={use.href}>
+                          {/* The paper is named once, above; a list of links still hears it. */}
+                          <span className="visually-hidden">{group.paper} </span>
+                          {use.section && (
+                            <span className="foundation-use-where">
+                              {use.section}
+                              <span className="visually-hidden">: </span>
+                            </span>
+                          )}
+                          {use.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </section>
           )}
           {buildOn.length > 0 && (

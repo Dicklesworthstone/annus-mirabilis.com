@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { lessonsBuildingOn, lessonsNamedBy, lessonUses } from "./lessonUses.ts";
+import { groupByPaper, lessonsBuildingOn, lessonsNamedBy, lessonUses } from "./lessonUses.ts";
 
 const lesson = (id: string) => ({ kind: "foundation", id });
 const brownian = {
@@ -46,14 +46,41 @@ describe("the passages that send a reader to a lesson", () => {
     expect(lessonUses("derivatives", [massEnergy, brownian, lightQuanta])).toEqual([
       {
         href: "/papers/light-quanta/s0/#l1",
-        where: "Light quanta · Introduction",
+        paper: "Light quanta",
+        section: "Introduction",
         title: "Opening",
       },
-      { href: "/papers/brownian-motion/s4/#a2", where: "Brownian motion · §4", title: "Second" },
-      { href: "/papers/brownian-motion/s5/#a3", where: "Brownian motion · §5", title: "Third" },
-      // One section only, so the section label would name nothing a reader can find.
-      { href: "/papers/mass-energy/s0/#m1", where: "Mass and energy", title: "Only one" },
+      {
+        href: "/papers/brownian-motion/s4/#a2",
+        paper: "Brownian motion",
+        section: "§4",
+        title: "Second",
+      },
+      {
+        href: "/papers/brownian-motion/s5/#a3",
+        paper: "Brownian motion",
+        section: "§5",
+        title: "Third",
+      },
+      // One section only, so a section label would name nothing a reader can find.
+      {
+        href: "/papers/mass-energy/s0/#m1",
+        paper: "Mass and energy",
+        section: null,
+        title: "Only one",
+      },
     ]);
+  });
+
+  test("grouped under their paper, in reading order, each paper named once", () => {
+    const groups = groupByPaper(lessonUses("derivatives", [massEnergy, brownian, lightQuanta]));
+    expect(groups.map((g) => [g.paper, g.uses.map((u) => u.title)])).toEqual([
+      ["Light quanta", ["Opening"]],
+      ["Brownian motion", ["Second", "Third"]],
+      ["Mass and energy", ["Only one"]],
+    ]);
+    // Every passage lands in exactly one group.
+    expect(groups.flatMap((g) => g.uses).length).toBe(4);
   });
 
   test("planted: an id that only appears as text, or as another kind of record, is not a link", () => {
