@@ -379,6 +379,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         argumentId={a.id}
                         lazy={!sectionId}
                         sectionHref={`/papers/${paper.id}/${a.section}/#${a.id}`}
+                        title={a.title}
                       />
                       <aside className="modern-margin callout-limit" data-reading="3" hidden>
                         <h4>Modern qualifications</h4>

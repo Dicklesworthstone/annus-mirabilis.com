@@ -18,11 +18,14 @@ export function ArgumentEquations({
   argumentId,
   lazy = false,
   sectionHref,
+  title = argumentId,
 }: {
   paperId: string;
   argumentId: string;
   lazy?: boolean;
   sectionHref?: string | undefined;
+  /** The argument's title, for the lazy form's link name. */
+  title?: string | undefined;
 }) {
   const equations = [...paperEquations(paperId).values()].filter(
     (equation) => equation.argument === argumentId,
@@ -41,7 +44,12 @@ export function ArgumentEquations({
   return (
     <>
       {lazy && sectionHref ? (
-        <LazyArgumentEquations paperId={paperId} argumentId={argumentId} sectionHref={sectionHref}>
+        <LazyArgumentEquations
+          paperId={paperId}
+          argumentId={argumentId}
+          sectionHref={sectionHref}
+          title={title}
+        >
           {labLink}
         </LazyArgumentEquations>
       ) : (

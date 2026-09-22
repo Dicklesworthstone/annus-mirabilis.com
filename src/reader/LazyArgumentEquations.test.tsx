@@ -25,7 +25,9 @@ describe("the explorer on a whole-paper page", () => {
       />,
     );
     expect(html).toContain(`data-argument-equations="${ARGUMENT}"`);
-    expect(html).toContain(`<a href="${SECTION}">`);
+    expect(html).toContain(`<a href="${SECTION}"`);
+    // Each such link names its argument, so a list of links on the page is not twelve alike.
+    expect(html).toMatch(/aria-label="Open the equations of “[^"]+” on its section’s page"/);
     expect(html).not.toContain("data-equation-id=");
   });
 

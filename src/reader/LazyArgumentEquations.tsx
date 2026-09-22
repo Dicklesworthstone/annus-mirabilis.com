@@ -33,12 +33,15 @@ export function LazyArgumentEquations({
   paperId,
   argumentId,
   sectionHref,
+  title,
   children,
 }: {
   paperId: string;
   argumentId: string;
   /** The section's own page, where these cards are server-rendered: the no-script route. */
   sectionHref: string;
+  /** The argument's title, so each link's accessible name says which equations it opens. */
+  title: string;
   /** Anything the inline disclosure ends with, such as mass-energy's laboratory link. */
   children?: ReactNode;
 }) {
@@ -82,8 +85,13 @@ export function LazyArgumentEquations({
       ) : (
         <p className="fine" data-equations-fragment={argumentId}>
           {failed ? "The equations did not load here. " : null}
-          <a href={sectionHref}>Open them on this section&rsquo;s own page</a>, where they are part
-          of the page.
+          <a
+            href={sectionHref}
+            aria-label={`Open the equations of “${title}” on its section’s page`}
+          >
+            Open them on this section&rsquo;s own page
+          </a>
+          , where they are part of the page.
         </p>
       )}
       {children}
