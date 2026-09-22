@@ -141,6 +141,15 @@ describe("browser accessible-name verification (am-qt1j)", () => {
         if (target.route !== currentRoute) {
           await page.goto(`${url}${target.route}`);
           currentRoute = target.route;
+          // Instruments keep their advanced controls in a closed "Experiment settings" drawer
+          // (ad178896 onward). A label inside a closed <details> is not rendered, so its
+          // innerText is "" and the visible-text check below would compare nothing. Open every
+          // drawer first, as a reader would, then check the label and name really match.
+          const opened = await page.$$eval("details.experiment-settings", (drawers) => {
+            for (const d of drawers) d.open = true;
+            return drawers.length;
+          });
+          if (opened > 0) await page.waitForTimeout(50);
         }
         const locator = page.getByLabel(target.label, { exact: true });
         const count = await locator.count();
