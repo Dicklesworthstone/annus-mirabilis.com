@@ -114,6 +114,9 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
                 parts.push(`+ ${rendered}`);
               }
             }
+          } else if (i > 0 && arg.kind === "number" && arg.value.startsWith("-")) {
+            // A negative literal after the first term is a subtraction: gamma - 1, not gamma + -1.
+            parts.push(`- ${render({ ...arg, value: arg.value.slice(1) })}`);
           } else {
             const rendered = render(arg);
             if (i === 0) {
@@ -150,11 +153,27 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
         break;
       }
 
-      case "power":
-        s = `\\left(${render(n.base)}\\right)^{${
+      case "power": {
+        /*
+          AN ATOMIC BASE TAKES NO PARENTHESES. Every power was wrapped, so the site printed
+          (c)^2, (v)^2 and v/(V)^2 where the paper prints V^2. A lone unscaled symbol, a plain
+          non-negative number, and pi are atoms; a glyph that already carries a superscript is
+          not, since a second ^ would be a double superscript; everything else keeps its
+          parentheses, which is what makes (x + y)^2 and (-x)^2 unambiguous.
+        */
+        const base = n.base;
+        const atomic =
+          base.kind === "constant" ||
+          (base.kind === "number" && /^\d+(\.\d+)?$/.test(base.value)) ||
+          (base.kind === "symbol" &&
+            (!base.scale || (base.scale.num === 1 && base.scale.den === 1)) &&
+            !resolveSymbolGlyph(base, options).glyph.includes("^"));
+        const rendered = render(base);
+        s = `${atomic ? rendered : `\\left(${rendered}\\right)`}^{${
           n.exponent.den === 1 ? n.exponent.num : `\\frac{${n.exponent.num}}{${n.exponent.den}}`
         }}`;
         break;
+      }
 
       case "root":
         s = `\\sqrt${n.degree === 2 ? "" : `[${n.degree}]`}{${render(n.radicand)}}`;
