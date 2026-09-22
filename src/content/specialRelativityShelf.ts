@@ -146,7 +146,8 @@ export const SPECIAL_RELATIVITY_SHELF_CARDS: readonly KnowledgeCard[] = [
       "This is not a failed theory. Within the scope of these experiments it gives the same formulas and the same predictions as the 1905 kinematics, and the route does not declare it refuted. What separates them is what each takes as given and what each has to add by hand, not a measurement either one fails.",
     sources: [
       {
-        title: "Electromagnetic phenomena in a system moving with any velocity less than that of light",
+        title:
+          "Electromagnetic phenomena in a system moving with any velocity less than that of light",
         date: "1904",
         locator: "Proc. R. Acad. Amsterdam 6, 809",
       },
