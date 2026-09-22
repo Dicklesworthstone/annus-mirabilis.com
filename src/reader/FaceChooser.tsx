@@ -59,7 +59,9 @@ export function FaceChooser({
     in a quiet line after the tabs rather than posing as one, unless it is the face on screen,
     which is always a tab.
   */
-  const pending = FACE_FALLBACK_IDS.filter((id) => availability?.[id] === "empty" && id !== current);
+  const pending = FACE_FALLBACK_IDS.filter(
+    (id) => availability?.[id] === "empty" && id !== current,
+  );
   const tabs = FACE_FALLBACK_IDS.filter((id) => !pending.includes(id));
   return (
     <nav className="reader-controls" aria-label="Reading face">
