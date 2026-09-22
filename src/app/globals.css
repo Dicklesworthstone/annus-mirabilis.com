@@ -1174,13 +1174,32 @@ samp,
   margin: 1rem 0 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(30rem, 100%), 1fr));
-  gap: 0.6rem 2.5rem;
+  gap: 0 2.5rem;
 }
+/* Rows, not a wall of underlines (chrome, pane %44). Every name was an underlined sentence, 37 of
+   them in two columns, so the page read as one block of rules. Each is now a row under a hairline
+   and the whole row is the target, at least 44px tall; the underline comes back on hover and on
+   keyboard focus, where it says which row is meant. */
 .instrument-list li {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.5rem;
+  border-top: 1px solid var(--line);
+}
+.instrument-list a {
+  flex: 1;
+  min-height: 44px;
+  padding: 0.7rem 0;
+  text-decoration: none;
+}
+.instrument-list a:focus-visible {
+  text-decoration: underline;
+}
+@media (hover: hover) {
+  .instrument-list a:hover {
+    text-decoration: underline;
+  }
 }
 
 .paper-catalogue,

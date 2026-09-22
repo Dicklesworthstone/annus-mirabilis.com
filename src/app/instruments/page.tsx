@@ -36,6 +36,9 @@ export const metadata: Metadata = {
  * which passage each serves, which is content work rather than layout.
  */
 
+/* Each paper group uses the name /papers/ and the home plates use (firstPages.ts). Two of them
+   were English titles, "On the electrodynamics of moving bodies" and "Does inertia depend on energy
+   content?", so a paper had one name here and another a click away. */
 const PAPER_GROUPS: readonly {
   readonly prefix: string;
   readonly title: string;
@@ -58,7 +61,7 @@ const PAPER_GROUPS: readonly {
   },
   {
     prefix: "sr-",
-    title: "On the electrodynamics of moving bodies",
+    title: "Special relativity",
     href: "/papers/special-relativity/",
     blurb:
       "What it takes to set two distant clocks, and what follows once you say precisely what that means.",
@@ -72,7 +75,7 @@ const PAPER_GROUPS: readonly {
   },
   {
     prefix: "me-",
-    title: "Does inertia depend on energy content?",
+    title: "Mass and energy",
     href: "/papers/mass-energy/",
     blurb: "What survives when one body's energy is written down twice and subtracted.",
   },
@@ -113,15 +116,12 @@ export default function InstrumentsIndex() {
       <section className="hero">
         <p className="eyebrow">Operate the argument</p>
         <h1>Instruments</h1>
+        {/* One sentence, where two paragraphs stood: on a 390px phone the first of 37
+            instruments sat at y=855, below the first screen (BUILD 17). That they are grouped by
+            paper and named by their question is what the headings and rows below already show. */}
         <p className="lead">
-          An instrument answers one question with a response you can watch change. You set the
-          conditions, it computes, and it says where its number came from. None of them is a
-          recording of nature: each is a model, labelled as one, with the assumptions it makes
-          written beside it.
-        </p>
-        <p>
-          They are grouped by the paper whose claim they interrogate, because that is what a given
-          instrument is for. Each is named by the question it answers.
+          Each answers one question: you set the conditions, it computes, and it says where its
+          number came from. Each is a model, labelled as one, never a recording of nature.
         </p>
       </section>
 
