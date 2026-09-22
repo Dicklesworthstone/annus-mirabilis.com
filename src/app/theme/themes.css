@@ -115,13 +115,17 @@ body {
  * The accent is left for the wordmark, the current section in the nav, focus and hover. With this
  * and the header rules in globals.css injected into that build the same four pages carry 2, 19,
  * 2 and 4, in both themes; the 17 left on the paper page are callout rules and labels.
+ *
+ * `:root`, not `:root:where([data-theme])`: the same (0,2,1) specificity, but it also matches when
+ * JavaScript is off and nothing has set data-theme. Gated on the attribute, links went back to
+ * the old red in a no-JS page while staying ink everywhere else.
  */
-:root:where([data-theme]) a:not(.button) {
+:root a:not(.button) {
   color: var(--ink);
   text-decoration-color: var(--link-underline);
   text-decoration-thickness: 1px;
 }
-:root:where([data-theme]) a:not(.button):hover {
+:root a:not(.button):hover {
   color: var(--accent);
   /* The underline thickens as well as changing colour, so hover is not a colour-only cue. */
   text-decoration: underline 2px;
