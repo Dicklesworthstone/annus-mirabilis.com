@@ -10,6 +10,7 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { WalkConvergence, WalkHistogram, WalkPaths } from "./WalkPlots.tsx";
@@ -131,7 +132,7 @@ export function WalkLab({
     }
   }
   const announcement = view.pending
-    ? "Recording or re-observing the requested trial. Accepted results remain below."
+    ? "Recording or re-observing the requested trial. Accepted results stay on screen until it is done."
     : view.status === "refused"
       ? `${view.refusal?.message ?? "The calculation was refused."} The accepted trial is unchanged.`
       : view.status === "unavailable"
@@ -168,14 +169,6 @@ export function WalkLab({
           <p className="eyebrow">BM-05 · The independent-step argument</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <ExecutionChrome
-          state="host-accepted"
-          view={view}
-          modelNote={modelNoteFromView(view, {
-            notModeled: "A continuous Langevin path; only independent steps of a chosen law.",
-            showTheCodeHref: `#stc-${id}`,
-          })}
-        />
       </header>
       <noscript>
         <p className="notice">
@@ -226,60 +219,64 @@ export function WalkLab({
                     }}
                   />
                 </div>
-                {BM05_FIELDS.map(([key, label, unit]) => (
-                  <div className="input-field" key={key}>
-                    <label htmlFor={`${id}-${key}`}>
-                      {label} <span>({unit})</span>
-                    </label>
+              </div>
+              <ExperimentSettings contents="step size, timing, walkers, recorded steps, seed, bias example">
+                <div className="input-grid">
+                  {BM05_FIELDS.map(([key, label, unit]) => (
+                    <div className="input-field" key={key}>
+                      <label htmlFor={`${id}-${key}`}>
+                        {label} <span>({unit})</span>
+                      </label>
+                      <input
+                        id={`${id}-${key}`}
+                        name={key}
+                        type="text"
+                        inputMode="decimal"
+                        value={draft[key]}
+                        onChange={(e) => {
+                          setDraft({ ...draft, [key]: e.target.value });
+                          setDirty(true);
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <div className="input-field">
+                    <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
                     <input
-                      id={`${id}-${key}`}
-                      name={key}
+                      id={`${id}-seed`}
+                      name="seed"
                       type="text"
-                      inputMode="decimal"
-                      value={draft[key]}
+                      inputMode="numeric"
+                      value={draft.seed}
                       onChange={(e) => {
-                        setDraft({ ...draft, [key]: e.target.value });
+                        setDraft({ ...draft, seed: e.target.value });
                         setDirty(true);
                       }}
                     />
                   </div>
-                ))}
-                <div className="input-field">
-                  <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
-                  <input
-                    id={`${id}-seed`}
-                    name="seed"
-                    type="text"
-                    inputMode="numeric"
-                    value={draft.seed}
-                    onChange={(e) => {
-                      setDraft({ ...draft, seed: e.target.value });
-                      setDirty(true);
-                    }}
-                  />
+                  <div className="input-field">
+                    <label htmlFor={`${id}-bias`}>
+                      Right-step probability in the separate bias example
+                    </label>
+                    <input
+                      id={`${id}-bias`}
+                      name="bias"
+                      type="text"
+                      inputMode="decimal"
+                      value={draft.bias}
+                      onChange={(e) => {
+                        setDraft({ ...draft, bias: e.target.value });
+                        setDirty(true);
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="input-field">
-                  <label htmlFor={`${id}-bias`}>
-                    Right-step probability in the separate bias example
-                  </label>
-                  <input
-                    id={`${id}-bias`}
-                    name="bias"
-                    type="text"
-                    inputMode="decimal"
-                    value={draft.bias}
-                    onChange={(e) => {
-                      setDraft({ ...draft, bias: e.target.value });
-                      setDirty(true);
-                    }}
-                  />
-                </div>
-              </div>
-              <p className="fine">
-                All three sampled laws have the stated step RMS. The bias example below is
-                analytical only and does not change the recorded walk. The uniform finite-step
-                comparison admits at most 400 observed steps.
-              </p>
+                <p className="fine">
+                  All three sampled laws have the stated step RMS. The bias example below is
+                  analytical only and does not change the recorded walk. The uniform finite-step
+                  comparison admits at most 400 observed steps.
+                </p>
+              </ExperimentSettings>
               <div className="actions">
                 <button type="submit">Apply walk settings</button>
                 <button
@@ -370,9 +367,6 @@ export function WalkLab({
           </p>
         </div>
         <div className="lab-results">
-          <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
-            {announcement}
-          </p>
           {view.outcome?.outcome === "budget-exhausted" && (
             <div className="notice error">
               <p>
@@ -393,12 +387,6 @@ export function WalkLab({
               </button>
             </div>
           )}
-          <p className="accepted-caption">
-            Accepted trial: {names[p.kernel]}; seed {p.seed}; {p.walkers} walkers; step RMS{" "}
-            {display(p.stepRms, 1e6)} μm; interval {display(p.tau)} s. Observed after {p.n} of{" "}
-            {p.runSteps} recorded steps. Elapsed time:{" "}
-            <Reading snapshot={snapshot} id="elapsedTime" /> s.
-          </p>
           <WalkHistogram snapshot={snapshot} />
           <table {...identity(snapshot)}>
             <caption>Step law and whole-ensemble spread</caption>
@@ -453,6 +441,25 @@ export function WalkLab({
               </tr>
             </tbody>
           </table>
+          <div className="lab-status-row">
+            <ExecutionChrome
+              state="host-accepted"
+              view={view}
+              modelNote={modelNoteFromView(view, {
+                notModeled: "A continuous Langevin path; only independent steps of a chosen law.",
+                showTheCodeHref: `#stc-${id}`,
+              })}
+            />
+          </div>
+          <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
+            {announcement}
+          </p>
+          <p className="accepted-caption">
+            Accepted trial: {names[p.kernel]}; seed {p.seed}; {p.walkers} walkers; step RMS{" "}
+            {display(p.stepRms, 1e6)} μm; interval {display(p.tau)} s. Observed after {p.n} of{" "}
+            {p.runSteps} recorded steps. Elapsed time:{" "}
+            <Reading snapshot={snapshot} id="elapsedTime" /> s.
+          </p>
           <h3>Two reasons the histogram is not a perfect bell</h3>
           {p.n === 0 ? (
             <p className="notice">
