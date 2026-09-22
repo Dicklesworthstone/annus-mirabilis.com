@@ -127,27 +127,103 @@
   outline-offset: 2px;
 }
 
-/* Dark themes: drop the pale selection fill, keep the channel (am-design-themes-typography-288q).
-   #efe0ad is a light gold chosen for the Annalen page; on the dark themes it left
-   near-white --ink on a pale swatch at 1.06 against the 4.5 minimum. Both rules
-   already carry their distinction in currentColor - an underline on the sentence
-   span, a 2px outline on the visual - so the mark follows --ink and stays visible
-   at full contrast whatever the theme. Nothing is invented: no replacement hue is
-   chosen, the fill is simply removed where its own lightness is wrong, and the
-   authored Annalen appearance is untouched. */
+/* Dark theme: drop the pale selection fill, keep the channel (am-design-themes-typography-288q).
+   #efe0ad is a light gold chosen for the light page; on the dark theme it left near-white text
+   on a pale swatch at 1.06 against the 4.5 minimum. Both rules already carry their distinction
+   without it - an underline on the sentence span, a 2px outline on the visual - so the mark
+   follows the text colour and stays visible. This selector list used to END in the pattern-mode
+   rule for inputs, so its body was that rule's (colour: inherit, a dashed underline) and the fill
+   it describes was never dropped. */
 [data-theme="kramgasse-night"] .equation-sentence span[data-selected="true"],
-[data-theme="kramgasse-night"] .equation-visual [data-selected="true"],
-.semantic-equation[data-pattern="true"] .am-role-input {
-  color: inherit;
-  text-decoration: underline dashed;
+[data-theme="kramgasse-night"] .equation-visual [data-selected="true"] {
+  background: transparent;
 }
-.semantic-equation[data-pattern="true"] .am-role-result {
-  color: inherit;
-  text-decoration: underline double;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .equation-sentence span[data-selected="true"],
+  :root:not([data-theme]) .equation-visual [data-selected="true"] {
+    background: transparent;
+  }
 }
-.semantic-equation[data-pattern="true"] .am-role-constant {
+
+/* ---------------------------------------------------------------------------
+   ONE COLOUR PER QUANTITY (owner's ruling, 2026-09-22). Reading surface, pane %42.
+
+   The slots and their values live in src/equations/quantityColours.ts, and
+   quantityColours.test.ts checks that these declarations match them, so the two cannot drift.
+   A coloured element sets --qc (its slot's colour) and --qd (its slot's pattern-mode line):
+   the formula's term spans through a rule per term id that SemanticEquation writes, and the
+   sentence, legend and value list through an inline style. Both read the same map.
+
+   KaTeX wraps each term's glyphs in a role span (am-role-*) inside the term span. The role span's
+   own colour would win over anything the term span inherits, so inside a formula it takes the
+   term's colour instead. The role classes stay as markers; they no longer carry colour here.
+   --------------------------------------------------------------------------- */
+:root {
+  --q-0: #2a67bd;
+  --q-1: #1d7635;
+  --q-2: #a12d79;
+  --q-3: #7f6601;
+  --q-4: #7a41af;
+  --q-5: #06717a;
+  --q-6: #1e3a71;
+  --q-7: #9b4805;
+}
+:root[data-theme="kramgasse-night"] {
+  --q-0: #7cb4fc;
+  --q-1: #75d78d;
+  --q-2: #ec84b7;
+  --q-3: #ddd674;
+  --q-4: #c49bf3;
+  --q-5: #6fdbe1;
+  --q-6: #c2e2ff;
+  --q-7: #f08c6d;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --q-0: #7cb4fc;
+    --q-1: #75d78d;
+    --q-2: #ec84b7;
+    --q-3: #ddd674;
+    --q-4: #c49bf3;
+    --q-5: #6fdbe1;
+    --q-6: #c2e2ff;
+    --q-7: #f08c6d;
+  }
+}
+.equation-visual [data-term],
+.equation-visual [data-term] [class*="am-role-"],
+.equation-quantity {
+  color: var(--qc, inherit);
+}
+/* Pattern mode: every term drops its colour and shows its slot's line instead, the same line in
+   the formula, the sentence and the legend. The line sits on the innermost span, because a
+   decoration set on an ancestor does not reach KaTeX's inline-block glyph boxes. */
+.semantic-equation[data-pattern="true"] .equation-visual [data-term],
+.semantic-equation[data-pattern="true"] .equation-visual [data-term] [class*="am-role-"],
+.semantic-equation[data-pattern="true"] .equation-quantity {
   color: inherit;
-  text-decoration: underline dotted;
+}
+.semantic-equation[data-pattern="true"] .equation-visual [data-term] [class*="am-role-"],
+.semantic-equation[data-pattern="true"] .equation-legend-name,
+.semantic-equation[data-pattern="true"] .equation-sentence .equation-quantity,
+.semantic-equation[data-pattern="true"] .equation-value-list .equation-quantity {
+  text-decoration: var(--qd);
+  text-underline-offset: 0.2em;
+}
+.equation-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  margin: 0.75rem 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+}
+.equation-legend li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
 }
 .semantic-equation button:disabled {
   opacity: 0.75;

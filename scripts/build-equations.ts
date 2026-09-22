@@ -1,9 +1,11 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { renderToString } from "katex";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
 import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
 import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
+import { assignQuantityColours } from "../src/equations/quantityColours.ts";
 import { compileEquation } from "../src/equations/render.ts";
 import { loadReadingFiles } from "./build-content.ts";
 
@@ -27,6 +29,7 @@ const sourcePaths = [
   "src/equations/quantities.ts",
   "src/equations/massEnergyQuantities.ts",
   "src/equations/teachingProfiles.ts",
+  "src/equations/quantityColours.ts",
   "src/experiments/bm01/definition.ts",
   "src/experiments/me02/definition.ts",
   "src/equations/navigation.ts",
@@ -67,6 +70,61 @@ for (const [paper, file] of [
     )}\n`,
   );
 }
+/*
+  ONE COLOUR PER QUANTITY, PER PAPER (owner's ruling, 2026-09-22). The map is computed from the
+  paper's records together, because a colour is only unique relative to the other quantities in
+  view, and it is written beside the payloads rather than into them, so each compiled equation
+  stays exactly what compileEquation(record) returns. The glyph is rendered here, at build time,
+  so the legend can show it without shipping KaTeX to the reader.
+*/
+const quantityColours: Record<
+  string,
+  Record<string, { slot: number; name: string; glyphHtml: string }>
+> = {};
+for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
+  const own = equations.filter((e) => e.paper === paper);
+  const slots = assignQuantityColours(
+    own.map((e) => ({
+      id: e.id,
+      argument: e.argument,
+      quantityIds: e.terms.map((t) => t.quantityId),
+    })),
+  );
+  // Keyed from the same terms the colouring was computed from, so every coloured id has its record.
+  const quantities = new Map(
+    own.flatMap((e) => e.terms.map((t) => [t.quantityId, t.quantity] as const)),
+  );
+  quantityColours[paper] = Object.fromEntries(
+    Object.entries(slots)
+      .sort(([a], [b]) => (a < b ? -1 : 1))
+      .flatMap(([quantityId, slot]) => {
+        const quantity = quantities.get(quantityId);
+        return quantity
+          ? [
+              [
+                quantityId,
+                {
+                  slot,
+                  name: quantity.name,
+                  glyphHtml: renderToString(quantity.glyph, {
+                    output: "html",
+                    throwOnError: true,
+                    strict: "error",
+                    trust: false,
+                    maxExpand: 100,
+                    maxSize: 10,
+                  }),
+                },
+              ] as const,
+            ]
+          : [];
+      }),
+  );
+}
+await writeFile(
+  "src/generated/quantity-colours.json",
+  `${JSON.stringify({ schemaVersion: 1, rendererDigest, papers: quantityColours }, null, 2)}\n`,
+);
 const usedIds = new Set([
   ...elimination.certificate.premises.flatMap((p) => p.equations),
   ...elimination.certificate.steps.map((step) => step.equation),

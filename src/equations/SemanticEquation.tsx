@@ -1,5 +1,6 @@
 "use client";
 import {
+  type CSSProperties,
   type KeyboardEvent,
   useCallback,
   useEffect,
@@ -8,12 +9,27 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import quantityColourPayload from "../generated/quantity-colours.json";
 import { useEquationScope } from "./EquationScope.tsx";
 import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
 import { navigate } from "./navigation.ts";
+import { QUANTITY_PALETTE } from "./quantityColours.ts";
 import { createSelectionStore } from "./selectionStore.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 import "./equations.css";
+
+type QuantityColour = Readonly<{ slot: number; name: string; glyphHtml: string }>;
+const QUANTITY_COLOURS = quantityColourPayload.papers as Readonly<
+  Record<string, Readonly<Record<string, QuantityColour>>>
+>;
+/** The two custom properties a coloured element reads: its hue, and its pattern-mode line. */
+function colourStyle(colour: QuantityColour | undefined): CSSProperties | undefined {
+  if (!colour) return undefined;
+  return {
+    "--qc": `var(--q-${colour.slot})`,
+    "--qd": QUANTITY_PALETTE[colour.slot]?.pattern,
+  } as CSSProperties;
+}
 export function SemanticEquation({
   equation,
   scope: propScope,
@@ -95,6 +111,30 @@ export function SemanticEquation({
       (selected?.quantityId &&
         equation.terms.find((t) => t.termId === id)?.quantityId === selected.quantityId));
   const equationId = effectiveScope ? `${equation.id}-${effectiveScope}` : equation.id;
+  /*
+    ONE COLOUR PER QUANTITY, looked up by canonical id from the paper's map (build-equations.ts).
+    The formula's term spans come from KaTeX as HTML, so they are coloured by a rule per term id;
+    the sentence, the legend and the value list are coloured by the same id through the same two
+    custom properties. Term ids are validated as [a-z0-9-.A-Z] (ast.ts), so they need no escaping.
+  */
+  const paperColours = QUANTITY_COLOURS[equation.paper] ?? {};
+  const colourOfTerm = (id: string | undefined) => {
+    const term = id ? equation.terms.find((t) => t.termId === id) : undefined;
+    return term ? paperColours[term.quantityId] : undefined;
+  };
+  const termColourCss = equation.terms
+    .map((t) => {
+      const colour = paperColours[t.quantityId];
+      const pattern = colour ? QUANTITY_PALETTE[colour.slot]?.pattern : undefined;
+      return colour && pattern
+        ? `[data-term="${t.termId}"]{--qc:var(--q-${colour.slot});--qd:${pattern}}`
+        : "";
+    })
+    .join("");
+  const legend = [...new Set(equation.terms.map((t) => t.quantityId))].flatMap((quantityId) => {
+    const colour = paperColours[quantityId];
+    return colour ? [{ quantityId, colour }] : [];
+  });
   const navLabel = effectiveScopeLabel
     ? `Terms and operations in ${equation.title || equation.id} (${effectiveScopeLabel})`
     : `Terms and operations in ${equation.title || equation.id}`;
@@ -107,6 +147,7 @@ export function SemanticEquation({
       data-selected-node-id={current ?? undefined}
       data-pattern={String(pattern)}
     >
+      {termColourCss ? <style>{termColourCss}</style> : null}
       <header>
         <p className="eyebrow">Explore the equation · Modern model notation</p>
         <h3>{equation.title}</h3>
@@ -142,6 +183,8 @@ export function SemanticEquation({
           <span
             key={`${f.nodeId ?? "frag"}-${f.text}`}
             data-selected={String(!!selectedNode(f.nodeId))}
+            className={colourOfTerm(f.nodeId) ? "equation-quantity" : undefined}
+            style={colourStyle(colourOfTerm(f.nodeId))}
           >
             {f.text}
           </span>
@@ -152,11 +195,25 @@ export function SemanticEquation({
         parent, and Left/Right move between siblings. Escape clears selection. Tab leaves the
         formula.
       </p>
-      <p className="equation-role-key fine">
-        <span className="am-role-input">Input</span> ·{" "}
-        <span className="am-role-result">Model result</span> ·{" "}
-        <span className="am-role-constant">Constant</span>
-      </p>
+      {legend.length > 0 ? (
+        <ul className="equation-legend" aria-label={`Quantities in ${equation.title}`}>
+          {legend.map(({ quantityId, colour }) => (
+            <li
+              key={quantityId}
+              className="equation-quantity"
+              data-quantity-id={quantityId}
+              style={colourStyle(colour)}
+            >
+              <span
+                className="equation-legend-glyph"
+                aria-hidden="true"
+                {...{ dangerouslySetInnerHTML: { __html: colour.glyphHtml } }}
+              />
+              <span className="equation-legend-name">{colour.name}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       <p className="equation-mathml" role="status" aria-live="polite" aria-atomic="true">
         {note ? `${note.title}. ${note.explanation}` : ""}
       </p>
@@ -273,7 +330,10 @@ export function SemanticEquation({
               v = readTermValue(t, b ? slot : null);
             return (
               <div key={t.termId} data-quantity-id={t.quantityId}>
-                <dt>
+                <dt
+                  className={paperColours[t.quantityId] ? "equation-quantity" : undefined}
+                  style={colourStyle(paperColours[t.quantityId])}
+                >
                   {t.quantity.name}
                   {(t.scale.num !== 1 || t.scale.den !== 1) &&
                     ` (shown × ${t.scale.num}/${t.scale.den})`}
