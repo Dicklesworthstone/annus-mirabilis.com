@@ -54,7 +54,19 @@ export async function PaperReader({
       <header className="page-intro">
         <p className="eyebrow">Read · Brownian motion · Explanation preview</p>
         <h1>{section ? (sections[0]?.title ?? paper.title) : paper.title}</h1>
-        <p className="lead">{paper.description}</p>
+        {/* THE LEAD IS THE PAPER'S, so a section view does not repeat it. It orients a
+            reader who has just arrived at the paper; someone who has navigated to one
+            section has already read it, and on a section page it pushed the argument
+            further down while saying nothing about the section.
+
+            THE TWO DISCLOSURES BELOW STAY ON EVERY VIEW, deliberately. They are not
+            furniture: `sourceNotice` says the text on THIS page is newly authored and
+            not the German source, and the fine print says review is pending and none
+            of it is Einstein's wording. Both are claims about the content being
+            rendered here, so they belong where the claim is made. Dropping them on
+            section views would have been the larger vertical saving and the wrong
+            one. */}
+        {section ? null : <p className="lead">{paper.description}</p>}
         <p className="notice" data-source-status>
           {paper.sourceNotice}
         </p>
