@@ -638,6 +638,33 @@ summary {
   min-height: 28px;
   font-size: 1rem;
 }
+
+/*
+ * The header's disclosure is a CONTROL, not a prose section.
+ *
+ * globals.css styles every <details> as a reading-content disclosure - border top and bottom,
+ * 0.85rem vertical padding, 1.3rem vertical margin - which is right in prose, where a disclosure
+ * is a section of the page and needs rules and air around it. The reading-preferences <details>
+ * lives in the flex header, which already supplies its own gap and padding, so it inherited
+ * 41.6px of margin, 27.2px of padding and two 1px rules on a control that renders ONE line.
+ *
+ * MEASURED at 1280x900: that made its effective height 121.6px against nav's 98px, so a single
+ * control was setting the height of the whole header. This is the same defect as the desktop
+ * regression in 4ca4603e - a box styled to stand alone, nested inside a container that already
+ * spaces its children - one level further out.
+ *
+ * The summary keeps a real touch target; only the prose furniture goes.
+ */
+.site-header details {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.site-header summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
 code,
 pre,
 kbd,
