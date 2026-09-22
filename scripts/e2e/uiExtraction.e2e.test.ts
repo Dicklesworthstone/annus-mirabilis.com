@@ -25,6 +25,7 @@ import { dirname, extname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { type Browser, chromium, webkit } from "playwright";
+import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
 import {
   appendUiExtractionLog,
   newUiExtractionLogRunId,
@@ -395,6 +396,9 @@ const ENGINES = [
 ];
 
 test("am-ahyb: the five extracted-chrome checks, in both engines, against the built site", async (t) => {
+  // Freshness before existence, as in the three guards below: a stale out/ fails
+  // here rather than logging an absence that did not happen.
+  assertOutFreshness();
   if (!existsSync(join(OUT_DIR, "index.html"))) {
     appendUiExtractionLog({
       logRunId: LOG_RUN_ID,
@@ -404,7 +408,11 @@ test("am-ahyb: the five extracted-chrome checks, in both engines, against the bu
       message: "out/index.html is absent; run bun run build before this lane",
       jsEnabled: true,
     });
-    t.skip("out/index.html is absent: not-available, not a pass. Run bun run build.");
+    assert.fail(
+      "out/index.html is absent, so what a reader meets cannot be checked. Run bun run build. " +
+        "This is not-available rather than a pass: a missing artefact is not evidence, and a " +
+        "skip here reports green forever on any machine where out/ happens to be missing.",
+    );
     return;
   }
 
@@ -511,8 +519,16 @@ function breakPaletteShortcut(rewritten: { count: number }) {
 }
 
 test("am-8w0x: identical theme radios render identically in both engines", async (t) => {
+  // Freshness first, then existence, the convention germanSourceVisible.e2e.test.ts
+  // and declaredRoutesBuilt.test.ts already use: an out/ that exists but is 119
+  // commits behind is the other way this file goes green for the wrong reason.
+  assertOutFreshness();
   if (!existsSync(join(OUT_DIR, "index.html"))) {
-    t.skip("out/index.html is absent: not-available, not a pass.");
+    assert.fail(
+      "out/index.html is absent, so what a reader meets cannot be checked. Run bun run build. " +
+        "This is not-available rather than a pass: a missing artefact is not evidence, and a " +
+        "skip here reports green forever on any machine where out/ happens to be missing.",
+    );
     return;
   }
   const { baseUrl, server } = await startStaticServer();
@@ -613,8 +629,16 @@ test("am-8w0x: identical theme radios render identically in both engines", async
 });
 
 test("am-ahyb planted negative: removing the shortcut fails the palette check only", async (t) => {
+  // Freshness first, then existence, the convention germanSourceVisible.e2e.test.ts
+  // and declaredRoutesBuilt.test.ts already use: an out/ that exists but is 119
+  // commits behind is the other way this file goes green for the wrong reason.
+  assertOutFreshness();
   if (!existsSync(join(OUT_DIR, "index.html"))) {
-    t.skip("out/index.html is absent: not-available, not a pass.");
+    assert.fail(
+      "out/index.html is absent, so what a reader meets cannot be checked. Run bun run build. " +
+        "This is not-available rather than a pass: a missing artefact is not evidence, and a " +
+        "skip here reports green forever on any machine where out/ happens to be missing.",
+    );
     return;
   }
   const { baseUrl, server } = await startStaticServer();
@@ -657,8 +681,16 @@ test("am-ahyb planted negative: removing the shortcut fails the palette check on
 });
 
 test("am-ahyb planted negative: a remote script breaks the network check and nothing else", async (t) => {
+  // Freshness first, then existence, the convention germanSourceVisible.e2e.test.ts
+  // and declaredRoutesBuilt.test.ts already use: an out/ that exists but is 119
+  // commits behind is the other way this file goes green for the wrong reason.
+  assertOutFreshness();
   if (!existsSync(join(OUT_DIR, "index.html"))) {
-    t.skip("out/index.html is absent: not-available, not a pass.");
+    assert.fail(
+      "out/index.html is absent, so what a reader meets cannot be checked. Run bun run build. " +
+        "This is not-available rather than a pass: a missing artefact is not evidence, and a " +
+        "skip here reports green forever on any machine where out/ happens to be missing.",
+    );
     return;
   }
   const { baseUrl, server } = await startStaticServer();
