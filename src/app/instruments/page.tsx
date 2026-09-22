@@ -98,7 +98,6 @@ function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
       {ids.map((id) => (
         <li key={id}>
           <a href={`/lab/${id}/`}>{labName(id)}</a>
-          <span className="instrument-id">{id}</span>
         </li>
       ))}
     </ul>
