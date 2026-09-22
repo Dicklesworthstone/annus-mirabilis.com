@@ -807,8 +807,8 @@ export function BrownianFirstEncounter({
                     Less guidance · Laboratory & paper
                   </span>
                   <p className="fine" style={{ marginBottom: "0.75rem" }}>
-                    Test thousands of particles in the BM-01 tracer ensemble or jump straight to
-                    Einstein’s §5 displacement passage.
+                    Test thousands of particles in the tracer-ensemble laboratory or jump straight
+                    to Einstein’s §5 displacement passage.
                   </p>
                 </div>
                 <div className="button-group">
@@ -823,7 +823,7 @@ export function BrownianFirstEncounter({
                     }}
                     className="button"
                   >
-                    Open the BM-01 laboratory
+                    Open the tracer-ensemble laboratory
                   </a>
                   <a href="/papers/brownian-motion/s5/#s5-p1-s1" className="button secondary">
                     Go to the §5 passage
@@ -879,7 +879,7 @@ export function BrownianFirstEncounter({
               Open the foundation on mean, variance and RMS
             </a>
             <a href="/lab/bm-01" className="button secondary">
-              Open the BM-01 tracer laboratory
+              Open the tracer-ensemble laboratory
             </a>
             <a href="/papers/brownian-motion/s5/#s5-p1-s1" className="button secondary">
               Go to the §5 displacement passage
