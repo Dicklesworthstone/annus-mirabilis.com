@@ -28,12 +28,40 @@ describe("owners: every registered id names exactly one real binding", () => {
    * rather than passing an equality between two empty sets. This is the same derive-do-not-hardcode
    * move the MissingOwnerError test below already documents, applied to the count.
    */
-  test("the ids with an owner binding are exactly the registered ids", () => {
+  /*
+   * Two shapes of owner are real, and the naming rule below admits exactly those two.
+   *
+   * 1. One instrument, one session module: `lq-01` -> src/experiments/lq01/session.ts, with a
+   *    function named for it (createLq01Session).
+   * 2. One FAMILY owner shared by several instruments: the three shelf-optics comparisons all
+   *    bind src/experiments/shelfOptics/evaluation.ts's evaluateShelfOptics. That is the
+   *    ownership AGENTS.md asks for ("Kernels own the law"; do not duplicate an owner per page),
+   *    and src/experiments/shelfOptics/registration.test.mjs pins exactly that module. Until
+   *    2026-09-22 this test demanded shape 1 for every id, so the two tests contradicted each
+   *    other and no binding could satisfy both; the fast lane was red on it from the moment the
+   *    shelf commits arrived.
+   *
+   * Shape 2 is not a loophole: a binding off the per-id path passes only when at least two
+   * registered ids name the same module AND the same function. A single stray id pointing at
+   * some other file still fails. And every binding, of either shape, must now name a function
+   * the module really exports, checked by importing it. Before this, "the module exists" was the
+   * only link to reality, so a binding naming a misspelled or deleted function passed.
+   */
+  test("the ids with an owner binding are exactly the registered ids", async () => {
     const bound = new Set(Object.keys(OWNER_BINDINGS));
     const registered = new Set<string>(REGISTERED_IDS);
     expect(bound).toEqual(registered);
     expect(registered.size).toBeGreaterThan(0);
     expect(registered.size).toBeLessThan(CATALOGUE_IDS.length);
+
+    const sharers = new Map<string, string[]>();
+    for (const [id, binding] of Object.entries(OWNER_BINDINGS)) {
+      if (binding?.kind !== "reference-evaluator") continue;
+      const key = `${binding.module}#${binding.function}`;
+      sharers.set(key, [...(sharers.get(key) ?? []), id]);
+    }
+
+    let familyBindings = 0;
     for (const [id, binding] of Object.entries(OWNER_BINDINGS)) {
       // `light-thread` -> `lightThread`. The old rule was id.replace("-", ""), which gives
       // "lightthread" and matched nothing on disk; it had never been reached, because the
@@ -41,14 +69,29 @@ describe("owners: every registered id names exactly one real binding", () => {
       // fails early hides every assertion after it.
       const directoryId = id.replace(/-([a-z0-9])/g, (_, c: string) => c.toUpperCase());
       expect(binding?.kind).toBe("reference-evaluator");
-      if (binding?.kind === "reference-evaluator") {
-        expect(binding.module).toBe(`src/experiments/${directoryId}/session.ts`);
+      if (binding?.kind !== "reference-evaluator") continue;
+      const perInstrument = binding.module === `src/experiments/${directoryId}/session.ts`;
+      if (perInstrument) {
         expect(binding.function.toLowerCase()).toContain(directoryId.toLowerCase());
-        // "naming their real session module" is a claim about the filesystem, so it is checked
-        // against the filesystem rather than against a second copy of the naming rule.
-        expect(existsSync(resolve(process.cwd(), binding.module))).toBe(true);
+      } else {
+        // A family owner: at least two registered ids share this exact module and function.
+        const family = sharers.get(`${binding.module}#${binding.function}`) ?? [];
+        expect({ id, family: family.length >= 2 }).toEqual({ id, family: true });
+        familyBindings += 1;
       }
+      // "naming their real session module" is a claim about the filesystem, so it is checked
+      // against the filesystem rather than against a second copy of the naming rule...
+      const path = resolve(process.cwd(), binding.module);
+      expect(existsSync(path)).toBe(true);
+      // ...and the function it names must really be exported there.
+      const mod = (await import(path)) as Record<string, unknown>;
+      expect({ id, exported: typeof mod[binding.function] }).toEqual({
+        id,
+        exported: "function",
+      });
     }
+    // The family branch is exercised, not merely permitted: the shelf family is bound today.
+    expect(familyBindings).toBeGreaterThan(0);
   });
 
   test("assertOwnerBinding returns null for in-preparation ids without checking a binding", () => {
