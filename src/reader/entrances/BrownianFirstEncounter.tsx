@@ -726,7 +726,7 @@ export function BrownianFirstEncounter({
 
       <p>
         <a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
-          Why do the cross terms vanish? Open the exact missing step →
+          Why do the cross terms vanish? Open the exact missing step
         </a>
       </p>
 
@@ -749,7 +749,7 @@ export function BrownianFirstEncounter({
           </div>
 
           <div>
-            <h5 className="eyebrow">Why Useful in the Paper</h5>
+            <h5 className="eyebrow">Why useful in the paper</h5>
             <p style={{ margin: "0.25rem 0 0" }}>
               {record?.bridge?.whyUsefulHere ??
                 "Section 5 says how far a particle typically wanders after a given time, and that statement is about the squared spread, not about a speed."}
@@ -758,7 +758,7 @@ export function BrownianFirstEncounter({
 
           <div>
             <h5 className="eyebrow" style={{ marginBottom: "0.5rem" }}>
-              Continue With Your Choice of Guidance
+              Continue with your choice of guidance
             </h5>
             <div className="input-grid">
               {/* More Guidance Route */}
@@ -789,7 +789,7 @@ export function BrownianFirstEncounter({
                   }}
                   className="button secondary"
                 >
-                  Open Mean, Variance & RMS Drawer →
+                  Open the mean, variance and RMS drawer
                 </a>
               </div>
 
@@ -823,10 +823,10 @@ export function BrownianFirstEncounter({
                     }}
                     className="button"
                   >
-                    Open BM-01 Lab →
+                    Open the BM-01 laboratory
                   </a>
                   <a href="/papers/brownian-motion/s5/#s5-p1-s1" className="button secondary">
-                    Go to §5 Passage →
+                    Go to the §5 passage
                   </a>
                 </div>
               </div>
@@ -838,7 +838,7 @@ export function BrownianFirstEncounter({
       {/* Complete No-JavaScript Fallback */}
       <noscript>
         <div className="notice" style={{ marginTop: "2rem" }}>
-          <h4>Static Reference (JavaScript Disabled)</h4>
+          <h4>Static reference (JavaScript disabled)</h4>
           <p className="fine" style={{ marginBottom: "1rem" }}>
             With JavaScript disabled, the complete worked arithmetic is presented statically below:
           </p>
@@ -876,13 +876,13 @@ export function BrownianFirstEncounter({
           </div>
           <div className="button-group" style={{ marginTop: "1rem" }}>
             <a href="/foundations/mean-variance-rms" className="button secondary">
-              Open Foundations: Mean, Variance & RMS →
+              Open the foundation on mean, variance and RMS
             </a>
             <a href="/lab/bm-01" className="button secondary">
-              Open BM-01 Tracer Laboratory →
+              Open the BM-01 tracer laboratory
             </a>
             <a href="/papers/brownian-motion/s5/#s5-p1-s1" className="button secondary">
-              Go to §5 Displacement Passage →
+              Go to the §5 displacement passage
             </a>
           </div>
         </div>
