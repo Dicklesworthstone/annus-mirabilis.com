@@ -145,10 +145,6 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // because a 6px excess is exactly the size that could have been noise: 5/5 overflowing at 320
   // and at 360, 0/5 at 390. Same cause as its sibling entries - am-orphaned-stylesheets-5u3c.
   "/foundations/partial-derivatives/@360", // +6px
-  // table.event-ledger, 410px wide, no container at all rather than an inert one.
-  "/lab/sr-01/@320", // +106px
-  "/lab/sr-01/@360", // +66px
-  "/lab/sr-01/@390", // +36px
 
   // RENDERED MATHEMATICS WIDER THAN THE COLUMN. The unclipped offender on each of these is a
   // KaTeX <semantics>/<mrow> subtree - 431px on /lab/lq-01/, 654px on /lab/bm-03/ - not a table.
@@ -171,10 +167,35 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // /lab/sr-03/ reports only clipped KaTeX <path> elements among its offenders, so the element
   // actually driving scrollWidth has not been identified.
   "/lab/sr-03/@320", // +13px
-  // /discover/brownian-motion/ is unstable between builds in a way the others are not: +25px at
-  // 320 only when measured against build ad3987f2, and +236/+196/+166 at 320/360/390 against
-  // w5NVNsD35dd2hZmHUccbw an hour later, with no commit of mine touching that page. Diagnose it
-  // against a build whose working tree is known before assigning a cause.
+  // /discover/brownian-motion/ IS NOT UNSTABLE. IT TRACKS ITS OWN COPY, and I removed two of these
+  // entries on a bad stability check before working that out. Both halves are worth recording.
+  //
+  // THE DEFECT. A knowledge card's <summary> is display:flex with no flexWrap - inline styles in
+  // src/discovery/cards/KnowledgeCard.tsx - and it holds a .badge whose text is a sentence. A row
+  // that cannot wrap turns label length directly into document width, so the page measures
+  // whatever its LONGEST badge happens to say. The widest card is
+  // #card-sutherland-1905-phil-mag, whose badge reads "Parallel work: not available to a 1904
+  // reader" and whose row is 311px wide beside a 16px chevron.
+  //
+  // That is why it appeared to oscillate: +25px at 320 on build ad3987f2, +236/+196/+166 an hour
+  // later, +25px again, and +236/+196/+166 now. No commit of mine touched the page, but
+  // 4cddd6c1 and a780c62f are de-slopping link and badge copy across these routes, and every
+  // change to the longest label moves the number. A page whose width is a function of its prose
+  // will keep doing this until the row can wrap.
+  //
+  // WHY THE TWO WIDER ENTRIES ARE BACK. I removed them after measuring 5 runs per width on one
+  // build - 5/5 overflowing at 320, 0/5 at 360 and 390 - and that check answered the wrong
+  // question. Repeating a measurement against a single build tests whether it is deterministic,
+  // which it is; it cannot see a quantity that varies BETWEEN builds, which is the axis this one
+  // moves on. The very next run put them back as regressions at 556. Restored, with the
+  // measurement that justifies them rather than the one that did not.
+  //
+  // A partial fix is measured and deliberately NOT applied here: flex-wrap on the summary rows
+  // takes 556 to 369, which clears 390 and leaves +49 at 320 and +9 at 360, so it would move two
+  // of these three rather than clear the route. The residue is a 311px element whose text is
+  // ordinary prose and should wrap; min-width:0 on the flex item does not move it, so the cause
+  // is not the usual shrink floor and is not yet known. Fixing two thirds of a route and leaving
+  // an undiagnosed remainder is how a baseline acquires entries nobody can explain.
   "/discover/brownian-motion/@320", // +236px
   "/discover/brownian-motion/@360", // +196px
   "/discover/brownian-motion/@390", // +166px
@@ -198,6 +219,11 @@ const REPAIRED: readonly { readonly route: string; readonly defect: string }[] =
     route: "/lab/me-02/",
     defect:
       ".predict-mode-tabs was display:flex with no flex-wrap, so a row of ~113px buttons could not break onto a second line; it fitted at 390 and failed at 320 and 360",
+  },
+  {
+    route: "/lab/sr-01/",
+    defect:
+      "table.event-ledger carries six columns and had no container at all, so its 437px min-content went straight into the document at 320, 360 and 390 alike; contained by .table-scroll, with the tab stop and name shipped in the same commit so the fix did not trade the overflow for a keyboard trap (702cd935)",
   },
 ]);
 
