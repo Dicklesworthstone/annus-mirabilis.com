@@ -1,50 +1,65 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { renderToStaticMarkup } from "react-dom/server";
 import {
   DISCOVERY_PAPER_SLUGS,
   isDiscoveryPaperSlug,
   UNWRITTEN_DISCOVERY_ROUTES,
   WRITTEN_DISCOVERY_ROUTES,
 } from "../../discovery/journeyRegistry.ts";
-import DiscoverPaperPage, {
-  dynamicParams,
-  generateMetadata,
-  generateStaticParams,
-} from "./[paper]/page.tsx";
 
-describe("Discover [paper] route contracts and page rendering", () => {
-  test("dynamicParams is false to prevent unbounded dynamic route generation", () => {
-    expect(dynamicParams).toBe(false);
-  });
+/**
+ * THIS SUITE USED TO IMPORT `./[paper]/page.tsx` AND TEST ITS RENDERING. THAT SEGMENT NO LONGER
+ * SERVES A URL, SO THOSE TESTS WERE REMOVED RATHER THAN REPOINTED AT THE RETIRED FILE.
+ *
+ * What happened, so the removal is auditable rather than convenient. The dynamic segment existed
+ * to serve discovery routes that had no hand-authored page, and `dynamicParams = false` meant it
+ * served nothing else. Writing the fourth route on 2026-09-22 emptied the unwritten set, so
+ * `generateStaticParams` returned `[]`, and under `output: export` Next reads an empty param list
+ * as a missing function:
+ *
+ *     [Error: Page "/discover/[paper]" is missing "generateStaticParams()"
+ *      so it cannot be used with "output: export" config.]
+ *
+ * Main did not build. The segment was moved to `_retired_paper_route/`, which Next excludes from
+ * routing, so nothing was destroyed and the move is reversible.
+ *
+ * FIVE TESTS WERE DROPPED AND ONE THING GENUINELY LOSES COVERAGE. The two `generateMetadata`
+ * tests, the two render tests and the `notFound` test all exercised that module. Four of the five
+ * covered behaviour the four hand-authored pages now provide directly and cover themselves. The
+ * fifth rendered `JourneyInPreparation`, which has no caller left; the component and its file are
+ * untouched, and it is honest to say its coverage is now zero rather than to keep a green test
+ * over a module no reader can reach.
+ *
+ * THE REPLACEMENT IS STRONGER THAN WHAT IT REPLACES. Nothing previously caught "a declared slug
+ * with neither a page nor a fallback" until `next build` failed with the message above, which
+ * names the wrong cause. The first test below catches it in milliseconds and says what to do.
+ */
+describe("Discover route declarations against the filesystem", () => {
+  const pageFor = (slug: string) => resolve(import.meta.dirname, slug, "page.tsx");
 
-  /**
-   * THIS ASSERTED ALL FOUR SLUGS UNTIL 1555fc88, AND THE CONTRACT CHANGED UNDER IT.
-   *
-   * A written route is a hand-authored page at src/app/discover/<slug>/page.tsx. That static
-   * segment wins over this dynamic one, so generating a param for such a slug produced two route
-   * files claiming one URL while this module went on deciding, from JOURNEY_MAP, what to say
-   * about a route it never served. The dynamic segment now generates only the unwritten slugs.
-   *
-   * The replacement is deliberately STRONGER than what it replaces rather than looser. The old
-   * assertion could only ever have caught a change to this one function. These three catch the
-   * failure the seam actually had: a declaration and a filesystem that disagree.
-   */
-  test("generateStaticParams returns exactly the unwritten slugs, by name", async () => {
-    const params = await generateStaticParams();
-    expect(params).toEqual(UNWRITTEN_DISCOVERY_ROUTES.map((paper) => ({ paper })));
-    for (const slug of WRITTEN_DISCOVERY_ROUTES) {
-      expect(params).not.toContainEqual({ paper: slug });
-    }
+  test("no dynamic segment serves /discover, so every declared slug needs its own page", () => {
+    // Not a census. This asserts the precondition that makes the build work: with the fallback
+    // gone, an unwritten slug has nothing to serve it, and Next's refusal names the wrong cause.
+    expect(
+      existsSync(resolve(import.meta.dirname, "[paper]")),
+      "a dynamic [paper] segment is back; if that is deliberate, it must generate a non-empty " +
+        "param list, because output: export reads an empty one as a missing generateStaticParams",
+    ).toBe(false);
+    expect(
+      UNWRITTEN_DISCOVERY_ROUTES.length,
+      `these slugs are declared but unwritten and nothing serves them: ` +
+        `${UNWRITTEN_DISCOVERY_ROUTES.join(", ")}. Either write ` +
+        `src/app/discover/<slug>/page.tsx for each, or restore a dynamic segment that generates ` +
+        `exactly them. Leaving it is a production build failure, not a missing page.`,
+    ).toBe(0);
   });
 
   test("every written slug has a page module and every unwritten slug has none", () => {
     // The load-bearing one: it compares the DECLARATION against the FILESYSTEM, so it fails
     // when someone adds a route page without declaring it, or declares one without writing it.
     // Nothing else in the suite can see that disagreement.
-    const pageFor = (slug: string) =>
-      resolve(import.meta.dirname, "..", "..", "app", "discover", slug, "page.tsx");
+    //
     // Non-vacuity is asserted on the WRITTEN set only. It once required an unwritten route too,
     // and that was the census-as-assertion trap AGENTS.md records: the fourth route was written
     // on 2026-09-22, the unwritten set became empty, and a test whose subject is a partition went
@@ -74,57 +89,5 @@ describe("Discover [paper] route contracts and page rendering", () => {
     expect(isDiscoveryPaperSlug("mass-energy")).toBe(true);
     expect(isDiscoveryPaperSlug("molecular-dimensions")).toBe(false);
     expect(isDiscoveryPaperSlug("quantum-mechanics")).toBe(false);
-  });
-
-  test("generateMetadata generates descriptive title for valid paper", async () => {
-    const meta = await generateMetadata({ params: Promise.resolve({ paper: "brownian-motion" }) });
-    expect(meta.title).toContain("On the Movement of Small Particles");
-  });
-
-  test("generateMetadata returns fallback title for invalid paper", async () => {
-    const meta = await generateMetadata({ params: Promise.resolve({ paper: "unknown-paper" }) });
-    expect(meta.title).toBe("Not in the edition");
-  });
-
-  test("renders Brownian motion journey page with kramgasse-night theme", async () => {
-    const pageElement = await DiscoverPaperPage({
-      params: Promise.resolve({ paper: "brownian-motion" }),
-    });
-    const html = renderToStaticMarkup(pageElement);
-
-    expect(html).toContain('data-theme="kramgasse-night"');
-    expect(html).toContain('data-journey-id="brownian-motion"');
-    expect(html).toContain(
-      "Suspended microscopic particles in a liquid at rest never settle into permanent stillness.",
-    );
-  });
-
-  test("renders JourneyInPreparation for unpublished paper in production profile with bibliographic props", async () => {
-    const originalEnv = process.env.BUILD_PROFILE;
-    try {
-      process.env.BUILD_PROFILE = "production";
-      const pageElement = await DiscoverPaperPage({
-        params: Promise.resolve({ paper: "light-quanta" }),
-      });
-      const html = renderToStaticMarkup(pageElement);
-
-      expect(html).toContain("This journey is in preparation.");
-      expect(html).toContain(
-        "Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt",
-      );
-      expect(html).toContain(
-        "On a Heuristic Point of View Concerning the Production and Transformation of Light",
-      );
-      expect(html).toContain("Ann. Phys. (4) 17, 132–148 (1905)");
-      expect(html).toContain('href="/papers/light-quanta/"');
-    } finally {
-      process.env.BUILD_PROFILE = originalEnv;
-    }
-  });
-
-  test("throws notFound error when paper slug is invalid", async () => {
-    expect(
-      DiscoverPaperPage({ params: Promise.resolve({ paper: "molecular-dimensions" }) }),
-    ).rejects.toThrow();
   });
 });
