@@ -45,11 +45,15 @@ describe("Discover [paper] route contracts and page rendering", () => {
     // Nothing else in the suite can see that disagreement.
     const pageFor = (slug: string) =>
       resolve(import.meta.dirname, "..", "..", "app", "discover", slug, "page.tsx");
+    // Non-vacuity is asserted on the WRITTEN set only. It once required an unwritten route too,
+    // and that was the census-as-assertion trap AGENTS.md records: the fourth route was written
+    // on 2026-09-22, the unwritten set became empty, and a test whose subject is a partition went
+    // red on the work succeeding. An empty unwritten set is a correct end state, and the partition
+    // assertion below is what keeps the pair honest when one side is empty.
     expect(WRITTEN_DISCOVERY_ROUTES.length).toBeGreaterThan(0);
     for (const slug of WRITTEN_DISCOVERY_ROUTES) {
       expect(existsSync(pageFor(slug)), `written route ${slug} must have a page module`).toBe(true);
     }
-    expect(UNWRITTEN_DISCOVERY_ROUTES.length).toBeGreaterThan(0);
     for (const slug of UNWRITTEN_DISCOVERY_ROUTES) {
       expect(existsSync(pageFor(slug)), `unwritten route ${slug} must NOT have a page`).toBe(false);
     }
