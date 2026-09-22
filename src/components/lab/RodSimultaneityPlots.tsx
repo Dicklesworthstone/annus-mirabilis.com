@@ -316,8 +316,8 @@ export function MinkowskiDiagramPlot({
           marginBottom: "0.5rem",
         }}
       >
-        Spacetime coordinates: light lines at 45°. Boosted axes $x'$ and $ct'$ tilt toward the light
-        cone by angle $\theta = \arctan(v/c)$.
+        Spacetime coordinates, with light lines at 45°. The boosted axes <em>x′</em> and{" "}
+        <em>ct′</em> tilt toward the light cone by the angle θ = arctan(v/c).
       </p>
 
       <svg
