@@ -144,8 +144,30 @@ export async function runSmokeJourney(options: RunSmokeOptions = {}): Promise<Sm
       // the refusal is no less specific than the two it replaces.
       const NAME = "Dark theme";
       const present = (await themeToggle.count()) > 0 && (await themeToggle.isVisible());
+      // THE NAME IS READ ON THE ELEMENT ITSELF, not searched for inside it.
+      //
+      // This read `themeToggle.getByRole("switch", { name: NAME, exact: true })` from 17104098
+      // until now. `locator.getByRole()` scopes to DESCENDANTS, and themeToggle IS the button, so
+      // it asked whether the switch contains another switch. It never does, so `named` was false
+      // on every possible page and this refusal fired on a control that was present and correctly
+      // named. A check that can never pass and a check that can never fail are the same bug with
+      // opposite signs; only executing it tells them apart, and this one was only found by
+      // porting the fixture in 23be4bef and running it.
+      //
+      // `.and()` requires ONE element to satisfy both the selector and the accessible name, which
+      // is the claim being made. Two separate counts would pass on a page carrying a differently
+      // named switch somewhere else.
+      //
+      // getByRole computes the accessible name rather than reading an attribute, which is the
+      // point: the assertion is about what a screen reader announces, and ThemeToggle builds that
+      // name from a visible "Dark" plus a clipped " theme" span. An aria-label check would pass
+      // on markup that announces something else entirely.
       const named =
-        present && (await themeToggle.getByRole("switch", { name: NAME, exact: true }).count()) > 0;
+        present &&
+        (await page
+          .getByRole("switch", { name: NAME, exact: true })
+          .and(page.locator(THEME_SELECTOR))
+          .count()) > 0;
       if (!present || !named) {
         throw new Error(
           present
