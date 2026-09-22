@@ -39,12 +39,58 @@ export const ACCEPTED_COLLISIONS: ReadonlyMap<string, string> = new Map([
       "belongs to GeneratedSectionError in src/content/provenance/writeGeneratedSection.ts.",
   ],
   [
+    "src/testing/outFreshness.test.ts:UNADMITTED_DIGEST",
+    "A hex digest string used as test data, not a refusal code. Line 40 reads " +
+      '`const UNADMITTED_DIGEST = "ffffffffffffeeeeeeeeeeee0000000011111111deadbeef"`, sitting ' +
+      "beside DIGEST and HEAD_SHA, and line 125 passes it as makeFixture({ manifestDigest: ... }). " +
+      "The kebab 'unadmitted-digest' is a worker-protocol refusal in src/workers/protocol/provenance.ts " +
+      "and has never been spelled this way anywhere.",
+  ],
+  [
+    "scripts/ocr-adapters/types.ts:FACSIMILE_DIGEST_MISMATCH",
+    "A member of OcrRefusalCode, the cloud-OCR dispatch subsystem's own 16-code union, not a " +
+      "survivor of the kebab rename. Proven rather than argued: `git log -S FACSIMILE_DIGEST_MISMATCH " +
+      "-- src/reader/facsimile/` is EMPTY, so the reader's 'facsimile-digest-mismatch' never wore " +
+      "this spelling. The two were authored independently - the OCR union in b2225181 (2026-09-16), " +
+      "the reader's code born kebab in 855ae33d (2026-09-20) - and describe different refusals that " +
+      "happen to share a name: an OCR plan failing digest validation, and a served scan failing its " +
+      "pinned digest. See the note below this map about the 16 unconverted OCR codes.",
+  ],
+  [
+    "scripts/ocr-ledgers.test.ts:FACSIMILE_DIGEST_MISMATCH",
+    "Asserts the OcrRefusalCode member above, in the subsystem's own spelling. Same evidence.",
+  ],
+  [
+    "scripts/sources/ocrPlanSchema.ts:FACSIMILE_DIGEST_MISMATCH",
+    "Emits the OcrRefusalCode member above, in the subsystem's own spelling. Same evidence.",
+  ],
+  [
     "src/reader/paperRoutes.ts:BIBLIOGRAPHIC_KEY",
     "A regular-expression constant matching ap-<volume>-<page>, not a refusal code. Line 62 " +
       'holds both spellings at once - `if (BIBLIOGRAPHIC_KEY.test(raw)) return "bibliographic-key";` ' +
       "- the constant and the route kind it returns.",
   ],
 ]);
+
+/**
+ * WHAT THIS CHECK STRUCTURALLY CANNOT SEE, recorded here because four of the entries above would
+ * otherwise read as the debt being handled.
+ *
+ * The check starts from kebab codes THROWN somewhere and looks for their uppercase form. So an
+ * unconverted code is only visible when some other subsystem happens to have coined its kebab
+ * twin. `OcrRefusalCode` in scripts/ocr-adapters/types.ts holds SIXTEEN SCREAMING_SNAKE codes,
+ * and exactly one of them - FACSIMILE_DIGEST_MISMATCH - has a kebab twin elsewhere in the tree.
+ * The other fifteen (CHUNK_TOO_LARGE, CONCURRENCY_TOO_HIGH, PAGE_RANGE_OUT_OF_BOUNDS,
+ * MULTI_SOURCE_PLAN, CLOUD_PROCESSING_NOT_PERMITTED, NO_ADAPTER, FORBIDDEN_ADAPTER_NAME,
+ * FIXTURE_ADAPTER_OUTSIDE_TEST, RENDERER_UNAVAILABLE, WORKER_IDENTITY_MISMATCH,
+ * ADAPTER_UNAVAILABLE, ADAPTER_AUTH, ADAPTER_QUOTA, ADAPTER_BAD_RESPONSE, ADAPTER_TIMEOUT) are
+ * invisible to it and always were.
+ *
+ * So silencing the one visible member loses nothing this check was measuring: it never measured
+ * the other fifteen. The owner's kebab ruling still applies to that union, and converting it is a
+ * separate batch against a subsystem whose dispatch interface does not exist yet
+ * (am-src-ocr-dispatch-interface-m1ur). That debt belongs on a bead, not in this map.
+ */
 
 /** The only excluded file: the one whose job is to name old forms. See the loop below. */
 const SELF = "scripts/check-renamed-refusal-codes.ts";
