@@ -301,8 +301,12 @@
  * while the link's accessible name stays the lesson title alone. Before this, 17 of the 27
  * title links were 23px tall at 390.
  */
+/* The index takes the page frame. It was capped at 1120px, and once the root grew with the
+   window (db82e7bf) the 20rem cards grew too: on BUILD 19 at 1920, three no longer fitted in
+   1120px, so the index fell to two columns of 553px cards with 42% of the screen blank. In the
+   frame it holds four columns at 1440, 1920 and 2560 (cards 321, 376 and 409px), blank 8%, 20%
+   and 34%. */
 .foundations-index {
-  max-width: 1120px;
   margin-inline: auto;
 }
 .lesson-group {
