@@ -20,14 +20,35 @@ const IDENTITY =
  * the theme never changed - which is precisely what it did after `slate` was
  * removed from here and from the step list.
  */
-const THEME_GROUP = `<fieldset class="theme-toggle"><legend>Theme</legend>
-<label><input type="radio" name="t" value="annalen" checked>Light<span> (Annalen)</span></label>
-<label><input type="radio" name="t" value="kramgasse-night">Dark<span> (Kramgasse Night)</span></label>
-</fieldset>
+/**
+ * The theme control this fixture serves, as the site actually renders it.
+ *
+ * It served a three-radio fieldset until 2026-09-22. 884dfc19 replaced that control with one
+ * switch and 17104098 moved the real check in smoke.ts onto `button[role="switch"].theme-switch`
+ * plus an exact accessible name, so this fixture stopped matching what the check looks for and
+ * both tests below went red in the node lane.
+ *
+ * The fixture must stay a FAITHFUL STAND-IN, not merely something the check accepts. Three things
+ * here are load-bearing and copied from the real control rather than invented:
+ *   - role="switch" with aria-checked, which is how the check finds it by role.
+ *   - the accessible name "Dark theme": the visible word "Dark" plus a clipped span reading
+ *     " theme". %28's 977308cd dropped the edition's theme name from it, so a fixture saying
+ *     "Dark theme (Kramgasse Night)" would now be testing a string the site no longer has.
+ *   - starting on annalen, because the check's first expected transition is to kramgasse-night
+ *     and a fixture that started dark would let it pass without the control doing anything.
+ */
+const THEME_GROUP = `<button type="button" role="switch" aria-checked="false" class="theme-switch">
+<span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-knob"></span></span>
+<span>Dark<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)"> theme</span></span>
+</button>
 <script>
 document.documentElement.dataset.theme = "annalen";
-for (const input of document.querySelectorAll("input[name=t]"))
-  input.addEventListener("change", () => { document.documentElement.dataset.theme = input.value; });
+document.querySelector("button.theme-switch").addEventListener("click", (event) => {
+  const control = event.currentTarget;
+  const next = control.getAttribute("aria-checked") === "true" ? "annalen" : "kramgasse-night";
+  control.setAttribute("aria-checked", next === "kramgasse-night" ? "true" : "false");
+  document.documentElement.dataset.theme = next;
+});
 </script>`;
 
 function serve(
@@ -53,7 +74,7 @@ function serve(
 }
 const close = (server: Server) => new Promise<void>((resolve) => server.close(() => resolve()));
 
-test("the theme check drives the real radio group and reports the observed data-theme", async () => {
+test("the theme check drives the real switch and reports the observed data-theme", async () => {
   const { baseUrl, server } = await serve(IDENTITY + THEME_GROUP);
   try {
     const result = await runSmokeJourney({ baseUrl });
@@ -72,7 +93,9 @@ test("an absent theme control fails the check instead of passing it", async () =
     const result = await runSmokeJourney({ baseUrl });
     const theme = result.checks.find((c) => c.check === "theme-toggle");
     assert.equal(theme?.ok, false);
-    assert.match(theme?.message ?? "", /fieldset\.theme-toggle/);
+    // The selector the refusal names, so a reader of a failing smoke run is told what was looked
+    // for. It named fieldset.theme-toggle until the control changed shape.
+    assert.match(theme?.message ?? "", /button\[role="switch"\]\.theme-switch/);
     assert.equal(result.ok, false);
   } finally {
     await close(server);
