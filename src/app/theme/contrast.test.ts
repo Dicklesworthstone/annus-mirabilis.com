@@ -95,9 +95,34 @@ describe("contrast: color never carries meaning alone (AGENTS.md constraint)", (
     expect(GLOBALS_CSS).toContain("text-decoration-thickness: 2px");
   });
 
-  test("theme toggle selected state uses font-weight: bold and native radio checked state, not hue alone", () => {
-    expect(THEMES_CSS).toContain(".theme-toggle label:has(input:checked)");
-    expect(THEMES_CSS).toContain("font-weight: bold");
+  test("theme toggle selected state carries a weight cue and native radio checked state, not hue alone", () => {
+    // ASSERTS THE PROPERTY, NOT THE SPELLING, and asserts it INSIDE the rule block.
+    //
+    // This used to be two independent toContain calls against the whole stylesheet, so the
+    // selector and the declaration could live anywhere in the file, in any order, in different
+    // rules. It also hard-coded `font-weight: bold` - the only place in the tree that did - so
+    // e8505e48 normalising bold to its numeric form 700 turned the lane red while the
+    // ACCESSIBILITY PROPERTY was never broken: 700 is bold, and the selected chip still carries a
+    // non-hue cue. A test that fails when a synonym is substituted is asserting a spelling.
+    //
+    // Extracting the block makes it strictly stronger than what it replaces: a weight declared in
+    // some other rule can no longer satisfy it.
+    const SELECTOR = ".theme-toggle label:has(input:checked)";
+    expect(THEMES_CSS).toContain(SELECTOR);
+    const start = THEMES_CSS.indexOf(SELECTOR);
+    const open = THEMES_CSS.indexOf("{", start);
+    const close = THEMES_CSS.indexOf("}", open);
+    expect(open, `${SELECTOR} has no rule block`).toBeGreaterThan(-1);
+    expect(close, `${SELECTOR} has an unterminated rule block`).toBeGreaterThan(open);
+    const block = THEMES_CSS.slice(open + 1, close);
+
+    // bold, 700, 800, 900 are all a bold weight. The cue is what matters, not which token says it.
+    const weight = /font-weight:\s*(bold|[6-9]00)\s*;/.exec(block);
+    expect(
+      weight,
+      `${SELECTOR} declares no bold weight cue; its block is:\n${block.trim()}\n` +
+        `The selected chip must be distinguishable without hue (AGENTS.md: colour never carries meaning alone).`,
+    ).not.toBeNull();
   });
 
   test("disabled buttons define cursor: not-allowed and reduced opacity, not hue alone", () => {
