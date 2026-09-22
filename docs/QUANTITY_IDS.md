@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 262 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 268 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -43,6 +43,7 @@ Total: 262 quantities, 45 rejected spellings, 2 reserved spellings.
 | classicalObserverDopplerFactor | Classical observer Doppler factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | classicalSourceDopplerFactor | Classical source Doppler factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | clockOffset | Clock offset | 0,0,1,0,0,0 | not-applicable | scalar | — |
+| clockSpeedStationary | Speed of a transported clock (stationary system) | 1,0,-1,0,0,0 | stationary-system | scalar | — |
 | collectorPotential | Collector potential | 2,1,-3,0,-1,0 | not-applicable | scalar | — |
 | columnLength | Column length | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | configurationIntegral | Configuration integral | symbolic | not-applicable | scalar | — |
@@ -79,6 +80,7 @@ Total: 262 quantities, 45 rejected spellings, 2 reserved spellings.
 | electromotiveForceMagnetFrame | Electromotive force (magnet rest) | 2,1,-3,0,-1,0 | stationary-system | scalar | — |
 | electronCharge | Electron charge | 0,0,1,0,1,0 | not-applicable | scalar | — |
 | electronMass | Electron mass | 0,1,0,0,0,0 | not-applicable | scalar | — |
+| electronSpeedStationary | Electron speed during its acceleration (stationary system) | 1,0,-1,0,0,0 | stationary-system | scalar | — |
 | electronWork | Electron work | 2,1,-2,0,0,0 | not-applicable | scalar | — |
 | elementaryCharge | Elementary charge | 0,0,1,0,1,0 | not-applicable | scalar | — |
 | emissionAngle | Emission angle | 0,0,0,0,0,0 | not-applicable | scalar | — |
@@ -87,7 +89,10 @@ Total: 262 quantities, 45 rejected spellings, 2 reserved spellings.
 | emittedFrequency | Emitted frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | emittedQuantumRate | Fluorescent emitted quantum rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | endpointSimultaneityOffset | Endpoint simultaneity offset | 0,0,1,0,0,0 | not-applicable | scalar | — |
+| energyDensityBelowCutoff | Energy density below a cutoff frequency | -1,1,-2,0,0,0 | not-applicable | scalar | — |
 | entropy | Entropy | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyDifference, entropyFunctionOfProbability |
+| entropyDensityConstant | Integration constant of the spectral entropy density | -1,1,-1,-1,0,0 | not-applicable | scalar | — |
+| entropyFromUnfixedConstant | Entropy an unfixed constant would add | 2,1,-2,-1,0,0 | not-applicable | scalar | — |
 | entropyVolumeCoefficient | Entropy-volume coefficient | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyCoefficient |
 | eventSeparationSpatial | Spatial event separation | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | eventSeparationTemporal | Temporal event separation | 0,0,1,0,0,0 | not-applicable | scalar | — |
@@ -173,6 +178,7 @@ Total: 262 quantities, 45 rejected spellings, 2 reserved spellings.
 | observationInterval | Observation interval | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | osmoticDecayLength | Osmotic decay length | 1,0,0,0,0,0 | not-applicable | scalar | decayLength |
 | osmoticPressure | Osmotic pressure | -1,1,-2,0,0,0 | not-applicable | scalar | — |
+| particleChargeMagnitude | Size of a particle's charge | 0,0,1,0,1,0 | not-applicable | scalar | — |
 | particleCount | Particle count | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | particleFlux | Particle flux | -2,0,-1,0,0,0 | not-applicable | scalar | — |
 | particleMass | Particle mass | 0,1,0,0,0,0 | not-applicable | scalar | — |
