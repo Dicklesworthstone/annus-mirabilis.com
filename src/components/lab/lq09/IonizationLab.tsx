@@ -176,7 +176,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
         >
           <div>
             <p className="eyebrow">Interactive Critical Edition · Instrument LQ-09</p>
-            <h2 style={{ margin: "0.25rem 0" }}>Gas Ionization Bounds and Counting Model</h2>
+            <h2 style={{ margin: "0.25rem 0" }}>Gas ionization bounds and counting model</h2>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <button
@@ -233,11 +233,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
           aria-label="Predict Mode: Deductive Predictions"
         >
           <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-            Predict Mode: Deductive Predictions
+            Predict mode
           </p>
           <p className="fine" style={{ margin: "0.25rem 0 1rem" }}>
-            Test your deductive understanding of single-quantum ionization bounds before observing
-            the simulator output.
+            Predict each answer before you look at the simulator output.
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -647,7 +646,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
             }}
           >
             <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
-              Accepted Laboratory Telemetry Snapshot
+              Accepted laboratory telemetry snapshot
             </h4>
             {/*
               No tabIndex: this table was measured and does not overflow - 286/286 at 320x900 and
@@ -846,7 +845,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
         </section>
       )}
 
-      {/* Limits of this Reference Model */}
+      {/* Limits of this reference model */}
       <footer
         style={{
           marginTop: "2rem",
@@ -855,7 +854,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
         }}
       >
         <h4 className="eyebrow" style={{ marginBottom: "0.75rem" }}>
-          Limits of this Reference Model (Not Modeled)
+          Limits of this reference model (not modeled)
         </h4>
         <ul
           className="fine"
