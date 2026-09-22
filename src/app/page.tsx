@@ -1,15 +1,17 @@
 import { Formula } from "../components/edition/Formula.tsx";
+import { FirstPages } from "../components/home/FirstPages.tsx";
 export default function Home() {
   return (
     <>
-      <section className="hero">
-        <p className="eyebrow">Annalen der Physik</p>
+      <section className="hero home-hero">
+        <p className="eyebrow">Annalen der Physik, 1905</p>
         <h1>Four papers, 1905</h1>
         <p className="lead">
           In 1905 one journal received four papers from Albert Einstein. Each unsettled something
           that had looked settled: how light carries its energy, whether molecules are real, what it
           means for two events to happen at once, and where a body&rsquo;s mass goes when it gives
-          off light.
+          off light. Each is explained here at the depth you choose, with instruments that work out
+          what follows when you change an assumption.
         </p>
         <div className="actions">
           <a className="button" href="/papers/">
@@ -17,7 +19,13 @@ export default function Home() {
           </a>
           <a href="/discover/brownian-motion/">Work out the Brownian argument yourself</a>
         </div>
+        <p className="fine">
+          The German is set for three of the four papers. The English translation, made from the
+          German, has not been started.
+        </p>
       </section>
+
+      <FirstPages />
 
       <section className="paper-catalogue">
         <article>

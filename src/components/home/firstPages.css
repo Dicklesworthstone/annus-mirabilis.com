@@ -1,0 +1,146 @@
+/*
+ * CHROME (pane %34): THE FOUR FIRST PAGES, IN THE ORDER THE JOURNAL RECEIVED THEM.
+ *
+ * Below 1100px the four sit in equal columns in date order. From 1100px each plate's left edge
+ * stands on its received date along 1905, and the month axis is drawn to the day: its columns are
+ * 31fr 28fr 31fr ... so a plate and the month it falls in agree, where equal twelfths would be off
+ * by up to five days.
+ *
+ * The marks under a plate are one per printed page (17, 12, 31, 3), all at the same pitch, so
+ * their lengths compare as the page counts do. They are real elements rather than a gradient,
+ * because a gradient's percentage stops resolve against its own box and would not keep the pitch.
+ */
+.first-pages {
+  margin: 0 0 3rem;
+}
+.first-pages-list {
+  --mark-gap: 1px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.first-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  line-height: 1.35;
+}
+.first-page-received {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.first-page > a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  text-decoration: none;
+}
+.first-page-plate {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+  border: 1px solid var(--rule);
+  box-shadow: 0 10px 22px -16px rgb(0 0 0 / 0.45);
+  transition: transform 160ms ease;
+}
+.first-page > a:hover .first-page-plate {
+  transform: translateY(-3px);
+}
+.first-page-title {
+  font-family: var(--font-serif);
+  font-size: var(--type-small);
+  line-height: 1.2;
+}
+:root:where([data-theme]) .first-page > a:hover .first-page-title {
+  color: var(--accent);
+  text-decoration: underline 2px;
+}
+.first-page-count {
+  margin: 0;
+  color: var(--muted);
+}
+.first-page-marks {
+  display: flex;
+  gap: var(--mark-gap);
+  height: 0.7rem;
+  margin-bottom: 0.35rem;
+}
+.first-page-marks > i {
+  flex: none;
+  width: 1px;
+  background: var(--ink);
+}
+.first-pages-axis {
+  display: none;
+}
+.first-pages > figcaption {
+  max-width: 64ch;
+  margin-top: 1.25rem;
+  color: var(--muted);
+}
+@media (min-width: 400px) {
+  .first-pages-list {
+    --mark-gap: 1.5px;
+  }
+}
+@media (min-width: 1100px) {
+  .first-pages-list {
+    --mark-gap: 2.5px;
+    display: flex;
+    gap: 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .first-page {
+    position: relative;
+    flex: 0 0 calc(var(--plate) * 100%);
+    margin-left: calc(var(--offset) * 100%);
+  }
+  /* The stem from the plate's left edge down to its day on the axis. */
+  .first-page::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1rem;
+    height: 1rem;
+    border-left: 1px solid var(--muted);
+  }
+  .first-pages-axis {
+    display: grid;
+    grid-template-columns: 31fr 28fr 31fr 30fr 31fr 30fr 31fr 31fr 30fr 31fr 30fr 31fr;
+    font-family: var(--font-sans);
+    font-size: var(--type-micro);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .first-pages-axis > span {
+    padding: 0.35rem 0 0 0.3rem;
+    border-left: 1px solid var(--rule);
+  }
+}
+@media (min-width: 1400px) {
+  .first-pages-list {
+    --mark-gap: 3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .first-page-plate {
+    transition: none;
+  }
+  .first-page > a:hover .first-page-plate {
+    transform: none;
+  }
+}
+/* The hero hands straight on to the first pages, so its closing padding is the plates' to use. */
+.home-hero {
+  padding-bottom: 1.5rem;
+}
