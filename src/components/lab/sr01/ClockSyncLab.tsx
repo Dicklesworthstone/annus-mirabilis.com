@@ -18,6 +18,7 @@ import {
   predictAnswerFor,
 } from "../../../experiments/sr01/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import "../showTheCode.css";
 
 function outputByQuantityId(
   outputs: readonly PublishedResult[],
@@ -422,15 +423,24 @@ export function ClockSyncLab({
           <p>
             Reference evaluator: <code>{SR01_MODEL.source}</code>
           </p>
-          <pre>
-            <code>{`// desynchronizationObserved
+          {/* A code line does not wrap, so the block scrolls inside its own named region
+              instead of widening the page (+378px on a phone with this section open). */}
+          <section
+            className="show-the-code-scroll"
+            aria-label="SR-01 reference code"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+            tabIndex={0}
+          >
+            <pre>
+              <code>{`// desynchronizationObserved
 const signed = kinematicDesynchronization(properSeparationLs, beta, 1 /* c, ls/s */);
 const verdict = beta === 0 ? "they-agree" : beta > 0 ? "trailing-clock-ahead" : "leading-clock-ahead";
 
 // synchronizationRound (Einstein's midpoint rule)
 const assignedRemoteTime = (emissionTimeA + receptionTimeA) / 2;
 const roundTripSpeedLsPerS = (2 * separationLs) / (receptionTimeA - emissionTimeA);`}</code>
-          </pre>
+            </pre>
+          </section>
         </div>
       </details>
 

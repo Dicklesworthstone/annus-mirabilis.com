@@ -29,6 +29,7 @@ import {
 import { BoundaryLedgerPlot } from "./BoundaryLedgerPlot.tsx";
 import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
 import "./me03.css";
+import "../showTheCode.css";
 
 export function BoundaryLedgerLab({
   example,
@@ -726,25 +727,34 @@ export function BoundaryLedgerLab({
           <p>
             Reference evaluator: <code>{isBox ? ME03_BOX_MODEL.source : ME03_MODEL.source}</code>
           </p>
-          <pre>
-            <code>
-              {isBox
-                ? `// evaluatePhotonBox (Einstein 1906 / Poincaré 1900)
+          {/* A code line does not wrap, so the block scrolls inside its own named region
+              instead of widening the page (+378px on a phone with this section open). */}
+          <section
+            className="show-the-code-scroll"
+            aria-label="ME-03 reference code"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+            tabIndex={0}
+          >
+            <pre>
+              <code>
+                {isBox
+                  ? `// evaluatePhotonBox (Einstein 1906 / Poincaré 1900)
 const dt = ell / c;
 const pPulse = E / c;
 const vRecoil = -pPulse / M;
 const boxDeltaX = vRecoil * dt; // -E * ell / (M * c^2)
 const mLight = assignLightMass ? E / (c * c) : 0;
 const comShift = (M * boxDeltaX + mLight * ell) / (M + mLight);`
-                : `// evaluateBoundaryLedger
+                  : `// evaluateBoundaryLedger
 const bodyDeltaM = -emittedEnergy / (c * c);
 const sysDeltaM = disposition === "retained" ? inputEnergy / (c * c) : 0;
 
 // evaluateFourMomentum
 const mSquared = (totalEnergy / c)^2 - p^2;
 const invariantMass = Math.sqrt(Math.max(0, mSquared));`}
-            </code>
-          </pre>
+              </code>
+            </pre>
+          </section>
         </div>
       </details>
 

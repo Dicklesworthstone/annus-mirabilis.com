@@ -23,6 +23,7 @@ import {
 } from "../../../experiments/me01/session.ts";
 import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
 import "./me01.css";
+import "../showTheCode.css";
 
 const STEPS: readonly { id: Me01Step; label: string; number: number }[] = [
   { id: "intro", label: "1. The setup", number: 1 },
@@ -456,8 +457,16 @@ export function TwoLedgersLab({
           <p>
             Reference evaluator: <code>{ME01_MODEL.source}</code>
           </p>
-          <pre>
-            <code>{`// evaluatePulseEnergies
+          {/* A code line does not wrap, so the block scrolls inside its own named region
+              instead of widening the page (+378px on a phone with this section open). */}
+          <section
+            className="show-the-code-scroll"
+            aria-label="ME-01 reference code"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
+            tabIndex={0}
+          >
+            <pre>
+              <code>{`// evaluatePulseEnergies
 const g = 1 / Math.sqrt(1 - frameSpeed * frameSpeed);
 const p1 = (emittedEnergyRestFrame / 2) * g * (1 - frameSpeed * Math.cos(phi));
 const p2 = (emittedEnergyRestFrame / 2) * g * (1 + frameSpeed * Math.cos(phi));
@@ -466,7 +475,8 @@ const pulseSumMoving = g * emittedEnergyRestFrame; // invariant under phi!
 // evaluateSubtraction
 const subtractionDifference = emittedEnergyRestFrame * (g - 1);
 const kineticEnergyDifference = premise === "unchanged" ? subtractionDifference : null;`}</code>
-          </pre>
+            </pre>
+          </section>
         </div>
       </details>
 
