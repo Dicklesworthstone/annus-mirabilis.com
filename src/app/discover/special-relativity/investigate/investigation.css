@@ -46,6 +46,11 @@
   font: inherit;
   margin-block: 0.6rem 1rem;
 }
+/* A select sizes to its options, within the column: at 100% the event-pair menu was 1168px wide
+   at 1440 (BUILD 20) for options of at most 57 characters. */
+.sr-investigation select {
+  width: auto;
+}
 
 .sr-investigation textarea {
   resize: vertical;
