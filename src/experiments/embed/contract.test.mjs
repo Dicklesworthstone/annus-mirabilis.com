@@ -44,8 +44,9 @@ test("overlong query fails before interpretation", () => assert.equal(decodeEmbe
 for (const id of ["bm-99", "sr-04:1904", "avogadro-lab", "__proto__", "constructor", "../sr-04", "//evil.test", "sr-04/?note=x", '<img src=x>']) {
   test(`unknown adapter cannot fall back to a different experiment: ${id}`, () => {
     assert.equal(isEmbeddableId(id), false);
-    assert.throws(() => embedPath(id));
-    assert.throws(() => embedMarkup(id));
+    // Each refusal says which rule it applied, not only that something threw.
+    assert.throws(() => embedPath(id), { code: "embed-not-admitted" });
+    assert.throws(() => embedMarkup(id), { code: "embed-unknown-instrument" });
   });
 }
 test("public markup whitelists fields instead of serializing private state", () => {
@@ -53,12 +54,13 @@ test("public markup whitelists fields instead of serializing private state", () 
   assert.ok(!/secret|private|evil/.test(markup));
 });
 for (const height of [NaN, Infinity, -1, 399, 2001, 900.5, '900" onload="alert(1)']) {
-  test(`invalid dimensions cannot produce markup: ${height}`, () => assert.throws(() => embedMarkup("me-01", DEFAULT_EMBED_OPTIONS, height)));
+  test(`invalid dimensions cannot produce markup: ${height}`, () =>
+    assert.throws(() => embedMarkup("me-01", DEFAULT_EMBED_OPTIONS, height), { code: "embed-height-out-of-range" }));
 }
 test("both inclusive height boundaries work", () => {
   assert.ok(embedMarkup("me-01", DEFAULT_EMBED_OPTIONS, 400).includes('height="400"'));
   assert.ok(embedMarkup("me-01", DEFAULT_EMBED_OPTIONS, 2000).includes('height="2000"'));
 });
 test("runtime invalid presentation cannot bypass the decoder through encoding", () => {
-  assert.throws(() => embedPath("sr-04", { ...DEFAULT_EMBED_OPTIONS, theme: 'dark" onload="x' }));
+  assert.throws(() => embedPath("sr-04", { ...DEFAULT_EMBED_OPTIONS, theme: 'dark" onload="x' }), { code: "embed-invalid-options" });
 });
