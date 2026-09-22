@@ -53,6 +53,23 @@ import { join } from "node:path";
  */
 export const PREPARE_FAILED_EXIT = 9;
 
+/**
+ * A typed refusal, in the form am-p465 adopted: the kebab code is the FIRST argument.
+ *
+ * This file shipped with a bare `throw new Error` and the bare-throw ratchet caught it on the
+ * commit that introduced it. Coding it rather than baselining it, because a baseline records debt
+ * you inherited and this debt was one tick old - a new file should not open a baseline entry on
+ * its first commit.
+ */
+export class PrepareLaneError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "PrepareLaneError";
+    this.code = code;
+  }
+}
+
 export const PREPARE_PHASES = ["prepare:content", "prepare:lab", "prepare:offline"] as const;
 export type PreparePhase = (typeof PREPARE_PHASES)[number];
 
@@ -81,7 +98,8 @@ export function prepareSteps(scripts: Readonly<Record<string, string>>): readonl
   for (const phase of PREPARE_PHASES) {
     const chain = scripts[phase];
     if (chain === undefined || chain.trim() === "") {
-      throw new Error(
+      throw new PrepareLaneError(
+        "prepare-phase-missing",
         `package.json has no "${phase}" script, so the prepare lane would run fewer generators than the build does and report success for work it never did.`,
       );
     }

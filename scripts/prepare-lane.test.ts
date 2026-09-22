@@ -10,6 +10,7 @@ import {
   formatFailure,
   PREPARE_FAILED_EXIT,
   PREPARE_PHASES,
+  PrepareLaneError,
   prepareSteps,
   runPrepare,
 } from "./prepare-lane.ts";
@@ -72,13 +73,22 @@ describe("prepare lane: the chain is derived, not restated", () => {
     );
   });
 
-  test("REJECT: a missing phase is a fault, not an empty phase", () => {
+  test("REJECT: a missing phase is a fault, not an empty phase (prepare-lane.ts:101)", () => {
     // A lane that silently runs zero generators and reports success is a check passing on an
     // empty set, which is the failure this repository keeps finding.
-    assert.throws(
-      () => prepareSteps({ "prepare:content": "bun scripts/build-content.ts" }),
-      /has no "prepare:lab" script/,
-    );
+    //
+    // Asserted by CODE and not only by message: prepare-phase-missing is what the bare throw here
+    // became after the bare-throw ratchet caught it on the commit that introduced it, and a
+    // message regex would keep passing if the code were renamed.
+    let thrown: unknown;
+    try {
+      prepareSteps({ "prepare:content": "bun scripts/build-content.ts" });
+    } catch (err) {
+      thrown = err;
+    }
+    assert.ok(thrown instanceof PrepareLaneError, "a missing phase must be a typed refusal");
+    assert.equal(thrown.code, "prepare-phase-missing");
+    assert.match(thrown.message, /has no "prepare:lab" script/);
   });
 });
 
