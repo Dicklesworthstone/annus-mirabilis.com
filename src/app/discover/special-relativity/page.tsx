@@ -42,10 +42,10 @@ export default function SpecialRelativityRoute() {
           Which one is the moving one?
         </h1>
         <p className="lead">
-          Nothing in this route is exotic. It starts with a magnet, a coil of wire and a needle that
-          moves, all of it ordinary in 1904, and asks why the textbook needs two different
-          explanations for one reading. Following that question honestly costs you something you
-          have never had to defend.
+          It starts with a magnet, a coil of wire and a needle that moves, all of it ordinary in
+          1904, and asks why the textbook needs two different explanations for one reading.
+          Following that question through means giving up the idea that “at the same time” needs no
+          definition.
         </p>
         <p className="fine">
           A route you could take, not a transcript of Einstein&rsquo;s private thoughts. Every step
@@ -113,11 +113,10 @@ export default function SpecialRelativityRoute() {
           source was moving when it left.
         </p>
         <p>
-          Before reading on, commit: are these compatible? Most people say no, and for a good
-          reason. If I am gliding past you at half the speed of light and we both watch the same
-          flash, the ordinary way of adding speeds says we must get different answers for how fast
-          it travels. Either one of the two statements is wrong, or something in the ordinary way of
-          adding speeds is.
+          Before reading on, decide whether they are compatible. If I am gliding past you at half
+          the speed of light and we both watch the same flash, the ordinary way of adding speeds
+          says we must get different answers for how fast it travels. Either one of the two
+          statements is wrong, or something in the ordinary way of adding speeds is.
         </p>
         <details>
           <summary>Why the third option is not obvious</summary>
@@ -142,8 +141,8 @@ export default function SpecialRelativityRoute() {
         </p>
         <p>
           So &ldquo;at the same time&rdquo; for distant events is not something you observe. It is
-          something you establish, by a procedure you choose. Write down the procedure honestly and
-          the consequence is immediate: two observers moving relative to each other, each setting
+          something you establish, by a procedure you choose. Write the procedure down and the
+          consequence follows at once: two observers moving relative to each other, each setting
           their clocks by the same rule, do not end up agreeing about which distant events are
           simultaneous. Neither has made a mistake.
         </p>
