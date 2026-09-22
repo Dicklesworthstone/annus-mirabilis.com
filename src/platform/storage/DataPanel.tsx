@@ -7,7 +7,7 @@
  * in-page confirmation (no window.confirm).
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import "./dataPanel.css";
 import { clearNamespaces, type ExportDocument, exportNamespaces } from "./exportClear.ts";
 import type { KeyRegistration } from "./keys.ts";
@@ -49,10 +49,24 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
     setRefreshToken((prev) => prev + 1);
   }, []);
 
+  // The server has no storage, so it renders every size as 0 B. Reading storage during the first
+  // client render made that render disagree with the server's for any reader who had stored
+  // something, and React threw away the page's markup (minified error #418 on /your-data/, BUILD
+  // 12, with one setting stored). The first render now matches the server; storage is read once
+  // the panel has mounted.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
   const [items, quarantineEntries, totalBytes] = useMemo(() => {
     // Read sizes and data using the current context and refreshToken
     void refreshToken;
     const all = ctx.registry.all();
+    if (!hydrated) {
+      const empty: NamespaceItem[] = all.map((entry) => ({ entry, bytes: 0, hasData: false }));
+      return [empty, [], 0] as const;
+    }
     let total = 0;
     const calculated: NamespaceItem[] = [];
 
@@ -68,7 +82,7 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
 
     const q = listQuarantine(ctx);
     return [calculated, q, total] as const;
-  }, [ctx, refreshToken]);
+  }, [ctx, refreshToken, hydrated]);
 
   const storedCount = items.filter((i) => i.hasData).length;
 
