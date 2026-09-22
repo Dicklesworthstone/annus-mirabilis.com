@@ -50,8 +50,8 @@ export default function DiscoverIndex() {
         </p>
         <p>
           A route is a reconstruction, not a biography. It shows a way the argument can be reached
-          from what was known at the time, and it says so at every step rather than claiming this
-          is how Einstein thought.
+          from what was known at the time, and it says so at every step rather than claiming this is
+          how Einstein thought.
         </p>
       </section>
 
@@ -67,8 +67,8 @@ export default function DiscoverIndex() {
           </p>
           <p>
             A speck of pollen in still water never settles. The route starts from that, and asks
-            what you would measure if you wanted to decide whether molecules are shoving it: not
-            how fast it moves, which turns out to be the wrong question, but how far it gets. Eight
+            what you would measure if you wanted to decide whether molecules are shoving it: not how
+            fast it moves, which turns out to be the wrong question, but how far it gets. Eight
             sections, four instruments you operate, and the 1904 shelf laid out so you can see what
             you are allowed to use.
           </p>

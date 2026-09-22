@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </a>
           <nav aria-label="Main navigation">
             <a href="/papers/">Papers</a>
-            <a href="/discover/brownian-motion/">Discovery routes</a>
+            <a href="/discover/">Discovery routes</a>
             <a href="/lab/bm-06/">Instruments</a>
             <a href="/connections/">Across the papers</a>
             <SearchLauncher />
