@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import "../../components/lab/labShell.css";
+import { EmbedLauncher } from "../../components/embed/EmbedLauncher.tsx";
 
 /**
  * Connect the instruments to the shared reasoning laboratories without changing their state.
@@ -20,6 +21,7 @@ export default function LaboratoryLayout({ children }: { children: ReactNode }) 
   return (
     <>
       <div className="lab-route">{children}</div>
+      <EmbedLauncher />
       <nav className="actions no-print" aria-label="Ways to test a model">
         <span className="eyebrow">Ways to test a model</span>
         <a className="button secondary" href="/lab/bm-01/compare/">
