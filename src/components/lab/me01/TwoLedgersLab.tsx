@@ -27,7 +27,7 @@ import "./me01.css";
 const STEPS: readonly { id: Me01Step; label: string; number: number }[] = [
   { id: "intro", label: "1. The setup", number: 1 },
   { id: "moving-pulses", label: "2. Moving pulses", number: 2 },
-  { id: "sum-angle", label: "3. Angle-free sum", number: 3 },
+  { id: "sum-angle", label: "3. The two pulses summed", number: 3 },
   { id: "two-balances", label: "4. Two balances", number: 4 },
   { id: "subtraction-move", label: "5. The subtraction", number: 5 },
   { id: "premise-kinetic", label: "6. Kinetic drop", number: 6 },
@@ -205,20 +205,8 @@ export function TwoLedgersLab({
         </div>
       </div>
 
-      {/* Preset Quick Links */}
-      <div className="presets-bar">
-        <span className="presets-label">Presets:</span>
-        {ME01_PRESETS.map((pr) => (
-          <button
-            key={pr.presetId}
-            type="button"
-            className="button-preset"
-            onClick={() => loadPreset(pr.presetId)}
-          >
-            {pr.label}
-          </button>
-        ))}
-      </div>
+      {/* Main Visual Comparison */}
+      <TwoLedgersPlot parameters={p} evaluation={evaluation} clipId={`plot-clip-${id}`} />
 
       {/* Step Navigation */}
       <nav className="step-nav" aria-label="Derivation steps">
@@ -235,8 +223,21 @@ export function TwoLedgersLab({
         ))}
       </nav>
 
-      {/* Main Visual Comparison */}
-      <TwoLedgersPlot parameters={p} evaluation={evaluation} clipId={`plot-clip-${id}`} />
+      <fieldset className="lab-choice me01-try">
+        <legend>Try</legend>
+        <div className="actions">
+          {ME01_PRESETS.map((pr) => (
+            <button
+              key={pr.presetId}
+              type="button"
+              className="secondary"
+              onClick={() => loadPreset(pr.presetId)}
+            >
+              {pr.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       {/* Form Controls */}
       <form className="lab-controls" onSubmit={submit}>
