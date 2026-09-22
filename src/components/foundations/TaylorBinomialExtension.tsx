@@ -6,6 +6,7 @@ import {
   gammaMinusOneCancellationFree,
   gammaMinusOneNaive,
 } from "../../foundations/calculus.ts";
+import { Sci } from "../lab/Sci.tsx";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 /**
@@ -48,7 +49,7 @@ export function TaylorBinomialExtension({
     >
       <header>
         <p className="eyebrow" style={{ margin: "0 0 0.25rem 0" }}>
-          Extension · Planned callers: special relativity §4, mass–energy
+          Extension · The step the mass–energy paper takes
         </p>
         <Title id={headingId} className="construction-title" style={{ margin: "0 0 0.5rem 0" }}>
           Binomial series expansion for the relativistic Lorentz factor γ
@@ -56,10 +57,10 @@ export function TaylorBinomialExtension({
       </header>
 
       <p>
-        In relativistic mechanics, the Lorentz factor γ = (1 − v²/c²)<sup>−1/2</sup> governs time
-        dilation, length contraction, and the relativistic kinetic energy E<sub>k</sub> = (γ −
-        1)mc². Setting x = (v/c)², the function is expanded using Newton’s generalized binomial
-        theorem:
+        The factor 1/√(1 − v²/c²) runs through relativity. It is now called γ; the relativity paper
+        writes it β, with V for the speed of light. The mass–energy paper finds that a body's
+        kinetic energy falls by L(1/√(1 − v²/V²) − 1) when it emits light of energy L, and then
+        expands that bracket. Writing x = v²/c², Newton's binomial series gives:
       </p>
 
       <div
@@ -213,16 +214,19 @@ export function TaylorBinomialExtension({
       </section>
 
       <p style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
-        Notice that the leading quadratic term 0.18 corresponds to the 0.18L mass–energy fixture
-        beside the exact 0.25L, making both the retained classical kinetic energy (½ mv²) and the
-        neglected relativistic remainder visible.
+        Keeping only the first term is the paper's own step: "neglecting quantities of fourth and
+        higher order", it writes the loss of kinetic energy as (L/V²)(v²/2). At v = 0.6c that gives
+        0.18L where the exact bracket gives 0.25L. The paper needs only low speeds, where the
+        neglected terms are tiny.
       </p>
 
-      <Sub>2. Low speeds: catastrophic cancellation and the cancellation-free rule</Sub>
+      <Sub>2. Low speeds: a computer is also better off with the series</Sub>
       <p>
-        At everyday velocities such as v/c = 10⁻⁴ (where x = 10⁻⁸), evaluating γ − 1 by naive
-        floating-point subtraction suffers catastrophic loss of precision. Because γ ≈ 1.000000005,
-        subtracting 1 throws away the leading digits and amplifies round-off error.
+        At v/c = 10⁻⁴, about 30 kilometres per second, roughly the Earth's speed round the Sun, x =
+        10⁻⁸ and γ = 1.000000005. A computer keeps about 16 significant digits, so subtracting 1
+        from γ throws away the first eight and leaves an answer made mostly of rounding error. The
+        first term of the series, or the bracket rearranged so that nothing close to 1 is
+        subtracted, keeps every digit:
       </p>
 
       <div
@@ -246,10 +250,12 @@ export function TaylorBinomialExtension({
           }}
         >
           <dt style={{ color: "var(--muted)" }}>First series term (½ x):</dt>
-          <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>5.0000000000e-9</dd>
+          <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
+            <Sci value={firstTermLow} digits={10} />
+          </dd>
 
           <dt style={{ fontWeight: "bold", color: "var(--ink)" }}>
-            Cancellation-free route (trustworthy):
+            Rearranged, nothing near 1 subtracted:
           </dt>
           <dd
             style={{
@@ -259,36 +265,35 @@ export function TaylorBinomialExtension({
               color: "var(--accent)",
             }}
           >
-            {cancellationFreeVal.toExponential(10)} (computed: 5.0000000375e-9)
+            <Sci value={cancellationFreeVal} digits={10} />
           </dd>
 
-          <dt style={{ color: "var(--muted)" }}>Relative diff to first term:</dt>
+          <dt style={{ color: "var(--muted)" }}>Its difference from the first term, relative:</dt>
           <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
-            {relDiffFirstTerm.toExponential(6)} (exact theoretical 0.75x = 7.500000e-9)
+            <Sci value={relDiffFirstTerm} digits={6} />, which the next term predicts: 0.75x
           </dd>
 
-          <dt style={{ color: "var(--muted)" }}>Planted naive route 1/√(1−x) − 1:</dt>
+          <dt style={{ color: "var(--muted)" }}>Direct subtraction, 1/√(1 − x) − 1:</dt>
           <dd
             style={{ margin: 0, fontFamily: "var(--font-mono, monospace)", color: "var(--muted)" }}
           >
-            {naiveVal.toExponential(10)} (computed: 5.0000001917e-9)
+            <Sci value={naiveVal} digits={10} />
           </dd>
 
-          <dt style={{ color: "var(--muted)" }}>Naive relative difference:</dt>
+          <dt style={{ color: "var(--muted)" }}>Its difference from the first term, relative:</dt>
           <dd
             style={{ margin: 0, fontFamily: "var(--font-mono, monospace)", color: "var(--muted)" }}
           >
-            {relDiffNaive.toExponential(6)} (approx 3.833e-8; over five times too large)
+            <Sci value={relDiffNaive} digits={6} />, about five times the true difference
           </dd>
         </dl>
       </div>
 
       <div className="trustworthy-rule-statement callout-limit">
-        <strong>Cancellation-free evaluation rule:</strong> The cancellation-free route using
-        <code>expm1(-0.5 * log1p(-x))</code> or <code>x / (√(1−x) · (1 + √(1−x)))</code>
-        is required for trustworthy numerical evaluation. Naive subtraction in IEEE 754 double
-        precision yields 5.0000001917e-9 instead of the true 5.0000000375e-9, corrupting
-        relativistic corrections with false precision artifacts.
+        <strong>The rearrangement:</strong> γ − 1 = x / (√(1 − x) · (1 + √(1 − x))). It is the same
+        number as 1/√(1 − x) − 1, written so that no two nearly equal quantities are subtracted. At
+        low speed, direct subtraction gets the eighth significant figure wrong; the rearrangement
+        and the series do not.
       </div>
     </section>
   );
