@@ -231,6 +231,8 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
   await page.evaluate(() => window.dispatchEvent(new Event("pagehide")));
   await page.evaluate(() => window.remount());
   check("new store restores persisted entries", (await notes()).length === 3);
+  // A real saved document, written by the flow above, seeds the /notebook/ page case at the end.
+  const savedDocument = await page.evaluate(() => io.value);
   check("no reminder on a paper page", (await page.locator(".notebook-recap").count()) === 0);
   await page.evaluate(() => {
     readerLocation.pathname = "/papers/";
@@ -339,6 +341,99 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
     requests.every((url) => !/PRIVATE_SENTINEL|Revised|invalid\.example/u.test(url)),
   );
   check("no uncaught browser errors", errors.length === 0);
+  // THE NOTEBOOK ON ITS OWN PAGE (/notebook/, TanElk's ruling 66.1). The same modules on a page
+  // with no passages and a [data-notebook-inline] host: the notebook renders there with no press,
+  // no <dialog> exists, the header link brings it into view, and actions stay on the page.
+  async function notebookPage(seed) {
+    const inlinePage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    inlinePage.on("pageerror", (error) => errors.push(error.message));
+    await inlinePage.setContent(`<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}*{box-sizing:border-box}${style}
+</style></head><body><nav><a id="trigger" href="/notebook/">Notebook</a><div id="host"></div></nav><main><h1>Your reading notebook</h1><div data-notebook-inline></div><p>How the notebook works.</p></main></body></html>`);
+    await inlinePage.evaluate(
+      async ({ storeUrl, browserUrl, seed }) => {
+        const { createNotebookStore } = await import(storeUrl);
+        const { mountReaderNotebook } = await import(browserUrl);
+        window.io = {
+          value: seed,
+          maxBytes: 64000,
+          read() {
+            return this.value === null
+              ? { status: "missing" }
+              : { status: "ok", value: this.value };
+          },
+          write(doc) {
+            this.value = JSON.stringify(doc);
+            return { status: "ok" };
+          },
+          decode: JSON.parse,
+          preserve() {},
+          discardFallback() {},
+        };
+        window.store = createNotebookStore(window.io);
+        window.dispose = mountReaderNotebook(
+          document.getElementById("host"),
+          document.getElementById("trigger"),
+          window.store,
+          () => ({ pathname: "/notebook/", search: "", hash: "" }),
+          { dismissed: () => null, dismiss() {} },
+        );
+      },
+      {
+        storeUrl: await notebookModule("notebookStore"),
+        browserUrl: await notebookModule("browser"),
+        seed,
+      },
+    );
+    return inlinePage;
+  }
+  const onPage = await notebookPage(savedDocument);
+  const inlineEntries = onPage.locator("main [data-notebook-inline] .notebook-entry");
+  check(
+    "inline: the saved entries render on the page with no press",
+    (await inlineEntries.count()) === 3,
+  );
+  check(
+    "inline: no dialog is created on the notebook's own page",
+    (await onPage.locator("dialog").count()) === 0,
+  );
+  check(
+    "inline: it is a section named by its heading",
+    await onPage.evaluate(() => {
+      const section = document.querySelector("[data-notebook-inline] > section.notebook-inline");
+      const heading = section && document.getElementById(section.getAttribute("aria-labelledby"));
+      return heading?.textContent === "In your notebook" && section.getAttribute("role") === null;
+    }),
+  );
+  await onPage.locator("#trigger").click();
+  check(
+    "inline: the Notebook link focuses the notebook on the page, and opens no sheet",
+    (await onPage.evaluate(() => document.activeElement?.id)) === "reading-notebook-title" &&
+      (await onPage.locator("dialog").count()) === 0,
+  );
+  await onPage.getByRole("button", { name: "Remove entry", exact: true }).first().click();
+  await onPage.getByRole("button", { name: "Confirm", exact: true }).click();
+  check(
+    "inline: removing an entry is confirmed on the page and focus returns to its heading",
+    (await inlineEntries.count()) === 2 &&
+      (await onPage.evaluate(() => document.activeElement?.id)) === "reading-notebook-title",
+  );
+  await onPage.keyboard.press("Escape");
+  check(
+    "inline: Escape leaves the page's notebook where it is",
+    await onPage.locator("section.notebook-inline").isVisible(),
+  );
+  await onPage.screenshot({ path: resolve(output, "notebook-page-390.png"), fullPage: true });
+  await onPage.close();
+  const emptyPage = await notebookPage(null);
+  check(
+    "inline: an empty notebook says to press the bookmark beside a passage heading",
+    (await emptyPage.locator("section.notebook-inline").innerText()).includes(
+      "press the bookmark beside a passage heading",
+    ),
+  );
+  await emptyPage.close();
+  check("no uncaught browser errors on the notebook page", errors.length === 0);
   await page.locator("#trigger").click();
   await page.screenshot({ path: resolve(output, "notebook-320.png"), fullPage: true });
   console.log(`${checks.length} notebook browser checks passed.`);
