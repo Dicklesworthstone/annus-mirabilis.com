@@ -4,23 +4,33 @@ export default function Home() {
   return (
     <>
       <section className="hero hero-with-plates">
-        <p className="eyebrow">Annalen der Physik, 1905</p>
-        <h1>Four papers, 1905</h1>
-        <p className="lead">
-          In 1905 one journal received four papers from Albert Einstein. Each unsettled something
-          that had looked settled: how light carries its energy, whether molecules are real, what it
-          means for two events to happen at once, and where a body&rsquo;s mass goes when it gives
-          off light. Each is explained here at the depth you choose, with instruments that work out
-          what follows when you change an assumption.
-        </p>
-        <FirstPages />
-        <div className="actions">
-          <a className="button" href="/papers/">
-            Read the papers
-          </a>
-          <a href="/discover/brownian-motion/">Work out the Brownian argument yourself</a>
+        <div className="hero-with-plates-head">
+          <div>
+            <p className="eyebrow">Annalen der Physik, 1905</p>
+            <h1>Four papers, 1905</h1>
+          </div>
+          <div>
+            <p className="lead">
+              The four papers Albert Einstein sent to the Annalen der Physik in 1905, each explained
+              at the depth you choose, with instruments that work out what follows when you change
+              an assumption.
+            </p>
+            <div className="actions">
+              <a className="button" href="/papers/">
+                Read the papers
+              </a>
+              <a href="/discover/brownian-motion/">Work out the Brownian argument yourself</a>
+            </div>
+          </div>
         </div>
+        <FirstPages />
       </section>
+
+      <p className="lead catalogue-intro">
+        Each of them unsettled something that had looked settled: how light carries its energy,
+        whether molecules are real, what it means for two events to happen at once, and where a
+        body&rsquo;s mass goes when it gives off light.
+      </p>
 
       <section className="paper-catalogue">
         <article>

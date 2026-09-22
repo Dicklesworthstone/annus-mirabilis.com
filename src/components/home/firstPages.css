@@ -155,3 +155,37 @@
     transform: none;
   }
 }
+
+/*
+ * The hero around the plates, on the home page and the 404. The headline shares a row with the
+ * lead from 1100px and is set a size down from the site's page titles, so the plates take the
+ * first screen: at 1440x900 the plates' bottom edge is inside it.
+ */
+.hero.hero-with-plates {
+  max-width: none;
+  padding-top: 2.5rem;
+  padding-bottom: 1rem;
+}
+.hero-with-plates-head h1 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  margin: 0.4rem 0 0;
+}
+@media (min-width: 1100px) {
+  .hero-with-plates-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 3rem;
+    align-items: end;
+  }
+  .hero-with-plates-head .lead {
+    margin-top: 0;
+  }
+  .hero-with-plates-head .actions {
+    margin-bottom: 0;
+  }
+}
+/* The home page's longer introduction, moved below the plates to open the paper catalogue. */
+.catalogue-intro {
+  max-width: 64ch;
+  margin: 4rem 0 2rem;
+}

@@ -31,19 +31,26 @@ export default function NotFound() {
   return (
     <>
       <section className="hero hero-with-plates">
-        <p className="eyebrow">Page not found</p>
-        <h1>This page is not in the edition.</h1>
-        <p className="lead">
-          The address may be mistyped, or it may name a page that has not been published yet. From
-          here the two look the same, so here are the four papers the edition is built around.
-        </p>
-        <FirstPages />
-        <div className="actions">
-          <a className="button" href="/papers/">
-            Open the paper catalogue
-          </a>
-          <a href="/">Return to the start</a>
+        <div className="hero-with-plates-head">
+          <div>
+            <p className="eyebrow">Page not found</p>
+            <h1>This page is not in the edition.</h1>
+          </div>
+          <div>
+            <p className="lead">
+              The address may be mistyped, or it may name a page that has not been published yet.
+              From here the two look the same, so here are the four papers the edition is built
+              around.
+            </p>
+            <div className="actions">
+              <a className="button" href="/papers/">
+                Open the paper catalogue
+              </a>
+              <a href="/">Return to the start</a>
+            </div>
+          </div>
         </div>
+        <FirstPages />
       </section>
 
       <section className="reading page-flush">

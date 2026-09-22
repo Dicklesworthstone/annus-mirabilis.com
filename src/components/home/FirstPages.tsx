@@ -75,8 +75,8 @@ export function FirstPages() {
       </div>
       <figcaption className="fine">
         Each paper&rsquo;s first page as printed, dated by the day the journal received it. The
-        German text is set for three of the four; the English translation, made from the German,
-        has not been started. Scans: Bell &amp; Howell / UMI microfilm, via the Internet Archive.
+        German text is set for three of the four; the English translation, made from the German, has
+        not been started. Scans: Bell &amp; Howell / UMI microfilm, via the Internet Archive.
       </figcaption>
     </figure>
   );
