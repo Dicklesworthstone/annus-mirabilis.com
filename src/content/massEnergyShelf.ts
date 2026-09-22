@@ -124,7 +124,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     admittedImport: {
       declaringJourney: "mass-energy",
       sourceKey: "ap-17-891",
-      anchor: "/papers/special-relativity/",
+      anchor: "/papers/special-relativity/s8/",
       provenance:
         "Section 8 of Zur Elektrodynamik bewegter Körper, received 30 June 1905, published 26 September 1905. The mass-energy paper was received 27 September 1905 and rests on it.",
     },

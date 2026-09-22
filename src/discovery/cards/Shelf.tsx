@@ -141,6 +141,7 @@ export function Shelf({
                 card={card}
                 backlinks={cardBacklinks}
                 openQueueItems={cardQueue}
+                relatedCard={cards.find((c) => c.id === card.relatedCardId)}
               />
             );
           })

@@ -7,6 +7,8 @@ export type KnowledgeCardProps = Readonly<{
   card: KnowledgeCard;
   backlinks?: CardBacklinks | undefined;
   openQueueItems?: readonly VerificationQueueItem[] | undefined;
+  /** The card this one's relatedCardId names, passed through to the detail view. */
+  relatedCard?: KnowledgeCard | undefined;
   defaultExpanded?: boolean | undefined;
   className?: string | undefined;
 }>;
@@ -21,6 +23,7 @@ export function KnowledgeCardView({
   card,
   backlinks,
   openQueueItems,
+  relatedCard,
   defaultExpanded = false,
   className = "",
 }: KnowledgeCardProps): JSX.Element {
@@ -145,7 +148,13 @@ export function KnowledgeCardView({
           padding: "0.5rem",
         }}
       >
-        <CardDetail card={card} backlinks={backlinks} openQueueItems={openQueueItems} />
+        <CardDetail
+          card={card}
+          backlinks={backlinks}
+          openQueueItems={openQueueItems}
+          relatedCard={relatedCard}
+          anchored={false}
+        />
       </div>
     </details>
   );

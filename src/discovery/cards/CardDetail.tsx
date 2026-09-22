@@ -13,6 +13,14 @@ export type CardDetailProps = Readonly<{
   card: KnowledgeCard;
   backlinks?: CardBacklinks | undefined;
   openQueueItems?: readonly VerificationQueueItem[] | undefined;
+  /** The card `card.relatedCardId` names, when the caller holds it, so the link can say what it is. */
+  relatedCard?: KnowledgeCard | undefined;
+  /**
+   * Whether this view carries the card's `card-<id>` anchor. KnowledgeCardView already puts that id
+   * on its <details> and renders this view inside it, so every card on a shelf put the same id in
+   * the page twice (9 duplicates on the Brownian route, BUILD 9b). Nested, it passes false.
+   */
+  anchored?: boolean | undefined;
   className?: string | undefined;
 }>;
 
@@ -51,6 +59,8 @@ export function CardDetail({
   card,
   backlinks,
   openQueueItems,
+  relatedCard,
+  anchored = true,
   className = "",
 }: CardDetailProps): JSX.Element {
   const verified = isCardVerified(card);
@@ -58,7 +68,7 @@ export function CardDetail({
 
   return (
     <div
-      id={`card-${card.id}`}
+      id={anchored ? `card-${card.id}` : undefined}
       className={className || undefined}
       style={{
         padding: "1.5rem",
@@ -70,42 +80,46 @@ export function CardDetail({
       data-card-id={card.id}
       data-status={card.status}
     >
-      {/* Header with Title / Proposition and Status */}
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: "0.75rem",
-          marginBottom: "1rem",
-        }}
-      >
-        <div>
-          <span
-            className="eyebrow"
-            style={{
-              display: "block",
-              marginBottom: "0.25rem",
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.75rem",
-            }}
-          >
-            Knowledge card · #{card.id}
-          </span>
-          <h3
-            style={{
-              fontSize: "1.125rem",
-              fontFamily: "var(--font-serif)",
-              fontWeight: "bold",
-              lineHeight: 1.3,
-            }}
-          >
-            {card.proposition}
-          </h3>
+      {/* Header with Title / Proposition and Status. Nested in KnowledgeCardView, whose summary
+          already shows the date, the claim and the status, it is left out rather than repeated.
+          The eyebrow read "Knowledge card · #sutherland-1904-dunedin" in monospace, the record's
+          id as text, on every expanded card of all four routes (30 cards, BUILD 9b). */}
+      {anchored && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: "0.75rem",
+            marginBottom: "1rem",
+          }}
+        >
+          <div>
+            <span
+              className="eyebrow"
+              style={{
+                display: "block",
+                marginBottom: "0.25rem",
+                fontSize: "0.75rem",
+              }}
+            >
+              Knowledge card
+            </span>
+            <h3
+              style={{
+                fontSize: "1.125rem",
+                fontFamily: "var(--font-serif)",
+                fontWeight: "bold",
+                lineHeight: 1.3,
+              }}
+            >
+              {card.proposition}
+            </h3>
+          </div>
+          <StatusLabel status={card.status} admittedImport={card.admittedImport} />
         </div>
-        <StatusLabel status={card.status} admittedImport={card.admittedImport} />
-      </div>
+      )}
 
       {/* Proposition Limits if present */}
       {card.limits && (
@@ -146,22 +160,27 @@ export function CardDetail({
           <p style={{ margin: 0, color: "var(--ink)" }}>
             {typeof card.admittedImport === "object" ? (
               <>
-                Admitted 1905 import for journey{" "}
-                <span style={{ fontFamily: "var(--font-mono)", fontWeight: 500 }}>
-                  {card.admittedImport.declaringJourney}
-                </span>
-                {card.admittedImport.provenance && ` (${card.admittedImport.provenance})`}.
+                {/* Said in the reader's words. This read "Admitted 1905 import for journey
+                    mass-energy", the route's slug in monospace, and its link was built as
+                    `#${anchor}`, so the only import on any shelf linked to the fragment
+                    "#/papers/special-relativity/" and went nowhere. An anchor that is a path is
+                    now used as a path; a bare id is still a fragment on this page. */}
+                Imported from 1905.
+                {card.admittedImport.provenance && ` ${card.admittedImport.provenance}`}
                 {card.admittedImport.anchor && (
-                  <a
-                    href={`#${card.admittedImport.anchor}`}
-                    style={{
-                      marginLeft: "0.375rem",
-                      textDecoration: "underline",
-                      color: "var(--accent)",
-                    }}
-                  >
-                    View source passage
-                  </a>
+                  <>
+                    {" "}
+                    <a
+                      href={
+                        card.admittedImport.anchor.startsWith("/")
+                          ? card.admittedImport.anchor
+                          : `#${card.admittedImport.anchor}`
+                      }
+                      style={{ display: "inline-block", minHeight: "44px", alignContent: "center" }}
+                    >
+                      Read that section of the paper
+                    </a>
+                  </>
                 )}
               </>
             ) : (
@@ -223,15 +242,15 @@ export function CardDetail({
           {card.relatedCardId && (
             <p className="fine" style={{ marginTop: "0.25rem", marginBottom: 0 }}>
               <span style={{ fontWeight: 600 }}>Related card: </span>
+              {/* The link used to read "#sutherland-1905-phil-mag", the record's id in monospace
+                  accent. It now names the card by its date and claim, as the shelf lists it. */}
               <a
                 href={`#card-${card.relatedCardId}`}
-                style={{
-                  textDecoration: "underline",
-                  color: "var(--accent)",
-                  fontFamily: "var(--font-mono)",
-                }}
+                style={{ display: "inline-block", minHeight: "44px", alignContent: "center" }}
               >
-                #{card.relatedCardId}
+                {relatedCard
+                  ? `${formatEventDateLine(relatedCard.date)}: ${relatedCard.proposition}`
+                  : "the card this one answers to"}
               </a>
             </p>
           )}
