@@ -31,19 +31,40 @@ export const NOTEBOOK_KIND_LABELS = {
   replay: "Comparison replay",
 } as const;
 export type NotebookDraft = Readonly<{ frame: NotebookFrame; title: string }>;
+/** The names the rest of the site uses (/papers/, the home plates), not the route slugs. */
+const PAPER_NAMES: Readonly<Record<string, string>> = {
+  "light-quanta": "Light quanta",
+  "brownian-motion": "Brownian motion",
+  "special-relativity": "Special relativity",
+  "mass-energy": "Mass and energy",
+  "molecular-dimensions": "Molecular dimensions (the dissertation)",
+};
 
-/** Imperative island: private text never goes into server props, URLs, innerHTML or analytics. */
+/**
+ * Imperative island: private text never goes into server props, URLs, innerHTML or analytics.
+ *
+ * Two forms. By default a modal sheet, opened from the header on any page. With `inline`, the
+ * notebook is part of the page it is mounted in (/notebook/, TanElk's ruling 66.1: "A page called
+ * Notebook that hides the notebook behind a button is one click of friction for nothing"): a plain
+ * section, rendered at once, with no X, no press-outside and no Escape, because it is not an
+ * overlay. Everything inside it (entries, edit, remove, export, import, clear) is the same code.
+ */
 export function mountNotebookPanel(
   host: HTMLElement,
   store: NotebookStore,
   onClear: () => void = () => {},
+  options: Readonly<{ inline?: boolean }> = {},
 ) {
-  const dialog = node("dialog");
-  dialog.className = "notebook-dialog";
-  dialog.setAttribute("data-notebook-dialog", "true");
-  const heading = node("h2", "Your reading notebook");
+  const dialog = options.inline === true ? null : node("dialog");
+  const container: HTMLElement = dialog ?? node("section");
+  container.className = dialog ? "notebook-dialog" : "notebook-inline";
+  if (dialog) dialog.setAttribute("data-notebook-dialog", "true");
+  else container.setAttribute("data-notebook-inline-view", "true");
+  const heading = node("h2", dialog ? "Your reading notebook" : "In your notebook");
   heading.id = "reading-notebook-title";
-  dialog.setAttribute("aria-labelledby", heading.id);
+  // On the page, the heading is where focus returns after an action; it is not a tab stop.
+  if (!dialog) heading.tabIndex = -1;
+  container.setAttribute("aria-labelledby", heading.id);
   const intro = node(
     "p",
     "Private notes on this device. Export important notes before clearing browser data or changing devices. Nothing is uploaded.",
@@ -74,7 +95,7 @@ export function mountNotebookPanel(
     editing = null;
     textarea.value = "";
     form.hidden = true;
-    close.focus();
+    home();
   });
   form.append(frameLabel, label, textarea, save, cancel);
   const confirmation = node("section");
@@ -146,20 +167,26 @@ export function mountNotebookPanel(
   importFile.accept = ".json,application/json";
   importFile.id = "reading-notebook-import";
   importLabel.htmlFor = importFile.id;
-  dialog.append(
-    close,
-    heading,
-    intro,
-    status,
-    error,
-    controls,
-    importLabel,
-    importFile,
-    confirmation,
-    form,
-    list,
+  // In the sheet, the tools come first, as before. On the page the reader's own entries come first
+  // and export, import and clear follow them; the page around it already says what the intro says.
+  container.append(
+    ...(dialog
+      ? [
+          close,
+          heading,
+          intro,
+          status,
+          error,
+          controls,
+          importLabel,
+          importFile,
+          confirmation,
+          form,
+          list,
+        ]
+      : [heading, status, error, confirmation, form, list, controls, importLabel, importFile]),
   );
-  host.append(dialog);
+  host.append(container);
   let previousFocus: HTMLElement | null = null,
     draft: NotebookDraft | null = null,
     editing: string | null = null;
@@ -216,7 +243,7 @@ export function mountNotebookPanel(
         link = node("a");
       link.href = url;
       link.download = filename;
-      dialog.append(link);
+      container.append(link);
       link.click();
       link.remove();
       urls.set(
@@ -237,11 +264,11 @@ export function mountNotebookPanel(
       button("Confirm", () => {
         action();
         confirmation.hidden = true;
-        close.focus();
+        home();
       }),
       button("Cancel", () => {
         confirmation.hidden = true;
-        close.focus();
+        home();
       }),
     );
     confirmation.hidden = false;
@@ -250,7 +277,7 @@ export function mountNotebookPanel(
   function render() {
     const state = store.getSnapshot();
     status.textContent = state.message;
-    dialog.dataset.persistence = state.persistence;
+    container.dataset.persistence = state.persistence;
     retry.hidden = state.persistence !== "session-only";
     recovery.hidden = state.recoveryRaw === null;
     load.hidden = state.persistence !== "conflict";
@@ -270,7 +297,7 @@ export function mountNotebookPanel(
       const entries = renderedEntries.filter((entry) => entry.frame.paper === paper);
       if (!entries.length) continue;
       const section = node("section");
-      section.append(node("h3", paper.replaceAll("-", " ")));
+      section.append(node("h3", PAPER_NAMES[paper] ?? paper.replaceAll("-", " ")));
       for (const entry of entries) {
         const article = node("article");
         article.className = "notebook-entry";
@@ -315,7 +342,7 @@ export function mountNotebookPanel(
             inspect.disabled = true;
             void Promise.all([import("./replayView.ts"), import("./replayCurrent.ts")])
               .then(([view, current]) => {
-                if (disposed || request !== replayGeneration || !dialog.open) return;
+                if (disposed || request !== replayGeneration || !shown()) return;
                 const mounted = view.mountReplayView(
                   evidenceHost,
                   entry,
@@ -354,7 +381,7 @@ export function mountNotebookPanel(
       draft = null;
       editing = null;
       form.hidden = true;
-      close.focus();
+      home();
     }
   });
   function add(
@@ -382,12 +409,21 @@ export function mountNotebookPanel(
       };
     }
   }
+  /** Where focus goes after an action: the X in the sheet, the heading on the page. */
+  function home() {
+    (dialog ? close : heading).focus();
+  }
+  function shown() {
+    return dialog ? dialog.open : !disposed;
+  }
   function openPanel(nextDraft?: NotebookDraft) {
     store.open();
-    if (!dialog.open) {
+    if (dialog && !dialog.open) {
       previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       dialog.showModal();
     }
+    // Already on the page: bring it into view instead of opening a sheet over it.
+    if (!dialog) container.scrollIntoView({ block: "start" });
     render();
     if (nextDraft && !draft) {
       draft = nextDraft;
@@ -397,10 +433,10 @@ export function mountNotebookPanel(
       form.hidden = false;
     }
     if (draft) textarea.focus();
-    else close.focus();
+    else home();
   }
   function closePanel() {
-    if (!dialog.open) return;
+    if (!dialog?.open) return;
     importGeneration++;
     clearReplays();
     renderedEntries = null;
@@ -410,23 +446,27 @@ export function mountNotebookPanel(
   }
   // The X, a press outside, and Escape all close it the same way.
   const dismissal = new AbortController();
-  makeDismissible(dialog, {
-    onDismiss: closePanel,
-    signal: dismissal.signal,
-    closeButton: close,
-  });
+  if (dialog)
+    makeDismissible(dialog, {
+      onDismiss: closePanel,
+      signal: dismissal.signal,
+      closeButton: close,
+    });
   const unsubscribe = store.subscribe(render);
+  // The sheet renders when it opens; the page's notebook is open from the start.
+  if (!dialog) render();
   return Object.freeze({
     open: openPanel,
     add,
-    isOpen: () => dialog.open,
+    isOpen: () => dialog?.open === true,
     dispose() {
       disposed = true;
       importGeneration++;
       unsubscribe();
       closePanel();
+      clearReplays();
       dismissal.abort();
-      dialog.remove();
+      container.remove();
       for (const [url, timeout] of urls) {
         clearTimeout(timeout);
         URL.revokeObjectURL(url);

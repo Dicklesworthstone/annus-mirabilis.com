@@ -19,21 +19,21 @@
 .notebook-dialog::backdrop {
   background: rgb(0 0 0 / 45%);
 }
-.notebook-dialog .actions {
+:is(.notebook-dialog, .notebook-inline) .actions {
   display: flex;
   flex-wrap: wrap;
   align-items: start;
   gap: 0.5rem;
 }
-.notebook-dialog button {
+:is(.notebook-dialog, .notebook-inline) button {
   min-height: 44px;
   max-width: 100%;
   white-space: normal;
 }
-.notebook-dialog [hidden] {
+:is(.notebook-dialog, .notebook-inline) [hidden] {
   display: none !important;
 }
-.notebook-dialog input[type="file"] {
+:is(.notebook-dialog, .notebook-inline) input[type="file"] {
   display: block;
   width: 100%;
   max-width: 100%;
@@ -41,7 +41,7 @@
   box-sizing: border-box;
   margin-block: 0.5rem;
 }
-.notebook-dialog textarea {
+:is(.notebook-dialog, .notebook-inline) textarea {
   display: block;
   width: 100%;
   max-width: 100%;
@@ -49,8 +49,17 @@
   font: inherit;
   margin-block: 0.5rem;
 }
-.notebook-dialog form {
+:is(.notebook-dialog, .notebook-inline) form {
   margin-block: 1rem;
+}
+/* The notebook on its own page, /notebook/ (chrome, pane %44): the same contents as the sheet,
+   laid into the page under its title instead of over it. */
+.notebook-inline {
+  margin-block: 1.5rem 2.5rem;
+  overflow-wrap: anywhere;
+}
+.notebook-inline > h2 {
+  margin-top: 0;
 }
 .notebook-entry {
   border-top: 1px solid var(--line, currentColor);

@@ -17,23 +17,21 @@ export default function NotebookPage() {
         </p>
       </header>
       {/*
-        THE BUTTON USED TO LINK TO THIS PAGE. It read `href="/notebook/"` while standing ON
-        /notebook/, and relied on the notebook script intercepting the click to open the panel.
-        With JavaScript off, or before hydration, pressing the site's most prominent control
-        reloaded the page the reader was already on and nothing happened. AGENTS.md is explicit:
-        "No-JavaScript readers get real links, never hydration-dependent buttons."
+        THE NOTEBOOK ITSELF, not a button that opens it (TanElk's ruling 66.1). The notebook script,
+        which the header's Notebook link already loads on every page, renders the saved places,
+        questions, next steps and notes into this host, with export, import and clear beside them,
+        because they live only in this browser and the server never sees them. Nothing renders here
+        without JavaScript, so the notice that says so sits in the same place.
 
-        The panel still opens the same way for readers who have the script, through
-        data-open-notebook, which browser.ts already delegates on. What changes is that the
-        control is now a <button> that is DISABLED until the script arrives, so a reader without
-        it meets a control that visibly cannot be pressed rather than one that silently does
-        nothing. The noscript block below already explains why.
+        It replaced a disabled "Open your notebook" button, which opened a modal over this very page.
       */}
-      <p>
-        <button className="button" type="button" data-open-notebook disabled>
-          Open your notebook
-        </button>
-      </p>
+      <div data-notebook-inline />
+      <noscript>
+        <p className="notice">
+          JavaScript is off. Your private notebook cannot be loaded or edited here without
+          JavaScript. The papers, explanations and outlines remain readable.
+        </p>
+      </noscript>
       {/* What goes in it, how it stays private, and how to keep a copy: three short blocks a
           reader can scan, where four paragraphs of equal weight used to run on. Every fact from
           those paragraphs is kept. */}
@@ -85,12 +83,6 @@ export default function NotebookPage() {
           </p>
         </section>
       </div>
-      <noscript>
-        <p className="notice">
-          JavaScript is off. Your private notebook cannot be loaded or edited here without
-          JavaScript. The papers, explanations and outlines remain readable.
-        </p>
-      </noscript>
       <div className="actions">
         <a href="/papers/">Open the papers and outlines</a>
         <a href="/discover/brownian-motion/">Start with the Brownian encounter</a>

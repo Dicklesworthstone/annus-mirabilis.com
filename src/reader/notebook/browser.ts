@@ -82,11 +82,20 @@ export function mountReaderNotebook(
   let recap: HTMLElement | null = null;
   /** The one open "Save to notebook" menu, if any. Its listeners live only while it is open. */
   let menu: { toggle: HTMLButtonElement; panel: HTMLElement; abort: AbortController } | null = null;
-  const panel = mountNotebookPanel(host, store, () => {
-    tracking = false;
-    recap?.remove();
-    recap = null;
-  });
+  // /notebook/ holds the notebook itself: the panel renders into the page's host instead of a
+  // modal sheet, and the header's Notebook link brings it into view instead of opening a sheet
+  // over the page that already shows it.
+  const inlineHost = document.querySelector<HTMLElement>("[data-notebook-inline]");
+  const panel = mountNotebookPanel(
+    inlineHost ?? host,
+    store,
+    () => {
+      tracking = false;
+      recap?.remove();
+      recap = null;
+    },
+    { inline: inlineHost !== null },
+  );
   const announce = document.createElement("p");
   announce.className = "notebook-announcement";
   announce.setAttribute("role", "status");
