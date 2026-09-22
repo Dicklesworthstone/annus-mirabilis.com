@@ -3,8 +3,8 @@
   "kind": "foundation",
   "id": "gaussian-distributions",
   "title": "The Gaussian and its width",
-  "question": "How do we normalize the curve and find its mean square?",
-  "summary": "A Gaussian is a family of densities whose spread is set by its variance; being bell-shaped is not a proof of its origin.",
+  "question": "After a time t, where is a spreading particle likely to be?",
+  "summary": "The chance of finding a diffusing particle at a displacement x follows a bell curve whose mean square is 2Dt. About 68 per cent of the chance lies within one root-mean-square width, √(2Dt), of the start.",
   "review": "draft",
   "explanation": [
     {
@@ -18,22 +18,31 @@
     },
     {
       "kind": "paragraph",
-      "text": "One way to evaluate that integral is to square it: I² is the integral of exp(−u²−v²) over the plane. In polar coordinates, area is r dr dθ; angles cover 0 to 2π. The radial integral of r exp(−r²) is one half, so I² = π. Since the integral is positive, I = √π. This is a modern verification calculation, not an attributed reconstruction of Einstein’s reasoning."
+      "text": "One way to evaluate that integral is to square it: I² is the integral of exp(−u²−v²) over the plane. In polar coordinates, area is r dr dθ; angles cover 0 to 2π. The radial integral of r exp(−r²) is one half, so I² = π. Since the integral is positive, I = √π. This way of evaluating it is a modern check; the paper does not show it."
     },
     {
       "kind": "paragraph",
       "text": "For the second moment use integration by parts: choose u as the factor and integrate u exp(−u²), whose antiderivative is −exp(−u²)/2. The endpoint term vanishes at both infinities. What remains is one half the normalization integral."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\frac{1}{\\sqrt\\pi}\\int_{-\\infty}^{\\infty}u^2e^{-u^2}\\,du=\\frac12",
+      "spoken": "The normalized integral of u squared times e to the minus u squared is one half."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Substituting back, the mean square is 4Dt times one half, which is 2Dt: the value the Brownian paper's §4 gives for the mean of the squared displacement, λx² = 2Dt."
     }
   ],
   "example": [
     {
-      "kind": "formula",
-      "latex": "\\frac{1}{\\sqrt\\pi}\\int_{-\\infty}^{\\infty}u^2e^{-u^2}\\,du=\\frac12",
-      "spoken": "The normalized integral of u squared times exp of minus u squared is one half."
-    },
-    {
-      "kind": "paragraph",
-      "text": "Substituting back gives mean square 4Dt times one half, or 2Dt. About 68.27% of the probability lies within one RMS width of the centre, not all of it."
+      "kind": "steps",
+      "items": [
+        "The root-mean-square width is √(2Dt). For D = 0.5 µm²/s and t = 1 s it is 1 µm.",
+        "Between −1 µm and +1 µm, within one width of the start, lies about 68.3 per cent of the probability.",
+        "Within two widths, ±2 µm, lies about 95.4 per cent; within three, about 99.7 per cent.",
+        "So about one particle in three ends more than one width from where it started, and about one in twenty more than two widths away."
+      ]
     }
   ],
   "exampleTitle": "Where 68 per cent of the probability sits",
