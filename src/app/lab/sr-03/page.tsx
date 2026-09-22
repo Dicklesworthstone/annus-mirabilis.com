@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
+import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
 import { RodSimultaneityLab } from "../../../components/lab/RodSimultaneityLab.tsx";
 import { validateSr03Parameters } from "../../../experiments/sr03/parameters.ts";
 import example from "../../../generated/sr03-example.json";
@@ -41,24 +42,24 @@ export default function RodSimultaneityPage() {
         <h2>§2: the relativity of simultaneity</h2>
         <p>
           In §2 of <em>Zur Elektrodynamik bewegter Körper</em>, Einstein investigates a rigid rod of
-          length <Formula latex="r_{AB}" /> moving with velocity <Formula latex="v" /> relative to a
-          stationary frame <Formula latex="K" />. Clocks mounted at the two ends{" "}
-          <Formula latex="A" /> and <Formula latex="B" /> are synchronized by light signals emitted
-          from <Formula latex="A" /> at time <Formula latex="t_A" />, reflected at{" "}
-          <Formula latex="B" /> at time <Formula latex="t_B" />, and returning to{" "}
-          <Formula latex="A" /> at <Formula latex="t'_A" />.
+          length <InlineFormula latex="r_{AB}" /> moving with velocity <InlineFormula latex="v" />{" "}
+          relative to a stationary frame <InlineFormula latex="K" />. Clocks mounted at the two ends{" "}
+          <InlineFormula latex="A" /> and <InlineFormula latex="B" /> are synchronized by light
+          signals emitted from <InlineFormula latex="A" /> at time <InlineFormula latex="t_A" />,
+          reflected at <InlineFormula latex="B" /> at time <InlineFormula latex="t_B" />, and
+          returning to <InlineFormula latex="A" /> at <InlineFormula latex="t'_A" />.
         </p>
         <p>
-          From the perspective of stationary observers in <Formula latex="K" />, light travels
-          forward with speed <Formula latex="c - v" /> relative to the rod, and backward with speed{" "}
-          <Formula latex="c + v" />:
+          From the perspective of stationary observers in <InlineFormula latex="K" />, light travels
+          forward with speed <InlineFormula latex="c - v" /> relative to the rod, and backward with
+          speed <InlineFormula latex="c + v" />:
         </p>
         <Formula
           latex={String.raw`t_B - t_A = \frac{r_{AB}}{c - v}, \qquad t'_A - t_B = \frac{r_{AB}}{c + v}`}
         />
         <p>
-          Because <Formula latex="t_B - t_A \neq t'_A - t_B" />, observers in <Formula latex="K" />{" "}
-          judge the moving clocks to be desynchronized:
+          Because <InlineFormula latex="t_B - t_A \neq t'_A - t_B" />, observers in{" "}
+          <InlineFormula latex="K" /> judge the moving clocks to be desynchronized:
         </p>
         <blockquote>
           &ldquo;We see that we cannot attach any absolute meaning to the concept of simultaneity,
@@ -75,16 +76,17 @@ export default function RodSimultaneityPage() {
         <Formula latex={String.raw`x' = \gamma (x - v t) = \frac{x - v t}{\sqrt{1 - v^2/c^2}}`} />
         <p>
           Taking positions of both ends at <strong>one time of the stationary frame</strong> (
-          <Formula latex="\Delta t = 0" />) yields a measured coordinate length:
+          <InlineFormula latex="\Delta t = 0" />) yields a measured coordinate length:
         </p>
         <Formula
           latex={String.raw`\Delta x = \Delta x' \sqrt{1 - \frac{v^2}{c^2}} = \frac{L_0}{\gamma}`}
         />
         <p>
-          Similarly, a rigid sphere of radius <Formula latex="R" /> at rest in <Formula latex="k" />{" "}
-          whose surface satisfies <Formula latex="(\xi - \xi_0)^2 + \eta^2 + \zeta^2 = R^2" />, when
-          measured at <Formula latex="t = 0" /> from the stationary system, is an ellipsoid of
-          revolution with semi-axes:
+          Similarly, a rigid sphere of radius <InlineFormula latex="R" /> at rest in{" "}
+          <InlineFormula latex="k" /> whose surface satisfies{" "}
+          <InlineFormula latex="(\xi - \xi_0)^2 + \eta^2 + \zeta^2 = R^2" />, when measured at{" "}
+          <InlineFormula latex="t = 0" /> from the stationary system, is an ellipsoid of revolution
+          with semi-axes:
         </p>
         <Formula latex={String.raw`a = R \sqrt{1 - \frac{v^2}{c^2}}, \qquad b = R, \qquad c = R`} />
 
@@ -100,18 +102,18 @@ export default function RodSimultaneityPage() {
 
         <h2>Invariant spacetime intervals and causal order</h2>
         <p>
-          Between any two events <Formula latex="E_1" /> and <Formula latex="E_2" />, the squared
-          spacetime interval is strictly invariant under all Lorentz transformations:
+          Between any two events <InlineFormula latex="E_1" /> and <InlineFormula latex="E_2" />,
+          the squared spacetime interval is strictly invariant under all Lorentz transformations:
         </p>
         <Formula
           latex={String.raw`s^2 = \Delta x^2 + \Delta y^2 + \Delta z^2 - c^2 \Delta t^2 = \Delta x'^2 + \Delta y'^2 + \Delta z'^2 - c^2 \Delta t'^2`}
         />
         <p>
-          When <Formula latex="s^2 < 0" /> (timelike) or <Formula latex="s^2 = 0" /> (lightlike), a
-          subluminal or light signal can causally connect the events, and their chronological order
-          is invariant across all inertial frames. When <Formula latex="s^2 > 0" /> (spacelike), no
-          signal can connect them, and observers in different states of relative motion disagree on
-          which event occurred first.
+          When <InlineFormula latex="s^2 < 0" /> (timelike) or <InlineFormula latex="s^2 = 0" />{" "}
+          (lightlike), a subluminal or light signal can causally connect the events, and their
+          chronological order is invariant across all inertial frames. When{" "}
+          <InlineFormula latex="s^2 > 0" /> (spacelike), no signal can connect them, and observers
+          in different states of relative motion disagree on which event occurred first.
         </p>
 
         <div className="actions">

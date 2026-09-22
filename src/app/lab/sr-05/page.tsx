@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
+import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
 import { MovingClocksLab } from "../../../components/lab/sr05/MovingClocksLab.tsx";
 import type { PreparedSr05Example } from "../../../experiments/sr05/session.ts";
 import generatedExample from "../../../generated/sr05-example.json";
@@ -45,10 +46,10 @@ export default function MovingClocksPage() {
         <Formula latex={String.raw`1-\sqrt{1-v^2/V^2}\approx\tfrac12\,v^2/V^2`} />
         <p>
           Section 4 states the loss per second of coordinate time to magnitudes of fourth and higher
-          order as <Formula latex={String.raw`\tfrac12\,v^2/V^2`} />. The lab above shows this
+          order as <InlineFormula latex={String.raw`\tfrac12\,v^2/V^2`} />. The lab above shows this
           printed approximation beside the exact, numerically stable form{" "}
-          <Formula latex={String.raw`\beta^2/(1+\sqrt{1-\beta^2})`} />; the two agree to many digits
-          at everyday speeds and separate visibly as speed grows.
+          <InlineFormula latex={String.raw`\beta^2/(1+\sqrt{1-\beta^2})`} />; the two agree to many
+          digits at everyday speeds and separate visibly as speed grows.
         </p>
         <h2>The reunion is the honest comparison</h2>
         <p>

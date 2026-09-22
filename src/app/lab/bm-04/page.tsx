@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { DriftDiffusionLab } from "../../../components/lab/DriftDiffusionLab.tsx";
+import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
 import { validateBm04Parameters } from "../../../experiments/bm04/parameters.ts";
 import example from "../../../generated/bm04-example.json";
 
@@ -52,7 +53,9 @@ export default function DriftDiffusionLabPage() {
             <strong>Thermodynamic Force Balance:</strong> A virtual displacement shows that in
             equilibrium, a persistent external force <var>K</var> acting on suspended particles must
             be balanced by an opposing osmotic pressure gradient:
-            <Formula latex={String.raw`K\,\nu = \frac{RT}{N}\frac{\partial\nu}{\partial x}`} />
+            <InlineFormula
+              latex={String.raw`K\,\nu = \frac{RT}{N}\frac{\partial\nu}{\partial x}`}
+            />
             Here <var>ν</var> is the number density of suspended particles, <var>R</var> is the
             ideal gas constant, <var>T</var> is absolute temperature, and <var>N</var> is Avogadro’s
             number.
