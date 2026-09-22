@@ -58,10 +58,10 @@ function ComparisonPlot({ report }: { report: ShelfReport }) {
 function ComparisonTable({ report }: { report: ShelfReport }) {
   const columns = report.rows[0]?.metrics ?? [];
   return (
-    <div
+    <section
       className="shelf-table-scroll"
-      role="region"
       aria-label="Computed model comparison, scroll horizontally if needed"
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
       tabIndex={0}
     >
       <table>
@@ -100,7 +100,7 @@ function ComparisonTable({ report }: { report: ShelfReport }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </section>
   );
 }
 
