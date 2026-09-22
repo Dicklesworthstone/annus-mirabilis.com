@@ -50,6 +50,36 @@
 * {
   box-sizing: border-box;
 }
+/*
+ * THE TYPE SCALE (am design overhaul).
+ *
+ * MEASURED BEFORE IT WAS WRITTEN. Across the 54 stylesheets under src/ the site used 61 distinct
+ * font-size values in 402 declarations over 40 files; 39 of them were distinct rem values, twelve
+ * of those between 0.65 and 0.95rem. globals.css alone held 26 distinct values in 50 declarations,
+ * with 0.74, 0.78, 0.82, 0.83, 0.85, 0.87, 0.9 and 0.95rem all doing one job inside a 0.21rem
+ * span. That is a scatter, not a scale: eight values nobody can choose between on purpose.
+ *
+ * RATIO 1.2, a minor third, anchored on the READING BODY at 1.1875rem (19px). The anchor is the
+ * one size on this site that is not a matter of taste, and a tight ratio suits a reading edition -
+ * the 1905 Annalen hierarchy is narrow, not dramatic.
+ *
+ * The anchor does NOT set line length any more. Since 738adb62 the measure is in ch, so characters
+ * per line is held by --reader-measure and is independent of this scale. Before that change these
+ * two numbers fought: enlarging type shortened the line.
+ *
+ * Each step has ONE job. A value that does not fit a job is a signal the job list is wrong, not a
+ * licence to add a ninth size.
+ */
+:root {
+  --type-micro: 0.6875rem; /* 11px  - telemetry, printed marks, table furniture */
+  --type-fine: 0.825rem; /* 13.2px - captions, hints, fine print */
+  --type-small: 0.99rem; /* 15.8px - secondary prose, labels, nav */
+  --type-body: 1.1875rem; /* 19px  - THE READING BODY, the anchor */
+  --type-lead: 1.425rem; /* 22.8px - lead paragraphs, section openers */
+  --type-title: 1.71rem; /* 27.4px - headings within a page */
+  --type-display: 2.05rem; /* 32.8px - page titles */
+}
+
 html {
   scroll-behavior: smooth;
 }
