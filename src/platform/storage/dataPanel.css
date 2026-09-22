@@ -1,4 +1,13 @@
-/* Local storage and reader data management styles (am-plat-local-storage-km8f) */
+/*
+ * /your-data/ and its panel (am-plat-local-storage-km8f), restyled by chrome (pane %44).
+ *
+ * Every colour here is a theme token. The panel was drawn in a palette from outside the theme:
+ * red #b91c1c on #fef2f2 buttons, an amber #fffbeb confirmation, a blue #eff6ff status line and a
+ * #fefae0 no-script box. None of it changed in the dark theme, where "Clear All Data" became a
+ * pale pink slab on the night ground. The three promises are a row of short paragraphs, not
+ * three bordered boxes, and the kinds of data are a list that fits a phone, not a four-column
+ * table that ran past its right edge at 390.
+ */
 
 .your-data-page {
   max-width: 54rem;
@@ -8,47 +17,33 @@
 
 .privacy-guarantees {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
-  gap: 1rem;
-  margin: 2rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  gap: 0 2rem;
+  margin: 2.5rem 0;
 }
-
 .privacy-card {
-  padding: 1rem;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--panel);
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
 }
-
 .privacy-card-title {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.35rem;
   font-size: var(--type-body);
-  font-weight: 600;
-  color: var(--ink);
+  font-weight: 400;
 }
-
 .privacy-card-desc {
   margin: 0;
   font-size: var(--type-small);
+  line-height: 1.55;
   color: var(--muted);
-  line-height: 1.5;
 }
 
 .noscript-notice {
-  padding: 1rem;
   margin: 1.5rem 0;
-  border: 1px solid #d4a373;
-  border-radius: 4px;
-  background: #fefae0;
-  color: #6b4423;
-  font-size: var(--type-small);
 }
-
 .noscript-title {
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
+  margin: 0 0 0.35rem;
+  font-weight: 700;
 }
-
 .noscript-desc {
   margin: 0;
 }
@@ -57,242 +52,169 @@
   margin-top: 2rem;
 }
 
-/* DataPanel component styles */
 .data-panel {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
 }
 
 .data-panel-summary {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--panel);
+  gap: 1rem 2rem;
+  padding: 1.25rem 0;
+  border-block: 1px solid var(--line);
 }
-
 .data-panel-summary-heading {
   margin: 0;
-  font-size: var(--type-small);
-  font-weight: 600;
-  color: var(--ink);
+  font-size: var(--type-body);
 }
-
 .data-panel-bytes {
   font-family: var(--font-mono);
-  font-weight: 700;
-  color: var(--accent);
+  font-size: 0.9em;
 }
-
 .data-panel-summary-sub {
-  margin: 0.25rem 0 0 0;
+  margin: 0.3rem 0 0;
+  font-family: var(--font-sans);
   font-size: var(--type-fine);
   color: var(--muted);
 }
-
 .data-panel-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.data-panel-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  padding: 0.4rem 0.85rem;
-  font-size: var(--type-fine);
-  font-family: var(--font-sans);
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  background: var(--panel);
+/* Secondary buttons at the site's 44px. A destructive one carries its word ("Clear") and an ink
+   rule; the confirmation that follows is where the accent goes. */
+button.data-panel-btn {
+  min-height: 44px;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--rule);
+  background: transparent;
   color: var(--ink);
-  cursor: pointer;
-  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
 }
-
-.data-panel-btn:hover:not(:disabled) {
+button.data-panel-btn:hover:not(:disabled) {
+  border-color: var(--ink);
   background: var(--wash);
+  color: var(--ink);
+}
+button.data-panel-btn-danger {
   border-color: var(--ink);
 }
-
-.data-panel-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.data-panel-btn-danger {
-  color: #b91c1c;
-  border-color: #fca5a5;
-  background: #fef2f2;
-}
-
-.data-panel-btn-danger:hover:not(:disabled) {
-  background: #fee2e2;
-  border-color: #b91c1c;
-  color: #991b1b;
-}
-
-.data-panel-btn-confirm {
-  background: #b91c1c;
-  border-color: #991b1b;
-  color: #ffffff;
-}
-
-.data-panel-btn-confirm:hover:not(:disabled) {
-  background: #991b1b;
-  border-color: #7f1d1d;
-  color: #ffffff;
+button.data-panel-btn-confirm,
+button.data-panel-btn-confirm:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .data-panel-status {
-  padding: 0.75rem 1rem;
+  font-family: var(--font-sans);
   font-size: var(--type-fine);
-  border: 1px solid #93c5fd;
-  border-radius: 4px;
-  background: #eff6ff;
-  color: #1e40af;
+  color: var(--muted);
 }
 
 .data-panel-confirmation {
-  padding: 1rem;
-  border: 2px solid #f59e0b;
-  border-radius: 4px;
-  background: #fffbeb;
-  color: #78350f;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--accent);
+  background: var(--wash);
 }
-
 .data-panel-confirm-title {
   margin: 0;
-  font-size: var(--type-small);
-  font-weight: 600;
+  font-size: var(--type-body);
+  font-weight: 700;
 }
-
 .data-panel-confirm-desc {
-  margin: 0.5rem 0 1rem 0;
+  margin: 0.4rem 0 1rem;
   font-size: var(--type-small);
   line-height: 1.5;
 }
-
 .data-panel-confirm-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.data-panel-quarantine {
-  padding: 1rem;
-  border: 1px solid #d97706;
-  border-radius: 4px;
-  background: var(--wash);
+.data-panel-section-title {
+  margin: 0 0 0.5rem;
+  font-size: var(--type-body);
+  font-weight: 400;
 }
-
-.data-panel-quarantine-header {
+.data-panel-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.data-panel-item {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 0.15rem 1rem;
+  min-height: 44px;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--line);
+}
+.data-panel-item-name {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+.data-panel-item-facts {
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+/* A kind with nothing stored reads quieter than one that holds something. */
+.data-panel-item:not(.has-data) .data-panel-item-name {
+  color: var(--muted);
+}
+
+/* Data the site could not read: rare, technical, and shown as it was stored. */
+.data-panel-quarantine {
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--rule);
+  background: var(--wash);
+}
+.data-panel-quarantine-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
 }
-
 .data-panel-quarantine-title {
   margin: 0;
-  font-size: var(--type-small);
-  font-weight: 600;
-  color: #92400e;
+  font-size: var(--type-body);
+  font-weight: 700;
 }
-
 .data-panel-quarantine-desc {
-  margin: 0.25rem 0 0 0;
-  font-size: var(--type-fine);
-  color: #a16207;
+  margin: 0.3rem 0 0;
+  font-size: var(--type-small);
+  color: var(--muted);
 }
-
 .data-panel-table-wrap {
   overflow-x: auto;
   max-width: 100%;
 }
-
 .data-panel-table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--type-fine);
   text-align: left;
 }
-
 .data-panel-table th {
   padding: 0.5rem 0.75rem;
-  border-bottom: 2px solid var(--line);
-  font-size: var(--type-fine);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--rule);
   color: var(--muted);
 }
-
 .data-panel-table td {
-  padding: 0.65rem 0.75rem;
+  padding: 0.6rem 0.75rem;
   border-bottom: 1px solid var(--line);
-  vertical-align: middle;
-}
-
-.data-panel-table-row:hover {
-  background: var(--wash);
-}
-
-.data-panel-cell-namespace {
-  min-width: 160px;
-}
-
-.data-panel-namespace-label {
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.data-panel-namespace-key {
-  font-family: var(--font-mono);
-  font-size: var(--type-micro);
-  color: var(--muted);
-  word-break: break-all;
-}
-
-.data-panel-cell-kind {
-  font-size: var(--type-fine);
-  color: var(--muted);
-  text-transform: capitalize;
-}
-
-.data-panel-cell-size {
-  font-family: var(--font-mono);
-  font-size: var(--type-fine);
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-.data-panel-cell-actions {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.data-panel-dash {
-  color: var(--line);
-}
-
-.data-panel-section-title {
-  margin: 0 0 0.75rem 0;
-  font-size: var(--type-body);
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.data-panel-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  vertical-align: top;
+  overflow-wrap: anywhere;
 }

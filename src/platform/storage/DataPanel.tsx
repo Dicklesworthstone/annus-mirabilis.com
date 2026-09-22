@@ -93,7 +93,7 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
         // In restricted environments, ignore DOM click failures
       }
     }
-    setStatusMessage("Data exported successfully.");
+    setStatusMessage("Downloaded a copy of everything this site keeps in your browser.");
   }, [ctx, onExport]);
 
   const handleConfirmClear = useCallback(() => {
@@ -102,10 +102,10 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
     if (confirmTarget.key === "all") {
       const cleared = clearNamespaces(ctx);
       if (onClear) onClear(cleared);
-      setStatusMessage(`Cleared all data (${cleared.length} namespaces).`);
+      setStatusMessage("Cleared everything this site kept in your browser.");
     } else if (confirmTarget.key === "quarantine") {
       clearQuarantine(ctx);
-      setStatusMessage("Cleared recovered (quarantined) data.");
+      setStatusMessage("Cleared the data this site could not read.");
     } else {
       const cleared = clearNamespaces(ctx, [confirmTarget.key]);
       if (onClear) onClear(cleared);
@@ -116,20 +116,23 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
     refresh();
   }, [confirmTarget, ctx, onClear, refresh]);
 
+  const kindLabel = (kind: string) => (kind === "setting" ? "A setting" : "Saved work");
+
   return (
     <div data-testid="data-panel" className="data-panel">
-      {/* Top summary & actions */}
+      {/* What is stored, in one sentence, and the two actions that apply to all of it. */}
       <div className="data-panel-summary">
         <div>
           <p className="data-panel-summary-heading">
-            Total stored on this device:{" "}
+            Stored in this browser for this site:{" "}
             <span data-testid="total-bytes" className="data-panel-bytes">
               {formatBytes(totalBytes)}
             </span>
           </p>
           <p className="data-panel-summary-sub">
-            {storedCount} {storedCount === 1 ? "namespace" : "namespaces"} with active data across{" "}
-            {items.length} registered.
+            {storedCount === 0
+              ? "Nothing yet. Settings you change and notes you save will appear below."
+              : `${storedCount} of the ${items.length} kinds of data listed below.`}
           </p>
         </div>
 
@@ -140,23 +143,22 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
             onClick={handleExportAll}
             className="data-panel-btn"
           >
-            Export All Data (JSON)
+            Download all of it (JSON)
           </button>
           <button
             type="button"
             data-testid="clear-all-btn"
             disabled={totalBytes === 0 && quarantineEntries.length === 0}
             onClick={() =>
-              setConfirmTarget({ key: "all", label: "all local reading data and settings" })
+              setConfirmTarget({ key: "all", label: "everything this site keeps in your browser" })
             }
             className="data-panel-btn data-panel-btn-danger"
           >
-            Clear All Data
+            Clear all of it
           </button>
         </div>
       </div>
 
-      {/* Status banner */}
       {statusMessage && (
         <div
           role="status"
@@ -168,7 +170,7 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
         </div>
       )}
 
-      {/* In-page confirmation modal/banner (no window.confirm) */}
+      {/* An in-page confirmation, never window.confirm: it sits where the reader is looking. */}
       {confirmTarget && (
         <div
           role="alertdialog"
@@ -178,11 +180,11 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
           className="data-panel-confirmation"
         >
           <h3 id="clear-heading" className="data-panel-confirm-title">
-            Confirm Clear
+            Clear {confirmTarget.label}?
           </h3>
           <p id="clear-desc" className="data-panel-confirm-desc">
-            Are you sure you want to clear <strong>{confirmTarget.label}</strong>? This action
-            cannot be undone.
+            This removes it from this browser and cannot be undone. Download a copy first if you
+            want to keep it.
           </p>
           <div className="data-panel-confirm-actions">
             <button
@@ -191,7 +193,7 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
               onClick={handleConfirmClear}
               className="data-panel-btn data-panel-btn-confirm"
             >
-              Yes, Clear
+              Clear it
             </button>
             <button
               type="button"
@@ -199,34 +201,33 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
               onClick={() => setConfirmTarget(null)}
               className="data-panel-btn"
             >
-              Cancel
+              Keep it
             </button>
           </div>
         </div>
       )}
 
-      {/* Quarantined / Recovered Data Section */}
       {quarantineEntries.length > 0 && (
         <section data-testid="quarantine-section" className="data-panel-quarantine">
           <div className="data-panel-quarantine-header">
             <div>
               <h3 className="data-panel-quarantine-title">
-                Recovered Data ({quarantineEntries.length})
+                Data this site could not read ({quarantineEntries.length})
               </h3>
               <p className="data-panel-quarantine-desc">
-                Data quarantined due to corrupt formatting or unknown version. You can inspect,
-                export, or clear it.
+                These were damaged, or written by a different version of the site, so they were set
+                aside instead of used. You can inspect, export or clear them.
               </p>
             </div>
             <button
               type="button"
               data-testid="clear-quarantine-btn"
               onClick={() =>
-                setConfirmTarget({ key: "quarantine", label: "all recovered (quarantined) data" })
+                setConfirmTarget({ key: "quarantine", label: "the data this site could not read" })
               }
               className="data-panel-btn data-panel-btn-danger"
             >
-              Clear Recovered Data
+              Clear these
             </button>
           </div>
 
@@ -234,19 +235,15 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
             <table className="data-panel-table">
               <thead>
                 <tr>
-                  <th>Original Key</th>
-                  <th>Reason</th>
-                  <th>Quarantined At</th>
-                  <th>Raw Value</th>
+                  <th>Stored under</th>
+                  <th>Why it was set aside</th>
+                  <th>When</th>
+                  <th>What was stored</th>
                 </tr>
               </thead>
               <tbody>
                 {quarantineEntries.map((q) => (
-                  <tr
-                    key={`${q.originalKey}:${q.quarantinedAt}`}
-                    data-testid="quarantine-row"
-                    className="data-panel-table-row"
-                  >
+                  <tr key={`${q.originalKey}:${q.quarantinedAt}`} data-testid="quarantine-row">
                     <td>{q.originalKey}</td>
                     <td>{q.reason}</td>
                     <td>{q.quarantinedAt}</td>
@@ -259,54 +256,42 @@ export function DataPanel({ storageContext, onExport, onClear }: DataPanelProps)
         </section>
       )}
 
-      {/* Storage Namespaces List */}
-      <section className="data-panel-section">
-        <h3 className="data-panel-section-title">Storage Namespaces</h3>
-        <div className="data-panel-table-wrap">
-          <table data-testid="namespaces-table" className="data-panel-table">
-            <thead>
-              <tr>
-                <th>Namespace</th>
-                <th>Kind</th>
-                <th>Size</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map(({ entry, bytes, hasData }) => (
-                <tr
-                  key={entry.key}
-                  data-testid="namespace-row"
-                  data-namespace-key={entry.key}
-                  className="data-panel-table-row"
+      {/*
+        One row per kind of data, as a list rather than a four-column table: the table carried
+        each entry's storage key ("am:settings:v1:theme") under its name and ran past the right
+        edge of a 390px screen. The key stays on the row as a data attribute for tests and tools.
+      */}
+      <section aria-labelledby="data-panel-kinds">
+        <h3 className="data-panel-section-title" id="data-panel-kinds">
+          What this site can keep in your browser
+        </h3>
+        <ul data-testid="namespaces-table" className="data-panel-list">
+          {items.map(({ entry, bytes, hasData }) => (
+            <li
+              key={entry.key}
+              data-testid="namespace-row"
+              data-namespace-key={entry.key}
+              className={hasData ? "data-panel-item has-data" : "data-panel-item"}
+            >
+              <span className="data-panel-item-name">{entry.label}</span>
+              <span className="data-panel-item-facts">
+                {kindLabel(entry.kind)} ·{" "}
+                <span data-testid={`size-${entry.key}`}>{formatBytes(bytes)}</span>
+              </span>
+              {entry.clearable && hasData && (
+                <button
+                  type="button"
+                  data-testid={`clear-btn-${entry.key}`}
+                  onClick={() => setConfirmTarget({ key: entry.key, label: entry.label })}
+                  className="data-panel-btn data-panel-btn-danger"
+                  aria-label={`Clear ${entry.label}`}
                 >
-                  <td className="data-panel-cell-namespace">
-                    <div className="data-panel-namespace-label">{entry.label}</div>
-                    <div className="data-panel-namespace-key">{entry.key}</div>
-                  </td>
-                  <td className="data-panel-cell-kind">{entry.kind}</td>
-                  <td className="data-panel-cell-size">
-                    <span data-testid={`size-${entry.key}`}>{formatBytes(bytes)}</span>
-                  </td>
-                  <td className="data-panel-cell-actions">
-                    {entry.clearable && hasData ? (
-                      <button
-                        type="button"
-                        data-testid={`clear-btn-${entry.key}`}
-                        onClick={() => setConfirmTarget({ key: entry.key, label: entry.label })}
-                        className="data-panel-btn data-panel-btn-danger"
-                      >
-                        Clear
-                      </button>
-                    ) : (
-                      <span className="data-panel-dash">–</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  Clear
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

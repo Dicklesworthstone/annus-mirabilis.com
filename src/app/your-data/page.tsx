@@ -14,12 +14,12 @@ export default function YourDataPage() {
     // inside it gave this page two main landmarks.
     <div className="your-data-page">
       <header className="page-intro">
-        <p className="eyebrow">Privacy &amp; local storage</p>
+        <p className="eyebrow">Your data</p>
         <h1>Your data stays on your device.</h1>
         <p className="lead">
-          Annus Mirabilis has no accounts, no logins, no advertising, and no tracking cookies. All
-          reading preferences, notes, predictions, and tour progress are stored solely in your
-          browser’s local storage.
+          Annus Mirabilis has no accounts, no logins, no advertising and no tracking cookies. Your
+          reading preferences, notes, predictions and tour progress are kept in this browser&rsquo;s
+          own storage, and nowhere else.
         </p>
       </header>
 
@@ -54,7 +54,7 @@ export default function YourDataPage() {
       </section>
 
       <noscript>
-        <div data-testid="noscript-notice" className="noscript-notice">
+        <div data-testid="noscript-notice" className="noscript-notice callout-note">
           <p className="noscript-title">JavaScript is currently disabled.</p>
           <p className="noscript-desc">
             With JavaScript disabled, the interactive data viewer below is not available, and local
