@@ -106,3 +106,18 @@
 .experiment-settings-body > button[type="submit"] {
   margin-top: 1rem;
 }
+
+/* Onward links, set after an instrument instead of above it (bm-01 first). */
+.lab-onward {
+  max-width: 68ch;
+  margin-block: 2.5rem;
+}
+
+.lab-onward ul {
+  margin: 0;
+  padding-inline-start: 1.1rem;
+}
+
+.lab-onward li {
+  margin-block: 0.55rem;
+}

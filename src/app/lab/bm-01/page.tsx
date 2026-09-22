@@ -15,29 +15,31 @@ export default function TracerPage() {
           average displacement stays near zero, while the typical distance from the start keeps
           growing. Telling those two apart is what this instrument is for.
         </p>
-        <p>
-          It also shows why you cannot get a particle&rsquo;s speed by looking more often. Halve the
-          interval between observations and the apparent speed climbs instead of settling on a
-          value.
-        </p>
-        <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>
-        <p>
-          <a href="/papers/brownian-motion/#arg-bm-observable">
-            Read the argument, and open any step you want filled in
-          </a>
-        </p>
-        <p>
-          <a className="button" href="/discover/brownian-motion/investigate/">
-            Pin a trial and take its diffusion coefficient to the spreading lab
-          </a>
-        </p>
-        <p>
-          <a className="button" href="/lab/bm-01/compare/">
-            Change one input and compare: radius, viscosity, temperature, interval
-          </a>
-        </p>
       </header>
       <TracerComparison example={example} />
+      <nav className="lab-onward" aria-label="From this trial">
+        <h2>From this trial</h2>
+        <ul>
+          <li>
+            <a href="/lab/bm-01/compare/">Change one input and compare</a>: radius, viscosity,
+            temperature or observation interval, side by side.
+          </li>
+          <li>
+            <a href="/discover/brownian-motion/investigate/">
+              Take this trial to the spreading lab
+            </a>
+            , with its diffusion coefficient pinned.
+          </li>
+          <li>
+            <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>, if the
+            notation is in the way.
+          </li>
+          <li>
+            <a href="/papers/brownian-motion/#arg-bm-observable">Read the argument</a>, and open any
+            step you want filled in.
+          </li>
+        </ul>
+      </nav>
       <section className="reading">
         <h2>A mean near zero does not mean no motion.</h2>
         <Formula
