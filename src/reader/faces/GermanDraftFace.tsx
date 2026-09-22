@@ -22,6 +22,7 @@
 import type { GermanSourceFace } from "../../content/editions/germanSourceFace.ts";
 import { FACE_REGISTRY } from "./registry.ts";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
+import { renderSourceMarkup } from "./sourceMarkup.tsx";
 import "../reader.css";
 
 const HEADING_KINDS = new Set(["heading", "part-heading"]);
@@ -62,11 +63,11 @@ export function GermanDraftFace({
         {body.map((block) =>
           MASTHEAD_KINDS.has(block.kind) ? (
             <p key={block.id} id={block.id} className="source-masthead" lang="de">
-              {block.text}
+              {renderSourceMarkup(block.text, block.id)}
             </p>
           ) : HEADING_KINDS.has(block.kind) ? (
             <h2 key={block.id} id={block.id} lang="de">
-              {block.text}
+              {renderSourceMarkup(block.text, block.id)}
             </h2>
           ) : (
             <p
@@ -76,7 +77,7 @@ export function GermanDraftFace({
               lang="de"
               data-block-kind={block.kind}
             >
-              {block.text}
+              {renderSourceMarkup(block.text, block.id)}
             </p>
           ),
         )}
@@ -88,7 +89,7 @@ export function GermanDraftFace({
           {footnotes.map((block) => (
             <p key={block.id} id={block.id} className="source-footnote" lang="de">
               {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
-              {block.text}
+              {renderSourceMarkup(block.text, block.id)}
             </p>
           ))}
         </section>
