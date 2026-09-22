@@ -33,23 +33,73 @@ export function syncFormulaOverflow(): void {
 export function initFormulaOverflow(): void {
   try {
     function update(): void {
-      const formulas = document.querySelectorAll<HTMLElement>(".formula");
-      for (let i = 0; i < formulas.length; i++) {
-        const el = formulas[i];
+      // Every region that can scroll, not only formulas. A scrollable box a keyboard cannot focus
+      // is unreachable content, and the mechanism that fixes it does not care what is inside.
+      // EVERY element, not a list of classes. A hand-kept selector drifts away from the CSS the
+      // moment someone adds a scrolling rule, which is the failure this whole session keeps
+      // finding; and measured ancestry shows why a narrow list cannot work - the offenders on
+      // /lab/countermodels/ are a bare `pre` inside a `details`, and on /papers/mass-energy/ an
+      // unclassed `div` inside `.linear-formula`. Neither carries a class to select.
+      //
+      // Scanning wide is safe because nothing is marked on the strength of matching: an element
+      // is only touched when its COMPUTED overflow permits scrolling and its content actually
+      // exceeds its box, which is the same predicate the ratchet and %30's sweep use.
+      const regions = document.querySelectorAll<HTMLElement>("*");
+      for (let i = 0; i < regions.length; i++) {
+        const el = regions[i];
         if (!el) continue;
-        if (el.scrollWidth > el.clientWidth) {
+        // Natively focusable elements reach themselves; a tab stop on them is a duplicate.
+        if (
+          /^(INPUT|TEXTAREA|SELECT|BUTTON|A|IFRAME|AUDIO|VIDEO|DETAILS|SUMMARY)$/.test(el.tagName)
+        ) {
+          continue;
+        }
+        const style = window.getComputedStyle(el);
+        const scrollsX = /(auto|scroll)/.test(style.overflowX) && el.scrollWidth > el.clientWidth;
+        const scrollsY = /(auto|scroll)/.test(style.overflowY) && el.scrollHeight > el.clientHeight;
+        // axe's scrollable-region-focusable exempts a container whose content is already
+        // reachable: if a focusable descendant exists, a keyboard can scroll the box by tabbing
+        // into it, and adding a stop here is the useless one the ratchet's docblock warns about.
+        const reachableWithin = el.querySelector(
+          'a[href],button,input,select,textarea,summary,[tabindex]:not([tabindex="-1"])',
+        );
+        if ((scrollsX || scrollsY) && reachableWithin) {
+          if (el.hasAttribute("data-scroll-focus")) el.removeAttribute("tabindex");
+          continue;
+        }
+        if (scrollsX || scrollsY) {
+          // Marks only what this script added, so it never removes an author's own tabindex.
+          el.setAttribute("data-scroll-focus", "");
           el.setAttribute("tabindex", "0");
-          if (!el.getAttribute("aria-label")) {
+          if (!el.getAttribute("aria-label") && !el.getAttribute("aria-labelledby")) {
+            // Named from what the page already says, never invented. A caption IS a table's name
+            // in HTML; a formula carries its own TeX; otherwise the nearest preceding heading.
             const tex =
               el.getAttribute("data-latex") ||
               el.querySelector('annotation[encoding="application/x-tex"]')?.textContent?.trim();
+            const caption = el.querySelector("caption")?.textContent?.trim();
+            let heading: string | undefined;
+            let node: HTMLElement | null = el;
+            for (let hop = 0; hop < 6 && node && !heading; hop++) {
+              let sib = node.previousElementSibling;
+              while (sib && !heading) {
+                if (/^H[1-6]$/.test(sib.tagName)) heading = sib.textContent?.trim();
+                sib = sib.previousElementSibling;
+              }
+              node = node.parentElement;
+            }
             const label = tex
               ? `Scrollable mathematical formula: ${tex}`
-              : `Scrollable mathematical formula ${i + 1}`;
+              : caption
+                ? `Scrollable table: ${caption}`
+                : heading
+                  ? `Scrollable region: ${heading}`
+                  : `Scrollable region ${i + 1}`;
             el.setAttribute("aria-label", label);
           }
-        } else if (el.hasAttribute("tabindex")) {
+        } else if (el.hasAttribute("data-scroll-focus")) {
           el.removeAttribute("tabindex");
+          el.removeAttribute("data-scroll-focus");
         }
       }
     }
@@ -60,7 +110,20 @@ export function initFormulaOverflow(): void {
       update();
     }
     window.addEventListener("load", update);
-    window.addEventListener("resize", update, { passive: true });
+    // Debounced, because the scan is now over every element. Measured on this build: ~2.2ms on
+    // /lab/countermodels/ (3,033 elements), ~3.3ms on /lab/bm-01/ (4,789) and ~8.8ms on
+    // /papers/mass-energy/ (8,210). Fine occasionally and not fine once per resize event during a
+    // drag, which is the only trigger that fires in a stream. The MutationObserver below was
+    // already debounced; this brings resize into line rather than leaving one uneven edge.
+    let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+    window.addEventListener(
+      "resize",
+      () => {
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(update, 100);
+      },
+      { passive: true },
+    );
 
     if (document.fonts?.ready) {
       document.fonts.ready.then(update);
