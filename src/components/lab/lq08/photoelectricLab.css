@@ -1,0 +1,13 @@
+/* LQ-08, the photoelectric apparatus (PhotoelectricLab.tsx). The family's shell in labShell.css
+   does the layout; these rules set only what is particular to this instrument. */
+
+/* Three drawings: two across where the column allows, stacked on a phone. */
+.lq08 .lq08-plots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: 1.5rem;
+}
+
+.lq08 .lq08-historical p {
+  margin: 0 0 0.6rem;
+}

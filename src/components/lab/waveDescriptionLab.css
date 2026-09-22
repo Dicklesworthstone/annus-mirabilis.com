@@ -7,22 +7,8 @@
 }
 
 /* Two choices that each change the whole view read as a pair, not as two unrelated buttons. */
-.lq01 .lq01-view button,
-.lq01 .lq01-choice button {
+.lq01 .lq01-view button {
   text-align: left;
-}
-
-.lq01 .lq01-choice {
-  margin-block: 1.1rem 0;
-}
-
-.lq01 .lq01-choice > legend {
-  padding-bottom: 0.1rem;
-}
-
-.lq01 .lq01-choice .actions {
-  gap: 0.5rem;
-  margin-block: 0.4rem 0;
 }
 
 .lq01 .lq01-presets button {
@@ -32,71 +18,6 @@
 .lq01 .lq01-quick {
   gap: 0.5rem;
   margin-block: 0.6rem 0;
-}
-
-/* Predict first: closed by default, and never a gate on the controls below it. */
-.lq01 .lq01-predict {
-  border-block: 1px solid var(--line);
-  margin-block: 0 0.4rem;
-}
-
-.lq01 .lq01-predict > summary {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  font-size: var(--type-small);
-  font-weight: 600;
-}
-
-.lq01 .lq01-predict > summary:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.lq01 .lq01-predict > fieldset > legend.lq01-predict-question {
-  text-transform: none;
-  letter-spacing: normal;
-  font-family: var(--font-serif);
-  font-size: var(--type-small);
-  font-weight: 400;
-  line-height: 1.5;
-  padding-bottom: 0.6rem;
-}
-
-.lq01 .lq01-candidates {
-  display: grid;
-  gap: 0.4rem;
-}
-
-.lq01 .lq01-candidate {
-  display: flex;
-  gap: 0.6rem;
-  align-items: baseline;
-  min-height: 44px;
-  padding: 0.5rem 0.25rem;
-  font-family: var(--font-sans);
-  font-size: var(--type-fine);
-  line-height: 1.5;
-  cursor: pointer;
-}
-
-.lq01 .lq01-candidate input {
-  flex: none;
-  accent-color: var(--ink);
-}
-
-.lq01 .lq01-reveal {
-  margin-block: 0.75rem 1rem;
-  padding: 0.75rem 1rem;
-  border-left: 2px solid var(--muted);
-  background: var(--wash);
-  font-size: var(--type-fine);
-}
-
-.lq01 .lq01-reveal p {
-  margin: 0 0 0.6rem;
 }
 
 /* The two interference views side by side where the column allows, stacked on a phone. The
@@ -109,47 +30,6 @@
 
 .lq01 .lq01-plots-single {
   grid-template-columns: minmax(0, 34rem);
-}
-
-/* After both columns, so a phone reads the drawing, then the controls, then the numbers. */
-.lq01 .lq01-values {
-  max-width: 44rem;
-  margin-top: 2rem;
-}
-
-.lq01 .lq01-values > p {
-  margin: 0 0 0.5rem;
-}
-
-.lq01 .lq01-values h3 {
-  margin: 0 0 0.5rem;
-  font-size: var(--type-small);
-}
-
-.lq01 .lq01-values tbody th {
-  background: none;
-  font-weight: 400;
-}
-
-.lq01 .lq01-values td[data-output] {
-  font-variant-numeric: tabular-nums;
-}
-
-.lq01 .not-modeled {
-  border-top: 0;
-  margin-top: 0;
-  padding-top: 0;
-}
-
-.lq01 .not-modeled h3 {
-  margin: 0 0 0.4rem;
-  font-size: var(--type-small);
-  color: var(--ink);
-}
-
-.lq01 .not-modeled ul {
-  margin: 0;
-  padding-inline-start: 1.1rem;
 }
 
 /* SVG text is sized in viewBox units, so a label's size on screen is this value times (drawn

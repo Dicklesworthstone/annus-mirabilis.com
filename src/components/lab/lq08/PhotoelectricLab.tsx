@@ -1,72 +1,29 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
-import { LQ08_HISTORICAL_CHECK, LQ08_NOT_MODELED } from "../../../experiments/lq08/definition.ts";
+import {
+  LQ08_HISTORICAL_CHECK,
+  LQ08_MODEL,
+  LQ08_NOT_MODELED,
+  LQ08_PRESETS,
+} from "../../../experiments/lq08/definition.ts";
 import { evaluateMillikanOverlay } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
+import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
+import { SliderField } from "../SliderField.tsx";
 import {
   CurrentVoltagePlot,
   EnergyLadderPlot,
   StoppingPotentialPlot,
 } from "./PhotoelectricPlot.tsx";
+import "./photoelectricLab.css";
 
 export type PhotoelectricLabProps = Readonly<{
   example?: PreparedLq08Example | undefined;
 }>;
-
-type Preset = Readonly<{
-  id: string;
-  name: string;
-  description: string;
-  patch: Readonly<{
-    incidentPower: number;
-    frequency: number;
-    workFunction: number;
-    quantumEfficiency: number;
-    collectorPotential: number;
-  }>;
-}>;
-
-const PRESETS: readonly Preset[] = [
-  {
-    id: "lq-08-intensity-probe",
-    name: "The Intensity Probe (Rate vs Energy)",
-    description:
-      "Monochromatic 600 THz light on a hypothetical metal with work function 2.0 eV, at 1 mW incident power.",
-    patch: {
-      incidentPower: 0.001,
-      frequency: 6.0e14,
-      workFunction: 2.0,
-      quantumEfficiency: 0.1,
-      collectorPotential: 0.0,
-    },
-  },
-  {
-    id: "lq-08-historical-check",
-    name: "Einstein 1905 §8 Check (UV Spark, P'=0)",
-    description: "Einstein's 1905 order-of-magnitude check with neglected escape work.",
-    patch: {
-      incidentPower: 0.001,
-      frequency: 1.03e15,
-      workFunction: 0.0,
-      quantumEfficiency: 0.1,
-      collectorPotential: 0.0,
-    },
-  },
-  {
-    id: "lq-08-two-metals",
-    name: "Two Metals Comparison (2.0 eV vs 3.0 eV)",
-    description: "Compare stopping line slopes and threshold shifts between two metals.",
-    patch: {
-      incidentPower: 0.001,
-      frequency: 8.0e14,
-      workFunction: 3.0,
-      quantumEfficiency: 0.1,
-      collectorPotential: 0.0,
-    },
-  },
-];
 
 type PredictCandidate = Readonly<{
   id: string;
@@ -197,6 +154,87 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
   },
 ];
 
+/** Presets, in the order a reader meets the argument, named for what they set up. */
+const PRESET_ORDER = [
+  ["intensityProbe", "Green light, 600 THz, on a 2.0 eV metal"],
+  ["subThreshold", "Red light, 450 THz, below the threshold"],
+  ["twoMetals", "A metal with a 3.0 eV work function"],
+  ["historicalCheck", "Einstein’s §8 check: 1.03 × 10¹⁵ Hz, no escape work"],
+] as const satisfies readonly (readonly [keyof typeof LQ08_PRESETS, string])[];
+
+type FieldKey =
+  | "incidentPower"
+  | "frequency"
+  | "workFunction"
+  | "quantumEfficiency"
+  | "collectorPotential";
+
+/** Display units for the typed fields: the value shown is the SI value divided by `scale`. */
+const FIELDS: Readonly<Record<FieldKey, { label: string; scale: number; digits: number }>> = {
+  incidentPower: { label: "Lamp power", scale: 1e-3, digits: 3 },
+  frequency: { label: "Frequency ν", scale: 1e12, digits: 1 },
+  workFunction: { label: "Work function Φ", scale: 1, digits: 2 },
+  quantumEfficiency: { label: "Quantum efficiency", scale: 1, digits: 3 },
+  collectorPotential: { label: "Collector potential", scale: 1, digits: 2 },
+};
+
+type Lq08Params = Readonly<Record<FieldKey, number>>;
+
+function shown(key: FieldKey, params: Lq08Params): string {
+  const field = FIELDS[key];
+  return String(Number((params[key] / field.scale).toFixed(field.digits)));
+}
+
+/** The values table: each output in the reader's words, with the unit it is shown in. */
+const VALUE_ROWS: readonly {
+  id: string;
+  label: string;
+  unit: string;
+  scale?: number;
+}[] = [
+  { id: "quantumEnergy", label: "Energy of one quantum, hν", unit: "eV", scale: 1.602176634e-19 },
+  { id: "thresholdFrequency", label: "Threshold frequency, Φ/h", unit: "THz", scale: 1e12 },
+  {
+    id: "maxKineticEnergy",
+    label: "Largest electron energy, hν − Φ",
+    unit: "eV",
+    scale: 1.602176634e-19,
+  },
+  { id: "stoppingPotentialMagnitude", label: "Stopping potential", unit: "V" },
+  { id: "quantumRate", label: "Quanta arriving each second", unit: "per second" },
+  { id: "emissionRate", label: "Electrons freed each second", unit: "per second" },
+  { id: "photocurrent", label: "Current at this collector potential", unit: "μA", scale: 1e-6 },
+];
+
+function ValueCell({
+  out,
+  unit,
+  scale = 1,
+}: {
+  out: PublishedResult | undefined;
+  unit: string;
+  scale?: number | undefined;
+}) {
+  if (!out) return <>Not reported</>;
+  if (out.status === "value" && typeof out.value === "number") {
+    const v = out.value / scale;
+    const text =
+      v !== 0 && (Math.abs(v) >= 1e4 || Math.abs(v) < 1e-3) ? (
+        <Sci value={v} digits={3} />
+      ) : (
+        String(Number(v.toPrecision(4)))
+      );
+    return (
+      <>
+        {text} {unit}
+      </>
+    );
+  }
+  if (out.status === "not-applicable") return <>Not applicable: {out.reason}</>;
+  if ("reason" in out) return <>{String(out.reason)}</>;
+  return <>Not determined by these settings</>;
+}
+
 export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
   const instanceId = useId();
   const session = useMemo(() => createLq08Session(instanceId, example), [instanceId, example]);
@@ -206,9 +244,10 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
     session.getServerSnapshot,
   );
 
-  const [activePromptIndex, setActivePromptIndex] = useState<number | null>(null);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showMillikan, setShowMillikan] = useState<boolean>(true);
+  const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
+  const [error, setError] = useState("");
 
   const accepted = view.accepted;
   const params = (accepted?.parameters ??
@@ -218,21 +257,17 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
       workFunction: 2.2,
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
-    }) as {
-    incidentPower: number;
-    frequency: number;
-    workFunction: number;
-    quantumEfficiency: number;
-    collectorPotential: number;
-  };
+    }) as Lq08Params;
 
   const outputs = accepted?.outputs ?? [];
-  const qEnergyRes = outputs.find((o) => o.quantityId === "quantumEnergy");
-  const tfRes = outputs.find((o) => o.quantityId === "thresholdFrequency");
-  const kMaxRes = outputs.find((o) => o.quantityId === "maxKineticEnergy");
-  const vsRes = outputs.find((o) => o.quantityId === "stoppingPotentialMagnitude");
-  const eRateRes = outputs.find((o) => o.quantityId === "emissionRate");
-  const pcRes = outputs.find((o) => o.quantityId === "photocurrent");
+  const find = (id: string) => outputs.find((o) => o.quantityId === id);
+  const qEnergyRes = find("quantumEnergy");
+  const tfRes = find("thresholdFrequency");
+  const kMaxRes = find("maxKineticEnergy");
+  const vsRes = find("stoppingPotentialMagnitude");
+  const eRateRes = find("emissionRate");
+  const pcRes = find("photocurrent");
+  const qRateRes = find("quantumRate");
 
   const qEnergyEv =
     qEnergyRes?.status === "value" ? (qEnergyRes.value as number) / 1.602176634e-19 : 0;
@@ -241,6 +276,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
   const tfVal = tfRes?.status === "value" ? (tfRes.value as number) : 0;
   const eRateVal = eRateRes?.status === "value" ? (eRateRes.value as number) : 0;
   const pcVal = pcRes?.status === "value" ? (pcRes.value as number) : null;
+  const qRateVal = qRateRes?.status === "value" ? (qRateRes.value as number) : null;
 
   // Saturation current in microamperes: e * eRate * 1e6
   const iSatMicroAmps = eRateVal * 1.602176634e-19 * 1e6;
@@ -248,343 +284,211 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
 
   const millikanData = useMemo(() => evaluateMillikanOverlay(), []);
 
+  function apply(patch: Partial<Lq08Params>) {
+    const outcome = session.apply(patch);
+    if (outcome.kind === "refused") {
+      const req = outcome.refusal.details?.requirements;
+      setError(typeof req === "string" ? req : outcome.refusal.message);
+      return false;
+    }
+    setError("");
+    return true;
+  }
+
+  function commit(key: FieldKey, text: string) {
+    const n = Number(text.trim());
+    if (text.trim() === "" || !Number.isFinite(n)) {
+      setDrafts((d) => ({ ...d, [key]: text }));
+      setError(`${FIELDS[key].label}: enter a number.`);
+      return;
+    }
+    if (apply({ [key]: n * FIELDS[key].scale })) {
+      setDrafts((d) => {
+        const { [key]: _done, ...rest } = d;
+        return rest;
+      });
+    } else {
+      setDrafts((d) => ({ ...d, [key]: text }));
+    }
+  }
+
+  function field(key: FieldKey) {
+    return {
+      id: `${instanceId}-${key}`,
+      value: drafts[key] ?? shown(key, params),
+      onDraft: (v: string) => setDrafts((d) => ({ ...d, [key]: v })),
+      onCommit: (v: string) => commit(key, v),
+    };
+  }
+
+  function preset(key: keyof typeof LQ08_PRESETS) {
+    setDrafts({});
+    apply(LQ08_PRESETS[key].parameters);
+  }
+
   return (
-    <section className="laboratory" data-testid="photoelectric-lab">
-      {/* Telemetry and Header */}
-      <header
-        className="lab-heading"
-        style={{
-          borderBottom: "1px solid var(--line)",
-          paddingBottom: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-            width: "100%",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-            <span className="badge">LQ-08</span>
-            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-              Status: {view.status} | Step: {accepted?.stepIndex ?? 0} | Run:{" "}
-              {accepted?.runId ?? "init"}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <label
-              className="fine"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.25rem",
-                cursor: "pointer",
-              }}
-            >
+    <section
+      className="laboratory lq08"
+      data-testid="photoelectric-lab"
+      data-instrument-id="lq-08"
+      data-execution-label="host"
+      {...(accepted ? identity(accepted) : {})}
+    >
+      <header className="lab-heading">
+        <p className="eyebrow">LQ-08 · The photoelectric apparatus</p>
+        <h2>Photoelectric apparatus laboratory</h2>
+        <span className="badge">{LQ08_MODEL.label}</span>
+      </header>
+
+      <div className="lab-columns">
+        <div>
+          <details className="lab-predict">
+            <summary>Predict first</summary>
+            {PREDICT_PROMPTS.map((prompt) => {
+              const chosen = answers[prompt.promptId];
+              return (
+                <fieldset key={prompt.promptId}>
+                  <legend>{prompt.question}</legend>
+                  {prompt.candidates.map((cand) => (
+                    <label key={cand.id} className="lab-predict-candidate">
+                      <input
+                        type="radio"
+                        name={`${instanceId}-${prompt.promptId}`}
+                        value={cand.id}
+                        checked={chosen === cand.id}
+                        onChange={() => setAnswers((a) => ({ ...a, [prompt.promptId]: cand.id }))}
+                      />
+                      <span>
+                        <strong>{cand.label}.</strong> {cand.description}
+                      </span>
+                    </label>
+                  ))}
+                  {chosen && <p className="lab-predict-reveal">{prompt.explanation}</p>}
+                </fieldset>
+              );
+            })}
+          </details>
+
+          <SliderField
+            {...field("frequency")}
+            label={FIELDS.frequency.label}
+            unit="THz"
+            min={300}
+            max={1200}
+            step={5}
+            readout={`${(params.frequency / 1e12).toFixed(1)} THz: one quantum carries hν = ${qEnergyEv.toFixed(2)} eV`}
+          />
+          <SliderField
+            {...field("incidentPower")}
+            label={FIELDS.incidentPower.label}
+            unit="mW"
+            min={0.1}
+            max={10}
+            step={0.1}
+            readout={`${(params.incidentPower * 1e3).toFixed(2)} mW`}
+          />
+          {qRateVal !== null && (
+            <p className="fine lab-slider-readout">
+              <Sci value={qRateVal} digits={3} /> quanta arrive each second.
+            </p>
+          )}
+
+          <fieldset className="lab-choice">
+            <legend>Try</legend>
+            <div className="actions">
+              {PRESET_ORDER.map(([key, label]) => (
+                <button key={key} type="button" className="secondary" onClick={() => preset(key)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <ExperimentSettings contents="work function, quantum efficiency, collector potential, Millikan’s 1916 data">
+            <SliderField
+              {...field("workFunction")}
+              label={FIELDS.workFunction.label}
+              unit="eV"
+              min={0}
+              max={5.5}
+              step={0.05}
+              readout={`${params.workFunction.toFixed(2)} eV, a hypothetical metal unless a preset names one`}
+            />
+            <SliderField
+              {...field("quantumEfficiency")}
+              label={FIELDS.quantumEfficiency.label}
+              unit="fraction of absorbed quanta that free an electron"
+              min={0.01}
+              max={1}
+              step={0.01}
+            />
+            <SliderField
+              {...field("collectorPotential")}
+              label={FIELDS.collectorPotential.label}
+              unit="V"
+              min={-3}
+              max={3}
+              step={0.05}
+            />
+            <label className="check">
               <input
                 type="checkbox"
                 checked={showMillikan}
                 onChange={(e) => setShowMillikan(e.target.checked)}
               />
-              Millikan (1916) Overlay
+              Show Millikan’s 1916 sodium measurements on the stopping-potential plot
             </label>
-          </div>
-        </div>
-      </header>
+          </ExperimentSettings>
 
-      {/* Presets Bar */}
-      <nav
-        aria-label="Presets"
-        className="preset-list"
-        style={{ alignItems: "center", marginBottom: "1rem" }}
-      >
-        <span className="fine" style={{ fontWeight: 600, marginRight: "0.25rem" }}>
-          Presets:
-        </span>
-        {PRESETS.map((preset) => (
-          <button
-            key={preset.name}
-            type="button"
-            onClick={() => session.apply(preset.patch)}
-            className="button secondary"
-          >
-            {preset.name}
-          </button>
-        ))}
-      </nav>
-
-      {/* Control Sliders Grid */}
-      <div
-        className="input-grid"
-        style={{
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(260px, 100%), 1fr))",
-          background: "var(--panel)",
-          padding: "1rem",
-          borderRadius: "4px",
-          border: "1px solid var(--line)",
-        }}
-      >
-        {/* Optical Power */}
-        <div className="input-field">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <label htmlFor="power-input">Incident Power P_opt (mW)</label>
-            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-              {(params.incidentPower * 1e3).toFixed(2)} mW
-            </span>
-          </div>
-          <input
-            id="power-slider"
-            type="range"
-            min="0.1"
-            max="10.0"
-            step="0.1"
-            value={params.incidentPower * 1e3}
-            onChange={(e) => session.apply({ incidentPower: Number(e.target.value) * 1e-3 })}
-            style={{ width: "100%", marginTop: "0.25rem" }}
-          />
-          <input
-            id="power-input"
-            type="number"
-            min="0.1"
-            max="100.0"
-            step="0.1"
-            value={params.incidentPower * 1e3}
-            onChange={(e) => session.apply({ incidentPower: Number(e.target.value) * 1e-3 })}
-            style={{ width: "6rem", marginTop: "0.25rem" }}
-          />
+          {error && (
+            <p role="alert" className="notice error">
+              {error}
+            </p>
+          )}
         </div>
 
-        {/* Frequency */}
-        <div className="input-field">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <label htmlFor="freq-input">Frequency &nu; (THz)</label>
-            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-              {(params.frequency / 1e12).toFixed(1)} THz
-            </span>
+        <div className="lab-results">
+          <div className="lq08-plots">
+            <EnergyLadderPlot
+              frequency={params.frequency}
+              workFunction={params.workFunction}
+              quantumEnergyEv={qEnergyEv}
+              kMaxEv={kMaxEv}
+              thresholdFrequency={tfVal}
+            />
+            <StoppingPotentialPlot
+              currentFrequency={params.frequency}
+              currentWorkFunction={params.workFunction}
+              currentStoppingPotential={vsVal}
+              millikanOverlay={showMillikan}
+              millikanData={millikanData}
+            />
+            <CurrentVoltagePlot
+              collectorPotential={params.collectorPotential}
+              stoppingPotential={vsVal}
+              saturationCurrentMicroAmps={iSatMicroAmps}
+              currentAtOperatingPoint={pcMicroAmps}
+            />
           </div>
-          <input
-            id="freq-slider"
-            type="range"
-            min="300"
-            max="1200"
-            step="5"
-            value={params.frequency / 1e12}
-            onChange={(e) => session.apply({ frequency: Number(e.target.value) * 1e12 })}
-            style={{ width: "100%", marginTop: "0.25rem" }}
-          />
-          <input
-            id="freq-input"
-            type="number"
-            min="100"
-            max="2000"
-            step="1"
-            value={params.frequency / 1e12}
-            onChange={(e) => session.apply({ frequency: Number(e.target.value) * 1e12 })}
-            style={{ width: "6rem", marginTop: "0.25rem" }}
-          />
-        </div>
-
-        {/* Work Function */}
-        <div className="input-field">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <label htmlFor="wf-input">Work Function &Phi; (eV)</label>
-            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-              {params.workFunction.toFixed(2)} eV
-            </span>
-          </div>
-          <input
-            id="wf-slider"
-            type="range"
-            min="0.0"
-            max="5.5"
-            step="0.05"
-            value={params.workFunction}
-            onChange={(e) => session.apply({ workFunction: Number(e.target.value) })}
-            style={{ width: "100%", marginTop: "0.25rem" }}
-          />
-          <input
-            id="wf-input"
-            type="number"
-            min="0.0"
-            max="10.0"
-            step="0.01"
-            value={params.workFunction}
-            onChange={(e) => session.apply({ workFunction: Number(e.target.value) })}
-            style={{ width: "6rem", marginTop: "0.25rem" }}
-          />
-        </div>
-
-        {/* Quantum Efficiency */}
-        <div className="input-field">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <label htmlFor="qe-input">Quantum Efficiency &eta;</label>
-            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-              {(params.quantumEfficiency * 100).toFixed(1)} %
-            </span>
-          </div>
-          <input
-            id="qe-slider"
-            type="range"
-            min="0.01"
-            max="1.0"
-            step="0.01"
-            value={params.quantumEfficiency}
-            onChange={(e) => session.apply({ quantumEfficiency: Number(e.target.value) })}
-            style={{ width: "100%", marginTop: "0.25rem" }}
-          />
-          <input
-            id="qe-input"
-            type="number"
-            min="0.0"
-            max="1.0"
-            step="0.01"
-            value={params.quantumEfficiency}
-            onChange={(e) => session.apply({ quantumEfficiency: Number(e.target.value) })}
-            style={{ width: "6rem", marginTop: "0.25rem" }}
-          />
-        </div>
-
-        {/* Collector Potential */}
-        <div className="input-field">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <label htmlFor="uc-input">Collector Potential U_c (V)</label>
-            <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-              {params.collectorPotential.toFixed(2)} V
-            </span>
-          </div>
-          <input
-            id="uc-slider"
-            type="range"
-            min="-3.0"
-            max="3.0"
-            step="0.05"
-            value={params.collectorPotential}
-            onChange={(e) => session.apply({ collectorPotential: Number(e.target.value) })}
-            style={{ width: "100%", marginTop: "0.25rem" }}
-          />
-          <input
-            id="uc-input"
-            type="number"
-            min="-50.0"
-            max="50.0"
-            step="0.1"
-            value={params.collectorPotential}
-            onChange={(e) => session.apply({ collectorPotential: Number(e.target.value) })}
-            style={{ width: "6rem", marginTop: "0.25rem" }}
-          />
         </div>
       </div>
 
-      {/* Visualizations Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
-          gap: "1.5rem",
-          marginTop: "1.5rem",
-        }}
-      >
-        <EnergyLadderPlot
-          frequency={params.frequency}
-          workFunction={params.workFunction}
-          quantumEnergyEv={qEnergyEv}
-          kMaxEv={kMaxEv}
-          thresholdFrequency={tfVal}
-        />
-        <StoppingPotentialPlot
-          currentFrequency={params.frequency}
-          currentWorkFunction={params.workFunction}
-          currentStoppingPotential={vsVal}
-          millikanOverlay={showMillikan}
-          millikanData={millikanData}
-        />
-        <CurrentVoltagePlot
-          collectorPotential={params.collectorPotential}
-          stoppingPotential={vsVal}
-          saturationCurrentMicroAmps={iSatMicroAmps}
-          currentAtOperatingPoint={pcMicroAmps}
-        />
-      </div>
-
-      {/* Accepted Results Table */}
-      <div
-        style={{
-          background: "var(--panel)",
-          border: "1px solid var(--line)",
-          borderRadius: "4px",
-          padding: "1rem",
-          marginTop: "1.5rem",
-        }}
-      >
-        <h3 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
-          Accepted laboratory snapshot (instance telemetry)
-        </h3>
-        <section className="table-scroll" aria-label="Accepted laboratory snapshot telemetry table">
-          <table
-            style={{
-              width: "100%",
-              textAlign: "left",
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.75rem",
-              borderCollapse: "collapse",
-            }}
-          >
+      <div className="lab-values">
+        <h3>Values at these settings</h3>
+        <section className="table-scroll" aria-label="Values at these settings">
+          <table className="data-table">
             <thead>
-              <tr style={{ borderBottom: "1px solid var(--line)", color: "var(--muted)" }}>
-                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Quantity ID</th>
-                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Status</th>
-                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Value / Result</th>
-                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Unit</th>
-                <th style={{ padding: "0.4rem var(--table-cell-x)" }}>Owner ID</th>
+              <tr>
+                <th scope="col">Quantity</th>
+                <th scope="col">Value</th>
               </tr>
             </thead>
             <tbody>
-              {outputs.map((out) => (
-                <tr
-                  key={out.quantityId}
-                  style={{ borderBottom: "1px solid var(--line)" }}
-                  data-quantity-id={out.quantityId}
-                >
-                  <td style={{ padding: "0.4rem var(--table-cell-x)", fontWeight: 500 }}>
-                    {out.quantityId}
-                  </td>
-                  <td style={{ padding: "0.4rem var(--table-cell-x)" }}>
-                    <span
-                      className="badge"
-                      style={out.status === "value" ? undefined : { color: "var(--accent)" }}
-                    >
-                      {out.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: "0.4rem var(--table-cell-x)" }}>
-                    {out.status === "value" ? (
-                      typeof out.value === "number" ? (
-                        <Sci value={out.value} digits={4} />
-                      ) : (
-                        String(out.value)
-                      )
-                    ) : out.status === "not-applicable" ? (
-                      `N/A (${"reason" in out ? String(out.reason) : ""})`
-                    ) : (
-                      `Underdetermined (${"compatibleFamily" in out ? String(out.compatibleFamily) : ""})`
-                    )}
-                  </td>
-                  <td style={{ padding: "0.4rem var(--table-cell-x)", color: "var(--muted)" }}>
-                    {out.unit}
-                  </td>
-                  <td
-                    style={{
-                      padding: "0.4rem var(--table-cell-x)",
-                      color: "var(--muted)",
-                      fontSize: "0.7rem",
-                    }}
-                  >
-                    {out.ownerId}
+              {VALUE_ROWS.map((row) => (
+                <tr key={row.id} data-quantity-id={row.id}>
+                  <th scope="row">{row.label}</th>
+                  <td data-output={row.id}>
+                    <ValueCell out={find(row.id)} unit={row.unit} scale={row.scale} />
                   </td>
                 </tr>
               ))}
@@ -593,211 +497,42 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         </section>
       </div>
 
-      {/* Historical readout: Einstein 1905 §8 order-of-magnitude check */}
-      <div className="notice" style={{ marginTop: "1.5rem" }}>
-        <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
-          Historical readout: Einstein 1905 §8 order-of-magnitude check
-        </h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <div
-            style={{
-              background: "var(--panel)",
-              padding: "0.625rem",
-              borderRadius: "4px",
-              border: "1px solid var(--line)",
-            }}
-          >
-            <span style={{ fontWeight: 600 }}>What was neglected: </span>
-            <span className="fine">{LQ08_HISTORICAL_CHECK.neglectStatement}</span>
-          </div>
-          <div
-            style={{
-              background: "var(--panel)",
-              padding: "0.625rem",
-              borderRadius: "4px",
-              border: "1px solid var(--line)",
-            }}
-          >
-            <span style={{ fontWeight: 600 }}>What it is not: </span>
-            <span className="fine">{LQ08_HISTORICAL_CHECK.notNamedMetalStatement}</span>
-          </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(min(260px, 100%), 1fr))",
-              gap: "0.75rem",
-            }}
-          >
-            <div
-              style={{
-                background: "var(--panel)",
-                padding: "0.625rem",
-                borderRadius: "4px",
-                border: "1px solid var(--line)",
-              }}
-            >
-              <div style={{ fontWeight: 600, marginBottom: "0.25rem", fontSize: "0.85rem" }}>
-                Representation A (Printed Form):
-              </div>
-              <p className="fine" style={{ fontFamily: "var(--font-mono)", margin: 0 }}>
-                &Pi; = (R &middot; &beta; &middot; &nu;) / E ={" "}
-                {LQ08_HISTORICAL_CHECK.representationA.stoppingPotentialVolts.toFixed(4)} V (
-                {LQ08_HISTORICAL_CHECK.representationA.printedText})
-              </p>
-              <p className="fine" style={{ color: "var(--muted)", margin: "0.25rem 0 0" }}>
-                Slope: <Sci value={LQ08_HISTORICAL_CHECK.representationA.slopeVsPerHz} digits={4} />{" "}
-                V&middot;s (modern h/e ={" "}
-                <Sci value={LQ08_HISTORICAL_CHECK.representationA.modernSlopeVsPerHz} digits={4} />{" "}
-                V&middot;s)
-              </p>
-            </div>
-            <div
-              style={{
-                background: "var(--panel)",
-                padding: "0.625rem",
-                borderRadius: "4px",
-                border: "1px solid var(--line)",
-              }}
-            >
-              <div style={{ fontWeight: 600, marginBottom: "0.25rem", fontSize: "0.85rem" }}>
-                Live Hypothetical Comparison:
-              </div>
-              <p className="fine" style={{ fontFamily: "var(--font-mono)", margin: 0 }}>
-                &nu; = {(params.frequency / 1e12).toFixed(1)} THz &rarr; h&nu; ={" "}
-                {qEnergyEv.toFixed(6)} eV
-              </p>
-              <p className="fine" style={{ color: "var(--muted)", margin: "0.25rem 0 0" }}>
-                Hypothetical &Phi; = {params.workFunction.toFixed(1)} eV &rarr; V_s ={" "}
-                {(vsVal ?? 0).toFixed(6)} V (hypothetical)
-              </p>
-            </div>
-          </div>
+      <div className="lab-bottom">
+        <div className="lq08-historical">
+          <h3>Einstein’s 1905 §8 check, by order of magnitude</h3>
+          <p>
+            <strong>What was neglected:</strong> {LQ08_HISTORICAL_CHECK.neglectStatement}
+          </p>
+          <p>
+            <strong>What it is not:</strong> {LQ08_HISTORICAL_CHECK.notNamedMetalStatement}
+          </p>
+          <p>
+            <strong>As printed:</strong> Π = Rβν / E ={" "}
+            {LQ08_HISTORICAL_CHECK.representationA.stoppingPotentialVolts.toFixed(2)} V, “
+            {LQ08_HISTORICAL_CHECK.representationA.printedText}”. Slope{" "}
+            <Sci value={LQ08_HISTORICAL_CHECK.representationA.slopeVsPerHz} digits={3} /> V·s,
+            against a modern h/e of{" "}
+            <Sci value={LQ08_HISTORICAL_CHECK.representationA.modernSlopeVsPerHz} digits={3} /> V·s.
+          </p>
+          <p>
+            <strong>At these settings:</strong> ν = {(params.frequency / 1e12).toFixed(1)} THz gives
+            hν = {qEnergyEv.toFixed(3)} eV; with the hypothetical Φ ={" "}
+            {params.workFunction.toFixed(2)} eV the stopping potential is{" "}
+            {vsVal === null ? "not defined, since no electron escapes" : `${vsVal.toFixed(3)} V`}.
+          </p>
         </div>
-      </div>
-
-      {/* Discovery Predict Mode */}
-      <section
-        className="notice"
-        style={{ marginTop: "1.5rem" }}
-        aria-label="Discovery mode: predict before interacting"
-      >
-        <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
-          Discovery mode: predict before interacting
-        </h3>
-        <p className="fine" style={{ margin: "0 0 0.75rem" }}>
-          Choose a question and predict the answer before you change a control:
-        </p>
-        <div className="preset-list" style={{ marginBottom: "0.75rem" }}>
-          {PREDICT_PROMPTS.map((p, idx) => (
-            <button
-              key={p.promptId}
-              type="button"
-              onClick={() => {
-                setActivePromptIndex(idx);
-                setSelectedAnswer(null);
-              }}
-              className={`button ${activePromptIndex === idx ? "" : "secondary"}`}
-              style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
-            >
-              Question {idx + 1}
-            </button>
-          ))}
+        <div className="not-modeled">
+          <h3>What this model leaves out</h3>
+          <p>
+            It follows Einstein’s 1905 rule that one absorbed quantum gives its energy to one
+            electron, which spends Φ escaping. It does not model:
+          </p>
+          <ul>
+            {LQ08_NOT_MODELED.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
         </div>
-
-        {activePromptIndex !== null && (
-          <div
-            style={{
-              background: "var(--panel)",
-              padding: "1rem",
-              borderRadius: "4px",
-              border: "1px solid var(--line)",
-            }}
-          >
-            <p style={{ fontWeight: 600, margin: "0 0 0.75rem", fontSize: "0.875rem" }}>
-              {PREDICT_PROMPTS[activePromptIndex]?.question}
-            </p>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.5rem",
-                marginBottom: "0.75rem",
-              }}
-            >
-              {PREDICT_PROMPTS[activePromptIndex]?.candidates.map((cand, oIdx) => (
-                <button
-                  key={cand.id}
-                  type="button"
-                  onClick={() => setSelectedAnswer(oIdx)}
-                  className="button secondary"
-                  style={{
-                    textAlign: "left",
-                    padding: "0.5rem 0.75rem",
-                    border:
-                      selectedAnswer === oIdx ? "1px solid var(--plot)" : "1px solid var(--line)",
-                    background: selectedAnswer === oIdx ? "var(--wash)" : undefined,
-                  }}
-                >
-                  <span
-                    className="fine"
-                    style={{ fontFamily: "var(--font-mono)", marginRight: "0.5rem" }}
-                  >
-                    {String.fromCharCode(65 + oIdx)}.
-                  </span>
-                  <span style={{ fontWeight: 600, fontSize: "0.8rem" }}>{cand.label}</span> &mdash;{" "}
-                  <span className="fine">{cand.description}</span>
-                </button>
-              ))}
-            </div>
-            {selectedAnswer !== null && (
-              <div
-                className="notice"
-                style={{
-                  padding: "0.75rem",
-                  background: "var(--panel)",
-                  border: "1px solid var(--line)",
-                }}
-              >
-                <span style={{ fontWeight: 600 }}>Explanation: </span>
-                <span className="fine">{PREDICT_PROMPTS[activePromptIndex]?.explanation}</span>
-              </div>
-            )}
-          </div>
-        )}
-      </section>
-
-      {/* Epistemic Limits (Not Modeled) */}
-      <div
-        style={{
-          background: "var(--panel)",
-          border: "1px solid var(--line)",
-          borderRadius: "4px",
-          padding: "1rem",
-          marginTop: "1.5rem",
-        }}
-      >
-        <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
-          Limits of this reference model (not modeled)
-        </h3>
-        <p className="fine" style={{ margin: "0 0 0.5rem" }}>
-          This reference owner implements Einstein’s 1905 single-quantum absorption and escape
-          energy relations. The following physical regimes require higher-order quantum optics or
-          microscopic surface physics and are explicitly <strong>not modeled</strong>:
-        </p>
-        <ul
-          className="fine"
-          style={{
-            paddingLeft: "1.25rem",
-            margin: 0,
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.25rem",
-          }}
-        >
-          {LQ08_NOT_MODELED.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
       </div>
     </section>
   );

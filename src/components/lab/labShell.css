@@ -223,3 +223,131 @@
 .formula-inline .katex {
   font-size: inherit;
 }
+
+/* ---- The instrument-first shell, shared since lq-01 and lq-08 (WaveDescriptionLab, PhotoelectricLab). */
+
+/* A named group of one-tap choices: a legend, then its buttons. */
+.lab-choice {
+  margin-block: 1.1rem 0;
+}
+
+.lab-choice > legend {
+  padding-bottom: 0.1rem;
+}
+
+.lab-choice .actions {
+  gap: 0.5rem;
+  margin-block: 0.4rem 0;
+}
+
+.lab-choice button {
+  text-align: left;
+}
+
+/* Predict first: closed by default, and never a gate on the controls below it. The answer is
+   revealed only after a choice, and reads the same whichever was chosen. */
+.lab-predict {
+  border-block: 1px solid var(--line);
+  margin-block: 0 0.4rem;
+}
+
+.lab-predict > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+.lab-predict > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.lab-predict fieldset {
+  margin-block: 0.25rem 1rem;
+}
+
+.lab-predict fieldset > legend {
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: var(--font-serif);
+  font-size: var(--type-small);
+  font-weight: 400;
+  line-height: 1.5;
+  padding-bottom: 0.4rem;
+}
+
+.lab-predict-candidate {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  min-height: 44px;
+  padding: 0.4rem 0.25rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.lab-predict-candidate input {
+  flex: none;
+  accent-color: var(--ink);
+}
+
+.lab-predict-reveal {
+  margin-block: 0.6rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 2px solid var(--muted);
+  background: var(--wash);
+  font-size: var(--type-fine);
+}
+
+.lab-predict-reveal p {
+  margin: 0 0 0.6rem;
+}
+
+/* The values table follows both columns, so a phone reads the drawing, then the controls, then
+   the numbers. */
+.lab-values {
+  max-width: 44rem;
+  margin-top: 2rem;
+}
+
+.lab-values > p {
+  margin: 0 0 0.5rem;
+}
+
+.lab-values h3 {
+  margin: 0 0 0.5rem;
+  font-size: var(--type-small);
+}
+
+.lab-values tbody th {
+  background: none;
+  font-weight: 400;
+}
+
+.lab-values td[data-output] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The lab-bottom already draws a rule above itself, so its blocks do not draw another. */
+.lab-bottom > .not-modeled {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.lab-bottom > * > h3 {
+  margin: 0 0 0.4rem;
+  font-size: var(--type-small);
+  color: var(--ink);
+}
+
+.lab-bottom > .not-modeled ul {
+  margin: 0;
+  padding-inline-start: 1.1rem;
+}

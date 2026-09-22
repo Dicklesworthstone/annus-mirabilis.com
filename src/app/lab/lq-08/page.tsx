@@ -23,12 +23,17 @@ export default function PhotoelectricPage() {
           individual energy, while increasing frequency increases electron energy without requiring
           higher intensity?
         </p>
-        <p>
-          <a href="/papers/light-quanta/#s8">Read Section 8 of Einstein’s 1905 paper</a>
-        </p>
       </header>
 
       <PhotoelectricComparison example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/light-quanta/#s8">Read Section 8 of Einstein’s 1905 paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="photoelectric-theory">
         <p className="eyebrow">The physical argument</p>

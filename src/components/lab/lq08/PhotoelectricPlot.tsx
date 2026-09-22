@@ -19,17 +19,15 @@ export function EnergyLadderPlot({
 }: EnergyLadderProps) {
   const width = 360;
   const height = 240;
-  const padding = { top: 30, right: 30, bottom: 40, left: 60 };
+  const padding = { top: 30, right: 30, bottom: 40, left: 72 };
 
-  const maxEnergy = Math.max(6.0, quantumEnergyEv * 1.25, workFunction * 1.25);
-  const scaleY = (ev: number) => {
-    const clamped = Math.max(-1, Math.min(maxEnergy, ev));
-    return (
-      height -
-      padding.bottom -
-      ((clamped + 1) / (maxEnergy + 1)) * (height - padding.top - padding.bottom)
-    );
-  };
+  // The drawn range runs from just below the metal's level, -Φ, to just above the level the
+  // quantum lifts the electron to, -Φ + hν. It used to be fixed at -1 to 6 eV and clamped, so
+  // the metal's level sat at -1 eV whatever Φ was, and the upper two thirds stayed empty.
+  const lo = -Math.max(workFunction, 0.5) - 0.4;
+  const hi = Math.max(0, quantumEnergyEv - workFunction) + 0.6;
+  const scaleY = (ev: number) =>
+    height - padding.bottom - ((ev - lo) / (hi - lo)) * (height - padding.top - padding.bottom);
 
   const yZero = scaleY(0);
   const yWork = scaleY(-workFunction);
@@ -53,21 +51,20 @@ export function EnergyLadderPlot({
           color: "var(--ink)",
         }}
       >
-        Single-quantum energy conservation ladder
+        Where one quantum’s energy goes
       </h3>
       <p className="fine" style={{ margin: "0 0 0.5rem" }}>
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           h&nu; = {quantumEnergyEv.toFixed(3)} eV
-        </span>{" "}
-        | &Phi; ={" "}
+        </span>
+        , &Phi; ={" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           {workFunction.toFixed(2)} eV
         </span>{" "}
-        (&nu;_0 ={" "}
+        , threshold &nu;<sub>0</sub> ={" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           {(thresholdFrequency / 1e12).toFixed(1)} THz
         </span>
-        )
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
@@ -99,7 +96,10 @@ export function EnergyLadderPlot({
           fill="var(--muted)"
           fontFamily="var(--font-mono, monospace)"
         >
-          0 eV (Vacuum)
+          0 eV
+        </text>
+        <text x={width - padding.right} y={yZero + 16} textAnchor="end" fill="var(--muted)">
+          outside the metal
         </text>
 
         {/* Bound electron energy level (-Phi) */}
@@ -119,7 +119,10 @@ export function EnergyLadderPlot({
           fill="var(--accent)"
           fontFamily="var(--font-mono, monospace)"
         >
-          -&Phi; (-{workFunction.toFixed(2)} eV)
+          −{workFunction.toFixed(2)} eV
+        </text>
+        <text x={width - padding.right - 30} y={yWork + 16} textAnchor="end" fill="var(--muted)">
+          −&Phi;, an electron in the metal
         </text>
 
         {/* Photon excitation arrow */}
@@ -155,7 +158,7 @@ export function EnergyLadderPlot({
           fontFamily="var(--font-mono, monospace)"
           fill={col.hexColor}
         >
-          +h&nu; ({quantumEnergyEv.toFixed(2)} eV)
+          +h&nu; = {quantumEnergyEv.toFixed(2)} eV
         </text>
 
         {/* Emitted state or below threshold */}
@@ -179,7 +182,11 @@ export function EnergyLadderPlot({
               fontWeight="bold"
               fontFamily="var(--font-mono, monospace)"
             >
-              K_max = {kMaxEv.toFixed(3)} eV
+              K
+              <tspan baselineShift="sub" fontSize="75%">
+                max
+              </tspan>{" "}
+              = {kMaxEv.toFixed(3)} eV
             </text>
           </>
         ) : (
@@ -191,7 +198,7 @@ export function EnergyLadderPlot({
             fill="var(--muted)"
             fontWeight="500"
           >
-            Sub-threshold (h&nu; &lt; &Phi;)
+            h&nu; &lt; &Phi;: no electron escapes
           </text>
         )}
       </svg>
@@ -257,13 +264,11 @@ export function StoppingPotentialPlot({
           color: "var(--ink)",
         }}
       >
-        Stopping Potential vs. Light Frequency: V_s(&nu;)
+        Stopping potential against frequency
       </h3>
       <p className="fine" style={{ margin: "0 0 0.5rem" }}>
-        Universal theoretical slope{" "}
-        <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
-          h/e = 4.136 &times; 10^-15 V&middot;s
-        </span>
+        In the model the slope is h/e = <Sci value={4.1357e-15} digits={3} /> V&middot;s for every
+        metal.
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
@@ -359,7 +364,7 @@ export function StoppingPotentialPlot({
           fill="var(--ink)"
           fontWeight="500"
         >
-          Stopping Potential V_s (Volts)
+          Stopping potential (V)
         </text>
 
         {/* Theoretical line */}
@@ -388,7 +393,7 @@ export function StoppingPotentialPlot({
               fontFamily="var(--font-mono, monospace)"
               fontWeight="600"
             >
-              &nu;_0 = {(nu0 / 1e12).toFixed(1)} THz
+              &nu;₀ = {(nu0 / 1e12).toFixed(1)} THz
             </text>
           </g>
         )}
@@ -444,7 +449,7 @@ export function StoppingPotentialPlot({
           }}
         >
           <p style={{ fontWeight: 600, margin: "0 0 0.25rem" }}>
-            Historical Validation: Millikan (1916) Sodium
+            Millikan’s 1916 sodium measurements, later evidence
           </p>
           <p
             className="fine"
@@ -454,9 +459,9 @@ export function StoppingPotentialPlot({
               fontSize: "0.6875rem",
             }}
           >
-            Empirical Fit Slope: <Sci value={millikanData.fittedSlopeVs} digits={4} /> V&middot;s
-            &plusmn; <Sci value={millikanData.fittedSlopeStdErr} digits={2} /> | Theoretical (h/e):{" "}
-            <Sci value={millikanData.modelLineSlopeVs} digits={4} /> V&middot;s
+            Slope fitted to them: <Sci value={millikanData.fittedSlopeVs} digits={4} /> V&middot;s
+            &plusmn; <Sci value={millikanData.fittedSlopeStdErr} digits={2} />; the model&apos;s
+            h/e: <Sci value={millikanData.modelLineSlopeVs} digits={4} /> V&middot;s
           </p>
         </div>
       )}
@@ -513,12 +518,12 @@ export function CurrentVoltagePlot({
           color: "var(--ink)",
         }}
       >
-        Current-Voltage Characteristic: I(U_c)
+        Current against collector potential
       </h3>
       <p className="fine" style={{ margin: "0 0 0.5rem" }}>
         Saturation current{" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
-          I_sat = {saturationCurrentMicroAmps.toFixed(2)} &mu;A
+          I<sub>sat</sub> = {saturationCurrentMicroAmps.toFixed(2)} &mu;A
         </span>
       </p>
       <svg
@@ -585,7 +590,7 @@ export function CurrentVoltagePlot({
           fill="var(--ink)"
           fontWeight="500"
         >
-          Collector Potential U_c (Volts)
+          Collector potential (V)
         </text>
 
         {/* Y Axis Label */}
@@ -646,7 +651,7 @@ export function CurrentVoltagePlot({
               fontFamily="var(--font-mono, monospace)"
               fontWeight="600"
             >
-              -V_s (-{vs.toFixed(2)} V)
+              −Vₛ = −{vs.toFixed(2)} V
             </text>
           </g>
         )}

@@ -259,31 +259,29 @@ export function WaveDescriptionLab({
               </button>
             </div>
 
-            <details className="lq01-predict">
+            <details className="lab-predict">
               <summary>Predict first</summary>
               <fieldset>
-                <legend className="lq01-predict-question">{prompt.question}</legend>
-                <div className="lq01-candidates">
-                  {prompt.candidates.map((c) => (
-                    <label key={c.id} className="lq01-candidate">
-                      <input
-                        type="radio"
-                        name={`${id}-predict-${prompt.id}`}
-                        value={c.id}
-                        checked={chosen === c.id}
-                        onChange={() =>
-                          setSelectedCandidates((prev) => ({ ...prev, [prompt.id]: c.id }))
-                        }
-                      />
-                      <span>
-                        <strong>{c.label}.</strong> {c.description}.
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                <legend>{prompt.question}</legend>
+                {prompt.candidates.map((c) => (
+                  <label key={c.id} className="lab-predict-candidate">
+                    <input
+                      type="radio"
+                      name={`${id}-predict-${prompt.id}`}
+                      value={c.id}
+                      checked={chosen === c.id}
+                      onChange={() =>
+                        setSelectedCandidates((prev) => ({ ...prev, [prompt.id]: c.id }))
+                      }
+                    />
+                    <span>
+                      <strong>{c.label}.</strong> {c.description}.
+                    </span>
+                  </label>
+                ))}
               </fieldset>
               {chosen && (
-                <div className="lq01-reveal">
+                <div className="lab-predict-reveal">
                   {interference ? (
                     <p>
                       The model says it drops to zero. Two equal waves half a wave apart cancel at
@@ -322,7 +320,7 @@ export function WaveDescriptionLab({
                   onDraft={(v) => setDraft({ ...draft, delta: v })}
                   onCommit={(v) => commit("delta", v)}
                 />
-                <fieldset className="lq01-choice">
+                <fieldset className="lab-choice">
                   <legend>What the detector records</legend>
                   <div className="actions">
                     <button
@@ -373,7 +371,7 @@ export function WaveDescriptionLab({
               </>
             )}
 
-            <fieldset className="lq01-choice">
+            <fieldset className="lab-choice">
               <legend>Try</legend>
               <div className="actions lq01-presets">
                 {PRESETS_BY_MODE[p.mode].map((key) => (
@@ -429,7 +427,7 @@ export function WaveDescriptionLab({
                     onDraft={(v) => setDraft({ ...draft, separation: v })}
                     onCommit={(v) => commit("separation", v)}
                   />
-                  <fieldset className="lq01-choice">
+                  <fieldset className="lab-choice">
                     <legend>Probe position on the screen</legend>
                     <div className="actions">
                       {(
@@ -515,7 +513,7 @@ export function WaveDescriptionLab({
         </div>
       </div>
 
-      <div data-view-id="lq-01-data-table" className="lq01-values">
+      <div data-view-id="lq-01-data-table" className="lab-values">
         <h3>Values at these settings</h3>
         {interference && (
           <p className="fine">
