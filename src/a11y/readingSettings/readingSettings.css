@@ -246,10 +246,6 @@ html[data-reading-only="on"] [data-autoplay] {
   white-space: nowrap;
   cursor: pointer;
 }
-/* Four choices set two by two at every width; three-and-one left 150 percent alone on a row. */
-.reading-settings fieldset:has(> label:nth-of-type(4)) > label {
-  flex-basis: calc(50% - 0.35rem);
-}
 .reading-settings fieldset label:hover {
   border-color: var(--ink);
 }
@@ -272,6 +268,60 @@ html[data-reading-only="on"] [data-autoplay] {
 @media (forced-colors: active) {
   .reading-settings fieldset label:has(:checked) {
     border: 3px solid Highlight;
+  }
+}
+/*
+ * THE SHEET AS A FINISHED PANEL (chrome, pane %44, TanElk dispatch 69.3: "It should feel as
+ * finished as the toggle next to it"). It opened on a bare system checkbox beside the X, with no
+ * title, and its four type sizes set two by two because "150 percent" did not fit a row. Now a
+ * title sits level with the X, Reading-only is a switch at the row's end like any settings sheet,
+ * and the sizes read "100%" to "150%" in one row at 390 and 1440.
+ */
+.reading-settings-title {
+  margin: 0.6rem 0 0.35rem;
+  font-family: var(--font-serif);
+  font-size: var(--type-body);
+  font-weight: 500;
+  line-height: 1.3;
+}
+.reading-settings label:has(> input[type="checkbox"]) {
+  /* Below the floated X, not beside it, so the switch ends where the chips below end. */
+  clear: right;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  font-weight: 600;
+  cursor: pointer;
+}
+/* A real checkbox, so its name, state and keyboard use are unchanged; only its drawing is a track
+   with a knob, the knob at the start when off and at the end, on ink, when on. */
+.reading-settings input[type="checkbox"] {
+  appearance: none;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.5rem;
+  margin: 0;
+  border: 1px solid var(--muted);
+  border-radius: 999px;
+  background: radial-gradient(circle at 0.72rem 50%, var(--muted) 0.45rem, transparent 0.5rem)
+    var(--paper);
+  cursor: pointer;
+}
+.reading-settings input[type="checkbox"]:checked {
+  border-color: var(--ink);
+  background: radial-gradient(
+      circle at calc(100% - 0.72rem) 50%,
+      var(--paper) 0.45rem,
+      transparent 0.5rem
+    )
+    var(--ink);
+}
+@media (forced-colors: active) {
+  .reading-settings input[type="checkbox"] {
+    appearance: auto;
+    width: auto;
+    height: auto;
+    border: 0;
+    background: none;
   }
 }
 .reading-settings .hint {

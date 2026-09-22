@@ -145,6 +145,8 @@ export function ReadingSettingsPanel() {
           sheet under the header instead of inside the 64px column the summary occupies. */}
       <div className="reading-settings-body">
         <ModalCloseButton label="Close reading preferences" ref={closeButton} />
+        {/* A title level with the X, so the sheet says what it is before it asks anything. */}
+        <h2 className="reading-settings-title">Reading preferences</h2>
         {/*
         NO fieldset/legend HERE, and that is the fix for the duplicated "Reading-only".
         A fieldset groups SEVERAL controls under one name; the other four below genuinely do that
@@ -217,7 +219,8 @@ export function ReadingSettingsPanel() {
                   persist(KEY.typeScale, value);
                 }}
               />{" "}
-              {value} percent
+              {/* "100%", read aloud as "100 percent", so the four sizes fit one row. */}
+              {value}%
             </label>
           ))}
         </fieldset>
