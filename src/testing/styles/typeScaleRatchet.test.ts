@@ -99,11 +99,27 @@ export function distinctFontSizes(root: string = CSS_ROOT): {
  * there were collapsed onto the scale, of which 6 existed nowhere else and left the vocabulary.
  * The 55th is the documented exception in globals.css - the phone body at 1.0625rem, which is the
  * measured CPL optimum at 390px and which a 1.2 ratio anchored at 19px has no step for.
+ *
+ * 41 -> 19 after src/reader/reader.css was migrated. That one file declared 109 of the repo's 133
+ * literal font-sizes and carried 26 distinct values that existed nowhere else, so it was most of
+ * the remaining scatter by itself. 101 declarations moved onto the seven steps; 22 distinct values
+ * left the vocabulary. Six literals stay and are NOT scatter: 0.75em, 0.8em, 0.85em and 0.9em are
+ * relative to their parent rather than to the root, clamp(2.4rem, 5vw, 4rem) is a fluid display
+ * size the scale has no step for, and `inherit` is an explicit refusal to set a size.
+ *
+ * Fourteen of the 22 rem values were within 5% of their step; eight were a real resize, the largest
+ * being 0.9rem -> --type-fine (-8.3%), 1.3rem -> --type-body (-8.7%) and 1.1rem -> --type-body
+ * (+8.0%). That is the scatter collapsing rather than a rounding error, and it is the same trade
+ * globals.css took.
  */
-const DISTINCT_FONT_SIZE_BASELINE = 41;
+const DISTINCT_FONT_SIZE_BASELINE = 19;
 
 /**
  * The other two classes of the same defect, measured 2026-09-22 and held shrink-only.
+ *
+ * font-weight was 10 values; it is 8. `bold` and `normal` existed only in reader.css - 2 and 1
+ * declarations - and are exactly 700 and 400, so collapsing them changed no rendered weight and
+ * removed the two-spellings-for-one-weight problem this comment already named.
  *
  * line-height was 15 values; it is 13. 1.45 and 1.55 were collapsed into 1.5 and 1.6 into 1.65,
  * BY JOB rather than by nearest value: 1.45/1.5/1.55 are all secondary UI text and 1.6/1.65/1.7
@@ -116,7 +132,7 @@ const DISTINCT_FONT_SIZE_BASELINE = 41;
  * and are correctly left alone.
  */
 const LINE_HEIGHT_BASELINE = 13;
-const FONT_WEIGHT_BASELINE = 10;
+const FONT_WEIGHT_BASELINE = 8;
 
 describe("type scale scatter ratchet", () => {
   // SPLIT INTO TWO TESTS, because one test could not report both.

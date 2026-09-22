@@ -20,7 +20,7 @@
   gap: 0.75rem 1.25rem;
   margin: 1rem 0;
   align-items: center;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
 }
 .passage-actions a,
 .passage-actions button {
@@ -29,14 +29,14 @@
   padding: 0.55rem 0;
 }
 .passage-actions button {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
 }
 .reader-controls {
   border-block: 1px solid var(--line);
   padding: 1rem 0;
 }
 .reader-controls nav a[aria-current="page"] {
-  font-weight: bold;
+  font-weight: 700;
   text-decoration-thickness: 3px;
 }
 .reader-options {
@@ -76,7 +76,7 @@
   margin-top: 3rem;
 }
 .reader-outline h2 {
-  font-size: 1.25rem;
+  font-size: var(--type-body);
 }
 .reader-outline nav,
 .reader-outline nav > div {
@@ -92,7 +92,7 @@
 }
 .reader-outline nav > div > a:not(:first-child) {
   padding-left: 0.8rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 .reader-body {
   min-width: 0;
@@ -111,15 +111,15 @@
   scroll-margin-top: 1.5rem;
 }
 .reader-passage > h3 {
-  font-size: 1.85rem;
-  font-weight: normal;
+  font-size: var(--type-title);
+  font-weight: 400;
 }
 .passage-question {
   font-style: italic;
-  font-size: 1.15rem;
+  font-size: var(--type-body);
 }
 .reader-passage h4 {
-  font-size: 1.05rem;
+  font-size: var(--type-small);
 }
 .spoken-math {
   font:
@@ -145,11 +145,11 @@
   margin-top: 0;
 }
 .foundation-inline h3 {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
 }
 .foundation-inline p,
 .foundation-inline li {
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 .prerequisites {
   margin: 1.5rem 0;
@@ -163,7 +163,7 @@
   border-left: 3px solid var(--accent);
   padding: 0.4rem 1.2rem;
   margin: 1rem 0;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 .reader-inline-lab {
   margin: 3rem 0;
@@ -262,11 +262,11 @@ html:is(
   margin-bottom: 1.5rem;
 }
 .reader-compass p {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   margin: 0.6rem 0;
 }
 .clarification-dialog h2 {
-  font-size: 1.7rem;
+  font-size: var(--type-title);
 }
 .foundation-page {
   max-width: 780px;
@@ -285,7 +285,7 @@ html:is(
   border-top: 1px solid var(--line);
 }
 .foundation-grid h2 {
-  font-size: 1.4rem;
+  font-size: var(--type-lead);
 }
 @media (max-width: 900px) {
   .reader-layout {
@@ -313,7 +313,7 @@ html:is(
     grid-template-columns: 1fr;
   }
   .reader-passage > h3 {
-    font-size: 1.65rem;
+    font-size: var(--type-title);
   }
   .clarification-dialog {
     padding: 1rem;
@@ -328,10 +328,10 @@ html:is(
     gap: 0.5rem;
   }
   .reader-compass button {
-    font-size: 0.85rem;
+    font-size: var(--type-fine);
   }
   .reader-root .formula {
-    font-size: 0.85rem;
+    font-size: var(--type-fine);
   }
   .reader-root [data-copy-fallback] {
     overflow-wrap: anywhere;
@@ -492,7 +492,7 @@ html:is(
 
 .align-sentences-btn {
   margin: 0.25rem 0.5rem 0.5rem 0;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   padding: 0.2rem 0.5rem;
   border: 1px solid var(--line);
   border-radius: 3px;
@@ -501,7 +501,7 @@ html:is(
 }
 
 .show-aligned-action {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   margin-left: 0.25rem;
   padding: 0.1rem 0.3rem;
   border: 1px solid var(--line);
@@ -516,7 +516,7 @@ html:is(
   padding: 0.75rem 1rem;
   margin-bottom: 1.5rem;
   border-radius: 4px;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .source-sentence,
@@ -541,7 +541,7 @@ html:is(
 
 .block-locator {
   float: right;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--muted);
   user-select: none;
 }
@@ -560,7 +560,7 @@ html:is(
 
 .review-badge {
   display: inline-block;
-  font-size: 0.7rem;
+  font-size: var(--type-micro);
   padding: 0.1rem 0.4rem;
   border-radius: 3px;
   text-transform: uppercase;
@@ -650,7 +650,7 @@ html:is(
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   cursor: pointer;
   user-select: none;
 }
@@ -660,7 +660,7 @@ html:is(
   padding: 0.75rem 1rem;
   background: var(--panel, #f8fafc);
   border-left: 3px solid var(--accent, #d97706);
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .gloss-sentence {
@@ -683,7 +683,7 @@ html:is(
 }
 
 .sentence-action-btn {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   padding: 0.25rem 0.6rem;
   background: transparent;
   border: 1px solid var(--line);
@@ -721,14 +721,14 @@ html:is(
 }
 
 .gloss-german {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   font-family: var(--font-serif, serif);
   font-weight: 400;
   color: var(--text);
 }
 
 .gloss-english {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   font-family: var(--font-sans, sans-serif);
   color: var(--muted, #64748b);
   margin-top: 0.15rem;
@@ -743,13 +743,13 @@ html:is(
 
 .gloss-grammar-cue {
   display: inline-block;
-  font-size: 0.7rem;
+  font-size: var(--type-micro);
   margin-top: 0.1rem;
   color: var(--accent, #d97706);
 }
 
 .reasoning-cue-label {
-  font-size: 0.65rem;
+  font-size: var(--type-micro);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -770,14 +770,14 @@ html:is(
 
 .reasoning-words-summary {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   cursor: pointer;
 }
 
 .reasoning-words-ol {
   margin: 0.5rem 0 0 1.25rem;
   padding: 0;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .reasoning-word-item {
@@ -790,7 +790,7 @@ html:is(
   background: var(--wash);
   border: 1px solid #fef3c7;
   border-left: 3px solid #d97706;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .parallel-fallback-link {
@@ -839,7 +839,7 @@ html:is(
 }
 
 .facsimile-paper-title {
-  font-size: 1.5rem;
+  font-size: var(--type-lead);
   font-weight: 700;
   margin: 0 0 0.5rem;
   line-height: 1.3;
@@ -850,11 +850,11 @@ html:is(
   font-family: var(--font-serif, serif);
   color: var(--muted, #64748b);
   margin: 0 0 0.5rem;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 
 .facsimile-citation {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted, #64748b);
   margin: 0;
 }
@@ -870,7 +870,7 @@ html:is(
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
 }
 
 .meta-label {
@@ -883,11 +883,11 @@ html:is(
   background: var(--panel, #f1f5f9);
   padding: 0.1rem 0.3rem;
   border-radius: 3px;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
 }
 
 .meta-badge {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   font-weight: 600;
   padding: 0.15rem 0.5rem;
   border-radius: 9999px;
@@ -913,7 +913,7 @@ html:is(
   margin: 1.5rem 0;
   padding: 1rem 1.25rem;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .text-layer-notice {
@@ -932,7 +932,7 @@ html:is(
 .local-only-notice h3,
 .reference-only-notice h3 {
   margin: 0 0 0.5rem;
-  font-size: 1rem;
+  font-size: var(--type-small);
 }
 
 .verbatim-rights-statement {
@@ -940,7 +940,7 @@ html:is(
   padding: 0.5rem 0.75rem;
   background: var(--wash);
   border-left: 2px solid #94a3b8;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   font-style: italic;
 }
 
@@ -971,7 +971,7 @@ html:is(
 
 .toolbar-btn {
   padding: 0.25rem 0.6rem;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   background: transparent;
   border: 1px solid var(--line, #cbd5e1);
   border-radius: 4px;
@@ -994,18 +994,18 @@ html:is(
   width: 3rem;
   text-align: center;
   padding: 0.2rem 0.3rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   border: 1px solid var(--line, #cbd5e1);
   border-radius: 4px;
 }
 
 .toolbar-total-pages {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted, #64748b);
 }
 
 .toolbar-zoom-label {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   min-width: 3rem;
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -1044,7 +1044,7 @@ html:is(
   display: flex;
   justify-content: space-between;
   padding: 0.4rem 0.75rem;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: #64748b;
   border-bottom: 1px solid #e2e8f0;
 }
@@ -1061,7 +1061,7 @@ html:is(
   background: var(--wash);
   border: 1px solid #fef3c7;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .direct-pdf-link {
@@ -1075,7 +1075,7 @@ html:is(
 }
 
 .pagemap-heading {
-  font-size: 1.2rem;
+  font-size: var(--type-body);
   margin-bottom: 1rem;
 }
 
@@ -1088,7 +1088,7 @@ html:is(
 .facsimile-pagemap-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   text-align: left;
 }
 
@@ -1160,7 +1160,7 @@ html:is(
 }
 
 .source-part-heading {
-  font-size: 1.75rem;
+  font-size: var(--type-title);
   font-weight: 700;
   margin: 2.5rem 0 1.25rem;
   border-bottom: 2px solid var(--line);
@@ -1168,7 +1168,7 @@ html:is(
 }
 
 .source-heading {
-  font-size: 1.4rem;
+  font-size: var(--type-lead);
   font-weight: 600;
   margin: 2rem 0 1rem;
 }
@@ -1221,7 +1221,7 @@ html:is(
 .equation-label {
   margin-left: auto;
   padding-left: 1rem;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   user-select: none;
 }
@@ -1237,7 +1237,7 @@ html:is(
 }
 
 .source-footnote {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   border-top: 1px solid var(--line);
   padding-top: 0.75rem;
@@ -1257,7 +1257,7 @@ html:is(
   color: var(--muted);
   text-decoration: none;
   font-family: var(--font-mono, monospace);
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
 }
 
 .locator-link:hover,
@@ -1268,7 +1268,7 @@ html:is(
 
 .align-sentences-btn,
 .show-aligned-action {
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   color: var(--accent);
   background: var(--panel);
   border: 1px solid var(--line);
@@ -1306,7 +1306,7 @@ html:is(
   background: var(--wash);
   border: 1px solid var(--line);
   border-radius: 4px;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .alternatives-list {
@@ -1337,7 +1337,7 @@ html:is(
   padding: 0.75rem 1rem;
   margin: 1rem 0;
   border-radius: 0 4px 4px 0;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .note-inline {
@@ -1377,7 +1377,7 @@ html:is(
 }
 
 .note-badge {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1385,7 +1385,7 @@ html:is(
 }
 
 .note-author {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--muted);
 }
 
@@ -1398,7 +1398,7 @@ html:is(
   margin-top: 0.5rem;
   padding-top: 0.5rem;
   border-top: 1px dashed var(--line);
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .note-reading {
@@ -1427,7 +1427,7 @@ html:is(
 
 .note-dispute-sources {
   margin-top: 0.5rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .note-dispute-sources ul {
@@ -1452,7 +1452,7 @@ html:is(
 }
 
 .facsimile-paper-title {
-  font-size: 1.85rem;
+  font-size: var(--type-title);
   margin: 0 0 0.5rem;
 }
 
@@ -1464,7 +1464,7 @@ html:is(
 
 .facsimile-citation {
   font-family: var(--font-mono, monospace);
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   margin: 0;
 }
@@ -1475,7 +1475,7 @@ html:is(
   gap: 1rem;
   align-items: center;
   margin-top: 1rem;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .facsimile-meta-item {
@@ -1491,17 +1491,17 @@ html:is(
 .meta-label {
   font-weight: 600;
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--muted);
 }
 
 .meta-digest {
   font-family: var(--font-mono, monospace);
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
 }
 
 .meta-badge {
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   font-weight: 600;
   text-transform: uppercase;
   padding: 0.1rem 0.35rem;
@@ -1524,7 +1524,7 @@ html:is(
 }
 
 .meta-institution {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .facsimile-notice {
@@ -1553,11 +1553,11 @@ html:is(
   background: var(--wash);
   border-left: 2px solid var(--line);
   font-style: italic;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .institution-link {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   margin-top: 0.5rem;
 }
@@ -1581,7 +1581,7 @@ html:is(
 }
 
 .toolbar-btn {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   padding: 0.25rem 0.6rem;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -1621,18 +1621,18 @@ html:is(
 }
 
 .page-total {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
 .printed-page-indicator {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
 .toolbar-zoom-label {
   font-family: var(--font-mono, monospace);
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   min-width: 3rem;
   text-align: center;
 }
@@ -1660,7 +1660,7 @@ html:is(
 .facsimile-page-header-info {
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: var(--type-micro);
   color: var(--muted);
   margin-bottom: 0.5rem;
   font-family: var(--font-mono, monospace);
@@ -1676,7 +1676,7 @@ html:is(
   padding: 1rem;
   background: var(--wash);
   border-top: 1px solid var(--line);
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .direct-pdf-link {
@@ -1690,7 +1690,7 @@ html:is(
 }
 
 .pagemap-heading {
-  font-size: 1.3rem;
+  font-size: var(--type-body);
   margin-bottom: 1rem;
 }
 
@@ -1726,12 +1726,12 @@ html:is(
 }
 
 .fallback-title {
-  font-size: 1.75rem;
+  font-size: var(--type-title);
   margin-bottom: 1rem;
 }
 
 .fallback-notice {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   color: var(--muted);
 }
 
@@ -1750,12 +1750,12 @@ html:is(
 }
 
 .face-title {
-  font-size: 1.75rem;
+  font-size: var(--type-title);
   margin: 0 0 0.5rem;
 }
 
 .face-subtitle {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   color: var(--muted);
   margin: 0;
 }
@@ -1782,7 +1782,7 @@ html:is(
 }
 
 .sentence-german-unadorned {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   line-height: 1.6;
 }
 
@@ -1871,12 +1871,12 @@ html:is(
 }
 
 .result-equation-headline {
-  font-size: 1.3rem;
+  font-size: var(--type-body);
   margin: 1rem 0;
 }
 
 .result-equation {
-  font-size: 1.1rem;
+  font-size: var(--type-body);
   margin: 0.75rem 0;
 }
 
@@ -1903,7 +1903,7 @@ html:is(
 
 .result-misconceptions {
   margin-top: 1rem;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
@@ -1941,7 +1941,7 @@ html:is(
 .misconception-instrument-link,
 .misconception-static-treatment,
 .misconception-sources {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
   margin: 0.5rem 0;
 }
@@ -1960,7 +1960,7 @@ html:is(
 .parallel-paper-title,
 .source-paper-title,
 .translation-paper-title {
-  font-size: 2rem;
+  font-size: var(--type-display);
   margin: 0 0 0.5rem;
 }
 
@@ -1974,7 +1974,7 @@ html:is(
 .source-date-line,
 .journal-citation,
 .translator-credit {
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   color: var(--muted);
   margin: 0.25rem 0;
 }
@@ -1996,7 +1996,7 @@ html:is(
 }
 
 .column-heading {
-  font-size: 1.25rem;
+  font-size: var(--type-body);
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--line);
   padding-bottom: 0.5rem;
@@ -2017,7 +2017,7 @@ html:is(
 }
 
 .footnotes-heading {
-  font-size: 1.2rem;
+  font-size: var(--type-body);
   margin-bottom: 1rem;
 }
 
@@ -2030,14 +2030,14 @@ html:is(
 }
 
 .footnote-body {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   line-height: 1.5;
 }
 
 .footnote-backlink {
   color: var(--accent);
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 700;
 }
 
 /* Unreviewed Banner styles (am-vw1o) */
@@ -2051,12 +2051,12 @@ html:is(
 
 .banner-heading {
   margin: 0 0 0.25rem;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 
 .banner-text {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
@@ -2099,7 +2099,7 @@ html:is(
   border: 1px solid var(--line, #ccc);
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   line-height: 1.4;
 }
 
@@ -2111,18 +2111,18 @@ html:is(
 .term-annotation-close {
   display: inline-block;
   padding: 0.2rem 0.5rem;
-  font-size: 0.8rem;
+  font-size: var(--type-fine);
   cursor: pointer;
 }
 
 /* Reader actions, worked examples, and paper page navigation styles (am-vw1o) */
 .passage-action {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
 }
 
 .obstacle-response {
   margin-top: 0.5rem;
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
 }
 
 .worked-example {
@@ -2142,7 +2142,7 @@ html:is(
 .worked-example-first-thought,
 .worked-example-limitation {
   margin: 0.5rem 0;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
 }
 
 .reader-entrance-section,
@@ -2162,12 +2162,12 @@ html:is(
 }
 
 .foundation-question {
-  font-size: 0.9rem;
+  font-size: var(--type-fine);
   color: var(--muted);
 }
 
 .citation-ref {
-  font-size: 0.85rem;
+  font-size: var(--type-fine);
   color: var(--accent);
   text-decoration: none;
 }
@@ -2192,7 +2192,7 @@ html:is(
 }
 .source-draft-notice__body {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--type-small);
   line-height: 1.5;
 }
 .source-draft-notice__persistent {
@@ -2201,7 +2201,7 @@ html:is(
   z-index: 2;
   margin: 0 0 1rem;
   padding: 0.35rem 0.75rem;
-  font-size: 0.78rem;
+  font-size: var(--type-fine);
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
