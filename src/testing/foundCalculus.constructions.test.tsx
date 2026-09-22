@@ -78,7 +78,9 @@ test("foundCalculus.constructions: NudgeSensitivityDemo reports Δν, ΔV, and s
 
   // Ratio and units
   assert.ok(html.includes("V·s (or V/Hz)"));
-  assert.ok(html.includes("4.135667696e-15"));
+  // Drawn as a power of ten by Sci (U+202F around the ×), not toExponential.
+  assert.ok(html.includes("4.135667696\u202f×\u202f10<sup>−15</sup>"));
+  assert.ok(!/\d\.\d+e[-+]\d/.test(html), "no toExponential token reaches the reader");
 
   // Textual equivalent. It must name the derivative's units in words; the sentence around them
   // is copy and was rewritten on 2026-09-22, so the assertion holds the units, not the phrasing.
