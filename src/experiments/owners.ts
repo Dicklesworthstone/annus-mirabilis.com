@@ -23,6 +23,22 @@ export type OwnerBinding =
   | Readonly<{ kind: "static" }>;
 
 export const OWNER_BINDINGS: Readonly<Partial<Record<CatalogueId, OwnerBinding>>> = Object.freeze({
+  "shelf-michelson-morley": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/shelfOptics/evaluation.ts",
+    function: "evaluateShelfOptics",
+  }),
+  "shelf-fizeau": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/shelfOptics/evaluation.ts",
+    function: "evaluateShelfOptics",
+  }),
+  "shelf-maxwell-galilean": Object.freeze({
+    kind: "reference-evaluator",
+    module: "src/experiments/shelfOptics/evaluation.ts",
+    function: "evaluateShelfOptics",
+  }),
+
   "lq-01": Object.freeze({
     kind: "reference-evaluator",
     module: "src/experiments/lq01/session.ts",

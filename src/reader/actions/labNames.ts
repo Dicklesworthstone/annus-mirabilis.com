@@ -30,7 +30,13 @@
  * ugly but honest. Add an instrument here when it gains a page, and copy its h1 rather than
  * composing a new phrase.
  */
+import { SHELF_DEFINITIONS } from "../../experiments/shelfOptics/definition.ts";
+
 export const LAB_NAMES: Readonly<Record<string, string>> = Object.freeze({
+  "shelf-michelson-morley": SHELF_DEFINITIONS["shelf-michelson-morley"].title,
+  "shelf-fizeau": SHELF_DEFINITIONS["shelf-fizeau"].title,
+  "shelf-maxwell-galilean": SHELF_DEFINITIONS["shelf-maxwell-galilean"].title,
+
   // Brownian motion.
   //
   // THESE FOUR KEEP THE NAMES THEY ALREADY HAD, and that is a correction to my first pass. I

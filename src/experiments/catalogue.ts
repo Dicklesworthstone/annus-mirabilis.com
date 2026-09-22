@@ -5,6 +5,8 @@
  * wrong model." There is no default case and no fallback instrument.
  */
 
+import { SHELF_DEFINITIONS } from "./shelfOptics/definition.ts";
+
 export type LqId =
   | "lq-01"
   | "lq-02"
@@ -85,9 +87,9 @@ export const CATALOGUE_STATUS: Readonly<Record<CatalogueId, CatalogueStatus>> = 
   "me-01": "registered",
   "me-02": "registered",
   "me-03": "registered",
-  "shelf-michelson-morley": "in-preparation",
-  "shelf-fizeau": "in-preparation",
-  "shelf-maxwell-galilean": "in-preparation",
+  "shelf-michelson-morley": "registered",
+  "shelf-fizeau": "registered",
+  "shelf-maxwell-galilean": "registered",
   "avogadro-lab": "in-preparation",
   "light-thread": "registered",
 });
@@ -106,6 +108,10 @@ export const REGISTERED_IDS: readonly CatalogueId[] = Object.freeze(
  * authored"). Absence is honest: most ids have no authored question yet.
  */
 export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>> = Object.freeze({
+  "shelf-michelson-morley": SHELF_DEFINITIONS["shelf-michelson-morley"].question,
+  "shelf-fizeau": SHELF_DEFINITIONS["shelf-fizeau"].question,
+  "shelf-maxwell-galilean": SHELF_DEFINITIONS["shelf-maxwell-galilean"].question,
+
   "lq-01":
     "What does a continuous wave description of light explain well, and what exactly does its intensity measure?",
   "lq-03":

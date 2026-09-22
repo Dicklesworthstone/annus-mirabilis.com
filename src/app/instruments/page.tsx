@@ -64,6 +64,13 @@ const PAPER_GROUPS: readonly {
       "What it takes to set two distant clocks, and what follows once you say precisely what that means.",
   },
   {
+    prefix: "shelf-",
+    title: "Before the coordinate map: optical model comparisons",
+    href: "/discover/special-relativity/",
+    blurb:
+      "Compare arm times, moving-water drag and wave equations. These explanatory previews use modern calibration; reviewed historical datasets and strict 1904 modes remain in preparation.",
+  },
+  {
     prefix: "me-",
     title: "Does inertia depend on energy content?",
     href: "/papers/mass-energy/",
