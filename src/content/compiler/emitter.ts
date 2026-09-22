@@ -162,11 +162,30 @@ ${e.explanation ?? ""}
 
   // 2. Emit foundations
   for (const foundation of options.foundations) {
-    const md = `# ${foundation.title}\n\nAuthored explanation; editorial review pending.\n\n${markdownBlocks(
-      foundation.explanation,
-    )}\n\n## ${foundation.exampleTitle ?? "Worked example"}\n\n${markdownBlocks(foundation.example)}\n\n${foundation.stoppingPoint}\n`;
+    // The same parts, in the same order and under the same headings, as FoundationBody renders
+    // on the lesson's page. The export used to drop the summary, the question the lesson
+    // answers and the prerequisites, and left the stopping sentence unlabelled.
+    const prerequisites = foundation.prerequisites.map((p) => {
+      const id = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
+      const title = options.foundations.find((f) => f.id === id)?.title ?? id;
+      return `- [${title}](/foundations/${id}/)`;
+    });
+    const md = [
+      `# ${foundation.title}`,
+      foundation.summary,
+      "Written for this edition, not translated from Einstein. Editorial review pending.",
+      `## ${foundation.question}`,
+      markdownBlocks(foundation.explanation),
+      foundation.exampleTitle
+        ? `## Worked example: ${foundation.exampleTitle}`
+        : "## One worked example",
+      markdownBlocks(foundation.example),
+      "## Where this lesson stops",
+      foundation.stoppingPoint,
+      ...(prerequisites.length > 0 ? ["## This lesson builds on", prerequisites.join("\n")] : []),
+    ].join("\n\n");
 
-    await emitOne(foundation.id, "foundation", foundation, md, [
+    await emitOne(foundation.id, "foundation", foundation, `${md}\n`, [
       `foundations/${foundation.id}.json`,
     ]);
   }
