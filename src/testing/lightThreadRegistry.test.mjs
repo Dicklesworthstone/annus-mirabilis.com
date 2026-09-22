@@ -30,8 +30,17 @@ test("connections lead to the real laboratory route rather than an isolated cata
     "utf8",
   );
   const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
+  // The site header's links moved out of layout.tsx into PrimaryNavLinks (which marks the
+  // current section), so the /connections/ link is asserted where it now lives, and the layout
+  // is asserted to render that component. Checking layout.tsx for the literal href went red on
+  // a refactor that kept the link.
+  const nav = readFileSync(
+    new URL("../components/chrome/PrimaryNavLinks.tsx", import.meta.url),
+    "utf8",
+  );
   assert.ok(connections.includes('href="/lab/light-thread"'));
   assert.ok(laboratory.includes("<LightThreadLab />"));
-  assert.ok(layout.includes('href="/connections/"'));
+  assert.ok(layout.includes("<PrimaryNavLinks"));
+  assert.ok(nav.includes('href: "/connections/"'));
   assert.ok(laboratory.includes('canonical: "/lab/light-thread/"'));
 });
