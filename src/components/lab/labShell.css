@@ -351,3 +351,28 @@
   margin: 0;
   padding-inline-start: 1.1rem;
 }
+
+/* An instrument's caption carries its four readings as p[data-detail="0".."3"], R2 and R3 with
+   the hidden attribute. Nothing switched them: the reader's rule targets .reader-root
+   [data-reading], so on eight laboratories the Overview and the Full explanation both showed,
+   one after the other, and Show every step never could. These follow the same setting as the
+   reading pages: R1 by default, R0 or R2 when the reader chooses that detail, and R3 under the
+   modern lens (src/reader/reader.css). sr-07's root is .laboratory-shell. */
+:is(.laboratory, .laboratory-shell) > p[data-detail] {
+  display: none;
+}
+
+:is(.laboratory, .laboratory-shell) > p[data-detail="1"] {
+  display: block;
+}
+
+html[data-detail="0"] :is(.laboratory, .laboratory-shell) > p[data-detail="1"],
+html[data-detail="2"] :is(.laboratory, .laboratory-shell) > p[data-detail="1"] {
+  display: none;
+}
+
+html[data-detail="0"] :is(.laboratory, .laboratory-shell) > p[data-detail="0"],
+html[data-detail="2"] :is(.laboratory, .laboratory-shell) > p[data-detail="2"],
+html[data-lens="modern"] :is(.laboratory, .laboratory-shell) > p[data-detail="3"] {
+  display: block;
+}
