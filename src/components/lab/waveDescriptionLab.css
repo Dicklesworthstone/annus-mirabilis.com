@@ -153,8 +153,9 @@
 }
 
 /* SVG text is sized in viewBox units, so a label's size on screen is this value times (drawn
-   width / 480). The site rule gives --type-fine, about 13px, which drew the labels at 8.9px on
-   a 390px phone. At 15 units they are about 10px there and 11px in the two-up desktop column. */
+   width / 480). The site rule gives --type-fine (13.2), which drew the labels at 8.9px on a
+   390px phone. --type-small (15.8) draws them at about 10.6px there and 12px in the two-up
+   desktop column, and follows the reader's type setting. */
 .lq01 svg[role="img"] text {
-  font-size: 15px;
+  font-size: var(--type-small);
 }

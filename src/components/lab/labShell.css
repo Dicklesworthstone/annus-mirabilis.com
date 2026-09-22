@@ -218,8 +218,8 @@
 }
 
 /* InlineFormula.tsx: mathematics set inside a sentence. KaTeX draws itself at 1.21em, which on
-   the 19px serif made "ν ∼ 10¹⁴–10¹⁵ Hz" 23px, a size above the words around it. At 1.1em
-   (20.9px) it sits on the line. */
+   the 19px serif made "ν ∼ 10¹⁴–10¹⁵ Hz" 23px, a size above the words around it. It takes the
+   sentence's own size instead, so it also follows the reader's type setting. */
 .formula-inline .katex {
-  font-size: 1.1em;
+  font-size: inherit;
 }
