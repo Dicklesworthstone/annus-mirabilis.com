@@ -2,6 +2,7 @@
 
 import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { RelativityEventTable } from "./RelativityEventTable.tsx";
+import { RelativitySessionFileControls } from "./RelativitySessionFileControls.tsx";
 import {
   assessRelativity,
   isRelativityMeasurementId,
@@ -364,8 +365,18 @@ export function SpecialRelativityInvestigation({
         />
         <p>
           Notes and predictions stay in this tab; they are not sent to a server or put in a share
-          link. Leaving the page loses unsaved work.
+          link. Save a private session below to keep your work before leaving.
         </p>
+        <RelativitySessionFileControls
+          session={session}
+          disabled={!ready}
+          onRestore={(restored) => {
+            focusTarget.current = null;
+            edit(() => restored);
+            setChecked(false);
+            setNotice("Restored the private session and recalculated its argument dependencies.");
+          }}
+        />
         <button type="button" disabled={!ready} onClick={share}>
           Create public investigation link
         </button>
