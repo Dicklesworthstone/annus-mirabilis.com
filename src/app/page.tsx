@@ -124,7 +124,7 @@ export default function Home() {
           letting you assume it was checked against the German.
         </p>
         <p>
-          <a href="/papers/">See all five records, including the dissertation</a>
+          <a href="/papers/">See the four papers in the order they were received</a>
         </p>
       </section>
     </>
