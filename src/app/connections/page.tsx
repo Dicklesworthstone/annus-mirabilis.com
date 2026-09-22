@@ -22,18 +22,24 @@ export default function ConnectionsPage() {
         </p>
       </header>
       <ConnectionMap />
-      <section className="reading" id="light-thread">
-        <p className="eyebrow">Later modern synthesis</p>
-        <h2>Light as the instrument</h2>
+      {/* The sections follow the map's rows, from evidence to resemblance: a borrowed result, two
+          routes to one number, a shared piece of mathematics, a link drawn later. They used to run
+          in another order, so the map's first row was the page's third section and its last row
+          the first. */}
+      <section className="reading" id="energy-transformation">
+        <p className="eyebrow">Uses a result</p>
+        <h2>The energy transformation that leaves the relativity paper</h2>
         <p>
-          Compare a pulse’s quantum-energy scale, its energy and frequency in another frame, and the
-          system boundary needed to discuss inertia. The interactive light thread keeps the pulse
-          fixed when only the observer changes.
+          Relativity §8 supplies the light-energy transformation used in the September paper. The
+          two opposite emissions can have unequal energies in a moving frame; comparing the two
+          body-energy ledgers removes unknown internal energies. The quantum hypothesis is not
+          needed for this step.
         </p>
         <p>
-          <a className="button" href="/lab/light-thread">
-            Open the light-thread laboratory
-          </a>
+          <a href="/papers/special-relativity/#s8">Relativity §8</a> ·{" "}
+          <a href="/lab/sr-10">Finite light complex</a> ·{" "}
+          <a href="/papers/mass-energy/">Mass–energy paper</a> ·{" "}
+          <a href="/lab/me-01">Two energy ledgers</a>
         </p>
       </section>
       <section className="reading" id="molecular-number">
@@ -52,22 +58,6 @@ export default function ConnectionsPage() {
           </a>
         </p>
       </section>
-      <section className="reading" id="energy-transformation">
-        <p className="eyebrow">Uses this result</p>
-        <h2>The energy transformation that leaves the relativity paper</h2>
-        <p>
-          Relativity §8 supplies the light-energy transformation used in the September paper. The
-          two opposite emissions can have unequal energies in a moving frame; comparing the two
-          body-energy ledgers removes unknown internal energies. The quantum hypothesis is not
-          needed for this step.
-        </p>
-        <p>
-          <a href="/papers/special-relativity/#s8">Relativity §8</a> ·{" "}
-          <a href="/lab/sr-10">Finite light complex</a> ·{" "}
-          <a href="/papers/mass-energy/">Mass–energy paper</a> ·{" "}
-          <a href="/lab/me-01">Two energy ledgers</a>
-        </p>
-      </section>
       <section className="reading" id="counting">
         <p className="eyebrow">Shares a mathematical pattern</p>
         <h2>Counting possibilities without solving every motion</h2>
@@ -82,6 +72,20 @@ export default function ConnectionsPage() {
           <a href="/lab/lq-05">Independent configurations</a> ·{" "}
           <a href="/papers/brownian-motion/#s2">Brownian motion §2</a> ·{" "}
           <a href="/lab/bm-03">Configuration integral</a>
+        </p>
+      </section>
+      <section className="reading" id="light-thread">
+        <p className="eyebrow">Later modern synthesis</p>
+        <h2>Light as the instrument</h2>
+        <p>
+          Compare a pulse’s quantum-energy scale, its energy and frequency in another frame, and the
+          system boundary needed to discuss inertia. The interactive light thread keeps the pulse
+          fixed when only the observer changes.
+        </p>
+        <p>
+          <a className="button" href="/lab/light-thread">
+            Open the light-thread laboratory
+          </a>
         </p>
       </section>
       <section className="reading">
