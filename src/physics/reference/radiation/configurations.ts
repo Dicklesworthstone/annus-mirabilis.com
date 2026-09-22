@@ -7,12 +7,12 @@ import { executionOutcomeRegistry } from "../../../experiments/results/outcomes.
 import { createPhiloxStream } from "../philox.ts";
 import { packLogRepresentation } from "./representability.ts";
 import type {
-  BinomialDistribution,
-  BinomialTerm,
   EnumerationOutcome,
   Rational,
   SeededPointSamplingResult,
 } from "./types.ts";
+
+export { binomialInside, lockedPositionsProbability } from "./configurationCounts.ts";
 
 export const ENUMERATION_BUDGET_MAX_CONFIGURATIONS = 1048576; // 2^20
 
@@ -26,19 +26,6 @@ function bigIntPow(base: bigint, exp: number): bigint {
     e = Math.floor(e / 2);
   }
   return res;
-}
-
-function bigIntComb(n: number, k: number): bigint {
-  if (k < 0 || k > n) return 0n;
-  if (k === 0 || k === n) return 1n;
-  const kEff = k > n - k ? n - k : k;
-  let num = 1n;
-  let den = 1n;
-  for (let i = 1; i <= kEff; i++) {
-    num *= BigInt(n - i + 1);
-    den *= BigInt(i);
-  }
-  return num / den;
 }
 
 export type IndependentPointsProbabilityResult = Readonly<{
@@ -87,58 +74,6 @@ export function independentPointsProbability(
   };
 }
 
-/** Exact binomial distribution of points inside volume fraction f. */
-export function binomialInside(
-  n: number,
-  f: number | { p: bigint; q: bigint },
-): BinomialDistribution {
-  let pBig: bigint;
-  let qBig: bigint;
-  let fNum: number;
-
-  if (typeof f === "object") {
-    pBig = f.p;
-    qBig = f.q;
-    fNum = Number(f.p) / Number(f.q);
-  } else {
-    fNum = f;
-    // Attempt exact half/quarter conversion if familiar float
-    if (f === 0.5) {
-      pBig = 1n;
-      qBig = 2n;
-    } else if (f === 0.25) {
-      pBig = 1n;
-      qBig = 4n;
-    } else {
-      pBig = BigInt(Math.round(f * 1e6));
-      qBig = 1000000n;
-    }
-  }
-
-  const denomTotal = bigIntPow(qBig, n);
-  const qMinusP = qBig - pBig;
-
-  const terms: BinomialTerm[] = [];
-  for (let k = 0; k <= n; k++) {
-    const comb = bigIntComb(n, k);
-    const num = comb * bigIntPow(pBig, k) * bigIntPow(qMinusP, n - k);
-    terms.push({
-      k,
-      exactProbability: {
-        numerator: num,
-        denominator: denomTotal,
-      },
-      probability: Number(num) / Number(denomTotal),
-    });
-  }
-
-  return {
-    n,
-    f: fNum,
-    terms,
-  };
-}
-
 /**
  * Exhaustive configuration enumeration for n particles in `cells` equal volumes.
  * Returns budget-exhausted if cells^n > 2^20 (1,048,576).
@@ -168,30 +103,6 @@ export function enumerateConfigurations(n: number, cells: number): EnumerationOu
     totalConfigurations: total,
     favorableConfigurations: favorable,
     probability,
-  };
-}
-
-/**
- * Locked-positions counterexample: rigidly locked points move together with probability f, not f^n.
- */
-export function lockedPositionsProbability(
-  _n: number,
-  f: number,
-): Readonly<{
-  status: "value";
-  quantityId: "configurationProbability";
-  unit: "";
-  value: number;
-  linearRepresentable: true;
-  modelNote: string;
-}> {
-  return {
-    status: "value",
-    quantityId: "configurationProbability",
-    unit: "",
-    value: f,
-    linearRepresentable: true,
-    modelNote: "perfectly locked positions have probability f that all lie in fraction f",
   };
 }
 
