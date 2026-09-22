@@ -345,6 +345,28 @@
   gap: 1.25rem;
 }
 
+/*
+ * A grid item defaults to min-width: auto, so its min-content width sizes the track rather than
+ * the track clipping it. One card's longest unbreakable run therefore widened the single `1fr`
+ * track for EVERY card: measured at a 390px viewport, .entries-grid was 342px wide while its
+ * computed grid-template-columns was 511.281px, and the document reached 559px at 320, 360 and
+ * 390 alike. Same failure and same repair as .lab-bottom in globals.css.
+ *
+ * min-width: 0 alone only moves the overflow inside the card, because the runs that cause it are
+ * genuinely unbreakable: a canonical quantity id (`#lq.R_over_N.boltzmannConstant`) and a 64
+ * character sha256, neither carrying a space. Both are identifiers a reader copies rather than
+ * reads as prose, so they may break anywhere; the surrounding prose is left alone. This is the
+ * same class of token, and the same remedy, that .table-scroll records for its dotted columns.
+ */
+.entries-grid > * {
+  min-width: 0;
+}
+
+.card-anchor-link,
+.verification-status {
+  overflow-wrap: anywhere;
+}
+
 .concordance-card {
   background: var(--panel);
   border: 1px solid var(--line);

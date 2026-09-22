@@ -67,8 +67,15 @@
   margin: 1.5rem 0;
 }
 
+/*
+ * A flex row defaults to nowrap, so these tabs could not break onto a second line and ran off the
+ * page instead: measured on /lab/me-02/, the document reached 385px at both a 320px and a 360px
+ * viewport, while the buttons themselves are only ~113px wide. It fits at 390px, which is why a
+ * single-width check would have missed it.
+ */
 .predict-mode-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--line);
