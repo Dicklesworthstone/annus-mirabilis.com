@@ -18,12 +18,15 @@ import { StickyLabRegion } from "./layout/StickyLabRegion.tsx";
 import "./actions/kindRegistration.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
+import { quantityLegend } from "../equations/quantityColourView.ts";
 import missingSteps from "../generated/missing-steps.json";
 import { paperEquations } from "./paperEquations.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
+import { QuantityLegendList } from "./QuantityLegendList.tsx";
 import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
+import { sectionPlate } from "./sectionPlate.ts";
 import "./reader.css";
 
 function companionKindFromQuery(raw: string | undefined): CompanionKind {
@@ -52,6 +55,22 @@ export async function PaperReader({
   const registry = { paperId: paper.id, anchors, foundations: foundations.map((f) => f.id) };
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
   const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
+  /*
+    THE COMPANION ON A SECTION PAGE: the page the section was printed on, and a key to its symbols.
+    It held a placeholder sentence in every state, so at 1920 a 368px column beside the text said
+    only that margin notes "stay here" (TanElk's dispatch 69: "carries something, not air"). Now,
+    on a section page, it shows the section's first printed page as a plate linked to the section
+    in German, and each quantity of the section's equations by glyph, colour and name, the same
+    colour it has in the formulas. The whole-paper page keeps a short note: its reading face is
+    the page the HTML budget measures, and the companion is rendered twice (column and sheet).
+  */
+  const sectionLabel = section ? `§${section.replace(/^s/, "")}` : undefined;
+  const companionPlate = section ? sectionPlate("brownian-motion", section) : undefined;
+  const sectionSymbols = section
+    ? quantityLegend(
+        [...equationsById.values()].filter((e) => args.some((a) => a.id === e.argument)),
+      )
+    : [];
   return (
     <div data-reader-root data-ready="true" data-view="reading" className="reader-root">
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the harness's data-ready contract requires this exact script as the root's first child, synchronous before any face content paints; its source is derived from a tested pure function, never hand-authored HTML. */}
@@ -148,12 +167,59 @@ export async function PaperReader({
               </p>
             ) : (
               <div>
-                <h2>Beside this passage</h2>
+                {companionPlate && sectionLabel ? (
+                  <figure className="companion-plate">
+                    <a href={companionPlate.germanHref}>
+                      {/* A plain img, as in FollowingPlate: under images.unoptimized next/image
+                          emits no srcset, and on a 2x screen the plate needs its 1280px source.
+                          Biome's noImgElement warns on this; the reason is here, not silenced. */}
+                      <img
+                        src={companionPlate.src}
+                        srcSet={companionPlate.srcSet}
+                        sizes="20rem"
+                        width={640}
+                        height={987}
+                        loading="lazy"
+                        decoding="async"
+                        alt={`Page ${companionPlate.page} of Annalen der Physik, volume ${companionPlate.volume}, where ${sectionLabel} begins.`}
+                      />
+                    </a>
+                    <figcaption>
+                      {sectionLabel} begins on page {companionPlate.page} of Annalen der Physik,
+                      volume {companionPlate.volume}.{" "}
+                      <a href={companionPlate.germanHref}>Read it in Einstein&rsquo;s German</a>
+                    </figcaption>
+                  </figure>
+                ) : null}
+                {sectionSymbols.length > 0 && sectionLabel ? (
+                  <>
+                    <h2>Symbols in {sectionLabel}</h2>
+                    <QuantityLegendList
+                      legend={sectionSymbols}
+                      label={`Symbols in ${sectionLabel}, by colour and name`}
+                      className="equation-legend companion-symbols"
+                    />
+                  </>
+                ) : null}
+                {section ? null : (
+                  <>
+                    <h2>Beside each section</h2>
+                    <p>
+                      A section&rsquo;s own page sets its printed page and a key to its symbols
+                      here:{" "}
+                      {paper.sections.map((s, i) => (
+                        <span key={s.id}>
+                          {i > 0 ? ", " : ""}
+                          <a href={`/papers/brownian-motion/${s.id}/`}>§{s.id.replace(/^s/, "")}</a>
+                        </span>
+                      ))}
+                      .
+                    </p>
+                  </>
+                )}
                 <p>
-                  Margin notes, assumptions, and the laboratory stay here so the German argument
-                  keeps the main column.
+                  <a href="#lab-bm-01">Keep the tracer ensemble in view</a>
                 </p>
-                <a href="#lab-bm-01">Keep the tracer ensemble in view</a>
               </div>
             )}
           </Companion>

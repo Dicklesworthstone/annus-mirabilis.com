@@ -9,8 +9,9 @@
  * glyph and name, which is the channel that does not depend on seeing colour. Exploring a term
  * stays with the explorer cards.
  */
-import { colourStyle, quantityLegend } from "../equations/quantityColourView.ts";
+import { quantityLegend } from "../equations/quantityColourView.ts";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
+import { QuantityLegendList } from "./QuantityLegendList.tsx";
 import "../equations/equations.css";
 
 export function ColouredFormula({ equations }: { equations: readonly CompiledEquation[] }) {
@@ -32,25 +33,7 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
           </div>
         ))}
       </div>
-      {legend.length > 0 ? (
-        <ul className="equation-legend" aria-label="Quantities in this formula">
-          {legend.map(({ quantityId, colour }) => (
-            <li
-              key={quantityId}
-              className="equation-quantity"
-              data-quantity-id={quantityId}
-              style={colourStyle(colour)}
-            >
-              <span
-                className="equation-legend-glyph"
-                aria-hidden="true"
-                {...{ dangerouslySetInnerHTML: { __html: colour.glyphHtml } }}
-              />
-              <span className="equation-legend-name">{colour.name}</span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <QuantityLegendList legend={legend} label="Quantities in this formula" />
     </div>
   );
 }

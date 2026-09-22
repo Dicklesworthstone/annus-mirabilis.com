@@ -131,6 +131,9 @@
     position: sticky;
     top: var(--reader-scroll-padding);
     max-width: 20rem;
+    /* A sticky box taller than the window cannot be scrolled to its end until the page ends. */
+    max-height: calc(100vh - 2 * var(--reader-scroll-padding));
+    overflow: auto;
   }
   .reader-outline {
     grid-column: 1;
@@ -145,6 +148,32 @@
   .reader-bottom-sheet {
     display: none;
   }
+}
+
+/* THE COMPANION ON A SECTION PAGE: the page the section was printed on, and a key to its symbols
+   (PaperReader). The plate is bound by the window's height as well as the column's width. At 45vh
+   the column overran its window by 32-60px at 1440x900 and 46px at 1920x1080 (BUILD 20, measured),
+   leaving the last link behind a scroll inside it; 38vh fits both. A 1280x800 window's plate is
+   bound by the column's width instead, so the column's own overflow is the fallback there. */
+.companion-plate {
+  margin: 0 0 1rem;
+}
+.companion-plate img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 38vh;
+  border: 1px solid var(--rule);
+}
+.companion-plate figcaption {
+  margin-top: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+.companion-symbols {
+  flex-direction: column;
 }
 
 /* Medium: main + collapsible companion column. */
