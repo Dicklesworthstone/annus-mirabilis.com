@@ -48,14 +48,20 @@ test("nonfinite input, nonzero underflow and malformed decimals are refused", ()
   assert.equal(parseScaledDecimal("0e-400", 0), 0);
   assert.throws(() => formatScaledDecimal(Infinity, 6));
 });
+// display() writes a power of ten as a reader does (6.1705 × 10²³), not as toPrecision does
+// (6.1705e23). What these assert is unchanged: a finite value at an extreme scale keeps its
+// digits and its exponent, and never becomes Infinity or 0.
 test("unit display does not fabricate infinity or zero at extreme scales", () => {
-  assert.equal(display(1e307, 1e12), "1e319");
+  assert.equal(display(1e307, 1e12), "1 × 10³¹⁹");
   assert.notEqual(display(Number.MIN_VALUE, 1e-6), "0");
   assert.equal(display(4.294395645549615e-13, 1e12), "0.42944");
 });
 
 test("rounding the largest finite value cannot overflow the reader's display", () => {
-  assert.equal(display(Number.MAX_VALUE), "1.7977e308");
-  assert.equal(display(Number.MAX_VALUE, 1e12), "1.7977e320");
-  assert.equal(display(-Number.MAX_VALUE, 1e-6), "-1.7977e302");
+  assert.equal(display(Number.MAX_VALUE), "1.7977 × 10³⁰⁸");
+  assert.equal(display(Number.MAX_VALUE, 1e12), "1.7977 × 10³²⁰");
+  assert.equal(display(-Number.MAX_VALUE, 1e-6), "-1.7977 × 10³⁰²");
+  // No e-exponent survives to a reader at any of these scales.
+  for (const value of [1e307, Number.MAX_VALUE, -Number.MAX_VALUE, Number.MIN_VALUE, 6.02e23])
+    for (const factor of [1, 1e12, 1e-6]) assert.doesNotMatch(display(value, factor), /\de[+-]?\d/);
 });
