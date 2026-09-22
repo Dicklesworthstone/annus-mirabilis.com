@@ -38,6 +38,13 @@ function Readout({
   );
 }
 
+/** The prediction's three options, as [id, words]. The reveal names the reader's choice in words. */
+const SR06_CANDIDATES = [
+  ["galilean-sum", "1.2 times light speed"],
+  ["relativistic-15-17", "About 0.88 of light speed"],
+  ["unchanged-0-6c", "0.6 of light speed"],
+] as const;
+
 export function VelocityCompositionLab({
   example,
   title = "Why speeds do not simply add",
@@ -107,38 +114,43 @@ export function VelocityCompositionLab({
           0.882353c. Changing settings requires JavaScript.
         </p>
       </noscript>
-      {predict === null ? (
-        <form
-          className="predict-block"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const chosen = new FormData(e.currentTarget).get("candidate");
-            if (typeof chosen === "string") setPredict(chosen);
-          }}
-        >
-          <p id={`${id}-predict`}>
-            An object moves at 0.6c relative to a frame that moves at 0.6c. What speed does the
-            platform measure?
+      <details className="lab-predict sr06-predict">
+        <summary>Predict first</summary>
+        {predict === null ? (
+          <form
+            className="predict-block"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const chosen = new FormData(e.currentTarget).get("candidate");
+              if (typeof chosen === "string") setPredict(chosen);
+            }}
+          >
+            <fieldset>
+              <legend id={`${id}-predict`}>
+                An object moves at 0.6c relative to a frame that moves at 0.6c. What speed does the
+                platform measure?
+              </legend>
+              {SR06_CANDIDATES.map(([value, label]) => (
+                <label key={value} className="lab-predict-candidate">
+                  <input type="radio" name="candidate" value={value} /> <span>{label}</span>
+                </label>
+              ))}
+            </fieldset>
+            <button type="submit" disabled={!ready}>
+              Record this prediction
+            </button>
+          </form>
+        ) : (
+          <p
+            className="lab-predict-reveal"
+            data-prompt-id="sr-06-predict-collinear"
+            data-candidate-id={predict}
+          >
+            You predicted: {SR06_CANDIDATES.find(([value]) => value === predict)?.[1] ?? predict}.
+            The composition below is the model&apos;s answer, not a score.
           </p>
-          <label>
-            <input type="radio" name="candidate" value="galilean-sum" /> 1.2 times light speed
-          </label>
-          <label>
-            <input type="radio" name="candidate" value="relativistic-15-17" /> About 0.88 of light
-            speed
-          </label>
-          <label>
-            <input type="radio" name="candidate" value="unchanged-0-6c" /> 0.6 of light speed
-          </label>
-          <button type="submit" disabled={!ready}>
-            Record this prediction
-          </button>
-        </form>
-      ) : (
-        <p className="notice" data-prompt-id="sr-06-predict-collinear" data-candidate-id={predict}>
-          Prediction recorded as {predict}. The composition below is the model, not a score.
-        </p>
-      )}
+        )}
+      </details>
       <div className="lab-columns">
         <form onSubmit={submit} noValidate>
           <fieldset>
