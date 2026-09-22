@@ -305,38 +305,47 @@ export function EntropyWorkbenchLab({
             </p>
           )}
 
-          <table>
-            <caption>Constrained-state comparison at fixed E, nu, and dNu</caption>
-            <thead>
-              <tr>
-                <th scope="col" />
-                <th scope="col">Reference (V0)</th>
-                <th scope="col">Compared (V)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Temperature T</th>
-                <td>{valueText(snapshot, "initialTemperature", "K")}</td>
-                <td>{valueText(snapshot, "finalTemperature", "K")}</td>
-              </tr>
-              <tr>
-                <th scope="row">x = B nu / T</th>
-                <td>{valueText(snapshot, "initialX", "")}</td>
-                <td>{valueText(snapshot, "finalX", "")}</td>
-              </tr>
-              <tr>
-                <th scope="row">Pointwise deviation e^-x</th>
-                <td>{valueText(snapshot, "initialPointwiseDeviation", "")}</td>
-                <td>{valueText(snapshot, "finalPointwiseDeviation", "")}</td>
-              </tr>
-              <tr>
-                <th scope="row">Spectral entropy density s_nu</th>
-                <td>{valueText(snapshot, "initialSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
-                <td>{valueText(snapshot, "finalSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
-              </tr>
-            </tbody>
-          </table>
+          {/* On a 320px phone this three-column table was 348px wide and pushed the whole page
+              sideways; it now scrolls inside its own labelled region instead. */}
+          <div
+            className="table-scroll"
+            role="region"
+            aria-label="Constrained-state comparison table"
+            tabIndex={0}
+          >
+            <table>
+              <caption>Constrained-state comparison at fixed E, nu, and dNu</caption>
+              <thead>
+                <tr>
+                  <th scope="col" />
+                  <th scope="col">Reference (V0)</th>
+                  <th scope="col">Compared (V)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Temperature T</th>
+                  <td>{valueText(snapshot, "initialTemperature", "K")}</td>
+                  <td>{valueText(snapshot, "finalTemperature", "K")}</td>
+                </tr>
+                <tr>
+                  <th scope="row">x = B nu / T</th>
+                  <td>{valueText(snapshot, "initialX", "")}</td>
+                  <td>{valueText(snapshot, "finalX", "")}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Pointwise deviation e^-x</th>
+                  <td>{valueText(snapshot, "initialPointwiseDeviation", "")}</td>
+                  <td>{valueText(snapshot, "finalPointwiseDeviation", "")}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Spectral entropy density s_nu</th>
+                  <td>{valueText(snapshot, "initialSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
+                  <td>{valueText(snapshot, "finalSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           {p.showUnfixedConstantPanel ? (
             <p className="notice">
