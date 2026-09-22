@@ -216,7 +216,7 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
       "Notes must record that the factor is printed as an explicit radical",
     );
     assert.ok(
-      entry?.notes?.includes("NOT printed"),
+      entry?.notes?.toLowerCase().includes("not printed"),
       "Notes must record that beta is not printed in this paper",
     );
     logPass(

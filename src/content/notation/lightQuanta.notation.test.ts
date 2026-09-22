@@ -246,7 +246,8 @@ describe("am-not-entries-light-quanta-9cb: light-quanta notation concordance", (
 
     const e = resolveGlyph(paper, "lq-s8", "E", emptyManifestIndex, file);
     assert.ok(e.ok);
-    assert.ok(e.entry.notes?.includes("9.6e4"));
+    // The conversion to 9.6 · 10⁴ C/mol, written as a reader reads it rather than as 9.6e4.
+    assert.ok(e.entry.notes?.includes("9.6 · 10⁴"));
 
     const statV = resolveGlyph(paper, "lq-s8", "\\mathrm{statV}", emptyManifestIndex, file);
     assert.ok(statV.ok, "statvolt must resolve");

@@ -192,8 +192,10 @@ describe("am-not-entries-relativity-f6e: special-relativity notation concordance
     const res = resolveGlyph(paper, "sr-s6", "Y'", emptyManifestIndex, file);
     assert.ok(res.ok, "Y' in §6 must resolve");
     assert.equal(res.entry.operation.kind, "rename");
-    assert.ok(res.entry.notes?.includes("gaussian-cgs"));
-    assert.ok(res.entry.notes?.includes("si"));
+    // The note is reader-facing, so it names the unit systems as a reader does. The structured
+    // record of the conversion is asserted below. includes("si") passed on "since" and "side".
+    assert.ok(res.entry.notes?.includes("Gaussian"));
+    assert.ok(/\bSI\b/.test(res.entry.notes ?? ""));
     assert.equal(modernSymbolFor(paper, "sr-s6", "Y'", emptyManifestIndex, file), "E'_y");
 
     const conv = resolveGlyph(paper, "sr-s6", "E_{\\mathrm{G}}", emptyManifestIndex, file);
