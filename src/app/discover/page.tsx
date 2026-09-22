@@ -136,10 +136,11 @@ export default function DiscoverIndex() {
           </p>
           <p>
             The route through the two accounts of one body giving off light is not written. The
-            reading edition is, and so is the instrument that follows the subtraction.
+            reading edition is, and so are three instruments, including the one that follows the
+            subtraction.
           </p>
           <div className="actions">
-            <a href="/papers/mass-energy/">Read the paper and its instrument</a>
+            <a href="/papers/mass-energy/">Read the paper and its instruments</a>
           </div>
         </article>
       </section>
