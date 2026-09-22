@@ -8,11 +8,11 @@ import {
   SR03_PRESETS,
   SR03_PROMPTS,
   type Sr03Parameters,
-  type Sr03PromptKey,
 } from "../../experiments/sr03/definition.ts";
 import { decodeSr03Settings, encodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import "./rodSimultaneityLab.css";
 import { identity } from "./presentation.ts";
 import {
   MinkowskiDiagramPlot,
@@ -52,7 +52,6 @@ export function RodSimultaneityLab({
   const [linkNote, setLinkNote] = useState("");
 
   // Predict mode state
-  const [activePromptKey, setActivePromptKey] = useState<Sr03PromptKey>("endpoint-pair");
   const [selectedCandidates, setSelectedCandidates] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -151,8 +150,6 @@ export function RodSimultaneityLab({
   const isNonSimultaneousRefusal =
     measOut?.status === "not-applicable" && measOut.reason.includes("simultaneous");
 
-  const currentPrompt = SR03_PROMPTS[activePromptKey] ?? SR03_PROMPTS["endpoint-pair"];
-
   return (
     <section
       className="laboratory"
@@ -202,129 +199,6 @@ export function RodSimultaneityLab({
           settings requires JavaScript.
         </p>
       </noscript>
-
-      <p>
-        In §2 of <em>Zur Elektrodynamik bewegter Körper</em> (1905), Einstein demonstrates that two
-        events simultaneous from the perspective of one reference frame are not simultaneous when
-        viewed from another in relative motion. In §4, he derives the physical meaning of moving
-        rigid bodies, proving that measuring the length of a moving rod requires taking coordinate
-        positions of its endpoints at <strong>one single instant of the measuring frame</strong>,
-        contracting its measured length to{" "}
-        <code style={{ fontFamily: "var(--font-mono)" }}>L = L₀/γ</code>, while a sphere of radius{" "}
-        <code style={{ fontFamily: "var(--font-mono)" }}>R</code> is measured as an ellipsoid with
-        axes <code style={{ fontFamily: "var(--font-mono)" }}>(R/γ, R, R)</code>.
-      </p>
-
-      {/* Discovery Predict Mode */}
-      <section
-        className="notice"
-        style={{ margin: "1.5rem 0" }}
-        aria-label="Predict before calculating"
-      >
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-            marginBottom: "0.75rem",
-          }}
-        >
-          <h3 style={{ margin: 0 }}>Discovery mode: predict before calculating</h3>
-          <div className="button-group">
-            <button
-              type="button"
-              onClick={() => setActivePromptKey("endpoint-pair")}
-              className={`button ${activePromptKey === "endpoint-pair" ? "" : "secondary"}`}
-            >
-              Relativity of Simultaneity
-            </button>
-            <button
-              type="button"
-              onClick={() => setActivePromptKey("causal-order")}
-              className={`button ${activePromptKey === "causal-order" ? "" : "secondary"}`}
-            >
-              Invariant Causal Order
-            </button>
-          </div>
-        </div>
-
-        <p style={{ fontWeight: 500, margin: "0.5rem 0" }}>{currentPrompt.question}</p>
-
-        <div className="input-grid" style={{ margin: "0.75rem 0" }}>
-          {currentPrompt.candidates.map((c) => (
-            <label
-              key={c.id}
-              className="notice"
-              style={{
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.25rem",
-                padding: "0.65rem",
-                background:
-                  selectedCandidates[currentPrompt.id] === c.id ? "var(--wash)" : "var(--paper)",
-                border:
-                  selectedCandidates[currentPrompt.id] === c.id
-                    ? "2px solid var(--accent)"
-                    : "1px solid var(--rule)",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <input
-                  type="radio"
-                  name={`${id}-predict-${currentPrompt.id}`}
-                  value={c.id}
-                  checked={selectedCandidates[currentPrompt.id] === c.id}
-                  onChange={() =>
-                    setSelectedCandidates((prev) => ({ ...prev, [currentPrompt.id]: c.id }))
-                  }
-                  style={{ width: "auto" }}
-                />
-                <strong>{c.label}</strong>
-              </div>
-              <span className="fine">{c.description}</span>
-            </label>
-          ))}
-        </div>
-
-        {selectedCandidates[currentPrompt.id] && (
-          <div className="notice" style={{ marginTop: "0.75rem" }}>
-            <span className="eyebrow" style={{ marginRight: "0.5rem" }}>
-              Model reveal:{" "}
-            </span>
-            {currentPrompt.modelReveal}
-            {/* The assumption behind each option is shown only for the one the reader chose:
-                listed under every option before a choice, it named the right one ("= -6.0 s")
-                and the wrong ones ("Wrong sign..."). */}
-            <p className="fine" style={{ margin: "0.5rem 0 0" }}>
-              Your choice rests on:{" "}
-              {
-                currentPrompt.candidates.find((c) => c.id === selectedCandidates[currentPrompt.id])
-                  ?.separatingAssumption
-              }
-            </p>
-          </div>
-        )}
-      </section>
-
-      {/* Presets Bar */}
-      <div className="preset-list" style={{ alignItems: "center", margin: "1rem 0" }}>
-        <span className="fine" style={{ fontWeight: "bold" }}>
-          Presets:
-        </span>
-        {Object.entries(SR03_PRESETS).map(([key, item]) => (
-          <button
-            key={key}
-            type="button"
-            className="button secondary"
-            onClick={() => preset(item.parameters)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
 
       {/* Visualizations Grid */}
       <div
@@ -396,300 +270,369 @@ export function RodSimultaneityLab({
         </div>
       )}
 
-      <ExperimentSettings contents="speed, frames, rod length, sphere radius, event pair">
-        {/* Controls Form */}
-        <form
-          onSubmit={submit}
-          aria-label="Rod measurement and simultaneity settings"
-          aria-describedby={error ? `${id}-error` : undefined}
-          style={{ margin: "1.5rem 0" }}
-        >
-          <fieldset disabled={!ready}>
-            <legend>Interactive Kinematic Controls</legend>
-
-            <div className="input-grid">
-              {/* Rod Rest Frame */}
-              <div className="input-field">
-                <label htmlFor={`${id}-rest-frame`}>Rod Rest Frame</label>
-                <select
-                  id={`${id}-rest-frame`}
-                  value={draft.rodRestFrame}
-                  onChange={(e) => {
-                    const next = { ...draft, rodRestFrame: e.target.value };
-                    setDraft(next);
-                    try {
-                      apply(fromSr03Draft(next));
-                    } catch {}
-                  }}
-                  style={{ fontFamily: "var(--font-mono)" }}
-                >
-                  <option value="k">Frame k (Moving at velocity v)</option>
-                  <option value="K">Frame K (Platform at rest)</option>
-                </select>
-              </div>
-
-              {/* Measuring Frame */}
-              <div className="input-field">
-                <label htmlFor={`${id}-meas-frame`}>Measuring Observer Frame</label>
-                <select
-                  id={`${id}-meas-frame`}
-                  value={draft.measuringFrame}
-                  onChange={(e) => {
-                    const next = { ...draft, measuringFrame: e.target.value };
-                    setDraft(next);
-                    try {
-                      apply(fromSr03Draft(next));
-                    } catch {}
-                  }}
-                  style={{ fontFamily: "var(--font-mono)" }}
-                >
-                  <option value="K">Frame K (Platform observer)</option>
-                  <option value="k">Frame k (Moving observer)</option>
-                </select>
-              </div>
-
-              {/* Frame Velocity v */}
-              <div className="input-field">
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <label htmlFor={`${id}-v`}>Relative Speed v (fraction of c)</label>
-                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                    {p.v.toFixed(2)} c
-                  </span>
-                </div>
-                <input
-                  id={`${id}-v-range`}
-                  type="range"
-                  min="-0.95"
-                  max="0.95"
-                  step="0.05"
-                  value={draft.v}
-                  onChange={(e) => {
-                    const next = { ...draft, v: e.target.value };
-                    setDraft(next);
-                    try {
-                      apply(fromSr03Draft(next));
-                    } catch {}
-                  }}
-                />
-                <input
-                  id={`${id}-v`}
-                  type="number"
-                  min="-0.95"
-                  max="0.95"
-                  step="0.01"
-                  value={draft.v}
-                  onChange={(e) => {
-                    const next = { ...draft, v: e.target.value };
-                    setDraft(next);
-                    try {
-                      apply(fromSr03Draft(next));
-                    } catch {}
-                  }}
-                  style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
-                />
-              </div>
-
-              {/* Proper Length L0 */}
-              <div className="input-field">
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <label htmlFor={`${id}-l0`}>Proper Length L₀ (light-seconds)</label>
-                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                    {p.L0.toFixed(1)} ls
-                  </span>
-                </div>
-                <input
-                  id={`${id}-l0-range`}
-                  type="range"
-                  min="1"
-                  max="50"
-                  step="1"
-                  value={draft.L0}
-                  onChange={(e) => {
-                    const next = { ...draft, L0: e.target.value };
-                    setDraft(next);
-                    try {
-                      apply(fromSr03Draft(next));
-                    } catch {}
-                  }}
-                />
-                <input
-                  id={`${id}-l0`}
-                  type="number"
-                  min="0.1"
-                  max="1000"
-                  step="0.5"
-                  value={draft.L0}
-                  onChange={(e) => {
-                    const next = { ...draft, L0: e.target.value };
-                    setDraft(next);
-                    try {
-                      apply(fromSr03Draft(next));
-                    } catch {}
-                  }}
-                  style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
-                />
-              </div>
-
-              {/* Sphere Radius R */}
-              <div className="input-field">
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <label htmlFor={`${id}-r`}>Sphere Radius R (ls)</label>
-                  <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                    {p.R.toFixed(1)} ls
-                  </span>
-                </div>
-                <input
-                  id={`${id}-r-range`}
-                  type="range"
-                  min="0.5"
-                  max="10"
-                  step="0.5"
-                  value={draft.R}
-                  onChange={(e) => {
-                    const next = { ...draft, R: e.target.value };
-                    setDraft(next);
-                    try {
-                      apply(fromSr03Draft(next));
-                    } catch {}
-                  }}
-                />
-                <input
-                  id={`${id}-r`}
-                  type="number"
-                  min="0.1"
-                  max="100"
-                  step="0.1"
-                  value={draft.R}
-                  onChange={(e) => {
-                    const next = { ...draft, R: e.target.value };
-                    setDraft(next);
-                    try {
-                      apply(fromSr03Draft(next));
-                    } catch {}
-                  }}
-                  style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
-                />
-              </div>
-
-              {/* Endpoint Pair Selection */}
-              <div className="input-field">
-                <label htmlFor={`${id}-endpoint-pair`}>Endpoint Event Selection</label>
-                <select
-                  id={`${id}-endpoint-pair`}
-                  value={draft.endpointPairId}
-                  onChange={(e) => {
-                    const next = { ...draft, endpointPairId: e.target.value };
-                    setDraft(next);
-                    try {
-                      apply(fromSr03Draft(next));
-                    } catch {}
-                  }}
-                  style={{ fontFamily: "var(--font-mono)" }}
-                >
-                  <option value="platform-simultaneous">Platform-Simultaneous (dt = 0 in K)</option>
-                  <option value="frame-simultaneous">
-                    Frame-Simultaneous (dt = 0 in Measuring Frame)
-                  </option>
-                  <option value="causal-timelike">Causal Timelike (dt = 10s, dx = 5ls)</option>
-                  <option value="causal-lightlike">Causal Lightlike (dt = 10s, dx = 10ls)</option>
-                  <option value="causal-threshold">Causal Threshold (dt = 2s, dx = 10ls)</option>
-                  <option value="custom">Custom Coordinates</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Custom coordinate inputs if custom */}
-            {draft.endpointPairId === "custom" && (
-              <div className="input-grid" style={{ marginTop: "1rem" }}>
-                <div className="input-field">
-                  <label
-                    htmlFor={`${id}-t1`}
-                    className="fine"
-                    style={{ fontFamily: "var(--font-mono)" }}
-                  >
-                    E₁ t (s)
+      <div className="sr03-controls">
+        <details className="lab-predict">
+          <summary>Predict before calculating</summary>
+          {(["endpoint-pair", "causal-order"] as const).map((key) => {
+            const prompt = SR03_PROMPTS[key];
+            if (!prompt) return null;
+            const chosen = selectedCandidates[prompt.id];
+            return (
+              <fieldset key={prompt.id}>
+                <legend>{prompt.question}</legend>
+                {prompt.candidates.map((c) => (
+                  <label key={c.id} className="lab-predict-candidate">
+                    <input
+                      type="radio"
+                      name={`${id}-predict-${prompt.id}`}
+                      value={c.id}
+                      checked={chosen === c.id}
+                      onChange={() =>
+                        setSelectedCandidates((prev) => ({ ...prev, [prompt.id]: c.id }))
+                      }
+                    />
+                    <span>
+                      <strong>{c.label}.</strong> {c.description}
+                    </span>
                   </label>
-                  <input
-                    id={`${id}-t1`}
-                    type="number"
-                    value={draft.customT1 ?? "0"}
-                    onChange={(e) => setDraft({ ...draft, customT1: e.target.value })}
-                    style={{ fontFamily: "var(--font-mono)" }}
-                  />
-                </div>
-                <div className="input-field">
-                  <label
-                    htmlFor={`${id}-x1`}
-                    className="fine"
-                    style={{ fontFamily: "var(--font-mono)" }}
-                  >
-                    E₁ x (ls)
-                  </label>
-                  <input
-                    id={`${id}-x1`}
-                    type="number"
-                    value={draft.customX1 ?? "0"}
-                    onChange={(e) => setDraft({ ...draft, customX1: e.target.value })}
-                    style={{ fontFamily: "var(--font-mono)" }}
-                  />
-                </div>
-                <div className="input-field">
-                  <label
-                    htmlFor={`${id}-t2`}
-                    className="fine"
-                    style={{ fontFamily: "var(--font-mono)" }}
-                  >
-                    E₂ t (s)
-                  </label>
-                  <input
-                    id={`${id}-t2`}
-                    type="number"
-                    value={draft.customT2 ?? "0"}
-                    onChange={(e) => setDraft({ ...draft, customT2: e.target.value })}
-                    style={{ fontFamily: "var(--font-mono)" }}
-                  />
-                </div>
-                <div className="input-field">
-                  <label
-                    htmlFor={`${id}-x2`}
-                    className="fine"
-                    style={{ fontFamily: "var(--font-mono)" }}
-                  >
-                    E₂ x (ls)
-                  </label>
-                  <input
-                    id={`${id}-x2`}
-                    type="number"
-                    value={draft.customX2 ?? "10"}
-                    onChange={(e) => setDraft({ ...draft, customX2: e.target.value })}
-                    style={{ fontFamily: "var(--font-mono)" }}
-                  />
-                </div>
-              </div>
-            )}
+                ))}
+                {chosen && (
+                  <div className="lab-predict-reveal">
+                    <p>{prompt.modelReveal}</p>
+                    {/* The assumption behind each option is shown only for the one the reader
+                        chose: listed under every option before a choice, it named the right one
+                        ("= -6.0 s") and the wrong ones ("Wrong sign..."). */}
+                    <p>
+                      Your choice rests on:{" "}
+                      {prompt.candidates.find((c) => c.id === chosen)?.separatingAssumption}
+                    </p>
+                  </div>
+                )}
+              </fieldset>
+            );
+          })}
+        </details>
 
-            {error && (
-              <p id={`${id}-error`} className="notice error">
-                {error}
-              </p>
-            )}
-
-            <div className="button-group" style={{ marginTop: "1rem" }}>
-              <button type="submit" className="button">
-                Apply settings
+        <fieldset className="lab-choice">
+          <legend>Try</legend>
+          <div className="actions">
+            {Object.entries(SR03_PRESETS).map(([key, item]) => (
+              <button
+                key={key}
+                type="button"
+                className="secondary"
+                onClick={() => preset(item.parameters)}
+              >
+                {item.label}
               </button>
-              <button type="button" onClick={share} className="button secondary">
-                Copy settings link
-              </button>
-            </div>
-            {linkNote && (
-              <p className="notice" style={{ marginTop: "0.5rem" }}>
-                {linkNote}
-              </p>
-            )}
-          </fieldset>
-        </form>
-      </ExperimentSettings>
+            ))}
+          </div>
+        </fieldset>
+        <ExperimentSettings contents="speed, frames, rod length, sphere radius, event pair">
+          {/* Controls Form */}
+          <form
+            onSubmit={submit}
+            aria-label="Rod measurement and simultaneity settings"
+            aria-describedby={error ? `${id}-error` : undefined}
+            style={{ margin: "1.5rem 0" }}
+          >
+            <fieldset disabled={!ready}>
+              <legend>Interactive Kinematic Controls</legend>
+
+              <div className="input-grid">
+                {/* Rod Rest Frame */}
+                <div className="input-field">
+                  <label htmlFor={`${id}-rest-frame`}>Rod Rest Frame</label>
+                  <select
+                    id={`${id}-rest-frame`}
+                    value={draft.rodRestFrame}
+                    onChange={(e) => {
+                      const next = { ...draft, rodRestFrame: e.target.value };
+                      setDraft(next);
+                      try {
+                        apply(fromSr03Draft(next));
+                      } catch {}
+                    }}
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    <option value="k">Frame k (Moving at velocity v)</option>
+                    <option value="K">Frame K (Platform at rest)</option>
+                  </select>
+                </div>
+
+                {/* Measuring Frame */}
+                <div className="input-field">
+                  <label htmlFor={`${id}-meas-frame`}>Measuring Observer Frame</label>
+                  <select
+                    id={`${id}-meas-frame`}
+                    value={draft.measuringFrame}
+                    onChange={(e) => {
+                      const next = { ...draft, measuringFrame: e.target.value };
+                      setDraft(next);
+                      try {
+                        apply(fromSr03Draft(next));
+                      } catch {}
+                    }}
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    <option value="K">Frame K (Platform observer)</option>
+                    <option value="k">Frame k (Moving observer)</option>
+                  </select>
+                </div>
+
+                {/* Frame Velocity v */}
+                <div className="input-field">
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <label htmlFor={`${id}-v`}>Relative Speed v (fraction of c)</label>
+                    <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                      {p.v.toFixed(2)} c
+                    </span>
+                  </div>
+                  <input
+                    id={`${id}-v-range`}
+                    type="range"
+                    min="-0.95"
+                    max="0.95"
+                    step="0.05"
+                    value={draft.v}
+                    onChange={(e) => {
+                      const next = { ...draft, v: e.target.value };
+                      setDraft(next);
+                      try {
+                        apply(fromSr03Draft(next));
+                      } catch {}
+                    }}
+                  />
+                  <input
+                    id={`${id}-v`}
+                    type="number"
+                    min="-0.95"
+                    max="0.95"
+                    step="0.01"
+                    value={draft.v}
+                    onChange={(e) => {
+                      const next = { ...draft, v: e.target.value };
+                      setDraft(next);
+                      try {
+                        apply(fromSr03Draft(next));
+                      } catch {}
+                    }}
+                    style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
+                  />
+                </div>
+
+                {/* Proper Length L0 */}
+                <div className="input-field">
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <label htmlFor={`${id}-l0`}>Proper Length L₀ (light-seconds)</label>
+                    <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                      {p.L0.toFixed(1)} ls
+                    </span>
+                  </div>
+                  <input
+                    id={`${id}-l0-range`}
+                    type="range"
+                    min="1"
+                    max="50"
+                    step="1"
+                    value={draft.L0}
+                    onChange={(e) => {
+                      const next = { ...draft, L0: e.target.value };
+                      setDraft(next);
+                      try {
+                        apply(fromSr03Draft(next));
+                      } catch {}
+                    }}
+                  />
+                  <input
+                    id={`${id}-l0`}
+                    type="number"
+                    min="0.1"
+                    max="1000"
+                    step="0.5"
+                    value={draft.L0}
+                    onChange={(e) => {
+                      const next = { ...draft, L0: e.target.value };
+                      setDraft(next);
+                      try {
+                        apply(fromSr03Draft(next));
+                      } catch {}
+                    }}
+                    style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
+                  />
+                </div>
+
+                {/* Sphere Radius R */}
+                <div className="input-field">
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <label htmlFor={`${id}-r`}>Sphere Radius R (ls)</label>
+                    <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
+                      {p.R.toFixed(1)} ls
+                    </span>
+                  </div>
+                  <input
+                    id={`${id}-r-range`}
+                    type="range"
+                    min="0.5"
+                    max="10"
+                    step="0.5"
+                    value={draft.R}
+                    onChange={(e) => {
+                      const next = { ...draft, R: e.target.value };
+                      setDraft(next);
+                      try {
+                        apply(fromSr03Draft(next));
+                      } catch {}
+                    }}
+                  />
+                  <input
+                    id={`${id}-r`}
+                    type="number"
+                    min="0.1"
+                    max="100"
+                    step="0.1"
+                    value={draft.R}
+                    onChange={(e) => {
+                      const next = { ...draft, R: e.target.value };
+                      setDraft(next);
+                      try {
+                        apply(fromSr03Draft(next));
+                      } catch {}
+                    }}
+                    style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
+                  />
+                </div>
+
+                {/* Endpoint Pair Selection */}
+                <div className="input-field">
+                  <label htmlFor={`${id}-endpoint-pair`}>Endpoint Event Selection</label>
+                  <select
+                    id={`${id}-endpoint-pair`}
+                    value={draft.endpointPairId}
+                    onChange={(e) => {
+                      const next = { ...draft, endpointPairId: e.target.value };
+                      setDraft(next);
+                      try {
+                        apply(fromSr03Draft(next));
+                      } catch {}
+                    }}
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    <option value="platform-simultaneous">
+                      Platform-Simultaneous (dt = 0 in K)
+                    </option>
+                    <option value="frame-simultaneous">
+                      Frame-Simultaneous (dt = 0 in Measuring Frame)
+                    </option>
+                    <option value="causal-timelike">Causal Timelike (dt = 10s, dx = 5ls)</option>
+                    <option value="causal-lightlike">Causal Lightlike (dt = 10s, dx = 10ls)</option>
+                    <option value="causal-threshold">Causal Threshold (dt = 2s, dx = 10ls)</option>
+                    <option value="custom">Custom Coordinates</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Custom coordinate inputs if custom */}
+              {draft.endpointPairId === "custom" && (
+                <div className="input-grid" style={{ marginTop: "1rem" }}>
+                  <div className="input-field">
+                    <label
+                      htmlFor={`${id}-t1`}
+                      className="fine"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                      E₁ t (s)
+                    </label>
+                    <input
+                      id={`${id}-t1`}
+                      type="number"
+                      value={draft.customT1 ?? "0"}
+                      onChange={(e) => setDraft({ ...draft, customT1: e.target.value })}
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    />
+                  </div>
+                  <div className="input-field">
+                    <label
+                      htmlFor={`${id}-x1`}
+                      className="fine"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                      E₁ x (ls)
+                    </label>
+                    <input
+                      id={`${id}-x1`}
+                      type="number"
+                      value={draft.customX1 ?? "0"}
+                      onChange={(e) => setDraft({ ...draft, customX1: e.target.value })}
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    />
+                  </div>
+                  <div className="input-field">
+                    <label
+                      htmlFor={`${id}-t2`}
+                      className="fine"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                      E₂ t (s)
+                    </label>
+                    <input
+                      id={`${id}-t2`}
+                      type="number"
+                      value={draft.customT2 ?? "0"}
+                      onChange={(e) => setDraft({ ...draft, customT2: e.target.value })}
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    />
+                  </div>
+                  <div className="input-field">
+                    <label
+                      htmlFor={`${id}-x2`}
+                      className="fine"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                      E₂ x (ls)
+                    </label>
+                    <input
+                      id={`${id}-x2`}
+                      type="number"
+                      value={draft.customX2 ?? "10"}
+                      onChange={(e) => setDraft({ ...draft, customX2: e.target.value })}
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <p id={`${id}-error`} className="notice error">
+                  {error}
+                </p>
+              )}
+
+              <div className="button-group" style={{ marginTop: "1rem" }}>
+                <button type="submit" className="button">
+                  Apply settings
+                </button>
+                <button type="button" onClick={share} className="button secondary">
+                  Copy settings link
+                </button>
+              </div>
+              {linkNote && (
+                <p className="notice" style={{ marginTop: "0.5rem" }}>
+                  {linkNote}
+                </p>
+              )}
+            </fieldset>
+          </form>
+        </ExperimentSettings>
+      </div>
+
+      <p className="sr03-context">
+        In §2 of <em>Zur Elektrodynamik bewegter Körper</em> (1905) Einstein shows that two events
+        simultaneous for one frame are not simultaneous for another in relative motion. In §4 he
+        gives the physical meaning of a moving rod&apos;s length: the positions of its two ends,
+        taken at <strong>one instant of the measuring frame</strong>. A sphere of radius R is
+        measured the same way, along the motion and across it.
+      </p>
 
       {/* Spacetime event interval ledger */}
       <div className="notice" style={{ margin: "1.5rem 0" }}>

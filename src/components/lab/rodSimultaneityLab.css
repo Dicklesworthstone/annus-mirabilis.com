@@ -1,0 +1,11 @@
+/* SR-03, the rod and the sphere (RodSimultaneityLab.tsx). The drawings come first; the controls
+   follow them at a reading width rather than spanning the whole instrument. */
+.sr03-controls {
+  max-width: 44rem;
+  margin-block: 1.5rem;
+}
+
+.sr03-context {
+  max-width: 68ch;
+  font-size: var(--type-small);
+}
