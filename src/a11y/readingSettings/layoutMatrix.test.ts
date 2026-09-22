@@ -101,11 +101,17 @@ describe("72 tested reading layouts", () => {
 
     expect(readingCss).toContain("max-width: min(var(--reader-measure), 100%)");
     expect(layoutCss).toContain("max-width: min(var(--reader-measure), 100%)");
+    // The text's track is the measure times the desktop step, the same product the column's own
+    // max-width comes to at its stepped font, so the track and the column are one width. The
+    // companion's track is still minmax(0, 1fr): it shrinks before the text does. (This asserted
+    // the pre-step strings until 2026-09-22, and was red from 07e9e9f0, which changed the wide
+    // template to a 14-20rem companion without changing this test.)
+    expect(layoutCss).toContain("--reader-track: calc(var(--reader-measure) * var(--reader-step))");
     expect(layoutCss).toContain(
-      "grid-template-columns: minmax(0, 12rem) minmax(0, var(--reader-measure)) minmax(0, 1fr)",
+      "grid-template-columns: minmax(0, 12rem) minmax(0, var(--reader-track)) minmax(0, 1fr)",
     );
     expect(layoutCss).toContain(
-      "grid-template-columns: minmax(0, var(--reader-measure)) minmax(0, 1fr)",
+      "grid-template-columns: minmax(0, var(--reader-track)) minmax(0, 1fr)",
     );
     expect(readingCss).not.toMatch(/\[data-explanation\][^{]*\{\s*display:\s*none/);
     expect(readingCss).not.toMatch(/\[data-static-worked-case\][^{]*\{\s*display:\s*none/);
