@@ -158,6 +158,26 @@ export default function DiscoverIndex() {
             <a href="/papers/light-quanta/">Read the paper instead</a>
           </div>
         </article>
+
+        <article>
+          <p className="eyebrow">{statusWord("special-relativity")} · Ann. Phys. 17, 891</p>
+          <h2>
+            <a href="/discover/special-relativity/">On the electrodynamics of moving bodies</a>
+          </h2>
+          <p className="german-title">Zur Elektrodynamik bewegter Körper</p>
+          <p>
+            A magnet, a coil and a needle that moves. Every measurement says the two arrangements
+            are the same and the textbook of 1904 tells two different stories about them. Following
+            that honestly costs you something you have never had to defend. Eight steps, thirteen
+            instruments, and Lorentz on the shelf as a live alternative rather than a foil.
+          </p>
+          <div className="actions">
+            <a className="button" href="/discover/special-relativity/">
+              Take this route
+            </a>
+            <a href="/papers/special-relativity/">Read the paper instead</a>
+          </div>
+        </article>
       </section>
 
       <section className="reading page-flush">
@@ -171,23 +191,7 @@ export default function DiscoverIndex() {
         </p>
       </section>
 
-      <section className="journey-catalogue">
-        <article>
-          <p className="eyebrow">{statusWord("special-relativity")} · Ann. Phys. 17, 891</p>
-          <h2>
-            <a href="/papers/special-relativity/">On the electrodynamics of moving bodies</a>
-          </h2>
-          <p className="german-title">Zur Elektrodynamik bewegter Körper</p>
-          <p>
-            The route from the magnet and the coil to the measurement of time is not written. The
-            reading edition is, and so are thirteen instruments, including the one that tells both
-            stories about the magnet.
-          </p>
-          <div className="actions">
-            <a href="/papers/special-relativity/">Read the paper and its instruments</a>
-          </div>
-        </article>
-      </section>
+      <section className="journey-catalogue"></section>
     </>
   );
 }
