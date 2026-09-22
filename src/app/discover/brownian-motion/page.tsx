@@ -6,6 +6,7 @@ import {
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import type { KnowledgeCard } from "../../../discovery/cards/types.ts";
+import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = { title: "A first encounter with Brownian motion" };
@@ -210,7 +211,8 @@ export default function BrownianEncounter() {
           read without running a simulation.
         </p>
       </header>
-      <section>
+      <RouteMap slug="brownian-motion" />
+      <section id="step-01">
         <p className="step-number">01 / Choose a quantity</p>
         <h2>Averages can hide motion.</h2>
         <p>
@@ -243,7 +245,7 @@ export default function BrownianEncounter() {
           </StepDoor>
         </StepDoors>
       </section>
-      <section>
+      <section id="step-02">
         <p className="step-number">02 / Make a prediction</p>
         <h2>Four times as long. Four times as far?</h2>
         <p>
@@ -271,7 +273,7 @@ export default function BrownianEncounter() {
           </StepDoor>
         </StepDoors>
       </section>
-      <section>
+      <section id="step-03">
         <p className="step-number">03 / Ask an interval question</p>
         <h2>A curve’s height is not a probability.</h2>
         <p>
@@ -298,7 +300,7 @@ export default function BrownianEncounter() {
           </p>
         </details>
       </section>
-      <section>
+      <section id="step-04">
         <p className="step-number">04 / Turn the question around</p>
         <h2>What can a finite sample tell you?</h2>
         <p>
@@ -311,7 +313,7 @@ export default function BrownianEncounter() {
           <StepDoor href="/lab/bm-07/">Estimate the number and repeat the experiment</StepDoor>
         </StepDoors>
       </section>
-      <section>
+      <section id="step-05">
         <p className="step-number">05 / Try it yourself</p>
         <h2>Same quantity, written two ways</h2>
         <p>
@@ -322,7 +324,7 @@ export default function BrownianEncounter() {
         </p>
         <ExercisePart part={DISPLACEMENT_SCALE_EXERCISE} />
       </section>
-      <section>
+      <section id="shelf">
         <h2>The 1904 shelf</h2>
         <Shelf cards={BROWNIAN_SHELF_CARDS} />
         <p className="fine">
@@ -340,7 +342,7 @@ export default function BrownianEncounter() {
           edition.
         </p>
       </aside>
-      <section>
+      <section id="in-the-paper">
         <h2>Where this enters the paper</h2>
         <p>
           The Brownian-motion paper’s §§4–5 connect irregular displacements to diffusion and then to

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { LIGHT_QUANTA_SHELF_CARDS } from "../../../content/lightQuantaShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
@@ -51,8 +52,9 @@ export default function LightQuantaRoute() {
           can be read without running anything.
         </p>
       </header>
+      <RouteMap slug="light-quanta" />
 
-      <section>
+      <section id="step-01">
         <p className="step-number">01 / Start with what works</p>
         <h2>The wave theory is not the problem</h2>
         <p>
@@ -70,7 +72,7 @@ export default function LightQuantaRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-02">
         <p className="step-number">02 / Find the edge of the evidence</p>
         <h2>Optics measures averages</h2>
         <p>
@@ -99,7 +101,7 @@ export default function LightQuantaRoute() {
         </details>
       </section>
 
-      <section>
+      <section id="step-03">
         <p className="step-number">03 / Make a prediction</p>
         <h2>Give every vibration its fair share. What is the total?</h2>
         <p>
@@ -128,7 +130,7 @@ export default function LightQuantaRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-04">
         <p className="step-number">04 / Work where a law is solid</p>
         <h2>Pick the regime you can trust, then take its entropy</h2>
         <p>
@@ -152,7 +154,7 @@ export default function LightQuantaRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-05">
         <p className="step-number">05 / Do the same sum for something you understand</p>
         <h2>How a gas of independent things behaves</h2>
         <p>
@@ -171,7 +173,7 @@ export default function LightQuantaRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-06">
         <p className="step-number">06 / Compare the two, and read the exponent</p>
         <h2>The move</h2>
         <p>
@@ -212,7 +214,7 @@ export default function LightQuantaRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-07">
         <p className="step-number">07 / Check it against the world</p>
         <h2>Three predictions it did not have to get right</h2>
         <p>
@@ -245,7 +247,7 @@ export default function LightQuantaRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="shelf">
         <h2>The 1904 shelf</h2>
         <p>
           Everything this route uses was available to a careful reader at the end of 1904. There is
@@ -276,7 +278,7 @@ export default function LightQuantaRoute() {
         </p>
       </aside>
 
-      <section>
+      <section id="in-the-paper">
         <h2>Where this enters the paper</h2>
         <p>
           The paper runs to seventeen pages and nine numbered sections. The divergence is section 1,

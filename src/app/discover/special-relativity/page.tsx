@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SPECIAL_RELATIVITY_SHELF_CARDS } from "../../../content/specialRelativityShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
@@ -52,8 +53,9 @@ export default function SpecialRelativityRoute() {
           can be read without running anything.
         </p>
       </header>
+      <RouteMap slug="special-relativity" />
 
-      <section>
+      <section id="step-01">
         <p className="step-number">01 / Start where the paper starts</p>
         <h2>A magnet, a coil, and a needle that moves</h2>
         <p>
@@ -76,7 +78,7 @@ export default function SpecialRelativityRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-02">
         <p className="step-number">02 / Decide whether that bothers you</p>
         <h2>An asymmetry in the telling, not in the measuring</h2>
         <p>
@@ -103,7 +105,7 @@ export default function SpecialRelativityRoute() {
         </details>
       </section>
 
-      <section>
+      <section id="step-03">
         <p className="step-number">03 / Make a prediction</p>
         <h2>Can you keep both of these at once?</h2>
         <p>
@@ -130,7 +132,7 @@ export default function SpecialRelativityRoute() {
         </details>
       </section>
 
-      <section>
+      <section id="step-04">
         <p className="step-number">04 / Find the assumption</p>
         <h2>What does it take to say two distant things happened at once?</h2>
         <p>
@@ -154,7 +156,7 @@ export default function SpecialRelativityRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-05">
         <p className="step-number">05 / Build the map</p>
         <h2>The move</h2>
         <p>
@@ -174,7 +176,7 @@ export default function SpecialRelativityRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-06">
         <p className="step-number">06 / Read off the consequences</p>
         <h2>Clocks, rulers and speeds stop behaving</h2>
         <p>
@@ -201,7 +203,7 @@ export default function SpecialRelativityRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-07">
         <p className="step-number">07 / Meet the serious rival</p>
         <h2>Lorentz gets the same formulas, and is not refuted</h2>
         <p>
@@ -229,7 +231,7 @@ export default function SpecialRelativityRoute() {
         </details>
       </section>
 
-      <section>
+      <section id="step-08">
         <p className="step-number">08 / Check it against the world</p>
         <h2>Three things already measured</h2>
         <p>
@@ -248,7 +250,7 @@ export default function SpecialRelativityRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="shelf">
         <h2>The 1904 shelf</h2>
         <p>
           Nothing here is imported from later. The most interesting card is Lorentz&rsquo;s, which
@@ -279,7 +281,7 @@ export default function SpecialRelativityRoute() {
         </p>
       </aside>
 
-      <section>
+      <section id="in-the-paper">
         <h2>Where this enters the paper</h2>
         <p>
           The paper is thirty-one pages in two parts. The magnet and the coil are its opening

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { MASS_ENERGY_SHELF_CARDS } from "../../../content/massEnergyShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
@@ -53,8 +54,9 @@ export default function MassEnergyRoute() {
           can be read without running anything.
         </p>
       </header>
+      <RouteMap slug="mass-energy" />
 
-      <section>
+      <section id="step-01">
         <p className="step-number">01 / Start with a body that does nothing</p>
         <h2>Where can the energy have gone?</h2>
         <p>
@@ -80,7 +82,7 @@ export default function MassEnergyRoute() {
         </details>
       </section>
 
-      <section>
+      <section id="step-02">
         <p className="step-number">02 / Make a prediction</p>
         <h2>Is the body lighter, or is that a category error?</h2>
         <p>
@@ -102,7 +104,7 @@ export default function MassEnergyRoute() {
         </details>
       </section>
 
-      <section>
+      <section id="step-03">
         <p className="step-number">03 / Describe the same event twice</p>
         <h2>Two accounts of one emission</h2>
         <p>
@@ -140,7 +142,7 @@ export default function MassEnergyRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-04">
         <p className="step-number">04 / Subtract</p>
         <h2>What survives when the unknowns cancel</h2>
         <p>
@@ -173,7 +175,7 @@ export default function MassEnergyRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="step-05">
         <p className="step-number">05 / Read the coefficient</p>
         <h2>A number where a category error predicted none</h2>
         <p>
@@ -207,7 +209,7 @@ export default function MassEnergyRoute() {
         </StepDoors>
       </section>
 
-      <section>
+      <section id="shelf">
         <h2>The 1904 shelf, and the one thing that is not on it</h2>
         <p>
           Five of the six results below were available to a careful reader at the end of 1904. The
@@ -237,7 +239,7 @@ export default function MassEnergyRoute() {
         </p>
       </aside>
 
-      <section>
+      <section id="in-the-paper">
         <h2>Where this enters the paper</h2>
         <p>
           The paper is three pages and its title is a question rather than a claim. It sets out the

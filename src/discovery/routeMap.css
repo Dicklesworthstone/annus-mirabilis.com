@@ -1,0 +1,91 @@
+/*
+ * A ROUTE AND ITS MAP (pane %43).
+ *
+ * Until 2026-09-22 a route was one 760px column on every screen, `.reading`'s cap, with 93
+ * characters a line at 1440 (median of 27 full prose lines on /discover/brownian-motion/, BUILD
+ * 15) and 47% of the screen blank beside it, 60% at 1920. From 75rem the route's steps stand in
+ * a column to its left, as a paper's outline does on its section pages, and the text keeps a
+ * reading measure in ch so it grows with the root on a wide screen (db82e7bf) instead of staying
+ * 760px. Below 75rem the map is a short list between the introduction and the first step.
+ */
+/* Block, not the site-wide flex row every nav gets in globals.css, which set the title beside its
+   list instead of above it. */
+.route-map {
+  display: block;
+  margin: 0 0 1rem;
+}
+.route-map-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.route-map ol,
+.route-map ul {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--rule);
+}
+.route-map a {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  min-height: 44px;
+  align-content: center;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  padding: 0.4rem 0 0.4rem 0.9rem;
+  color: var(--ink);
+  font-size: var(--type-small);
+  line-height: 1.3;
+  text-decoration: none;
+}
+.route-map a:hover {
+  text-decoration: underline;
+}
+.route-map-number {
+  font-family: var(--font-sans);
+  font-size: var(--type-micro);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.encounter > section {
+  scroll-margin-top: 1.5rem;
+}
+/* One column below 75rem: the same 68ch measure the text keeps beside the map, not `.reading`'s
+   760px, which set 93 characters a line at 1440 on BUILD 15. */
+.reading.encounter {
+  max-width: 68ch;
+}
+/* From 75rem, where the map's 12rem, the gap and 68ch fit side by side. The text is a fixed track
+   so the map takes what is left: with both flexible the grid shared the free space evenly and the
+   map reached its 22rem first, leaving the text 557px at 1024. */
+@media (min-width: 75rem) {
+  .reading.encounter {
+    display: grid;
+    grid-template-columns: minmax(12rem, 22rem) 68ch;
+    column-gap: clamp(3rem, 5vw, 6rem);
+    justify-content: center;
+    align-items: start;
+    max-width: none;
+  }
+  .encounter > * {
+    grid-column: 2;
+  }
+  /* Beside the whole route, from its title to its last section, and pinned while it scrolls. */
+  .encounter > .route-map {
+    grid-column: 1;
+    grid-row: 1 / span 40;
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    margin: 0;
+    padding-top: 0.4rem;
+  }
+}
