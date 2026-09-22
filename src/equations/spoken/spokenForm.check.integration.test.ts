@@ -35,7 +35,7 @@ describe("am-eq-spoken-forms-w4f: spokenForm.check.integration tests", () => {
     assert.ok(res.errors.some((e) => e.rule === "missing-spoken-form"));
   });
 
-  test("Missing modern spoken form when modern latex differs fails with missing-accessibility-alternative", () => {
+  test("(spokenFormCheck.ts:76) Missing modern spoken form when modern latex differs fails with missing-accessibility-alternative", () => {
     const res = checkEquationAccessibility({
       id: LORENTZ_FACTOR_FIXTURE.id,
       paper: LORENTZ_FACTOR_FIXTURE.paper,
@@ -57,7 +57,7 @@ describe("am-eq-spoken-forms-w4f: spokenForm.check.integration tests", () => {
     assert.ok(modernErr, "Must emit missing-accessibility-alternative for missing modern variant");
   });
 
-  test("Missing alternate spoken form when required fails with missing-accessibility-alternative", () => {
+  test("(spokenFormCheck.ts:88) Missing alternate spoken form when required fails with missing-accessibility-alternative", () => {
     const res = checkEquationAccessibility(
       {
         id: "eq-test-missing-alt",
@@ -93,5 +93,52 @@ describe("am-eq-spoken-forms-w4f: spokenForm.check.integration tests", () => {
 
     assert.equal(res.valid, false);
     assert.ok(res.errors.some((e) => e.rule === "lint-error"));
+  });
+
+  /**
+   * am-r3qt. spokenFormCheck.ts:108 emits `lint-error` or `lint-warning` from ONE line,
+   * chosen by `finding.severity`. The error arm was driven; the warning arm was not, so the
+   * site counted as untested under a code no test produced.
+   *
+   * MEASURED FIRST: planting the warning arm reddened nothing across this file's five tests,
+   * while planting :76 and :88 each reddened exactly one existing test - those two needed a
+   * citation, not a case, and got one. This site needed a case because nothing reached it.
+   *
+   * The trigger is real rather than synthetic: lintSpokenForm's `no-x-prime-for-xi` rule
+   * warns on the phrase "x prime", which in 1905 relativity is the auxiliary Galilean
+   * coordinate of paper 3 section 3 and not the moving coordinate xi. The fixture says
+   * "x prime" in a special-relativity context, which is exactly the confusion the rule
+   * exists to flag.
+   */
+  test("(spokenFormCheck.ts:108) a warning-severity lint finding is reported as lint-warning, not lint-error", () => {
+    const res = checkEquationAccessibility({
+      id: "eq-r3qt-lint-warning",
+      paper: "special-relativity",
+      title: "A spoken form that says x prime",
+      spokenForms: {
+        printed: "x prime equals x minus v t, the auxiliary coordinate of section 3.",
+        // Required by the type. Deliberately free of the flagged phrase, so the warning
+        // below is attributable to the printed form alone.
+        modern: "The auxiliary coordinate equals x minus v times t.",
+      },
+      plainLatexPrinted: "x' = x - vt",
+    });
+
+    const warned = res.warnings.filter((d) => d.rule === "lint-warning");
+    assert.ok(
+      warned.length > 0,
+      `the warning arm of :108 must fire; got ${JSON.stringify(res.diagnostics.map((d) => d.rule))}`,
+    );
+    // The two arms of the same ternary: this input must take the warning one and not the error one.
+    assert.equal(
+      warned.every((d) => d.severity === "warning"),
+      true,
+      "a lint-warning diagnostic must carry warning severity",
+    );
+    assert.equal(
+      res.diagnostics.some((d) => d.rule === "lint-error"),
+      false,
+      "this fixture must not also trip the error arm, or the case proves nothing about :108",
+    );
   });
 });

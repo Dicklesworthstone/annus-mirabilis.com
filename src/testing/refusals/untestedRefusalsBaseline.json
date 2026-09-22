@@ -106,7 +106,6 @@
   "src/equations/monomial.ts": 0,
   "src/equations/record.ts": 0,
   "src/equations/spoken/lintSpokenForm.ts": 1,
-  "src/equations/spoken/spokenFormCheck.ts": 3,
   "src/equations/tree/parse.ts": 0,
   "src/equations/tree/schema.ts": 0,
   "src/experiments/avogadro/definition.ts": 0,
