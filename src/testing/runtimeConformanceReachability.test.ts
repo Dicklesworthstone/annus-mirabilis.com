@@ -33,6 +33,13 @@ const REL = "scripts/e2e/runtime-conformance";
  * All five arrived orphaned in 9c38a5f7, the same commit as run.ts, whose message enumerates the
  * nine assertions run.ts makes and names none of these properties. They are checks that were
  * never written, not wiring that was lost, and am-xyxk holds the decision on each.
+ *
+ * FOUR NOW, NOT FIVE. performanceMarkReader is composed into checks.ts as of am-xyxk item 4,
+ * and its entry was deleted because this test failed when it became reachable - the stale-entry
+ * arm doing its job on the person who wrote it. The claim that blocked it, that nothing emits
+ * performance marks, was measured against the fixture app's own source; the fixture drives the
+ * REAL scheduler, which calls markInput and markAccepted, and four marks are present in the
+ * page after load.
  */
 const EXPECTED_ORPHANED: ReadonlyMap<string, string> = new Map([
   [
@@ -42,10 +49,6 @@ const EXPECTED_ORPHANED: ReadonlyMap<string, string> = new Map([
   [
     "networkLogClassifier.ts",
     "Helper half of an unwritten check: nothing classifies network requests during a conformance run (checks.ts has no network handling at all). Its predicate is also tautologically tested and is filed separately.",
-  ],
-  [
-    "performanceMarkReader.ts",
-    "Helper half of an unwritten check: nothing reads performance marks during a conformance run.",
   ],
   [
     "rafSampler.ts",

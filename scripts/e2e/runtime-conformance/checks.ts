@@ -1,5 +1,6 @@
 import type { Page } from "playwright";
 import { parseInstrumentRoot } from "../domContract.ts";
+import { readSchedulerMark } from "./performanceMarkReader.ts";
 
 declare global {
   interface Window {
@@ -161,4 +162,76 @@ export async function checkPlantedStaleTeardownFails(page: Page): Promise<CheckR
   );
   if (accepted !== true) return fail("planted teardown page did not accept a stale publish");
   return pass("planted page accepts a snapshot after teardown");
+}
+
+/**
+ * The scheduler's own telemetry must describe the snapshot the page is displaying
+ * (am-xyxk item 4). `src/workers/scheduler/scheduler.ts` calls markInput at dispatch and
+ * markAccepted at publication, and the runtime fixture drives that real scheduler, so an
+ * `am:accepted` mark carrying { instanceId, actionIndex, snapshotVersion } is present in the
+ * page during a conformance run - measured live before this check was written: four marks after
+ * load, and am:accepted for runtime-analytic-a naming snapshotVersion 1 beside a DOM reporting 1.
+ *
+ * ASSERTING THAT A MARK EXISTS WOULD PROVE NOTHING. The property is agreement: a mark naming a
+ * different instance, or a stale snapshotVersion, means the telemetry a reader or a profile
+ * would trust is describing a state the page is not in. runtime-mark-mismatch.broken.html plants
+ * exactly that and checkPlantedMarkMismatchFails confirms it is caught.
+ */
+export async function checkSchedulerMarksMatchAcceptedSnapshot(
+  page: Page,
+  selector: string,
+): Promise<CheckResult> {
+  const raw = await page.evaluate(() =>
+    performance
+      .getEntriesByType("mark")
+      .filter((entry) => entry.name === "am:accepted")
+      .map((entry) => ({
+        name: entry.name,
+        detail: ((entry as PerformanceMark).detail ?? {}) as Record<string, unknown>,
+      })),
+  );
+  if (raw.length === 0) return fail("the scheduler emitted no am:accepted mark during this run");
+
+  const root = page.locator(selector).first();
+  const instanceId = await root.getAttribute("data-instance-id");
+  const snapshotVersion = await root.getAttribute("data-snapshot-version");
+  if (!instanceId || snapshotVersion === null) {
+    return fail(`${selector} publishes no instance identity to compare a mark against`);
+  }
+
+  // readSchedulerMark REFUSES a detail missing any of the three fields. Caught rather than left
+  // to propagate: checks.ts has no error handling anywhere, so an unhandled refusal here would
+  // end the run with a stack trace instead of naming the mark that was malformed.
+  let accepted: ReturnType<typeof readSchedulerMark>[];
+  try {
+    accepted = raw.map((mark) => readSchedulerMark(mark));
+  } catch (error) {
+    return fail(`an am:accepted mark was malformed: ${(error as Error).message}`);
+  }
+
+  const forInstance = accepted.filter((mark) => mark.instanceId === instanceId);
+  if (forInstance.length === 0) {
+    return fail(
+      `no am:accepted mark names ${instanceId}; the scheduler marked ${[...new Set(accepted.map((m) => m.instanceId))].join(", ")}`,
+    );
+  }
+  const latest = forInstance[forInstance.length - 1] as ReturnType<typeof readSchedulerMark>;
+  if (String(latest.snapshotVersion) !== snapshotVersion) {
+    return fail(
+      `am:accepted for ${instanceId} names snapshotVersion ${latest.snapshotVersion} while the page displays ${snapshotVersion}`,
+    );
+  }
+  return pass(
+    `am:accepted for ${instanceId} agrees with the displayed snapshotVersion ${snapshotVersion}`,
+  );
+}
+
+/** The planted page: a well-formed mark that names a version the page is not showing. */
+export async function checkPlantedMarkMismatchFails(page: Page): Promise<CheckResult> {
+  const result = await checkSchedulerMarksMatchAcceptedSnapshot(page, "#placement-a");
+  if (result.ok) return fail("planted mark-mismatch page was accepted by the mark check");
+  if (!result.message.includes("snapshotVersion 7")) {
+    return fail(`planted page failed for the wrong reason: ${result.message}`);
+  }
+  return pass("planted page's am:accepted mark disagrees with its displayed snapshot, as required");
 }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Planted scheduler mark disagreeing with the accepted snapshot</title>
+</head>
+<body data-reader-root="true" data-ready="true" data-view="reading">
+  <!--
+    The page displays snapshotVersion 1. The scheduler's own am:accepted mark says 7, for the
+    same instance. Telemetry and display disagree, which is what the check must catch: a mark
+    that merely EXISTS proves nothing, and a check asserting only its presence passes here.
+  -->
+  <div id="placement-a" data-instrument-id="rt-01" data-instance-id="runtime-analytic-a"
+       data-run-id="runtime-analytic-a/run/1" data-snapshot-version="1"
+       data-input-revision="1" data-accepted-input-revision="1"
+       data-pending="false" data-execution-label="host" data-result-status="value">
+    <p data-probe-value>12345</p>
+  </div>
+  <script>
+    performance.mark("am:input", {
+      detail: { instanceId: "runtime-analytic-a", actionIndex: 1, snapshotVersion: 0 }
+    });
+    performance.mark("am:accepted", {
+      detail: { instanceId: "runtime-analytic-a", actionIndex: 1, snapshotVersion: 7 }
+    });
+  </script>
+</body>
+</html>

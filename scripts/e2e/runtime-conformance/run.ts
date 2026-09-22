@@ -15,9 +15,11 @@ import {
   checkNoLeakedWorkers,
   checkObserverChangePreservesWorld,
   checkPlantedLeakedWorkerFails,
+  checkPlantedMarkMismatchFails,
   checkPlantedRandomnessFails,
   checkPlantedStaleTeardownFails,
   checkRouteTransitionDoesNotAdvanceRandomness,
+  checkSchedulerMarksMatchAcceptedSnapshot,
   checkSnapshotIdentityAcrossViews,
   checkStaleAfterTeardownRejected,
   checkTwoPlacementsIndependent,
@@ -147,6 +149,25 @@ export async function runRuntimeConformance(
         },
       },
       {
+        id: "scheduler-marks-match-accepted-snapshot",
+        provesBead: "am-rt-worker-scheduler-7tl",
+        run: async (p) => {
+          await p.goto(`${server.url}/runtime-conformance.html#/runtime`);
+          await waitReady(p);
+          return checkSchedulerMarksMatchAcceptedSnapshot(p, "#placement-a");
+        },
+      },
+      {
+        id: "planted-mark-mismatch-fails",
+        provesBead: "am-rt-worker-scheduler-7tl",
+        run: async (p) => {
+          await p.goto(`${server.url}/runtime-mark-mismatch.broken.html`, {
+            waitUntil: "domcontentloaded",
+          });
+          return checkPlantedMarkMismatchFails(p);
+        },
+      },
+      {
         id: "planted-leaked-worker-fails",
         provesBead: "am-rt-memory-lifecycle-5ws",
         run: async (p) => {
@@ -184,6 +205,13 @@ export async function runRuntimeConformance(
       const result = await assertion.run(page);
       const outcome = result.ok ? "passed" : "failed";
       if (!result.ok) failed += 1;
+      // EVIDENCE ON FAILURE, WHICH THIS LOOP DID NOT CAPTURE. The logger refuses a failing
+      // browser event that carries no screenshot and no DOM snapshot, so until now ANY failing
+      // assertion ended the run with that refusal and exit 2 instead of a reported failure. No
+      // assertion had ever failed, so nobody had reached the path; it surfaced the first time a
+      // planted negative was made to fail on purpose (am-xyxk item 4). AGENTS.md requires the
+      // failure-reporting path to be tested, and it could not have been from here.
+      const evidence = result.ok ? undefined : await captureEvidence(page, logRunId, assertion.id);
       logger.log({
         testId: assertion.id,
         beadId: "am-rt-browser-conformance-09i5",
@@ -195,6 +223,7 @@ export async function runRuntimeConformance(
         jsEnabled: true,
         lane: "desktop",
         message: result.message,
+        ...(evidence ? { evidence } : {}),
         extra: { assertionId: assertion.id, provesBead: assertion.provesBead },
       });
     }
@@ -204,6 +233,30 @@ export async function runRuntimeConformance(
     logger.flushSync();
   }
   return { ok: failed === 0, logPath: logger.filePath };
+}
+
+/**
+ * Retains what a reader needs to diagnose a failed assertion: the rendered page and its DOM.
+ * Mirrors the canary branch, which was the only path that captured anything.
+ */
+async function captureEvidence(
+  page: Page,
+  logRunId: string,
+  assertionId: string,
+): Promise<Readonly<{ screenshot: string; dom: string }>> {
+  const dir = resolve(
+    "artifacts/test-logs/runtime-conformance",
+    logRunId,
+    "evidence",
+    assertionId,
+    "desktop",
+  );
+  await mkdir(dir, { recursive: true });
+  const screenshot = resolve(dir, "screenshot.png");
+  const dom = resolve(dir, "dom.html");
+  await page.screenshot({ path: screenshot });
+  await writeFile(dom, await page.content());
+  return { screenshot, dom };
 }
 
 export async function writeCanaryPlaceholder(path: string): Promise<void> {
