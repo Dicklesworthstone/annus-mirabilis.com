@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-map-ansatz-time",
+  "paper": "special-relativity",
+  "argument": "arg-sr-lorentz-map",
+  "title": "Time in the moving system, up to the same scale",
+  "spoken": "The moving time is the same coefficient times t minus v x over c squared.",
+  "explanation": "Requiring light to go at c in both directions in both systems fixes the time combination: t − vx/c², times the same factor as the position.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system k moves along the x axis of the stationary system K at speed v, with |v| < c, and the two origins coincide at time zero.",
+    "Modern teaching notation. The paper writes the moving system's coordinates as xi and tau, not x′ and t′, its gamma as beta, and the speed of light as V."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-map-ansatz-time.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-map-ansatz-time.t.timeMoving",
+      "quantityId": "coordinateTimeMoving"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-map-ansatz-time.t.scale",
+          "quantityId": "transformationCoefficientA"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-map-ansatz-time.t.time",
+              "quantityId": "coordinateTimeStationary"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "quotient",
+                "numerator": {
+                  "kind": "product",
+                  "args": [
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-map-ansatz-time.t.speed",
+                      "quantityId": "frameSpeed"
+                    },
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-map-ansatz-time.t.position",
+                      "quantityId": "coordinatePositionStationary"
+                    }
+                  ],
+                  "opId": "eq-model-sr-map-ansatz-time.op.vx"
+                },
+                "denominator": {
+                  "kind": "power",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-map-ansatz-time.t.light",
+                    "quantityId": "speedOfLight"
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  },
+                  "opId": "eq-model-sr-map-ansatz-time.op.lightSquared"
+                },
+                "opId": "eq-model-sr-map-ansatz-time.op.lead"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-map-ansatz-time.op.shift"
+        }
+      ],
+      "opId": "eq-model-sr-map-ansatz-time.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.op.lead",
+      "title": "A time that depends on place",
+      "explanation": "vx over c squared is a time: distant clocks in the moving system are set differently. This term is where simultaneity stops being shared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.op.lightSquared",
+      "title": "c squared",
+      "explanation": "Divided by the square of the speed of light, the correction is small for everyday v and x.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.op.relation",
+      "title": "What it asserts",
+      "explanation": "Once light's speed is the same both ways in both systems, only one number, the common factor, remains unknown.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.op.scaled",
+      "title": "Times the same unknown factor",
+      "explanation": "The factor that multiplies the position equation.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.op.shift",
+      "title": "t corrected for position",
+      "explanation": "Subtracting that place-dependent time from t.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.op.vx",
+      "title": "Speed times position",
+      "explanation": "v times x: events farther along x get a larger correction.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V. It enters because both systems must find the same speed for light.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.t.position",
+      "title": "Position in the stationary system",
+      "explanation": "Where the event is along x, in the stationary system's coordinates.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.t.scale",
+      "title": "The factor not yet fixed",
+      "explanation": "The light conditions fix everything but this common scale. The paper carries it as phi(v) times beta and then shows phi(v) is 1.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "The speed of k relative to K. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.t.time",
+      "title": "Time in the stationary system",
+      "explanation": "When the event happens, by the stationary system's synchronized clocks.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-time.t.timeMoving",
+      "title": "Time in the moving system",
+      "explanation": "When the same event happens, by the moving system's synchronized clocks. The paper calls it tau; it is a coordinate, not the time one clock records.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The time in the moving system",
+      "nodeId": "eq-model-sr-map-ansatz-time.t.timeMoving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the same factor",
+      "nodeId": "eq-model-sr-map-ansatz-time.t.scale"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-sr-map-ansatz-time.t.time"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-map-ansatz-time.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-sr-map-ansatz-time.t.position"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-map-ansatz-time.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

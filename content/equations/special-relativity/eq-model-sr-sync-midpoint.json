@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-sync-midpoint",
+  "paper": "special-relativity",
+  "argument": "arg-sr-synchronization",
+  "title": "So B reads the midpoint",
+  "spoken": "The assigned reflection time is the midpoint of departure and return times.",
+  "explanation": "Solving the equal-times rule for B's reading: B's clock is set to read halfway between the moments the signal leaves A and returns to A.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Clocks A and B are at rest in the same system, and a light signal goes from A to B, is reflected, and returns to A.",
+    "Equal travel times out and back is the definition of B's reading, not a measurement: nothing timed at one place can test it.",
+    "Modern teaching notation. The paper writes the return reading as t′_A; here it is t_A,return, so that a prime keeps meaning the moving system."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-sync-midpoint.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-sync-midpoint.t.reflection",
+      "quantityId": "signalReflectionTimeB"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-sync-midpoint.t.departure",
+            "quantityId": "signalDepartureTimeA"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-sync-midpoint.t.return",
+            "quantityId": "signalReturnTimeA"
+          }
+        ],
+        "opId": "eq-model-sr-sync-midpoint.op.total"
+      },
+      "denominator": {
+        "kind": "number",
+        "value": "2"
+      },
+      "opId": "eq-model-sr-sync-midpoint.op.average"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-sync-midpoint.op.average",
+      "title": "Halve the sum",
+      "explanation": "Half the sum of two readings is their midpoint. If A sends at 0 s and the signal is back at 10 s, B is to read 5 s at the reflection.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-midpoint.op.relation",
+      "title": "B's reading, assigned",
+      "explanation": "The value B's clock must show for the two clocks to count as synchronous under the rule.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-midpoint.op.total",
+      "title": "Add the two readings at A",
+      "explanation": "The departure and return readings, both taken at A.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-midpoint.t.departure",
+      "title": "Reading at A as the signal leaves",
+      "explanation": "Clock A's reading at the moment the light signal leaves A. It is read at A, where the event happens, so no convention is needed to know it.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-midpoint.t.reflection",
+      "title": "The reading B is to show",
+      "explanation": "Clock B's reading at the reflection. This is the unknown the rule is for: B is far from A, so A's clock cannot be read at that event.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-midpoint.t.return",
+      "title": "Reading at A when the signal is back",
+      "explanation": "Clock A's reading when the reflected signal arrives back at A. Also read locally, at the event.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "B's reading at the reflection",
+      "nodeId": "eq-model-sr-sync-midpoint.t.reflection"
+    },
+    {
+      "text": " is halfway between "
+    },
+    {
+      "text": "A's departure reading",
+      "nodeId": "eq-model-sr-sync-midpoint.t.departure"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "A's return reading",
+      "nodeId": "eq-model-sr-sync-midpoint.t.return"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

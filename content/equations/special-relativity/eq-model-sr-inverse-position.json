@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-inverse-position",
+  "paper": "special-relativity",
+  "argument": "arg-sr-transverse-and-inverse",
+  "title": "Back to the stationary position",
+  "spoken": "The stationary position is gamma times x prime plus v t prime.",
+  "explanation": "The inverse map: seen from the moving system, the stationary system moves at −v, so the sign of v changes and the primed and unprimed coordinates swap places.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system k moves along the x axis of the stationary system K at speed v, with |v| < c, and the two origins coincide at time zero.",
+    "Modern teaching notation. The paper writes the moving system's coordinates as xi and tau, not x′ and t′, its gamma as beta, and the speed of light as V.",
+    "The inverse is the same map with v replaced by −v and the two systems' coordinates exchanged."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-inverse-position.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-inverse-position.t.position",
+      "quantityId": "coordinatePositionStationary"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-inverse-position.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-inverse-position.t.positionMoving",
+              "quantityId": "coordinatePositionMoving"
+            },
+            {
+              "kind": "product",
+              "args": [
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-sr-inverse-position.t.speed",
+                  "quantityId": "frameSpeed"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-sr-inverse-position.t.timeMoving",
+                  "quantityId": "coordinateTimeMoving"
+                }
+              ],
+              "opId": "eq-model-sr-inverse-position.op.vt"
+            }
+          ],
+          "opId": "eq-model-sr-inverse-position.op.shift"
+        }
+      ],
+      "opId": "eq-model-sr-inverse-position.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-inverse-position.op.relation",
+      "title": "What it asserts",
+      "explanation": "Applying the forward map and then this one returns every event where it started.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-position.op.scaled",
+      "title": "Scaled by the same gamma",
+      "explanation": "Gamma depends on v squared, so reversing v leaves it unchanged.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-position.op.shift",
+      "title": "x′ plus vt′",
+      "explanation": "The moving coordinates combined with the sign of v reversed.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-position.op.vt",
+      "title": "Where the stationary origin is, seen from k",
+      "explanation": "In the moving system the stationary origin moves at −v, which is why the sum has a plus.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-position.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared: 1 at rest, larger at any speed, without limit as v approaches c. The paper writes it as beta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-position.t.position",
+      "title": "Position in the stationary system",
+      "explanation": "Where the event is along x, in the stationary system's coordinates.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-position.t.positionMoving",
+      "title": "Position in the moving system",
+      "explanation": "Where the same event is along x, in the moving system's coordinates. The paper calls it xi.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-position.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "The speed of k relative to K. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-position.t.timeMoving",
+      "title": "Time in the moving system",
+      "explanation": "When the same event happens, by the moving system's synchronized clocks. The paper calls it tau; it is a coordinate, not the time one clock records.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The position in the stationary system",
+      "nodeId": "eq-model-sr-inverse-position.t.position"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-inverse-position.t.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "x′",
+      "nodeId": "eq-model-sr-inverse-position.t.positionMoving"
+    },
+    {
+      "text": " plus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-inverse-position.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t′",
+      "nodeId": "eq-model-sr-inverse-position.t.timeMoving"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

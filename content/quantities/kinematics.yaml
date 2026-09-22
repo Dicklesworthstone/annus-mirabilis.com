@@ -210,6 +210,65 @@
   frame: not-applicable
   colorRole: time-rate
 
+- id: eventSeparationTemporalStationary
+  name: Temporal event separation (stationary system)
+  description: >
+    The time between two events as the stationary system K's clocks assign it, written Delta t.
+    Frame-tagged because the same pair of events has a different time separation in k.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: coordinate
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: time-rate
+
+- id: eventSeparationTemporalMoving
+  name: Temporal event separation (moving system)
+  description: >
+    The time between the same two events as the moving system k's clocks assign it, written
+    Delta t'. Events with zero separation in K generally have a nonzero one here.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: coordinate
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: time-rate
+
+- id: signalDepartureTimeA
+  name: Signal departure time at A
+  description: >
+    The reading of clock A when a light signal leaves A for B, in the synchronization procedure
+    of section 1 (t_A in modern teaching notation).
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: coordinate
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: time-rate
+
+- id: signalReflectionTimeB
+  name: Signal reflection time at B
+  description: >
+    The reading of clock B when the signal from A is reflected there (t_B). The synchronization
+    convention assigns it; it is not measured independently of that convention.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: coordinate
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: time-rate
+
+- id: signalReturnTimeA
+  name: Signal return time at A
+  description: >
+    The reading of clock A when the signal reflected at B arrives back at A.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: coordinate
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: time-rate
+
 - id: lengthProper
   name: Proper length
   description: A rod's length in its own rest frame. Rejected legacy spelling rodLengthRest.

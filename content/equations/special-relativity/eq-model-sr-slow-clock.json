@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-slow-clock",
+  "paper": "special-relativity",
+  "argument": "arg-sr-clock-and-length",
+  "title": "At everyday speeds, the loss is tiny",
+  "spoken": "At small speed, the clock's fractional loss per coordinate second approaches one half v squared over c squared.",
+  "explanation": "The moving clock falls behind by 1 − 1/γ of each stationary-system second. For speeds much smaller than c that fraction is about half of v²/c²: at 300 m/s, about five parts in ten million million.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "A clock and a rod at rest in the moving system, which moves at speed v relative to the stationary system, with |v| < c.",
+    "Speeds much smaller than the speed of light; the approximation drops terms in the fourth power of v/c."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-slow-clock.op.relation",
+    "left": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "number",
+          "value": "1"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "quotient",
+            "numerator": {
+              "kind": "number",
+              "value": "1"
+            },
+            "denominator": {
+              "kind": "symbol",
+              "termId": "eq-model-sr-slow-clock.t.factor",
+              "quantityId": "lorentzFactor"
+            },
+            "opId": "eq-model-sr-slow-clock.op.rate"
+          }
+        }
+      ],
+      "opId": "eq-model-sr-slow-clock.op.loss"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "number",
+            "value": "2"
+          }
+        },
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "power",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-sr-slow-clock.t.speed",
+              "quantityId": "frameSpeed"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            },
+            "opId": "eq-model-sr-slow-clock.op.speedSquared"
+          },
+          "denominator": {
+            "kind": "power",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-sr-slow-clock.t.light",
+              "quantityId": "speedOfLight"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            },
+            "opId": "eq-model-sr-slow-clock.op.lightSquared"
+          },
+          "opId": "eq-model-sr-slow-clock.op.ratioSquared"
+        }
+      ],
+      "opId": "eq-model-sr-slow-clock.op.half"
+    },
+    "operator": "approx"
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-slow-clock.op.half",
+      "title": "Half of it",
+      "explanation": "The first term of the expansion of 1 − 1/γ for small v/c.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-sr-slow-clock.op.lightSquared",
+      "title": "c squared",
+      "explanation": "The square of the speed of light.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-slow-clock.op.loss",
+      "title": "What it falls behind",
+      "explanation": "One minus its rate: the part of each second the moving clock does not record.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-slow-clock.op.rate",
+      "title": "The clock's rate",
+      "explanation": "One over gamma: the fraction of a stationary-system second that passes on the moving clock.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-slow-clock.op.ratioSquared",
+      "title": "v squared over c squared",
+      "explanation": "For everyday speeds this is a very small number.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-slow-clock.op.relation",
+      "title": "Approximately equal",
+      "explanation": "Exact only in the limit of small speed. At 0.6c the left side is 0.2 and the right side 0.18.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-sr-slow-clock.op.speedSquared",
+      "title": "v squared",
+      "explanation": "The loss does not depend on the direction of motion.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-slow-clock.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared: 1 at rest, larger at any speed, without limit as v approaches c. The paper writes it as beta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-slow-clock.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V. It enters because both systems must find the same speed for light.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-slow-clock.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "The speed of k relative to K. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The fraction of each second a moving clock falls behind, one minus one over "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-slow-clock.t.factor"
+    },
+    {
+      "text": ", is about half of "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-slow-clock.t.speed"
+    },
+    {
+      "text": " squared over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-slow-clock.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

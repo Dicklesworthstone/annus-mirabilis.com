@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-map-ansatz-position",
+  "paper": "special-relativity",
+  "argument": "arg-sr-lorentz-map",
+  "title": "Position in the moving system, up to a scale",
+  "spoken": "The moving position is a common coefficient times x minus v t.",
+  "explanation": "The moving system's origin is at x = vt, so the moving position must vanish there: it is x − vt times a factor the light conditions do not yet fix.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system k moves along the x axis of the stationary system K at speed v, with |v| < c, and the two origins coincide at time zero.",
+    "Modern teaching notation. The paper writes the moving system's coordinates as xi and tau, not x′ and t′, its gamma as beta, and the speed of light as V."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-map-ansatz-position.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-map-ansatz-position.t.positionMoving",
+      "quantityId": "coordinatePositionMoving"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-map-ansatz-position.t.scale",
+          "quantityId": "transformationCoefficientA"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-map-ansatz-position.t.position",
+              "quantityId": "coordinatePositionStationary"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-map-ansatz-position.t.speed",
+                    "quantityId": "frameSpeed"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-map-ansatz-position.t.time",
+                    "quantityId": "coordinateTimeStationary"
+                  }
+                ],
+                "opId": "eq-model-sr-map-ansatz-position.op.vt"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-map-ansatz-position.op.shift"
+        }
+      ],
+      "opId": "eq-model-sr-map-ansatz-position.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-map-ansatz-position.op.relation",
+      "title": "What it asserts",
+      "explanation": "The moving position is proportional to the distance from the moving origin. The light conditions have not yet said by how much.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-position.op.scaled",
+      "title": "Times the unknown factor",
+      "explanation": "The same factor multiplies the time equation below; a single scale remains to be found.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-position.op.shift",
+      "title": "Distance from the moving origin",
+      "explanation": "x minus vt is how far the event is from the moving system's origin, measured in the stationary system.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-position.op.vt",
+      "title": "Where the moving origin is",
+      "explanation": "At time t the moving system's origin has travelled vt along x.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-position.t.position",
+      "title": "Position in the stationary system",
+      "explanation": "Where the event is along x, in the stationary system's coordinates.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-position.t.positionMoving",
+      "title": "Position in the moving system",
+      "explanation": "Where the same event is along x, in the moving system's coordinates. The paper calls it xi.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-position.t.scale",
+      "title": "The factor not yet fixed",
+      "explanation": "The light conditions fix everything but this common scale. The paper carries it as phi(v) times beta and then shows phi(v) is 1.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-position.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "The speed of k relative to K. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-map-ansatz-position.t.time",
+      "title": "Time in the stationary system",
+      "explanation": "When the event happens, by the stationary system's synchronized clocks.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The position in the moving system",
+      "nodeId": "eq-model-sr-map-ansatz-position.t.positionMoving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "an unknown factor",
+      "nodeId": "eq-model-sr-map-ansatz-position.t.scale"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-sr-map-ansatz-position.t.position"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-map-ansatz-position.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-sr-map-ansatz-position.t.time"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

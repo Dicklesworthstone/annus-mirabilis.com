@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-inverse-time",
+  "paper": "special-relativity",
+  "argument": "arg-sr-transverse-and-inverse",
+  "title": "Back to the stationary time",
+  "spoken": "The stationary time is gamma times t prime plus v x prime over c squared.",
+  "explanation": "The time half of the inverse map, with v replaced by −v. At v = 0.6c the event (t, x) = (2, 1) in units with c = 1 goes to (1.75, −0.25), and this pair of equations brings it back.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system k moves along the x axis of the stationary system K at speed v, with |v| < c, and the two origins coincide at time zero.",
+    "Modern teaching notation. The paper writes the moving system's coordinates as xi and tau, not x′ and t′, its gamma as beta, and the speed of light as V.",
+    "The inverse is the same map with v replaced by −v and the two systems' coordinates exchanged."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-inverse-time.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-inverse-time.t.time",
+      "quantityId": "coordinateTimeStationary"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-inverse-time.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-inverse-time.t.timeMoving",
+              "quantityId": "coordinateTimeMoving"
+            },
+            {
+              "kind": "quotient",
+              "numerator": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-inverse-time.t.speed",
+                    "quantityId": "frameSpeed"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-inverse-time.t.positionMoving",
+                    "quantityId": "coordinatePositionMoving"
+                  }
+                ],
+                "opId": "eq-model-sr-inverse-time.op.vx"
+              },
+              "denominator": {
+                "kind": "power",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-sr-inverse-time.t.light",
+                  "quantityId": "speedOfLight"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                },
+                "opId": "eq-model-sr-inverse-time.op.lightSquared"
+              },
+              "opId": "eq-model-sr-inverse-time.op.lead"
+            }
+          ],
+          "opId": "eq-model-sr-inverse-time.op.shift"
+        }
+      ],
+      "opId": "eq-model-sr-inverse-time.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-inverse-time.op.lead",
+      "title": "The place-dependent time, reversed",
+      "explanation": "Added rather than subtracted, because the stationary system moves at −v as seen from k.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.op.lightSquared",
+      "title": "c squared",
+      "explanation": "The square of the speed of light.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.op.relation",
+      "title": "What it asserts",
+      "explanation": "How the stationary system times an event, given the moving system's coordinates for it.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.op.scaled",
+      "title": "Scaled by the same gamma",
+      "explanation": "Unchanged by reversing v.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.op.shift",
+      "title": "t′ corrected for position",
+      "explanation": "The moving time plus the place-dependent term.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.op.vx",
+      "title": "Speed times moving position",
+      "explanation": "v times x′.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared: 1 at rest, larger at any speed, without limit as v approaches c. The paper writes it as beta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V. It enters because both systems must find the same speed for light.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.t.positionMoving",
+      "title": "Position in the moving system",
+      "explanation": "Where the same event is along x, in the moving system's coordinates. The paper calls it xi.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "The speed of k relative to K. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.t.time",
+      "title": "Time in the stationary system",
+      "explanation": "When the event happens, by the stationary system's synchronized clocks.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-inverse-time.t.timeMoving",
+      "title": "Time in the moving system",
+      "explanation": "When the same event happens, by the moving system's synchronized clocks. The paper calls it tau; it is a coordinate, not the time one clock records.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The time in the stationary system",
+      "nodeId": "eq-model-sr-inverse-time.t.time"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-inverse-time.t.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t′",
+      "nodeId": "eq-model-sr-inverse-time.t.timeMoving"
+    },
+    {
+      "text": " plus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-inverse-time.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "x′",
+      "nodeId": "eq-model-sr-inverse-time.t.positionMoving"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-inverse-time.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

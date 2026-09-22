@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-map-position",
+  "paper": "special-relativity",
+  "argument": "arg-sr-lorentz-map",
+  "title": "Position in the moving system",
+  "spoken": "The moving position is gamma times x minus v t.",
+  "explanation": "The position half of the Lorentz transformation: the distance from the moving origin, scaled by gamma.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system k moves along the x axis of the stationary system K at speed v, with |v| < c, and the two origins coincide at time zero.",
+    "Modern teaching notation. The paper writes the moving system's coordinates as xi and tau, not x′ and t′, its gamma as beta, and the speed of light as V."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-map-position.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-map-position.t.positionMoving",
+      "quantityId": "coordinatePositionMoving"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-map-position.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-map-position.t.position",
+              "quantityId": "coordinatePositionStationary"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-map-position.t.speed",
+                    "quantityId": "frameSpeed"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-map-position.t.time",
+                    "quantityId": "coordinateTimeStationary"
+                  }
+                ],
+                "opId": "eq-model-sr-map-position.op.vt"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-map-position.op.shift"
+        }
+      ],
+      "opId": "eq-model-sr-map-position.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-map-position.op.relation",
+      "title": "What it asserts",
+      "explanation": "How the moving system locates an event, given where and when the stationary system locates it.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-position.op.scaled",
+      "title": "Scaled by gamma",
+      "explanation": "At everyday speeds gamma is almost exactly 1 and this is the familiar x − vt.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-position.op.shift",
+      "title": "Distance from the moving origin",
+      "explanation": "x minus vt, measured in the stationary system.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-map-position.op.vt",
+      "title": "Where the moving origin is",
+      "explanation": "At time t the moving system's origin has travelled vt along x.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-position.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared: 1 at rest, larger at any speed, without limit as v approaches c. The paper writes it as beta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-position.t.position",
+      "title": "Position in the stationary system",
+      "explanation": "Where the event is along x, in the stationary system's coordinates.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-position.t.positionMoving",
+      "title": "Position in the moving system",
+      "explanation": "Where the same event is along x, in the moving system's coordinates. The paper calls it xi.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-map-position.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "The speed of k relative to K. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-map-position.t.time",
+      "title": "Time in the stationary system",
+      "explanation": "When the event happens, by the stationary system's synchronized clocks.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The position in the moving system",
+      "nodeId": "eq-model-sr-map-position.t.positionMoving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-map-position.t.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-sr-map-position.t.position"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-map-position.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-sr-map-position.t.time"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

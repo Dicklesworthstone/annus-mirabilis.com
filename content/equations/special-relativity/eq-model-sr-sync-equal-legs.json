@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-sync-equal-legs",
+  "paper": "special-relativity",
+  "argument": "arg-sr-synchronization",
+  "title": "The rule: out and back take equal times",
+  "spoken": "The outward assigned travel time equals the return assigned travel time.",
+  "explanation": "This is a definition of what B's clock should read, not a law found by measurement: it sets the time light takes from A to B equal to the time it takes from B back to A.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Clocks A and B are at rest in the same system, and a light signal goes from A to B, is reflected, and returns to A.",
+    "Equal travel times out and back is the definition of B's reading, not a measurement: nothing timed at one place can test it.",
+    "Modern teaching notation. The paper writes the return reading as t′_A; here it is t_A,return, so that a prime keeps meaning the moving system."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-sync-equal-legs.op.relation",
+    "left": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-sync-equal-legs.t.reflectionOut",
+          "quantityId": "signalReflectionTimeB"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-sync-equal-legs.t.departure",
+            "quantityId": "signalDepartureTimeA"
+          }
+        }
+      ],
+      "opId": "eq-model-sr-sync-equal-legs.op.outward"
+    },
+    "right": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-sync-equal-legs.t.return",
+          "quantityId": "signalReturnTimeA"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-sync-equal-legs.t.reflectionBack",
+            "quantityId": "signalReflectionTimeB"
+          }
+        }
+      ],
+      "opId": "eq-model-sr-sync-equal-legs.op.back"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-sync-equal-legs.op.back",
+      "title": "Time assigned to the return trip",
+      "explanation": "A's return reading minus B's reading: how long the light is said to take from B back to A.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-equal-legs.op.outward",
+      "title": "Time assigned to the outward trip",
+      "explanation": "B's reading minus A's departure reading: how long the light is said to take from A to B.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-equal-legs.op.relation",
+      "title": "Set the two equal",
+      "explanation": "Requiring the two trips to take equal times is the synchronization convention. It could be chosen otherwise without contradicting any single measurement at A or B.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-equal-legs.t.departure",
+      "title": "Reading at A as the signal leaves",
+      "explanation": "Clock A's reading at the moment the light signal leaves A. It is read at A, where the event happens, so no convention is needed to know it.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-equal-legs.t.reflectionBack",
+      "title": "The reading B is to show",
+      "explanation": "Clock B's reading at the reflection. This is the unknown the rule is for: B is far from A, so A's clock cannot be read at that event.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-equal-legs.t.reflectionOut",
+      "title": "The reading B is to show",
+      "explanation": "Clock B's reading at the reflection. This is the unknown the rule is for: B is far from A, so A's clock cannot be read at that event.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-sync-equal-legs.t.return",
+      "title": "Reading at A when the signal is back",
+      "explanation": "Clock A's reading when the reflected signal arrives back at A. Also read locally, at the event.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "B's reading",
+      "nodeId": "eq-model-sr-sync-equal-legs.t.reflectionOut"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "A's departure reading",
+      "nodeId": "eq-model-sr-sync-equal-legs.t.departure"
+    },
+    {
+      "text": " equals "
+    },
+    {
+      "text": "A's return reading",
+      "nodeId": "eq-model-sr-sync-equal-legs.t.return"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "B's reading",
+      "nodeId": "eq-model-sr-sync-equal-legs.t.reflectionBack"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

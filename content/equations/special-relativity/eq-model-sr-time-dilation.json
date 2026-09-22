@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-time-dilation",
+  "paper": "special-relativity",
+  "argument": "arg-sr-clock-and-length",
+  "title": "A moving clock's ticks, timed from outside",
+  "spoken": "Coordinate time between a moving clock's ticks is gamma times its proper elapsed time.",
+  "explanation": "Between two ticks of a moving clock, the stationary system's clocks record gamma times what the moving clock itself records. At 0.6c a clock shows 0.8 s while 1 s passes in the stationary system.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "A clock and a rod at rest in the moving system, which moves at speed v relative to the stationary system, with |v| < c.",
+    "The clock's two ticks happen at the same place in its own rest frame; the rod's two ends are located at the same time in the stationary system.",
+    "Modern teaching notation: Delta tau is the modern proper time, the time one clock records. It is not the paper's tau, which is the moving system's time coordinate."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-time-dilation.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-time-dilation.t.coordinate",
+      "quantityId": "eventSeparationTemporalStationary"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-time-dilation.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-time-dilation.t.proper",
+          "quantityId": "properTimeElapsed"
+        }
+      ],
+      "opId": "eq-model-sr-time-dilation.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-time-dilation.op.relation",
+      "title": "What it asserts",
+      "explanation": "A comparison of two measurements of the same pair of ticks. It does not say the clock's mechanism has slowed in its own frame.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-time-dilation.op.scaled",
+      "title": "Gamma times the clock's own time",
+      "explanation": "Gamma is at least 1, so the stationary system's time between the ticks is never shorter than the clock's.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-time-dilation.t.coordinate",
+      "title": "Time between the ticks, stationary system",
+      "explanation": "Found from two stationary clocks at the two places the ticks happen, synchronized by the section 1 rule.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-time-dilation.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared: 1 at rest, larger at any speed, without limit as v approaches c. The paper writes it as beta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-time-dilation.t.proper",
+      "title": "Time the moving clock records",
+      "explanation": "What the moving clock itself shows between the two ticks, which happen at one place in its own rest frame.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The stationary system's time between the ticks",
+      "nodeId": "eq-model-sr-time-dilation.t.coordinate"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-time-dilation.t.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the time the moving clock records",
+      "nodeId": "eq-model-sr-time-dilation.t.proper"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

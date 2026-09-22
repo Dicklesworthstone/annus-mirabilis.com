@@ -28,7 +28,8 @@
       {
         "kind": "formula",
         "latex": "\\Delta t=\\gamma\\Delta\\tau,\\qquad L=\\frac{L_0}{\\gamma}",
-        "spoken": "Coordinate time between a moving clock’s ticks is gamma times its proper elapsed time; simultaneous moving-rod length is rest length over gamma."
+        "spoken": "Coordinate time between a moving clock’s ticks is gamma times its proper elapsed time; simultaneous moving-rod length is rest length over gamma.",
+        "equations": ["eq-model-sr-time-dilation", "eq-model-sr-length-contraction"]
       },
       {
         "kind": "paragraph",
@@ -41,7 +42,8 @@
       {
         "kind": "formula",
         "latex": "1-\\frac{1}{\\gamma}\\approx\\frac{1}{2}\\frac{v^2}{c^2}",
-        "spoken": "At small speed, the clock’s fractional loss per coordinate second approaches one half v squared over c squared."
+        "spoken": "At small speed, the clock’s fractional loss per coordinate second approaches one half v squared over c squared.",
+        "equations": ["eq-model-sr-slow-clock"]
       },
       {
         "kind": "foundation",

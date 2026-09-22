@@ -28,12 +28,14 @@
       {
         "kind": "formula",
         "latex": "t_B-t_A=t_{A,\\mathrm{return}}-t_B",
-        "spoken": "The outward assigned travel time equals the return assigned travel time."
+        "spoken": "The outward assigned travel time equals the return assigned travel time.",
+        "equations": ["eq-model-sr-sync-equal-legs"]
       },
       {
         "kind": "formula",
         "latex": "t_B=\\frac{t_A+t_{A,\\mathrm{return}}}{2}",
-        "spoken": "The assigned reflection time is the midpoint of departure and return times."
+        "spoken": "The assigned reflection time is the midpoint of departure and return times.",
+        "equations": ["eq-model-sr-sync-midpoint"]
       },
       {
         "kind": "paragraph",

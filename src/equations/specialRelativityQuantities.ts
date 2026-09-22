@@ -1,11 +1,215 @@
-import type { QuantityRegistry } from "./quantities.ts";
+import type { Quantity, QuantityRegistry } from "./quantities.ts";
 
 /**
- * Modern teaching notation for the relativity paper's explanation-face formulas. Empty until the
- * paper's equation records are authored (pane %43, dispatch 43). Every entry must reuse a canonical
- * id from content/quantities/ (kinematics.yaml, electrodynamics.yaml, constants.yaml), never a glyph:
- * paper 3's beta is the modern gamma, V is the speed of light, and tau is the moving frame's time,
- * not proper time. Build entries with the `quantity` helper shape used in massEnergyQuantities.ts.
- * Dimension order is length, mass, time, temperature, current, amount.
+ * Modern teaching notation for the relativity paper's explanation-face formulas. Every entry
+ * reuses a canonical id from content/quantities/ (kinematics.yaml, constants.yaml), never a
+ * glyph: paper 3's beta is the modern gamma, V is the speed of light, and tau is the moving
+ * frame's time coordinate, not proper time. So the modern Delta tau below binds
+ * properTimeElapsed, and the moving frame's time binds coordinateTimeMoving, whatever letter a
+ * formula uses for either.
+ *
+ * Sections 1 to 5 so far. Dimension order is length, mass, time, temperature, current, amount.
  */
-export const SPECIAL_RELATIVITY_QUANTITIES: QuantityRegistry = Object.freeze({});
+const time = ["0", "0", "1", "0", "0", "0"] as const;
+const length = ["1", "0", "0", "0", "0", "0"] as const;
+const speed = ["1", "0", "-1", "0", "0", "0"] as const;
+const ratio = ["0", "0", "0", "0", "0", "0"] as const;
+function quantity(
+  id: string,
+  name: string,
+  glyph: string,
+  dimension: readonly string[],
+  unit: string,
+  semanticKind: string,
+  role: Quantity["role"],
+  definition: string,
+): Quantity {
+  return Object.freeze({
+    id,
+    name,
+    glyph,
+    dimension: Object.freeze([...dimension]),
+    unit,
+    displayUnit: unit,
+    displayPower: 0,
+    semanticKind,
+    role,
+    definition,
+  });
+}
+export const SPECIAL_RELATIVITY_QUANTITIES: QuantityRegistry = Object.freeze(
+  Object.fromEntries(
+    [
+      quantity(
+        "signalDepartureTimeA",
+        "Departure time at A",
+        "t_A",
+        time,
+        "s",
+        "clock-reading",
+        "input",
+        "The reading of clock A when the light signal leaves A for B.",
+      ),
+      quantity(
+        "signalReflectionTimeB",
+        "Reflection time at B",
+        "t_B",
+        time,
+        "s",
+        "clock-reading",
+        "result",
+        "The reading clock B is to show when the signal is reflected there. The synchronization rule assigns it; nothing measures it independently of that rule.",
+      ),
+      quantity(
+        "signalReturnTimeA",
+        "Return time at A",
+        "t_{A,\\mathrm{return}}",
+        time,
+        "s",
+        "clock-reading",
+        "input",
+        "The reading of clock A when the signal reflected at B arrives back at A.",
+      ),
+      quantity(
+        "coordinatePositionStationary",
+        "Position in the stationary system",
+        "x",
+        length,
+        "m",
+        "coordinate",
+        "input",
+        "An event's position along the direction of motion, as the stationary system assigns it.",
+      ),
+      quantity(
+        "coordinatePositionMoving",
+        "Position in the moving system",
+        "x'",
+        length,
+        "m",
+        "coordinate",
+        "result",
+        "The same event's position along the direction of motion, as the moving system assigns it.",
+      ),
+      quantity(
+        "coordinateTimeStationary",
+        "Time in the stationary system",
+        "t",
+        time,
+        "s",
+        "coordinate",
+        "input",
+        "An event's time as the stationary system's synchronized clocks assign it.",
+      ),
+      quantity(
+        "coordinateTimeMoving",
+        "Time in the moving system",
+        "t'",
+        time,
+        "s",
+        "coordinate",
+        "result",
+        "The same event's time as the moving system's synchronized clocks assign it. It is a coordinate, not the proper time of any one clock.",
+      ),
+      quantity(
+        "eventSeparationSpatial",
+        "Distance between two events",
+        "\\Delta x",
+        length,
+        "m",
+        "event-separation",
+        "input",
+        "The difference in position of two events along the direction of motion, in the stationary system.",
+      ),
+      quantity(
+        "eventSeparationTemporalStationary",
+        "Time between two events, stationary system",
+        "\\Delta t",
+        time,
+        "s",
+        "event-separation",
+        "input",
+        "The difference in time of two events as the stationary system's clocks assign it.",
+      ),
+      quantity(
+        "eventSeparationTemporalMoving",
+        "Time between two events, moving system",
+        "\\Delta t'",
+        time,
+        "s",
+        "event-separation",
+        "result",
+        "The difference in time of the same two events as the moving system's clocks assign it.",
+      ),
+      quantity(
+        "properTimeElapsed",
+        "Time a moving clock records",
+        "\\Delta\\tau",
+        time,
+        "s",
+        "proper-time",
+        "input",
+        "The time elapsed on one clock between two of its own ticks, both at the same place in the clock's rest frame. This is the modern proper time, not the paper's tau, which is the moving frame's time coordinate.",
+      ),
+      quantity(
+        "lengthProper",
+        "Rest length",
+        "L_0",
+        length,
+        "m",
+        "length",
+        "input",
+        "A rod's length measured by a ruler at rest with the rod.",
+      ),
+      quantity(
+        "lengthMeasuredStationary",
+        "Length of the moving rod",
+        "L",
+        length,
+        "m",
+        "length",
+        "result",
+        "The distance between the moving rod's two ends, located at the same time in the stationary system.",
+      ),
+      quantity(
+        "frameSpeed",
+        "Speed of the moving system",
+        "v",
+        speed,
+        "m/s",
+        "frame-speed",
+        "input",
+        "The speed of the moving system relative to the stationary one, along x. Its magnitude is less than the speed of light.",
+      ),
+      quantity(
+        "speedOfLight",
+        "Speed of light in SI",
+        "c",
+        speed,
+        "m/s",
+        "speed-of-light",
+        "constant",
+        "The modern SI speed of light, the paper's V. The same in both systems by the principle the paper adopts in section 2.",
+      ),
+      quantity(
+        "lorentzFactor",
+        "Lorentz factor",
+        "\\gamma",
+        ratio,
+        "1",
+        "lorentz-factor",
+        "result",
+        "One divided by the square root of one minus v squared over c squared. The paper writes this factor as beta; modern notation calls it gamma.",
+      ),
+      quantity(
+        "transformationCoefficientA",
+        "Undetermined scale",
+        "a(v)",
+        ratio,
+        "1",
+        "transformation-coefficient",
+        "input",
+        "The common factor the light conditions leave undetermined. Symmetry and continuity then fix it as gamma.",
+      ),
+    ].map((q) => [q.id, q]),
+  ),
+);

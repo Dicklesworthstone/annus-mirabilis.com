@@ -36,7 +36,8 @@
       {
         "kind": "formula",
         "latex": "x=\\gamma(x'+vt'),\\qquad t=\\gamma\\left(t'+\\frac{vx'}{c^2}\\right)",
-        "spoken": "The inverse transformation uses plus v and exchanges the two frames."
+        "spoken": "The inverse transformation uses plus v and exchanges the two frames.",
+        "equations": ["eq-model-sr-inverse-position", "eq-model-sr-inverse-time"]
       },
       {
         "kind": "paragraph",

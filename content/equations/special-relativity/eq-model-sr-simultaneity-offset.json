@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-simultaneity-offset",
+  "paper": "special-relativity",
+  "argument": "arg-sr-rod-events",
+  "title": "Simultaneous in one system, not in the other",
+  "spoken": "Events simultaneous in the unprimed frame have a primed time difference of minus gamma v delta x over c squared.",
+  "explanation": "Two events at the same time in the stationary system but at different places are, in the moving system, separated in time by this amount. It is the Lorentz map applied to a pair of events with no time between them.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The two events are simultaneous in the stationary system: the time between them there is zero.",
+    "The standard frame change along x, with |v| < c; event differences obey the same linear map as coordinates.",
+    "Modern teaching notation: gamma is the paper's beta, c its V."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-simultaneity-offset.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-simultaneity-offset.t.timeMoving",
+      "quantityId": "eventSeparationTemporalMoving"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "negate",
+        "argument": {
+          "kind": "product",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-simultaneity-offset.t.factor",
+              "quantityId": "lorentzFactor"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-simultaneity-offset.t.speed",
+              "quantityId": "frameSpeed"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-simultaneity-offset.t.distance",
+              "quantityId": "eventSeparationSpatial"
+            }
+          ],
+          "opId": "eq-model-sr-simultaneity-offset.op.scale"
+        }
+      },
+      "denominator": {
+        "kind": "power",
+        "base": {
+          "kind": "symbol",
+          "termId": "eq-model-sr-simultaneity-offset.t.light",
+          "quantityId": "speedOfLight"
+        },
+        "exponent": {
+          "num": 2,
+          "den": 1
+        },
+        "opId": "eq-model-sr-simultaneity-offset.op.lightSquared"
+      },
+      "opId": "eq-model-sr-simultaneity-offset.op.offset"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-simultaneity-offset.op.lightSquared",
+      "title": "c squared",
+      "explanation": "Dividing by the square of a very large speed makes the offset tiny at everyday speeds and distances.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-simultaneity-offset.op.offset",
+      "title": "A time, from a speed and a distance",
+      "explanation": "Metres per second times metres, over metres squared per second squared, leaves seconds.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-simultaneity-offset.op.relation",
+      "title": "What it asserts",
+      "explanation": "For events simultaneous in the stationary system, this is their time separation in the moving one. It does not say that anything happened to a clock.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-simultaneity-offset.op.scale",
+      "title": "Gamma, speed and distance together",
+      "explanation": "The offset grows with the speed of the moving system and with the distance between the events, and gamma scales both. The minus sign in front says which event comes first in the moving system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-simultaneity-offset.t.distance",
+      "title": "Distance between the events",
+      "explanation": "How far apart the two events are along x in the stationary system. Events at the same place get no offset.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-simultaneity-offset.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared. It is 1 at rest and grows without limit towards c.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-simultaneity-offset.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V, the same in both systems.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-simultaneity-offset.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "Signed: reversing the direction of motion reverses the sign of the result.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-simultaneity-offset.t.timeMoving",
+      "title": "Time between them in the moving system",
+      "explanation": "What the moving system's clocks give for the time between the same two events. Here it is not zero.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "When two events happen at the same time in the stationary system, "
+    },
+    {
+      "text": "the time between them in the moving system",
+      "nodeId": "eq-model-sr-simultaneity-offset.t.timeMoving"
+    },
+    {
+      "text": " is minus "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-simultaneity-offset.t.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the speed",
+      "nodeId": "eq-model-sr-simultaneity-offset.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "their distance apart",
+      "nodeId": "eq-model-sr-simultaneity-offset.t.distance"
+    },
+    {
+      "text": ", over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-simultaneity-offset.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

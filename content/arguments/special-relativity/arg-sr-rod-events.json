@@ -36,7 +36,8 @@
       {
         "kind": "formula",
         "latex": "\\Delta t=0:\\quad\\Delta t'=-\\gamma\\frac{v\\Delta x}{c^2}",
-        "spoken": "Events simultaneous in the unprimed frame have a primed time difference of minus gamma v delta x over c squared."
+        "spoken": "Events simultaneous in the unprimed frame have a primed time difference of minus gamma v delta x over c squared.",
+        "equations": ["eq-model-sr-simultaneity-offset"]
       },
       {
         "kind": "paragraph",

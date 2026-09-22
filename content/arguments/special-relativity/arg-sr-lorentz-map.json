@@ -33,7 +33,8 @@
       {
         "kind": "formula",
         "latex": "x'=a(v)(x-vt),\\qquad t'=a(v)\\left(t-\\frac{vx}{c^2}\\right)",
-        "spoken": "The light constraints give a common coefficient multiplying x minus vt and t minus vx over c squared."
+        "spoken": "The light constraints give a common coefficient multiplying x minus vt and t minus vx over c squared.",
+        "equations": ["eq-model-sr-map-ansatz-position", "eq-model-sr-map-ansatz-time"]
       },
       {
         "kind": "paragraph",
@@ -42,7 +43,12 @@
       {
         "kind": "formula",
         "latex": "\\gamma=\\frac{1}{\\sqrt{1-v^2/c^2}},\\qquad x'=\\gamma(x-vt),\\quad t'=\\gamma\\left(t-\\frac{vx}{c^2}\\right)",
-        "spoken": "The Lorentz factor is one over the square root of one minus v squared over c squared, giving the standard space and time transformation."
+        "spoken": "The Lorentz factor is one over the square root of one minus v squared over c squared, giving the standard space and time transformation.",
+        "equations": [
+          "eq-model-sr-lorentz-factor",
+          "eq-model-sr-map-position",
+          "eq-model-sr-map-time"
+        ]
       },
       {
         "kind": "foundation",

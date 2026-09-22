@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-lorentz-factor",
+  "paper": "special-relativity",
+  "argument": "arg-sr-lorentz-map",
+  "title": "The scale, fixed",
+  "spoken": "The Lorentz factor is one over the square root of one minus v squared over c squared.",
+  "explanation": "Going to the moving system and back must return every event unchanged, and the scale must not depend on the direction of motion or jump at v = 0. Those three conditions fix the factor as this.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system k moves along the x axis of the stationary system K at speed v, with |v| < c, and the two origins coincide at time zero.",
+    "Modern teaching notation. The paper writes the moving system's coordinates as xi and tau, not x′ and t′, its gamma as beta, and the speed of light as V.",
+    "The unknown factor is the same for v and −v (no direction in space is special) and equals 1 at v = 0."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-lorentz-factor.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-lorentz-factor.t.factor",
+      "quantityId": "lorentzFactor"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "number",
+        "value": "1"
+      },
+      "denominator": {
+        "kind": "root",
+        "radicand": {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "number",
+              "value": "1"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "quotient",
+                "numerator": {
+                  "kind": "power",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-lorentz-factor.t.speed",
+                    "quantityId": "frameSpeed"
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  },
+                  "opId": "eq-model-sr-lorentz-factor.op.speedSquared"
+                },
+                "denominator": {
+                  "kind": "power",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-lorentz-factor.t.light",
+                    "quantityId": "speedOfLight"
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  },
+                  "opId": "eq-model-sr-lorentz-factor.op.lightSquared"
+                },
+                "opId": "eq-model-sr-lorentz-factor.op.ratioSquared"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-lorentz-factor.op.radicand"
+        },
+        "degree": 2,
+        "opId": "eq-model-sr-lorentz-factor.op.radical"
+      },
+      "opId": "eq-model-sr-lorentz-factor.op.inverse"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.op.inverse",
+      "title": "One over it",
+      "explanation": "Dividing 1 by a number below 1 gives a number above 1. At v = 0.6c the root is 0.8 and the factor 1.25.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.op.lightSquared",
+      "title": "c squared",
+      "explanation": "The square of the speed of light.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.op.radical",
+      "title": "Its square root",
+      "explanation": "The positive root, so that the factor is 1 at rest.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.op.radicand",
+      "title": "One minus that",
+      "explanation": "Positive for every speed below c, zero at c, so no system moves at c.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.op.ratioSquared",
+      "title": "How close to light speed",
+      "explanation": "v squared over c squared is 0 at rest and approaches 1 as v approaches c.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.op.relation",
+      "title": "What it defines",
+      "explanation": "The value of the common factor. From here on the transformation has no unknowns.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.op.speedSquared",
+      "title": "v squared",
+      "explanation": "Squaring removes the direction: moving either way gives the same factor.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared: 1 at rest, larger at any speed, without limit as v approaches c. The paper writes it as beta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V. It enters because both systems must find the same speed for light.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-lorentz-factor.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "The speed of k relative to K. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The Lorentz factor",
+      "nodeId": "eq-model-sr-lorentz-factor.t.factor"
+    },
+    {
+      "text": " is one over the square root of one minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-lorentz-factor.t.speed"
+    },
+    {
+      "text": " squared over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-lorentz-factor.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

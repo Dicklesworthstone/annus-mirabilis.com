@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-length-contraction",
+  "paper": "special-relativity",
+  "argument": "arg-sr-clock-and-length",
+  "title": "A moving rod, measured at one time",
+  "spoken": "Simultaneous moving-rod length is rest length over gamma.",
+  "explanation": "Locating both ends of a moving rod at the same time in the stationary system gives its rest length divided by gamma. At 0.6c a 1 m rod measures 0.8 m.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "A clock and a rod at rest in the moving system, which moves at speed v relative to the stationary system, with |v| < c.",
+    "The clock's two ticks happen at the same place in its own rest frame; the rod's two ends are located at the same time in the stationary system.",
+    "Modern teaching notation: Delta tau is the modern proper time, the time one clock records. It is not the paper's tau, which is the moving system's time coordinate."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-length-contraction.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-length-contraction.t.length",
+      "quantityId": "lengthMeasuredStationary"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-length-contraction.t.rest",
+        "quantityId": "lengthProper"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-length-contraction.t.factor",
+        "quantityId": "lorentzFactor"
+      },
+      "opId": "eq-model-sr-length-contraction.op.divided"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-length-contraction.op.divided",
+      "title": "Rest length over gamma",
+      "explanation": "Gamma is at least 1, so the measured length is never longer than the rest length.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-length-contraction.op.relation",
+      "title": "What it asserts",
+      "explanation": "The result of one stated measurement procedure. Locate the two ends at different times and the number is different; that is a different measurement, not a different rod.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-length-contraction.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared: 1 at rest, larger at any speed, without limit as v approaches c. The paper writes it as beta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-length-contraction.t.length",
+      "title": "Length of the moving rod",
+      "explanation": "The distance between where the two ends are at one time of the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-length-contraction.t.rest",
+      "title": "Rest length",
+      "explanation": "The length a ruler at rest with the rod gives.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The moving rod's length",
+      "nodeId": "eq-model-sr-length-contraction.t.length"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "its rest length",
+      "nodeId": "eq-model-sr-length-contraction.t.rest"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-length-contraction.t.factor"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
