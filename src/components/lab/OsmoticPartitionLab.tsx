@@ -73,13 +73,24 @@ function formatResult(result: { status: string; value?: unknown }, unit: string)
  * capped so the SVG stays legible regardless of the actual particle
  * count. This drawing is never the owner of the pressure; it is
  * explicitly labeled as an illustration.
+ *
+ * The particles sit in the LEFT chamber, the one labelled "suspension". Until
+ * 2026-09-22 they were centred on the partition itself (cx = 50 + r cos θ), so half
+ * of them were drawn in the chamber labelled "pure solvent", the opposite of the
+ * situation the instrument describes.
+ *
+ * Sizes are set here, inline, because the global `svg[role="img"] text` rule sets
+ * font-size in USER units of whatever viewBox it lands in. On this 100-unit viewBox
+ * that rule drew the two labels 100px tall at 1440px, overprinting each other. The
+ * width cap keeps the drawing at illustration size, and non-scaling strokes keep
+ * the walls a few pixels thick instead of seven.
  */
 function ChamberIllustration({ count, admitted }: { count: number; admitted: boolean }) {
   const shown = Math.max(0, Math.min(count, 40));
   const dots = Array.from({ length: shown }, (_, i) => {
     const angle = i * 137.50776405; // golden angle, degrees; deterministic, not random
     const radius = 3 + (i % 5) * 2.4;
-    const cx = 50 + radius * Math.cos((angle * Math.PI) / 180);
+    const cx = 25 + radius * Math.cos((angle * Math.PI) / 180);
     const cy = 40 + radius * Math.sin((angle * Math.PI) / 180) * 0.6;
     return { cx, cy, key: i };
   });
@@ -89,16 +100,34 @@ function ChamberIllustration({ count, admitted }: { count: number; admitted: boo
       role="img"
       aria-label={`Illustration only: a chamber divided by a partition, with a representative sample of suspended particles on one side${admitted ? "" : ", drawn even though the current settings are outside the modeled dilute domain"}.`}
       className="osmotic-chamber"
+      style={{ maxWidth: "26rem", marginInline: "auto" }}
     >
-      <rect x="1" y="1" width="98" height="78" fill="none" stroke="currentColor" />
-      <line x1="50" y1="1" x2="50" y2="79" stroke="currentColor" strokeWidth="2" />
+      <rect
+        x="1"
+        y="1"
+        width="98"
+        height="78"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        vectorEffect="non-scaling-stroke"
+      />
+      <line
+        x1="50"
+        y1="1"
+        x2="50"
+        y2="79"
+        stroke="currentColor"
+        strokeWidth="3"
+        vectorEffect="non-scaling-stroke"
+      />
       {dots.map((d) => (
         <circle key={d.key} cx={d.cx} cy={d.cy} r="1.4" fill="currentColor" opacity={0.75} />
       ))}
-      <text x="25" y="76" fontSize="4" textAnchor="middle">
+      <text x="25" y="75" textAnchor="middle" style={{ fontSize: 3.4 }}>
         suspension
       </text>
-      <text x="75" y="76" fontSize="4" textAnchor="middle">
+      <text x="75" y="75" textAnchor="middle" style={{ fontSize: 3.4 }}>
         pure solvent
       </text>
     </svg>
