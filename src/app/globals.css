@@ -290,9 +290,38 @@ nav {
   gap: 1.5rem;
   font-size: var(--type-small);
 }
+/*
+ * A NAV LINK IS A THUMB TARGET, AND IT WAS 5px SHORT.
+ *
+ * Measured at 320px against build 1AlKBN8IyQSqopwnTBafX, on every route sampled: each of the six
+ * global nav links rendered 39px tall. font 15.84px, line-height 26.136px, padding 0.4rem top
+ * and bottom = 26.14 + 12.8 = 38.9. Under the 44px minimum on all 310 pages, for the control a
+ * phone reader uses most.
+ *
+ * 0.56rem gives 26.14 + 17.92 = 44.06. The width was never the problem - the narrowest link,
+ * "Papers", is 52px - so only the block padding moves.
+ *
+ * WHAT IT COSTS, MEASURED rather than estimated. I first wrote "about +5px" here from arithmetic
+ * and it was wrong: halving a 0.3rem row-gap saves half of 9.6px, not all of it. Injected into
+ * build 1AlKBN8IyQSqopwnTBafX and measured:
+ *
+ *     320px   link 39 -> 44   6 of 6 links under 44 -> 0 of 6   header 271 -> 282  (+11)
+ *     390px   link 39 -> 44   6 of 6 -> 0 of 6                  header 227 -> 235  (+8)
+ *    1280px   link 39 -> 44   6 of 6 -> 0 of 6                  header 140 -> 140  (+0)
+ *
+ * Desktop pays nothing, because the nav is one row there and the wordmark already sets the
+ * header's height. The phone pays 11px and 8px, against a header that is 271px at 320px. That is
+ * the right side of the trade: 4% more chrome for the six controls a phone reader uses most to
+ * clear the minimum target size, on all 310 pages. documentElement.scrollWidth is unchanged at
+ * every width, so nothing is taken from the page.
+ *
+ * The gap is reduced rather than removed. Adjacent 44px targets that touch have no dead zone
+ * between them, which sounds good and means a thumb landing on the boundary activates whichever
+ * side it fell on. 0.15rem keeps a 2.4px separation that a mis-tap lands in rather than on.
+ */
 nav a {
   color: var(--ink);
-  padding: 0.4rem 0;
+  padding: 0.56rem 0;
 }
 
 /*
@@ -1034,7 +1063,9 @@ samp,
    * reach is a separate finding and is left alone here.
    */
   header.site-header nav {
-    row-gap: 0.3rem;
+    /* Reduced from 0.3rem when nav links went to a 44px target: the taller targets separate
+       themselves, and the gap was paying for separation the size now provides. See `nav a`. */
+    row-gap: 0.15rem;
   }
   .header-controls {
     display: flex;
