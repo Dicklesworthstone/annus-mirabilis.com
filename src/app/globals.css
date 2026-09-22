@@ -382,6 +382,51 @@ p {
 .site-footer p {
   max-width: 70ch;
 }
+/*
+ * CHROME (pane %34): THE FOOTER AS AN EDITION'S COLOPHON.
+ *
+ * What the site is, the four papers (the end of a long paper is where a reader looks for the
+ * next), the pages about the site, and a colophon naming the typefaces and whose scans the 1905
+ * pages are. One column on a phone; from 900px the three groups share a row.
+ */
+.site-footer {
+  display: grid;
+  gap: 1.75rem 3rem;
+}
+.site-footer-name {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-serif);
+  font-size: var(--type-body);
+  font-weight: 700;
+  color: var(--ink);
+}
+.site-footer-about > p:last-child {
+  margin: 0;
+}
+.site-footer nav {
+  flex-direction: column;
+  gap: 0;
+}
+.site-footer nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+}
+.site-footer-colophon {
+  margin: 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-size: var(--type-fine);
+}
+@media (min-width: 900px) {
+  .site-footer {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .site-footer-colophon {
+    grid-column: 1 / -1;
+  }
+}
 .hero {
   padding: 5rem 0 4rem;
   max-width: 940px;

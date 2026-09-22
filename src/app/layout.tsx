@@ -53,9 +53,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
         <PermalinkRobotsManager />
-        <Suspense fallback={null}><GuidedTourTrail /></Suspense>
+        <Suspense fallback={null}>
+          <GuidedTourTrail />
+        </Suspense>
         <main id="main">{children}</main>
-        <Suspense fallback={null}><GuidedTourTrail compact /></Suspense>
+        <Suspense fallback={null}>
+          <GuidedTourTrail compact />
+        </Suspense>
         {/*
           THE FOOTER CARRIES THE PAGE THAT EXPLAINS WHAT THE SITE STORES.
           Measured 2026-09-22 across every .tsx in src/: `href="/your-data/"` appeared ZERO times.
@@ -65,18 +69,35 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           The footer is where a reader looks for it, and it is on every page.
         */}
         <footer className="site-footer">
-          <p>
-            A critical edition in preparation. The instruments here work out their own numbers and
-            say so where each one appears; none of them is a measurement of nature.
-          </p>
-          <nav aria-label="About this site">
+          <div className="site-footer-about">
+            <p className="site-footer-name">Annus Mirabilis</p>
+            <p>
+              A critical edition of the four papers Einstein sent to the Annalen der Physik in 1905,
+              in preparation. The instruments here work out their own numbers and say so where each
+              one appears; none of them is a measurement of nature.
+            </p>
+          </div>
+          {/* The four papers again at the foot, because the end of a long paper is where a reader
+              looks for the next one; the guided paths are a way of reading them, so they sit here
+              rather than among the pages about the site. */}
+          <nav aria-label="The four papers">
+            <a href="/papers/light-quanta/">Light quanta</a>
+            <a href="/papers/brownian-motion/">Brownian motion</a>
+            <a href="/papers/special-relativity/">Special relativity</a>
+            <a href="/papers/mass-energy/">Mass and energy</a>
             <a href="/tours/">Guided reading paths</a>
+          </nav>
+          <nav aria-label="About this site">
             <a href="/your-data/">What this site stores</a>
             <a href="/offline/">Read without a connection</a>
             <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com">
               Source and development plan
             </a>
           </nav>
+          <p className="site-footer-colophon">
+            Set in Newsreader, Plus Jakarta Sans and JetBrains Mono, all served from this site. The
+            1905 pages are scans of the Bell &amp; Howell / UMI microfilm, via the Internet Archive.
+          </p>
         </footer>
       </body>
     </html>
