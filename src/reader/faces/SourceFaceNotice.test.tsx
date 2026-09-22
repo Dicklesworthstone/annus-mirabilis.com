@@ -115,13 +115,16 @@ describe("a draft source face cannot be rendered without its notice", () => {
     expect(face).not.toBeNull();
     if (!face) return;
     const html = renderToStaticMarkup(<SourceFaceNotice notice={face.notice} />);
-    const persistentIndex = html.indexOf("data-source-draft-persistent");
-    expect(persistentIndex).toBeGreaterThan(-1);
     // aria-hidden sits on the persistent element, not on the aside carrying the sentence.
-    expect(html.slice(persistentIndex - 200, persistentIndex + 200)).toContain(
-      'aria-hidden="true"',
-    );
-    const asideIndex = html.indexOf("data-source-draft-notice");
-    expect(html.slice(asideIndex, asideIndex + 120)).not.toContain("aria-hidden");
+    // Each element's OWN open tag is read. This was a ±200-character window around the marker,
+    // which went negative once the label moved first in the markup, and String#slice counts a
+    // negative start from the END, so the window was empty and the check failed on correct markup.
+    const openTagAt = (marker: string) => {
+      const at = html.indexOf(marker);
+      expect(at).toBeGreaterThan(-1);
+      return html.slice(html.lastIndexOf("<", at), html.indexOf(">", at) + 1);
+    };
+    expect(openTagAt("data-source-draft-persistent")).toContain('aria-hidden="true"');
+    expect(openTagAt("data-source-draft-notice")).not.toContain("aria-hidden");
   });
 });
