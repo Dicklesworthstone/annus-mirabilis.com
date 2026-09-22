@@ -32,7 +32,8 @@ const PRESETS: readonly Preset[] = [
   {
     id: "lq-08-intensity-probe",
     name: "The Intensity Probe (Rate vs Energy)",
-    description: "Monochromatic 600 THz on hypothetical Phi = 2.0 eV with 1 mW incident power.",
+    description:
+      "Monochromatic 600 THz light on a hypothetical metal with work function 2.0 eV, at 1 mW incident power.",
     patch: {
       incidentPower: 0.001,
       frequency: 6.0e14,
@@ -155,7 +156,7 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
       },
     ],
     explanation:
-      "Because total power P = N_dot * h * nu, higher frequency means each quantum carries more energy, so fewer quanta arrive each second at fixed total power.",
+      "The lamp's power is the number of quanta arriving each second times the energy hν of each. Raise ν at fixed power and each quantum carries more, so fewer arrive each second.",
   },
   {
     promptId: "lq-08-predict-two-metals",
@@ -167,7 +168,7 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
         id: "lines-parallel",
         label: "Parallel, with different starting thresholds",
         description:
-          "The slope is a universal constant of radiation and charge, while the work function shifts the starting threshold.",
+          "In Einstein's equation the slope is h/e for every metal; the work function only moves the threshold.",
         separatingAssumption:
           "Universal quantum slope: the stopping line slope is universal and independent of the material.",
         correct: true,
@@ -192,7 +193,7 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
       },
     ],
     explanation:
-      "The slope dVs/dnu = h/e is a universal constant of radiation and charge, independent of the metal. Only the threshold frequency nu_0 = Phi / h differs.",
+      "In Einstein's §8 equation, written with modern constants, the slope of stopping potential against frequency is h/e, and nothing in it depends on the metal. The work function only moves where each line starts: at the threshold frequency, the work function divided by h. This lab draws both lines from that equation, so it shows what the equation predicts; it cannot show that real metals share one slope. Millikan measured that slope in 1916.",
   },
 ];
 
