@@ -10,7 +10,7 @@
  * never reached.
  *
  * ONE SITE IS DELIBERATELY ABSENT. csv.ts:311 refuses an "incomplete frame stamp" when
- * `c.slice(12).length !== 4`, but csv.ts:208 has already refused any row whose cell count is not
+ * `c.slice(12).length !== 4`, but csv.ts:216 has already refused any row whose cell count is not
  * exactly twelve, or exactly sixteen when the header declares frame columns. A row that reaches 372
  * therefore always has exactly four trailing cells and the guard cannot fire. It is left untested
  * and counted rather than covered by a case that would in fact land on 250.

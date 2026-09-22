@@ -7,7 +7,7 @@
  * - Zero mocks: tests use authentic records, in-memory source texts, or real file fixtures.
  *
  * Note on possibly-unreachable refusal site (reported to orchestrator):
- * - verify.ts:67 (missing-ts-kernel-fields in verifySliceKernels):
+ * - verify.ts:162 (missing-ts-kernel-fields in verifySliceKernels):
  *   verifySliceKernels iterates over the static SLICE_KERNEL_CATALOG whose entries are
  *   all valid TypeScript kernel references. Reaching this branch requires mutating or
  *   mocking the static catalog, which violates the no-mocking principle.
