@@ -126,8 +126,21 @@ body {
  * documentElement.scrollWidth stays 320, so the narrowest supported width gained
  * the row rather than an overflow. At 1280px the group is 63px over two rows,
  * because there the header is a single flex row and the control shares its width
- * with the nav; that is a smaller box than the 181px pane30 measured there before
- * any of this, so desktop did not pay for the phone.
+ * with the nav. It is NOT what sets the desktop header height: that header is
+ * 159px at every width from 960 to 1920, and the nav's two rows (98px) are the
+ * tallest child. An earlier version of this comment compared the toggle's 63px
+ * box to pane30's 181px whole-header figure and concluded "desktop did not pay
+ * for the phone". Those are different things and the comparison did not support
+ * the conclusion, so it is withdrawn rather than restated.
+ *
+ * AND A MEASUREMENT-METHOD CORRECTION, because it cost more than any fix here.
+ * Playwright's `waitUntil: "networkidle"` does NOT mean the webfonts have laid
+ * out. Measured without awaiting `document.fonts.ready`, this header read 110px
+ * at 1440 and 157 at 1280; awaiting it, both are 159. A 49px error, larger than
+ * anything this file changes, and it appears as a plausible number rather than
+ * as a failure. The phone figures above were re-checked the same way and are
+ * identical with and without the wait, which is why they stand. Every header
+ * measurement from here on awaits fonts.
  *
  * Where the 105 went, because "it got smaller" is not a measurement. The
  * fieldset was three stacked rows: the legend rendered on a line of its own
