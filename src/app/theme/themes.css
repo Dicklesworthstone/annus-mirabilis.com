@@ -123,7 +123,8 @@ body {
 }
 :root:where([data-theme]) a:not(.button):hover {
   color: var(--accent);
-  text-decoration-color: currentColor;
+  /* The underline thickens as well as changing colour, so hover is not a colour-only cue. */
+  text-decoration: underline 2px;
 }
 
 :where(button, [role="radio"], a, input, select, summary):focus-visible {
