@@ -155,12 +155,78 @@ describe("sentence division comparison keys on the printed page (am-span-recordi
   });
 });
 
-describe("the real corpus, reported rather than enforced", () => {
-  // Reported and not asserted on, deliberately. The ledgers are MACHINE DRAFTS whose paragraph
+describe("the real corpus: every printed number is pinned", () => {
+  // The harness does not ENFORCE agreement: the ledgers are MACHINE DRAFTS whose paragraph
   // structure nobody has reviewed, and the Brownian manifest was cut from plate reads, so on
-  // today's evidence a disagreement is more likely the ledger's fault. An error here would
+  // today's evidence a disagreement is more likely the ledger's fault, and an error would
   // pressure somebody into changing a plate-read division to match a machine one. The owner's
   // decision does not reopen the freeze.
+  //
+  // IT DOES PIN, WHICH IS A DIFFERENT THING, and this block failed to at first. The totals were
+  // only printed, and the completeness assertions below are true whatever those totals are, so
+  // a number in the log contradicted a sentence in the commit message that shipped with it - I
+  // wrote that the not-placeable case "is empty on every paper today" while this same run
+  // printed 1 for light-quanta and 5 for special-relativity. Nothing was watching, because a
+  // printed number with no pawl behind it is a claim nobody is holding.
+  //
+  // So every total is recorded below and compared exactly. A move in EITHER direction is a
+  // finding and fails: upward means new text the harness cannot place or a division that
+  // drifted, downward means the ledger, the manifest or the placement improved. Re-derive the
+  // number from a run and say which of those it was; never nudge it to green. Updating a
+  // recorded total is not "changing the division to match the machine" - the hazard above is
+  // about editing content, and this is about noticing that content moved.
+  const RECORDED: Readonly<
+    Record<
+      string,
+      Readonly<{
+        ledgerPages: number;
+        comparable: number;
+        notAvailable: number;
+        agreeing: number;
+        differing: number;
+        unplaceableManifestUnits: number;
+        unplaceableProposedSentences: number;
+      }>
+    >
+  > = {
+    "brownian-motion": {
+      ledgerPages: 12,
+      comparable: 12,
+      notAvailable: 0,
+      agreeing: 6,
+      differing: 6,
+      unplaceableManifestUnits: 0,
+      unplaceableProposedSentences: 0,
+    },
+    "light-quanta": {
+      ledgerPages: 17,
+      comparable: 0,
+      notAvailable: 17,
+      agreeing: 0,
+      differing: 0,
+      unplaceableManifestUnits: 0,
+      unplaceableProposedSentences: 1,
+    },
+    "mass-energy": {
+      ledgerPages: 3,
+      comparable: 0,
+      notAvailable: 3,
+      agreeing: 0,
+      differing: 0,
+      unplaceableManifestUnits: 0,
+      unplaceableProposedSentences: 0,
+    },
+    "special-relativity": {
+      ledgerPages: 31,
+      comparable: 0,
+      notAvailable: 31,
+      agreeing: 0,
+      differing: 0,
+      unplaceableManifestUnits: 0,
+      unplaceableProposedSentences: 5,
+    },
+  };
+
   const PAPERS: Readonly<Record<string, string>> = {
     "brownian-motion": "public/papers/transcripts/ap-17-549-machine-draft.txt",
     "light-quanta": "public/papers/transcripts/ap-17-132-machine-draft.txt",
@@ -196,6 +262,13 @@ describe("the real corpus, reported rather than enforced", () => {
       // A paper with no sentence coverage contributes no disagreement. This is the assertion the
       // per-paper zero-check would also pass; the planted case above is what separates them.
       if (t.comparable === 0) expect(t.differing).toBe(0);
+
+      // The pawl. Every number this test prints is compared with the recorded one, including the
+      // two the log carried unwatched.
+      expect(
+        { ...t },
+        `${slug}: a recorded total moved. Re-derive it from a run and say which way and why - upward is new unplaceable text or a drifted division, downward is an improvement in the ledger, the manifest or the placement. Do not nudge it to green.`,
+      ).toEqual({ ...RECORDED[slug] });
 
       logger.log({
         testId: `sentence-division-${slug}`,
