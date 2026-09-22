@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ConnectionMap } from "./ConnectionMap.tsx";
 
 export const metadata: Metadata = {
   title: "Connections among the four papers",
@@ -22,6 +23,7 @@ export default function ConnectionsPage() {
           difference between evidence and resemblance.
         </p>
       </header>
+      <ConnectionMap />
       <section className="reading" id="light-thread">
         <p className="eyebrow">Later modern synthesis</p>
         <h2>Light as the instrument</h2>

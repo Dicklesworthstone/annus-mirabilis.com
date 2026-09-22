@@ -1,0 +1,119 @@
+/*
+ * CHROME (pane %34): THE CONNECTIONS AS A MAP.
+ *
+ * One column per paper in received order, one row per connection, the line drawn across the
+ * papers the connection joins. The line's STYLE is the kind, so it survives a reader who cannot
+ * see colour and forced-colours mode: solid with an arrow (one paper uses another's result),
+ * dotted (separate routes to one number), dashed (a shared piece of mathematics), double (a link
+ * drawn by later physics). Every row also says in words which papers it joins.
+ */
+.connection-map {
+  --map-cols: minmax(0, 1fr) repeat(4, minmax(0, 1fr));
+  margin: 0 0 3rem;
+  font-family: var(--font-sans);
+}
+.connection-map ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.connection-map-papers {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--type-fine);
+  font-weight: 700;
+}
+.connection-map-papers > li {
+  padding-right: 0.5rem;
+  text-align: center;
+}
+.connection-map-row {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.connection-map-row > a {
+  display: grid;
+  gap: 0.15rem;
+  min-height: 44px;
+  text-decoration: none;
+}
+.connection-map-kind {
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.connection-map-what {
+  font-size: var(--type-fine);
+  line-height: 1.35;
+}
+.connection-map-joins {
+  color: var(--muted);
+}
+:root .connection-map-row > a:hover .connection-map-what {
+  color: var(--accent);
+  text-decoration: underline 2px;
+}
+.connection-map-track {
+  position: relative;
+  display: block;
+  height: 1.5rem;
+}
+.connection-map-line {
+  position: absolute;
+  top: 50%;
+  left: calc((var(--from) - 0.5) / 4 * 100%);
+  right: calc((4.5 - var(--to)) / 4 * 100%);
+  border-top: 2px solid var(--ink);
+  transform: translateY(-50%);
+}
+.connection-map-dot {
+  position: absolute;
+  top: 50%;
+  left: calc((var(--col) - 0.5) / 4 * 100%);
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  transform: translate(-50%, -50%);
+}
+.connection-map-borrows .connection-map-line::after {
+  content: "";
+  position: absolute;
+  right: 0.45rem;
+  top: -0.4rem;
+  border-left: 0.6rem solid var(--ink);
+  border-top: 0.35rem solid transparent;
+  border-bottom: 0.35rem solid transparent;
+}
+.connection-map-same-number .connection-map-line {
+  border-top: 3px dotted var(--ink);
+}
+.connection-map-same-maths .connection-map-line {
+  border-top: 2px dashed var(--ink);
+}
+.connection-map-later .connection-map-line {
+  border-top: 4px double var(--ink);
+}
+@media (min-width: 900px) {
+  .connection-map-papers,
+  .connection-map-row {
+    grid-template-columns: var(--map-cols);
+    align-items: center;
+  }
+  .connection-map-papers > li:first-child {
+    grid-column: 2;
+  }
+  .connection-map-row > a {
+    padding-right: 1.5rem;
+  }
+  .connection-map-track {
+    grid-column: 2 / -1;
+  }
+}
