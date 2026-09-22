@@ -109,8 +109,15 @@ export function ReadingSettingsPanel() {
   return (
     <details className="reading-settings" data-reading-settings>
       <summary>Reading preferences</summary>
-      <fieldset>
-        <legend>{READING_SETTING_LABELS.readingOnly}</legend>
+      {/*
+        NO fieldset/legend HERE, and that is the fix for the duplicated "Reading-only".
+        A fieldset groups SEVERAL controls under one name; the other four below genuinely do that
+        for their radio groups. This one wrapped a SINGLE checkbox whose own label is the same
+        string, so the name was rendered twice in a row and announced twice by a screen reader -
+        "Reading-only, Reading-only checkbox". It read as two controls in the extracted text and
+        was one. The checkbox's label is the accessible name; nothing else is needed.
+      */}
+      <div className="reading-setting">
         <label>
           <input
             type="checkbox"
@@ -126,7 +133,7 @@ export function ReadingSettingsPanel() {
           {READING_SETTING_LABELS.readingOnly}
         </label>
         <p className="hint">{READING_SETTING_LABELS.readingOnlyHelp}</p>
-      </fieldset>
+      </div>
       <fieldset>
         <legend>{READING_SETTING_LABELS.measure}</legend>
         {MEASURE_VALUES.map((value) => (

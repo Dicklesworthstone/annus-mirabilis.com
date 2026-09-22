@@ -48,8 +48,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <SearchLauncher />
             <NotebookLauncher />
           </nav>
-          <ReadingSettingsPanel />
-          <ThemeToggle />
+          <div className="header-controls">
+            <ReadingSettingsPanel />
+            <ThemeToggle />
+          </div>
         </header>
         <PermalinkRobotsManager />
         <main id="main">{children}</main>
