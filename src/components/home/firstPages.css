@@ -176,14 +176,22 @@
   margin: 0.4rem 0 0;
 }
 @media (min-width: 1100px) {
+  /* The sentence's last line sits on the headline's baseline. `end` aligned their boxes instead,
+     which left the sentence well above the headline once the lead's margin and the h1's leading
+     were counted; it stays as the fallback where last-baseline alignment is unsupported. */
   .hero-with-plates-head {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 3rem;
     align-items: end;
   }
+  @supports (align-items: last baseline) {
+    .hero-with-plates-head {
+      align-items: last baseline;
+    }
+  }
   .hero-with-plates-head .lead {
-    margin-top: 0;
+    margin: 0;
   }
 }
 /* The home page's longer introduction, moved below the plates to open the paper catalogue. */
