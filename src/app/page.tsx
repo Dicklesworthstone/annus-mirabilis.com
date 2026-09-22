@@ -90,7 +90,9 @@ export default function Home() {
           <h2>
             <a href="/papers/mass-energy/">Does inertia depend on energy content?</a>
           </h2>
-          <p className="german-title">Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?</p>
+          <p className="german-title">
+            Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?
+          </p>
           <p>
             Three pages, and the title is a question rather than a claim. Einstein writes down the
             energy of one body twice, once from rest and once from a frame gliding past, lets it
@@ -113,8 +115,10 @@ export default function Home() {
         <Formula latex={String.raw`K_0 - K_1 = \frac{L}{V^2}\,\frac{v^2}{2}`} />
         <p>
           <em>L</em> is the energy the body has just given off, <em>V</em> is the speed of light,
-          and <em>K</em><sub>0</sub> &minus; <em>K</em><sub>1</sub> is the kinetic energy it has lost
-          in doing so. Set that beside the schoolroom&rsquo;s <em>½mv</em>
+          and <em>K</em>
+          <sub>0</sub> &minus; <em>K</em>
+          <sub>1</sub> is the kinetic energy it has lost in doing so. Set that beside the
+          schoolroom&rsquo;s <em>½mv</em>
           <sup>2</sup> and the quantity <em>L</em>/<em>V</em>
           <sup>2</sup> is sitting exactly where a mass belongs. That is the argument. The formula
           everyone can recite is not on the page: this paper never writes it.

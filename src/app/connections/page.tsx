@@ -16,10 +16,10 @@ export default function ConnectionsPage() {
         <p className="lead">
           The four papers share more than a year. The same constants, the same counting arguments
           and the same light pulse turn up in several of them, and the connections are of several
-          kinds: a premise one paper borrows from another; a shared piece of mathematics and
-          nothing more; separate routes that arrive at the same number; a link drawn by physicists
-          decades later. This page says which kind each one is, because the difference between them
-          is the difference between evidence and resemblance.
+          kinds: a premise one paper borrows from another; a shared piece of mathematics and nothing
+          more; separate routes that arrive at the same number; a link drawn by physicists decades
+          later. This page says which kind each one is, because the difference between them is the
+          difference between evidence and resemblance.
         </p>
       </header>
       <section className="reading" id="light-thread">

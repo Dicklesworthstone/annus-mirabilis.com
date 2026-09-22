@@ -17,9 +17,7 @@ export function CollisionClusterView({ clusters }: CollisionClusterViewProps) {
   return (
     <section className="collision-cluster-section" aria-labelledby="collision-section-heading">
       <div className="collision-cluster-header">
-        <h2 id="collision-section-heading">
-          Where one symbol means two different things
-        </h2>
+        <h2 id="collision-section-heading">Where one symbol means two different things</h2>
         <p>
           In 1905 physics, identical symbols represent fundamentally different quantities across
           papers, within sections of the same paper, or when switching between historical and modern

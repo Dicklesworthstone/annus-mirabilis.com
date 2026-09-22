@@ -137,10 +137,10 @@ export default function Papers() {
       <section className="reading">
         <h2>The molecular-dimensions companion</h2>
         <p>
-          Einstein&rsquo;s doctoral dissertation, <span lang="de">Eine neue Bestimmung der
-          Moleküldimensionen</span>, belongs beside the Brownian paper: it gets at the same
-          molecular quantities by a different route. It is a planned companion record and there is
-          nothing to read here yet.
+          Einstein&rsquo;s doctoral dissertation,{" "}
+          <span lang="de">Eine neue Bestimmung der Moleküldimensionen</span>, belongs beside the
+          Brownian paper: it gets at the same molecular quantities by a different route. It is a
+          planned companion record and there is nothing to read here yet.
         </p>
       </section>
     </>
