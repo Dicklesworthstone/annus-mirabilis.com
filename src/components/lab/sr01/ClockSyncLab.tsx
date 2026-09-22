@@ -197,31 +197,51 @@ export function ClockSyncLab({
         ))}
       </div>
 
-      <table className="event-ledger" data-view="table-event-ledger">
-        <caption>Event ledger (frame of description: v/c = {p.frameBeta})</caption>
-        <thead>
-          <tr>
-            <th scope="col">Event</th>
-            <th scope="col">Kind</th>
-            <th scope="col">Clock</th>
-            <th scope="col">Clock's own reading (s)</th>
-            <th scope="col">Coordinate time (s)</th>
-            <th scope="col">Coordinate position (ls)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ledger.rows.map((row) => (
-            <tr key={row.id} data-event-id={row.id}>
-              <td>{row.id}</td>
-              <td>{row.kind}</td>
-              <td>{row.clockId}</td>
-              <td>{row.ownClockReading}</td>
-              <td>{row.t}</td>
-              <td>{row.x}</td>
+      {/*
+        A six-column ledger whose content cannot fit a phone: measured 437px against viewports of
+        320, 360 and 390, so the document overflowed at every phone width. A table is at least its
+        min-content width, so nothing in CSS on the table itself can contain it; it needs a
+        container, and .table-scroll is the house one (globals.css, am-14at).
+
+        The tabIndex and the name ship WITH the container, not after it. Letting a region scroll is
+        the move that makes its off-screen columns unreachable by keyboard, so a container without
+        a tab stop trades a visual defect for an access defect - which is what 8ece778c did on
+        /notation/ and f6f8a9ea had to repair (am-bc6s). RECORDED_NON_OVERFLOWING is not the
+        honest alternative here: it admits only a region measured at diff 0, and this one is 437
+        against 320.
+      */}
+      <section
+        className="table-scroll"
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns cannot be reached by keyboard at all (am-bc6s)
+        tabIndex={0}
+        aria-label="Event ledger: each event with its kind, clock, the clock's own reading, coordinate time and coordinate position"
+      >
+        <table className="event-ledger" data-view="table-event-ledger">
+          <caption>Event ledger (frame of description: v/c = {p.frameBeta})</caption>
+          <thead>
+            <tr>
+              <th scope="col">Event</th>
+              <th scope="col">Kind</th>
+              <th scope="col">Clock</th>
+              <th scope="col">Clock's own reading (s)</th>
+              <th scope="col">Coordinate time (s)</th>
+              <th scope="col">Coordinate position (ls)</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {ledger.rows.map((row) => (
+              <tr key={row.id} data-event-id={row.id}>
+                <td>{row.id}</td>
+                <td>{row.kind}</td>
+                <td>{row.clockId}</td>
+                <td>{row.ownClockReading}</td>
+                <td>{row.t}</td>
+                <td>{row.x}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
 
       <dl className="derived-outputs">
         <dt>Assigned remote time (stated procedure)</dt>
