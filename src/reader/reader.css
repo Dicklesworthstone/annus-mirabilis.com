@@ -2219,3 +2219,33 @@ html:is(
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Sperrsatz, and the printed marks that come with it.
+
+   German printers of 1905 emphasised by letter-spacing upright type where English
+   printers used italics. The ledger records it as [[SPERR]]...[[/SPERR]] and
+   sourceMarkup.tsx renders it as <em>, because it IS emphasis and must reach a
+   screen reader and a no-CSS reader as such. This rule supplies the visual form
+   and therefore has to UNDO the italic <em> carries by default: setting
+   Maxwell-Hertzschen in italics would be a different typographic claim from the
+   one the compositor made.
+
+   The negative margin removes the trailing letter-space that would otherwise sit
+   between the last letter and the following space or comma.
+   --------------------------------------------------------------------------- */
+.source-sperr {
+  font-style: normal;
+  letter-spacing: 0.14em;
+  margin-inline-end: -0.14em;
+}
+.source-footnote-mark {
+  font-size: 0.75em;
+  line-height: 1;
+  vertical-align: super;
+}
+.source-equation-label {
+  font-variant-numeric: tabular-nums;
+  margin-inline-start: 0.6em;
+  color: var(--muted);
+}
