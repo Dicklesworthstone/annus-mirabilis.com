@@ -1,3 +1,4 @@
+import { Formula } from "../components/edition/Formula.tsx";
 export default function Home() {
   return (
     <>
@@ -101,6 +102,27 @@ export default function Home() {
             <a href="/lab/me-02/">Follow the subtraction</a>
           </div>
         </article>
+      </section>
+
+      <section className="reading">
+        <h2>What the printed page actually says</h2>
+        <p>
+          The fourth paper runs to three pages and comes down to one line, in the notation it was
+          set in:
+        </p>
+        <Formula latex={String.raw`K_0 - K_1 = \frac{L}{V^2}\,\frac{v^2}{2}`} />
+        <p>
+          <em>L</em> is the energy the body has just given off, <em>V</em> is the speed of light,
+          and <em>K</em><sub>0</sub> &minus; <em>K</em><sub>1</sub> is the kinetic energy it has lost
+          in doing so. Set that beside the schoolroom&rsquo;s <em>½mv</em>
+          <sup>2</sup> and the quantity <em>L</em>/<em>V</em>
+          <sup>2</sup> is sitting exactly where a mass belongs. That is the argument. The formula
+          everyone can recite is not on the page: this paper never writes it.
+        </p>
+        <p className="fine">
+          Ann. Phys. (4) 18, 639&ndash;641 (1905), p. 641, received 27 September. Transcribed here
+          from the pinned facsimile; all three pages are set.
+        </p>
       </section>
 
       <section className="reading">
