@@ -3,7 +3,7 @@ import { ClockSyncComparison } from "../../../components/lab/sr01/ClockSyncLab.t
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr01/session.ts";
 
 export const metadata: Metadata = {
-  title: "Clock synchronization with the event ledger (SR-01)",
+  title: "Clock synchronization with the event ledger",
 };
 
 export default function ClockSyncPage() {

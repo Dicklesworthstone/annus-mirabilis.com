@@ -6,7 +6,7 @@ import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr06/session.ts";
 import "./composition.css";
 
 export const metadata: Metadata = {
-  title: "SR-06: Velocity composition",
+  title: "Velocity composition",
 };
 
 export default function VelocityCompositionPage() {
@@ -16,7 +16,7 @@ export default function VelocityCompositionPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Special relativity · Kinematics §5</p>
+        <p className="eyebrow">SR-06 · Special relativity · Kinematics §5</p>
         <h1>
           Speeds do not
           <br />

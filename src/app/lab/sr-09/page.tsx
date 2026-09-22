@@ -5,7 +5,7 @@ import { validateSr09Parameters } from "../../../experiments/sr09/parameters.ts"
 import example from "../../../generated/sr09-example.json";
 
 export const metadata: Metadata = {
-  title: "SR-09: Doppler principle and aberration",
+  title: "Doppler principle and aberration",
 };
 
 export default function DopplerAberrationPage() {

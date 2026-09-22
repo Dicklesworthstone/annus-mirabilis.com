@@ -4,7 +4,7 @@ import { PhotoelectricComparison } from "../../../components/lab/lq08/Photoelect
 import example from "../../../generated/lq08-example.json";
 
 export const metadata: Metadata = {
-  title: "LQ-08: Photoelectric apparatus and stopping potential",
+  title: "Photoelectric apparatus and stopping potential",
 };
 
 export default function PhotoelectricPage() {

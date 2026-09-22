@@ -4,7 +4,7 @@ import { ModeAllocationLab } from "../../../components/lab/ModeAllocationLab.tsx
 import { DEFAULT_LQ02_INPUTS } from "../../../experiments/lq02/session.ts";
 
 export const metadata: Metadata = {
-  title: "LQ-02: Classical mode-energy allocation",
+  title: "Classical mode-energy allocation",
 };
 
 export default function ModeAllocationPage() {

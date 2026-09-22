@@ -5,7 +5,7 @@ import { validateSr08Parameters } from "../../../experiments/sr08/parameters.ts"
 import example from "../../../generated/sr08-example.json";
 
 export const metadata: Metadata = {
-  title: "SR-08: Electric and magnetic frame change",
+  title: "Electric and magnetic frame change",
 };
 
 export default function FieldFrameChangePage() {

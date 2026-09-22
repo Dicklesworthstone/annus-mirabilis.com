@@ -4,7 +4,7 @@ import { LQ05_DEFAULTS } from "../../../experiments/lq05/definition.ts";
 import { evaluateLq05, type PreparedLq05Example } from "../../../experiments/lq05/session.ts";
 
 export const metadata: Metadata = {
-  title: "LQ-05: Independent configurations and Boltzmann entropy",
+  title: "Independent configurations and Boltzmann entropy",
   description:
     "Boltzmann's principle S - S_0 = k_B ln W gives an entropy that depends on volume as n ln V, and locking the positions shows where statistical independence enters.",
 };
@@ -31,7 +31,7 @@ export default function IndependentConfigurationsPage() {
     >
       <header className="page-intro" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
         <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          Light Quanta · Paper 1, §5 Heuristic Foundation
+          LQ-05 · Light Quanta · Paper 1, §5 Heuristic Foundation
         </p>
         <h1 style={{ fontFamily: "var(--font-serif, serif)" }}>
           Independent Configurations and the Gas Analogy

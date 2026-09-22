@@ -5,7 +5,7 @@ import { validateSr13Parameters } from "../../../experiments/sr13/parameters.ts"
 import example from "../../../generated/sr13-example.json";
 
 export const metadata: Metadata = {
-  title: "SR-13: Dynamics of the slowly accelerated electron",
+  title: "Dynamics of the slowly accelerated electron",
 };
 
 export default function ElectronDynamicsPage() {

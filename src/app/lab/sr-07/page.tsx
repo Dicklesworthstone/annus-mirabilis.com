@@ -6,7 +6,7 @@ import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr07/session.ts";
 import "./equations.css";
 
 export const metadata: Metadata = {
-  title: "SR-07: Transform the field equations",
+  title: "Transform the field equations",
 };
 
 export default function FieldEquationsPage() {
@@ -16,7 +16,7 @@ export default function FieldEquationsPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Special relativity · Electrodynamics §6</p>
+        <p className="eyebrow">SR-07 · Special relativity · Electrodynamics §6</p>
         <h1>
           The field equations
           <br />

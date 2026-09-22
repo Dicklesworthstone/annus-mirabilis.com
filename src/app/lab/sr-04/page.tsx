@@ -4,7 +4,7 @@ import { SR04_DEFAULTS } from "../../../experiments/sr04/definition.ts";
 import { evaluateSr04 } from "../../../experiments/sr04/session.ts";
 
 export const metadata: Metadata = {
-  title: "Construct the Lorentz map (SR-04)",
+  title: "Construct the Lorentz map",
 };
 
 export default function LorentzMapPage() {

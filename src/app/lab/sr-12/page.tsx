@@ -5,7 +5,7 @@ import { validateSr12Parameters } from "../../../experiments/sr12/parameters.ts"
 import example from "../../../generated/sr12-example.json";
 
 export const metadata: Metadata = {
-  title: "SR-12: Charge and current density",
+  title: "Charge and current density",
 };
 
 export default function ChargeCurrentPage() {

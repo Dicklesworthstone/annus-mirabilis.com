@@ -5,7 +5,7 @@ import { validateSr11Parameters } from "../../../experiments/sr11/parameters.ts"
 import example from "../../../generated/sr11-example.json";
 
 export const metadata: Metadata = {
-  title: "SR-11: Moving mirror reflection and radiation pressure",
+  title: "Moving mirror reflection and radiation pressure",
 };
 
 export default function MovingMirrorPage() {

@@ -5,7 +5,7 @@ import { BM03_DEFAULTS } from "../../../experiments/bm03/definition.ts";
 import { evaluateBm03 } from "../../../experiments/bm03/session.ts";
 
 export const metadata: Metadata = {
-  title: "The configuration integral and free energy (BM-03)",
+  title: "The configuration integral and free energy",
 };
 
 export default function ConfigurationPage() {

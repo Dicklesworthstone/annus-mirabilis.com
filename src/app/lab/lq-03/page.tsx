@@ -4,7 +4,7 @@ import { LQ03_DEFAULTS } from "../../../experiments/lq03/definition.ts";
 import { evaluateLq03 } from "../../../experiments/lq03/session.ts";
 
 export const metadata: Metadata = {
-  title: "The radiation spectrum and regime comparison (LQ-03)",
+  title: "The radiation spectrum and regime comparison",
 };
 
 export default function SpectrumPage() {

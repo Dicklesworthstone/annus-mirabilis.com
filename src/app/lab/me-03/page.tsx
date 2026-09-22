@@ -4,7 +4,7 @@ import { BoundaryLedgerComparison } from "../../../components/lab/me03/BoundaryL
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me03/session.ts";
 
 export const metadata: Metadata = {
-  title: "The system-boundary energy ledger (ME-03)",
+  title: "The system-boundary energy ledger",
 };
 
 export default function BoundaryLedgerPage() {

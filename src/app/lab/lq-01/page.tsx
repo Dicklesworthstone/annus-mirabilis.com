@@ -5,7 +5,7 @@ import { validateLq01Parameters } from "../../../experiments/lq01/parameters.ts"
 import example from "../../../generated/lq01-example.json";
 
 export const metadata: Metadata = {
-  title: "LQ-01: Wave description and energy spreading",
+  title: "Wave description and energy spreading",
 };
 
 export default function WaveDescriptionPage() {

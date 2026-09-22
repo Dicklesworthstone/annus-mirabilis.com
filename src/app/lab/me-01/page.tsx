@@ -4,7 +4,7 @@ import { TwoLedgersComparison } from "../../../components/lab/me01/TwoLedgersLab
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me01/session.ts";
 
 export const metadata: Metadata = {
-  title: "Opposite pulses and two ledgers (ME-01)",
+  title: "Opposite pulses and two ledgers",
 };
 
 export default function TwoLedgersPage() {

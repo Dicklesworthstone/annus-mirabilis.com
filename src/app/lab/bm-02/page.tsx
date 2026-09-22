@@ -3,7 +3,7 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { OsmoticPartitionLab } from "../../../components/lab/OsmoticPartitionLab.tsx";
 import { DEFAULT_BM02_INPUTS } from "../../../experiments/bm02/session.ts";
 
-export const metadata: Metadata = { title: "The osmotic partition (BM-02)" };
+export const metadata: Metadata = { title: "The osmotic partition" };
 
 export default function OsmoticPartitionPage() {
   return (

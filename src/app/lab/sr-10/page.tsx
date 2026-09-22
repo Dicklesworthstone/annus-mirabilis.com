@@ -5,7 +5,7 @@ import { validateSr10Parameters } from "../../../experiments/sr10/parameters.ts"
 import example from "../../../generated/sr10-example.json";
 
 export const metadata: Metadata = {
-  title: "SR-10: The finite light complex",
+  title: "The finite light complex",
 };
 
 export default function LightComplexPage() {
