@@ -539,6 +539,36 @@ Wir fragen nach der Beschaffenheit dieser Wellen, wenn dieselben von einem in de
 --- MACHINE DRAFT TRANSCRIPTION PAGE 21 OF 31 ---
 [[ANNALEN-PAGE 911]]
 
+Beobachter untersucht werden. — Durch Anwendung der in § 6 gefundenen Transformationsgleichungen für die elektrischen und magnetischen Kräfte und der in § 3 gefundenen Transformationsgleichungen für die Koordinaten und die Zeit erhalten wir unmittelbar:
+$$
+\begin{aligned}
+X' &= X_0 \sin \Phi' , &\qquad L' &= L_0 \sin \Phi' , \\
+Y' &= \beta \left( Y_0 - \frac{v}{V} N_0 \right) \sin \Phi' , &\qquad M' &= \beta \left( M_0 + \frac{v}{V} Z_0 \right) \sin \Phi' , \\
+Z' &= \beta \left( Z_0 + \frac{v}{V} M_0 \right) \sin \Phi' , &\qquad N' &= \beta \left( N_0 - \frac{v}{V} Y_0 \right) \sin \Phi' , \\
+\Phi' &= \omega' \left( \tau - \frac{a' \xi + b' \eta + c' \zeta}{V} \right) ,
+\end{aligned}
+$$
+wobei
+$$
+\omega' = \omega \beta \left( 1 - a \frac{v}{V} \right) ,
+$$
+$$
+a' = \frac{a - \frac{v}{V}}{1 - a \frac{v}{V}} ,
+$$
+$$
+b' = \frac{b}{\beta \left( 1 - a \frac{v}{V} \right)} ,
+$$
+$$
+c' = \frac{c}{\beta \left( 1 - a \frac{v}{V} \right)}
+$$
+gesetzt ist.
+
+Aus der Gleichung für $\omega'$ folgt: Ist ein Beobachter relativ zu einer unendlich fernen Lichtquelle von der Frequenz $\nu$ mit der Geschwindigkeit $v$ derart bewegt, daß die Verbindungslinie „Lichtquelle–Beobachter“ mit der auf ein relativ zur Lichtquelle ruhendes Koordinatensystem bezogenen Geschwindigkeit des Beobachters den Winkel $\varphi$ bildet, so ist die von dem Beobachter wahrgenommene Frequenz $\nu'$ des Lichtes durch die Gleichung gegeben:
+$$
+\nu' = \nu \frac{1 - \cos \varphi \frac{v}{V}}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} .
+$$
+Dies ist das [[SPERR]]Doppeler[[/SPERR]]sche Prinzip für beliebige Geschwindigkeiten[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 22 OF 31 ---
 [[ANNALEN-PAGE 912]]
 

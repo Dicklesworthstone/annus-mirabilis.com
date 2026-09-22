@@ -61,3 +61,11 @@
   reason: "Printed connective 'wobei' standing alone between two displays on page 908, introducing the definition of beta. It is reported as a short PARAGRAPH rather than a short line only because 908 is one of two pages in any ledger whose first body line opens a display: the paragraph carried over from 907 begins on this page with the last two rows of the Maxwell-Hertz transform, so the only prose the paragraph has on this page is that one word. The word is source text and load-bearing - it is what makes the beta display a definition used by the equations above rather than a free-standing assertion. Denominator: 63 pages with a body across the four ledgers, 2 of which open with a display (ap-17-549 p551 and this one)."
   editor: "agent:LilacValley"
   date: "2026-09-21"
+
+- ledgerKey: ap-17-891
+  code: short-line
+  ledgerPage: 21
+  lineFingerprint: ad6f70890a12d8f2
+  reason: "Printed connective 'wobei' standing alone on page 911, between the transformed wave display and the four definitions of omega-prime, a-prime, b-prime and c-prime that 'gesetzt ist.' closes. Source text. Note the contrast with the page 908 entry, which acknowledges the SAME WORD under a different code: there 'wobei' was the paragraph's last text line and the rule reported it as a short PARAGRAPH, here it is followed by 'gesetzt ist.' in the same paragraph and the rule reports a short LINE. Same printed word, same reason to keep it, two codes, decided by what follows it rather than by anything about the word."
+  editor: "agent:LilacValley"
+  date: "2026-09-22"
