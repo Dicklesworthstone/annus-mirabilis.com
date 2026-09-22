@@ -189,7 +189,7 @@ export function WaveDescriptionLab({
           }}
         >
           <h3 style={{ margin: 0, fontSize: "0.95rem" }}>
-            Discovery Mode: Predict Before Calculating
+            Discovery mode: predict before calculating
           </h3>
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <button
@@ -709,7 +709,7 @@ export function WaveDescriptionLab({
         }}
       >
         <h3 style={{ margin: "0 0 0.75rem", fontSize: "0.95rem" }}>
-          Accepted Laboratory Telemetry Snapshot
+          Accepted laboratory telemetry snapshot
         </h3>
         <section className="table-scroll" aria-label="Accepted laboratory telemetry snapshot table">
           <table
@@ -791,7 +791,7 @@ export function WaveDescriptionLab({
         }}
       >
         <h3 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem" }}>
-          Limits of this Classical Wave Model (Not Modeled)
+          Limits of this classical wave model (not modeled)
         </h3>
         <p className="fine" style={{ margin: "0 0 0.5rem" }}>
           This reference owner implements continuous classical wave optics and geometric energy
