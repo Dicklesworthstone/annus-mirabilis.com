@@ -56,6 +56,20 @@ export function ReaderController(props: Props) {
     let index = Number.isSafeInteger(history.state?.annusReader?.index)
       ? (history.state.annusReader.index as number)
       : 0;
+    /*
+      WHETHER THE URL NAMES A PASSAGE, which is not the same as whether the reader has one.
+      `state.anchor` always holds a passage - with no fragment it is the first one - and url()
+      used to write it into the address on mount. So a reader who opened /papers/light-quanta/
+      was given /papers/light-quanta/#entry-light-quanta, and one frame later the site-wide
+      fragment handler (search/launcher.ts) did what it should for a followed link: it focused
+      that passage. Nothing had been followed. Measured on BUILD 2, 5 of 5 paper routes loaded
+      with the first passage focused and :focus-visible, which drew the 3px accent focus ring
+      around it: the "First encounter" box that reads like an error on light-quanta,
+      special-relativity and mass-energy is that ring, not its own styling.
+      The fragment is now written only when it was there on arrival or the reader has since
+      moved to a passage; history navigation re-reads it. The anchor itself is unchanged.
+    */
+    let urlNamesPassage = location.hash.length > 1;
     let trigger = 0;
     let returnAnimation = 0;
     const cancelReturn = () => {
@@ -82,7 +96,9 @@ export function ReaderController(props: Props) {
       const frame = state.frames.at(-1);
       if (frame) u.searchParams.set("open", `foundation:${frame.foundationId}`);
       else if (!resolveOpenParam(u.searchParams.get("open"))) u.searchParams.delete("open");
-      u.hash = `#${state.anchor}`;
+      // A fragment already in the address counts too: an in-page link the browser followed
+      // natively names a passage without passing through this controller.
+      u.hash = urlNamesPassage || location.hash.length > 1 ? `#${state.anchor}` : "";
       return u.pathname + u.search + u.hash;
     }
     function save(push = false) {
@@ -247,6 +263,7 @@ export function ReaderController(props: Props) {
         registry.anchors.includes(control.dataset.readerAnchor)
       ) {
         event.preventDefault();
+        urlNamesPassage = true;
         change(
           { ...state, anchor: control.dataset.readerAnchor, frames: [] },
           true,
@@ -321,6 +338,7 @@ export function ReaderController(props: Props) {
       index = Number.isSafeInteger(history.state?.annusReader?.index)
         ? history.state.annusReader.index
         : 0;
+      urlNamesPassage = location.hash.length > 1;
       save();
       const lastFrame = state.frames.at(-1);
       render(
