@@ -2,8 +2,8 @@ export default function Home() {
   return (
     <>
       <section className="hero">
-        <p className="eyebrow">Annalen der Physik · 1905</p>
-        <h1>Four papers, March to September</h1>
+        <p className="eyebrow">Annalen der Physik</p>
+        <h1>Four papers, 1905</h1>
         <p className="lead">
           In 1905 one journal received four papers from Albert Einstein. Each unsettled something
           that had looked settled: how light carries its energy, whether molecules are real, what it
