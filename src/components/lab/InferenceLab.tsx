@@ -304,7 +304,7 @@ export function InferenceLab({
                   <option value="combined">Combined: declared input intervals</option>
                 </select>
               </div>
-              <details>
+              <details className="experiment-settings">
                 <summary>Declare input uncertainty</summary>
                 <p className="fine">
                   Each input interval is its stated value plus or minus the relative bound below.
@@ -338,7 +338,7 @@ export function InferenceLab({
                   Stop calculation
                 </button>
               </div>
-              <details>
+              <details className="experiment-settings">
                 <summary>Change the synthetic generator</summary>
                 <p className="fine">
                   Changing these fields starts a new physical run. The hidden molecular number is
@@ -442,14 +442,6 @@ export function InferenceLab({
           </p>
         </div>
         <div className="lab-results inference-results">
-          <p
-            className="status-line inference-status"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            {announcement}
-          </p>
           {view.refusal && (
             <div className="notice error">
               <p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>
@@ -478,6 +470,15 @@ export function InferenceLab({
               </button>
             </div>
           )}
+          <InferencePath snapshot={snapshot} />
+          <p
+            className="status-line inference-status"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {announcement}
+          </p>
           <p className="accepted-caption">
             Accepted seed {p.seed}; {p.M} non-overlapping displacements; {p.d} coordinate
             {p.d === 1 ? "" : "s"}; spacing {display(p.dt)} s. {estimatorNames[p.estimator]}.
@@ -487,7 +488,6 @@ export function InferenceLab({
               : "independent radius not declared"}
             .
           </p>
-          <InferencePath snapshot={snapshot} />
           <h3>What the data identify</h3>
           <table className="inference-summary">
             <caption>Accepted estimate and conditional diffusion uncertainty</caption>
