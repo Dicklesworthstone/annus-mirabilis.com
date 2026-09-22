@@ -55,7 +55,7 @@ test("i18n compiler check: valid translation units and source blocks pass cleanl
   assert.equal(reports.length, 0);
 });
 
-test("i18n compiler check: missing or invalid lang on translation unit triggers 'lang-required'", () => {
+test("i18n compiler check: missing lang on a translation unit triggers 'lang-required' (check.ts:104)", () => {
   const records = new Map<string, unknown>();
   // 1. Missing lang
   records.set("tr-missing-lang", {
@@ -84,9 +84,29 @@ test("i18n compiler check: missing or invalid lang on translation unit triggers 
   assert.equal(reports[0]?.rule, "lang-required");
   assert.equal(reports[1]?.recordId, "tr-invalid-lang");
   assert.equal(reports[1]?.rule, "lang-required");
+
+  // THE MESSAGES ARE THE ASSERTION THAT PINS check.ts:104, AND THEY WERE MISSING.
+  //
+  // The missing-lang arm at :104 and the invalid-tag arm at :112 are the two halves of
+  // one if/else-if, and they emit the SAME rule, the SAME path and the SAME recordId.
+  // Measured by neutralising :104 alone: the record falls through to :112, which reports
+  // `has invalid BCP 47 language tag "undefined"` - one report, same rule, same recordId,
+  // same count. Every assertion above survived that substitution, so this test passed
+  // whether or not :104 existed at all, and the refusal scanner was right to leave the
+  // site uncredited.
+  //
+  // Only the message separates the two arms, so only the message can pin them.
+  assert.equal(
+    reports[0]?.message,
+    'TranslationUnit "tr-missing-lang" is missing required "lang" field.',
+  );
+  assert.equal(
+    reports[1]?.message,
+    'TranslationUnit "tr-invalid-lang" has invalid BCP 47 language tag "english".',
+  );
 });
 
-test("i18n compiler check: German term in English text without lang='de' triggers 'lang-required'", () => {
+test("i18n compiler check: German term in English text without lang='de' triggers 'lang-required' (check.ts:74)", () => {
   const records = new Map<string, unknown>();
   records.set("tr-german-term-unannotated", {
     kind: "translation-unit",

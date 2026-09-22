@@ -1,9 +1,18 @@
 /**
  * Refusal throw site test suite for check.ts (am-muyh).
  *
- * Covers lines 112, 131, 140, 156, and 170 in src/content/checks/i18n/check.ts
+ * Covers lines 60, 112, 131, 140, 156, and 170 in src/content/checks/i18n/check.ts
  * with authentic accept/reject test pairs, asserting explicit refusal codes
  * and messages, with exact line citations.
+ *
+ * All eight sites in check.ts carry ONE code, `lang-required`, so under am-ksl3 a block
+ * that merely names the code credits nothing and only the (check.ts:LINE) citations
+ * above earn credit. The message is therefore load-bearing in every case here: it is
+ * the only field that separates one arm from another, and two arms of the same if/else
+ * are indistinguishable without it (see check.ts:104 in check.test.ts).
+ *
+ * The remaining two sites live in check.test.ts, the node lane: :74 (German term) and
+ * :104 (missing lang). Running only this file measures five of the eight.
  *
  * Zero mocks are used.
  */
@@ -28,6 +37,60 @@ function createCheckContext(records: Map<string, unknown>): {
 }
 
 describe("check.ts refusal throw sites (am-muyh)", () => {
+  // --------------------------------------------------------------------------
+  // Site 0: line 60 - lang-required (inline language override, invalid tag)
+  //
+  // The only arm reached through checkInlinesForI18n rather than from the record loop,
+  // and the one stated requirement in this module's own docblock ("Rejects inline
+  // overrides with an invalid BCP 47 tag") that had no test. Driving it needs a VALID
+  // record carrying an INVALID inline, so the reject case below is also a control: if
+  // the record-level arms fired, there would be more than one report.
+  // --------------------------------------------------------------------------
+  test("rejects an inline whose lang override is not a valid BCP 47 tag (check.ts:60)", () => {
+    // Reject
+    const badRecords = new Map<string, unknown>();
+    badRecords.set("tr-inline-bad-lang", {
+      kind: "translation-unit",
+      id: "tr-inline-bad-lang",
+      sourceRefs: [{ paper: "brownian-motion", id: "s1-p1" }],
+      translator: { id: "agent:BoldHarbor", kind: "model", modelId: "gpt-5.6-luna" },
+      lang: "en",
+      inlines: [
+        { kind: "text", text: "A phrase " },
+        { kind: "text", text: "tagged wrongly", lang: "not_a_tag!" },
+      ],
+    });
+    const { context: badCtx, reports: badReports } = createCheckContext(badRecords);
+    validateI18nRecords(badCtx);
+
+    expect(badReports.length).toBe(1);
+    expect(badReports[0]?.rule).toBe("lang-required");
+    expect(badReports[0]?.recordId).toBe("tr-inline-bad-lang");
+    // The indexed path is what shows the report came from the inline walk and not from
+    // one of the record-level arms, all of which report a bare "lang".
+    expect(badReports[0]?.path).toBe("inlines[1].lang");
+    expect(badReports[0]?.message).toBe(
+      'Invalid BCP 47 language tag "not_a_tag!" on inline element.',
+    );
+
+    // Accept: same record, same shape, a valid override on the same inline.
+    const goodRecords = new Map<string, unknown>();
+    goodRecords.set("tr-inline-good-lang", {
+      kind: "translation-unit",
+      id: "tr-inline-good-lang",
+      sourceRefs: [{ paper: "brownian-motion", id: "s1-p1" }],
+      translator: { id: "agent:BoldHarbor", kind: "model", modelId: "gpt-5.6-luna" },
+      lang: "en",
+      inlines: [
+        { kind: "text", text: "A phrase " },
+        { kind: "text", text: "korrekt ausgezeichnet", lang: "de" },
+      ],
+    });
+    const { context: goodCtx, reports: goodReports } = createCheckContext(goodRecords);
+    validateI18nRecords(goodCtx);
+    expect(goodReports.length).toBe(0);
+  });
+
   // --------------------------------------------------------------------------
   // Site 1: line 112 - lang-required (TranslationUnit invalid lang)
   // --------------------------------------------------------------------------

@@ -27,7 +27,7 @@
   "src/content/audits/readings.ts": 0,
   "src/content/checks/epistemic/run.ts": 0,
   "src/content/checks/epistemic/shelfDate.ts": 0,
-  "src/content/checks/i18n/check.ts": 3,
+  "src/content/checks/i18n/check.ts": 0,
   "src/content/checks/review/authorship.ts": 2,
   "src/content/checks/review/crossProjection.ts": 1,
   "src/content/checks/review/editionReviewState.ts": 3,
