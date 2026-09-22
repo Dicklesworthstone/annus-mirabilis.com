@@ -218,6 +218,31 @@ grep. A count that will be reported, or used to assign work, is built keyed by i
 identity and states its item count beside its total — `23 files / 87 sites` fails
 loudly in a way `136` does not.
 
+### A gate that forbids a construct must read code, not text
+
+The sharpest form of the rule above, because it bites the gate's own authors. **Text that
+DESCRIBES a forbidden construct is not the construct**, and a scanner over raw source cannot
+tell them apart.
+
+Three instances, all found by the gate misfiring rather than by review: the OCR guard's
+comment-block exemption; the citation scanner counting prose; and, on 2026-09-22, a gate
+asserting an emitter draws on no clock, which went red on the docblock of the validator beside
+it — a comment quoting `new Date()` while explaining the plant that had proved the gate worked.
+The gate was correct about the bytes and wrong about the question.
+
+The direction matches the section above and is worse here, because the densest prose about a
+forbidden construct is the documentation explaining why it is forbidden. A gate written well
+enough to explain itself is a gate positioned to fail on its own explanation, so the better the
+comment, the likelier the misfire.
+
+Practically: strip comments before matching, blanking their bodies rather than deleting them so
+line numbers still report; and prove the stripper in BOTH directions, because one that removed
+everything would report a clean surface forever. The four cases worth asserting are a construct
+inside a comment (must not match), the same construct in code (must match), a trailing `//` that
+must not swallow the code before it, and a block comment that must not swallow the code after
+it. Where stripping is not possible, say in the gate's own comment which half of the question it
+answers.
+
 ---
 
 ## Branch Policy
