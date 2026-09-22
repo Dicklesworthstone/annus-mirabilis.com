@@ -168,7 +168,7 @@ export default function DiscoverIndex() {
           <p>
             A magnet, a coil and a needle that moves. Every measurement says the two arrangements
             are the same and the textbook of 1904 tells two different stories about them. Following
-            that honestly costs you something you have never had to defend. Eight steps, thirteen
+            that honestly costs you something you have never had to defend. Eight steps, eight
             instruments, and Lorentz on the shelf as a live alternative rather than a foil.
           </p>
           <div className="actions">
