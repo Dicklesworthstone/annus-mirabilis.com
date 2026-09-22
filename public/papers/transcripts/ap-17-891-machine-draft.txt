@@ -357,6 +357,41 @@ Nimmt man an, daß das für eine polygonale Linie bewiesene Resultat auch für e
 --- MACHINE DRAFT TRANSCRIPTION PAGE 15 OF 31 ---
 [[ANNALEN-PAGE 905]]
 
+gebliebenen um $\frac{1}{2} t (v/V)^2$ Sek. nach. Man schließt daraus, daß eine am Erdäquator befindliche Unruhuhr um einen sehr kleinen Betrag langsamer laufen muß als eine genau gleich beschaffene, sonst gleichen Bedingungen unterworfene, an einem Erdpole befindliche Uhr.
+
+[[HEADING s5]]§ 5. Additionstheorem der Geschwindigkeiten.
+
+In dem längs der $X$-Achse des Systems $K$ mit der Geschwindigkeit $v$ bewegten System $k$ bewege sich ein Punkt gemäß den Gleichungen:
+$$
+\begin{aligned}
+\xi &= w_\xi \tau , \\
+\eta &= w_\eta \tau , \\
+\zeta &= 0 ,
+\end{aligned}
+$$
+wobei $w_\xi$ und $w_\eta$ Konstanten bedeuten.
+
+Gesucht ist die Bewegung des Punktes relativ zum System $K$. Führt man in die Bewegungsgleichungen des Punktes mit Hilfe der in § 3 entwickelten Transformationsgleichungen die Größen $x$, $y$, $z$, $t$ ein, so erhält man:
+$$
+\begin{aligned}
+x &= \frac{w_\xi + v}{1 + \frac{v w_\xi}{V^2}} t , \\
+y &= \frac{\sqrt{1 - \left( \frac{v}{V} \right)^2}}{1 + \frac{v w_\xi}{V^2}} w_\eta t , \\
+z &= 0 .
+\end{aligned}
+$$
+Das Gesetz vom Parallelogramm der Geschwindigkeiten gilt also nach unserer Theorie nur in erster Annäherung. Wir setzen:
+$$
+\begin{aligned}
+U^2 &= \left( \frac{d x}{d t} \right)^2 + \left( \frac{d y}{d t} \right)^2 , \\
+w^2 &= w_\xi^2 + w_\eta^2
+\end{aligned}
+$$
+und
+$$
+\alpha = \operatorname{arctg} \frac{w_y}{w_x} ;
+$$
+[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 16 OF 31 ---
 [[ANNALEN-PAGE 906]]
 
