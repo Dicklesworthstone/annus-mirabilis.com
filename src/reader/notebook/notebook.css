@@ -129,3 +129,24 @@
   padding: 0.5rem;
   margin-top: 1rem;
 }
+
+/*
+ * THE /notebook/ PAGE (chrome, pane %44). Four short sections under their own headings, each ruled
+ * off, with the controls a reader will look for set in bold, instead of four paragraphs of equal
+ * weight.
+ */
+.notebook-guide > section {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.notebook-guide h2 {
+  margin: 0 0 0.6rem;
+}
+.notebook-guide ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.notebook-guide li + li {
+  margin-top: 0.6rem;
+}
