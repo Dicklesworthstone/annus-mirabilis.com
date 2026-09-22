@@ -874,3 +874,40 @@ describe("theater: a negated noun is a disclaimer (am-gzxs follow-up)", () => {
     );
   });
 });
+
+/**
+ * am-edit-voice-lint-trmf: a typed enum field is data, not prose.
+ *
+ * Asserted as BEHAVIOUR rather than as membership. `expect(EXCLUDED_FIELDS.has("x")).toBe(true)`
+ * would be a test that the code does what the code does; what matters is that the same string is
+ * ignored in the enum field and still caught in a prose one, because the exclusion is meant to
+ * narrow the population and not to blind the rule.
+ */
+describe("status-enum-leak: a typed enum field is data, not prose", () => {
+  const scan = (record: Record<string, unknown>) => {
+    const reports: CheckReportItem[] = [];
+    validateVoiceRecords({
+      records: new Map<string, unknown>([
+        ["constant-set-probe", { id: "constant-set-probe", ...record }],
+      ]),
+      files: [],
+      indexes: {},
+      report: (item: CheckReportItem) => reports.push(item),
+    } as CheckContext);
+    return reports.filter((r) => r.rule === "status-enum-leak");
+  };
+
+  it("gasConstantProvenance carrying a registered status id is not a leak", () => {
+    // The real shape of content/quantities/constant-sets/modern-codata-2022.yaml.
+    assert.deepEqual(scan({ kind: "constant-set", gasConstantProvenance: "not-applicable" }), []);
+  });
+
+  it("the SAME string in a prose field is still a leak", () => {
+    // The negative that stops this being a blinding: only the named field is exempt.
+    assert.ok(
+      scan({ kind: "constant-set", precisionNote: "This entry is not-applicable here." }).length >
+        0,
+      "an enum id in prose must still be reported",
+    );
+  });
+});
