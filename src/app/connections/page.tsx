@@ -14,8 +14,11 @@ export default function ConnectionsPage() {
         <p className="eyebrow">Four papers · Different kinds of connection</p>
         <h1>What crosses the paper boundary?</h1>
         <p className="lead">
-          A shared mathematical pattern is not the same as a premise. A later synthesis is not the
-          historical argument.
+          The four papers share more than a year. The same constants, the same counting arguments
+          and the same light pulse turn up in several of them, and the connections are of different
+          kinds: some are a premise one paper borrows from another, some are only a shared piece of
+          mathematics, and some were drawn by physicists decades later. This page keeps those three
+          apart and says which is which.
         </p>
       </header>
       <section className="reading" id="light-thread">

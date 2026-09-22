@@ -28,10 +28,7 @@ export default function NotationPage() {
 
       {/* Editorial Honesty Notice */}
       <aside className="honesty-banner" role="status" aria-label="Editorial verification status">
-        <h2>
-          <span aria-hidden="true">📋</span>
-          <span>Editorial status: pending facsimile verification</span>
-        </h2>
+        <h2>Editorial status: pending facsimile verification</h2>
         <p>{data.honestyNotice.message}</p>
       </aside>
 
