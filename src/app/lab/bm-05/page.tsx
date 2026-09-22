@@ -22,14 +22,21 @@ export default function WalkPage() {
           changing its variance. Then see what adding many independent steps preserves, and which
           assumptions the argument needs.
         </p>
-        <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>
-        <p>
-          <a href="/papers/brownian-motion/#arg-bm-independent-steps">
-            Read the argument and open its missing steps
-          </a>
-        </p>
       </header>
       <WalkComparison example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>
+          </li>
+          <li>
+            <a href="/papers/brownian-motion/#arg-bm-independent-steps">
+              Read the argument and open its missing steps
+            </a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" id="derivation">
         <p className="eyebrow">Open the argument</p>
         <h2>Why the second moment survives</h2>

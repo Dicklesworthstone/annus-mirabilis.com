@@ -24,16 +24,23 @@ export default function CameraPage() {
           why those errors change what you can infer, even when the particle follows exactly the
           same path.
         </p>
-        <p>
-          <a href="/lab/bm-07/">Start with ideal molecular-number inference</a> ·{" "}
-          <a href="/papers/brownian-motion/#arg-bm-inference">Return to the argument</a>
-        </p>
       </header>
       <p className="notice">
         Noise-calibration assumption: stationary-feature clicks and the moving particle must have
         the same localization variance. The clicks cannot establish that assumption.
       </p>
       <CameraComparison example={{ ...example, parameters: p.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/lab/bm-07/">Start with ideal molecular-number inference</a>
+          </li>
+          <li>
+            <a href="/papers/brownian-motion/#arg-bm-inference">Return to the argument</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" id="camera-model">
         <p className="eyebrow">Why these procedures differ</p>
         <h2>An exposure is an average, not a point</h2>

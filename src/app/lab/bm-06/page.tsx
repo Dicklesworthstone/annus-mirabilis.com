@@ -17,19 +17,26 @@ export default function BrownianLabPage() {
           How far from its starting point might a suspended particle be? Change the time, viscosity
           or radius, then ask about a whole interval, not just a single position.
         </p>
-        <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>
-        <p>
-          <a href="/papers/brownian-motion/#arg-bm-gaussian">
-            Read the argument and open its missing steps
-          </a>
-        </p>
-        <p>
-          <a className="button" href="/discover/brownian-motion/investigate/">
-            Start from a pinned tracer trial and bring its D into this question
-          </a>
-        </p>
       </header>
       <BrownianComparison example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>
+          </li>
+          <li>
+            <a href="/papers/brownian-motion/#arg-bm-gaussian">
+              Read the argument and open its missing steps
+            </a>
+          </li>
+          <li>
+            <a href="/discover/brownian-motion/investigate/">
+              Start from a pinned tracer trial and bring its D into this question
+            </a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" id="model">
         <h2>The relationship behind the instrument</h2>
         <Formula

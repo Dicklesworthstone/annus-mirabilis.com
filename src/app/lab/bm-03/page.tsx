@@ -29,14 +29,19 @@ export default function ConfigurationPage() {
           particle in motion, yield a law as simple as &Pi; = n k_B T without solving any molecular
           equations of motion?
         </p>
-        <p>
-          <a href="/papers/brownian-motion/#arg-bm-configuration">
-            Read the statistical argument and open its derivation steps
-          </a>
-        </p>
       </header>
 
       <ConfigurationComparison example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/brownian-motion/#arg-bm-configuration">
+              Read the statistical argument and open its derivation steps
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="configuration-argument">
         <p className="eyebrow">Open the derivation</p>

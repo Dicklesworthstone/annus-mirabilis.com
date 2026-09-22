@@ -21,14 +21,19 @@ export default function OsmoticPartitionPage() {
           term that knows how big the molecule is. Change the particle count, the volume, or the
           radius, and see what the law actually depends on.
         </p>
-        <p>
-          <a href="/papers/brownian-motion/#arg-bm-observable">
-            Read the argument and open its missing steps
-          </a>
-        </p>
       </header>
 
       <OsmoticPartitionLab example={DEFAULT_BM02_INPUTS} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/brownian-motion/#arg-bm-observable">
+              Read the argument and open its missing steps
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading">
         <h2>The law this instrument calculates</h2>

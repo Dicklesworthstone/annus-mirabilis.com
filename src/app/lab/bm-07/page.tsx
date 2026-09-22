@@ -22,14 +22,19 @@ export default function InferencePage() {
           of displacements tell you about its hidden parameters, and what must you know
           independently?
         </p>
-        <p>
-          <a href="/papers/brownian-motion/#arg-bm-inference">Read the inference argument</a>
-        </p>
-        <p>
-          <a href="/lab/brownian-data/">Bring your own calibrated trajectory CSV</a>
-        </p>
       </header>
       <InferenceComparison example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/brownian-motion/#arg-bm-inference">Read the inference argument</a>
+          </li>
+          <li>
+            <a href="/lab/brownian-data/">Bring your own calibrated trajectory CSV</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" id="inference-argument">
         <p className="eyebrow">Open the inverse argument</p>
         <h2>The same positions, different questions</h2>

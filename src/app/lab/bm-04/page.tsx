@@ -26,13 +26,20 @@ export default function DriftDiffusionLabPage() {
           How can a drag force and equilibrium determine how fast particles diffuse, and why does
           the magnitude of the force drop out of the resulting diffusion coefficient?
         </p>
-        <a href="/discover/brownian-motion/">Start with the discovery journey</a>
-        <p>
-          <a href="/papers/brownian-motion/#s3">Read Section 3 of Einstein’s 1905 paper</a>
-        </p>
       </header>
 
       <DriftDiffusionLab example={{ ...example, parameters: checked.data }} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/discover/brownian-motion/">Start with the discovery journey</a>
+          </li>
+          <li>
+            <a href="/papers/brownian-motion/#s3">Read Section 3 of Einstein’s 1905 paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="theory">
         <h2>The physical argument in Section 3</h2>
