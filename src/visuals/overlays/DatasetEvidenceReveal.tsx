@@ -73,7 +73,7 @@ export function DatasetEvidenceReveal({
         }}
       >
         <h3 style={{ margin: 0, fontWeight: 600, fontSize: "1rem" }}>
-          Source & Evidence Provenance: {dataset.title}
+          Source and provenance: {dataset.title}
         </h3>
         <span className="fine" style={{ fontSize: "0.75rem" }}>
           Revision {dataset.digitizer.digitizationRevision}
@@ -160,7 +160,7 @@ export function DatasetEvidenceReveal({
             className="eyebrow"
             style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}
           >
-            Step 1: Document Locator & Scan Region
+            Step 1: document locator and scan region
           </h4>
           <div
             style={{
@@ -250,7 +250,7 @@ export function DatasetEvidenceReveal({
             className="eyebrow"
             style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}
           >
-            Step 2: Original Printed Tokens vs Converted Values
+            Step 2: printed tokens beside canonical values
           </h4>
           <p className="fine" style={{ margin: "0 0 0.5rem" }}>
             Selected row index: {selectedRowIndex} (showing exact printed tokens from historical
@@ -342,7 +342,7 @@ export function DatasetEvidenceReveal({
             className="eyebrow"
             style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}
           >
-            Step 3: Applied Reduction & Normalization Transformations
+            Step 3: reductions and normalizations applied
           </h4>
           <ul
             className="fine"
@@ -384,7 +384,7 @@ export function DatasetEvidenceReveal({
             className="eyebrow"
             style={{ fontSize: "0.75rem", marginBottom: "0.5rem" }}
           >
-            Step 4: Full Citation & Digitization Provenance
+            Step 4: full citation and digitization record
           </h4>
           <div
             style={{
