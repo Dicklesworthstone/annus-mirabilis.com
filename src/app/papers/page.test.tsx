@@ -69,11 +69,15 @@ describe("Papers index: the companion is presented as a companion, outside the f
     // heading was a not-X reversal and the de-slop pass replaced it, which broke a test whose
     // subject is a STRUCTURAL claim: the dissertation is a companion and is not one of the four.
     // The wording of the heading was never the thing being protected.
+    // The container is found by either of its two shapes (a div of <article>s, then an <ol> of
+    // .paper-entry items when each entry gained its first page); the claim is the count, not the
+    // markup.
     const catalogue =
-      /<div class="paper-catalogue">([\s\S]*?)<\/div><section/.exec(html)?.[1] ?? "";
-    expect(catalogue.match(/<article>/g)?.length, "the catalogue holds exactly four papers").toBe(
-      4,
-    );
+      /<(div|ol) class="paper-(?:catalogue|index)">([\s\S]*?)<\/\1><section/.exec(html)?.[2] ?? "";
+    expect(
+      catalogue.match(/<article>|<li class="paper-entry">/g)?.length,
+      "the catalogue holds exactly four papers",
+    ).toBe(4);
     expect(catalogue.toLowerCase()).not.toContain("molecular-dimensions");
 
     const companion = /<section class="reading">([\s\S]*?)<\/section>/.exec(html)?.[1] ?? "";
