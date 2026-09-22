@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import { dayAndMonth, loadFirstPages } from "../../components/home/firstPages.ts";
+import "../../components/home/firstPages.css";
 import {
   isWrittenDiscoveryRoute,
   UNWRITTEN_DISCOVERY_ROUTES,
   WRITTEN_DISCOVERY_ROUTES,
 } from "../../discovery/journeyRegistry.ts";
+import { ROUTE_INDEX as ROUTES } from "../../discovery/routeIndex.ts";
+import "../papers/papersIndex.css";
+import "./discover.css";
 
 const SPELLED = ["no", "One", "Two", "Three", "Four"] as const;
 
@@ -26,159 +32,101 @@ const UNWRITTEN_COUNT = UNWRITTEN_DISCOVERY_ROUTES.length;
 
 export const metadata: Metadata = {
   title: "Discovery routes",
-  description: `Reconstructions of the problems the 1905 papers answer, worked from what was on the shelf at the end of 1904. ${spelled(WRITTEN_COUNT)} ${plural(WRITTEN_COUNT)} written; the other ${spelled(UNWRITTEN_COUNT).toLowerCase()} ${isAre(UNWRITTEN_COUNT)} not yet.`,
+  // With every route written this read "Four routes are written; the other no are not yet.",
+  // the sentence search results showed. The count clause now appears only while it is true.
+  description: `Reconstructions of the problems the 1905 papers answer, worked from what was on the shelf at the end of 1904.${UNWRITTEN_COUNT > 0 ? ` ${spelled(WRITTEN_COUNT)} ${plural(WRITTEN_COUNT)} written; the other ${spelled(UNWRITTEN_COUNT).toLowerCase()} ${isAre(UNWRITTEN_COUNT)} not yet.` : ""}`,
 };
 
 /**
- * The /discover index (TanElk's nav call, 2026-09-22).
+ * The /discover index (TanElk's nav call, 2026-09-22): the one page that names all four routes.
  *
- * Until now the nav item "Discovery routes" deep-linked into /discover/brownian-motion/, one
- * child of four, so a reader had no way to learn that the other three journeys exist or what
- * state they are in.
+ * NOT DRIVEN FROM journeyRegistry.ts's Journey records. The registry's one record is
+ * FIXTURE_JOURNEY_BROWNIAN, from src/discovery/testing/, and it describes a different artefact
+ * from the page (1 stage against the page's five steps). Its counts and its `firstHonestQuestion`
+ * would advertise a shape the reader does not meet. So the copy below describes the PAGES, as
+ * measured on BUILD 8 (steps are each page's numbered `step-number` labels; instruments are the
+ * distinct /lab/ routes it links):
  *
- * WHY THIS PAGE IS NOT DRIVEN FROM journeyRegistry.ts, which would be the obvious move. The
- * registry holds exactly one Journey and it is FIXTURE_JOURNEY_BROWNIAN, imported from
- * src/discovery/testing/. Measured on build h2Dwz8akGXU682TfDJXOY: that record declares 1 stage,
- * 2 forks and 3 exercises, while the route it supposedly describes renders 8 sections and about
- * 13,900 characters. The two are different artefacts. Surfacing the record's counts here would
- * advertise a shape the reader does not meet, and quoting its `firstHonestQuestion` would
- * advertise a sentence that is not on the page - the route opens "A particle wanders. What should
- * you measure?" and the fixture says something else entirely.
+ *   light-quanta         7 steps   9 instruments
+ *   brownian-motion      5 steps   4 instruments
+ *   special-relativity   8 steps   8 instruments
+ *   mass-energy          5 steps   2 instruments (me-02, and sr-10 for the one 1905 import)
  *
- * So the copy below describes the PAGES, measured, and the registry is left to the routes that
- * own it. That a production route imports a fixture is a real finding and belongs on a bead, not
- * in a workaround here.
- *
- * WHAT WAS MEASURED, on the same build, as visible text inside <main>:
- *
- *   brownian-motion      13,947 chars   8 sections   4 instruments
- *   light-quanta            849 chars   1 section    0
- *   mass-energy             810 chars   1 section    0
- *   special-relativity      418 chars   1 section    0
- *
- * UPDATED 2026-09-22: mass-energy is now written. Measured on the rendered component,
- * 14,268 characters of visible text with 5 numbered steps, 11 disclosures, a validated
- * 1904 shelf of 6 cards and one declared 1905 import. So the split is now two written and
- * two stubs, and the heading below says two rather than three.
- *
- * An index presenting four equal doors would be the claim-without-capability defect this
- * edition exists to avoid, so the stubs are still named individually with what IS behind
- * them rather than folded into a footnote.
+ * Only the written/unwritten split comes from the registry, through isWrittenDiscoveryRoute.
  */
 
-/** "Written" / "Not written", from the one declaration rather than typed per entry. */
-function statusWord(slug: string): string {
-  return isWrittenDiscoveryRoute(slug) ? "Written" : "Not written";
-}
-
 export default function DiscoverIndex() {
+  const plates = loadFirstPages();
   return (
     <>
-      <section className="hero">
+      <header className="page-intro">
         <p className="eyebrow">A route you could take</p>
         <h1>Discovery routes</h1>
         <p className="lead">
-          A discovery route puts you where a careful reader stood at the end of 1904: holding the
-          results that were already on the shelf, facing an observation that does not fit, and not
-          yet knowing which way the answer lies. You make the moves. The paper comes last.
+          Each route puts you where a careful reader stood at the end of 1904: holding the results
+          already in print, facing an observation that does not fit them, and not yet knowing which
+          way the answer lies. You make each move yourself, and the paper comes at the end, at the
+          passage where it makes the same move.
         </p>
         <p>
-          A route is a reconstruction, not a biography. It shows a way the argument can be reached
-          from what was known at the time, and it says so at every step rather than claiming this is
-          how Einstein thought.
+          A route is one way to reach the argument from what was known at the time. Each says at its
+          start that it is a reconstruction, and none claims to be how Einstein thought.
         </p>
-      </section>
+      </header>
 
-      <section className="journey-catalogue">
-        <article>
-          <p className="eyebrow">{statusWord("brownian-motion")} · Ann. Phys. 17, 549</p>
-          <h2>
-            <a href="/discover/brownian-motion/">Brownian motion</a>
-          </h2>
-          <p className="german-title">
-            Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in
-            ruhenden Flüssigkeiten suspendierten Teilchen
-          </p>
-          <p>
-            A speck of pollen in still water never settles. The route starts from that, and asks
-            what you would measure if you wanted to decide whether molecules are shoving it: not how
-            fast it moves, which turns out to be the wrong question, but how far it gets. Five
-            steps, four instruments you operate, and the 1904 shelf laid out so you can see what you
-            are allowed to use.
-          </p>
-          <div className="actions">
-            <a className="button" href="/discover/brownian-motion/">
-              Take this route
-            </a>
-            <a href="/papers/brownian-motion/">Read the paper instead</a>
-          </div>
-        </article>
-
-        <article>
-          <p className="eyebrow">{statusWord("mass-energy")} · Ann. Phys. 18, 639</p>
-          <h2>
-            <a href="/discover/mass-energy/">Mass and energy</a>
-          </h2>
-          <p className="german-title">
-            Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?
-          </p>
-          <p>
-            A body at rest gives off two equal flashes and does not recoil. Energy has left it and
-            nothing you can see about it has changed, so the route asks what did. Five steps, one
-            imported result that is declared rather than smuggled, and a prediction to commit to
-            before the answer arrives.
-          </p>
-          <div className="actions">
-            <a className="button" href="/discover/mass-energy/">
-              Take this route
-            </a>
-            <a href="/papers/mass-energy/">Read the paper instead</a>
-          </div>
-        </article>
-
-        <article>
-          <p className="eyebrow">{statusWord("light-quanta")} · Ann. Phys. 17, 132</p>
-          <h2>
-            <a href="/discover/light-quanta/">Light quanta</a>
-          </h2>
-          <p className="german-title">
-            Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen
-            Gesichtspunkt
-          </p>
-          <p>
-            The wave theory was not in trouble in 1904, and this route keeps every one of its
-            successes before going anywhere near them. It looks instead at the region the optical
-            evidence never reached: not light travelling, but light being made and taken up. Seven
-            steps, nine instruments, and a shelf with nothing imported on it.
-          </p>
-          <div className="actions">
-            <a className="button" href="/discover/light-quanta/">
-              Take this route
-            </a>
-            <a href="/papers/light-quanta/">Read the paper instead</a>
-          </div>
-        </article>
-
-        <article>
-          <p className="eyebrow">{statusWord("special-relativity")} · Ann. Phys. 17, 891</p>
-          <h2>
-            <a href="/discover/special-relativity/">On the electrodynamics of moving bodies</a>
-          </h2>
-          <p className="german-title">Zur Elektrodynamik bewegter Körper</p>
-          <p>
-            A magnet, a coil and a needle that moves. Every measurement says the two arrangements
-            are the same and the textbook of 1904 tells two different stories about them. Following
-            that honestly costs you something you have never had to defend. Eight steps, eight
-            instruments, and Lorentz on the shelf as a live alternative rather than a foil.
-          </p>
-          <div className="actions">
-            <a className="button" href="/discover/special-relativity/">
-              Take this route
-            </a>
-            <a href="/papers/special-relativity/">Read the paper instead</a>
-          </div>
-        </article>
-      </section>
+      <ol className="paper-index route-index">
+        {ROUTES.map((route) => {
+          const plate = plates.find((p) => p.slug === route.slug);
+          return (
+            <li key={route.slug} className="paper-entry">
+              {plate && (
+                <div className="paper-entry-plate">
+                  <Image
+                    src={`/figures/plates/${plate.key}-first-page-400.webp`}
+                    width={400}
+                    height={662}
+                    alt={`First page of ${plate.title}, as printed`}
+                  />
+                  <p className="fine">
+                    <span className="first-page-marks" aria-hidden="true">
+                      {Array.from({ length: plate.pages }, (_, n) => (
+                        // biome-ignore lint/suspicious/noArrayIndexKey: the marks are identical and never reorder
+                        <i key={n} />
+                      ))}
+                    </span>
+                    {plate.pages} pages, pp. {plate.firstPage}&ndash;{plate.lastPage}
+                  </p>
+                </div>
+              )}
+              <div className="paper-entry-body">
+                <p className="eyebrow">
+                  {isWrittenDiscoveryRoute(route.slug) ? "" : "Not written yet · "}
+                  {plate ? `Received ${dayAndMonth(plate.received)} 1905` : null}
+                </p>
+                <p className="german-title" lang="de">
+                  {route.germanTitle}
+                </p>
+                <h2>
+                  <a href={`/discover/${route.slug}/`}>{route.name}</a>
+                </h2>
+                <p>{route.blurb}</p>
+                <ol className="route-steps" aria-label={`The ${route.steps.length} steps`}>
+                  {route.steps.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+                <p className="route-steps-end">Where this enters the paper</p>
+                <div className="actions">
+                  <a className="button" href={`/discover/${route.slug}/`}>
+                    Take this route
+                  </a>
+                  <a href={`/papers/${route.slug}/`}>Read the paper instead</a>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
 
       {/*
         THE TERMINAL STATE HAD NO COPY WRITTEN FOR IT, and the page reached it today.
@@ -190,7 +138,7 @@ export default function DiscoverIndex() {
         A data-driven page still needs copy for every value its data can take. The count became
         correct and the sentence around it did not.
       */}
-      {UNWRITTEN_COUNT > 0 ? (
+      {UNWRITTEN_COUNT > 0 && (
         <section className="reading page-flush">
           <h2>
             {spelled(UNWRITTEN_COUNT)} {plural(UNWRITTEN_COUNT)} not written yet
@@ -199,16 +147,6 @@ export default function DiscoverIndex() {
             Each of these papers has its reading edition and its instruments. What is missing is the
             reconstruction: the shelf, the difficulty, and the fork where a reasonable person could
             have gone the other way. Until that is written, the paper itself is the better door.
-          </p>
-        </section>
-      ) : (
-        <section className="reading page-flush">
-          <h2>All {spelled(WRITTEN_COUNT).toLowerCase()} routes are written</h2>
-          <p>
-            Every paper of 1905 now has a reconstruction as well as an edition. Each starts from
-            what was on the shelf at the end of 1904, meets the difficulty that did not fit, and
-            offers the forks where a careful reader could have gone another way. None of them claims
-            to be what Einstein thought.
           </p>
         </section>
       )}

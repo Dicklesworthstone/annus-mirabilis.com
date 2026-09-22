@@ -1,0 +1,87 @@
+/*
+ * DISCOVER (pane %43): THE /discover/ INDEX IN THE PAPERS INDEX'S FORM, WITH EACH ROUTE DRAWN.
+ *
+ * The four routes were a 2x2 wall of text, out of received order. Each is now an entry of the
+ * papers index (papersIndex.css, imported by the page: the same plate, page marks and columns, so
+ * a paper looks the same wherever it appears), and what only a route has is drawn under its
+ * summary: its steps, in order, as stations on one line, ending where the route hands over to the
+ * paper. The numbers are the journey page's own "01 / ..." step numbers.
+ */
+.route-steps {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: route-step;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  line-height: 1.35;
+}
+.route-steps > li,
+.route-steps-end {
+  position: relative;
+  min-height: 1.5rem;
+  padding: 0.1rem 0 0.7rem 2.4rem;
+}
+.route-steps > li {
+  counter-increment: route-step;
+}
+/* A station: the step's number in a ring, on the paper colour so the line runs behind it. */
+.route-steps > li::before {
+  content: counter(route-step);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  box-sizing: border-box;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+/* The line from each station to the next, and on to the paper. */
+.route-steps > li::after {
+  content: "";
+  position: absolute;
+  top: 1.5rem;
+  bottom: 0;
+  left: calc(0.75rem - 0.5px);
+  border-left: 1px solid var(--muted);
+}
+/* The end of the line is a page, not a step: a filled leaf with no number. */
+.route-steps-end {
+  margin: 0;
+  padding-bottom: 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  line-height: 1.35;
+  color: var(--muted);
+}
+.route-steps-end::before {
+  content: "";
+  position: absolute;
+  top: 0.05rem;
+  left: 0.3rem;
+  width: 0.9rem;
+  height: 1.2rem;
+  background: var(--ink);
+}
+.route-index .actions {
+  margin-top: 1.75rem;
+}
+
+/*
+ * Tap targets. The route titles and "Read the paper instead" were 7 targets under 44px at 390
+ * and at 1440 (BUILD 8). inline-block with a floor, not padding-block: the two action links sit
+ * side by side, and padded inline boxes would overlap at the seam.
+ */
+.route-index h2 a,
+.route-index .actions a:not(.button) {
+  display: inline-block;
+  min-height: 44px;
+  align-content: center;
+}
