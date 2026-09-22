@@ -3,32 +3,37 @@
   "kind": "foundation",
   "id": "functions-graphs",
   "title": "Functions and graphs",
-  "question": "How does a mathematical function record relationships between physical quantities?",
-  "summary": "A function pairs each input value with exactly one output value; its graph displays that pairing as a continuous curve where coordinates and slopes carry physical units.",
+  "question": "How does a graph record the way one quantity depends on another?",
+  "summary": "A function gives exactly one output for each input. Its graph lays those pairs out on two axes, and every slope or area read off it carries units made from the two axes' units.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "A physical function is an unambiguous rule that assigns to each value of an independent input (such as elapsed time t or coordinate position x) a specific value of a dependent quantity (such as particle displacement, local concentration, or field energy). It describes how one aspect of a physical system responds when another changes."
+      "text": "A function is a rule that gives exactly one value of one quantity for each value of another: the mean square displacement of a Brownian particle for each elapsed time, or the concentration for each position along a tube. It says how one thing responds when another changes."
     },
     {
       "kind": "paragraph",
-      "text": "Plotting a function creates a curve on a coordinate plane. The horizontal axis represents the input, and the vertical axis represents the output. Every point on the curve represents a simultaneously paired measurement. Because both axes correspond to physical measurements, any slope or area derived from the graph carries the combined dimensions of those axes."
+      "text": "A graph puts the input along the horizontal axis and the output up the vertical one, so each point is one pair. Both axes carry units, and so does everything read off the graph: the slope of mean square displacement against time is in square micrometres per second, and the area under a probability density is a plain probability."
     },
     {
       "kind": "paragraph",
-      "text": "Distinguishing functional laws from empirical scatter is essential. A theoretical function predicts the ideal expectation of an ensemble, such as the mean square displacement growing linearly with time. Individual experimental trials fluctuate around this expectation, but the functional form governs the ensemble average."
+      "text": "A formula such as ⟨x²⟩ = 2Dt describes an average over many particles. One particle's squared displacement scatters widely around the line; the average over many lies close to it. The Brownian paper predicts the average, and ends by hoping that a researcher will soon decide the question by observation."
     }
   ],
   "example": [
     {
       "kind": "formula",
       "latex": "\\langle x^2\\rangle = 2Dt",
-      "spoken": "Mean square coordinate displacement equals two times the diffusion coefficient times time."
+      "spoken": "The mean square displacement equals two times the diffusion coefficient times the time."
     },
     {
-      "kind": "paragraph",
-      "text": "For a diffusion coefficient D = 0.5 square micrometres per second, plotting mean square displacement against time t produces a straight line through the origin with slope 2D = 1.0 square micrometres per second. At t = 1 second the value is 1.0 square micrometre; at t = 4 seconds it is 4.0 square micrometres."
+      "kind": "steps",
+      "items": [
+        "Take D = 0.5 square micrometres per second, so 2D = 1 square micrometre per second.",
+        "At t = 1 s the mean square displacement is 1 µm²; at t = 4 s it is 4 µm²; at t = 9 s, 9 µm².",
+        "Plotted against time, these points lie on a straight line through the origin whose slope is 2D, 1 µm² per second.",
+        "Their square roots, the root-mean-square displacements, are 1, 2 and 3 µm: four times the time gives twice the distance."
+      ]
     }
   ],
   "exampleTitle": "Mean square displacement plotted against time",
@@ -44,6 +49,6 @@
       "caption": "Return to Brownian §5 displacement distribution plot"
     }
   ],
-  "stoppingPoint": "A graph is a record of paired quantities with physical units; a slope without units is not an explanation.",
+  "stoppingPoint": "A graph is a record of paired quantities, each with its units. A slope read off it has units too, and a slope stated without them explains nothing.",
   "citations": []
 }
