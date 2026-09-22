@@ -9,11 +9,105 @@
   border-radius: 4px;
 }
 
-.foundation-construction h3,
-.foundation-extension h3 {
+.foundation-construction .construction-title,
+.foundation-extension .construction-title {
   margin-top: 0;
   font-size: var(--type-body);
   font-weight: 600;
+}
+
+/*
+ * The lesson shell. FoundationBody renders all 27 lessons in three places: the lesson's own
+ * page, a paper's clarification panel, and inline in an "every step" reading. The base rules
+ * suit the two embedded places, where the lesson sits inside someone else's argument and must
+ * not shout; `.foundation-page` scales the parts up where the lesson is the whole page.
+ *
+ * Every part has a heading. The question is the first of them, because the explanation under
+ * it is the answer to it; until 2026-09-22 it was set in grey fine print, the same size and
+ * colour as the provenance note directly above it.
+ */
+.foundation-lesson .foundation-part,
+.foundation-lesson .prerequisites {
+  margin-block: 1.75rem;
+}
+.foundation-lesson .foundation-question,
+.foundation-lesson .foundation-part-title {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-serif);
+  font-size: var(--type-body);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+}
+/* "Worked example" names what kind of part this is; the heading names the case. */
+.foundation-part-kind {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-micro);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.foundation-lesson .foundation-stop {
+  border-left: 3px solid var(--plot);
+  padding: 0.15rem 0 0.15rem 1.1rem;
+}
+.foundation-lesson .foundation-stop p {
+  margin: 0;
+}
+/* Every nav is a flex row site-wide (globals.css), which set this label beside its links. */
+.foundation-lesson .prerequisites {
+  display: block;
+}
+.foundation-lesson .prerequisites ul {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* inline-block with a floor, not padding-block: the links sit 24px apart in a row, and
+   padded inline boxes would overlap at the seam (see .foundation-link > a in reader.css). */
+.foundation-lesson .prerequisites a {
+  display: inline-block;
+  min-height: 44px;
+  align-content: center;
+}
+
+.foundation-page .foundation-lesson .foundation-part,
+.foundation-page .foundation-lesson .prerequisites,
+.foundation-page .foundation-construction,
+.foundation-page .foundation-extension {
+  margin-block: 3rem;
+}
+.foundation-page .foundation-lesson .foundation-question,
+.foundation-page .foundation-lesson .foundation-part-title,
+.foundation-page .construction-title {
+  margin-bottom: 1rem;
+  font-size: var(--type-title);
+  font-weight: 400;
+  line-height: 1.2;
+}
+/* The stopping point is the sentence a reader carries back to the passage, so on the lesson's
+   own page the sentence is set large and its heading is a label. */
+.foundation-page .foundation-lesson .foundation-stop p {
+  font-size: var(--type-lead);
+  line-height: 1.45;
+}
+/* Last, so it wins over the page-size rule above at equal specificity: the two closing parts
+   are headed by labels, in every place the lesson renders. */
+.foundation-lesson .foundation-stop > .foundation-part-title,
+.foundation-lesson .prerequisites > .foundation-part-title {
+  margin-bottom: 0.35rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--muted);
 }
 
 .construction-table-wrap {

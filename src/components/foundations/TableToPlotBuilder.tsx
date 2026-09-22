@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import "./foundations.css";
+import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 export interface DataPoint {
   readonly t: number;
@@ -22,7 +23,10 @@ export const BROWNIAN_PLOT_POINTS: readonly DataPoint[] = [
  * Builds a √t displacement curve from a table of paired Brownian measurements.
  * Operable by keyboard and fully rendered for no-JavaScript visitors.
  */
-export function TableToPlotBuilder() {
+export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel?: HeadingLevel }) {
+  const headingId = useId(),
+    Title = headingTag(headingLevel),
+    Sub = headingTag(headingLevel, 1);
   const [plottedCount, setPlottedCount] = useState<number>(BROWNIAN_PLOT_POINTS.length);
 
   const plotNext = () => {
@@ -50,12 +54,12 @@ export function TableToPlotBuilder() {
   return (
     <section
       className="foundation-construction table-to-plot-builder"
-      aria-labelledby="construction-table-plot-heading"
+      aria-labelledby={headingId}
       data-foundation-construction="functions-graphs"
     >
-      <h3 id="construction-table-plot-heading">
+      <Title id={headingId} className="construction-title">
         Interactive construction: from measurement table to curve
-      </h3>
+      </Title>
       <p>
         In section 5 of the Brownian motion paper, Einstein shows that while the mean displacement
         is zero, the mean squared displacement grows linearly with time: ⟨x²⟩ = 2Dt. Consequently,
@@ -258,7 +262,7 @@ export function TableToPlotBuilder() {
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <h4>Textual summary of the construction</h4>
+        <Sub>Textual summary of the construction</Sub>
         <p>
           Each observation pairs an elapsed time in seconds with an accumulated squared displacement
           in square micrometers. Plotting these pairs demonstrates that displacement does not scale

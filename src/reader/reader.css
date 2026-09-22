@@ -162,20 +162,9 @@
 .foundation-inline h4 {
   margin-top: 0;
 }
-.foundation-inline h3 {
-  font-size: var(--type-body);
-}
 .foundation-inline p,
 .foundation-inline li {
   font-size: var(--type-small);
-}
-.prerequisites {
-  margin: 1.5rem 0;
-  gap: 0.5rem 1.2rem;
-}
-.prerequisites a {
-  min-height: 44px;
-  padding: 0.4rem 0;
 }
 .modern-margin {
   border-left: 3px solid var(--accent);
@@ -2190,11 +2179,6 @@ html:is(
   display: inline-block;
   min-height: 44px;
   align-content: center;
-}
-
-.foundation-question {
-  font-size: var(--type-fine);
-  color: var(--muted);
 }
 
 .citation-ref {

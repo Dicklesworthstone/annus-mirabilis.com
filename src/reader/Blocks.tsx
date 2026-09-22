@@ -1,5 +1,7 @@
 import { Formula } from "../components/edition/Formula";
 import { FoundationConstruction } from "../components/foundations/FoundationConstruction.tsx";
+import "../components/foundations/foundations.css";
+import { type HeadingLevel, headingTag } from "../components/foundations/headingLevel.ts";
 import type { Block, Foundation } from "../content/schemas/reading";
 export function FoundationLink({
   id,
@@ -71,6 +73,7 @@ export function ReadingBlocks({
               foundation={foundation}
               foundations={foundations}
               contextLabel={contextLabel}
+              headingLevel={5}
             />
           </aside>
         ) : (
@@ -96,22 +99,43 @@ export function FoundationBody({
   foundations: readonly Foundation[];
   contextLabel?: string | undefined;
   /**
-   * Depth of this body's own headings. Defaults to 3, which is right where a paper page has
-   * already introduced the foundation under an <h2> (PaperReader, PaperPage). The standalone
-   * /foundations/[concept] route has only its <h1> above this, so it passes 2; without that it
-   * skipped a level on all 27 pages.
+   * Depth of the headings that divide the lesson into its parts. 3 under a paper's clarification
+   * panel (PaperReader, PaperPage), whose own title is an h2; 2 on the standalone
+   * /foundations/[concept] page, under its h1; 5 inline under the "A tool for this step" h4.
+   *
+   * Every part has a heading. Until 2026-09-22 only the worked example did, so on all 27 lessons
+   * the question was a grey fine-print line and the explanation that answers it sat unlabelled
+   * between the page title and the example.
    */
-  headingLevel?: 2 | 3;
+  headingLevel?: HeadingLevel;
 }) {
-  const SectionHeading = headingLevel === 2 ? "h2" : "h3";
+  const Part = headingTag(headingLevel);
   return (
-    <>
-      <p className="foundation-question">{foundation.question}</p>
-      <ReadingBlocks blocks={foundation.explanation} foundations={foundations} />
-      <SectionHeading>{foundation.exampleTitle ?? "One worked example"}</SectionHeading>
-      <ReadingBlocks blocks={foundation.example} foundations={foundations} />
-      <p className="notice">A stopping point: {foundation.stoppingPoint}</p>
-      <FoundationConstruction foundationId={foundation.id} />
+    <div className="foundation-lesson">
+      <section className="foundation-part">
+        <Part className="foundation-question">{foundation.question}</Part>
+        <ReadingBlocks blocks={foundation.explanation} foundations={foundations} />
+      </section>
+      <section className="foundation-part">
+        <Part className="foundation-part-title">
+          {foundation.exampleTitle ? (
+            <>
+              <span className="foundation-part-kind">
+                Worked example<span className="visually-hidden">: </span>
+              </span>
+              {foundation.exampleTitle}
+            </>
+          ) : (
+            "One worked example"
+          )}
+        </Part>
+        <ReadingBlocks blocks={foundation.example} foundations={foundations} />
+      </section>
+      <FoundationConstruction foundationId={foundation.id} headingLevel={headingLevel} />
+      <section className="foundation-part foundation-stop">
+        <Part className="foundation-part-title">Where this lesson stops</Part>
+        <p>{foundation.stoppingPoint}</p>
+      </section>
       {foundation.prerequisites.length > 0 && (
         <nav
           className="prerequisites"
@@ -121,18 +145,23 @@ export function FoundationBody({
               : `Prerequisites for ${foundation.title}`
           }
         >
-          {foundation.prerequisites.map((p) => {
-            const prereqId = typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
-            return (
-              <FoundationLink
-                key={prereqId}
-                id={prereqId}
-                title={foundations.find((f) => f.id === prereqId)?.title ?? prereqId}
-              />
-            );
-          })}
+          <Part className="foundation-part-title">This lesson builds on</Part>
+          <ul>
+            {foundation.prerequisites.map((p) => {
+              const prereqId =
+                typeof p === "string" ? p : p.foundationId.replace(/^foundation:/, "");
+              return (
+                <li key={prereqId}>
+                  <FoundationLink
+                    id={prereqId}
+                    title={foundations.find((f) => f.id === prereqId)?.title ?? prereqId}
+                  />
+                </li>
+              );
+            })}
+          </ul>
         </nav>
       )}
-    </>
+    </div>
   );
 }

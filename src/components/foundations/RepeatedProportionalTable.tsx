@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import "./foundations.css";
+import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 export interface DecayStep {
   readonly n: number;
@@ -55,7 +56,14 @@ export const DECAY_STEPS: readonly DecayStep[] = [
  * Demonstrates how exponential processes compound constant fractional changes,
  * and explains why exponents must be dimensionless quantities.
  */
-export function RepeatedProportionalTable() {
+export function RepeatedProportionalTable({
+  headingLevel = 3,
+}: {
+  readonly headingLevel?: HeadingLevel;
+}) {
+  const headingId = useId(),
+    Title = headingTag(headingLevel),
+    Sub = headingTag(headingLevel, 1);
   const [selectedStep, setSelectedStep] = useState<number>(1);
 
   const fallbackStep: DecayStep = {
@@ -70,12 +78,12 @@ export function RepeatedProportionalTable() {
   return (
     <section
       className="foundation-construction repeated-proportional-table"
-      aria-labelledby="construction-exponentials-heading"
+      aria-labelledby={headingId}
       data-foundation-construction="exponentials"
     >
-      <h3 id="construction-exponentials-heading">
+      <Title id={headingId} className="construction-title">
         Interactive construction: repeated proportional changes and dimensionless exponents
-      </h3>
+      </Title>
       <p>
         In linear change, an equal amount is added in every equal interval: y = y₀ + mt. In
         exponential change, the quantity is multiplied by an equal factor in every interval: y = y₀
@@ -123,7 +131,7 @@ export function RepeatedProportionalTable() {
           margin: "1rem 0",
         }}
       >
-        <h4 style={{ margin: "0 0 0.5rem 0" }}>Inspection at step n = {active.n}</h4>
+        <Sub style={{ margin: "0 0 0.5rem 0" }}>Inspection at step n = {active.n}</Sub>
         <p style={{ margin: "0.25rem 0" }}>
           <strong>Formula:</strong> f({active.n}) = (e<sup>−0.5</sup>)<sup>{active.n}</sup> = e
           <sup>−{(active.n * 0.5).toFixed(1)}</sup>
@@ -197,7 +205,7 @@ export function RepeatedProportionalTable() {
       </section>
 
       <div className="dimensionless-exponents-note" style={{ marginTop: "1.5rem" }}>
-        <h4>Why exponents must always be dimensionless</h4>
+        <Sub>Why exponents must always be dimensionless</Sub>
         <p>
           You cannot evaluate e raised to three meters or five seconds, because the series
           definition e<sup>u</sup> = 1 + u + u²/2! + … would require adding meters to square meters.
@@ -221,7 +229,7 @@ export function RepeatedProportionalTable() {
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <h4>Textual summary of the construction</h4>
+        <Sub>Textual summary of the construction</Sub>
         <p>
           Equal steps in the independent variable produce equal multiplicative ratios in the
           dependent variable. The characteristic scale τ sets the interval over which the quantity

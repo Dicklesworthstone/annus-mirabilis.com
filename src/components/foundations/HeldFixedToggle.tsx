@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 export type HeldFixedMode = "time-fixed" | "position-fixed";
 
@@ -9,18 +10,21 @@ export type HeldFixedMode = "time-fixed" | "position-fixed";
  * Demonstrates the two distinct partial derivatives of particle density c(x, t) in Brownian motion,
  * explicitly contrasting what is held fixed and comparing to thermodynamic constraints.
  */
-export function HeldFixedToggle() {
+export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: HeadingLevel }) {
+  const headingId = useId(),
+    Title = headingTag(headingLevel),
+    Sub = headingTag(headingLevel, 1);
   const [activeMode, setActiveMode] = useState<HeldFixedMode>("time-fixed");
 
   return (
     <section
       className="foundation-construction held-fixed-toggle"
-      aria-labelledby="construction-held-fixed-heading"
+      aria-labelledby={headingId}
       data-foundation-construction="partial-derivatives"
     >
-      <h3 id="construction-held-fixed-heading">
+      <Title id={headingId} className="construction-title">
         Interactive construction: what is held fixed in a partial derivative
-      </h3>
+      </Title>
       <p>
         In sections 3 and 4 of the Brownian motion paper, Einstein tracks the concentration of
         suspended particles c(x, t) as a function of both position x along a tube and elapsed time
@@ -82,9 +86,9 @@ export function HeldFixedToggle() {
       >
         {activeMode === "time-fixed" ? (
           <div>
-            <h4 style={{ margin: "0 0 0.5rem 0", color: "var(--accent)" }}>
+            <Sub style={{ margin: "0 0 0.5rem 0", color: "var(--accent)" }}>
               Case A: Hold time t fixed (∂c / ∂x)
-            </h4>
+            </Sub>
             <p>
               <strong>Quantity held fixed:</strong> Time t (a single snapshot across the tube).
             </p>
@@ -102,9 +106,9 @@ export function HeldFixedToggle() {
           </div>
         ) : (
           <div>
-            <h4 style={{ margin: "0 0 0.5rem 0", color: "var(--accent)" }}>
+            <Sub style={{ margin: "0 0 0.5rem 0", color: "var(--accent)" }}>
               Case B: Hold position x fixed (∂c / ∂t)
-            </h4>
+            </Sub>
             <p>
               <strong>Quantity held fixed:</strong> Position x (a single point under the
               microscope).
@@ -144,7 +148,7 @@ export function HeldFixedToggle() {
         tabIndex={0}
         aria-label="Thermodynamic partial derivatives and their held-fixed constraints, scrollable table"
       >
-        <h4>Thermodynamic examples: how the fixed constraint changes the derivative</h4>
+        <Sub>Thermodynamic examples: how the fixed constraint changes the derivative</Sub>
         <p>
           In thermodynamics, the same symbols have completely different numerical values depending
           on what is held fixed:
@@ -217,7 +221,7 @@ export function HeldFixedToggle() {
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <h4>Textual summary of the construction</h4>
+        <Sub>Textual summary of the construction</Sub>
         <p>
           Writing ∂c/∂x asserts that t is held constant during differentiation. Writing ∂c/∂t
           asserts that x is held constant during differentiation. These two operations describe

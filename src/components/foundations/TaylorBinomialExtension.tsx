@@ -1,10 +1,12 @@
 "use client";
 
+import { useId } from "react";
 import {
   binomialPartialSumsGamma,
   gammaMinusOneCancellationFree,
   gammaMinusOneNaive,
 } from "../../foundations/calculus.ts";
+import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 /**
  * Binomial series extension rendered inside foundation:taylor-expansion (AC4).
@@ -12,7 +14,15 @@ import {
  * displaying exact partial sums at v/c = 0.6 and contrasting the cancellation-free evaluation rule
  * with the naive subtraction route at v/c = 10⁻⁴ with both computed values.
  */
-export function TaylorBinomialExtension() {
+export function TaylorBinomialExtension({
+  headingLevel = 3,
+}: {
+  readonly headingLevel?: HeadingLevel;
+}) {
+  const headingId = useId(),
+    Title = headingTag(headingLevel),
+    Sub = headingTag(headingLevel, 1),
+    SubSub = headingTag(headingLevel, 2);
   const sums036 = binomialPartialSumsGamma(0.36);
 
   const vOverCLow = 1e-4;
@@ -26,7 +36,7 @@ export function TaylorBinomialExtension() {
   return (
     <section
       className="foundation-extension taylor-binomial-extension"
-      aria-labelledby="taylor-binomial-heading"
+      aria-labelledby={headingId}
       data-foundation-extension="taylor-expansion-binomial"
       style={{
         border: "1px solid var(--rule)",
@@ -49,9 +59,9 @@ export function TaylorBinomialExtension() {
         >
           Extension · Planned callers: special relativity §4, mass–energy
         </p>
-        <h3 id="taylor-binomial-heading" style={{ margin: "0 0 0.5rem 0" }}>
+        <Title id={headingId} className="construction-title" style={{ margin: "0 0 0.5rem 0" }}>
           Binomial series expansion for the relativistic Lorentz factor γ
-        </h3>
+        </Title>
       </header>
 
       <p>
@@ -76,7 +86,7 @@ export function TaylorBinomialExtension() {
         (1 − x)<sup>−1/2</sup> = 1 + ½ x + ⅜ x² + ⁵/₁₆ x³ + ³⁵/₁₂₈ x⁴ + … &emsp; (|x| &lt; 1)
       </div>
 
-      <h4>1. Moderate speeds: partial sums at v/c = 0.6 (x = 0.36)</h4>
+      <Sub>1. Moderate speeds: partial sums at v/c = 0.6 (x = 0.36)</Sub>
       <p>
         At sixty percent the speed of light, x = 0.36. The exact value of γ − 1 is 1/√(1 − 0.36) − 1
         = 1/0.8 − 1 = 0.25. The progressive partial sums illustrate how higher-order terms
@@ -217,7 +227,7 @@ export function TaylorBinomialExtension() {
         neglected relativistic remainder visible.
       </p>
 
-      <h4>2. Low speeds: catastrophic cancellation and the cancellation-free rule</h4>
+      <Sub>2. Low speeds: catastrophic cancellation and the cancellation-free rule</Sub>
       <p>
         At everyday velocities such as v/c = 10⁻⁴ (where x = 10⁻⁸), evaluating γ − 1 by naive
         floating-point subtraction suffers catastrophic loss of precision. Because γ ≈ 1.000000005,
@@ -234,7 +244,7 @@ export function TaylorBinomialExtension() {
           margin: "0.75rem 0",
         }}
       >
-        <h5 style={{ margin: "0 0 0.5rem 0" }}>Comparison at v/c = 10⁻⁴ (x = 10⁻⁸)</h5>
+        <SubSub style={{ margin: "0 0 0.5rem 0" }}>Comparison at v/c = 10⁻⁴ (x = 10⁻⁸)</SubSub>
         <dl
           style={{
             display: "grid",

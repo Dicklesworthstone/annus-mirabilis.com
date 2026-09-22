@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { PLANCK_TO_ELEMENTARY_CHARGE_RATIO } from "../../foundations/calculus.ts";
 import "./foundations.css";
+import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 export interface NudgeStep {
   readonly label: string;
@@ -21,7 +22,14 @@ export const NUDGE_STEPS: readonly NudgeStep[] = [
  * Nudges incoming photon frequency and observes stopping potential change,
  * reporting Δν, ΔV, and the sensitivity ratio ΔV/Δν = h/e with units.
  */
-export function NudgeSensitivityDemo() {
+export function NudgeSensitivityDemo({
+  headingLevel = 3,
+}: {
+  readonly headingLevel?: HeadingLevel;
+}) {
+  const headingId = useId(),
+    Title = headingTag(headingLevel),
+    Sub = headingTag(headingLevel, 1);
   const [selectedIndex, setSelectedIndex] = useState<number>(2); // Default to small nudge
   const baseNu = 6.0e14; // Base frequency in Hz (visible light, 500 nm)
 
@@ -34,12 +42,12 @@ export function NudgeSensitivityDemo() {
   return (
     <section
       className="foundation-construction nudge-sensitivity-demo"
-      aria-labelledby="construction-nudge-heading"
+      aria-labelledby={headingId}
       data-foundation-construction="derivatives"
     >
-      <h3 id="construction-nudge-heading">
+      <Title id={headingId} className="construction-title">
         Interactive construction: local sensitivity and derivative units
-      </h3>
+      </Title>
       <p>
         In section 8 of the light-quanta paper, Einstein predicts that when light liberates
         electrons from a cathode, increasing the light frequency ν increases the required stopping
@@ -85,7 +93,7 @@ export function NudgeSensitivityDemo() {
           margin: "1rem 0",
         }}
       >
-        <h4 style={{ margin: "0 0 0.5rem 0" }}>Observed sensitivity response</h4>
+        <Sub style={{ margin: "0 0 0.5rem 0" }}>Observed sensitivity response</Sub>
         <dl
           style={{
             display: "grid",
@@ -186,7 +194,7 @@ export function NudgeSensitivityDemo() {
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <h4>Textual summary of the construction</h4>
+        <Sub>Textual summary of the construction</Sub>
         <p>
           A derivative is not a dimensionless number; it has physical units determined by the ratio
           of output units to input units. Here, dividing volts by hertz yields volt-seconds.

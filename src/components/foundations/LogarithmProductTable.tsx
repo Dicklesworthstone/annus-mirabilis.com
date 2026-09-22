@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { LN_2, LOG10_2 } from "../../foundations/calculus.ts";
+import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 export interface LogarithmPair {
   readonly w1: number;
@@ -46,7 +47,14 @@ export type NotationMode = "modern-iso" | "annalen-1905";
  * Demonstrates how logarithms turn multiplied state counts into added entropies,
  * and provides an interactive toggle between modern ISO 'ln' and 1905 Annalen 'lg' notation.
  */
-export function LogarithmProductTable() {
+export function LogarithmProductTable({
+  headingLevel = 3,
+}: {
+  readonly headingLevel?: HeadingLevel;
+}) {
+  const headingId = useId(),
+    Title = headingTag(headingLevel),
+    Sub = headingTag(headingLevel, 1);
   const [notationMode, setNotationMode] = useState<NotationMode>("modern-iso");
 
   const isAnnalen = notationMode === "annalen-1905";
@@ -55,12 +63,12 @@ export function LogarithmProductTable() {
   return (
     <section
       className="foundation-construction logarithm-product-table"
-      aria-labelledby="construction-logarithm-heading"
+      aria-labelledby={headingId}
       data-foundation-construction="logarithms"
     >
-      <h3 id="construction-logarithm-heading">
+      <Title id={headingId} className="construction-title">
         Interactive construction: turning multiplication into addition
-      </h3>
+      </Title>
       <p>
         In section 5 of the light-quanta paper, Einstein reasons about the entropy S of independent
         systems. When two independent systems with microstate counts W₁ and W₂ are combined, the
@@ -105,7 +113,9 @@ export function LogarithmProductTable() {
           margin: "1rem 0",
         }}
       >
-        <h4 style={{ margin: "0 0 0.5rem 0" }}>1905 historical notation vs Modern ISO standard</h4>
+        <Sub style={{ margin: "0 0 0.5rem 0" }}>
+          1905 historical notation vs Modern ISO standard
+        </Sub>
         <p style={{ margin: "0.3rem 0" }}>
           In 1905 German scientific printing (including <em>Annalen der Physik</em>), the symbol{" "}
           <strong>lg</strong> denoted the <strong>natural logarithm</strong> (base e).
@@ -215,7 +225,7 @@ export function LogarithmProductTable() {
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <h4>Textual summary of the construction</h4>
+        <Sub>Textual summary of the construction</Sub>
         <p>
           The table demonstrates that for any pair of numbers, the logarithm of their product
           exactly equals the sum of their individual logarithms. This algebraic homomorphism bridges
