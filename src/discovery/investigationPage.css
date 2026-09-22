@@ -29,6 +29,11 @@
 }
 /* Every row of ways on or out: the stage links under the title were 17px tall at 390 and 19px
    at 1440, and the rows closing mass-energy's page and Brownian's settings 28 to 31px. */
+/* Ways on that a disclosure lists as a row (a link as a direct child of <details>, joined by
+   " · "), and the light-quanta handoff into the entropy-law comparison: 17 to 19px tall on
+   BUILD 14. Links inside a sentence keep their inline size. */
+.investigation-page details > a,
+.investigation-page a[data-coefficient-handoff],
 .investigation-page .actions a:not(.button) {
   display: inline-block;
   min-height: 44px;
