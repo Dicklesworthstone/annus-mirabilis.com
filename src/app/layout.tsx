@@ -38,13 +38,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </a>
         <header className="site-header">
           <a className="wordmark" href="/">
-            Annus Mirabilis<span>Four papers. One year.</span>
+            Annus Mirabilis<span>Einstein in 1905</span>
           </a>
           <nav aria-label="Main navigation">
-            <a href="/papers/">The papers</a>
-            <a href="/discover/brownian-motion/">Discover</a>
-            <a href="/lab/bm-06/">Laboratory</a>
-            <a href="/connections/">Connections</a>
+            <a href="/papers/">Papers</a>
+            <a href="/discover/brownian-motion/">Discovery routes</a>
+            <a href="/lab/bm-06/">Instruments</a>
+            <a href="/connections/">Across the papers</a>
             <SearchLauncher />
             <NotebookLauncher />
           </nav>
@@ -57,8 +57,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <main id="main">{children}</main>
         <footer className="site-footer">
           <p>
-            A critical edition in preparation. The current laboratory is a labeled host calculation,
-            not a reviewed historical edition or an observation of nature.
+            A critical edition in preparation. The instruments here work out their own numbers and
+            say so where each one appears; none of them is a measurement of nature.
           </p>
           <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com">
             Source and development plan
