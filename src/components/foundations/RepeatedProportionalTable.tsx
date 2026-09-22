@@ -204,7 +204,7 @@ export function RepeatedProportionalTable({
         </table>
       </section>
 
-      <div className="dimensionless-exponents-note" style={{ marginTop: "1.5rem" }}>
+      <div className="dimensionless-exponents-note callout-limit">
         <Sub>Why exponents must always be dimensionless</Sub>
         <p>
           You cannot evaluate e raised to three meters or five seconds, because the series

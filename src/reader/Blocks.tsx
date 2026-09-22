@@ -132,7 +132,7 @@ export function FoundationBody({
         <ReadingBlocks blocks={foundation.example} foundations={foundations} />
       </section>
       <FoundationConstruction foundationId={foundation.id} headingLevel={headingLevel} />
-      <section className="foundation-part foundation-stop">
+      <section className="foundation-part foundation-stop callout-limit">
         <Part className="foundation-part-title">Where this lesson stops</Part>
         <p>{foundation.stoppingPoint}</p>
       </section>

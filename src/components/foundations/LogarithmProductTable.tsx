@@ -103,16 +103,7 @@ export function LogarithmProductTable({
         </div>
       </div>
 
-      <div
-        className="notation-callout"
-        style={{
-          border: "1px solid var(--rule)",
-          borderRadius: "4px",
-          padding: "1rem",
-          background: "var(--paper)",
-          margin: "1rem 0",
-        }}
-      >
+      <div className="notation-callout callout-note">
         <Sub style={{ margin: "0 0 0.5rem 0" }}>
           1905 historical notation vs Modern ISO standard
         </Sub>
@@ -210,7 +201,7 @@ export function LogarithmProductTable({
                   style={{
                     padding: "0.4rem",
                     fontFamily: "var(--font-mono, monospace)",
-                    color: "var(--accent)",
+                    fontWeight: 600,
                   }}
                 >
                   {pair.lnProduct.toFixed(6)}

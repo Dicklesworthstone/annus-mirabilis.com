@@ -49,11 +49,7 @@
   letter-spacing: 0.16em;
   line-height: 1.4;
   text-transform: uppercase;
-  color: var(--accent);
-}
-.foundation-lesson .foundation-stop {
-  border-left: 3px solid var(--plot);
-  padding: 0.15rem 0 0.15rem 1.1rem;
+  color: var(--muted);
 }
 .foundation-lesson .foundation-stop p {
   margin: 0;
@@ -176,13 +172,12 @@
   margin: 1rem 0;
 }
 
+/* Rule, field and padding come from the callout family in globals.css (callout-limit on the
+   exponent note and the Taylor rule, callout-note on the notation box). */
 .dimensionless-exponents-note,
 .notation-callout,
 .trustworthy-rule-statement {
   margin-top: 1.5rem;
-  padding: 0.75rem 1rem;
-  border-left: 3px solid var(--accent);
-  background: var(--wash);
   font-size: var(--type-small);
 }
 

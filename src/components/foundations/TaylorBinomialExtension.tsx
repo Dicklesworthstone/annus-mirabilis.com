@@ -47,16 +47,7 @@ export function TaylorBinomialExtension({
       }}
     >
       <header>
-        <p
-          className="eyebrow"
-          style={{
-            fontSize: "0.8rem",
-            color: "var(--accent)",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            margin: "0 0 0.25rem 0",
-          }}
-        >
+        <p className="eyebrow" style={{ margin: "0 0 0.25rem 0" }}>
           Extension · Planned callers: special relativity §4, mass–energy
         </p>
         <Title id={headingId} className="construction-title" style={{ margin: "0 0 0.5rem 0" }}>
@@ -292,17 +283,7 @@ export function TaylorBinomialExtension({
         </dl>
       </div>
 
-      <div
-        className="trustworthy-rule-statement"
-        style={{
-          padding: "0.8rem",
-          background: "rgba(174, 33, 25, 0.08)",
-          borderLeft: "3px solid var(--accent)",
-          borderRadius: "0 4px 4px 0",
-          fontSize: "0.9rem",
-          margin: "0.75rem 0",
-        }}
-      >
+      <div className="trustworthy-rule-statement callout-limit">
         <strong>Cancellation-free evaluation rule:</strong> The cancellation-free route using
         <code>expm1(-0.5 * log1p(-x))</code> or <code>x / (√(1−x) · (1 + √(1−x)))</code>
         is required for trustworthy numerical evaluation. Naive subtraction in IEEE 754 double

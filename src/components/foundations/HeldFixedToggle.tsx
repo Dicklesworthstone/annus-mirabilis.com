@@ -86,9 +86,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
       >
         {activeMode === "time-fixed" ? (
           <div>
-            <Sub style={{ margin: "0 0 0.5rem 0", color: "var(--accent)" }}>
-              Case A: Hold time t fixed (∂c / ∂x)
-            </Sub>
+            <Sub style={{ margin: "0 0 0.5rem 0" }}>Case A: Hold time t fixed (∂c / ∂x)</Sub>
             <p>
               <strong>Quantity held fixed:</strong> Time t (a single snapshot across the tube).
             </p>
@@ -106,9 +104,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
           </div>
         ) : (
           <div>
-            <Sub style={{ margin: "0 0 0.5rem 0", color: "var(--accent)" }}>
-              Case B: Hold position x fixed (∂c / ∂t)
-            </Sub>
+            <Sub style={{ margin: "0 0 0.5rem 0" }}>Case B: Hold position x fixed (∂c / ∂t)</Sub>
             <p>
               <strong>Quantity held fixed:</strong> Position x (a single point under the
               microscope).
