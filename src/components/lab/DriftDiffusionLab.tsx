@@ -16,6 +16,7 @@ import {
   FluxBalancePlot,
   ForceCancellationPanel,
 } from "./DriftDiffusionPlots.tsx";
+import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 
@@ -171,8 +172,9 @@ export function DriftDiffusionLab({
       key === "F" ? p.F === comparison.parameters.F * 2 : p[key] === comparison.parameters[key],
     );
 
+  const problem = view.status === "refused" || view.status === "unavailable";
   const announcement = view.pending
-    ? "Calculating the requested drift-diffusion balance. The last accepted result remains below."
+    ? "Calculating the requested drift-diffusion balance. The last accepted result stays on screen until it is done."
     : view.status === "refused"
       ? `${view.refusal?.message ?? "Calculation refused."} The last accepted result is unchanged.`
       : view.status === "unavailable"
@@ -334,65 +336,67 @@ export function DriftDiffusionLab({
                 </button>
               ))}
             </div>
-            <div className="input-grid">
-              {BM04_FIELDS.map((field) => (
-                <div className="input-field" key={field.key}>
-                  <label htmlFor={`${id}-${field.key}`}>
-                    {field.label} {field.unit ? <span>({field.unit})</span> : null}
-                  </label>
-                  <input
-                    id={`${id}-${field.key}`}
-                    name={field.key}
-                    type="text"
-                    inputMode="decimal"
-                    value={draft[field.key]}
+            <ExperimentSettings contents="force, kick strength, temperature, viscosity, radius, box, grid, time step, initial profile">
+              <div className="input-grid">
+                {BM04_FIELDS.map((field) => (
+                  <div className="input-field" key={field.key}>
+                    <label htmlFor={`${id}-${field.key}`}>
+                      {field.label} {field.unit ? <span>({field.unit})</span> : null}
+                    </label>
+                    <input
+                      id={`${id}-${field.key}`}
+                      name={field.key}
+                      type="text"
+                      inputMode="decimal"
+                      value={draft[field.key]}
+                      onChange={(event) => {
+                        setDraft({ ...draft, [field.key]: event.target.value });
+                        setDirty(true);
+                      }}
+                    />
+                  </div>
+                ))}
+                <div className="input-field">
+                  <label htmlFor={`${id}-profile`}>Initial profile</label>
+                  <select
+                    id={`${id}-profile`}
+                    name="profile"
+                    value={draft.profile}
                     onChange={(event) => {
-                      setDraft({ ...draft, [field.key]: event.target.value });
+                      setDraft({
+                        ...draft,
+                        profile: event.target.value as Bm04Parameters["profile"],
+                      });
                       setDirty(true);
                     }}
-                  />
+                  >
+                    <option value="uniform">Uniform distribution</option>
+                    <option value="step">Step concentration</option>
+                    <option value="equilibrium">Osmotic equilibrium</option>
+                    <option value="spike">Delta spike at center</option>
+                  </select>
                 </div>
-              ))}
-              <div className="input-field">
-                <label htmlFor={`${id}-profile`}>Initial profile</label>
-                <select
-                  id={`${id}-profile`}
-                  name="profile"
-                  value={draft.profile}
-                  onChange={(event) => {
-                    setDraft({
-                      ...draft,
-                      profile: event.target.value as Bm04Parameters["profile"],
-                    });
+              </div>
+              <div className="button-row">
+                <button type="submit" disabled={!dirty && !error}>
+                  Apply settings
+                </button>
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => {
+                    setDraft(toBm04Draft(example.parameters));
                     setDirty(true);
+                    setError("");
                   }}
                 >
-                  <option value="uniform">Uniform distribution</option>
-                  <option value="step">Step concentration</option>
-                  <option value="equilibrium">Osmotic equilibrium</option>
-                  <option value="spike">Delta spike at center</option>
-                </select>
+                  Reset to defaults
+                </button>
+                <button type="button" className="secondary" onClick={share}>
+                  Share settings
+                </button>
               </div>
-            </div>
-            <div className="button-row">
-              <button type="submit" disabled={!dirty && !error}>
-                Apply settings
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => {
-                  setDraft(toBm04Draft(example.parameters));
-                  setDirty(true);
-                  setError("");
-                }}
-              >
-                Reset to defaults
-              </button>
-              <button type="button" className="secondary" onClick={share}>
-                Share settings
-              </button>
-            </div>
+            </ExperimentSettings>
             {error && (
               <p id={`${id}-error`} className="form-error" role="alert">
                 {error}
@@ -411,11 +415,20 @@ export function DriftDiffusionLab({
           </fieldset>
         </form>
         <div className="lab-results">
-          <p role="status" className="notice">
-            {announcement}
-          </p>
+          {/* A refusal is read before the plots it leaves unchanged; an accepted result is
+              summarised after the plots it describes. */}
+          {problem ? (
+            <p role="status" className="notice">
+              {announcement}
+            </p>
+          ) : null}
           <DensityProfilePlot snapshot={snapshot} widthMicrons={p.W * 1e6} />
           <FluxBalancePlot snapshot={snapshot} />
+          {problem ? null : (
+            <p role="status" className="notice">
+              {announcement}
+            </p>
+          )}
           <ForceCancellationPanel
             snapshot={snapshot}
             forceFemtonewtons={p.F * 1e15}
