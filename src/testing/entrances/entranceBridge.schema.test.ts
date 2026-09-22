@@ -9,7 +9,7 @@ import {
   validateSkillNoSymbols,
 } from "../../content/entrances/symbolGuard.ts";
 import { loadRegistry } from "../../content/foundations/registry.ts";
-import { CATALOGUE_STATUS } from "../../experiments/catalogue.ts";
+import { CATALOGUE_IDS, CATALOGUE_STATUS } from "../../experiments/catalogue.ts";
 import { newRunIdentity, TestLogger } from "../log/logger.ts";
 
 const BEAD_ID = "am-bm-first-encounter-fjvh";
@@ -185,22 +185,32 @@ describe("Entrance Bridge Schema & Contract Tests (am-bm-first-encounter-fjvh)",
 
   it("compiles a route naming an in-preparation catalogue id and resolves to in-preparation state", () => {
     const start = performance.now();
+    // Derived, not named. This fixture used to hardcode shelf-michelson-morley, which was in
+    // preparation when it was written; the lab was then built and registered, and the test went
+    // red because an instrument succeeded. It now takes whichever catalogue id is genuinely in
+    // preparation today, and says so plainly if none is left.
+    const inPrepId = CATALOGUE_IDS.find((id) => CATALOGUE_STATUS[id] === "in-preparation");
+    if (!inPrepId) {
+      throw new Error(
+        "No catalogue id is in preparation any more, so this scenario cannot arise: rewrite or retire this test.",
+      );
+    }
     const inPrepRecord = {
       ...validEntranceRecord,
       bridge: {
         ...validBridge,
         continueWith: [
           { route: "more-guidance", targetId: "foundation:mean-variance-rms" },
-          { route: "less-guidance", targetId: "instrument:shelf-michelson-morley" },
+          { route: "less-guidance", targetId: `instrument:${inPrepId}` },
         ],
       },
     };
 
     const validated = validateEntranceRecord(inPrepRecord);
-    expect(validated.bridge.continueWith?.[1]?.targetId).toBe("instrument:shelf-michelson-morley");
+    expect(validated.bridge.continueWith?.[1]?.targetId).toBe(`instrument:${inPrepId}`);
 
-    // Registry dispatcher check: shelf-michelson-morley resolves to 'in-preparation'
-    const status = CATALOGUE_STATUS["shelf-michelson-morley"];
+    // Registry dispatcher check: the chosen id resolves to 'in-preparation'
+    const status = CATALOGUE_STATUS[inPrepId];
     expect(status).toBe("in-preparation");
 
     logger.log({
