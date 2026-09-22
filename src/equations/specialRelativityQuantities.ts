@@ -8,7 +8,8 @@ import type { Quantity, QuantityRegistry } from "./quantities.ts";
  * properTimeElapsed, and the moving frame's time binds coordinateTimeMoving, whatever letter a
  * formula uses for either.
  *
- * Sections 1 to 4, 7, 8, 9 and 10 so far. Dimension order is length, mass, time, temperature,
+ * Sections 1 to 5 and 7 to 10 so far. The frame speed and the velocity components along x share
+ * one semantic kind, velocity-along-x, because the composition law subtracts one from the other. Dimension order is length, mass, time, temperature,
  * current, amount.
  */
 const time = ["0", "0", "1", "0", "0", "0"] as const;
@@ -186,7 +187,7 @@ export const SPECIAL_RELATIVITY_QUANTITIES: QuantityRegistry = Object.freeze(
         "v",
         speed,
         "m/s",
-        "frame-speed",
+        "velocity-along-x",
         "input",
         "The speed of the moving system relative to the stationary one, along x. Its magnitude is less than the speed of light.",
       ),
@@ -439,6 +440,46 @@ export const SPECIAL_RELATIVITY_QUANTITIES: QuantityRegistry = Object.freeze(
         "acceleration",
         "result",
         "The electron's acceleration across its direction of motion, in the laboratory.",
+      ),
+      quantity(
+        "velocityComponentXStationary",
+        "Velocity along x, stationary system",
+        "u_x",
+        speed,
+        "m/s",
+        "velocity-along-x",
+        "input",
+        "An object's velocity along the direction of the frame change, in the stationary system.",
+      ),
+      quantity(
+        "velocityComponentYStationary",
+        "Velocity along y, stationary system",
+        "u_y",
+        speed,
+        "m/s",
+        "velocity-along-y",
+        "input",
+        "An object's velocity across the direction of the frame change, in the stationary system.",
+      ),
+      quantity(
+        "velocityComponentXMoving",
+        "Velocity along x, moving system",
+        "u_x'",
+        speed,
+        "m/s",
+        "velocity-along-x",
+        "result",
+        "The same object's velocity along the direction of the frame change, in the moving system.",
+      ),
+      quantity(
+        "velocityComponentYMoving",
+        "Velocity along y, moving system",
+        "u_y'",
+        speed,
+        "m/s",
+        "velocity-along-y",
+        "result",
+        "The same object's velocity across the direction of the frame change, in the moving system.",
       ),
     ].map((q) => [q.id, q]),
   ),

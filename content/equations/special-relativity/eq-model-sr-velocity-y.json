@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-velocity-y",
+  "paper": "special-relativity",
+  "argument": "arg-sr-velocity-composition",
+  "title": "Velocity across the motion",
+  "spoken": "Transverse velocity has the same denominator and an additional gamma.",
+  "explanation": "Even a velocity at right angles to the motion changes, because the two systems' clocks run at different rates and are set differently along x.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c; the object moves at velocity (u_x, u_y) in the stationary system.",
+    "Modern teaching notation: gamma is the paper's beta, c its V. The paper composes speeds the other way round, from the moving system to the stationary one; this is the same relation inverted."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-velocity-y.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-velocity-y.t.uyMoving",
+      "quantityId": "velocityComponentYMoving"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-velocity-y.t.uy",
+        "quantityId": "velocityComponentYStationary"
+      },
+      "denominator": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-velocity-y.t.factor",
+            "quantityId": "lorentzFactor"
+          },
+          {
+            "kind": "sum",
+            "args": [
+              {
+                "kind": "number",
+                "value": "1"
+              },
+              {
+                "kind": "negate",
+                "argument": {
+                  "kind": "quotient",
+                  "numerator": {
+                    "kind": "product",
+                    "args": [
+                      {
+                        "kind": "symbol",
+                        "termId": "eq-model-sr-velocity-y.t.speed",
+                        "quantityId": "frameSpeed"
+                      },
+                      {
+                        "kind": "symbol",
+                        "termId": "eq-model-sr-velocity-y.t.ux",
+                        "quantityId": "velocityComponentXStationary"
+                      }
+                    ],
+                    "opId": "eq-model-sr-velocity-y.op.denProduct"
+                  },
+                  "denominator": {
+                    "kind": "power",
+                    "base": {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-velocity-y.t.light",
+                      "quantityId": "speedOfLight"
+                    },
+                    "exponent": {
+                      "num": 2,
+                      "den": 1
+                    },
+                    "opId": "eq-model-sr-velocity-y.op.denSquare"
+                  },
+                  "opId": "eq-model-sr-velocity-y.op.denTerm"
+                }
+              }
+            ],
+            "opId": "eq-model-sr-velocity-y.op.den"
+          }
+        ],
+        "opId": "eq-model-sr-velocity-y.op.scaled"
+      },
+      "opId": "eq-model-sr-velocity-y.op.ratio"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-velocity-y.op.den",
+      "title": "One minus v u_x over c squared",
+      "explanation": "Close to 1 at everyday speeds, which is why speeds seem simply to subtract.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.op.denProduct",
+      "title": "Frame speed times object speed",
+      "explanation": "Both along x.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.op.denSquare",
+      "title": "c squared",
+      "explanation": "The square of the speed of light.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.op.denTerm",
+      "title": "v u_x over c squared",
+      "explanation": "The correction Galilean subtraction leaves out.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.op.ratio",
+      "title": "u_y over that",
+      "explanation": "Positions across the motion are the same in both systems; the times are not.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.op.relation",
+      "title": "What it asserts",
+      "explanation": "The velocity across the motion one system assigns, from the velocities the other assigns.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.op.scaled",
+      "title": "Gamma times the correction",
+      "explanation": "The extra gamma comes from the moving system's time.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "Along x. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.t.ux",
+      "title": "Velocity along x, stationary system",
+      "explanation": "The object's velocity along the motion, in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.t.uy",
+      "title": "Velocity along y, stationary system",
+      "explanation": "The object's velocity across the motion, in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-velocity-y.t.uyMoving",
+      "title": "Velocity along y, moving system",
+      "explanation": "The same object's velocity across the motion, in the moving system.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The velocity along y in the moving system",
+      "nodeId": "eq-model-sr-velocity-y.t.uyMoving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "u_y",
+      "nodeId": "eq-model-sr-velocity-y.t.uy"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-velocity-y.t.factor"
+    },
+    {
+      "text": " times one minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-velocity-y.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "u_x",
+      "nodeId": "eq-model-sr-velocity-y.t.ux"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-velocity-y.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

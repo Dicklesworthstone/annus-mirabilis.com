@@ -352,6 +352,46 @@
   frame: stationary-system
   colorRole: space-geometry
 
+- id: velocityComponentXStationary
+  name: Velocity along x (stationary system)
+  description: >
+    The component along the direction of the frame change of an object's velocity, in the stationary system K (u_x).
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+
+- id: velocityComponentYStationary
+  name: Velocity along y (stationary system)
+  description: >
+    The component across the direction of the frame change of an object's velocity, in K (u_y).
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+
+- id: velocityComponentXMoving
+  name: Velocity along x (moving system)
+  description: >
+    The same object's velocity component along the direction of the frame change, in the moving system k (u_x').
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: space-geometry
+
+- id: velocityComponentYMoving
+  name: Velocity along y (moving system)
+  description: >
+    The same object's velocity component across the direction of the frame change, in k (u_y').
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: space-geometry
+
 - id: particleVelocity
   name: Particle velocity (laboratory)
   description: A particle's velocity vector as measured in the laboratory frame.
