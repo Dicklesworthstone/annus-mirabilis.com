@@ -825,11 +825,14 @@ summary {
      65 disclosures under the target size the project sets for every other control -
      on the reading surface, where a thumb is the pointer.
 
-     The header's 44px summary reaches it with `display: flex`, and pays for it at
-     globals.css:894 by suppressing the disclosure triangle. That trade is right for
-     chrome a reader already knows is interactive and wrong here, where the triangle
-     is often the only cue that a thing expands: it would buy a tap target by
-     spending the signal that tells a reader there is something to tap.
+     `.site-header summary` also reaches 44px, but with `display: flex`, which
+     destroys `display: list-item` and takes the native marker with it. It does not
+     drop the affordance - it rebuilds it, and says so in its own comment: the
+     `::-webkit-details-marker` suppression, a `::before` triangle, an `[open]`
+     rotation and a `prefers-reduced-motion` branch, about twenty lines to get back
+     what the element gave away. That is a fair price for chrome whose triangle has
+     to sit on a particular side at a smaller size, and the wrong price here, where
+     there is nothing to reposition.
 
      `align-content` centres the label inside the taller box while the element stays
      `display: list-item`, so the marker survives. Where it is unsupported the rule
