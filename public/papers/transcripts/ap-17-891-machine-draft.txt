@@ -485,6 +485,32 @@ $$
 --- MACHINE DRAFT TRANSCRIPTION PAGE 19 OF 31 ---
 [[ANNALEN-PAGE 909]]
 
+Bildet man nun die Umkehrung dieses Gleichungssystems, erstens durch Auflösen der soeben erhaltenen Gleichungen, zweitens durch Anwendung der Gleichungen auf die inverse Transformation (von $k$ auf $K$), welche durch die Geschwindigkeit $-v$ charakterisiert ist, so folgt, indem man berücksichtigt, daß die beiden so erhaltenen Gleichungssysteme identisch sein müssen:
+$$
+\varphi(v) \cdot \varphi(-v) = 1 .
+$$
+Ferner folgt aus Symmetriegründen[[FN-MARK 1)]]
+$$
+\varphi(v) = \varphi(-v) ;
+$$
+es ist also
+$$
+\varphi(v) = 1 ,
+$$
+und unsere Gleichungen nehmen die Form an:
+$$
+\begin{aligned}
+X' &= X , &\qquad L' &= L , \\
+Y' &= \beta \left( Y - \frac{v}{V} N \right) , &\qquad M' &= \beta \left( M + \frac{v}{V} Z \right) , \\
+Z' &= \beta \left( Z + \frac{v}{V} M \right) , &\qquad N' &= \beta \left( N - \frac{v}{V} Y \right) .
+\end{aligned}
+$$
+Zur Interpretation dieser Gleichungen bemerken wir folgendes. Es liegt eine punktförmige Elektrizitätsmenge vor, welche im ruhenden System $K$ gemessen von der Größe „eins“ sei, d. h. im ruhenden System ruhend auf eine gleiche Elektrizitätsmenge im Abstand 1 cm die Kraft 1 Dyn ausübe. Nach dem Relativitätsprinzip ist diese elektrische Masse auch im bewegten System gemessen von der Größe „eins“. Ruht diese Elektrizitätsmenge relativ zum ruhenden System, so ist definitionsgemäß der Vektor $(X, Y, Z)$ gleich der auf sie wirkenden Kraft. Ruht die Elektrizitätsmenge gegenüber dem bewegten System (wenigstens in dem betreffenden Augenblick), so ist die auf sie wirkende, in dem bewegten System gemessene Kraft gleich dem Vektor $(X', Y', Z')$. Die ersten drei der obigen Gleichungen lassen sich mithin auf folgende zwei Weisen in Worte kleiden:
+
+1. Ist ein punktförmiger elektrischer Einheitspol in einem elektromagnetischen Felde bewegt, so wirkt auf ihn außer der[[CONTINUES]]
+
+[[FN 1)]] Ist z. B. $X = Y = Z = L = M = 0$ und $N \neq 0$, so ist aus Symmetriegründen klar, daß bei Zeichenwechsel von $v$ ohne Änderung des numerischen Wertes auch $Y'$ sein Vorzeichen ändern muß, ohne seinen numerischen Wert zu ändern.
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 20 OF 31 ---
 [[ANNALEN-PAGE 910]]
 
