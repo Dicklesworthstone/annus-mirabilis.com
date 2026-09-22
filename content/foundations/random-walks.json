@@ -14,7 +14,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "Assume each increment has zero mean and the same finite mean square ℓ². Expanding the square produces n squared increments plus pairwise products. Independence and zero means remove every expected cross term."
+      "text": "Assume each increment has zero mean and the same finite mean square l², where l is the root-mean-square size of one step. Expanding the square produces n squared increments plus pairwise products. Independence and zero means remove every expected cross term."
     },
     {
       "kind": "formula",

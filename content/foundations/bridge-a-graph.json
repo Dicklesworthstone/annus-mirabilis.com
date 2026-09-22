@@ -13,7 +13,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "A flat horizontal line means the quantity does not change across the axis. A rising curve has positive slope (increasing rate), while a symmetric bell-shaped curve shows high concentration in the centre with tails tapering toward zero on both sides."
+      "text": "A flat horizontal line means the quantity does not change across the axis. A rising curve has a positive slope: the quantity on the vertical axis grows as you move right. A a symmetric bell-shaped curve shows high concentration in the centre with tails tapering toward zero on both sides."
     }
   ],
   "example": [
@@ -21,7 +21,7 @@
       "kind": "steps",
       "items": [
         "Plot particle positions −3, −1, +1, +3 along the horizontal axis with a vertical bar for particle count.",
-        "The graph shows symmetric spread centered at zero.",
+        "The graph shows symmetric spread centred at zero.",
         "The average position is 0, but the points are visibly separated from the origin."
       ]
     }

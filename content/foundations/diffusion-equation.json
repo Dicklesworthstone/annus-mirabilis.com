@@ -18,7 +18,7 @@
     },
     {
       "kind": "formula",
-      "latex": "J=-D\\frac{\\partial c}{\\partial x}",
+      "latex": "J=-D\\frac{\\partial p}{\\partial x}",
       "spoken": "Fick’s constitutive law sends flux down the density gradient."
     },
     {
