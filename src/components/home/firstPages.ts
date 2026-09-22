@@ -7,6 +7,18 @@ import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts
  * those values is in the receipt with its source ("(Eingegangen 27. September 1905.)", p. 641).
  * A receipt that has lost a date stops the build rather than letting the page draw a guess.
  */
+export type FirstPagesErrorCode = "missing-receipt" | "missing-day-date" | "not-a-day";
+
+/** A receipt the row cannot be drawn from. Thrown at build time, so the export stops. */
+export class FirstPagesError extends Error {
+  readonly code: FirstPagesErrorCode;
+  constructor(code: FirstPagesErrorCode, message: string) {
+    super(message);
+    this.name = "FirstPagesError";
+    this.code = code;
+  }
+}
+
 export interface FirstPage {
   readonly key: string;
   readonly slug: string;
@@ -46,7 +58,8 @@ const MONTHS = [
 /** "1905-03-18" -> "18 March". Refuses anything that is not a whole day, since the row places it. */
 export function dayAndMonth(iso: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  if (!match) throw new Error(`Expected a day-precision date, got "${iso}".`);
+  if (!match)
+    throw new FirstPagesError("not-a-day", `Expected a day-precision date, got "${iso}".`);
   return `${Number(match[3])} ${MONTHS[Number(match[2]) - 1]}`;
 }
 
@@ -64,11 +77,16 @@ export function loadFirstPages(): readonly FirstPage[] {
   const loaded = loadProvenanceReceipts();
   return PAPERS.map(({ key, title }) => {
     const receipt = loaded.receipts.find((r) => r.key === key)?.receipt;
-    if (!receipt) throw new Error(`No provenance receipt for ${key}.`);
+    if (!receipt) throw new FirstPagesError("missing-receipt", `No provenance receipt for ${key}.`);
     const paper = receipt.frontMatter.paper;
     const date = (type: string): string => {
       const found = paper.dates.find((d) => d.type === type && d.precision === "day");
-      if (!found) throw new Error(`Receipt ${key} has no day-precision "${type}" date.`);
+      if (!found) {
+        throw new FirstPagesError(
+          "missing-day-date",
+          `Receipt ${key} has no day-precision "${type}" date.`,
+        );
+      }
       return found.iso;
     };
     const received = date("received");

@@ -51,7 +51,8 @@
   display: block;
   width: 100%;
   height: auto;
-  background: #fff;
+  /* Only seen while the plate loads; the scan itself is the page colour. */
+  background: var(--wash);
   border: 1px solid var(--rule);
   box-shadow: 0 10px 22px -16px rgb(0 0 0 / 0.45);
   transition: transform 160ms ease;
