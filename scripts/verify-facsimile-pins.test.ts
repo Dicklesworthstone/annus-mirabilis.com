@@ -717,7 +717,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.ok(codesFrom(config, tempRoot("no-range")).includes("invalid-config"));
     });
 
-    test("a pinned PDF that is not on disk (verify-facsimile-pins.ts:894)", () => {
+    test("a pinned PDF that is not on disk (verify-facsimile-pins.ts:896)", () => {
       // The temp root is empty, so the recorded path resolves to nothing.
       const root = tempRoot("absent-extract");
       assert.ok(codesFrom(baseConfig(), root).includes("pinned-pdf-unavailable"));
@@ -730,7 +730,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.match(String(mine[0]?.message), /is not on disk/);
     });
 
-    test("a parent scan that is not on disk (verify-facsimile-pins.ts:901)", () => {
+    test("a parent scan that is not on disk (verify-facsimile-pins.ts:903)", () => {
       // The extract exists and the parent does not: this is the CI condition, and it
       // must name the parent rather than the extract.
       const root = tempRoot("absent-parent");
@@ -743,7 +743,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       );
     });
 
-    test("a pinned PDF whose bytes are not the recorded digest (verify-facsimile-pins.ts:921)", {
+    test("a pinned PDF whose bytes are not the recorded digest (verify-facsimile-pins.ts:929)", {
       skip: toolGated,
     }, () => {
       const root = tempRoot("extract-digest");
@@ -752,7 +752,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.ok(codesFrom(baseConfig(), root).includes("pinned-digest-conflict"));
     });
 
-    test("a parent scan whose bytes are not the recorded digest (verify-facsimile-pins.ts:931)", {
+    test("a parent scan whose bytes are not the recorded digest (verify-facsimile-pins.ts:977)", {
       skip: toolGated,
     }, () => {
       // The extract's digest is made to match so the parent is the only conflict left,
@@ -1107,7 +1107,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.match(refusal.message, /pdftotext failed/);
     });
 
-    test("a pinned PDF holding a different number of pages than the record says (verify-facsimile-pins.ts:943)", () => {
+    test("a pinned PDF holding a different number of pages than the record says (verify-facsimile-pins.ts:939)", () => {
       // A real PDF with correct digests and a wrong page count: the one artifact check
       // that needs the tools AND a genuine file, so it could not be reached from the
       // synthetic configs in 5b. ap-34-591 is used because it is the smallest pin.
@@ -1149,7 +1149,7 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
       assert.ok(!codes.includes("parent-digest-conflict"), codes.join(", "));
     });
 
-    test("a measurement that fails for a reason the gate has no code for (verify-facsimile-pins.ts:1009)", () => {
+    test("a measurement that fails for a reason the gate has no code for (verify-facsimile-pins.ts:954)", () => {
       // The catch-all. Everything above produces a typed PinMeasurementError; this arm is
       // what happens when something else throws inside the measurement block, and without
       // it an unreadable file would surface as an untyped crash rather than a finding.
@@ -1192,6 +1192,69 @@ describe("Pinned Facsimile Verification Gate (am-cf6m)", () => {
         assert.match(caught.message, /EACCES|permission denied/i);
       } finally {
         fs.chmodSync(extract, 0o644);
+      }
+    });
+
+    test("the PARENT measurement failing for a reason the gate has no code for (verify-facsimile-pins.ts:1049)", () => {
+      // The OTHER catch-all, and the one site in this file that no test drove. 954 and 1049 are
+      // structurally identical blocks emitting the same code AND the same message shape, so a
+      // citation alone cannot tell them apart and a single arm pointed at either would read as
+      // covering the pair while leaving one undriven. They differ in what they wrap: 954 closes
+      // the block measuring the pinned extract, 1049 closes the block measuring the PARENT and
+      // the folio coverage built from it, which opens by digesting the parent at :973.
+      //
+      // THE EXTRACT HAS TO BE A REAL PDF. The first version of this arm wrote the same
+      // "%PDF-1.4\n" stub both siblings use, and never reached 1049 at all: pdfinfo refused the
+      // stub and site 654 pushed its own page-render-failed, which
+      // `findings.find(code === "page-render-failed")` then matched. The arm was asserting a
+      // finding from a different site under this site's name - the exact wrong-pointer failure
+      // this whole repair is about - and it only surfaced because the message read "pdfinfo
+      // failed" instead of "measurement failed".
+      //
+      // So the extract is a pinned facsimile that genuinely measures, the parent is the
+      // unreadable one, and the assertion below is keyed on the PARENT path rather than on the
+      // code, because the code cannot distinguish 1049 from 954 and the message can.
+      const root = scratch("unreadable-parent");
+      const extract = path.join(root, "public", "papers", "pdfs", "ap-99-1049.pdf");
+      const parent = path.join(root, "sources", "parents", "ap-99-1049-parent.pdf");
+      fs.mkdirSync(path.dirname(extract), { recursive: true });
+      fs.mkdirSync(path.dirname(parent), { recursive: true });
+      // Restore before writing, for the reason the arm above records: a fixture that leaves an
+      // unwritable file behind blocks its own next run and reports a false red.
+      if (fs.existsSync(parent)) fs.chmodSync(parent, 0o644);
+      fs.copyFileSync(path.join(REPO_ROOT, "public", "papers", "pdfs", "ap-17-549.pdf"), extract);
+      fs.writeFileSync(parent, "%PDF-1.4\n");
+      fs.chmodSync(parent, 0o000);
+
+      const findings = verifyPin(
+        {
+          key: "ap-99-1049",
+          articlePages: { printedFirst: 1, printedLast: 2, parentPageIndices: [1, 2] },
+          verifiedAnchor: { parentPageIndex: 1, printedPage: 1, verifiedBy: "test-fixture" },
+          pinned: {
+            path: "public/papers/pdfs/ap-99-1049.pdf",
+            sha256: "d".repeat(64),
+            pageCount: 12,
+            parent: { path: "sources/parents/ap-99-1049-parent.pdf", sha256: "e".repeat(64) },
+          },
+        },
+        root,
+      ).findings;
+
+      try {
+        const caught = findings.find(
+          (finding) =>
+            finding.code === "page-render-failed" && /measurement failed/.test(finding.message),
+        );
+        assert.ok(
+          caught,
+          `no catch-all finding; got: ${findings.map((f) => `${f.code}:${f.message.slice(0, 60)}`).join(" | ")}`,
+        );
+        assert.match(caught.message, /EACCES|permission denied/i);
+        // The discriminator. 954 would name the extract here; only 1049 names the parent.
+        assert.match(caught.message, /ap-99-1049-parent\.pdf/);
+      } finally {
+        fs.chmodSync(parent, 0o644);
       }
     });
 
@@ -1412,7 +1475,7 @@ describe("the six undriven refusal sites", () => {
     assert.match(String(mine[0]?.message), /records no pinned artifact/);
   });
 
-  test("(verify-facsimile-pins.ts:894) a pinned record whose PDF is not on disk names the path", () => {
+  test("(verify-facsimile-pins.ts:896) a pinned record whose PDF is not on disk names the path", () => {
     // Distinguished from :859 by the message, because the two sites share a code: this one has a
     // pinned record and the file is missing, that one has no record at all.
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "am-r3qt-nofile-"));
