@@ -154,26 +154,6 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // its three siblings above. Re-measured, not inherited.
   "/foundations/exponentials/@320",
 
-  // A 320px ELEMENT INSIDE A 254px FLEX, CAUSE NOT YET IDENTIFIED.
-  //
-  // These two were filed under "rendered mathematics wider than the column" on the strength of an
-  // early offender dump that showed a KaTeX <semantics> subtree. THAT WAS WRONG, and re-measuring
-  // is what found it: the unclipped offender is `section.laboratory > div > div`, a block sitting
-  // at exactly 320px - the viewport width - inside a flex parent measuring 254px. No mathematics
-  // is involved.
-  //
-  // Three remedies were tried and NONE moved it, and the injection was verified to have applied
-  // rather than assumed: min-width:0 on the flex items took the item's computed minWidth from
-  // `auto` to `0px`, max-width:100% took the svg's from `none` to `100%`, and the element stayed
-  // 320px wide and the document stayed 353 in every case. So the item is not being held by a
-  // min-content floor, which is what the usual repair addresses, and the real cause is not known.
-  // Recorded as measured rather than named, because a baseline comment that confidently misnames
-  // a cause sends the next reader somewhere the defect is not - which is what the previous
-  // version of this comment did.
-  "/lab/lq-01/@320",
-  "/lab/lq-06/@320",
-  "/lab/lq-09/@320",
-
   // A ROW THAT WILL NOT WRAP. Same class as the .predict-mode-tabs defect already repaired on
   // /lab/me-02/: two 240px button.secondary elements side by side on /lab/lq-07/, a 167px
   // button.secondary on /lab/bm-03/, and a 280px div.input-field on /lab/lq-05/.
@@ -182,45 +162,31 @@ const BASELINE_OVERFLOWING: readonly string[] = Object.freeze([
   // carries min-width:0 and .input-grid collapses to a single column at 560px - so whatever holds
   // it open is something else and it is not grouped here on the strength of looking similar.
   "/lab/lq-05/@320",
-  "/lab/lq-07/@320",
   "/lab/bm-03/@320",
-
-  // CAUSE NOT YET DIAGNOSED, recorded as measured rather than guessed at.
-  // /lab/sr-03/ reports only clipped KaTeX <path> elements among its offenders, so the element
-  // actually driving scrollWidth has not been identified.
-  "/lab/sr-03/@320", // +13px
-  // /discover/brownian-motion/ IS NOT UNSTABLE. IT TRACKS ITS OWN COPY, and I removed two of these
-  // entries on a bad stability check before working that out. Both halves are worth recording.
+  // /discover/brownian-motion/ - THE EXCURSION IS EXPLAINED, AND IT WAS NOT THE COPY.
   //
-  // THE DEFECT. A knowledge card's <summary> is display:flex with no flexWrap - inline styles in
-  // src/discovery/cards/KnowledgeCard.tsx - and it holds a .badge whose text is a sentence. A row
-  // that cannot wrap turns label length directly into document width, so the page measures
-  // whatever its LONGEST badge happens to say. The widest card is
-  // #card-sutherland-1905-phil-mag, whose badge reads "Parallel work: not available to a 1904
-  // reader" and whose row is 311px wide beside a 16px chevron.
+  // This entry read "+236px" and its two wider siblings are gone, repaired by ca2b4d29 and
+  // measured clear on build ZTNqNE8jl2GU8tr0dDU9e. The account that stood here was wrong and is
+  // worth correcting rather than deleting, because I acted on it twice.
   //
-  // That is why it appeared to oscillate: +25px at 320 on build ad3987f2, +236/+196/+166 an hour
-  // later, +25px again, and +236/+196/+166 now. No commit of mine touched the page, but
-  // 4cddd6c1 and a780c62f are de-slopping link and badge copy across these routes, and every
-  // change to the longest label moves the number. A page whose width is a function of its prose
-  // will keep doing this until the row can wrap.
+  // I had it as a page whose width tracks its own prose: a knowledge card's <summary> is
+  // display:flex with no flexWrap and holds a .badge whose text is a sentence, so the longest
+  // label sets the width - and pane29 was editing those labels. That mechanism is real. It was
+  // not what produced the 556px readings. 556 appeared at 320, 360 AND 390 alike, which is the
+  // signature of a fixed-width element rather than of text: a badge row measured 311px and
+  // cannot make a 556px document unless its container is already that wide. The container was
+  // an auto-fit track with a 280px floor. This page carries 22 such grids and four are at 280;
+  // all 22 are converted now and none is left unconverted.
   //
-  // WHY THE TWO WIDER ENTRIES ARE BACK. I removed them after measuring 5 runs per width on one
-  // build - 5/5 overflowing at 320, 0/5 at 360 and 390 - and that check answered the wrong
-  // question. Repeating a measurement against a single build tests whether it is deterministic,
-  // which it is; it cannot see a quantity that varies BETWEEN builds, which is the axis this one
-  // moves on. The very next run put them back as regressions at 556. Restored, with the
-  // measurement that justifies them rather than the one that did not.
+  // What survives at 320 is a different element: article#arg-branch-* at 288px inside a 288px
+  // main, offset by the gutter, from the fork cards in Branch.tsx. Undiagnosed beyond that.
   //
-  // A partial fix is measured and deliberately NOT applied here: flex-wrap on the summary rows
-  // takes 556 to 369, which clears 390 and leaves +49 at 320 and +9 at 360, so it would move two
-  // of these three rather than clear the route. The residue is a 311px element whose text is
-  // ordinary prose and should wrap; min-width:0 on the flex item does not move it, so the cause
-  // is not the usual shrink floor and is not yet known. Fixing two thirds of a route and leaving
-  // an undiagnosed remainder is how a baseline acquires entries nobody can explain.
+  // The lesson I take is about the earlier removal, not the mechanism. I deleted the two wider
+  // entries once on a five-run stability check against ONE build, and they returned as
+  // regressions on the next. Repeating a measurement on the axis you chose says nothing about
+  // the axis the quantity moves on. They leave now for a different reason - a named cause, a
+  // code change that addresses it, and a measurement after it - not because they were quiet.
   "/discover/brownian-motion/@320", // +236px
-  "/discover/brownian-motion/@360", // +196px
-  "/discover/brownian-motion/@390", // +166px
 ]);
 
 /**
@@ -242,6 +208,15 @@ const REPAIRED: readonly { readonly route: string; readonly defect: string }[] =
     defect:
       ".predict-mode-tabs was display:flex with no flex-wrap, so a row of ~113px buttons could not break onto a second line; it fitted at 390 and failed at 320 and 360",
   },
+  // The auto-fit cohort, repaired together by ca2b4d29 and measured together on build
+  // ZTNqNE8jl2GU8tr0dDU9e. One defect, one remedy, five routes.
+  ...(["/lab/lq-01/", "/lab/lq-06/", "/lab/lq-07/", "/lab/lq-09/", "/lab/sr-03/"] as const).map(
+    (route) => ({
+      route,
+      defect:
+        "an inline `repeat(auto-fit, minmax(Npx, 1fr))` laid a track wider than its container, because auto-fit collapses empty tracks and does not shrink one below the minmax floor; the item was never the problem, which is why min-width:0 on it moved nothing. Repaired by giving every floor a ceiling: minmax(min(Npx, 100%), 1fr)",
+    }),
+  ),
   {
     route: "/lab/sr-01/",
     defect:
