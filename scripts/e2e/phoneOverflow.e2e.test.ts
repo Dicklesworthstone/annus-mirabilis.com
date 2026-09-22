@@ -273,9 +273,7 @@ const BASELINE_OVERFLOWING: readonly BaselineEntry[] = Object.freeze([
   // regressions on the next. Repeating a measurement on the axis you chose says nothing about
   // the axis the quantity moves on. They leave now for a different reason - a named cause, a
   // code change that addresses it, and a measurement after it - not because they were quiet.
-  { id: "/discover/brownian-motion/@320", maxExcessPx: 236, measuredOn: "fBWFaB6E9DObGs9-YnM8x" },
-  { id: "/discover/brownian-motion/@360", maxExcessPx: 196, measuredOn: "fBWFaB6E9DObGs9-YnM8x" },
-  { id: "/discover/brownian-motion/@390", maxExcessPx: 166, measuredOn: "fBWFaB6E9DObGs9-YnM8x" },
+  { id: "/discover/brownian-motion/@320", maxExcessPx: 25, measuredOn: "gIpJxyC8Bu98Hvw9ggC1x" },
 ]);
 
 /**
