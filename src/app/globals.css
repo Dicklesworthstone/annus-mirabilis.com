@@ -1122,7 +1122,22 @@ samp,
    * arriving cold what the site is, so that is a decision rather than a tidy-up.
    */
   .wordmark {
-    font-size: 1.25rem;
+    /* --type-body (19px), not 1.25rem (20px). 1.25rem was the twentieth distinct
+       font-size in src and the one that took typeScaleRatchet over its baseline of 19;
+       it sits 1px from a step the scale already declares. Collapsing it costs nothing
+       the rule above was measured for - the constraint is that the wordmark holds ONE
+       line in a 288px content box, and a smaller step is strictly safer on that.
+
+       Re-measured on out/ at 12:20:02, the media query scoped exactly as here:
+
+            320px   wordmark 143 -> 135 wide, still 1 line, header 261 -> 260
+            360px   wordmark 143 -> 135 wide, still 1 line, header 214 -> 213
+            390px   wordmark 143 -> 135 wide, still 1 line, header 214 -> 213
+           1280px   unchanged: 27.36px, 187x82, header 140
+
+       No horizontal overflow at any of the four. The 21px this rule won is intact and
+       gains 1px; desktop is untouched because the change stays inside this query. */
+    font-size: var(--type-body);
     line-height: 1.15;
     white-space: nowrap;
   }

@@ -63,7 +63,26 @@ export function initFormulaOverflow(): void {
     window.addEventListener("resize", update, { passive: true });
 
     if (document.fonts?.ready) {
-      document.fonts.ready.then(update);
+      // MEASURED: fonts.ready alone is too early. `document.fonts.ready` resolves when the faces
+      // have LOADED, not when the browser has finished re-laying-out with them, so update() runs
+      // against pre-webfont widths, finds no overflow, and leaves the formula unreachable.
+      //
+      // On /lab/sr-03/ and /lab/lq-06/ at 320px, three and two formulas overflow horizontally
+      // (311/288, 315/288, 520/288 and 435/288, 360/288) and carried tabindex=null after load,
+      // fonts.ready and 800ms. Dispatching a single resize event - which calls this same update -
+      // set tabindex="0" on every one of them. The logic was already right; only its timing was
+      // wrong.
+      //
+      // /lab/bm-05/ and /lab/bm-08/ were unaffected and that is the tell: their React labs mutate
+      // the DOM after the fonts settle, so the MutationObserver below re-ran update for them. A
+      // page with no post-font mutation got one pass at the wrong moment and never another.
+      //
+      // Two frames, because one is not enough: the first lands in the same frame the font swap is
+      // committed in, and layout is read back stale.
+      document.fonts.ready.then(() => {
+        update();
+        requestAnimationFrame(() => requestAnimationFrame(update));
+      });
     }
 
     if (typeof MutationObserver !== "undefined" && document.body) {
