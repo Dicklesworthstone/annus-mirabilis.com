@@ -29,7 +29,12 @@
   padding-block: 0.6rem;
 }
 .missing-step-panel summary {
-  min-height: 2rem;
+  /* No min-height here. It declared 2rem (32px), and a class-plus-element selector
+     outranks the bare `summary` rule, so this quietly shadowed the global floor: with
+     only globals raised, 20 of the 39 short disclosures stayed short. The two floors
+     were not serving different contexts - both are prose disclosures on the reading
+     surface - so they converge on the one in globals.css rather than being kept in
+     step by hand. */
   cursor: pointer;
   font-weight: 600;
 }

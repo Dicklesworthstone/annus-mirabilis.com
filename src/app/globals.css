@@ -821,7 +821,34 @@ details {
 }
 summary {
   cursor: pointer;
-  min-height: 28px;
+  /* 44px, and the MARKER STAYS. This floored at 28px, which put 39 of a paper page's
+     65 disclosures under the target size the project sets for every other control -
+     on the reading surface, where a thumb is the pointer.
+
+     The header's 44px summary reaches it with `display: flex`, and pays for it at
+     globals.css:894 by suppressing the disclosure triangle. That trade is right for
+     chrome a reader already knows is interactive and wrong here, where the triangle
+     is often the only cue that a thing expands: it would buy a tap target by
+     spending the signal that tells a reader there is something to tap.
+
+     `align-content` centres the label inside the taller box while the element stays
+     `display: list-item`, so the marker survives. Where it is unsupported the rule
+     degrades to a top-aligned 44px box - the target size still holds and only the
+     centring is lost. `.reader-bottom-sheet > summary` was already doing 44px as a
+     list-item, so this follows an in-project precedent rather than inventing one.
+
+     Measured as a delta on out/ 12:20:02 at 390px, with the missingStep floor raised
+     in the same pass:
+
+         /papers/brownian-motion/     under-44  39 -> 0   markers 64 -> 64   +80px
+         /papers/brownian-motion/s4/  under-44  38 -> 0   markers 58 -> 58   +64px
+         /lab/bm-01/                  under-44   8 -> 0   markers 12 -> 12  +128px
+         /lab/bm-06/                  under-44   2 -> 0   markers  3 ->  3   +16px
+
+     No horizontal overflow on any of them. 80px on a 24,477px page is 0.33 percent;
+     a padding-based floor cost 367px for the same result and still left one short. */
+  min-height: 44px;
+  align-content: center;
   font-size: var(--type-small);
 }
 
