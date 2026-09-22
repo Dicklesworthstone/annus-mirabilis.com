@@ -1,5 +1,4 @@
 import { FirstPages } from "../components/home/FirstPages.tsx";
-import { SearchPageField } from "../search/SearchPageField.tsx";
 
 /**
  * The 404 (REDIRECT chrome sweep, 2026-09-22).
@@ -44,8 +43,11 @@ export default function NotFound() {
               or start from one of the four papers the edition is built around.
             </p>
             {/* Search sat in the last paragraph of this page, below all four plates: several
-                screens down on a phone, for the reader most likely to know what they wanted. */}
-            <SearchPageField />
+                screens down on a phone, for the reader most likely to know what they wanted.
+                It is the link in this sentence and not the /search/ page's field: the root
+                not-found boundary is referenced by EVERY route, so a client component here put a
+                737-byte (brotli) chunk into every page's first load. On BUILD 17 that is more
+                than /papers/brownian-motion's 116-byte overage on its 204,800-byte budget. */}
           </div>
         </div>
         <FirstPages />
