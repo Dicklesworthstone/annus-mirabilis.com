@@ -22,7 +22,9 @@ function refusalOf(run: () => unknown): SourceMarkupError | undefined {
 
 describe("sourceMarkup refusals", () => {
   test("source-math-malformed: a formula the ledger's KaTeX policy rejects stops the render", () => {
-    const refusal = refusalOf(() => renderSourceMarkup("Es ist $\\frac{1}{$ und so fort.", "s9-p9"));
+    const refusal = refusalOf(() =>
+      renderSourceMarkup("Es ist $\\frac{1}{$ und so fort.", "s9-p9"),
+    );
     expect(refusal?.code).toBe("source-math-malformed");
     // The message names the block, so the build log says where to look.
     expect(refusal?.message).toContain("s9-p9");
