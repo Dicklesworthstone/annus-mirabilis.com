@@ -3,8 +3,9 @@
  * Specification: AGENTS.md, am-not-notation-page-2us.
  */
 
+/* No cap of its own: the page takes the site's frame, 1320px and up to 1680px on wide screens, so
+   the two columns of entries get the width the old 1200px cap held back. */
 .notation-page {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem 1rem 4rem;
   color: var(--ink);

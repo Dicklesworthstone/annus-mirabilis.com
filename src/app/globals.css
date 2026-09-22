@@ -230,6 +230,28 @@ main {
   margin: auto;
 }
 /*
+ * WIDE SCREENS (chrome, pane %44). The page stopped at 1320px on every screen. Measured on BUILD 14,
+ * <main> was 1320px at 1440, 1920 and 2560 alike, so a 1920 screen left 600px blank and a 2560
+ * screen half of itself, and the reading type stayed at 19px on a screen that has room for 24.
+ *
+ * From 1440px the root size grows with the window, 100% at 1440 to 125% at 2240 and beyond, so the
+ * reading body goes from 19px to about 24px. Everything in rem and ch scales with it: a measure of
+ * 43 or 70 characters stays that many characters and is simply larger. From 1600px the frame grows
+ * too, to 84rem, which is 1546px at 1920 and 1680px at 2560, keeping at least 48px either side.
+ */
+@media (min-width: 1440px) {
+  html {
+    font-size: clamp(100%, calc(100% + (100vw - 1440px) * 0.005), 125%);
+  }
+}
+@media (min-width: 1600px) {
+  .site-header,
+  .site-footer,
+  main {
+    width: min(84rem, calc(100% - 96px));
+  }
+}
+/*
  * CHROME (pane %34): THE HEADER IS TWO BANDS, AND ONE ROW WHERE ONE ROW FITS.
  *
  * Band one holds the wordmark and the two controls, band two the six destinations. From 1200px
