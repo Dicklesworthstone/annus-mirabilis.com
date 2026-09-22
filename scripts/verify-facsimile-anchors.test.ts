@@ -274,4 +274,106 @@ describe("Facsimile Page Anchor Quality Gate (am-cf6m)", () => {
       expect(step?.owner).toBe("am-cf6m");
     });
   });
+
+  describe("4. Runner refusal paths (am-r3qt)", () => {
+    // The runner's three invalid-config arms share ONE code, so the refusal scanner
+    // credits them only by an explicit (file.ts:LINE) citation and never by a block
+    // naming the code. Each case below cites its own site and asserts the discriminator
+    // that separates it from the other two, because "refusalCode is invalid-config" is
+    // satisfied by all three:
+    //
+    //   :57   directory absent       checkedCount 0, keyed by the directory path
+    //   :84   key matches no file    checkedCount 0, keyed by the requested key
+    //   :112  YAML will not parse    checkedCount 1, keyed by the file name
+    //
+    // Reachability was established before these were written, not argued: each arm was
+    // driven in isolation and its response recorded. Attachment is proved the other way
+    // round, by neutralising one site at a time and observing exactly one of these three
+    // tests redden - the count is what makes it a proof, since a plant that reddens all
+    // three would show they are driving a shared precondition rather than their own site.
+    //
+    // Failure paths run against temp fixtures, not the configs on disk, for the reason
+    // stated in describe block 1: repairing a real pin must never turn this file red.
+
+    const validConfigYaml = (): string =>
+      yaml.dump({
+        configVersion: 1,
+        key: "ap-17-132",
+        articlePages: { printedFirst: 10, printedLast: 12, parentPageIndices: [20, 21, 22] },
+        verifiedAnchor: { parentPageIndex: 20, printedPage: 10, verifiedBy: "human:reviewer" },
+      });
+
+    test("a config directory that does not exist refuses with INVALID_CONFIG (verify-facsimile-anchors.ts:57)", () => {
+      const absent = path.join(os.tmpdir(), `am-anchor-absent-${process.pid}-${Date.now()}`);
+      expect(fs.existsSync(absent)).toBe(false);
+
+      const report = verifyFacsimileAnchors({ configDir: absent });
+
+      expect(report.valid).toBe(false);
+      expect(report.checkedCount).toBe(0);
+      expect(report.passedCount).toBe(0);
+      expect(report.failedCount).toBe(1);
+      expect(report.results[absent]?.refusalCode).toBe("invalid-config");
+      expect(report.results[absent]?.errors[0]).toContain("does not exist");
+
+      // The other two arms did not fire: this one keys its result by the DIRECTORY, and
+      // neither sibling message is present.
+      expect(Object.keys(report.results)).toEqual([absent]);
+      expect(report.results[absent]?.errors[0]).not.toContain("No facsimile config found");
+      expect(report.results[absent]?.errors[0]).not.toContain("Failed to read or parse YAML");
+    });
+
+    test("a key matching no config refuses with INVALID_CONFIG (verify-facsimile-anchors.ts:84)", () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "am-anchor-nokey-"));
+      fs.writeFileSync(path.join(dir, "ap-17-132.yaml"), validConfigYaml());
+
+      // The directory exists and holds a readable, VALID config, so neither :57 nor :112
+      // can be what refuses here. Asserted rather than assumed.
+      const control = verifyFacsimileAnchors({ configDir: dir });
+      expect(control.valid).toBe(true);
+      expect(control.checkedCount).toBe(1);
+
+      const report = verifyFacsimileAnchors({ configDir: dir, key: "ap-99-999" });
+
+      expect(report.valid).toBe(false);
+      expect(report.checkedCount).toBe(0);
+      expect(report.passedCount).toBe(0);
+      expect(report.failedCount).toBe(1);
+      expect(report.results["ap-99-999"]?.refusalCode).toBe("invalid-config");
+      expect(report.results["ap-99-999"]?.errors[0]).toContain(
+        "No facsimile config found matching key 'ap-99-999'",
+      );
+
+      // Keyed by the requested KEY, not by a directory or a file name.
+      expect(Object.keys(report.results)).toEqual(["ap-99-999"]);
+      expect(report.results["ap-99-999"]?.errors[0]).not.toContain("does not exist");
+      expect(report.results["ap-99-999"]?.errors[0]).not.toContain("Failed to read or parse YAML");
+
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    test("a config whose YAML will not parse refuses with INVALID_CONFIG (verify-facsimile-anchors.ts:112)", () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "am-anchor-badyaml-"));
+      // An unterminated flow sequence followed by a bare colon: js-yaml raises rather than
+      // returning a partial document, which is the only way to reach the catch arm.
+      fs.writeFileSync(path.join(dir, "broken.yaml"), "articlePages: [1, 2\n  key: : :\n");
+
+      const report = verifyFacsimileAnchors({ configDir: dir });
+
+      expect(report.valid).toBe(false);
+      expect(report.failedCount).toBe(1);
+      expect(report.passedCount).toBe(0);
+      expect(report.results["broken.yaml"]?.refusalCode).toBe("invalid-config");
+      expect(report.results["broken.yaml"]?.errors[0]).toContain("Failed to read or parse YAML");
+
+      // checkedCount separates this arm from both siblings: the file WAS enumerated and
+      // counted, then failed while being read. :57 and :84 both return 0 here.
+      expect(report.checkedCount).toBe(1);
+      expect(Object.keys(report.results)).toEqual(["broken.yaml"]);
+      expect(report.results["broken.yaml"]?.errors[0]).not.toContain("does not exist");
+      expect(report.results["broken.yaml"]?.errors[0]).not.toContain("No facsimile config found");
+
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+  });
 });

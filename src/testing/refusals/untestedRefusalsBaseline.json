@@ -14,7 +14,7 @@
   "scripts/lint-voice.ts": 1,
   "scripts/sources/facsimileSourceSchema.ts": 1,
   "scripts/sources/supersedePin.ts": 4,
-  "scripts/verify-facsimile-anchors.ts": 3,
+  "scripts/verify-facsimile-anchors.ts": 0,
   "scripts/verify-facsimile-pins.ts": 0,
   "scripts/verify-wasm-artifacts.ts": 1,
   "src/a11y/readingSettings/schema.ts": 0,
