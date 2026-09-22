@@ -392,6 +392,17 @@
   frame: moving-system
   colorRole: space-geometry
 
+- id: clockSpeedStationary
+  name: Speed of a transported clock (stationary system)
+  description: >
+    The speed u(t) of a clock carried along a path, at stationary-system time t. Section 4's
+    elapsed time on that clock is an integral over it.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+
 - id: particleVelocity
   name: Particle velocity (laboratory)
   description: A particle's velocity vector as measured in the laboratory frame.

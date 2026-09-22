@@ -28,7 +28,8 @@
       {
         "kind": "formula",
         "latex": "\\Delta\\tau=\\int_{t_0}^{t_1}\\sqrt{1-\\frac{u(t)^2}{c^2}}\\,dt",
-        "spoken": "An ideal clock’s elapsed proper time is the path integral of the square root of one minus its speed squared over c squared."
+        "spoken": "An ideal clock’s elapsed proper time is the path integral of the square root of one minus its speed squared over c squared.",
+        "equations": ["eq-model-sr-transported-clock"]
       },
       {
         "kind": "paragraph",

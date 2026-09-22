@@ -28,7 +28,15 @@
       {
         "kind": "formula",
         "latex": "\\begin{aligned}E_x'&=E_x,&B_x'&=B_x\\\\E_y'&=\\gamma(E_y-vB_z),&B_y'&=\\gamma(B_y+vE_z/c^2)\\\\E_z'&=\\gamma(E_z+vB_y),&B_z'&=\\gamma(B_z-vE_y/c^2)\\end{aligned}",
-        "spoken": "The x components stay unchanged; the transverse electric and magnetic components mix with the stated signs and SI factors."
+        "spoken": "The x components stay unchanged; the transverse electric and magnetic components mix with the stated signs and SI factors.",
+        "equations": [
+          "eq-model-sr-field-ex",
+          "eq-model-sr-field-bx",
+          "eq-model-sr-field-ey",
+          "eq-model-sr-field-by",
+          "eq-model-sr-field-ez",
+          "eq-model-sr-field-bz"
+        ]
       },
       {
         "kind": "paragraph",

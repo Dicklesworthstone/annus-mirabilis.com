@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-partial-t",
+  "paper": "special-relativity",
+  "argument": "arg-sr-field-derivatives",
+  "title": "The time derivative, rewritten",
+  "spoken": "The time derivative is gamma times the primed time derivative minus v times the primed x derivative.",
+  "explanation": "The rate of change with stationary time, written through the moving system's derivatives. Per second on both sides.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "Partial derivatives of a field, taken in each system's own coordinates; the chain rule through the Lorentz transformation relates them."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-partial-t.op.relation",
+    "left": {
+      "kind": "partialOperator",
+      "opId": "eq-model-sr-partial-t.op.left",
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-partial-t.t.leftVar",
+        "quantityId": "coordinateTimeStationary"
+      }
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-partial-t.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "partialOperator",
+              "opId": "eq-model-sr-partial-t.op.first",
+              "variable": {
+                "kind": "symbol",
+                "termId": "eq-model-sr-partial-t.t.firstVar",
+                "quantityId": "coordinateTimeMoving"
+              }
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-partial-t.t.speed",
+                    "quantityId": "frameSpeed"
+                  },
+                  {
+                    "kind": "partialOperator",
+                    "opId": "eq-model-sr-partial-t.op.second",
+                    "variable": {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-partial-t.t.secondVar",
+                      "quantityId": "coordinatePositionMoving"
+                    }
+                  }
+                ],
+                "opId": "eq-model-sr-partial-t.op.vSecond"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-partial-t.op.combination"
+        }
+      ],
+      "opId": "eq-model-sr-partial-t.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-partial-t.op.combination",
+      "title": "The two together",
+      "explanation": "The chain rule: a change in one stationary coordinate moves both moving coordinates.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.op.first",
+      "title": "The matching rate in the moving system",
+      "explanation": "The same kind of derivative, in the moving system's coordinates.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.op.left",
+      "title": "Rate of change in the stationary system",
+      "explanation": "How a field changes with this stationary-system coordinate, the others held fixed.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.op.relation",
+      "title": "What it asserts",
+      "explanation": "An identity between operators: it holds for any field it is applied to. Substituted into both of Maxwell's equations for a plane wave, it regroups them into the same equations for the primed fields.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.op.scaled",
+      "title": "Times gamma",
+      "explanation": "The same factor as the transformation itself.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.op.second",
+      "title": "The other rate in the moving system",
+      "explanation": "Because each moving coordinate depends on both x and t, the other derivative enters too.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.op.vSecond",
+      "title": "Times v",
+      "explanation": "How strongly the other coordinate enters.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared. At 0.6c it is 1.25.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.t.firstVar",
+      "title": "Time, moving system",
+      "explanation": "t′: the moving system's time.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.t.leftVar",
+      "title": "Time, stationary system",
+      "explanation": "t: the derivative is taken as t varies.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.t.secondVar",
+      "title": "Position, moving system",
+      "explanation": "x′: the moving system's position.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-partial-t.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "Along x. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The derivative with respect to "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-sr-partial-t.t.leftVar"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-partial-t.t.factor"
+    },
+    {
+      "text": " times the derivative with respect to "
+    },
+    {
+      "text": "t′",
+      "nodeId": "eq-model-sr-partial-t.t.firstVar"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-partial-t.t.speed"
+    },
+    {
+      "text": " times the derivative with respect to "
+    },
+    {
+      "text": "x′",
+      "nodeId": "eq-model-sr-partial-t.t.secondVar"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

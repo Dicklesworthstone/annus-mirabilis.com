@@ -539,6 +539,17 @@
   frame: laboratory
   colorRole: field
 
+- id: electronSpeedStationary
+  name: Electron speed during its acceleration (stationary system)
+  description: >
+    The electron's speed u along x at an intermediate stage of its acceleration from rest, the
+    variable of section 10's work integral, which runs from 0 to the final speed v.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+
 - id: particleChargeMagnitude
   name: Size of a particle's charge
   description: >

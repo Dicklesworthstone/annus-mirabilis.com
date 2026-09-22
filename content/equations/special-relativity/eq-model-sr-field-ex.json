@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-field-ex",
+  "paper": "special-relativity",
+  "argument": "arg-sr-field-components",
+  "title": "The electric field along the motion",
+  "spoken": "The electric field component along the motion is the same in both systems.",
+  "explanation": "The component of the electric field along the direction of motion is unchanged by the change of system.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "Fields in empty space, in SI units; E is the electric field and B the magnetic field, with components along x, y and z."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-field-ex.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-field-ex.t.moving",
+      "quantityId": "electricFieldMoving",
+      "index": "x"
+    },
+    "right": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-field-ex.t.stationary",
+      "quantityId": "electricFieldStationary",
+      "index": "x"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-field-ex.op.relation",
+      "title": "What it asserts",
+      "explanation": "Only the components across the motion mix.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ex.t.moving",
+      "title": "Electric field, moving system",
+      "explanation": "The electric field in the moving system, one component; the subscript names which.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ex.t.stationary",
+      "title": "Electric field, stationary system",
+      "explanation": "The electric field in the stationary system, one component; the subscript names which.",
+      "foundation": "electromagnetism-charges"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The electric field along x in the moving system",
+      "nodeId": "eq-model-sr-field-ex.t.moving"
+    },
+    {
+      "text": " equals "
+    },
+    {
+      "text": "the same component in the stationary system",
+      "nodeId": "eq-model-sr-field-ex.t.stationary"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

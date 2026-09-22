@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-electron-work-result",
+  "paper": "special-relativity",
+  "argument": "arg-sr-electron-work",
+  "title": "The result: m c squared times gamma minus one",
+  "spoken": "Integrating the longitudinal work from rest gives m c squared times gamma minus one.",
+  "explanation": "Because the rate of change of gamma with speed is gamma cubed u over c squared, the integral is m c squared times the change in gamma, from 1 at rest to gamma at v. At 0.6c that is 0.25 m c squared; the familiar one half m v squared gives 0.18 m c squared, so at this speed the difference is plain.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An electron accelerated from rest to speed v along x, with |v| < c, by a longitudinal force.",
+    "Modern teaching notation: gamma is the paper's beta; m is the electron's mass at rest."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-electron-work-result.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-electron-work-result.t.energy",
+      "quantityId": "kineticEnergy"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-electron-work-result.t.mass",
+          "quantityId": "electronMass"
+        },
+        {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-electron-work-result.t.light",
+            "quantityId": "speedOfLight"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          },
+          "opId": "eq-model-sr-electron-work-result.op.lightSquared"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-electron-work-result.t.factor",
+              "quantityId": "lorentzFactor"
+            },
+            {
+              "kind": "number",
+              "value": "-1"
+            }
+          ],
+          "opId": "eq-model-sr-electron-work-result.op.excess"
+        }
+      ],
+      "opId": "eq-model-sr-electron-work-result.op.product"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-electron-work-result.op.excess",
+      "title": "Gamma minus one",
+      "explanation": "Zero at rest, 0.25 at 0.6c. For small speeds it is about half of v squared over c squared.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-result.op.lightSquared",
+      "title": "c squared",
+      "explanation": "The square of the speed of light.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-result.op.product",
+      "title": "m c squared times that",
+      "explanation": "Near zero speed this becomes one half m v squared.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-result.op.relation",
+      "title": "What it asserts",
+      "explanation": "The exact energy of motion. It grows without limit as v approaches c.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-result.t.energy",
+      "title": "Kinetic energy",
+      "explanation": "The electron's energy of motion at speed v.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-result.t.factor",
+      "title": "Gamma at the final speed",
+      "explanation": "The Lorentz factor at v.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-result.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-result.t.mass",
+      "title": "Electron mass",
+      "explanation": "The electron's mass at rest.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The kinetic energy",
+      "nodeId": "eq-model-sr-electron-work-result.t.energy"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "m",
+      "nodeId": "eq-model-sr-electron-work-result.t.mass"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-electron-work-result.t.light"
+    },
+    {
+      "text": " squared times "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-electron-work-result.t.factor"
+    },
+    {
+      "text": " minus one."
+    }
+  ]
+}

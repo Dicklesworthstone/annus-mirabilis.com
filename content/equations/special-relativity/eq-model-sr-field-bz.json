@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-field-bz",
+  "paper": "special-relativity",
+  "argument": "arg-sr-field-components",
+  "title": "Magnetic field along z",
+  "spoken": "The moving magnetic field along z is gamma times B z minus v E y over c squared.",
+  "explanation": "The z component, with the opposite sign.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "Fields in empty space, in SI units; E is the electric field and B the magnetic field, with components along x, y and z."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-field-bz.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-field-bz.t.moving",
+      "quantityId": "magneticFieldMoving",
+      "index": "z"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-field-bz.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-field-bz.t.same",
+              "quantityId": "magneticFieldStationary",
+              "index": "z"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "quotient",
+                "numerator": {
+                  "kind": "product",
+                  "args": [
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-field-bz.t.speed",
+                      "quantityId": "frameSpeed"
+                    },
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-field-bz.t.other",
+                      "quantityId": "electricFieldStationary",
+                      "index": "y"
+                    }
+                  ],
+                  "opId": "eq-model-sr-field-bz.op.vOther"
+                },
+                "denominator": {
+                  "kind": "power",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-field-bz.t.light",
+                    "quantityId": "speedOfLight"
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  },
+                  "opId": "eq-model-sr-field-bz.op.lightSquared"
+                },
+                "opId": "eq-model-sr-field-bz.op.overC2"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-field-bz.op.combination"
+        }
+      ],
+      "opId": "eq-model-sr-field-bz.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-field-bz.op.combination",
+      "title": "The two together",
+      "explanation": "In the moving system, what was a pure magnetic field is partly electric, and the other way round.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.op.lightSquared",
+      "title": "c squared",
+      "explanation": "The square of the speed of light.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.op.overC2",
+      "title": "Over c squared",
+      "explanation": "In SI units the electric field enters the magnetic one divided by c squared.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.op.relation",
+      "title": "What it asserts",
+      "explanation": "Electric and magnetic fields are not separately the same in both systems; their components across the motion mix.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.op.scaled",
+      "title": "Times gamma",
+      "explanation": "The same factor as for coordinates.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.op.vOther",
+      "title": "Speed times the other field",
+      "explanation": "The other field, carried past at speed v, contributes to this one.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared. At 0.6c it is 1.25.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.t.moving",
+      "title": "Magnetic field, moving system",
+      "explanation": "The magnetic field in the moving system, one component; the subscript names which.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.t.other",
+      "title": "Electric field, stationary system",
+      "explanation": "The electric field in the stationary system, one component; the subscript names which.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.t.same",
+      "title": "Magnetic field, stationary system",
+      "explanation": "The magnetic field in the stationary system, one component; the subscript names which.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-bz.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "Along x. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The moving system's component",
+      "nodeId": "eq-model-sr-field-bz.t.moving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-field-bz.t.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the stationary component",
+      "nodeId": "eq-model-sr-field-bz.t.same"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-field-bz.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the other field",
+      "nodeId": "eq-model-sr-field-bz.t.other"
+    },
+    {
+      "text": " over c squared."
+    }
+  ]
+}

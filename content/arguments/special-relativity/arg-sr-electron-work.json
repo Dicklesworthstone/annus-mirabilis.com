@@ -28,7 +28,8 @@
       {
         "kind": "formula",
         "latex": "K=\\int_0^v m\\gamma(u)^3u\\,du=mc^2(\\gamma-1)",
-        "spoken": "Integrating the longitudinal work from rest gives m c squared times gamma minus one."
+        "spoken": "Integrating the longitudinal work from rest gives m c squared times gamma minus one.",
+        "equations": ["eq-model-sr-electron-work-integral", "eq-model-sr-electron-work-result"]
       },
       {
         "kind": "paragraph",

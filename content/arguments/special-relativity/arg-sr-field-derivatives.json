@@ -28,7 +28,8 @@
       {
         "kind": "formula",
         "latex": "\\partial_t=\\gamma(\\partial_{t'}-v\\partial_{x'}),\\qquad\\partial_x=\\gamma(\\partial_{x'}-v\\partial_{t'}/c^2)",
-        "spoken": "The chain rule mixes the time and x derivatives, with gamma and the appropriate powers of light speed."
+        "spoken": "The chain rule mixes the time and x derivatives, with gamma and the appropriate powers of light speed.",
+        "equations": ["eq-model-sr-partial-t", "eq-model-sr-partial-x"]
       },
       {
         "kind": "paragraph",

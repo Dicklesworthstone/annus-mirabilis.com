@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-transported-clock",
+  "paper": "special-relativity",
+  "argument": "arg-sr-transported-clock",
+  "title": "Time on a clock carried along a path",
+  "spoken": "An ideal clock's elapsed proper time is the path integral of the square root of one minus its speed squared over c squared.",
+  "explanation": "Add up, moment by moment, the rate at which the carried clock runs: one when it is at rest, less when it moves. Two legs at 0.6c lasting 10 stationary-system seconds give the travelling clock 8 seconds; a clock left at rest records 10.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An ideal clock carried along a path through the stationary system, with speed u(t) below c at every moment.",
+    "Flat spacetime, no gravity; the turnaround of a round trip is treated as instantaneous.",
+    "Modern teaching notation: Delta tau is the modern proper time, the time the carried clock records, not the paper's tau."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-transported-clock.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-transported-clock.t.proper",
+      "quantityId": "properTimeElapsed"
+    },
+    "right": {
+      "kind": "integral",
+      "opId": "eq-model-sr-transported-clock.op.integral",
+      "expression": {
+        "kind": "root",
+        "radicand": {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "number",
+              "value": "1"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "quotient",
+                "numerator": {
+                  "kind": "power",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-transported-clock.t.speed",
+                    "quantityId": "clockSpeedStationary",
+                    "at": {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-transported-clock.t.timeArg",
+                      "quantityId": "coordinateTimeStationary"
+                    }
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  },
+                  "opId": "eq-model-sr-transported-clock.op.speedSquared"
+                },
+                "denominator": {
+                  "kind": "power",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-transported-clock.t.light",
+                    "quantityId": "speedOfLight"
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  },
+                  "opId": "eq-model-sr-transported-clock.op.lightSquared"
+                },
+                "opId": "eq-model-sr-transported-clock.op.ratio"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-transported-clock.op.radicand"
+        },
+        "degree": 2,
+        "opId": "eq-model-sr-transported-clock.op.rate"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-transported-clock.t.time",
+        "quantityId": "coordinateTimeStationary"
+      },
+      "lower": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-transported-clock.t.start",
+        "quantityId": "coordinateTimeStationary",
+        "index": "0"
+      },
+      "upper": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-transported-clock.t.end",
+        "quantityId": "coordinateTimeStationary",
+        "index": "1"
+      }
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-transported-clock.op.integral",
+      "title": "Add it up over the trip",
+      "explanation": "The sum of rate times time over every moment from start to end.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.op.lightSquared",
+      "title": "c squared",
+      "explanation": "The square of the speed of light.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.op.radicand",
+      "title": "One minus that",
+      "explanation": "Positive at every speed below c.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.op.rate",
+      "title": "The clock's rate",
+      "explanation": "One over gamma at that moment: 0.8 at 0.6c.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.op.ratio",
+      "title": "u squared over c squared",
+      "explanation": "0 at rest, 0.36 at 0.6c.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.op.relation",
+      "title": "What it asserts",
+      "explanation": "The time a carried clock records between two events depends on the path it took between them. This is not a statement about two separated inertial clocks each judging the other slow.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.op.speedSquared",
+      "title": "Speed squared",
+      "explanation": "The rate does not depend on the direction of travel.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.t.end",
+      "title": "End of the trip",
+      "explanation": "The stationary system's time when it ends.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.t.proper",
+      "title": "Time the carried clock records",
+      "explanation": "The clock's own elapsed time between the start and the end of the trip.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.t.speed",
+      "title": "The clock's speed",
+      "explanation": "Its speed at each moment, in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.t.start",
+      "title": "Start of the trip",
+      "explanation": "The stationary system's time when the trip begins.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.t.time",
+      "title": "Time in the stationary system",
+      "explanation": "The stationary system's time, the variable the integral runs over.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transported-clock.t.timeArg",
+      "title": "At time t",
+      "explanation": "u(t) is the clock's speed at stationary-system time t.",
+      "foundation": "functions-graphs"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The time the carried clock records",
+      "nodeId": "eq-model-sr-transported-clock.t.proper"
+    },
+    {
+      "text": " is the integral, from "
+    },
+    {
+      "text": "the start",
+      "nodeId": "eq-model-sr-transported-clock.t.start"
+    },
+    {
+      "text": " to "
+    },
+    {
+      "text": "the end",
+      "nodeId": "eq-model-sr-transported-clock.t.end"
+    },
+    {
+      "text": " of the trip, of the square root of one minus "
+    },
+    {
+      "text": "its speed",
+      "nodeId": "eq-model-sr-transported-clock.t.speed"
+    },
+    {
+      "text": " squared over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-transported-clock.t.light"
+    },
+    {
+      "text": " squared, over "
+    },
+    {
+      "text": "stationary time",
+      "nodeId": "eq-model-sr-transported-clock.t.time"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

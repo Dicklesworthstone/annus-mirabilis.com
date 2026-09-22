@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-electron-work-integral",
+  "paper": "special-relativity",
+  "argument": "arg-sr-electron-work",
+  "title": "Add up the work from rest",
+  "spoken": "Integrating the longitudinal work from rest gives the kinetic energy.",
+  "explanation": "The work done on the electron as it speeds up from rest to v: the longitudinal mass m gamma cubed times the speed, added up over every speed on the way.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An electron accelerated from rest to speed v along x, with |v| < c, by a longitudinal force.",
+    "Modern teaching notation: gamma is the paper's beta; m is the electron's mass at rest."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-electron-work-integral.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-electron-work-integral.t.energy",
+      "quantityId": "kineticEnergy"
+    },
+    "right": {
+      "kind": "integral",
+      "opId": "eq-model-sr-electron-work-integral.op.integral",
+      "expression": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-electron-work-integral.t.mass",
+            "quantityId": "electronMass"
+          },
+          {
+            "kind": "power",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-sr-electron-work-integral.t.factor",
+              "quantityId": "lorentzFactor",
+              "at": {
+                "kind": "symbol",
+                "termId": "eq-model-sr-electron-work-integral.t.speedArg",
+                "quantityId": "electronSpeedStationary"
+              }
+            },
+            "exponent": {
+              "num": 3,
+              "den": 1
+            },
+            "opId": "eq-model-sr-electron-work-integral.op.cubed"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-sr-electron-work-integral.t.speed",
+            "quantityId": "electronSpeedStationary"
+          }
+        ],
+        "opId": "eq-model-sr-electron-work-integral.op.integrand"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-electron-work-integral.t.variable",
+        "quantityId": "electronSpeedStationary"
+      },
+      "lower": {
+        "kind": "number",
+        "value": "0"
+      },
+      "upper": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-electron-work-integral.t.final",
+        "quantityId": "frameSpeed"
+      }
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.op.cubed",
+      "title": "Gamma cubed",
+      "explanation": "The longitudinal mass of section 10 is m gamma cubed.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.op.integral",
+      "title": "From rest to v",
+      "explanation": "Adding the work over every speed from 0 to v.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.op.integrand",
+      "title": "Longitudinal mass times speed",
+      "explanation": "Force times distance, rewritten as mass times speed times the change in speed.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.op.relation",
+      "title": "What it asserts",
+      "explanation": "The energy of motion is the work done to reach speed v from rest.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.t.energy",
+      "title": "Kinetic energy",
+      "explanation": "The electron's energy of motion at speed v.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.t.factor",
+      "title": "Gamma at each speed",
+      "explanation": "The Lorentz factor evaluated at the speed u reached so far, not at the final speed.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.t.final",
+      "title": "Final speed",
+      "explanation": "The speed the electron ends at.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.t.mass",
+      "title": "Electron mass",
+      "explanation": "The electron's mass at rest.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.t.speed",
+      "title": "Speed on the way",
+      "explanation": "The electron's speed at an intermediate stage, from 0 up to v.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.t.speedArg",
+      "title": "Speed on the way",
+      "explanation": "The electron's speed at an intermediate stage, from 0 up to v.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-electron-work-integral.t.variable",
+      "title": "Speed on the way",
+      "explanation": "The electron's speed at an intermediate stage, from 0 up to v.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The kinetic energy",
+      "nodeId": "eq-model-sr-electron-work-integral.t.energy"
+    },
+    {
+      "text": " is the integral from 0 to "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-electron-work-integral.t.final"
+    },
+    {
+      "text": " of "
+    },
+    {
+      "text": "m",
+      "nodeId": "eq-model-sr-electron-work-integral.t.mass"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-electron-work-integral.t.factor"
+    },
+    {
+      "text": " of u cubed times "
+    },
+    {
+      "text": "u",
+      "nodeId": "eq-model-sr-electron-work-integral.t.speed"
+    },
+    {
+      "text": ", over "
+    },
+    {
+      "text": "u",
+      "nodeId": "eq-model-sr-electron-work-integral.t.variable"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

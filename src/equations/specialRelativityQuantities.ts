@@ -8,7 +8,7 @@ import type { Quantity, QuantityRegistry } from "./quantities.ts";
  * properTimeElapsed, and the moving frame's time binds coordinateTimeMoving, whatever letter a
  * formula uses for either.
  *
- * Sections 1 to 5 and 7 to 10 so far. The frame speed and the velocity components along x share
+ * Sections 1 to 10. The frame speed and the velocity components along x share
  * one semantic kind, velocity-along-x, because the composition law subtracts one from the other. Dimension order is length, mass, time, temperature,
  * current, amount.
  */
@@ -28,6 +28,7 @@ const mass = ["0", "1", "0", "0", "0", "0"] as const;
 const charge = ["0", "0", "1", "0", "1", "0"] as const;
 const potential = ["2", "1", "-3", "0", "-1", "0"] as const;
 const magneticField = ["0", "1", "-2", "0", "-1", "0"] as const;
+const electricField = ["1", "1", "-3", "0", "-1", "0"] as const;
 function quantity(
   id: string,
   name: string,
@@ -532,7 +533,57 @@ export const SPECIAL_RELATIVITY_QUANTITIES: QuantityRegistry = Object.freeze(
         "T",
         "magnetic-field",
         "input",
-        "The strength of the uniform magnetic field across the electron's motion, in the laboratory.",
+        "The magnetic field in the stationary system. In section 10 it is the strength of a uniform field across the electron's motion; in section 6 a subscript names its component.",
+      ),
+      quantity(
+        "electricFieldStationary",
+        "Electric field, stationary system",
+        "E",
+        electricField,
+        "V/m",
+        "electric-field",
+        "input",
+        "The electric field in the stationary system. A subscript names its component: E_y is the component along y.",
+      ),
+      quantity(
+        "electricFieldMoving",
+        "Electric field, moving system",
+        "E'",
+        electricField,
+        "V/m",
+        "electric-field",
+        "result",
+        "The electric field in the moving system, component by component.",
+      ),
+      quantity(
+        "magneticFieldMoving",
+        "Magnetic field, moving system",
+        "B'",
+        magneticField,
+        "T",
+        "magnetic-field",
+        "result",
+        "The magnetic field in the moving system, component by component.",
+      ),
+      quantity(
+        "clockSpeedStationary",
+        "Speed of the transported clock",
+        "u",
+        speed,
+        "m/s",
+        "speed",
+        "input",
+        "The clock's speed at each moment, in the stationary system; u(t) is its value at time t.",
+      ),
+      quantity(
+        "electronSpeedStationary",
+        "Electron speed along the way",
+        "u",
+        speed,
+        "m/s",
+        "velocity-along-x",
+        "input",
+        "The electron's speed at an intermediate stage of its acceleration from rest to v: the variable of the work integral.",
       ),
     ].map((q) => [q.id, q]),
   ),

@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-field-ey",
+  "paper": "special-relativity",
+  "argument": "arg-sr-field-components",
+  "title": "Electric field along y",
+  "spoken": "The moving electric field along y is gamma times E y minus v B z.",
+  "explanation": "With no electric field and a magnetic field along positive z, an observer moving along positive x finds an electric field along negative y: the force on a moving charge becomes, in its own system, an electric force.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "Fields in empty space, in SI units; E is the electric field and B the magnetic field, with components along x, y and z."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-field-ey.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-field-ey.t.moving",
+      "quantityId": "electricFieldMoving",
+      "index": "y"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-field-ey.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-field-ey.t.same",
+              "quantityId": "electricFieldStationary",
+              "index": "y"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-field-ey.t.speed",
+                    "quantityId": "frameSpeed"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-field-ey.t.other",
+                    "quantityId": "magneticFieldStationary",
+                    "index": "z"
+                  }
+                ],
+                "opId": "eq-model-sr-field-ey.op.vOther"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-field-ey.op.combination"
+        }
+      ],
+      "opId": "eq-model-sr-field-ey.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-field-ey.op.combination",
+      "title": "The two together",
+      "explanation": "In the moving system, what was a pure magnetic field is partly electric, and the other way round.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ey.op.relation",
+      "title": "What it asserts",
+      "explanation": "Electric and magnetic fields are not separately the same in both systems; their components across the motion mix.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ey.op.scaled",
+      "title": "Times gamma",
+      "explanation": "The same factor as for coordinates.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ey.op.vOther",
+      "title": "Speed times the other field",
+      "explanation": "The other field, carried past at speed v, contributes to this one.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ey.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared. At 0.6c it is 1.25.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ey.t.moving",
+      "title": "Electric field, moving system",
+      "explanation": "The electric field in the moving system, one component; the subscript names which.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ey.t.other",
+      "title": "Magnetic field, stationary system",
+      "explanation": "The magnetic field in the stationary system, one component; the subscript names which.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ey.t.same",
+      "title": "Electric field, stationary system",
+      "explanation": "The electric field in the stationary system, one component; the subscript names which.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-sr-field-ey.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "Along x. Its sign gives the direction.",
+      "foundation": "bridge-negative-numbers-direction"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The moving system's component",
+      "nodeId": "eq-model-sr-field-ey.t.moving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-field-ey.t.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the stationary component",
+      "nodeId": "eq-model-sr-field-ey.t.same"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-field-ey.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the other field",
+      "nodeId": "eq-model-sr-field-ey.t.other"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
