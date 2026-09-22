@@ -1,9 +1,9 @@
 import { EquationScope } from "../equations/EquationScope.tsx";
 import { SemanticEquation } from "../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
-import massEnergy from "../generated/mass-energy-equations.json";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
+import { paperEquations } from "./paperEquations.ts";
 
 /** Server-composed, passage-local disclosure: the worked text is never gated by hydration. */
 export function ArgumentEquations({
@@ -13,8 +13,8 @@ export function ArgumentEquations({
   paperId: string;
   argumentId: string;
 }) {
-  const equations = (massEnergy.equations as readonly CompiledEquation[]).filter(
-    (equation) => equation.paper === paperId && equation.argument === argumentId,
+  const equations = [...paperEquations(paperId).values()].filter(
+    (equation) => equation.argument === argumentId,
   );
   if (equations.length === 0) return null;
   return (

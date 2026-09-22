@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-stopping-energy",
+  "paper": "light-quanta",
+  "argument": "arg-lq-stopping-and-losses",
+  "title": "What the stopping potential measures",
+  "spoken": "The electron's charge times the stopping potential equals the largest kinetic energy, which equals h times the frequency minus the escape work.",
+  "explanation": "A retarding potential that just stops the fastest electrons measures their energy: charge times potential. The one-quantum budget says what that energy should be.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "One electron receives the whole of one quantum, h times the frequency, and nothing from a second quantum.",
+    "Escaping costs the electron at least the escape work; any further loss on the way out is not negative.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed section 8.",
+    "The stopping potential is taken as measured on the fastest electrons, with contact potentials between electrode materials ignored."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-stopping-energy.op.budget",
+    "operator": "=",
+    "left": {
+      "kind": "relation",
+      "opId": "eq-model-lq-stopping-energy.op.measured",
+      "operator": "=",
+      "left": {
+        "kind": "product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-stopping-energy.t.charge",
+            "quantityId": "elementaryCharge"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-lq-stopping-energy.t.stopping",
+            "quantityId": "stoppingPotentialMagnitude"
+          }
+        ]
+      },
+      "right": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-stopping-energy.t.maxKineticEnergy",
+        "quantityId": "maxKineticEnergy"
+      }
+    },
+    "right": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "product",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-lq-stopping-energy.t.planck",
+              "quantityId": "planckConstant"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-lq-stopping-energy.t.frequency",
+              "quantityId": "frequency"
+            }
+          ]
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-stopping-energy.t.escapeWork",
+            "quantityId": "workFunction"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-stopping-energy.t.charge",
+      "title": "Charge of one electron",
+      "explanation": "Charge times a potential difference is an energy: the work the field does on the electron as it crosses.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-energy.t.stopping",
+      "title": "Stopping potential",
+      "explanation": "The retarding potential at which the current of the fastest electrons just stops. It is read off the apparatus.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-energy.t.maxKineticEnergy",
+      "title": "Largest kinetic energy",
+      "explanation": "The energy the stopping potential measures, and the energy the one-quantum budget predicts.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-energy.t.planck",
+      "title": "Planck's constant",
+      "explanation": "Sets one quantum's energy with the frequency. It is also the slope of stopping energy against frequency.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-energy.t.frequency",
+      "title": "Frequency of the light",
+      "explanation": "The one property of the light the stopping energy depends on in this model.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-energy.t.escapeWork",
+      "title": "Escape work",
+      "explanation": "On a plot of stopping energy against frequency the model's line crosses zero frequency at minus the escape work, so the line's intercept measures it.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-energy.op.measured",
+      "title": "A potential measures an energy",
+      "explanation": "Charge times stopping potential is the energy the fastest electron had. This half is how the apparatus reads energy, not a claim about light.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-lq-stopping-energy.op.budget",
+      "title": "The prediction to test",
+      "explanation": "The one-quantum budget says that measured energy rises in a straight line with frequency, with slope h. An experiment can test that; restating the equation cannot.",
+      "foundation": "functions-graphs"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The charge",
+      "nodeId": "eq-model-lq-stopping-energy.t.charge"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the stopping potential",
+      "nodeId": "eq-model-lq-stopping-energy.t.stopping"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the largest kinetic energy",
+      "nodeId": "eq-model-lq-stopping-energy.t.maxKineticEnergy"
+    },
+    {
+      "text": ", which the budget puts at "
+    },
+    {
+      "text": "h",
+      "nodeId": "eq-model-lq-stopping-energy.t.planck"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-stopping-energy.t.frequency"
+    },
+    {
+      "text": ", less "
+    },
+    {
+      "text": "the escape work",
+      "nodeId": "eq-model-lq-stopping-energy.t.escapeWork"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

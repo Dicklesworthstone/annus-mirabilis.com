@@ -28,7 +28,8 @@
       {
         "kind": "formula",
         "latex": "eV_s=K_{\\mathrm{max}}=h\\nu-\\Phi",
-        "spoken": "The positive charge magnitude times the stopping-voltage magnitude equals maximum kinetic energy, h frequency minus escape work."
+        "spoken": "The positive charge magnitude times the stopping-voltage magnitude equals maximum kinetic energy, h frequency minus escape work.",
+        "equations": ["eq-model-lq-stopping-energy"]
       },
       {
         "kind": "paragraph",

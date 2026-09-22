@@ -56,6 +56,8 @@ await mkdir("src/generated", { recursive: true });
 for (const [paper, file] of [
   ["brownian-motion", "brownian-equations"],
   ["mass-energy", "mass-energy-equations"],
+  ["light-quanta", "light-quanta-equations"],
+  ["special-relativity", "special-relativity-equations"],
 ] as const) {
   await writeFile(
     `src/generated/${file}.json`,

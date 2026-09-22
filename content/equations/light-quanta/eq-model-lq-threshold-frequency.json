@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-threshold-frequency",
+  "paper": "light-quanta",
+  "argument": "arg-lq-photoelectric-energy",
+  "title": "The frequency below which no electron escapes",
+  "spoken": "The threshold frequency equals the escape work divided by h.",
+  "explanation": "Setting the largest kinetic energy to zero gives the frequency whose quantum only just pays the escape work. Below it the model emits nothing, however bright the light.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "One electron receives the whole of one quantum, h times the frequency, and nothing from a second quantum.",
+    "Escaping costs the electron at least the escape work; any further loss on the way out is not negative.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed section 8."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-threshold-frequency.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-threshold-frequency.t.threshold",
+      "quantityId": "thresholdFrequency"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-threshold-frequency.t.escapeWork",
+        "quantityId": "workFunction"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-lq-threshold-frequency.t.planck",
+        "quantityId": "planckConstant"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-threshold-frequency.t.threshold",
+      "title": "Threshold frequency",
+      "explanation": "The lowest frequency at which one quantum can free an electron. It depends on the metal, through the escape work, and on nothing about the light but its frequency.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-threshold-frequency.t.escapeWork",
+      "title": "Escape work",
+      "explanation": "The same escape work as in the energy budget. A metal that holds its electrons more tightly has a higher threshold.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-threshold-frequency.t.planck",
+      "title": "Planck's constant",
+      "explanation": "Dividing an energy by h turns it into the frequency whose quantum carries that energy.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-lq-threshold-frequency.op.relation",
+      "title": "Where the budget reaches zero",
+      "explanation": "Put zero for the largest kinetic energy in the budget and solve for the frequency. This threshold is a consequence of the one-quantum assumption, not an independent measurement of it.",
+      "foundation": "functions-graphs"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The threshold frequency",
+      "nodeId": "eq-model-lq-threshold-frequency.t.threshold"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the escape work",
+      "nodeId": "eq-model-lq-threshold-frequency.t.escapeWork"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "h",
+      "nodeId": "eq-model-lq-threshold-frequency.t.planck"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

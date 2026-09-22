@@ -34,7 +34,8 @@
       {
         "kind": "formula",
         "latex": "K_{\\mathrm{max}}=h\\nu-\\Phi,\\qquad\\nu_0=\\frac{\\Phi}{h}",
-        "spoken": "Maximum kinetic energy equals h frequency minus escape work, with threshold frequency Phi over h."
+        "spoken": "Maximum kinetic energy equals h frequency minus escape work, with threshold frequency Phi over h.",
+        "equations": ["eq-model-lq-photoelectric-maximum", "eq-model-lq-threshold-frequency"]
       },
       {
         "kind": "paragraph",

@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-lq-photoelectric-maximum",
+  "paper": "light-quanta",
+  "argument": "arg-lq-photoelectric-energy",
+  "title": "The most an escaping electron can keep",
+  "spoken": "The largest kinetic energy equals h times the frequency, minus the escape work.",
+  "explanation": "One quantum pays the escape work, and what is left is the most energy of motion an electron can carry away. The frequency sets it; the light's power does not appear.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "One electron receives the whole of one quantum, h times the frequency, and nothing from a second quantum.",
+    "Escaping costs the electron at least the escape work; any further loss on the way out is not negative.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed section 8."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-lq-photoelectric-maximum.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-lq-photoelectric-maximum.t.maxKineticEnergy",
+      "quantityId": "maxKineticEnergy"
+    },
+    "right": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "product",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-lq-photoelectric-maximum.t.planck",
+              "quantityId": "planckConstant"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-lq-photoelectric-maximum.t.frequency",
+              "quantityId": "frequency"
+            }
+          ]
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-lq-photoelectric-maximum.t.escapeWork",
+            "quantityId": "workFunction"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum.t.maxKineticEnergy",
+      "title": "Largest kinetic energy",
+      "explanation": "The energy of motion of the fastest electron to leave. Electrons that lose energy inside the metal leave with less, so this is a ceiling, not every electron's energy.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum.t.planck",
+      "title": "Planck's constant",
+      "explanation": "Multiplied by the frequency it gives one quantum's energy. The 1905 paper writes the same quantum as R beta nu over N.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum.t.frequency",
+      "title": "Frequency of the light",
+      "explanation": "Raising it raises the energy of each quantum, and so the largest kinetic energy, along a straight line of slope h.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum.t.escapeWork",
+      "title": "Escape work",
+      "explanation": "The energy spent getting out of the metal, subtracted from the quantum. Einstein's section 8 calls it P.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-lq-photoelectric-maximum.op.relation",
+      "title": "An energy budget for one electron",
+      "explanation": "What one quantum brings, less what escaping costs, is the most that can be left as motion. The light's power is not in it, so brighter light at the same frequency gives more electrons, not faster ones.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The largest kinetic energy",
+      "nodeId": "eq-model-lq-photoelectric-maximum.t.maxKineticEnergy"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "h",
+      "nodeId": "eq-model-lq-photoelectric-maximum.t.planck"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-lq-photoelectric-maximum.t.frequency"
+    },
+    {
+      "text": ", less "
+    },
+    {
+      "text": "the escape work",
+      "nodeId": "eq-model-lq-photoelectric-maximum.t.escapeWork"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
