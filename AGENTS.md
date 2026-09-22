@@ -1149,6 +1149,28 @@ evidence. A close request without cited evidence is a debt, not a completion.
 **Builds go through `rch`.** Compilation and test commands are offloaded to the remote
 worker fleet. Never report a build result you did not observe.
 
+**Ask whether a build is running with an anchored pattern, never `ps | grep`.** Only one
+`next build` may run in this checkout at a time, so panes check before starting or before
+touching `out/`. The check itself is the trap: a shell's own command line contains the
+pipeline text, so `ps aux | grep -cE "[n]ext build"` matches the wrapper shells that are
+running the search. Measured on 2026-09-22 with exactly one real build alive, it returned
+**4**, of which four of the five matching lines were `/bin/zsh -c source ...` wrappers and
+two of those had been created by that very command a second earlier. The `[n]ext` bracket
+trick defeats a literal self-match and does nothing about a wrapper whose argv carries the
+whole string, so the number is not merely wrong, it is unstable: measuring changes it.
+
+Use the resolved binary path, which only a real invocation has:
+
+```bash
+pgrep -fl "node_modules/.bin/next build"    # 1 line, the real build, or nothing
+```
+
+Three of us made the `ps | grep` error inside two hours and each acted on it - one aborted a
+plant and moved `out/` back on a false alarm, and the orchestrator made it one tick after
+correcting another pane for it. A rule three people break is a fact about the instrument.
+The general form: **when a process check can match the process doing the checking, anchor it
+on something only the target can contain.**
+
 ## Beads Issue Tracking
 
 Use `br` (beads_rust) for task tracking. **`br` never runs git.** After changes, sync and stage manually.
