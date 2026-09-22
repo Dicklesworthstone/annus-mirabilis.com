@@ -67,7 +67,7 @@ export default function Home() {
           </p>
           <div className="actions">
             <a href="/lab/bm-01/">Watch the wandering</a>
-            <a href="/lab/bm-07/">Weigh a molecule from it</a>
+            <a href="/lab/bm-07/">Get Avogadro&rsquo;s number out of it</a>
             <a href="/lab/bm-08/">Separate real motion from a blurred photograph</a>
           </div>
         </article>
@@ -87,7 +87,7 @@ export default function Home() {
           </p>
           <div className="actions">
             <a href="/lab/sr-02/">Tell both stories about the magnet</a>
-            <a href="/lab/sr-03/">Set a distant clock and watch simultaneity go</a>
+            <a href="/lab/sr-03/">Change the speed and watch rods and clocks disagree</a>
           </div>
         </article>
 
@@ -122,10 +122,6 @@ export default function Home() {
           The English translation has not been started. Every English, parallel and interlinear face
           on the site currently tells you it is unavailable instead of showing you a paraphrase and
           letting you assume it was checked against the German.
-        </p>
-        <p>
-          Numbers carry their origins with them. A curve computed here is labelled as computed here,
-          a measured value carries its citation, and a modern constant names the set it came from.
         </p>
         <p>
           <a href="/papers/">See all five records, including the dissertation</a>
