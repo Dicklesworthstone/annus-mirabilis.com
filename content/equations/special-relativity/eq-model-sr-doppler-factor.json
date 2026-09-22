@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-doppler-factor",
+  "paper": "special-relativity",
+  "argument": "arg-sr-doppler-aberration",
+  "title": "The Doppler factor",
+  "spoken": "The frequency ratio is gamma times one minus v over c times the unprimed direction cosine.",
+  "explanation": "How the frequency changes depends on the speed and on the light's direction. At v = 0.6c, light travelling along the motion (phi = 0) gives q = 0.5; light across it (phi = 90 degrees) gives q = 1.25.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "A plane light wave whose direction makes the angle phi with the direction of motion, in the stationary system.",
+    "The same wave phase, written in both systems' coordinates, fixes frequency and direction together."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-doppler-factor.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-doppler-factor.t.ratio",
+      "quantityId": "dopplerFactor"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-doppler-factor.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "number",
+              "value": "1"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "product",
+                "args": [
+                  {
+                    "kind": "quotient",
+                    "numerator": {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-doppler-factor.t.speed",
+                      "quantityId": "frameSpeed"
+                    },
+                    "denominator": {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-doppler-factor.t.light",
+                      "quantityId": "speedOfLight"
+                    },
+                    "opId": "eq-model-sr-doppler-factor.op.speedRatio"
+                  },
+                  {
+                    "kind": "function",
+                    "opId": "eq-model-sr-doppler-factor.op.cos",
+                    "name": "cos",
+                    "argument": {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-doppler-factor.t.angle",
+                      "quantityId": "propagationAngleStationary"
+                    }
+                  }
+                ],
+                "opId": "eq-model-sr-doppler-factor.op.projected"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-doppler-factor.op.bracket"
+        }
+      ],
+      "opId": "eq-model-sr-doppler-factor.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-doppler-factor.op.bracket",
+      "title": "One minus that",
+      "explanation": "Below 1 for light along the motion, 1 for light across it.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.op.cos",
+      "title": "Cosine of the angle",
+      "explanation": "1 for light along the motion, 0 for light across it, −1 for light against it.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.op.projected",
+      "title": "How much of the motion is along the light",
+      "explanation": "v over c times the cosine: zero when the light crosses the motion at right angles.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.op.relation",
+      "title": "What it asserts",
+      "explanation": "The frequency ratio for this light, from the transformation of its phase. Sound gives a similar-looking rule by a different argument; the analogy is not the derivation.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.op.scaled",
+      "title": "Times gamma",
+      "explanation": "Gamma alone survives for light at right angles: a frequency change with no motion along the light.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.op.speedRatio",
+      "title": "v over c",
+      "explanation": "The speed as a fraction of the speed of light.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.t.angle",
+      "title": "The light's angle, stationary system",
+      "explanation": "Between the light's direction and the direction of motion, measured in the stationary system. Name the frame: the angle is different in the other one.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared. At 0.6c it is 1.25.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.t.ratio",
+      "title": "The frequency ratio",
+      "explanation": "The moving system's frequency over the stationary system's.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-factor.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "Signed along x: the sign says which way the system moves.",
+      "foundation": "bridge-negative-numbers-direction"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "q",
+      "nodeId": "eq-model-sr-doppler-factor.t.ratio"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-doppler-factor.t.factor"
+    },
+    {
+      "text": " times one minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-doppler-factor.t.speed"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-doppler-factor.t.light"
+    },
+    {
+      "text": " times the cosine of "
+    },
+    {
+      "text": "the light's angle to the motion",
+      "nodeId": "eq-model-sr-doppler-factor.t.angle"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

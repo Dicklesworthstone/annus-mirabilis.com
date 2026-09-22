@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-light-volume",
+  "paper": "special-relativity",
+  "argument": "arg-sr-light-complex",
+  "title": "Packet volume: one over q",
+  "spoken": "Packet volume scales by inverse q.",
+  "explanation": "The volume of the bounded piece of light changes by one over q. Its surface travels with the light, so this is not the material contraction by gamma: at q = 0.5 the volume doubles.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "A bounded piece of plane light whose surface moves with the light. q is the frequency ratio of section 7 for this light's direction.",
+    "Energy density, volume and total energy are three different quantities, and each has its own factor."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-light-volume.op.relation",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-light-volume.t.volumeMoving",
+        "quantityId": "lightComplexVolumeMoving"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-light-volume.t.volume",
+        "quantityId": "lightComplexVolumeStationary"
+      },
+      "opId": "eq-model-sr-light-volume.op.ratio"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "number",
+        "value": "1"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-light-volume.t.ratioQ",
+        "quantityId": "dopplerFactor"
+      },
+      "opId": "eq-model-sr-light-volume.op.inverse"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-light-volume.op.inverse",
+      "title": "One over q",
+      "explanation": "The volume changes the opposite way to the frequency. Using gamma here, as for a rod, gives the wrong total energy.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-light-volume.op.ratio",
+      "title": "Moving over stationary",
+      "explanation": "How the volume changes between the systems.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-light-volume.op.relation",
+      "title": "What it asserts",
+      "explanation": "The volume of this particular region, whose boundary moves with the light.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-light-volume.t.ratioQ",
+      "title": "The frequency ratio",
+      "explanation": "Section 7's q, for this light's direction. At 0.6c, for light along the motion, q = 0.5.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-light-volume.t.volume",
+      "title": "Packet volume, stationary system",
+      "explanation": "The volume at one time of the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-light-volume.t.volumeMoving",
+      "title": "Packet volume, moving system",
+      "explanation": "The volume the light occupies at one time of the moving system.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The packet's volume in the moving system",
+      "nodeId": "eq-model-sr-light-volume.t.volumeMoving"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "its volume in the stationary system",
+      "nodeId": "eq-model-sr-light-volume.t.volume"
+    },
+    {
+      "text": " is one over "
+    },
+    {
+      "text": "q",
+      "nodeId": "eq-model-sr-light-volume.t.ratioQ"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

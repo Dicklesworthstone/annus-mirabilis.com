@@ -28,7 +28,12 @@
       {
         "kind": "formula",
         "latex": "\\frac{F_x}{a_x}=m\\gamma^3,\\qquad\\frac{F_y'}{a_y}=m\\gamma^2,\\qquad\\frac{F_y}{a_y}=m\\gamma",
-        "spoken": "Longitudinal laboratory force over acceleration gives m gamma cubed; comoving transverse force over laboratory acceleration gives m gamma squared; laboratory transverse force gives m gamma."
+        "spoken": "Longitudinal laboratory force over acceleration gives m gamma cubed; comoving transverse force over laboratory acceleration gives m gamma squared; laboratory transverse force gives m gamma.",
+        "equations": [
+          "eq-model-sr-longitudinal-mass",
+          "eq-model-sr-transverse-mass-printed",
+          "eq-model-sr-transverse-mass-laboratory"
+        ]
       },
       {
         "kind": "paragraph",

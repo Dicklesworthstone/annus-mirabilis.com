@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-light-density",
+  "paper": "special-relativity",
+  "argument": "arg-sr-light-complex",
+  "title": "Energy density: q squared",
+  "spoken": "Energy density scales by q squared.",
+  "explanation": "The energy per cubic metre of the light changes by the square of the frequency ratio. At q = 0.5 it falls to a quarter.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "A bounded piece of plane light whose surface moves with the light. q is the frequency ratio of section 7 for this light's direction.",
+    "Energy density, volume and total energy are three different quantities, and each has its own factor."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-light-density.op.relation",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-light-density.t.densityMoving",
+        "quantityId": "lightEnergyDensityMoving"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-light-density.t.density",
+        "quantityId": "lightEnergyDensityStationary"
+      },
+      "opId": "eq-model-sr-light-density.op.ratio"
+    },
+    "right": {
+      "kind": "power",
+      "base": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-light-density.t.ratioQ",
+        "quantityId": "dopplerFactor"
+      },
+      "exponent": {
+        "num": 2,
+        "den": 1
+      },
+      "opId": "eq-model-sr-light-density.op.squared"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-light-density.op.ratio",
+      "title": "Moving over stationary",
+      "explanation": "How the density changes between the systems.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-light-density.op.relation",
+      "title": "What it asserts",
+      "explanation": "A statement about density only. The whole packet's energy changes differently, because its volume changes too.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-light-density.op.squared",
+      "title": "q squared",
+      "explanation": "The density goes as the square of the amplitude, and the amplitude changes by q.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-light-density.t.density",
+      "title": "Energy density, stationary system",
+      "explanation": "The light's energy per cubic metre in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-light-density.t.densityMoving",
+      "title": "Energy density, moving system",
+      "explanation": "The light's energy per cubic metre in the moving system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-light-density.t.ratioQ",
+      "title": "The frequency ratio",
+      "explanation": "Section 7's q, for this light's direction. At 0.6c, for light along the motion, q = 0.5.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The energy density in the moving system",
+      "nodeId": "eq-model-sr-light-density.t.densityMoving"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "that in the stationary system",
+      "nodeId": "eq-model-sr-light-density.t.density"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "q",
+      "nodeId": "eq-model-sr-light-density.t.ratioQ"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

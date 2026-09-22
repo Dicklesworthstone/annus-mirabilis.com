@@ -28,12 +28,14 @@
       {
         "kind": "formula",
         "latex": "q=\\frac{\\nu'}{\\nu}=\\gamma\\left(1-\\frac{v}{c}\\cos\\varphi\\right)",
-        "spoken": "The frequency ratio is gamma times one minus v over c times the unprimed direction cosine."
+        "spoken": "The frequency ratio is gamma times one minus v over c times the unprimed direction cosine.",
+        "equations": ["eq-model-sr-doppler-ratio", "eq-model-sr-doppler-factor"]
       },
       {
         "kind": "formula",
         "latex": "\\cos\\varphi'=\\frac{\\cos\\varphi-v/c}{1-(v/c)\\cos\\varphi}",
-        "spoken": "The aberration direction cosine is cosine phi minus v over c, divided by one minus v over c times cosine phi."
+        "spoken": "The aberration direction cosine is cosine phi minus v over c, divided by one minus v over c times cosine phi.",
+        "equations": ["eq-model-sr-aberration"]
       },
       {
         "kind": "paragraph",

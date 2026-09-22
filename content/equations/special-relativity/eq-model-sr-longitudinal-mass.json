@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-longitudinal-mass",
+  "paper": "special-relativity",
+  "argument": "arg-sr-electron-conventions",
+  "title": "Along the motion: m gamma cubed",
+  "spoken": "Longitudinal laboratory force over acceleration gives m gamma cubed.",
+  "explanation": "Pushing along the motion, the ratio of force to acceleration is m times gamma cubed. At 0.6c that is 1.953125 m.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An electron moving along x at speed v in the laboratory, with |v| < c, pushed by a small force.",
+    "A force-over-acceleration ratio means nothing until both are labelled with their frames. The paper's transverse mass uses the force measured in the frame moving with the electron.",
+    "Modern teaching notation: gamma is the paper's beta, m the electron's mass at rest."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-longitudinal-mass.op.relation",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-longitudinal-mass.t.force",
+        "quantityId": "longitudinalForce"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-longitudinal-mass.t.accel",
+        "quantityId": "accelerationLongitudinalLaboratory"
+      },
+      "opId": "eq-model-sr-longitudinal-mass.op.ratio"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-longitudinal-mass.t.mass",
+          "quantityId": "electronMass"
+        },
+        {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-longitudinal-mass.t.factor",
+            "quantityId": "lorentzFactor"
+          },
+          "exponent": {
+            "num": 3,
+            "den": 1
+          },
+          "opId": "eq-model-sr-longitudinal-mass.op.power"
+        }
+      ],
+      "opId": "eq-model-sr-longitudinal-mass.op.coefficient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-longitudinal-mass.op.coefficient",
+      "title": "m times gamma cubed",
+      "explanation": "The longitudinal mass.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-longitudinal-mass.op.power",
+      "title": "Gamma cubed",
+      "explanation": "Grows fast: 1.95 at 0.6c.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-longitudinal-mass.op.ratio",
+      "title": "Force over acceleration",
+      "explanation": "What the old electron theories called a mass. It depends on the direction of the push.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-longitudinal-mass.op.relation",
+      "title": "What it asserts",
+      "explanation": "The ratio for a push along the motion. Pushes in other directions give other ratios.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-longitudinal-mass.t.accel",
+      "title": "Acceleration along the motion",
+      "explanation": "Measured in the laboratory.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-longitudinal-mass.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared. At 0.6c it is 1.25.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-longitudinal-mass.t.force",
+      "title": "Force along the motion",
+      "explanation": "Along x, in the laboratory. For this direction the force is the same in the electron's own frame.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-longitudinal-mass.t.mass",
+      "title": "Electron mass",
+      "explanation": "The electron's mass at rest.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The force along the motion",
+      "nodeId": "eq-model-sr-longitudinal-mass.t.force"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "the acceleration along it",
+      "nodeId": "eq-model-sr-longitudinal-mass.t.accel"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "m",
+      "nodeId": "eq-model-sr-longitudinal-mass.t.mass"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-longitudinal-mass.t.factor"
+    },
+    {
+      "text": " cubed."
+    }
+  ]
+}

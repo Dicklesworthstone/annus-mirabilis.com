@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-doppler-ratio",
+  "paper": "special-relativity",
+  "argument": "arg-sr-doppler-aberration",
+  "title": "Name the frequency ratio",
+  "spoken": "q is defined as the moving frequency over the stationary frequency.",
+  "explanation": "q is a name for how much the frequency changes: the moving system's frequency divided by the stationary system's, for the same light.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "A plane light wave whose direction makes the angle phi with the direction of motion, in the stationary system.",
+    "The same wave phase, written in both systems' coordinates, fixes frequency and direction together."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-doppler-ratio.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-doppler-ratio.t.ratio",
+      "quantityId": "dopplerFactor"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-doppler-ratio.t.frequencyMoving",
+        "quantityId": "waveFrequencyMoving"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-doppler-ratio.t.frequency",
+        "quantityId": "waveFrequencyStationary"
+      },
+      "opId": "eq-model-sr-doppler-ratio.op.frequencies"
+    },
+    "operator": "define"
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-doppler-ratio.op.frequencies",
+      "title": "Divide one by the other",
+      "explanation": "Both are frequencies of the same light, so the units cancel.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-ratio.op.relation",
+      "title": "A definition",
+      "explanation": "This line names q; the next one says what q is.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-ratio.t.frequency",
+      "title": "Frequency in the stationary system",
+      "explanation": "Crests per second as the stationary system's clocks count them.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-ratio.t.frequencyMoving",
+      "title": "Frequency in the moving system",
+      "explanation": "Crests per second as the moving system's clocks count them.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-doppler-ratio.t.ratio",
+      "title": "The frequency ratio",
+      "explanation": "A pure number. Greater than 1 means the moving system counts more crests per second.",
+      "foundation": "bridge-fractions-ratios"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "q",
+      "nodeId": "eq-model-sr-doppler-ratio.t.ratio"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the frequency in the moving system",
+      "nodeId": "eq-model-sr-doppler-ratio.t.frequencyMoving"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "the frequency in the stationary system",
+      "nodeId": "eq-model-sr-doppler-ratio.t.frequency"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

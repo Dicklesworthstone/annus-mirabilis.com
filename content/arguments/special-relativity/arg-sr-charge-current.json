@@ -28,7 +28,8 @@
       {
         "kind": "formula",
         "latex": "\\rho'=\\gamma\\left(\\rho-\\frac{vJ_x}{c^2}\\right),\\qquad J_x'=\\gamma(J_x-v\\rho)",
-        "spoken": "Primed charge density is gamma times rho minus v J x over c squared; primed longitudinal current is gamma times J x minus v rho."
+        "spoken": "Primed charge density is gamma times rho minus v J x over c squared; primed longitudinal current is gamma times J x minus v rho.",
+        "equations": ["eq-model-sr-charge-density", "eq-model-sr-current-density"]
       },
       {
         "kind": "paragraph",

@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-transverse-mass-laboratory",
+  "paper": "special-relativity",
+  "argument": "arg-sr-electron-conventions",
+  "title": "Across the motion, both in the laboratory: m gamma",
+  "spoken": "Laboratory transverse force over acceleration gives m gamma.",
+  "explanation": "With force and acceleration both measured in the laboratory, the sideways ratio is m times gamma: 1.25 m at 0.6c. Changing the frame of the force changes the ratio by gamma.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An electron moving along x at speed v in the laboratory, with |v| < c, pushed by a small force.",
+    "A force-over-acceleration ratio means nothing until both are labelled with their frames. The paper's transverse mass uses the force measured in the frame moving with the electron.",
+    "Modern teaching notation: gamma is the paper's beta, m the electron's mass at rest."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-transverse-mass-laboratory.op.relation",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-transverse-mass-laboratory.t.force",
+        "quantityId": "transverseForceLaboratory"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-transverse-mass-laboratory.t.accel",
+        "quantityId": "accelerationTransverseLaboratory"
+      },
+      "opId": "eq-model-sr-transverse-mass-laboratory.op.ratio"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-transverse-mass-laboratory.t.mass",
+          "quantityId": "electronMass"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-transverse-mass-laboratory.t.factor",
+          "quantityId": "lorentzFactor"
+        }
+      ],
+      "opId": "eq-model-sr-transverse-mass-laboratory.op.coefficient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.op.coefficient",
+      "title": "m times gamma",
+      "explanation": "1.25 m at 0.6c.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.op.ratio",
+      "title": "Force over acceleration, one frame",
+      "explanation": "Both measured in the laboratory.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.op.relation",
+      "title": "What it asserts",
+      "explanation": "A different convention from the paper's, giving a different number. Neither is a correction of the other.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.t.accel",
+      "title": "Acceleration across the motion",
+      "explanation": "Measured in the laboratory.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared. At 0.6c it is 1.25.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.t.force",
+      "title": "Sideways force, laboratory",
+      "explanation": "Measured in the laboratory: the electron's-frame force divided by gamma.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.t.mass",
+      "title": "Electron mass",
+      "explanation": "The electron's mass at rest.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The sideways force in the laboratory",
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.t.force"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "the sideways acceleration",
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.t.accel"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "m",
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.t.mass"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-transverse-mass-laboratory.t.factor"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

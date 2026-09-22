@@ -28,7 +28,12 @@
       {
         "kind": "formula",
         "latex": "\\frac{u'}{u}=q^2,\\qquad\\frac{V_{\\mathrm{packet}}'}{V_{\\mathrm{packet}}}=\\frac{1}{q},\\qquad\\frac{E'}{E}=q",
-        "spoken": "Energy density scales by q squared, packet volume by inverse q, and total energy by q."
+        "spoken": "Energy density scales by q squared, packet volume by inverse q, and total energy by q.",
+        "equations": [
+          "eq-model-sr-light-density",
+          "eq-model-sr-light-volume",
+          "eq-model-sr-light-energy"
+        ]
       },
       {
         "kind": "paragraph",

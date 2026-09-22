@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-light-energy",
+  "paper": "special-relativity",
+  "argument": "arg-sr-light-complex",
+  "title": "Total energy: q",
+  "spoken": "Total energy scales by q.",
+  "explanation": "Density times volume: q squared times one over q leaves q. At q = 0.5 the packet's energy halves. The mass-energy paper imports exactly this ratio.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "A bounded piece of plane light whose surface moves with the light. q is the frequency ratio of section 7 for this light's direction.",
+    "Energy density, volume and total energy are three different quantities, and each has its own factor."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-light-energy.op.relation",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-light-energy.t.energyMoving",
+        "quantityId": "lightComplexEnergyMoving"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-light-energy.t.energy",
+        "quantityId": "lightComplexEnergyStationary"
+      },
+      "opId": "eq-model-sr-light-energy.op.ratio"
+    },
+    "right": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-light-energy.t.ratioQ",
+      "quantityId": "dopplerFactor"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-light-energy.op.ratio",
+      "title": "Moving over stationary",
+      "explanation": "How the whole packet's energy changes.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-light-energy.op.relation",
+      "title": "What it asserts",
+      "explanation": "The packet's energy changes by the same factor as its frequency. The paper remarks on this, and the September paper builds on it; it does not need light quanta.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-light-energy.t.energy",
+      "title": "Packet energy, stationary system",
+      "explanation": "The whole energy in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-light-energy.t.energyMoving",
+      "title": "Packet energy, moving system",
+      "explanation": "The whole energy of the piece of light in the moving system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-light-energy.t.ratioQ",
+      "title": "The frequency ratio",
+      "explanation": "Energy and frequency change by the same factor.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The packet's energy in the moving system",
+      "nodeId": "eq-model-sr-light-energy.t.energyMoving"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "its energy in the stationary system",
+      "nodeId": "eq-model-sr-light-energy.t.energy"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "q",
+      "nodeId": "eq-model-sr-light-energy.t.ratioQ"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

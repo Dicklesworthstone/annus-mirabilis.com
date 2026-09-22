@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-mirror-frequency",
+  "paper": "special-relativity",
+  "argument": "arg-sr-moving-mirror",
+  "title": "Light reflected from a moving mirror",
+  "spoken": "The reflected frequency ratio is one minus twice v over c cosine phi plus v over c squared, divided by one minus v over c squared.",
+  "explanation": "Transform into the mirror's rest system, reflect there, and transform back. At normal incidence and v = 0.6c, receding, the reflected frequency is a quarter of the incident one.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "A plane mirror at rest in the moving system, facing the incoming light; phi is the angle of incidence in the stationary system.",
+    "The light reaches the mirror. For some angles and directions of motion it never does, and then there is no reflection to describe."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-mirror-frequency.op.relation",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-mirror-frequency.t.reflected",
+        "quantityId": "waveFrequencyReflectedStationary"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-mirror-frequency.t.incident",
+        "quantityId": "waveFrequencyStationary"
+      },
+      "opId": "eq-model-sr-mirror-frequency.op.ratio"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "number",
+            "value": "1"
+          },
+          {
+            "kind": "negate",
+            "argument": {
+              "kind": "product",
+              "args": [
+                {
+                  "kind": "number",
+                  "value": "2"
+                },
+                {
+                  "kind": "quotient",
+                  "numerator": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-mirror-frequency.t.speed1",
+                    "quantityId": "frameSpeed"
+                  },
+                  "denominator": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-mirror-frequency.t.light1",
+                    "quantityId": "speedOfLight"
+                  },
+                  "opId": "eq-model-sr-mirror-frequency.op.b1"
+                },
+                {
+                  "kind": "function",
+                  "opId": "eq-model-sr-mirror-frequency.op.cos",
+                  "name": "cos",
+                  "argument": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-mirror-frequency.t.angle",
+                    "quantityId": "propagationAngleStationary"
+                  }
+                }
+              ],
+              "opId": "eq-model-sr-mirror-frequency.op.twice"
+            }
+          },
+          {
+            "kind": "power",
+            "base": {
+              "kind": "quotient",
+              "numerator": {
+                "kind": "symbol",
+                "termId": "eq-model-sr-mirror-frequency.t.speed2",
+                "quantityId": "frameSpeed"
+              },
+              "denominator": {
+                "kind": "symbol",
+                "termId": "eq-model-sr-mirror-frequency.t.light2",
+                "quantityId": "speedOfLight"
+              },
+              "opId": "eq-model-sr-mirror-frequency.op.b2"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            },
+            "opId": "eq-model-sr-mirror-frequency.op.b2sq"
+          }
+        ],
+        "opId": "eq-model-sr-mirror-frequency.op.numerator"
+      },
+      "denominator": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "number",
+            "value": "1"
+          },
+          {
+            "kind": "negate",
+            "argument": {
+              "kind": "power",
+              "base": {
+                "kind": "quotient",
+                "numerator": {
+                  "kind": "symbol",
+                  "termId": "eq-model-sr-mirror-frequency.t.speed3",
+                  "quantityId": "frameSpeed"
+                },
+                "denominator": {
+                  "kind": "symbol",
+                  "termId": "eq-model-sr-mirror-frequency.t.light3",
+                  "quantityId": "speedOfLight"
+                },
+                "opId": "eq-model-sr-mirror-frequency.op.b3"
+              },
+              "exponent": {
+                "num": 2,
+                "den": 1
+              },
+              "opId": "eq-model-sr-mirror-frequency.op.b3sq"
+            }
+          }
+        ],
+        "opId": "eq-model-sr-mirror-frequency.op.denominator"
+      },
+      "opId": "eq-model-sr-mirror-frequency.op.fraction"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.b1",
+      "title": "v over c",
+      "explanation": "The mirror's speed as a fraction of c.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.b2",
+      "title": "v over c",
+      "explanation": "The same fraction.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.b2sq",
+      "title": "Its square",
+      "explanation": "In the numerator.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.b3",
+      "title": "v over c",
+      "explanation": "The same fraction.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.b3sq",
+      "title": "Its square",
+      "explanation": "In the denominator.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.cos",
+      "title": "Cosine of the incidence angle",
+      "explanation": "1 for light meeting the mirror head-on along the motion.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.denominator",
+      "title": "One minus v squared over c squared",
+      "explanation": "The same combination that sits under gamma's square root.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.fraction",
+      "title": "The whole factor",
+      "explanation": "At normal incidence it simplifies to (1 − v/c)/(1 + v/c): 0.25 at 0.6c.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.numerator",
+      "title": "The numerator",
+      "explanation": "One minus twice the projected speed plus its square.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.ratio",
+      "title": "Reflected over incident",
+      "explanation": "A pure number.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.relation",
+      "title": "What it asserts",
+      "explanation": "The frequency change on reflection. Intercepted power and radiation pressure are different quantities with different factors.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.op.twice",
+      "title": "Twice v over c times the cosine",
+      "explanation": "The main first-order change: the light is shifted once going into the mirror's system and once coming back.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.t.angle",
+      "title": "Angle of incidence",
+      "explanation": "Between the incoming light and the direction of motion, in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.t.incident",
+      "title": "Incident frequency",
+      "explanation": "The frequency arriving at the mirror, in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.t.light1",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.t.light2",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.t.light3",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.t.reflected",
+      "title": "Reflected frequency",
+      "explanation": "The frequency after reflection, in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.t.speed1",
+      "title": "Speed of the moving system",
+      "explanation": "Signed along x: the sign says which way the system moves.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.t.speed2",
+      "title": "Speed of the moving system",
+      "explanation": "Signed along x: the sign says which way the system moves.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-mirror-frequency.t.speed3",
+      "title": "Speed of the moving system",
+      "explanation": "Signed along x: the sign says which way the system moves.",
+      "foundation": "bridge-negative-numbers-direction"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The reflected frequency",
+      "nodeId": "eq-model-sr-mirror-frequency.t.reflected"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "the incident frequency",
+      "nodeId": "eq-model-sr-mirror-frequency.t.incident"
+    },
+    {
+      "text": " is one minus twice "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-mirror-frequency.t.speed1"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-mirror-frequency.t.light1"
+    },
+    {
+      "text": " times the cosine of "
+    },
+    {
+      "text": "the angle of incidence",
+      "nodeId": "eq-model-sr-mirror-frequency.t.angle"
+    },
+    {
+      "text": ", plus v over c squared, all over one minus v over c squared."
+    }
+  ]
+}

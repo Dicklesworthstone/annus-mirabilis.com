@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-aberration",
+  "paper": "special-relativity",
+  "argument": "arg-sr-doppler-aberration",
+  "title": "Aberration: the direction changes too",
+  "spoken": "The aberration direction cosine is cosine phi minus v over c, divided by one minus v over c times cosine phi.",
+  "explanation": "The same substitution that gives the frequency ratio gives the light's direction in the moving system. At v = 0.6c, light crossing the motion at 90 degrees in the stationary system has cos phi′ = −0.6 in the moving one.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "A plane light wave whose direction makes the angle phi with the direction of motion, in the stationary system.",
+    "The same wave phase, written in both systems' coordinates, fixes frequency and direction together."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-aberration.op.relation",
+    "left": {
+      "kind": "function",
+      "opId": "eq-model-sr-aberration.op.cosMoving",
+      "name": "cos",
+      "argument": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-aberration.t.angleMoving",
+        "quantityId": "propagationAngleMoving"
+      }
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "function",
+            "opId": "eq-model-sr-aberration.op.cos",
+            "name": "cos",
+            "argument": {
+              "kind": "symbol",
+              "termId": "eq-model-sr-aberration.t.angle",
+              "quantityId": "propagationAngleStationary"
+            }
+          },
+          {
+            "kind": "negate",
+            "argument": {
+              "kind": "quotient",
+              "numerator": {
+                "kind": "symbol",
+                "termId": "eq-model-sr-aberration.t.speed",
+                "quantityId": "frameSpeed"
+              },
+              "denominator": {
+                "kind": "symbol",
+                "termId": "eq-model-sr-aberration.t.light",
+                "quantityId": "speedOfLight"
+              },
+              "opId": "eq-model-sr-aberration.op.speedRatio"
+            }
+          }
+        ],
+        "opId": "eq-model-sr-aberration.op.numerator"
+      },
+      "denominator": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "number",
+            "value": "1"
+          },
+          {
+            "kind": "negate",
+            "argument": {
+              "kind": "product",
+              "args": [
+                {
+                  "kind": "quotient",
+                  "numerator": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-aberration.t.speed2",
+                    "quantityId": "frameSpeed"
+                  },
+                  "denominator": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-aberration.t.light2",
+                    "quantityId": "speedOfLight"
+                  },
+                  "opId": "eq-model-sr-aberration.op.speedRatio2"
+                },
+                {
+                  "kind": "function",
+                  "opId": "eq-model-sr-aberration.op.cos2",
+                  "name": "cos",
+                  "argument": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-aberration.t.angle2",
+                    "quantityId": "propagationAngleStationary"
+                  }
+                }
+              ],
+              "opId": "eq-model-sr-aberration.op.projected"
+            }
+          }
+        ],
+        "opId": "eq-model-sr-aberration.op.denominator"
+      },
+      "opId": "eq-model-sr-aberration.op.ratio"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-aberration.op.cos",
+      "title": "Cosine in the stationary system",
+      "explanation": "1 along the motion, 0 across it.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.op.cos2",
+      "title": "Cosine in the stationary system",
+      "explanation": "The same cosine as in the numerator.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.op.cosMoving",
+      "title": "Cosine in the moving system",
+      "explanation": "What the formula gives; the angle itself is its inverse cosine.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.op.denominator",
+      "title": "One minus that",
+      "explanation": "Keeps the result between −1 and 1, as a cosine must be.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.op.numerator",
+      "title": "Cosine minus v over c",
+      "explanation": "Shifts the direction against the motion.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.op.projected",
+      "title": "v over c times the cosine",
+      "explanation": "The part of the motion along the light.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.op.ratio",
+      "title": "The quotient",
+      "explanation": "The moving system's cosine.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.op.relation",
+      "title": "What it asserts",
+      "explanation": "Two systems in relative motion see the same light arrive from different directions.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.op.speedRatio",
+      "title": "v over c",
+      "explanation": "The speed as a fraction of the speed of light.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.op.speedRatio2",
+      "title": "v over c",
+      "explanation": "The same fraction, in the denominator.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.t.angle",
+      "title": "The light's angle, stationary system",
+      "explanation": "Measured in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.t.angle2",
+      "title": "The same angle again",
+      "explanation": "The stationary-system angle, entering the denominator.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.t.angleMoving",
+      "title": "The light's angle, moving system",
+      "explanation": "The same light's direction relative to the motion, measured in the moving system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.t.light2",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "Signed along x: the sign says which way the system moves.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-aberration.t.speed2",
+      "title": "Speed of the moving system",
+      "explanation": "Signed along x: the sign says which way the system moves.",
+      "foundation": "bridge-negative-numbers-direction"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The cosine of "
+    },
+    {
+      "text": "the light's angle in the moving system",
+      "nodeId": "eq-model-sr-aberration.t.angleMoving"
+    },
+    {
+      "text": " is the cosine of "
+    },
+    {
+      "text": "its angle in the stationary system",
+      "nodeId": "eq-model-sr-aberration.t.angle"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-aberration.t.speed"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-aberration.t.light"
+    },
+    {
+      "text": ", divided by one minus v over c times that cosine."
+    }
+  ]
+}

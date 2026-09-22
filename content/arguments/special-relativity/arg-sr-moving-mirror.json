@@ -28,7 +28,8 @@
       {
         "kind": "formula",
         "latex": "\\frac{\\nu_{\\mathrm{ref}}}{\\nu}=\\frac{1-2(v/c)\\cos\\varphi+(v/c)^2}{1-(v/c)^2}",
-        "spoken": "The reflected frequency ratio is one minus twice v over c cosine phi plus v over c squared, divided by one minus v over c squared."
+        "spoken": "The reflected frequency ratio is one minus twice v over c cosine phi plus v over c squared, divided by one minus v over c squared.",
+        "equations": ["eq-model-sr-mirror-frequency"]
       },
       {
         "kind": "paragraph",

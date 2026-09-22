@@ -273,6 +273,38 @@
   frame: moving-system
   colorRole: energy
 
+- id: lightEnergyDensityStationary
+  name: Light energy density (stationary system)
+  description: >
+    The energy per unit volume of a plane light wave, as the stationary system K measures it
+    (u). Not the energy of a whole bounded light complex, which is lightComplexEnergyStationary.
+  dimensionStatus: declared
+  dimension: [-1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: energy
+
+- id: lightEnergyDensityMoving
+  name: Light energy density (moving system)
+  description: >
+    The energy per unit volume of the same light wave, as the moving system k measures it (u').
+  dimensionStatus: declared
+  dimension: [-1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: energy
+
+- id: waveFrequencyReflectedStationary
+  name: Reflected light frequency (stationary system)
+  description: >
+    The frequency of light reflected from a moving mirror, as the stationary system measures it
+    (nu_ref). Its ratio to the incident frequency is reflectedFrequencyRatio.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: time-rate
+
 - id: wavePhase
   name: Wave phase
   description: >
@@ -484,6 +516,28 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: energy
+
+- id: accelerationLongitudinalLaboratory
+  name: Longitudinal acceleration (laboratory)
+  description: >
+    A moving particle's acceleration along its direction of motion, measured in the laboratory
+    (a_x, for motion along x).
+  dimensionStatus: declared
+  dimension: [1, 0, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: laboratory
+  colorRole: field
+
+- id: accelerationTransverseLaboratory
+  name: Transverse acceleration (laboratory)
+  description: >
+    A moving particle's acceleration across its direction of motion, measured in the laboratory
+    (a_y, for motion along x).
+  dimensionStatus: declared
+  dimension: [1, 0, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: laboratory
+  colorRole: field
 
 - id: acceleratingPotential
   name: Accelerating potential

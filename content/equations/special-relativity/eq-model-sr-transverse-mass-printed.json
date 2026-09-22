@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-transverse-mass-printed",
+  "paper": "special-relativity",
+  "argument": "arg-sr-electron-conventions",
+  "title": "Across the motion, the paper's convention: m gamma squared",
+  "spoken": "Comoving transverse force over laboratory acceleration gives m gamma squared.",
+  "explanation": "With the sideways force measured in the electron's own frame and the acceleration in the laboratory, the ratio is m times gamma squared: 1.5625 m at 0.6c. This is the paper's transverse mass.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "An electron moving along x at speed v in the laboratory, with |v| < c, pushed by a small force.",
+    "A force-over-acceleration ratio means nothing until both are labelled with their frames. The paper's transverse mass uses the force measured in the frame moving with the electron.",
+    "Modern teaching notation: gamma is the paper's beta, m the electron's mass at rest."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-transverse-mass-printed.op.relation",
+    "left": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-transverse-mass-printed.t.force",
+        "quantityId": "transverseForceComoving"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-sr-transverse-mass-printed.t.accel",
+        "quantityId": "accelerationTransverseLaboratory"
+      },
+      "opId": "eq-model-sr-transverse-mass-printed.op.ratio"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-transverse-mass-printed.t.mass",
+          "quantityId": "electronMass"
+        },
+        {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-sr-transverse-mass-printed.t.factor",
+            "quantityId": "lorentzFactor"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          },
+          "opId": "eq-model-sr-transverse-mass-printed.op.power"
+        }
+      ],
+      "opId": "eq-model-sr-transverse-mass-printed.op.coefficient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-transverse-mass-printed.op.coefficient",
+      "title": "m times gamma squared",
+      "explanation": "The transverse mass as the paper defines it.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-printed.op.power",
+      "title": "Gamma squared",
+      "explanation": "1.5625 at 0.6c.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-printed.op.ratio",
+      "title": "Force over acceleration, two frames",
+      "explanation": "The force is from one frame and the acceleration from another; that choice is what gives gamma squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-printed.op.relation",
+      "title": "What it asserts",
+      "explanation": "The printed transverse mass follows from this convention. The paper's result is not wrong; it answers a question stated with these frames.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-printed.t.accel",
+      "title": "Acceleration across the motion",
+      "explanation": "Measured in the laboratory.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-printed.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared. At 0.6c it is 1.25.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-printed.t.force",
+      "title": "Sideways force, electron's frame",
+      "explanation": "Measured in the frame moving with the electron at this moment. It is gamma times the laboratory's sideways force.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-transverse-mass-printed.t.mass",
+      "title": "Electron mass",
+      "explanation": "The electron's mass at rest.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The sideways force in the electron's frame",
+      "nodeId": "eq-model-sr-transverse-mass-printed.t.force"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "the sideways acceleration",
+      "nodeId": "eq-model-sr-transverse-mass-printed.t.accel"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "m",
+      "nodeId": "eq-model-sr-transverse-mass-printed.t.mass"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-transverse-mass-printed.t.factor"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

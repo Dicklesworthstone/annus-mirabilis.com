@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-sr-charge-density",
+  "paper": "special-relativity",
+  "argument": "arg-sr-charge-current",
+  "title": "Charge density depends on the frame",
+  "spoken": "Primed charge density is gamma times rho minus v J x over c squared.",
+  "explanation": "A current in one system contributes to the charge density in the other. A wire that is neutral in the stationary system but carries a current is not neutral in the moving system.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c. Modern teaching notation: gamma is the paper's beta, c its V.",
+    "Charge density and the current along x transform together; the currents across the motion are unchanged by this boost."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-sr-charge-density.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-sr-charge-density.t.densityMoving",
+      "quantityId": "chargeDensityMoving"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-sr-charge-density.t.factor",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-sr-charge-density.t.density",
+              "quantityId": "chargeDensityStationary"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "quotient",
+                "numerator": {
+                  "kind": "product",
+                  "args": [
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-charge-density.t.speed",
+                      "quantityId": "frameSpeed"
+                    },
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-sr-charge-density.t.current",
+                      "quantityId": "currentDensityStationary"
+                    }
+                  ],
+                  "opId": "eq-model-sr-charge-density.op.vj"
+                },
+                "denominator": {
+                  "kind": "power",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-sr-charge-density.t.light",
+                    "quantityId": "speedOfLight"
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  },
+                  "opId": "eq-model-sr-charge-density.op.lightSquared"
+                },
+                "opId": "eq-model-sr-charge-density.op.term"
+              }
+            }
+          ],
+          "opId": "eq-model-sr-charge-density.op.bracket"
+        }
+      ],
+      "opId": "eq-model-sr-charge-density.op.scaled"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-sr-charge-density.op.bracket",
+      "title": "Density corrected for the current",
+      "explanation": "Zero density with a current gives a nonzero result.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.op.lightSquared",
+      "title": "c squared",
+      "explanation": "Makes the contribution small for everyday currents and speeds.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.op.relation",
+      "title": "What it asserts",
+      "explanation": "Neutrality belongs to a frame. The total charge of a body is the same in both systems; this is about density.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.op.scaled",
+      "title": "Times gamma",
+      "explanation": "The same factor as for coordinates.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.op.term",
+      "title": "A charge density from a current",
+      "explanation": "vJ_x over c squared has the units of charge per cubic metre.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.op.vj",
+      "title": "Speed times current",
+      "explanation": "Nonzero whenever there is a current along the motion.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.t.current",
+      "title": "Current along x, stationary system",
+      "explanation": "The current per square metre along the motion, in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.t.density",
+      "title": "Charge density, stationary system",
+      "explanation": "Charge per cubic metre measured in the stationary system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.t.densityMoving",
+      "title": "Charge density, moving system",
+      "explanation": "Charge per cubic metre measured in the moving system.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.t.factor",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared. At 0.6c it is 1.25.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper's V.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-sr-charge-density.t.speed",
+      "title": "Speed of the moving system",
+      "explanation": "Signed along x: the sign says which way the system moves.",
+      "foundation": "bridge-negative-numbers-direction"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The charge density in the moving system",
+      "nodeId": "eq-model-sr-charge-density.t.densityMoving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-sr-charge-density.t.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the charge density",
+      "nodeId": "eq-model-sr-charge-density.t.density"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-sr-charge-density.t.speed"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the current along x",
+      "nodeId": "eq-model-sr-charge-density.t.current"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-sr-charge-density.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}
