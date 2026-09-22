@@ -261,21 +261,6 @@ export function BoundaryLedgerLab({
         </div>
       </div>
 
-      {/* Preset Bar */}
-      <div className="presets-bar">
-        <span className="presets-label">Presets:</span>
-        {ME03_PRESETS.map((pr) => (
-          <button
-            key={pr.presetId}
-            type="button"
-            className="button-preset"
-            onClick={() => loadPreset(pr.presetId)}
-          >
-            {pr.label}
-          </button>
-        ))}
-      </div>
-
       {/* Main Visual Plot */}
       {isBox && boxEvaluation && boxScale ? (
         <PhotonBoxPlot
@@ -375,6 +360,22 @@ export function BoundaryLedgerLab({
           </section>
         </>
       )}
+
+      <fieldset className="lab-choice me03-try">
+        <legend>Try</legend>
+        <div className="actions">
+          {ME03_PRESETS.map((pr) => (
+            <button
+              key={pr.presetId}
+              type="button"
+              className="secondary"
+              onClick={() => loadPreset(pr.presetId)}
+            >
+              {pr.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       {/* Form Controls */}
       <form className="lab-controls" onSubmit={submit}>
