@@ -159,8 +159,32 @@ export function FacsimilePanel({
           <dd>{document.key}</dd>
           <dt>Acquired</dt>
           <dd>{document.acquisitionDate}</dd>
+          {/*
+            The institution first, in words. This read only `rightsStatus` - "scan-open-terms" -
+            which is a machine identifier: a reader could not tell whose terms they were. The
+            token stays, because it is the recorded code and someone auditing the receipt needs
+            it, but it is no longer the only thing said about the rights on a scan this project
+            does not own. Omitted entirely when the receipt records no institution, rather than
+            printed as "unknown", which would read as a claim about the source.
+          */}
+          {document.scanInstitution === null ? null : (
+            <>
+              <dt>Scan held by</dt>
+              <dd>{document.scanInstitution}</dd>
+            </>
+          )}
           <dt>Recorded scan rights</dt>
-          <dd>{document.rightsStatus}</dd>
+          <dd>
+            {document.rightsStatus}
+            {document.termsUrl === null ? null : (
+              <>
+                {" · "}
+                <a href={document.termsUrl} rel="noreferrer">
+                  Terms statement
+                </a>
+              </>
+            )}
+          </dd>
           <dt>Origin</dt>
           <dd>
             <a href={document.originUrl} rel="noreferrer">

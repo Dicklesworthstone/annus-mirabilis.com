@@ -17,6 +17,10 @@ export type FacsimileDocument = Readonly<{
   originUrl: string;
   acquisitionDate: string;
   rightsStatus: string;
+  /** The holding institution named on the pinned candidate, or null when none is recorded. */
+  scanInstitution: string | null;
+  /** The candidate's terms statement, validated as a public HTTPS URL, or null. */
+  termsUrl: string | null;
   inventoryStatus: string | null;
   pages: readonly FacsimilePage[];
   units: readonly FacsimileUnit[];
@@ -235,6 +239,50 @@ export function projectFacsimileDocument(
       );
     }
   }
+  /*
+    WHOSE SCAN IT IS, in words rather than as a token.
+
+    The panel printed only `rightsStatus`, which is "scan-open-terms" - a machine identifier. A
+    reader cannot tell from that whose terms they are, and AGENTS.md is explicit that a particular
+    scan can carry the scanning institution's terms and that the URL, retrieval date and stated
+    terms must be recorded. They WERE recorded, in the candidate this pin was taken from; they
+    simply never reached the projection.
+
+    `pinned.candidateIndex` names that candidate, so this reads the recorded one rather than
+    guessing at candidates[0]. Both fields resolve to null when absent or malformed: a missing
+    institution is a gap in a receipt, not grounds to refuse a scan that has already verified by
+    digest. The terms URL is held to the same public-HTTPS rule as originUrl, because an
+    unvalidated URL rendered as a link is the thing that rule exists to prevent.
+  */
+  const candidates = Array.isArray(config.candidates) ? config.candidates : [];
+  const pinnedCandidate =
+    typeof pin.candidateIndex === "number" && Number.isSafeInteger(pin.candidateIndex)
+      ? candidates[pin.candidateIndex]
+      : undefined;
+  const candidateRecord =
+    pinnedCandidate !== null &&
+    typeof pinnedCandidate === "object" &&
+    !Array.isArray(pinnedCandidate)
+      ? (pinnedCandidate as Record<string, unknown>)
+      : undefined;
+  const scanInstitution =
+    typeof candidateRecord?.institution === "string" &&
+    candidateRecord.institution.trim().length > 0
+      ? candidateRecord.institution.trim()
+      : null;
+  let termsUrl: string | null = null;
+  const termsList = candidateRecord?.termsStatementUrls;
+  if (Array.isArray(termsList) && typeof termsList[0] === "string") {
+    try {
+      const parsed = new URL(termsList[0]);
+      if (parsed.protocol === "https:" && !parsed.username && !parsed.password) {
+        termsUrl = parsed.href;
+      }
+    } catch {
+      termsUrl = null;
+    }
+  }
+
   return Object.freeze({
     paperId,
     key,
@@ -243,6 +291,8 @@ export function projectFacsimileDocument(
     originUrl: origin.href,
     acquisitionDate: pin.acquisitionDate,
     rightsStatus: rights.rightsStatus,
+    scanInstitution,
+    termsUrl,
     inventoryStatus,
     pages,
     units: Object.freeze(units),

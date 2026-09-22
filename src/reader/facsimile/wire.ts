@@ -147,6 +147,11 @@ export function decodeFacsimileAvailability(raw: unknown, paperId: string): Facs
       originUrl: origin.href,
       acquisitionDate: source.acquisitionDate,
       rightsStatus: source.rightsStatus,
+      // Carried across the wire so the reader is told whose scan it is, not only a rights token.
+      // Both are nullable by construction: a receipt that records neither is a gap in the
+      // receipt, and the panel simply omits the line rather than inventing an attribution.
+      scanInstitution: typeof source.scanInstitution === "string" ? source.scanInstitution : null,
+      termsUrl: typeof source.termsUrl === "string" ? source.termsUrl : null,
       inventoryStatus: source.inventoryStatus,
       pages: Object.freeze(pages),
       units: Object.freeze(units),

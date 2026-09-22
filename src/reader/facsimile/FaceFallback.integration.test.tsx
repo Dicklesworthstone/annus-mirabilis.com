@@ -17,6 +17,8 @@ async function fixture() {
     sha256: "a".repeat(64),
     acquisitionDate: "2026-09-18",
     rightsStatus: "test-fixture",
+    scanInstitution: null,
+    termsUrl: null,
     originUrl: "https://archive.org/example.pdf",
     inventoryStatus: "in-preparation",
     pages: [{ pdfPage: 1, printedPage: 639 }],
