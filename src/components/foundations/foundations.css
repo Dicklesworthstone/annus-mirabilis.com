@@ -495,12 +495,18 @@ article.foundation-page {
     grid-column: 2;
     grid-row: 1 / span 2;
     align-self: start;
-    position: sticky;
-    top: 2rem;
-    max-height: calc(100vh - 4rem);
-    overflow-y: auto;
     margin-top: 0;
     border-top: 0;
     padding-top: 0.4rem;
+  }
+}
+/* Pinned only where the screen can hold it whole. The tallest rail is 530px (integration, BUILD
+   20), so 40rem is enough. It was a scroll container with a max-height, and the scroll-region
+   ratchet (scrollableRegions.test.ts) rightly refused an unaudited one; a rail of links is better
+   never scrolling inside itself. On a shorter screen it scrolls with the page. */
+@media (min-width: 75rem) and (min-height: 40rem) {
+  .foundation-page-rail {
+    position: sticky;
+    top: 2rem;
   }
 }

@@ -99,11 +99,16 @@
   .encounter > .route-map {
     grid-column: 1;
     grid-row: 1 / span 40;
-    position: sticky;
-    top: 2rem;
-    max-height: calc(100vh - 4rem);
-    overflow-y: auto;
     margin: 0;
     padding-top: 0.4rem;
+  }
+}
+/* Pinned only where the screen can hold the whole map (517px for relativity's eight steps, BUILD
+   20): never a scroll container of its own, which the scroll-region ratchet refuses unaudited,
+   and a map of links should not scroll inside itself anyway. */
+@media (min-width: 75rem) and (min-height: 40rem) {
+  .encounter > .route-map {
+    position: sticky;
+    top: 2rem;
   }
 }
