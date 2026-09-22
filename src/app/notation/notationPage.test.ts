@@ -9,6 +9,8 @@ import { getLogger, newRunIdentity } from "../../testing/log/logger.ts";
 import {
   describeVerification,
   type EnrichedConcordanceEntry,
+  formatScope,
+  formatScopeToken,
   loadNotationPageData,
   renderStaticKatex,
 } from "./notationData.ts";
@@ -298,6 +300,38 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     );
     // "Pending" elsewhere in the text is not the controlled prefix.
     expect(describeVerification([entry("Checked; nothing pending")]).checkedCount).toBe(1);
+  });
+
+  it("scope tokens read as a reader would say them", () => {
+    expect(formatScopeToken("light-quanta", "lq-s3")).toBe("§3");
+    expect(formatScopeToken("light-quanta", "lq-s1-fn1")).toBe("§1, note 1");
+    expect(formatScopeToken("light-quanta", "lq-s0")).toBe("introduction");
+    // The mass-energy paper has no sections, so its s0 is the whole paper.
+    expect(formatScopeToken("mass-energy", "me-s0")).toBe("throughout");
+    expect(formatScopeToken("mass-energy", "me-s0-p5")).toBe("paragraph 5");
+    expect(formatScopeToken("molecular-dimensions", "md-1911")).toBe("the 1911 correction");
+    expect(formatScope("light-quanta", ["lq-s2", "lq-s5", "lq-s8"])).toBe("§2, §5 and §8");
+    // An unknown token stays visible rather than vanishing.
+    expect(formatScopeToken("light-quanta", "lq-part-9")).toBe("lq-part-9");
+    // Across the real records, no raw content id reaches the page.
+    const leaks = data.allEntries.filter((e) => /\b[a-z]{2}-(s\d|all\b|19\d\d)/.test(e.whereLabel));
+    expect(leaks.map((e) => `${e.id}: ${e.whereLabel}`)).toEqual([]);
+  });
+
+  it("the same-symbol lists are symmetric and never list the entry itself", () => {
+    const byId = new Map(data.allEntries.map((e) => [e.id, e]));
+    let pairs = 0;
+    for (const entry of data.allEntries) {
+      for (const other of entry.alsoPrinted) {
+        expect(other.id).not.toBe(entry.id);
+        expect(byId.get(other.id)?.alsoPrinted.some((back) => back.id === entry.id)).toBe(true);
+        pairs++;
+      }
+    }
+    // Non-vacuity: the corpus has shared symbols (V, k, beta), so an empty result means the
+    // second pass never ran, not that nothing collides.
+    expect(pairs).toBeGreaterThan(0);
+    logTestPass("same-symbol-symmetric", `${pairs} directed same-symbol links, all mutual.`);
   });
 
   it("every symbol in the index links to an entry that is on the page", () => {
