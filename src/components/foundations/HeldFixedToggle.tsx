@@ -124,7 +124,26 @@ export function HeldFixedToggle() {
         )}
       </div>
 
-      <div className="thermodynamics-held-fixed-comparison" style={{ marginTop: "1.5rem" }}>
+      {/*
+        am-a3f1. The four sibling foundations components wrap their tables in
+        construction-table-wrap; this one did not, and its table is the widest of them. Its
+        columns need 350.3px, which does not fit a 320px viewport at any panel padding - measured,
+        after a padding-only route was tried and could not reach it - so this region genuinely
+        scrolls and the scroll is structurally required rather than a choice someone made.
+
+        The tab stop ships with it rather than being left for later, for two reasons.
+        construction-table-wrap is recorded in scrollableRegions' NOT_YET_AUDITED at 4 unreachable
+        regions and that number may only shrink, so a fifth usage without one would have raised
+        it. And a scroll container a keyboard cannot reach is a worse defect than the overflow it
+        replaces, because the overflow still left the content reachable.
+      */}
+      <section
+        className="thermodynamics-held-fixed-comparison construction-table-wrap"
+        style={{ marginTop: "1.5rem" }}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns are unreachable by keyboard, which is the access defect the scroll container would otherwise introduce (am-bc6s). Suppressed inline at the site, following ModernOnlySymbolsView.tsx, rather than as a per-file override that turns the rule off for a whole file and carries no reason with it.
+        tabIndex={0}
+        aria-label="Thermodynamic partial derivatives and their held-fixed constraints, scrollable table"
+      >
         <h4>Thermodynamic examples: how the fixed constraint changes the derivative</h4>
         <p>
           In thermodynamics, the same symbols have completely different numerical values depending
@@ -192,7 +211,7 @@ export function HeldFixedToggle() {
             </tr>
           </tbody>
         </table>
-      </div>
+      </section>
 
       <div
         className="construction-text-equivalent"
