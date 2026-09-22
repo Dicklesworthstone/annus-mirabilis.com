@@ -61,11 +61,13 @@ export function JourneyInPreparation({
         )}
         {paperId === "special-relativity" && (
           <section aria-labelledby="special-relativity-investigation-link">
-            <h3 id="special-relativity-investigation-link">Construct a map and choose a measurement</h3>
+            <h3 id="special-relativity-investigation-link">
+              Construct a map and choose a measurement
+            </h3>
             <p>
-              Assemble the light-direction constraints, identify the still-undetermined scale,
-              and test which event pairs measure a moving-frame length. This explanatory
-              investigation does not publish the reviewed historical journey.
+              Assemble the light-direction constraints, identify the still-undetermined scale, and
+              test which event pairs measure a moving-frame length. This explanatory investigation
+              does not publish the reviewed historical journey.
             </p>
             <p>
               <a className="button" href="/discover/special-relativity/investigate/">

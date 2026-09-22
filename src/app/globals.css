@@ -390,6 +390,17 @@ h3 {
   gap: 1rem;
   flex-wrap: wrap;
   margin: 1.4rem 0;
+  /*
+   * So an .actions row can be a <fieldset> when its buttons are a named group.
+   *
+   * aria-label is ignored on a plain <div>, so a group label written there reaches nobody.
+   * <fieldset> is the element that takes one, and the repo already resets fieldsets per
+   * component (.me-entrance, .clock-entrance, .facsimile-reader-toolbar). These two properties
+   * are a no-op for every .actions div in the tree - divs have no default border or padding -
+   * and remove the user-agent box a fieldset would otherwise draw around the buttons.
+   */
+  border: 0;
+  padding: 0;
 }
 .feature-row {
   border-top: 1px solid var(--line);

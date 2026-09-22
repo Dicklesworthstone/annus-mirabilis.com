@@ -1,13 +1,25 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  assessRelativity, LIGHT_ONLY_ORDER, LONGITUDINAL_ORDER, RELATIVITY_CARDS,
-  RELATIVITY_MEASUREMENTS, relativityCard, relativityMeasurement, WORKED_RELATIVITY_ORDER,
+  assessRelativity,
+  LIGHT_ONLY_ORDER,
+  LONGITUDINAL_ORDER,
+  RELATIVITY_CARDS,
+  RELATIVITY_MEASUREMENTS,
+  relativityCard,
+  relativityMeasurement,
+  WORKED_RELATIVITY_ORDER,
 } from "./specialRelativityInvestigation.ts";
 import {
-  decodeRelativityLink, emptyRelativitySession, encodeRelativityLink,
-  exportRelativitySession, importRelativitySession, parseRelativitySession,
-  RELATIVITY_IMPORT_LIMIT, RELATIVITY_LINK_LIMIT, RELATIVITY_NOTE_LIMIT,
+  decodeRelativityLink,
+  emptyRelativitySession,
+  encodeRelativityLink,
+  exportRelativitySession,
+  importRelativitySession,
+  parseRelativitySession,
+  RELATIVITY_IMPORT_LIMIT,
+  RELATIVITY_LINK_LIMIT,
+  RELATIVITY_NOTE_LIMIT,
   replayRelativitySession,
 } from "./specialRelativitySession.ts";
 
@@ -37,7 +49,14 @@ test("the full worked reconstruction supports every step", () => {
   assert.equal(result.hasBlockedSteps, false);
 });
 
-for (const missing of ["forward-ray", "backward-ray", "inverse", "isotropy", "identity", "transverse-form"]) {
+for (const missing of [
+  "forward-ray",
+  "backward-ray",
+  "inverse",
+  "isotropy",
+  "identity",
+  "transverse-form",
+]) {
   test(`removing ${missing} prevents a complete aligned-map claim`, () => {
     const result = assessRelativity(WORKED_RELATIVITY_ORDER.filter((id) => id !== missing));
     assert.notEqual(result.outcome, "aligned-map");
@@ -47,13 +66,25 @@ for (const missing of ["forward-ray", "backward-ray", "inverse", "isotropy", "id
 }
 
 test("an unsupported predecessor cannot launder support to downstream steps", () => {
-  const result = assessRelativity(["normalize", "transverse-form", "transverse-light", "clocks", "linear-map"]);
+  const result = assessRelativity([
+    "normalize",
+    "transverse-form",
+    "transverse-light",
+    "clocks",
+    "linear-map",
+  ]);
   assert.equal(result.outcome, "premises-only");
-  assert.ok(result.trace.find((entry) => entry.id === "transverse-light").missing.includes("normalize"));
+  assert.ok(
+    result.trace.find((entry) => entry.id === "transverse-light").missing.includes("normalize"),
+  );
 });
 
 test("moving a premise AFTER its use leaves the step blocked until reordered", () => {
-  const wrong = ["linear-map", "clocks", ...WORKED_RELATIVITY_ORDER.filter((id) => !["linear-map", "clocks"].includes(id))];
+  const wrong = [
+    "linear-map",
+    "clocks",
+    ...WORKED_RELATIVITY_ORDER.filter((id) => !["linear-map", "clocks"].includes(id)),
+  ];
   assert.notEqual(assessRelativity(wrong).outcome, "aligned-map");
   assert.equal(assessRelativity(WORKED_RELATIVITY_ORDER).outcome, "aligned-map");
 });
@@ -102,10 +133,12 @@ test("independent arithmetic checks ALL authored event values without a producti
   assert.equal(gamma, 1.25);
   for (const item of RELATIVITY_MEASUREMENTS) {
     for (const event of [item.eventA, item.eventB]) {
-      const { x, t, xp, tp } = Object.fromEntries(Object.entries(event).map(([key, value]) => [key, Number(value)]));
+      const { x, t, xp, tp } = Object.fromEntries(
+        Object.entries(event).map(([key, value]) => [key, Number(value)]),
+      );
       assert.ok(Math.abs(xp - gamma * (x - beta * t)) < 1e-12, `${item.id}: x'`);
       assert.ok(Math.abs(tp - gamma * (t - beta * x)) < 1e-12, `${item.id}: t'`);
-      assert.ok(Math.abs((t * t - x * x) - (tp * tp - xp * xp)) < 1e-12, `${item.id}: interval`);
+      assert.ok(Math.abs(t * t - x * x - (tp * tp - xp * xp)) < 1e-12, `${item.id}: interval`);
       assert.ok(Math.abs(x - gamma * (xp + beta * tp)) < 1e-12, `${item.id}: inverse x`);
       assert.ok(Math.abs(t - gamma * (tp + beta * xp)) < 1e-12, `${item.id}: inverse t`);
     }
@@ -113,7 +146,10 @@ test("independent arithmetic checks ALL authored event values without a producti
 });
 
 test("full JSON round-trip preserves note and predictions tied to their measurement", () => {
-  const original = session({ note: "Private reasoning: α\nDo not put this in a URL.", predictions: { "same-platform-time": "no", "same-moving-time": "yes" } });
+  const original = session({
+    note: "Private reasoning: α\nDo not put this in a URL.",
+    predictions: { "same-platform-time": "no", "same-moving-time": "yes" },
+  });
   const decoded = importRelativitySession(exportRelativitySession(original));
   assert.equal(decoded.kind, "session");
   assert.deepEqual(decoded.session, original);
@@ -151,13 +187,19 @@ for (const [label, changes] of [
   ["oversized note", { note: "x".repeat(RELATIVITY_NOTE_LIMIT + 1) }],
   ["forged assessment", { assessment: { outcome: "aligned-map" } }],
 ]) {
-  test(`reject ${label} atomically`, () => assert.equal(parseRelativitySession(payload(changes)).kind, "invalid"));
+  test(`reject ${label} atomically`, () =>
+    assert.equal(parseRelativitySession(payload(changes)).kind, "invalid"));
 }
 
 test("reject invalid JSON, overlong input and prototype-shaped keys", () => {
   assert.equal(importRelativitySession("{").kind, "invalid");
   assert.equal(importRelativitySession(" ".repeat(RELATIVITY_IMPORT_LIMIT + 1)).kind, "invalid");
-  assert.equal(importRelativitySession(JSON.stringify(payload()).replace('"predictions":{}', '"predictions":{"__proto__":"yes"}')).kind, "invalid");
+  assert.equal(
+    importRelativitySession(
+      JSON.stringify(payload()).replace('"predictions":{}', '"predictions":{"__proto__":"yes"}'),
+    ).kind,
+    "invalid",
+  );
 });
 
 test("accept a note exactly at the limit and an empty argument", () => {
@@ -166,7 +208,11 @@ test("accept a note exactly at the limit and an empty argument", () => {
 });
 
 test("public links round-trip choices but exclude ALL private notes and predictions", () => {
-  const original = session({ measurement: "one-clock", note: "secret", predictions: { "one-clock": "no" } });
+  const original = session({
+    measurement: "one-clock",
+    note: "secret",
+    predictions: { "one-clock": "no" },
+  });
   const encoded = encodeRelativityLink(original);
   assert.ok(!encoded.includes("secret"));
   assert.deepEqual([...new URLSearchParams(encoded).keys()].sort(), ["cards", "example", "sr"]);
@@ -183,7 +229,9 @@ test("the empty argument has an unambiguous share representation", () => {
 });
 
 for (const search of [
-  "?sr=1", "?cards=clocks", "?sr=2&cards=clocks&example=one-clock",
+  "?sr=1",
+  "?cards=clocks",
+  "?sr=2&cards=clocks&example=one-clock",
   "?sr=1&sr=1&cards=clocks&example=one-clock",
   "?sr=1&cards=clocks&cards=&example=one-clock",
   "?sr=1&cards=clocks,clocks&example=one-clock",
@@ -191,7 +239,8 @@ for (const search of [
   "?sr=1&cards=__proto__&example=one-clock",
   "?sr=1&cards=&example=unknown",
 ]) {
-  test(`reject malformed shared state ${search}`, () => assert.equal(decodeRelativityLink(search).kind, "invalid"));
+  test(`reject malformed shared state ${search}`, () =>
+    assert.equal(decodeRelativityLink(search).kind, "invalid"));
 }
 
 test("an ordinary visit is distinct from an invalid share", () => {
@@ -201,7 +250,9 @@ test("an ordinary visit is distinct from an invalid share", () => {
 });
 
 test("unrelated URL parameters cannot supply private state", () => {
-  const decoded = decodeRelativityLink(`${encodeRelativityLink(emptyRelativitySession())}&note=secret&predictions=yes`);
+  const decoded = decodeRelativityLink(
+    `${encodeRelativityLink(emptyRelativitySession())}&note=secret&predictions=yes`,
+  );
   assert.equal(decoded.kind, "session");
   assert.equal(decoded.session.note, "");
   assert.deepEqual(decoded.session.predictions, {});
