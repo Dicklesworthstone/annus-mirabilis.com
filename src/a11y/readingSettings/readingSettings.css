@@ -9,9 +9,12 @@ html {
      the contradiction sat seven lines above the comment saying so. On its own this
      line changes nothing, because layout.css declares the measure directly on
      .reader-anatomy-host; both had to move together. */
-  --reader-measure: 43ch;
+  --reader-measure: 56ch;
   --reader-type-scale: 1;
   --reader-paragraph-gap: 1em;
+  /* The reading column's size relative to the site's reading body. 1 below 1280px; see "THE
+     READING COLUMN ON A DESKTOP" below. */
+  --reader-step: 1;
 }
 
 /*
@@ -66,24 +69,82 @@ html {
  * The lesson is not about ch. A mean over whole paragraphs and a median over full lines are
  * different statistics, and only the second one answers "how long is a line".
  */
+/*
+ * THE MEASURE WAS RAISED TO 44 / 56 / 62ch ON 2026-09-22, on the owner's "stuff is way too skinny
+ * on desktop browsers". At 43ch the Brownian section pages set 19px type in a 450px column, and
+ * on BUILD 15 the median paragraph over 120 characters was 413px at 1440 (29% of the screen) and
+ * the same 413px at 1920 (22%). The other three papers had no measure at all: a fixed 780px track
+ * at 19px, 98 to 100 characters a line.
+ *
+ * The width is bought mostly with type size, not only with line length. A wider ch alone would
+ * have reached 700px only past 85 characters a line. So from 1280px the reading column is set a
+ * step up (below), and the measure moves only as far as the 45-75 band allows. Measured on BUILD
+ * 15 with this CSS injected, true line breaks, trailing partial lines dropped, 1440x900, 22.8px:
+ *
+ *     44ch  Narrow   55-57 CPL   516-553px    the 1905 plate's ~57, the old default's line
+ *     56ch  Default  71-73 CPL   703px column (Brownian's median paragraph 666px, 46%)
+ *     62ch  Wide     ~81 CPL     779px        past 75, for a reader who asks for long lines
+ *
+ * Narrow is anchored where Default used to be: a reader who liked the plate's measure keeps it
+ * one click away.
+ */
 html[data-measure="narrow"] {
-  --reader-measure: 36ch;
+  --reader-measure: 44ch;
 }
 html[data-measure="default"] {
-  --reader-measure: 43ch;
+  --reader-measure: 56ch;
 }
 html[data-measure="wide"] {
-  --reader-measure: 53ch;
+  --reader-measure: 62ch;
 }
 
 html[data-measure="narrow"] .reader-anatomy-host {
-  --reader-measure: 36ch;
+  --reader-measure: 44ch;
 }
 html[data-measure="default"] .reader-anatomy-host {
-  --reader-measure: 43ch;
+  --reader-measure: 56ch;
 }
 html[data-measure="wide"] .reader-anatomy-host {
-  --reader-measure: 53ch;
+  --reader-measure: 62ch;
+}
+
+/*
+ * THE READING COLUMN ON A DESKTOP IS SET ONE STEP UP. At 1280px and wider the column's type goes
+ * from the reading body (19px) to the next step of the site's 1.2 scale (22.8px), and every other
+ * size inside the column moves with it: captions, labels, headings and the lead keep their ratio
+ * to the text. The outline, the companion and the site's chrome keep their sizes. The chrome is
+ * navigation, and the column is the book.
+ *
+ * WHY A STEP AND NOT ONLY A WIDER MEASURE. See above: 700px of 19px Newsreader is about 88
+ * characters a line. 700px of 22.8px is 72.
+ *
+ * WHY THE TOKENS ARE RESTATED HERE. The seven type tokens are declared on :root in rem, and a
+ * custom property's var() is resolved where it is declared, so overriding a multiplier on the
+ * column would not reach them. Each is restated with its globals.css value times the step. If
+ * globals.css changes the scale, these seven lines change with it.
+ *
+ * THE READER'S OWN TYPE SIZE still applies, through --reader-body. A layout that tracks the
+ * column (a grid track, a composition's max-width) multiplies the measure by the same step, so a
+ * track and the column it holds are always one width.
+ */
+@media (min-width: 80em) {
+  html {
+    --reader-step: 1.2;
+  }
+}
+.reading-column,
+.reader-main,
+.reader-layout > .reader-body,
+.source-column {
+  --type-micro: calc(0.6875rem * var(--reader-step));
+  --type-fine: calc(0.825rem * var(--reader-step));
+  --type-small: calc(0.99rem * var(--reader-step));
+  --type-body: calc(1.1875rem * var(--reader-step));
+  --type-lead: calc(1.425rem * var(--reader-step));
+  --type-title: calc(1.71rem * var(--reader-step));
+  --type-display: calc(2.05rem * var(--reader-step));
+  --reader-body: calc(var(--type-body) * var(--reader-type-scale));
+  font-size: var(--reader-body);
 }
 
 html[data-type-scale="100"] {

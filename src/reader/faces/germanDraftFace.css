@@ -91,7 +91,7 @@
 @media (min-width: 75em) {
   .source-body:has(> .source-plate) {
     display: grid;
-    grid-template-columns: minmax(0, var(--reader-measure)) 20rem;
+    grid-template-columns: minmax(0, calc(var(--reader-measure) * var(--reader-step))) 20rem;
     column-gap: 4rem;
     justify-content: center;
     align-items: start;
@@ -103,7 +103,7 @@
      one box. Set on each child it missed by 24px on the tabs: ch resolves against the font of the
      element declaring it, and the tabs are set in the sans. */
   .reader-root:has(.source-plate) {
-    max-width: calc(var(--reader-measure) + 24rem);
+    max-width: calc(var(--reader-measure) * var(--reader-step) + 24rem);
     margin-inline: auto;
   }
 }

@@ -7,17 +7,19 @@
   --reader-wide-min: 64em;
   --reader-sticky-lab-max: 40vh;
   --reader-scroll-padding: 3rem;
-  /* The unattributed default, and it must equal data-measure="default" (43ch).
-     It is declared ON this element, so it BEATS the inherited html value for the
-     whole reader subtree - which means changing the html base alone does nothing
-     here. Measured with the attribute removed (the no-JS and storage-throws case)
-     at 1280x900: 65ch gave a 680px column at 85 characters per line, past the 75
-     ceiling; 43ch gives 450px at 55, the same as the default setting and the
-     1905 plate's ~57. */
-  --reader-measure: 43ch;
+  /* The unattributed default, and it must equal data-measure="default" (56ch since
+     2026-09-22; readingSettings.css says why). It is declared ON this element, so it
+     BEATS the inherited html value for the whole reader subtree - which means
+     changing the html base alone does nothing here. Measured with the attribute
+     removed (the no-JS and storage-throws case) at 1280x900: 65ch gave a 680px
+     column at 85 characters per line, past the 75 ceiling. */
+  --reader-measure: 56ch;
 }
 
 .reader-anatomy {
+  /* The text's track: the measure times the desktop step (readingSettings.css), so the track and
+     the column it holds are one width. Declared here, where the grid resolves its ch. */
+  --reader-track: calc(var(--reader-measure) * var(--reader-step));
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 1.5rem;
@@ -110,17 +112,25 @@
    1440, for a note a few lines long, so the text sat in a 450px column pinned left of an empty
    field (TanElk's BUILD 10 review, item 5). Now the three columns take their own widths - the
    outline, the reading measure, a companion of at most 20rem - and sit together in the centre,
-   and the companion stays beside the passage as the page scrolls. */
+   and the companion stays beside the passage as the page scrolls.
+
+   THE TEXT TAKES ITS MEASURE FIRST (2026-09-22). The reading column is now set a step up from
+   1280px (readingSettings.css), so its track is the measure times that step: the track's ch
+   resolves against this grid's font, the column's against its own, and multiplying by the same
+   step keeps them one width. The companion takes what is left (1fr, its box at most 20rem), so
+   at 1280 the text keeps its full measure and the companion gives way. With a 14-20rem track the
+   companion grew as fast as the text: measured at 1280 on BUILD 15 with both injected, the median
+   paragraph over 120 characters was 571px with that track and 666px with this one. */
 @container reader (min-width: 64em) {
   .reader-anatomy {
-    grid-template-columns: minmax(0, 12rem) minmax(0, var(--reader-measure)) minmax(14rem, 20rem);
-    justify-content: center;
+    grid-template-columns: minmax(0, 12rem) minmax(0, var(--reader-track)) minmax(0, 1fr);
     column-gap: 3rem;
     align-items: start;
   }
   .reader-companion-column {
     position: sticky;
     top: var(--reader-scroll-padding);
+    max-width: 20rem;
   }
   .reader-outline {
     grid-column: 1;
@@ -140,7 +150,7 @@
 /* Medium: main + collapsible companion column. */
 @container reader (min-width: 48em) and (max-width: 63.98em) {
   .reader-anatomy {
-    grid-template-columns: minmax(0, var(--reader-measure)) minmax(0, 1fr);
+    grid-template-columns: minmax(0, var(--reader-track)) minmax(0, 1fr);
   }
   .reader-outline {
     grid-column: 1 / -1;
