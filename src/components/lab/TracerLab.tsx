@@ -149,14 +149,14 @@ export function TracerLab({
     }
   }
   const announcement = view.pending
-    ? "Recording or remeasuring the requested trial. The accepted result remains below."
+    ? "Recording or remeasuring the requested trial. The accepted result stays on screen until it is done."
     : view.status === "refused"
       ? `${view.refusal?.message ?? "Trial refused."} The accepted trial is unchanged.`
       : view.status === "unavailable"
         ? `${view.outcome?.message ?? "Calculation unavailable."} The accepted example remains readable.`
         : view.status === "paused"
           ? "Calculation stopped. The accepted trial is unchanged."
-          : `Accepted synthetic trial: ${p.M} tracers, ${display(p.interval)} seconds, coordinate mean ${display(scalar(snapshot, "sampleMean"), 1e6)} micrometres and coordinate RMS ${display(scalar(snapshot, "sampleRms"), 1e6)} micrometres.`;
+          : `Accepted synthetic trial: ${p.M} tracers, ${display(p.interval)} ${p.interval === 1 ? "second" : "seconds"}, coordinate mean ${display(scalar(snapshot, "sampleMean"), 1e6)} micrometres and coordinate RMS ${display(scalar(snapshot, "sampleRms"), 1e6)} micrometres.`;
   const edges = array(snapshot, "histogramEdges"),
     counts = array(snapshot, "histogramCounts");
   const isStatic = snapshot === session.getServerSnapshot().accepted;
@@ -231,36 +231,6 @@ export function TracerLab({
             <p className="eyebrow">BM-01 · A reproducible trial</p>
             <h2 id={`${id}-title`}>{title}</h2>
           </div>
-          <ExecutionChrome
-            state={executionKind}
-            view={view}
-            modelNote={modelNoteFromView(view, {
-              notModeled: "Molecular collisions (no collision bath owns the displacement).",
-              showTheCodeHref: `#stc-${id}`,
-              roles: {
-                tracerPositions: "primary",
-                sampleMean: "secondary",
-                sampleMeanAbsolute: "secondary",
-                sampleMeanSquare: "secondary",
-                sampleRms: "secondary",
-                sampleMeanNorm: "secondary",
-                sampleMeanSquareNorm: "secondary",
-                sampleRmsNorm: "secondary",
-              },
-              engineSentences: {
-                tracerPositions: isFrankenSim
-                  ? "Computed with FrankenSim (brownian_frames)."
-                  : "Host reference calculation (recordTracers).",
-                sampleMean: "Host reduction (ensembleMoments).",
-                sampleMeanAbsolute: "Host reduction (ensembleMoments).",
-                sampleMeanSquare: "Host reduction (ensembleMoments).",
-                sampleRms: "Host reduction (ensembleMoments).",
-                sampleMeanNorm: "Host reduction (ensembleMoments).",
-                sampleMeanSquareNorm: "Host reduction (ensembleMoments).",
-                sampleRmsNorm: "Host reduction (ensembleMoments).",
-              },
-            })}
-          />
         </header>
         <noscript>
           <p className="notice">
@@ -454,9 +424,6 @@ export function TracerLab({
             )}
           </div>
           <div className="lab-results">
-            <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
-              {announcement}
-            </p>
             {view.refusal && (
               <div className="notice error" data-refusal-code={view.refusal.code}>
                 <p>{view.refusal.message}</p>
@@ -482,13 +449,48 @@ export function TracerLab({
                 })}
               </div>
             )}
+            <TracerPaths snapshot={snapshot} zoom={zoom} />
+            <div className="lab-status-row">
+              <ExecutionChrome
+                state={executionKind}
+                view={view}
+                modelNote={modelNoteFromView(view, {
+                  notModeled: "Molecular collisions (no collision bath owns the displacement).",
+                  showTheCodeHref: `#stc-${id}`,
+                  roles: {
+                    tracerPositions: "primary",
+                    sampleMean: "secondary",
+                    sampleMeanAbsolute: "secondary",
+                    sampleMeanSquare: "secondary",
+                    sampleRms: "secondary",
+                    sampleMeanNorm: "secondary",
+                    sampleMeanSquareNorm: "secondary",
+                    sampleRmsNorm: "secondary",
+                  },
+                  engineSentences: {
+                    tracerPositions: isFrankenSim
+                      ? "Computed with FrankenSim (brownian_frames)."
+                      : "Host reference calculation (recordTracers).",
+                    sampleMean: "Host reduction (ensembleMoments).",
+                    sampleMeanAbsolute: "Host reduction (ensembleMoments).",
+                    sampleMeanSquare: "Host reduction (ensembleMoments).",
+                    sampleRms: "Host reduction (ensembleMoments).",
+                    sampleMeanNorm: "Host reduction (ensembleMoments).",
+                    sampleMeanSquareNorm: "Host reduction (ensembleMoments).",
+                    sampleRmsNorm: "Host reduction (ensembleMoments).",
+                  },
+                })}
+              />
+            </div>
+            <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
+              {announcement}
+            </p>
             <p className="accepted-caption">
               Accepted trial: seed {p.seed}; {p.M} tracers; {display(p.T)} K; viscosity{" "}
               {display(p.eta, 1e3)} mPa·s; radius {display(p.a, 1e6)} μm. Observe at{" "}
               {display(p.interval)} s in a {display(p.H)}-second recording. Constants:{" "}
               <span data-constant-set-id={constantSetId}>{constantSetLabel}</span>.
             </p>
-            <TracerPaths snapshot={snapshot} zoom={zoom} />
             <div className="real-rate-card" data-real-rate-card="true">
               <div className="rate-indicators">
                 <TimeLegend
