@@ -17,7 +17,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EXCLUDED_FIELDS } from "../src/content/checks/voice/check.ts";
+import { EXCLUDED_FIELDS, isOverridden } from "../src/content/checks/voice/check.ts";
 import { extractAllComponentStrings } from "../src/content/checks/voice/componentText.ts";
 import { resolveVoiceContext } from "../src/content/checks/voice/contexts.ts";
 import { checkVoice } from "../src/content/checks/voice/index.ts";
@@ -56,20 +56,6 @@ interface LogEntry {
   readonly matchedText?: string | undefined;
   readonly suggestion?: string | undefined;
   readonly summary?: Record<string, unknown> | undefined;
-}
-
-function isOverridden(
-  overrides: readonly VoiceOverrideEntry[],
-  target: string,
-  rule: string,
-  matchedText: string,
-): boolean {
-  return overrides.some(
-    (o) =>
-      (o.target === target || target.endsWith(o.target) || o.target.endsWith(target)) &&
-      o.rule === rule &&
-      matchedText.toLowerCase().includes(o.matchedText.toLowerCase()),
-  );
 }
 
 export async function runVoiceLint(): Promise<{

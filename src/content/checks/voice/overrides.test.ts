@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import { isOverridden } from "./check.ts";
 import { findStaleOverrides, type VoiceOverrideEntry, validateOverrideEntry } from "./overrides.ts";
 
@@ -109,5 +112,45 @@ describe("overrides: a target names exactly one record (am-s64j)", () => {
 
   it("an override still applies to the record id it names exactly", () => {
     assert.equal(isOverridden([entry], "text", "overclaim", "this proves it"), true);
+  });
+
+  /**
+   * The arm that was missing, and the reason am-s64j's repair did not hold where it mattered.
+   *
+   * scripts/lint-voice.ts carried its OWN copy of isOverridden, and that copy still had the
+   * bidirectional endsWith disjuncts this suite removed from check.ts. The unit tests above
+   * passed the whole time, because they exercise the repaired copy, while the corpus scan that
+   * produces the numbers everyone quotes ran the vulnerable one. Measured on 2026-09-22 before
+   * the duplicate was deleted: a single override entry with
+   *
+   *     target: tsx
+   *
+   * three characters, took the lint run from 11 flags to 6 - every status-enum-leak finding in
+   * every .tsx file, suppressed by a suffix. After the deletion the same entry changes nothing
+   * and an exact path target still works, 11 -> 10.
+   *
+   * This assertion is deliberately about the SOURCE of the runner rather than its behaviour.
+   * The behavioural half is the four tests above; this is the half that notices a second copy
+   * appearing again, which is the failure those four cannot see from inside check.ts.
+   */
+  it("the lint runner uses this predicate and does not define its own", () => {
+    const runner = readFileSync(
+      join(
+        // Five levels: voice -> checks -> content -> src -> repository root.
+        dirname(dirname(dirname(dirname(dirname(fileURLToPath(import.meta.url)))))),
+        "scripts/lint-voice.ts",
+      ),
+      "utf8",
+    );
+    assert.ok(
+      /import \{[^}]*\bisOverridden\b[^}]*\} from "\.\.\/src\/content\/checks\/voice\/check\.ts"/.test(
+        runner,
+      ),
+      "scripts/lint-voice.ts must import isOverridden from check.ts",
+    );
+    assert.ok(
+      !/function isOverridden\s*\(/.test(runner),
+      "scripts/lint-voice.ts declares its own isOverridden again; am-s64j's repair lives in check.ts and a second copy will not receive the next one either",
+    );
   });
 });

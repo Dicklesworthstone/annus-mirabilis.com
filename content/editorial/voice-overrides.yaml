@@ -4,8 +4,12 @@
 # whose "matchedText" no longer occurs in its "target" is flagged as stale.
 #
 # Format of one entry:
-#   - target: <record id, matched EXACTLY - see am-s64j. A file path is not supported: the
-#             matcher only ever receives a record id, so a path target matches nothing.>
+#   - target: <matched EXACTLY - see am-s64j. A record id, and at the LINT RUNNER also a file
+#             path, a message-catalog key or a relative path, because scripts/lint-voice.ts
+#             offers each identifier its call site has. This line used to say a path target
+#             "matches nothing", which was true of src/content/checks/voice/check.ts and false
+#             of the runner: measured 2026-09-22, an override targeting
+#             src/components/lab/InferenceLab.tsx took the run from 11 flags to 10.>
 #     rule: <the voice-rules.yaml rule id this overrides>
 #     matchedText: <the exact text the rule matched>
 #     reason: <why this specific text is allowed here>
