@@ -55,11 +55,31 @@
 /* The notebook on its own page, /notebook/ (chrome, pane %44): the same contents as the sheet,
    laid into the page under its title instead of over it. */
 .notebook-inline {
-  margin-block: 1.5rem 2.5rem;
   overflow-wrap: anywhere;
 }
 .notebook-inline > h2 {
   margin-top: 0;
+}
+/* The notebook arrives after hydration, so without room held for it the guide below jumped down
+   when it did: layout shift 0.204 at 1440 on an empty notebook, 0.1 with one entry (BUILD 20),
+   against the 0.1 budget. The host keeps the empty notebook's height until it is filled, measured
+   on BUILD 20 as 30.3rem up to 390px, 24.4rem at 600px and 22.1rem from 768px up. Only where the
+   script can run: the pre-paint theme script sets data-theme, and a page without it keeps no gap. */
+:root[data-theme] [data-notebook-inline] {
+  margin-block: 1.5rem 2.5rem;
+}
+:root[data-theme] [data-notebook-inline]:empty {
+  min-height: 22.1rem;
+}
+@media (max-width: 767px) {
+  :root[data-theme] [data-notebook-inline]:empty {
+    min-height: 24.4rem;
+  }
+}
+@media (max-width: 559px) {
+  :root[data-theme] [data-notebook-inline]:empty {
+    min-height: 30.3rem;
+  }
 }
 .notebook-entry {
   border-top: 1px solid var(--line, currentColor);
