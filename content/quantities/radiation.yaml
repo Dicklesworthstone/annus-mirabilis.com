@@ -515,3 +515,63 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: statistical
+
+- id: incidentFrequency
+  name: Incident frequency
+  description: >
+    The frequency of the light a fluorescent body absorbs, paper 1 section 7's incident light.
+    Distinct from emittedFrequency: Stokes's rule compares the two, so they cannot share an id.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  frequencyKind: cyclic
+  colorRole: time-rate
+
+- id: emittedFrequency
+  name: Emitted frequency
+  description: >
+    The frequency of the light a fluorescent body gives out, paper 1 section 7's emitted light.
+    The one-quantum budget bounds it by the incident frequency.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  frequencyKind: cyclic
+  colorRole: time-rate
+
+- id: ionCount
+  name: Number of ionized molecules
+  description: >
+    How many gas molecules the absorbed light ionizes, counted one by one. Distinct from
+    ionizedGramMolecules, which counts the same thing in gram-molecules and carries amount.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: count
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
+- id: gasEntropyChange
+  name: Entropy change of a gas of independent points
+  description: >
+    The entropy change of n independent points when the volume open to them changes by the
+    factor f, n k_B ln f; paper 1 section 5's kinetic-theory side of the comparison. A difference
+    of two entropies, not an absolute entropy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
+- id: radiationEntropyChange
+  name: Entropy change of dilute radiation
+  description: >
+    The entropy change of Wien-regime radiation of fixed energy and band when its volume changes
+    by the factor f, (E/(beta nu)) ln f; paper 1 section 4's result. A difference of two
+    entropies, not the absolute radiationEntropy.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, -1, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical

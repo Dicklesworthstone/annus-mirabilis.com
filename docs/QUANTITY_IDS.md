@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 262 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -11,6 +11,8 @@ Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 | absorbedLightEnergy | Absorbed light energy | 2,1,-2,0,0,0 | not-applicable | scalar | — |
 | absorbedQuantumRate | Absorbed quantum rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | acceleratingPotential | Accelerating potential | 2,1,-3,0,-1,0 | not-applicable | scalar | acceleratingVoltage |
+| accelerationLongitudinalLaboratory | Longitudinal acceleration (laboratory) | 1,0,-2,0,0,0 | laboratory | scalar | — |
+| accelerationTransverseLaboratory | Transverse acceleration (laboratory) | 1,0,-2,0,0,0 | laboratory | scalar | — |
 | additiveEnergyConstant | Additive energy constant | 2,1,-2,0,0,0 | not-applicable | scalar | additiveConstant |
 | angularFrequency | Angular frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | ansatzSpatialScale | Modern ansatz spatial scale: a(v) | 0,0,0,0,0,0 | not-applicable | scalar | — |
@@ -82,12 +84,15 @@ Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 | emissionAngle | Emission angle | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | emissionRate | Photoelectron emission rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | emittedEnergyRestFrame | Emitted energy (object rest frame) | 2,1,-2,0,0,0 | object-rest | scalar | emittedEnergyRest |
+| emittedFrequency | Emitted frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | emittedQuantumRate | Fluorescent emitted quantum rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | endpointSimultaneityOffset | Endpoint simultaneity offset | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | entropy | Entropy | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyDifference, entropyFunctionOfProbability |
 | entropyVolumeCoefficient | Entropy-volume coefficient | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyCoefficient |
 | eventSeparationSpatial | Spatial event separation | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | eventSeparationTemporal | Temporal event separation | 0,0,1,0,0,0 | not-applicable | scalar | — |
+| eventSeparationTemporalMoving | Temporal event separation (moving system) | 0,0,1,0,0,0 | moving-system | scalar | — |
+| eventSeparationTemporalStationary | Temporal event separation (stationary system) | 0,0,1,0,0,0 | stationary-system | scalar | — |
 | exposureTime | Exposure time | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | externalForcePerParticle | External force per particle | 1,1,-2,0,0,0 | not-applicable | scalar | externalForce |
 | faradayConstant | Faraday constant | 0,0,1,0,1,-1 | not-applicable | scalar | — |
@@ -102,9 +107,11 @@ Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 | frequency | Frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | frequencyEnergyDensity | Frequency-basis spectral energy density | -1,1,-1,0,0,0 | not-applicable | scalar | — |
 | fringeShift | Fringe shift | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| gasEntropyChange | Entropy change of a gas of independent points | 2,1,-2,-1,0,0 | not-applicable | scalar | — |
 | gramEquivalentCharge | Gram-equivalent charge | 0,0,1,0,1,-1 | not-applicable | scalar | — |
 | gridSpacing | Grid spacing | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | hydrostaticHead | Hydrostatic head | 1,0,0,0,0,0 | not-applicable | scalar | — |
+| incidentFrequency | Incident frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | incidentPower | Incident radiant power | 2,1,-3,0,0,0 | not-applicable | scalar | — |
 | independentPointCount | Independent point count | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | inducedCircuitCurrent | Induced circuit current | 0,0,0,0,1,0 | not-applicable | scalar | — |
@@ -112,6 +119,7 @@ Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 | interceptedPower | Intercepted power | 2,1,-3,0,0,0 | not-applicable | scalar | — |
 | intervalProbability | Interval probability | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | invariantMassSystem | Invariant mass of a system | 0,1,0,0,0,0 | not-applicable | scalar | — |
+| ionCount | Number of ionized molecules | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | ionizationEnergyPerMolecule | Ionization energy per molecule | 2,1,-2,0,0,0 | not-applicable | scalar | ionizationEnergy |
 | ionizationRate | Ionization event rate | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | ionizationWorkPerGramEquivalent | Ionization work per gram-equivalent | 2,1,-2,0,0,-1 | not-applicable | scalar | — |
@@ -133,6 +141,8 @@ Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 | lightComplexEnergyStationary | Light complex energy (stationary system) | 2,1,-2,0,0,0 | stationary-system | scalar | lightComplexEnergy |
 | lightComplexVolumeMoving | Light complex volume (moving system) | 3,0,0,0,0,0 | moving-system | scalar | lightComplexVolume |
 | lightComplexVolumeStationary | Light complex volume (stationary system) | 3,0,0,0,0,0 | stationary-system | scalar | lightComplexVolume |
+| lightEnergyDensityMoving | Light energy density (moving system) | -1,1,-2,0,0,0 | moving-system | scalar | — |
+| lightEnergyDensityStationary | Light energy density (stationary system) | -1,1,-2,0,0,0 | stationary-system | scalar | — |
 | lightMassAssigned | Mass assigned to transported light energy | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | lightSphereRadius | Light-sphere radius | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | localizationErrorStd | Localization error (standard deviation) | 1,0,0,0,0,0 | not-applicable | scalar | — |
@@ -193,6 +203,7 @@ Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 | radiationElectricField | Radiation electric field | 1,1,-3,0,-1,0 | not-applicable | vector | electricForceComponentZ |
 | radiationEnergy | Radiation energy | 2,1,-2,0,0,0 | not-applicable | scalar | — |
 | radiationEntropy | Radiation entropy | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyDifference |
+| radiationEntropyChange | Entropy change of dilute radiation | 2,1,-2,-1,0,0 | not-applicable | scalar | — |
 | radiationForce | Radiation force | 1,1,-2,0,0,0 | not-applicable | vector | — |
 | radiationPressureMirror | Radiation pressure on a mirror | -1,1,-2,0,0,0 | not-applicable | scalar | — |
 | radiusCurvatureElectric | Radius of curvature (electric deflection) | 1,0,0,0,0,0 | not-applicable | scalar | — |
@@ -205,6 +216,9 @@ Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 | relativeViscosity | Relative viscosity | 0,0,0,0,0,0 | not-applicable | scalar | viscosityRatio |
 | rmsDisplacement1d | RMS displacement (one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | scaleFactorUnknown | Unknown scale factor: phi(v) | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| signalDepartureTimeA | Signal departure time at A | 0,0,1,0,0,0 | stationary-system | scalar | — |
+| signalReflectionTimeB | Signal reflection time at B | 0,0,1,0,0,0 | stationary-system | scalar | — |
+| signalReturnTimeA | Signal return time at A | 0,0,1,0,0,0 | stationary-system | scalar | — |
 | soluteAmount | Solute amount | 0,0,0,0,0,1 | not-applicable | scalar | — |
 | spacetimeIntervalSquared | Squared spacetime interval | 2,0,0,0,0,0 | frame-independent | scalar | intervalSquared |
 | spectralEntropyDensity | Spectral entropy density | -1,1,-1,-1,0,0 | not-applicable | scalar | — |
@@ -233,6 +247,10 @@ Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 | universalEntropyConstant | Universal entropy constant | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyCoefficient |
 | vacuumPermeability | Vacuum magnetic permeability (mu_0) | 1,1,-2,0,-2,0 | not-applicable | scalar | — |
 | vacuumPermittivity | Vacuum electric permittivity (epsilon_0) | -3,-1,4,0,2,0 | not-applicable | scalar | — |
+| velocityComponentXMoving | Velocity along x (moving system) | 1,0,-1,0,0,0 | moving-system | scalar | — |
+| velocityComponentXStationary | Velocity along x (stationary system) | 1,0,-1,0,0,0 | stationary-system | scalar | — |
+| velocityComponentYMoving | Velocity along y (moving system) | 1,0,-1,0,0,0 | moving-system | scalar | — |
+| velocityComponentYStationary | Velocity along y (stationary system) | 1,0,-1,0,0,0 | stationary-system | scalar | — |
 | velocityComposed | Composed velocity (stationary system) | 1,0,-1,0,0,0 | stationary-system | vector | — |
 | velocityDirectionAngle | Velocity direction angle: alpha | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | velocityInMovingFrame | Velocity in the moving frame | 1,0,-1,0,0,0 | moving-system | vector | — |
@@ -243,6 +261,7 @@ Total: 243 quantities, 45 rejected spellings, 2 reserved spellings.
 | waveAngularFrequencyMoving | Wave angular frequency (moving system) | 0,0,-1,0,0,0 | moving-system | scalar | — |
 | waveAngularFrequencyStationary | Wave angular frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
 | waveFrequencyMoving | Wave frequency (moving system) | 0,0,-1,0,0,0 | moving-system | scalar | — |
+| waveFrequencyReflectedStationary | Reflected light frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
 | waveFrequencyStationary | Wave frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
 | wavePhase | Wave phase | 0,0,0,0,0,0 | frame-independent | scalar | — |
 | wavelength | Wavelength | 1,0,0,0,0,0 | not-applicable | scalar | — |
