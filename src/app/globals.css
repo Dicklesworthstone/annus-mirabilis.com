@@ -274,12 +274,12 @@ main {
 }
 /* The current section is the only nav link with an underline, so "you are here" does not rest on
    the accent alone; the wordmark is told apart by its weight and size, stated here too. */
-:root:where([data-theme]) .site-header nav a[aria-current] {
+:root .site-header nav a[aria-current] {
   color: var(--accent);
   text-decoration: underline 2px;
   text-underline-offset: 0.35em;
 }
-:root:where([data-theme]) .site-header a.wordmark {
+:root .site-header a.wordmark {
   color: var(--accent);
   font-weight: 700;
 }
@@ -695,6 +695,10 @@ legend {
 .callout-limit {
   padding: 0.9rem 1.1rem;
   border-left: 2px solid var(--callout-rule, var(--muted));
+  /* A <details> callout would otherwise keep the global details rules above and below it and
+     become the box this family exists to avoid. */
+  border-top: 0;
+  border-bottom: 0;
   background: var(--callout-field, var(--wash));
 }
 .callout-aside {
