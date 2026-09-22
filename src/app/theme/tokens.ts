@@ -81,12 +81,31 @@ export const FOLLOW_SYSTEM_VALUE = "follow-system";
  * central crop 802x1277: heavy type at 40x40+200+760 runs min 40, p05 88;
  * blank stock at 40x40+680+160 is a flat 255.
  *
- * THE PLATES CARRY NO HUE AND CANNOT SUPPLY ONE. All 100 encode as PNG type
- * Grayscale, maximum HSL saturation is exactly 0 on every file, and max|R-G|
- * is 0 at full resolution. They were greyscaled before this project received
- * them. So a warm cream is not a thing these scans disagree with; it is a
- * thing they cannot speak to at all, and any hue in the light theme would be
- * invented and then described as derived. paper and ink are therefore neutral,
+ * THE PLATES CARRY NO HUE AND CANNOT SUPPLY ONE. Measured at full resolution
+ * on all 100, by two methods that share no code path: maximum HSL saturation is
+ * exactly 0 on every file, and max|R-G| and max|G-B| are both exactly 0 on every
+ * file. Every pixel of every plate is exactly achromatic.
+ *
+ * A CORRECTION TO THE COMMIT THAT LANDED THIS, because the claim is in the
+ * pushed message and cannot be edited there. That message also said "all 100
+ * encode as PNG type Grayscale". THAT IS FALSE. Reading the IHDR colour-type
+ * byte at offset 25 of each file: 100 of 100 are type 2, truecolour RGB, and not
+ * one is type 0. The error came from citing `magick -format "%[type]"`, which
+ * reports ImageMagick's classification of the PIXEL CONTENT and prints
+ * "Grayscale" for a type-2 file whose pixels all happen to be grey. A tool's
+ * derived attribute was read as a property of the file format.
+ *
+ * The distinction matters here rather than being pedantry: "the format says
+ * grey" and "every pixel happens to be grey" are different facts, and only the
+ * second is true. The conclusion rests entirely on the second, which is why it
+ * survives the correction - but a false leg propped under a true conclusion is
+ * the thing that gets quoted onward, exactly as the 13.14 figure was.
+ *
+ * So: these are RGB-encoded files containing perfectly achromatic data. They
+ * were greyscaled before this project received them. A warm cream is not a
+ * thing these scans disagree with; it is a thing they cannot speak to at all,
+ * and any hue in the light theme would be invented and then described as
+ * derived. paper and ink are therefore neutral,
  * and the scan has clipped some pages to 255, so 251 is the scanner's
  * rendering of the stock rather than the stock itself. That is the honest
  * limit of what a clipped greyscale scan can establish.

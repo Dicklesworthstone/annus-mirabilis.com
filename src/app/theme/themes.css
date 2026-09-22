@@ -6,8 +6,11 @@
 
 /* Annalen is measured from artifacts/page-images: paper is the corpus median
    dominant tone (251) and ink the corpus median 0.5th percentile (63), over all
-   100 plates. The plates are greyscale - PNG type Grayscale, max saturation 0,
-   max|R-G| 0 - so they cannot supply a hue and these are neutral. The full
+   100 plates. The plates cannot supply a hue: measured at full resolution on all
+   100, max HSL saturation is 0 and max|R-G| and max|G-B| are 0, so every pixel
+   is exactly achromatic. They are RGB-encoded files (IHDR colour type 2) that
+   happen to contain grey data, NOT greyscale-encoded files; tokens.ts records
+   why that correction was needed. The full
    derivation, including why muted/rule/wash are solved rather than sampled,
    is in tokens.ts's docblock. */
 :root,
