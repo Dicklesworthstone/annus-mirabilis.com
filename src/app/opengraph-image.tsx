@@ -16,7 +16,7 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
 export const dynamic = "force-static";
-export const alt = "Annus Mirabilis — Albert Einstein 1905 Critical Edition";
+export const alt = "Annus Mirabilis: a critical edition of Albert Einstein's four papers of 1905";
 export const size = {
   width: 1200,
   height: 630,
@@ -157,8 +157,8 @@ export default async function Image() {
             margin: 0,
           }}
         >
-          <span>Albert Einstein&apos;s Miraculous Year,</span>
-          <span>Decoded &amp; Made Interactive.</span>
+          <span>Albert Einstein&apos;s four papers</span>
+          <span>of 1905, and how to read them.</span>
         </h1>
         <p
           style={{
