@@ -73,6 +73,34 @@
 .first-page > a:hover .first-page-plate {
   transform: translateY(-3px);
 }
+/*
+ * THE PLATES AFTER DARK (chrome, pane %44). This file is loaded by every page that shows them: the
+ * home page, /papers/, /discover/ and the 404.
+ *
+ * A scan is a white page. On the night ground it was the brightest thing on the screen by a wide
+ * margin, paper at 255 beside ink at 232 (#e8e6e1): four slabs of glare. Each plate now hangs on a
+ * mount, a mat one step lighter than the ground with a hairline edge, and the page is dimmed
+ * uniformly so that its white lands at the ink's own value: 255a + 28(1 - a) = 232 gives a = 0.9.
+ * One opacity over the whole plate keeps every tone on the scan in its order and spacing; nothing
+ * is inverted or recoloured, and the facsimile face still shows the scan at full value.
+ */
+:root[data-theme="kramgasse-night"] :is(.first-page-plate, .paper-entry-plate img) {
+  padding: 5px;
+  background: #2b3139;
+  border-color: #4a525b;
+  box-shadow: 0 18px 36px -14px rgb(0 0 0 / 0.9);
+  opacity: 0.9;
+}
+/* Without JavaScript the device's setting chooses the theme; the values repeat the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) :is(.first-page-plate, .paper-entry-plate img) {
+    padding: 5px;
+    background: #2b3139;
+    border-color: #4a525b;
+    box-shadow: 0 18px 36px -14px rgb(0 0 0 / 0.9);
+    opacity: 0.9;
+  }
+}
 .first-page-title {
   font-family: var(--font-serif);
   font-size: var(--type-body);
