@@ -13,6 +13,7 @@ import {
 import { createLightThreadSession } from "../../../experiments/lightThread/session.ts";
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import styles from "./LightThreadLab.module.css";
 
@@ -207,155 +208,192 @@ export function LightThreadLab() {
           settings or restoring a bookmark requires JavaScript.
         </p>
       </noscript>
-      <details>
-        <summary>Predict before changing the observer</summary>
-        <p>
-          Keep the source frequency and pulse energy fixed. Will a receding observer report less
-          energy per quantum, fewer quanta, or both? Compare E/(hν) in the two frames after changing
-          β. No answer is required to continue.
-        </p>
-      </details>
-      <form className={styles.controls} onSubmit={submit} aria-label="Light-thread settings">
-        <fieldset disabled={!ready}>
-          <legend>Keep the pulse fixed, or change what was emitted</legend>
-          <div className="input-grid">
-            {(Object.keys(fields) as (keyof LightThreadParameters)[]).map((key) => (
-              <div className="input-field" key={key}>
-                <label htmlFor={`${id}-${key}`}>{fields[key]}</label>
-                <input
-                  id={`${id}-${key}`}
-                  name={key}
-                  type="number"
-                  step="any"
-                  min={LIGHT_THREAD_BOUNDS[key].min}
-                  max={LIGHT_THREAD_BOUNDS[key].max}
-                  required
-                  value={draft[key]}
-                  onInvalid={announceRefusal}
-                  onChange={(event) =>
-                    setDraft((previous) => ({ ...previous, [key]: event.target.value }))
-                  }
-                />
+      <div className="lab-columns">
+        <div>
+          <form className={styles.controls} onSubmit={submit} aria-label="Light-thread settings">
+            <fieldset disabled={!ready}>
+              <legend className="visually-hidden">
+                Keep the pulse fixed, or change what was emitted
+              </legend>
+              <details className="lab-predict">
+                <summary>Predict first</summary>
+                <p>
+                  Keep the source frequency and pulse energy fixed. Will a receding observer report
+                  less energy per quantum, fewer quanta, or both? Compare E/(hν) in the two frames
+                  after changing β. No answer is required to continue.
+                </p>
+              </details>
+              {(["beta"] as const).map((key) => (
+                <div className="input-field" key={key}>
+                  <label htmlFor={`${id}-${key}`}>{fields[key]}</label>
+                  <input
+                    id={`${id}-${key}`}
+                    name={key}
+                    type="number"
+                    step="any"
+                    min={LIGHT_THREAD_BOUNDS[key].min}
+                    max={LIGHT_THREAD_BOUNDS[key].max}
+                    required
+                    value={draft[key]}
+                    onInvalid={announceRefusal}
+                    onChange={(event) =>
+                      setDraft((previous) => ({ ...previous, [key]: event.target.value }))
+                    }
+                  />
+                </div>
+              ))}
+              <div className="actions">
+                <button type="submit" className="button">
+                  Apply settings
+                </button>
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => apply({ ...accepted, beta: 0 })}
+                >
+                  Same pulse, source observer
+                </button>
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => apply(LIGHT_THREAD_DEFAULTS)}
+                >
+                  Reset worked example
+                </button>
               </div>
-            ))}
-          </div>
-          <div className="actions">
-            <button type="submit" className="button">
-              Apply settings
-            </button>
-            <button
-              type="button"
-              className="button"
-              onClick={() => apply({ ...accepted, beta: 0 })}
-            >
-              Same pulse, source observer
-            </button>
-            <button type="button" className="button" onClick={() => apply(LIGHT_THREAD_DEFAULTS)}>
-              Reset worked example
-            </button>
-          </div>
-        </fieldset>
-      </form>
-      {error && (
-        <p className="notice" role="alert">
-          {error}
-        </p>
-      )}
-      <p role="status" aria-live="polite">
-        {announcement}
-      </p>
-      <p>
-        Accepted settings: ν = {display(accepted.frequencyHz)} Hz; E ={" "}
-        {display(accepted.pulseEnergyJ)} J per pulse; β = {display(accepted.beta)}; source-frame
-        angle = {display(accepted.angleDeg)}°. Changing only β changes the observer, not the emitted
-        pulse.
-      </p>
-      <p>
-        <a href={`/lab/light-thread?${encodeLightThreadParameters(accepted)}`}>
-          Bookmark these accepted settings
-        </a>
-      </p>
+              <ExperimentSettings contents="what was emitted: source frequency, pulse energy, source-frame angle">
+                <div className="input-grid">
+                  {(["frequencyHz", "pulseEnergyJ", "angleDeg"] as const).map((key) => (
+                    <div className="input-field" key={key}>
+                      <label htmlFor={`${id}-${key}`}>{fields[key]}</label>
+                      <input
+                        id={`${id}-${key}`}
+                        name={key}
+                        type="number"
+                        step="any"
+                        min={LIGHT_THREAD_BOUNDS[key].min}
+                        max={LIGHT_THREAD_BOUNDS[key].max}
+                        required
+                        value={draft[key]}
+                        onInvalid={announceRefusal}
+                        onChange={(event) =>
+                          setDraft((previous) => ({ ...previous, [key]: event.target.value }))
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+                <p className="fine">Changes here apply with Apply settings.</p>
+              </ExperimentSettings>
+            </fieldset>
+          </form>
+          {error && (
+            <p className="notice" role="alert">
+              {error}
+            </p>
+          )}
+          <p role="status" aria-live="polite">
+            {announcement}
+          </p>
+          <p className="fine">
+            Accepted settings: ν = {display(accepted.frequencyHz)} Hz; E ={" "}
+            {display(accepted.pulseEnergyJ)} J per pulse; β = {display(accepted.beta)}; source-frame
+            angle = {display(accepted.angleDeg)}°. Changing only β changes the observer, not the
+            emitted pulse.
+          </p>
+          <p className="fine">
+            <a href={`/lab/light-thread?${encodeLightThreadParameters(accepted)}`}>
+              Bookmark these accepted settings
+            </a>
+          </p>
+        </div>
+        <div className="lab-results">
+          <section aria-labelledby={`${id}-quantum`}>
+            <h3 id={`${id}-quantum`}>
+              1. Light quanta: an energy scale, not a proof of relativity
+            </h3>
+            <p>
+              In modern notation the quantum energy is hν. Total pulse energy E and frequency ν are
+              independent settings. E/(hν) is shown without rounding: an energy ratio is not an
+              independently measured integer photon count.
+            </p>
+            <QuantityTable
+              snapshot={snapshot}
+              caption="Source pulse and quantum-energy comparison"
+              ids={[
+                "frequencyStationary",
+                "energyStationary",
+                "quantumEnergyStationary",
+                "quantumRatioStationary",
+              ]}
+            />
+            <p>
+              <a href="/papers/light-quanta/#s6">Read the light-quanta argument, §6</a> ·{" "}
+              <a href="/lab/lq-06">Compare the entropy coefficients</a>
+            </p>
+          </section>
+          <section aria-labelledby={`${id}-relativity`}>
+            <h3 id={`${id}-relativity`}>2. Relativity: energy and frequency change together</h3>
+            <p>
+              For the same pulse, the wave owners evaluate ν′/ν and E′/E. Both follow q = γ(1 − β
+              cos θ), so the modern comparison E′/(hν′) equals E/(hν), apart from numerical
+              rounding. This equality compares two computed consequences; it does not independently
+              establish light quanta.
+            </p>
+            <QuantityTable
+              snapshot={snapshot}
+              caption="The same pulse in the moving frame"
+              ids={[
+                "frequencyFactor",
+                "energyFactor",
+                "frequencyMoving",
+                "energyMoving",
+                "quantumEnergyMoving",
+                "quantumRatioMoving",
+              ]}
+            />
+            <p>
+              <a href="/papers/special-relativity/#s8">Read relativity, §8</a> ·{" "}
+              <a href="/lab/sr-10">Explore the finite light complex</a>
+            </p>
+          </section>
+          <section aria-labelledby={`${id}-inertia`}>
+            <h3 id={`${id}-inertia`}>3. Mass–energy: first specify the system</h3>
+            <p>
+              A unidirectional light pulse has zero invariant mass. Its energy divided by c² is not
+              its rest mass. To connect to the September argument, now add a distinct, equal pulse
+              traveling in the opposite direction. Their total source-frame energy is 2E and their
+              momenta cancel.
+            </p>
+            <QuantityTable
+              snapshot={snapshot}
+              caption="A pulse versus an equal, opposite two-pulse system"
+              ids={[
+                "pulseEnergyEquivalent",
+                "pulseInvariantMass",
+                "oppositePulseEnergyMoving",
+                "pairEnergyStationary",
+                "pairEnergyMoving",
+                "pairInvariantMass",
+                "bodyMassLoss",
+              ]}
+            />
+            <p>
+              For a body initially at rest that emits this balanced pair without recoil, the mass
+              decrease is 2E/c². The displayed system invariant mass is a later interpretation. The
+              historical argument instead compares two energy ledgers and uses the low-speed
+              kinetic-energy premise. It does not require quanta, and we have not assigned the
+              unknown initial body energy E₀ = Mc².
+            </p>
+            <p>
+              <a href="/papers/mass-energy/">Read the September paper</a> ·{" "}
+              <a href="/lab/me-01">Follow the two ledgers</a> ·{" "}
+              <a href="/lab/me-02">Inspect the low-speed coefficient</a>
+            </p>
+          </section>
+        </div>
+      </div>
 
-      <section aria-labelledby={`${id}-quantum`}>
-        <h3 id={`${id}-quantum`}>1. Light quanta: an energy scale, not a proof of relativity</h3>
-        <p>
-          In modern notation the quantum energy is hν. Total pulse energy E and frequency ν are
-          independent settings. E/(hν) is shown without rounding: an energy ratio is not an
-          independently measured integer photon count.
-        </p>
-        <QuantityTable
-          snapshot={snapshot}
-          caption="Source pulse and quantum-energy comparison"
-          ids={[
-            "frequencyStationary",
-            "energyStationary",
-            "quantumEnergyStationary",
-            "quantumRatioStationary",
-          ]}
-        />
-        <p>
-          <a href="/papers/light-quanta/#s6">Read the light-quanta argument, §6</a> ·{" "}
-          <a href="/lab/lq-06">Compare the entropy coefficients</a>
-        </p>
-      </section>
-      <section aria-labelledby={`${id}-relativity`}>
-        <h3 id={`${id}-relativity`}>2. Relativity: energy and frequency change together</h3>
-        <p>
-          For the same pulse, the wave owners evaluate ν′/ν and E′/E. Both follow q = γ(1 − β cos
-          θ), so the modern comparison E′/(hν′) equals E/(hν), apart from numerical rounding. This
-          equality compares two computed consequences; it does not independently establish light
-          quanta.
-        </p>
-        <QuantityTable
-          snapshot={snapshot}
-          caption="The same pulse in the moving frame"
-          ids={[
-            "frequencyFactor",
-            "energyFactor",
-            "frequencyMoving",
-            "energyMoving",
-            "quantumEnergyMoving",
-            "quantumRatioMoving",
-          ]}
-        />
-        <p>
-          <a href="/papers/special-relativity/#s8">Read relativity, §8</a> ·{" "}
-          <a href="/lab/sr-10">Explore the finite light complex</a>
-        </p>
-      </section>
-      <section aria-labelledby={`${id}-inertia`}>
-        <h3 id={`${id}-inertia`}>3. Mass–energy: first specify the system</h3>
-        <p>
-          A unidirectional light pulse has zero invariant mass. Its energy divided by c² is not its
-          rest mass. To connect to the September argument, now add a distinct, equal pulse traveling
-          in the opposite direction. Their total source-frame energy is 2E and their momenta cancel.
-        </p>
-        <QuantityTable
-          snapshot={snapshot}
-          caption="A pulse versus an equal, opposite two-pulse system"
-          ids={[
-            "pulseEnergyEquivalent",
-            "pulseInvariantMass",
-            "oppositePulseEnergyMoving",
-            "pairEnergyStationary",
-            "pairEnergyMoving",
-            "pairInvariantMass",
-            "bodyMassLoss",
-          ]}
-        />
-        <p>
-          For a body initially at rest that emits this balanced pair without recoil, the mass
-          decrease is 2E/c². The displayed system invariant mass is a later interpretation. The
-          historical argument instead compares two energy ledgers and uses the low-speed
-          kinetic-energy premise. It does not require quanta, and we have not assigned the unknown
-          initial body energy E₀ = Mc².
-        </p>
-        <p>
-          <a href="/papers/mass-energy/">Read the September paper</a> ·{" "}
-          <a href="/lab/me-01">Follow the two ledgers</a> ·{" "}
-          <a href="/lab/me-02">Inspect the low-speed coefficient</a>
-        </p>
-      </section>
       <details>
         <summary>Model limits and the code behind the numbers</summary>
         <p>
