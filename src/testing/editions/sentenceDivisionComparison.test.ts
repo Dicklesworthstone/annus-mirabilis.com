@@ -223,10 +223,19 @@ describe("the real corpus: every printed number is pinned", () => {
       agreeing: 0,
       differing: 0,
       unplaceableManifestUnits: 0,
-      // 5 -> 6 when p906 landed. Re-derived, not nudged: the sentence "Wir setzen: ... alpha
-      // ist dann als der Winkel zwischen den Geschwindigkeiten v und w anzusehen." opens on 905
-      // and its closing period lands on 906, so it is contained in no single page and the
-      // harness counts it rather than guessing, exactly as its own comment says it will.
+      // 5 -> 6 when p906 landed, 6 -> 7 when p907 landed. Re-derived each time, not nudged.
+      // p906: "Wir setzen: ... alpha ist dann als der Winkel zwischen den Geschwindigkeiten v
+      // und w anzusehen." opens on 905 and closes on 906. p907: "Führen wir neben den in § 3
+      // figurierenden Systemen K und k noch ein drittes ... tritt; man sieht daraus, daß solche
+      // Paralleltransformationen - wie dies sein muß - eine Gruppe bilden." opens on 906 and
+      // closes on 907. Neither is contained in one page, so the harness counts it rather than
+      // guessing, exactly as its own comment says it will.
+      //
+      // EXPECT THIS TO MOVE AGAIN, ONCE PER PAGE, while the relativity ledger is being written,
+      // and know which pages will do it. A page whose text ends mid-sentence in a DISPLAY has
+      // nowhere to put [[CONTINUES]] but its own line, and an own-line tag is exactly the case
+      // segmentLedger joins across (see below). 905, 906 and 907 all end in a display. A page
+      // ending in prose takes the tag inline and moves nothing.
       //
       // WHAT THIS NUMBER CANNOT SEE, so that a later reader does not mistake it for the count of
       // cross-page sentences. A crossing is visible here only when [[CONTINUES]] sits on its own
@@ -243,7 +252,7 @@ describe("the real corpus: every printed number is pinned", () => {
       // paper, not the count of crossings. Left as measured rather than repaired here: the repair
       // is either a ledger-wide rewrite touching four papers or a change to segmentLedger, and
       // both belong to am-span-recording-decision-ero2, not to a transcription pane.
-      unplaceableProposedSentences: 6,
+      unplaceableProposedSentences: 7,
     },
   };
 
