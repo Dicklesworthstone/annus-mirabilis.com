@@ -330,7 +330,7 @@
   margin: 0;
   font-size: var(--type-body);
   font-weight: 400;
-  line-height: 1.45;
+  line-height: 1.4;
   letter-spacing: 0;
 }
 .notation-entry-facts,
@@ -383,7 +383,7 @@
 }
 .notation-entry-more > p {
   margin: 0.25rem 0 0.6rem;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 /* Symbols this edition adds: the entries' own rows, under a quiet heading. */
