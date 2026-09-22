@@ -34,7 +34,7 @@ export type DiscoveryPaperSlug = (typeof DISCOVERY_PAPER_SLUGS)[number];
  * sections). It is not evidence about whether a route is written, which is precisely how these
  * two got confused.
  */
-export const WRITTEN_DISCOVERY_ROUTES = ["brownian-motion", "mass-energy"] as const;
+export const WRITTEN_DISCOVERY_ROUTES = ["brownian-motion", "mass-energy", "light-quanta"] as const;
 
 export function isWrittenDiscoveryRoute(slug: string): boolean {
   return (WRITTEN_DISCOVERY_ROUTES as readonly string[]).includes(slug);

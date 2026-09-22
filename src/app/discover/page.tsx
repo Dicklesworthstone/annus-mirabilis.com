@@ -16,12 +16,17 @@ function spelled(n: number): string {
 function plural(n: number): string {
   return n === 1 ? "route is" : "routes are";
 }
+
+/** For a clause whose noun is elided: "the other one IS", "the other two ARE". */
+function isAre(n: number): string {
+  return n === 1 ? "is" : "are";
+}
 const WRITTEN_COUNT = WRITTEN_DISCOVERY_ROUTES.length;
 const UNWRITTEN_COUNT = UNWRITTEN_DISCOVERY_ROUTES.length;
 
 export const metadata: Metadata = {
   title: "Discovery routes",
-  description: `Reconstructions of the problems the 1905 papers answer, worked from what was on the shelf at the end of 1904. ${spelled(WRITTEN_COUNT)} ${plural(WRITTEN_COUNT)} written; the other ${spelled(UNWRITTEN_COUNT).toLowerCase()} are not yet.`,
+  description: `Reconstructions of the problems the 1905 papers answer, worked from what was on the shelf at the end of 1904. ${spelled(WRITTEN_COUNT)} ${plural(WRITTEN_COUNT)} written; the other ${spelled(UNWRITTEN_COUNT).toLowerCase()} ${isAre(UNWRITTEN_COUNT)} not yet.`,
 };
 
 /**
@@ -130,6 +135,29 @@ export default function DiscoverIndex() {
             <a href="/papers/mass-energy/">Read the paper instead</a>
           </div>
         </article>
+
+        <article>
+          <p className="eyebrow">{statusWord("light-quanta")} · Ann. Phys. 17, 132</p>
+          <h2>
+            <a href="/discover/light-quanta/">Light quanta</a>
+          </h2>
+          <p className="german-title">
+            Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen
+            Gesichtspunkt
+          </p>
+          <p>
+            The wave theory was not in trouble in 1904, and this route keeps every one of its
+            successes before going anywhere near them. It looks instead at the region the optical
+            evidence never reached: not light travelling, but light being made and taken up. Seven
+            steps, nine instruments, and a shelf with nothing imported on it.
+          </p>
+          <div className="actions">
+            <a className="button" href="/discover/light-quanta/">
+              Take this route
+            </a>
+            <a href="/papers/light-quanta/">Read the paper instead</a>
+          </div>
+        </article>
       </section>
 
       <section className="reading page-flush">
@@ -144,25 +172,6 @@ export default function DiscoverIndex() {
       </section>
 
       <section className="journey-catalogue">
-        <article>
-          <p className="eyebrow">{statusWord("light-quanta")} · Ann. Phys. 17, 132</p>
-          <h2>
-            <a href="/papers/light-quanta/">Light quanta</a>
-          </h2>
-          <p className="german-title">
-            Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen
-            Gesichtspunkt
-          </p>
-          <p>
-            The route through radiation entropy and the counting argument is not written. The
-            reading edition is, and so are nine instruments, including the one that matches
-            radiation entropy against a gas.
-          </p>
-          <div className="actions">
-            <a href="/papers/light-quanta/">Read the paper and its instruments</a>
-          </div>
-        </article>
-
         <article>
           <p className="eyebrow">{statusWord("special-relativity")} · Ann. Phys. 17, 891</p>
           <h2>
