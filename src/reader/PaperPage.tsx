@@ -37,6 +37,7 @@ import {
   paperPath,
   resolvePaperRoute,
 } from "./paperRoutes.ts";
+import { PaperStatus } from "./paperStatus.tsx";
 import { ReaderController } from "./ReaderController.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
 import "./reader.css";
@@ -221,9 +222,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         {/* Paper-level lead, so a section view omits it. See PaperReader for the
             reasoning, including why the two disclosures are not treated the same way. */}
         {sectionId ? null : <p className="lead">{paper.description}</p>}
-        <p className="notice" data-source-status>
-          {paper.sourceNotice}
-        </p>
+        <PaperStatus paper={paper} />
         {sectionId ? <a href={paperPath(paper.id)}>Read the whole available argument →</a> : null}
         {entryAnchor && (
           <p>

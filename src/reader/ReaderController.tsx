@@ -419,15 +419,13 @@ export function ReaderController(props: Props) {
             they had already drifted: "Argument synopsis" for Results and "Original scan"
             for Facsimile, against the registry's own names used on every face page.
 
-            "Source status" is NOT one of them and is deliberately still a literal. It does
-            not name a face: measured on the running app, this link sets data-view="german",
-            which hides [data-face-reading] and reveals six [data-face-source] notices
-            reading "The reviewed German, aligned English, gloss, facsimile, and split view
-            for this passage are not yet available." The registry's "German source" is the
-            ROUTE /papers/<x>/view/german/, which renders 23,608 characters of actual
-            German. Giving this link the registry's label would put the registry's name on
-            something that says the opposite of what the registry's route shows. It is a
-            per-passage source-status panel and it is named for what it does. */}
+            There used to be a fifth link here, "Source status". It was not a face: it set
+            data-view="german" in place, which hid the explanation and showed one notice per
+            passage, "The reviewed German, aligned English, gloss, facsimile, and split view
+            for this passage are not yet available." A reader offered it would not choose it,
+            and what it said is in the paper's status disclosure (PaperStatus), which states
+            that the source faces remain in preparation. ?view=german still resolves for
+            links that carry it. */}
         <nav aria-label="Reading face">
           <a href="?view=reading" data-view-link="reading">
             {FACE_REGISTRY.reading.label}
@@ -449,9 +447,6 @@ export function ReaderController(props: Props) {
           <a href={`/papers/${props.registry.paperId}/view/german/`}>
             {FACE_REGISTRY.german.label}
           </a>
-          <a href="?view=german" data-view-link="german">
-            Source status
-          </a>
           {/* Same treatment as German source above, and for a measured reason rather
               than symmetry. This link already pointed at the route, but carrying
               data-view-link="facsimile" meant :238 intercepted it and switched the
@@ -461,8 +456,8 @@ export function ReaderController(props: Props) {
               Dropping the attribute removes NO rendered state. Measured on the built
               page by setting data-view directly, the eight view values collapse to four
               distinct renderings, and facsimile is byte-identical to german - 12,483
-              characters, the same six [data-face-source] panels - which "Source status"
-              still reaches. What the route adds is real: light-quanta and mass-energy
+              characters, the same six [data-face-source] panels, which ?view=german still
+              reaches. What the route adds is real: light-quanta and mass-energy
               serve an actual facsimile viewer there (7,802 and 3,976 characters of text),
               and brownian-motion and special-relativity serve an honest "unavailable"
               page that says so and carries the chooser. Better or equal for all four

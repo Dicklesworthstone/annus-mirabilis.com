@@ -18,6 +18,7 @@ import "./actions/kindRegistration.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
 import missingSteps from "../generated/missing-steps.json";
+import { PaperStatus } from "./paperStatus.tsx";
 import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
 import "./reader.css";
@@ -67,13 +68,12 @@ export async function PaperReader({
             section views would have been the larger vertical saving and the wrong
             one. */}
         {section ? null : <p className="lead">{paper.description}</p>}
-        <p className="notice" data-source-status>
-          {paper.sourceNotice}
-        </p>
-        <p className="fine">
-          New explanatory text authored with AI assistance. Mathematical and editorial review
-          remains pending; none of these passages is presented as Einstein’s wording.
-        </p>
+        <PaperStatus paper={paper}>
+          <p className="fine">
+            New explanatory text authored with AI assistance. Mathematical and editorial review
+            remains pending; none of these passages is presented as Einstein’s wording.
+          </p>
+        </PaperStatus>
         {section && <a href="/papers/brownian-motion/">Read the whole available argument →</a>}
       </header>
       <ReaderController registry={registry} titles={titles} questions={questions} />
