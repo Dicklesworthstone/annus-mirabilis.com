@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { PLANCK_TO_ELEMENTARY_CHARGE_RATIO } from "../../foundations/calculus.ts";
+import { Sci } from "../lab/Sci.tsx";
 import "./foundations.css";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
@@ -104,17 +105,17 @@ export function NudgeSensitivityDemo({
         >
           <dt style={{ color: "var(--muted)" }}>Baseline frequency (ν₀):</dt>
           <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
-            {baseNu.toExponential(2)} Hz
+            <Sci value={baseNu} digits={2} /> Hz
           </dd>
 
           <dt style={{ color: "var(--muted)" }}>Frequency nudge (Δν):</dt>
           <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
-            +{deltaNu.toExponential(2)} Hz
+            +<Sci value={deltaNu} digits={2} /> Hz
           </dd>
 
           <dt style={{ color: "var(--muted)" }}>Potential change (ΔV):</dt>
           <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
-            +{deltaV.toExponential(6)} V
+            +<Sci value={deltaV} digits={6} /> V
           </dd>
 
           <dt style={{ fontWeight: "bold", color: "var(--ink)" }}>Sensitivity ratio (ΔV / Δν):</dt>
@@ -126,12 +127,12 @@ export function NudgeSensitivityDemo({
               color: "var(--accent)",
             }}
           >
-            {ratio.toExponential(9)} V·s (or V/Hz)
+            <Sci value={ratio} digits={9} /> V·s (or V/Hz)
           </dd>
 
           <dt style={{ color: "var(--muted)" }}>Modern h/e (2019 SI):</dt>
           <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
-            {PLANCK_TO_ELEMENTARY_CHARGE_RATIO.toExponential(9)} V·s
+            <Sci value={PLANCK_TO_ELEMENTARY_CHARGE_RATIO} digits={9} /> V·s
           </dd>
         </dl>
       </div>
@@ -180,9 +181,15 @@ export function NudgeSensitivityDemo({
                   }}
                 >
                   <td style={{ padding: "0.4rem" }}>{step.label.split(" (")[0]}</td>
-                  <td style={{ padding: "0.4rem" }}>{step.deltaNu.toExponential(1)}</td>
-                  <td style={{ padding: "0.4rem" }}>{dv.toExponential(4)}</td>
-                  <td style={{ padding: "0.4rem" }}>{(dv / step.deltaNu).toExponential(6)}</td>
+                  <td style={{ padding: "0.4rem" }}>
+                    <Sci value={step.deltaNu} digits={1} />
+                  </td>
+                  <td style={{ padding: "0.4rem" }}>
+                    <Sci value={dv} digits={4} />
+                  </td>
+                  <td style={{ padding: "0.4rem" }}>
+                    <Sci value={dv / step.deltaNu} digits={6} />
+                  </td>
                 </tr>
               );
             })}
