@@ -56,8 +56,8 @@ export function PowerOfTen({
  * (`baseline-shift` would be neater but is not honoured on tspan by every engine.)
  *
  * The two `dy` values are equal in PARENT ems, not in their own: an em on the exponent
- * tspan is 0.72 of the parent's, so its -0.5em lifts 0.36 parent em, and the reset
- * tspan, at the parent's size, drops exactly 0.36em.
+ * tspan is 0.75 of the parent's, so its -0.5em lifts 0.375 parent em, and the reset
+ * tspan, at the parent's size, drops exactly 0.375em.
  */
 export function SciSvg({ value, digits }: SciProps) {
   const parts = exponentialParts(value, digits);
@@ -66,10 +66,10 @@ export function SciSvg({ value, digits }: SciProps) {
     <>
       {parts.mantissa}
       {" × "}10
-      <tspan dy="-0.5em" fontSize="0.72em">
+      <tspan dy="-0.5em" fontSize="0.75em">
         {parts.exponent}
       </tspan>
-      <tspan dy="0.36em">{"​"}</tspan>
+      <tspan dy="0.375em">{"​"}</tspan>
     </>
   );
 }

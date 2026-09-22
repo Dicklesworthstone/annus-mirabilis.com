@@ -536,18 +536,19 @@ h3 {
   margin-bottom: 3rem;
 }
 /* Discover (pane %33). A route opens on a two-sentence question the reader has to read twice,
-   so it is set for reading: at 68.8px it ran four lines in a 760px column at 1440. */
+   so it is set for reading at the scale's page-title step: at 68.8px it ran four lines in a 760px
+   column at 1440. */
 .encounter h1 {
-  font-size: clamp(2rem, 1.4rem + 1.8vw, 2.75rem);
+  font-size: var(--type-display);
   line-height: 1.15;
   /* The global -0.045em is set for 90px display type and crowds the letters at 44px. */
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
-/* Each step's heading stays below the route's question: at the global h2 size, 40px at 1440,
-   "The wave theory is not the problem" nearly matched the 44px question above it. */
+/* Each step's heading stays a step below the route's question: at the global h2 size, 40px at
+   1440, "The wave theory is not the problem" outranked it. */
 .encounter section h2 {
-  font-size: clamp(1.45rem, 1.1rem + 1vw, 1.9rem);
+  font-size: var(--type-title);
   line-height: 1.2;
 }
 .encounter section {

@@ -39,7 +39,7 @@
 }
 
 .guided-tour-guide h2 {
-  font-size: 1.25rem;
+  font-size: var(--type-lead);
   margin-block: 0.3rem 0.6rem;
 }
 
