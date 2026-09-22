@@ -63,7 +63,7 @@
   "src/content/ledger/validateLedger.ts": 0,
   "src/content/manifest/check.ts": 0,
   "src/content/manifest/schema.ts": 0,
-  "src/content/notation/validation.ts": 3,
+  "src/content/notation/validation.ts": 0,
   "src/content/owners/parseOwners.ts": 0,
   "src/content/provenance/surveySchema.ts": 0,
   "src/content/provenance/writeGeneratedSection.ts": 1,
