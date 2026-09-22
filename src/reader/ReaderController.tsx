@@ -375,6 +375,20 @@ export function ReaderController(props: Props) {
           <a href="?view=results" data-view-link="results">
             {FACE_REGISTRY.results.label}
           </a>
+          {/* THE GERMAN SOURCE ROUTE, AND DELIBERATELY WITHOUT data-view-link.
+              Any [data-view-link] whose value is in FACES is intercepted at :238 -
+              preventDefault, then a client-side view switch - so a route href carrying
+              one never navigates while JavaScript is on. This link has to reach
+              /papers/<x>/view/german/, which renders 23,608 characters of German for
+              brownian-motion and 68,268 across the three papers that have it, so it
+              carries no data-view-link and the browser follows it.
+
+              It also cannot share "german" with the link below: the controller marks
+              aria-current on every [data-view-link] matching the current view, so two
+              would both claim to be the current page. */}
+          <a href={`/papers/${props.registry.paperId}/view/german/`}>
+            {FACE_REGISTRY.german.label}
+          </a>
           <a href="?view=german" data-view-link="german">
             Source status
           </a>
