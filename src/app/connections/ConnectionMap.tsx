@@ -61,14 +61,15 @@ export function ConnectionMap() {
           <li key={p.slug}>{p.title}</li>
         ))}
       </ol>
-      <ol className="connection-map-rows">
+      <ol>
         {CONNECTIONS.map((c) => {
           const cols = c.papers.map((slug) => column.get(slug) ?? 0);
           const names = c.papers.map((slug) => papers.find((p) => p.slug === slug)?.title ?? slug);
           return (
             <li
               key={c.anchor}
-              className={`connection-map-row connection-map-${c.kind}`}
+              className="connection-map-row"
+              data-kind={c.kind}
               style={{ "--from": Math.min(...cols), "--to": Math.max(...cols) } as CSSProperties}
             >
               <a href={`#${c.anchor}`}>

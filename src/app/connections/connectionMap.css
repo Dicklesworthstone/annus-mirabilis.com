@@ -83,7 +83,7 @@
   background: var(--paper);
   transform: translate(-50%, -50%);
 }
-.connection-map-borrows .connection-map-line::after {
+.connection-map-row[data-kind="borrows"] .connection-map-line::after {
   content: "";
   position: absolute;
   right: 0.45rem;
@@ -92,13 +92,13 @@
   border-top: 0.35rem solid transparent;
   border-bottom: 0.35rem solid transparent;
 }
-.connection-map-same-number .connection-map-line {
+.connection-map-row[data-kind="same-number"] .connection-map-line {
   border-top: 3px dotted var(--ink);
 }
-.connection-map-same-maths .connection-map-line {
+.connection-map-row[data-kind="same-maths"] .connection-map-line {
   border-top: 2px dashed var(--ink);
 }
-.connection-map-later .connection-map-line {
+.connection-map-row[data-kind="later"] .connection-map-line {
   border-top: 4px double var(--ink);
 }
 @media (min-width: 900px) {
