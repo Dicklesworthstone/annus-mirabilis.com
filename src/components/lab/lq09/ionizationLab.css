@@ -1,0 +1,25 @@
+/* LQ-09, gas ionization (IonizationLab.tsx). The family's shell in labShell.css does the layout;
+   these rules set only what is particular to this instrument. */
+
+/* Two drawings side by side where the column allows, stacked on a phone. The viewBox is 380 units
+   wide, so each drawing is capped near its drawn width: stretched across a 760px column its
+   labels grew to about 26px. */
+.lq09 .lq09-plots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: 1.5rem;
+}
+
+.lq09 .lq09-historical p {
+  margin: 0 0 0.6rem;
+}
+
+.lq09 .lq09-code {
+  margin-top: 1.5rem;
+}
+
+/* The rule wraps rather than scrolls: a scrolling block would need its own tab stop and name. */
+.lq09 .lq09-code pre {
+  white-space: pre-wrap;
+  font-size: var(--type-fine);
+}

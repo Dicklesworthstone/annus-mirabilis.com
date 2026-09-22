@@ -1,6 +1,13 @@
 import { visibleColor } from "../../../experiments/lq09/session.ts";
 import { SciSvg } from "../Sci.tsx";
 
+/** The absorption hypothesis in the reader's words, for the counting plot's caption. */
+const ABSORPTION_WORDS: Readonly<Record<string, string>> = {
+  "all-absorbed-ionizes": "Einstein’s hypothesis: every absorbed quantum ionizes one molecule",
+  "declared-fraction": "A declared fraction of absorbed quanta ionizes",
+  unknown: "Unknown: some absorbed light may not ionize, so only an upper bound holds",
+};
+
 export type IonizationThresholdLadderProps = Readonly<{
   frequency: number; // Hz
   ionizationEnergyEv: number; // eV
@@ -47,7 +54,7 @@ export function IonizationThresholdLadderPlot({
           color: "var(--ink)",
         }}
       >
-        Single-quantum ionization energy ladder
+        Can one quantum ionize a molecule?
       </h3>
       <p
         style={{
@@ -58,20 +65,19 @@ export function IonizationThresholdLadderPlot({
       >
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           h&nu; = {quantumEnergyEv.toFixed(2)} eV
-        </span>{" "}
-        | J_mol ={" "}
+        </span>
+        ; ionization energy per molecule{" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           {ionizationEnergyEv.toFixed(2)} eV
         </span>{" "}
-        (&nu;_0 ={" "}
+        ; threshold &nu;₀ ={" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           {(thresholdFrequencyHz / 1e12).toFixed(1)} THz
         </span>
-        , &lambda;_0 ={" "}
+        , &lambda;₀ ={" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           {thresholdWavelengthNm.toFixed(1)} nm
         </span>
-        )
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
@@ -127,7 +133,7 @@ export function IonizationThresholdLadderPlot({
           fill="var(--muted)"
           fontFamily="var(--font-mono, monospace)"
         >
-          Ground (0 eV)
+          0 eV
         </text>
 
         {/* Ionization Continuum Threshold (J_mol) */}
@@ -148,7 +154,7 @@ export function IonizationThresholdLadderPlot({
           fill="var(--ink)"
           fontFamily="var(--font-mono, monospace)"
         >
-          J_mol ({ionizationEnergyEv.toFixed(1)} eV)
+          {ionizationEnergyEv.toFixed(1)} eV
         </text>
 
         {/* Incident Photon Arrow */}
@@ -184,15 +190,16 @@ export function IonizationThresholdLadderPlot({
               stroke="var(--plot)"
               strokeWidth="1"
             />
+            {/* Above the band, right-aligned to it: centred inside, it was wider than the band. */}
             <text
-              x={padding.left + 230}
-              y={(yPhoton + yIonization) / 2 + 4}
-              textAnchor="middle"
+              x={padding.left + 270}
+              y={Math.max(14, yPhoton - 6)}
+              textAnchor="end"
               fontSize="10"
               fill="var(--ink)"
               fontWeight="600"
             >
-              +{excessEnergyEv.toFixed(2)} eV kinetic
+              {excessEnergyEv.toFixed(2)} eV to spare
             </text>
           </>
         ) : (
@@ -216,7 +223,7 @@ export function IonizationThresholdLadderPlot({
               fill="var(--ink)"
               fontWeight="600"
             >
-              Sub-threshold: -{Math.abs(excessEnergyEv).toFixed(2)} eV deficit
+              short by {Math.abs(excessEnergyEv).toFixed(2)} eV
             </text>
           </>
         )}
@@ -230,8 +237,8 @@ export function IonizationThresholdLadderPlot({
           fill="var(--muted)"
         >
           {singleQuantumAllowed
-            ? "Single-quantum ionization permitted (h*nu >= J_mol)"
-            : "Single-quantum ionization forbidden (h*nu < J_mol)"}
+            ? "hν ≥ J: one quantum can ionize"
+            : "hν < J: no single quantum can ionize"}
         </text>
       </svg>
     </div>
@@ -257,7 +264,7 @@ export function IonizationCountingPlot({
 }: IonizationCountingPlotProps) {
   const width = 380;
   const height = 220;
-  const padding = { top: 30, right: 30, bottom: 40, left: 110 };
+  const padding = { top: 30, right: 105, bottom: 40, left: 110 };
 
   const maxRate = Math.max(1e10, incidentQuantaRate * 1.15);
   const scaleX = (rate: number) => {
@@ -279,7 +286,7 @@ export function IonizationCountingPlot({
           color: "var(--ink)",
         }}
       >
-        Quantum Rate &amp; Ionization Accounting
+        Quanta in, molecules ionized, each second
       </h3>
       <p
         style={{
@@ -288,8 +295,8 @@ export function IonizationCountingPlot({
           marginBottom: "0.5rem",
         }}
       >
-        Mode: <span style={{ fontWeight: 600, color: "var(--ink)" }}>{absorptionMode}</span>
-        {absorptionMode === "declared-fraction" && ` (a = ${declaredFraction.toFixed(2)})`}
+        {ABSORPTION_WORDS[absorptionMode]}
+        {absorptionMode === "declared-fraction" && ` (a = ${declaredFraction.toFixed(2)})`}.
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
@@ -311,7 +318,7 @@ export function IonizationCountingPlot({
           fontSize="10"
           fill="var(--muted)"
         >
-          Incident Quanta
+          Arriving
         </text>
         <rect
           x={padding.left}
@@ -340,7 +347,7 @@ export function IonizationCountingPlot({
           fontSize="10"
           fill="var(--muted)"
         >
-          Absorbed Quanta
+          Absorbed
         </text>
         <rect
           x={padding.left}
@@ -369,7 +376,7 @@ export function IonizationCountingPlot({
           fontSize="10"
           fill="var(--muted)"
         >
-          Ionization Rate
+          Ionizing
         </text>
 
         {ionizationStatus === "value" && ionizationRate !== null ? (
@@ -426,9 +433,7 @@ export function IonizationCountingPlot({
             fontWeight="600"
             fontStyle="italic"
           >
-            {ionizationStatus === "not-applicable"
-              ? "not-applicable (below threshold)"
-              : ionizationStatus}
+            {ionizationStatus === "not-applicable" ? "none: below the threshold" : ionizationStatus}
           </text>
         )}
 
@@ -448,7 +453,7 @@ export function IonizationCountingPlot({
           fontSize="10"
           fill="var(--muted)"
         >
-          Rate of elementary events per second
+          events each second
         </text>
       </svg>
     </div>

@@ -23,12 +23,17 @@ export default function IonizationPage() {
           gas, and why is the number of ionized molecules strictly bounded by the absorbed light
           quanta?
         </p>
-        <p>
-          <a href="/papers/light-quanta/#s9">Read Section 9 of Einstein’s 1905 paper</a>
-        </p>
       </header>
 
       <IonizationComparison example={example} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/papers/light-quanta/#s9">Read Section 9 of Einstein’s 1905 paper</a>
+          </li>
+        </ul>
+      </nav>
 
       <section className="reading" id="ionization-theory">
         <p className="eyebrow">The physical argument</p>
