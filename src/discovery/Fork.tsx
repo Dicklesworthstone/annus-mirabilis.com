@@ -81,7 +81,12 @@ export function Fork({ fork }: ForkProps) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(18rem, 1fr))",
+          // am-a3f1. 18rem is 288px, and auto-fit does not shrink a track below its minmax
+          // floor, so this laid a 288px track inside a 206px container and the document grew by
+          // 25px at 320. Same defect and same remedy as the px-floor cohort in ca2b4d29: give
+          // the floor a ceiling. The earlier survey missed this one because it searched for
+          // `minmax(<digits>px` and this floor is written in rem.
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(18rem, 100%), 1fr))",
           gap: "1rem",
         }}
       >
