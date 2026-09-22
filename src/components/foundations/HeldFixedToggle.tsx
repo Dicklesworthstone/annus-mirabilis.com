@@ -7,7 +7,7 @@ export type HeldFixedMode = "time-fixed" | "position-fixed";
 
 /**
  * Interactive held-fixed toggle construction for foundation:partial-derivatives.
- * Demonstrates the two distinct partial derivatives of particle density c(x, t) in Brownian motion,
+ * Demonstrates the two distinct partial derivatives of particle density f(x, t) in Brownian motion,
  * explicitly contrasting what is held fixed and comparing to thermodynamic constraints.
  */
 export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: HeadingLevel }) {
@@ -26,9 +26,9 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
         Interactive construction: what is held fixed in a partial derivative
       </Title>
       <p>
-        In sections 3 and 4 of the Brownian motion paper, Einstein tracks the concentration of
-        suspended particles c(x, t) as a function of both position x along a tube and elapsed time
-        t. Because two independent variables can change, asking for “the rate of change of
+        In §§3 and 4 of the Brownian paper, the number of suspended particles per unit volume
+        depends on the position x along a tube and on the elapsed time t; §4 calls it f(x, t).
+        Because two independent variables can change, asking for “the rate of change of
         concentration” is ambiguous until you specify which coordinate is held fixed.
       </p>
 
@@ -54,7 +54,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
               cursor: "pointer",
             }}
           >
-            Hold time t fixed: Spatial derivative ∂c/∂x
+            Hold time t fixed: Spatial derivative ∂f/∂x
           </button>
           <button
             type="button"
@@ -69,7 +69,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
               cursor: "pointer",
             }}
           >
-            Hold position x fixed: Time derivative ∂c/∂t
+            Hold position x fixed: Time derivative ∂f/∂t
           </button>
         </div>
       </fieldset>
@@ -86,7 +86,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
       >
         {activeMode === "time-fixed" ? (
           <div>
-            <Sub style={{ margin: "0 0 0.5rem 0" }}>Case A: Hold time t fixed (∂c / ∂x)</Sub>
+            <Sub style={{ margin: "0 0 0.5rem 0" }}>Case A: Hold time t fixed (∂f / ∂x)</Sub>
             <p>
               <strong>Quantity held fixed:</strong> Time t (a single snapshot across the tube).
             </p>
@@ -99,12 +99,12 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
             </p>
             <p>
               <strong>Role in Brownian motion:</strong> Fick’s first law of diffusion states that
-              the particle flux is proportional to this spatial gradient: J = −D (∂c/∂x).
+              the particle flux is proportional to this spatial gradient: J = −D (∂f/∂x).
             </p>
           </div>
         ) : (
           <div>
-            <Sub style={{ margin: "0 0 0.5rem 0" }}>Case B: Hold position x fixed (∂c / ∂t)</Sub>
+            <Sub style={{ margin: "0 0 0.5rem 0" }}>Case B: Hold position x fixed (∂f / ∂t)</Sub>
             <p>
               <strong>Quantity held fixed:</strong> Position x (a single point under the
               microscope).
@@ -118,7 +118,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
             </p>
             <p>
               <strong>Role in Brownian motion:</strong> Conservation of matter (the continuity
-              equation) equates this rate to the divergence of flux: ∂c/∂t = −∂J/∂x = D (∂²c/∂x²).
+              equation) equates this rate to the divergence of flux: ∂f/∂t = −∂J/∂x = D (∂²f/∂x²).
             </p>
           </div>
         )}
@@ -146,8 +146,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
       >
         <Sub>Thermodynamic examples: how the fixed constraint changes the derivative</Sub>
         <p>
-          In thermodynamics, the same symbols have completely different numerical values depending
-          on what is held fixed:
+          In thermodynamics, the same symbols have different values depending on what is held fixed:
         </p>
         <table
           className="data-table"
@@ -219,11 +218,11 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
       >
         <Sub>Textual summary of the construction</Sub>
         <p>
-          Writing ∂c/∂x asserts that t is held constant during differentiation. Writing ∂c/∂t
+          Writing ∂f/∂x asserts that t is held constant during differentiation. Writing ∂f/∂t
           asserts that x is held constant during differentiation. These two operations describe
           different physical phenomena and carry different physical dimensions. In thermodynamics,
-          the subscript notation (∂p/∂V)<sub>T</sub> versus (∂p/∂V)<sub>S</sub> makes this essential
-          distinction visible on the page.
+          the subscript notation (∂p/∂V)<sub>T</sub> versus (∂p/∂V)<sub>S</sub> shows the difference
+          on the page.
         </p>
       </div>
     </section>
