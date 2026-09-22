@@ -453,6 +453,35 @@ $$
 --- MACHINE DRAFT TRANSCRIPTION PAGE 18 OF 31 ---
 [[ANNALEN-PAGE 908]]
 
+$$
+\begin{aligned}
+\frac{1}{V} \frac{\partial \beta \left( M + \frac{v}{V} Z \right)}{\partial \tau} &= \frac{\partial \beta \left( Z + \frac{v}{V} M \right)}{\partial \xi} - \frac{\partial X}{\partial \zeta} , \\
+\frac{1}{V} \frac{\partial \beta \left( N - \frac{v}{V} Y \right)}{\partial \tau} &= \frac{\partial X}{\partial \eta} - \frac{\partial \beta \left( Y - \frac{v}{V} N \right)}{\partial \xi} ,
+\end{aligned}
+$$
+wobei
+$$
+\beta = \frac{1}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} .
+$$
+
+Das Relativitätsprinzip fordert nun, daß die [[SPERR]]Maxwell-Hertz[[/SPERR]]schen Gleichungen für den leeren Raum auch im System $k$ gelten, wenn sie im System $K$ gelten, d. h. daß für die im bewegten System $k$ durch ihre ponderomotorischen Wirkungen auf elektrische bez. magnetische Massen definierten Vektoren der elektrischen und magnetischen Kraft ($(X', Y' Z')$ und $(L', M', N')$) des bewegten Systems $k$ die Gleichungen gelten:
+$$
+\begin{aligned}
+\frac{1}{V} \frac{\partial X'}{\partial \tau} &= \frac{\partial N'}{\partial \eta} - \frac{\partial M'}{\partial \zeta} , &\qquad \frac{1}{V} \frac{\partial L'}{\partial \tau} &= \frac{\partial Y'}{\partial \zeta} - \frac{\partial Z'}{\partial \eta} , \\
+\frac{1}{V} \frac{\partial Y'}{\partial \tau} &= \frac{\partial L'}{\partial \zeta} - \frac{\partial N'}{\partial \xi} , &\qquad \frac{1}{V} \frac{\partial M'}{\partial \tau} &= \frac{\partial Z'}{\partial \xi} - \frac{\partial X'}{\partial \zeta} , \\
+\frac{1}{V} \frac{\partial Z'}{\partial \tau} &= \frac{\partial M'}{\partial \xi} - \frac{\partial L'}{\partial \eta} , &\qquad \frac{1}{V} \frac{\partial N'}{\partial \tau} &= \frac{\partial X'}{\partial \eta} - \frac{\partial Y'}{\partial \xi} .
+\end{aligned}
+$$
+
+Offenbar müssen nun die beiden für das System $k$ gefundenen Gleichungssysteme genau dasselbe ausdrücken, da beide Gleichungssysteme den [[SPERR]]Maxwell-Hertz[[/SPERR]]schen Gleichungen für das System $K$ äquivalent sind. Da die Gleichungen beider Systeme ferner bis auf die die Vektoren darstellenden Symbole übereinstimmen, so folgt, daß die in den Gleichungssystemen an entsprechenden Stellen auftretenden Funktionen bis auf einen für alle Funktionen des einen Gleichungssystems gemeinsamen, von $\xi$, $\eta$, $\zeta$ und $\tau$ unabhängigen, eventuell von $v$ abhängigen Faktor $\psi(v)$ übereinstimmen müssen. Es gelten also die Beziehungen:
+$$
+\begin{aligned}
+X' &= \psi(v) X , &\qquad L' &= \psi(v) L , \\
+Y' &= \psi(v) \beta \left( Y - \frac{v}{V} N \right) , &\qquad M' &= \psi(v) \beta \left( M + \frac{v}{V} Z \right) , \\
+Z' &= \psi(v) \beta \left( Z + \frac{v}{V} M \right) , &\qquad N' &= \psi(v) \beta \left( N - \frac{v}{V} Y \right) .
+\end{aligned}
+$$
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 19 OF 31 ---
 [[ANNALEN-PAGE 909]]
 

@@ -53,3 +53,11 @@
   reason: "Printed connective 'und' standing alone between the two clock equations on page 904, section 4: tau = (1/sqrt(1-(v/V)^2))(t - (v/V^2)x), then 'und', then x = v t. Source text. Its fingerprint is byte-identical to the page 897 'und' entry because computeLineFingerprint hashes the line text alone; ledgerPage 14 versus 7 is the only thing separating the two entries, and an editor must judge each page's line on its own plate."
   editor: "agent:LilacValley"
   date: "2026-09-21"
+
+- ledgerKey: ap-17-891
+  code: short-paragraph
+  ledgerPage: 18
+  lineFingerprint: ad6f70890a12d8f2
+  reason: "Printed connective 'wobei' standing alone between two displays on page 908, introducing the definition of beta. It is reported as a short PARAGRAPH rather than a short line only because 908 is one of two pages in any ledger whose first body line opens a display: the paragraph carried over from 907 begins on this page with the last two rows of the Maxwell-Hertz transform, so the only prose the paragraph has on this page is that one word. The word is source text and load-bearing - it is what makes the beta display a definition used by the equations above rather than a free-standing assertion. Denominator: 63 pages with a body across the four ledgers, 2 of which open with a display (ap-17-549 p551 and this one)."
+  editor: "agent:LilacValley"
+  date: "2026-09-21"
