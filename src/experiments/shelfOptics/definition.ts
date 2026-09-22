@@ -138,6 +138,23 @@ function decimal(value: unknown): number | null {
   return Number.isFinite(number) ? number : null;
 }
 
+/**
+ * A declared field's admitted value. parseShelfParameters' field loop refuses any missing field
+ * before this runs, so the throw guards a mismatch between an instrument's declared fields and
+ * the parameters it builds, a programming error rather than a reader's input. It lives here, not
+ * in a closure, so a test can reach the refusal directly.
+ */
+export function declaredNumber(values: Readonly<Record<string, number>>, key: string): number {
+  const value = values[key];
+  if (value === undefined)
+    throw new ExperimentRuntimeError(
+      "declared-field-missing",
+      `Missing declared shelf field: ${key}`,
+      "shelf-optics",
+    );
+  return value;
+}
+
 export function parseShelfParameters(id: ShelfId, raw: unknown): ShelfParse {
   if (!isShelfId(id) || !raw || typeof raw !== "object" || Array.isArray(raw)) {
     return { kind: "refused", message: "Choose a known shelf instrument and a settings object." };
@@ -175,16 +192,7 @@ export function parseShelfParameters(id: ShelfId, raw: unknown): ShelfParse {
     }
   }
   // The field loop proved every numeric value is present; no extra input keys survive.
-  const number = (key: string): number => {
-    const value = values[key];
-    if (value === undefined)
-      throw new ExperimentRuntimeError(
-        "declared-field-missing",
-        `Missing declared shelf field: ${key}`,
-        "shelf-optics",
-      );
-    return value;
-  };
+  const number = (key: string): number => declaredNumber(values, key);
   let parameters: ShelfParameters;
   switch (id) {
     case "shelf-michelson-morley":
