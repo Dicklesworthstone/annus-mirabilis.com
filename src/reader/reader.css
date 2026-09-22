@@ -2281,31 +2281,45 @@ html:is(
  * label that says the text is unreviewed rendered rgb(43,26,26) on rgb(28,33,40), which is
  * near-black on near-black. The disclosure was present, and in the dark theme nobody could
  * read it. --wash is opaque in both themes, and --ink and --accent follow the theme.
+ *
+ * ONE QUIET STATUS, NOT TWO ALARMS. This was a box with a 4px accent rule holding the sentence,
+ * then an uppercase bar with a 2px accent underline repeating its gist: two red-ruled notices,
+ * one under the other, and the only red on the page. They are now one callout-note (the family
+ * in globals.css): the label heads the field, a hairline under it, the sentence beneath, one
+ * muted rule down the leading edge of both. The label is the half that sticks, so once the
+ * sentence has scrolled away it still carries the field and the rule, and the hairline is what
+ * separates it from the German passing under it. The apparatus is set in the sans and Einstein's
+ * text in the serif, so the two never read as one voice.
  */
+.source-draft-notice__persistent,
 .source-draft-notice {
-  margin: 0 0 1.25rem;
-  padding: 0.85rem 1rem;
-  border-left: 4px solid var(--accent);
+  border-left: 2px solid var(--muted);
   background: var(--wash);
+  font-family: var(--font-sans);
 }
-.source-draft-notice__body {
-  margin: 0;
-  font-size: var(--type-small);
-  line-height: 1.5;
-}
-.source-draft-notice__persistent {
+/* Two classes, not one: `.reader-root p` sets margin-block on every paragraph at (0,1,1), which beat
+   a single class, so the label's margin: 0 never applied and a paragraph gap split the field in two. */
+.source-column .source-draft-notice__persistent {
   position: sticky;
   top: 0;
   z-index: 2;
-  margin: 0 0 1rem;
-  padding: 0.35rem 0.75rem;
+  margin: 0;
+  padding: 0.55rem 1rem 0.5rem;
   font-size: var(--type-fine);
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  line-height: 1.5;
   color: var(--ink);
-  background: var(--wash);
-  border-bottom: 2px solid var(--accent);
+  border-bottom: 1px solid var(--rule);
+}
+.source-draft-notice {
+  margin: 0 0 1.75rem;
+  padding: 0.6rem 1rem 0.85rem;
+}
+.source-draft-notice .source-draft-notice__body {
+  margin: 0;
+  font-size: var(--type-fine);
+  line-height: 1.5;
+  color: var(--muted);
 }
 @media (prefers-reduced-motion: reduce) {
   /* Nothing here animates. The rule exists so a later author does not add a transition

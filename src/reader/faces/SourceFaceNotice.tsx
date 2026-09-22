@@ -29,19 +29,18 @@ export function SourceFaceNotice({ notice }: { notice: Notice }) {
   // A reviewed text carries no badge. The receipt decides, not this component.
   if (notice.state !== "machine-draft") return null;
 
+  /*
+    ONE STATUS, TWO PARTS. The label comes first and heads the callout; the full sentence sits
+    directly beneath it inside the same field and rule, so a reader meets one quiet note rather
+    than a red-ruled box followed by a red-ruled bar saying the same thing. Only the label is
+    sticky, so after the sentence scrolls away the label alone stays with the text it
+    qualifies. Order in the page is still: label, full sentence, then the first word of German.
+  */
   return (
     <>
-      <aside
-        className="source-draft-notice"
-        data-source-draft-notice
-        data-notice-state={notice.state}
-        aria-label={notice.label}
-      >
-        <p className="source-draft-notice__body">{notice.body}</p>
-      </aside>
       {/*
         The persistent half. It carries the label only, and it is aria-hidden because the
-        full sentence above is already in the accessibility tree: a screen reader meeting
+        full sentence below is already in the accessibility tree: a screen reader meeting
         the same words twice learns nothing the second time and loses its place.
       */}
       <p
@@ -51,6 +50,14 @@ export function SourceFaceNotice({ notice }: { notice: Notice }) {
       >
         {notice.label}
       </p>
+      <aside
+        className="source-draft-notice"
+        data-source-draft-notice
+        data-notice-state={notice.state}
+        aria-label={notice.label}
+      >
+        <p className="source-draft-notice__body">{notice.body}</p>
+      </aside>
     </>
   );
 }
