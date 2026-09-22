@@ -82,7 +82,7 @@ export default function Home() {
         <article>
           <p className="eyebrow">Received 30 June · Ann. Phys. 17, 891</p>
           <h2>
-            <a href="/papers/special-relativity/">On the electrodynamics of moving bodies</a>
+            <a href="/papers/special-relativity/">Special relativity</a>
           </h2>
           <p className="german-title">Zur Elektrodynamik bewegter Körper</p>
           <p>
@@ -101,7 +101,7 @@ export default function Home() {
         <article>
           <p className="eyebrow">Received 27 September · Ann. Phys. 18, 639</p>
           <h2>
-            <a href="/papers/mass-energy/">Does inertia depend on energy content?</a>
+            <a href="/papers/mass-energy/">Mass and energy</a>
           </h2>
           <p className="german-title">
             Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?
