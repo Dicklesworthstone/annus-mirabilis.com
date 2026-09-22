@@ -1127,12 +1127,13 @@ samp,
  *
  * Thirty-four links on one page is the count that made the old homepage unreadable, so the shape
  * carries the difference: each entry is a sentence naming the question the instrument answers,
- * grouped under the paper whose claim it interrogates. A single column at a readable measure,
- * because these are sentences and a two-column grid would set them at a width that fights them.
+ * grouped under the paper whose claim it interrogates.
  *
- * The id rides along in muted monospace. It is not decoration: ids are how AGENTS.md addresses
- * instruments, they appear in bead titles and in URLs, and a reader who has seen "sr-09" in a
- * discussion needs to find it here without reading all thirteen.
+ * Columns of at least 22rem (chrome, pane %44). The list was one column at the reader measure,
+ * which is 43ch here: 450px at 1440, beside 870px of empty page, and 5 of the 9 light-quanta
+ * names wrapped onto a second line (BUILD 14). Two columns at 1440 are about 610px each, wider
+ * than that measure, so each name sits on one line and a paper's instruments are seen at once.
+ * A phone keeps one column.
  */
 .instrument-group {
   border-top: 1px solid var(--line);
@@ -1146,8 +1147,8 @@ samp,
   padding: 0;
   margin: 1rem 0 0;
   display: grid;
-  gap: 0.6rem;
-  max-width: var(--reader-measure, 40rem);
+  grid-template-columns: repeat(auto-fill, minmax(min(22rem, 100%), 1fr));
+  gap: 0.6rem 2.5rem;
 }
 .instrument-list li {
   display: flex;
