@@ -229,7 +229,7 @@ export function RodSimultaneityLab({
             marginBottom: "0.75rem",
           }}
         >
-          <h3 style={{ margin: 0 }}>Discovery Mode: Predict Before Calculating</h3>
+          <h3 style={{ margin: 0 }}>Discovery mode: predict before calculating</h3>
           <div className="button-group">
             <button
               type="button"
@@ -680,9 +680,9 @@ export function RodSimultaneityLab({
         transverseZ={transZ}
       />
 
-      {/* Spacetime Event Interval Ledger */}
+      {/* Spacetime event interval ledger */}
       <div className="notice" style={{ margin: "1.5rem 0" }}>
-        <h3 style={{ marginTop: 0 }}>Spacetime Event Coordinates &amp; Invariant Interval</h3>
+        <h3 style={{ marginTop: 0 }}>Spacetime event coordinates and invariant interval</h3>
         <section
           className="table-scroll"
           tabIndex={0}
@@ -741,9 +741,9 @@ export function RodSimultaneityLab({
         </section>
       </div>
 
-      {/* Accepted Results Telemetry Table */}
+      {/* Accepted results telemetry table */}
       <div className="notice" data-view-id="sr-03-data-table" style={{ margin: "1.5rem 0" }}>
-        <h3 style={{ marginTop: 0 }}>Accepted Laboratory Telemetry Snapshot</h3>
+        <h3 style={{ marginTop: 0 }}>Accepted laboratory telemetry snapshot</h3>
         <section
           className="table-scroll"
           tabIndex={0}
@@ -791,9 +791,9 @@ export function RodSimultaneityLab({
         </section>
       </div>
 
-      {/* Epistemic Limits (Not Modeled) */}
+      {/* Epistemic limits (not modeled) */}
       <div className="notice" style={{ margin: "1.5rem 0" }}>
-        <h3 style={{ marginTop: 0 }}>Limits of this Kinematic Reference Model (Not Modeled)</h3>
+        <h3 style={{ marginTop: 0 }}>Limits of this kinematic reference model (not modeled)</h3>
         <p className="fine" style={{ marginBottom: "0.5rem" }}>
           This reference owner implements exact special-relativistic coordinate transformations,
           coordinate length measurements, and invariant spacetime intervals between inertial

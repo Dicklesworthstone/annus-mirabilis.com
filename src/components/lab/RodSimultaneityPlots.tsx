@@ -56,7 +56,7 @@ export function RodStripPlot({
             margin: 0,
           }}
         >
-          Spatial Rod Strip Projection
+          Spatial rod strip projection
         </h3>
         <span
           className="fine"
@@ -295,7 +295,7 @@ export function MinkowskiDiagramPlot({
             margin: 0,
           }}
         >
-          Spacetime Event Diagram
+          Spacetime event diagram
         </h3>
         <span
           className="fine"
@@ -524,7 +524,7 @@ export function SphereEllipsoidPlot({
             margin: 0,
           }}
         >
-          Moving Sphere Measured as an Ellipsoid (§4)
+          Moving sphere measured as an ellipsoid (§4)
         </h3>
         <span
           className="fine"
