@@ -3,11 +3,86 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import { validateReportSchema } from "../src/content/coverage/reportSchema.test.ts";
-import { runCoverageReport } from "./coverage-report.ts";
+import { coverageRefusal, coverageWasMeasured, runCoverageReport } from "./coverage-report.ts";
 
 describe("Coverage Report CLI Contract (scripts/coverage-report.ts)", () => {
   const rootDir = process.cwd();
   const testOutDir = join(rootDir, "artifacts", "test-artifacts", "coverage-cli-test");
+
+  /**
+   * am-9n4g. A required CI gate reported "Total source units: 158 / reviewed: 158" beneath
+   * "Inputs: None", from a literal in its own script. 342d13da moved that fixture behind
+   * --demonstration, and two things were left standing: the flag still printed the forbidden
+   * pair, and the DEFAULT run - which is how the registry invokes it, with no arguments -
+   * measured nothing and exited 0 while requiredInCi.
+   *
+   * A gate that passes having opened no file certifies nothing and reads as conformance. This
+   * is the fabricated-population shape rather than the empty-set one: a floor on population
+   * size would not have caught it, because the population was not empty, it was invented.
+   */
+  it("a run that opens no input file is NOT measured, whatever its figures say (am-9n4g)", async () => {
+    const { report } = await runCoverageReport(["--out-dir", testOutDir]);
+    assert.equal(report.inputs.length, 0, "the default run opens no file");
+    assert.equal(coverageWasMeasured(report), false);
+  });
+
+  it("the --demonstration fixture is the real shape, and it is refused (am-9n4g)", async () => {
+    // THE PLANTED NEGATIVE IS THE BEAD'S OWN FIXTURE, not a synthetic one: --demonstration
+    // substitutes literals for derived counts, which is precisely the defect.
+    const { report } = await runCoverageReport(["--demonstration", "--out-dir", testOutDir]);
+
+    // Confirm the fixture can REACH the state being refused. Without this the assertion below
+    // would pass over a run that produced no figures at all, which is a different situation.
+    assert.equal(report.sourceStatus.totalUnits, 158, "the fixture must still produce 158");
+    assert.equal(report.sourceStatus.byStatus.reviewed, 158);
+
+    // And it is still not measured, because no file was opened to produce those numbers.
+    assert.equal(report.inputs.length, 0);
+    assert.equal(coverageWasMeasured(report), false);
+
+    // The refusal says which case it is, so a reader is not left to infer it.
+    const refusal = coverageRefusal(true);
+    assert.match(refusal, /^REFUSED: --demonstration fills dimensions from a fixture/);
+    assert.match(refusal, /never be cited as coverage/);
+  });
+
+  it("a real input IS measured, so the gate is satisfiable rather than merely strict (am-9n4g)", async () => {
+    // The control. Without it the change could have been "always refuse", which passes both
+    // assertions above and makes the gate unsatisfiable - AC 5, and the thing the bead
+    // explicitly forbids as a way to close this.
+    mkdirSync(testOutDir, { recursive: true });
+    const evidence = join(testOutDir, "am-9n4g-evidence.jsonl");
+    writeFileSync(
+      evidence,
+      [
+        JSON.stringify({ scenarioId: "sc-bm-05-diffusion", status: "passed" }),
+        JSON.stringify({ scenarioId: "sc-bm-06-inference", status: "failed", failureMessage: "t" }),
+      ].join("\n"),
+    );
+
+    const { report } = await runCoverageReport([
+      "--scenario-evidence",
+      evidence,
+      "--out-dir",
+      testOutDir,
+    ]);
+    assert.equal(coverageWasMeasured(report), true);
+    assert.equal(report.inputs.length, 1);
+    assert.equal(report.inputs[0]?.kind, "scenario-evidence");
+    // The input is named with a digest, which is what makes "measured" checkable later.
+    assert.match(String(report.inputs[0]?.sha256), /^[a-f0-9]{64}$/);
+    // And the figure is derived from the file, not declared.
+    assert.equal(report.numericalValidation.totalScenarios, 2);
+  });
+
+  it("the default refusal names what it could have read (am-9n4g)", () => {
+    const refusal = coverageRefusal(false);
+    assert.match(refusal, /^REFUSED: this run opened no input file/);
+    assert.match(refusal, /--scenario-evidence/);
+    assert.match(refusal, /--review-records/);
+    // Names the bead that owns the missing loaders rather than implying nobody knows.
+    assert.match(refusal, /am-cm-coverage-ledger-0ip/);
+  });
 
   it("CLI runs with scenario evidence, writes JSON/Markdown, and passes schema validation", async () => {
     mkdirSync(testOutDir, { recursive: true });

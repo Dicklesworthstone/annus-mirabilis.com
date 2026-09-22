@@ -68,6 +68,24 @@ function parseArgs(args: string[]): {
   return result;
 }
 
+/**
+ * Did this run measure anything at all (am-9n4g)?
+ *
+ * `report.inputs` records only files that were opened, each with its sha256, so an empty
+ * inputs list is the report saying in its own data that it read nothing. That is the honest
+ * detector here, and it is the same field the markdown renders as "Inputs: None".
+ *
+ * The bead reported this gate emitting "Total source units: 158 / reviewed: 158" beneath
+ * "Inputs: None", from a literal in this file. 342d13da moved that fixture behind
+ * --demonstration, which cleared the default path and left two things standing: the flag still
+ * printed the forbidden pair, and the DEFAULT run measured nothing and exited 0 while being
+ * requiredInCi. A required gate that passes having opened no file certifies nothing and reads
+ * as conformance, which is the shape this sweep opened with.
+ */
+export function coverageWasMeasured(report: CoverageReport): boolean {
+  return report.inputs.length > 0;
+}
+
 export async function runCoverageReport(args: string[]): Promise<{
   report: CoverageReport;
   jsonPath: string;
@@ -233,8 +251,17 @@ export async function runCoverageReport(args: string[]): Promise<{
     ? `DEMONSTRATION RUN. ${UNWIRED_DIMENSIONS.join(", ")} are filled from a fixture in scripts/coverage-report.ts, not measured from this repository. Do not cite these figures as coverage.`
     : `NOT MEASURED: ${UNWIRED_DIMENSIONS.join(", ")} have no loader wired (am-cm-coverage-ledger-0ip), so their figures are absent rather than zero. Every other dimension below is measured from its declared input.`;
 
+  // Counts are withheld when nothing was measured and no fixture was requested, so the
+  // forbidden pair - "Inputs: None" above a populated Source Status - cannot be produced at all
+  // on the default path. Under --demonstration the figures ARE printed, because that is what was
+  // asked for, and main() still refuses so they cannot be cited as coverage.
+  const withhold = report.inputs.length === 0 && !demonstration;
   if (json) {
     console.log(JSON.stringify(report, null, 2));
+  } else if (withhold) {
+    console.log(
+      `# Annus Mirabilis Multi-Dimensional Coverage Ledger\n\n- **Tool Run ID:** \`${toolRunId}\`\n- **Inputs:** None\n\nNo dimension was measured, so no figures are printed.`,
+    );
   } else {
     console.log(formatCoverageMarkdown(report));
     console.log(`\nArtifacts written:\n- JSON: ${jsonPath}\n- Markdown: ${mdPath}`);
@@ -244,8 +271,27 @@ export async function runCoverageReport(args: string[]): Promise<{
   return { report, jsonPath, mdPath, provenance, unwiredDimensions: UNWIRED_DIMENSIONS };
 }
 
+/** The refusal text, as a function so a test can assert it without spawning a process. */
+export function coverageRefusal(demonstration: boolean): string {
+  const shared =
+    "No coverage is established by this run. `--scenario-evidence <path>` and" +
+    " `--review-records <path>` are the inputs this report can read today; the remaining" +
+    " dimensions have no loader wired (am-cm-coverage-ledger-0ip).";
+  return demonstration
+    ? `REFUSED: --demonstration fills dimensions from a fixture in this script, not from the content tree. ${shared} The figures printed above are the fixture's and must never be cited as coverage.`
+    : `REFUSED: this run opened no input file, so every dimension is unmeasured. ${shared}`;
+}
+
 async function main() {
-  await runCoverageReport(process.argv.slice(2));
+  const { report, provenance } = await runCoverageReport(process.argv.slice(2));
+  if (coverageWasMeasured(report)) return;
+
+  // A run that names no inputs must not report counts as measured, and must not exit 0 while
+  // required in CI. Both halves matter: the exit code is what the pipeline reads, the withheld
+  // figures are what a person reads.
+  console.error(`\n${coverageRefusal(process.argv.slice(2).includes("--demonstration"))}`);
+  console.error(provenance);
+  process.exit(1);
 }
 
 const isMain =
