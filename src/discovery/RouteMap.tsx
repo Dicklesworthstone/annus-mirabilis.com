@@ -18,7 +18,7 @@ export function stepAnchor(n: number): string {
  */
 export function RouteMap({ slug }: { slug: DiscoveryPaperSlug }) {
   const route = ROUTE_INDEX.find((r) => r.slug === slug);
-  if (!route) throw new Error(`The /discover/ index has no route for "${slug}".`);
+  if (!route) throw new Error("route-index-missing", { cause: slug });
   return (
     <nav className="route-map" aria-label="Steps on this route">
       <p className="route-map-title">The route</p>

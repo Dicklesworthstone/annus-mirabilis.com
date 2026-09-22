@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { stepAnchor } from "./RouteMap.tsx";
+import { RouteMap, stepAnchor } from "./RouteMap.tsx";
 import { ROUTE_INDEX } from "./routeIndex.ts";
 
 /**
@@ -17,6 +17,11 @@ function source(slug: string): string {
 const STEP_SECTION = /<section id="(step-\d{2})">\s*<p className="step-number">(\d{2}) \//g;
 
 describe("the route map's links", () => {
+  test("a slug the index does not know is refused with route-index-missing, never a guess", () => {
+    // biome-ignore lint/suspicious/noExplicitAny: the point is a slug outside the typed set.
+    expect(() => RouteMap({ slug: "no-such-route" as any })).toThrow("route-index-missing");
+  });
+
   test("a step's anchor is its two-digit number", () => {
     expect(stepAnchor(1)).toBe("step-01");
     expect(stepAnchor(8)).toBe("step-08");

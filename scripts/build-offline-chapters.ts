@@ -136,17 +136,16 @@ export async function buildOfflineChapters(
     for (const { payload, revision } of papers.sort((a, b) =>
       a.payload.paper.id.localeCompare(b.payload.paper.id, "en"),
     )) {
-      if (payload.schemaVersion !== 1 || payload.paper.status !== "explanation-preview")
-        throw new Error("A changed publication schema needs an explicit offline adapter.");
       // Each paper's own glyph table. Every paper used to be rendered with the Brownian one, so
       // a symbol from any other paper had no glyph and printed as its term id: offline chapters
       // for light quanta, relativity and mass-energy showed "eq-model-..." as mathematics, and
       // BUILD 18b failed once a term id followed \partial. A paper without a table stops the
-      // build rather than borrowing another paper's.
+      // build rather than borrowing another paper's: like a changed schema, it needs an explicit
+      // offline adapter, so both share the one refusal.
       const profile = teachingProfile(payload.paper.id);
-      if (!profile)
+      if (payload.schemaVersion !== 1 || payload.paper.status !== "explanation-preview" || !profile)
         throw new Error(
-          `No teaching profile for "${payload.paper.id}", so its equations have no glyphs.`,
+          "A changed publication schema, or a paper without a teaching profile, needs an explicit offline adapter.",
         );
       const equations = payload.equations.map((equation) => ({
         id: equation.id,

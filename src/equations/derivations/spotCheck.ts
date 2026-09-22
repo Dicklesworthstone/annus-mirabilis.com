@@ -97,17 +97,13 @@ export function evaluateExpression(
       if (denominator === 0) throw new SpotCheckDomainError("division by zero.");
       return evaluateExpression(tree.numerator, bindings) / denominator;
     }
-    case "power": {
-      const base = evaluateExpression(tree.base, bindings);
-      const exponent = tree.exponent.num / tree.exponent.den;
-      const value = base ** exponent;
-      if (!Number.isFinite(value))
-        throw new SpotCheckDomainError(`${base} ** ${exponent} is not finite.`);
-      return value;
-    }
+    case "power":
     case "symbolPower": {
       const base = evaluateExpression(tree.base, bindings);
-      const exponent = evaluateExpression(tree.exponent, bindings);
+      const exponent =
+        tree.kind === "power"
+          ? tree.exponent.num / tree.exponent.den
+          : evaluateExpression(tree.exponent, bindings);
       const value = base ** exponent;
       if (!Number.isFinite(value))
         throw new SpotCheckDomainError(`${base} ** ${exponent} is not finite.`);
