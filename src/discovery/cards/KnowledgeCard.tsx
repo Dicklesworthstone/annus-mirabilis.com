@@ -30,6 +30,10 @@ export function KnowledgeCardView({
     <details
       className={className || undefined}
       style={{
+        // The global details rule adds 20.8px of margin and 13.6px of padding, which put about
+        // 50px of empty space between cards on the shelf.
+        margin: 0,
+        padding: 0,
         border: "1px solid var(--line)",
         borderRadius: "0.5rem",
         background: "var(--panel)",
@@ -42,7 +46,7 @@ export function KnowledgeCardView({
       <summary
         style={{
           cursor: "pointer",
-          padding: "1rem",
+          padding: "0.75rem 1rem",
           userSelect: "none",
           borderRadius: "0.5rem",
           display: "flex",
@@ -62,29 +66,21 @@ export function KnowledgeCardView({
               marginBottom: "0.25rem",
             }}
           >
+            {/* The card's id stays as its anchor (id="card-..."), not as text a reader must read. */}
             <span
               style={{
-                fontSize: "0.75rem",
-                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "var(--type-fine)",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 color: "var(--muted)",
               }}
             >
               {dateLine}
             </span>
-            <span
-              style={{
-                fontSize: "0.75rem",
-                fontFamily: "var(--font-mono, monospace)",
-                color: "var(--muted)",
-              }}
-            >
-              · #{card.id}
-            </span>
           </div>
           <p
             style={{
-              fontSize: "0.875rem",
+              fontSize: "var(--type-small)",
               fontFamily: "var(--font-serif)",
               fontWeight: 600,
               color: "var(--ink)",

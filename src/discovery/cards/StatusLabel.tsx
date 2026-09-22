@@ -68,7 +68,18 @@ export function StatusLabel({
 
   if (status === "available") {
     return (
-      <span className={badgeClass} style={baseBadgeStyle} data-status="available">
+      <span
+        className={badgeClass}
+        // Every card on a 1904 shelf is available, so this label is the rule, not the news: it
+        // keeps its words and icon for readers who need them, and drops the chip's box and field.
+        style={{
+          ...baseBadgeStyle,
+          background: "transparent",
+          borderColor: "transparent",
+          color: "var(--muted)",
+        }}
+        data-status="available"
+      >
         {/* Checkmark in circle shape */}
         <svg
           style={svgStyle}

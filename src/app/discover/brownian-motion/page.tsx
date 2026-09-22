@@ -380,6 +380,7 @@ export default function BrownianEncounter() {
         <ExercisePart part={DISPLACEMENT_SCALE_EXERCISE} />
       </section>
       <section>
+        <h2>The 1904 shelf</h2>
         <Shelf cards={BROWNIAN_SHELF_CARDS} />
       </section>
       <aside className="notice">
