@@ -63,7 +63,18 @@ function sortKeysRecursively(value: unknown): unknown {
 
 const sha256Digest = (s: string | Uint8Array) => createHash("sha256").update(s).digest("hex");
 
-function markdownBlocks(blocks: readonly Block[] | undefined): string {
+/** A foundation's title by id, or undefined when no record carries that id. */
+type FoundationTitle = (id: string) => string | undefined;
+
+/*
+  A foundation link says what the page says, "Open the foundation: Fractions and ratios"
+  (Blocks.tsx). It used to print the record id as the link text and join the lesson's
+  returnCaption on with an em dash: "[Foundation: fractions-ratios](...) — Return to the
+  constraints on the entropy derivative." That caption labels the way BACK from the lesson,
+  which a flat Markdown file does not have, so after the link it read as a description of
+  the link, and a wrong one.
+*/
+function markdownBlocks(blocks: readonly Block[] | undefined, titleOf: FoundationTitle): string {
   if (!blocks) return "";
   return blocks
     .map((b) =>
@@ -73,16 +84,16 @@ function markdownBlocks(blocks: readonly Block[] | undefined): string {
           ? `$$\n${b.latex}\n$$\n\n${b.spoken}`
           : b.kind === "steps"
             ? b.items.map((x, i) => `${i + 1}. ${x}`).join("\n")
-            : `[Foundation: ${b.id}](/foundations/${b.id}/) — ${b.returnCaption}`,
+            : `[Open the foundation: ${titleOf(b.id) ?? b.id}](/foundations/${b.id}/)`,
     )
     .join("\n\n");
 }
 
-function markdownPaper(p: PaperPayload): string {
+function markdownPaper(p: PaperPayload, titleOf: FoundationTitle): string {
   return `# ${p.paper.title}\n\n${p.paper.sourceNotice}\n\n${p.arguments
     .map((a) => {
       const readings = a.readings as Record<string, readonly Block[] | undefined> | undefined;
-      return `## ${a.title}\n\n${a.question ?? ""}\n\n${markdownBlocks(readings?.full ?? readings?.["full-explanation"])}\n\n### Model limits\n\n${(a.limitations ?? []).join("\n\n")}`;
+      return `## ${a.title}\n\n${a.question ?? ""}\n\n${markdownBlocks(readings?.full ?? readings?.["full-explanation"], titleOf)}\n\n### Model limits\n\n${(a.limitations ?? []).join("\n\n")}`;
     })
     .join("\n\n")}\n`;
 }
@@ -98,6 +109,7 @@ export async function emitPayloads(options: EmitOptions): Promise<ContentBuildIn
   await mkdir(publicDir, { recursive: true });
 
   const payloads: PayloadManifestEntry[] = [];
+  const titleOf: FoundationTitle = (id) => options.foundations.find((f) => f.id === id)?.title;
 
   async function emitOne(
     id: string,
@@ -132,7 +144,7 @@ export async function emitPayloads(options: EmitOptions): Promise<ContentBuildIn
   // 1. Emit papers
   for (const paper of options.papers) {
     const md =
-      markdownPaper(paper) +
+      markdownPaper(paper, titleOf) +
       paper.equations
         .map((e) => {
           const rawLatex = "latex" in e && typeof e.latex === "string" ? e.latex : "";
@@ -175,11 +187,11 @@ ${e.explanation ?? ""}
       foundation.summary,
       "Written for this edition, not translated from Einstein. Editorial review pending.",
       `## ${foundation.question}`,
-      markdownBlocks(foundation.explanation),
+      markdownBlocks(foundation.explanation, titleOf),
       foundation.exampleTitle
         ? `## Worked example: ${foundation.exampleTitle}`
         : "## One worked example",
-      markdownBlocks(foundation.example),
+      markdownBlocks(foundation.example, titleOf),
       "## Where this lesson stops",
       foundation.stoppingPoint,
       ...(prerequisites.length > 0 ? ["## This lesson builds on", prerequisites.join("\n")] : []),
