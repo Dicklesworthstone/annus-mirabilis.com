@@ -1,9 +1,27 @@
 import type { Metadata } from "next";
+import {
+  isWrittenDiscoveryRoute,
+  UNWRITTEN_DISCOVERY_ROUTES,
+  WRITTEN_DISCOVERY_ROUTES,
+} from "../../discovery/journeyRegistry.ts";
+
+const SPELLED = ["no", "One", "Two", "Three", "Four"] as const;
+
+/** Total by construction: a fifth paper would read "5" rather than crash or read "undefined". */
+function spelled(n: number): string {
+  return SPELLED[n] ?? String(n);
+}
+
+/** The plant that removed a route from the declaration produced "One routes are written". */
+function plural(n: number): string {
+  return n === 1 ? "route is" : "routes are";
+}
+const WRITTEN_COUNT = WRITTEN_DISCOVERY_ROUTES.length;
+const UNWRITTEN_COUNT = UNWRITTEN_DISCOVERY_ROUTES.length;
 
 export const metadata: Metadata = {
   title: "Discovery routes",
-  description:
-    "Reconstructions of the problems the 1905 papers answer, worked from what was on the shelf at the end of 1904. Two routes are written; the other two are not yet.",
+  description: `Reconstructions of the problems the 1905 papers answer, worked from what was on the shelf at the end of 1904. ${spelled(WRITTEN_COUNT)} ${plural(WRITTEN_COUNT)} written; the other ${spelled(UNWRITTEN_COUNT).toLowerCase()} are not yet.`,
 };
 
 /**
@@ -42,6 +60,12 @@ export const metadata: Metadata = {
  * edition exists to avoid, so the stubs are still named individually with what IS behind
  * them rather than folded into a footnote.
  */
+
+/** "Written" / "Not written", from the one declaration rather than typed per entry. */
+function statusWord(slug: string): string {
+  return isWrittenDiscoveryRoute(slug) ? "Written" : "Not written";
+}
+
 export default function DiscoverIndex() {
   return (
     <>
@@ -62,7 +86,7 @@ export default function DiscoverIndex() {
 
       <section className="journey-catalogue">
         <article>
-          <p className="eyebrow">Written · Ann. Phys. 17, 549</p>
+          <p className="eyebrow">{statusWord("brownian-motion")} · Ann. Phys. 17, 549</p>
           <h2>
             <a href="/discover/brownian-motion/">Brownian motion</a>
           </h2>
@@ -86,7 +110,7 @@ export default function DiscoverIndex() {
         </article>
 
         <article>
-          <p className="eyebrow">Written · Ann. Phys. 18, 639</p>
+          <p className="eyebrow">{statusWord("mass-energy")} · Ann. Phys. 18, 639</p>
           <h2>
             <a href="/discover/mass-energy/">Mass and energy</a>
           </h2>
@@ -109,7 +133,9 @@ export default function DiscoverIndex() {
       </section>
 
       <section className="reading">
-        <h2>Two routes are not written yet</h2>
+        <h2>
+          {spelled(UNWRITTEN_COUNT)} {plural(UNWRITTEN_COUNT)} not written yet
+        </h2>
         <p>
           Each of these papers has its reading edition and its instruments. What is missing is the
           reconstruction: the shelf, the difficulty, and the fork where a reasonable person could
@@ -119,7 +145,7 @@ export default function DiscoverIndex() {
 
       <section className="journey-catalogue">
         <article>
-          <p className="eyebrow">Not written · Ann. Phys. 17, 132</p>
+          <p className="eyebrow">{statusWord("light-quanta")} · Ann. Phys. 17, 132</p>
           <h2>
             <a href="/papers/light-quanta/">Light quanta</a>
           </h2>
@@ -138,7 +164,7 @@ export default function DiscoverIndex() {
         </article>
 
         <article>
-          <p className="eyebrow">Not written · Ann. Phys. 17, 891</p>
+          <p className="eyebrow">{statusWord("special-relativity")} · Ann. Phys. 17, 891</p>
           <h2>
             <a href="/papers/special-relativity/">On the electrodynamics of moving bodies</a>
           </h2>
