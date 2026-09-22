@@ -8,30 +8,32 @@ export default function TracerPage() {
     <>
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Synthetic experiment</p>
-        <h1>
-          Each path wanders.
-          <br />
-          The ensemble tells a story.
-        </h1>
+        <h1>Where does a wandering particle end up?</h1>
         <p className="lead">
-          Watch the same trial at different times. Separate cancellation of signed displacements
-          from growth of their squares, and see why looking more often does not reveal one intrinsic
-          Brownian speed.
+          Every particle here follows the same rule and no two paths look alike. Watch where they
+          finish and two things are true at once: the leftward and rightward moves cancel, so the
+          average displacement stays near zero, while the typical distance from the start keeps
+          growing. Telling those two apart is what this instrument is for.
+        </p>
+        <p>
+          It also shows why you cannot get a particle&rsquo;s speed by looking more often. Halve the
+          interval between observations and the apparent speed climbs instead of settling on a
+          value.
         </p>
         <a href="/discover/brownian-motion/">Start with the no-algebra encounter</a>
         <p>
           <a href="/papers/brownian-motion/#arg-bm-observable">
-            Read the argument and open its missing steps
+            Read the argument, and open any step you want filled in
           </a>
         </p>
         <p>
           <a className="button" href="/discover/brownian-motion/investigate/">
-            Pin a trial, compare intervals, and carry D into the spreading lab
+            Pin a trial and take its diffusion coefficient to the spreading lab
           </a>
         </p>
         <p>
           <a className="button" href="/lab/bm-01/compare/">
-            Change one input: compare radius, viscosity, temperature or observation interval
+            Change one input and compare: radius, viscosity, temperature, interval
           </a>
         </p>
       </header>
