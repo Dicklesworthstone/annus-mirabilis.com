@@ -485,17 +485,15 @@ export function CardDetail({
               </span>
               .
             </p>
+            {/*
+              The locator WRAPS instead of truncating. It carried an inline
+              overflow/text-overflow/white-space triple, which at 320px showed about 40% of the
+              citation behind an ellipsis with no way to reach the rest - not scrollable, clipped.
+              A truncated DOI is not a citation. See .evidence-locator in globals.css for the
+              measurement.
+            */}
             {(card.verification?.evidenceLocator || card.evidenceLocator) && (
-              <p
-                style={{
-                  margin: "0.25rem 0 0",
-                  fontFamily: "var(--font-mono)",
-                  color: "var(--muted)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <p className="evidence-locator">
                 Locator: {card.verification?.evidenceLocator || card.evidenceLocator}
               </p>
             )}

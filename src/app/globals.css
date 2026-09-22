@@ -462,6 +462,32 @@ h3 {
  * the axis. `.reading` itself is untouched, because on a paper page the centred reading column
  * is the right answer and this must not reach it.
  */
+/*
+ * A CITATION LOCATOR IS REFERENCE DATA AND MUST BE READABLE IN FULL.
+ *
+ * This replaces an inline `overflow:hidden; text-overflow:ellipsis; white-space:nowrap` on the
+ * locator line of every knowledge card. That is a deliberate truncation and it is defensible on a
+ * wide screen. At 320px it is not: the box is 144px and the content is 360px, so a reader sees
+ * about 40% of the citation and an ellipsis, with no way to reach the rest. Nothing scrolls - the
+ * text is clipped - so neither a pointer nor a keyboard nor a screen reader gets the remainder.
+ *
+ * Measured on build IPOoHUBM-KjOXh8fVyF9P at 320px, /discover/brownian-motion/: NINE locators
+ * clipped by 108 to 302px, among them a DOI truncated mid-path. The document does not overflow,
+ * so phoneOverflow.e2e.test.ts is green on that page and always was: it measures
+ * documentElement.scrollWidth and this whole class is invisible to it.
+ *
+ * `anywhere` rather than `break-word` because a DOI has no spaces to break at and break-word
+ * would leave it overflowing. It is scoped to this one line, which holds a URL or a bibliographic
+ * string: the session already established that an unscoped `anywhere` shatters formatted
+ * quantities, 67 of 79 numeric cells, so it stays off anything that can carry a number.
+ */
+.evidence-locator {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
 .reading.page-flush {
   margin-inline: 0;
 }
