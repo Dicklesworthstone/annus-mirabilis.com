@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
           Written for this edition, not translated from Einstein. Editorial review pending.
         </p>
       </header>
-      <FoundationBody foundation={foundation} foundations={lessons} />
+      <FoundationBody foundation={foundation} foundations={lessons} headingLevel={2} />
       <p className="fine">
         If you came here from a passage, Back returns you to the exact place you left.
       </p>

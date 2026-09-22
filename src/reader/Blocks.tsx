@@ -90,16 +90,25 @@ export function FoundationBody({
   foundation,
   foundations,
   contextLabel,
+  headingLevel = 3,
 }: {
   foundation: Foundation;
   foundations: readonly Foundation[];
   contextLabel?: string | undefined;
+  /**
+   * Depth of this body's own headings. Defaults to 3, which is right where a paper page has
+   * already introduced the foundation under an <h2> (PaperReader, PaperPage). The standalone
+   * /foundations/[concept] route has only its <h1> above this, so it passes 2; without that it
+   * skipped a level on all 27 pages.
+   */
+  headingLevel?: 2 | 3;
 }) {
+  const SectionHeading = headingLevel === 2 ? "h2" : "h3";
   return (
     <>
       <p className="foundation-question">{foundation.question}</p>
       <ReadingBlocks blocks={foundation.explanation} foundations={foundations} />
-      <h3>One worked example</h3>
+      <SectionHeading>One worked example</SectionHeading>
       <ReadingBlocks blocks={foundation.example} foundations={foundations} />
       <p className="notice">A stopping point: {foundation.stoppingPoint}</p>
       <FoundationConstruction foundationId={foundation.id} />
