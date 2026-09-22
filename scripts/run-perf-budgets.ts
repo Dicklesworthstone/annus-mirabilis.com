@@ -51,6 +51,40 @@ export interface RunPerfBudgetsResult {
   report: PerfReport;
 }
 
+/**
+ * The rows whose verdict comes from build output, and therefore the rows whose absence means the
+ * run could not measure rather than that a budget was met (am-7bkr).
+ *
+ * DERIVED FROM THE CORPUS, not chosen. On a settled tree built immediately before measuring, three
+ * consecutive unplanted runs of this script each reported exactly:
+ *
+ *   2 of 8 rows reached real build output; 6 reported not-available: visible-text-math,
+ *   interaction-latency-p75, layout-shift, instrument-feedback, animation-frame-rate,
+ *   resource-lifecycle
+ *
+ * The other six are not-available BY CONSTRUCTION in this harness: five are hardcoded unavailable
+ * unless a plantViolationRow flag makes them measurable, and resource-lifecycle is unconditional.
+ * A floor expressed as a NUMBER would therefore be satisfied by any two rows and would silently
+ * keep passing if a browser-driven row were added later, so the floor names its rows instead.
+ */
+export const BUILD_DEPENDENT_ROWS = ["initial-route-js", "reading-face-html"] as const;
+
+/**
+ * The build-dependent rows that reached no verdict. Non-empty means the run is UNMEASURABLE and
+ * must refuse, rather than report a budget outcome computed over whatever survived.
+ *
+ * This is the hole the am-7bkr race exposed: overallPassed read failedMetrics.length === 0 alone,
+ * so a run where the build-dependent rows dropped out and nothing failed reported outcome "pass".
+ * A false PASS is available whenever the surviving rows happen to be the ones under budget.
+ */
+export function unmeasuredBuildRows(
+  metrics: Readonly<Record<string, { readonly status?: "pass" | "fail" | "not-available" }>>,
+): readonly string[] {
+  return BUILD_DEPENDENT_ROWS.filter(
+    (id) => (metrics[id]?.status ?? "not-available") === "not-available",
+  );
+}
+
 export async function runPerformanceBudgets(
   opts: RunPerfBudgetsOptions = {},
 ): Promise<RunPerfBudgetsResult> {
@@ -584,8 +618,19 @@ export async function runPerformanceBudgets(
   // A not-available row is not a failure, so it does not turn the chain red for a measurement this
   // process cannot take. It is also not a pass, so the summary states the coverage plainly rather
   // than letting eight green-looking rows imply eight measurements.
-  const overallPassed = failedMetrics.length === 0;
+  // The floor, before any verdict is computed: a run that could not measure its build-dependent
+  // rows has nothing to say about the budgets, and saying "pass" is the failure mode this exists
+  // for. Named rows rather than a count, for the reason recorded on BUILD_DEPENDENT_ROWS.
+  const unmeasured = unmeasuredBuildRows(metrics);
+  const overallPassed = failedMetrics.length === 0 && unmeasured.length === 0;
   const measuredCount = Object.keys(metrics).length - notAvailableMetrics.length;
+  if (unmeasured.length > 0) {
+    console.error(
+      `[run-perf-budgets] REFUSED: ${unmeasured.length} build-dependent row(s) reached no verdict: ` +
+        `${unmeasured.join(", ")}. This run measured nothing it can be held to; it is not a budget ` +
+        `result. Rebuild out/ and re-run, and do not run this while a build is writing.`,
+    );
+  }
   console.log(
     `[run-perf-budgets] ${measuredCount} of ${Object.keys(metrics).length} rows reached real build output; ` +
       `${notAvailableMetrics.length} reported not-available` +
