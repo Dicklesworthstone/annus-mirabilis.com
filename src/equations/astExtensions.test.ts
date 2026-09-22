@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToString } from "katex";
 import { type Expression, parseExpression, quantityBindings } from "./ast.ts";
 import { expressionToSpokenText } from "./derivations/a11yText.ts";
+import { structurallyEqual } from "./derivations/treeUtils.ts";
 import { checkDimensions } from "./dimensions.ts";
 import { expressionLatex } from "./latex.ts";
 import type { Quantity, QuantityRegistry } from "./quantities.ts";
@@ -11,6 +12,10 @@ import type { Quantity, QuantityRegistry } from "./quantities.ts";
  * that must fail for its own reason: a component or instance index on a symbol (E_y, t_0), a
  * quantity's value at an argument (gamma(u), u(t)), a partial-derivative operator standing alone
  * (section 6's operator identity), and an integral with limits (sections 4 and 10).
+ *
+ * Then the two the light-quanta paper needs, on the same terms: a power whose exponent is a
+ * quantity (W = f^n, section 5) and a partial derivative with a quantity held fixed
+ * ((ds/drho)_nu = 1/T, section 3).
  */
 const length = ["1", "0", "0", "0", "0", "0"];
 const time = ["0", "0", "1", "0", "0", "0"];
@@ -20,6 +25,11 @@ const eField = ["1", "1", "-3", "0", "-1", "0"];
 const bField = ["0", "1", "-2", "0", "-1", "0"];
 const energy = ["2", "1", "-2", "0", "0", "0"];
 const mass = ["0", "1", "0", "0", "0", "0"];
+const volume = ["3", "0", "0", "0", "0", "0"];
+const frequency = ["0", "0", "-1", "0", "0", "0"];
+const temperature = ["0", "0", "0", "1", "0", "0"];
+const spectralEnergy = ["-1", "1", "-1", "0", "0", "0"];
+const spectralEntropy = ["-1", "1", "-1", "-1", "0", "0"];
 const q = (id: string, glyph: string, dimension: string[], semanticKind = id): Quantity => ({
   id,
   name: id,
@@ -48,6 +58,14 @@ const R: QuantityRegistry = Object.fromEntries(
     q("properTimeElapsed", "\\Delta\\tau", time),
     q("kineticEnergy", "K", energy),
     q("electronMass", "m", mass),
+    q("configurationProbability", "W", ratio),
+    q("volumeRatio", "f", ratio),
+    q("quantumCount", "n", ratio),
+    q("volume", "V", volume),
+    q("spectralEntropyDensity", "s", spectralEntropy),
+    q("spectralEnergyDensity", "\\rho", spectralEnergy),
+    q("frequency", "\\nu", frequency),
+    q("temperature", "T", temperature),
   ].map((x) => [x.id, x]),
 );
 
@@ -320,5 +338,101 @@ describe("an integral with limits", () => {
       lower: { kind: "number", value: "0" },
     });
     expect(() => parse(rel(sym("coordinatePositionStationary"), one))).toThrow(/both limits/);
+  });
+});
+
+describe("a power whose exponent is a quantity", () => {
+  // W = f^n: the chance that n independent quanta all sit in a fraction f of the volume.
+  const w = (base: Expression, exponent: Expression) =>
+    rel(sym("configurationProbability"), op({ kind: "symbolPower", base, exponent }));
+
+  test("prints f^n, binds all three quantities, reads aloud, and checks", () => {
+    const tree = w(sym("volumeRatio"), sym("quantumCount"));
+    expect(latexOf(tree)).toMatch(/f\^\{n\}$/);
+    expect(quantityBindings(parse(tree)).map((b) => b.quantityId)).toEqual([
+      "configurationProbability",
+      "volumeRatio",
+      "quantumCount",
+    ]);
+    expect(dims(tree)).toBe("consistent");
+    const power = (parse(tree) as Extract<Expression, { kind: "relation" }>).right;
+    expect(expressionToSpokenText(power)).toMatch(/ to the power /);
+  });
+
+  test("planted: a base with a dimension cannot take a symbolic exponent", () => {
+    expect(dims(w(sym("volume"), sym("quantumCount")))).toBe("inconsistent");
+  });
+
+  test("planted: an exponent with a dimension is caught", () => {
+    expect(dims(w(sym("volumeRatio"), sym("coordinateTimeStationary")))).toBe("inconsistent");
+  });
+
+  test("planted: a number or an expression as the exponent is refused", () => {
+    expect(() => parse(w(sym("volumeRatio"), { kind: "number", value: "2" }))).toThrow(
+      /one bound symbol/,
+    );
+    expect(() =>
+      parse(
+        w(
+          sym("volumeRatio"),
+          op({ kind: "sum", args: [sym("quantumCount"), sym("quantumCount")] }),
+        ),
+      ),
+    ).toThrow(/one bound symbol/);
+  });
+});
+
+describe("a partial derivative with a quantity held fixed", () => {
+  // (ds/drho)_nu = 1/T: the entropy's response to energy at one frequency is the inverse
+  // temperature.
+  const d = (extra: Record<string, unknown>, partial = true) =>
+    op({
+      kind: "derivative",
+      expression: sym("spectralEntropyDensity"),
+      variable: sym("spectralEnergyDensity"),
+      order: 1,
+      partial,
+      ...extra,
+    });
+  const law = (derivative: Expression) =>
+    rel(
+      derivative,
+      op({
+        kind: "quotient",
+        numerator: { kind: "number", value: "1" },
+        denominator: sym("temperature"),
+      }),
+    );
+
+  test("prints the bracket and subscript, binds nu, reads aloud, and checks", () => {
+    const tree = law(d({ heldFixed: [sym("frequency")] }));
+    expect(latexOf(tree)).toContain("\\right)_{\\nu}");
+    expect(quantityBindings(parse(tree)).map((b) => b.quantityId)).toContain("frequency");
+    expect(dims(tree)).toBe("consistent");
+    const derivative = (parse(tree) as Extract<Expression, { kind: "relation" }>).left;
+    expect(expressionToSpokenText(derivative)).toMatch(/ held fixed$/);
+  });
+
+  test("planted: holding something fixed changes the tree, so equality sees it", () => {
+    // The same tree with heldFixed added and nothing else changed, every other id kept.
+    const plain = parse(law(d({}))) as Extract<Expression, { kind: "relation" }>;
+    const held = parse({
+      ...plain,
+      left: { ...plain.left, heldFixed: [sym("frequency")] },
+    } as Expression);
+    expect(structurallyEqual(plain, plain)).toBe(true);
+    expect(structurallyEqual(plain, held)).toBe(false);
+  });
+
+  test("planted: a total derivative holds nothing fixed", () => {
+    expect(() => parse(law(d({ heldFixed: [sym("frequency")] }, false)))).toThrow(
+      /Only a partial derivative/,
+    );
+  });
+
+  test("planted: the variable that changes cannot also be held fixed", () => {
+    expect(() => parse(law(d({ heldFixed: [sym("spectralEnergyDensity")] })))).toThrow(
+      /cannot also be held fixed/,
+    );
   });
 });

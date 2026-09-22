@@ -22,6 +22,9 @@ export type Expression =
   | (Op & Readonly<{ kind: "sum" | "product"; args: readonly Expression[] }>)
   | (Op & Readonly<{ kind: "quotient"; numerator: Expression; denominator: Expression }>)
   | (Op & Readonly<{ kind: "power"; base: Expression; exponent: ExactScale }>)
+  /** A power whose exponent is a quantity, not a number: W = f^n, a probability raised to a
+      count (paper 1, section 5). Both sides must be dimensionless. */
+  | (Op & Readonly<{ kind: "symbolPower"; base: Expression; exponent: Expression }>)
   | (Op & Readonly<{ kind: "root"; radicand: Expression; degree: number }>)
   | (Op & Readonly<{ kind: "negate" | "average" | "group"; argument: Expression }>)
   | (Op & Readonly<{ kind: "function"; name: "exp" | "ln" | "sin" | "cos"; argument: Expression }>)
@@ -40,6 +43,9 @@ export type Expression =
         variable: Expression;
         order: number;
         partial: boolean;
+        /** The quantities held fixed while the variable changes, printed as a subscript on the
+            bracketed partial derivative: (ds/drho)_nu, paper 1, section 3. Partial only. */
+        heldFixed?: readonly Expression[];
       }>)
   | (Op &
       Readonly<{
@@ -67,6 +73,8 @@ export function children(n: Expression): readonly Expression[] {
       return [n.numerator, n.denominator];
     case "power":
       return [n.base];
+    case "symbolPower":
+      return [n.base, n.exponent];
     case "root":
       return [n.radicand];
     case "negate":
@@ -77,7 +85,7 @@ export function children(n: Expression): readonly Expression[] {
     case "relation":
       return [n.left, n.right];
     case "derivative":
-      return [n.expression, n.variable];
+      return [n.expression, n.variable, ...(n.heldFixed ?? [])];
     case "integral":
       return [
         n.expression,
@@ -169,6 +177,7 @@ export function parseExpression(
       product: ["args"],
       quotient: ["numerator", "denominator"],
       power: ["base", "exponent"],
+      symbolPower: ["base", "exponent"],
       root: ["radicand", "degree"],
       negate: ["argument"],
       average: ["argument"],
@@ -191,9 +200,11 @@ export function parseExpression(
         ? ["scale", "index", "at"]
         : kind === "integral"
           ? ["opId", "lower", "upper"]
-          : ["number", "constant"].includes(kind)
-            ? []
-            : ["opId"],
+          : kind === "derivative"
+            ? ["opId", "heldFixed"]
+            : ["number", "constant"].includes(kind)
+              ? []
+              : ["opId"],
     );
     if (kind === "symbol") {
       identity(o.termId, "t", path);
@@ -224,10 +235,15 @@ export function parseExpression(
         });
       } else {
         for (const key of kindFields)
-          if (!["degree", "exponent", "name", "operator", "order", "partial"].includes(key))
+          if (
+            !["degree", "name", "operator", "order", "partial"].includes(key) &&
+            !(key === "exponent" && kind === "power")
+          )
             parse(o[key], `${path}.${key}`, depth + 1);
       }
       if (kind === "power") exactScale(o.exponent, path);
+      if (kind === "symbolPower" && (o.exponent as Expression).kind !== "symbol")
+        fail(path, "A symbolic exponent is one bound symbol; write a number as a power.");
       if (
         kind === "root" &&
         (!Number.isSafeInteger(o.degree) || Number(o.degree) < 2 || Number(o.degree) > 32)
@@ -253,6 +269,20 @@ export function parseExpression(
         (o.variable as Expression).kind !== "symbol"
       )
         fail(path, "The variable must be a bound symbol.");
+      if (kind === "derivative" && Object.hasOwn(o, "heldFixed")) {
+        const held = o.heldFixed;
+        if (o.partial !== true) fail(path, "Only a partial derivative holds quantities fixed.");
+        if (!Array.isArray(held) || held.length < 1 || held.length > 3)
+          fail(path, "Hold one to three quantities fixed.");
+        const variable = (o.variable as Extract<Expression, { kind: "symbol" }>).quantityId;
+        held.forEach((h, i) => {
+          parse(h, `${path}.heldFixed[${i}]`, depth + 1);
+          if ((h as Expression).kind !== "symbol")
+            fail(path, "A held-fixed quantity is a bound symbol.");
+          if ((h as Extract<Expression, { kind: "symbol" }>).quantityId === variable)
+            fail(path, "The variable that changes cannot also be held fixed.");
+        });
+      }
       if (kind === "integral") {
         if (Object.hasOwn(o, "lower") !== Object.hasOwn(o, "upper"))
           fail(path, "A definite integral states both limits.");

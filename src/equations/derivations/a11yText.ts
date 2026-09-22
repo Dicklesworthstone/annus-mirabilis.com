@@ -103,6 +103,9 @@ export function expressionToSpokenText(expr: Expression): string {
       }
       return `${expressionToSpokenText(expr.base)} to the power ${expr.exponent.num} over ${expr.exponent.den}`;
 
+    case "symbolPower":
+      return `${expressionToSpokenText(expr.base)} to the power ${expressionToSpokenText(expr.exponent)}`;
+
     case "root":
       if (expr.degree === 2) {
         return `square root of ${expressionToSpokenText(expr.radicand)}`;
@@ -138,7 +141,10 @@ export function expressionToSpokenText(expr: Expression): string {
     case "derivative": {
       const kind = expr.partial ? "partial derivative" : "derivative";
       const order = expr.order > 1 ? `${expr.order}th ` : "";
-      return `${order}${kind} of ${expressionToSpokenText(expr.expression)} with respect to ${expressionToSpokenText(expr.variable)}`;
+      const held = expr.heldFixed?.length
+        ? `, with ${expr.heldFixed.map(expressionToSpokenText).join(" and ")} held fixed`
+        : "";
+      return `${order}${kind} of ${expressionToSpokenText(expr.expression)} with respect to ${expressionToSpokenText(expr.variable)}${held}`;
     }
 
     case "integral": {

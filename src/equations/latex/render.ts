@@ -160,7 +160,8 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
         break;
       }
 
-      case "power": {
+      case "power":
+      case "symbolPower": {
         /*
           AN ATOMIC BASE TAKES NO PARENTHESES. Every power was wrapped, so the site printed
           (c)^2, (v)^2 and v/(V)^2 where the paper prints V^2. A lone unscaled symbol, a plain
@@ -176,9 +177,13 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
             (!base.scale || (base.scale.num === 1 && base.scale.den === 1)) &&
             !resolveSymbolGlyph(base, options).glyph.includes("^"));
         const rendered = render(base);
-        s = `${atomic ? rendered : `\\left(${rendered}\\right)`}^{${
-          n.exponent.den === 1 ? n.exponent.num : `\\frac{${n.exponent.num}}{${n.exponent.den}}`
-        }}`;
+        const exponent =
+          n.kind === "symbolPower"
+            ? render(n.exponent)
+            : n.exponent.den === 1
+              ? n.exponent.num
+              : `\\frac{${n.exponent.num}}{${n.exponent.den}}`;
+        s = `${atomic ? rendered : `\\left(${rendered}\\right)`}^{${exponent}}`;
         break;
       }
 
@@ -243,6 +248,9 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
         const d = n.partial ? "\\partial" : "\\mathrm{d}";
         const p = n.order === 1 ? "" : `^{${n.order}}`;
         s = `\\frac{${d}${p}\\left(${render(n.expression)}\\right)}{${d}${render(n.variable)}${p}}`;
+        // Held fixed: the whole quotient is bracketed and the fixed quantities subscripted.
+        if (n.heldFixed?.length)
+          s = `\\left(${s}\\right)_{${n.heldFixed.map((h) => render(h)).join(",\\,")}}`;
         break;
       }
 

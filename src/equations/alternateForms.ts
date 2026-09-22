@@ -185,6 +185,13 @@ export function isTreeEquivalentUpToRenames(
         isTreeEquivalentUpToRenames(a.base, b.base, options)
       );
     }
+    case "symbolPower": {
+      return (
+        b.kind === "symbolPower" &&
+        isTreeEquivalentUpToRenames(a.exponent, b.exponent, options) &&
+        isTreeEquivalentUpToRenames(a.base, b.base, options)
+      );
+    }
     case "root": {
       return (
         b.kind === "root" &&
@@ -218,7 +225,12 @@ export function isTreeEquivalentUpToRenames(
         a.order === b.order &&
         a.partial === b.partial &&
         isTreeEquivalentUpToRenames(a.expression, b.expression, options) &&
-        isTreeEquivalentUpToRenames(a.variable, b.variable, options)
+        isTreeEquivalentUpToRenames(a.variable, b.variable, options) &&
+        (a.heldFixed ?? []).length === (b.heldFixed ?? []).length &&
+        (a.heldFixed ?? []).every((h, i) => {
+          const bh = b.heldFixed?.[i];
+          return bh !== undefined && isTreeEquivalentUpToRenames(h, bh, options);
+        })
       );
     }
     case "integral": {

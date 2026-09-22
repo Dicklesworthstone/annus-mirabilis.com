@@ -62,6 +62,12 @@ export function structurallyEqual(a: Expression, b: Expression): boolean {
         structurallyEqual(a.base, b.base) &&
         scaleEqual(a.exponent, b.exponent)
       );
+    case "symbolPower":
+      return (
+        b.kind === "symbolPower" &&
+        structurallyEqual(a.base, b.base) &&
+        structurallyEqual(a.exponent, b.exponent)
+      );
     case "root":
       return (
         b.kind === "root" && structurallyEqual(a.radicand, b.radicand) && a.degree === b.degree
@@ -87,7 +93,12 @@ export function structurallyEqual(a: Expression, b: Expression): boolean {
         a.order === b.order &&
         a.partial === b.partial &&
         structurallyEqual(a.expression, b.expression) &&
-        structurallyEqual(a.variable, b.variable)
+        structurallyEqual(a.variable, b.variable) &&
+        (a.heldFixed ?? []).length === (b.heldFixed ?? []).length &&
+        (a.heldFixed ?? []).every((h, i) => {
+          const bh = b.heldFixed?.[i];
+          return bh !== undefined && structurallyEqual(h, bh);
+        })
       );
     case "integral":
       return (
@@ -126,6 +137,12 @@ export function substituteNode(
       };
     case "power":
       return { ...root, base: substituteNode(root.base, targetId, replacement) };
+    case "symbolPower":
+      return {
+        ...root,
+        base: substituteNode(root.base, targetId, replacement),
+        exponent: substituteNode(root.exponent, targetId, replacement),
+      };
     case "root":
       return { ...root, radicand: substituteNode(root.radicand, targetId, replacement) };
     case "negate":
@@ -178,6 +195,8 @@ function childrenOf(n: Expression): readonly Expression[] {
       return [n.numerator, n.denominator];
     case "power":
       return [n.base];
+    case "symbolPower":
+      return [n.base, n.exponent];
     case "root":
       return [n.radicand];
     case "negate":
@@ -188,7 +207,7 @@ function childrenOf(n: Expression): readonly Expression[] {
     case "relation":
       return [n.left, n.right];
     case "derivative":
-      return [n.expression, n.variable];
+      return [n.expression, n.variable, ...(n.heldFixed ?? [])];
     case "integral":
       return [
         n.expression,

@@ -316,6 +316,9 @@ export function checkDimensions(
         return combine(visit(node.numerator, depth + 1), visit(node.denominator, depth + 1), -1);
       }
 
+      // A symbolic exponent (W = f^n) takes the expression-exponent path below: the exponent
+      // and the base must both be dimensionless.
+      case "symbolPower":
       case "power": {
         const baseDim = visit(node.base, depth + 1);
         const exponent = node.exponent;

@@ -105,6 +105,14 @@ export function evaluateExpression(
         throw new SpotCheckDomainError(`${base} ** ${exponent} is not finite.`);
       return value;
     }
+    case "symbolPower": {
+      const base = evaluateExpression(tree.base, bindings);
+      const exponent = evaluateExpression(tree.exponent, bindings);
+      const value = base ** exponent;
+      if (!Number.isFinite(value))
+        throw new SpotCheckDomainError(`${base} ** ${exponent} is not finite.`);
+      return value;
+    }
     case "root": {
       const radicand = evaluateExpression(tree.radicand, bindings);
       if (tree.degree % 2 === 0 && radicand < 0) {
