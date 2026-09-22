@@ -147,6 +147,12 @@ async function measure(
 
 test("the twelve reading combinations: desktop holds the band, phone holds its recorded reason", async () => {
   // A stale out/ would measure a build nobody is looking at. Absent is refused for the same reason.
+  //
+  // IT CANNOT TELL CORRUPT FROM STALE, and that limit is worth knowing rather than discovering.
+  // A half-written out/ - a build killed mid-flight, which happens here because concurrent
+  // `next build` runs in one checkout clobber .next/ - surfaces as the SAME refusal as an
+  // out-of-date one. That is the safe direction: it declines instead of reporting numbers from a
+  // partial build. But "this gate refused" means "do not trust out/", never "out/ is merely old".
   assertOutFreshness();
 
   const site = await serveOut();
