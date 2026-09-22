@@ -1,4 +1,5 @@
 import { FirstPages } from "../components/home/FirstPages.tsx";
+import { SearchPageField } from "../search/SearchPageField.tsx";
 
 /**
  * The 404 (REDIRECT chrome sweep, 2026-09-22).
@@ -39,9 +40,12 @@ export default function NotFound() {
           <div>
             <p className="lead">
               The address may be mistyped, or it may name a page that has not been published yet.
-              From here the two look the same, so here are the four papers the edition is built
-              around.
+              From here the two look the same, so <a href="/search/">search</a> for what you wanted,
+              or start from one of the four papers the edition is built around.
             </p>
+            {/* Search sat in the last paragraph of this page, below all four plates: several
+                screens down on a phone, for the reader most likely to know what they wanted. */}
+            <SearchPageField />
           </div>
         </div>
         <FirstPages />
