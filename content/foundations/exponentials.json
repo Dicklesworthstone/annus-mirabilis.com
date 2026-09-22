@@ -3,32 +3,59 @@
   "kind": "foundation",
   "id": "exponentials",
   "title": "Exponentials and continuous scaling",
-  "question": "Why do exponential functions govern thermal distributions and random diffusion?",
-  "summary": "The exponential function describes systems where the rate of change is proportional to current value, requiring a strictly dimensionless exponent.",
+  "question": "What kind of change does an exponential describe?",
+  "summary": "An exponential describes change by equal factors: a quantity whose rate of change is proportional to its own size. Whatever sits in the exponent must be a pure number, with no units.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "The exponential function e^u, often written exp(u), is the unique mathematical function whose derivative with respect to its argument equals the function value itself. Whenever a physical growth or decay rate is proportional to the amount already present, the resulting trajectory is an exponential."
+      "text": "Suppose a quantity changes at a rate proportional to its own size. A radioactive sample loses the same fraction of its atoms every hour; a beam of light loses the same fraction of its intensity in every millimetre of absorbing glass. Equal steps then multiply the quantity by equal factors, and its graph is an exponential. The function eˣ, with e about 2.718, is the one whose rate of change equals its own value everywhere, which is why it describes this kind of change:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\frac{dN}{dt} = -kN \\qquad\\text{so}\\qquad N(t) = N_0\\,e^{-kt}",
+      "spoken": "If the rate of change of N is minus k times N, then N at time t is N nought times e to the minus k t."
     },
     {
       "kind": "paragraph",
-      "text": "A fundamental rule of dimensional physics is that the argument of any transcendental function, including the exponential, must be a dimensionless number. In Wien's radiation law exp(-beta nu / T), the product beta nu has dimensions of temperature, so dividing by temperature T yields a pure dimensionless ratio. In the Brownian spreading Gaussian exp(-x^2 / (4Dt)), x^2 has units of squared metres and 4Dt has units of (m^2/s)*s = m^2, ensuring the exponent is dimensionless."
+      "text": "Whatever sits in the exponent must be a pure number with no units. The reason is the series eˣ = 1 + x + x²/2 + x³/6 + …: if x were a length, the series would add a length to an area to a volume, which has no meaning. In the decay law, k is a rate per hour and t is in hours, so kt is a pure number."
     },
     {
       "kind": "paragraph",
-      "text": "Exponentials also arise naturally from the multiplication of independent probabilities across repeated random steps or subdivided spatial cells."
+      "text": "Two exponentials from the 1905 papers pass that check. Wien's radiation law, which the light-quanta paper uses from §4 on, contains βν/T: β times a frequency is a temperature, so dividing by the temperature T leaves a pure number."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\rho = \\alpha\\,\\nu^{3} e^{-\\beta \\nu / T}",
+      "spoken": "Rho equals alpha nu cubed times e to the minus beta nu over T."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The Brownian paper's §4 solution contains x²/4Dt: x² is an area, and a diffusion coefficient D in square metres per second times a time t in seconds is also an area, so their ratio is a pure number."
+    },
+    {
+      "kind": "formula",
+      "latex": "f(x,t) = \\frac{n}{\\sqrt{4\\pi D}}\\,\\frac{e^{-x^{2}/4Dt}}{\\sqrt{t}}",
+      "spoken": "f of x and t equals n over the square root of four pi D, times e to the minus x squared over four D t, divided by the square root of t."
     }
   ],
   "example": [
     {
-      "kind": "formula",
-      "latex": "f(x,t) = \\frac{1}{\\sqrt{4\\pi Dt}} \\exp\\left(-\\frac{x^2}{4Dt}\\right)",
-      "spoken": "Density f of x and t equals one over square root of four pi D t times exponential of minus x squared over four D t."
+      "kind": "paragraph",
+      "text": "The Brownian curve's shape comes from its exponential factor, e raised to −x²/4Dt. Follow that factor outward from the centre:"
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "At the centre, x = 0, the exponent is 0 and e⁰ = 1: the curve is at its peak.",
+        "At x = √(2Dt), one root-mean-square width out, the exponent is −2Dt/4Dt = −1/2, and e raised to −1/2 is about 0.607 of the peak.",
+        "At x = √(4Dt), the exponent is −1, and e raised to −1 is about 0.368 of the peak.",
+        "Doubling the time doubles 4Dt, so each of these heights is reached √2 times farther from the centre."
+      ]
     },
     {
       "kind": "paragraph",
-      "text": "At the center x = 0, the exponential factor exp(0) = 1. At one standard deviation x = sqrt(2Dt), the exponent is -1/2 and exp(-0.5) approx 0.6065. At x = sqrt(4Dt), the exponent is -1 and exp(-1) approx 0.367879, showing symmetric bell-shaped decay."
+      "text": "None of these steps depends on the units chosen for x, t and D, as long as they agree with one another. That is what a pure-number exponent guarantees."
     }
   ],
   "exampleTitle": "The bell curve at its centre and one width out",
@@ -48,6 +75,6 @@
       "caption": "Return to Brownian §4 Gaussian distribution and exponential solution"
     }
   ],
-  "stoppingPoint": "The argument inside an exponential function must always be a dimensionless pure number.",
+  "stoppingPoint": "Whatever sits in an exponent must be a pure number. Check it by cancelling the units, as with βν/T and x²/4Dt.",
   "citations": []
 }
