@@ -833,19 +833,22 @@ samp,
 .comparison-toggle {
   margin: 1.5rem 0 3rem;
 }
-.paper-catalogue {
+.paper-catalogue,
+.journey-catalogue {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
-.paper-catalogue article {
+.paper-catalogue article,
+.journey-catalogue article {
   border-top: 1px solid var(--line);
   padding: 1.5rem 0;
 }
 .german-title {
   font-style: italic;
 }
-.paper-catalogue .actions {
+.paper-catalogue .actions,
+.journey-catalogue .actions {
   font-size: var(--type-small);
 }
 @media (max-width: 900px) {
@@ -966,7 +969,8 @@ samp,
   }
   .feature-row,
   .lab-bottom,
-  .paper-catalogue {
+  .paper-catalogue,
+  .journey-catalogue {
     grid-template-columns: 1fr;
   }
   .laboratory {
