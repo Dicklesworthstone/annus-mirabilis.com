@@ -13,19 +13,14 @@ export default function Home() {
           off light. Each is explained here at the depth you choose, with instruments that work out
           what follows when you change an assumption.
         </p>
+        <FirstPages />
         <div className="actions">
           <a className="button" href="/papers/">
             Read the papers
           </a>
           <a href="/discover/brownian-motion/">Work out the Brownian argument yourself</a>
         </div>
-        <p className="fine">
-          The German is set for three of the four papers. The English translation, made from the
-          German, has not been started.
-        </p>
       </section>
-
-      <FirstPages />
 
       <section className="paper-catalogue">
         <article>

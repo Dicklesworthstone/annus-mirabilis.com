@@ -67,8 +67,9 @@ export function FirstPages() {
         ))}
       </div>
       <figcaption className="fine">
-        The first page of each paper as it was printed, dated by the day the journal received it.
-        Scans: Bell &amp; Howell / UMI microfilm, via the Internet Archive.
+        Each paper&rsquo;s first page as printed, placed on the day the journal received it. The
+        German text is set for three of the four; the English translation, made from the German, has
+        not been started. Scans: Bell &amp; Howell / UMI microfilm, via the Internet Archive.
       </figcaption>
     </figure>
   );

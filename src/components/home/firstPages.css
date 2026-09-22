@@ -11,7 +11,7 @@
  * because a gradient's percentage stops resolve against its own box and would not keep the pitch.
  */
 .first-pages {
-  margin: 0 0 3rem;
+  margin: 2rem 0 0.5rem;
 }
 .first-pages-list {
   --mark-gap: 1px;
@@ -22,16 +22,21 @@
   padding: 0;
   list-style: none;
 }
+/* Each column is a subgrid of the list's three rows, so a date that wraps ("27 September" at
+   390px) moves all four plates down together instead of dropping one out of line. */
 .first-page {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  align-content: start;
+  row-gap: 0.4rem;
   min-width: 0;
   font-family: var(--font-sans);
   font-size: var(--type-fine);
   line-height: 1.35;
 }
 .first-page-received {
+  align-self: end;
   margin: 0;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -59,7 +64,7 @@
   font-size: var(--type-small);
   line-height: 1.2;
 }
-:root:where([data-theme]) .first-page > a:hover .first-page-title {
+:root .first-page > a:hover .first-page-title {
   color: var(--accent);
   text-decoration: underline 2px;
 }
@@ -100,6 +105,9 @@
     border-bottom: 1px solid var(--rule);
   }
   .first-page {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
     position: relative;
     flex: 0 0 calc(var(--plate) * 100%);
     margin-left: calc(var(--offset) * 100%);
@@ -140,7 +148,8 @@
     transform: none;
   }
 }
-/* The hero hands straight on to the first pages, so its closing padding is the plates' to use. */
+/* The first pages run the full width of the page, so the hero drops its 940px cap; the lead keeps
+   its own 64ch measure. */
 .home-hero {
-  padding-bottom: 1.5rem;
+  max-width: none;
 }
