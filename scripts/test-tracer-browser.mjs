@@ -48,6 +48,8 @@ export async function checkTracerBrowser(browser, url, check) {
     assert.equal(workers, 0);
     assert.deepEqual(errors, []);
     check("BM-01: hydration creates no worker and preserves the prepared trial");
+    // Since ad178896 the trial form sits in the closed "Experiment settings" drawer.
+    await lab.locator("details.experiment-settings > summary").click();
     async function accepted(action, target = lab) {
       const before = Number(await target.getAttribute("data-snapshot-version"));
       const id = await target.getAttribute("data-instance-id");
@@ -172,6 +174,7 @@ export async function checkTracerBrowser(browser, url, check) {
       .getByRole("button", { name: "Open a second separate ensemble", exact: true })
       .click();
     const second = page.locator('[data-instrument-id="bm-01"]').nth(1);
+    await second.locator("details.experiment-settings > summary").click();
     await second.locator('[name="M"]').fill("20");
     await second.locator('[name="H"]').fill("2");
     await second.locator('[name="seed"]').fill("42");

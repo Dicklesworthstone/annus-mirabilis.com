@@ -152,6 +152,8 @@ export async function checkReaderBrowser(browser, url, check) {
           .disabled,
     );
     assert.equal(workers, 0);
+    // Since ad178896 the trial form sits in the closed "Experiment settings" drawer.
+    await lab.locator("details.experiment-settings > summary").click();
     await lab.locator('input[name="eta"]').fill("2");
     await lab.getByRole("button", { name: "Apply trial settings", exact: true }).click();
     await page.waitForFunction(() =>

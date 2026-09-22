@@ -55,6 +55,8 @@ export async function checkEquationBrowser(browser, url, check) {
       () => !document.querySelector('[data-instrument-id="bm-01"] button[type="submit"]').disabled,
     );
     await rms.getByRole("button", { name: "Why a square root? operation", exact: true }).waitFor();
+    // Since ad178896 the trial form sits in the closed "Experiment settings" drawer.
+    await lab.locator("details.experiment-settings > summary").click();
     assert.equal(workers, 0);
     assert.equal(await lab.getAttribute("data-execution-label"), "static");
     const identity = async (target) =>
