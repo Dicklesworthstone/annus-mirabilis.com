@@ -35,6 +35,13 @@ export type Foundation = Header &
     review: "draft";
     explanation: readonly Block[];
     example: readonly Block[];
+    /**
+     * Heading for the worked example, naming the case it works through. Optional; where a record
+     * does not supply one the renderer falls back to "One worked example", which is what all 27
+     * pages said before this field existed. A heading that names the container rather than the
+     * contents tells a reader nothing they could not already see.
+     */
+    exampleTitle?: string;
     prerequisites: readonly PrerequisiteRef[];
     stoppingPoint: string;
     citations: readonly string[];
@@ -275,7 +282,7 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
       "stoppingPoint",
       "citations",
     ];
-    const optional = ["returnCaptions", "extension"];
+    const optional = ["returnCaptions", "extension", "exampleTitle"];
     const allAllowed = [...required, ...optional];
     const oObj = object(o, path);
     for (const k of Object.keys(oObj)) {
@@ -285,6 +292,7 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
       if (!Object.hasOwn(oObj, k)) error(`${path}.${k}`, "Missing field.");
     }
     for (const k of ["question", "summary", "stoppingPoint"]) text(o[k], `${path}.${k}`);
+    if (Object.hasOwn(oObj, "exampleTitle")) text(o.exampleTitle, `${path}.exampleTitle`);
     choice(o.review, path, ["draft"]);
     list(o.explanation, path, block, 1);
     list(o.example, path, block, 1);

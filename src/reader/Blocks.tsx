@@ -108,7 +108,7 @@ export function FoundationBody({
     <>
       <p className="foundation-question">{foundation.question}</p>
       <ReadingBlocks blocks={foundation.explanation} foundations={foundations} />
-      <SectionHeading>One worked example</SectionHeading>
+      <SectionHeading>{foundation.exampleTitle ?? "One worked example"}</SectionHeading>
       <ReadingBlocks blocks={foundation.example} foundations={foundations} />
       <p className="notice">A stopping point: {foundation.stoppingPoint}</p>
       <FoundationConstruction foundationId={foundation.id} />

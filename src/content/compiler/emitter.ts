@@ -164,7 +164,7 @@ ${e.explanation ?? ""}
   for (const foundation of options.foundations) {
     const md = `# ${foundation.title}\n\nAuthored explanation; editorial review pending.\n\n${markdownBlocks(
       foundation.explanation,
-    )}\n\n## Worked example\n\n${markdownBlocks(foundation.example)}\n\n${foundation.stoppingPoint}\n`;
+    )}\n\n## ${foundation.exampleTitle ?? "Worked example"}\n\n${markdownBlocks(foundation.example)}\n\n${foundation.stoppingPoint}\n`;
 
     await emitOne(foundation.id, "foundation", foundation, md, [
       `foundations/${foundation.id}.json`,
