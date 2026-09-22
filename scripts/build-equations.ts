@@ -83,12 +83,22 @@ const quantityColours: Record<
 > = {};
 for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
   const own = equations.filter((e) => e.paper === paper);
+  // A reading formula that names several records shows them side by side: one view, one palette.
+  const shownTogether = (result.papers.find((p) => p.paper.id === paper)?.arguments ?? []).flatMap(
+    (a) =>
+      Object.values(a.readings).flatMap((blocks) =>
+        blocks.flatMap((b) =>
+          b.kind === "formula" && (b.equations?.length ?? 0) > 1 ? [b.equations ?? []] : [],
+        ),
+      ),
+  );
   const slots = assignQuantityColours(
     own.map((e) => ({
       id: e.id,
       argument: e.argument,
       quantityIds: e.terms.map((t) => t.quantityId),
     })),
+    shownTogether,
   );
   // Keyed from the same terms the colouring was computed from, so every coloured id has its record.
   const quantities = new Map(

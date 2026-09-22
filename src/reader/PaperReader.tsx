@@ -18,6 +18,7 @@ import "./actions/kindRegistration.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
 import missingSteps from "../generated/missing-steps.json";
+import { paperEquations } from "./paperEquations.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
@@ -41,6 +42,7 @@ export async function PaperReader({
   const companionKind = companionKindFromQuery(companion);
   const payload = await loadPaper("brownian-motion"),
     { paper, foundations } = payload;
+  const equationsById = paperEquations(paper.id);
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
@@ -197,6 +199,7 @@ export async function PaperReader({
                             blocks={a.readings[reading]}
                             foundations={foundations}
                             contextLabel={`${a.title}, reading steps`}
+                            equations={equationsById}
                           />
                         </div>
                       ))}
@@ -218,6 +221,7 @@ export async function PaperReader({
                           foundations={foundations}
                           embed
                           contextLabel={`${a.title}, reading steps`}
+                          equations={equationsById}
                         />
                       </details>
                       {(missingSteps.lessons as readonly CompiledMissingStepLesson[])

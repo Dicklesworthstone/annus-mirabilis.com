@@ -6,24 +6,26 @@
  * they are different ids. The same colour marks the term in the formula, the words of the
  * equation's sentence that name it, and its line in the legend, all looked up from the id.
  *
- * EIGHT SLOTS, AND WHY NOT MORE. Every colour is text, so every value clears WCAG AA (4.5:1) on
+ * NINE SLOTS, AND WHY NOT MORE. Every colour is text, so every value clears WCAG AA (4.5:1) on
  * both the page and the wash in both themes; that pins lightness into a narrow band, and inside
- * it ten hues were measured and ochre, rust and olive, and blue, plum and violet, became
- * indistinguishable. Eight keep a pairwise OKLab distance of at least 0.09 for normal colour
- * vision. They do NOT stay distinct for every colour-vision deficiency (blue and violet converge
+ * it ten evenly spread hues were measured and ochre, rust and olive, and blue, a light plum and
+ * violet, became indistinguishable. These nine keep a pairwise OKLab distance of at least 0.09 for
+ * normal colour vision. The ninth exists because eight cannot serve mass-energy: H_0, E_0, H_1,
+ * E_1, K_0, K_1, L, gamma and C each appear beside every other in some one view, a clique of nine. They do NOT stay distinct for every colour-vision deficiency (blue and violet converge
  * under deuteranopia), which is why colour is never alone: each slot has its own line pattern,
  * shown in pattern mode, and selecting a term names its quantity in words.
  *
  * EVERY PATTERN IS AN UNDERLINE. The first set used overlines for the last three slots, and in a
  * formula an overline IS mathematics: it turned λ_x into a mean, λ̄_x, and a dotted one set above
- * v read as a second derivative. Five underline styles, and three of them again at 3px, give eight.
+ * v read as a second derivative. Five underline styles, and four of them again at 3px, give nine.
  *
- * NEITHER ACCENT IS A QUANTITY. No slot is the edition's red; rust, the slot nearest it, and navy,
- * the slot nearest the ink, are assigned last, so a view uses them only when it needs seven or
- * eight colours at once.
+ * NEITHER ACCENT IS A QUANTITY. No slot is the edition's red; rust, the slot nearest it, and navy
+ * and plum, the slots nearest the ink, are assigned last, so a view uses them only when it needs
+ * seven or more colours at once.
  *
- * ASSIGNMENT is per paper. Two quantities in one equation never share a colour (a hard
- * constraint; the build fails if an equation ever needs more than eight). Two quantities in one
+ * ASSIGNMENT is per paper. Two quantities in one view (an equation, or a reading formula that sets
+ * several side by side) never share a colour: a hard constraint, and the build fails if a view
+ * ever needs more than nine. Two quantities in one
  * argument avoid sharing one where the palette allows (mass-energy's constant-premise step shows
  * ten quantities across five equations, so two pairs there must share, never inside an equation).
  */
@@ -42,7 +44,7 @@ export type QuantityColourSlot = Readonly<{
  * Measured values. Contrast on paper and wash (light #fbfbfb / #f2f2f2, dark #1c2128 / #21282f):
  * blue 5.40/4.99 and 7.54/6.95; green 5.47/5.05 and 9.13/8.41; magenta 6.39/5.90 and 6.57/6.05;
  * ochre 5.33/4.93 and 10.70/9.85; violet 6.31/5.83 and 7.20/6.63; teal 5.58/5.16 and 9.95/9.16;
- * navy 10.63/9.83 and 12.08/11.12; rust 6.10/5.64 and 6.69/6.16. quantityColours.test.ts holds
+ * navy 10.63/9.83 and 12.08/11.12; rust 6.10/5.64 and 6.69/6.16; plum 10.27/9.50 and 10.29/9.47. quantityColours.test.ts holds
  * the threshold over every value, so the comment cannot drift from the numbers without a failure.
  */
 export const QUANTITY_PALETTE: readonly QuantityColourSlot[] = Object.freeze(
@@ -55,6 +57,7 @@ export const QUANTITY_PALETTE: readonly QuantityColourSlot[] = Object.freeze(
     { name: "teal", light: "#06717a", dark: "#6fdbe1", pattern: "underline solid 3px" },
     { name: "navy", light: "#1e3a71", dark: "#c2e2ff", pattern: "underline dashed 3px" },
     { name: "rust", light: "#9b4805", dark: "#f08c6d", pattern: "underline dotted 3px" },
+    { name: "plum", light: "#642560", dark: "#ecc1e7", pattern: "underline wavy 3px" },
   ].map((c, slot) => Object.freeze({ ...c, slot })),
 );
 
@@ -65,7 +68,10 @@ export type ColourableEquation = Readonly<{
   quantityIds: readonly string[];
 }>;
 
-export type QuantityColourRefusal = "equation-exceeds-palette" | "paper-not-colourable";
+export type QuantityColourRefusal =
+  | "equation-exceeds-palette"
+  | "view-exceeds-palette"
+  | "paper-not-colourable";
 export class QuantityColourError extends Error {
   readonly code: QuantityColourRefusal;
   constructor(code: QuantityColourRefusal, message: string) {
@@ -89,6 +95,12 @@ export class QuantityColourError extends Error {
  */
 export function assignQuantityColours(
   equations: readonly ColourableEquation[],
+  /**
+   * Equations shown TOGETHER, as one view: a reading formula that names two records sets them
+   * side by side, so their quantities must differ as if they were one equation. Each entry is a
+   * list of equation ids.
+   */
+  shownTogether: readonly (readonly string[])[] = [],
 ): Readonly<Record<string, number>> {
   const ordered = [...equations].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const order: string[] = [];
@@ -116,6 +128,16 @@ export function assignQuantityColours(
     byArgument.set(e.argument, group);
   }
   for (const group of byArgument.values()) join(soft, [...group]);
+  const quantitiesOf = new Map(ordered.map((e) => [e.id, e.quantityIds]));
+  for (const ids of shownTogether) {
+    const view = [...new Set(ids.flatMap((id) => quantitiesOf.get(id) ?? []))];
+    if (view.length > QUANTITY_PALETTE.length)
+      throw new QuantityColourError(
+        "view-exceeds-palette",
+        `${ids.join(" + ")} show ${view.length} quantities together; the palette has ${QUANTITY_PALETTE.length} colours.`,
+      );
+    join(hard, view);
+  }
 
   const colours = new Map<string, number>();
   const neighbourSlots = (id: string, map: Map<string, Set<string>>) =>

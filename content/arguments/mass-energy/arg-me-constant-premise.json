@@ -27,7 +27,8 @@
       {
         "kind": "formula",
         "latex": "H_0-E_0=K_0+C,\\qquad H_1-E_1=K_1+C",
-        "spoken": "Each frame-energy difference equals the corresponding kinetic energy plus the same additive constant C."
+        "spoken": "Each frame-energy difference equals the corresponding kinetic energy plus the same additive constant C.",
+        "equations": ["eq-model-me-offset-before", "eq-model-me-offset-after"]
       },
       {
         "kind": "paragraph",
@@ -36,7 +37,8 @@
       {
         "kind": "formula",
         "latex": "K_0-K_1=L(\\gamma-1)",
-        "spoken": "The kinetic energy before minus the kinetic energy after equals L times gamma minus one."
+        "spoken": "The kinetic energy before minus the kinetic energy after equals L times gamma minus one.",
+        "equations": ["eq-model-me-kinetic-drop-difference"]
       },
       {
         "kind": "foundation",

@@ -3,6 +3,8 @@ import { FoundationConstruction } from "../components/foundations/FoundationCons
 import "../components/foundations/foundations.css";
 import { type HeadingLevel, headingTag } from "../components/foundations/headingLevel.ts";
 import type { Block, Foundation } from "../content/schemas/reading";
+import type { CompiledEquation } from "../equations/viewTypes.ts";
+import { ColouredFormula } from "./ColouredFormula.tsx";
 export function FoundationLink({
   id,
   title,
@@ -30,23 +32,33 @@ export function ReadingBlocks({
   foundations,
   embed = false,
   contextLabel,
+  equations,
 }: {
   blocks: readonly Block[];
   foundations: readonly Foundation[];
   embed?: boolean;
   contextLabel?: string | undefined;
+  /** The paper's compiled equations by id, so a formula that names records shows them coloured. */
+  equations?: ReadonlyMap<string, CompiledEquation> | undefined;
 }) {
   return (
     <>
       {blocks.map((block) => {
         if (block.kind === "paragraph") return <p key={`p-${block.text}`}>{block.text}</p>;
-        if (block.kind === "formula")
+        if (block.kind === "formula") {
+          // Every named record must resolve; otherwise the formula's own text, never a partial one.
+          const named = (block.equations ?? []).flatMap((id) => {
+            const equation = equations?.get(id);
+            return equation ? [equation] : [];
+          });
+          const coloured = named.length > 0 && named.length === block.equations?.length;
           return (
             <div key={`formula-${block.latex}`}>
-              <Formula latex={block.latex} />
+              {coloured ? <ColouredFormula equations={named} /> : <Formula latex={block.latex} />}
               <p className="spoken-math">{block.spoken}</p>
             </div>
           );
+        }
         if (block.kind === "steps")
           return (
             <ol className="derivation-steps" key={`steps-${block.items.join("|")}`}>

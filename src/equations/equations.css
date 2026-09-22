@@ -167,6 +167,7 @@
   --q-5: #06717a;
   --q-6: #1e3a71;
   --q-7: #9b4805;
+  --q-8: #642560;
 }
 :root[data-theme="kramgasse-night"] {
   --q-0: #7cb4fc;
@@ -177,6 +178,7 @@
   --q-5: #6fdbe1;
   --q-6: #c2e2ff;
   --q-7: #f08c6d;
+  --q-8: #ecc1e7;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
@@ -188,6 +190,7 @@
     --q-5: #6fdbe1;
     --q-6: #c2e2ff;
     --q-7: #f08c6d;
+    --q-8: #ecc1e7;
   }
 }
 .equation-visual [data-term],
@@ -479,4 +482,38 @@
 .genealogy-edge,
 .genealogy-nodes {
   /* Genealogy graph elements */
+}
+
+/* ---------------------------------------------------------------------------
+   THE READING'S OWN FORMULAS, COLOURED IN PLACE (ColouredFormula). A formula block that names its
+   equation records shows them here, where the plain formula was: two relations sit side by side as
+   the text set them with \qquad, and wrap to one per line on a phone. The legend underneath names
+   each quantity by glyph and name, centred under the formula it keys. Nothing here is interactive,
+   so the term spans do not take the explorer's pointer cursor.
+   --------------------------------------------------------------------------- */
+.reading-formula {
+  margin: 1rem 0 0.25rem;
+}
+.reading-formula-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  column-gap: 2.5rem;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.reading-formula-relation {
+  min-width: 0;
+}
+.reading-formula .equation-visual .katex-display {
+  margin: 0.4rem 0;
+}
+.reading-formula .equation-visual [data-term],
+.reading-formula .equation-visual [data-op] {
+  cursor: auto;
+}
+.reading-formula .equation-legend {
+  justify-content: center;
+  margin: 0.35rem 0 0;
 }

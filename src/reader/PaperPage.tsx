@@ -34,6 +34,7 @@ import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
 import { GermanFace } from "./faces/GermanFace.tsx";
 import { GlossFace } from "./faces/GlossFace.tsx";
 import { ParallelFace } from "./faces/ParallelFace.tsx";
+import { paperEquations } from "./paperEquations.ts";
 import {
   isFaceFallbackId,
   type PaperRouteRequest,
@@ -215,6 +216,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   }
   const payload = await loadPaper(resolved.paperId);
   const { paper, foundations } = payload;
+  const equationsById = paperEquations(paper.id);
   const sectionId = resolved.section;
   const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
@@ -345,6 +347,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                             blocks={a.readings[reading]}
                             foundations={foundations}
                             contextLabel={`${a.title}, reading steps`}
+                            equations={equationsById}
                           />
                         </div>
                       ))}
@@ -366,6 +369,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           foundations={foundations}
                           embed
                           contextLabel={`${a.title}, reading steps`}
+                          equations={equationsById}
                         />
                       </details>
                       {(missingSteps.lessons as readonly CompiledMissingStepLesson[])
