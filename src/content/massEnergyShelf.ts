@@ -128,6 +128,12 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
       provenance:
         "Section 8 of Zur Elektrodynamik bewegter Körper, received 30 June 1905, published 26 September 1905. The mass-energy paper was received 27 September 1905 and rests on it.",
     },
+    paperCitesOrAsserts: [
+      {
+        paper: "mass-energy",
+        note: "Its opening paragraphs state this result, cite it to § 8 of the June paper with a footnote to Ann. d. Phys. 17, p. 891, and say that it will be used.",
+      },
+    ],
     sources: [
       {
         title: "Zur Elektrodynamik bewegter Körper, § 8",

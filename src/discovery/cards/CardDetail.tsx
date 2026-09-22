@@ -1,5 +1,5 @@
-import type { JSX } from "react";
-import { isCardVerified, UNVERIFIED_RESEARCH_MARKER } from "./publicationGate.ts";
+import type { CSSProperties, JSX } from "react";
+import { isCardVerified } from "./publicationGate.ts";
 import { StatusLabel } from "./StatusLabel.tsx";
 import type {
   CardBacklinks,
@@ -52,6 +52,28 @@ export function formatPriorEventLine(prior: PriorEvent): string {
   return `${kind} ${raw}`;
 }
 
+/** The names the rest of the site uses for the papers, for a citation recorded by slug. */
+const PAPER_NAMES: Readonly<Record<string, string>> = {
+  "light-quanta": "The light-quanta paper",
+  "brownian-motion": "The Brownian paper",
+  "special-relativity": "The relativity paper",
+  "mass-energy": "The mass-energy paper",
+};
+
+/**
+ * "stage-03" is step 3 of the route: each route's steps are numbered "01 / ..." and every shelf's
+ * stage numbers were checked against them (Wien's law at step 4 of light quanta, Lorentz at step
+ * 7 of relativity, the June 1905 import at step 3 of mass-energy, which the page says in words).
+ * Ids that do not have that form are shown as they are.
+ */
+export function stepsLine(stages: readonly string[]): string {
+  const steps = stages.map((stage) => /^stage-(\d+)$/.exec(stage)?.[1]);
+  if (steps.some((step) => step === undefined)) return stages.join(", ");
+  const numbers = steps.map(Number);
+  if (numbers.length === 1) return `Step ${numbers[0]} of this route`;
+  return `Steps ${numbers.slice(0, -1).join(", ")} and ${numbers.at(-1)} of this route`;
+}
+
 /**
  * Detailed view of a Knowledge Card with the four canonical historical statement sections.
  */
@@ -65,18 +87,37 @@ export function CardDetail({
 }: CardDetailProps): JSX.Element {
   const verified = isCardVerified(card);
   const dateLine = formatEventDateLine(card.date);
+  /*
+   * Nested in a KnowledgeCardView, the card's own <details> is the frame, so the detail is set
+   * flat: its parts are separated by a rule instead of being drawn as boxes inside a box inside a
+   * box. At 390 the nesting left 238px for text in the Brownian shelf's cards.
+   */
+  const part = (extra: CSSProperties = {}): CSSProperties =>
+    anchored
+      ? {
+          padding: "0.875rem",
+          borderRadius: "0.25rem",
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          ...extra,
+        }
+      : { padding: "0.75rem 0 0", borderTop: "1px solid var(--line)" };
 
   return (
     <div
       id={anchored ? `card-${card.id}` : undefined}
       className={className || undefined}
-      style={{
-        padding: "1.5rem",
-        borderRadius: "0.5rem",
-        border: "1px solid var(--line)",
-        background: "var(--panel)",
-        color: "var(--ink)",
-      }}
+      style={
+        anchored
+          ? {
+              padding: "1.5rem",
+              borderRadius: "0.5rem",
+              border: "1px solid var(--line)",
+              background: "var(--panel)",
+              color: "var(--ink)",
+            }
+          : { padding: "0.25rem 0.5rem 0.5rem", color: "var(--ink)" }
+      }
       data-card-id={card.id}
       data-status={card.status}
     >
@@ -138,14 +179,18 @@ export function CardDetail({
 
       {/* Status Explanation / Parallel Work Basis / Admitted Import Explanation */}
       <div
-        style={{
-          marginBottom: "1.25rem",
-          fontSize: "0.875rem",
-          padding: "0.875rem",
-          borderRadius: "0.25rem",
-          background: "var(--wash)",
-          border: "1px solid var(--line)",
-        }}
+        style={
+          anchored
+            ? {
+                marginBottom: "1.25rem",
+                fontSize: "0.875rem",
+                padding: "0.875rem",
+                borderRadius: "0.25rem",
+                background: "var(--wash)",
+                border: "1px solid var(--line)",
+              }
+            : { marginBottom: "0.75rem", fontSize: "0.875rem" }
+        }
       >
         <h4
           className="eyebrow"
@@ -205,22 +250,19 @@ export function CardDetail({
 
       {/* The Four Canonical Labeled Sections */}
       <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
-          gap: "1rem",
-          marginBottom: "1.5rem",
-        }}
+        style={
+          anchored
+            ? {
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
+                gap: "1rem",
+                marginBottom: "1.5rem",
+              }
+            : { display: "grid", gap: "0.75rem", marginBottom: "0.75rem" }
+        }
       >
         {/* Section 1: Available by */}
-        <div
-          style={{
-            padding: "0.875rem",
-            borderRadius: "0.25rem",
-            background: "var(--panel)",
-            border: "1px solid var(--line)",
-          }}
-        >
+        <div style={part()}>
           <h4
             className="eyebrow"
             style={{
@@ -228,7 +270,7 @@ export function CardDetail({
               marginBottom: "0.5rem",
             }}
           >
-            1. Available by
+            Available by
           </h4>
           <p style={{ margin: 0, fontWeight: 500, fontSize: "0.875rem", color: "var(--ink)" }}>
             {dateLine}
@@ -257,14 +299,7 @@ export function CardDetail({
         </div>
 
         {/* Section 2: What the paper itself cites or asserts */}
-        <div
-          style={{
-            padding: "0.875rem",
-            borderRadius: "0.25rem",
-            background: "var(--panel)",
-            border: "1px solid var(--line)",
-          }}
-        >
+        <div style={part()}>
           <h4
             className="eyebrow"
             style={{
@@ -272,7 +307,7 @@ export function CardDetail({
               marginBottom: "0.5rem",
             }}
           >
-            2. What the paper itself cites or asserts
+            What the paper itself cites or asserts
           </h4>
           {card.paperCitesOrAsserts && card.paperCitesOrAsserts.length > 0 ? (
             <ul className="fine" style={{ margin: 0, paddingLeft: "1rem", listStyleType: "disc" }}>
@@ -280,7 +315,7 @@ export function CardDetail({
                 const itemKey = `${ref.paper}-${ref.note ?? ""}-${ref.anchor ?? ""}`;
                 return (
                   <li key={itemKey}>
-                    <span style={{ fontWeight: 500 }}>{ref.paper}: </span>
+                    <span style={{ fontWeight: 500 }}>{PAPER_NAMES[ref.paper] ?? ref.paper}: </span>
                     {ref.note || ref.ids?.join(", ") || "Cited in text"}
                     {ref.anchor && (
                       <a
@@ -300,22 +335,18 @@ export function CardDetail({
             </ul>
           ) : (
             <p className="fine" style={{ margin: 0, fontStyle: "italic" }}>
-              No direct citation or assertion in the original 1905 paper text.
+              {/* This said "No direct citation or assertion in the original 1905 paper text." on
+                  every card with nothing recorded here, which was all 30 on the four routes' shelves,
+                  including Wien's law, Lenard and Stokes's law, which the papers use by name. An
+                  empty record is not evidence of absence. */}
+              Not yet recorded for this card.
             </p>
           )}
         </div>
 
         {/* Section 3: Evidence that Einstein knew it (only when present) */}
         {card.claimsEinsteinKnew && card.einsteinKnowledgeEvidence && (
-          <div
-            style={{
-              padding: "0.875rem",
-              borderRadius: "0.25rem",
-              background: "var(--panel)",
-              border: "1px solid var(--line)",
-              gridColumn: "1 / -1",
-            }}
-          >
+          <div style={part({ gridColumn: "1 / -1" })}>
             <h4
               className="eyebrow"
               style={{
@@ -323,7 +354,7 @@ export function CardDetail({
                 marginBottom: "0.5rem",
               }}
             >
-              3. Evidence that Einstein knew it
+              Evidence that Einstein knew it
             </h4>
             <ul
               className="fine"
@@ -354,15 +385,7 @@ export function CardDetail({
         )}
 
         {/* Section 4: Where this site uses it */}
-        <div
-          style={{
-            padding: "0.875rem",
-            borderRadius: "0.25rem",
-            background: "var(--panel)",
-            border: "1px solid var(--line)",
-            gridColumn: "1 / -1",
-          }}
-        >
+        <div style={part({ gridColumn: "1 / -1" })}>
           <h4
             className="eyebrow"
             style={{
@@ -370,16 +393,11 @@ export function CardDetail({
               marginBottom: "0.5rem",
             }}
           >
-            4. Where this site uses it
+            Where this site uses it
           </h4>
           <div className="fine" style={{ margin: 0 }}>
             {card.admittedStages && card.admittedStages.length > 0 && (
-              <div style={{ marginBottom: "0.5rem" }}>
-                <span style={{ fontWeight: 600 }}>Permitted discovery steps: </span>
-                <span style={{ fontFamily: "var(--font-mono)" }}>
-                  {card.admittedStages.join(", ")}
-                </span>
-              </div>
+              <div style={{ marginBottom: "0.5rem" }}>{stepsLine(card.admittedStages)}</div>
             )}
             {backlinks && (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
@@ -550,7 +568,7 @@ export function CardDetail({
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                 <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
               </svg>
-              <span>Awaiting verification · {UNVERIFIED_RESEARCH_MARKER}</span>
+              <span>Awaiting verification</span>
             </div>
             {openQueueItems && openQueueItems.length > 0 ? (
               <div style={{ marginTop: "0.5rem" }}>
