@@ -147,7 +147,9 @@ describe("PaperPage", () => {
     const germanMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "german" }));
 
     // The German face serves the transcript, labelled.
-    expect(germanMarkup).not.toContain("The german source for this paper is not yet available");
+    expect(germanMarkup).not.toContain(
+      "The German source text for this paper is not yet available",
+    );
     expect(germanMarkup).toContain('data-view="german"');
     expect(germanMarkup).toContain('data-face-source="true"');
     expect(germanMarkup).toContain("Machine draft, not reviewed");
@@ -160,10 +162,12 @@ describe("PaperPage", () => {
 
     // Same honest fallback holds on English, parallel, and gloss faces
     const englishMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "english" }));
-    expect(englishMarkup).toContain("The english translation for this paper is not yet available");
+    expect(englishMarkup).toContain("The English translation for this paper is not yet available");
 
     const parallelMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "parallel" }));
-    expect(parallelMarkup).toContain("The parallel bilingual for this paper is not yet available");
+    expect(parallelMarkup).toContain(
+      "The parallel German and English text for this paper is not yet available",
+    );
 
     const glossMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "gloss" }));
     expect(glossMarkup).toContain("The interlinear gloss for this paper is not yet available");
@@ -205,7 +209,9 @@ describe("PaperPage", () => {
 
     // The not-yet-available notice is strictly ABSENT
     expect(germanMarkup).not.toContain("is not yet available");
-    expect(germanMarkup).not.toContain("The german source for this paper is not yet available");
+    expect(germanMarkup).not.toContain(
+      "The German source text for this paper is not yet available",
+    );
   });
 
   test("face route wiring decision (not live edition): paper with source blocks renders EnglishFace and ParallelFace with real units and fallback notice absent", async () => {
