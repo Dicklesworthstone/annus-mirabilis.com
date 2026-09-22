@@ -3,13 +3,17 @@
   "kind": "foundation",
   "id": "bridge-squaring-square-roots",
   "title": "Squares and square roots",
-  "question": "Why does four times a mean square mean twice the RMS?",
-  "summary": "Squaring multiplies a number by itself. The nonnegative square root reverses that operation.",
+  "question": "If the mean square grows four times, why does the typical distance only double?",
+  "summary": "Squaring multiplies a number by itself, and the square root undoes it. Four times a square is the square of twice the number, so four times a mean square is twice a root mean square.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Both +3 and −3 have square 9. Squaring therefore removes the sign while giving greater weight to a larger magnitude. A square root returns the result to the original kind of unit: the square root of a square micrometre is a micrometre."
+      "text": "Both +3 and −3 have square 9, so squaring removes the sign, and it weights a large distance more than a small one. A square root returns to the original unit: the square root of a square micrometre is a micrometre."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The root mean square, or RMS, uses both steps: square each displacement, average the squares, then take the square root. The result is a typical distance from the start, in the original unit."
     },
     {
       "kind": "formula",
@@ -19,12 +23,16 @@
   ],
   "example": [
     {
-      "kind": "paragraph",
-      "text": "The mean square of −3, −1, +1, +3 is 5. Doubling each displacement gives −6, −2, +2, +6, whose mean square is 20. The RMS changes from approximately 2.236 to 4.472: twice as large, not four times as large."
+      "kind": "steps",
+      "items": [
+        "The displacements −3, −1, +1, +3 have squares 9, 1, 1, 9. Their average is 5, so the RMS is √5, about 2.236.",
+        "Double each displacement: −6, −2, +2, +6. The squares are 36, 4, 4, 36, and their average is 20.",
+        "The mean square went from 5 to 20, four times as large. The RMS went from about 2.236 to √20, about 4.472: twice as large."
+      ]
     }
   ],
   "exampleTitle": "Doubling every displacement, and what the RMS does",
   "prerequisites": ["bridge-sum-average"],
-  "stoppingPoint": "Use the nonnegative square root when reporting a magnitude.",
+  "stoppingPoint": "Four times the mean square is twice the RMS. That is why, in the Brownian paper, waiting four times as long doubles the typical distance.",
   "citations": []
 }

@@ -9,11 +9,11 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Put the starting point at zero on a ruler. A final mark three units right has displacement +3; one three units left has displacement −3. Adding the signed displacements gives zero. Adding the distances from the start gives six."
+      "text": "Put the starting point at zero on a ruler. A final mark three units to the right has displacement +3; one three units to the left has displacement −3. Adding the signed displacements gives zero. Adding the distances from the start gives six."
     },
     {
       "kind": "paragraph",
-      "text": "Displacement compares the final and initial positions. It is not the length of the path travelled between them."
+      "text": "Displacement compares where something ends with where it started, whatever it did in between. A walker who goes three units right and comes back has displacement zero after walking six."
     }
   ],
   "example": [

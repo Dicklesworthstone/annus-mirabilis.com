@@ -3,31 +3,31 @@
   "kind": "foundation",
   "id": "bridge-fractions-ratios",
   "title": "Fractions and ratios",
-  "question": "How does dividing into parts compare two quantities?",
-  "summary": "A fraction compares a part to a whole or one quantity to another. Scaling numerator and denominator by the same factor preserves the ratio.",
+  "question": "What does dividing one quantity by another tell you?",
+  "summary": "A fraction a/b says how many times b fits into a. Multiplying the top and the bottom by the same number leaves it unchanged.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "A fraction a/b compares quantity a to quantity b, or tells us how many parts of size 1/b make up a. When b is not zero, dividing a by b calculates how many units of b are contained within a."
+      "text": "The fraction 6/2 is 3, because 2 fits into 6 three times; it also says that 6 is three times 2. Every fraction a/b works the same way. The bottom number can never be zero, since no count of zeros adds up to 6."
     },
     {
       "kind": "paragraph",
-      "text": "In physical science, a ratio often carries units: dividing displacement in micrometres by time in seconds produces a rate in micrometres per second. A dimensionless ratio occurs when both quantities share the same units, such as the fraction of an ensemble that moves in a given direction."
+      "text": "When the two quantities have different units, their ratio is a new quantity with a unit of its own: 12 micrometres travelled in 4 seconds is 3 micrometres per second. When they have the same unit, the units cancel and the ratio is a plain number: 2 particles out of 8 is 0.25 of the group."
     }
   ],
   "example": [
     {
       "kind": "steps",
       "items": [
-        "If 1 particle out of 4 moves by 3 units, the proportion is 1/4 = 0.25.",
-        "If the ensemble doubles to 8 particles and 2 move by 3 units, the proportion is 2/8 = 0.25.",
-        "Multiplying both the count and the total by 2 preserves the underlying ratio."
+        "In a group of 4 particles, 1 moves to the right: the fraction is 1/4 = 0.25.",
+        "In a group of 8, 2 move to the right: the fraction is 2/8 = 0.25.",
+        "Doubling both the number that moved and the size of the group leaves the fraction at 0.25."
       ]
     }
   ],
   "exampleTitle": "One in four, two in eight",
   "prerequisites": ["bridge-sum-average"],
-  "stoppingPoint": "A ratio compares relative magnitudes; always state whether the physical units cancel or combine.",
+  "stoppingPoint": "A ratio of two quantities in the same unit is a plain number. A ratio of different units, such as micrometres per second, is a new quantity and keeps its unit.",
   "citations": []
 }

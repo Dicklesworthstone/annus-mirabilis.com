@@ -3,31 +3,31 @@
   "kind": "foundation",
   "id": "bridge-scientific-notation-units",
   "title": "Powers of ten and physical units",
-  "question": "How do we write very large or very small physical measurements compactly?",
-  "summary": "Powers of ten shift the decimal place. A physical quantity is a number multiplied by its unit; dropping the unit destroys its physical meaning.",
+  "question": "How do you write a very small length without counting zeros?",
+  "summary": "A power of ten moves the decimal point. A measurement is a number together with its unit, and the unit goes through every step of a calculation.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Microscopic measurements in physics involve scales far outside everyday experience. Writing numbers as a coefficient between 1 and 10 multiplied by a power of ten keeps significant digits clear and avoids counting long strings of zeros."
+      "text": "The Brownian paper works its example, in §5, for particles 0.001 mm across. In metres that is 0.000001 m: easy to miscount by one zero, which is a factor of ten. Written as 10⁻⁶ m, the −6 says the decimal point has moved six places to the left, and that length has a name of its own, the micrometre (μm)."
     },
     {
       "kind": "paragraph",
-      "text": "Units attach physical dimensions to numbers. A distance of 1 micrometre (10⁻⁶ m) squared is 10⁻¹² m², not 10⁻⁶ m². Calculations must keep units alongside numbers through every algebraic step."
+      "text": "The unit goes through the arithmetic with the number. A micrometre is 10⁻⁶ m, so a square micrometre is 10⁻¹² m², not 10⁻⁶ m²: squaring a length squares its unit, power of ten included."
     }
   ],
   "example": [
     {
       "kind": "steps",
       "items": [
-        "1 micrometre (1 μm) equals 10⁻⁶ metres (0.000001 m).",
-        "A typical Brownian displacement of 6 μm after one minute is 6 × 10⁻⁶ m.",
-        "Squaring this displacement gives (6 × 10⁻⁶ m)² = 36 × 10⁻¹² m² = 3.6 × 10⁻¹¹ m²."
+        "1 micrometre (1 μm) is 10⁻⁶ metres, or 0.000001 m.",
+        "The paper's displacement after one minute, about 6 μm, is 6 × 10⁻⁶ m.",
+        "Squaring it squares the number and the unit: (6 × 10⁻⁶ m)² = 36 × 10⁻¹² m² = 3.6 × 10⁻¹¹ m²."
       ]
     }
   ],
   "exampleTitle": "Squaring six micrometres",
   "prerequisites": ["bridge-fractions-ratios"],
-  "stoppingPoint": "Every physical number must carry its units, and powers of ten apply to both coefficient and unit.",
+  "stoppingPoint": "A measurement is a number and a unit together. Squaring it squares both: (6 × 10⁻⁶ m)² is 3.6 × 10⁻¹¹ m².",
   "citations": []
 }
