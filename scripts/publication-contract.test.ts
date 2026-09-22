@@ -9,6 +9,37 @@ import { PUBLICATION_CONTRACT_TESTS, verifyPublicationContract } from "./publica
 import type { ObservedSubprocess } from "./spawnObserved.ts";
 
 describe("Publication Contract Verification Suite", () => {
+  /**
+   * WHY THESE TESTS FAIL ON A DIRTY TREE, and why the failure used to say nothing useful.
+   *
+   * verifyPublicationContract runs an ARCHITECTURE PREFLIGHT over the live working tree before it
+   * executes anything (publication-contract.ts:95). A violation there sets hasFailure, which lands
+   * in summary.failedCount and summary.exitCode - so an injected spawnFn's result is no longer the
+   * only thing those numbers describe.
+   *
+   * On 2026-09-22 this suite went red in the fast lane with `Expected: 1`, and a second pane could
+   * not reproduce it. Reproduced by planting one rogue file in the repository root:
+   *
+   *     clean tree                     5 pass 0 fail
+   *     one rogue root .mjs present    3 pass 2 fail - exactly these two, by name
+   *
+   * A probe script left in the root for the seconds it takes to run is enough, which is precisely
+   * what AGENTS.md RULE 2 point 3 forbids and precisely what had been happening. The suite was
+   * right, the tree was dirty, and the assertion could not say so.
+   *
+   * This helper makes the precondition explicit. It does not relax what the tests expect - the
+   * exit codes and counts below are unchanged - it fails earlier and names the cause, so the next
+   * reader is told "the tree has an architecture violation" instead of "Expected: 1".
+   */
+  function assertPreflightClean(summary: {
+    results: readonly { testId: string; outcome: string; message?: string | undefined }[];
+  }) {
+    const preflight = summary.results.find((r) => r.testId === "preflight-architecture");
+    expect(
+      preflight?.outcome,
+      `The architecture preflight did not pass, so summary.failedCount and summary.exitCode below describe the WORKING TREE rather than the injected runner. This is almost always a rogue file in the repository root or under src/ - AGENTS.md RULE 2 point 3. Preflight said: ${preflight?.message ?? "(no preflight result at all)"}`,
+    ).toBe("passed");
+  }
   test("all declared PUBLICATION_CONTRACT_TESTS exist on disk", () => {
     expect(PUBLICATION_CONTRACT_TESTS.length).toBeGreaterThanOrEqual(4);
     for (const testPath of PUBLICATION_CONTRACT_TESTS) {
@@ -33,6 +64,7 @@ describe("Publication Contract Verification Suite", () => {
       silent: true,
     });
 
+    assertPreflightClean(summary);
     expect(summary.success).toBe(true);
     expect(summary.exitCode).toBe(0);
     expect(summary.failedCount).toBe(0);
@@ -74,6 +106,7 @@ describe("Publication Contract Verification Suite", () => {
       silent: true,
     });
 
+    assertPreflightClean(summary);
     expect(summary.success).toBe(false);
     expect(summary.exitCode).toBe(1);
     expect(summary.failedCount).toBe(1);
