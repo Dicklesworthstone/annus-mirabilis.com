@@ -37,13 +37,6 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       precision: "year",
     },
     admittedStages: ["stage-01", "stage-02"],
-    verification: {
-      verifiedBy: "Editorial Staff",
-      verifierKind: "human",
-      date: "2026-08-20",
-      method: "bound volume",
-      evidenceLocator: "https://doi.org/10.1080/14786442808674769",
-    },
   },
   {
     id: "stokes-1851-sphere-drag",
@@ -59,13 +52,6 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-03"],
-    verification: {
-      verifiedBy: "Editorial Staff",
-      verifierKind: "human",
-      date: "2026-08-20",
-      method: "bound volume",
-      evidenceLocator: "Cambridge Philosophical Society Trans. 9 (1851) 8-106",
-    },
   },
   {
     id: "fick-1855-diffusion-equation",
@@ -81,13 +67,6 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-03"],
-    verification: {
-      verifiedBy: "Editorial Staff",
-      verifierKind: "human",
-      date: "2026-08-20",
-      method: "bound volume",
-      evidenceLocator: "Poggendorffs Annalen 94 (1855) 59-86",
-    },
   },
   {
     id: "maxwell-1860-equipartition",
@@ -103,13 +82,6 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-01", "stage-02"],
-    verification: {
-      verifiedBy: "Editorial Staff",
-      verifierKind: "human",
-      date: "2026-08-20",
-      method: "bound volume",
-      evidenceLocator: "Phil. Mag. 19 (1860) 19-32",
-    },
   },
   {
     id: "gouy-1888-brownian-motion",
@@ -125,13 +97,6 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-01"],
-    verification: {
-      verifiedBy: "Editorial Staff",
-      verifierKind: "human",
-      date: "2026-08-20",
-      method: "bound volume",
-      evidenceLocator: "Journal de Physique (2) 7 (1888) 561-564",
-    },
   },
   {
     id: "exner-1900-particle-speeds",
@@ -147,13 +112,6 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-01"],
-    verification: {
-      verifiedBy: "Editorial Staff",
-      verifierKind: "human",
-      date: "2026-08-20",
-      method: "bound volume",
-      evidenceLocator: "Annalen der Physik (4) 2 (1900) 843-847",
-    },
   },
   {
     id: "siedentopf-1903-ultramicroscope",
@@ -175,13 +133,6 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       precision: "year",
     },
     admittedStages: ["stage-01"],
-    verification: {
-      verifiedBy: "Editorial Staff",
-      verifierKind: "human",
-      date: "2026-08-20",
-      method: "bound volume",
-      evidenceLocator: "Annalen der Physik (4) 10 (1903) 1-39",
-    },
   },
   {
     id: "sutherland-1904-dunedin",
@@ -204,13 +155,6 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
     },
     relatedCardId: "sutherland-1905-phil-mag",
     admittedStages: ["stage-03"],
-    verification: {
-      verifiedBy: "Editorial Staff",
-      verifierKind: "human",
-      date: "2026-08-20",
-      method: "bound volume",
-      evidenceLocator: "AAAS 10th Meeting Dunedin (1904)",
-    },
   },
   {
     id: "sutherland-1905-phil-mag",
@@ -228,13 +172,6 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
     },
     relatedCardId: "sutherland-1904-dunedin",
     admittedStages: ["stage-03"],
-    verification: {
-      verifiedBy: "Editorial Staff",
-      verifierKind: "human",
-      date: "2026-08-20",
-      method: "bound volume",
-      evidenceLocator: "Philosophical Magazine (6) 9 (1905) 781-785",
-    },
   },
 ];
 
@@ -389,6 +326,11 @@ export default function BrownianEncounter() {
       <section>
         <h2>The 1904 shelf</h2>
         <Shelf cards={BROWNIAN_SHELF_CARDS} />
+        <p className="fine">
+          These cards carry no verification record. Their dates are from standard bibliography, not
+          from anyone here having opened the volumes, and the shelf marks each one as awaiting
+          verification rather than implying a check that has not happened.
+        </p>
       </section>
       <aside className="notice">
         <h2>The model is not the evidence.</h2>
