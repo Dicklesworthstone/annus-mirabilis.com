@@ -289,7 +289,10 @@
 /* The two ways out at the foot of every lesson page. They were 17px tall at 390 and 19px at 1440
    on all 27 lessons. inline-block with a floor rather than padding: the two share a line, and
    padded inline boxes would overlap at the separator. */
-.foundation-page > .foundation-page-exit a {
+/* A descendant, not a child: a89fb8d0 moved the lesson into its own column, the old
+   `.foundation-page > .foundation-page-exit a` stopped matching, and both links were 19px tall on
+   all 27 lessons again (BUILD 20). */
+.foundation-page .foundation-page-exit a {
   display: inline-block;
   min-height: 44px;
   align-content: center;
