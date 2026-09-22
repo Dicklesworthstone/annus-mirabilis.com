@@ -236,3 +236,142 @@ test("scopedGlyphs: a paper never renders another paper's reading of the same gl
     );
   }
 });
+
+/**
+ * THE COLLISION THE POPULATION ABOVE CANNOT SEE, and it is one of the two AGENTS.md calls out
+ * in red (am-w8v1).
+ *
+ * `readingOf` requires `quantityId` in the binding, because a Reading has to be renderable as a
+ * symbol node. That is right for rendering and wrong for deciding what COLLIDES. Measured over
+ * the four concordances on 2026-09-22:
+ *
+ *     bm.k.viscosity     glyph k  scope [bm-s3, bm-s5]   binding quantityId=viscosity
+ *     sr.k.movingSystem  glyph k  scope [sr-s0..sr-s10]  binding nonQuantityKind=coordinate-system-label
+ *
+ * The second is dropped by that filter, so k yields ONE reading, `papers.size > 1` is false, k
+ * never becomes a collision group, and the matrix above never compares it. Its sibling \kappa IS
+ * among the 28 groups (brownian's boltzmannConstant against special-relativity's
+ * speedDeficitFromLight), so the blindness is specific to a partner that binds a LABEL rather
+ * than a quantity, not to k as a character.
+ *
+ * AGENTS.md: "Einstein's k in paper 2 and in the dissertation is viscosity, not Boltzmann's
+ * constant." A hand-written block in notation.test.ts drove this until f4535c8f removed it, and
+ * nothing has since: `movingSystem` appears in no other test in the repository. The behaviour is
+ * correct today and was simply unguarded, which is the case a ratchet exists for.
+ *
+ * BOTH DIRECTIONS ARE ASSERTED. A notEqual on its own is satisfied by a renderer that returns
+ * the empty string for everything, so the own-paper arm is the positive control that gives the
+ * cross-paper arm its meaning. This is also why the assertion compares whole strings rather than
+ * using containment, for the reason the test above records: a shared prefix is not a leak.
+ */
+type LabelPartner = Readonly<{
+  readonly paper: string;
+  readonly entryId: string;
+  readonly printedGlyph: string;
+  readonly scope: string;
+}>;
+
+/**
+ * Rename entries that declare a printed glyph and a scope but bind something that is not a
+ * quantity. They cannot be rendered as a symbol node, and they are exactly what makes a glyph a
+ * cross-paper collision for a reader.
+ */
+function labelPartners(): readonly LabelPartner[] {
+  const out: LabelPartner[] = [];
+  for (const [paper, concordance] of concordances) {
+    for (const entry of concordance.entries) {
+      if (entry.operation.kind !== "rename") continue;
+      if ("quantityId" in entry.binding) continue;
+      const printedGlyph = glyphText(entry.glyph);
+      const scope = entry.scope?.[0];
+      if (!printedGlyph || !scope) continue;
+      out.push({ paper, entryId: entry.id, printedGlyph, scope });
+    }
+  }
+  return out;
+}
+
+/** The same modern render as `renderModern`, but under a paper and scope chosen by the caller. */
+function renderReadingUnder(
+  reading: Reading,
+  paper: string,
+  sectionId: string,
+  concordance: PaperConcordance,
+): string {
+  const node: Expression = {
+    kind: "symbol",
+    termId: `t.${reading.quantityId}`,
+    quantityId: reading.quantityId,
+  };
+  return renderLatex(node, {
+    perspective: "modern",
+    paper,
+    sectionId,
+    concordance,
+    registry: registryFor(reading),
+    equationId: `scoped-glyph-cross-${reading.entryId}`,
+  }).trim();
+}
+
+test("scopedGlyphs: a quantity glyph does not modernize inside a paper that spends it on a label", () => {
+  const partners = labelPartners();
+  const compared = new Set<string>();
+
+  for (const reading of readings) {
+    for (const partner of partners) {
+      if (partner.printedGlyph !== reading.printedGlyph) continue;
+      if (partner.paper === reading.paper) continue;
+      // An IDENTITY RENAME carries no information for a leak test, and this arm reported a
+      // false leak before the guard existed: light-quanta's \nu is frequency and modernizes to
+      // \nu, so "did light-quanta's reading appear inside brownian-motion" cannot be decided by
+      // comparing the output to \nu - every paper that correctly leaves the glyph alone matches
+      // it too. Measured: without this line the arm failed on \nu (light-quanta:frequency)
+      // against bm.nu.index, which is not a leak. Same family as the whole-string comparison
+      // above: the test has to be able to tell the two readings apart before it can accuse one.
+      if (reading.modernGlyph === reading.printedGlyph) continue;
+
+      const ownConcordance = concordances.get(reading.paper);
+      const otherConcordance = concordances.get(partner.paper);
+      assert.ok(ownConcordance);
+      assert.ok(otherConcordance);
+
+      // Positive control. Without it the assertion below is satisfied by any renderer that
+      // stops producing this glyph at all, including a broken one.
+      assert.equal(
+        renderReadingUnder(reading, reading.paper, reading.scope, ownConcordance),
+        reading.modernGlyph,
+        `${reading.entryId} must still render ${reading.modernGlyph} in its own paper`,
+      );
+
+      assert.notEqual(
+        renderReadingUnder(reading, partner.paper, partner.scope, otherConcordance),
+        reading.modernGlyph,
+        `printed ${reading.printedGlyph} rendered ${reading.paper}'s reading ` +
+          `${reading.modernGlyph} (${reading.quantityId}) inside ${partner.paper}, where that ` +
+          `glyph is ${partner.entryId}; the lookup leaked across papers`,
+      );
+      compared.add(`${reading.printedGlyph}|${reading.paper}|${partner.paper}`);
+    }
+  }
+
+  // Named, not counted, for the same reason as the matrix above: a count is satisfied by
+  // comparisons among glyphs nobody is worried about while k quietly drops out. Measured on
+  // 2026-09-22 this arm compares 3 pairs out of 149 quantity-bound readings against 15 label
+  // partners, with 4 dropped by the identity-rename guard - a small population, which is exactly
+  // why it is anchored by identity rather than by a threshold.
+  //
+  // Both anchors are glyphs AGENTS.md names: k is viscosity in paper 2 and the moving system in
+  // paper 3, K is a force in paper 2 and the stationary system in paper 3. The first is the case
+  // f4535c8f left uncovered (am-w8v1); the second came with it and is kept for the same reason.
+  for (const [glyph, quantityPaper, labelPaper] of [
+    ["k", "brownian-motion", "special-relativity"],
+    ["K", "brownian-motion", "special-relativity"],
+  ] as const) {
+    assert.ok(
+      compared.has(`${glyph}|${quantityPaper}|${labelPaper}`),
+      `the ${glyph} collision between ${quantityPaper} and ${labelPaper} was never compared; ` +
+        `it is a case AGENTS.md calls out by name. ` +
+        `Compared: ${[...compared].sort().join(", ") || "(nothing)"}`,
+    );
+  }
+});
