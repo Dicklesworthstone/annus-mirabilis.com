@@ -11,9 +11,23 @@
   max-width: 73rem;
   margin-inline: auto;
 }
-.investigation-page > .page-intro {
-  max-width: 760px;
+/* The prose, the introduction and the reading sections between workbenches, keeps one 68ch
+   measure on one axis, so it grows with the root on a wide screen (db82e7bf) instead of staying
+   760px. */
+.investigation-page > :is(.page-intro, .reading) {
+  max-width: 68ch;
   margin-inline: auto;
+}
+/* A workbench is wide so its plots and tables can be; its prose is not. Inside the 1168px
+   workbenches, paragraphs ran the full width: at 1440 on BUILD 19 the light-quanta page's
+   median full line was 148 characters and Brownian's worst tenth 147, counted character by
+   character. Capped, the four pages run a median of 56 to 90 characters and no worse tenth
+   than 99. The code listings keep their width, since a wrapped file path helps nobody. */
+.investigation-page p {
+  max-width: 68ch;
+}
+.investigation-page :is(.show-the-code-listing, .show-the-code-panel, .code-panel) p {
+  max-width: none;
 }
 .investigation-page > .page-intro h1 {
   font-size: var(--type-display);
