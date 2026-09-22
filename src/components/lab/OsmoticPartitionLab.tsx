@@ -9,6 +9,7 @@ import {
   PHI_MAX,
   SUGAR_0P01M_INPUTS,
 } from "../../experiments/bm02/session";
+import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { Sci } from "./Sci.tsx";
 
 const NOT_MODELED = [
@@ -257,75 +258,7 @@ export function OsmoticPartitionLab({
           aria-describedby={error ? `${id}-error` : undefined}
         >
           <fieldset>
-            <legend>Settings: type exact values (no dragging required)</legend>
-            <div className="input-grid">
-              <div className="input-field">
-                <label htmlFor={`${id}-Np`}>
-                  Particle count N_p <span>(count, whole number)</span>
-                </label>
-                <input
-                  id={`${id}-Np`}
-                  name="Np"
-                  type="text"
-                  inputMode="numeric"
-                  value={draft.Np}
-                  onChange={(e) => setDraft({ ...draft, Np: e.target.value })}
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-V`}>
-                  Accessible volume V <span>(μm³)</span>
-                </label>
-                <input
-                  id={`${id}-V`}
-                  name="V"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.V_um3}
-                  onChange={(e) => setDraft({ ...draft, V_um3: e.target.value })}
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-T`}>
-                  Temperature T <span>(K)</span>
-                </label>
-                <input
-                  id={`${id}-T`}
-                  name="T"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.T}
-                  onChange={(e) => setDraft({ ...draft, T: e.target.value })}
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-a`}>
-                  Particle radius a <span>(μm; 0.0005 = 0.5 nm)</span>
-                </label>
-                <input
-                  id={`${id}-a`}
-                  name="a"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.a_um}
-                  onChange={(e) => setDraft({ ...draft, a_um: e.target.value })}
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-A`}>
-                  Partition area A <span>(μm²)</span>
-                </label>
-                <input
-                  id={`${id}-A`}
-                  name="A"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.A_um2}
-                  onChange={(e) => setDraft({ ...draft, A_um2: e.target.value })}
-                />
-              </div>
-            </div>
-
+            <legend>Model and settings</legend>
             <div className="model-toggle">
               <strong>Model</strong>
               <div className="actions">
@@ -349,14 +282,7 @@ export function OsmoticPartitionLab({
                 </button>
               </div>
             </div>
-
-            <p className="fine">
-              Out-of-domain settings are never silently clamped: the table names the admissible
-              boundary instead.
-            </p>
-
             <div className="actions">
-              <button type="submit">Apply settings</button>
               <button type="button" className="secondary" onClick={loadSugarComparison}>
                 Compare: 0.01 mol/L sugar solution
               </button>
@@ -364,6 +290,82 @@ export function OsmoticPartitionLab({
                 Back to the default suspension
               </button>
             </div>
+            <ExperimentSettings contents="particle count, volume, temperature, radius, partition area">
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-Np`}>
+                    Particle count N_p <span>(count, whole number)</span>
+                  </label>
+                  <input
+                    id={`${id}-Np`}
+                    name="Np"
+                    type="text"
+                    inputMode="numeric"
+                    value={draft.Np}
+                    onChange={(e) => setDraft({ ...draft, Np: e.target.value })}
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-V`}>
+                    Accessible volume V <span>(μm³)</span>
+                  </label>
+                  <input
+                    id={`${id}-V`}
+                    name="V"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.V_um3}
+                    onChange={(e) => setDraft({ ...draft, V_um3: e.target.value })}
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-T`}>
+                    Temperature T <span>(K)</span>
+                  </label>
+                  <input
+                    id={`${id}-T`}
+                    name="T"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.T}
+                    onChange={(e) => setDraft({ ...draft, T: e.target.value })}
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-a`}>
+                    Particle radius a <span>(μm; 0.0005 = 0.5 nm)</span>
+                  </label>
+                  <input
+                    id={`${id}-a`}
+                    name="a"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.a_um}
+                    onChange={(e) => setDraft({ ...draft, a_um: e.target.value })}
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-A`}>
+                    Partition area A <span>(μm²)</span>
+                  </label>
+                  <input
+                    id={`${id}-A`}
+                    name="A"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.A_um2}
+                    onChange={(e) => setDraft({ ...draft, A_um2: e.target.value })}
+                  />
+                </div>
+              </div>
+              <p className="fine">
+                Out-of-domain settings are never silently clamped: the table names the admissible
+                boundary instead.
+              </p>
+              <div className="actions">
+                <button type="submit">Apply settings</button>
+              </div>
+            </ExperimentSettings>
           </fieldset>
           {error && (
             <p id={`${id}-error`} role="alert" className="notice error">
