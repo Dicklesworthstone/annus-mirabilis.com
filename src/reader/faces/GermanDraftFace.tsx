@@ -19,10 +19,10 @@
  * does, rather than appearing inline where the ledger happened to put them.
  */
 
-import Image from "next/image";
 import type { GermanSourceFace } from "../../content/editions/germanSourceFace.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
+import { FollowingPlate } from "./FollowingPlate.tsx";
 import { FACE_REGISTRY, type FaceId } from "./registry.ts";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
 import { renderSourceMarkup, sourceDisplayEquation } from "./sourceMarkup.tsx";
@@ -45,8 +45,13 @@ export function GermanDraftFace({
   /** For the face chooser. Without it this page had no way to another face but Back. */
   readonly paperId: string;
   readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
-  /** The paper's first printed page, set beside the opening of the text on wide screens. */
-  readonly plate?: Readonly<{ src: string; scanHref: string; printedAt: string }> | undefined;
+  /**
+   * The printed pages of the scan, set beside the text on wide screens and turned to the page the
+   * reader has reached (FollowingPlate). `pages` holds only pages whose plates are in public/.
+   */
+  readonly plate?:
+    | Readonly<{ dir: string; pages: readonly number[]; volume: string; scanHref: string }>
+    | undefined;
   readonly paperTitle: string;
   /** The paper's own German title, from its metadata record. Used when no masthead block is in scope. */
   readonly germanTitle: string;
@@ -86,6 +91,16 @@ export function GermanDraftFace({
   const body = blocks.filter(
     (b) => b.kind !== "footnote" && b !== mastheadTitle && !claimedEquationIds.has(b.id),
   );
+  /*
+    THE PRINTED PAGE EACH BLOCK STARTS ON, carried as data-printed-page so the plate can turn with
+    the reader (blockPages.ts reads it from the ledger's own page anchors). A body block whose
+    words the map cannot find carries the page of the block before it, the page the reader has at
+    least reached; the map's test holds that to none of 154 body blocks in the three published
+    papers. A footnote it cannot find carries no page, and the plate keeps the page before it.
+  */
+  const printedPage = (id: string) => face.printedPages.pages[id];
+  const firstPlaced = body.map((b) => printedPage(b.id)).find((p) => p !== undefined);
+  const opening = plate?.pages.includes(firstPlaced ?? -1) ? firstPlaced : plate?.pages[0];
 
   return (
     <div data-reader-root data-ready="true" data-view="german" className="reader-root">
@@ -125,11 +140,22 @@ export function GermanDraftFace({
           <div data-face-source data-german-draft={face.bibKey}>
             {body.map((block) =>
               MASTHEAD_KINDS.has(block.kind) ? (
-                <p key={block.id} id={block.id} className="source-masthead" lang="de">
+                <p
+                  key={block.id}
+                  id={block.id}
+                  className="source-masthead"
+                  lang="de"
+                  data-printed-page={printedPage(block.id)}
+                >
                   {renderSourceMarkup(block.text, block.id)}
                 </p>
               ) : HEADING_KINDS.has(block.kind) ? (
-                <h2 key={block.id} id={block.id} lang="de">
+                <h2
+                  key={block.id}
+                  id={block.id}
+                  lang="de"
+                  data-printed-page={printedPage(block.id)}
+                >
                   {renderSourceMarkup(block.text, block.id)}
                 </h2>
               ) : block.kind === "equation" ? (
@@ -141,6 +167,7 @@ export function GermanDraftFace({
                   className="source-paragraph"
                   lang="de"
                   data-block-kind={block.kind}
+                  data-printed-page={printedPage(block.id)}
                 >
                   {renderSourceMarkup(block.text, block.id, block.displayEquationIds)}
                 </p>
@@ -152,7 +179,13 @@ export function GermanDraftFace({
             <section className="source-footnotes" aria-label="Footnotes">
               <h2>Fußnoten</h2>
               {footnotes.map((block) => (
-                <p key={block.id} id={block.id} className="source-footnote" lang="de">
+                <p
+                  key={block.id}
+                  id={block.id}
+                  className="source-footnote"
+                  lang="de"
+                  data-printed-page={printedPage(block.id)}
+                >
                   {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
                   {renderSourceMarkup(block.text, block.id)}
                 </p>
@@ -160,22 +193,14 @@ export function GermanDraftFace({
             </section>
           ) : null}
         </div>
-        {plate ? (
-          <figure className="source-plate">
-            <a href={plate.scanHref}>
-              <Image
-                src={plate.src}
-                width={400}
-                height={662}
-                loading="lazy"
-                alt={`The first printed page of this paper, ${plate.printedAt}: its title block and opening paragraphs.`}
-              />
-            </a>
-            <figcaption>
-              The first page as printed, {plate.printedAt}.{" "}
-              <a href={plate.scanHref}>Open the whole scan (PDF)</a>
-            </figcaption>
-          </figure>
+        {plate && opening !== undefined ? (
+          <FollowingPlate
+            dir={plate.dir}
+            pages={plate.pages}
+            opening={opening}
+            volume={plate.volume}
+            scanHref={plate.scanHref}
+          />
         ) : null}
       </div>
     </div>

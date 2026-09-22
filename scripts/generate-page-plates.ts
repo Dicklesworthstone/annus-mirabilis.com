@@ -13,8 +13,13 @@
  * ap-18-639: Bell & Howell / UMI microfilm scans on Internet Archive, chosen by each receipt over
  * scans whose terms restrict redistribution.
  *
- * Usage: bun scripts/generate-page-plates.ts <key>... [--work <dir>]
+ * Usage: bun scripts/generate-page-plates.ts <key>... [--work <dir>] [--width 1280]
  * Intermediate PNGs go to --work (default: a directory under the OS temp dir) and are left there.
+ *
+ * --width 1280 writes <printed page>-1280.webp beside the 640px plate, for the plate at the size
+ * it is shown on a desktop (about 510-620 CSS px, height-bound, so 1,000-1,250 device px on a 2x
+ * screen). The scan's own resolution is 400ppi, 2004px across the page, so 1280 is below what the
+ * pinned PDF holds and nothing is upscaled. The 640px files are not rewritten.
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync } from "node:fs";
@@ -65,7 +70,17 @@ export function mayPublish(receipt: string): boolean {
   );
 }
 
-function run(keys: readonly string[], work: string): void {
+/** Rasterizing resolution for an output width: 160 dpi gives the 640px plate. */
+export function plateDpi(width: number): number {
+  return Math.ceil((width / 640) * 160);
+}
+
+/** The file a plate of this width is written to: 640 keeps its original name. */
+export function plateFileName(printedPage: number, width: number): string {
+  return width === 640 ? `${printedPage}.webp` : `${printedPage}-${width}.webp`;
+}
+
+function run(keys: readonly string[], work: string, width: number): void {
   for (const key of keys) {
     const receipt = readFileSync(join(ROOT, "docs/provenance", `${key}.md`), "utf8");
     if (!mayPublish(receipt)) {
@@ -77,14 +92,14 @@ function run(keys: readonly string[], work: string): void {
     const out = join(ROOT, "public/figures/plates/pages", key);
     mkdirSync(out, { recursive: true });
     for (const { pdfPageIndex, printedPage } of plan) {
-      const stem = join(work, `${key}-${pdfPageIndex}`);
+      const stem = join(work, `${key}-${pdfPageIndex}-${width}`);
       execFileSync("pdftoppm", [
         "-f",
         String(pdfPageIndex),
         "-l",
         String(pdfPageIndex),
         "-r",
-        "160",
+        String(plateDpi(width)),
         "-gray",
         "-singlefile",
         "-png",
@@ -94,13 +109,15 @@ function run(keys: readonly string[], work: string): void {
       execFileSync("magick", [
         `${stem}.png`,
         "-resize",
-        "640x",
+        `${width}x`,
         "-quality",
         "72",
-        join(out, `${printedPage}.webp`),
+        join(out, plateFileName(printedPage, width)),
       ]);
     }
-    console.log(JSON.stringify({ event: "page-plates-written", key, pages: plan.length, out }));
+    console.log(
+      JSON.stringify({ event: "page-plates-written", key, width, pages: plan.length, out }),
+    );
   }
 }
 
@@ -112,6 +129,17 @@ if (import.meta.main) {
       ? (args[workAt + 1] as string)
       : mkdtempSync(join(tmpdir(), "am-page-plates-"));
   if (!existsSync(work)) mkdirSync(work, { recursive: true });
-  const keys = args.filter((a, i) => a !== "--work" && i !== workAt + 1);
-  run(keys, work);
+  const widthAt = args.indexOf("--width");
+  const width = widthAt >= 0 ? Number(args[widthAt + 1]) : 640;
+  if (width !== 640 && width !== 1280) {
+    console.error("--width is 640 or 1280.");
+    process.exit(2);
+  }
+  const keys = args.filter(
+    (a, i) =>
+      !["--work", "--width"].includes(a) &&
+      !(workAt >= 0 && i === workAt + 1) &&
+      !(widthAt >= 0 && i === widthAt + 1),
+  );
+  run(keys, work, width);
 }

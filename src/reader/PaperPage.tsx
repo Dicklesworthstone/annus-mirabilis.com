@@ -119,21 +119,29 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               glossUnits: edition?.glossUnits?.length ?? 0,
               germanDraftBlocks: draft.blocks.length,
             });
-            // The paper's first printed page, beside the opening of the text - only on the
-            // whole paper, where that page IS the opening; a section view starts elsewhere.
-            // Offered only when the rendered plate is actually in public/.
-            // Where it was printed comes from the key's own grammar, ap-<volume>-<first page>
-            // (AGENTS.md, bibliographic keys). The record's `citation` field is that key, and
-            // the bibliography locator can carry notes about later translations, so neither
-            // is a caption. A key that does not parse gets no plate rather than a raw id.
+            // The printed pages of the scan, beside the text, turned to the page the reader has
+            // reached (FollowingPlate). A section view opens on its own first page, so it gets
+            // the plate too: that page is where the section was printed, not the paper's first.
+            // A page is offered only when both of its plates (640 and 1280px wide) are in
+            // public/, so a srcset never names a file that is not there.
+            // The volume comes from the key's own grammar, ap-<volume>-<first page> (AGENTS.md,
+            // bibliographic keys). A key that does not parse gets no plate rather than a raw id.
             const printed = /^ap-(\d+)-(\d+)$/.exec(draft.bibKey);
-            const platePath = `/figures/plates/${draft.bibKey}-first-page-400.webp`;
+            const plateDir = `/figures/plates/pages/${draft.bibKey}`;
+            const platePages = printed
+              ? draft.printedPages.printed.filter((page) =>
+                  [`${page}.webp`, `${page}-1280.webp`].every((file) =>
+                    existsSync(join(process.cwd(), "public", plateDir, file)),
+                  ),
+                )
+              : [];
             const plate =
-              printed && !resolved.section && existsSync(join(process.cwd(), "public", platePath))
+              printed && platePages.length > 0
                 ? {
-                    src: platePath,
+                    dir: plateDir,
+                    pages: platePages,
+                    volume: printed[1] as string,
                     scanHref: `/papers/pdfs/${draft.bibKey}.pdf`,
-                    printedAt: `Annalen der Physik, volume ${printed[1]}, page ${printed[2]}`,
                   }
                 : undefined;
             return (

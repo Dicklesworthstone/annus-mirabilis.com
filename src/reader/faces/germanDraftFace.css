@@ -5,8 +5,9 @@
    that measured 162 characters a line (median of full lines, 41 paragraphs, trailing partial
    lines dropped; 117 at 1024px). The reader's own measure setting did not reach it either,
    because readingSettings.css applies --reader-measure to .reading-column and .reader-main,
-   and this face is neither. It takes the same variable, so its default is the plate's
-   ~57 characters and Narrow and Wide in Reading preferences now change it.
+   and this face is neither. It takes the same variable, so Narrow, Default and Wide in Reading
+   preferences change it (Default has been 56ch, about 72 characters a line, since 2026-09-22;
+   readingSettings.css says why).
 
    The footnotes share the column, so a note reads at the width of the text it annotates, and
    so do the draft notice and its sticky label: at 1440 they spanned 1,320px above a 450px
@@ -59,18 +60,23 @@
 }
 
 /* ---------------------------------------------------------------------------
-   THE TEXT BESIDE THE PAGE IT WAS SET ON. From 1200px the whole-paper face is one centred
-   composition: the German at the reader's measure, and beside its opening the paper's first
-   printed page, linking to the whole scan. Measured on BUILD 7 at 1440 before this, the column
-   sat 450px wide against the left edge with about two-thirds of the screen empty beside it.
+   THE TEXT BESIDE THE PAGE IT WAS SET ON, AND THE PAGE TURNS WITH THE READER. From 1200px the
+   German and the scan share the frame: the text at the reader's measure, and in the rest of the
+   width the printed page the reader has reached (FollowingPlate.tsx), as large as the screen's
+   height allows. Measured on BUILD 16 at 1440 before this, the text was 450px and the plate the
+   paper's first page at 320px, with 460px of the frame empty beside them; the first page was not
+   sticky because nothing knew which page a paragraph was printed on. Each block now carries its
+   printed page (blockPages.ts), so the plate can be right about every page, and it sticks only
+   once the component is following (data-following). Without JavaScript it is the page the view
+   opens on, beside the opening.
 
-   The plate is the FIRST page and it is not sticky: the draft's blocks carry no page locators,
-   so nothing here knows which page a paragraph was printed on, and a first page riding beside
-   page nine would be a false citation of the scan. It sits where page 132 (or 549, or 639)
-   actually is, beside the opening.
+   The plate is bound by height, not width: a printed page is about 0.64 as wide as it is tall,
+   and a plate taller than the screen could not stay beside the text. So its width is the smaller
+   of its track and 0.64 of the screen's height less room for the caption. At 1440x900 that is
+   about 510px, 1,020 device pixels on a 2x screen, which is what the 1280px plates are for.
 
-   The root takes the composition's width so the title, the tabs and the text share a left edge. Below 1200px nothing changes and the plate is not shown; with
-   loading="lazy" a hidden image is not fetched.
+   Below 1200px nothing changes and the plate is not shown; with loading="lazy" a hidden image is
+   not fetched.
    --------------------------------------------------------------------------- */
 .source-plate {
   display: none;
@@ -91,20 +97,23 @@
 @media (min-width: 75em) {
   .source-body:has(> .source-plate) {
     display: grid;
-    grid-template-columns: minmax(0, calc(var(--reader-measure) * var(--reader-step))) 20rem;
+    grid-template-columns: minmax(0, calc(var(--reader-measure) * var(--reader-step))) minmax(
+        18rem,
+        1fr
+      );
     column-gap: 4rem;
-    justify-content: center;
     align-items: start;
   }
   .source-plate {
     display: block;
+    container-type: inline-size;
   }
-  /* The composition's width is set ONCE, on the root, so the title, the tabs and the text inherit
-     one box. Set on each child it missed by 24px on the tabs: ch resolves against the font of the
-     element declaring it, and the tabs are set in the sans. */
-  .reader-root:has(.source-plate) {
-    max-width: calc(var(--reader-measure) * var(--reader-step) + 24rem);
-    margin-inline: auto;
+  .source-plate img {
+    width: min(100cqi, (100svh - 8rem) * 0.64);
+  }
+  .source-plate[data-following] {
+    position: sticky;
+    top: 2rem;
   }
 }
 
