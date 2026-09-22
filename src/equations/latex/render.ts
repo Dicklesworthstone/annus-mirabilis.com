@@ -179,9 +179,22 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
         s = `\\sqrt${n.degree === 2 ? "" : `[${n.degree}]`}{${render(n.radicand)}}`;
         break;
 
-      case "negate":
-        s = `-\\left(${render(n.argument)}\\right)`;
+      case "negate": {
+        /*
+          A MINUS SIGN WRAPS ONLY WHAT IT MUST. It wrapped everything, so Wien's exponent printed
+          exp(-(B nu / T)) and Delta m printed -(L / c^2). A sum, a relation, another negation and a
+          negative literal keep their parentheses, since -(a + b), -(-x) and -(-3) differ from what
+          dropping them would say; a fraction, a product, a power or a function does not need them.
+        */
+        const a = n.argument;
+        const wrap =
+          a.kind === "sum" ||
+          a.kind === "relation" ||
+          a.kind === "negate" ||
+          (a.kind === "number" && a.value.startsWith("-"));
+        s = wrap ? `-\\left(${render(a)}\\right)` : `-${render(a)}`;
         break;
+      }
 
       case "group":
         s = `\\left(${render(n.argument)}\\right)`;
