@@ -1,0 +1,88 @@
+/* The laboratory family: rules every /lab route shares. Imported by src/app/lab/layout.tsx,
+   so they reach all 41 laboratories, and by ExperimentSettings.tsx wherever it is used. */
+
+/* The heading keeps its title on the left and the execution label on the right. On four
+   laboratories (bm-02, lq-02, sr-06 and one more) the eyebrow and the title were direct
+   children of a space-between flex row, which pushed the title to the far right edge. */
+.laboratory > .lab-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1.5rem;
+  row-gap: 0.35rem;
+  align-items: start;
+}
+
+.laboratory > .lab-heading > * {
+  grid-column: 1;
+}
+
+.laboratory > .lab-heading > :is(.badge, .execution-chrome) {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  justify-self: end;
+}
+
+@media (max-width: 40rem) {
+  .laboratory > .lab-heading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .laboratory > .lab-heading > :is(.badge, .execution-chrome) {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+  }
+}
+
+/* The Experiment settings drawer (ExperimentSettings.tsx). */
+.experiment-settings {
+  border-block: 1px solid var(--line);
+  margin-block: 1.25rem;
+}
+
+.experiment-settings > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.6rem;
+  min-height: 44px;
+  padding-block: 0.7rem;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+.experiment-settings > summary::-webkit-details-marker {
+  display: none;
+}
+
+.experiment-settings > summary::before {
+  content: "";
+  align-self: center;
+  width: 0.45em;
+  height: 0.45em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+
+.experiment-settings[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+.experiment-settings > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.experiment-settings-contents {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.experiment-settings-body {
+  padding-block: 0.25rem 1.25rem;
+}

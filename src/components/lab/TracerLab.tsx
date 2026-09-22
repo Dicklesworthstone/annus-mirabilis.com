@@ -16,6 +16,7 @@ import type { ExecutionStateKind } from "../../experiments/provenance/executionS
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import equationPayload from "../../generated/brownian-equations.json";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
+import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
@@ -274,137 +275,6 @@ export function TracerLab({
         </p>
         <div className="lab-columns">
           <div>
-            <form onSubmit={submit} noValidate>
-              <fieldset disabled={!ready}>
-                <legend>Record and observe</legend>
-                <div className="input-grid">
-                  {BM01_FIELDS.map(([key, label, unit]) => (
-                    <div className="input-field" key={key}>
-                      <label htmlFor={`${id}-${key}`}>
-                        {label} <span>({unit})</span>
-                      </label>
-                      <input
-                        id={`${id}-${key}`}
-                        name={key}
-                        inputMode="decimal"
-                        type="text"
-                        value={draft[key]}
-                        onChange={(e) => {
-                          setDraft({ ...draft, [key]: e.target.value });
-                          setDirty(true);
-                        }}
-                      />
-                    </div>
-                  ))}
-                  <div className="input-field">
-                    <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
-                    <input
-                      id={`${id}-seed`}
-                      name="seed"
-                      type="text"
-                      inputMode="numeric"
-                      value={draft.seed}
-                      onChange={(e) => {
-                        setDraft({ ...draft, seed: e.target.value });
-                        setDirty(true);
-                      }}
-                    />
-                  </div>
-                  <div className="input-field">
-                    <label htmlFor={`${id}-axis`}>Signed coordinate</label>
-                    <select
-                      id={`${id}-axis`}
-                      name="axis"
-                      value={draft.axis}
-                      onChange={(e) => {
-                        setDraft({ ...draft, axis: e.target.value });
-                        setDirty(true);
-                      }}
-                    >
-                      <option value="0">x</option>
-                      <option value="1">y</option>
-                      <option value="2">z</option>
-                    </select>
-                  </div>
-                  <div className="input-field">
-                    <label htmlFor={`${id}-d`}>Coordinates in the total distance</label>
-                    <select
-                      id={`${id}-d`}
-                      name="d"
-                      value={draft.d}
-                      onChange={(e) => {
-                        setDraft({ ...draft, d: e.target.value });
-                        setDirty(true);
-                      }}
-                    >
-                      <option value="1">One: x</option>
-                      <option value="2">Two: x and y</option>
-                      <option value="3">Three: x, y and z</option>
-                    </select>
-                  </div>
-                  <div className="input-field">
-                    <label htmlFor={`${id}-statistic`}>Statistic to compare over time</label>
-                    <select
-                      id={`${id}-statistic`}
-                      name="statistic"
-                      value={draft.statistic}
-                      onChange={(e) => {
-                        setDraft({ ...draft, statistic: e.target.value });
-                        setDirty(true);
-                      }}
-                    >
-                      {Object.entries(PLOT_KINDS).map(([key, kind]) => (
-                        <option key={key} value={key}>
-                          {kind.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <p className="fine">
-                  The preview records at most 8 MiB of latent paths. Its default is 400 tracers for
-                  10 seconds at 0.02-second resolution. Larger requests are refused, never silently
-                  reduced.
-                </p>
-                <div className="actions">
-                  <button type="submit">Apply trial settings</button>
-                  <button
-                    type="button"
-                    className="secondary"
-                    onClick={() => session.stop()}
-                    disabled={!view.pending}
-                  >
-                    Stop calculation
-                  </button>
-                </div>
-              </fieldset>
-            </form>
-            {dirty && (
-              <p className="draft-note">
-                These edits are a draft. Graphs and numbers still describe the accepted trial below.
-              </p>
-            )}
-            {error && (
-              <p className="notice error" role="alert">
-                {error}
-              </p>
-            )}
-            <div className="actions">
-              <button type="button" className="secondary" disabled={!ready} onClick={newTrial}>
-                New independent trial
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                disabled={!ready}
-                onClick={() => apply({ ...p, eta: p.eta * 2 })}
-              >
-                Double viscosity, same seed
-              </button>
-            </div>
-            <p className="fine">
-              Same-seed viscosity comparisons use common random numbers, not independent trials.
-            </p>
             <details>
               <summary>Predict before comparing observation times</summary>
               <div className="input-field">
@@ -449,6 +319,139 @@ export function TracerLab({
               These buttons use the accepted trial, not unsaved draft edits. The requested time must
               lie on its recording grid.
             </p>
+            <div className="actions">
+              <button type="button" className="secondary" disabled={!ready} onClick={newTrial}>
+                New independent trial
+              </button>
+              <button
+                type="button"
+                className="secondary"
+                disabled={!ready}
+                onClick={() => apply({ ...p, eta: p.eta * 2 })}
+              >
+                Double viscosity, same seed
+              </button>
+            </div>
+            <p className="fine">
+              Same-seed viscosity comparisons use common random numbers, not independent trials.
+            </p>
+            <ExperimentSettings contents="temperature, viscosity, radius, tracers, timing, seed">
+              <form onSubmit={submit} noValidate>
+                <fieldset disabled={!ready}>
+                  <legend>Record and observe</legend>
+                  <div className="input-grid">
+                    {BM01_FIELDS.map(([key, label, unit]) => (
+                      <div className="input-field" key={key}>
+                        <label htmlFor={`${id}-${key}`}>
+                          {label} <span>({unit})</span>
+                        </label>
+                        <input
+                          id={`${id}-${key}`}
+                          name={key}
+                          inputMode="decimal"
+                          type="text"
+                          value={draft[key]}
+                          onChange={(e) => {
+                            setDraft({ ...draft, [key]: e.target.value });
+                            setDirty(true);
+                          }}
+                        />
+                      </div>
+                    ))}
+                    <div className="input-field">
+                      <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
+                      <input
+                        id={`${id}-seed`}
+                        name="seed"
+                        type="text"
+                        inputMode="numeric"
+                        value={draft.seed}
+                        onChange={(e) => {
+                          setDraft({ ...draft, seed: e.target.value });
+                          setDirty(true);
+                        }}
+                      />
+                    </div>
+                    <div className="input-field">
+                      <label htmlFor={`${id}-axis`}>Signed coordinate</label>
+                      <select
+                        id={`${id}-axis`}
+                        name="axis"
+                        value={draft.axis}
+                        onChange={(e) => {
+                          setDraft({ ...draft, axis: e.target.value });
+                          setDirty(true);
+                        }}
+                      >
+                        <option value="0">x</option>
+                        <option value="1">y</option>
+                        <option value="2">z</option>
+                      </select>
+                    </div>
+                    <div className="input-field">
+                      <label htmlFor={`${id}-d`}>Coordinates in the total distance</label>
+                      <select
+                        id={`${id}-d`}
+                        name="d"
+                        value={draft.d}
+                        onChange={(e) => {
+                          setDraft({ ...draft, d: e.target.value });
+                          setDirty(true);
+                        }}
+                      >
+                        <option value="1">One: x</option>
+                        <option value="2">Two: x and y</option>
+                        <option value="3">Three: x, y and z</option>
+                      </select>
+                    </div>
+                    <div className="input-field">
+                      <label htmlFor={`${id}-statistic`}>Statistic to compare over time</label>
+                      <select
+                        id={`${id}-statistic`}
+                        name="statistic"
+                        value={draft.statistic}
+                        onChange={(e) => {
+                          setDraft({ ...draft, statistic: e.target.value });
+                          setDirty(true);
+                        }}
+                      >
+                        {Object.entries(PLOT_KINDS).map(([key, kind]) => (
+                          <option key={key} value={key}>
+                            {kind.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <p className="fine">
+                    The preview records at most 8 MiB of latent paths. Its default is 400 tracers
+                    for 10 seconds at 0.02-second resolution. Larger requests are refused, never
+                    silently reduced.
+                  </p>
+                  <div className="actions">
+                    <button type="submit">Apply trial settings</button>
+                    <button
+                      type="button"
+                      className="secondary"
+                      onClick={() => session.stop()}
+                      disabled={!view.pending}
+                    >
+                      Stop calculation
+                    </button>
+                  </div>
+                </fieldset>
+              </form>
+            </ExperimentSettings>
+            {dirty && (
+              <p className="draft-note">
+                These edits are a draft. Graphs and numbers still describe the accepted trial below.
+              </p>
+            )}
+            {error && (
+              <p className="notice error" role="alert">
+                {error}
+              </p>
+            )}
           </div>
           <div className="lab-results">
             <p className="status-line" role="status" aria-live="polite" aria-atomic="true">

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import "../../components/lab/labShell.css";
 
 /**
  * Connect the instruments to the shared reasoning laboratories without changing their state.
