@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import RodSimultaneityPage from "../app/lab/sr-03/page.tsx";
 import { RodSimultaneityLab } from "../components/lab/RodSimultaneityLab.tsx";
+import { SR03_PROMPTS } from "../experiments/sr03/definition.ts";
 import { createSr03Session } from "../experiments/sr03/session.ts";
 import example from "../generated/sr03-example.json";
 import { containsHeading } from "./headingText.ts";
@@ -41,12 +42,16 @@ describe("SR-03 Rod Measurement and Simultaneity Lab View & Route (am-sr-03-rod-
     );
     expect(html).toContain('data-instrument-id="sr-03"');
     expect(html).toContain("SR-03 · An executable laboratory");
-    expect(containsHeading(html, "Discovery Mode: Predict Before Calculating")).toBe(true);
-    // Not a heading assertion: "Relativity of Simultaneity" is a predict-prompt BUTTON label
-    // here, and scoping containsHeading to heading elements is what revealed that. It stays a
-    // plain substring check, and it is case-sensitive on purpose - the title-case rule does not
-    // reach button labels, so nothing is about to change this string underneath it.
-    expect(html).toContain("Relativity of Simultaneity");
+    // The prompts sit in one closed disclosure. The two tab buttons that used to switch them were
+    // labelled "Relativity of Simultaneity" and "Invariant Causal Order", which named each answer
+    // before the question (b52335ab), so the check is for the disclosure and both questions.
+    expect(html).toContain("<summary>Predict before calculating</summary>");
+    const text = html.replaceAll("&#x27;", "'").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+    for (const key of ["endpoint-pair", "causal-order"] as const) {
+      expect(text).toContain(SR03_PROMPTS[key].question);
+    }
+    expect(html).not.toContain("Relativity of Simultaneity");
+    expect(html).not.toContain("Invariant Causal Order");
     expect(containsHeading(html, "Spacetime Event Diagram")).toBe(true);
     expect(containsHeading(html, "Spatial Rod Strip Projection")).toBe(true);
   });
