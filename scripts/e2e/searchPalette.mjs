@@ -66,9 +66,19 @@ const files = new Map([
   ["/search/index-manifest.json", bundle.manifestText],
   ...bundle.files.map((file) => [file.descriptor.path, file.text]),
   ["/search.css", await readFile(resolve(root, "src/search/search.css"), "utf8")],
+  ["/modal.css", await readFile(resolve(root, "src/a11y/modal/modal.css"), "utf8")],
 ]);
-for (const name of ["core", "protocol", "loadIndex", "CommandPalette", "launcher"]) {
-  const source = await readFile(resolve(root, `src/search/${name}.ts`), "utf8");
+// The palette closes through the site's one shared overlay behaviour, served beside it.
+const modulePaths = {
+  core: "src/search/core.ts",
+  protocol: "src/search/protocol.ts",
+  loadIndex: "src/search/loadIndex.ts",
+  CommandPalette: "src/search/CommandPalette.ts",
+  launcher: "src/search/launcher.ts",
+  dismiss: "src/a11y/modal/dismiss.ts",
+};
+for (const [name, path] of Object.entries(modulePaths)) {
+  const source = await readFile(resolve(root, path), "utf8");
   const compiled = ts.transpileModule(source, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
     fileName: `${name}.ts`,
@@ -77,11 +87,13 @@ for (const name of ["core", "protocol", "loadIndex", "CommandPalette", "launcher
   assert.equal(compiled.diagnostics?.length ?? 0, 0);
   files.set(
     `/modules/${name}.js`,
-    compiled.outputText.replace(/(from\s*["']|import\(["'])(\.\/[^"']+)\.ts(["'])/gu, "$1$2.js$3"),
+    compiled.outputText
+      .replace(/(from\s*["'])\.\.\/a11y\/modal\/dismiss\.ts(["'])/gu, "$1./dismiss.js$2")
+      .replace(/(from\s*["']|import\(["'])(\.\/[^"']+)\.ts(["'])/gu, "$1$2.js$3"),
   );
 }
 const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Search acceptance fixture</title><link rel="stylesheet" href="/search.css"><style>
+<title>Search acceptance fixture</title><link rel="stylesheet" href="/search.css"><link rel="stylesheet" href="/modal.css"><style>
 :root{--ink:#242a29;--panel:#fffdf7;--line:#c7c5b9;--muted:#545b56;--accent:#8b3526;--wash:#e8eadf}
 *{box-sizing:border-box}body{font:18px/1.5 Georgia,serif;padding:1rem}button,input{font:inherit}input{width:100%;padding:.6rem}.fine{font:14px/1.5 Arial,sans-serif}
 </style></head><body><a id="open" href="/papers/">Search</a><span id="launch-status" role="status"></span>
@@ -261,6 +273,60 @@ try {
     await tab.getByRole("combobox", { name: "Words, symbols, or a laboratory ID" }).fill("λₓ");
     await tab.getByText("1 result shown.", { exact: true }).waitFor();
   });
+  await check(
+    "on a phone the X sits top right and a tap outside closes, a drag out does not",
+    async () => {
+      const phone = await browser.newContext({
+        viewport: { width: 390, height: 844 },
+        hasTouch: true,
+        isMobile: true,
+      });
+      contexts.push(phone);
+      const tab = await phone.newPage();
+      tab.on("pageerror", (error) => errors.push(error.message));
+      await tab.goto(url);
+      await tab.waitForFunction(() => window.fixtureReady);
+      const dialog = tab.locator("[data-search-dialog]");
+      const close = tab.getByRole("button", { name: "Close search", exact: true });
+      const open = async () => {
+        await tab.locator("#open").tap();
+        await close.waitFor();
+      };
+      // A point on the backdrop: below the panel when it leaves room, else in the side margin.
+      const outside = async () => {
+        const box = await dialog.boundingBox();
+        const below = box.y + box.height;
+        return below < 844 - 24 ? [195, (below + 844) / 2] : [Math.max(1, box.x / 2), 422];
+      };
+      await open();
+      const x = await dialog.evaluate((panel) => {
+        const p = panel.getBoundingClientRect();
+        const b = panel.querySelector("[data-modal-close]").getBoundingClientRect();
+        return { w: b.width, h: b.height, right: p.right - b.right, top: b.top - p.top };
+      });
+      assert.ok(x.w >= 44 && x.h >= 44, `X is ${x.w}x${x.h}`);
+      assert.ok(x.right <= 32 && x.top <= 32, `X is ${x.right}px from the right, ${x.top}px down`);
+      await tab.screenshot({ path: resolve(artifactDir, "search-390-close.png") });
+      const panel = await dialog.boundingBox();
+      await tab.touchscreen.tap(panel.x + panel.width / 2, panel.y + panel.height - 6);
+      assert.equal(await dialog.count(), 1, "a tap inside the panel closed it");
+      await tab.touchscreen.tap(...(await outside()));
+      await dialog.waitFor({ state: "detached" });
+      assert.equal(await tab.locator("#open").evaluate((n) => n === document.activeElement), true);
+      await open();
+      const field = await tab
+        .getByRole("combobox", { name: "Words, symbols, or a laboratory ID" })
+        .boundingBox();
+      const [ox, oy] = await outside();
+      await tab.mouse.move(field.x + 8, field.y + field.height / 2);
+      await tab.mouse.down();
+      await tab.mouse.move(ox, oy, { steps: 6 });
+      await tab.mouse.up();
+      assert.equal(await dialog.count(), 1, "a selection dragged out of the field closed it");
+      await close.tap();
+      await dialog.waitFor({ state: "detached" });
+    },
+  );
   assert.deepEqual(errors, []);
   console.log(
     JSON.stringify({ suite: "search-browser", browser: browser.version(), checks }, null, 2),
