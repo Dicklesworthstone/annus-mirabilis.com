@@ -412,8 +412,8 @@ export const FIXTURE_BROWNIAN_TRANSLATION_UNITS: readonly TranslationUnit[] = [
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     editor: {
@@ -437,8 +437,8 @@ export const FIXTURE_BROWNIAN_TRANSLATION_UNITS: readonly TranslationUnit[] = [
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     editor: {
@@ -499,8 +499,8 @@ export const FIXTURE_BROWNIAN_TRANSLATION_UNITS: readonly TranslationUnit[] = [
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     editor: {
@@ -524,8 +524,8 @@ export const FIXTURE_BROWNIAN_TRANSLATION_UNITS: readonly TranslationUnit[] = [
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     revision: 1,
@@ -777,8 +777,8 @@ export const FIXTURE_1_TO_2_TRANSLATION_UNITS: readonly TranslationUnit[] = [
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     editor: {
@@ -802,8 +802,8 @@ export const FIXTURE_1_TO_2_TRANSLATION_UNITS: readonly TranslationUnit[] = [
       },
     ],
     translator: {
-      userId: "ad-cowper",
-      name: "A. D. Cowper",
+      userId: "fixture-translator",
+      name: "Fixture Translator",
       role: "translator",
     },
     editor: {

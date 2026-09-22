@@ -11,6 +11,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { getLogger } from "../../testing/log/logger.ts";
 import { canonicalJsonStringify } from "../compiler/emitter.ts";
+import { type Inline, plainText } from "../schemas/inlines.ts";
 import { generateJsonLd } from "./jsonld.ts";
 import { generateSectionMarkdown } from "./markdown.ts";
 import { generateParallelCorpusTsv } from "./parallelCorpus.ts";
@@ -115,9 +116,17 @@ export interface ExportEmitterTranslationUnitInput {
   readonly sourceRefs?:
     | readonly { readonly paper?: string | undefined; readonly id?: string | undefined }[]
     | undefined;
-  readonly inlines?: string | readonly unknown[] | undefined;
-  readonly diplomaticText?: string | undefined;
-  readonly text?: string | undefined;
+  /**
+   * The unit's English, in the shape TranslationUnit actually declares
+   * (src/content/schemas/source.ts): `readonly Inline[]`, always an array. A bare string is
+   * still accepted because plainText() accepts one, but nothing in the schema produces it.
+   *
+   * `diplomaticText` and `text` used to be declared here and are gone (am-33q6). They are not
+   * fields of TranslationUnit, so declaring them let the emitter typecheck against a record
+   * shape the content model cannot produce, which is why the extraction below read three
+   * branches that never fired.
+   */
+  readonly inlines?: string | readonly Inline[] | undefined;
   readonly reviewState?: string | undefined;
 }
 
@@ -466,8 +475,13 @@ export async function emitMachineReadableExports(
           // Find corresponding translation unit
           for (const tu of options.translationUnits ?? []) {
             if (tu.sourceRefs?.some((sr) => sr.id === sentId || sr.id === b.id)) {
-              englishText =
-                typeof tu.inlines === "string" ? tu.inlines : (tu.diplomaticText ?? tu.text);
+              // plainText() is the content model's own extractor (schemas/inlines.ts) and
+              // handles both an Inline[] and a bare string. It replaces three branches that
+              // could never fire against a real TranslationUnit: `inlines` is always an array,
+              // and `diplomaticText` and `text` are not fields of that type at all (am-33q6).
+              // An empty extraction stays falsy, so the `english` key is omitted rather than
+              // written as "".
+              englishText = plainText(tu.inlines ?? []) || undefined;
               tuReviewState = tu.reviewState;
               tuDraft = tuReviewState === "draft" || tuReviewState === "machine-draft";
               break;

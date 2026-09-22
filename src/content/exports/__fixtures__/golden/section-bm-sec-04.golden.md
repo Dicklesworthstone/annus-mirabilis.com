@@ -15,12 +15,15 @@
 
 ### [bm-s4-h1-s1]
 **DE:** § 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion
+**EN:** § 4. On the Irregular Movement of Particles Suspended in a Liquid and Its Relation to Diffusion
 *Status:* `reviewed`
 
 ### [bm-s4-p1-s1]
 **DE:** Es sei ein Zeitintervall τ gegeben. Wir wollen annehmen, daß jedes einzelne Teilchen eine Verschiebung Δ erfahre.
+**EN:** Let a time interval τ be given.
 *Status:* `reviewed`
 
 ### [bm-s4-p1-s2]
 **DE:** Es sei ein Zeitintervall τ gegeben. Wir wollen annehmen, daß jedes einzelne Teilchen eine Verschiebung Δ erfahre.
+**EN:** We shall assume that each individual particle experiences a displacement Δ.
 *Status:* `draft`

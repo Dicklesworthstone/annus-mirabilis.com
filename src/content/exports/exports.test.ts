@@ -299,12 +299,16 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       },
     };
 
+    // Shaped like a real TranslationUnit: `inlines` as an Inline[] (am-33q6). This fixture
+    // used to carry `diplomaticText`, which is not a field of TranslationUnit, so it was the
+    // only reason the old extraction's middle branch ever fired. The emitter appeared to
+    // export English while being unable to read any record the content model produces.
     const draftTranslation = {
       id: "tu-draft-01",
       sourceRefs: [{ id: "bm-s4-b-draft-s1" }],
-      diplomaticText: "Draft sentence of motion.",
+      inlines: [{ kind: "text", text: "Draft sentence of motion." }],
       reviewState: "machine-draft",
-    };
+    } as const;
 
     // Preview build
     await emitMachineReadableExports({

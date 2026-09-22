@@ -85,12 +85,14 @@
   "sectionId": "bm-sec-04",
   "sentences": [
     {
+      "english": "§ 4. On the Irregular Movement of Particles Suspended in a Liquid and Its Relation to Diffusion",
       "german": "§ 4. Über die ungeordnete Bewegung von in einer Flüssigkeit suspendierten Teilchen und deren Beziehung zur Diffusion",
       "id": "bm-s4-h1-s1",
       "reviewState": "reviewed",
       "sourceBlockId": "bm-s4-h1"
     },
     {
+      "english": "Let a time interval τ be given.",
       "german": "Es sei ein Zeitintervall τ gegeben. Wir wollen annehmen, daß jedes einzelne Teilchen eine Verschiebung Δ erfahre.",
       "id": "bm-s4-p1-s1",
       "reviewState": "reviewed",
@@ -98,6 +100,7 @@
     },
     {
       "draft": true,
+      "english": "We shall assume that each individual particle experiences a displacement Δ.",
       "german": "Es sei ein Zeitintervall τ gegeben. Wir wollen annehmen, daß jedes einzelne Teilchen eine Verschiebung Δ erfahre.",
       "id": "bm-s4-p1-s2",
       "reviewState": "draft",
