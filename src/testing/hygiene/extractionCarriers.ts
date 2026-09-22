@@ -147,6 +147,24 @@ export const GATE_LISTS = [
 ] as const;
 
 /**
+ * A gate's list could not be read.
+ *
+ * Typed rather than a bare `throw new Error`, because the repository's refusal ratchet is right
+ * that an untyped refusal cannot be caught by code or counted by a gate. This one matters more
+ * than most: the failure it names is a parse returning nothing, and a silent empty list would
+ * make every ownership check below it pass over an empty set.
+ */
+export class GateListParseError extends Error {
+  readonly code: string;
+
+  constructor(code: string, message: string) {
+    super(`${message} (${code})`);
+    this.name = "GateListParseError";
+    this.code = code;
+  }
+}
+
+/**
  * Reads a list literal out of a gate's source.
  *
  * A parse can go wrong quietly, and a list that came back empty would make an ownership check
@@ -157,7 +175,10 @@ export function readGateList(root: string, relativePath: string, constName: stri
   const source = readFileSync(join(root, relativePath), "utf8");
   const declaration = new RegExp(`\\b${constName}\\s*=\\s*\\[([\\s\\S]*?)\\]`).exec(source);
   if (declaration?.[1] === undefined) {
-    throw new Error(`${relativePath} no longer declares ${constName} as an array literal.`);
+    throw new GateListParseError(
+      "gate-list-declaration-missing",
+      `${relativePath} no longer declares ${constName} as an array literal, so the ownership check would compare against nothing`,
+    );
   }
   const withoutComments = declaration[1]
     .split("\n")

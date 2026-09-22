@@ -42,6 +42,7 @@ import {
   contentIsExtractionCarrier,
   EXTRACTION_HEADER_OPENING,
   GATE_LISTS,
+  GateListParseError,
   readGateList,
 } from "./extractionCarriers.ts";
 
@@ -89,6 +90,19 @@ describe("every extracted donor file meets the strongest of the three rule sets"
       failures: [],
       scanned: listed.length,
     });
+  });
+
+  test("a list that cannot be parsed refuses with a typed code rather than returning nothing", () => {
+    // The refusal that matters most in this module: a rename or a reshaped literal must stop
+    // the run, not hand back an empty array that makes the ownership checks pass over nothing.
+    let thrown: unknown;
+    try {
+      readGateList(ROOT, GATE_LISTS[0].path, "EXTRACTED_FILES_THAT_DO_NOT_EXIST");
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(GateListParseError);
+    expect((thrown as GateListParseError).code).toBe("gate-list-declaration-missing");
   });
 
   describe("the membership predicate", () => {
