@@ -48,6 +48,24 @@
 .route-map a:hover {
   text-decoration: underline;
 }
+/* Where the reader is, once they have jumped there: the section a map link opened is marked with
+   the accent rule the paper outline uses for the current section. CSS only, so it holds without
+   JavaScript; it follows a jump, not a scroll. Ten steps covers the longest route (eight). */
+.encounter:has(#step-01:target) .route-map a[href="#step-01"],
+.encounter:has(#step-02:target) .route-map a[href="#step-02"],
+.encounter:has(#step-03:target) .route-map a[href="#step-03"],
+.encounter:has(#step-04:target) .route-map a[href="#step-04"],
+.encounter:has(#step-05:target) .route-map a[href="#step-05"],
+.encounter:has(#step-06:target) .route-map a[href="#step-06"],
+.encounter:has(#step-07:target) .route-map a[href="#step-07"],
+.encounter:has(#step-08:target) .route-map a[href="#step-08"],
+.encounter:has(#step-09:target) .route-map a[href="#step-09"],
+.encounter:has(#step-10:target) .route-map a[href="#step-10"],
+.encounter:has(#shelf:target) .route-map a[href="#shelf"],
+.encounter:has(#in-the-paper:target) .route-map a[href="#in-the-paper"] {
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
 .route-map-number {
   font-family: var(--font-sans);
   font-size: var(--type-micro);
