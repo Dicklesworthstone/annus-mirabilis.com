@@ -137,6 +137,12 @@ export function ReaderController(props: Props) {
       cancelReturn();
       root.dataset.ready = "false";
       document.documentElement.dataset.detail = String(state.detail);
+      // The steps reading is one <details> per passage (PaperPage, PaperReader). At "Show every
+      // step" it IS the passage's text, so it is open; leaving that level closes it again, and
+      // otherwise a reader's own open or closed choice is left alone.
+      if (state.detail === 2 || previous?.detail === 2)
+        for (const steps of root.querySelectorAll<HTMLDetailsElement>('details[data-reading="2"]'))
+          steps.open = state.detail === 2;
       document.documentElement.dataset.lens = state.lens ? "modern" : "paper";
       document.documentElement.dataset.view = state.view;
       root.dataset.view = state.view;

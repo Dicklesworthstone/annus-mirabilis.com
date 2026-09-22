@@ -334,7 +334,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     <h3>{a.title}</h3>
                     <p className="passage-question">{a.question}</p>
                     <div data-face-reading>
-                      {(["overview", "full", "steps"] as const).map((reading, i) => (
+                      {(["overview", "full"] as const).map((reading, i) => (
                         <div
                           data-reading={i}
                           hidden={i !== 1}
@@ -344,26 +344,36 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                           <ReadingBlocks
                             blocks={a.readings[reading]}
                             foundations={foundations}
-                            embed={reading === "steps"}
                             contextLabel={`${a.title}, reading steps`}
                           />
                         </div>
                       ))}
+                      {/*
+                        R2 IS RENDERED ONCE, AS THE DISCLOSURE. It used to be rendered twice per
+                        passage: a hidden data-reading="2" copy for the page-wide "Show every
+                        step", and the same blocks again, embedded lessons and all, inside "Show
+                        every step here" below the equations. On /papers/brownian-motion/ that
+                        was 149,096 bytes of markup twice over, plus both copies again in the
+                        flight data, and it put the page over its 250 kB budget. One copy now
+                        serves both: closed, it is the per-passage disclosure, which needs no
+                        JavaScript; with Detail at "Show every step", ReaderController opens it
+                        and detail.css hides its summary, so it reads as the passage's text.
+                      */}
+                      <details className="local-steps reading-version" data-reading={2}>
+                        <summary>Show every step here: {a.title}</summary>
+                        <ReadingBlocks
+                          blocks={a.readings.steps}
+                          foundations={foundations}
+                          embed
+                          contextLabel={`${a.title}, reading steps`}
+                        />
+                      </details>
                       {(missingSteps.lessons as readonly CompiledMissingStepLesson[])
                         .filter((lesson) => lesson.argument === a.id)
                         .map((lesson) => (
                           <MissingStepDisclosure key={lesson.id} lesson={lesson} />
                         ))}
                       <ArgumentEquations paperId={paper.id} argumentId={a.id} />
-                      <details className="local-steps">
-                        <summary>Show every step here: {a.title}</summary>
-                        <ReadingBlocks
-                          blocks={a.readings.steps}
-                          foundations={foundations}
-                          embed
-                          contextLabel={`${a.title}, local steps`}
-                        />
-                      </details>
                       <aside className="modern-margin callout-limit" data-reading="3" hidden>
                         <h4>Modern qualifications</h4>
                         <ReadingBlocks blocks={a.readings.margin} foundations={foundations} />

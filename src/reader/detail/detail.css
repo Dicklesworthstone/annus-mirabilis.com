@@ -25,6 +25,25 @@
 :root[data-detail="2"] [data-reading="2"] {
   display: initial;
 }
+/*
+ * The steps reading is a <details> (PaperPage, PaperReader): R2 is rendered once, as the
+ * per-passage disclosure, rather than twice. At "Show every step" it is the passage's text, so it
+ * keeps its block box (the rule above would make it inline), loses its summary, and shows its
+ * content. ReaderController also sets `open`, which is what assistive technology reads; the
+ * ::details-content rule covers the moment between first paint and hydration, when the pre-paint
+ * script has set data-detail but no script has opened anything yet.
+ */
+:root[data-detail="2"] details[data-reading="2"] {
+  display: block;
+  margin-top: 0;
+}
+:root[data-detail="2"] details[data-reading="2"] > summary {
+  display: none;
+}
+:root[data-detail="2"] details[data-reading="2"]::details-content {
+  content-visibility: visible;
+  display: block;
+}
 
 /*
  * Per-unit override (`data-detail-override` on one unit's own container, per this bead's Per-
