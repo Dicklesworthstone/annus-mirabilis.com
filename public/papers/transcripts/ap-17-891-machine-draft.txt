@@ -421,6 +421,35 @@ $$
 --- MACHINE DRAFT TRANSCRIPTION PAGE 17 OF 31 ---
 [[ANNALEN-PAGE 907]]
 
+tritt; man sieht daraus, daß solche Paralleltransformationen — wie dies sein muß — eine Gruppe bilden.
+
+Wir haben nun die für uns notwendigen Sätze der unseren zwei Prinzipien entsprechenden Kinematik hergeleitet und gehen dazu über, deren Anwendung in der Elektrodynamik zu zeigen.
+
+[[PART-HEADING part-2]]II. Eektrodynamischer Teil.
+
+[[HEADING s6]]§ 6. Transformation der [[SPERR]]Maxwell-Hertz[[/SPERR]]schen Gleichungen für den leeren Raum. Über die Natur der bei Bewegung in einem Magnetfeld auftretenden elektromotorischen Kräfte.
+
+Die [[SPERR]]Maxwell-Hertz[[/SPERR]]schen Gleichungen für den leeren Raum mögen gültig sein für das ruhende System $K$, so daß gelten möge:
+$$
+\begin{aligned}
+\frac{1}{V} \frac{\partial X}{\partial t} &= \frac{\partial N}{\partial y} - \frac{\partial M}{\partial z} , &\qquad \frac{1}{V} \frac{\partial L}{\partial t} &= \frac{\partial Y}{\partial z} - \frac{\partial Z}{\partial y} , \\
+\frac{1}{V} \frac{\partial Y}{\partial t} &= \frac{\partial L}{\partial z} - \frac{\partial N}{\partial x} , &\qquad \frac{1}{V} \frac{\partial M}{\partial t} &= \frac{\partial Z}{\partial x} - \frac{\partial X}{\partial z} , \\
+\frac{1}{V} \frac{\partial Z}{\partial t} &= \frac{\partial M}{\partial x} - \frac{\partial L}{\partial y} , &\qquad \frac{1}{V} \frac{\partial N}{\partial t} &= \frac{\partial X}{\partial y} - \frac{\partial Y}{\partial x} ,
+\end{aligned}
+$$
+wobei $(X, Y, Z)$ den Vektor der elektrischen, $(L, M, N)$ den der magnetischen Kraft bedeutet.
+
+Wenden wir auf diese Gleichungen die in § 3 entwickelte Transformation an, indem wir die elektromagnetischen Vorgänge auf das dort eingeführte, mit der Geschwindigkeit $v$ bewegte Koordinatensystem beziehen, so erhalten wir die Gleichungen:
+$$
+\begin{aligned}
+\frac{1}{V} \frac{\partial X}{\partial \tau} &= \frac{\partial \beta \left( N - \frac{v}{V} Y \right)}{\partial \eta} - \frac{\partial \beta \left( M + \frac{v}{V} Z \right)}{\partial \zeta} , \\
+\frac{1}{V} \frac{\partial \beta \left( Y - \frac{v}{V} N \right)}{\partial \tau} &= \frac{\partial L}{\partial \zeta} - \frac{\partial \beta \left( N - \frac{v}{V} Y \right)}{\partial \xi} , \\
+\frac{1}{V} \frac{\partial \beta \left( Z + \frac{v}{V} M \right)}{\partial \tau} &= \frac{\partial \beta \left( M + \frac{v}{V} Z \right)}{\partial \xi} - \frac{\partial L}{\partial \eta} , \\
+\frac{1}{V} \frac{\partial L}{\partial \tau} &= \frac{\partial \beta \left( Y - \frac{v}{V} N \right)}{\partial \zeta} - \frac{\partial \beta \left( Z + \frac{v}{V} M \right)}{\partial \eta} ,
+\end{aligned}
+$$
+[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 18 OF 31 ---
 [[ANNALEN-PAGE 908]]
 
