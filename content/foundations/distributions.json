@@ -4,12 +4,12 @@
   "id": "distributions",
   "title": "Density is not probability",
   "question": "What does the height of a probability curve mean?",
-  "summary": "A density measures probability per unit of position. Probability belongs to an interval and is its area under the curve.",
+  "summary": "A density is probability per unit length. A probability belongs to an interval, and it is the area under the curve over that interval.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Divide a ruler into bins. The fraction of observations in a bin estimates its probability. Dividing that fraction by the bin width estimates a density. Changing the ruler from metres to micrometres changes the numerical density but not the probability of the same physical interval."
+      "text": "Mark where 100 particles end up on a ruler divided into 2 μm bins. If 30 land in one bin, that bin holds a probability of about 0.3, and the density there is 0.3 divided by 2 μm, or 0.15 per micrometre. Measured in metres the same density is 150,000 per metre, while the bin still holds 0.3: the height depends on the unit of length, and the probability does not."
     },
     {
       "kind": "formula",
@@ -18,17 +18,22 @@
     },
     {
       "kind": "paragraph",
-      "text": "A continuous distribution gives probability zero to any single exact position. At the starting time the ideal point source is instead an atom of probability one, not a finite curve with infinite height."
+      "text": "Under a smooth curve, any single exact position has probability zero, since an interval of zero width has no area. At the starting instant of the Brownian problem every particle sits at one point. No curve can draw that: the whole probability, 1, sits on the single point, and a curve appears only once the particles have begun to spread."
     }
   ],
   "example": [
     {
-      "kind": "paragraph",
-      "text": "A uniform density of 0.25 per micrometre on a four-micrometre interval has total probability one. A one-micrometre subinterval has probability 0.25; a two-micrometre subinterval has probability 0.5."
+      "kind": "steps",
+      "items": [
+        "Spread the probability evenly over 4 μm. The density is 1 divided by 4 μm, or 0.25 per micrometre.",
+        "The area over the whole 4 μm is 0.25 per μm × 4 μm = 1.",
+        "A 1 μm piece has probability 0.25 × 1 = 0.25, and a 2 μm piece has 0.5.",
+        "Squeeze the same probability into 2 μm and the height doubles to 0.5 per micrometre, while the total stays 1. The height was never a probability."
+      ]
     }
   ],
   "exampleTitle": "A flat density across four micrometres",
   "prerequisites": ["bridge-sum-average"],
-  "stoppingPoint": "Always distinguish curve height, interval area and an individual observation.",
+  "stoppingPoint": "The height of the curve is a density, a probability per unit length. Only the area over an interval is a probability.",
   "citations": []
 }

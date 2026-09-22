@@ -3,22 +3,22 @@
   "kind": "foundation",
   "id": "taylor-expansion",
   "title": "A local expansion",
-  "question": "Why can a smooth function be replaced by a few terms?",
-  "summary": "Near a point, value, slope and curvature describe the leading change. Discarding the remaining terms requires a scale argument.",
+  "question": "Why can a curve be replaced, close to one point, by a few simple terms?",
+  "summary": "Close to a point, a smooth curve is described by its value there, its slope and its curvature. Dropping the rest needs a reason: how small the step is, and how fast the dropped terms shrink with it.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "The first derivative is local change per unit of the input. The second derivative describes how that first rate changes. A Taylor expansion writes the nearby value using those rates. The dots stand for a remainder; they are not automatically negligible."
+      "text": "The first derivative is the slope: the change in the output per unit of the input at that point. The second derivative says how quickly the slope itself changes, which is the curvature. A Taylor expansion builds the value a short step Δ away from these: the value, plus the slope times Δ, plus half the curvature times Δ², then further terms. The further terms are small only when Δ is."
     },
     {
       "kind": "formula",
       "latex": "f(x+\\Delta)=f(x)+\\Delta f'(x)+\\frac{\\Delta^2}{2}f''(x)+\\ldots",
-      "spoken": "Nearby value equals the value plus displacement times slope plus half the squared displacement times curvature, followed by a remainder."
+      "spoken": "The value a step delta away equals the value, plus delta times the slope, plus half of delta squared times the curvature, plus further terms."
     },
     {
       "kind": "paragraph",
-      "text": "For a diffusion limit, the mean square step shrinks in proportion to the time interval, while the retained variance per unit time stays finite. Higher moments and the variation scale of the density must justify neglecting higher terms. A real tracer does not have independent steps at arbitrarily short times."
+      "text": "The Brownian paper does exactly this in §4. It expands the number of particles at x + Δ in powers of the jump Δ and keeps the terms up to Δ², because only very small jumps contribute and each further surviving term is much smaller than the one before. The Δ term averages away, since jumps to the left and to the right are equally likely, and the Δ² term becomes the diffusion coefficient. A real particle does not make independent jumps over arbitrarily short times, so the expansion holds for times long enough for successive jumps to be independent and short enough for each jump to be small."
     }
   ],
   "example": [
@@ -28,12 +28,17 @@
       "spoken": "For the square function, the local expansion is exact through the quadratic term."
     },
     {
-      "kind": "paragraph",
-      "text": "At x = 2 and Δ = 0.1, the three terms are 4, 0.4 and 0.01, adding to 4.41. Keeping only the value and slope gives 4.4, with an error of 0.01."
+      "kind": "steps",
+      "items": [
+        "Take x = 2 and Δ = 0.1. The value is 2² = 4.",
+        "The slope term is 2 × 2 × 0.1 = 0.4.",
+        "The curvature term is 0.1² = 0.01.",
+        "The three add to 4.41, which is 2.1² exactly. Stopping after the slope term gives 4.4, off by 0.01, the size of Δ²."
+      ]
     }
   ],
   "exampleTitle": "Squaring 2.1 by keeping two terms",
   "prerequisites": ["bridge-squaring-square-roots"],
-  "stoppingPoint": "Name what is held fixed, which terms are retained, and why the remainder is small.",
+  "stoppingPoint": "An expansion is a claim about size. Say which terms you keep, and why the ones you drop are smaller: here, because they carry higher powers of a small step.",
   "citations": []
 }

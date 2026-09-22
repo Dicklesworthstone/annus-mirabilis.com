@@ -3,10 +3,14 @@
   "kind": "foundation",
   "id": "mean-variance-rms",
   "title": "Mean, variance and RMS",
-  "question": "Which average can reveal wandering that cancels in the signed mean?",
-  "summary": "The mean tracks the centre; the variance tracks spread around the centre; RMS measures distance from the chosen zero.",
+  "question": "If particles wander both ways, which average shows how far they got?",
+  "summary": "The mean says where the centre is. The variance says how widely the values spread around it. The RMS says how far, typically, the values lie from zero.",
   "review": "draft",
   "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Four particles move −3, −1, +1 and +3 micrometres. Their average position has not changed, yet they have spread out. Three averages answer three different questions."
+    },
     {
       "kind": "formula",
       "latex": "\\langle x\\rangle=\\frac{1}{M}\\sum_{i=1}^{M}x_i",
@@ -24,23 +28,23 @@
     },
     {
       "kind": "paragraph",
-      "text": "RMS means root mean square: take the square root after averaging the squares. RMS and standard deviation coincide only when the mean is zero. The average absolute displacement is yet another statistic."
+      "text": "RMS means root mean square: average the squares, then take the square root. The standard deviation is the square root of the variance, so it measures spread around the mean, where the RMS measures distance from zero. The two are equal only when the mean is zero. The average of the distances, ignoring sign, is a third statistic and gives a different number."
     }
   ],
   "example": [
     {
       "kind": "steps",
       "items": [
-        "For −3, −1, +1, +3, the signed sum is 0, so the mean is 0.",
-        "The absolute values are 3, 1, 1, 3; their mean is 2.",
+        "For −3, −1, +1, +3 the signed sum is 0, so the mean is 0.",
+        "The distances, ignoring sign, are 3, 1, 1, 3; their mean is 2.",
         "The squares are 9, 1, 1, 9; their mean is 5.",
-        "The RMS is the square root of 5, approximately 2.236.",
-        "A small random sample need not have a signed mean of exactly zero even when the model mean is zero."
+        "The RMS is the square root of 5, about 2.236. With a mean of 0, the variance is also 5 and the standard deviation is also about 2.236.",
+        "A small random sample need not have a signed mean of exactly zero, even when the model's mean is zero."
       ]
     }
   ],
   "exampleTitle": "Four displacements, four different averages",
   "prerequisites": ["bridge-negative-numbers-direction", "bridge-squaring-square-roots"],
-  "stoppingPoint": "Specify whether you square before averaging, average before squaring, or take absolute values.",
+  "stoppingPoint": "Say which average you mean. Squaring then averaging, averaging then squaring, and averaging the distances give three different numbers.",
   "citations": []
 }

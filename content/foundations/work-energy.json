@@ -3,17 +3,17 @@
   "kind": "foundation",
   "id": "work-energy",
   "title": "Energy of motion and inertia",
-  "question": "What can a change in energy of motion tell us when speed stays the same?",
-  "summary": "At low speeds, energy of motion depends on both speed and inertia. Keeping speed fixed lets us compare the inertia before and after a change.",
+  "question": "If a body moves at the same speed but carries less energy of motion, what has changed?",
+  "summary": "At everyday speeds, the energy of motion depends on speed and on mass. Compare two states at the same speed, and any difference in that energy is a difference in mass.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Work transfers energy when a force acts through a displacement. The energy associated with the motion of a body is called kinetic energy. It is not the same as the energy of its internal heating, chemistry, or other stored processes."
+      "text": "A force that pushes a body through a distance does work on it, and the work becomes the body's energy of motion, its kinetic energy. That is separate from energy stored inside the body, as heat or in its chemistry."
     },
     {
       "kind": "paragraph",
-      "text": "For the same body at ordinary slow speeds, doubling speed multiplies its energy of motion by four. At a fixed speed, doubling inertial mass doubles that energy. The word inertia describes resistance to a change of motion, not a measurement of gravitational weight."
+      "text": "For one body at everyday speeds, doubling the speed multiplies the energy of motion by four. At a fixed speed, doubling the mass doubles it. The mass-energy paper's title asks about a body's Trägheit, its inertia: its resistance to a change in its motion, which is measured by pushing it, not by weighing it."
     },
     {
       "kind": "formula",
@@ -22,13 +22,17 @@
     },
     {
       "kind": "paragraph",
-      "text": "The formula is the low-speed rule. It cannot be assumed exact for a traveler moving at a substantial fraction of light speed. To identify inertia in a relativistic comparison, examine the coefficient as speed approaches zero."
+      "text": "This formula holds at speeds small compared with the speed of light, and it is not exact close to that speed. So the mass-energy argument works with the exact expression and reads the mass from its low-speed limit, where it takes this form."
     }
   ],
   "example": [
     {
-      "kind": "paragraph",
-      "text": "Compare two bodies at 2 metres per second. In the Newtonian model a body of 3 kilograms has 6 joules of energy of motion; a body of 2 kilograms has 4 joules. The speed is unchanged, but the energy of motion differs by 2 joules."
+      "kind": "steps",
+      "items": [
+        "Two bodies move at 2 metres per second.",
+        "The 3 kg body has ½ × 3 × 2² = 6 joules of energy of motion; the 2 kg body has ½ × 2 × 2² = 4 joules.",
+        "The speed is the same, and the energies differ by 2 joules because the masses differ by 1 kg."
+      ]
     },
     {
       "kind": "formula",
@@ -37,11 +41,11 @@
     },
     {
       "kind": "paragraph",
-      "text": "This example assumes independently specified masses; it is not evidence for mass–energy equivalence. The mass-energy argument instead calculates an energy difference from emitted light and then identifies its low-speed coefficient."
+      "text": "Here the two masses are given, so the example proves nothing about mass and energy. The 1905 argument runs the other way: it computes the energy difference from the light the body gives off, finds that it has this form, and reads the mass difference from the coefficient of ½v²."
     }
   ],
   "exampleTitle": "Two bodies at the same speed, different masses",
   "prerequisites": ["bridge-squaring-square-roots", "bridge-fractions-ratios"],
-  "stoppingPoint": "Less energy of motion at the same low speed means a smaller inertial mass within the Newtonian approximation. The comparison alone does not supply an absolute internal energy.",
+  "stoppingPoint": "At the same low speed, less energy of motion means less mass. The comparison gives only a difference in mass, never the total energy stored inside the body.",
   "citations": ["ap-18-639"]
 }

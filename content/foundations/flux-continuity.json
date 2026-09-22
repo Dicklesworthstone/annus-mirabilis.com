@@ -3,32 +3,35 @@
   "kind": "foundation",
   "id": "flux-continuity",
   "title": "Counting what crosses a boundary",
-  "question": "Why does a difference of flows change the density?",
-  "summary": "What accumulates in a region equals what enters minus what leaves, provided nothing is created or destroyed inside.",
+  "question": "If particles keep crossing the edges of a region, what decides whether it fills up or empties?",
+  "summary": "A region gains what enters and loses what leaves. If nothing is made or destroyed inside, the change in its contents is the difference.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Take a short interval. If more tracers enter through its boundaries than leave, its count increases. Flux counts signed crossings per area per time; number density counts particles per volume. They are not the same quantity."
+      "text": "Take a short stretch of a tube. If more particles cross into it than cross out, the number inside goes up. The flux J counts the net number crossing a surface per unit area and per second, with rightward crossings positive; the concentration c counts particles per unit volume. They measure different things, and the equation below connects them."
     },
     {
       "kind": "formula",
       "latex": "\\frac{\\partial c}{\\partial t}=-\\frac{\\partial J}{\\partial x}",
-      "spoken": "Density changes at the negative spatial derivative of the flux."
+      "spoken": "The rate at which the concentration changes equals minus the rate at which the flux changes along x."
     },
     {
       "kind": "paragraph",
-      "text": "In the one-dimensional description, the same balance applies per unit transverse area. The minus sign says an increasing rightward flux removes more particles at the right boundary than arrive at the left."
+      "text": "The minus sign is the bookkeeping. If the rightward flux is larger at the right end of the stretch than at the left, more particles leave on the right than arrive on the left, and the concentration falls."
     }
   ],
   "example": [
     {
-      "kind": "paragraph",
-      "text": "If seven particles enter and five leave during a time interval, the count rises by two. If both flows are five, the count is unchanged even though particles keep crossing."
+      "kind": "steps",
+      "items": [
+        "In one second, 7 particles cross into the stretch and 5 cross out. The count inside rises by 2.",
+        "Next second, 5 cross in and 5 cross out. The count is unchanged, although 10 particles crossed."
+      ]
     }
   ],
   "exampleTitle": "Seven particles in, five out",
   "prerequisites": ["bridge-sum-average"],
-  "stoppingPoint": "Conservation counts net crossings; it does not require each individual particle to stop.",
+  "stoppingPoint": "The contents change by the net crossing. A steady count does not mean the particles have stopped, only that as many leave as arrive.",
   "citations": []
 }
