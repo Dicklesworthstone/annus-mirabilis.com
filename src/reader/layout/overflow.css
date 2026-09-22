@@ -9,9 +9,9 @@
 .reader-local-overflow[data-overflow-affordance="true"]::after {
   content: "Scroll sideways to see the rest of this table or equation.";
   display: block;
-  font:
-    0.85rem / 1.4 Arial,
-    sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  line-height: 1.4;
   color: var(--muted);
   margin-top: 0.4rem;
 }

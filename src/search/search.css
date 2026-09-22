@@ -30,7 +30,7 @@
 }
 .search-dialog label {
   display: block;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
 .search-dialog input,
 .search-dialog select {

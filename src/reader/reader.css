@@ -47,9 +47,9 @@
 }
 .reader-options > label,
 .reader-options .reader-option {
-  font:
-    0.9rem / 1.5 Arial,
-    sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  line-height: 1.5;
   min-width: 12rem;
 }
 .reader-options .reader-option {
@@ -122,9 +122,9 @@
   font-size: var(--type-small);
 }
 .spoken-math {
-  font:
-    0.85rem / 1.55 Arial,
-    sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  line-height: 1.55;
   color: var(--muted);
   margin-top: -0.4rem;
 }

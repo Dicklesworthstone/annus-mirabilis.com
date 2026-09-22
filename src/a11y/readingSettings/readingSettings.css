@@ -112,7 +112,7 @@ html[data-reading-only="on"] [data-autoplay] {
 }
 
 .reading-settings {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--type-small);
 }
 .reading-settings fieldset {

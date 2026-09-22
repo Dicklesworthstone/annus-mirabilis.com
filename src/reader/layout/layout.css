@@ -34,9 +34,9 @@
   flex-wrap: wrap;
   gap: 0.75rem 1.25rem;
   margin-bottom: 1rem;
-  font:
-    0.9rem / 1.4 Arial,
-    sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  line-height: 1.4;
 }
 
 .reader-companion-nav a[aria-current="page"] {
@@ -54,9 +54,9 @@
 .reader-bottom-sheet > summary {
   min-height: 44px;
   cursor: pointer;
-  font:
-    1rem / 1.4 Arial,
-    sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  line-height: 1.4;
 }
 
 .reader-sticky-lab {

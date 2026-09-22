@@ -105,8 +105,19 @@ a {
 a:hover {
   text-decoration-thickness: 2px;
 }
+/* Form controls do not inherit font-family: a UA default wins unless it is set
+   explicitly. select, textarea, fieldset and summary were missing from this list,
+   so the reading-preferences panel rendered in the system Arial - and because a
+   fieldset's children DO inherit from the fieldset, every label inside it went
+   with it. Measured at 1440px before the fix: 12 labels and 4 fieldsets off the
+   type system on the home page alone. */
 button,
 input,
+select,
+textarea,
+fieldset,
+summary,
+optgroup,
 legend,
 .eyebrow,
 .badge,
@@ -120,7 +131,9 @@ figcaption {
   font-family: var(--font-sans);
 }
 button,
-input {
+input,
+select,
+textarea {
   font-size: var(--type-small);
 }
 button,
