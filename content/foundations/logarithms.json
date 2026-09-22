@@ -3,39 +3,61 @@
   "kind": "foundation",
   "id": "logarithms",
   "title": "Logarithms and product-to-sum relations",
-  "question": "Why do logarithms transform multiplicative probabilities into additive thermodynamic quantities?",
-  "summary": "A logarithm is the inverse of exponentiation, converting state-count multiplications into additive entropy, and carrying historical notation distinctions.",
+  "question": "Why does entropy need a logarithm?",
+  "summary": "A logarithm turns multiplying into adding. When two systems are independent, the probabilities of their states multiply while their entropies add, so entropy has to be a logarithm of probability.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "The natural logarithm ln(x) is the inverse of the exponential function: ln(e^u) = u and e^(ln x) = x. Its defining algebraic property is that it converts products into sums: ln(A * B) = ln(A) + ln(B), and powers into products: ln(f^n) = n * ln(f)."
+      "text": "The natural logarithm ln x answers one question: to what power must e, about 2.718, be raised to give x? Its useful property is that it turns multiplying into adding, and a power into a multiple:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\ln(AB) = \\ln A + \\ln B, \\qquad \\ln\\left(f^{\\,n}\\right) = n \\ln f",
+      "spoken": "The log of A times B is log A plus log B, and the log of f to the power n is n times log f."
     },
     {
       "kind": "paragraph",
-      "text": "In 1905 (§5 of the light-quanta paper), Einstein proved that if entropy S is an additive state function for independent systems (S = S_1 + S_2) while the statistical state probability W is multiplicative (W = W_1 * W_2), then the connection S = phi(W) must satisfy phi(W_1 * W_2) = phi(W_1) + phi(W_2). The only continuous solution is the logarithm: S = k * ln(W) + constant."
+      "text": "Entropy needs exactly this. In §5 of the light-quanta paper, Einstein takes two independent systems. Their entropies add, S = S₁ + S₂, while the probabilities of their states multiply, W = W₁W₂. If entropy is some function φ of probability, then φ(W₁W₂) = φ(W₁) + φ(W₂), and he concludes that φ is a logarithm:"
+    },
+    {
+      "kind": "formula",
+      "latex": "S - S_0 = \\frac{R}{N} \\ln W",
+      "spoken": "S minus S nought equals R over N times the natural log of W."
     },
     {
       "kind": "paragraph",
-      "text": "For n = 10 independent molecules each occupying a volume fraction f = 1/2, the joint probability is (1/2)^10 and its logarithm is 10 * ln(1/2) approx -6.931472. Inverting Wien's radiation law u = A nu^3 exp(-beta nu / T) to solve for inverse temperature requires taking the logarithm: ln(u / (A nu^3)) = -beta nu / T."
+      "text": "R is the gas constant and N the number of molecules in a mole, so R/N is what is now called Boltzmann's constant. The step from φ(W₁W₂) = φ(W₁) + φ(W₂) to the logarithm needs φ to be a smooth function, which Einstein takes for granted."
     },
     {
       "kind": "paragraph",
-      "text": "Notation note: In 1905 German scientific literature (including Annalen der Physik), 'lg' denoted the natural logarithm with base e. Modern ISO notation reserves 'lg' for the common base-10 logarithm log_10 and uses 'ln' for the natural logarithm. For example, 1905 printed 'lg 2' meant ln(2) approx 0.693147, not log_10(2) approx 0.301030."
+      "text": "Einstein prints lg for the natural logarithm, as German physics did in 1905. Today lg usually means the base-10 logarithm and ln the natural one. So a printed lg 2 means ln 2, about 0.693, not log₁₀ 2, about 0.301."
     }
   ],
   "example": [
     {
+      "kind": "paragraph",
+      "text": "In §5 Einstein asks how probable it is that n molecules, each moving independently through a volume v₀, are all found at one moment in a part v of it. Each molecule is in that part with probability v/v₀, and independent probabilities multiply:"
+    },
+    {
       "kind": "formula",
-      "latex": "S_1 + S_2 = k \\ln(W_1 \\cdot W_2) = k \\ln W_1 + k \\ln W_2",
-      "spoken": "Entropy of combined independent systems equals Boltzmann constant times natural log of product of state weights, which equals sum of individual entropies."
+      "latex": "W = \\left(\\frac{v}{v_0}\\right)^{n}",
+      "spoken": "W equals v over v nought, to the power n."
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "Take n = 10 molecules and v = v₀/2. Then W = (1/2)¹⁰ = 1/1024, about 0.000977.",
+        "The logarithm turns the tenth power into ten times: ln W = 10 × ln(1/2) = 10 × (−0.693) = −6.93.",
+        "So the entropy of the state with every molecule in one half is lower by 6.93 × R/N: 6.93 times Boltzmann's constant."
+      ]
     },
     {
       "kind": "paragraph",
-      "text": "Natural log of 2 is ln(2) approx 0.693147, whereas common log of 2 is log_10(2) approx 0.301030. For W_1 = 4 and W_2 = 8, W = 32: ln(4) approx 1.386294, ln(8) approx 2.079442, and ln(32) approx 3.465736 = 1.386294 + 2.079442."
+      "text": "For a mole of gas, n = N, and the same formula gives S − S₀ = R ln(v/v₀). That is the entropy change thermodynamics gives for an ideal gas compressed from v₀ to v at constant temperature."
     }
   ],
-  "exampleTitle": "Turning 4 times 8 into ln 4 plus ln 8",
+  "exampleTitle": "Ten molecules found in half the volume",
   "prerequisites": [
     {
       "foundationId": "foundation:exponentials",
@@ -48,6 +70,6 @@
       "caption": "Return to Brownian §2 osmotic pressure and free energy"
     }
   ],
-  "stoppingPoint": "The natural logarithm is the unique continuous function mapping independent product states to additive thermodynamic quantities; 1905 printed 'lg' denotes the natural logarithm.",
+  "stoppingPoint": "A logarithm turns products into sums, which is why it connects probabilities that multiply to entropies that add. In the 1905 papers, lg means the natural logarithm.",
   "citations": []
 }
