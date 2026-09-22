@@ -17,6 +17,7 @@ import {
 } from "../../../experiments/sr07/definition.ts";
 import { decodeSr07Settings, encodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
 import { createSr07Session, type PreparedSr07Example } from "../../../experiments/sr07/session.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity, result } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
@@ -144,28 +145,142 @@ export function FieldEquationsLab({
           residuals require JavaScript.
         </p>
       </noscript>
-      <p className="notice" data-unit-layer={p.unitLayer} data-unit-system={p.unitLayer}>
-        Unit layer: {unitLabel}
-      </p>
-      <form onSubmit={submit}>
-        <fieldset>
-          <legend>Equation and step</legend>
-          <div className="input-field">
-            <label htmlFor={`${id}-eq`}>Maxwell-Hertz equation</label>
-            <select
-              id={`${id}-eq`}
-              value={p.equationId}
-              onChange={(e) =>
-                apply({ ...p, equationId: e.target.value as Sr07EquationId, stepIndex: 0 })
-              }
-            >
-              {EQUATION_IDS.map((eqId) => (
-                <option key={eqId} value={eqId}>
-                  {eqId}: {SR07_EQUATIONS[eqId].printed}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="lab-columns">
+        <div>
+          <form onSubmit={submit}>
+            <fieldset>
+              <legend>Equation and step</legend>
+              <div className="input-field">
+                <label htmlFor={`${id}-eq`}>Maxwell-Hertz equation</label>
+                <select
+                  id={`${id}-eq`}
+                  value={p.equationId}
+                  onChange={(e) =>
+                    apply({ ...p, equationId: e.target.value as Sr07EquationId, stepIndex: 0 })
+                  }
+                >
+                  {EQUATION_IDS.map((eqId) => (
+                    <option key={eqId} value={eqId}>
+                      {eqId}: {SR07_EQUATIONS[eqId].printed}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="actions">
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={p.stepIndex === 0}
+                  onClick={() => apply({ ...p, stepIndex: p.stepIndex - 1 })}
+                >
+                  Previous step
+                </button>
+                <button
+                  type="button"
+                  disabled={p.stepIndex >= SR07_STEPS.length - 1}
+                  onClick={() => apply({ ...p, stepIndex: p.stepIndex + 1 })}
+                >
+                  Next step
+                </button>
+              </div>
+            </fieldset>
+            <fieldset className="lab-choice">
+              <legend>Try</legend>
+              <div className="actions">
+                {SR07_PRESETS.map((preset) => (
+                  <button
+                    key={preset.presetId}
+                    type="button"
+                    className="secondary"
+                    onClick={() => apply({ ...p, ...preset.parameterValues })}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <ExperimentSettings contents="printed or SI units, the validation wave, its polarization and boost, a link to these settings">
+              <fieldset>
+                <legend>Unit layer</legend>
+                <label>
+                  <input
+                    type="radio"
+                    name="units"
+                    checked={p.unitLayer === "printed-gaussian"}
+                    onChange={() => apply({ ...p, unitLayer: "printed-gaussian" as Sr07UnitLayer })}
+                  />
+                  Printed Gaussian
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="units"
+                    checked={p.unitLayer === "modern-si"}
+                    onChange={() => apply({ ...p, unitLayer: "modern-si" as Sr07UnitLayer })}
+                  />
+                  Modern SI (labeled conversion)
+                </label>
+              </fieldset>
+              <div className="input-field">
+                <label htmlFor={`${id}-wave`}>Validation wave</label>
+                <select
+                  id={`${id}-wave`}
+                  value={p.wave}
+                  onChange={(e) => apply({ ...p, wave: e.target.value as Sr07Wave })}
+                >
+                  {WAVES.map((w) => (
+                    <option key={w} value={w}>
+                      {w}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-pol`}>Polarization</label>
+                <select
+                  id={`${id}-pol`}
+                  value={p.polarization}
+                  onChange={(e) =>
+                    apply({ ...p, polarization: e.target.value as Sr07Polarization })
+                  }
+                >
+                  {POLS.map((pol) => (
+                    <option key={pol} value={pol}>
+                      {pol}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="input-field">
+                <label htmlFor={`${id}-beta`}>Validation boost v/c</label>
+                <input
+                  id={`${id}-beta`}
+                  name="boostBeta"
+                  type="number"
+                  step="0.05"
+                  min="-0.95"
+                  max="0.95"
+                  value={betaDraft}
+                  onChange={(e) => setBetaDraft(e.target.value)}
+                />
+              </div>
+              <button type="submit">Apply boost</button>
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => {
+                  if (typeof window !== "undefined")
+                    window.history.replaceState(null, "", encodeSr07Settings(p));
+                }}
+              >
+                Copy these settings into the address
+              </button>
+            </ExperimentSettings>
+          </form>
+          {error ? <p className="notice error">{error}</p> : null}
+        </div>
+
+        <div className="lab-results">
           <p
             className="sr07-equation"
             data-equation-id={p.equationId}
@@ -174,123 +289,53 @@ export function FieldEquationsLab({
             {displayed}
           </p>
           <p className="fine">{eq.spoken}</p>
+          <p className="fine" data-unit-layer={p.unitLayer} data-unit-system={p.unitLayer}>
+            Unit layer: {unitLabel}
+          </p>
           <p>
             Step {p.stepIndex + 1} of {SR07_STEPS.length}
           </p>
           <p className="sr07-step">{SR07_STEPS[p.stepIndex]}</p>
-          <button
-            type="button"
-            disabled={p.stepIndex === 0}
-            onClick={() => apply({ ...p, stepIndex: p.stepIndex - 1 })}
-          >
-            Previous step
-          </button>
-          <button
-            type="button"
-            disabled={p.stepIndex >= SR07_STEPS.length - 1}
-            onClick={() => apply({ ...p, stepIndex: p.stepIndex + 1 })}
-          >
-            Next step
-          </button>
-        </fieldset>
-        <fieldset>
-          <legend>Unit layer and validation wave</legend>
-          <label>
-            <input
-              type="radio"
-              name="units"
-              checked={p.unitLayer === "printed-gaussian"}
-              onChange={() => apply({ ...p, unitLayer: "printed-gaussian" as Sr07UnitLayer })}
-            />
-            Printed Gaussian
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="units"
-              checked={p.unitLayer === "modern-si"}
-              onChange={() => apply({ ...p, unitLayer: "modern-si" as Sr07UnitLayer })}
-            />
-            Modern SI (labeled conversion)
-          </label>
-          <div className="input-field">
-            <label htmlFor={`${id}-wave`}>Validation wave</label>
-            <select
-              id={`${id}-wave`}
-              value={p.wave}
-              onChange={(e) => apply({ ...p, wave: e.target.value as Sr07Wave })}
+          {p.equationId === "ampere-x" && p.stepIndex === 2 && predict === null ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const chosen = new FormData(e.currentTarget).get("candidate");
+                if (typeof chosen === "string") setPredict(chosen);
+              }}
             >
-              {WAVES.map((w) => (
-                <option key={w} value={w}>
-                  {w}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="input-field">
-            <label htmlFor={`${id}-pol`}>Polarization</label>
-            <select
-              id={`${id}-pol`}
-              value={p.polarization}
-              onChange={(e) => apply({ ...p, polarization: e.target.value as Sr07Polarization })}
+              <p>Which field combination now appears where N stood?</p>
+              <label>
+                <input type="radio" name="candidate" value="N" /> N
+              </label>
+              <label>
+                <input type="radio" name="candidate" value="beta-N-minus" /> β(N − (v/V) Y)
+              </label>
+              <label>
+                <input type="radio" name="candidate" value="N-minus-vY" /> N − vY
+              </label>
+              <button type="submit" disabled={!ready}>
+                Record this prediction
+              </button>
+            </form>
+          ) : null}
+          {predict ? (
+            <p
+              className="notice"
+              data-prompt-id="sr-07-predict-n-combination"
+              data-candidate-id={predict}
             >
-              {POLS.map((pol) => (
-                <option key={pol} value={pol}>
-                  {pol}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="input-field">
-            <label htmlFor={`${id}-beta`}>Validation boost v/c</label>
-            <input
-              id={`${id}-beta`}
-              name="boostBeta"
-              type="number"
-              step="0.05"
-              min="-0.95"
-              max="0.95"
-              value={betaDraft}
-              onChange={(e) => setBetaDraft(e.target.value)}
-            />
-          </div>
-          <button type="submit">Apply boost</button>
-        </fieldset>
-      </form>
-      {p.equationId === "ampere-x" && p.stepIndex === 2 && predict === null ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const chosen = new FormData(e.currentTarget).get("candidate");
-            if (typeof chosen === "string") setPredict(chosen);
-          }}
-        >
-          <p>Which field combination now appears where N stood?</p>
-          <label>
-            <input type="radio" name="candidate" value="N" /> N
-          </label>
-          <label>
-            <input type="radio" name="candidate" value="beta-N-minus" /> β(N − (v/V) Y)
-          </label>
-          <label>
-            <input type="radio" name="candidate" value="N-minus-vY" /> N − vY
-          </label>
-          <button type="submit" disabled={!ready}>
-            Record this prediction
-          </button>
-        </form>
-      ) : null}
-      {predict ? (
-        <p
-          className="notice"
-          data-prompt-id="sr-07-predict-n-combination"
-          data-candidate-id={predict}
-        >
-          Prediction recorded as {predict}. The grouping step identifies β(N − (v/V) Y). N is
-          magnetic.
-        </p>
-      ) : null}
-      {error ? <p className="notice error">{error}</p> : null}
+              Prediction recorded as {predict}. The grouping step identifies β(N − (v/V) Y). N is
+              magnetic.
+            </p>
+          ) : null}
+          <p data-form-invariant-summary={String(invariant)}>
+            {invariant
+              ? "The transformed equations keep the Maxwell-Hertz form for the validation wave."
+              : "The transformed equations do not keep the Maxwell-Hertz form for the validation wave."}
+          </p>
+        </div>
+      </div>
       <table className="inference-summary sr07-components">
         <caption>Printed symbols in paper 3, section 6</caption>
         <thead>
@@ -383,28 +428,6 @@ export function FieldEquationsLab({
         </p>
       </section>
       <p className="not-modeled">Not modeled: {SR07_NOT_MODELED.join("; ")}.</p>
-      <div>
-        {SR07_PRESETS.map((preset) => (
-          <button
-            key={preset.presetId}
-            type="button"
-            className="secondary"
-            onClick={() => apply({ ...p, ...preset.parameterValues })}
-          >
-            {preset.label}
-          </button>
-        ))}
-        <button
-          type="button"
-          className="secondary"
-          onClick={() => {
-            if (typeof window !== "undefined")
-              window.history.replaceState(null, "", encodeSr07Settings(p));
-          }}
-        >
-          Copy these settings into the address
-        </button>
-      </div>
     </section>
   );
 }

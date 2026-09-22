@@ -1,7 +1,15 @@
+/* The equation is the instrument's display, so it is set at the reading size, not below it
+   (it was --type-small: 15.8px, smaller than the step text under it). */
 .sr07-equation {
-  font-size: var(--type-small);
+  font-family: var(--font-serif);
+  font-size: var(--type-body);
   overflow-x: auto;
   max-width: 100%;
+}
+@media (min-width: 60rem) {
+  .sr07-equation {
+    font-size: var(--type-lead);
+  }
 }
 .sr07-step {
   max-width: 40rem;
