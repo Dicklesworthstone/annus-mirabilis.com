@@ -36,8 +36,8 @@
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { describe, test } from "node:test";
 import { dirname, resolve } from "node:path";
+import { describe, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");

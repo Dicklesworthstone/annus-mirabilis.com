@@ -36,6 +36,16 @@ export function InlineFacsimile({ paperId }: { paperId: string }) {
     };
   }, [paperId]);
 
+  // `attempt` IS A DEPENDENCY ON PURPOSE, and its FIXABLE autofix is a defect.
+  //
+  // a11y aside, biome's useExhaustiveDependencies reports it as "more dependencies than
+  // necessary" because the body never READS it. It does not need to: incrementing it is the only
+  // thing that re-runs this effect. The retry control at the bottom of this component does
+  // `cached.current = null; setAttempt((value) => value + 1)`, and with `attempt` removed from
+  // the list that button would clear the cache, bump state, and never refetch. Applying the
+  // suggested fix turns "Retry source access" into a control that does nothing, silently.
+  //
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `attempt` is a re-run trigger for the retry control, not an unused read; removing it breaks "Retry source access".
   useEffect(() => {
     if (!visible || cached.current) return;
     const abort = new AbortController();

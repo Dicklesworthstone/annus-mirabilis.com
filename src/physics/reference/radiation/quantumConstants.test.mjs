@@ -44,7 +44,7 @@ test("printed R/N and beta produce SI energies without reading a modern h", () =
   assert.deepEqual(readIds, ["wienConstantBeta"]);
   close(scale.kB, (8.31e7 / 6.17e23) * 1e-7);
   close(scale.h, ((8.31e7 * 4.866e-11) / 6.17e23) * 1e-7);
-  close(scale.h * 6e14, 3.932232739059967585089141005e-19);
+  close(scale.h * 6e14, 3.9322327390599675e-19);
   close(3 * scale.kB * 3000, 1.212155591572123e-19);
   assert.notEqual(scale.h, 6.62607015e-34);
 });

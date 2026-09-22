@@ -587,12 +587,21 @@ export function LightQuantaInvestigation({
             ? `Changed settings: ${changes.map((key) => LIGHT_INVESTIGATION_FIELDS.find((f) => f.key === key)?.label ?? key).join(", ")}.`
             : "No settings differ from the pinned baseline."}
         </p>
-        <div
-          className="light-table-scroll"
-          tabIndex={0}
-          role="region"
-          aria-label="Scroll the complete comparison table"
-        >
+        {/*
+          A SCROLLING REGION MUST BE REACHABLE, so the tabIndex stays and the element changes.
+          a11y/useSemanticElements flagged `role="region"` on a div, correctly: a <section> with
+          an accessible name already IS a region, so the role was a hand-written copy of what the
+          element gives for free. Swapping the element drops the role rather than the reachability.
+
+          The tabIndex is a different question and its FIXABLE fix is wrong here: deleting it
+          leaves the off-screen columns of this table unreachable by keyboard, which is WCAG 2.1.1
+          and axe scrollable-region-focusable, and the scrollable-regions ratchet (am-bc6s) refuses
+          it. Suppressed inline at the site, with the reason, following SplitTabs.tsx and
+          TaylorBinomialExtension.tsx rather than as a per-file override that turns the rule off
+          for everything below it.
+        */}
+        {/* biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns are unreachable by keyboard (WCAG 2.1.1, am-bc6s). */}
+        <section className="light-table-scroll" tabIndex={0} aria-label="Complete comparison table">
           <table className="data-table">
             <caption>
               One completed calculation per column; missing values retain their scientific meaning.
@@ -618,7 +627,7 @@ export function LightQuantaInvestigation({
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
         <p className="fine">
           Baseline snapshot {baseline.snapshotVersion}; current snapshot {snapshot.snapshotVersion}.
         </p>

@@ -14,7 +14,7 @@ test("modern and historical computations use their declared constants", () => {
   const modern = evaluateLq06(LQ06_DEFAULTS);
   close(value(modern, "quantumEnergy"), 3.97564209e-19);
   const printed = evaluateLq06(LQ06_PRESETS.historicalConstants.parameters);
-  close(value(printed, "quantumEnergy"), 3.932232739059967585089141005e-19);
+  close(value(printed, "quantumEnergy"), 3.9322327390599675e-19);
   close(value(printed, "meanQuantumEnergyWien"), 1.212155591572123e-19);
   close(value(printed, "gasEntropyVolumeCoefficient"), (10 * 8.31) / 6.17e23);
   assert.notEqual(
