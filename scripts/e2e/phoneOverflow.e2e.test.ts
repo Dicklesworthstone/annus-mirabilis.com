@@ -231,7 +231,6 @@ const BASELINE_OVERFLOWING: readonly BaselineEntry[] = Object.freeze([
   // regressions on the next. Repeating a measurement on the axis you chose says nothing about
   // the axis the quantity moves on. They leave now for a different reason - a named cause, a
   // code change that addresses it, and a measurement after it - not because they were quiet.
-  { id: "/discover/brownian-motion/@320", maxExcessPx: 25, measuredOn: "gIpJxyC8Bu98Hvw9ggC1x" },
 ]);
 
 /**
@@ -271,6 +270,11 @@ const REPAIRED: readonly { readonly route: string; readonly defect: string }[] =
   // at all three widths. It moves here rather than simply disappearing, because a baselined pair
   // that stops overflowing leaves no trace otherwise: the presence arm goes quiet on a repair and
   // on a route that was deleted or renamed in exactly the same way.
+  {
+    route: "/discover/brownian-motion/",
+    defect:
+      "Fork.tsx laid `repeat(auto-fit, minmax(18rem, 1fr))`, and 18rem is 288px, so a 288px track sat inside a 206px container and the fork cards ran 25px past a 320px viewport. auto-fit does not shrink a track below its minmax floor. Repaired as minmax(min(18rem, 100%), 1fr) (f21f39f3), the same remedy as the px-floor cohort in ca2b4d29, which missed this one because it searched for a px floor and this one is written in rem",
+  },
   {
     route: "/foundations/taylor-expansion/",
     defect:
