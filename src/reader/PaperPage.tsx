@@ -374,7 +374,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         .map((lesson) => (
                           <MissingStepDisclosure key={lesson.id} lesson={lesson} />
                         ))}
-                      <ArgumentEquations paperId={paper.id} argumentId={a.id} />
+                      <ArgumentEquations
+                        paperId={paper.id}
+                        argumentId={a.id}
+                        lazy={!sectionId}
+                        sectionHref={`/papers/${paper.id}/${a.section}/#${a.id}`}
+                      />
                       <aside className="modern-margin callout-limit" data-reading="3" hidden>
                         <h4>Modern qualifications</h4>
                         <ReadingBlocks blocks={a.readings.margin} foundations={foundations} />
