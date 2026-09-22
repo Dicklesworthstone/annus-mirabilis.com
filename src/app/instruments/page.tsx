@@ -145,7 +145,7 @@ export default function InstrumentsIndex() {
         </section>
       ) : null}
 
-      <section className="reading">
+      <section className="reading page-flush">
         <h2>Not built yet</h2>
         <p>
           The catalogue records {inPreparation.length} further ids as in preparation:{" "}

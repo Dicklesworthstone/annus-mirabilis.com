@@ -81,7 +81,7 @@ export default function NotFound() {
         </article>
       </section>
 
-      <section className="reading">
+      <section className="reading page-flush">
         <h2>Or start somewhere other than a paper</h2>
         <p>
           The <a href="/instruments/">instruments</a> let you operate the arguments yourself. The{" "}

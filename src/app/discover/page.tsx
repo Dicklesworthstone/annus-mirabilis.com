@@ -132,7 +132,7 @@ export default function DiscoverIndex() {
         </article>
       </section>
 
-      <section className="reading">
+      <section className="reading page-flush">
         <h2>
           {spelled(UNWRITTEN_COUNT)} {plural(UNWRITTEN_COUNT)} not written yet
         </h2>

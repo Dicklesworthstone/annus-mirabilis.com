@@ -403,6 +403,28 @@ h3 {
   max-width: 760px;
   margin: 4rem auto;
 }
+
+/*
+ * A CLOSING NOTE ON AN INDEX PAGE SHARES THE PAGE'S LEFT EDGE.
+ *
+ * `.reading` centres itself, which is right on a paper page where it IS the column a reader
+ * reads. On an index page it is a closing note under sections that are not centred, and the
+ * mismatch is visible rather than theoretical. Measured at 1280px on build 9mkKVhLvSxC6iczOI3E7Y:
+ *
+ *     hero / catalogue / instrument-group     left  32   width 1216
+ *     .reading                                left 260   width  760
+ *
+ * A 228px indent that nothing else on the page shares, appearing once on /404, /instruments and
+ * /discover and twice on the home page. It reads as a different page pasted below the first.
+ *
+ * THE DEFECT IS THE CENTRING, NOT THE WIDTH, which is why this sets margin-inline rather than
+ * max-width. A 760px measure for prose is correct and stays; what goes is `auto` pushing it off
+ * the axis. `.reading` itself is untouched, because on a paper page the centred reading column
+ * is the right answer and this must not reach it.
+ */
+.reading.page-flush {
+  margin-inline: 0;
+}
 .reading p {
   max-width: 70ch;
 }
