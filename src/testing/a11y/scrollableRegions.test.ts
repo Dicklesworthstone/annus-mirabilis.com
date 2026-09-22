@@ -308,9 +308,43 @@ export function classTokens(raw: string): string[] {
     .filter((token) => /^[A-Za-z_-][\w-]*$/.test(token));
 }
 
+/**
+ * Blanks JSX comments inside an opening tag, keeping the text length so nothing else shifts.
+ *
+ * THE GATE READ ITS OWN DOCUMENTATION AS COMPLIANCE. `countUnreachableScrollRegions` asks
+ * /tabIndex|tabindex/i of the whole attribute text, and the biome-ignore that every repair in this
+ * repository carries names the rule it suppresses:
+ *
+ *     // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable
+ *
+ * "noNoninteractiveTabindex" CONTAINS "Tabindex". So an element whose tab stop was deleted still
+ * matched, and the ratchet reported it reachable. Isolated by plant on LogarithmProductTable:
+ *
+ *     tabIndex removed, comment left        18 pass 0 fail   <- the gate fails open
+ *     tabIndex and comment both removed     1 regression, named, correct message
+ *
+ * The comment was the only difference. This is the failure AGENTS.md describes under "a gate that
+ * forbids a construct must read code, not text", running in the opposite direction: a gate that
+ * REQUIRES a construct was satisfied by prose about it. It is self-concealing in the worst way,
+ * because the prose in question is the explanation of why the tab stop is needed - so the better
+ * the comment, the more certainly the gate stopped checking.
+ *
+ * Only line comments at the start of a line are blanked, so a `//` inside a quoted attribute value
+ * (`href="https://..."`) cannot swallow the rest of the tag.
+ */
+function blankTagComments(attrs: string): string {
+  return attrs
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, (m) => " ".repeat(m.length))
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => " ".repeat(m.length))
+    .replace(
+      /^([ \t]*)\/\/[^\n]*/gm,
+      (m, indent: string) => indent + " ".repeat(m.length - indent.length),
+    );
+}
+
 function* elementsWithClasses(source: string): Generator<{ attrs: string; classes: string[] }> {
   for (const match of source.matchAll(/<([a-zA-Z0-9_-]+)\b([^>]*?)>/gs)) {
-    const attrs = match[2] ?? "";
+    const attrs = blankTagComments(match[2] ?? "");
     const classAttrMatch = attrs.match(
       /className\s*=\s*(?:\{`([^`]+)`\}|"([^"]+)"|'([^']+)'|\{([^{}]*\bstyles\s*[.[][^{}]*)\})/s,
     );
@@ -426,6 +460,19 @@ export const AUDITED_SCROLL_CLASSES = [
   // reaches the element. Verified by watching this entry take the counter from 0 to 1 while
   // the wrapper still had no tab stop, before the tab stop was added.
   "tableWrap",
+  // am-uj6w, fd50a3fd. All six components that use it now wrap their table in a <section> with
+  // tabIndex={0} and an aria-label: HeldFixedToggle (817d2cc1), TaylorBinomialExtension (am-a3f1),
+  // and the four repaired in fd50a3fd - LogarithmProductTable, RepeatedProportionalTable,
+  // NudgeSensitivityDemo, TableToPlotBuilder. Measured at 320px beforehand: logarithms +202px,
+  // exponentials +64px, derivatives +23px; functions-graphs fits and was repaired anyway, since a
+  // declared-scrolling container scrolls on its data and type size, not on the viewport alone.
+  //
+  // Verified non-vacuous the way the two entries above were: removing the tab stop from
+  // LogarithmProductTable takes countUnreachableScrollRegions from 0 to 1 for that file. That
+  // check matters more here than usual, because these six tags are MULTI-LINE - the attribute sits
+  // three lines below the tag name - and a parser that only read the first line would have counted
+  // six repaired elements as zero and called it audited.
+  "construction-table-wrap",
 ];
 
 /**
@@ -445,7 +492,6 @@ export const AUDITED_SCROLL_CLASSES = [
 export const NOT_YET_AUDITED = new Map<string, number>([
   ["camera-results", 4],
   ["clarification-dialog", 2],
-  ["construction-table-wrap", 4],
   ["controlled-comparison", 1],
   ["countermodel-scroll", 0],
   ["data-panel-table-wrap", 2],
