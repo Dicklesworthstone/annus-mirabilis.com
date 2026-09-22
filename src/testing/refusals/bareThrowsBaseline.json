@@ -121,6 +121,8 @@
   "src/discovery/links.ts": 2,
   "src/discovery/massEnergyArgument.ts": 7,
   "src/discovery/notebook.ts": 1,
+  "src/discovery/specialRelativityInvestigation.ts": 3,
+  "src/discovery/specialRelativitySession.ts": 2,
   "src/equations/accessibility/patterns.ts": 1,
   "src/equations/alternateForms.ts": 2,
   "src/equations/ast.ts": 1,
