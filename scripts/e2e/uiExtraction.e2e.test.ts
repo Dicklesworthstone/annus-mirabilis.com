@@ -517,6 +517,8 @@ test("am-8w0x: identical theme radios render identically in both engines", async
   }
   const { baseUrl, server } = await startStaticServer();
   const report: string[] = [];
+  /** What each engine saw, compared across engines after the loop. */
+  const seen: { engine: string; labels: string[] }[] = [];
   try {
     for (const engine of ENGINES) {
       const browser = await engine.launcher.launch();
@@ -535,13 +537,19 @@ test("am-8w0x: identical theme radios render identically in both engines", async
           }),
         );
 
-        // Reachability before any claim: four controls, or "they all match" is true
-        // of an empty list and of a page that renders no toggle at all.
-        assert.equal(
-          boxes.length,
-          4,
-          `${engine.name}: expected four theme radios, found ${boxes.length}`,
+        // Reachability before any claim: at least one control, or "they all match" is
+        // true of an empty list and of a page that renders no toggle at all. This was
+        // `=== 4` and went red the day the themes were consolidated (am-r3qt): the site
+        // had four choices, then three, and now two editions plus System. A cardinality
+        // written into a cross-engine test is a number that has to be maintained by
+        // whoever changes the theme list, and they have no reason to look here. The
+        // subject of this test is that the ENGINES AGREE, so the count is compared
+        // between them after the loop and is not named anywhere.
+        assert.ok(
+          boxes.length > 0,
+          `${engine.name}: no theme radios found at all. "They all match" is true of an empty list, so this is the empty-population failure rather than a pass.`,
         );
+        seen.push({ engine: engine.name, labels: boxes.map((box) => box.label) });
         for (const box of boxes) {
           report.push(`${engine.name} "${box.label}": ${box.width}x${box.height}`);
         }
@@ -574,7 +582,34 @@ test("am-8w0x: identical theme radios render identically in both engines", async
   } finally {
     await new Promise<void>((done) => server.close(() => done()));
   }
-  console.log(`theme radio boxes:\n  ${report.join("\n  ")}`);
+
+  // The claim the test's name makes, and the only one that survives a theme being added
+  // or removed: both engines see the SAME radios. A disagreement here is the defect
+  // am-8w0x is about, and it cannot be satisfied by finding none in both, because the
+  // per-engine guard above already refused that.
+  assert.equal(
+    seen.length,
+    ENGINES.length,
+    `only ${seen.length} of ${ENGINES.length} engines reported theme radios`,
+  );
+  const [first, ...rest] = seen;
+  assert.ok(first, "no engine reported");
+  for (const other of rest) {
+    assert.equal(
+      other.labels.length,
+      first.labels.length,
+      `the engines disagree on how many theme radios exist: ${first.engine} saw ${first.labels.length} (${first.labels.join(", ")}), ${other.engine} saw ${other.labels.length} (${other.labels.join(", ")}).`,
+    );
+    assert.deepEqual(
+      other.labels,
+      first.labels,
+      `the engines agree on the number of theme radios and disagree on which: ${first.engine} ${JSON.stringify(first.labels)} vs ${other.engine} ${JSON.stringify(other.labels)}.`,
+    );
+  }
+
+  console.log(
+    `theme radio boxes (${first.labels.length} per engine, agreed across ${seen.length}):\n  ${report.join("\n  ")}`,
+  );
 });
 
 test("am-ahyb planted negative: removing the shortcut fails the palette check only", async (t) => {
