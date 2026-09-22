@@ -78,6 +78,9 @@
   --type-lead: 1.425rem; /* 22.8px - lead paragraphs, section openers */
   --type-title: 1.71rem; /* 27.4px - headings within a page */
   --type-display: 2.05rem; /* 32.8px - page titles */
+  /* The scale's own base on a wide screen: what 1rem is, not a ninth size. 100% up to 1440px, then
+     growing with the window to 125% at 2240px, so every step above grows with it in proportion. */
+  --type-root-wide: clamp(100%, calc(100% + (100vw - 1440px) * 0.005), 125%);
 }
 
 html {
@@ -241,7 +244,7 @@ main {
  */
 @media (min-width: 1440px) {
   html {
-    font-size: clamp(100%, calc(100% + (100vw - 1440px) * 0.005), 125%);
+    font-size: var(--type-root-wide);
   }
 }
 @media (min-width: 1600px) {
