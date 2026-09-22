@@ -141,3 +141,54 @@ test("THE PAWL: a real commit touching src/app after the build makes out/ STALE"
   assert.match(result.reason ?? "", /Static source files modified since out\/ build commit/);
   assert.match(result.reason ?? "", /src\/app\/page\.tsx/);
 });
+
+test("am-wkod GREEN ARM: a real commit touching only a .test.tsx under src/app stays FRESH", () => {
+  const root = makeRepoFixture();
+  const gitNow = (...args: string[]) =>
+    execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+
+  // Aged for the same reason the arm above is aged: inside the five-second clock-skew tolerance
+  // the committed-diff branch is never reached and the test would pass without exercising it.
+  const aged = new Date(Date.now() - 60_000);
+  utimesSync(join(root, "out/index.html"), aged, aged);
+  utimesSync(join(root, "out"), aged, aged);
+
+  // A test file cannot appear in a Next static export, so committing one says nothing about
+  // whether out/ matches the site. Before am-wkod this refused: at a2295d72 the whole diff was
+  // src/app/your-data/page.test.tsx and both browser gates failed in 65ms naming it.
+  writeFileSync(join(root, "src/app/page.test.tsx"), "export const probe = 1;\n");
+  gitNow("add", "-A");
+  gitNow("commit", "-q", "-m", "a test file committed after the build");
+
+  const result = checkOutFreshness("out", root);
+  assert.equal(result.fresh, true, "a committed .test.tsx is not staleness; it cannot reach out/");
+});
+
+test("am-wkod RED ARM: the exclusion does not blind the guard to a real page beside a test", () => {
+  const root = makeRepoFixture();
+  const gitNow = (...args: string[]) =>
+    execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+
+  const aged = new Date(Date.now() - 60_000);
+  utimesSync(join(root, "out/index.html"), aged, aged);
+  utimesSync(join(root, "out"), aged, aged);
+
+  // THE ARM THAT IS EASY TO SKIP. A fix satisfying only the green arm has disabled the guard, and
+  // this guard is the only thing standing between a green browser run and a genuinely stale
+  // build. Both files land in ONE commit so the test file cannot mask the page: if the exclusion
+  // were written as a filter over the whole diff rather than as a pathspec subtraction, this is
+  // the case that would wrongly pass.
+  writeFileSync(join(root, "src/app/page.test.tsx"), "export const probe = 2;\n");
+  writeFileSync(join(root, "src/app/page.tsx"), "export default function Page() { return 3; }\n");
+  gitNow("add", "-A");
+  gitNow("commit", "-q", "-m", "a page and a test committed together after the build");
+
+  const result = checkOutFreshness("out", root);
+  assert.equal(result.fresh, false, "a real page committed after the build is still staleness");
+  assert.match(result.reason ?? "", /src\/app\/page\.tsx/);
+  assert.doesNotMatch(
+    result.reason ?? "",
+    /page\.test\.tsx/,
+    "the test file must not be named as a reason, or the message teaches the wrong lesson",
+  );
+});

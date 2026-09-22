@@ -225,7 +225,26 @@ export function checkOutFreshness(
           };
         }
 
-        // Check if static site source files changed between build commit and HEAD
+        // Static site source files changed between the build commit and HEAD.
+        //
+        // TESTS ARE EXCLUDED BECAUSE THEY CANNOT REACH THE EXPORT (am-wkod). This pathspec
+        // decided staleness on any change under src/app, src/components or content, and a
+        // .test.tsx is none of the things a Next static export contains. The gate refused a build
+        // that was functionally fresh: at a2295d72 the entire diff was one file,
+        // src/app/your-data/page.test.tsx, and both browser gates failed in 65ms - too fast to be
+        // a measurement - naming a test file as the reason out/ was stale.
+        //
+        // The cost was not one refused run. Four panes commit test files every few minutes and a
+        // build takes about three and a half minutes, so the window in which out/ counted as
+        // fresh was frequently zero, and a gate that cries stale on evidence that cannot bear on
+        // staleness teaches everyone to route around it.
+        //
+        // The exclusion is SUBTRACTIVE and narrow on purpose. The tempting alternative - an
+        // allowlist of extensions that "can be built" - is the denylist-for-allowlist trade this
+        // repository has got wrong before, and here it would fail silently: a production file
+        // whose extension nobody thought of would be dropped from the check and out/ would look
+        // fresh when it was not. Subtracting two unambiguous patterns can only ever fail the
+        // other way, by refusing too much.
         const diffFiles = git([
           "diff",
           "--name-only",
@@ -234,6 +253,8 @@ export function checkOutFreshness(
           "src/app",
           "src/components",
           "content",
+          ":(exclude)**/*.test.*",
+          ":(exclude)**/*.spec.*",
         ]);
 
         if (diffFiles.length > 0) {
