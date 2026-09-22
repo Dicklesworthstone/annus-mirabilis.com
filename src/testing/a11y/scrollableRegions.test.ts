@@ -480,6 +480,17 @@ export const AUDITED_SCROLL_CLASSES = [
   // three lines below the tag name - and a parser that only read the first line would have counted
   // six repaired elements as zero and called it audited.
   "construction-table-wrap",
+  // reader-companion-column: overflow: auto from 3485cc37, so the sticky companion beside the text
+  // scrolls inside itself when it is taller than the window (a 1280x800 laptop, where a section's
+  // plate and symbol key measure 820px in a 702px column on BUILD 20). ReaderLayout.tsx gives the
+  // aside tabIndex={0}; it is already named by aria-label={companionTitle}. The focus ring is the
+  // global :focus-visible outline.
+  "reader-companion-column",
+  // reading-formula-row: overflow-x: auto on the row of a ColouredFormula, so a relation wider than
+  // a phone scrolls inside its line. ColouredFormula.tsx makes the row a <section> with
+  // tabIndex={0} and aria-label "Formula: <the equations' titles>", the pattern of the facsimile
+  // page map and the kitchen tables.
+  "reading-formula-row",
 ];
 
 /**
