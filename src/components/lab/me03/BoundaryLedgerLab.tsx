@@ -26,6 +26,7 @@ import {
   evaluatePhotonBox,
   type PreparedMe03Example,
 } from "../../../experiments/me03/session.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { BoundaryLedgerPlot } from "./BoundaryLedgerPlot.tsx";
 import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
 import "./me03.css";
@@ -56,9 +57,9 @@ export function BoundaryLedgerLab({
   const [error, setError] = useState("");
   const [refusalCode, setRefusalCode] = useState<string | null>(null);
   const [linkNote, setLinkNote] = useState("");
+  const [linkPending, setLinkPending] = useState(false);
   const [sharedUrl, setSharedUrl] = useState("");
   const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
-  const [predictRevealed, setPredictRevealed] = useState(false);
 
   const isBox = p.mode === "box-1906";
   const evaluation = evaluateMe03(p);
@@ -85,8 +86,9 @@ export function BoundaryLedgerLab({
     const shared = decodeMe03Settings(window.location.search);
     if (shared.kind === "settings") {
       setDraft(toMe03Draft(shared.parameters));
+      setLinkPending(true);
       setLinkNote(
-        "Shared settings are loaded. Choose Apply changes to calculate them; the worked example is still displayed.",
+        "The link's settings are loaded. The drawing still shows the worked example until you calculate them.",
       );
     } else if (shared.kind === "invalid") {
       setLinkNote(shared.message);
@@ -108,10 +110,16 @@ export function BoundaryLedgerLab({
     setError("");
     setRefusalCode(null);
     setLinkNote("");
+    setLinkPending(false);
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    commitDraft();
+  }
+
+  /** Validate the whole draft and apply it: the box's typed values, or the linked settings. */
+  function commitDraft() {
     const parsed = fromMe03Draft(draft);
     if (parsed.mode === "box-1906") {
       if (!Number.isFinite(parsed.boxMass) || parsed.boxMass <= 0) {
@@ -240,158 +248,39 @@ export function BoundaryLedgerLab({
             </div>
           )}
         </div>
-
-        <div className="notation-toggle-wrap">
-          <span className="toggle-label">Notation:</span>
-          <button
-            type="button"
-            className={`button-toggle ${p.notation === "printed" ? "active" : ""}`}
-            onClick={() => toggleNotation("printed")}
-            aria-pressed={p.notation === "printed"}
-          >
-            1905 Printed Radical
-          </button>
-          <button
-            type="button"
-            className={`button-toggle ${p.notation === "modern" ? "active" : ""}`}
-            onClick={() => toggleNotation("modern")}
-            aria-pressed={p.notation === "modern"}
-          >
-            Modern γ / Invariant Mass
-          </button>
-        </div>
       </div>
 
-      {/* Main Visual Plot */}
-      {isBox && boxEvaluation && boxScale ? (
-        <PhotonBoxPlot
-          parameters={p}
-          evaluation={boxEvaluation}
-          scale={boxScale}
-          clipId={`me03-box-clip-${id}`}
-        />
-      ) : (
-        <>
-          <BoundaryLedgerPlot parameters={p} evaluation={evaluation} clipId={`me03-clip-${id}`} />
-
-          {/* Seven Typed Boundary Facts Panel */}
-          <section className="card-boundary-panel" aria-label="Cited energy-source boundary facts">
-            <h3
-              style={{
-                fontSize: "0.875rem",
-                fontWeight: "bold",
-                marginBottom: "0.5rem",
-                color: "var(--ink)",
-              }}
-            >
-              Case study facts: {card.label}
-            </h3>
-            <p
-              style={{
-                fontSize: "0.75rem",
-                color: "var(--muted)",
-                marginBottom: "0.75rem",
-                fontStyle: "italic",
-              }}
-            >
-              Citation: {card.citation}
-            </p>
-
-            <dl className="boundary-facts-list">
-              <div className="fact-item">
-                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>1. System before:</dt>
-                <dd style={{ color: "var(--ink)" }}>{facts.systemBefore}</dd>
-              </div>
-              <div className="fact-item">
-                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>2. System after:</dt>
-                <dd style={{ color: "var(--ink)" }}>{facts.systemAfter}</dd>
-              </div>
-              <div className="fact-item">
-                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>
-                  3. Matter crosses boundary:
-                </dt>
-                <dd
-                  style={{
-                    color: facts.matterCrossesBoundary.crosses ? "var(--accent)" : "var(--ink)",
-                  }}
-                >
-                  {facts.matterCrossesBoundary.crosses
-                    ? "Yes (Matter transfer: "
-                    : "No (Closed system: "}
-                  {facts.matterCrossesBoundary.note})
-                </dd>
-              </div>
-              <div className="fact-item">
-                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>4. Radiation disposition:</dt>
-                <dd style={{ color: "var(--ink)" }}>
-                  <span style={{ fontWeight: 600, textTransform: "capitalize" }}>
-                    {facts.radiation.disposition}
-                  </span>{" "}
-                  ({facts.radiation.note})
-                </dd>
-              </div>
-              <div className="fact-item">
-                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>5. Reference frame:</dt>
-                <dd style={{ color: "var(--ink)" }}>{facts.referenceFrame}</dd>
-              </div>
-              <div className="fact-item">
-                <dt style={{ fontWeight: 600, color: "var(--ink)" }}>6. Energy figure:</dt>
-                <dd style={{ color: "var(--ink)", fontFamily: "var(--font-mono, monospace)" }}>
-                  {facts.energyFigure.value} {facts.energyFigure.unit} ({facts.energyFigure.kind})
-                </dd>
-              </div>
-            </dl>
-
-            {facts.closedButNotIsolated.value && (
-              <div
-                style={{
-                  marginTop: "0.75rem",
-                  padding: "0.5rem",
-                  background: "var(--wash)",
-                  border: "1px solid var(--line)",
-                  borderRadius: "0.25rem",
-                  fontSize: "0.75rem",
-                  color: "var(--ink)",
-                }}
-              >
-                <strong>7. Closed but not isolated:</strong> Nothing material crosses this boundary,
-                but the system is not isolated: energy still enters or leaves it.
-              </div>
-            )}
-          </section>
-        </>
-      )}
-
-      <fieldset className="lab-choice me03-try">
-        <legend>Try</legend>
-        <div className="actions">
-          {ME03_PRESETS.map((pr) => (
-            <button
-              key={pr.presetId}
-              type="button"
-              className="secondary"
-              onClick={() => loadPreset(pr.presetId)}
-            >
-              {pr.label}
-            </button>
-          ))}
-        </div>
-      </fieldset>
-
-      {/* Form Controls */}
-      <form className="lab-controls" onSubmit={submit}>
-        <fieldset className="control-group">
-          <legend>Formalism & Mode</legend>
-          <div className="control-row">
-            <span className="field-label">Mode:</span>
-            <div className="toggle-group" role="radiogroup" aria-label="Formalism mode">
+      <div className="lab-columns">
+        <div>
+          <details className="lab-predict">
+            <summary>Predict first</summary>
+            <fieldset>
+              <legend>{prompt.question}</legend>
+              {prompt.candidates.map((c) => (
+                <label key={c.id} className="lab-predict-candidate">
+                  <input
+                    type="radio"
+                    name={`${isBox ? "predict-box-light-mass" : "predict-sealed-box"}-${id}`}
+                    value={c.id}
+                    checked={predictAnswer === c.id}
+                    onChange={() => setPredictAnswer(c.id)}
+                  />
+                  <span>{c.label}</span>
+                </label>
+              ))}
+              {predictAnswer && <p className="lab-predict-reveal">{prompt.explanation}</p>}
+            </fieldset>
+          </details>
+          <fieldset className="lab-choice">
+            <legend>Compare</legend>
+            <div className="actions">
               <button
                 type="button"
                 className={`button-toggle ${p.mode === "1905" ? "active" : ""}`}
                 onClick={() => setMode("1905")}
                 aria-pressed={p.mode === "1905"}
               >
-                1905 Energy Ledger
+                The 1905 energy ledger
               </button>
               <button
                 type="button"
@@ -399,7 +288,7 @@ export function BoundaryLedgerLab({
                 onClick={() => setMode("four-momentum")}
                 aria-pressed={p.mode === "four-momentum"}
               >
-                Modern Four-Momentum
+                Modern four-momentum
               </button>
               <button
                 type="button"
@@ -407,58 +296,14 @@ export function BoundaryLedgerLab({
                 onClick={() => setMode("box-1906")}
                 aria-pressed={p.mode === "box-1906"}
               >
-                1906 Photon in a Box
+                The 1906 photon in a box
               </button>
             </div>
-          </div>
-        </fieldset>
-
-        {isBox ? (
-          <fieldset className="control-group" aria-label="1906 box parameters">
-            <legend>1906 Thought Experiment Parameters</legend>
-
-            <div className="control-row">
-              <label htmlFor={`box-mass-${id}`}>Box mass M (kg):</label>
-              <input
-                id={`box-mass-${id}`}
-                type="number"
-                step="any"
-                min="0"
-                className="input-number"
-                value={draft.boxMass}
-                onChange={(e) => setDraft({ ...draft, boxMass: e.target.value })}
-              />
-            </div>
-
-            <div className="control-row">
-              <label htmlFor={`box-len-${id}`}>Box length ℓ (m):</label>
-              <input
-                id={`box-len-${id}`}
-                type="number"
-                step="any"
-                min="0"
-                className="input-number"
-                value={draft.boxLength}
-                onChange={(e) => setDraft({ ...draft, boxLength: e.target.value })}
-              />
-            </div>
-
-            <div className="control-row">
-              <label htmlFor={`pulse-energy-${id}`}>Pulse energy E (J):</label>
-              <input
-                id={`pulse-energy-${id}`}
-                type="number"
-                step="any"
-                min="0"
-                className="input-number"
-                value={draft.pulseEnergy}
-                onChange={(e) => setDraft({ ...draft, pulseEnergy: e.target.value })}
-              />
-            </div>
-
-            <div className="control-row">
-              <span className="field-label">Assign light mass m = E/c²:</span>
-              <div className="toggle-group">
+          </fieldset>
+          {isBox ? (
+            <fieldset className="lab-choice">
+              <legend>Give the light pulse a mass m = E/c²?</legend>
+              <div className="actions">
                 <button
                   type="button"
                   data-testid="assign-light-mass-toggle"
@@ -469,54 +314,19 @@ export function BoundaryLedgerLab({
                   {p.assignLightMass ? "Yes (m = E/c²)" : "No (m = 0)"}
                 </button>
               </div>
-            </div>
-
-            <div className="control-row">
-              <span className="field-label">Visual displacement magnification:</span>
-              <div className="toggle-group" role="radiogroup" aria-label="Magnification factor">
-                <button
-                  type="button"
-                  className={`button-toggle ${p.magnification === 1e15 ? "active" : ""}`}
-                  onClick={() => setMagnification(1e15)}
-                  aria-pressed={p.magnification === 1e15}
-                >
-                  10¹⁵×
-                </button>
-                <button
-                  type="button"
-                  className={`button-toggle ${p.magnification === 1e17 ? "active" : ""}`}
-                  onClick={() => setMagnification(1e17)}
-                  aria-pressed={p.magnification === 1e17}
-                >
-                  10¹⁷×
-                </button>
-                <button
-                  type="button"
-                  className={`button-toggle ${p.magnification === 1e20 ? "active" : ""}`}
-                  onClick={() => setMagnification(1e20)}
-                  aria-pressed={p.magnification === 1e20}
-                >
-                  10²⁰×
-                </button>
-              </div>
-            </div>
-          </fieldset>
-        ) : (
-          <>
-            <fieldset className="control-group">
-              <legend>System Boundary & Formalism</legend>
-
-              {/* Boundary Selection */}
-              <div className="control-row">
-                <span className="field-label">System boundary (objects included):</span>
-                <div className="toggle-group" role="radiogroup" aria-label="System boundary">
+            </fieldset>
+          ) : (
+            <>
+              <fieldset className="lab-choice">
+                <legend>Inside the boundary</legend>
+                <div className="actions">
                   <button
                     type="button"
                     className={`button-toggle ${p.boundary === "body-alone" ? "active" : ""}`}
                     onClick={() => setBoundary("body-alone")}
                     aria-pressed={p.boundary === "body-alone"}
                   >
-                    Body Alone
+                    The body alone
                   </button>
                   <button
                     type="button"
@@ -524,7 +334,7 @@ export function BoundaryLedgerLab({
                     onClick={() => setBoundary("radiation")}
                     aria-pressed={p.boundary === "radiation"}
                   >
-                    Radiation
+                    The radiation
                   </button>
                   <button
                     type="button"
@@ -532,22 +342,20 @@ export function BoundaryLedgerLab({
                     onClick={() => setBoundary("combined-isolated-system")}
                     aria-pressed={p.boundary === "combined-isolated-system"}
                   >
-                    Combined Isolated System
+                    Both, as one isolated system
                   </button>
                 </div>
-              </div>
-
-              {/* Radiation Disposition */}
-              <div className="control-row">
-                <span className="field-label">Energy retained or released:</span>
-                <div className="toggle-group" role="radiogroup" aria-label="Radiation disposition">
+              </fieldset>
+              <fieldset className="lab-choice">
+                <legend>The radiation</legend>
+                <div className="actions">
                   <button
                     type="button"
                     className={`button-toggle ${p.disposition === "escapes" ? "active" : ""}`}
                     onClick={() => setDisposition("escapes")}
                     aria-pressed={p.disposition === "escapes"}
                   >
-                    Radiation Escapes
+                    Escapes
                   </button>
                   <button
                     type="button"
@@ -555,22 +363,21 @@ export function BoundaryLedgerLab({
                     onClick={() => setDisposition("retained")}
                     aria-pressed={p.disposition === "retained"}
                   >
-                    Radiation Absorbed in Enclosure
+                    Is absorbed inside an enclosure
                   </button>
                 </div>
-              </div>
-
+              </fieldset>
               {p.mode === "four-momentum" && (
-                <div className="control-row">
-                  <span className="field-label">Four-momentum pulse geometry:</span>
-                  <div className="toggle-group">
+                <fieldset className="lab-choice">
+                  <legend>Pulses</legend>
+                  <div className="actions">
                     <button
                       type="button"
                       className={`button-toggle ${p.pulseSystem === "single-pulse" ? "active" : ""}`}
                       onClick={() => setPulseSystem("single-pulse")}
                       aria-pressed={p.pulseSystem === "single-pulse"}
                     >
-                      Single Pulse (m = 0)
+                      One pulse (m = 0)
                     </button>
                     <button
                       type="button"
@@ -578,7 +385,7 @@ export function BoundaryLedgerLab({
                       onClick={() => setPulseSystem("two-collinear")}
                       aria-pressed={p.pulseSystem === "two-collinear"}
                     >
-                      Two Collinear (m = 0)
+                      Two, same direction (m = 0)
                     </button>
                     <button
                       type="button"
@@ -586,29 +393,94 @@ export function BoundaryLedgerLab({
                       onClick={() => setPulseSystem("two-opposite")}
                       aria-pressed={p.pulseSystem === "two-opposite"}
                     >
-                      Two Opposite (m = L/c²)
+                      Two, opposite directions (m = L/c²)
                     </button>
                   </div>
-                </div>
+                </fieldset>
               )}
-            </fieldset>
-
-            <fieldset className="control-group">
-              <legend>Cited Energy-Source Case Studies</legend>
-              <div className="control-row">
-                <span className="field-label">Select case study:</span>
-                <div className="card-buttons-grid">
+            </>
+          )}
+          <fieldset className="lab-choice">
+            <legend>Try</legend>
+            <div className="actions">
+              {ME03_PRESETS.map((pr) => (
+                <button
+                  key={pr.presetId}
+                  type="button"
+                  className="secondary"
+                  onClick={() => loadPreset(pr.presetId)}
+                >
+                  {pr.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <ExperimentSettings
+            contents={
+              isBox
+                ? "the box's mass, length and pulse energy, magnification, notation, a link to these settings"
+                : "seven cited energy sources, notation, a link to these settings"
+            }
+          >
+            {isBox ? (
+              <form onSubmit={submit} aria-label="1906 box parameters">
+                <div className="control-row">
+                  <label htmlFor={`box-mass-${id}`}>Box mass M (kg)</label>
+                  <input
+                    id={`box-mass-${id}`}
+                    type="number"
+                    step="any"
+                    min="0"
+                    className="input-number"
+                    value={draft.boxMass}
+                    onChange={(e) => setDraft({ ...draft, boxMass: e.target.value })}
+                  />
+                </div>
+                <div className="control-row">
+                  <label htmlFor={`box-len-${id}`}>Box length ℓ (m)</label>
+                  <input
+                    id={`box-len-${id}`}
+                    type="number"
+                    step="any"
+                    min="0"
+                    className="input-number"
+                    value={draft.boxLength}
+                    onChange={(e) => setDraft({ ...draft, boxLength: e.target.value })}
+                  />
+                </div>
+                <div className="control-row">
+                  <label htmlFor={`pulse-energy-${id}`}>Pulse energy E (J)</label>
+                  <input
+                    id={`pulse-energy-${id}`}
+                    type="number"
+                    step="any"
+                    min="0"
+                    className="input-number"
+                    value={draft.pulseEnergy}
+                    onChange={(e) => setDraft({ ...draft, pulseEnergy: e.target.value })}
+                  />
+                </div>
+                <button type="submit" className="secondary">
+                  Calculate with these values
+                </button>
+              </form>
+            ) : (
+              <fieldset className="lab-choice">
+                <legend>A cited energy source</legend>
+                <div className="actions">
                   <button
                     type="button"
                     className={`button-toggle ${p.cardId === "me-03-card-radium" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-radium")}
+                    aria-pressed={p.cardId === "me-03-card-radium"}
                   >
-                    Radium Decay
+                    Radium decay
                   </button>
                   <button
                     type="button"
                     className={`button-toggle ${p.cardId === "me-03-card-sun" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-sun")}
+                    aria-pressed={p.cardId === "me-03-card-sun"}
                   >
                     The Sun
                   </button>
@@ -616,109 +488,235 @@ export function BoundaryLedgerLab({
                     type="button"
                     className={`button-toggle ${p.cardId === "me-03-card-coal" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-coal")}
+                    aria-pressed={p.cardId === "me-03-card-coal"}
                   >
-                    Burning Coal
+                    Burning coal
                   </button>
                   <button
                     type="button"
                     className={`button-toggle ${p.cardId === "me-03-card-candle" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-candle")}
+                    aria-pressed={p.cardId === "me-03-card-candle"}
                   >
-                    Candle
+                    A candle
                   </button>
                   <button
                     type="button"
                     className={`button-toggle ${p.cardId === "me-03-card-bulb" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-card-bulb")}
+                    aria-pressed={p.cardId === "me-03-card-bulb"}
                   >
-                    100 W Bulb (1 Yr)
+                    A 100 W bulb for a year
                   </button>
                   <button
                     type="button"
                     className={`button-toggle ${p.cardId === "me-03-heated-sealed-box" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-heated-sealed-box")}
+                    aria-pressed={p.cardId === "me-03-heated-sealed-box"}
                   >
-                    Heated Box
+                    A heated sealed box
                   </button>
                   <button
                     type="button"
                     className={`button-toggle ${p.cardId === "me-03-sealed-lamp-and-mirror" ? "active" : ""}`}
                     onClick={() => setCardId("me-03-sealed-lamp-and-mirror")}
+                    aria-pressed={p.cardId === "me-03-sealed-lamp-and-mirror"}
                   >
-                    Sealed Lamp & Mirror
+                    A sealed lamp and mirror
                   </button>
                 </div>
+              </fieldset>
+            )}
+            {isBox && (
+              <fieldset className="lab-choice">
+                <legend>Magnify the displacement</legend>
+                <div className="actions">
+                  <button
+                    type="button"
+                    className={`button-toggle ${p.magnification === 1e15 ? "active" : ""}`}
+                    onClick={() => setMagnification(1e15)}
+                    aria-pressed={p.magnification === 1e15}
+                  >
+                    10¹⁵×
+                  </button>
+                  <button
+                    type="button"
+                    className={`button-toggle ${p.magnification === 1e17 ? "active" : ""}`}
+                    onClick={() => setMagnification(1e17)}
+                    aria-pressed={p.magnification === 1e17}
+                  >
+                    10¹⁷×
+                  </button>
+                  <button
+                    type="button"
+                    className={`button-toggle ${p.magnification === 1e20 ? "active" : ""}`}
+                    onClick={() => setMagnification(1e20)}
+                    aria-pressed={p.magnification === 1e20}
+                  >
+                    10²⁰×
+                  </button>
+                </div>
+              </fieldset>
+            )}
+            <fieldset className="lab-choice">
+              <legend>Notation</legend>
+              <div className="actions">
+                <button
+                  type="button"
+                  className={`button-toggle ${p.notation === "printed" ? "active" : ""}`}
+                  onClick={() => toggleNotation("printed")}
+                  aria-pressed={p.notation === "printed"}
+                >
+                  As printed in 1905, with the radical
+                </button>
+                <button
+                  type="button"
+                  className={`button-toggle ${p.notation === "modern" ? "active" : ""}`}
+                  onClick={() => toggleNotation("modern")}
+                  aria-pressed={p.notation === "modern"}
+                >
+                  Modern, with γ and invariant mass
+                </button>
               </div>
             </fieldset>
-          </>
-        )}
-
-        <div className="form-actions">
-          <button type="submit" className="button">
-            Apply changes
-          </button>
-          <button type="button" className="button" onClick={share}>
-            Share configuration link
-          </button>
+            <button type="button" className="secondary" onClick={share}>
+              Copy a link to these settings
+            </button>
+            {sharedUrl && (
+              <p className="fine">
+                Link copied: <code>{sharedUrl}</code>
+              </p>
+            )}
+          </ExperimentSettings>
+          {error && (
+            <p className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
+              {error}
+            </p>
+          )}
+          {linkNote && (
+            <div className="notice">
+              <p>{linkNote}</p>
+              {linkPending && (
+                <button type="button" className="secondary" onClick={commitDraft}>
+                  Calculate the linked settings
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
-        {error && (
-          <div
-            className="notice error error-banner"
-            role="alert"
-            data-refusal-code={refusalCode ?? undefined}
-          >
-            {error}
-          </div>
-        )}
-
-        {linkNote && <div className="info-banner">{linkNote}</div>}
-        {sharedUrl && (
-          <div className="share-banner">
-            Link copied to clipboard: <code>{sharedUrl}</code>
-          </div>
-        )}
-      </form>
-
-      {/* Predict Mode Section */}
-      <section className="predict-section" aria-label="Prediction mode">
-        <h3>
-          {isBox
-            ? "Predict before evaluating the light pulse recoil:"
-            : "Predict before inspecting the sealed box:"}
-        </h3>
-        <p className="predict-question">{prompt.question}</p>
-        <div className="predict-options" role="radiogroup">
-          {prompt.candidates.map((c) => (
-            <label key={c.id} className="predict-candidate">
-              <input
-                type="radio"
-                name={isBox ? "predict-box-light-mass" : "predict-sealed-box"}
-                value={c.id}
-                checked={predictAnswer === c.id}
-                onChange={() => setPredictAnswer(c.id)}
+        <div className="lab-results">
+          {/* Main Visual Plot */}
+          {isBox && boxEvaluation && boxScale ? (
+            <PhotonBoxPlot
+              parameters={p}
+              evaluation={boxEvaluation}
+              scale={boxScale}
+              clipId={`me03-box-clip-${id}`}
+            />
+          ) : (
+            <>
+              <BoundaryLedgerPlot
+                parameters={p}
+                evaluation={evaluation}
+                clipId={`me03-clip-${id}`}
               />
-              <span>{c.label}</span>
-            </label>
-          ))}
+
+              {/* Seven Typed Boundary Facts Panel */}
+              <section
+                className="card-boundary-panel"
+                aria-label="Cited energy-source boundary facts"
+              >
+                <h3
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: "bold",
+                    marginBottom: "0.5rem",
+                    color: "var(--ink)",
+                  }}
+                >
+                  Case study facts: {card.label}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "0.75rem",
+                    color: "var(--muted)",
+                    marginBottom: "0.75rem",
+                    fontStyle: "italic",
+                  }}
+                >
+                  Citation: {card.citation}
+                </p>
+
+                <dl className="boundary-facts-list">
+                  <div className="fact-item">
+                    <dt style={{ fontWeight: 600, color: "var(--ink)" }}>1. System before:</dt>
+                    <dd style={{ color: "var(--ink)" }}>{facts.systemBefore}</dd>
+                  </div>
+                  <div className="fact-item">
+                    <dt style={{ fontWeight: 600, color: "var(--ink)" }}>2. System after:</dt>
+                    <dd style={{ color: "var(--ink)" }}>{facts.systemAfter}</dd>
+                  </div>
+                  <div className="fact-item">
+                    <dt style={{ fontWeight: 600, color: "var(--ink)" }}>
+                      3. Matter crosses boundary:
+                    </dt>
+                    <dd
+                      style={{
+                        color: facts.matterCrossesBoundary.crosses ? "var(--accent)" : "var(--ink)",
+                      }}
+                    >
+                      {facts.matterCrossesBoundary.crosses
+                        ? "Yes (Matter transfer: "
+                        : "No (Closed system: "}
+                      {facts.matterCrossesBoundary.note})
+                    </dd>
+                  </div>
+                  <div className="fact-item">
+                    <dt style={{ fontWeight: 600, color: "var(--ink)" }}>
+                      4. Radiation disposition:
+                    </dt>
+                    <dd style={{ color: "var(--ink)" }}>
+                      <span style={{ fontWeight: 600, textTransform: "capitalize" }}>
+                        {facts.radiation.disposition}
+                      </span>{" "}
+                      ({facts.radiation.note})
+                    </dd>
+                  </div>
+                  <div className="fact-item">
+                    <dt style={{ fontWeight: 600, color: "var(--ink)" }}>5. Reference frame:</dt>
+                    <dd style={{ color: "var(--ink)" }}>{facts.referenceFrame}</dd>
+                  </div>
+                  <div className="fact-item">
+                    <dt style={{ fontWeight: 600, color: "var(--ink)" }}>6. Energy figure:</dt>
+                    <dd style={{ color: "var(--ink)", fontFamily: "var(--font-mono, monospace)" }}>
+                      {facts.energyFigure.value} {facts.energyFigure.unit} (
+                      {facts.energyFigure.kind})
+                    </dd>
+                  </div>
+                </dl>
+
+                {facts.closedButNotIsolated.value && (
+                  <div
+                    style={{
+                      marginTop: "0.75rem",
+                      padding: "0.5rem",
+                      background: "var(--wash)",
+                      border: "1px solid var(--line)",
+                      borderRadius: "0.25rem",
+                      fontSize: "0.75rem",
+                      color: "var(--ink)",
+                    }}
+                  >
+                    <strong>7. Closed but not isolated:</strong> Nothing material crosses this
+                    boundary, but the system is not isolated: energy still enters or leaves it.
+                  </div>
+                )}
+              </section>
+            </>
+          )}
         </div>
-        <div className="predict-actions">
-          <button
-            type="button"
-            className="button"
-            disabled={!predictAnswer}
-            onClick={() => setPredictRevealed(true)}
-          >
-            Commit prediction and reveal
-          </button>
-        </div>
-        {predictRevealed && (
-          <section className="predict-reveal" aria-live="polite">
-            <p className="reveal-title">What the model says</p>
-            <p>{prompt.explanation}</p>
-          </section>
-        )}
-      </section>
+      </div>
 
       {/* Show The Code Section */}
       <details className="show-the-code">

@@ -16,12 +16,41 @@ function toScalar(
   return fallback;
 }
 
+const SUPERSCRIPT: Readonly<Record<string, string>> = {
+  "-": "⁻",
+  "0": "⁰",
+  "1": "¹",
+  "2": "²",
+  "3": "³",
+  "4": "⁴",
+  "5": "⁵",
+  "6": "⁶",
+  "7": "⁷",
+  "8": "⁸",
+  "9": "⁹",
+};
+
+/** The reference strings spell a power with a caret ("10^-10", "c^2"); a reader reads 10⁻¹⁰. */
+function powers(text: string): string {
+  return text.replace(/\^(-?\d+)/g, (_, exponent: string) =>
+    [...exponent].map((ch) => SUPERSCRIPT[ch] ?? ch).join(""),
+  );
+}
+
+/** "4.259 × 10^9 kg/s (4.3 million tonnes/s)" as a value line and the note after it. */
+export function splitFigure(text: string): { value: string; note: string } {
+  const match = /^(.*\S)\s+(\([^()]*\))$/.exec(text);
+  return match
+    ? { value: powers(match[1] ?? text), note: powers(match[2] ?? "") }
+    : { value: powers(text), note: "" };
+}
+
 export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryLedgerPlotProps) {
   const { boundary, disposition, emittedEnergy, mode, pulseSystem, notation } = parameters;
   const isModern = notation === "modern";
   const isFourMomentum = mode === "four-momentum";
   const card = evaluation.card;
-  const facts = evaluation.boundaryFacts;
+  const massChange = splitFigure(card.massChangeFormatted);
 
   const energyDelta = toScalar(evaluation.energyChange, -emittedEnergy);
   const massDelta =
@@ -404,31 +433,27 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
 
           <line x1="12" y1="90" x2="268" y2="90" stroke="var(--line)" strokeWidth="1" />
 
-          {/* Card Case Study / 7 Boundary Facts Preview */}
+          {/* The selected card's name and its mass change, each value on its own line. The pane is
+              256 units wide inside; "Case Study: The Sun (Radiated Luminosity)" and every card's
+              mass change ran past it, cut off at the drawing's edge. The card's energy figure,
+              whether matter crosses, and "closed but not isolated" are facts 3, 6 and 7 in the
+              panel under the drawing, so they are not repeated here. */}
           <g transform="translate(12, 100)">
-            <text x="0" y="12" fontSize="11" fontWeight="bold" fill="var(--ink)">
-              Case Study: {card.label}
+            <text x="0" y="12" fill="var(--muted)">
+              Case study
             </text>
-            <text x="0" y="28" fontSize="10" fill="var(--muted)">
-              Energy: <tspan fill="var(--ink)">{card.energyFormatted}</tspan>
+            <text x="0" y="30" fontWeight="bold" fill="var(--ink)">
+              {card.label}
             </text>
-            <text x="0" y="42" fontSize="10" fill="var(--muted)">
-              Mass Change:{" "}
-              <tspan fontWeight="bold" fill="var(--accent)">
-                {card.massChangeFormatted}
-              </tspan>
+            <text x="0" y="54" fill="var(--muted)">
+              Mass change
             </text>
-            <text x="0" y="56" fontSize="10" fill="var(--muted)">
-              Matter Crosses:{" "}
-              <tspan fill={facts.matterCrossesBoundary.crosses ? "var(--accent)" : "var(--muted)"}>
-                {facts.matterCrossesBoundary.crosses
-                  ? "Yes (Matter transfer)"
-                  : "No (Closed system)"}
-              </tspan>
+            <text x="0" y="72" fontWeight="bold" fill="var(--accent)">
+              {massChange.value}
             </text>
-            {facts.closedButNotIsolated.value && (
-              <text x="0" y="72" fontSize="9" fill="var(--accent)" fontWeight="bold">
-                Closed but not isolated (energy leaves)
+            {massChange.note && (
+              <text x="0" y="90" fill="var(--ink)">
+                {massChange.note}
               </text>
             )}
           </g>

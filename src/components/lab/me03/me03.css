@@ -1,7 +1,9 @@
 /* ME-03: System boundary energy ledger and 1906 photon-in-a-box styles (am-me-03-box-extension-kiei) */
 
+/* No max-width: the lab's two columns take the page's content width, as every other lab does.
+   A 64rem cap here left the right ~300px of a 1440 page empty beside the drawing, and because
+   the selector is unscoped it capped any .laboratory-shell on a page that loads this file. */
 .laboratory-shell {
-  max-width: 64rem;
   margin: 0;
   padding: 1.5rem 0;
 }
@@ -19,10 +21,6 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-.me03-try {
-  margin-block: 1.25rem;
 }
 
 .lab-header {
@@ -60,13 +58,6 @@
   background: var(--wash);
   color: var(--muted);
   border: 1px solid var(--rule);
-}
-
-.notation-toggle-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
 }
 
 .toggle-label {
@@ -279,12 +270,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-}
-
-.card-buttons-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
 }
 
 .input-number {
