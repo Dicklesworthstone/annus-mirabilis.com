@@ -73,6 +73,12 @@
 .glyph-nav-item .katex {
   font-size: 1.05em;
 }
+/* KaTeX draws a fraction's layers outside its own box. On a phone the two tall fractions reached
+   into the row above and took the taps meant for beta, cos phi and delta (3 of 121 symbols missed
+   at 390, BUILD 11). The link's own 44px box takes the pointer instead. */
+.glyph-nav-item a > * {
+  pointer-events: none;
+}
 
 /* Interactive Controls & Filters */
 .notation-controls {
