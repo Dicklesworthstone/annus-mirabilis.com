@@ -261,20 +261,29 @@ test("separate placements and mode guards do not leak scientific state", () => {
 });
 
 /**
- * The five refusal sites in shelf/session.ts (am-r3qt), and only two of them can fire.
+ * The five refusal sites in shelf/session.ts (am-r3qt). Three of them can fire.
  *
  * Measured, not argued: every shelf id in both modes, and every single-field change across every
  * parameter class - 6 combinations and 34 apply() calls - raises no refusal at all. Two sites are
- * reachable with INVALID input and are driven below. The other three are guards behind guards, and
- * the last of them cannot fire at any input:
+ * reachable with INVALID input and are driven below. A third, :330, is reachable with a valid
+ * input that is not a parameter at all, and is driven at the end of this file. The remaining two
+ * are guards behind guards:
  *
  *   :74  missing-numeric-setting   evaluate() reads its settings through a helper that refuses a
  *                                  non-number, but evaluateShelf validates first, so by the time
  *                                  the helper runs every key it reads is a number. It fires only
  *                                  if shelfFields and evaluate disagree about which keys exist.
- *   :330 publication-refused       the session issues a token and publishes against it on the very
- *                                  next line, so the store's denial paths (stale token, mixed
- *                                  revisions, parameter mismatch) are unreachable from here.
+ *   :330 publication-refused       REACHABLE, and this note used to say otherwise. It read: "the
+ *                                  session issues a token and publishes against it on the very
+ *                                  next line, so the store's denial paths are unreachable from
+ *                                  here." Publishing on the very next line is not the same as
+ *                                  nothing happening in between. store.issue() notifies listeners
+ *                                  SYNCHRONOUSLY (instanceStore.ts:255), so a subscriber that
+ *                                  re-enters apply() issues a newer token and the outer frame
+ *                                  publishes one the store has moved past: superseded-run. The
+ *                                  envelope below could not have found it - it varies parameters,
+ *                                  and the input that reaches :330 is a subscriber. Corrected
+ *                                  under am-r3qt by running it, not by reading it.
  *   :371 no-command-for-change     DEAD. Eleven lines above it the function returns early when all
  *                                  three patches are empty, so at least one store.issue() runs,
  *                                  and issue() returns RequestToken - not nullable. `!token` is
@@ -308,7 +317,7 @@ test("shelf session: (session.ts:295) createShelfSession refuses bad initial par
   assert.ok(createShelfSession(MM, "full", "mm-good-initial", d).getSnapshot().accepted);
 });
 
-test("shelf session: :74, :330 and :371 cannot fire across the whole valid input space", () => {
+test("shelf session: :74, :330 and :371 fire for no valid PARAMETER anywhere in the space", () => {
   // This is the measurement the comment above rests on, kept as a test so it stops being true
   // loudly. If a later change makes any of the three reachable, this goes red and whoever made it
   // reachable is the person who should drive it.
@@ -347,4 +356,44 @@ test("shelf session: :74, :330 and :371 cannot fire across the whole valid input
   assert.equal(combos, 6, "every shelf id in both modes");
   assert.ok(applies >= 30, `expected the whole field space, got ${applies} apply calls`);
   assert.deepEqual([...observed], [], "no refusal fires anywhere in the valid space");
+});
+
+/**
+ * :330, driven through the one input that reaches it. See the corrected note above.
+ *
+ * The negative a naive implementation fails: if apply() published its superseded token instead of
+ * refusing, the surviving snapshot would carry the OUTER call's windSpeed while the store's run
+ * had already moved on - "an old result overwrites the newest accepted run", which the runtime
+ * contract forbids in those words. So the surviving value is asserted too, because the throw
+ * alone would also be satisfied by a session that corrupted the snapshot on the way out.
+ */
+test("shelf session: (session.ts:330) a re-entrant subscriber supersedes the token, which refuses", () => {
+  const d = shelfDefaults(MM, "full");
+  const NESTED = d.windSpeed * 1.1;
+  const OUTER = d.windSpeed * 1.25;
+  const session = createShelfSession(MM, "full", "mm-reentrant-apply", d);
+  let reentries = 0;
+
+  session.subscribe(() => {
+    if (reentries > 0) return;
+    reentries += 1;
+    session.apply({ ...d, windSpeed: NESTED });
+  });
+
+  assert.throws(
+    () => session.apply({ ...d, windSpeed: OUTER }),
+    (error) => {
+      assert.equal(error.code, "publication-refused");
+      assert.match(error.message, /superseded-run/);
+      return true;
+    },
+  );
+
+  // Without this the test would also pass against a store that never notified at all, and the
+  // throw would be arriving from somewhere other than the path being claimed.
+  assert.equal(reentries, 1, "the subscriber never re-entered, so no token was superseded");
+
+  const surviving = session.getSnapshot().accepted;
+  assert.equal(surviving.parameters.windSpeed, NESTED, "the superseded publish must not land");
+  assert.notEqual(surviving.parameters.windSpeed, OUTER);
 });

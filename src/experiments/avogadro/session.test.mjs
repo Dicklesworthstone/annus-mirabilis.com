@@ -125,3 +125,49 @@ test("a session opens on parameters the evaluator accepts", () => {
   const session = createAvogadroSession("avogadro-refusal-control");
   assert.equal(session.getSnapshot().accepted?.experimentId, "avogadro-lab");
 });
+
+/**
+ * :234, driven. The note above says of it "Not proved unreachable, measured unreached", and that
+ * distinction is why this test exists rather than a correction: the envelope it measured varies
+ * PARAMETERS, and the input that reaches :234 is not a parameter.
+ *
+ * store.issue() notifies listeners synchronously (instanceStore.ts:255) before publish() is
+ * called with the token it returned. A subscriber that re-enters apply() therefore issues a
+ * newer token first, and the outer frame publishes one the store has moved past. Because an
+ * avogadro change is a setup-change, and a setup-change forks a new run, the denial channel here
+ * is superseded-run rather than the stale-action that the same hole produces in lightThread.
+ *
+ * The negative a naive implementation fails: if apply() published the stale token instead of
+ * refusing, the surviving snapshot would carry the OUTER call's temperature while the store's run
+ * had already moved on - "an old result overwrites the newest accepted run", which the runtime
+ * contract forbids in those words. So the surviving value is asserted too.
+ */
+test("(session.ts:234) a subscriber re-entering apply() supersedes the outer token, which refuses", () => {
+  const session = createAvogadroSession("avogadro-reentrant-apply");
+  const NESTED = 300;
+  const OUTER = 310;
+  let reentries = 0;
+
+  session.subscribe(() => {
+    if (reentries > 0) return;
+    reentries += 1;
+    session.apply({ ...AVOGADRO_DEFAULTS, temperature: NESTED });
+  });
+
+  assert.throws(
+    () => session.apply({ ...AVOGADRO_DEFAULTS, temperature: OUTER }),
+    (error) => {
+      assert.equal(error.code, "publication-refused");
+      assert.match(error.message, /superseded-run/);
+      return true;
+    },
+  );
+
+  // Without this the test would also pass against a store that never notified, and the throw
+  // would be arriving from somewhere other than the path claimed.
+  assert.equal(reentries, 1, "the subscriber never re-entered, so no token was superseded");
+
+  const surviving = session.getSnapshot().accepted;
+  assert.equal(surviving.parameters.temperature, NESTED, "the superseded publish must not land");
+  assert.notEqual(surviving.parameters.temperature, OUTER);
+});
