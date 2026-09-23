@@ -22,3 +22,64 @@
     overflow-wrap: normal;
   }
 }
+
+/* The three drawings (RodSimultaneityPlots.tsx): their sentences are HTML around them, and the
+   drawings hold only shapes and short names. */
+.sr03-figure {
+  margin-block: 1.25rem;
+}
+
+.sr03-figure-title {
+  margin: 0;
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+.sr03-figure-note {
+  margin: 0.3rem 0 0.5rem;
+}
+
+/* Refused or not, the verdict is bold; a refusal also takes the accent colour. */
+.sr03-verdict {
+  font-weight: 700;
+}
+
+.sr03-verdict-refused {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.sr03-strip {
+  margin-top: 0.75rem;
+}
+
+.sr03-strip-label {
+  margin: 0 0 0.25rem;
+}
+
+.sr03-strip-svg,
+.sr03-diagram-svg,
+.sr03-ellipsoid-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  background: var(--panel);
+}
+
+.sr03-strip-svg,
+.sr03-ellipsoid-svg {
+  max-width: 24rem;
+}
+
+.sr03-diagram-svg {
+  max-width: 34rem;
+}
+
+/* The spacetime diagram is 480 units wide, drawn at about two thirds of that on a phone. */
+@media (max-width: 40rem) {
+  .sr03-diagram-svg {
+    --sr03-label: 21px;
+  }
+}
