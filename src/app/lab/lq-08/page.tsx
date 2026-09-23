@@ -30,6 +30,9 @@ export default function PhotoelectricPage() {
         <h2>From here</h2>
         <ul>
           <li>
+            <a href="/lab/lq-08/data/">Analyze your own stopping-potential record</a>
+          </li>
+          <li>
             <a href="/papers/light-quanta/#s8">Read Section 8 of Einstein’s 1905 paper</a>
           </li>
         </ul>
