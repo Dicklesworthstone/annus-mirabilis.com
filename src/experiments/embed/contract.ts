@@ -108,5 +108,5 @@ export function embedMarkup(
       "Embed height must be a whole number from 400 to 2000 pixels.",
       "embed",
     );
-  return `<iframe\n  src="${attribute(embedUrl(id, options))}"\n  title="${attribute(instrument.title)} — Annus Mirabilis"\n  width="100%" height="${height}"\n  loading="lazy" referrerpolicy="no-referrer"\n  style="border:0;max-width:100%"\n></iframe>\n<p><a href="${EMBED_ORIGIN}/lab/${id}/">Open ${attribute(instrument.title)} at Annus Mirabilis</a></p>`;
+  return `<iframe\n  src="${attribute(embedUrl(id, options))}"\n  title="${attribute(instrument.title)} · Annus Mirabilis"\n  width="100%" height="${height}"\n  loading="lazy" referrerpolicy="no-referrer"\n  style="border:0;max-width:100%"\n></iframe>\n<p><a href="${EMBED_ORIGIN}/lab/${id}/">Open ${attribute(instrument.title)} at Annus Mirabilis</a></p>`;
 }
