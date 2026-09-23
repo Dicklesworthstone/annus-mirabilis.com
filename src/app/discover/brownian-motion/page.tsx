@@ -250,12 +250,13 @@ export default function BrownianEncounter() {
         <p className="step-number">02 / Make a prediction</p>
         <h2>Four times as long. Four times as far?</h2>
         <p>
-          Try three possibilities: no change, twice the typical displacement, or four times the
-          typical displacement. A fixed-velocity model and an independent-step diffusion model do
-          not make the same prediction.
+          Wait four times as long. Does a particle get no farther, twice as far, or four times as
+          far? It depends on how it moves. A particle drifting at a steady speed would go four times
+          as far. A particle kicked about at random, each kick independent of the last, would not.
+          Choose before you open the argument.
         </p>
         <details>
-          <summary>Follow the independent-step argument</summary>
+          <summary>Why a randomly kicked particle goes only twice as far</summary>
           <p>
             Four times the observation time gives four times the mean square displacement. Taking
             its square root gives twice the RMS displacement. The square grows linearly with time;
@@ -283,10 +284,10 @@ export default function BrownianEncounter() {
           density is measured per micrometre.
         </p>
         <p>
-          At the initial instant, all probability is at the starting point. An interval containing
-          that point has probability one. At positive times, the continuous model assigns
-          probability zero to one exact coordinate, but a finite interval can have positive
-          probability.
+          At the very start every particle sits at the starting point, so any stretch that includes
+          it holds all of them. After that, the chance of being at one exact point is zero, however
+          crowded its neighbourhood: only a stretch of some width has a chance, and that chance is
+          the area under the curve across it.
         </p>
         <details>
           <summary>What happens in a more viscous liquid?</summary>
