@@ -159,7 +159,7 @@ export function ElectronDynamicsLab({
                     })
                   }
                 >
-                  Convention at 0.6c (1.5625m vs 1.25m)
+                  Convention at 0.6c (1.5625 × m vs 1.25 × m)
                 </button>
                 <button
                   type="button"
