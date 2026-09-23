@@ -4,6 +4,7 @@
  * No historical data, prior, p-value or automatic point rejection is supplied here.
  */
 import { fitLine, type LineEstimate } from "./lineFit.ts";
+import { withinTolerance } from "../../../units/tolerance.ts";
 
 export type PhotoelectricReference = Readonly<{
   constantSetId: string;
@@ -59,7 +60,8 @@ export function analyzePhotoelectricData(
   const usedRows = Object.freeze(rows.map((r) => r.row));
   const lo = Math.min(...rows.map((r) => r.frequencyTHz));
   const hi = Math.max(...rows.map((r) => r.frequencyTHz));
-  if (hi - lo <= 64 * Number.EPSILON * Math.max(1, Math.abs(lo), Math.abs(hi))) {
+  // Unresolved when hi - lo <= 64 eps * max(1, |lo|, |hi|): both bounds positive, relative to the larger.
+  if (withinTolerance(hi, lo, { absolute: 64 * Number.EPSILON, relative: 64 * Number.EPSILON, relativeTo: "larger" }).ok) {
     return Object.freeze({ status: "underdetermined", reason: "The selected frequencies are identical or numerically unresolved. Repeated measurements at one frequency cannot separate slope from intercept.", usedRows });
   }
   const fit = fitLine(rows.map((r) => ({ x: r.frequencyTHz, y: r.stoppingV, ...(r.sigmaV === undefined ? {} : { sigma: r.sigmaV }) })), options.weighting === "declared-sigma");
