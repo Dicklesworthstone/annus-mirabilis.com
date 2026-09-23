@@ -38,6 +38,22 @@ const SINGLE_TOKEN_GLYPH =
   /^(?:\\[A-Za-z]+|[A-Za-z0-9])(?:_(?:\{(?:[^{}]|\{[^{}]*\})*\}|\\[A-Za-z]+|[A-Za-z0-9]))?'*$/;
 
 /**
+ * An unscaled symbol whose printed glyph is one token with no superscript of its own: it can carry
+ * a power, or be differentiated, without brackets.
+ */
+function isAtomicSymbol(
+  n: Extract<Expression, { kind: "symbol" }>,
+  options: RenderLatexOptions,
+): boolean {
+  const glyph = resolveSymbolGlyph(n, options).glyph;
+  return (
+    (!n.scale || (n.scale.num === 1 && n.scale.den === 1)) &&
+    !glyph.includes("^") &&
+    SINGLE_TOKEN_GLYPH.test(glyph)
+  );
+}
+
+/**
  * Renders an AST expression into LaTeX under the specified options.
  */
 export function renderLatex(tree: Expression, options: RenderLatexOptions = {}): string {
@@ -180,14 +196,10 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
           parentheses, which is what makes (x + y)^2 and (-x)^2 unambiguous.
         */
         const base = n.base;
-        const glyph = base.kind === "symbol" ? resolveSymbolGlyph(base, options).glyph : "";
         const atomic =
           base.kind === "constant" ||
           (base.kind === "number" && /^\d+(\.\d+)?$/.test(base.value)) ||
-          (base.kind === "symbol" &&
-            (!base.scale || (base.scale.num === 1 && base.scale.den === 1)) &&
-            !glyph.includes("^") &&
-            SINGLE_TOKEN_GLYPH.test(glyph));
+          (base.kind === "symbol" && isAtomicSymbol(base, options));
         const rendered = render(base);
         const exponent =
           n.kind === "symbolPower"
@@ -262,7 +274,13 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
         // A space after the differential: \partial followed directly by a variable whose LaTeX
         // starts with a letter is one undefined control sequence, \partialx. BUILD 18b failed on
         // exactly that in the offline generator.
-        s = `\\frac{${d}${p}\\left(${render(n.expression)}\\right)}{${d} ${render(n.variable)}${p}}`;
+        // A lone letter is differentiated bare, as the papers print it: \partial f / \partial t,
+        // never \partial (f) / \partial t. A value at arguments, p(x, t), already carries its own
+        // brackets. Anything else (a sum, a product, a two-token glyph) keeps them.
+        const operand = n.expression;
+        const bare = operand.kind === "symbol" && isAtomicSymbol(operand, options);
+        const inner = bare ? ` ${render(operand)}` : `\\left(${render(operand)}\\right)`;
+        s = `\\frac{${d}${p}${inner}}{${d} ${render(n.variable)}${p}}`;
         // Held fixed: the whole quotient is bracketed and the fixed quantities subscripted.
         if (n.heldFixed?.length)
           s = `\\left(${s}\\right)_{${n.heldFixed.map((h) => render(h)).join(",\\,")}}`;
