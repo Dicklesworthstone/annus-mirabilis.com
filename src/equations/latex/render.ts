@@ -295,6 +295,16 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
         break;
       }
 
+      case "limit": {
+        // The limit of a sum, a relation or a negation is bracketed, since lim a + b would read
+        // as (lim a) + b; a fraction, a product or a power is not.
+        const e = n.expression;
+        const inner = render(e);
+        const wrap = e.kind === "sum" || e.kind === "relation" || e.kind === "negate";
+        s = `\\lim_{${render(n.variable)} \\to ${render(n.approaches)}} ${wrap ? `\\left(${inner}\\right)` : inner}`;
+        break;
+      }
+
       case "partialOperator":
         s = `\\partial_{${render(n.variable)}}`;
         break;

@@ -162,6 +162,9 @@ export function expressionToSpokenText(expr: Expression): string {
       return `integral${limits} of ${expressionToSpokenText(expr.expression)} with respect to ${expressionToSpokenText(expr.variable)}`;
     }
 
+    case "limit":
+      return `the limit, as ${expressionToSpokenText(expr.variable)} approaches ${expressionToSpokenText(expr.approaches)}, of ${expressionToSpokenText(expr.expression)}`;
+
     case "partialOperator":
       return `partial derivative with respect to ${expressionToSpokenText(expr.variable)}`;
 

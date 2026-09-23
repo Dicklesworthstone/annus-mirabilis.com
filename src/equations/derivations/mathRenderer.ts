@@ -98,6 +98,9 @@ export function expressionToDerivationLatex(
       case "integral":
         s = `\\int ${render(n.expression)}\\,\\mathrm{d}${render(n.variable)}`;
         break;
+      case "limit":
+        s = `\\lim_{${render(n.variable)} \\to ${render(n.approaches)}} \\left(${render(n.expression)}\\right)`;
+        break;
       default:
         s = "\\dots";
     }

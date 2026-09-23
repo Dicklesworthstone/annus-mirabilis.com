@@ -23,8 +23,9 @@ export type Expression =
        */
       args?: readonly Expression[];
     }>
-  /** "infinity" is admitted only as an integral's limit, or its negation: the density integrals of
-      paper 2, section 4 run from minus to plus infinity. It is never a value in arithmetic. */
+  /** "infinity" is admitted only as an integral's limit or the value a limit approaches, or its
+      negation: the density integrals of paper 2, section 4 run from minus to plus infinity. It is
+      never a value in arithmetic. */
   | Readonly<{ kind: "constant"; name: "pi" | "infinity" }>
   | Readonly<{ kind: "number"; value: string }>
   | (Op & Readonly<{ kind: "sum" | "product"; args: readonly Expression[] }>)
@@ -64,6 +65,17 @@ export type Expression =
         lower?: Expression;
         upper?: Expression;
       }>)
+  /** The limit of an expression as a variable approaches a value: paper 4's low-speed limit,
+      lim_{v -> 0} 2L(gamma - 1)/v^2 = L/c^2. The value approached is a value of the variable, so
+      it carries the variable's dimension; zero and plus or minus infinity are admitted as they are
+      for an integral's limits. The limit has the dimension of the expression. */
+  | (Op &
+      Readonly<{
+        kind: "limit";
+        variable: Expression;
+        approaches: Expression;
+        expression: Expression;
+      }>)
   /** The operator "partial derivative with respect to variable", standing alone: an identity
       between operators (paper 3, section 6) relates these, not quantities. */
   | (Op & Readonly<{ kind: "partialOperator"; variable: Expression }>);
@@ -101,6 +113,8 @@ export function children(n: Expression): readonly Expression[] {
         ...(n.lower ? [n.lower] : []),
         ...(n.upper ? [n.upper] : []),
       ];
+    case "limit":
+      return [n.expression, n.variable, n.approaches];
     case "partialOperator":
       return [n.variable];
   }
@@ -194,6 +208,7 @@ export function parseExpression(
       relation: ["operator", "left", "right"],
       derivative: ["expression", "variable", "order", "partial"],
       integral: ["expression", "variable"],
+      limit: ["variable", "approaches", "expression"],
       partialOperator: ["variable"],
     };
     if (typeof kind !== "string" || !Object.hasOwn(fields, kind))
@@ -234,7 +249,11 @@ export function parseExpression(
       }
     } else if (kind === "constant") {
       if (o.name === "infinity") {
-        if (!limit) fail(path, "Infinity is admitted only as an integral's limit.");
+        if (!limit)
+          fail(
+            path,
+            "Infinity is admitted only as an integral's limit or the value a limit approaches.",
+          );
       } else if (o.name !== "pi") fail(path, "Unsupported mathematical constant.");
     } else if (kind === "number") {
       if (
@@ -256,7 +275,8 @@ export function parseExpression(
         for (const key of kindFields)
           if (
             !["degree", "name", "operator", "order", "partial"].includes(key) &&
-            !(key === "exponent" && kind === "power")
+            !(key === "exponent" && kind === "power") &&
+            !(key === "approaches" && kind === "limit")
           )
             // A negated limit is still a limit: minus infinity is -(infinity).
             parse(o[key], `${path}.${key}`, depth + 1, limit && kind === "negate");
@@ -285,7 +305,10 @@ export function parseExpression(
       )
         fail(path, "Unsupported derivative order.");
       if (
-        (kind === "derivative" || kind === "integral" || kind === "partialOperator") &&
+        (kind === "derivative" ||
+          kind === "integral" ||
+          kind === "limit" ||
+          kind === "partialOperator") &&
         (o.variable as Expression).kind !== "symbol"
       )
         fail(path, "The variable must be a bound symbol.");
@@ -302,6 +325,20 @@ export function parseExpression(
           if ((h as Extract<Expression, { kind: "symbol" }>).quantityId === variable)
             fail(path, "The variable that changes cannot also be held fixed.");
         });
+      }
+      if (kind === "limit") {
+        // Parsed as a limit value, so plus or minus infinity is admitted here and nowhere else.
+        parse(o.approaches, `${path}.approaches`, depth + 1, true);
+        const variable = (o.variable as Extract<Expression, { kind: "symbol" }>).quantityId;
+        if (
+          walk(o.approaches as Expression).some(
+            (a) => a.kind === "symbol" && a.quantityId === variable,
+          )
+        )
+          fail(
+            path,
+            "The value a limit approaches cannot contain the variable that approaches it.",
+          );
       }
       if (kind === "integral") {
         if (Object.hasOwn(o, "lower") !== Object.hasOwn(o, "upper"))

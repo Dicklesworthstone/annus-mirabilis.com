@@ -479,6 +479,20 @@ export function checkDimensions(
         return combine(exprDim, varDim);
       }
 
+      case "limit": {
+        // The value approached is a value of the variable, with the variable's dimension and kind,
+        // under the integral-limit rule above: 0 and plus or minus infinity carry no size. The
+        // limit itself has the dimension of the expression whose limit it is.
+        const exprDim = visit(node.expression, depth + 1);
+        visit(node.variable, depth + 1);
+        const a = (node.approaches ?? {}) as Record<string, unknown>;
+        const unsigned = a.kind === "negate" ? ((a.argument ?? {}) as Record<string, unknown>) : a;
+        const zero = a.kind === "number" && Number(a.value) === 0;
+        const unbounded = unsigned.kind === "constant" && unsigned.name === "infinity";
+        if (!zero && !unbounded) equal(n, node.variable, node.approaches);
+        return exprDim;
+      }
+
       case "partialOperator": {
         // The partial derivative with respect to a variable, standing alone, has the inverse
         // of the variable's dimension: an operator identity balances these, per metre or per

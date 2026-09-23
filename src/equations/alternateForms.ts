@@ -249,6 +249,14 @@ export function isTreeEquivalentUpToRenames(
         bounds(a.upper, b.upper)
       );
     }
+    case "limit": {
+      return (
+        b.kind === "limit" &&
+        isTreeEquivalentUpToRenames(a.expression, b.expression, options) &&
+        isTreeEquivalentUpToRenames(a.variable, b.variable, options) &&
+        isTreeEquivalentUpToRenames(a.approaches, b.approaches, options)
+      );
+    }
     case "partialOperator": {
       return (
         b.kind === "partialOperator" && isTreeEquivalentUpToRenames(a.variable, b.variable, options)
