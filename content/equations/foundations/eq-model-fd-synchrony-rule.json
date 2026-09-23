@@ -80,19 +80,19 @@
     {
       "nodeId": "eq-model-fd-synchrony-rule.t.arrive",
       "title": "B's reading",
-      "explanation": "t_B, when the light reaches B.",
+      "explanation": "B's clock reading when the light reaches B.",
       "foundation": "frames-events"
     },
     {
       "nodeId": "eq-model-fd-synchrony-rule.t.arrive2",
       "title": "B's reading",
-      "explanation": "The same t_B.",
+      "explanation": "The same reading on B's clock.",
       "foundation": "frames-events"
     },
     {
       "nodeId": "eq-model-fd-synchrony-rule.t.leave",
       "title": "A's reading at departure",
-      "explanation": "t_A, when the light leaves A.",
+      "explanation": "A's clock reading when the light leaves A.",
       "foundation": "frames-events"
     },
     {

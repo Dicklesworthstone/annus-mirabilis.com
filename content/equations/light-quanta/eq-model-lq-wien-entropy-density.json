@@ -13,7 +13,7 @@
   "assumptions": [
     "The Wien regime: the density follows A nu cubed times exp(−B nu / T).",
     "Entropy density and energy density are compared at one frequency.",
-    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for k_B, and beta for B."
+    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for Boltzmann's constant, and β for B."
   ],
   "tree": {
     "kind": "relation",
@@ -193,7 +193,7 @@
     {
       "nodeId": "eq-model-lq-wien-entropy-density.t.beta",
       "title": "Wien's beta",
-      "explanation": "The constant in Wien's exponent; later identified as h over k_B. It is not the beta of the relativity paper.",
+      "explanation": "The constant in Wien's exponent; later identified as h divided by Boltzmann's constant. It is not the β of the relativity paper.",
       "foundation": "exponentials"
     },
     {

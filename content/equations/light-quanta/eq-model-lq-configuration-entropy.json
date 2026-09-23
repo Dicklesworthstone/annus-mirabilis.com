@@ -11,10 +11,10 @@
   "notation": "modern-pedagogical",
   "unitSystem": "si",
   "assumptions": [
-    "n points move independently of one another, each equally likely to be anywhere in the volume V_0.",
-    "The chosen part V is a fraction f = V/V_0 of that volume.",
-    "Boltzmann's principle, as the paper states it: an entropy difference is k_B times the logarithm of a relative probability.",
-    "These are modern teaching equations in SI notation, not a transcription of the printed paper. The paper writes R/N for k_B."
+    "n points move independently of one another, each equally likely to be anywhere in the volume V₀.",
+    "The chosen part V is a fraction f = V/V₀ of that volume.",
+    "Boltzmann's principle, as the paper states it: an entropy difference is Boltzmann's constant times the logarithm of a relative probability.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper. The paper writes R/N for Boltzmann's constant."
   ],
   "tree": {
     "kind": "relation",
@@ -81,7 +81,7 @@
   "notes": [
     {
       "nodeId": "eq-model-lq-configuration-entropy.op.boltzmann",
-      "title": "k_B times ln W",
+      "title": "Boltzmann's constant times ln W",
       "explanation": "Boltzmann's principle, the name the paper gives it.",
       "foundation": "entropy-temperature"
     },
@@ -105,7 +105,7 @@
     },
     {
       "nodeId": "eq-model-lq-configuration-entropy.op.product",
-      "title": "n k_B ln f",
+      "title": "n times Boltzmann's constant times ln f",
       "explanation": "The logarithm of f to the n is n times the logarithm of f.",
       "foundation": "logarithms"
     },
@@ -142,7 +142,7 @@
     {
       "nodeId": "eq-model-lq-configuration-entropy.t.fraction",
       "title": "Fraction of the volume",
-      "explanation": "The share of the volume the points must all be in, V over V_0; between 0 and 1.",
+      "explanation": "The share of the volume the points must all be in, V over V₀; between 0 and 1.",
       "foundation": "bridge-fractions-ratios"
     },
     {
@@ -162,7 +162,7 @@
       "text": " is "
     },
     {
-      "text": "k_B",
+      "text": "Boltzmann's constant",
       "nodeId": "eq-model-lq-configuration-entropy.t.boltzmann"
     },
     {
@@ -183,7 +183,7 @@
       "text": " times "
     },
     {
-      "text": "k_B",
+      "text": "Boltzmann's constant",
       "nodeId": "eq-model-lq-configuration-entropy.t.boltzmann2"
     },
     {

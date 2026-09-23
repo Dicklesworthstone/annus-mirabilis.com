@@ -69,7 +69,7 @@
     {
       "nodeId": "eq-model-lq-effective-count.t.boltzmann",
       "title": "Boltzmann's constant",
-      "explanation": "The gas side of the comparison: n points change entropy by n k_B ln f.",
+      "explanation": "The gas side of the comparison: n points change entropy by n times Boltzmann's constant times ln f.",
       "foundation": "entropy-temperature"
     },
     {
@@ -108,7 +108,7 @@
       "text": " divided by "
     },
     {
-      "text": "k_B",
+      "text": "Boltzmann's constant",
       "nodeId": "eq-model-lq-effective-count.t.boltzmann"
     },
     {

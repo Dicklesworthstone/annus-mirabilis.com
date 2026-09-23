@@ -11,7 +11,7 @@
   "notation": "modern-pedagogical",
   "unitSystem": "si",
   "assumptions": [
-    "The moving system moves along x at speed v relative to the stationary system, with |v| < c; the object moves at velocity (u_x, u_y) in the stationary system.",
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c; the object's velocity in the stationary system has components along x and y.",
     "Modern teaching notation: gamma is the paper's beta, c its V. The paper composes speeds the other way round, from the moving system to the stationary one; this is the same relation inverted."
   ],
   "tree": {
@@ -93,7 +93,7 @@
   "notes": [
     {
       "nodeId": "eq-model-sr-velocity-y.op.den",
-      "title": "One minus v u_x over c squared",
+      "title": "One minus v times the velocity along x, over c²",
       "explanation": "Close to 1 at everyday speeds, which is why speeds seem simply to subtract.",
       "foundation": "bridge-negative-numbers-direction"
     },
@@ -111,13 +111,13 @@
     },
     {
       "nodeId": "eq-model-sr-velocity-y.op.denTerm",
-      "title": "v u_x over c squared",
+      "title": "v times the velocity along x, over c²",
       "explanation": "The correction Galilean subtraction leaves out.",
       "foundation": "bridge-fractions-ratios"
     },
     {
       "nodeId": "eq-model-sr-velocity-y.op.ratio",
-      "title": "u_y over that",
+      "title": "Velocity along y, over that",
       "explanation": "Positions across the motion are the same in both systems; the times are not.",
       "foundation": "bridge-fractions-ratios"
     },
@@ -180,14 +180,14 @@
       "text": " is "
     },
     {
-      "text": "u_y",
+      "text": "the stationary velocity along y",
       "nodeId": "eq-model-sr-velocity-y.t.uy"
     },
     {
       "text": " divided by "
     },
     {
-      "text": "gamma",
+      "text": "γ",
       "nodeId": "eq-model-sr-velocity-y.t.factor"
     },
     {
@@ -201,7 +201,7 @@
       "text": " times "
     },
     {
-      "text": "u_x",
+      "text": "the stationary velocity along x",
       "nodeId": "eq-model-sr-velocity-y.t.ux"
     },
     {

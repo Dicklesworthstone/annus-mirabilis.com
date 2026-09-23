@@ -128,7 +128,7 @@
     {
       "nodeId": "eq-model-fd-entropy-probability.t.reference",
       "title": "Reference entropy",
-      "explanation": "S_0, the entropy of the state compared with.",
+      "explanation": "S₀, the entropy of the state compared with.",
       "foundation": "entropy-temperature"
     }
   ],

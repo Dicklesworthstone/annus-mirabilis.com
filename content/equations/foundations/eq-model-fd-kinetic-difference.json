@@ -97,7 +97,7 @@
     {
       "nodeId": "eq-model-fd-kinetic-difference.op.drop",
       "title": "The energy difference",
-      "explanation": "K_0 minus K_1.",
+      "explanation": "K₀ minus K₁.",
       "foundation": "work-energy"
     },
     {
@@ -108,14 +108,14 @@
     },
     {
       "nodeId": "eq-model-fd-kinetic-difference.op.massDifference",
-      "title": "m_0 minus m_1",
+      "title": "m₀ minus m₁",
       "explanation": "How much more mass the first body has.",
       "foundation": "bridge-negative-numbers-direction"
     },
     {
       "nodeId": "eq-model-fd-kinetic-difference.op.massDrop",
       "title": "The mass difference, as one quantity",
-      "explanation": "m_0 minus m_1.",
+      "explanation": "m₀ minus m₁.",
       "foundation": "bridge-negative-numbers-direction"
     },
     {
@@ -139,25 +139,25 @@
     {
       "nodeId": "eq-model-fd-kinetic-difference.t.after",
       "title": "Energy of motion, second body",
-      "explanation": "K_1.",
+      "explanation": "K₁.",
       "foundation": "work-energy"
     },
     {
       "nodeId": "eq-model-fd-kinetic-difference.t.before",
       "title": "Energy of motion, first body",
-      "explanation": "K_0.",
+      "explanation": "K₀.",
       "foundation": "work-energy"
     },
     {
       "nodeId": "eq-model-fd-kinetic-difference.t.massAfter",
       "title": "Second mass",
-      "explanation": "m_1.",
+      "explanation": "m₁.",
       "foundation": "work-energy"
     },
     {
       "nodeId": "eq-model-fd-kinetic-difference.t.massBefore",
       "title": "First mass",
-      "explanation": "m_0.",
+      "explanation": "m₀.",
       "foundation": "work-energy"
     },
     {

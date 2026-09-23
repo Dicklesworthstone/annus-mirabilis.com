@@ -13,7 +13,7 @@
   "assumptions": [
     "Clocks A and B are at rest in the same system, and a light signal goes from A to B, is reflected, and returns to A.",
     "Equal travel times out and back is the definition of B's reading, not a measurement: nothing timed at one place can test it.",
-    "Modern teaching notation. The paper writes the return reading as t′_A; here it is t_A,return, so that a prime keeps meaning the moving system."
+    "Modern teaching notation. The paper marks A's return reading with a prime; here it carries the word return instead, so that a prime keeps meaning the moving system."
   ],
   "tree": {
     "kind": "relation",

@@ -6,12 +6,12 @@
   "argument": "arg-sr-velocity-composition",
   "title": "Velocity along the motion",
   "spoken": "The velocity along x in the moving system is the velocity along x in the stationary system minus the speed of the moving system, divided by one minus that speed times the stationary velocity along x over the speed of light squared.",
-  "explanation": "Speeds do not simply subtract. An object moving at 15/17 of c in the stationary system moves at 0.6c in a system that itself moves at 0.6c; light, u_x = c, moves at c in both.",
+  "explanation": "Speeds do not simply subtract. An object moving at 15/17 of c in the stationary system moves at 0.6c in a system that itself moves at 0.6c; light, moving along x at c in one, moves at c in both.",
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
   "assumptions": [
-    "The moving system moves along x at speed v relative to the stationary system, with |v| < c; the object moves at velocity (u_x, u_y) in the stationary system.",
+    "The moving system moves along x at speed v relative to the stationary system, with |v| < c; the object's velocity in the stationary system has components along x and y.",
     "Modern teaching notation: gamma is the paper's beta, c its V. The paper composes speeds the other way round, from the moving system to the stationary one; this is the same relation inverted."
   ],
   "tree": {
@@ -96,7 +96,7 @@
   "notes": [
     {
       "nodeId": "eq-model-sr-velocity-x.op.den",
-      "title": "One minus v u_x over c squared",
+      "title": "One minus v times the velocity along x, over c²",
       "explanation": "Close to 1 at everyday speeds, which is why speeds seem simply to subtract.",
       "foundation": "bridge-negative-numbers-direction"
     },
@@ -114,13 +114,13 @@
     },
     {
       "nodeId": "eq-model-sr-velocity-x.op.denTerm",
-      "title": "v u_x over c squared",
+      "title": "v times the velocity along x, over c²",
       "explanation": "The correction Galilean subtraction leaves out.",
       "foundation": "bridge-fractions-ratios"
     },
     {
       "nodeId": "eq-model-sr-velocity-x.op.difference",
-      "title": "u_x minus v",
+      "title": "Velocity along x, minus v",
       "explanation": "The Galilean answer, what subtraction alone would give.",
       "foundation": "bridge-negative-numbers-direction"
     },
@@ -133,7 +133,7 @@
     {
       "nodeId": "eq-model-sr-velocity-x.op.relation",
       "title": "What it asserts",
-      "explanation": "The velocity along x one system assigns, from the velocity the other assigns. For u_x = c the result is c.",
+      "explanation": "The velocity along x one system assigns, from the velocity the other assigns. For a velocity of c along x the result is c.",
       "foundation": "frames-events"
     },
     {
@@ -183,7 +183,7 @@
       "text": " is "
     },
     {
-      "text": "u_x",
+      "text": "the stationary velocity along x",
       "nodeId": "eq-model-sr-velocity-x.t.ux"
     },
     {
@@ -194,7 +194,7 @@
       "nodeId": "eq-model-sr-velocity-x.t.speed"
     },
     {
-      "text": ", divided by one minus v times u_x over "
+      "text": ", divided by one minus v times that velocity over "
     },
     {
       "text": "c",

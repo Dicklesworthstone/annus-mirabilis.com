@@ -12,7 +12,7 @@
   "unitSystem": "si",
   "live": false,
   "assumptions": [
-    "The unit Gaussian e^{-u²}, normalized by root pi.",
+    "The unit Gaussian, e to the minus u², normalized by the square root of π.",
     "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
   ],
   "tree": {

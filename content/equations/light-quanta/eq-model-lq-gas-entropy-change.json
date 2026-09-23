@@ -6,7 +6,7 @@
   "argument": "arg-lq-entropy-correspondence",
   "title": "The gas side of the comparison",
   "spoken": "The gas entropy change equals n times k B times the natural logarithm of f.",
-  "explanation": "For n independent points, the chance of finding all of them in a fraction f of the volume is f to the n, so the entropy changes by n k_B ln f.",
+  "explanation": "For n independent points, the chance of finding all of them in a fraction f of the volume is f to the n, so the entropy changes by n times Boltzmann's constant times ln f.",
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
@@ -58,7 +58,7 @@
     {
       "nodeId": "eq-model-lq-gas-entropy-change.t.count",
       "title": "Number of independent points",
-      "explanation": "The coefficient's count: each point contributes k_B ln f.",
+      "explanation": "The coefficient's count: each point contributes Boltzmann's constant times ln f.",
       "foundation": "probability-independence"
     },
     {
@@ -97,7 +97,7 @@
       "text": " times "
     },
     {
-      "text": "k_B",
+      "text": "Boltzmann's constant",
       "nodeId": "eq-model-lq-gas-entropy-change.t.boltzmann"
     },
     {

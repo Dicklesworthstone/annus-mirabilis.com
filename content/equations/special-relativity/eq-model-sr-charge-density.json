@@ -110,7 +110,7 @@
     {
       "nodeId": "eq-model-sr-charge-density.op.term",
       "title": "A charge density from a current",
-      "explanation": "vJ_x over c squared has the units of charge per cubic metre.",
+      "explanation": "v Jₓ over c² has the units of charge per cubic metre.",
       "foundation": "bridge-scientific-notation-units"
     },
     {

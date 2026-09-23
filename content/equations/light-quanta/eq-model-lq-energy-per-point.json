@@ -6,7 +6,7 @@
   "argument": "arg-lq-entropy-correspondence",
   "title": "The energy each point would carry",
   "spoken": "The energy divided by the effective count equals k B times B times the frequency, which equals h times the frequency.",
-  "explanation": "Dividing the band's energy among the effective points gives the same amount per point at every volume: k_B B nu, which modern notation writes h nu.",
+  "explanation": "Dividing the band's energy among the effective points gives the same amount per point at every volume: Boltzmann's constant times B times ν, which modern notation writes hν.",
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
@@ -94,7 +94,7 @@
     {
       "nodeId": "eq-model-lq-energy-per-point.t.beta",
       "title": "Spectral constant B",
-      "explanation": "Wien's beta. With k_B it makes an energy per unit frequency.",
+      "explanation": "Wien's β. With Boltzmann's constant it makes an energy per unit frequency.",
       "foundation": "exponentials"
     },
     {
@@ -106,7 +106,7 @@
     {
       "nodeId": "eq-model-lq-energy-per-point.t.planck",
       "title": "Planck's constant",
-      "explanation": "The later name for k_B times B, which is R beta over N in the paper.",
+      "explanation": "The later name for Boltzmann's constant times B, which the paper writes Rβ/N.",
       "foundation": "momentum-energy-light"
     },
     {
@@ -124,7 +124,7 @@
     {
       "nodeId": "eq-model-lq-energy-per-point.op.modern",
       "title": "The same product in modern notation",
-      "explanation": "Writing k_B B as h renames the constant; it does not add a premise.",
+      "explanation": "Writing Boltzmann's constant times B as h renames the constant; it does not add a premise.",
       "foundation": "momentum-energy-light"
     }
   ],
@@ -145,7 +145,7 @@
       "text": " is "
     },
     {
-      "text": "k_B",
+      "text": "Boltzmann's constant",
       "nodeId": "eq-model-lq-energy-per-point.t.boltzmann"
     },
     {

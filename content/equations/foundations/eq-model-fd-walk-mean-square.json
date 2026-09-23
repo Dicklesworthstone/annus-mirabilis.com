@@ -102,7 +102,7 @@
     {
       "nodeId": "eq-model-fd-walk-mean-square.t.net",
       "title": "Net displacement",
-      "explanation": "X_n, where a walker ends after n steps.",
+      "explanation": "Xₙ, where a walker ends after n steps.",
       "foundation": "random-walks"
     },
     {

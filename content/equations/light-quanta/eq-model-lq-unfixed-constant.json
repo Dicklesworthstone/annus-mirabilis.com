@@ -11,8 +11,8 @@
   "notation": "modern-pedagogical",
   "unitSystem": "si",
   "assumptions": [
-    "Radiation in a narrow band of width Delta nu around nu, compared in volumes V and V_0.",
-    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for k_B, and beta for B."
+    "Radiation in a narrow band of width Δν around ν, compared in volumes V and V₀.",
+    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for Boltzmann's constant, and β for B."
   ],
   "tree": {
     "kind": "relation",
@@ -80,7 +80,7 @@
     },
     {
       "nodeId": "eq-model-lq-unfixed-constant.op.volumeChange",
-      "title": "V minus V_0",
+      "title": "V minus V₀",
       "explanation": "A difference of volumes, not their ratio.",
       "foundation": "bridge-negative-numbers-direction"
     },
@@ -152,7 +152,7 @@
       "text": " minus "
     },
     {
-      "text": "V_0",
+      "text": "V₀",
       "nodeId": "eq-model-lq-unfixed-constant.t.volume0"
     },
     {

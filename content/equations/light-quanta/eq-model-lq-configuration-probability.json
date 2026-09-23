@@ -11,8 +11,8 @@
   "notation": "modern-pedagogical",
   "unitSystem": "si",
   "assumptions": [
-    "n points move independently of one another, each equally likely to be anywhere in the volume V_0.",
-    "The chosen part V is a fraction f = V/V_0 of that volume.",
+    "n points move independently of one another, each equally likely to be anywhere in the volume V₀.",
+    "The chosen part V is a fraction f = V/V₀ of that volume.",
     "These are modern teaching equations in SI notation, not a transcription of the printed paper."
   ],
   "tree": {
@@ -61,7 +61,7 @@
     {
       "nodeId": "eq-model-lq-configuration-probability.t.fraction",
       "title": "Fraction of the volume",
-      "explanation": "The share of the volume the points must all be in, V over V_0; between 0 and 1.",
+      "explanation": "The share of the volume the points must all be in, V over V₀; between 0 and 1.",
       "foundation": "bridge-fractions-ratios"
     },
     {

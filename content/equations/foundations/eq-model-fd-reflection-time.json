@@ -6,7 +6,7 @@
   "argument": "frames-events",
   "title": "When the light reached B",
   "spoken": "t B equals one half of t A plus t prime A.",
-  "explanation": "Solving the synchrony rule for t_B: the reflection is at the midpoint of A's two readings. With 0 s and 10 s, it is 5 s.",
+  "explanation": "Solving the synchrony rule for B's clock reading: the reflection is at the midpoint of A's two readings. With 0 s and 10 s, it is 5 s.",
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
@@ -91,19 +91,19 @@
     {
       "nodeId": "eq-model-fd-reflection-time.op.sum",
       "title": "Departure plus return",
-      "explanation": "t_A plus t'_A.",
+      "explanation": "A's reading when the light leaves, plus its reading when the light returns.",
       "foundation": "bridge-sum-average"
     },
     {
       "nodeId": "eq-model-fd-reflection-time.t.arrive",
       "title": "B's reading",
-      "explanation": "t_B, set by the rule.",
+      "explanation": "B's clock reading when the light arrives, set by the rule.",
       "foundation": "frames-events"
     },
     {
       "nodeId": "eq-model-fd-reflection-time.t.leave",
       "title": "A's reading at departure",
-      "explanation": "t_A.",
+      "explanation": "A's clock reading when the light leaves.",
       "foundation": "frames-events"
     },
     {

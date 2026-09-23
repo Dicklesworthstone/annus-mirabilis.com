@@ -11,9 +11,9 @@
   "notation": "modern-pedagogical",
   "unitSystem": "si",
   "assumptions": [
-    "Each radiation mode in equilibrium carries the classical average energy k_B T.",
-    "A cutoff frequency nu_c; the model counts only frequencies below it.",
-    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for k_B, and beta for B."
+    "Each radiation mode in equilibrium carries the classical average energy, Boltzmann's constant times the temperature.",
+    "A cutoff frequency; the model counts only frequencies below it.",
+    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for Boltzmann's constant, and β for B."
   ],
   "tree": {
     "kind": "relation",
@@ -129,7 +129,7 @@
     },
     {
       "nodeId": "eq-model-lq-cutoff-total.op.numerator",
-      "title": "Eight pi k_B T",
+      "title": "8π times Boltzmann's constant times T",
       "explanation": "From the classical density's coefficient.",
       "foundation": "entropy-temperature"
     },
@@ -189,10 +189,10 @@
       "nodeId": "eq-model-lq-cutoff-total.t.total"
     },
     {
-      "text": " is eight pi "
+      "text": " is eight pi times "
     },
     {
-      "text": "k_B",
+      "text": "Boltzmann's constant",
       "nodeId": "eq-model-lq-cutoff-total.t.boltzmann"
     },
     {

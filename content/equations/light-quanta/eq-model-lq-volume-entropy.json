@@ -6,14 +6,14 @@
   "argument": "arg-lq-fixed-band-volume",
   "title": "The entropy depends on the volume through a logarithm",
   "spoken": "The entropy difference is E over B frequency times the natural logarithm of the volume ratio.",
-  "explanation": "At the same energy and band, the radiation's entropy in volume V exceeds that in V_0 by E over B nu times the logarithm of their ratio. Doubling the volume adds (E/(B nu)) ln 2, and doubling it again adds the same.",
+  "explanation": "At the same energy and band, the radiation's entropy in volume V exceeds that in V₀ by E over Bν times the logarithm of their ratio. Doubling the volume adds (E/Bν) ln 2, and doubling it again adds the same.",
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
   "assumptions": [
-    "Radiation of fixed energy E in a narrow band of frequencies around nu, compared in two volumes V and V_0.",
+    "Radiation of fixed energy E in a narrow band of frequencies around ν, compared in two volumes V and V₀.",
     "The Wien regime, with the integration constant of the entropy density set to zero.",
-    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for k_B, and beta for B."
+    "These are modern teaching equations in SI notation; the paper writes L for c, R/N for Boltzmann's constant, and β for B."
   ],
   "tree": {
     "kind": "relation",
@@ -111,7 +111,7 @@
     {
       "nodeId": "eq-model-lq-volume-entropy.op.coefficient",
       "title": "E over B nu",
-      "explanation": "An entropy, in joules per kelvin. Only after B = h/k_B can it be read as k_B times a pure number.",
+      "explanation": "An entropy, in joules per kelvin. Only once B is identified as h divided by Boltzmann's constant can it be read as Boltzmann's constant times a pure number.",
       "foundation": "entropy-temperature"
     },
     {
@@ -147,7 +147,7 @@
     {
       "nodeId": "eq-model-lq-volume-entropy.t.beta",
       "title": "Wien's beta",
-      "explanation": "The constant in Wien's exponent; later identified as h over k_B. It is not the beta of the relativity paper.",
+      "explanation": "The constant in Wien's exponent; later identified as h divided by Boltzmann's constant. It is not the β of the relativity paper.",
       "foundation": "exponentials"
     },
     {
@@ -164,7 +164,7 @@
     },
     {
       "nodeId": "eq-model-lq-volume-entropy.t.entropy0",
-      "title": "Entropy in volume V_0",
+      "title": "Entropy in volume V₀",
       "explanation": "The same radiation's entropy in the comparison volume.",
       "foundation": "entropy-temperature"
     },
@@ -209,7 +209,7 @@
       "text": " minus "
     },
     {
-      "text": "that in V_0",
+      "text": "that in V₀",
       "nodeId": "eq-model-lq-volume-entropy.t.entropy0"
     },
     {
@@ -244,7 +244,7 @@
       "text": " over "
     },
     {
-      "text": "V_0",
+      "text": "V₀",
       "nodeId": "eq-model-lq-volume-entropy.t.volume0"
     },
     {

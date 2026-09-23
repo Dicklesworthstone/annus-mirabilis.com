@@ -6,13 +6,13 @@
   "argument": "arg-lq-classical-allocation",
   "title": "The classical allocation of energy to the spectrum",
   "spoken": "The spectral energy density equals eight pi times the frequency squared over the speed of light cubed, times k B times the temperature.",
-  "explanation": "Give every mode of the radiation the average energy k_B T that classical theory assigns, and count the modes per unit volume per unit frequency: the density grows as the frequency squared without limit.",
+  "explanation": "Give every mode of the radiation the average energy that classical theory assigns, Boltzmann's constant times the temperature, and count the modes per unit volume per unit frequency: the density grows as the frequency squared without limit.",
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
   "assumptions": [
-    "Each radiation mode in equilibrium carries the classical average energy k_B T.",
-    "These are modern teaching equations in SI notation; the paper writes L for c and R/N for k_B."
+    "Each radiation mode in equilibrium carries the classical average energy, Boltzmann's constant times the temperature.",
+    "These are modern teaching equations in SI notation; the paper writes L for c, and R/N for Boltzmann's constant."
   ],
   "tree": {
     "kind": "relation",
@@ -134,7 +134,7 @@
       "text": " squared, times "
     },
     {
-      "text": "k_B",
+      "text": "Boltzmann's constant",
       "nodeId": "eq-model-lq-classical-density.t.boltzmann"
     },
     {

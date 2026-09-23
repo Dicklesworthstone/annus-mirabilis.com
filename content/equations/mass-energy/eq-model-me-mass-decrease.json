@@ -51,7 +51,7 @@
     {
       "nodeId": "eq-model-me-mass-decrease.t.inertialMassDecrease",
       "title": "Positive decrease in inertia",
-      "explanation": "m_loss is the positive amount by which the body’s inertial mass decreases. It is identified from the limiting low-speed coefficient, using the Newtonian kinetic-energy premise.",
+      "explanation": "The positive amount by which the body’s inertial mass decreases. It is identified from the limiting low-speed coefficient, using the Newtonian kinetic-energy premise.",
       "foundation": "work-energy"
     },
     {

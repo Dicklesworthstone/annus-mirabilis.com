@@ -6,7 +6,7 @@
   "argument": "arg-bm-diffusivity",
   "title": "The same diffusivity, written with the gas constant",
   "spoken": "D equals R T over six pi eta a N.",
-  "explanation": "Einstein's form: the gas constant per molecule, R over N, stands where the modern form writes k_B. A larger N would make each molecule's kick smaller and the spreading slower.",
+  "explanation": "Einstein's form: the gas constant per molecule, R over N, stands where the modern form writes Boltzmann's constant. A larger N would make each molecule's kick smaller and the spreading slower.",
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
