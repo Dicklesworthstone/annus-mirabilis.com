@@ -318,7 +318,7 @@ export function LightComplexLab({
                 </td>
               </tr>
               <tr>
-                <th scope="row">Physical Energy in k (E′)</th>
+                <th scope="row">Physical energy in k (E′)</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="lightComplexEnergyMoving" /> J
                 </td>
@@ -331,7 +331,7 @@ export function LightComplexLab({
                 </td>
               </tr>
               <tr>
-                <th scope="row">Physical Volume in k (V′)</th>
+                <th scope="row">Physical volume in k (V′)</th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="lightComplexVolumeMoving" /> m³
                 </td>

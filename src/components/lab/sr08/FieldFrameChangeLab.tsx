@@ -330,7 +330,7 @@ export function FieldFrameChangeLab({
           />
 
           <div className="table-wrapper">
-            <h3>Transformation Ledger</h3>
+            <h3>Transformation ledger</h3>
             <table>
               <caption>
                 Comparison of electromagnetic field quantities across stationary (K) and moving (k)
@@ -381,13 +381,13 @@ export function FieldFrameChangeLab({
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">Laboratory Force F</th>
+                  <th scope="row">Laboratory force F</th>
                   <td>
                     <SnapshotReading snapshot={snapshot} quantityId="transverseForceLaboratory" /> N
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">Comoving Force F′</th>
+                  <th scope="row">Comoving force F′</th>
                   <td>
                     <SnapshotReading snapshot={snapshot} quantityId="transverseForceComoving" /> N
                   </td>
