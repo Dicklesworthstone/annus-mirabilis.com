@@ -83,7 +83,7 @@ export const SR04_NOT_MODELED = Object.freeze([
   "gravity",
   "a fully rigorous derivation of linearity",
   "origins that do not coincide",
-  "non-collinear composition (SR-06)",
+  "non-collinear composition (the velocity-composition laboratory)",
 ]);
 
 const c = (

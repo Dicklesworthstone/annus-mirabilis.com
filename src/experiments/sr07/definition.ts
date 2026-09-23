@@ -48,7 +48,7 @@ export const SR07_MODEL = Object.freeze({
 });
 
 export const SR07_NOT_MODELED = Object.freeze([
-  "sources and currents (SR-12)",
+  "sources and currents (the charge-and-current laboratory)",
   "media",
   "boundary conditions",
   "radiation reaction",

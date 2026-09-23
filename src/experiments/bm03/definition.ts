@@ -149,7 +149,7 @@ export const BM03_PRESETS = Object.freeze({
     }),
   }),
   "bm-03-pressure-matches-bm-02": Object.freeze({
-    label: "1000 particles (matches BM-02 default)",
+    label: "1000 particles (the osmotic-partition default)",
     parameters: Object.freeze({
       ...BM03_DEFAULTS,
       Np: 1000,

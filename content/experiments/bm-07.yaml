@@ -207,7 +207,7 @@ assumptions:
   - "Radius, when used, is declared independently of these displacements"
 admittedDomain: "Ideal free diffusion of a dilute sphere; synthetic generator or an admitted historical/kitchen observation bundle."
 notModeled:
-  - "Localization error, blur, correlated or irregularly timed increments, and censoring (BM-08 and kitchen mode)"
+  - "Localization error, blur, correlated or irregularly timed increments, and censoring (the camera laboratory and kitchen mode)"
   - "Non-Gaussian increments"
   - "Time-varying drift"
   - "Polydispersity within one track set"

@@ -56,7 +56,7 @@ parameters:
       max: 1e4
       minInclusive: true
       maxInclusive: true
-      reason: "The slow case needs a slow observer; faster composition belongs to SR-06"
+      reason: "The slow case needs a slow observer; faster composition belongs to the velocity-composition laboratory"
     visualRange:
       min: -100
       max: 100
@@ -76,7 +76,7 @@ parameters:
       max: 1e4
       minInclusive: true
       maxInclusive: true
-      reason: "The slow case needs a slow observer; faster composition belongs to SR-06"
+      reason: "The slow case needs a slow observer; faster composition belongs to the velocity-composition laboratory"
     visualRange:
       min: -100
       max: 100
@@ -190,7 +190,7 @@ notModeled:
   - "Gravity"
   - "A fully rigorous derivation of linearity"
   - "Origins that do not coincide"
-  - "Non-collinear composition (SR-06)"
+  - "Non-collinear composition (the velocity-composition laboratory)"
 owner:
   kind: reference-evaluator
   kernelFunctions:

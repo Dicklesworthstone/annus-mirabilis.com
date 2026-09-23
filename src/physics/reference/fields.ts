@@ -448,7 +448,7 @@ export function evaluateSr02(input: Sr02Input): Sr02Snapshot {
     lorentzFactor: val("g", γ),
     pathParallel: val("pp", nDotV),
     endpointOffset: val("off", offset),
-    circuitCurrent: na("I", "Current in a real circuit is not modeled; SR-02 has no circuit."),
+    circuitCurrent: na("I", "Current in a real circuit is not modeled; this model has no circuit."),
   });
 }
 

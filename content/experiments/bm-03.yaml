@@ -365,7 +365,7 @@ presets:
       step: "many-particles"
       notation: "printed"
   - presetId: bm-03-pressure-matches-bm-02
-    label: "1000 particles (matches BM-02 default)"
+    label: "1000 particles (the osmotic-partition default)"
     parameterValues:
       Np: 1000
       volumeRatio: 1

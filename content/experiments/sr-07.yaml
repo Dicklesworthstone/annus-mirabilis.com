@@ -201,7 +201,7 @@ assumptions:
   - "In paper 3, L and N are magnetic-field components. Einstein's beta is the modern gamma. tau is the moving-frame coordinate time."
 admittedDomain: "Inertial observers with |v/c| <= 0.95 for validation; |v| >= c is outside the domain. Validation waves are the four admitted analytic plane waves with two polarizations each."
 notModeled:
-  - "sources and currents (SR-12)"
+  - "sources and currents (the charge-and-current laboratory)"
   - "media"
   - "boundary conditions"
   - "radiation reaction"

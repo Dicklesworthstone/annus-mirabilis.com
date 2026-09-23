@@ -43,7 +43,7 @@ export const SR09_NOT_MODELED = Object.freeze([
   "media and dispersion",
   "sound in a medium",
   "gravitational redshift",
-  "finite packets (SR-10)",
+  "finite packets (the finite light-complex laboratory)",
   "telescope optics and atmospheric refraction",
   "photon picture",
   "canal-ray apparatus beyond published values",
