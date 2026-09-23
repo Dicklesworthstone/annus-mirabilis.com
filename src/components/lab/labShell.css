@@ -394,30 +394,32 @@
    [data-reading], so on eight laboratories the Overview and the Full explanation both showed,
    one after the other, and Show every step never could. These follow the same setting as the
    reading pages: R1 by default, R0 or R2 when the reader chooses that detail, and R3 under the
-   modern lens (src/reader/reader.css). sr-07's root is .laboratory-shell. */
-:is(.laboratory, .laboratory-shell) > p[data-detail] {
+   modern lens (src/reader/reader.css). sr-07's root is .laboratory-shell. A page whose instrument
+   renders as a self-contained island (the countermodel and inference workbenches) holds its
+   readings in a .lab-readings section after the island instead. */
+:is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail] {
   display: none;
 }
 
 /* A reading is prose, so it keeps a reading measure. At 1440px the lab root is about 1250px wide,
    and a caption set across it ran near 170 characters a line (measured on /lab/sr-02/ and
    /lab/me-02/, 2026-09-23). */
-:is(.laboratory, .laboratory-shell) > p[data-detail] {
+:is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail] {
   max-width: 68ch;
 }
 
-:is(.laboratory, .laboratory-shell) > p[data-detail="1"] {
+:is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="1"] {
   display: block;
 }
 
-html[data-detail="0"] :is(.laboratory, .laboratory-shell) > p[data-detail="1"],
-html[data-detail="2"] :is(.laboratory, .laboratory-shell) > p[data-detail="1"] {
+html[data-detail="0"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="1"],
+html[data-detail="2"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="1"] {
   display: none;
 }
 
-html[data-detail="0"] :is(.laboratory, .laboratory-shell) > p[data-detail="0"],
-html[data-detail="2"] :is(.laboratory, .laboratory-shell) > p[data-detail="2"],
-html[data-lens="modern"] :is(.laboratory, .laboratory-shell) > p[data-detail="3"] {
+html[data-detail="0"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="0"],
+html[data-detail="2"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="2"],
+html[data-lens="modern"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="3"] {
   display: block;
 }
 
