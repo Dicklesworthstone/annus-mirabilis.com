@@ -224,6 +224,48 @@
 .reader-outline nav[data-spy] > div:not([data-current]) > a:not(:first-child) {
   display: none;
 }
+/* "§4" and " · dilute radiation and the volume law" are two spans (PaperPage.tsx), so a phone can
+   show the place alone. The place never breaks across a line. */
+.outline-section-mark {
+  white-space: nowrap;
+}
+/* ON A PHONE THE OUTLINE IS A ROW OF PLACES. At 390 its ten full titles were ten 48px rows,
+   480px between the reading controls and the paper's first sentence (BUILD 24, light quanta;
+   eleven on relativity). Now each section is a 44px chip naming its place, "Introduction",
+   "§1", "§2", and the whole list fits in two or three rows. The subject stays in the link's
+   accessible name, and the section heading in the text carries it for the eye. Passage links are
+   left to the wider outline: at the top of a phone page no section is current, so they were only
+   ever the extra rows. The current section keeps both of its cues, the accent rule and the
+   heavier weight. */
+/* Under .reader-root: the 900px tier below sets this nav to a grid at the same specificity. */
+@media (max-width: 560px) {
+  .reader-root .reader-outline nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .reader-root .reader-outline nav > div {
+    display: contents;
+  }
+  .reader-root .reader-outline nav > div > a:not(:first-child),
+  .reader-root .outline-section-name {
+    display: none;
+  }
+  .reader-root .reader-outline nav > div > a:first-child {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    margin: 0;
+    padding: 0 0.8rem;
+    border: 1px solid var(--rule);
+  }
+  .reader-root .reader-outline nav > div > a[aria-current] {
+    border-color: var(--accent);
+    border-bottom-width: 3px;
+  }
+}
 .reader-body {
   min-width: 0;
 }
