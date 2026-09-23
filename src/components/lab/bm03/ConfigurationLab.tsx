@@ -455,7 +455,7 @@ export function ConfigurationLab({
                       <strong>{evaluation.exactDecimalString}</strong>
                     ) : (
                       <span>
-                        10^{fixed(evaluation.log10Exponent, 4)} (ln ={" "}
+                        10<sup>{fixed(evaluation.log10Exponent, 4)}</sup> (natural log{" "}
                         {evaluation.naturalLogExponent.toFixed(2)})
                       </span>
                     )}
