@@ -17,6 +17,7 @@ import {
   evaluateLq07,
   type PreparedLq07Example,
 } from "../../../experiments/lq07/session.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { FluorescencePlot } from "./FluorescencePlot.tsx";
 import "./fluorescenceLab.css";
@@ -310,8 +311,6 @@ export function FluorescenceLab({
           paddingTop: "1.5rem",
         }}
       >
-        <h3 style={{ marginBottom: "1rem" }}>Interactive Energy &amp; Parameter Controls</h3>
-
         <form onSubmit={submit} className="input-grid">
           {/* 1. Incident Frequency nu1 */}
           <div className="input-field">
@@ -512,34 +511,37 @@ export function FluorescenceLab({
             )}
 
             {p.regime === "standard-stokes" && (
-              <div>
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    marginBottom: "0.4rem",
-                  }}
-                >
-                  Available Channels:
-                </span>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button
-                    type="button"
-                    className={`button ${p.channels === "light-plus-heat" ? "" : "secondary"}`}
-                    onClick={() => setChannels("light-plus-heat")}
+              <ExperimentSettings contents="which channels the absorbed energy may leave by">
+                <div>
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                      marginBottom: "0.4rem",
+                    }}
                   >
-                    Light + Heat (E_other ≥ 0)
-                  </button>
-                  <button
-                    type="button"
-                    className={`button ${p.channels === "light-only" ? "" : "secondary"}`}
-                    onClick={() => setChannels("light-only")}
-                  >
-                    Light Only (E_other = 0)
-                  </button>
+                    Available Channels:
+                  </span>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      type="button"
+                      className={`button ${p.channels === "light-plus-heat" ? "" : "secondary"}`}
+                      onClick={() => setChannels("light-plus-heat")}
+                    >
+                      Light + Heat (E_other ≥ 0)
+                    </button>
+                    <button
+                      type="button"
+                      className={`button ${p.channels === "light-only" ? "" : "secondary"}`}
+                      onClick={() => setChannels("light-only")}
+                    >
+                      Light Only (E_other = 0)
+                    </button>
+                  </div>
                 </div>
-              </div>
+                <p className="fine">These apply at once.</p>
+              </ExperimentSettings>
             )}
           </div>
 
