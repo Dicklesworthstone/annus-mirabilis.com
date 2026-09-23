@@ -221,7 +221,8 @@ export function createNotebookStore(storage: NotebookStorage) {
       } catch {
         return {
           ok: false,
-          message: "This passage has no portable reading location or authored recap.",
+          message:
+            "This passage cannot be remembered yet: it has no fixed address or recap to come back to.",
         };
       }
       if (JSON.stringify(place) === JSON.stringify(state.document.lastPlace)) return { ok: true };

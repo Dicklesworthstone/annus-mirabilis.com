@@ -218,17 +218,19 @@ export function mountReaderNotebook(
     const title = passageTitle(passage);
     const question = passage.querySelector(".passage-question")?.textContent?.trim() ?? "";
     if (!frame || !title || !question) {
-      message("This passage has no supported notebook location.");
+      message("This passage cannot be saved yet: it has no fixed address to come back to.");
       return;
     }
     const target: NotebookFrame = { ...frame, open };
-    const text = kind === "example" ? `Authored example for: ${question}` : question;
+    const text = kind === "example" ? `Worked example: ${question}` : question;
+    // Saved before 2026-09-22 under "Authored example for: ", which is still the same example.
+    const earlier = kind === "example" ? `Authored example for: ${question}` : question;
     const duplicate = store
       .getSnapshot()
       .document.entries.some(
         (entry) =>
           entry.kind === kind &&
-          entry.text === text &&
+          (entry.text === text || entry.text === earlier) &&
           notebookFrameHref(entry.frame) === notebookFrameHref(target),
       );
     if (duplicate) {

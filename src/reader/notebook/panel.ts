@@ -253,7 +253,8 @@ export function mountNotebookPanel(
           urls.delete(url);
         }, 1000),
       );
-      status.textContent = "Notebook export prepared locally. Keep the downloaded copy private.";
+      status.textContent =
+        "Downloaded. The file holds your private notes, so keep it somewhere private.";
     } catch {
       error.textContent = "This browser could not download the notebook. Your notes remain here.";
     }
@@ -356,7 +357,7 @@ export function mountNotebookPanel(
                 if (!disposed && request === replayGeneration) {
                   inspect.disabled = false;
                   error.textContent =
-                    "Could not open the replay view. Your entry is preserved and can be exported.";
+                    "The saved comparison could not be opened here. It is still saved, and it can be exported.";
                 }
               });
           });
