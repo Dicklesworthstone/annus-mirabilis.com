@@ -370,25 +370,29 @@ export function regimeRelativeErrors(
   const x = (h * nu) / (kB * T);
   const wienRelativeError = Math.exp(-x);
 
-  // Rayleigh-Jeans relative error: |u_RJ - u_Planck| / u_Planck = (e^x - 1)/x - 1 (or |x/(e^x - 1) - 1|)
-  // For x > 0, x / (e^x - 1) < 1, so error is 1 - x / (e^x - 1)
+  // The classical (Rayleigh-Jeans) relative error, measured against Planck like Wien's above:
+  // (u_classical - u_Planck) / u_Planck = (e^x - 1)/x - 1. It was computed as 1 - x/(e^x - 1),
+  // which divides by u_classical instead: the two agree to first order at small x, but at
+  // x = 5.76 that read 0.98 while the classical law is 54.8 times Planck's value, and it put the
+  // 1% boundary at x = 0.020067 where the owning bead specifies 0.0198678. Past x = 700, e^x
+  // exceeds binary64 and the error is reported as Infinity, which callers must show in words.
   let rayleighJeansRelativeError: number;
   if (x < 1e-7) {
     rayleighJeansRelativeError = x / 2;
-  } else if (x > 100) {
-    rayleighJeansRelativeError = 1.0;
+  } else if (x > 700) {
+    rayleighJeansRelativeError = Number.POSITIVE_INFINITY;
   } else {
-    rayleighJeansRelativeError = 1 - x / Math.expm1(x);
+    rayleighJeansRelativeError = Math.expm1(x) / x - 1;
   }
 
   const wienBoundaryX = Math.log(1 / epsilonW);
 
-  // Solve 1 - x / (e^x - 1) = epsilonRJ for x
-  // For small epsilonRJ, x ~ 2 * epsilonRJ - (2/3) * epsilonRJ^2
+  // Solve (e^x - 1)/x - 1 = epsilonRJ, that is e^x - 1 = (1 + epsilonRJ) x, by Newton's method.
+  // For small epsilonRJ, x ~ 2 * epsilonRJ - (2/3) * epsilonRJ^2.
   let rjBoundaryX = 2 * epsilonRJ;
-  for (let iter = 0; iter < 10; iter++) {
-    const fVal = Math.expm1(rjBoundaryX) - rjBoundaryX / (1 - epsilonRJ);
-    const dfVal = Math.exp(rjBoundaryX) - 1 / (1 - epsilonRJ);
+  for (let iter = 0; iter < 20; iter++) {
+    const fVal = Math.expm1(rjBoundaryX) - (1 + epsilonRJ) * rjBoundaryX;
+    const dfVal = Math.exp(rjBoundaryX) - (1 + epsilonRJ);
     const step = fVal / dfVal;
     rjBoundaryX -= step;
     if (Math.abs(step) < 1e-12) break;
