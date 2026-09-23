@@ -50,7 +50,7 @@ export default function TwoLedgersPage() {
           latex={String.raw`l^* = l \frac{1 - \frac{v}{V}\cos\varphi}{\sqrt{1 - \left(\frac{v}{V}\right)^2}}`}
         />
         <p>
-          In modern notation with &beta; = v/c and the Lorentz factor &gamma; = 1/&radic;(1 -
+          In modern notation with &beta; = v/c and the Lorentz factor &gamma; = 1/&radic;(1 &minus;
           &beta;²):
         </p>
         <Formula latex={String.raw`l^* = l\,\gamma\,(1 - \beta\cos\varphi)`} />
