@@ -96,6 +96,13 @@
   margin-bottom: 0.5rem;
 }
 
+/* Five columns on a phone: the default cell padding alone was 96px of a 358px column. */
+@media (max-width: 30rem) {
+  .sr-investigation-page .sr-event-table :is(th, td) {
+    padding: 0.45rem 0.3rem;
+  }
+}
+
 .sr-investigation :is(h4, button, select, textarea, a, input):focus-visible,
 .sr-investigation-page .sr-event-table:focus-visible {
   outline: 2px solid currentColor;

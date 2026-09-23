@@ -10,14 +10,19 @@ export function RelativityEventTable({
     // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns are unreachable by keyboard (WCAG 2.1.1, am-bc6s).
     <section className="sr-event-table" aria-label={example.title} tabIndex={0}>
       <table>
-        <caption>{example.title}. Authored arithmetic example, not an observation.</caption>
+        <caption>
+          {example.title}. Distances in light-seconds, times in seconds. Authored arithmetic
+          example, not an observation.
+        </caption>
         <thead>
           <tr>
             <th scope="col">Event</th>
-            <th scope="col">Platform x (light-seconds)</th>
-            <th scope="col">Platform t (seconds)</th>
-            <th scope="col">Moving-frame x′ (light-seconds)</th>
-            <th scope="col">Moving-frame t′ (seconds)</th>
+            {/* Units are in the caption: "(light-seconds)" in every header made the table 24px too
+                wide at 390 and 94px at 320. */}
+            <th scope="col">Platform x</th>
+            <th scope="col">Platform t</th>
+            <th scope="col">Moving-frame x′</th>
+            <th scope="col">Moving-frame t′</th>
           </tr>
         </thead>
         <tbody>
