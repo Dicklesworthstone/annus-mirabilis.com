@@ -125,7 +125,14 @@ function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
             <a href={`/lab/${id}/`}>
               {picture ? (
                 <span className="instrument-plate">
-                  <img src={picture} alt="" width={640} height={400} loading="lazy" decoding="async" />
+                  <img
+                    src={picture}
+                    alt=""
+                    width={640}
+                    height={400}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </span>
               ) : null}
               <span className="instrument-question">{labName(id)}</span>

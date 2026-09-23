@@ -61,7 +61,8 @@ for (const id of ids) {
   await page.waitForTimeout(400);
   const handle = await page.evaluateHandle(() => {
     const main = document.querySelector("main");
-    const root = main?.querySelector("[data-instrument-id], .laboratory, .laboratory-shell") ?? main;
+    const root =
+      main?.querySelector("[data-instrument-id], .laboratory, .laboratory-shell") ?? main;
     const intro = main?.querySelector(".page-intro");
     const visible = (el: Element, minHeight: number) => {
       const r = el.getBoundingClientRect();
@@ -75,10 +76,14 @@ for (const id of ids) {
       );
     };
     const drawing = [...(root?.querySelectorAll("svg, canvas") ?? [])].find(
-      (el) => !(el.tagName.toLowerCase() === "svg" && el.parentElement?.closest("svg")) && visible(el, 140),
+      (el) =>
+        !(el.tagName.toLowerCase() === "svg" && el.parentElement?.closest("svg")) &&
+        visible(el, 140),
     );
     if (drawing) return { el: drawing, kind: "drawing" };
-    const block = [...(root?.querySelectorAll(".lab-results, table") ?? [])].find((el) => visible(el, 100));
+    const block = [...(root?.querySelectorAll(".lab-results, table") ?? [])].find((el) =>
+      visible(el, 100),
+    );
     return block ? { el: block, kind: "results" } : null;
   });
   const found = await handle.evaluate((v) => (v ? v.kind : null));
@@ -94,7 +99,12 @@ for (const id of ids) {
   if (found === "results" && box)
     await page.screenshot({
       path: png,
-      clip: { x: box.x, y: box.y, width: box.width, height: Math.min(box.height, box.width * 0.625) },
+      clip: {
+        x: box.x,
+        y: box.y,
+        width: box.width,
+        height: Math.min(box.height, box.width * 0.625),
+      },
     });
   else await el.screenshot({ path: png });
   const webp = join(OUT_DIR, `${id}.webp`);
@@ -103,6 +113,8 @@ for (const id of ids) {
   await page.close();
 }
 await browser.close();
-console.log(`examined ${ids.length} registered ids; wrote ${written.length}; no drawing found for ${missing.length}`);
+console.log(
+  `examined ${ids.length} registered ids; wrote ${written.length}; no drawing found for ${missing.length}`,
+);
 for (const line of written) console.log(`  ${line}`);
 if (missing.length) console.log(`  no drawing: ${missing.join(", ")}`);
