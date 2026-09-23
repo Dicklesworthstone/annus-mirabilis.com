@@ -6,7 +6,7 @@
   "section": "s6",
   "title": "Transform derivatives before naming fields",
   "question": "How do the field equations change coordinates?",
-  "recap": "The chain rule mixes time and longitudinal derivatives. Grouping the resulting terms suggests transformed electric and magnetic components; covariance alone is not a uniqueness proof of their physical identification.",
+  "recap": "In the moving observer’s coordinates the derivatives in time and along x mix. Grouping the result so that the Maxwell-Hertz equations keep their form points to the moving observer’s electric and magnetic components; the form alone does not prove that identification, which rests on the principle of relativity.",
   "review": "draft",
   "premises": [
     "Use the Lorentz coordinate map and vacuum Maxwell equations.",
@@ -21,27 +21,27 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "The chain rule mixes time and longitudinal derivatives. Grouping the resulting terms suggests transformed electric and magnetic components; covariance alone is not a uniqueness proof of their physical identification."
+        "text": "In the moving observer’s coordinates the derivatives in time and along \\(x\\) mix. Grouping the result so that the Maxwell-Hertz equations keep their form points to the moving observer’s electric and magnetic components; the form alone does not prove that identification, which rests on the principle of relativity."
       }
     ],
     "full": [
       {
         "kind": "formula",
         "latex": "\\partial_t=\\gamma(\\partial_{t'}-v\\partial_{x'}),\\qquad\\partial_x=\\gamma(\\partial_{x'}-v\\partial_{t'}/c^2)",
-        "spoken": "The chain rule mixes the time and x derivatives, with gamma and the appropriate powers of light speed.",
+        "spoken": "Partial by partial t equals gamma times, partial by partial t prime minus v partial by partial x prime. Partial by partial x equals gamma times, partial by partial x prime minus v over c squared partial by partial t prime.",
         "equations": ["eq-model-sr-partial-t", "eq-model-sr-partial-x"]
       },
       {
         "kind": "paragraph",
-        "text": "For a plane wave traveling along \\(x\\) with \\(E_y\\) and \\(B_z\\), the SI vacuum pair is \\(\\partial_t E_y = -c^2\\,\\partial_x B_z\\) and \\(\\partial_t B_z = -\\partial_x E_y\\). Substitute the two derivative operators above into both equations; do not transform only one equation."
+        "text": "Take the simplest case, a wave travelling along \\(x\\) with an electric component \\(E_y\\) and a magnetic component \\(B_z\\). In SI units and empty space the Maxwell-Hertz equations reduce to the pair \\(\\partial_t E_y = -c^2\\,\\partial_x B_z\\) and \\(\\partial_t B_z = -\\partial_x E_y\\). Substitute the two derivative rules above into both equations; the next step needs the pair."
       },
       {
         "kind": "paragraph",
-        "text": "Combining those substituted equations groups \\(E_y - vB_z\\) with \\(B_z - vE_y/c^2\\). Multiplication by the common \\(\\gamma\\) produces \\(E'_y\\) and \\(B'_z\\) and restores the corresponding primed equation pair. The field-equations laboratory opens the grouping step rather than treating the field law as a typographic replacement."
+        "text": "After the substitution, \\(E_y\\) and \\(B_z\\) appear only in the combinations \\(E_y - vB_z\\) and \\(B_z - vE_y/c^2\\). Multiply each by \\(\\gamma\\) and call the results \\(E'_y\\) and \\(B'_z\\). The pair then reads \\(\\partial_{t'} E'_y = -c^2\\,\\partial_{x'} B'_z\\) and \\(\\partial_{t'} B'_z = -\\partial_{x'} E'_y\\), the same form as before. The field-equations laboratory shows this grouping one term at a time."
       },
       {
         "kind": "paragraph",
-        "text": "The source permits a common factor for all transformed fields. Inversion requires its value at v times its value at −v to be one. Spatial symmetry and the positive identity-connected normalization select one."
+        "text": "The form alone would also allow every new field to carry one common factor that depends on \\(v\\), and the paper keeps such a factor at first. Transforming there and back must return the original fields, so the factor’s value at \\(v\\) times its value at \\(-v\\) must be 1. By symmetry the factor cannot depend on the direction of motion, so it is the same at \\(v\\) and \\(-v\\), and the positive root makes it 1."
       },
       {
         "kind": "foundation",
@@ -53,19 +53,20 @@
       {
         "kind": "steps",
         "items": [
-          "Name the coordinate map and its inverse.",
-          "Apply the chain rule to time and x derivatives of the same field.",
-          "Substitute into both members of the coupled plane-wave equation pair.",
-          "Group the electric/magnetic combinations, retaining every factor of c.",
-          "Check the inverse and spatial symmetry before fixing the common normalization.",
-          "Keep physical field identification separate from the algebraic fact that the equations keep their form."
+          "Write the coordinate map, \\(x' = \\gamma(x - vt)\\) and \\(t' = \\gamma(t - vx/c^2)\\), and its inverse, which swaps primed and unprimed letters and replaces \\(v\\) with \\(-v\\).",
+          "Use the chain rule to rewrite \\(\\partial_t\\) and \\(\\partial_x\\) in the new coordinates. Each becomes a mix of \\(\\partial_{t'}\\) and \\(\\partial_{x'}\\).",
+          "Substitute both rules into both equations of the plane-wave pair.",
+          "Collect terms: \\(E_y\\) and \\(B_z\\) now appear only as \\(E_y - vB_z\\) and \\(B_z - vE_y/c^2\\). Keep every factor of \\(c\\).",
+          "Multiply by \\(\\gamma\\) and name the results \\(E'_y\\) and \\(B'_z\\). The primed pair has the same form as the original.",
+          "Allow one common factor on the new fields. Going there and back makes its values at \\(v\\) and \\(-v\\) multiply to 1; symmetry and the value 1 at rest then make it 1.",
+          "Keep two claims apart: that the equations keep their form, which is algebra, and that the primed combinations are the fields the moving observer measures, which is the principle of relativity."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The source uses electric-force symbols \\(X, Y, Z\\) and magnetic-force symbols \\(L, M, N\\), with \\(V\\) for light speed. Its \\(\\beta\\) is \\(\\gamma\\), not \\(v/c\\). A field tensor is a later verification language, not a hidden premise of this reconstruction."
+        "text": "Einstein writes the electric force as \\(X, Y, Z\\) and the magnetic force as \\(L, M, N\\), in Gaussian units, with \\(V\\) for the speed of light; his \\(\\beta\\) is the modern \\(\\gamma\\), not \\(v/c\\). The field tensor that packs all six components together came later, with Minkowski in 1908. Where this edition uses it, it checks results; it is never a step in the 1905 argument."
       }
     ]
   },

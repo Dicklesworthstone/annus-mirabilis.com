@@ -6,7 +6,7 @@
   "section": "s10",
   "title": "A force-to-acceleration ratio needs two frame labels",
   "question": "Why are there two transverse coefficients?",
-  "recap": "The printed transverse coefficient compares comoving force with laboratory acceleration and equals mγ². Using laboratory force with laboratory acceleration instead gives mγ. These are different definitions, not two conflicting values of invariant mass.",
+  "recap": "Einstein’s transverse mass, m times gamma squared, divides the force measured in the electron’s momentary rest frame by the acceleration measured in the laboratory. Measure both in the laboratory and the ratio is m times gamma. The two numbers answer two different questions; the electron has one mass m.",
   "review": "draft",
   "premises": [
     "Start with the electron’s instantaneous rest-frame force law.",
@@ -21,14 +21,14 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "The printed transverse coefficient compares comoving force with laboratory acceleration and equals \\(m\\gamma^2\\). Using laboratory force with laboratory acceleration instead gives \\(m\\gamma\\). These are different definitions, not two conflicting values of invariant mass."
+        "text": "Einstein’s transverse mass, \\(m\\gamma^2\\), divides the force measured in the electron’s momentary rest frame by the acceleration measured in the laboratory. Measure both in the laboratory and the ratio is \\(m\\gamma\\). The two numbers answer two different questions; the electron has one mass \\(m\\)."
       }
     ],
     "full": [
       {
         "kind": "formula",
         "latex": "\\frac{F_x}{a_x}=m\\gamma^3,\\qquad\\frac{F_y'}{a_y}=m\\gamma^2,\\qquad\\frac{F_y}{a_y}=m\\gamma",
-        "spoken": "Longitudinal laboratory force over acceleration gives m gamma cubed; comoving transverse force over laboratory acceleration gives m gamma squared; laboratory transverse force gives m gamma.",
+        "spoken": "Longitudinal laboratory force over acceleration is m gamma cubed. Rest-frame transverse force over laboratory acceleration is m gamma squared. Laboratory transverse force over laboratory acceleration is m gamma.",
         "equations": [
           "eq-model-sr-longitudinal-mass",
           "eq-model-sr-transverse-mass-printed",
@@ -37,11 +37,11 @@
       },
       {
         "kind": "paragraph",
-        "text": "For motion along x, the transverse force in the momentarily comoving frame differs from the laboratory transverse force by \\(\\gamma\\). Combining it with laboratory acceleration gives the source’s coefficient. Replacing that force with laboratory force changes the ratio."
+        "text": "For an electron moving along \\(x\\), a force across the motion is \\(\\gamma\\) times larger in the electron’s momentary rest frame than in the laboratory. Einstein divides the rest-frame force by the laboratory acceleration and gets \\(m\\gamma^2\\). Dividing the laboratory force by the same acceleration gives \\(m\\gamma\\)."
       },
       {
         "kind": "paragraph",
-        "text": "At \\(0.6c\\), \\(\\gamma = 1.25\\). The longitudinal coefficient is \\(1.953125\\,m\\), the printed transverse coefficient is \\(1.5625\\,m\\), and the laboratory transverse coefficient is \\(1.25\\,m\\). The electron-dynamics laboratory displays the frame convention with the coefficient, rather than “repairing” the printed result."
+        "text": "At \\(0.6c\\), \\(\\gamma = 1.25\\). The longitudinal mass is \\(m\\gamma^3 = 1.953125\\,m\\), Einstein’s transverse mass is \\(m\\gamma^2 = 1.5625\\,m\\), and the all-laboratory transverse ratio is \\(m\\gamma = 1.25\\,m\\). The electron-dynamics laboratory shows each number with the frames it uses, and leaves Einstein’s result as he printed it."
       },
       {
         "kind": "foundation",
@@ -53,19 +53,19 @@
       {
         "kind": "steps",
         "items": [
-          "Choose motion along the x axis and distinguish longitudinal from transverse components.",
-          "Label the frame of the force and acceleration separately.",
-          "Use the instantaneous comoving-frame force law.",
-          "Transform acceleration and force consistently.",
-          "Form the source’s mixed-frame transverse ratio and the separate laboratory ratio.",
-          "Keep invariant mass m distinct from either direction-dependent coefficient."
+          "Let the electron move along \\(x\\). Forces and accelerations along \\(x\\) are longitudinal; those along \\(y\\) or \\(z\\) are transverse.",
+          "For every ratio, say which frame the force is measured in and which frame the acceleration is measured in.",
+          "In the electron’s momentary rest frame its motion is slow, so ordinary mechanics holds there: force equals \\(m\\) times acceleration.",
+          "Transform the force and the acceleration to the laboratory, each by its own rule.",
+          "Form Einstein’s mixed ratio, rest-frame force over laboratory acceleration, and the all-laboratory ratio.",
+          "Keep the electron’s mass \\(m\\) apart from both ratios: each ratio depends on the direction of the force, and \\(m\\) does not."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The modern momentum convention is an explicit later comparison. Einstein’s warning that the meanings of force and acceleration determine the “masses” is essential; the source’s transverse result must not be silently replaced by \\(m\\gamma\\)."
+        "text": "Einstein himself warns that other definitions of force and acceleration would give other values for these masses. The modern habit of defining force as the rate of change of momentum gives \\(m\\gamma\\) for the transverse ratio. It is a later convention, and this edition does not substitute it for his printed result."
       }
     ]
   },

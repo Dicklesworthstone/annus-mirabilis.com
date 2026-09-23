@@ -6,7 +6,7 @@
   "section": "s6",
   "title": "Electric and magnetic components mix together",
   "question": "What does a new inertial observer call electric?",
-  "recap": "For a boost along x, longitudinal field components stay unchanged and transverse electric and magnetic components mix. Transforming the force consistently does not require equal raw force values in both frames.",
+  "recap": "For an observer moving along x, the field components along x stay the same, and the electric and magnetic components across the motion mix into each other. Where one observer finds only a magnetic field, the other can find an electric one.",
   "review": "draft",
   "premises": [
     "Use vacuum SI fields and a boost of speed v along positive x.",
@@ -21,14 +21,14 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "For a boost along x, longitudinal field components stay unchanged and transverse electric and magnetic components mix. Transforming the force consistently does not require equal raw force values in both frames."
+        "text": "For an observer moving along \\(x\\), the field components along \\(x\\) stay the same, and the electric and magnetic components across the motion mix into each other. Where one observer finds only a magnetic field, the other can find an electric one."
       }
     ],
     "full": [
       {
         "kind": "formula",
         "latex": "\\begin{aligned}E_x'&=E_x,&B_x'&=B_x\\\\E_y'&=\\gamma(E_y-vB_z),&B_y'&=\\gamma(B_y+vE_z/c^2)\\\\E_z'&=\\gamma(E_z+vB_y),&B_z'&=\\gamma(B_z-vE_y/c^2)\\end{aligned}",
-        "spoken": "The x components stay unchanged; the transverse electric and magnetic components mix with the stated signs and SI factors.",
+        "spoken": "E x prime equals E x, and B x prime equals B x. E y prime equals gamma times, E y minus v B z. B y prime equals gamma times, B y plus v E z over c squared. E z prime equals gamma times, E z plus v B y. B z prime equals gamma times, B z minus v E y over c squared.",
         "equations": [
           "eq-model-sr-field-ex",
           "eq-model-sr-field-bx",
@@ -40,11 +40,11 @@
       },
       {
         "kind": "paragraph",
-        "text": "For \\(E = 0\\) and a positive \\(B_z\\), an observer moving along positive \\(x\\) measures a negative \\(E'_y\\). At \\(v = 0.6c\\) the factor \\(\\gamma\\) is 1.25. The transformed electric field is not simply the old field copied into a different diagram."
+        "text": "Take a region with no electric field and a magnetic field \\(B_z\\) pointing along positive \\(z\\). An observer moving along positive \\(x\\) measures \\(E'_y = -\\gamma vB_z\\), an electric field pointing along negative \\(y\\). At \\(v = 0.6c\\), \\(\\gamma = 1.25\\), so \\(E'_y = -0.75c\\,B_z\\)."
       },
       {
         "kind": "paragraph",
-        "text": "The field-transformation and magnet-and-conductor laboratories retain the charge and apparatus assumptions. In the charge’s instantaneous rest frame the local force is electric; relating it to the original frame also requires the force transformation, not an assertion of numerical equality."
+        "text": "This is the magnet and conductor from the paper’s introduction, now with equations. A positive charge \\(q\\) carried along at speed \\(v\\) is at rest in the moving frame, so there the whole force on it is electric, of size \\(\\gamma qvB_z\\). In the original frame the same charge feels a magnetic force of size \\(qvB_z\\). The sizes differ by \\(\\gamma\\), which is how a force across the motion transforms, so both frames describe one push. The field-transformation laboratory places a test charge in each frame."
       },
       {
         "kind": "foundation",
@@ -56,19 +56,19 @@
       {
         "kind": "steps",
         "items": [
-          "Fix the direction of the boost and the field unit convention.",
-          "Leave \\(E_x\\) and \\(B_x\\) unchanged for this aligned boost.",
-          "Mix \\(E_y\\) with \\(B_z\\) and \\(E_z\\) with \\(B_y\\) using the cross-product signs.",
-          "Transform magnetic components with the corresponding \\(v/c^2\\) electric terms.",
-          "Transform the particle’s velocity before comparing force descriptions.",
-          "Use the inverse field transformation to recover the original components."
+          "Fix the setup: the new observer moves at speed \\(v\\) along positive \\(x\\), and the fields are in SI units, so \\(c\\) appears beside the electric terms in the magnetic equations.",
+          "The components along the motion do not change: \\(E'_x = E_x\\) and \\(B'_x = B_x\\).",
+          "Each electric component across the motion picks up a magnetic term: \\(E'_y = \\gamma(E_y - vB_z)\\) and \\(E'_z = \\gamma(E_z + vB_y)\\).",
+          "Each magnetic component across the motion picks up an electric term divided by \\(c^2\\): \\(B'_y = \\gamma(B_y + vE_z/c^2)\\) and \\(B'_z = \\gamma(B_z - vE_y/c^2)\\).",
+          "Before comparing forces, transform the charge’s velocity as well: a charge moving with the observer is at rest in the new frame.",
+          "To go back, use the same equations with \\(-v\\) in place of \\(v\\); they return the original components."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The printed first-order electromotive-force expression is approximate. The exact transformation at finite speed retains \\(\\gamma\\). Historical magnetic component \\(L\\) is neither paper 1’s light speed nor paper 4’s emitted energy."
+        "text": "Einstein’s transformation of the fields is exact. The shorter statement he then makes about the electromotive force on a moving charge holds only to first order in \\(v/V\\); at finite speed the factor \\(\\gamma\\) stays. His \\(L\\) in this section is a magnetic component, not the light speed \\(L\\) of the light-quanta paper or the emitted energy \\(L\\) of the mass-energy paper."
       }
     ]
   },

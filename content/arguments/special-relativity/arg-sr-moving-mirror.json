@@ -6,7 +6,7 @@
   "section": "s8",
   "title": "Reflection starts with interception",
   "question": "Can the incident ray reach a receding mirror?",
-  "recap": "Transform into the mirror’s rest frame, reflect there, and transform back. First check that the light catches the surface: its normal speed must exceed the mirror’s receding speed.",
+  "recap": "First check that the light can catch the mirror: its speed along the mirror’s normal, c cos φ, must exceed the mirror’s speed away from it. Then change to the mirror’s rest frame, reflect the light there, and change back.",
   "review": "draft",
   "premises": [
     "Use an ideal planar perfect reflector with subluminal normal speed.",
@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Transform into the mirror’s rest frame, reflect there, and transform back. First check that the light catches the surface: its normal speed must exceed the mirror’s receding speed."
+        "text": "First check that the light can catch the mirror: its speed along the mirror’s normal, \\(c\\cos\\varphi\\), must exceed the mirror’s speed away from it. Then change to the mirror’s rest frame, reflect the light there, and change back."
       }
     ],
     "full": [
@@ -33,11 +33,11 @@
       },
       {
         "kind": "paragraph",
-        "text": "At normal incidence and \\(v = 0.6c\\), the reflected frequency is one quarter of the incident frequency. The intercepted incident power is 0.4 of the fixed-surface value. With incident energy density \\(u\\), the pressure is \\(0.5u\\). These are different quantities."
+        "text": "At normal incidence and \\(v = 0.6c\\), three different ratios appear. The reflected light has one quarter of the incident frequency. The mirror intercepts incident energy at 0.4 times the rate of a fixed mirror, because it is moving away from the light. And with incident energy density \\(u\\), the light presses on the mirror with pressure \\(0.5u\\)."
       },
       {
         "kind": "paragraph",
-        "text": "The moving-mirror laboratory uses the relative surface-crossing speed, not c by itself, to count intercepted energy. For a ray transverse in the original frame and a mirror receding along positive x, interception fails; the result is not a reflection with zero frequency."
+        "text": "To count the energy the mirror intercepts, the moving-mirror laboratory uses the speed at which light crosses the moving surface, \\(c\\cos\\varphi - v\\), and not \\(c\\) alone. Light travelling parallel to the mirror in the original frame, with the mirror receding along positive \\(x\\), never reaches it, and the laboratory reports that no reflection happens."
       },
       {
         "kind": "foundation",
@@ -49,19 +49,19 @@
       {
         "kind": "steps",
         "items": [
-          "Compare the incident normal light speed \\(c\\cos\\varphi\\) with the mirror speed.",
-          "Refuse a reflection event if the ray cannot reach the surface.",
-          "Transform the incident wave into the mirror’s rest frame.",
-          "Reflect its normal direction there while preserving frequency in that frame.",
+          "Compare the light’s speed along the mirror’s normal, \\(c\\cos\\varphi\\), with the mirror’s speed \\(v\\).",
+          "If \\(c\\cos\\varphi\\) is not greater than \\(v\\), the light never reaches the mirror. Stop here: there is no reflection.",
+          "Otherwise transform the incident wave into the mirror’s rest frame.",
+          "Reflect it there. In that frame the angle of reflection equals the angle of incidence and the frequency does not change.",
           "Transform the reflected wave back to the original frame.",
-          "Use the moving-surface crossing rates when comparing incident power, reflected power, and mechanical work."
+          "To compare incident power, reflected power and the work done on the mirror, count energy by the rate at which it crosses the moving surface."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "This is an ideal prescribed mirror, not a dynamical model of mirror recoil, absorption, or finite thickness. The source’s pressure unit convention is separate from the SI interpretation used here."
+        "text": "The mirror here is ideal: its motion is prescribed, and it has no recoil, absorption or thickness. Einstein states the pressure in his Gaussian units; the SI form used here changes the units and leaves the result the same."
       }
     ]
   },

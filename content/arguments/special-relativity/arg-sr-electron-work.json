@@ -6,7 +6,7 @@
   "section": "s10",
   "title": "The work integral has an observable endpoint",
   "question": "What energy is required to accelerate an electron?",
-  "recap": "Integrating the longitudinal force gives kinetic energy mc²(γ − 1), not the total rest energy. Accelerating voltage and curvature provide separate experimental relations under specified fields.",
+  "recap": "Adding up the work of the force along the motion, from rest to speed v, gives the electron’s kinetic energy, mc²(γ − 1). Einstein then gives two more relations a laboratory can test: the voltage that accelerates the electron, and how sharply electric and magnetic fields bend its path.",
   "review": "draft",
   "premises": [
     "Use invariant mass m, subluminal speed, and the stated force convention.",
@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Integrating the longitudinal force gives kinetic energy \\(mc^2(\\gamma - 1)\\), not the total rest energy. Accelerating voltage and curvature provide separate experimental relations under specified fields."
+        "text": "Adding up the work of the force along the motion, from rest to speed \\(v\\), gives the electron’s kinetic energy, \\(mc^2(\\gamma - 1)\\). Einstein then gives two more relations a laboratory can test: the voltage that accelerates the electron, and how sharply electric and magnetic fields bend its path."
       }
     ],
     "full": [
@@ -33,7 +33,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Use \\(d\\gamma/du = \\gamma^3 u/c^2\\) to evaluate the integral. Near zero speed, \\(K\\) approaches \\(mv^2/2\\). At \\(0.6c\\) the exact value is \\(0.25\\,mc^2\\) whereas the quadratic approximation is \\(0.18\\,mc^2\\), so the approximation error is visible."
+        "text": "The integral follows from one derivative, \\(d\\gamma/du = \\gamma^3 u/c^2\\): the integrand \\(m\\gamma^3 u\\) is \\(mc^2\\) times it, so the integral is \\(mc^2(\\gamma - 1)\\). At low speed this approaches the familiar \\(mv^2/2\\). At \\(0.6c\\) the exact value is \\(0.25\\,mc^2\\) and the low-speed formula gives \\(0.18\\,mc^2\\), a difference large enough to see."
       },
       {
         "kind": "formula",
@@ -43,7 +43,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "The third relation compares electric and magnetic deflection, with force and acceleration conventions kept explicit. In a purely transverse electric field the instantaneous curvature radius is \\(\\gamma m v^2/(|q|E)\\). The electron-dynamics laboratory separates that local curvature from a magnetic circular orbit at constant speed."
+        "text": "The third relation compares bending by the two kinds of field. In an electric field across the motion the path curves with radius \\(\\gamma mv^2/(|q|E)\\) at that instant; the field also speeds the electron up as the path turns, so the radius keeps changing. In a magnetic field the speed stays constant and the path is a circle of radius \\(\\gamma mv/(|q|B)\\). The electron-dynamics laboratory keeps the two cases apart."
       },
       {
         "kind": "foundation",
@@ -55,19 +55,19 @@
       {
         "kind": "steps",
         "items": [
-          "Write longitudinal force as \\(m\\gamma^3\\) times acceleration.",
-          "Multiply by displacement, using a dx = u du.",
-          "Integrate from rest and use the derivative of gamma.",
-          "Compare the exact value with the low-speed expansion without calling them equal at 0.6c.",
-          "For a voltage estimate, use charge magnitude and state the energy-loss assumption.",
-          "For deflection, distinguish magnetic constant-speed curvature from an instantaneous transverse electric curvature."
+          "Write the force along the motion as \\(m\\gamma^3\\) times the acceleration.",
+          "Work is force times distance. Along the path, acceleration times a small distance \\(dx\\) equals \\(u\\,du\\), so the work in one small step is \\(m\\gamma^3 u\\,du\\).",
+          "Add up the steps from rest to speed \\(v\\). Since \\(m\\gamma^3 u = mc^2\\,d\\gamma/du\\), the total is \\(mc^2(\\gamma - 1)\\).",
+          "Compare with the low-speed formula \\(mv^2/2\\): the two agree as \\(v\\) goes to zero, and at \\(0.6c\\) they differ, 0.25 against 0.18 in units of \\(mc^2\\).",
+          "For an accelerating voltage \\(U\\), set \\(|q|U = K\\), assuming the electron loses no energy to radiation on the way.",
+          "For bending, keep the magnetic case, a circle at constant speed, apart from the electric case, a curvature that holds only at one instant."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The three experimental relations do not erase model assumptions about fields and radiation loss. The acknowledgment to M. Besso and the June 1905 closing belong to the source edition; this preview does not claim to transcribe or align those blocks."
+        "text": "The three relations hold within the model’s assumptions: fields as specified, and no energy lost to radiation. After §10 the paper closes with thanks to M. Besso and the date line, Bern, June 1905. Those belong to the German source text, and this explanation does not repeat them."
       }
     ]
   },

@@ -6,7 +6,7 @@
   "section": "s7",
   "title": "One phase fixes frequency and direction",
   "question": "Why must a frequency change accompany a direction change?",
-  "recap": "Transforming a plane wave’s phase yields both the frequency ratio and aberration. At 0.6c a collinear ray has frequency ratio one half; a ray transverse in the original frame instead has ratio 1.25.",
+  "recap": "Rewriting the phase of a light wave in the moving observer’s coordinates gives the new frequency and the new direction in one step. At 0.6c, light travelling the same way as the observer has half its frequency in the new frame; light that crosses the motion at right angles in the original frame has 1.25 times its frequency.",
   "review": "draft",
   "premises": [
     "Use a vacuum plane wave and corresponding events under an inertial Lorentz map.",
@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Transforming a plane wave’s phase yields both the frequency ratio and aberration. At 0.6c a collinear ray has frequency ratio one half; a ray transverse in the original frame instead has ratio 1.25."
+        "text": "Rewriting the phase of a light wave in the moving observer’s coordinates gives the new frequency and the new direction in one step. At \\(0.6c\\), light travelling the same way as the observer has half its frequency in the new frame; light that crosses the motion at right angles in the original frame has 1.25 times its frequency."
       }
     ],
     "full": [
@@ -39,11 +39,11 @@
       },
       {
         "kind": "paragraph",
-        "text": "Write the same wave phase as \\(\\omega t - k_x x - k_y y - k_z z\\). Substitute the inverse event transformation, then read off the new time and space coefficients. That single substitution determines both formulas; an analogy with sound is not the derivation."
+        "text": "The phase of a plane wave, \\(\\omega t - k_x x - k_y y - k_z z\\), counts wave crests, and every observer counts the same crests at the same event. Substitute the inverse coordinate map, which writes \\(t\\), \\(x\\), \\(y\\) and \\(z\\) in primed coordinates. The coefficient of \\(t'\\) is the new angular frequency and the coefficients of \\(x'\\), \\(y'\\) and \\(z'\\) are the new wave vector, so one substitution gives both formulas above. The Doppler effect of sound is an analogy only: it depends on motion through the air, and nothing here does."
       },
       {
         "kind": "paragraph",
-        "text": "At \\(v = 0.6c\\) and \\(\\varphi = 0\\), \\(q = 0.5\\). For \\(\\varphi = 90\\) degrees, \\(q = 1.25\\) and \\(\\cos\\varphi' = -0.6\\). The Doppler-and-aberration laboratory labels the angle’s frame so these different comparisons cannot be conflated."
+        "text": "At \\(v = 0.6c\\) and \\(\\varphi = 0\\), \\(q = 0.5\\). At \\(\\varphi\\) = 90 degrees, \\(q = 1.25\\) and \\(\\cos\\varphi' = -0.6\\): light that crossed the motion at right angles in the original frame travels at about 127 degrees to the \\(x'\\) axis in the new one. Each angle belongs to one frame, and the Doppler-and-aberration laboratory labels which."
       },
       {
         "kind": "foundation",
@@ -55,18 +55,18 @@
       {
         "kind": "steps",
         "items": [
-          "Specify the wave direction in the original frame.",
-          "Substitute the inverse coordinate map into the phase at one event.",
-          "Identify the coefficient of primed time as the new angular frequency.",
-          "Identify primed wave-vector components and divide by the new wave number for direction.",
-          "Check collinear and transverse cases with their angle frames stated."
+          "Give the light’s direction in the original frame by the angle \\(\\varphi\\) between its wave normal and the \\(x\\) axis.",
+          "Write the phase at one event and replace \\(t\\), \\(x\\), \\(y\\) and \\(z\\) using the inverse coordinate map.",
+          "Read off the coefficient of \\(t'\\). It is the new angular frequency, and its ratio to the old one is \\(q = \\gamma(1 - (v/c)\\cos\\varphi)\\).",
+          "Read off the coefficients of \\(x'\\), \\(y'\\) and \\(z'\\): they are the new wave-vector components. Divide by the new wave number for the new direction, \\(\\cos\\varphi' = (\\cos\\varphi - v/c)/(1 - (v/c)\\cos\\varphi)\\).",
+          "Check two cases at \\(0.6c\\), saying which frame each angle belongs to: along the motion \\(q = 0.5\\), and across it in the original frame \\(q = 1.25\\)."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "A hypothetical light-speed observer is a limiting expression, not an admitted frame. Historical aberration measurements and later second-order Doppler tests remain distinct from the ideal calculation."
+        "text": "An observer moving at the speed of light appears in these formulas only as a limit; no inertial frame moves at \\(c\\). Stellar aberration had been observed since Bradley’s report of 1729, and the second-order Doppler shift was first measured by Ives and Stilwell in 1938. Both are measurements of the world, separate from this ideal calculation."
       }
     ]
   },

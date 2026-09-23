@@ -6,7 +6,7 @@
   "section": "s8",
   "title": "Density is not the energy of the whole packet",
   "question": "Why does a finite light complex need a volume calculation?",
-  "recap": "Radiation energy density changes by q², but the volume of the same moving light complex on a simultaneous slice changes by 1/q. Its total energy therefore changes by q, just like frequency.",
+  "recap": "In the new frame the light’s energy density changes by the factor q squared, while the volume of the same light complex, measured at one instant of the new time, changes by 1/q. Its total energy therefore changes by q, the same factor as its frequency.",
   "review": "draft",
   "premises": [
     "Compare the same finite light complex on each frame’s own simultaneous slice.",
@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Radiation energy density changes by \\(q^2\\), but the volume of the same moving light complex on a simultaneous slice changes by \\(1/q\\). Its total energy therefore changes by \\(q\\), just like frequency."
+        "text": "In the new frame the light’s energy density changes by the factor \\(q^2\\), while the volume of the same light complex, measured at one instant of the new time, changes by \\(1/q\\). Its total energy therefore changes by \\(q\\), the same factor as its frequency."
       }
     ],
     "full": [
@@ -37,15 +37,15 @@
       },
       {
         "kind": "paragraph",
-        "text": "The bounding region travels with the light, so changing the simultaneous slice does not give the ordinary material-volume contraction. At \\(0.6c\\) with a forward collinear ray, \\(q = 0.5\\): density becomes one quarter, volume doubles, and total energy becomes one half."
+        "text": "Einstein bounds the light complex by a sphere that moves with the light. That boundary is not a body at rest in either frame, so the ordinary contraction of a material body does not apply to it. At \\(0.6c\\), for light travelling the same way as the observer, \\(q = 0.5\\): the density falls to one quarter, the volume doubles, and the total energy halves."
       },
       {
         "kind": "paragraph",
-        "text": "Incorrectly using material contraction 0.8 in that case would give total-energy factor 0.2. At an originally transverse angle the volume factors happen to coincide, so that case alone cannot detect the mistake. The light-packet laboratory includes the discriminating comparison."
+        "text": "Treating the light complex as a body at rest in the original frame, and shrinking its volume by \\(1/\\gamma = 0.8\\), would give a total-energy factor of \\(0.25 \\times 0.8 = 0.2\\) instead of 0.5. For light crossing the motion at right angles in the original frame the two volume factors happen to agree, both 0.8, so that case alone cannot catch the mistake. The light-packet laboratory includes the case that tells them apart."
       },
       {
         "kind": "paragraph",
-        "text": "The September mass-energy argument imports exactly this light-energy transformation. It does not first assume \\(E = mc^2\\) and does not require localized light quanta."
+        "text": "The mass-energy paper of September 1905 starts from exactly this transformation of light energy. It does not assume \\(E = mc^2\\) in advance, and it needs no localized light quanta."
       },
       {
         "kind": "foundation",
@@ -57,19 +57,19 @@
       {
         "kind": "steps",
         "items": [
-          "Transform the wave amplitude and obtain the squared energy-density factor.",
-          "Specify the boundary enclosing the same light complex.",
-          "Intersect its transformed moving boundary with a simultaneous primed-time slice.",
-          "Compute the volume factor 1/q for that slice.",
-          "Multiply density and volume factors to obtain \\(q\\), not \\(q^2\\).",
-          "Use the collinear 0.6c case to distinguish this result from material contraction."
+          "Transform the wave’s amplitude. The energy density goes as its square, so it changes by \\(q^2\\).",
+          "Draw a boundary around the light complex: a sphere that moves with the light.",
+          "Find the region that moving boundary encloses at one instant of the new time \\(t'\\).",
+          "Its volume is \\(1/q\\) times the original volume.",
+          "Multiply density by volume: \\(q^2 \\times 1/q = q\\). The total energy changes by \\(q\\), the same factor as the frequency, and not by \\(q^2\\).",
+          "Check the case along the motion at \\(0.6c\\): 0.5 with the correct volume, and 0.2 if the volume is shrunk like a material body’s."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The modern symbols u and the scripted volume symbol describe density and volume without reusing the source’s magnetic-field component L. The finite-region calculation is not an argument for a rest frame of radiation."
+        "text": "Here \\(u\\) is energy density and \\(V_{\\mathrm{packet}}\\) the volume of the complex. The letter \\(L\\) is avoided: in this paper it names a magnetic component, and in the mass-energy paper the emitted energy. The calculation follows one bounded complex of light; it gives light no rest frame."
       }
     ]
   },
