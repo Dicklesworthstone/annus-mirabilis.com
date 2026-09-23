@@ -6,23 +6,51 @@ function num(snapshot: AcceptedSnapshot, id: string): number | null {
   return r.status === "value" && typeof r.value === "number" ? r.value : null;
 }
 
+type Anchor = "start" | "middle" | "end";
+
+/**
+ * An arrow from the origin, labelled beside its tip on one side (side 1 is to the arrow's left on
+ * screen, -1 its right). The labels used to sit 10 units beyond each tip, so at the default, where
+ * all four vectors lie along +x, "v" and "w" landed 8 units apart and "Galilean" ran past the
+ * 200-unit edge. Alternating sides keeps neighbouring tips' labels apart, and a label near an edge
+ * is anchored to end or start there, so it stays inside the drawing.
+ */
 function arrow(
   x: number,
   y: number,
   color: string,
   label: string,
-): { line: string; tip: string; lx: number; ly: number; color: string; label: string } {
+  side: 1 | -1,
+): {
+  line: string;
+  tip: string;
+  lx: number;
+  ly: number;
+  anchor: Anchor;
+  color: string;
+  label: string;
+} {
   const scale = 80;
   const x2 = 100 + x * scale;
   const y2 = 100 - y * scale;
   const len = Math.hypot(x2 - 100, y2 - 100) || 1;
   const ux = (x2 - 100) / len;
   const uy = (y2 - 100) / len;
+  // The screen-left normal of (ux, uy) is (uy, -ux); the label's baseline sits 3 units lower than
+  // its centre line, so a label below the arrow is pushed a little further out.
+  const nx = side * uy;
+  const ny = -side * ux;
+  const px = x2 + 9 * nx;
+  const py = y2 + 9 * ny + (ny > 0 ? 6 : 0);
+  const anchor: Anchor = px > 170 ? "end" : px < 30 ? "start" : "middle";
+  const lx =
+    anchor === "end" ? Math.min(px + 4, 196) : anchor === "start" ? Math.max(px - 4, 4) : px;
   return {
     line: `M100 100 L${x2} ${y2}`,
     tip: `${x2},${y2} ${x2 - 8 * ux + 4 * uy},${y2 - 8 * uy - 4 * ux} ${x2 - 8 * ux - 4 * uy},${y2 - 8 * uy + 4 * ux}`,
-    lx: x2 + 10 * ux,
-    ly: y2 - 10 * uy,
+    lx,
+    ly: Math.min(Math.max(py, 10), 196),
+    anchor,
     color,
     label,
   };
@@ -39,10 +67,10 @@ export function VelocityCompositionPlot({ snapshot }: { snapshot: AcceptedSnapsh
   const wy = p.movingSpeed * Math.sin(alpha);
   const galileanX = p.frameBeta + wx;
   const galileanY = wy;
-  const composed = arrow(ux, uy, "var(--plot)", "U");
-  const moving = arrow(wx, wy, "var(--ink)", "w");
-  const frame = arrow(p.frameBeta, 0, "var(--accent)", "v");
-  const galilean = arrow(galileanX, galileanY, "var(--muted)", "Galilean");
+  const composed = arrow(ux, uy, "var(--plot)", "U", 1);
+  const moving = arrow(wx, wy, "var(--ink)", "w", -1);
+  const frame = arrow(p.frameBeta, 0, "var(--accent)", "v", 1);
+  const galilean = arrow(galileanX, galileanY, "var(--muted)", "Galilean", -1);
   const matrixOut = result(snapshot, "productMatrix");
   const matrix =
     matrixOut.status === "value" && typeof matrixOut.value !== "number" ? matrixOut.value : null;
@@ -56,7 +84,7 @@ export function VelocityCompositionPlot({ snapshot }: { snapshot: AcceptedSnapsh
           <g key={a.label}>
             <path d={a.line} stroke={a.color} fill="none" strokeWidth="1.6" />
             <polygon points={a.tip} fill={a.color} />
-            <text x={a.lx} y={a.ly} fontSize="8" fill={a.color}>
+            <text x={a.lx} y={a.ly} fontSize="8" fill={a.color} textAnchor={a.anchor}>
               {a.label}
             </text>
           </g>
