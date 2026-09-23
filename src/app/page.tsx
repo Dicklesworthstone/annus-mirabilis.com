@@ -157,6 +157,12 @@ export default function Home() {
           letting you assume it was checked against the German.
         </p>
         <p>
+          The page images come from scans listed, each with its source, its terms and its digest, on
+          the <a href="/sources/">sources page</a>. The edition counts four papers and keeps
+          Einstein&rsquo;s dissertation beside them; <a href="/about/#count-note">About</a> says
+          why.
+        </p>
+        <p>
           <a href="/papers/">See the four papers in the order they were received</a>
         </p>
       </section>
