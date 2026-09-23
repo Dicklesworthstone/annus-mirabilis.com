@@ -151,8 +151,22 @@
 .reader-options .check input {
   width: 20px;
 }
+/* THE STATUS LINE IS FOR ASSISTIVE TECHNOLOGY. It is role=status, aria-live=polite, and its
+   messages ("Changed detail ...", "Returned to the argument.", "Link ... copied.") report what
+   the reader just did. Shown on the page it reserved 46px of empty space under the reading
+   controls on every paper and section, and after a copy or a lesson's close it spoke at the top
+   of the page while the reader was far below. It stays in the accessibility tree, out of sight;
+   the copy button shows its own confirmation (ReaderController). */
 .reader-announcement {
-  min-height: 1.5em;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .reader-outline {
   align-self: start;

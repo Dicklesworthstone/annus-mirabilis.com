@@ -320,6 +320,13 @@ export function ReaderController(props: Props) {
         if (navigator.clipboard?.writeText)
           void navigator.clipboard.writeText(href).then(() => {
             announcement.textContent = `Link to ${label && label.length > 0 ? label : "this passage"} copied.`;
+            // The status line is out of sight (reader.css), so the button confirms where the
+            // reader is looking; its accessible name is unchanged and the status line speaks.
+            const shown = control.textContent;
+            control.textContent = "Link copied";
+            window.setTimeout(() => {
+              if (control.textContent === "Link copied") control.textContent = shown;
+            }, 2000);
           }, fallback);
         else fallback();
       }
