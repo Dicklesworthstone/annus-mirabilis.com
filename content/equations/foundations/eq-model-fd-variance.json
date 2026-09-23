@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-variance",
+  "paper": "foundations",
+  "argument": "mean-variance-rms",
+  "title": "Variance: the mean square minus the square of the mean",
+  "spoken": "The variance of x equals the mean of x squared minus the square of the mean of x.",
+  "explanation": "For -3, -1, +1 and +3 micrometres the mean is zero, so the variance equals the mean square, 5 square micrometres. Shift every particle by the same amount and the mean square changes; the variance does not.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A finite set of displacements, each counted once.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-variance.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-variance.t.variance",
+      "quantityId": "displacementVariance1d",
+      "at": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-variance.t.of",
+        "quantityId": "displacement1d"
+      }
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-fd-variance.op.difference",
+      "args": [
+        {
+          "kind": "average",
+          "opId": "eq-model-fd-variance.op.meanSquare",
+          "argument": {
+            "kind": "power",
+            "opId": "eq-model-fd-variance.op.square",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-fd-variance.t.x",
+              "quantityId": "displacement1d"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            }
+          }
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "power",
+            "opId": "eq-model-fd-variance.op.squareOfMean",
+            "base": {
+              "kind": "average",
+              "opId": "eq-model-fd-variance.op.mean",
+              "argument": {
+                "kind": "symbol",
+                "termId": "eq-model-fd-variance.t.x2",
+                "quantityId": "displacement1d"
+              }
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-variance.op.difference",
+      "title": "A difference of two averages",
+      "explanation": "Mean square minus squared mean: never negative.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-variance.op.mean",
+      "title": "The mean",
+      "explanation": "The average signed displacement; zero for -3, -1, +1, +3.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-variance.op.meanSquare",
+      "title": "The mean square",
+      "explanation": "Square each displacement, then average: distance from zero.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-variance.op.relation",
+      "title": "What it asserts",
+      "explanation": "The spread around the mean is the mean square minus the square of the mean.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-variance.op.square",
+      "title": "x squared",
+      "explanation": "Squared first, so leftward and rightward moves both count.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-variance.op.squareOfMean",
+      "title": "The square of the mean",
+      "explanation": "Average first, then square: how far the centre moved.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-variance.t.of",
+      "title": "Displacement",
+      "explanation": "The quantity whose spread is measured.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-variance.t.variance",
+      "title": "Variance",
+      "explanation": "How far the displacements lie from their own mean, squared and averaged.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-variance.t.x",
+      "title": "Displacement",
+      "explanation": "One particle's displacement.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-variance.t.x2",
+      "title": "Displacement",
+      "explanation": "The same displacements, averaged with their signs.",
+      "foundation": "mean-variance-rms"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The variance",
+      "nodeId": "eq-model-fd-variance.t.variance"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the mean square",
+      "nodeId": "eq-model-fd-variance.op.meanSquare"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "the square of the mean",
+      "nodeId": "eq-model-fd-variance.op.squareOfMean"
+    },
+    {
+      "text": "."
+    }
+  ],
+  "printedGlyphs": {
+    "displacement1d": "x"
+  }
+}

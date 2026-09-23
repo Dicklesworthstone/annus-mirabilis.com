@@ -134,6 +134,20 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
       }),
       pick(BROWNIAN_QUANTITIES, "stepRms"),
       pick(BROWNIAN_QUANTITIES, "walkStepCount"),
+      // Mean, variance and RMS: the spread of the displacements around their mean.
+      own({
+        id: "displacementVariance1d",
+        name: "Variance of the displacement",
+        glyph: "\\operatorname{Var}",
+        dimension: ["2", "0", "0", "0", "0", "0"],
+        unit: "m^2",
+        displayUnit: "m^2",
+        displayPower: 0,
+        semanticKind: "displacement-variance",
+        role: "result",
+        definition:
+          "The mean square of the displacements' distances from their own mean: spread around the mean, not distance from zero.",
+      }),
       // The Gaussian: the unitless variable of the moment integral.
       pick(BROWNIAN_QUANTITIES, "scaledDisplacement"),
       // Events and frames: section 1's light signal from clock A to B and back.
