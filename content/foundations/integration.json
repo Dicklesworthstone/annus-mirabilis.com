@@ -9,7 +9,11 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "To add up something that changes from place to place, such as the probability spread along a line, cut the line into narrow strips. Each strip contributes its height times its width. Add the strips, then cut them narrower and add again. For a smooth curve the totals settle on one value, and that value is the integral:"
+      "text": "Chance spread along a line is measured per unit length: a density. Where the density is the same all along a stretch, the chance of the stretch is the density times its length. A particle equally likely to be anywhere in a 4 µm stretch has density 0.25 per micrometre, and the chance of finding it in the first 1.5 µm is 0.25 × 1.5 = 0.375."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Where the density changes from place to place, cut the line into narrow strips. Each strip contributes its height times its width, as if the density were flat across it. Add the strips, then cut them narrower and add again. For a smooth curve the totals settle on one value, and that value is the integral:"
     },
     {
       "kind": "formula",
@@ -38,18 +42,19 @@
     {
       "kind": "steps",
       "items": [
-        "A particle is equally likely to be anywhere in a stretch 4 micrometres long: the density is 0.25 per micrometre across it and zero outside.",
-        "Cut the stretch into 4 strips 1 µm wide. Each strip gives 0.25 × 1 = 0.25; together they give 1.",
-        "Cut it into 8 strips 0.5 µm wide. Each gives 0.25 × 0.5 = 0.125; together, 8 × 0.125 = 1 again.",
-        "The chance of finding the particle in the first 1.5 µm is 0.25 × 1.5 = 0.375, whatever width the strips have."
+        "A particle's density rises steadily across a 4 µm stretch, from 0 at the left end to 0.5 per micrometre at the right. The whole area is a triangle, ½ × 4 × 0.5 = 1.",
+        "Four strips 1 µm wide, each taking the height at its left edge: 0 + 0.125 + 0.25 + 0.375 = 0.75.",
+        "Eight strips 0.5 µm wide: the heights add to 1.75, and times 0.5 that is 0.875.",
+        "Sixteen strips 0.25 µm wide: 0.9375. The shortfall halves each time the strips do: 0.25, then 0.125, then 0.0625.",
+        "The totals settle on 1, the area of the triangle. That settled value is the integral."
       ]
     },
     {
       "kind": "paragraph",
-      "text": "For a flat density every cut gives the same total, so the value it settles on is plain from the start. For a curved density, such as the Brownian bell curve, the strip totals change as the strips narrow, and the integral is the value they settle on."
+      "text": "A flat density gives the same total for every cut, which is why the uniform stretch above needed no strips. A curved one, such as the Brownian bell curve, does, and the integral is the value the totals settle on."
     }
   ],
-  "exampleTitle": "A flat density, added up in strips",
+  "exampleTitle": "A rising density, added up in narrower strips",
   "prerequisites": ["distributions"],
   "stoppingPoint": "An integral is a total of height times width over a range, in the units of both. The widths and any endpoint term are part of the calculation, not decoration on the integral sign.",
   "citations": []
