@@ -9,7 +9,11 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Maxwell's electrodynamics gives light momentum as well as energy. For light travelling in one direction, the momentum it carries is its energy divided by the speed of light, c:"
+      "text": "Sunlight on your hand warms it but does not seem to push it. It does push. Light carries momentum as well as energy, and hands it to whatever absorbs it. The push is tiny: full sunlight, about 1,000 watts on each square metre, presses on a square metre of black cloth with about 3.3 millionths of a newton."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Maxwell's electrodynamics gives light this momentum. For light travelling in one direction, the momentum it carries is its energy divided by the speed of light, c:"
     },
     {
       "kind": "formula",

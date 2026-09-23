@@ -9,7 +9,11 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Start with what the data can tell apart at all. In §3 of the Brownian paper the diffusion coefficient is D = RT/(N · 6πkP), with k the liquid's viscosity and P the particle's radius. So watching particles spread gives D, and with the temperature and viscosity known, D fixes the product of N and P, not each of them: a smaller particle and a larger N give the same spreading. To get N, the radius has to be measured some other way."
+      "text": "Some questions the data cannot answer, however carefully you measure. If all you know of a rectangle is that its area is 12 square centimetres, its sides could be 3 and 4, 2 and 6, or 1 and 12. The area fixes their product, not each side; to get one side you must measure the other."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The Brownian paper meets the same limit. In its §3 the diffusion coefficient is D = RT/(N · 6πkP), with k the liquid's viscosity and P the particle's radius. So watching particles spread gives D, and with the temperature and viscosity known, D fixes the product of N and P, not each of them: a smaller particle and a larger N give the same spreading. To get N, the radius has to be measured some other way."
     },
     {
       "kind": "paragraph",
