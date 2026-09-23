@@ -24,8 +24,10 @@ import { THEME_INIT_SOURCE } from "./theme/themeInit.inline";
  * pages (109 of 334 in the export) took the image from the opengraph-image.tsx convention, whose
  * URL has no extension: on Vercel it answered 308 to a trailing slash and then served the PNG as
  * application/octet-stream, which link previews reject. The same card is published at
- * /share/home.png by the share route. Naming it here displaces the file convention for this
- * segment (Next applies a file image only when the segment's own metadata sets no images).
+ * /share/home.png by the share route, and naming it here sets twitter:image. It does NOT set
+ * og:image while src/app/opengraph-image.tsx exists: Next attaches that file to the root page node
+ * as well as the layout, and a file image beats config there (measured in the 19:38 build,
+ * 2026-09-23). og:image follows once that file leaves the convention.
  */
 const SITE_CARD = [
   shareImage(
