@@ -24,6 +24,9 @@ function scalar(snapshot: ComparisonSnapshot, id: string): number | null {
     ? result.value
     : null;
 }
+// Set on each text, not on their group: the site-wide `svg[role="img"] text` rule sets a font
+// size on every label and would override one inherited from the group.
+const label = { fontSize: "var(--comparison-label, 14px)" } as const;
 /** Axis conversion only: every point, including the selected measurement, is owner-produced. */
 export function ComparisonPlot({
   baseline,
@@ -60,7 +63,7 @@ export function ComparisonPlot({
   return (
     <figure className="comparison-plot">
       <svg
-        viewBox="0 0 720 320"
+        viewBox="0 0 720 310"
         role="img"
         aria-labelledby={`${uid}-plot-title ${uid}-plot-description`}
       >
@@ -107,20 +110,25 @@ export function ComparisonPlot({
             )}
           </g>
         ))}
-        <g fill="currentColor" fontSize="14">
-          <text x="50" y="289">
+        {/* The labels take their size from --comparison-label, which comparison.css raises on a
+            phone: at 14 units in this 720-unit frame they rendered at 5.9px there. The bottom three
+            share one baseline, and the top value sits inside the plot beside its tick, so that at
+            the larger size it cannot run off the left edge. */}
+        <path d="M59 35H65" fill="none" stroke="currentColor" />
+        <g fill="currentColor">
+          <text x="50" y="300" style={label}>
             0
           </text>
-          <text x="665" y="289" textAnchor="end">
+          <text x="665" y="300" textAnchor="end" style={label}>
             {comparisonDisplay(maxTime)} s
           </text>
-          <text x="360" y="313" textAnchor="middle">
+          <text x="360" y="300" textAnchor="middle" style={label}>
             Elapsed time
           </text>
-          <text x="68" y="20">
+          <text x="68" y="27" style={label}>
             RMS displacement (μm)
           </text>
-          <text x="55" y="42" textAnchor="end">
+          <text x="72" y="54" style={label}>
             {comparisonDisplay(maxDisplacement, 1e6)}
           </text>
         </g>

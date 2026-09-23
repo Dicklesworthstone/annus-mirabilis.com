@@ -38,7 +38,18 @@
 .controlled-comparison .comparison-plot svg {
   display: block;
   width: 100%;
+  max-width: 46rem;
   height: auto;
+}
+.controlled-comparison .comparison-plot figcaption {
+  margin-top: 0.5rem;
+}
+/* Raises ComparisonPlot's label size on a phone, where its 720-unit frame is drawn at under half
+   size; the property is inherited by the drawing's text. */
+@media (max-width: 40rem) {
+  .controlled-comparison .comparison-plot {
+    --comparison-label: 26px;
+  }
 }
 .controlled-comparison .comparison-identity,
 .controlled-comparison .comparison-status {
