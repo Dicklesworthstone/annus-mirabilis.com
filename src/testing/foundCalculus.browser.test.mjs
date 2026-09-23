@@ -233,7 +233,7 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
       await page.goto(`${baseUrl}/foundations/logarithms/`, { waitUntil: "domcontentloaded" });
       const logText = await page.innerText("body");
       assert.ok(
-        logText.includes("Logarithms and product-to-sum relations"),
+        logText.includes("Logarithms: turning products into sums"),
         "Print rendering of logarithms must include title",
       );
       assert.ok(
