@@ -208,6 +208,19 @@
   .reader-bottom-sheet {
     display: block;
   }
+  /* FOCUS STOPS ABOVE THE SHEET. The sheet is sticky at the bottom, 78px closed and up to 40vh
+     open, and a control scrolled into view by Tab landed behind it: at 390x844 on the Brownian
+     reading, 20 of 119 focus stops were covered with the sheet closed and 58 of 111 with it open
+     (12 of 118 on §4's page). A scroll margin the size of the sheet keeps each one above it; 0 of
+     each, measured with the same Tab walk. The sheet's own controls are left alone. */
+  .reader-anatomy
+  :is(a[href], button, summary, input, select, textarea, [tabindex]):not(.reader-bottom-sheet *) {
+    scroll-margin-bottom: 6rem;
+  }
+  .reader-anatomy:has(> .reader-bottom-sheet[open])
+    :is(a[href], button, summary, input, select, textarea, [tabindex]):not(.reader-bottom-sheet *) {
+    scroll-margin-bottom: calc(min(var(--reader-sticky-lab-max), 70vh) + 1.5rem);
+  }
   .reader-split-tabs {
     display: flex;
   }
