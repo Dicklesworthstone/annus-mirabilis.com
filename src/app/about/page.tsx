@@ -5,6 +5,7 @@ import { dayAndMonth, loadFirstPages } from "../../components/home/firstPages.ts
 import "../../components/home/wideProse.css";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 import "./about.css";
+import { attributionFrom, dayDate, publicationDate, requireFound } from "./refusals.ts";
 
 export const metadata: Metadata = {
   title: "About",
@@ -40,33 +41,22 @@ function monthAndYear(iso: string): string {
 /**
  * The attribution the license asks for, read from NOTICE.md at build time: the one text block under
  * "## Attribution". It is never retyped here, so the page cannot drift from the notice; a notice
- * without the block stops the build.
+ * without the block stops the build (refusals.ts).
  */
 function loadAttribution(): string {
-  const notice = readFileSync(join(process.cwd(), "NOTICE.md"), "utf8");
-  const match = /## Attribution[\s\S]*?```text\n([^\n]+)\n```/.exec(notice);
-  if (!match?.[1]) throw new Error("NOTICE.md has no attribution block under ## Attribution.");
-  return match[1].trim();
+  return attributionFrom(readFileSync(join(process.cwd(), "NOTICE.md"), "utf8"));
 }
 
 /** The dates of the count note, from the receipts; a missing one stops the build. */
 function loadCount() {
   const papers = loadFirstPages();
   const receipts = loadProvenanceReceipts().receipts;
-  const datesOf = (key: string) => {
-    const receipt = receipts.find((r) => r.key === key)?.receipt;
-    if (!receipt) throw new Error(`No provenance receipt for ${key}.`);
-    return receipt.frontMatter.paper;
-  };
+  const datesOf = (key: string) =>
+    requireFound(receipts.find((r) => r.key === key)?.receipt, key).frontMatter.paper;
   const dissertation = datesOf(DISSERTATION_KEY);
-  const dated = (type: string) => {
-    const found = dissertation.dates.find((d) => d.type === type && d.precision === "day");
-    if (!found) throw new Error(`The dissertation's receipt has no day-precision "${type}" date.`);
-    return found.iso;
-  };
-  const correction = datesOf(CORRECTION_KEY);
-  const correctionYear = correction.dates.find((d) => d.type === "issue-publication")?.iso;
-  if (!correctionYear) throw new Error("The correction's receipt has no publication date.");
+  const dated = (type: "date-line" | "submitted" | "issue-publication") =>
+    dayDate(dissertation.dates, type, DISSERTATION_KEY);
+  const correctionYear = publicationDate(datesOf(CORRECTION_KEY).dates, CORRECTION_KEY);
   return {
     received: papers.map((paper) => unbroken(dayAndMonth(paper.received))),
     dissertationTitle: dissertation.titleGerman,

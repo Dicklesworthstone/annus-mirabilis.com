@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
@@ -7,6 +6,7 @@ import "../../components/home/wideProse.css";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 import type { PaperDate, RightsStatus } from "../../content/provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
+import { assertServedDigest, requireReceipt, rightsWordsFor } from "./refusals.ts";
 import "./sources.css";
 
 export const metadata: Metadata = {
@@ -47,10 +47,7 @@ const DATE_LABELS: Readonly<Record<PaperDate["type"], string>> = {
   "later-edition": "Later edition",
 };
 
-/**
- * What each rights status says to a reader. A status with no entry here stops the build, so a new
- * kind of scan is described by someone who has read its terms rather than by a fallback.
- */
+/** What each rights status says to a reader; a status with no entry stops the build (refusals.ts). */
 const RIGHTS_WORDS: Partial<Record<RightsStatus, string>> = {
   "public-domain-image": "The scan itself is in the public domain.",
   "scan-open-terms": "Offered under its host’s open terms.",
@@ -117,26 +114,17 @@ function loadScans() {
   const shortNames = new Map(loadFirstPages().map((paper) => [paper.key, paper.title]));
   return loadProvenanceReceipts()
     .receipts.map(({ key, receipt }) => {
-      // A receipt that did not parse stops the build rather than dropping out of the list.
-      if (!receipt) throw new Error(`The provenance receipt for ${key} did not parse.`);
-      const fm = receipt.frontMatter;
-      const asset = receiptToSourceAsset(receipt);
-      const rights = RIGHTS_WORDS[asset.rights.status];
-      if (!rights) {
-        throw new Error(
-          `No reader-facing wording for rights status "${asset.rights.status}" (${key}).`,
-        );
-      }
+      const parsed = requireReceipt(receipt, key);
+      const fm = parsed.frontMatter;
+      const asset = receiptToSourceAsset(parsed);
+      const rights = rightsWordsFor(RIGHTS_WORDS, asset.rights.status, key);
       const served =
         asset.publicationDecision === "publish" && fm.scan.path
           ? join(process.cwd(), fm.scan.path)
           : undefined;
       let download: { href: string; bytes: number } | undefined;
       if (served && existsSync(served)) {
-        const digest = createHash("sha256").update(readFileSync(served)).digest("hex");
-        if (digest !== asset.sha256) {
-          throw new Error(`${fm.scan.path} no longer matches the digest in its receipt (${key}).`);
-        }
+        assertServedDigest(readFileSync(served), asset.sha256, fm.scan.path, key);
         download = {
           href: `/${fm.scan.path.replace(/^public\//, "")}`,
           bytes: statSync(served).size,
