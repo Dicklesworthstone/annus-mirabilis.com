@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
+import { hasInlineMath, splitInlineMath } from "../../content/inlineMath.ts";
 import type {
   Argument,
   Block,
@@ -7,6 +8,7 @@ import type {
   Foundation,
   Paper,
 } from "../../content/schemas/reading.ts";
+import { renderInlineLatex } from "../../equations/render/inlineKatex.ts";
 import { type OfflineFigureAsset, renderOfflineAsset } from "./assets.ts";
 import { OFFLINE_DETAIL_SOURCE } from "./detail.inline.ts";
 
@@ -190,16 +192,29 @@ export function packageOfflineChapter(
     mathBytes += Buffer.byteLength(html);
     return html;
   }
+  /* A paragraph's or a step's text, with its `\( … \)` mathematics typeset inline by the same
+     renderer as the reading face (inlineKatex.ts), and every word escaped. */
+  function prose(text: string): string {
+    if (!hasInlineMath(text)) return e(text);
+    return splitInlineMath(text)
+      .map((segment) => {
+        if (segment.kind === "text") return e(segment.value);
+        const html = renderInlineLatex(segment.value);
+        mathBytes += Buffer.byteLength(html);
+        return html;
+      })
+      .join("");
+  }
   function blocks(values: readonly Block[]): string {
     return values
       .map((block) => {
         switch (block.kind) {
           case "paragraph":
-            return `<p>${e(block.text)}</p>`;
+            return `<p>${prose(block.text)}</p>`;
           case "formula":
             return `${math(block.latex, block.spoken)}<p class="spoken-math">${e(block.spoken)}</p>`;
           case "steps":
-            return `<ol>${block.items.map((text) => `<li>${e(text)}</li>`).join("")}</ol>`;
+            return `<ol>${block.items.map((text) => `<li>${prose(text)}</li>`).join("")}</ol>`;
           case "foundation": {
             if (!foundationIds.has(block.id))
               throw new TypeError(`Unresolved offline foundation: ${block.id}.`);

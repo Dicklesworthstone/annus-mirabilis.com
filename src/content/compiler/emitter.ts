@@ -11,6 +11,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { expressionLatex } from "../../equations/latex.ts";
 import { BROWNIAN_QUANTITIES } from "../../equations/quantities.ts";
+import { inlineMathToMarkdown } from "../inlineMath.ts";
 import type { Block, Foundation } from "../schemas/reading.ts";
 import type { PaperPayload } from "./compile.ts";
 
@@ -79,11 +80,11 @@ function markdownBlocks(blocks: readonly Block[] | undefined, titleOf: Foundatio
   return blocks
     .map((b) =>
       b.kind === "paragraph"
-        ? b.text
+        ? inlineMathToMarkdown(b.text)
         : b.kind === "formula"
           ? `$$\n${b.latex}\n$$\n\n${b.spoken}`
           : b.kind === "steps"
-            ? b.items.map((x, i) => `${i + 1}. ${x}`).join("\n")
+            ? b.items.map((x, i) => `${i + 1}. ${inlineMathToMarkdown(x)}`).join("\n")
             : `[Open the foundation: ${titleOf(b.id) ?? b.id}](/foundations/${b.id}/)`,
     )
     .join("\n\n");

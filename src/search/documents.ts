@@ -1,4 +1,5 @@
 import { parseInstrumentId } from "../content/ids.ts";
+import { inlineMathPlain } from "../content/inlineMath.ts";
 import { type SearchAlias, type SearchDocument, validateSearchDocument } from "./core.ts";
 
 export type SearchProfile = "scaffold" | "preview" | "launch";
@@ -86,11 +87,11 @@ function blocksText(blocks: readonly Block[]): string {
     .map((block) => {
       switch (block.kind) {
         case "paragraph":
-          return block.text;
+          return inlineMathPlain(block.text);
         case "formula":
           return `${block.spoken} ${block.latex}`;
         case "steps":
-          return block.items.join(" ");
+          return block.items.map(inlineMathPlain).join(" ");
         case "foundation":
           return block.returnCaption;
         default:

@@ -5,6 +5,7 @@ import { type HeadingLevel, headingTag } from "../components/foundations/heading
 import type { Block, Foundation } from "../content/schemas/reading";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
 import { ColouredFormula } from "./ColouredFormula.tsx";
+import { InlineMathText } from "./InlineMathText.tsx";
 export function FoundationLink({
   id,
   title,
@@ -44,7 +45,12 @@ export function ReadingBlocks({
   return (
     <>
       {blocks.map((block) => {
-        if (block.kind === "paragraph") return <p key={`p-${block.text}`}>{block.text}</p>;
+        if (block.kind === "paragraph")
+          return (
+            <p key={`p-${block.text}`}>
+              <InlineMathText text={block.text} />
+            </p>
+          );
         if (block.kind === "formula") {
           // Every named record must resolve; otherwise the formula's own text, never a partial one.
           const named = (block.equations ?? []).flatMap((id) => {
@@ -63,7 +69,9 @@ export function ReadingBlocks({
           return (
             <ol className="derivation-steps" key={`steps-${block.items.join("|")}`}>
               {block.items.map((item) => (
-                <li key={item}>{item}</li>
+                <li key={item}>
+                  <InlineMathText text={item} />
+                </li>
               ))}
             </ol>
           );
