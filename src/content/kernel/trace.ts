@@ -107,7 +107,8 @@ export function computeBm01StokesEinsteinTrace(): WorkedTrace {
   const rows: TraceRow[] = [
     row(
       "The gas constant in SI",
-      "R = 8.31e7 erg mol^{-1} K^{-1}",
+      // Drawn by ShowTheCode through withScripts; it printed "R = 8.31e7 erg mol^{-1} K^{-1}".
+      "R = 8.31 × 10^{7} erg mol^{−1} K^{−1}",
       R,
       "J mol^{-1} K^{-1}",
       "molarGasConstant",

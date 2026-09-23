@@ -10,6 +10,7 @@ import { KERNEL_DISPLAY_ROLE_LABELS, type KernelListing } from "../../content/ke
 import { paperOfId } from "../../equations/paperOfId.ts";
 import { display, unitText } from "./presentation.ts";
 import "./showTheCode.css";
+import { withScripts } from "./subscripts.tsx";
 
 /** A worked value at five significant figures with its power of ten raised, not the raw binary64
  * string: bm-01's table printed "0.000006156364840452743" and "1.2723450247038662e-8". */
@@ -61,10 +62,10 @@ function TraceTable({ trace }: { trace: WorkedTrace }) {
                 <td>
                   {row.opId ? (
                     <a href={`#${row.opId}`} aria-label={`Operation explanation for ${row.opId}`}>
-                      {row.expression}
+                      {withScripts(row.expression)}
                     </a>
                   ) : (
-                    row.expression
+                    withScripts(row.expression)
                   )}
                 </td>
                 <td>{traceValue(row.value)}</td>
