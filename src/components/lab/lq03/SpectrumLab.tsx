@@ -490,8 +490,26 @@ export function SpectrumLab({
             <p>
               At this temperature and probe frequency, x = h&nu;/(k<sub>B</sub>T) ={" "}
               {xText(regime.x)}. Wien's law's relative error here is{" "}
-              <Sci value={regime.wienRelativeError} digits={4} />; the classical law's relative
-              error is <Sci value={regime.rayleighJeansRelativeError} digits={4} />. {verdict}
+              <Sci value={regime.wienRelativeError} digits={4} />;{" "}
+              {Number.isFinite(regime.rayleighJeansRelativeError) ? (
+                <>
+                  the classical law's relative error is{" "}
+                  <Sci value={regime.rayleighJeansRelativeError} digits={4} />
+                  {regime.rayleighJeansRelativeError > 1 && (
+                    <>
+                      , so it gives <Sci value={1 + regime.rayleighJeansRelativeError} digits={4} />{" "}
+                      times Planck's value
+                    </>
+                  )}
+                  .
+                </>
+              ) : (
+                <>
+                  the classical law gives more than 10<sup>300</sup> times Planck's value, beyond
+                  the largest number this page can write.
+                </>
+              )}{" "}
+              {verdict}
             </p>
             <p className="fine">
               This pointwise error is not a certificate for the light paper's integrated entropy
