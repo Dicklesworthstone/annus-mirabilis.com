@@ -11,6 +11,7 @@ import {
 import { validateSr02Parameters } from "../../experiments/sr02/parameters.ts";
 import { createSr02Session, type PreparedSr02Example } from "../../experiments/sr02/session.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { display, identity, result } from "./presentation.ts";
 
 const SPEED_06C = 0.6 * 299792458;
@@ -193,32 +194,6 @@ export function MagnetConductorLab({
                   }
                 />
               </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-magneticField`}>Uniform B (T)</label>
-                <input
-                  id={`${id}-magneticField`}
-                  type="number"
-                  name="magneticField"
-                  inputMode="decimal"
-                  value={draft.magneticField}
-                  onChange={(event) =>
-                    setDraft({ ...draft, magneticField: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-segmentLength`}>Segment length (m)</label>
-                <input
-                  id={`${id}-segmentLength`}
-                  type="number"
-                  name="segmentLength"
-                  inputMode="decimal"
-                  value={draft.segmentLength}
-                  onChange={(event) =>
-                    setDraft({ ...draft, segmentLength: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
             </div>
             <div className="preset-list">
               <button
@@ -262,6 +237,37 @@ export function MagnetConductorLab({
               </button>
             </div>
             <button type="submit">Apply settings</button>
+            <ExperimentSettings contents="the magnetic field strength and segment length">
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-magneticField`}>Uniform B (T)</label>
+                  <input
+                    id={`${id}-magneticField`}
+                    type="number"
+                    name="magneticField"
+                    inputMode="decimal"
+                    value={draft.magneticField}
+                    onChange={(event) =>
+                      setDraft({ ...draft, magneticField: Number(event.currentTarget.value) })
+                    }
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-segmentLength`}>Segment length (m)</label>
+                  <input
+                    id={`${id}-segmentLength`}
+                    type="number"
+                    name="segmentLength"
+                    inputMode="decimal"
+                    value={draft.segmentLength}
+                    onChange={(event) =>
+                      setDraft({ ...draft, segmentLength: Number(event.currentTarget.value) })
+                    }
+                  />
+                </div>
+              </div>
+              <p className="fine">Changes here apply with Apply settings.</p>
+            </ExperimentSettings>
             {error ? (
               <p id={`${id}-error`} className="notice" role="alert">
                 {error}

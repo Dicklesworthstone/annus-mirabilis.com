@@ -10,6 +10,7 @@ import {
 import { validateSr08Parameters } from "../../../experiments/sr08/parameters.ts";
 import { createSr08Session, type PreparedSr08Example } from "../../../experiments/sr08/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
 
@@ -207,38 +208,6 @@ export function FieldFrameChangeLab({
                   }
                 />
               </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-ey`}>Electric Ey (V/m)</label>
-                <input
-                  id={`${id}-ey`}
-                  type="number"
-                  name="ey"
-                  step="0.1"
-                  value={draft.electricFieldY}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      electricFieldY: Number(event.currentTarget.value),
-                    })
-                  }
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-bz`}>Magnetic Bz (T)</label>
-                <input
-                  id={`${id}-bz`}
-                  type="number"
-                  name="bz"
-                  step="1e-9"
-                  value={draft.magneticFieldZ}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      magneticFieldZ: Number(event.currentTarget.value),
-                    })
-                  }
-                />
-              </div>
             </div>
 
             <div className="preset-list">
@@ -299,6 +268,43 @@ export function FieldFrameChangeLab({
             </div>
 
             <button type="submit">Apply settings</button>
+            <ExperimentSettings contents="the electric and magnetic field strengths">
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-ey`}>Electric Ey (V/m)</label>
+                  <input
+                    id={`${id}-ey`}
+                    type="number"
+                    name="ey"
+                    step="0.1"
+                    value={draft.electricFieldY}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        electricFieldY: Number(event.currentTarget.value),
+                      })
+                    }
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-bz`}>Magnetic Bz (T)</label>
+                  <input
+                    id={`${id}-bz`}
+                    type="number"
+                    name="bz"
+                    step="1e-9"
+                    value={draft.magneticFieldZ}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        magneticFieldZ: Number(event.currentTarget.value),
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <p className="fine">Changes here apply with Apply settings.</p>
+            </ExperimentSettings>
             {error ? (
               <p id={`${id}-error`} className="notice" role="alert">
                 {error}

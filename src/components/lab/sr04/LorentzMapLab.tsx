@@ -17,6 +17,7 @@ import {
   evaluateSr04,
   type PreparedSr04Example,
 } from "../../../experiments/sr04/session.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
@@ -197,34 +198,39 @@ export function LorentzMapLab({
                   onChange={(e) => setDraft({ ...draft, vOverC: e.target.value })}
                 />
               </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-observerSpeed`}>
-                  Slow-case observer speed <span>(m/s)</span>
-                </label>
-                <input
-                  id={`${id}-observerSpeed`}
-                  name="observerSpeed"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.observerSpeed}
-                  onChange={(e) => setDraft({ ...draft, observerSpeed: e.target.value })}
-                />
-              </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-objectSpeed`}>
-                  Slow-case object speed <span>(m/s)</span>
-                </label>
-                <input
-                  id={`${id}-objectSpeed`}
-                  name="objectSpeed"
-                  type="text"
-                  inputMode="decimal"
-                  value={draft.objectSpeed}
-                  onChange={(e) => setDraft({ ...draft, objectSpeed: e.target.value })}
-                />
-              </div>
             </div>
             <button type="submit">Apply settings</button>
+            <ExperimentSettings contents="the slow-case observer and object speeds">
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-observerSpeed`}>
+                    Slow-case observer speed <span>(m/s)</span>
+                  </label>
+                  <input
+                    id={`${id}-observerSpeed`}
+                    name="observerSpeed"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.observerSpeed}
+                    onChange={(e) => setDraft({ ...draft, observerSpeed: e.target.value })}
+                  />
+                </div>
+                <div className="input-field">
+                  <label htmlFor={`${id}-objectSpeed`}>
+                    Slow-case object speed <span>(m/s)</span>
+                  </label>
+                  <input
+                    id={`${id}-objectSpeed`}
+                    name="objectSpeed"
+                    type="text"
+                    inputMode="decimal"
+                    value={draft.objectSpeed}
+                    onChange={(e) => setDraft({ ...draft, objectSpeed: e.target.value })}
+                  />
+                </div>
+              </div>
+              <p className="fine">Changes here apply with Apply settings.</p>
+            </ExperimentSettings>
           </fieldset>
 
           <fieldset disabled={!ready}>

@@ -12,6 +12,7 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import { DopplerAberrationPlot } from "./DopplerAberrationPlot.tsx";
 
@@ -187,22 +188,27 @@ export function DopplerAberrationLab({
                   }
                 />
               </div>
-              <div className="input-field">
-                <label htmlFor={`${id}-frequencyTHz`}>Frequency in K (THz)</label>
-                <input
-                  id={`${id}-frequencyTHz`}
-                  type="number"
-                  name="frequencyTHz"
-                  inputMode="decimal"
-                  min="1"
-                  value={draft.frequencyTHz}
-                  onChange={(event) =>
-                    setDraft({ ...draft, frequencyTHz: Number(event.currentTarget.value) })
-                  }
-                />
-              </div>
             </div>
             <button type="submit">Apply settings</button>
+            <ExperimentSettings contents="the source frequency">
+              <div className="input-grid">
+                <div className="input-field">
+                  <label htmlFor={`${id}-frequencyTHz`}>Frequency in K (THz)</label>
+                  <input
+                    id={`${id}-frequencyTHz`}
+                    type="number"
+                    name="frequencyTHz"
+                    inputMode="decimal"
+                    min="1"
+                    value={draft.frequencyTHz}
+                    onChange={(event) =>
+                      setDraft({ ...draft, frequencyTHz: Number(event.currentTarget.value) })
+                    }
+                  />
+                </div>
+              </div>
+              <p className="fine">Changes here apply with Apply settings.</p>
+            </ExperimentSettings>
             {error ? (
               <p className="notice" role="alert">
                 {error}

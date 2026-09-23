@@ -31,6 +31,7 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
@@ -207,8 +208,7 @@ export function EntropyWorkbenchLab({
             />
           </fieldset>
 
-          <details>
-            <summary>Setup: frequency, band, reference volume and temperature</summary>
+          <ExperimentSettings contents="frequency, band width, reference volume and temperature, the dilute threshold">
             <label htmlFor={`${id}-frequency`}>Frequency (Hz)</label>
             <input
               id={`${id}-frequency`}
@@ -249,7 +249,7 @@ export function EntropyWorkbenchLab({
               value={draft.diluteThresholdX}
               onChange={(e) => setDraft({ ...draft, diluteThresholdX: e.target.value })}
             />
-          </details>
+          </ExperimentSettings>
 
           <fieldset>
             <legend>C(nu) teaching panel</legend>
