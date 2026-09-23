@@ -163,7 +163,7 @@ try {
   await page.locator("#open").focus();
   await page.keyboard.press("Control+k");
   const query = page.getByRole("combobox", {
-    name: /^(Words, symbols, or a laboratory ID|Words, names or symbols)$/,
+    name: "Words, names or symbols",
   });
   await query.waitFor();
   await page.getByText("4 entries available.", { exact: false }).waitFor();
@@ -274,7 +274,7 @@ try {
     await tab.getByText("4 entries available.", { exact: false }).waitFor();
     await tab
       .getByRole("combobox", {
-        name: /^(Words, symbols, or a laboratory ID|Words, names or symbols)$/,
+        name: "Words, names or symbols",
       })
       .fill("λₓ");
     await tab.getByText("1 result shown.", { exact: true }).waitFor();
@@ -322,7 +322,7 @@ try {
       await open();
       const field = await tab
         .getByRole("combobox", {
-          name: /^(Words, symbols, or a laboratory ID|Words, names or symbols)$/,
+          name: "Words, names or symbols",
         })
         .boundingBox();
       const [ox, oy] = await outside();
