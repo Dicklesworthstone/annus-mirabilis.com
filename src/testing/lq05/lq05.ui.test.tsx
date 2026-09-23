@@ -82,7 +82,10 @@ describe("LQ-05 UI components and route", () => {
     const html = renderToStaticMarkup(<IndependentConfigurationsPage />);
     expect(containsHeading(html, "Independent Configurations and the Gas Analogy")).toBe(true);
     expect(containsHeading(html, "The Independence Argument in Einstein 1905 §5")).toBe(true);
-    expect(html).toContain("W = (V / V₀)ⁿ");
+    // The exponent is a <sup>, not ⁿ, which no self-hosted face carries; and the implication is a
+    // word, not the HTML5 entity JSX printed literally as "&Longrightarrow;".
+    expect(html).toContain("W = (V / V₀)<sup>n</sup>, so");
+    expect(html).not.toContain("Longrightarrow");
     expect(html).toContain("Light quanta · Paper 1, §5 heuristic foundation");
   });
 });

@@ -90,7 +90,9 @@ describe("LQ-07 UI components and route", () => {
     expect(containsHeading(html, "The Single-Quantum Energy Budget in Einstein 1905 §7")).toBe(
       true,
     );
-    expect(html).toContain("hν₁ = hν₂ + E_other");
+    // E_other is typeset, and the implication is a word, not a literally printed "&Longrightarrow;".
+    expect(html).toContain("hν₁ = hν₂ + E<sub>other</sub>");
+    expect(html).not.toContain("Longrightarrow");
     expect(containsHeading(html, "The Two Historical Deviation Cases")).toBe(true);
     expect(html).toContain("Light quanta · Paper 1, §7 energy conservation");
   });
