@@ -380,6 +380,41 @@ describe("ThemeToggle: one icon button, sun or moon", () => {
     expect(document.documentElement.dataset.theme).toBe("annalen");
     await done(container, root);
   });
+
+  test("a page prints in the light theme and comes back to the reader's theme afterwards", async () => {
+    // Printed from the dark theme the body text measured 3.07:1; lightForPrint in ThemeToggle.tsx.
+    const html = document.documentElement;
+    html.dataset.theme = "kramgasse-night";
+    const { container, root } = await renderToggle();
+    await act(async () => {
+      window.dispatchEvent(new Event("beforeprint"));
+    });
+    expect(html.dataset.theme).toBe("annalen");
+    await act(async () => {
+      window.dispatchEvent(new Event("afterprint"));
+    });
+    expect(html.dataset.theme).toBe("kramgasse-night");
+
+    // From the light theme a print changes nothing, and after it the page is still light.
+    html.dataset.theme = "annalen";
+    await act(async () => {
+      window.dispatchEvent(new Event("beforeprint"));
+    });
+    expect(html.dataset.theme).toBe("annalen");
+    await act(async () => {
+      window.dispatchEvent(new Event("afterprint"));
+    });
+    expect(html.dataset.theme).toBe("annalen");
+
+    // Printing is not a choice: nothing is stored.
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBeNull();
+
+    // Once the button is gone, so are its listeners.
+    await done(container, root);
+    html.dataset.theme = "kramgasse-night";
+    window.dispatchEvent(new Event("beforeprint"));
+    expect(html.dataset.theme).toBe("kramgasse-night");
+  });
 });
 
 describe("theme script manifest registration (AC 7)", () => {

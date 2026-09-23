@@ -50,6 +50,23 @@ function setTheme(theme: ThemeId, fade: boolean): void {
 }
 
 /**
+ * PAPER TAKES THE LIGHT THEME. The dark theme's ink is #e8e6e1, 1.25:1 on a white sheet. Chromium
+ * darkens text that light when it prints without backgrounds, and even so /papers/brownian-motion/
+ * s4/ printed from the dark theme put its body text down at grey 147 of 255, 3.07:1, measured from
+ * the PDF at 200dpi; with this switch the same page printed at grey 63, 10.53:1. Every dark rule
+ * keys on data-theme, so switching it for the print and back afterwards prints any page in the
+ * light theme's colours, quantity colours included, without a second copy of a single value.
+ * Returns what puts the page back.
+ */
+export function lightForPrint(root: HTMLElement): () => void {
+  if (root.dataset.theme !== DARK) return () => {};
+  root.dataset.theme = LIGHT;
+  return () => {
+    root.dataset.theme = DARK;
+  };
+}
+
+/**
  * ONE ICON BUTTON: A MOON IN THE LIGHT THEME, A SUN IN THE DARK.
  *
  * The owner, 2026-09-22: "instead of "Light(Annalen) Dark(Kramgasse Night) System" we need to have
@@ -79,6 +96,23 @@ export function ThemeToggle() {
     };
     query.addEventListener("change", follow);
     return () => query.removeEventListener("change", follow);
+  }, []);
+
+  useEffect(() => {
+    let restore = () => {};
+    const beforePrint = () => {
+      restore = lightForPrint(document.documentElement);
+    };
+    const afterPrint = () => {
+      restore();
+      restore = () => {};
+    };
+    window.addEventListener("beforeprint", beforePrint);
+    window.addEventListener("afterprint", afterPrint);
+    return () => {
+      window.removeEventListener("beforeprint", beforePrint);
+      window.removeEventListener("afterprint", afterPrint);
+    };
   }, []);
 
   function toggle() {
