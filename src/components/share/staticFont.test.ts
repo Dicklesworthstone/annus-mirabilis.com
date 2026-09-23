@@ -30,8 +30,10 @@ describe("defaultInstance", () => {
       expect([...after.keys()].filter((tag) => VARIATION.includes(tag))).toEqual([]);
       const kept = [...before.keys()].filter((tag) => !VARIATION.includes(tag));
       expect([...after.keys()]).toEqual(kept);
-      for (const tag of kept)
-        expect(Buffer.compare(after.get(tag)!, before.get(tag)!), tag).toBe(0);
+      const empty = new Uint8Array();
+      for (const tag of kept) {
+        expect(Buffer.compare(after.get(tag) ?? empty, before.get(tag) ?? empty), tag).toBe(0);
+      }
     });
   }
 });
