@@ -267,11 +267,10 @@ export default function SpecialRelativityRoute() {
       <aside className="notice">
         <h2>What this route cannot show you</h2>
         <p>
-          The other three routes can send you to the paper&rsquo;s German text. This one cannot.
-          Measured today, the German face of this paper renders about a thousand characters and a
-          notice saying the source is not yet available, because the transcription stands at 22 of
-          its 31 pages and is being read off the plates a page at a time. So this route carries the
-          argument and the instruments, and the source face says plainly that it is unfinished.
+          The other three routes end at the paper&rsquo;s German text. This one cannot yet: the
+          transcription of the relativity paper is not finished, and until it is, the German face
+          shows a notice rather than part of a text. The route carries the argument and the
+          instruments on their own.
         </p>
         <p>
           Nor is any instrument here an experiment. Every number on the laboratories linked above is
