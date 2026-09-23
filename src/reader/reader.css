@@ -211,6 +211,14 @@
 .reader-outline a:hover {
   text-decoration: underline;
 }
+/* Forced colours paint the transparent bar on every row, so the current section lost its mark. There
+   the other rows take the page's colour; the current row's rule below outranks this one and keeps
+   its bar, in the link colour. */
+@media (forced-colors: active) {
+  .reader-outline a {
+    border-left-color: Canvas;
+  }
+}
 /* Both levels at one size: the difference is weight, colour and indent. At 15.8px the section
    titles wrapped to two lines in the 240px column and kept the open outline taller than a
    900px viewport. */

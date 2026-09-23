@@ -48,6 +48,14 @@
 .route-map a:hover {
   text-decoration: underline;
 }
+/* Forced colours paint the transparent bar on every step, so the step a jump opened lost its mark.
+   There the other steps take the page's colour; the :target rules below outrank this one and keep
+   the bar, in the link colour. */
+@media (forced-colors: active) {
+  .route-map a {
+    border-left-color: Canvas;
+  }
+}
 /* Where the reader is, once they have jumped there: the section a map link opened is marked with
    the accent rule the paper outline uses for the current section. CSS only, so it holds without
    JavaScript; it follows a jump, not a scroll. Ten steps covers the longest route (eight). */
