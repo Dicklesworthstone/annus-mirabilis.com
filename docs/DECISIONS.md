@@ -828,3 +828,16 @@ Schema-test JSONL (gitignored artifacts): `artifacts/test-logs/perf-profiles/202
 - **Supersedes:** AGENTS.md "Product Shape & Tech Stack" item 2, which until this date recorded the theme set as undecided
   (am-x03s). That paragraph is amended in place.
 - **Date:** 2026-09-22.
+
+## D-2026-09-23-standing-deploy-authorization
+
+- **Decision:** the orchestrator deploys to production without asking, whenever a commit has passed the scaffold gate chain in a
+  clean worktree. The route does not change: `bun scripts/verified-production-deploy.ts`, candidate checks before any alias
+  moves, automatic rollback. The per-commit authorization file (`annus-mirabilis-deploy-authorization.v1`) is still written for
+  each deploy, naming the exact commit and quoting this decision.
+- **Decider:** the project owner, 2026-09-23, verbatim: **"stop asking me if you can deploy. YOU CAN ALWAYS DEPLOY. JUST DO IT.
+  AND KEEP GOING CONSTANTLY IMPROVING THE SITE AND FINISHING ALL THE BEADS. IT CAN *ALWAYS* BE BETTER."**
+- **Satisfies:** AGENTS.md "Vercel Deployment Standards", which requires explicit written authorization from the user for a
+  deploy. This is that authorization, given once and standing. DNS changes and connecting a domain are not covered, and still
+  need their own authorization.
+- **Date:** 2026-09-23.
