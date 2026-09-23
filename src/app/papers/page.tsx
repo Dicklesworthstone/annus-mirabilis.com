@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { firstPagePlate, loadFirstPages } from "../../components/home/firstPages.ts";
 import "../../components/home/firstPages.css";
 import "./papersIndex.css";
+import "../../components/home/wideProse.css";
 export const metadata: Metadata = { title: "The four papers" };
 const papers = [
   {

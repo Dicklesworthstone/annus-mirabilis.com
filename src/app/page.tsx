@@ -1,5 +1,6 @@
 import { Formula } from "../components/edition/Formula.tsx";
 import { FirstPages } from "../components/home/FirstPages.tsx";
+import "../components/home/wideProse.css";
 export default function Home() {
   return (
     <>

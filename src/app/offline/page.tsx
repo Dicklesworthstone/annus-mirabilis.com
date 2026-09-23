@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { loadFirstPages } from "../../components/home/firstPages.ts";
 import { OfflineChapterLinks } from "../../platform/offline/OfflineChapterLinks.tsx";
 import { loadOfflineManifest } from "../../platform/offline/server.ts";
+import "../../components/home/wideProse.css";
 
 export const metadata: Metadata = {
   title: "Chapters to read offline",

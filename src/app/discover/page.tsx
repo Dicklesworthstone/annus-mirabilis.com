@@ -9,6 +9,7 @@ import {
 import { ROUTE_INDEX as ROUTES } from "../../discovery/routeIndex.ts";
 import "../papers/papersIndex.css";
 import "./discover.css";
+import "../../components/home/wideProse.css";
 
 const SPELLED = ["no", "One", "Two", "Three", "Four"] as const;
 

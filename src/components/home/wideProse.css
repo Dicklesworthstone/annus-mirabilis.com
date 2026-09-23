@@ -1,0 +1,64 @@
+/*
+ * CHROME (pane %48): ON A WIDE SCREEN THE INDEX PAGES' PROSE IS SET LARGER, NOT NARROWER
+ * (TanElk's ruling, dispatch 97).
+ *
+ * Loaded by the home page, /papers/, /discover/, /notation/ and /offline/ only, so no reading
+ * page carries it (and the route budget of /papers/brownian-motion/ does not count it).
+ *
+ * At 19px Newsreader sets these entries at about 93 characters a full line in a 712px column, so
+ * the width the "too skinny" fix keeps (666px and more) and the 45-75 characters a line the
+ * reading columns keep could not both hold. The type grows instead of the column shrinking. From
+ * 1280px the prose ramps up to 1.18 times the body step, reached at 1440, and scales on with the
+ * root from there; the lead grows by 1.12 so it stays a step above the prose; /notation/'s
+ * reference lines grow by 1.25. The prose is held to max(666px, 54ch): a `ch` is the width of "0",
+ * which holds about 1.37 characters of this text, so 54ch is about 74 characters a line at any
+ * size, and 666px is the floor. Below 1280px none of this applies: phones and tablets are
+ * unchanged.
+ *
+ * Three steps of the type scale in globals.css, each with a wide-screen form, declared as tokens
+ * so the pages use them as the scale, by var().
+ */
+@media (min-width: 1280px) {
+  :root {
+    --type-body-wide: clamp(
+      var(--type-body),
+      calc(var(--type-body) + (100vw - 1280px) * 0.0214),
+      calc(var(--type-body) * 1.18)
+    );
+    --type-lead-wide: clamp(
+      var(--type-lead),
+      calc(var(--type-lead) + (100vw - 1280px) * 0.0171),
+      calc(var(--type-lead) * 1.12)
+    );
+    --type-fine-wide: clamp(
+      var(--type-fine),
+      calc(var(--type-fine) + (100vw - 1280px) * 0.0206),
+      calc(var(--type-fine) * 1.25)
+    );
+  }
+
+  /* The lead grows first, and less, so it stays a step above the prose below it. */
+  :root .catalogue-intro,
+  :root .hero-with-plates-head .lead,
+  :root .notation-header > .lead,
+  :root main > .page-intro > .lead {
+    font-size: var(--type-lead-wide);
+  }
+
+  /* The papers' entries on the home page, /papers/ and /discover/, the closing sections of these
+     pages, and an intro's own paragraph where it has one (/discover/, /offline/). */
+  :root .paper-catalogue article p,
+  :root .paper-entry-body > p:where(:not([class]), .german-title),
+  :root .reading.page-flush p:not(.fine),
+  :root main > .page-intro > p:not([class]),
+  :root .notation-status {
+    font-size: var(--type-body-wide);
+    max-width: max(666px, 54ch);
+  }
+
+  /* /notation/'s reference lines: where else a symbol appears, and its facts. */
+  :root .notation-entry-also,
+  :root .notation-entry-facts {
+    font-size: var(--type-fine-wide);
+  }
+}

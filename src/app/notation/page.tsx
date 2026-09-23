@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./notation.css";
+import "../../components/home/wideProse.css";
 import { CollisionClusterView } from "./CollisionClusterView.tsx";
 import { NotationEntryCard } from "./NotationEntryCard.tsx";
 import { NotationPageClient } from "./NotationPageClient.tsx";
