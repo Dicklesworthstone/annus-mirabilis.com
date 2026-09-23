@@ -64,7 +64,9 @@ export function InferencePath({ snapshot }: { snapshot: AcceptedSnapshot }) {
   const max = Math.max(...coordinates.map(Math.abs), 1e-30);
   const maxTime = times.length > 0 ? (times.at(times.length - 1) ?? 1) : 1;
   const safeMaxTime = maxTime > 0 ? maxTime : 1;
-  const x = (t: number) => 65 + (465 * t) / safeMaxTime;
+  // 300 units wide, like the walk and tracer plots: at 570 units the site's label size rendered
+  // at 7.5px on a 390px phone. The plot starts at x = 68 so a value such as -7.9094 fits.
+  const x = (t: number) => 68 + (217 * t) / safeMaxTime;
   const y = (v: number) => 142 - (102 * v) / max;
   const coordinateList = Array.from({ length: p.d }, (_, c) => `coord-${c}`);
 
@@ -72,17 +74,17 @@ export function InferencePath({ snapshot }: { snapshot: AcceptedSnapshot }) {
     <figure className="plot" {...identity(snapshot)}>
       <svg
         role="img"
-        viewBox="0 0 570 300"
+        viewBox="0 0 300 300"
         aria-label="Observed synthetic coordinates versus time; every selected position is in the table below."
       >
-        <path className="axis" d="M65 25V250H530M65 142H530" />
+        <path className="axis" d="M68 25V250H285M68 142H285" />
         {[1, 0, -1].map((k) => (
-          <text key={k} x="57" y={y(k * max) + 4} textAnchor="end">
+          <text key={k} x="62" y={y(k * max) + 4} textAnchor="end">
             {display(k * max, 1e6)}
           </text>
         ))}
         {[0, 0.5, 1].map((f) => (
-          <text key={f} x={65 + 465 * f} y="270" textAnchor="middle">
+          <text key={f} x={68 + 217 * f} y="270" textAnchor={f === 1 ? "end" : "middle"}>
             {display(safeMaxTime * f)}
           </text>
         ))}
@@ -98,10 +100,10 @@ export function InferencePath({ snapshot }: { snapshot: AcceptedSnapshot }) {
             }).join(" ")}
           />
         ))}
-        <text x="65" y="17">
+        <text x="68" y="17">
           Displacement (μm)
         </text>
-        <text x="300" y="294" textAnchor="middle">
+        <text x="176" y="294" textAnchor="middle">
           Observation time (s)
         </text>
       </svg>
@@ -167,7 +169,7 @@ export function InferenceCoverage({
   const lo = Math.min(0, ...bounds.map(Math.log10));
   const hi = Math.max(0, ...bounds.map(Math.log10));
   const span = Math.max(hi - lo, 0.01);
-  const x = (v: number) => 65 + (465 * (Math.log10(v) - lo)) / span;
+  const x = (v: number) => 68 + (217 * (Math.log10(v) - lo)) / span;
   const y = (i: number) => 32 + (340 * i) / Math.max(rows - 1, 1);
 
   return (
@@ -178,10 +180,10 @@ export function InferenceCoverage({
     >
       <svg
         role="img"
-        viewBox="0 0 570 425"
+        viewBox="0 0 300 425"
         aria-label={`${rows} hypothetical ${molecular ? "molecular-number" : "diffusivity"} confidence intervals divided by the true generating parameter. Dashed intervals miss the true value.`}
       >
-        <path className="axis" d="M65 20V380H530" />
+        <path className="axis" d="M68 20V380H285" />
         <line x1={x(1)} x2={x(1)} y1="20" y2="380" className="inference-truth" />
         {trials.map((trial) => (
           <g key={trial.id} className={trial.covers ? "inference-cover" : "inference-miss"}>
@@ -189,26 +191,26 @@ export function InferenceCoverage({
             <circle cx={x(trial.estimate)} cy={y(trial.index)} r="1.8" />
           </g>
         ))}
-        <text x="57" y="36" textAnchor="end">
+        <text x="62" y="36" textAnchor="end">
           1
         </text>
-        <text x="57" y="376" textAnchor="end">
+        <text x="62" y="376" textAnchor="end">
           {rows}
         </text>
-        <text x={x(1)} y="17" textAnchor="middle">
+        <text x={Math.min(235, Math.max(118, x(1)))} y="17" textAnchor="middle">
           True value = 1
         </text>
         {[
-          { key: "lo", v: lo, xPos: 65 },
-          { key: "mid", v: (lo + hi) / 2, xPos: 65 + 465 / 2 },
-          { key: "hi", v: hi, xPos: 65 + 465 },
+          { key: "lo", v: lo, xPos: 68, anchor: "middle" },
+          { key: "mid", v: (lo + hi) / 2, xPos: 68 + 217 / 2, anchor: "middle" },
+          { key: "hi", v: hi, xPos: 285, anchor: "end" },
         ].map((tick) => (
-          <text key={tick.key} x={tick.xPos} y="400" textAnchor="middle">
+          <text key={tick.key} x={tick.xPos} y="400" textAnchor={tick.anchor}>
             {display(10 ** tick.v)}
           </text>
         ))}
-        <text x="300" y="422" textAnchor="middle">
-          Estimate / generating value (logarithmic scale)
+        <text x="176" y="422" textAnchor="middle">
+          Estimate ÷ true value, log scale
         </text>
       </svg>
       <figcaption>

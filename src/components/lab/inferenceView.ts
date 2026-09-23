@@ -62,7 +62,9 @@ export function renderInferenceFamily(snapshot: AcceptedSnapshot, band = false):
     hiX = Math.log10(radii.at(last));
   const loY = Math.log10(Math.min(...lower.copy())),
     hiY = Math.log10(Math.max(...upper.copy()));
-  const x = (v: number) => 76 + (450 * (Math.log10(v) - loX)) / (hiX - loX || 1);
+  // 300 units wide, like the walk and tracer plots: at 570 units the site's label size rendered
+  // at 7.5px on a 390px phone.
+  const x = (v: number) => 68 + (217 * (Math.log10(v) - loX)) / (hiX - loX || 1);
   const y = (v: number) => 242 - (201 * (Math.log10(v) - loY)) / (hiY - loY || 1);
   const indices = [0, Math.floor(last / 2), last];
   const points = (values: typeof numbers) =>
@@ -72,7 +74,7 @@ export function renderInferenceFamily(snapshot: AcceptedSnapshot, band = false):
   const ticks = indices
     .map(
       (i) =>
-        `<text x="${x(radii.at(i))}" y="266" text-anchor="middle">${display(radii.at(i), 1e6)}</text><text x="68" y="${y(numbers.at(i)) + 4}" text-anchor="end">${display(numbers.at(i), 1e-23)}</text>`,
+        `<text x="${x(radii.at(i))}" y="266" text-anchor="${i === last ? "end" : "middle"}">${display(radii.at(i), 1e6)}</text><text x="62" y="${y(numbers.at(i)) + 4}" text-anchor="end">${display(numbers.at(i), 1e-23)}</text>`,
     )
     .join("");
   const bounds = band
@@ -83,7 +85,7 @@ export function renderInferenceFamily(snapshot: AcceptedSnapshot, band = false):
     (_, i) =>
       `<tr><th scope="row">${display(radii.at(i), 1e6)}</th><td>${display(numbers.at(i), 1e-23)}</td>${band ? `<td>${display(lower.at(i), 1e-23)}</td><td>${display(upper.at(i), 1e-23)}</td>` : ""}</tr>`,
   ).join("");
-  return `<figure class="plot" ${inferenceIdentity(snapshot)}><svg role="img" viewBox="0 0 570 300" aria-label="Compatible radius and molecular-number pairs on logarithmic axes. Larger radius means smaller molecular number; the complete numeric table follows."><path class="axis" d="M76 25V245H530"/>${ticks}${bounds}<polyline class="curve" data-family-curve points="${points(numbers)}"/><text x="76" y="17">N (10²³ mol⁻¹); logarithmic axes</text><text x="300" y="292" text-anchor="middle">Assumed radius (μm)</text></svg><figcaption>Each point on the solid curve gives the same diffusion estimate at the stated temperature and viscosity. ${band ? "Dashed curves map the 95% diffusion interval into a compatible band. They do not identify a single radius or a single molecular number. This band is not the combined interval obtained after admitting a radius measurement." : "This is a compatible family, not a confidence region and not a second measurement of the radius."}</figcaption><details data-preserve-detail="family"><summary>Read all compatible pairs</summary><div class="table-scroll" role="region" aria-label="Compatible radius–number pairs" tabindex="0"><table><caption>Radius–number family for this accepted estimate${band ? "; bounds from diffusion uncertainty only" : ""}</caption><thead><tr><th scope="col">Radius (μm)</th><th scope="col">N (10²³ mol⁻¹)</th>${band ? '<th scope="col">Lower N</th><th scope="col">Upper N</th>' : ""}</tr></thead><tbody>${rows}</tbody></table></div></details></figure>`;
+  return `<figure class="plot" ${inferenceIdentity(snapshot)}><svg role="img" viewBox="0 0 300 300" aria-label="Compatible radius and molecular-number pairs on logarithmic axes. Larger radius means smaller molecular number; the complete numeric table follows."><path class="axis" d="M68 25V245H285"/>${ticks}${bounds}<polyline class="curve" data-family-curve points="${points(numbers)}"/><text x="68" y="17">N (10²³ mol⁻¹); logarithmic axes</text><text x="176" y="292" text-anchor="middle">Assumed radius (μm)</text></svg><figcaption>Each point on the solid curve gives the same diffusion estimate at the stated temperature and viscosity. ${band ? "Dashed curves map the 95% diffusion interval into a compatible band. They do not identify a single radius or a single molecular number. This band is not the combined interval obtained after admitting a radius measurement." : "This is a compatible family, not a confidence region and not a second measurement of the radius."}</figcaption><details data-preserve-detail="family"><summary>Read all compatible pairs</summary><div class="table-scroll" role="region" aria-label="Compatible radius–number pairs" tabindex="0"><table><caption>Radius–number family for this accepted estimate${band ? "; bounds from diffusion uncertainty only" : ""}</caption><thead><tr><th scope="col">Radius (μm)</th><th scope="col">N (10²³ mol⁻¹)</th>${band ? '<th scope="col">Lower N</th><th scope="col">Upper N</th>' : ""}</tr></thead><tbody>${rows}</tbody></table></div></details></figure>`;
 }
 
 /** BM-08's moment table, also usable when the inference deliberately withholds
@@ -107,12 +109,12 @@ export function renderCompatibleLine(snapshot: AcceptedSnapshot): string {
     maxNoise = scalar(snapshot, "maximumNoise");
   const points = Array.from(
     { length: diffusion.length },
-    (_, i) => `${76 + (450 * diffusion.at(i)) / maxD},${242 - (201 * noise.at(i)) / maxNoise}`,
+    (_, i) => `${68 + (217 * diffusion.at(i)) / maxD},${242 - (201 * noise.at(i)) / maxNoise}`,
   ).join(" ");
   const rows = Array.from(
     { length: diffusion.length },
     (_, i) =>
       `<tr><th scope="row">${display(diffusion.at(i), 1e12)}</th><td>${display(noise.at(i), 1e12)}</td><td>${display(covariance.at(i), 1e12)}</td></tr>`,
   ).join("");
-  return `<figure class="plot"><svg role="img" viewBox="0 0 570 300" aria-label="A compatible diffusion–noise segment. All listed pairs reproduce the same measured increment variance; predicted covariances differ."><path class="axis" d="M76 25V245H530"/><polyline class="curve" points="${points}"/><text x="76" y="17">Localization variance (μm²)</text><text x="68" y="246" text-anchor="end">0</text><text x="68" y="45" text-anchor="end">${display(maxNoise, 1e12)}</text><text x="76" y="266" text-anchor="middle">0</text><text x="526" y="266" text-anchor="end">${display(maxD, 1e12)}</text><text x="300" y="292" text-anchor="middle">Diffusion coefficient (μm²/s)</text></svg><figcaption>The solid segment is the family compatible with the sample variance, not a confidence region. Its zero-diffusion boundary is not a measured estimate. Covariance or another spacing supplies a second relation.</figcaption><details data-preserve-detail="camera-family"><summary>Compare candidate pairs without the graph</summary><div class="table-scroll" role="region" aria-label="Diffusion–noise candidate pairs" tabindex="0"><table><caption>Every row reproduces the same variance; all values are model consequences</caption><thead><tr><th scope="col">D (μm²/s)</th><th scope="col">Noise variance (μm²)</th><th scope="col">Predicted covariance (μm²)</th></tr></thead><tbody>${rows}</tbody></table></div></details></figure>`;
+  return `<figure class="plot"><svg role="img" viewBox="0 0 300 300" aria-label="A compatible diffusion–noise segment. All listed pairs reproduce the same measured increment variance; predicted covariances differ."><path class="axis" d="M68 25V245H285"/><polyline class="curve" points="${points}"/><text x="68" y="17">Localization variance (μm²)</text><text x="62" y="246" text-anchor="end">0</text><text x="62" y="45" text-anchor="end">${display(maxNoise, 1e12)}</text><text x="68" y="266" text-anchor="middle">0</text><text x="285" y="266" text-anchor="end">${display(maxD, 1e12)}</text><text x="176" y="292" text-anchor="middle">Diffusion coefficient (μm²/s)</text></svg><figcaption>The solid segment is the family compatible with the sample variance, not a confidence region. Its zero-diffusion boundary is not a measured estimate. Covariance or another spacing supplies a second relation.</figcaption><details data-preserve-detail="camera-family"><summary>Compare candidate pairs without the graph</summary><div class="table-scroll" role="region" aria-label="Diffusion–noise candidate pairs" tabindex="0"><table><caption>Every row reproduces the same variance; all values are model consequences</caption><thead><tr><th scope="col">D (μm²/s)</th><th scope="col">Noise variance (μm²)</th><th scope="col">Predicted covariance (μm²)</th></tr></thead><tbody>${rows}</tbody></table></div></details></figure>`;
 }
