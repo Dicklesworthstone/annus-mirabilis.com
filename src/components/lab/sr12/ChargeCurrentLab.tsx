@@ -384,7 +384,7 @@ export function ChargeCurrentLab({
               }}
             >
               <label htmlFor={`${id}-current-density-x`} style={{ fontWeight: 500 }}>
-                Current density Jx (A/m²)
+                Current density J<sub>x</sub> (A/m²)
               </label>
               <input
                 id={`${id}-current-density-x`}
@@ -457,12 +457,12 @@ export function ChargeCurrentLab({
               </td>
               <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>C/m³</td>
               <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                ρ&apos; = γ (ρ - vJx/c²)
+                ρ′ = γ(ρ − vJ<sub>x</sub>/c²)
               </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
               <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                Current density Jx
+                Current density J<sub>x</sub>
               </td>
               <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                 <OutputReading item={jStat} />
@@ -472,24 +472,24 @@ export function ChargeCurrentLab({
               </td>
               <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>A/m²</td>
               <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                J&apos;x = γ (Jx - vρ)
+                J′<sub>x</sub> = γ(J<sub>x</sub> − vρ)
               </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
               <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                Lorentz Factor γ
+                Lorentz factor γ
               </td>
               <td style={{ padding: "0.5rem var(--table-cell-x)" }} colSpan={2}>
                 <OutputReading item={gRes} />
               </td>
               <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>1</td>
               <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                1 / √(1 - v²/c²)
+                1 / √(1 − v²/c²)
               </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
               <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                Four-current invariant (cρ)² - |J|²
+                Four-current invariant (cρ)² − |J|²
               </td>
               <td style={{ padding: "0.5rem var(--table-cell-x)" }} colSpan={2}>
                 <OutputReading item={invSI} />
@@ -521,12 +521,12 @@ export function ChargeCurrentLab({
                     C
                   </td>
                   <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                    q&apos;+ = -v I lx / c²
+                    q′<sub>+</sub> = −vIl<sub>x</sub>/c²
                   </td>
                 </tr>
                 <tr style={{ borderBottom: "1px solid var(--line)" }}>
                   <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                    Charge on the loop's bottom leg (-x)
+                    Charge on the loop's bottom leg (−x)
                   </td>
                   <td style={{ padding: "0.5rem var(--table-cell-x)" }}>0 C</td>
                   <td
@@ -542,7 +542,7 @@ export function ChargeCurrentLab({
                     C
                   </td>
                   <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                    q&apos;- = +v I lx / c²
+                    q′<sub>−</sub> = +vIl<sub>x</sub>/c²
                   </td>
                 </tr>
                 <tr style={{ borderBottom: "1px solid var(--line)" }}>
@@ -563,7 +563,7 @@ export function ChargeCurrentLab({
                     C
                   </td>
                   <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                    Q&apos; = q&apos;+ + q&apos;- = 0 (charge conservation)
+                    Q′ = q′<sub>+</sub> + q′<sub>−</sub> = 0 (charge conservation)
                   </td>
                 </tr>
               </>
@@ -587,7 +587,7 @@ export function ChargeCurrentLab({
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>C</td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                  Q&apos; = Q (exact invariance of total charge)
+                  Q′ = Q (exact invariance of total charge)
                 </td>
               </tr>
             )}
@@ -639,9 +639,9 @@ export function ChargeCurrentLab({
 
         <div className="button-group">
           {[
-            { id: "still-neutral", label: "Still neutral (ρ' = 0)" },
-            { id: "negatively-charged", label: "Negatively charged (ρ' < 0)" },
-            { id: "positively-charged", label: "Positively charged (ρ' > 0)" },
+            { id: "still-neutral", label: "Still neutral (ρ′ = 0)" },
+            { id: "negatively-charged", label: "Negatively charged (ρ′ < 0)" },
+            { id: "positively-charged", label: "Positively charged (ρ′ > 0)" },
           ].map((cand) => (
             <button
               key={cand.id}
@@ -666,11 +666,11 @@ export function ChargeCurrentLab({
           >
             <p style={{ margin: "0 0 0.25rem", fontWeight: 600 }}>What the model says</p>
             <p style={{ margin: 0 }}>
-              Because charge density and current density transform together like a four-vector,
-              ρ&apos; = γ(ρ - vJx/c²). When ρ = 0 and Jx &gt; 0 with v &gt; 0, ρ&apos; = -γ v Jx /
-              c² &lt; 0. The moving observer describes the wire as carrying a net negative charge
-              density. Conversely, an observer moving in the -x direction (v &lt; 0) observes a net
-              positive charge density.
+              Because charge density and current density transform together like a four-vector, ρ′ =
+              γ(ρ − vJ<sub>x</sub>/c²). When ρ = 0 and J<sub>x</sub> &gt; 0 with v &gt; 0, ρ′ = −γvJ
+              <sub>x</sub>/c² &lt; 0. The moving observer describes the wire as carrying a net
+              negative charge density. Conversely, an observer moving in the −x direction (v &lt; 0)
+              observes a net positive charge density.
             </p>
           </div>
         )}

@@ -230,7 +230,7 @@ export function DopplerAberrationPlot({
                 Moving Frame k (β = {beta.toFixed(3)}c)
               </text>
               <text x={cx2 - 140} y={60} fontSize="12" fill="var(--muted)">
-                Observer frame · ν&apos; = {frequencyMovingTHz.toFixed(1)} THz · θ&apos; ={" "}
+                Observer frame · ν′ = {frequencyMovingTHz.toFixed(1)} THz · θ′ ={" "}
                 {thetaMovingDeg.toFixed(1)}°
               </text>
 
@@ -252,7 +252,7 @@ export function DopplerAberrationPlot({
                 strokeWidth={1}
               />
               <text x={cx2 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
-                x&apos;
+                x′
               </text>
               <text
                 x={cx2}
@@ -261,7 +261,7 @@ export function DopplerAberrationPlot({
                 fill="var(--muted)"
                 textAnchor="middle"
               >
-                y&apos;
+                y′
               </text>
 
               {/* Boost vector arrow */}
@@ -329,7 +329,7 @@ export function DopplerAberrationPlot({
                 fontWeight="500"
                 fill="var(--accent)"
               >
-                θ&apos; = {thetaMovingDeg.toFixed(1)}°
+                θ′ = {thetaMovingDeg.toFixed(1)}°
               </text>
             </g>
           </svg>
@@ -353,7 +353,7 @@ export function DopplerAberrationPlot({
             background: "var(--wash)",
           }}
         >
-          <div className="fine">Doppler factor ν&apos;/ν</div>
+          <div className="fine">Doppler factor ν′/ν</div>
           <div
             style={{
               fontSize: "0.875rem",
@@ -366,7 +366,7 @@ export function DopplerAberrationPlot({
             {dopplerFactor.toFixed(6)}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
-            γ(1 - β cos θ)
+            γ(1 − β cos θ)
           </div>
         </div>
 
@@ -378,7 +378,7 @@ export function DopplerAberrationPlot({
             background: "var(--wash)",
           }}
         >
-          <div className="fine">Aberration cos θ&apos;</div>
+          <div className="fine">Aberration cos θ′</div>
           <div
             style={{
               fontSize: "0.875rem",
@@ -391,7 +391,7 @@ export function DopplerAberrationPlot({
             {cosThetaMoving.toFixed(6)}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
-            (cos θ - β)/(1 - β cos θ)
+            (cos θ − β) / (1 − β cos θ)
           </div>
         </div>
 
@@ -431,7 +431,7 @@ export function DopplerAberrationPlot({
               background: "var(--wash)",
             }}
           >
-            <div className="fine">2nd-order shift γ - 1</div>
+            <div className="fine">Second-order shift γ − 1</div>
             <div
               style={{
                 fontSize: "0.875rem",
@@ -444,7 +444,7 @@ export function DopplerAberrationPlot({
               <Sci value={secondOrderShift} digits={4} />
             </div>
             <div className="fine" style={{ marginTop: "0.125rem" }}>
-              Ives–Stilwell 1938 overlay
+              Measured by Ives and Stilwell in 1938, later evidence
             </div>
           </div>
         ) : null}
