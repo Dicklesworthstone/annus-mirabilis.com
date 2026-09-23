@@ -1,4 +1,5 @@
-import { SciSvg } from "../Sci.tsx";
+import { Sci } from "../Sci.tsx";
+import "./sr13.css";
 
 export interface ElectronDynamicsPlotProps {
   initialSpeed: number;
@@ -105,7 +106,18 @@ export function ElectronDynamicsPlot({
           padding: "1rem",
         }}
       >
+        {/* The chamber's title and settings are sentences, so they are HTML: inside the 800-unit
+            drawing they rendered at 4-5px on a 390px phone. */}
+        <p className="sr13-chamber-title">
+          Uniform field chamber (E = <Sci value={eMag} digits={1} /> V/m, B = {bMag.toFixed(3)} T
+          {bMag > 0 ? ", out of the page" : ""})
+        </p>
+        <p className="fine sr13-chamber-meta">
+          v₀ = {beta.toFixed(3)}c · γ = {gamma.toFixed(4)} · convention: {forceConvention} (
+          {massLanguage === "1905" ? "1905 masses" : "modern momentum"})
+        </p>
         <svg
+          className="sr13-chamber"
           viewBox={`0 0 ${width} ${height}`}
           style={{ width: "100%", height: "auto", display: "block", userSelect: "none" }}
           role="img"
@@ -162,32 +174,6 @@ export function ElectronDynamicsPlot({
             stroke="var(--line)"
           />
 
-          <text
-            x={originX}
-            y={45}
-            style={{
-              fill: "var(--ink)",
-              fontWeight: 600,
-              fontSize: "14px",
-              fontFamily: "var(--font-sans)",
-            }}
-          >
-            Uniform Field Chamber (E = <SciSvg value={eMag} digits={1} /> V/m, B = {bMag.toFixed(3)}{" "}
-            T)
-          </text>
-          <text
-            x={originX}
-            y={65}
-            style={{
-              fill: "var(--muted)",
-              fontSize: "12px",
-              fontFamily: "var(--font-mono)",
-            }}
-          >
-            v₀ = {beta.toFixed(3)}c · γ = {gamma.toFixed(4)} · Convention: {forceConvention} (
-            {massLanguage === "1905" ? "1905 masses" : "Modern momentum"})
-          </text>
-
           {/* Field Vectors */}
           {eMag > 0 ? (
             <g transform="translate(700, 70)">
@@ -206,7 +192,7 @@ export function ElectronDynamicsPlot({
                 style={{
                   fill: "var(--accent)",
                   fontFamily: "var(--font-mono)",
-                  fontSize: "12px",
+                  fontSize: "var(--sr13-label, 12px)",
                 }}
               >
                 E_y
@@ -224,10 +210,10 @@ export function ElectronDynamicsPlot({
                 style={{
                   fill: "var(--plot)",
                   fontFamily: "var(--font-mono)",
-                  fontSize: "12px",
+                  fontSize: "var(--sr13-label, 12px)",
                 }}
               >
-                B_z (⊙ out)
+                B_z
               </text>
             </g>
           ) : null}
@@ -252,14 +238,22 @@ export function ElectronDynamicsPlot({
           <text
             x={width - 30}
             y={originY + 4}
-            style={{ fill: "var(--muted)", fontSize: "10px", fontFamily: "var(--font-sans)" }}
+            style={{
+              fill: "var(--muted)",
+              fontSize: "var(--sr13-label, 10px)",
+              fontFamily: "var(--font-sans)",
+            }}
           >
             x
           </text>
           <text
             x={originX}
             y={25}
-            style={{ fill: "var(--muted)", fontSize: "10px", fontFamily: "var(--font-sans)" }}
+            style={{
+              fill: "var(--muted)",
+              fontSize: "var(--sr13-label, 10px)",
+              fontFamily: "var(--font-sans)",
+            }}
             textAnchor="middle"
           >
             y
@@ -270,17 +264,23 @@ export function ElectronDynamicsPlot({
 
           {/* Initial Entry Point */}
           <circle cx={originX} cy={originY} r={5} fill="var(--ink)" />
+          {/* Two short lines ending at the entry point: on one line, at a phone's label size, the
+              words ran past the chamber's left edge and "e⁻" was cut off. */}
           <text
-            x={originX - 60}
-            y={originY + 4}
+            x={originX - 12}
+            y={originY - 4}
+            textAnchor="end"
             style={{
               fill: "var(--ink)",
-              fontSize: "12px",
+              fontSize: "var(--sr13-label, 12px)",
               fontFamily: "var(--font-mono)",
               fontWeight: 500,
             }}
           >
-            e⁻ entry
+            <tspan x={originX - 12}>e⁻</tspan>
+            <tspan x={originX - 12} dy="1.1em">
+              entry
+            </tspan>
           </text>
 
           {/* End Particle Marker */}
@@ -335,18 +335,6 @@ export function ElectronDynamicsPlot({
                       />
                     </g>
                   ))}
-                  <text
-                    x={originX + 20}
-                    y={height - 40}
-                    style={{
-                      fill: "var(--accent)",
-                      fontSize: "11px",
-                      fontFamily: "var(--font-mono)",
-                      fontWeight: 500,
-                    }}
-                  >
-                    ◆ Kaufmann 1902–1906 Radium β-ray Deflections (Ambiguous in 1905–1906)
-                  </text>
                 </g>
               ) : (
                 <g>
@@ -378,24 +366,21 @@ export function ElectronDynamicsPlot({
                       />
                     </g>
                   ))}
-                  <text
-                    x={originX + 20}
-                    y={height - 40}
-                    style={{
-                      fill: "var(--plot)",
-                      fontSize: "11px",
-                      fontFamily: "var(--font-mono)",
-                      fontWeight: 500,
-                    }}
-                  >
-                    ■ Bucherer 1908 Crossed-Field Velocity Filter (Later Evidence favoring
-                    Lorentz–Einstein)
-                  </text>
                 </g>
               )}
             </g>
           ) : null}
         </svg>
+        {datasetOverlay === "kaufmann-1902-1906" ? (
+          <p className="fine sr13-chamber-legend">
+            ◆ Kaufmann 1902–1906 radium β-ray deflections (ambiguous in 1905–1906)
+          </p>
+        ) : datasetOverlay !== "none" ? (
+          <p className="fine sr13-chamber-legend">
+            ■ Bucherer 1908 crossed-field velocity filter (later evidence favouring
+            Lorentz–Einstein)
+          </p>
+        ) : null}
       </div>
 
       {/* Mass Coefficients & Definitions Grid */}

@@ -1,0 +1,24 @@
+/* SR-13, the electron in a uniform-field chamber (ElectronDynamicsPlot.tsx). The chamber is drawn in
+   an 800-unit frame, so on a 390px phone every SVG text shrinks to about a third of its size. The
+   title, settings and dataset legend are HTML above and below it; the short labels left inside
+   read their size from --sr13-label, which is raised on narrow screens so they stay legible. */
+.sr13-chamber-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.sr13-chamber-meta {
+  margin: 0.25rem 0 0.75rem;
+  font-family: var(--font-mono);
+}
+
+.sr13-chamber-legend {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 40rem) {
+  .sr13-chamber {
+    --sr13-label: 28px;
+  }
+}
