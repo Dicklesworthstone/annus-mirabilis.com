@@ -913,7 +913,12 @@ urls:
   -exportArchive` with an App Store Connect API key kept outside the repository, no fastlane.
 - **Where Apple validation runs:** locally, as the `apple` gate family, and never required by the website's gates. dsr is the
   CI (D-2026-09-22-dsr-is-the-ci-never-github-actions); no GitHub macOS runner.
-- **Isolation:** DerivedData, result bundles and logs under the gitignored `ios/build/`. A disk guard refuses to build below
+- **Isolation:** DerivedData and result bundles OUTSIDE the repository, in
+  `~/Library/Developer/Xcode/DerivedData/AnnusMirabilis-am/`, set by `scripts/app/xcode.ts`, which refuses a path inside the
+  repository. **Corrected the same day:** this line first said the gitignored `ios/build/`, as the bead proposed. The
+  architecture gate walks `ios/`, the bundled edition carries the web export's `figures/plates/pages/`, and the gate read it
+  as a Pages Router root, so `bun run check:architecture` went red for every pane until the folder was moved to a scratch
+  directory. A disk guard refuses to build below
   10 GB free (`df -g /System/Volumes/Data`). The bead proposed 20 GB; the machine measured 20 GiB free on 2026-09-23, so a
   20 GB floor would refuse nearly every run while protecting nothing a 10 GB floor does not.
 - **App icon:** an asset-catalog `AppIcon` with one 1024-pixel universal image, drawn procedurally by a script (App plan §9).
@@ -957,6 +962,7 @@ simulators:
     deviceType: "com.apple.CoreSimulator.SimDeviceType.iPad-Air-11-inch-M3"
     runtime: "com.apple.CoreSimulator.SimRuntime.iOS-26-1"
 diskFreeGigabytesMinimum: 10
+derivedDataPath: "~/Library/Developer/Xcode/DerivedData/AnnusMirabilis-am"
 appleValidation: local
 thirdPartySwiftPackages: none
 uploadMethod: "xcodebuild -exportArchive with an App Store Connect API key outside the repository"

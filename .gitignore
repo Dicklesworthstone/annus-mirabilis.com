@@ -91,3 +91,16 @@ src/generated/
 generated/
 public/edition/
 .env*
+
+# iPhone app (App plan §4). Xcode output lives OUTSIDE the repository
+# (scripts/app/xcode.ts); these two lines only stop a stray build from being
+# committed. Also Xcode user state and signing material, which never enter it.
+ios/build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.p8
+*.p12
+*.cer
+*.mobileprovision
+*.ipa
