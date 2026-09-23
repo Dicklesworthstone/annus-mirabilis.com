@@ -1,5 +1,6 @@
 import { evaluateSr12 } from "../../physics/reference/fields.ts";
 import { encodeResult, parseResult } from "../results/codec.ts";
+import { refuseNonFiniteValues } from "../results/numberRange.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
 import { SR12_CLASSES, SR12_DEFAULTS, SR12_OUTPUTS, type Sr12Parameters } from "./definition.ts";
@@ -15,7 +16,7 @@ export type PreparedSr12Example = Readonly<{
 
 export function snapshotOutputs(p: Sr12Parameters): ScientificResult[] {
   const snap = evaluateSr12(sr12InputFromParameters(p));
-  return [
+  const outputs = [
     snap.chargeDensityStationary,
     snap.chargeDensityMoving,
     snap.currentDensityStationary,
@@ -31,6 +32,30 @@ export function snapshotOutputs(p: Sr12Parameters): ScientificResult[] {
     snap.sphereTotalChargeStationary,
     snap.sphereTotalChargeMoving,
   ];
+  // The four-current invariant squares ρc and J, so either past about 10^146 overflows; say so per
+  // output instead of letting the store refuse the whole publication (see numberRange.ts).
+  return refuseNonFiniteValues(outputs, [
+    {
+      parameterId: "chargeDensity",
+      value: p.chargeDensity,
+      admissible: SR12_DEFAULTS.chargeDensity,
+    },
+    {
+      parameterId: "currentDensityX",
+      value: p.currentDensityX,
+      admissible: SR12_DEFAULTS.currentDensityX,
+    },
+    {
+      parameterId: "currentDensityY",
+      value: p.currentDensityY,
+      admissible: SR12_DEFAULTS.currentDensityY,
+    },
+    {
+      parameterId: "currentDensityZ",
+      value: p.currentDensityZ,
+      admissible: SR12_DEFAULTS.currentDensityZ,
+    },
+  ]);
 }
 
 export const DEFAULT_PREPARED_EXAMPLE: PreparedSr12Example = Object.freeze({

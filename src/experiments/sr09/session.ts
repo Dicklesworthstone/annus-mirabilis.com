@@ -1,5 +1,6 @@
 import { evaluateSr09 } from "../../physics/reference/waves.ts";
 import { encodeResult, parseResult } from "../results/codec.ts";
+import { refuseNonFiniteValues } from "../results/numberRange.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
 import { SR09_CLASSES, SR09_DEFAULTS, SR09_OUTPUTS, type Sr09Parameters } from "./definition.ts";
@@ -15,7 +16,16 @@ export type PreparedSr09Example = Readonly<{
 
 export function snapshotOutputs(p: Sr09Parameters): ScientificResult[] {
   const snap = evaluateSr09(sr09InputFromParameters(p));
-  return [...snap.results];
+  // A frequency past about 10^296 THz is infinite in hertz; say so per output instead of letting the
+  // store refuse the whole publication, which no caller catches (see numberRange.ts).
+  return refuseNonFiniteValues(snap.results, [
+    { parameterId: "frequencyTHz", value: p.frequencyTHz, admissible: SR09_DEFAULTS.frequencyTHz },
+    {
+      parameterId: "countingWindowCycles",
+      value: p.countingWindowCycles,
+      admissible: SR09_DEFAULTS.countingWindowCycles,
+    },
+  ]);
 }
 
 export const DEFAULT_PREPARED_EXAMPLE: PreparedSr09Example = Object.freeze({

@@ -1,5 +1,6 @@
 import { evaluateSr02 } from "../../physics/reference/fields.ts";
 import { encodeResult, parseResult } from "../results/codec.ts";
+import { refuseNonFiniteValues } from "../results/numberRange.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
 import { SR02_CLASSES, SR02_DEFAULTS, SR02_OUTPUTS, type Sr02Parameters } from "./definition.ts";
@@ -16,7 +17,7 @@ export type PreparedSr02Example = Readonly<{
 
 export function snapshotOutputs(p: Sr02Parameters): ScientificResult[] {
   const snap = evaluateSr02(sr02InputFromParameters(p));
-  return [
+  const outputs = [
     snap.magneticFieldMagnet,
     snap.electricFieldMagnet,
     snap.magneticFieldConductor,
@@ -33,6 +34,22 @@ export function snapshotOutputs(p: Sr02Parameters): ScientificResult[] {
     snap.endpointOffset,
     snap.circuitCurrent,
   ];
+  // E² − c²B² overflows once a field passes about 10^146 T; say so per output instead of letting the
+  // store refuse the whole publication, which no caller catches (see numberRange.ts).
+  return refuseNonFiniteValues(outputs, [
+    {
+      parameterId: "magneticField",
+      value: p.magneticField,
+      admissible: SR02_DEFAULTS.magneticField,
+    },
+    { parameterId: "dipoleMoment", value: p.dipoleMoment, admissible: SR02_DEFAULTS.dipoleMoment },
+    { parameterId: "testCharge", value: p.testCharge, admissible: SR02_DEFAULTS.testCharge },
+    {
+      parameterId: "segmentLength",
+      value: p.segmentLength,
+      admissible: SR02_DEFAULTS.segmentLength,
+    },
+  ]);
 }
 
 const AT_06C: Sr02Parameters = Object.freeze({
