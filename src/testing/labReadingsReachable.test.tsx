@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
 import { installDom, uninstallDom } from "./reactDom.ts";
 
@@ -15,7 +16,7 @@ import { installDom, uninstallDom } from "./reactDom.ts";
  * could. Neither broke any other test.
  */
 
-const ROOT = join(import.meta.dir, "..", "..");
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const EXPERIMENTS = join(ROOT, "src", "experiments");
 
 function labsWithReadings(): string[] {
