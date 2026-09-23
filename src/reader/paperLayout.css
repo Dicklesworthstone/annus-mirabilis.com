@@ -50,6 +50,14 @@
     gap: 1rem;
   }
 }
+/* An outline of one section is a chip naming the page the reader is on: every section page, and
+   mass-energy, which has one section. On a phone it was 89px (plus 24px of margin) between the
+   reading controls and the first passage, so it goes. Wider screens keep it, with its passages. */
+@media (max-width: 560px) {
+  .reader-root .reader-outline:has(nav > div:only-child) {
+    display: none;
+  }
+}
 @media print {
   .reader-layout {
     display: block;

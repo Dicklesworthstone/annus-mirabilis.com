@@ -527,8 +527,13 @@ html:is(
   .foundation-inline {
     padding: 0.7rem;
   }
+  /* Detail and qualifications stack with a small gap; .check's 1.4rem margins were 45px of air. */
   .reader-options {
-    display: block;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .reader-options > .check {
+    margin: 0;
   }
   .reader-compass .actions {
     gap: 0.5rem;

@@ -331,7 +331,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
 
           {sections.map((s) => (
             <section key={s.id} id={s.id} tabIndex={-1} className="reader-section">
-              <h2>{s.title}</h2>
+              {/* On a section's own page the h1 above already names it, so the eye gets it once;
+                  the h2 stays for the section's structure and for screen readers. */}
+              <h2 className={sectionId ? "visually-hidden" : undefined}>{s.title}</h2>
               {args
                 .filter((a) => a.section === s.id)
                 .map((a) => (
