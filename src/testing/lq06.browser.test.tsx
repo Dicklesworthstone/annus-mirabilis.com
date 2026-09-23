@@ -47,12 +47,12 @@ describe("LQ-06 Matching Entropy Coefficients Lab View & Route (am-lq-06-coeffic
     // pin-scan searched for COMPLETE heading strings, and "Side-by-Side Entropy Volume Laws" is
     // four words of "Side-by-Side Entropy Volume Laws (§6 The Move)".
     expect(containsHeading(html, "Side-by-Side Entropy Volume Laws")).toBe(true);
-    expect(html).toContain("Wien Monochromatic Radiation");
-    expect(html).toContain("Ideal Gas / Solute Molecules");
+    expect(html).toContain("Wien monochromatic radiation");
+    expect(html).toContain("Ideal gas / solute molecules");
     expect(containsHeading(html, "Wien Spectrum Mean Quantum Energy")).toBe(true);
-    expect(html).toContain("1. Derivation (Algebra)");
-    expect(html).toContain("2. Heuristic Inference");
-    expect(html).toContain("3. Further Hypothesis");
+    expect(html).toContain("1. Derivation (algebra)");
+    expect(html).toContain("2. Heuristic inference");
+    expect(html).toContain("3. Further hypothesis");
   });
 
   test("session initializes with accepted snapshot and updates correspondence verdict on selection", () => {

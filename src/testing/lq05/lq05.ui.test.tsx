@@ -59,7 +59,7 @@ describe("LQ-05 UI components and route", () => {
 
     expect(htmlIndep).toContain("W = fⁿ");
     expect(htmlLocked).toContain("W_locked = f");
-    expect(htmlLocked).toContain("Locked Cluster (rigidly coupled)");
+    expect(htmlLocked).toContain("Locked cluster (rigidly coupled)");
   });
 
   test("IndependentConfigurationsLab renders laboratory root with data attributes and noscript fallback", () => {
@@ -73,8 +73,8 @@ describe("LQ-05 UI components and route", () => {
     expect(html).toContain("<summary>Predict first</summary>");
     expect(html).toContain("<legend>Try</legend>");
     expect(containsHeading(html, "Calculated microstate and entropy outputs")).toBe(true);
-    expect(html).toContain("Relative State Probability");
-    expect(html).toContain("Dimensionless Entropy Change ΔS/k_B");
+    expect(html).toContain("Relative state probability");
+    expect(html).toContain("Dimensionless entropy change ΔS/k_B");
   });
 
   test("IndependentConfigurationsPage route renders without errors and includes article sections", () => {

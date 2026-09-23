@@ -27,7 +27,7 @@ describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
     expect(html).toContain("Worked case (readable without JavaScript)");
     expect(html).toContain('data-instrument-id="sr-12"');
     expect(containsHeading(html, "Relativistic Four-Current Visualization")).toBe(true);
-    expect(html).toContain("Unit System Modernization");
+    expect(html).toContain("Unit-system modernization");
     expect(html).toContain("Gaussian 1905 (§9)");
   });
 
@@ -39,7 +39,7 @@ describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
     expect(html).toContain("Moving sphere (0.6c)");
     expect(html).toContain("Gaussian pulse continuity (0.5c)");
     expect(html).toContain("Current loop (0.6c)");
-    expect(html).toContain("Four-Current Invariant");
+    expect(html).toContain("Four-current invariant");
     expect(html).toContain("Predict: is a neutral wire still neutral in a moving frame?");
   });
 });
