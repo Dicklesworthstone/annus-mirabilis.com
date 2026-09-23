@@ -25,12 +25,12 @@ export default function LightQuantaInvestigationPage() {
     ),
     match: (
       <Formula
-        latex={String.raw`\frac{E}{\beta\nu}=n_{\mathrm{eff}}\frac{R}{N},\qquad n_{\mathrm{eff}}=\frac{NE}{R\beta\nu},\qquad \epsilon=\frac{R\beta\nu}{N}`}
+        latex={String.raw`\begin{gathered}\frac{E}{\beta\nu}=n_{\mathrm{eff}}\frac{R}{N},\\ n_{\mathrm{eff}}=\frac{NE}{R\beta\nu},\qquad \epsilon=\frac{R\beta\nu}{N}\end{gathered}`}
       />
     ),
     emission: (
       <Formula
-        latex={String.raw`K_{\max}=\frac{R\beta\nu}{N}-P,\qquad \Pi=\frac{K_{\max}}{e}\quad(K_{\max}\geq 0)`}
+        latex={String.raw`\begin{gathered}K_{\max}=\frac{R\beta\nu}{N}-P,\\ \Pi=\frac{K_{\max}}{e}\quad(K_{\max}\geq 0)\end{gathered}`}
       />
     ),
   };

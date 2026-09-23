@@ -33,7 +33,7 @@ const steps = [
     title: "Keep an energy account in each frame",
     kind: "premise",
     requires: [],
-    latex: String.raw`\text{energy before}=\text{energy after}+\text{emitted light energy}`,
+    latex: String.raw`\begin{aligned}&\text{energy before}=\text{energy after}\\&\qquad+\text{emitted light energy}\end{aligned}`,
     explanation:
       "Assume energy conservation separately in each inertial frame. Do not equate the numerical energies assigned by different observers. No value for the body's absolute internal energy is assumed.",
   },
@@ -42,7 +42,7 @@ const steps = [
     title: "Import the light-energy transformation",
     kind: "import",
     requires: [],
-    latex: String.raw`l^*=l\gamma(1-\beta\cos\varphi),\quad\gamma=(1-\beta^2)^{-1/2},\quad\beta=v/c`,
+    latex: String.raw`\begin{gathered}l^*=l\gamma(1-\beta\cos\varphi),\\ \gamma=(1-\beta^2)^{-1/2},\quad\beta=v/c\end{gathered}`,
     explanation:
       "This is an admitted result of the special-relativity paper, §8, not knowledge supplied by a 1904 shelf and not a consequence of the mass–energy relation being sought. Here c and gamma are modern notation; the September paper uses V and an explicit radical. The observer must satisfy |v| < c.",
   },
@@ -60,7 +60,7 @@ const steps = [
     title: "Add the two transformed pulses",
     kind: "algebra",
     requires: ["opposite-pulses", "light-transform"],
-    latex: String.raw`\frac{L\gamma}{2}(1-\beta\cos\varphi)+\frac{L\gamma}{2}(1+\beta\cos\varphi)=\gamma L`,
+    latex: String.raw`\begin{aligned}&\frac{L\gamma}{2}(1-\beta\cos\varphi)+\frac{L\gamma}{2}(1+\beta\cos\varphi)\\&\quad=\gamma L\end{aligned}`,
     explanation:
       "Opposite directions give opposite cosine terms. The individual pulse energies depend on angle, but their sum does not. This cancellation does not say that the two pulses have equal energies for a moving observer.",
   },

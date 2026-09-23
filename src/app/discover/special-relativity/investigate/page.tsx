@@ -62,7 +62,7 @@ export default function SpecialRelativityInvestigationPage() {
         <details>
           <summary>What the ordinary map preserves, and what it does not</summary>
           <Formula
-            latex={String.raw`x'=x-vt,\quad t'=t;\qquad x=\pm ct\ \Longrightarrow\ x'=(\pm c-v)t'`}
+            latex={String.raw`\begin{gathered}x'=x-vt,\quad t'=t;\\ x=\pm ct\ \Longrightarrow\ x'=(\pm c-v)t'\end{gathered}`}
           />
           <p>
             The Galilean map retains absolute time and describes familiar low-speed motions. It does
