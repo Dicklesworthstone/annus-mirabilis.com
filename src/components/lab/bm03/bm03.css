@@ -1,6 +1,7 @@
 /* BM-03 Configuration Integral Laboratory styles (am-vw1o) */
 
 .configuration-svg-wrap {
+  container-type: inline-size;
   border: 1px solid var(--line);
   background: var(--wash);
   padding: 1rem;
@@ -8,10 +9,75 @@
   border-radius: 4px;
 }
 
+/* 220 units wide: capped so its labels read near 14px on a wide screen and 17px on a phone. */
 .configuration-canvas {
   display: block;
   width: 100%;
+  max-width: 16rem;
   height: auto;
+}
+
+/* Each step: its title and one-sentence lead, then the picture beside its working when there is
+   room, the working below when not. The words were drawn inside a 540-unit SVG, 7.1px on a phone. */
+.bm03-step-title {
+  margin: 0;
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+.bm03-step-lead {
+  margin: 0.25rem 0 0.75rem;
+}
+
+.bm03-step-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@container (min-width: 34rem) {
+  .bm03-step-grid {
+    grid-template-columns: minmax(0, 16rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.bm03-card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 0.75rem 1rem;
+}
+
+.bm03-card p {
+  margin: 0.3rem 0 0;
+}
+
+.bm03-card-title {
+  font-weight: 600;
+}
+
+.bm03-math {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+/* The factor ratio is the step's result: heavier as well as coloured. */
+.bm03-accent {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.bm03-contrast {
+  margin-top: 0.75rem;
+  border-left: 3px solid var(--plot);
+  background: var(--wash);
+  padding: 0.4rem 0.75rem;
+}
+
+/* The locked cluster is the contrasting case: a dashed rule as well as a different colour. */
+.bm03-contrast-locked {
+  border-left: 3px dashed var(--accent);
 }
 
 .step-one-particle,
