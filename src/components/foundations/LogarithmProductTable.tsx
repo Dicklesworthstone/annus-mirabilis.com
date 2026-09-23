@@ -114,25 +114,20 @@ export function LogarithmProductTable({
           In modern ISO 80000-2 notation, <strong>ln</strong> denotes the natural logarithm, while{" "}
           <strong>lg</strong> is reserved for the common base-10 logarithm (log₁₀).
         </p>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 1fr",
-            gap: "0.3rem 1.5rem",
-            marginTop: "0.5rem",
-            fontFamily: "var(--font-mono, monospace)",
-          }}
-        >
-          <span>1905 printed “lg 2”:</span>
-          <span style={{ color: "var(--accent)", fontWeight: "bold" }}>
-            {LN_2.toFixed(6)} (natural logarithm ln 2)
-          </span>
-
-          <span>Modern ISO “lg 2” (log₁₀ 2):</span>
-          <span style={{ color: "var(--muted)" }}>
-            {LOG10_2.toFixed(6)} (common base-10 logarithm)
-          </span>
-        </div>
+        {/* Two sentences, numbers in monospace: a two-column monospace grid wrapped "0.693147
+            (natural logarithm ln 2)" over four lines on a phone. */}
+        <p style={{ margin: "0.5rem 0 0.2rem" }}>
+          1905 printed “lg 2”:{" "}
+          <strong style={{ color: "var(--accent)", fontFamily: "var(--font-mono, monospace)" }}>
+            {LN_2.toFixed(6)}
+          </strong>
+          , the natural logarithm ln 2.
+        </p>
+        <p style={{ margin: "0.2rem 0" }}>
+          Modern ISO “lg 2” (log₁₀ 2):{" "}
+          <span style={{ fontFamily: "var(--font-mono, monospace)" }}>{LOG10_2.toFixed(6)}</span>,
+          the common base-10 logarithm.
+        </p>
       </div>
 
       <section
@@ -151,23 +146,13 @@ export function LogarithmProductTable({
           </caption>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--rule)", textAlign: "left" }}>
+              {/* Three columns, each sum written as a column addition: seven columns of numbers
+                  hid 132px of a 332px phone column behind a sideways scroll. */}
               <th scope="col" style={{ padding: "0.4rem" }}>
-                State W₁
+                W₁ and W₂
               </th>
               <th scope="col" style={{ padding: "0.4rem" }}>
-                State W₂
-              </th>
-              <th scope="col" style={{ padding: "0.4rem" }}>
-                Product W₁ · W₂
-              </th>
-              <th scope="col" style={{ padding: "0.4rem" }}>
-                {logSymbol}(W₁)
-              </th>
-              <th scope="col" style={{ padding: "0.4rem" }}>
-                {logSymbol}(W₂)
-              </th>
-              <th scope="col" style={{ padding: "0.4rem" }}>
-                Sum {logSymbol}(W₁) + {logSymbol}(W₂)
+                {logSymbol}(W₁) + {logSymbol}(W₂)
               </th>
               <th scope="col" style={{ padding: "0.4rem" }}>
                 {logSymbol}(W₁ · W₂)
@@ -177,32 +162,31 @@ export function LogarithmProductTable({
           <tbody>
             {LOG_PAIRS.map((pair) => (
               <tr key={`${pair.w1}-${pair.w2}`} style={{ borderBottom: "1px solid var(--rule)" }}>
-                <td style={{ padding: "0.4rem" }}>{pair.w1}</td>
-                <td style={{ padding: "0.4rem" }}>{pair.w2}</td>
-                <td style={{ padding: "0.4rem" }}>{pair.product}</td>
-                <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
+                <td style={{ padding: "0.4rem" }}>
+                  {pair.w1} and {pair.w2}
+                  <br />
+                  product {pair.product}
+                </td>
+                <td
+                  style={{
+                    padding: "0.4rem",
+                    fontFamily: "var(--font-mono, monospace)",
+                    textAlign: "right",
+                  }}
+                >
                   {pair.lnW1.toFixed(6)}
-                </td>
-                <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-                  {pair.lnW2.toFixed(6)}
-                </td>
-                <td
-                  style={{
-                    padding: "0.4rem",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {(pair.lnW1 + pair.lnW2).toFixed(6)}
+                  <br />+ {pair.lnW2.toFixed(6)}
+                  <br />= <strong>{(pair.lnW1 + pair.lnW2).toFixed(6)}</strong>
                 </td>
                 <td
                   style={{
                     padding: "0.4rem",
                     fontFamily: "var(--font-mono, monospace)",
-                    fontWeight: 600,
+                    textAlign: "right",
                   }}
                 >
-                  {pair.lnProduct.toFixed(6)}
+                  {logSymbol} {pair.product}
+                  <br />= <strong>{pair.lnProduct.toFixed(6)}</strong>
                 </td>
               </tr>
             ))}

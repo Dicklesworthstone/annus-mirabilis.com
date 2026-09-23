@@ -181,12 +181,12 @@ test("foundCalculus.constructions: LogarithmProductTable carries 1905 'lg' note 
   assert.ok(html.includes("0.301030")); // log10 2
 
   // Product-to-sum table pairs
-  assert.ok(html.includes("State W₁"));
-  assert.ok(html.includes("State W₂"));
-  assert.ok(html.includes("Product W₁ · W₂"));
-  assert.ok(html.includes(">2</td>"));
-  assert.ok(html.includes(">4</td>"));
-  assert.ok(html.includes(">8</td>"));
+  assert.ok(html.includes("W₁ and W₂"));
+  assert.ok(html.includes("2 and 4<br/>product 8"));
+  // Each pair's two sides agree to six places: 0.693147 + 1.386294 and ln 8 are both 2.079442.
+  assert.equal(html.split("<strong>2.079442</strong>").length - 1, 2);
+  assert.equal(html.split("<strong>2.708050</strong>").length - 1, 2);
+  assert.equal(html.split("<strong>4.605170</strong>").length - 1, 2);
 
   // Textual equivalent
   assert.ok(html.includes("What it shows, in words"));
