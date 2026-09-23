@@ -1,0 +1,69 @@
+/* BM-04, drift against diffusion (DriftDiffusionPlots.tsx). */
+
+/* The density profile is 300 units wide: capped so its labels read near 15px on a wide screen. */
+.drift-plot-svg {
+  display: block;
+  width: 100%;
+  max-width: 21rem;
+  height: auto;
+}
+
+/* The two face fluxes as signed bars either side of a zero line; each value is text beside its
+   name, so a negative flux never pushes its number off the figure. */
+.flux-balance {
+  margin: 0;
+}
+
+.flux-balance-caption {
+  margin-bottom: 0.75rem;
+}
+
+.flux-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "label value"
+    "track track";
+  gap: 0.25rem 0.75rem;
+  margin-block: 0.6rem;
+}
+
+.flux-label {
+  grid-area: label;
+  font-weight: 600;
+}
+
+.flux-value {
+  grid-area: value;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.flux-track {
+  grid-area: track;
+  position: relative;
+  display: block;
+  height: 1.25rem;
+  border-radius: 0.2rem;
+  background: var(--wash);
+}
+
+.flux-zero {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--line);
+}
+
+.flux-bar {
+  position: absolute;
+  top: 0.15rem;
+  bottom: 0.15rem;
+  border-radius: 0.15rem;
+}
+
+.flux-net {
+  margin: 0.75rem 0 0;
+}

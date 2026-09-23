@@ -1,5 +1,6 @@
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { array, display, identity, result, scalar } from "./presentation.ts";
+import "./driftDiffusion.css";
 
 export function DensityProfilePlot({
   snapshot,
@@ -22,11 +23,13 @@ export function DensityProfilePlot({
   }
   const peak = maxDensity > 0 ? maxDensity * 1.15 : 1;
 
-  const w = 500;
-  const h = 220;
-  const padL = 45;
-  const padR = 20;
-  const padT = 20;
+  // 300 units wide, like the other lab plots: at 500 units the site's label size rendered at
+  // 8.6px on a 390px phone.
+  const w = 300;
+  const h = 200;
+  const padL = 44;
+  const padR = 14;
+  const padT = 14;
   const padB = 35;
   const plotW = w - padL - padR;
   const plotH = h - padT - padB;
@@ -63,12 +66,12 @@ export function DensityProfilePlot({
           lineHeight: 1.4,
         }}
       >
-        <strong>Concentration profile across the channel width</strong>: Current density (solid)
-        compared with the thermodynamic osmotic equilibrium (dashed).
+        <strong>Concentration across the channel.</strong> The current density (solid) against the
+        osmotic equilibrium (dashed).
       </figcaption>
       <svg
         viewBox={`0 0 ${w} ${h}`}
-        style={{ width: "100%", height: "auto", display: "block" }}
+        className="drift-plot-svg"
         role="img"
         aria-label="Concentration profile across the 1D channel"
       >
@@ -157,7 +160,10 @@ export function DensityProfilePlot({
               display: "inline-block",
             }}
           />
-          Osmotic equilibrium n_osm(x)
+          {/* One span: the flex gap would otherwise part the subscript from its letter. */}
+          <span>
+            Osmotic equilibrium n<sub>osm</sub>(x)
+          </span>
         </span>
       </div>
     </figure>
@@ -171,96 +177,62 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
 
   const maxFlux = Math.max(Math.abs(driftFlux), Math.abs(diffFlux), Math.abs(totalFlux), 1e-18);
 
-  const w = 500;
-  const h = 140;
-  const barHeight = 24;
-
-  const driftW = (Math.abs(driftFlux) / maxFlux) * 180;
-  const diffW = (Math.abs(diffFlux) / maxFlux) * 180;
+  // Signed bars around a zero line, in HTML. As an SVG, a negative diffusive flux placed its value
+  // by the DRIFT bar's width and drew it over its own row label, cut off at the left edge, and the
+  // drift value ran off the right; every label was 8.6px on a phone.
+  const rows = [
+    {
+      key: "drift",
+      label: (
+        <>
+          Drift flux, J<sub>drift</sub>
+        </>
+      ),
+      value: driftFlux,
+      color: "#27ae60",
+    },
+    {
+      key: "diffusion",
+      label: (
+        <>
+          Diffusive flux, J<sub>diff</sub>
+        </>
+      ),
+      value: diffFlux,
+      color: "#c0392b",
+    },
+  ];
 
   return (
-    <figure
-      data-view-id="flux-balance-view"
-      {...identity(snapshot)}
-      style={{ margin: 0, padding: 0 }}
-    >
-      <figcaption
-        style={{
-          fontSize: "0.875rem",
-          color: "var(--muted)",
-          marginBottom: "0.5rem",
-          lineHeight: 1.4,
-        }}
-      >
-        <strong>Average face fluxes</strong>: Drift flux J_drift = n μ F vs Diffusive counter-flux
-        J_diff = -D ∂n/∂x. In steady state, they cancel to produce net J ≈ 0.
+    <figure data-view-id="flux-balance-view" {...identity(snapshot)} className="flux-balance">
+      <figcaption className="flux-balance-caption">
+        <strong>Average face fluxes.</strong> Drift, J<sub>drift</sub> = nμF, against diffusion, J
+        <sub>diff</sub> = −D ∂n/∂x. In a steady state they cancel, and the net flux is close to
+        zero.
       </figcaption>
-      <svg
-        viewBox={`0 0 ${w} ${h}`}
-        style={{ width: "100%", height: "auto", display: "block" }}
-        role="img"
-        aria-label="Flux balance opposing arrows diagram"
-      >
-        <rect
-          x={10}
-          y={10}
-          width={w - 20}
-          height={h - 20}
-          fill="var(--wash)"
-          stroke="var(--line)"
-        />
-        {/* Center zero line */}
-        <line x1={250} y1={15} x2={250} y2={h - 15} stroke="var(--line)" strokeDasharray="3 3" />
-
-        {/* Drift flux bar (top row) */}
-        <text x={20} y={40} fontSize="12" fill="#27ae60" fontWeight="bold">
-          Drift flux (J_drift)
-        </text>
-        <rect
-          x={driftFlux >= 0 ? 250 : 250 - driftW}
-          y={28}
-          width={Math.max(2, driftW)}
-          height={barHeight}
-          fill="#27ae60"
-          rx="3"
-        />
-        <text
-          x={driftFlux >= 0 ? 255 + driftW : 245 - driftW}
-          y={44}
-          fontSize="11"
-          fill="var(--ink)"
-          textAnchor={driftFlux >= 0 ? "start" : "end"}
-        >
-          {display(driftFlux, 1)} m⁻²s⁻¹
-        </text>
-
-        {/* Diffusion flux bar (bottom row) */}
-        <text x={20} y={85} fontSize="12" fill="#c0392b" fontWeight="bold">
-          Diffusive flux (J_diff)
-        </text>
-        <rect
-          x={diffFlux >= 0 ? 250 : 250 - diffW}
-          y={73}
-          width={Math.max(2, diffW)}
-          height={barHeight}
-          fill="#c0392b"
-          rx="3"
-        />
-        <text
-          x={diffFlux >= 0 ? 255 + diffW : 245 - driftW}
-          y={89}
-          fontSize="11"
-          fill="var(--ink)"
-          textAnchor={diffFlux >= 0 ? "start" : "end"}
-        >
-          {display(diffFlux, 1)} m⁻²s⁻¹
-        </text>
-
-        {/* Net flux summary badge */}
-        <text x={20} y={120} fontSize="11" fill="var(--muted)">
-          Net flux J = J_drift + J_diff : {display(totalFlux, 1)} m⁻²s⁻¹
-        </text>
-      </svg>
+      {rows.map((row) => {
+        const half = `${((Math.abs(row.value) / maxFlux) * 50).toFixed(1)}%`;
+        return (
+          <div className="flux-row" key={row.key} data-flux={row.key}>
+            <span className="flux-label">{row.label}</span>
+            <span className="flux-value">{display(row.value, 1)} m⁻²s⁻¹</span>
+            <span className="flux-track" aria-hidden="true">
+              <span className="flux-zero" />
+              <span
+                className="flux-bar"
+                style={
+                  row.value >= 0
+                    ? { left: "50%", width: half, background: row.color }
+                    : { right: "50%", width: half, background: row.color }
+                }
+              />
+            </span>
+          </div>
+        );
+      })}
+      <p className="flux-net">
+        Net flux J = J<sub>drift</sub> + J<sub>diff</sub> = {display(totalFlux, 1)} m⁻²s⁻¹
+      </p>
     </figure>
   );
 }
