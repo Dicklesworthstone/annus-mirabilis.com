@@ -181,7 +181,7 @@ entries:
     kind: node
     cluster: transport-thermo
     ownerBead: am-found-transport-thermo-smv3
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:temperature-thermal-energy"
     kind: node
@@ -199,7 +199,7 @@ entries:
     kind: node
     cluster: transport-thermo
     ownerBead: am-found-transport-thermo-smv3
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:vectors-components"
     kind: node
@@ -235,13 +235,13 @@ entries:
     kind: node
     cluster: fields-light
     ownerBead: am-found-fields-light-cv3o
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:fields-waves"
     kind: node
     cluster: fields-light
     ownerBead: am-found-fields-light-cv3o
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:electromagnetism-needed-here"
     kind: node
@@ -253,7 +253,7 @@ entries:
     kind: node
     cluster: fields-light
     ownerBead: am-found-fields-light-cv3o
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:reading-german-physics-sentence"
     kind: node
