@@ -6,18 +6,23 @@ import { splitInlineMath } from "./inlineMath.ts";
   Light quanta's explanation prose writes its mathematics as `\( … \)`, so a reader meets
   "\(k_B T\)" typeset, not "k_B T" typed. This holds that for every reading (overview, full
   explanation, every step, modern margin) of every light-quanta argument record: outside inline
-  mathematics, no word is an ASCII subscript like `k_B` or `hν_in`.
+  mathematics, no word is an ASCII subscript like `k_B` or `hν_in`, and no typed √, ℓ, ², ³ or ′.
 
   The papers whose prose has been converted are held to it: light quanta first (06b9b154), then
-  special relativity (5a5faf73). The others' prose still types some mathematics in ASCII.
+  special relativity (5a5faf73), then Brownian motion (6b47ca84). Mass-energy's prose still types
+  some mathematics in ASCII.
   Premises, limitations and recaps are separate fields with their own renderers and are not
   converted yet. The file keeps its first paper's name.
 */
 const CONVERTED = [
   { paper: "light-quanta", prefix: "arg-lq-" },
   { paper: "special-relativity", prefix: "arg-sr-" },
+  { paper: "brownian-motion", prefix: "arg-bm-" },
 ] as const;
-const ASCII_SUBSCRIPT = /[A-Za-zνρ]_(?:[A-Za-z]|\{)/;
+// An ASCII subscript (k_B, hν_in) or a glyph that only typed mathematics uses (√, ℓ, ², ³, ′).
+// Brownian's typed mathematics had no underscores at all ("√(2Dt)", "ℓ²/(2τ)"), so a subscript
+// check alone passed on its unconverted prose.
+const ASCII_SUBSCRIPT = /[A-Za-zνρ]_(?:[A-Za-z]|\{)|[√ℓ²³′]/;
 
 type Block = { kind: string; text?: string; items?: string[] };
 
