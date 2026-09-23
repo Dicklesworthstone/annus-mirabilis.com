@@ -32,6 +32,17 @@ export type PhotoelectricDataFit = Readonly<{
   warnings: readonly string[];
 }> | Readonly<{ status: "underdetermined"; reason: string; usedRows: readonly number[] }>;
 
+/** A refusal from this owner. The kebab-case code comes first so the refusal scanner reads it at
+ * the throw site; the message is unchanged, because the workbench shows it to a reader. */
+export class PhotoelectricDataError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "PhotoelectricDataError";
+    this.code = code;
+  }
+}
+
 function quantity(value: number, standardError: number, unit: string): InferredQuantity {
   return Object.freeze({ status: "value", value, standardError, unit });
 }
@@ -42,20 +53,20 @@ export function analyzePhotoelectricData(
   rows: readonly PhotoelectricObservation[], options: FitOptions, reference: PhotoelectricReference,
 ): PhotoelectricDataFit {
   if (!reference.constantSetId || ![reference.elementaryCharge, reference.planckConstant, reference.speedOfLight].every((x) => Number.isFinite(x) && x > 0)) {
-    throw new TypeError("The reference constants must come from a declared positive finite calibration.");
+    throw new PhotoelectricDataError("photoelectric-reference-invalid", "The reference constants must come from a declared positive finite calibration.");
   }
-  if (options.weighting !== "equal" && options.weighting !== "declared-sigma") throw new TypeError("Unknown weighting model.");
-  if (options.offset.kind !== "unknown" && options.offset.kind !== "known") throw new TypeError("Unknown offset model.");
+  if (options.weighting !== "equal" && options.weighting !== "declared-sigma") throw new PhotoelectricDataError("photoelectric-weighting-unknown", "Unknown weighting model.");
+  if (options.offset.kind !== "unknown" && options.offset.kind !== "known") throw new PhotoelectricDataError("photoelectric-offset-model-unknown", "Unknown offset model.");
   if (options.offset.kind === "known" && (!Number.isFinite(options.offset.volts) || Math.abs(options.offset.volts) > 1e4 ||
-      !Number.isFinite(options.offset.sigmaV) || options.offset.sigmaV < 0 || options.offset.sigmaV > 1e4)) throw new RangeError("Use an offset within ±10000 V and a nonnegative standard uncertainty up to 10000 V.");
-  if (rows.length < 3 || rows.length > 1000) throw new RangeError("Select 3 to 1000 observations.");
+      !Number.isFinite(options.offset.sigmaV) || options.offset.sigmaV < 0 || options.offset.sigmaV > 1e4)) throw new PhotoelectricDataError("photoelectric-offset-out-of-range", "Use an offset within ±10000 V and a nonnegative standard uncertainty up to 10000 V.");
+  if (rows.length < 3 || rows.length > 1000) throw new PhotoelectricDataError("photoelectric-row-count", "Select 3 to 1000 observations.");
   const seen = new Set<number>();
   for (const row of rows) {
-    if (!Number.isInteger(row.row) || row.row < 1 || seen.has(row.row)) throw new TypeError("Each observation needs a unique positive row identity.");
+    if (!Number.isInteger(row.row) || row.row < 1 || seen.has(row.row)) throw new PhotoelectricDataError("photoelectric-row-identity", "Each observation needs a unique positive row identity.");
     seen.add(row.row);
-    if (!Number.isFinite(row.frequencyTHz) || row.frequencyTHz < 1e-6 || row.frequencyTHz > 1e6 || !Number.isFinite(row.stoppingV) || Math.abs(row.stoppingV) > 1e4) throw new RangeError("Observation outside the admitted frequency or voltage range.");
-    if (row.sigmaV !== undefined && (!Number.isFinite(row.sigmaV) || row.sigmaV < 1e-9 || row.sigmaV > 1e4)) throw new RangeError("Invalid voltage standard uncertainty.");
-    if (options.weighting === "declared-sigma" && row.sigmaV === undefined) throw new TypeError("Supply sigma_V for every row before selecting uncertainty weighting.");
+    if (!Number.isFinite(row.frequencyTHz) || row.frequencyTHz < 1e-6 || row.frequencyTHz > 1e6 || !Number.isFinite(row.stoppingV) || Math.abs(row.stoppingV) > 1e4) throw new PhotoelectricDataError("photoelectric-observation-out-of-range", "Observation outside the admitted frequency or voltage range.");
+    if (row.sigmaV !== undefined && (!Number.isFinite(row.sigmaV) || row.sigmaV < 1e-9 || row.sigmaV > 1e4)) throw new PhotoelectricDataError("photoelectric-sigma-invalid", "Invalid voltage standard uncertainty.");
+    if (options.weighting === "declared-sigma" && row.sigmaV === undefined) throw new PhotoelectricDataError("photoelectric-sigma-required", "Supply sigma_V for every row before selecting uncertainty weighting.");
   }
   const usedRows = Object.freeze(rows.map((r) => r.row));
   const lo = Math.min(...rows.map((r) => r.frequencyTHz));
@@ -105,7 +116,7 @@ export function analyzePhotoelectricData(
   }
   const referenceSlopeVPerTHz = reference.planckConstant / reference.elementaryCharge * 1e12;
   const relativeSlopeDifference = fit.slope / referenceSlopeVPerTHz - 1;
-  if (![referenceSlopeVPerTHz, relativeSlopeDifference].every(Number.isFinite)) throw new RangeError("Reference comparison is not numerically representable.");
-  for (const q of [planckEstimate, workFunction, threshold]) if (q.status === "value" && ![q.value, q.standardError].every(Number.isFinite)) throw new RangeError("An inferred quantity exceeds numerical precision.");
+  if (![referenceSlopeVPerTHz, relativeSlopeDifference].every(Number.isFinite)) throw new PhotoelectricDataError("photoelectric-reference-comparison-nonfinite", "Reference comparison is not numerically representable.");
+  for (const q of [planckEstimate, workFunction, threshold]) if (q.status === "value" && ![q.value, q.standardError].every(Number.isFinite)) throw new PhotoelectricDataError("photoelectric-inferred-nonfinite", "An inferred quantity exceeds numerical precision.");
   return Object.freeze({ status: "value", fit, usedRows, planckEstimate, workFunction, threshold, referenceSlopeVPerTHz, relativeSlopeDifference, warnings: Object.freeze(warnings) });
 }

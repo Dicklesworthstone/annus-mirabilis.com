@@ -15,11 +15,22 @@ export interface OlsLinearFit {
   readonly residuals: readonly number[];
 }
 
+/** A refusal from this owner. The kebab-case code comes first so the refusal scanner reads it at
+ * the throw site; the message is unchanged, because callers show it to a reader. */
+export class LineFitError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "LineFitError";
+    this.code = code;
+  }
+}
+
 /** Existing ordinary least squares implementation, moved without changing its arithmetic. */
 export function fitOls(points: readonly Readonly<{ x: number; y: number }>[]): OlsLinearFit {
   const n = points.length;
   if (n < 3) {
-    throw new Error(`OLS fit requires at least 3 points; received ${n}`);
+    throw new LineFitError("ols-too-few-points", `OLS fit requires at least 3 points; received ${n}`);
   }
 
   let sumX = 0;
@@ -44,7 +55,7 @@ export function fitOls(points: readonly Readonly<{ x: number; y: number }>[]): O
   }
 
   if (ssXX <= 0) {
-    throw new Error("Cannot fit OLS line: zero x-variance.");
+    throw new LineFitError("ols-zero-x-variance", "Cannot fit OLS line: zero x-variance.");
   }
 
   const slope = ssXY / ssXX;
@@ -104,11 +115,11 @@ export type LineEstimate = Readonly<{
  * callers can propagate their variances without subtracting large covariance terms.
  */
 export function fitLine(points: readonly LinePoint[], weighted: boolean): LineEstimate {
-  if (points.length < 3 || points.length > 1000) throw new RangeError("Use 3 to 1000 rows.");
+  if (points.length < 3 || points.length > 1000) throw new LineFitError("line-fit-row-count", "Use 3 to 1000 rows.");
   for (const p of points) {
-    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) throw new RangeError("Finite coordinates required.");
+    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) throw new LineFitError("line-fit-nonfinite-coordinate", "Finite coordinates required.");
     if (weighted && (p.sigma === undefined || !Number.isFinite(p.sigma) || p.sigma <= 0)) {
-      throw new RangeError("Weighted fitting requires a positive finite sigma for every row.");
+      throw new LineFitError("line-fit-sigma-required", "Weighted fitting requires a positive finite sigma for every row.");
     }
   }
   const originX = points[0]!.x;
@@ -122,7 +133,7 @@ export function fitLine(points: readonly LinePoint[], weighted: boolean): LineEs
   const centerY = originY + dyMean;
   const centered = points.map((p) => ({ x: (p.x - originX) - dxMean, y: (p.y - originY) - dyMean }));
   const xx = centered.reduce((s, p, i) => s + weights[i]! * p.x ** 2, 0);
-  if (!Number.isFinite(xx) || xx <= 0) throw new RangeError("Distinct, numerically resolved frequencies required.");
+  if (!Number.isFinite(xx) || xx <= 0) throw new LineFitError("line-fit-unresolved-x", "Distinct, numerically resolved frequencies required.");
   let slope: number;
   let residuals: readonly number[];
   let scaleVariance: number;
@@ -153,7 +164,7 @@ export function fitLine(points: readonly LinePoint[], weighted: boolean): LineEs
   };
   const scalars = Object.values(result).filter((v) => typeof v === "number");
   if (!scalars.every(Number.isFinite) || !result.fittedValues.every(Number.isFinite) || !residuals.every(Number.isFinite)) {
-    throw new RangeError("The requested fit exceeds finite numerical precision.");
+    throw new LineFitError("line-fit-nonfinite-result", "The requested fit exceeds finite numerical precision.");
   }
   return Object.freeze(result);
 }
