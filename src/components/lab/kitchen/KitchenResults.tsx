@@ -39,22 +39,24 @@ export function KitchenPlot({ accepted }: { accepted: KitchenAccepted }) {
     max = Math.max(...values, min + 1);
   const first = points[0]?.time ?? 0,
     last = Math.max(first + 1, points.at(-1)?.time ?? first + 1);
-  const x = (t: number) => 65 + (475 * (t - first)) / (last - first || 1);
+  // 300 units wide, like the other lab plots: at 570 units the site's label size rendered at
+  // 7.5px on a 390px phone.
+  const x = (t: number) => 68 + (217 * (t - first)) / (last - first || 1);
   const y = (v: number) => 230 - (190 * (v - min)) / (max - min || 1);
   return (
     <figure className="plot" {...identity(snapshot)}>
       <svg
         role="img"
-        viewBox="0 0 570 290"
+        viewBox="0 0 300 290"
         aria-label="Recorded source-pixel positions against actual timestamps. Circles are measurements, crosses are excluded positions, and triangles are interpolated samples. Missing positions are not drawn. All observations are in the table."
       >
-        <path className="axis" d="M65 25V235H540" />
+        <path className="axis" d="M68 25V235H285" />
         {[0, 0.5, 1].map((f) => (
           <g key={f}>
-            <text x="58" y={y(min + f * (max - min)) + 4} textAnchor="end">
+            <text x="62" y={y(min + f * (max - min)) + 4} textAnchor="end">
               {display(min + f * (max - min))}
             </text>
-            <text x={65 + f * 475} y="255" textAnchor="middle">
+            <text x={68 + f * 217} y="255" textAnchor={f === 1 ? "end" : "middle"}>
               {display(first + f * (last - first))}
             </text>
           </g>
@@ -95,10 +97,10 @@ export function KitchenPlot({ accepted }: { accepted: KitchenAccepted }) {
               />
             ),
           )}
-        <text x="65" y="17">
+        <text x="68" y="17">
           {report.options.axis} position (source pixels)
         </text>
-        <text x="300" y="282" textAnchor="middle">
+        <text x="176" y="282" textAnchor="middle">
           Actual recorded time (s)
         </text>
       </svg>
