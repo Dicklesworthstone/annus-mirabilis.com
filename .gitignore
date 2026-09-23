@@ -104,3 +104,6 @@ xcuserdata/
 *.cer
 *.mobileprovision
 *.ipa
+
+# Python bytecode from scripts/figures and scripts/reference
+__pycache__/
