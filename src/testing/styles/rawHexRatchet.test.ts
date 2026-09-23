@@ -216,18 +216,8 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
   },
   {
     file: "src/components/lab/RodSimultaneityPlots.tsx",
-    hex: "#059669",
-    reason: "Spacetime origin reference event E1(0,0) coordinate label text in Minkowski diagram",
-  },
-  {
-    file: "src/components/lab/RodSimultaneityPlots.tsx",
     hex: "#f43f5e",
     reason: "Spacetime comparison event E2(dx, c*dt) marker in Minkowski diagram",
-  },
-  {
-    file: "src/components/lab/RodSimultaneityPlots.tsx",
-    hex: "#e11d48",
-    reason: "Spacetime comparison event E2(dx, c*dt) coordinate label text in Minkowski diagram",
   },
   // Wave description, two-source crest superposition, and spherical energy spreading data colors in WaveDescriptionPlots:
   {
