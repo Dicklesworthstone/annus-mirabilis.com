@@ -1,6 +1,9 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import type { Metadata } from "next";
 import { CATALOGUE_IDS, CATALOGUE_STATUS, type CatalogueId } from "../../experiments/catalogue.ts";
 import { labName } from "../../reader/actions/labNames.ts";
+import "./instruments.css";
 
 export const metadata: Metadata = {
   title: "Instruments",
@@ -95,14 +98,41 @@ function unaffiliated(): readonly CatalogueId[] {
   );
 }
 
+/**
+ * A picture of the instrument's worked default, when one has been taken. The pictures are written by
+ * scripts/generate-instrument-thumbnails.ts from a built page, so an instrument added since the last
+ * run has none, and its entry is the question alone rather than a broken image.
+ */
+function specimenPicture(id: CatalogueId): string | undefined {
+  const file = `/figures/instruments/${id}.webp`;
+  return existsSync(join(process.cwd(), "public", file)) ? file : undefined;
+}
+
+/**
+ * Each instrument as a specimen: a small plate of what it shows at its worked default, captioned by
+ * the question it answers. The plate is the same mounted-page device as the printed first pages on
+ * the home page, so the catalogue reads as part of the edition rather than a list of links. The
+ * question is the link's name; the picture carries no alt text of its own because the question
+ * beside it already names what it shows.
+ */
 function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
   return (
-    <ul className="instrument-list">
-      {ids.map((id) => (
-        <li key={id}>
-          <a href={`/lab/${id}/`}>{labName(id)}</a>
-        </li>
-      ))}
+    <ul className="instrument-specimens">
+      {ids.map((id) => {
+        const picture = specimenPicture(id);
+        return (
+          <li key={id} className="instrument-specimen">
+            <a href={`/lab/${id}/`}>
+              {picture ? (
+                <span className="instrument-plate">
+                  <img src={picture} alt="" width={640} height={400} loading="lazy" decoding="async" />
+                </span>
+              ) : null}
+              <span className="instrument-question">{labName(id)}</span>
+            </a>
+          </li>
+        );
+      })}
     </ul>
   );
 }

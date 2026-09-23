@@ -1,0 +1,97 @@
+/*
+ * THE CATALOGUE AS SPECIMENS (labs, pane %49; TanElk dispatch 95).
+ *
+ * /instruments/ was 37 rows of question sentences: a reader could not tell a random walk from an
+ * energy ledger until they opened each one. Each entry is now a small plate of what the instrument
+ * shows at its worked default, captioned by its question. The plate borrows the printed first
+ * pages' device (a picture on a mat with a hairline edge), so the catalogue belongs to the edition.
+ *
+ * On a desktop the specimens sit three or four to a row under their paper. On a phone each becomes
+ * a row, a 6rem plate beside its question, so 37 instruments stay a list a thumb can scan rather
+ * than 37 screens of pictures.
+ */
+.instrument-specimens {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr));
+  gap: 1.75rem 1.5rem;
+}
+
+.instrument-specimen a {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+  min-height: 44px;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The mat: one step off the ground, with a hairline edge, in both themes. */
+.instrument-plate {
+  display: block;
+  aspect-ratio: 16 / 10;
+  padding: 0.5rem;
+  background: var(--wash);
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+
+.instrument-plate img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.instrument-question {
+  line-height: 1.4;
+}
+
+.instrument-specimen a:focus-visible .instrument-question {
+  text-decoration: underline;
+}
+
+@media (hover: hover) {
+  .instrument-specimen a:hover .instrument-question {
+    text-decoration: underline;
+  }
+  .instrument-specimen a:hover .instrument-plate {
+    border-color: var(--ink);
+  }
+}
+
+/* The pictures are light pages. After dark they are dimmed together, as the first-page plates are,
+   so their white does not outshine the ink; nothing is inverted or recoloured. */
+:root[data-theme="kramgasse-night"] .instrument-plate img {
+  opacity: 0.9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .instrument-plate img {
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 40rem) {
+  .instrument-specimens {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .instrument-specimen {
+    border-top: 1px solid var(--rule);
+  }
+  .instrument-specimen a {
+    grid-template-columns: 6rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.9rem;
+    padding-block: 0.6rem;
+  }
+  .instrument-plate {
+    padding: 0.25rem;
+  }
+  /* An instrument without a picture yet keeps the whole row for its question. */
+  .instrument-specimen a:not(:has(.instrument-plate)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
