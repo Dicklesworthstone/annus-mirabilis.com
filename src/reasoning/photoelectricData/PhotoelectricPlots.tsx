@@ -63,7 +63,7 @@ export function PhotoelectricPlots({ state }: { state: AcceptedAnalysis }) {
           {residual ? "Residual (V)" : "Stopping potential (V)"}
         </p>
         <svg
-          viewBox="0 0 720 275"
+          viewBox="0 0 720 290"
           role="img"
           aria-labelledby={`${id}-${residual}-title ${id}-${residual}-desc`}
         >
@@ -91,7 +91,9 @@ export function PhotoelectricPlots({ state }: { state: AcceptedAnalysis }) {
               </text>
             </g>
           ))}
-          <text x="400" y="266" textAnchor="middle" style={labelStyle}>
+          {/* 10 units lower, in a drawing 15 taller than it was: at a phone's 26-unit labels the title's
+              top met the tick values' descenders. */}
+          <text x="400" y="276" textAnchor="middle" style={labelStyle}>
             Frequency (THz)
           </text>
           {residual ? (
