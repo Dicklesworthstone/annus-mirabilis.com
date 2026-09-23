@@ -37,14 +37,14 @@ function finite(value: number | Float64Array): boolean {
 
 export function refuseNonFiniteValues(
   outputs: readonly ScientificResult[],
-  candidates: readonly NumberRangeCandidate[],
+  // Non-empty by type, so there is always an input to name: the refusal needs one to point at.
+  candidates: readonly [NumberRangeCandidate, ...NumberRangeCandidate[]],
 ): ScientificResult[] {
   if (outputs.every((o) => o.status !== "value" || finite(o.value))) return [...outputs];
-  const culprit = candidates.reduce<NumberRangeCandidate | undefined>(
-    (best, c) => (!best || Math.abs(c.value) > Math.abs(best.value) ? c : best),
-    undefined,
+  const culprit = candidates.reduce(
+    (best, c) => (Math.abs(c.value) > Math.abs(best.value) ? c : best),
+    candidates[0],
   );
-  if (!culprit) throw new TypeError("refuseNonFiniteValues needs at least one candidate input.");
   const boundary: ParameterAction = { parameterId: culprit.parameterId, value: culprit.admissible };
   return outputs.map((o) =>
     o.status === "value" && !finite(o.value)
