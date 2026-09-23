@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-log-product",
+  "paper": "foundations",
+  "argument": "logarithms",
+  "title": "The logarithm of a product",
+  "spoken": "The log of A times B is log A plus log B.",
+  "explanation": "Multiplying numbers adds their logarithms. This is the property Einstein needs when independent probabilities multiply and entropies add.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A foundation lesson's worked identity, in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-log-product.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "function",
+      "opId": "eq-model-fd-log-product.op.lnProduct",
+      "name": "ln",
+      "argument": {
+        "kind": "product",
+        "opId": "eq-model-fd-log-product.op.product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-log-product.t.a",
+            "quantityId": "genericNumberA"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-log-product.t.b",
+            "quantityId": "genericNumberB"
+          }
+        ]
+      }
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-fd-log-product.op.sum",
+      "args": [
+        {
+          "kind": "function",
+          "opId": "eq-model-fd-log-product.op.lnA",
+          "name": "ln",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-log-product.t.a2",
+            "quantityId": "genericNumberA"
+          }
+        },
+        {
+          "kind": "function",
+          "opId": "eq-model-fd-log-product.op.lnB",
+          "name": "ln",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-log-product.t.b2",
+            "quantityId": "genericNumberB"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-log-product.op.lnA",
+      "title": "The log of A",
+      "explanation": "ln A.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-product.op.lnB",
+      "title": "The log of B",
+      "explanation": "ln B.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-product.op.lnProduct",
+      "title": "The log of the product",
+      "explanation": "The power e must be raised to, to give A times B.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-product.op.product",
+      "title": "A times B",
+      "explanation": "The two numbers multiplied.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-log-product.op.relation",
+      "title": "What it asserts",
+      "explanation": "The logarithm turns a product into a sum.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-product.op.sum",
+      "title": "Added",
+      "explanation": "The two logarithms added.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-product.t.a",
+      "title": "A",
+      "explanation": "Any positive number.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-product.t.a2",
+      "title": "A",
+      "explanation": "The same A.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-product.t.b",
+      "title": "B",
+      "explanation": "Any other positive number.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-product.t.b2",
+      "title": "B",
+      "explanation": "The same B.",
+      "foundation": "logarithms"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The log of "
+    },
+    {
+      "text": "A",
+      "nodeId": "eq-model-fd-log-product.t.a"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "B",
+      "nodeId": "eq-model-fd-log-product.t.b"
+    },
+    {
+      "text": " is log A plus log B."
+    }
+  ]
+}

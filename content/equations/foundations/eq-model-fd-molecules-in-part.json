@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-molecules-in-part",
+  "paper": "foundations",
+  "argument": "logarithms",
+  "title": "All the molecules in one part",
+  "spoken": "W equals v over v nought, to the power n.",
+  "explanation": "Each molecule is in the part v with probability v over v nought, and independent probabilities multiply, n times.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The molecules move independently of one another.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-molecules-in-part.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-molecules-in-part.t.probability",
+      "quantityId": "configurationProbability"
+    },
+    "right": {
+      "kind": "symbolPower",
+      "opId": "eq-model-fd-molecules-in-part.op.power",
+      "base": {
+        "kind": "quotient",
+        "opId": "eq-model-fd-molecules-in-part.op.fraction",
+        "numerator": {
+          "kind": "symbol",
+          "termId": "eq-model-fd-molecules-in-part.t.part",
+          "quantityId": "volume"
+        },
+        "denominator": {
+          "kind": "symbol",
+          "termId": "eq-model-fd-molecules-in-part.t.whole",
+          "quantityId": "volume",
+          "index": "0"
+        }
+      },
+      "exponent": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-molecules-in-part.t.count",
+        "quantityId": "independentPointCount"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-molecules-in-part.op.fraction",
+      "title": "v over v nought",
+      "explanation": "The part's share of the whole volume.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-molecules-in-part.op.power",
+      "title": "To the power n",
+      "explanation": "One factor of v over v nought for each independent molecule.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-fd-molecules-in-part.op.relation",
+      "title": "What it asserts",
+      "explanation": "Independent molecules multiply their chances.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-fd-molecules-in-part.t.count",
+      "title": "Number of molecules",
+      "explanation": "n, each moving independently.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-fd-molecules-in-part.t.part",
+      "title": "The part",
+      "explanation": "The volume v the molecules might all be found in.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-molecules-in-part.t.probability",
+      "title": "Probability",
+      "explanation": "That every one of the n molecules is in the part v at one moment.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-fd-molecules-in-part.t.whole",
+      "title": "The whole volume",
+      "explanation": "v nought, the volume the molecules move through.",
+      "foundation": "bridge-fractions-ratios"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The probability",
+      "nodeId": "eq-model-fd-molecules-in-part.t.probability"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-fd-molecules-in-part.t.part"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "v nought",
+      "nodeId": "eq-model-fd-molecules-in-part.t.whole"
+    },
+    {
+      "text": ", to the power "
+    },
+    {
+      "text": "n",
+      "nodeId": "eq-model-fd-molecules-in-part.t.count"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

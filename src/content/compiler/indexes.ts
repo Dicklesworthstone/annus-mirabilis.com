@@ -164,10 +164,18 @@ export function buildContentIndexes(records: ReadonlyMap<string, unknown>): Buil
   }
 
   for (const eq of equations.values()) {
-    if (eq.paper && !papers.has(eq.paper)) {
+    if (eq.paper === "foundations") {
+      // A foundation lesson's record names its lesson where a paper's names an argument.
+      if (!foundations.has(eq.argument))
+        issue(
+          "dangling-reference",
+          eq.id,
+          `Equation references unknown foundation: ${eq.argument}`,
+        );
+    } else if (eq.paper && !papers.has(eq.paper)) {
       issue("dangling-reference", eq.id, `Equation references unknown paper: ${eq.paper}`);
     }
-    if (eq.argument) {
+    if (eq.argument && eq.paper !== "foundations") {
       const arg = args.get(eq.argument);
       if (!arg) {
         issue("dangling-reference", eq.id, `Equation references unknown argument: ${eq.argument}`);

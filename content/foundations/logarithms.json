@@ -14,7 +14,8 @@
     {
       "kind": "formula",
       "latex": "\\ln(AB) = \\ln A + \\ln B, \\qquad \\ln\\left(f^{\\,n}\\right) = n \\ln f",
-      "spoken": "The log of A times B is log A plus log B, and the log of f to the power n is n times log f."
+      "spoken": "The log of A times B is log A plus log B, and the log of f to the power n is n times log f.",
+      "equations": ["eq-model-fd-log-product", "eq-model-fd-log-power"]
     },
     {
       "kind": "paragraph",
@@ -23,7 +24,8 @@
     {
       "kind": "formula",
       "latex": "S - S_0 = \\frac{R}{N} \\ln W",
-      "spoken": "S minus S nought equals R over N times the natural log of W."
+      "spoken": "S minus S nought equals R over N times the natural log of W.",
+      "equations": ["eq-model-fd-entropy-probability"]
     },
     {
       "kind": "paragraph",
@@ -42,7 +44,8 @@
     {
       "kind": "formula",
       "latex": "W = \\left(\\frac{v}{v_0}\\right)^{n}",
-      "spoken": "W equals v over v nought, to the power n."
+      "spoken": "W equals v over v nought, to the power n.",
+      "equations": ["eq-model-fd-molecules-in-part"]
     },
     {
       "kind": "steps",

@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-log-power",
+  "paper": "foundations",
+  "argument": "logarithms",
+  "title": "The logarithm of a power",
+  "spoken": "The log of f to the power n is n times log f.",
+  "explanation": "A power is repeated multiplication, so its logarithm is repeated addition: n times ln f.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A foundation lesson's worked identity, in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-log-power.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "function",
+      "opId": "eq-model-fd-log-power.op.lnPower",
+      "name": "ln",
+      "argument": {
+        "kind": "symbolPower",
+        "opId": "eq-model-fd-log-power.op.power",
+        "base": {
+          "kind": "symbol",
+          "termId": "eq-model-fd-log-power.t.base",
+          "quantityId": "genericBase"
+        },
+        "exponent": {
+          "kind": "symbol",
+          "termId": "eq-model-fd-log-power.t.exponent",
+          "quantityId": "genericExponent"
+        }
+      }
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-log-power.op.multiple",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-log-power.t.exponent2",
+          "quantityId": "genericExponent"
+        },
+        {
+          "kind": "function",
+          "opId": "eq-model-fd-log-power.op.lnBase",
+          "name": "ln",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-log-power.t.base2",
+            "quantityId": "genericBase"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-log-power.op.lnBase",
+      "title": "The log of f",
+      "explanation": "ln f.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-power.op.lnPower",
+      "title": "The log of the power",
+      "explanation": "ln of f to the n.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-power.op.multiple",
+      "title": "n times",
+      "explanation": "n copies of ln f added together.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-power.op.power",
+      "title": "f to the power n",
+      "explanation": "f multiplied by itself n times, when n is a whole number.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-log-power.op.relation",
+      "title": "What it asserts",
+      "explanation": "The logarithm turns a power into a multiple.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-power.t.base",
+      "title": "f",
+      "explanation": "Any positive number.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-power.t.base2",
+      "title": "f",
+      "explanation": "The same f.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-log-power.t.exponent",
+      "title": "n",
+      "explanation": "Any power.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-log-power.t.exponent2",
+      "title": "n",
+      "explanation": "The same n.",
+      "foundation": "exponentials"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The log of "
+    },
+    {
+      "text": "f",
+      "nodeId": "eq-model-fd-log-power.t.base"
+    },
+    {
+      "text": " to the power "
+    },
+    {
+      "text": "n",
+      "nodeId": "eq-model-fd-log-power.t.exponent"
+    },
+    {
+      "text": " is n times log f."
+    }
+  ]
+}

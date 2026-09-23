@@ -11,6 +11,7 @@ import { FOUNDATION_QUANTITIES, pickQuantity } from "../../equations/foundationQ
 import { BROWNIAN_QUANTITIES } from "../../equations/quantities.ts";
 import { parseEquationRecord } from "../../equations/record.ts";
 import { compileReadingContent } from "./compile.ts";
+import { buildContentIndexes } from "./indexes.ts";
 
 const ID = "eq-model-fd-test-log-product";
 const ln = (argument: unknown, name: string) => ({
@@ -160,5 +161,33 @@ describe("foundation lesson equation records", () => {
     for (const [id, q] of Object.entries(FOUNDATION_QUANTITIES)) expect(q.id).toBe(id);
     expect(FOUNDATION_QUANTITIES.volume?.glyph).toBe("v");
     expect(FOUNDATION_QUANTITIES.volume?.dimension).toEqual(["3", "0", "0", "0", "0", "0"]);
+  });
+});
+
+describe("the structural index accepts a lesson record only under an existing lesson", () => {
+  const records = (argument: string) =>
+    new Map<string, unknown>([
+      [
+        ID,
+        lessonRecord((x) => {
+          x.argument = argument;
+        }),
+      ],
+      [
+        "logarithms",
+        { kind: "foundation", id: "logarithms", prerequisites: [], explanation: [], example: [] },
+      ],
+    ]);
+  const errors = (r: ReturnType<typeof buildContentIndexes>) =>
+    r.errors.map((d) => `${d.code}: ${d.message}`);
+
+  test("a lesson record under its lesson raises no reference error", () => {
+    expect(errors(buildContentIndexes(records("logarithms")))).toEqual([]);
+  });
+
+  test("planted: a lesson record under a missing lesson is a dangling reference", () => {
+    expect(errors(buildContentIndexes(records("no-such-lesson")))).toContain(
+      "dangling-reference: Equation references unknown foundation: no-such-lesson",
+    );
   });
 });

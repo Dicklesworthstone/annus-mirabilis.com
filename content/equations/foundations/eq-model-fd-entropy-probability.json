@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-entropy-probability",
+  "paper": "foundations",
+  "argument": "logarithms",
+  "title": "Entropy from probability",
+  "spoken": "S minus S nought equals R over N times the natural log of W.",
+  "explanation": "Einstein's form of Boltzmann's principle in section 5: probabilities of independent states multiply, their entropies add, so entropy is R over N times ln W.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Entropy is a smooth function of probability, which Einstein takes for granted.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-entropy-probability.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "sum",
+      "opId": "eq-model-fd-entropy-probability.op.change",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-entropy-probability.t.entropy",
+          "quantityId": "entropy"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-entropy-probability.t.reference",
+            "quantityId": "entropy",
+            "index": "0"
+          }
+        }
+      ]
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-entropy-probability.op.product",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-entropy-probability.op.perMolecule",
+          "numerator": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-entropy-probability.t.gas",
+            "quantityId": "molarGasConstant"
+          },
+          "denominator": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-entropy-probability.t.avogadro",
+            "quantityId": "avogadroConstant"
+          }
+        },
+        {
+          "kind": "function",
+          "opId": "eq-model-fd-entropy-probability.op.ln",
+          "name": "ln",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-entropy-probability.t.probability",
+            "quantityId": "configurationProbability"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-entropy-probability.op.change",
+      "title": "The change in entropy",
+      "explanation": "S minus its value in the reference state.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-probability.op.ln",
+      "title": "The natural logarithm",
+      "explanation": "Einstein prints lg; it means ln.",
+      "foundation": "logarithms"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-probability.op.perMolecule",
+      "title": "R over N",
+      "explanation": "The gas constant per molecule, now called Boltzmann's constant.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-probability.op.product",
+      "title": "Times",
+      "explanation": "The constant R over N times the logarithm.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-probability.op.relation",
+      "title": "What it asserts",
+      "explanation": "Entropy is a logarithm of probability, measured from a reference state.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-probability.t.avogadro",
+      "title": "Number of molecules in a mole",
+      "explanation": "N, the number that turns R into a per-molecule constant.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-probability.t.entropy",
+      "title": "Entropy",
+      "explanation": "The entropy of the state considered.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-probability.t.gas",
+      "title": "Gas constant",
+      "explanation": "R, energy per mole per kelvin.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-probability.t.probability",
+      "title": "Probability of the state",
+      "explanation": "W, relative to the reference state.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-probability.t.reference",
+      "title": "Reference entropy",
+      "explanation": "S_0, the entropy of the state compared with.",
+      "foundation": "entropy-temperature"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The entropy",
+      "nodeId": "eq-model-fd-entropy-probability.t.entropy"
+    },
+    {
+      "text": " minus its reference value is R over N times the log of the probability "
+    },
+    {
+      "text": "W",
+      "nodeId": "eq-model-fd-entropy-probability.t.probability"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
