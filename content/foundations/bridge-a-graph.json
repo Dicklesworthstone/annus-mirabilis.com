@@ -4,30 +4,35 @@
   "id": "bridge-a-graph",
   "title": "Reading a graph",
   "question": "How does a curve show the relationship between two physical quantities?",
-  "summary": "A graph plots dependent outputs against independent inputs on two axes. The slope measures the rate of change and the area under a curve represents an accumulated sum.",
+  "summary": "A graph puts one quantity along the bottom and another up the side, one point for each pair. How steeply the curve climbs is a rate; the area under it is a total.",
   "review": "draft",
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "The horizontal axis (abscissa) typically shows the independent variable, like position x or elapsed time t. The vertical axis (ordinate) shows the quantity that depends on it, like particle count or probability density p(x)."
+      "text": "Walk for a minute and note how far you have gone every ten seconds: 0 m at the start, 14 m after ten seconds, 28 m after twenty, and so on. Draw a line along the bottom of a page for time and one up the side for distance, and put a dot for each pair. That is a graph: each dot is one moment, read across for the time and up for the distance."
     },
     {
       "kind": "paragraph",
-      "text": "A flat horizontal line means the quantity does not change across the axis. A rising curve has a positive slope: the quantity on the vertical axis grows as you move right. A symmetric bell-shaped curve shows high concentration in the centre with tails tapering toward zero on both sides."
+      "text": "The dots of a steady walk fall on a straight line, and the steeper the line, the faster the walk. This one climbs 14 metres for every 10 seconds: 1.4 metres per second. A flat line would mean standing still, and a line that bends upward would mean speeding up."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The papers draw other pairs the same way. Along the bottom goes what you choose or wait for, such as a position or a time; up the side goes what you then find, such as how many particles sit there. A bell-shaped curve, high in the middle and falling away on both sides, says that most particles are near the centre and fewer are farther out."
     }
   ],
   "example": [
     {
       "kind": "steps",
       "items": [
-        "Plot particle positions −3, −1, +1, +3 along the horizontal axis with a vertical bar for particle count.",
-        "The graph shows symmetric spread centred at zero.",
-        "The average position is 0, but the points are visibly separated from the origin."
+        "Four particles end at −3, −1, +1 and +3 micrometres from where they started.",
+        "Mark those positions along the bottom and draw a bar one particle tall above each.",
+        "The bars stand two on each side of zero, at the same distances out. The picture is symmetric, so the average position is 0.",
+        "Yet no bar stands at zero: every particle moved. The graph shows at a glance what the average hides."
       ]
     }
   ],
-  "exampleTitle": "Plotting four positions that average to zero",
+  "exampleTitle": "Four particles that average to zero",
   "prerequisites": ["bridge-negative-numbers-direction"],
-  "stoppingPoint": "Check axis labels, units, and whether the curve represents a count, a density, or an accumulated total.",
+  "stoppingPoint": "Before reading a curve, read its two labels and their units, and ask whether its height is a count, a density or a running total.",
   "citations": []
 }
