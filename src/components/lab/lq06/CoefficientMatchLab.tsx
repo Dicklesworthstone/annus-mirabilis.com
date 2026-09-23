@@ -241,7 +241,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
       {...(accepted ? identity(accepted) : {})}
     >
       <header className="lab-heading">
-        <p className="eyebrow">LQ-06 · The move in §6</p>
+        <p className="eyebrow">The move in §6</p>
         <h2>Matching the entropy laws to find the light quantum</h2>
         <span className="badge">{LQ06_MODEL.label}</span>
       </header>

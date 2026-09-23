@@ -165,7 +165,7 @@ export function EntropyWorkbenchLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">LQ-04 &middot; Radiation entropy workbench</p>
+          <p className="eyebrow">Radiation entropy workbench</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">Ideal model, host calculation</span>

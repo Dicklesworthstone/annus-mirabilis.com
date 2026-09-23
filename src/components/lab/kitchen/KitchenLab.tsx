@@ -160,7 +160,7 @@ export function KitchenLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">Local observations · BM-07</p>
+          <p className="eyebrow">Local observations</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{accepted ? "Local host calculation" : "No data loaded"}</span>

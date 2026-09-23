@@ -105,7 +105,7 @@ export function ModeAllocationLab({
       data-execution-label="host"
     >
       <header className="lab-heading">
-        <p className="eyebrow">LQ-02 · Classical mode-energy allocation</p>
+        <p className="eyebrow">Classical mode-energy allocation</p>
         <h2 id={`${id}-title`}>{title}</h2>
       </header>
 

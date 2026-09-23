@@ -105,7 +105,7 @@ export function MagnetConductorLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">SR-02 · Magnet and conductor</p>
+          <p className="eyebrow">Magnet and conductor</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{apparatus ? SR02_APPARATUS_LABEL : SR02_MODEL.label}</span>

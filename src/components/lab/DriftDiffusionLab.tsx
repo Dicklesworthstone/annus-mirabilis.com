@@ -202,7 +202,7 @@ export function DriftDiffusionLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">BM-04 · An executable model</p>
+          <p className="eyebrow">An executable model</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{BM04_MODEL.label}</span>

@@ -107,7 +107,7 @@ export function ElectronDynamicsLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">SR-13 · Electron dynamics and force conventions</p>
+          <p className="eyebrow">Electron dynamics and force conventions</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{SR13_MODEL.label}</span>

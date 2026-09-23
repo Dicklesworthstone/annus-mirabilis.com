@@ -185,7 +185,7 @@ export function SpectrumLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">LQ-03 &middot; Radiation spectrum and regime comparison</p>
+          <p className="eyebrow">Radiation spectrum and regime comparison</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">Ideal model, host calculation</span>

@@ -202,7 +202,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
       {...(accepted ? identity(accepted) : {})}
     >
       <header className="lab-heading">
-        <p className="eyebrow">LQ-09 · Gas ionization by light</p>
+        <p className="eyebrow">Gas ionization by light</p>
         <h2>Gas ionization bounds and counting model</h2>
         <span className="badge">{LQ09_MODEL.label}</span>
       </header>

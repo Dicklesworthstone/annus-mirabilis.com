@@ -143,7 +143,7 @@ export function MovingMirrorLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">SR-11 · Moving mirror reflection and radiation pressure</p>
+          <p className="eyebrow">Moving mirror reflection and radiation pressure</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{SR11_MODEL.label}</span>

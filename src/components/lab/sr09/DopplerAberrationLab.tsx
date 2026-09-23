@@ -99,7 +99,7 @@ export function DopplerAberrationLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">SR-09 · Doppler and aberration</p>
+          <p className="eyebrow">Doppler and aberration</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{SR09_MODEL.label}</span>

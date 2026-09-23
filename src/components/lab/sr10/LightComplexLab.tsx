@@ -114,7 +114,7 @@ export function LightComplexLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">SR-10 · The finite light complex</p>
+          <p className="eyebrow">The finite light complex</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{SR10_MODEL.label}</span>

@@ -166,7 +166,7 @@ export function WalkLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">BM-05 · The independent-step argument</p>
+          <p className="eyebrow">The independent-step argument</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
       </header>

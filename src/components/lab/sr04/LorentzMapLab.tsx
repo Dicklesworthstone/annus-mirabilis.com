@@ -160,7 +160,7 @@ export function LorentzMapLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">SR-04 &middot; Construct the map</p>
+          <p className="eyebrow">Construct the map</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">Ideal model, host calculation</span>

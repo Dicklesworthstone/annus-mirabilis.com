@@ -16,7 +16,7 @@ export default function MovingClocksPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">SR-05 · Special relativity · Section 4</p>
+        <p className="eyebrow">Special relativity · Section 4</p>
         <h1>
           A moving clock loses time.
           <br />

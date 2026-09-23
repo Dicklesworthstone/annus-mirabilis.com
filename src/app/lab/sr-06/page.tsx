@@ -16,7 +16,7 @@ export default function VelocityCompositionPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">SR-06 · Special relativity · Kinematics §5</p>
+        <p className="eyebrow">Special relativity · Kinematics §5</p>
         <h1>
           Speeds do not
           <br />

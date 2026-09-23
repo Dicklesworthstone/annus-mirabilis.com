@@ -163,7 +163,7 @@ export function BrownianLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">BM-06 · An executable model</p>
+          <p className="eyebrow">An executable model</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
       </header>

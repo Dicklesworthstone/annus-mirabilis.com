@@ -260,7 +260,7 @@ export function CoefficientLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">ME-02 · An executable model</p>
+          <p className="eyebrow">An executable model</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{ME02_MODEL.label}</span>

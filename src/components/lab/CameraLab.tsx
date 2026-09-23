@@ -188,7 +188,7 @@ export function CameraLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">BM-08 · Observe, then infer</p>
+          <p className="eyebrow">Observe, then infer</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
       </header>

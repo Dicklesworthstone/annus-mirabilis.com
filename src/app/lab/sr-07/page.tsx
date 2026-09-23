@@ -16,7 +16,7 @@ export default function FieldEquationsPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">SR-07 · Special relativity · Electrodynamics §6</p>
+        <p className="eyebrow">Special relativity · Electrodynamics §6</p>
         <h1>
           The field equations
           <br />

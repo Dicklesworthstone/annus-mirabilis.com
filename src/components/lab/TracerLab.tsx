@@ -230,7 +230,7 @@ export function TracerLab({
       >
         <header className="lab-heading">
           <div>
-            <p className="eyebrow">BM-01 · A reproducible trial</p>
+            <p className="eyebrow">A reproducible trial</p>
             <h2 id={`${id}-title`}>{title}</h2>
           </div>
         </header>

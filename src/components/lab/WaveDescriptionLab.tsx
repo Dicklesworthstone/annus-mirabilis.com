@@ -218,7 +218,7 @@ export function WaveDescriptionLab({
       {...(view.refusal ? { "data-refusal-code": view.refusal.code } : {})}
     >
       <header className="lab-heading">
-        <p className="eyebrow">LQ-01 · An executable model</p>
+        <p className="eyebrow">An executable model</p>
         <h2 id={`${id}-title`}>{title}</h2>
         <span className="badge">{LQ01_MODEL.label}</span>
       </header>

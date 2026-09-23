@@ -201,7 +201,7 @@ export function OsmoticPartitionLab({
       data-model={accepted.model}
     >
       <header className="lab-heading">
-        <p className="eyebrow">BM-02 · The osmotic partition</p>
+        <p className="eyebrow">The osmotic partition</p>
         <h2 id={`${id}-title`}>{title}</h2>
       </header>
 

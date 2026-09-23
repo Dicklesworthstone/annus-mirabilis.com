@@ -183,7 +183,7 @@ export function InferenceLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">BM-07 · The inverse problem</p>
+          <p className="eyebrow">The inverse problem</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">

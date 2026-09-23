@@ -335,7 +335,7 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
       {...(accepted ? identity(accepted) : {})}
     >
       <header className="lab-heading">
-        <p className="eyebrow">LQ-08 · The photoelectric apparatus</p>
+        <p className="eyebrow">The photoelectric apparatus</p>
         <h2>Photoelectric apparatus laboratory</h2>
         <span className="badge">{LQ08_MODEL.label}</span>
       </header>

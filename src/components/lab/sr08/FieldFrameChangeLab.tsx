@@ -113,7 +113,7 @@ export function FieldFrameChangeLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">SR-08 · Electrodynamics §6</p>
+          <p className="eyebrow">Electrodynamics §6</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{SR08_MODEL.label}</span>

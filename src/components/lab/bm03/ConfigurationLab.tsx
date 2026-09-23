@@ -159,7 +159,7 @@ export function ConfigurationLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">BM-03 · Statistical mechanics derivation</p>
+          <p className="eyebrow">Statistical mechanics derivation</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{BM03_MODEL.label}</span>

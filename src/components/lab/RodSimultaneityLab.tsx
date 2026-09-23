@@ -213,7 +213,7 @@ export function RodSimultaneityLab({
           }}
         >
           <div>
-            <p className="eyebrow">SR-03 · An executable laboratory</p>
+            <p className="eyebrow">An executable laboratory</p>
             <h2 id={`${id}-title`}>{title}</h2>
           </div>
           <span className="badge">{SR03_MODEL.label}</span>

@@ -158,7 +158,7 @@ export function ChargeCurrentLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">SR-12 · Special relativity §9</p>
+          <p className="eyebrow">Special relativity §9</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">{SR12_MODEL.label}</span>
