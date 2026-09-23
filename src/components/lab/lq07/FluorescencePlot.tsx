@@ -98,16 +98,7 @@ export function FluorescencePlot({
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span
-              style={{
-                fontSize: "0.75rem",
-                fontFamily: "var(--font-mono, monospace)",
-                fontWeight: "bold",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                color: "var(--ink)",
-              }}
-            >
+            <span style={{ fontSize: "var(--type-small)", fontWeight: 600, color: "var(--ink)" }}>
               Elementary quantum energy ledger
             </span>
             <span
@@ -361,12 +352,9 @@ export function FluorescencePlot({
         >
           <h4
             style={{
-              fontSize: "0.75rem",
-              fontFamily: "var(--font-mono, monospace)",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
+              fontSize: "var(--type-small)",
               color: "var(--ink)",
-              fontWeight: "bold",
+              fontWeight: 600,
               margin: 0,
             }}
           >
@@ -510,15 +498,7 @@ export function FluorescencePlot({
               gap: "0.25rem",
             }}
           >
-            <span
-              style={{
-                fontWeight: "bold",
-                color: "var(--ink)",
-                textTransform: "uppercase",
-                fontFamily: "var(--font-mono, monospace)",
-                letterSpacing: "0.05em",
-              }}
-            >
+            <span style={{ fontWeight: 600, color: "var(--ink)" }}>
               Weak-illumination photon rates (zero threshold)
             </span>
             <span

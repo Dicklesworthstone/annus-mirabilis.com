@@ -209,14 +209,10 @@ export function IndependentConfigurationsPlot({
           }}
         >
           <h4
-            className="eyebrow"
             style={{
-              fontSize: "0.75rem",
-              fontFamily: "var(--font-mono, monospace)",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
+              fontSize: "var(--type-small)",
               color: "var(--ink)",
-              fontWeight: "bold",
+              fontWeight: 600,
               margin: 0,
             }}
           >
