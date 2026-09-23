@@ -28,7 +28,7 @@
   "src/equations/latex/authored.ts": 0,
   "src/equations/latex/collisions.ts": 1,
   "src/equations/latex/notation.ts": 0,
-  "src/equations/latex/render.ts": 2,
+  "src/equations/latex/render.ts": 1,
   "src/equations/missingStep/contentCheck.ts": 5,
   "src/equations/monomial.ts": 4,
   "src/equations/record.ts": 1,
