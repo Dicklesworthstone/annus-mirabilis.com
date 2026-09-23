@@ -90,6 +90,30 @@ function close(actual, expected) {
     `${actual} != ${expected}`,
   );
 }
+/**
+ * A limit is approached, not evaluated at its point: at v = 0 the low-speed quotient divides by
+ * zero, and at the fixture's v = 3 it is the finite-speed proxy (1/9), not L/c^2 (0.08). So the
+ * body is evaluated as the speed closes in on zero, at beta = 1e-2 and then 1e-4, with the Lorentz
+ * factor worked by hand from the speed each time (gamma = 1/sqrt(1 - beta^2)), not taken from a
+ * record. The value must close in on the other side: nearer at 1e-4 than at 1e-2, and within 1e-6
+ * relative at 1e-4 (the series says 3 beta^2 / 4, about 7.5e-9 there). Only speed limits occur.
+ */
+function approachLimit(node, expected, values) {
+  assert.equal(node.variable.quantityId, "frameSpeed", "Only a limit in the speed is fixtured.");
+  assert.equal(evaluate(node.approaches, values), 0, "Only a limit toward zero is fixtured.");
+  const gap = (beta) => {
+    const moved = {
+      ...values,
+      frameSpeed: beta * values.speedOfLight,
+      lorentzFactor: 1 / Math.sqrt(1 - beta ** 2),
+    };
+    return Math.abs(evaluate(node.expression, moved) - expected) / Math.abs(expected);
+  };
+  const far = gap(1e-2);
+  const near = gap(1e-4);
+  assert.ok(near < far, `Not closing in: ${near} at beta 1e-4, ${far} at 1e-2`);
+  assert.ok(near < 1e-6, `Relative gap ${near} at beta 1e-4`);
+}
 
 for (const source of records) {
   test(`${source.id}: exact dimensions, closed identity, all term and operation explanations`, () => {
@@ -112,8 +136,12 @@ for (const source of records) {
       const members =
         source.tree.operator === "=" ? chain(source.tree) : [source.tree.left, source.tree.right];
       assert.ok(members.length >= 2);
-      for (let i = 1; i < members.length; i++)
-        close(evaluate(members[i - 1], fixture), evaluate(members[i], fixture));
+      for (let i = 1; i < members.length; i++) {
+        const [a, b] = [members[i - 1], members[i]];
+        if (a.kind === "limit") approachLimit(a, evaluate(b, fixture), fixture);
+        else if (b.kind === "limit") approachLimit(b, evaluate(a, fixture), fixture);
+        else close(evaluate(a, fixture), evaluate(b, fixture));
+      }
     });
   }
 }
