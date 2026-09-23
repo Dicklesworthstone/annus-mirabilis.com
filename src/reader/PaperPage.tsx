@@ -35,6 +35,8 @@ import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
 import { GermanFace } from "./faces/GermanFace.tsx";
 import { GlossFace } from "./faces/GlossFace.tsx";
 import { ParallelFace } from "./faces/ParallelFace.tsx";
+import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
+import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
 import { paperEquations } from "./paperEquations.ts";
 import {
   isFaceFallbackId,
@@ -390,6 +392,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         sectionHref={`/papers/${paper.id}/${a.section}/#${a.id}`}
                         title={a.title}
                       />
+                      {paper.id === "mass-energy" && a.id === "arg-me-small-speed" && (
+                        <MassEnergyLowSpeed />
+                      )}
+                      {paper.id === "mass-energy" && a.id === "arg-me-constant-premise" && (
+                        <MassEnergyDerivation />
+                      )}
                       <aside className="modern-margin callout-limit" data-reading="3" hidden>
                         <h4>Modern qualifications</h4>
                         <ReadingBlocks blocks={a.readings.margin} foundations={foundations} />

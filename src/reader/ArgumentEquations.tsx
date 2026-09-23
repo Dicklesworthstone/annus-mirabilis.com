@@ -1,9 +1,6 @@
 import { EquationScope } from "../equations/EquationScope.tsx";
 import { SemanticEquation } from "../equations/SemanticEquation.tsx";
-import type { CompiledEquation } from "../equations/viewTypes.ts";
 import { LazyArgumentEquations } from "./LazyArgumentEquations.tsx";
-import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
-import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
 import { paperEquations } from "./paperEquations.ts";
 
 /**
@@ -12,6 +9,11 @@ import { paperEquations } from "./paperEquations.ts";
  * `lazy` (whole-paper pages): the cards load on first opening, and until then the disclosure
  * links to `sectionHref`, the section's own page, where this same component renders them inline.
  * See LazyArgumentEquations for the measurement that made it necessary.
+ *
+ * It imports nothing paper-specific. It used to render mass-energy's two proof explorers, and so
+ * imported them: when the Brownian reader began to use it, their client code (with the
+ * elimination proof's JSON) joined Brownian's first-route JavaScript, which grew from 211,085 to
+ * 216,377 bytes on BUILD 23. PaperPage renders them beside it instead.
  */
 export function ArgumentEquations({
   paperId,
@@ -66,10 +68,6 @@ export function ArgumentEquations({
           </EquationScope>
           {labLink}
         </details>
-      )}
-      {paperId === "mass-energy" && argumentId === "arg-me-small-speed" && <MassEnergyLowSpeed />}
-      {paperId === "mass-energy" && argumentId === "arg-me-constant-premise" && (
-        <MassEnergyDerivation />
       )}
     </>
   );
