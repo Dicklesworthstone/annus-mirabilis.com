@@ -50,7 +50,7 @@ export const SR11_MODEL = Object.freeze({
 export const SR11_CAPTION = Object.freeze({
   r0: "Light reflected from a moving mirror undergoes a double Doppler shift and changes its reflection angle according to relativistic wave kinematics, while exerting a radiation pressure that balances energy conservation between the electromagnetic field and the mirror's mechanical work.",
   r1: "A receding mirror red-shifts the reflected wave and reduces its energy density; an approaching mirror blue-shifts the wave and increases its energy. The energy difference between incident and reflected light precisely equals the mechanical work rate P·v·Am done on or by the mirror.",
-  r2: "For oblique incidence, the law of reflection is modified: cos(phi''') = -((1+beta^2)cos(phi) - 2beta) / (1 - 2beta cos(phi) + beta^2). When cos(phi) <= beta, light can never intercept the receding mirror, leading to an interception horizon.",
+  r2: "For oblique incidence the law of reflection changes: cos φ′′′ = −[(1 + β²) cos φ − 2β] / (1 − 2β cos φ + β²). When cos φ ≤ β, the light can never catch the receding mirror, which gives an interception horizon.",
   r3: "In the mirror's rest frame, reflection does no mechanical work and incident power equals reflected power. Transforming the forces and energies back to the laboratory frame reproduces Maxwell-Bartoli radiation pressure and establishes energy conservation across reference frames.",
 });
 

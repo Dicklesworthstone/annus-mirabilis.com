@@ -256,7 +256,7 @@ export const SR03_PROMPTS: Readonly<Record<Sr03PromptKey, PredictPrompt>> = Obje
   "causal-order": {
     id: "sr-03-predict-causal-order",
     question:
-      "If two events have a timelike separation (s^2 < 0, so a subluminal signal could connect them), what happens to their time order when viewed from a frame moving at 0.95c?",
+      "If two events have a timelike separation (s² < 0, so a signal slower than light could connect them), what happens to their time order when viewed from a frame moving at 0.95c?",
     candidates: [
       {
         id: "order-preserved",

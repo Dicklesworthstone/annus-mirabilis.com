@@ -378,7 +378,7 @@ export function DriftDiffusionLab({
                     <option value="uniform">Uniform distribution</option>
                     <option value="step">Step concentration</option>
                     <option value="equilibrium">Osmotic equilibrium</option>
-                    <option value="spike">Delta spike at center</option>
+                    <option value="spike">Point source at the centre</option>
                   </select>
                 </div>
               </div>

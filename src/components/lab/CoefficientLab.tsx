@@ -389,7 +389,7 @@ export function CoefficientLab({
                       setDraft({ ...draft, showNaive: event.currentTarget.checked })
                     }
                   />{" "}
-                  Show the naive evaluation of gamma minus one (diagnostic only)
+                  Show the naive evaluation of γ − 1 (a diagnostic only)
                 </label>
                 <p className="fine">
                   Changing the input unit reinterprets the entered number and creates a new setup.

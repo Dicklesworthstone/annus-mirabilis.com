@@ -42,8 +42,8 @@ export default function FieldFrameChangePage() {
       <section className="reading" id="field-frame-change-worked">
         <h2>Worked case (readable without JavaScript)</h2>
         <p>
-          Consider a pure electric field in the stationary system K with Ey = 1 V/m and B = 0,
-          viewed from a coordinate system k boosted along the x-axis at speed v = 0.6c (gamma =
+          Consider a pure electric field in the stationary system K with E<sub>y</sub> = 1 V/m and B
+          = 0, viewed from a coordinate system k boosted along the x-axis at speed v = 0.6c (γ =
           1.25).
         </p>
         <Formula
@@ -54,11 +54,13 @@ export default function FieldFrameChangePage() {
           latex={String.raw`E^2 - c^2 B^2 = 1.0\text{ (V/m)}^2,\qquad \mathbf{E}\cdot\mathbf{B} = 0`}
         />
         <p>
-          A test charge with charge q at rest in K experiences force Fy = q Ey = 1.602×10⁻¹⁹ N in
-          the laboratory frame. In the moving frame k, the charge has velocity u'x = -0.6c, and
-          experiences the transformed Lorentz force F'y = q(E'y + u'x B'z) = q(1.25 - 0.6×0.75) =
-          1.0×1.602×10⁻¹⁹ N. The relativistic force transformation law F'y = Fy / gamma gives F'y =
-          0.8 Fy, matching the kinematics of §6.
+          A test charge q at rest in K feels the force F<sub>y</sub> = qE<sub>y</sub>, which is
+          1.602×10⁻¹⁹ N for an elementary charge, in the laboratory frame. In the moving frame k the
+          charge has velocity u′<sub>x</sub> = −0.6c and feels the transformed Lorentz force F′
+          <sub>y</sub> = q(E′<sub>y</sub> − u′<sub>x</sub>B′<sub>z</sub>) = q(1.25 − 0.45) V/m = 0.8
+          × 1.602×10⁻¹⁹ N, since u′<sub>x</sub>B′<sub>z</sub> = (−0.6c)(−0.75/c) = 0.45 V/m. The
+          force transformation F′<sub>y</sub> = F<sub>y</sub>/γ gives the same 0.8 F<sub>y</sub>,
+          matching the kinematics of §6.
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s6">

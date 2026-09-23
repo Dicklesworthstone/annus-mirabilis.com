@@ -142,7 +142,7 @@ export type Me01Preset = Readonly<{
 export const ME01_PRESETS: readonly Me01Preset[] = Object.freeze([
   {
     presetId: "me-01-default",
-    label: "Collinear emission (v = 0.6c, phi = 0 deg)",
+    label: "Collinear emission (v = 0.6c, φ = 0°)",
     parameterValues: {
       frameSpeed: 0.6,
       emittedEnergyRestFrame: 1.0,
@@ -158,7 +158,7 @@ export const ME01_PRESETS: readonly Me01Preset[] = Object.freeze([
   },
   {
     presetId: "me-01-transverse-emission",
-    label: "Transverse emission (v = 0.6c, phi = 90 deg)",
+    label: "Transverse emission (v = 0.6c, φ = 90°)",
     parameterValues: {
       frameSpeed: 0.6,
       emittedEnergyRestFrame: 1.0,
@@ -174,7 +174,7 @@ export const ME01_PRESETS: readonly Me01Preset[] = Object.freeze([
   },
   {
     presetId: "me-01-sixty-degree-tilt",
-    label: "Tilted axis (v = 0.6c, phi = 60 deg)",
+    label: "Tilted axis (v = 0.6c, φ = 60°)",
     parameterValues: {
       frameSpeed: 0.6,
       emittedEnergyRestFrame: 1.0,
