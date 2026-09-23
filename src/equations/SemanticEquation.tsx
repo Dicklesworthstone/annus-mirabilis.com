@@ -15,6 +15,17 @@ import { createSelectionStore } from "./selectionStore.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 import "./equations.css";
 
+/**
+ * A prerequisite link's name says which lesson it opens. Named by the note alone it could not:
+ * notes share titles, within one equation and across them, and "Read the prerequisite: What it
+ * asserts" led to five different lessons. Without the lesson's title it falls back to the note's.
+ */
+export function prerequisiteName(noteTitle: string, lessonTitle: string | undefined): string {
+  return lessonTitle
+    ? `Read the prerequisite: ${lessonTitle}, for ${noteTitle}`
+    : `Read the prerequisite: ${noteTitle}`;
+}
+
 export function SemanticEquation({
   equation,
   scope: propScope,
@@ -343,7 +354,7 @@ export function SemanticEquation({
                 {n.explanation}{" "}
                 <a
                   href={`/foundations/${n.foundation}/`}
-                  aria-label={`Read the prerequisite: ${n.title}`}
+                  aria-label={prerequisiteName(n.title, scopeContext?.lessonTitles?.[n.foundation])}
                 >
                   Read the prerequisite
                 </a>

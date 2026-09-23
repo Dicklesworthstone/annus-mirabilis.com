@@ -51,6 +51,20 @@ const rendererDigest = createHash("sha256")
   )
   .digest("hex");
 await mkdir("src/generated", { recursive: true });
+// The title of every lesson a payload's notes cite, beside the equations rather than in them, so
+// each compiled equation stays exactly what compileEquation(record) returns. A prerequisite link
+// names its lesson with it: note titles repeat ("What it asserts" is on nine Brownian relations),
+// and a link named by the note alone reached five different lessons under one name.
+const lessonTitles = (own: readonly (typeof equations)[number][]) =>
+  Object.fromEntries(
+    [...new Set(own.flatMap((equation) => equation.notes.map((note) => note.foundation)))]
+      .sort()
+      .map((id) => {
+        const foundation = result.foundations.find((f) => f.id === id);
+        if (!foundation) throw new Error(`Equation note cites unknown foundation ${id}.`);
+        return [id, foundation.title];
+      }),
+  );
 // Each route receives only its paper's payload. Extending admission must not
 // quietly attach every mass-energy equation to the Brownian reader/laboratory.
 for (const [paper, file] of [
@@ -66,6 +80,7 @@ for (const [paper, file] of [
         schemaVersion: 1,
         rendererDigest,
         equations: equations.filter((equation) => equation.paper === paper),
+        foundationTitles: lessonTitles(equations.filter((equation) => equation.paper === paper)),
       },
       null,
       2,
@@ -76,17 +91,19 @@ for (const [paper, file] of [
 // component, so whatever it imports ships as first-route JavaScript on /papers/brownian-motion/.
 // Importing the whole Brownian payload put nine derivation-only records (the (A+B)^2 identity,
 // the Avogadro inference) into that bundle and into "Equations for this accepted trial".
+const bm01Equations = equations.filter(
+  (equation) =>
+    equation.paper === "brownian-motion" &&
+    equation.bindings.some((binding) => binding.experimentId === "bm-01"),
+);
 await writeFile(
   "src/generated/bm01-equations.json",
   `${JSON.stringify(
     {
       schemaVersion: 1,
       rendererDigest,
-      equations: equations.filter(
-        (equation) =>
-          equation.paper === "brownian-motion" &&
-          equation.bindings.some((binding) => binding.experimentId === "bm-01"),
-      ),
+      equations: bm01Equations,
+      foundationTitles: lessonTitles(bm01Equations),
     },
     null,
     2,

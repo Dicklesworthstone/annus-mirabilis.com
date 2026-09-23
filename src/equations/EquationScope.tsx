@@ -9,6 +9,8 @@ const Scope = createContext<Readonly<{
   editQuantity: ((id: string) => void) | null;
   scope?: string | undefined;
   scopeLabel?: string | undefined;
+  /** Lesson titles by foundation id, so a prerequisite link can say which lesson it opens. */
+  lessonTitles?: Readonly<Record<string, string>> | undefined;
 }> | null>(null);
 export const useEquationScope = () => useContext(Scope);
 export function EquationScope({
@@ -17,17 +19,19 @@ export function EquationScope({
   editQuantity = null,
   scope,
   scopeLabel,
+  lessonTitles,
 }: {
   children: ReactNode;
   slots?: readonly LiveSlot[];
   editQuantity?: ((id: string) => void) | null;
   scope?: string | undefined;
   scopeLabel?: string | undefined;
+  lessonTitles?: Readonly<Record<string, string>> | undefined;
 }) {
   const [store] = useState(createSelectionStore),
     selected = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
   return (
-    <Scope.Provider value={{ store, slots, editQuantity, scope, scopeLabel }}>
+    <Scope.Provider value={{ store, slots, editQuantity, scope, scopeLabel, lessonTitles }}>
       <div
         className="equation-context"
         data-equation-context

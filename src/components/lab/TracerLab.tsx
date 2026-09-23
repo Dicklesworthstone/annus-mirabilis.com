@@ -213,6 +213,7 @@ export function TracerLab({
       editQuantity={editQuantity}
       scope={equationScope}
       scopeLabel={equationScopeLabel}
+      lessonTitles={equationPayload.foundationTitles}
     >
       <section
         className="laboratory"

@@ -21,7 +21,10 @@ import { EquationScope } from "../equations/EquationScope.tsx";
 import { SemanticEquation } from "../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
 
-type Payload = { readonly equations: readonly unknown[] };
+type Payload = {
+  readonly equations: readonly unknown[];
+  readonly foundationTitles?: Readonly<Record<string, string>>;
+};
 const LOADERS: Readonly<Record<string, () => Promise<Payload>>> = {
   "brownian-motion": () => import("../generated/brownian-equations.json"),
   "mass-energy": () => import("../generated/mass-energy-equations.json"),
@@ -46,6 +49,7 @@ export function LazyArgumentEquations({
   children?: ReactNode;
 }) {
   const [equations, setEquations] = useState<readonly CompiledEquation[] | null>(null);
+  const [lessonTitles, setLessonTitles] = useState<Readonly<Record<string, string>>>({});
   const [failed, setFailed] = useState(false);
   function load(event: SyntheticEvent<HTMLDetailsElement>) {
     if (!event.currentTarget.open || equations) return;
@@ -55,13 +59,14 @@ export function LazyArgumentEquations({
       return;
     }
     loader()
-      .then((payload) =>
+      .then((payload) => {
+        setLessonTitles(payload.foundationTitles ?? {});
         setEquations(
           (payload.equations as readonly CompiledEquation[]).filter(
             (equation) => equation.argument === argumentId,
           ),
-        ),
-      )
+        );
+      })
       .catch(() => setFailed(true));
   }
   return (
@@ -77,7 +82,7 @@ export function LazyArgumentEquations({
         it. These are modern teaching equations, not a reviewed transcription.
       </p>
       {equations ? (
-        <EquationScope scope={`reader-${argumentId}`}>
+        <EquationScope scope={`reader-${argumentId}`} lessonTitles={lessonTitles}>
           {equations.map((equation) => (
             <SemanticEquation key={equation.id} equation={equation} />
           ))}

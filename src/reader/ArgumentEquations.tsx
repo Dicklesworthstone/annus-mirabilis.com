@@ -1,7 +1,7 @@
 import { EquationScope } from "../equations/EquationScope.tsx";
 import { SemanticEquation } from "../equations/SemanticEquation.tsx";
 import { LazyArgumentEquations } from "./LazyArgumentEquations.tsx";
-import { paperEquations } from "./paperEquations.ts";
+import { lessonTitlesFor, paperEquations } from "./paperEquations.ts";
 
 /**
  * Server-composed, passage-local disclosure: the worked text is never gated by hydration.
@@ -61,7 +61,10 @@ export function ArgumentEquations({
             Read each operation, check its units and assumptions, or open the mathematical step
             behind it. These are modern teaching equations, not a reviewed transcription.
           </p>
-          <EquationScope scope={`reader-${argumentId}`}>
+          <EquationScope
+            scope={`reader-${argumentId}`}
+            lessonTitles={lessonTitlesFor(paperId, equations)}
+          >
             {equations.map((equation) => (
               <SemanticEquation key={equation.id} equation={equation} />
             ))}
