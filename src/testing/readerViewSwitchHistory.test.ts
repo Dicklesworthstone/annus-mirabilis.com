@@ -42,7 +42,8 @@ function buildPageDom(): HTMLElement {
     <a data-view-link="reading" href="?view=reading">Reading</a>
     <a data-view-link="results" href="?view=results">Results</a>
     <a data-view-link="german" href="?view=german">German</a>
-    <p id="s1">The passage.</p>
+    <a data-reader-anchor="s1" href="#s1">Section 1</a>
+    <p id="s1" tabindex="-1">The passage.</p>
   `;
   document.body.appendChild(root);
   return root;
@@ -206,6 +207,25 @@ describe("an unknown ?view= falls back to the explanation and the address keeps 
       clickViewLink(pageRoot, "reading");
     });
     expect(new URL(location.href).searchParams.has("view")).toBe(false);
+    act(() => {
+      reactRoot.unmount();
+    });
+  });
+});
+
+describe("an outline jump moves focus to the passage it names", () => {
+  // am-read-anchors-navigation-a6o: "Focus lands on navigation targets". The controller scrolled
+  // to the passage and left focus on the outline link.
+  test("activating a [data-reader-anchor] link focuses its target", async () => {
+    window.history.pushState(null, "", "/papers/brownian-motion/");
+    const { pageRoot, reactRoot } = await mount();
+    const link = pageRoot.querySelector<HTMLElement>('[data-reader-anchor="s1"]');
+    link?.focus();
+    await act(async () => {
+      link?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+    });
+    expect(document.activeElement?.id).toBe("s1");
+    expect(location.hash).toBe("#s1");
     act(() => {
       reactRoot.unmount();
     });
