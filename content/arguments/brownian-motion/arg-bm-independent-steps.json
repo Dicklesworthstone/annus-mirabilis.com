@@ -66,11 +66,11 @@
         "kind": "steps",
         "items": [
           "Let A and B be two signed increments. Both have mean zero.",
-          "Independence gives average AB = average A times average B = 0.",
-          "Averaging the expansion leaves average A² plus average B².",
-          "For n increments, each squared increment contributes ℓ²; all pairwise products vanish in the expectation.",
-          "Thus the total mean square is nℓ². Since t = nτ, replace n with t/τ.",
-          "Name the coefficient ℓ²/(2τ) as D. The result becomes 2Dt.",
+          "Independence gives average \\(AB\\) = average \\(A\\) times average \\(B\\) = 0.",
+          "Averaging the expansion leaves average \\(A^2\\) plus average \\(B^2\\).",
+          "For \\(n\\) increments, each squared increment contributes \\(l^2\\); all pairwise products vanish in the expectation.",
+          "Thus the total mean square is \\(nl^2\\). Since \\(t = n\\tau\\), replace \\(n\\) with \\(t/\\tau\\).",
+          "Name the coefficient \\(l^2/(2\\tau)\\) as \\(D\\). The result becomes \\(2Dt\\).",
           "Four times t gives four times the mean square. Taking the square root gives twice the RMS."
         ]
       },

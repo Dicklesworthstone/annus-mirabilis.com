@@ -21,17 +21,17 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "For the stated dilute-sphere liquid model, higher viscosity lowers D. Doubling viscosity halves the predicted mean square at fixed time and divides RMS displacement by √2."
+        "text": "For the stated dilute-sphere liquid model, higher viscosity lowers \\(D\\). Doubling viscosity halves the predicted mean square at fixed time and divides RMS displacement by \\(\\sqrt{2}\\)."
       }
     ],
     "full": [
       {
         "kind": "paragraph",
-        "text": "The displacement law tells us what a given D predicts. A separate model connects D to a tracer’s physical surroundings. Let b be mobility, so a small force F produces mean drift bF. Stokes drag for a sphere gives b = 1/(6πηa)."
+        "text": "The displacement law tells us what a given \\(D\\) predicts. A separate model connects \\(D\\) to a tracer’s physical surroundings. Let \\(b\\) be mobility, so a small force \\(F\\) produces mean drift \\(bF\\). Stokes drag for a sphere gives \\(b = 1/(6\\pi\\eta a)\\)."
       },
       {
         "kind": "paragraph",
-        "text": "Let c be number density. At isothermal balance the force density cF balances the osmotic-pressure gradient. With ideal osmotic pressure Π = cRT/N, the drift flux cbF becomes b(RT/N) times the density gradient. Equating it with the opposite diffusive flux gives D = bRT/N."
+        "text": "Let \\(c\\) be number density. At isothermal balance the force density \\(cF\\) balances the osmotic-pressure gradient. With ideal osmotic pressure \\(cRT/N\\), the drift flux \\(cbF\\) becomes \\(b\\,(RT/N)\\) times the density gradient. Equating it with the opposite diffusive flux gives \\(D = bRT/N\\)."
       },
       {
         "kind": "formula",
@@ -53,14 +53,14 @@
       {
         "kind": "steps",
         "items": [
-          "Name the quantities: T is absolute temperature, η dynamic viscosity, a tracer radius, R molar gas constant, and N molecular number per mole.",
-          "Mobility b is drift speed divided by force. Stokes drag supplies b = 1/(6πηa).",
+          "Name the quantities: \\(T\\) is absolute temperature, \\(\\eta\\) dynamic viscosity, \\(a\\) tracer radius, \\(R\\) molar gas constant, and \\(N\\) molecular number per mole.",
+          "Mobility \\(b\\) is drift speed divided by force. Stokes drag supplies \\(b = 1/(6\\pi\\eta a)\\).",
           "The isothermal ideal osmotic-pressure relation is Π = cRT/N, where c counts tracers per volume.",
           "Differentiate with respect to position: the gradient of Π is (RT/N) times the gradient of c.",
           "Mechanical balance gives cF equal to that pressure gradient. Multiply by b to obtain the drift flux.",
           "Fick’s law gives the opposing diffusive flux as −D times the gradient of c.",
-          "Zero total flux for this balance gives D = bRT/N. Substitute the Stokes mobility.",
-          "Holding T, radius and constants fixed, doubling η halves D. The RMS displacement at a fixed time then falls by √2, not by two."
+          "Zero total flux for this balance gives \\(D = bRT/N\\). Substitute the Stokes mobility.",
+          "Holding \\(T\\), radius and constants fixed, doubling \\(\\eta\\) halves \\(D\\). The RMS displacement at a fixed time then falls by \\(\\sqrt{2}\\), not by two."
         ]
       },
       {

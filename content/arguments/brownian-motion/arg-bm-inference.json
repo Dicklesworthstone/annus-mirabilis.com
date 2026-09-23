@@ -56,11 +56,11 @@
         "kind": "steps",
         "items": [
           "Begin with mean square = 2Dt. Divide both sides by 2t, for positive t.",
-          "The result is D = mean square/(2t).",
-          "The separate physical relation is D = RT/(6πηaN). Multiply both sides by 6πηaN.",
-          "Divide by 6πηaD to obtain N = RT/(6πηaD).",
-          "Insert mean square/(2t) for D. Dividing by that fraction multiplies by 2t/mean square.",
-          "Cancel the factor two against six, giving N = RTt/(3πηa mean square).",
+          "The result is \\(D = \\langle x^2\\rangle/(2t)\\).",
+          "The separate physical relation is \\(D = RT/(6\\pi\\eta a N)\\). Multiply both sides by \\(6\\pi\\eta a N\\).",
+          "Divide by \\(6\\pi\\eta a D\\) to obtain \\(N = RT/(6\\pi\\eta a D)\\).",
+          "Insert \\(\\langle x^2\\rangle/(2t)\\) for \\(D\\). Dividing by that fraction multiplies by \\(2t/\\langle x^2\\rangle\\).",
+          "Cancel the factor two against six, giving \\(N = RTt/(3\\pi\\eta a\\langle x^2\\rangle)\\).",
           "Notice that a and N occur as a product in the original relation. Without one, D alone cannot determine the other.",
           "A simulation using an assumed molecular number can test this inversion’s arithmetic, but cannot independently establish that number in nature."
         ]

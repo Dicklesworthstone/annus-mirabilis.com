@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "For the unbounded, drift-free point-source model, spread is Gaussian at positive times and coordinate RMS displacement is √(2Dt). The starting distribution is a point mass."
+        "text": "For the unbounded, drift-free point-source model, spread is Gaussian at positive times and coordinate RMS displacement is \\(\\sqrt{2Dt}\\). The starting distribution is a point mass."
       }
     ],
     "full": [
@@ -59,12 +59,12 @@
       {
         "kind": "steps",
         "items": [
-          "For positive t, change variable to u = x/√(4Dt). Then x = √(4Dt)u and dx = √(4Dt)du.",
-          "The normalization factor cancels the factor in dx, leaving exp(−u²)/√π. Its integral is one.",
+          "For positive \\(t\\), change variable to \\(u = x/\\sqrt{4Dt}\\). Then \\(x = \\sqrt{4Dt}\\,u\\) and \\(dx = \\sqrt{4Dt}\\,du\\).",
+          "The normalization factor cancels the factor in \\(dx\\), leaving \\(\\exp(-u^2)/\\sqrt{\\pi}\\). Its integral is one.",
           "The first moment vanishes because x times the density is odd: the negative side cancels the positive side.",
-          "For the second moment substitute x² = 4Dt u².",
-          "The normalized integral of u² exp(−u²) is one half, by integration by parts.",
-          "Multiplying 4Dt by one half yields 2Dt. Taking the nonnegative square root gives √(2Dt)."
+          "For the second moment substitute \\(x^2 = 4Dt\\,u^2\\).",
+          "The normalized integral of \\(u^2\\exp(-u^2)\\) is one half, by integration by parts.",
+          "Multiplying \\(4Dt\\) by one half yields \\(2Dt\\). Taking the nonnegative square root gives \\(\\sqrt{2Dt}\\)."
         ]
       },
       {
@@ -75,7 +75,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "To check the density equation directly: the time derivative is p times (−1/(2t) + x²/(4Dt²)). The second spatial derivative is p times (−1/(2Dt) + x²/(4D²t²)). Multiplying the latter by D gives the former."
+        "text": "To check the density equation directly: the time derivative is \\(p\\) times \\(\\left(-1/(2t) + x^2/(4Dt^2)\\right)\\). The second spatial derivative is \\(p\\) times \\(\\left(-1/(2Dt) + x^2/(4D^2t^2)\\right)\\). Multiplying the latter by \\(D\\) gives the former."
       },
       {
         "kind": "foundation",
