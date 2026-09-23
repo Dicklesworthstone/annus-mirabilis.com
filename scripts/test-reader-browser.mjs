@@ -146,6 +146,8 @@ export async function checkReaderBrowser(browser, url, check) {
     // links to /lab/bm-01, and the laboratory itself. .first() picked the link, so
     // every control below it was absent. The laboratory is the <section>.
     const lab = page.locator('section[data-instrument-id="bm-01"]');
+    // The inline laboratory mounts on first opening; wait for it before polling its button.
+    await lab.waitFor({ state: "attached" });
     await page.waitForFunction(
       () =>
         !document.querySelector('section[data-instrument-id="bm-01"] button[type="submit"]')

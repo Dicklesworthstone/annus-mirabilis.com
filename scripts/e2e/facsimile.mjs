@@ -115,6 +115,9 @@ try {
       () => document.querySelector("[data-reader-root]")?.getAttribute("data-enhanced") === "true",
     );
     assert.deepEqual(maps, []);
+    // The inline laboratory mounts on first opening, so open it: the check below is that a face
+    // change keeps the SAME mounted laboratory, and there is nothing to keep until it mounts.
+    await page.locator("#lab-bm-01 > details > summary").click();
     const lab = page.locator('#lab-bm-01 [data-instrument-id="bm-01"]');
     await lab.waitFor({ state: "attached" });
     const run = await lab.getAttribute("data-run-id");
