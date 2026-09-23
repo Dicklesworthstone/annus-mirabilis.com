@@ -420,6 +420,41 @@
   frame: not-applicable
   colorRole: field
 
+- id: radiationForceAbsorbed
+  name: Push of light on an absorbing surface
+  description: >
+    The force P/c on a surface that absorbs a beam of power P arriving head on, in the
+    foundation lesson on momentum and energy of light. Distinct from radiationForce, paper 3's
+    force on a moving mirror.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: radiationForceReflected
+  name: Push of light on a mirror
+  description: >
+    The force 2P/c on a mirror at rest that reflects a beam of power P straight back, in the
+    foundation lesson on momentum and energy of light: the momentum is reversed, so twice the
+    absorbing surface's push.
+  dimensionStatus: declared
+  dimension: [1, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: beamPower
+  name: Power of a beam
+  description: >
+    The energy per second a beam of light delivers, in watts. Distinct from sourcePower, the
+    total a source gives out in all directions, and from incidentPower in paper 1.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
 - id: electronCharge
   name: Electron charge
   description: >

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-force-reflected",
+  "paper": "foundations",
+  "argument": "momentum-energy-light",
+  "title": "The push of a beam on a mirror",
+  "spoken": "The force on a mirror that reflects the light straight back equals twice the power divided by c.",
+  "explanation": "Reflected straight back, the same 1 W beam pushes twice as hard, about 6.67 times ten to the minus nine newtons.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A steady beam arriving head on, at a surface at rest.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-force-reflected.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-force-reflected.t.force",
+      "quantityId": "radiationForceReflected"
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-force-reflected.op.rate",
+      "numerator": {
+        "kind": "product",
+        "opId": "eq-model-fd-force-reflected.op.twice",
+        "args": [
+          {
+            "kind": "number",
+            "value": "2"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-force-reflected.t.power",
+            "quantityId": "beamPower"
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-force-reflected.t.c",
+        "quantityId": "speedOfLight"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-force-reflected.op.rate",
+      "title": "Twice the power over c",
+      "explanation": "The momentum arriving, plus the same again going back.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-force-reflected.op.relation",
+      "title": "What it asserts",
+      "explanation": "A mirror reverses the light's momentum, so it receives twice as much each second.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-force-reflected.op.twice",
+      "title": "Twice the power",
+      "explanation": "In and back out: the momentum changes by twice what arrives.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-force-reflected.t.c",
+      "title": "Speed of light",
+      "explanation": "c.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-force-reflected.t.force",
+      "title": "Push on a mirror",
+      "explanation": "The force of the beam on a mirror that sends it straight back.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-force-reflected.t.power",
+      "title": "Power of the beam",
+      "explanation": "The same beam as before.",
+      "foundation": "momentum-energy-light"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The push on a mirror",
+      "nodeId": "eq-model-fd-force-reflected.t.force"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "twice the beam's power",
+      "nodeId": "eq-model-fd-force-reflected.op.twice"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-fd-force-reflected.t.c"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

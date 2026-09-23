@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 286 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 289 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -28,6 +28,7 @@ Total: 286 quantities, 45 rejected spellings, 2 reserved spellings.
 | avogadroNumberEstimate | Avogadro number estimate | 0,0,0,0,0,-1 | not-applicable | scalar | avogadroNumber, molecularNumberEstimate, moleculesPerMole |
 | bandEnergy | Band-integrated radiation energy | 2,1,-2,0,0,0 | not-applicable | scalar | — |
 | bandwidth | Bandwidth | 0,0,-1,0,0,0 | not-applicable | scalar | frequencyBandWidth |
+| beamPower | Power of a beam | 2,1,-3,0,0,0 | not-applicable | scalar | — |
 | bodyEnergyMovingAfter | Body energy after emission (moving system) | 2,1,-2,0,0,0 | moving-system | scalar | — |
 | bodyEnergyMovingBefore | Body energy before emission (moving system) | 2,1,-2,0,0,0 | moving-system | scalar | — |
 | bodyEnergyRestAfter | Body energy after emission (stationary system) | 2,1,-2,0,0,0 | stationary-system | scalar | — |
@@ -224,6 +225,8 @@ Total: 286 quantities, 45 rejected spellings, 2 reserved spellings.
 | radiationEntropy | Radiation entropy | 2,1,-2,-1,0,0 | not-applicable | scalar | entropyDifference |
 | radiationEntropyChange | Entropy change of dilute radiation | 2,1,-2,-1,0,0 | not-applicable | scalar | — |
 | radiationForce | Radiation force | 1,1,-2,0,0,0 | not-applicable | vector | — |
+| radiationForceAbsorbed | Push of light on an absorbing surface | 1,1,-2,0,0,0 | not-applicable | scalar | — |
+| radiationForceReflected | Push of light on a mirror | 1,1,-2,0,0,0 | not-applicable | scalar | — |
 | radiationPressureMirror | Radiation pressure on a mirror | -1,1,-2,0,0,0 | not-applicable | scalar | — |
 | radiusCurvatureElectric | Radius of curvature (electric deflection) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | radiusCurvatureMagnetic | Radius of curvature (magnetic deflection) | 1,0,0,0,0,0 | not-applicable | scalar | — |

@@ -43,7 +43,8 @@
     {
       "kind": "formula",
       "latex": "F_{\\text{absorbed}} = \\frac{P}{c}, \\qquad F_{\\text{reflected}} = \\frac{2P}{c}",
-      "spoken": "The force on an absorbing surface is the power divided by c; on a mirror that reflects the light straight back, it is twice the power divided by c."
+      "spoken": "The force on an absorbing surface is the power divided by c; on a mirror that reflects the light straight back, it is twice the power divided by c.",
+      "equations": ["eq-model-fd-force-absorbed", "eq-model-fd-force-reflected"]
     },
     {
       "kind": "paragraph",

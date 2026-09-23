@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-force-absorbed",
+  "paper": "foundations",
+  "argument": "momentum-energy-light",
+  "title": "The push of a beam on a surface that absorbs it",
+  "spoken": "The force on an absorbing surface equals the power divided by c.",
+  "explanation": "A 1 W beam, absorbed, pushes with 1 divided by 299 792 458, about 3.34 times ten to the minus nine newtons.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A steady beam arriving head on, at a surface at rest.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-force-absorbed.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-force-absorbed.t.force",
+      "quantityId": "radiationForceAbsorbed"
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-force-absorbed.op.rate",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-force-absorbed.t.power",
+        "quantityId": "beamPower"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-force-absorbed.t.c",
+        "quantityId": "speedOfLight"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-force-absorbed.op.rate",
+      "title": "Power over c",
+      "explanation": "Energy per second, turned into momentum per second by dividing by c.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-force-absorbed.op.relation",
+      "title": "What it asserts",
+      "explanation": "Momentum arriving each second is a force.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-force-absorbed.t.c",
+      "title": "Speed of light",
+      "explanation": "Light of energy E carries momentum E over c.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-force-absorbed.t.force",
+      "title": "Push on an absorbing surface",
+      "explanation": "The force of the beam on a surface that keeps its light.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-force-absorbed.t.power",
+      "title": "Power of the beam",
+      "explanation": "The light energy arriving each second.",
+      "foundation": "momentum-energy-light"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The push",
+      "nodeId": "eq-model-fd-force-absorbed.t.force"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the beam's power",
+      "nodeId": "eq-model-fd-force-absorbed.t.power"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-fd-force-absorbed.t.c"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
