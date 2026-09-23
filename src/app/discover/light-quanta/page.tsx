@@ -43,9 +43,9 @@ export default function LightQuantaRoute() {
         </h1>
         <p className="lead">
           The wave theory of light was not in trouble in 1904. It predicted where the fringes fall
-          and it was right. This route keeps every one of those successes, and then looks at the one
-          place the evidence does not reach: not light travelling, but light being made and taken
-          up. Seven moves, and the hard one is noticing what you are allowed to compare.
+          and it was right. This route keeps every one of those successes and looks at the one place
+          the evidence does not reach: the moment light is made, or taken up. There are seven moves;
+          the hard one is noticing which two things you are allowed to compare.
         </p>
         <p className="fine">
           A route you could take, not a transcript of Einstein&rsquo;s private thoughts. Every step
@@ -187,8 +187,8 @@ export default function LightQuantaRoute() {
         <Formula latex={String.raw`\frac{R\,\beta\,\nu}{N}`} />
         <p>
           <span lang="de">R</span> is the gas constant and <span lang="de">N</span> the number of
-          molecules in a gram-molecule; <em>β</em> here is Wien&rsquo;s constant, and is not the
-          <em> β</em> of the relativity paper, where the same letter means something else entirely.
+          molecules in a gram-molecule; <em>β</em> here is Wien&rsquo;s constant. The relativity
+          paper uses the same letter for 1/√(1 − <em>v</em>²/<em>V</em>²), a different quantity.
         </p>
         <details>
           <summary>What has and has not been established</summary>
@@ -225,10 +225,11 @@ export default function LightQuantaRoute() {
         <p>
           Light re-emitted by a fluorescing substance should not have a higher frequency than the
           light that excited it, because one incoming piece cannot pay for a larger outgoing one.
-          Stokes had recorded exactly that in 1852. The electrons driven out of a metal should gain
-          energy set by the frequency and not by the brightness, which is what Lenard measured in
-          1902 and what the wave account could not place. And ultraviolet light should only ionise a
-          gas when its frequency is high enough, whatever its intensity.
+          Stokes had recorded exactly that in 1852. The energy of the electrons driven out of a
+          metal should not depend on the brightness, which is what Lenard measured in 1902 and what
+          the wave account could not place; that it should rise in a straight line with the
+          frequency was not tested until Millikan&rsquo;s measurements of 1916. And ultraviolet
+          light should only ionise a gas when its frequency is high enough, whatever its intensity.
         </p>
         <details>
           <summary>How much these three are worth</summary>
@@ -256,9 +257,8 @@ export default function LightQuantaRoute() {
         </p>
         <Shelf cards={LIGHT_QUANTA_SHELF_CARDS} />
         <p className="fine">
-          These cards carry no verification record. Their dates are from standard bibliography, not
-          from anyone here having opened the volumes, and the shelf marks each one as awaiting
-          verification rather than implying a check that has not happened.
+          The dates on these cards come from standard bibliographies. No one here has checked them
+          against the volumes, and the shelf marks each card as awaiting verification.
         </p>
       </section>
 
