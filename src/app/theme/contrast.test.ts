@@ -30,6 +30,12 @@ describe("contrast: every declared text pair meets WCAG AA (4.5:1)", () => {
     test(`${id}: accent on paper`, () => {
       expect(contrastRatio(tokens.accent, tokens.paper)).toBeGreaterThanOrEqual(NORMAL_TEXT_MIN);
     });
+    // Charts draw labels as well as lines in --plot, on the paper and on wash panels. Until
+    // d8f6b397 the dark theme had no plot value and drew #254f49 at 1.77:1 on its paper.
+    test(`${id}: plot on paper and on wash`, () => {
+      expect(contrastRatio(tokens.plot, tokens.paper)).toBeGreaterThanOrEqual(NORMAL_TEXT_MIN);
+      expect(contrastRatio(tokens.plot, tokens.wash)).toBeGreaterThanOrEqual(NORMAL_TEXT_MIN);
+    });
   }
 });
 
