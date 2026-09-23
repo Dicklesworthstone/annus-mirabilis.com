@@ -46,7 +46,7 @@ export default function CoefficientPage() {
         <p className="eyebrow">Open the coefficient argument</p>
         <h2>The exact drop, then the Newtonian coefficient</h2>
         <p>
-          The two-ledger subtraction (ME-01) gives the change in energy of motion at speed v. This
+          The two-ledger subtraction gives the change in energy of motion at speed v. This
           laboratory never assigns the body a rest energy Mc² or γMc² to begin with. Paper 4 prints
           the Lorentz factor as an explicit radical, 1/√(1 − v²/V²), every time it appears, and
           never writes β for it; the formulas below write it as the modern γ.

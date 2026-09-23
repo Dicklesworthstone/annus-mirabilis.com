@@ -80,9 +80,9 @@ export default function BoundaryLedgerPage() {
 
         <div className="actions">
           <a className="button" href="/lab/me-01/">
-            Open the two-ledger laboratory (ME-01)
+            Open the two-ledger laboratory
           </a>
-          <a href="/lab/me-02/">Open the small-speed coefficient laboratory (ME-02)</a>
+          <a href="/lab/me-02/">Open the small-speed coefficient laboratory</a>
         </div>
       </section>
     </>

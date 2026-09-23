@@ -40,7 +40,7 @@ function formatOutput(output: PublishedResult | undefined): string {
 export function ClockSyncLab({
   example,
   restoreFromLocation = false,
-  title = "SR-01: Clock synchronization with the event ledger",
+  title = "Clock synchronization with the event ledger",
 }: {
   example?: PreparedSr01Example | undefined;
   restoreFromLocation?: boolean;

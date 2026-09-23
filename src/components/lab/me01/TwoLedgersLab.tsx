@@ -38,7 +38,7 @@ const STEPS: readonly { id: Me01Step; label: string; number: number }[] = [
 
 export function TwoLedgersLab({
   example,
-  title = "ME-01: Two ledgers and opposite pulses",
+  title = "Two ledgers and opposite pulses",
 }: {
   example?: PreparedMe01Example | undefined;
   title?: string | undefined;

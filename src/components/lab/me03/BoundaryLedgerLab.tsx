@@ -34,7 +34,7 @@ import "../showTheCode.css";
 
 export function BoundaryLedgerLab({
   example,
-  title = "ME-03: System-boundary energy ledger with cited energy-source cards",
+  title = "System-boundary energy ledger with cited energy-source cards",
 }: {
   example?: PreparedMe03Example | undefined;
   title?: string | undefined;

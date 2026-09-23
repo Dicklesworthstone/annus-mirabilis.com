@@ -58,7 +58,7 @@ export default function FieldEquationsPage() {
           <a className="button" href="/papers/special-relativity/#s6">
             Return to paper section 6
           </a>
-          <a href="/lab/sr-08/">SR-08: Fields in two frames</a>
+          <a href="/lab/sr-08/">Fields in two frames</a>
         </div>
       </section>
     </>

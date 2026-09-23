@@ -111,7 +111,7 @@ export default function TwoLedgersPage() {
 
         <div className="actions">
           <a className="button" href="/lab/me-02/">
-            Open the small-speed coefficient laboratory (ME-02)
+            Open the small-speed coefficient laboratory
           </a>
           <a href="/papers/mass-energy/#entry-mass-energy">
             Start with two concrete energy accounts

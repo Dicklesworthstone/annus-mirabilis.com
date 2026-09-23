@@ -84,7 +84,7 @@ export default function ClockSyncPage() {
         </p>
 
         <div className="actions">
-          <a href="/lab/me-01/">The two-ledger mass&ndash;energy derivation (ME-01)</a>
+          <a href="/lab/me-01/">The two-ledger mass&ndash;energy derivation</a>
           <a href="/lab/bm-01/">The Brownian tracer laboratory</a>
         </div>
       </section>

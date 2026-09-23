@@ -72,7 +72,7 @@ export default function ChargeCurrentPage() {
           <a className="button" href="/papers/special-relativity/#s9">
             Return to paper section 9
           </a>
-          <a href="/lab/sr-08/">SR-08: Field frame change</a>
+          <a href="/lab/sr-08/">Field frame change</a>
         </div>
       </section>
     </>

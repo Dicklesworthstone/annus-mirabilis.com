@@ -64,7 +64,7 @@ export default function FieldFrameChangePage() {
           <a className="button" href="/papers/special-relativity/#s6">
             Return to paper section 6
           </a>
-          <a href="/lab/sr-02/">SR-02: Magnet and conductor</a>
+          <a href="/lab/sr-02/">Magnet and conductor</a>
         </div>
       </section>
     </>
