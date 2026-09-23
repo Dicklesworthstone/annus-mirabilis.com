@@ -181,14 +181,14 @@ export function BrownianFirstEncounter({
             onClick={() => setActiveTab("visual")}
             className={`button ${activeTab === "visual" ? "" : "secondary"}`}
           >
-            Visual Number Line
+            Number line
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("table")}
             className={`button ${activeTab === "table" ? "" : "secondary"}`}
           >
-            Table & Numeric Inputs
+            Table and typed values
           </button>
         </fieldset>
       </div>
@@ -482,8 +482,8 @@ export function BrownianFirstEncounter({
       {/* Totals & Arithmetic Engine Output */}
       <div className="input-grid" style={{ marginBottom: "1.5rem" }}>
         <div className="notice">
-          <span className="fine" style={{ display: "block", fontFamily: "var(--font-mono)" }}>
-            Signed Total (Sum)
+          <span className="fine" style={{ display: "block" }}>
+            Signed total
           </span>
           <span
             data-testid="totals-signed-sum"
@@ -503,8 +503,8 @@ export function BrownianFirstEncounter({
         </div>
 
         <div className="notice">
-          <span className="fine" style={{ display: "block", fontFamily: "var(--font-mono)" }}>
-            Mean Absolute (|x|)
+          <span className="fine" style={{ display: "block" }}>
+            Mean distance, ignoring sign
           </span>
           <span
             data-testid="totals-mean-absolute"
@@ -525,8 +525,8 @@ export function BrownianFirstEncounter({
         </div>
 
         <div className="notice">
-          <span className="fine" style={{ display: "block", fontFamily: "var(--font-mono)" }}>
-            Mean Square (x²)
+          <span className="fine" style={{ display: "block" }}>
+            Mean square
           </span>
           <span
             data-testid="totals-mean-square"
@@ -547,8 +547,8 @@ export function BrownianFirstEncounter({
         </div>
 
         <div className="notice">
-          <span className="fine" style={{ display: "block", fontFamily: "var(--font-mono)" }}>
-            Root Mean Square (RMS)
+          <span className="fine" style={{ display: "block" }}>
+            Root mean square (RMS)
           </span>
           <span
             data-testid="totals-rms"
@@ -571,15 +571,15 @@ export function BrownianFirstEncounter({
       {/* Ten-step narrative guidance */}
       <div className="reading">
         <section>
-          <h4>Step 2 & 3 · What a signed sum tells us</h4>
+          <h4>Steps 2 and 3 · What a signed sum tells us</h4>
           <p>When we add the displacements algebraically, opposite directions cancel out:</p>
           <section
             className="formula"
-            style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}
+            style={{ textAlign: "center", fontVariantNumeric: "tabular-nums" }}
             aria-label="Signed sum of displacements"
           >
-            {entries.map((x) => `(${formatSignedDisplacement(x)})`).join(" + ")} ={" "}
-            <strong>{formatSignedDisplacement(totals.signedSum)} units</strong>
+            {entries.map((x) => `(${formatSignedDisplacement(x).replace("-", "−")})`).join(" + ")} ={" "}
+            <strong>{formatSignedDisplacement(totals.signedSum).replace("-", "−")} units</strong>
           </section>
           <p>
             A signed total of zero tells us that the average endpoint has not shifted. It does not
@@ -590,19 +590,19 @@ export function BrownianFirstEncounter({
         </section>
 
         <section>
-          <h4>Step 4 & 5 · Two sensible proposals to keep information about distance</h4>
+          <h4>Steps 4 and 5 · Two ways to keep track of distance</h4>
           <p>
             How do we keep track of how far particles wandered without opposite directions
-            cancelling out? Both of the following proposals are completely sensible:
+            cancelling out? Both of these proposals are reasonable:
           </p>
           <ul>
             <li>
-              <strong>Proposal A (Ignore the direction):</strong> Take the absolute value of each
+              <strong>Proposal A (ignore the direction):</strong> Take the absolute value of each
               displacement. For our authored example (−3, −1, +1, +3), the absolute values are 3, 1,
               1, 3 units, giving a mean absolute displacement of <strong>2 units</strong>.
             </li>
             <li>
-              <strong>Proposal B (Square each displacement):</strong> Multiplying any negative
+              <strong>Proposal B (square each displacement):</strong> Multiplying any negative
               number by itself produces a positive number. The squared displacements are 9, 1, 1, 9
               squared units, giving a mean square displacement of <strong>5 squared units</strong>{" "}
               (and an RMS distance of √5 ≈ <strong>2.236 units</strong>).
@@ -611,7 +611,7 @@ export function BrownianFirstEncounter({
         </section>
 
         <section>
-          <h4>Step 6 & 7 · Scaling: What happens when displacements double?</h4>
+          <h4>Steps 6 and 7 · What happens when every displacement doubles?</h4>
           <p>
             Suppose after a longer interval every particle has wandered twice as far (−6, −2, +2, +6
             units):
@@ -619,18 +619,18 @@ export function BrownianFirstEncounter({
           <div className="input-grid">
             <div className="notice">
               <span className="fine" style={{ display: "block" }}>
-                Mean Absolute Displacement:
+                Mean absolute displacement:
               </span>
-              <strong style={{ fontFamily: "var(--font-mono)" }}>
-                (|-6| + |-2| + |+2| + |+6|) / 4 = 4 units
+              <strong style={{ fontVariantNumeric: "tabular-nums" }}>
+                (|−6| + |−2| + |+2| + |+6|) / 4 = 4 units
               </strong>{" "}
               (doubles from 2)
             </div>
             <div className="notice">
               <span className="fine" style={{ display: "block" }}>
-                Mean Square Displacement:
+                Mean square displacement:
               </span>
-              <strong style={{ fontFamily: "var(--font-mono)" }}>
+              <strong style={{ fontVariantNumeric: "tabular-nums" }}>
                 (36 + 4 + 4 + 36) / 4 = 20 sq units
               </strong>{" "}
               (quadruples from 5)
@@ -849,7 +849,7 @@ export function BrownianFirstEncounter({
             }}
           >
             <div className="notice">
-              <strong>Authored Example (−3, −1, +1, +3 units):</strong>
+              <strong>Authored example (−3, −1, +1, +3 units):</strong>
               <br />
               Signed sum = (−3) + (−1) + (+1) + (+3) = 0 units.
               <br />
@@ -860,7 +860,7 @@ export function BrownianFirstEncounter({
               Root-mean-square displacement (RMS) = √5 ≈ 2.236 units.
             </div>
             <div className="notice">
-              <strong>Doubled Example (−6, −2, +2, +6 units):</strong>
+              <strong>Doubled example (−6, −2, +2, +6 units):</strong>
               <br />
               Signed sum = (−6) + (−2) + (+2) + (+6) = 0 units.
               <br />
