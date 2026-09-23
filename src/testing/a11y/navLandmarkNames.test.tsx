@@ -84,8 +84,7 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
       n.accessibleName.includes("Mean, variance and RMS"),
     );
 
-    // Mean, variance and RMS is embedded in each passage's step reading and in the clarification
-    // panel. The step reading is rendered once per passage (390afa87); until then each passage
+    // Mean, variance and RMS is embedded in each passage's step reading. The step reading is rendered once per passage (390afa87); until then each passage
     // also carried a "local steps" copy, and this test counted five navs where there are now three.
     // Asserted by identity rather than by count, so a new passage using this foundation adds a
     // name without breaking the test.
@@ -98,7 +97,10 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
     expect(names).toContain(
       "Prerequisites for Mean, variance and RMS (What would let us count molecules?, reading steps)",
     );
-    expect(names).toContain("Prerequisites for Mean, variance and RMS (clarification panel)");
+    // The clarification panel's copy is no longer in the page: a lesson's body loads when it
+    // opens (src/reader/lessonBody.ts), and extractLesson gives its landmark the same
+    // "(clarification panel)" context, asserted in src/reader/lessonBody.test.tsx.
+    expect(names).not.toContain("Prerequisites for Mean, variance and RMS (clarification panel)");
     // The step reading is not rendered twice: no passage carries a second copy of the nav.
     expect([...names].filter((n) => n.includes("local steps"))).toEqual([]);
   });
