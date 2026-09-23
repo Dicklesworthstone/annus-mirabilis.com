@@ -841,3 +841,124 @@ Schema-test JSONL (gitignored artifacts): `artifacts/test-logs/perf-profiles/202
   deploy. This is that authorization, given once and standing. DNS changes and connecting a domain are not covered, and still
   need their own authorization.
 - **Date:** 2026-09-23.
+
+## D-2026-09-23-app-identity
+
+- **Question:** Under which identity does the iPhone app ship, on which devices, and in which store category? (bead
+  `am-app-decision-identity-wago`, App plan §1.4, §3.4, §8.1, §14.4, §18)
+- **Options:** the plan's proposals, and for the name "Annus Mirabilis", "Annus Mirabilis 1905" and "Annus Mirabilis: The
+  1905 Papers". Bundle identifiers of the donor's shape (`com.<brand>.<Product>`).
+- **Choice:** the YAML block below. In words: the name is "Annus Mirabilis" with the subtitle "Einstein's 1905 papers";
+  iPhone and iPad, no Mac Catalyst, and not offered as a designed-for-iPad app on Apple silicon Macs; minimum iOS 17.0,
+  provisional; Education first, Reference second; free, worldwide, age rating from Apple's questionnaire (4+ expected).
+- **Reason:** The short name is the site's own name and matches the domain. The subtitle carries what the name does not say.
+  The Mac is served by the website, so a Mac build would be a third surface to test for no reader obstacle. iOS 17.0 is the
+  plan's proposal and the first release with the Observation framework the shell uses; the edition's own browser floor is
+  Safari 16.4 (Next.js 15's default browserslist), so 17.0 does not cut off any reader the website serves.
+- **Evidence:** App Store search on 2026-09-23 through the public iTunes Search API (`entity=software` and
+  `entity=iPadSoftware`, `country=us`): "annus mirabilis" returned 0 apps; "mirabilis" returned 4 unrelated apps (Villa
+  Mirabilis, Mirabilia, Mira Services, Sur les chemins de Miramas); "einstein 1905" returned 6, none named Annus Mirabilis.
+  Search covers live US listings only. A name reserved in App Store Connect by someone else does not appear there, so the
+  owner confirms availability when creating the record. Copyright holder from `LICENSE` ("Copyright (c) 2026 Jeffrey Emanuel").
+- **Apple team:** not chosen. It belongs to the owner. `teamId` is the named placeholder `OWNER_SUPPLIES_APPLE_TEAM_ID`,
+  which is not a ten-character team id, so the signing and upload gates refuse it. `ios/project.yml` sets no
+  `DEVELOPMENT_TEAM` while the placeholder stands; simulator builds do not need one.
+- **Implications:** the associated-domains entitlement is `applinks:annus-mirabilis.com` (added by
+  `am-app-universal-links-re8v`); the association file's `appID` is `<teamId>.com.annus-mirabilis.AnnusMirabilis` and cannot
+  be written until the team id exists; an App Group (`group.com.annus-mirabilis.AnnusMirabilis`) is created only if the later
+  widget is built. The support and privacy pages below do not exist yet (`out/support/` and `out/privacy/` are absent in the
+  export of 2026-09-22); `am-app-store-listing-ovhw` owns them.
+- **Decider:** `agent:GreenOx` under the owner's delegation of 2026-09-23 ("stop asking me… FINISHING ALL THE BEADS"),
+  overrulable. Not the owner's own decision. The bead carries `human-gate`; the owner may overrule any field before the App
+  Store Connect record is created, after which the bundle identifier is permanent.
+- **Date:** 2026-09-23.
+- **Beads unblocked:** `am-app-xcodegen-scaffold-z228` (with the toolchain entry below and the WebKit probe).
+- **Revisit trigger:** the owner overrules a field; the name is unavailable in App Store Connect; the WebKit probe's hosting
+  entry records a WebKit feature the edition needs that iOS 17 lacks.
+
+```yaml app-identity
+appName: "Annus Mirabilis"
+homeScreenName: "Annus Mirabilis"
+subtitle: "Einstein's 1905 papers"
+bundleId: "com.annus-mirabilis.AnnusMirabilis"
+sku: "annus-mirabilis-ios-1"
+teamName: "OWNER_SUPPLIES_APPLE_TEAM_NAME"
+teamId: "OWNER_SUPPLIES_APPLE_TEAM_ID"
+devices: [iPhone, iPad]
+macCatalyst: false
+macDesignedForIPad: false
+minimumIOS:
+  version: "17.0"
+  provisional: true
+primaryCategory: Education
+secondaryCategory: Reference
+price: free
+availability: worldwide
+ageRating: "questionnaire (4+ expected)"
+copyright: "© 2026 Jeffrey Emanuel"
+urls:
+  marketing: "https://annus-mirabilis.com/"
+  support: "https://annus-mirabilis.com/support/"
+  privacyPolicy: "https://annus-mirabilis.com/privacy/"
+```
+
+## D-2026-09-23-apple-toolchain
+
+- **Question:** Which exact tools and policies build, lint, and test the iPhone app? (bead `am-app-decision-toolchain-qs6d`,
+  App plan §2.2, §4, §13.3, §14.1, §14.2)
+- **Choice:** the YAML block below. Swift 6 language mode with complete strict concurrency; XcodeGen 2.46.0 from Homebrew;
+  SwiftLint 0.63.2 (already installed from Homebrew); `swift-format` from the Xcode toolchain, not a second formatter; Swift
+  Testing for unit and integration tests and XCTest/XCUITest for UI and performance tests; three dedicated named simulators
+  created beside the existing ones, never replacing them; no third-party Swift packages; upload by `xcodebuild
+  -exportArchive` with an App Store Connect API key kept outside the repository, no fastlane.
+- **Where Apple validation runs:** locally, as the `apple` gate family, and never required by the website's gates. dsr is the
+  CI (D-2026-09-22-dsr-is-the-ci-never-github-actions); no GitHub macOS runner.
+- **Isolation:** DerivedData, result bundles and logs under the gitignored `ios/build/`. A disk guard refuses to build below
+  10 GB free (`df -g /System/Volumes/Data`). The bead proposed 20 GB; the machine measured 20 GiB free on 2026-09-23, so a
+  20 GB floor would refuse nearly every run while protecting nothing a 10 GB floor does not.
+- **App icon:** an asset-catalog `AppIcon` with one 1024-pixel universal image, drawn procedurally by a script (App plan §9).
+  Xcode 26 also reads Icon Composer files; that format waits until a reader-visible reason needs the layered glass variants.
+- **Upgrade policy:** a tool upgrade is a deliberate change that updates this block and reruns the Apple gate; a new Xcode
+  major or iOS major also reruns the WebKit probe before adoption.
+- **Evidence (2026-09-23, each tool's own output):** `xcodebuild -version` → `Xcode 26.1.1`, `Build version 17B100`;
+  `xcrun --sdk iphoneos --show-sdk-version` → `26.1`; `swift --version` → `Apple Swift version 6.2.1
+  (swiftlang-6.2.1.4.8 clang-1700.4.4.1)`; `xcrun simctl list runtimes` → `iOS 26.1 (26.1 - 23B86)`, the only runtime;
+  `swiftlint version` → `0.63.2`; `xcrun swift-format --version` → `6.2.1`; `xcodegen` absent before this entry, and `brew
+  info xcodegen` → `stable 2.46.0 (bottled)`. No iOS 17 runtime is installed, so nothing below iOS 26.1 is tested; a
+  compatibility lane needs that runtime and the disk to hold it.
+- **Decider:** `agent:GreenOx` under the owner's delegation of 2026-09-23 ("stop asking me… FINISHING ALL THE BEADS"),
+  overrulable. Not the owner's own decision.
+- **Date:** 2026-09-23.
+- **Beads unblocked:** `am-app-webkit-probe-8hj1`, `am-app-xcodegen-scaffold-z228`.
+- **Revisit trigger:** Xcode or the simulator runtime changes; XcodeGen output changes the committed project on regenerate;
+  a third-party package is proposed.
+
+```yaml apple-toolchain
+xcode: "26.1.1"
+xcodeBuild: "17B100"
+iosSdk: "26.1"
+swiftLanguageMode: "6"
+strictConcurrency: complete
+xcodegen: "2.46.0"
+xcodegenInstall: "brew install xcodegen"
+swiftlint: "0.63.2"
+swiftFormat: "6.2.1"
+testFrameworks:
+  unit: "Swift Testing"
+  ui: "XCTest (XCUITest)"
+simulators:
+  - name: "AM iPhone 17"
+    deviceType: "com.apple.CoreSimulator.SimDeviceType.iPhone-17"
+    runtime: "com.apple.CoreSimulator.SimRuntime.iOS-26-1"
+  - name: "AM iPhone 16e"
+    deviceType: "com.apple.CoreSimulator.SimDeviceType.iPhone-16e"
+    runtime: "com.apple.CoreSimulator.SimRuntime.iOS-26-1"
+  - name: "AM iPad"
+    deviceType: "com.apple.CoreSimulator.SimDeviceType.iPad-Air-11-inch-M3"
+    runtime: "com.apple.CoreSimulator.SimRuntime.iOS-26-1"
+diskFreeGigabytesMinimum: 10
+appleValidation: local
+thirdPartySwiftPackages: none
+uploadMethod: "xcodebuild -exportArchive with an App Store Connect API key outside the repository"
+appIcon: "asset catalog AppIcon, one 1024 px universal image"
+```
