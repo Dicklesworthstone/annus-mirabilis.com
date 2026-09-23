@@ -284,7 +284,12 @@ export function ReaderController(props: Props) {
           true,
           "Moved to the selected passage.",
         );
-        document.getElementById(state.anchor)?.scrollIntoView();
+        // Focus follows the jump, so the next Tab starts in the passage rather than back in the
+        // outline (measured on live at 320: Enter on a chip left focus on the chip). Sections and
+        // passages carry tabIndex -1; after a mouse click the move draws no focus ring.
+        const target = document.getElementById(state.anchor);
+        target?.scrollIntoView();
+        target?.focus({ preventScroll: true });
       } else if (control.hasAttribute("data-reader-back")) {
         event.preventDefault();
         closeOne();
