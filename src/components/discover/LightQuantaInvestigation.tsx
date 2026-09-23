@@ -29,13 +29,14 @@ import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts"
 import { display, identity, result } from "../lab/presentation.ts";
 import { InvestigationTransfer } from "./InvestigationTransfer.tsx";
 
+// A pure number carries no unit: the table printed "0.125 1" and "22778000000 1".
 const COMPARISON_ROWS = [
   ["radiationEnergy", "Radiation energy held fixed during a volume comparison", 1e9, "nJ"],
   ["radiationEntropy", "Radiation entropy change", 1, "J/K"],
   ["entropyVolumeCoefficient", "Coefficient of the volume logarithm", 1, "J/K"],
-  ["effectiveIndependentCount", "Effective count (not rounded to an integer)", 1, "1"],
-  ["independentProbability", "Probability: independent points", 1, "1"],
-  ["lockedProbability", "Probability: perfectly locked points", 1, "1"],
+  ["effectiveIndependentCount", "Effective count (not rounded to an integer)", 1, ""],
+  ["independentProbability", "Probability: independent points", 1, ""],
+  ["lockedProbability", "Probability: perfectly locked points", 1, ""],
   ["quantumEnergyEv", "Energy scale suggested by matching", 1, "eV"],
   ["maxKineticEnergy", "Maximum emitted-electron kinetic energy", 1, "J"],
   ["stoppingPotentialMagnitude", "Stopping potential magnitude", 1, "V"],
@@ -230,7 +231,8 @@ export function LightQuantaInvestigation({
                           htmlFor/id. Nested inside the label the reader's own typed value
                           joins the control's accessible name. */}
                       <label htmlFor={`${id}-${f.key}`}>
-                        {f.label} ({f.unit})
+                        {f.label}
+                        {f.unit === "1" ? "" : ` (${f.unit})`}
                       </label>
                       <input
                         id={`${id}-${f.key}`}
@@ -291,7 +293,8 @@ export function LightQuantaInvestigation({
               <div key={f.key}>
                 <dt>{f.label}</dt>
                 <dd>
-                  {lightInvestigationDraft(p)[f.key]} {f.unit}
+                  {lightInvestigationDraft(p)[f.key]}
+                  {f.unit === "1" ? "" : ` ${f.unit}`}
                 </dd>
               </div>
             ))}
