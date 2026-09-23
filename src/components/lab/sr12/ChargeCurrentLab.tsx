@@ -214,7 +214,7 @@ export function ChargeCurrentLab({
             gap: "0.5rem",
           }}
         >
-          <span style={{ fontWeight: 600 }}>Unit System Modernization</span>
+          <span style={{ fontWeight: 600 }}>Unit-system modernization</span>
           <div className="button-group">
             <button
               type="button"
@@ -260,7 +260,7 @@ export function ChargeCurrentLab({
             style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" }}
           >
             <label htmlFor={`${id}-boost-range`} style={{ fontWeight: 500 }}>
-              Observer Boost Speed (v/c): {(draft.boost / C_SI).toFixed(3)}
+              Observer boost speed (v/c): {(draft.boost / C_SI).toFixed(3)}
             </label>
             <input
               id={`${id}-boost-range`}
@@ -351,7 +351,7 @@ export function ChargeCurrentLab({
               }}
             >
               <label htmlFor={`${id}-charge-density`} style={{ fontWeight: 500 }}>
-                Charge Density ρ (C/m³)
+                Charge density ρ (C/m³)
               </label>
               <input
                 id={`${id}-charge-density`}
@@ -383,7 +383,7 @@ export function ChargeCurrentLab({
               }}
             >
               <label htmlFor={`${id}-current-density-x`} style={{ fontWeight: 500 }}>
-                Current Density Jx (A/m²)
+                Current density Jx (A/m²)
               </label>
               <input
                 id={`${id}-current-density-x`}
@@ -431,16 +431,16 @@ export function ChargeCurrentLab({
           <thead>
             <tr style={{ background: "var(--wash)", borderBottom: "1px solid var(--line)" }}>
               <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Quantity</th>
-              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Stationary Frame (K)</th>
-              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Moving Frame (k)</th>
+              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Stationary frame (K)</th>
+              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Moving frame (k)</th>
               <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Unit</th>
-              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Lorentz Transformation Law</th>
+              <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Lorentz transformation law</th>
             </tr>
           </thead>
           <tbody>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
               <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                Charge Density ρ
+                Charge density ρ
               </td>
               <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                 <OutputReading item={rhoStat} />
@@ -461,7 +461,7 @@ export function ChargeCurrentLab({
             </tr>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
               <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                Current Density Jx
+                Current density Jx
               </td>
               <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                 <OutputReading item={jStat} />
@@ -488,7 +488,7 @@ export function ChargeCurrentLab({
             </tr>
             <tr style={{ borderBottom: "1px solid var(--line)" }}>
               <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                Four-Current Invariant (cρ)² - |J|²
+                Four-current invariant (cρ)² - |J|²
               </td>
               <td style={{ padding: "0.5rem var(--table-cell-x)" }} colSpan={2}>
                 <OutputReading item={invSI} />
@@ -504,7 +504,7 @@ export function ChargeCurrentLab({
               <>
                 <tr style={{ borderBottom: "1px solid var(--line)" }}>
                   <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                    Loop Top Leg Charge (+x)
+                    Charge on the loop's top leg (+x)
                   </td>
                   <td style={{ padding: "0.5rem var(--table-cell-x)" }}>0 C</td>
                   <td
@@ -525,7 +525,7 @@ export function ChargeCurrentLab({
                 </tr>
                 <tr style={{ borderBottom: "1px solid var(--line)" }}>
                   <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                    Loop Bottom Leg Charge (-x)
+                    Charge on the loop's bottom leg (-x)
                   </td>
                   <td style={{ padding: "0.5rem var(--table-cell-x)" }}>0 C</td>
                   <td
@@ -546,7 +546,7 @@ export function ChargeCurrentLab({
                 </tr>
                 <tr style={{ borderBottom: "1px solid var(--line)" }}>
                   <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                    Loop Total Charge
+                    Total charge on the loop
                   </td>
                   <td style={{ padding: "0.5rem var(--table-cell-x)" }}>0 C</td>
                   <td
@@ -570,7 +570,7 @@ export function ChargeCurrentLab({
             {p.mode === "moving-sphere" && (
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                  Sphere Total Charge Q
+                  Total charge on the sphere, Q
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   <OutputReading item={sphereStat} />
@@ -593,7 +593,7 @@ export function ChargeCurrentLab({
             {p.mode === "gaussian-pulse" && (
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                  Continuity Residual ∂ρ/∂t + ∇·J
+                  Continuity residual ∂ρ/∂t + ∇·J
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   <OutputReading item={contStat} />
@@ -691,13 +691,13 @@ export function ChargeCurrentLab({
           <strong>Overview:</strong> {SR12_CAPTION.r0}
         </p>
         <p style={{ margin: 0 }}>
-          <strong>Four-Current Invariant:</strong> {SR12_CAPTION.r1}
+          <strong>Four-current invariant:</strong> {SR12_CAPTION.r1}
         </p>
         <p style={{ margin: 0 }}>
-          <strong>Current Loops & Total Charge:</strong> {SR12_CAPTION.r2}
+          <strong>Current loops and total charge:</strong> {SR12_CAPTION.r2}
         </p>
         <p style={{ margin: 0 }}>
-          <strong>Continuity Invariance (§9):</strong> {SR12_CAPTION.r3}
+          <strong>Continuity invariance (§9):</strong> {SR12_CAPTION.r3}
         </p>
         <div style={{ paddingTop: "0.5rem", fontSize: "0.75rem" }}>
           <strong>Not modeled:</strong> {SR12_NOT_MODELED.join(", ")}.

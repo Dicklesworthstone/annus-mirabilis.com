@@ -209,7 +209,7 @@ export const ME03_PRESETS = Object.freeze([
   }),
   Object.freeze({
     presetId: "me-03-card-radium",
-    label: "Radium-226 Alpha Decay",
+    label: "Radium-226 alpha decay",
     description: "Nuclear alpha decay Q = 4.871 MeV per event (5.229 mg per mole).",
     parameterValues: Object.freeze({
       cardId: "me-03-card-radium" as const,
@@ -219,7 +219,7 @@ export const ME03_PRESETS = Object.freeze([
   }),
   Object.freeze({
     presetId: "me-03-card-sun",
-    label: "The Sun (Radiated Luminosity)",
+    label: "The Sun (radiated luminosity)",
     description: "Radiated power of 3.828 × 10^26 W carries away 4.259 × 10^9 kg each second.",
     parameterValues: Object.freeze({
       cardId: "me-03-card-sun" as const,
@@ -229,7 +229,7 @@ export const ME03_PRESETS = Object.freeze([
   }),
   Object.freeze({
     presetId: "me-03-card-coal",
-    label: "Burning Coal (24–35 MJ/kg)",
+    label: "Burning coal (24–35 MJ/kg)",
     description:
       "Combustion heat release carries away (2.670–3.894) × 10^-10 kg per kilogram burned.",
     parameterValues: Object.freeze({
@@ -240,7 +240,7 @@ export const ME03_PRESETS = Object.freeze([
   }),
   Object.freeze({
     presetId: "me-03-card-candle",
-    label: "A Burning Candle (80 W)",
+    label: "A burning candle (80 W)",
     description: "Heat output of 80 W for 1 hour carries off 3.20 ng of mass.",
     parameterValues: Object.freeze({
       cardId: "me-03-card-candle" as const,
@@ -250,7 +250,7 @@ export const ME03_PRESETS = Object.freeze([
   }),
   Object.freeze({
     presetId: "me-03-card-bulb",
-    label: "100 W Light Bulb (1 Year)",
+    label: "A 100 W light bulb (one year)",
     description: "100 W continuous operation for one Julian year carries off 35.1 µg.",
     parameterValues: Object.freeze({
       cardId: "me-03-card-bulb" as const,

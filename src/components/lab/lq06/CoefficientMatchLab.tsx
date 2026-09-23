@@ -385,21 +385,21 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         <summary>The three logical roles of the match</summary>
         <div className="lq06-roles">
           <div>
-            <h3>1. Derivation (Algebra)</h3>
+            <h3>1. Derivation (algebra)</h3>
             <p>
               The Wien radiation entropy and the Boltzmann gas entropy have the same form exactly
               when n = NE/(Rβν) = E/(hν).
             </p>
           </div>
           <div>
-            <h3>2. Heuristic Inference</h3>
+            <h3>2. Heuristic inference</h3>
             <p>
               Monochromatic radiation of low density, in the Wien regime, behaves thermodynamically{" "}
               <em>as though</em> it consisted of independent energy quanta of size hν.
             </p>
           </div>
           <div>
-            <h3>3. Further Hypothesis</h3>
+            <h3>3. Further hypothesis</h3>
             <p>
               Are the production of light (Stokes's rule, §7) and its transformation (the
               photoelectric effect, §8; ionization, §9) also exchanges in amounts of hν?

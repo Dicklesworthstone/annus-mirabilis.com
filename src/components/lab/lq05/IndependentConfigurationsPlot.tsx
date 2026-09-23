@@ -169,7 +169,7 @@ export function IndependentConfigurationsPlot({
           <span>
             Mode:{" "}
             <strong style={{ color: "var(--ink)" }}>
-              {locked ? "Locked Cluster (rigidly coupled)" : "Independent Points"}
+              {locked ? "Locked cluster (rigidly coupled)" : "Independent points"}
             </strong>
           </span>
           <span>

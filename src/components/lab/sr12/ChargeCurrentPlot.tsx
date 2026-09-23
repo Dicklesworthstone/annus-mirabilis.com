@@ -145,7 +145,7 @@ export function ChargeCurrentPlot({
         {/* Frame K (Stationary) */}
         <g transform="translate(10, 10)">
           <text x={10} y={20} fontSize="12" fontWeight="600" fill="var(--ink)">
-            Stationary Frame K (Laboratory)
+            Stationary frame K (laboratory)
           </text>
           <text x={10} y={36} fontSize="11" fill="var(--muted)">
             ρ ={" "}
@@ -255,7 +255,7 @@ export function ChargeCurrentPlot({
         {/* Frame k (Moving at boost v) */}
         <g transform={`translate(${width / 2 + 10}, 10)`}>
           <text x={10} y={20} fontSize="12" fontWeight="600" fill="var(--ink)">
-            Moving Frame k (Speed v = {boostFraction.toFixed(2)}c)
+            Moving frame k (speed v = {boostFraction.toFixed(2)}c)
           </text>
           <text x={10} y={36} fontSize="11" fill="var(--muted)">
             ρ&apos; = {display(rhoM)} C/m³, J&apos;x = {display(jM)} A/m²

@@ -285,7 +285,7 @@ export function RodSimultaneityLab({
         >
           <div>
             <p style={{ fontWeight: "bold", margin: 0 }}>
-              Refusal: Non-simultaneous Endpoint Measurement
+              Refusal: non-simultaneous endpoint measurement
             </p>
             <p className="fine" style={{ margin: "0.25rem 0 0" }}>
               {measOut?.reason ??
@@ -365,12 +365,12 @@ export function RodSimultaneityLab({
             style={{ margin: "1.5rem 0" }}
           >
             <fieldset disabled={!ready}>
-              <legend>Interactive Kinematic Controls</legend>
+              <legend>Frames, speed and sizes</legend>
 
               <div className="input-grid">
                 {/* Rod Rest Frame */}
                 <div className="input-field">
-                  <label htmlFor={`${id}-rest-frame`}>Rod Rest Frame</label>
+                  <label htmlFor={`${id}-rest-frame`}>Rod rest frame</label>
                   <select
                     id={`${id}-rest-frame`}
                     value={draft.rodRestFrame}
@@ -390,7 +390,7 @@ export function RodSimultaneityLab({
 
                 {/* Measuring Frame */}
                 <div className="input-field">
-                  <label htmlFor={`${id}-meas-frame`}>Measuring Observer Frame</label>
+                  <label htmlFor={`${id}-meas-frame`}>Measuring observer&apos;s frame</label>
                   <select
                     id={`${id}-meas-frame`}
                     value={draft.measuringFrame}
@@ -411,7 +411,7 @@ export function RodSimultaneityLab({
                 {/* Frame Velocity v */}
                 <div className="input-field">
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <label htmlFor={`${id}-v`}>Relative Speed v (fraction of c)</label>
+                    <label htmlFor={`${id}-v`}>Relative speed v (fraction of c)</label>
                     <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                       {p.v.toFixed(2)} c
                     </span>
@@ -452,7 +452,7 @@ export function RodSimultaneityLab({
                 {/* Proper Length L0 */}
                 <div className="input-field">
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <label htmlFor={`${id}-l0`}>Proper Length L₀ (light-seconds)</label>
+                    <label htmlFor={`${id}-l0`}>Proper length L₀ (light-seconds)</label>
                     <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                       {p.L0.toFixed(1)} ls
                     </span>
@@ -493,7 +493,7 @@ export function RodSimultaneityLab({
                 {/* Sphere Radius R */}
                 <div className="input-field">
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <label htmlFor={`${id}-r`}>Sphere Radius R (ls)</label>
+                    <label htmlFor={`${id}-r`}>Sphere radius R (ls)</label>
                     <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                       {p.R.toFixed(1)} ls
                     </span>
@@ -533,7 +533,7 @@ export function RodSimultaneityLab({
 
                 {/* Endpoint Pair Selection */}
                 <div className="input-field">
-                  <label htmlFor={`${id}-endpoint-pair`}>Endpoint Event Selection</label>
+                  <label htmlFor={`${id}-endpoint-pair`}>Which endpoint events</label>
                   <select
                     id={`${id}-endpoint-pair`}
                     value={draft.endpointPairId}
@@ -547,15 +547,17 @@ export function RodSimultaneityLab({
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
                     <option value="platform-simultaneous">
-                      Platform-Simultaneous (dt = 0 in K)
+                      Platform-simultaneous (dt = 0 in K)
                     </option>
                     <option value="frame-simultaneous">
-                      Frame-Simultaneous (dt = 0 in Measuring Frame)
+                      Frame-simultaneous (dt = 0 in the measuring frame)
                     </option>
-                    <option value="causal-timelike">Causal Timelike (dt = 10s, dx = 5ls)</option>
-                    <option value="causal-lightlike">Causal Lightlike (dt = 10s, dx = 10ls)</option>
-                    <option value="causal-threshold">Causal Threshold (dt = 2s, dx = 10ls)</option>
-                    <option value="custom">Custom Coordinates</option>
+                    <option value="causal-timelike">Timelike pair (dt = 10 s, dx = 5 ls)</option>
+                    <option value="causal-lightlike">Lightlike pair (dt = 10 s, dx = 10 ls)</option>
+                    <option value="causal-threshold">
+                      Causal threshold (dt = 2 s, dx = 10 ls)
+                    </option>
+                    <option value="custom">Custom coordinates</option>
                   </select>
                 </div>
               </div>
@@ -678,7 +680,7 @@ export function RodSimultaneityLab({
                 <th scope="col">Δx (ls)</th>
                 <th scope="col">Simultaneity</th>
                 <th scope="col">s² = Δx² - c²Δt² (ls²)</th>
-                <th scope="col">Causal Order</th>
+                <th scope="col">Causal order</th>
               </tr>
             </thead>
             <tbody>
@@ -785,7 +787,7 @@ export function RodSimultaneityLab({
             Internal stress, elasticity, Born rigidity breakdown, or relativistic wave propagation
             during rod acceleration.
           </li>
-          <li>Gravitational time dilation or spacetime curvature (General Relativity).</li>
+          <li>Gravitational time dilation or spacetime curvature (general relativity).</li>
           <li>Quantum uncertainty or field fluctuations at Planck-scale event intervals.</li>
           <li>Superluminal observers (|v| &ge; c) or tachyonic coordinate frames.</li>
         </ul>

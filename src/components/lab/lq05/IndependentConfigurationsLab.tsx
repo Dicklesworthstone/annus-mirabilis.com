@@ -165,7 +165,7 @@ export function IndependentConfigurationsLab({
       <details className="lab-predict lq05-predict">
         <summary>Predict first</summary>
         {/* Predict Mode Card */}
-        <section className="lq05-prompt" aria-label="Predict Mode: Microstate Reasoning">
+        <section className="lq05-prompt" aria-label="Predict first: microstate reasoning">
           <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
             Predict mode · Microstate reasoning
           </p>
@@ -377,7 +377,7 @@ export function IndependentConfigurationsLab({
                   className="fine"
                   style={{ fontWeight: 600, display: "block", marginBottom: "0.25rem" }}
                 >
-                  Display View:
+                  Display view:
                 </span>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                   <button
@@ -477,16 +477,16 @@ export function IndependentConfigurationsLab({
           >
             <thead>
               <tr style={{ borderBottom: "1px solid var(--line)", color: "var(--muted)" }}>
-                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Physical Quantity</th>
-                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Symbolic Form</th>
-                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Calculated Value</th>
-                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Physical Meaning</th>
+                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Quantity</th>
+                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Symbolic form</th>
+                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Value</th>
+                <th style={{ padding: "0.5rem var(--table-cell-x)" }}>Meaning</th>
               </tr>
             </thead>
             <tbody>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                  Relative State Probability
+                  Relative state probability
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   {p.locked ? "W_locked = f" : "W = (V/V₀)ⁿ = fⁿ"}
@@ -508,7 +508,7 @@ export function IndependentConfigurationsLab({
               </tr>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                  Natural Logarithm ln W
+                  Natural logarithm ln W
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   {p.locked ? "ln f" : "n ln f"}
@@ -524,7 +524,7 @@ export function IndependentConfigurationsLab({
               </tr>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                  Dimensionless Entropy Change ΔS/k_B
+                  Dimensionless entropy change ΔS/k_B
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   {p.locked ? "ln f" : "n ln(V/V₀)"}
@@ -540,7 +540,7 @@ export function IndependentConfigurationsLab({
               </tr>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                  Base-10 Logarithm log₁₀ W
+                  Base-10 logarithm log₁₀ W
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   {p.locked ? "log₁₀ f" : "n log₁₀ f"}
@@ -611,7 +611,7 @@ export function IndependentConfigurationsLab({
       {/* Static Fallback for no-JS */}
       <noscript>
         <div className="notice" style={{ marginTop: "1.5rem" }}>
-          <strong>Static Worked Example (JavaScript disabled):</strong> With n = 4 independent
+          <strong>Static worked example (JavaScript disabled):</strong> With n = 4 independent
           points in half a volume (f = 0.5), W = (1/2)⁴ = 1/16 = 0.0625. ln W = 4 ln(0.5) ≈ -2.7726.
         </div>
       </noscript>

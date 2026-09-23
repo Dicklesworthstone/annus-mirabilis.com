@@ -135,7 +135,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     },
   },
   "sr-03-valid-pair-0.6c": {
-    label: "Valid Frame-Simultaneous Pair",
+    label: "A frame-simultaneous pair",
     description: "Endpoints simultaneous in measuring frame K give measured length L = 8 ls.",
     parameters: {
       rodRestFrame: "k",
@@ -147,7 +147,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     },
   },
   "sr-03-reciprocal-0.6c": {
-    label: "Reciprocal Measurement",
+    label: "Reciprocal measurement",
     description: "Rod at rest in K measured from k gives contracted length 8 ls.",
     parameters: {
       rodRestFrame: "K",
@@ -159,7 +159,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     },
   },
   "sr-03-sphere-0.6c": {
-    label: "Moving Sphere Ellipsoid",
+    label: "The moving sphere as an ellipsoid",
     description: "Sphere of radius 1 ls measured as ellipsoid with axes 0.8 ls, 1.0 ls, 1.0 ls.",
     parameters: {
       rodRestFrame: "k",
@@ -171,7 +171,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     },
   },
   "sr-03-causal-timelike": {
-    label: "Causal Timelike Pair",
+    label: "A timelike pair",
     description: "dt = 10 s, dx = 5 ls, s^2 = -75 ls^2. Timelike separation with invariant order.",
     parameters: {
       rodRestFrame: "k",
@@ -183,7 +183,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     },
   },
   "sr-03-causal-lightlike": {
-    label: "Causal Lightlike Pair",
+    label: "A lightlike pair",
     description: "dt = 10 s, dx = 10 ls, s^2 = 0 ls^2. Null connection with invariant order.",
     parameters: {
       rodRestFrame: "k",
@@ -195,7 +195,7 @@ export const SR03_PRESETS: Readonly<Record<string, PresetItem>> = Object.freeze(
     },
   },
   "sr-03-causal-threshold": {
-    label: "Causal Threshold (Reversal)",
+    label: "Causal threshold (reversal)",
     description: "dt = 2 s, dx = 10 ls, s^2 = +96 ls^2. Spacelike order reverses across v = 0.2c.",
     parameters: {
       rodRestFrame: "k",

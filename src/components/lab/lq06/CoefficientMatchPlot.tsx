@@ -53,7 +53,7 @@ export function CoefficientMatchSideBySidePlot({
       </figcaption>
       <div className="lq06-laws-pair">
         <section className="lq06-law lq06-law-radiation" aria-label="Radiation">
-          <h4>Wien Monochromatic Radiation (§4)</h4>
+          <h4>Wien monochromatic radiation (§4)</h4>
           <p className="lq06-law-given">
             E = {energyNJ} nJ, ν = {freqTHz} THz
           </p>
@@ -67,7 +67,7 @@ export function CoefficientMatchSideBySidePlot({
           ≡
         </span>
         <section className="lq06-law lq06-law-gas" aria-label="Gas">
-          <h4>Ideal Gas / Solute Molecules (§5)</h4>
+          <h4>Ideal gas / solute molecules (§5)</h4>
           <p className="lq06-law-given">n = {gasParticles} independent particles</p>
           <p className="lq06-law-eq">S − S₀ = (R/N) · ln W</p>
           <p className="lq06-law-given">Independent positions, W = (V/V₀)ⁿ:</p>
