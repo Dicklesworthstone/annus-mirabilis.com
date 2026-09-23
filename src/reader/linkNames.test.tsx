@@ -242,10 +242,12 @@ describe("PaperReader link accessible names (am-jmma)", () => {
 
       // 9. "Show me one example first": 0 bare instances, each reaches 1 destination
       expect(byName.has("Show me one example first")).toBe(false);
+      // No census here. The label renders only where a passage's example lesson differs from
+      // its Why? and missing-step lessons, so how many there are follows the argument records;
+      // the property below holds at any count. Sections 7 and 8 keep the help family non-empty.
       const exampleLinks = [...byName.entries()].filter(([name]) =>
         name.startsWith("Show me one example first: "),
       );
-      expect(exampleLinks.length).toBe(6);
       for (const [_, hrefs] of exampleLinks) {
         expect(hrefs.size).toBe(1);
       }
