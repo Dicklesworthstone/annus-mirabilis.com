@@ -27,7 +27,23 @@
 
 import type { FaceAvailability } from "./faceAvailability.ts";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
-import { FACE_FALLBACK_IDS, faceLinkHref } from "./paperRoutes.ts";
+import { type FACE_FALLBACK_IDS, faceLinkHref } from "./paperRoutes.ts";
+
+/*
+  THE SAME ORDER AS THE EXPLANATION'S TABS (ReaderController.tsx): Explanation, Results, German
+  source, Facsimile. This chooser used FACE_FALLBACK_IDS' order, so moving from the explanation to
+  the German face moved Results from second place to third. The language faces sit after German,
+  and split view last.
+*/
+const TAB_ORDER = [
+  "results",
+  "german",
+  "english",
+  "gloss",
+  "parallel",
+  "facsimile",
+  "split",
+] as const satisfies readonly (typeof FACE_FALLBACK_IDS)[number][];
 
 export function FaceChooser({
   paperId,
@@ -59,10 +75,8 @@ export function FaceChooser({
     in a quiet line after the tabs rather than posing as one, unless it is the face on screen,
     which is always a tab.
   */
-  const pending = FACE_FALLBACK_IDS.filter(
-    (id) => availability?.[id] === "empty" && id !== current,
-  );
-  const tabs = FACE_FALLBACK_IDS.filter((id) => !pending.includes(id));
+  const pending = TAB_ORDER.filter((id) => availability?.[id] === "empty" && id !== current);
+  const tabs = TAB_ORDER.filter((id) => !pending.includes(id));
   return (
     <nav className="reader-controls" aria-label="Reading face">
       <div className="face-tabs">

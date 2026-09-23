@@ -23,9 +23,11 @@
  * rather than guessing from the cheap prefix or making every face page hash a PDF.
  * A caller that HAS already resolved the document can pass the answer in.
  *
- * The three non-source faces are always available because they are rendered from the
- * compiled paper itself rather than from an edition: `reading` is the explanation,
- * `results` projects argument recaps, and `split` is a static pane pair.
+ * The two non-source faces are always available because they are rendered from the
+ * compiled paper itself rather than from an edition: `reading` is the explanation and
+ * `results` projects argument recaps. `split` follows its default pair's source pane,
+ * parallel: with no parallel face, the split page is a notice and a link back to the
+ * explanation, so it is offered as not yet available rather than as a face.
  */
 
 import type { FaceId } from "./faces/registry.ts";
@@ -69,7 +71,7 @@ export function faceAvailability(
   return Object.freeze({
     reading: "available",
     results: "available",
-    split: "available",
+    split: parallelFaceHasContent(counts.blocks, counts.units) ? "available" : "empty",
     german: has(counts.blocks + counts.germanDraftBlocks),
     english: has(counts.units),
     // Parallel and gloss need BOTH sides: a German block with no translation unit, or
