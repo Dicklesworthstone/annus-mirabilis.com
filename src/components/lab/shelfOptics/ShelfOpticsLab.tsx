@@ -17,8 +17,28 @@ import {
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { readablePowers } from "../presentation.ts";
 
+/** Four significant figures: the models' inputs are given to about that, and ten figures showed
+ * higher-order terms nobody can read ("0.400000005 fringes" for an ether shift of 0.4). */
 function number(value: number): string {
-  return value === 0 ? "0" : readablePowers(Number(value.toPrecision(10)).toString());
+  return value === 0
+    ? "0"
+    : readablePowers(Number(value.toPrecision(4)).toString()).replace(/^-/, "−");
+}
+
+/** A pure number has the unit "1", which is not written: "0.19", not "0.19 1". */
+function unitText(unit: string | undefined): string {
+  return unit === undefined || unit === "1" ? "" : unit;
+}
+
+/** The unit with its leading space, or nothing, so no space is left before punctuation. */
+function spaced(unit: string | undefined): string {
+  const text = unitText(unit);
+  return text ? ` ${text}` : "";
+}
+
+function withUnit(unit: string | undefined): string {
+  const text = unitText(unit);
+  return text ? ` (${text})` : "";
 }
 
 /** Display geometry only. Bars, numbers and tables select the same accepted owner outputs. */
@@ -42,7 +62,8 @@ function ComparisonPlot({ report }: { report: ShelfReport }) {
               />
             </div>
             <strong>
-              {number(point.value)} {point.unit}
+              {number(point.value)}
+              {spaced(point.unit)}
             </strong>
           </div>
         );
@@ -50,7 +71,7 @@ function ComparisonPlot({ report }: { report: ShelfReport }) {
       <p className="shelf-scale">
         {extent === 0
           ? "Every model gives zero for this observable at these settings. No nonzero bar is drawn."
-          : `Bar range: ${number(-extent)} to +${number(extent)} ${points[0]?.unit}. The center line is zero. The scale is recalculated after Apply.`}
+          : `Bar range: ${number(-extent)} to +${number(extent)}${spaced(points[0]?.unit)}. The center line is zero. The scale is recalculated after Apply.`}
       </p>
     </figure>
   );
@@ -81,7 +102,8 @@ function ComparisonTable({ report }: { report: ShelfReport }) {
           {columns.map((column) => (
             <tr key={column.label}>
               <th scope="row">
-                {column.label} ({column.unit})
+                {column.label}
+                {withUnit(column.unit)}
               </th>
               {report.rows.map((row) => {
                 const metric = row.metrics.find((entry) => entry.label === column.label);
@@ -191,7 +213,8 @@ export function ShelfOpticsLab({
     return (
       <div className="shelf-field" key={field.key}>
         <label htmlFor={`${instance}-${field.key}`}>
-          {field.label} ({field.unit})
+          {field.label}
+          {withUnit(field.unit)}
         </label>
         <input
           id={`${instance}-${field.key}`}
@@ -206,8 +229,8 @@ export function ShelfOpticsLab({
         />
         <small id={`${instance}-${field.key}-range`}>
           Supported range: {readablePowers(String(field.min))} to{" "}
-          {readablePowers(String(field.max))} {field.unit}. Scientific notation is accepted: type
-          10⁻⁹ as <kbd>1e-9</kbd>.
+          {readablePowers(String(field.max))}
+          {spaced(field.unit)}. Scientific notation is accepted: type 10⁻⁹ as <kbd>1e-9</kbd>.
         </small>
       </div>
     );
@@ -311,7 +334,7 @@ export function ShelfOpticsLab({
                   </dt>
                   <dd>
                     {readablePowers(String(value))}{" "}
-                    {definition.fields.find((field) => field.key === key)?.unit}
+                    {unitText(definition.fields.find((field) => field.key === key)?.unit)}
                   </dd>
                 </div>
               ))}
@@ -337,7 +360,8 @@ export function ShelfOpticsLab({
                   <div key={metric.label}>
                     <dt>{metric.label}</dt>
                     <dd data-owner-id={metric.ownerId}>
-                      {number(metric.value)} {metric.unit}
+                      {number(metric.value)}
+                      {spaced(metric.unit)}
                     </dd>
                   </div>
                 ))}
@@ -364,7 +388,7 @@ export function ShelfOpticsLab({
                       <dt>{before.modelLabel}</dt>
                       <dd>
                         {number(before.value)} → {after ? number(after.value) : "not supplied"}{" "}
-                        {before.unit}
+                        {unitText(before.unit)}
                       </dd>
                     </div>
                   );
