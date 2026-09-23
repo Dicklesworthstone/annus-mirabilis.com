@@ -86,7 +86,7 @@ function Plate({ paperKey, height }: { paperKey: string; height: number }) {
       height={height}
       style={{
         border: `1px solid ${COLOUR.rule}`,
-        boxShadow: "0 14px 30px -18px rgba(0, 0, 0, 0.45)",
+        boxShadow: "0 12px 26px -16px rgba(0, 0, 0, 0.3)",
       }}
     />
   );
@@ -219,7 +219,7 @@ function LabCard({ id, paper }: { id: LabCardId; paper: FirstPage }) {
 
 /** The four first pages under their received dates, as the home page opens. */
 function SiteCard({ papers }: { papers: readonly FirstPage[] }) {
-  const plateHeight = 372;
+  const plateHeight = 356;
   return (
     <div
       style={{
@@ -250,7 +250,7 @@ function SiteCard({ papers }: { papers: readonly FirstPage[] }) {
                 </div>
               </div>
               <Plate paperKey={paper.key} height={plateHeight} />
-              <div style={{ fontSize: 24, marginTop: 10 }}>{paper.title}</div>
+              <div style={{ fontSize: 24, lineHeight: 1.4, marginTop: 6 }}>{paper.title}</div>
             </div>
           );
         })}
@@ -265,15 +265,21 @@ function SiteCard({ papers }: { papers: readonly FirstPage[] }) {
  * request (opengraph-image.test.tsx checks that none is made).
  */
 export function renderShareCard(id: string): ImageResponse | null {
+  if (id === "home") return renderSiteCard();
   const papers = loadFirstPages();
   const options = { ...CARD, fonts: cardFonts() };
-  if (id === "home") return new ImageResponse(<SiteCard papers={papers} />, options);
   const paper = papers.find((p) => p.slug === id);
   if (paper) return new ImageResponse(<PaperCard paper={paper} />, options);
   if (id in LAB_CARDS) {
     const lab = LAB_CARDS[id as LabCardId];
     const labPaper = papers.find((p) => p.key === lab.paperKey);
-    if (labPaper) return new ImageResponse(<LabCard id={id as LabCardId} paper={labPaper} />, options);
+    if (labPaper)
+      return new ImageResponse(<LabCard id={id as LabCardId} paper={labPaper} />, options);
   }
   return null;
+}
+
+/** The site's own card, which every page without a card of its own shares. */
+export function renderSiteCard(): ImageResponse {
+  return new ImageResponse(<SiteCard papers={loadFirstPages()} />, { ...CARD, fonts: cardFonts() });
 }

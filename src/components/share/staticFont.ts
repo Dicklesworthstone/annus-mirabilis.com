@@ -23,7 +23,8 @@ export function defaultInstance(font: Uint8Array): Uint8Array {
     const tag = String.fromCharCode(...font.subarray(entry, entry + 4));
     const offset = view.getUint32(entry + 8);
     const length = view.getUint32(entry + 12);
-    if (!VARIATION_TABLES.has(tag)) kept.push({ tag, data: font.subarray(offset, offset + length) });
+    if (!VARIATION_TABLES.has(tag))
+      kept.push({ tag, data: font.subarray(offset, offset + length) });
   }
   const padded = (length: number) => (length + 3) & ~3;
   const directory = 12 + kept.length * 16;
