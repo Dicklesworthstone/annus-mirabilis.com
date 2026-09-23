@@ -1,0 +1,24 @@
+# Declares this bead as the owner of the /lab/brownian-data/ page's caption readings. The texts were
+# authored on 2026-09-23 (TopazPrairie): the target below mirrors BROWNIAN_DATA_CAPTION in
+# src/experiments/bm07/definition.ts, which MeasuredTrajectoryLab renders.
+paper: brownian-motion
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - brownian-data
+ownerBeadId: am-bm-07-kitchen-mode-mays
+targets:
+  - kind: caption
+    id: brownian-data
+    readings:
+      r0: "Track a real particle under a microscope, load its positions, and the lab estimates how fast it spreads. It also says what that estimate assumes, and what a recording cannot tell you on its own, such as whether camera errors or a slow drift of the stage have crept in."
+      r1: "The lab takes the positions of one or more particles at equal time steps, in micrometres and seconds, and estimates the diffusion coefficient from the steps: along each axis D̂ is the average of Δ^{2}/(2τ), Section 4's λ_{x}^{2} = 2Dt read backwards. Before it gives an interval it checks what that rule assumes: steps independent of one another, no steady drift, and positions without camera error. It tests for drift and for correlation between neighbouring steps, and when those checks fail it says which estimate still applies, as the camera laboratory explains. A recording alone fixes D, not the number of molecules: that also needs the temperature, the viscosity and the particle's radius, each measured separately. Loading a file does not show that it is a real measurement, or that the model fits it."
+      r2: "Take bm-07's downloadable synthetic trajectory as an example: 50 steps of τ = 1 s in two directions, 100 squared steps. Their average divided by 2τ is D̂ = 8.83 × 10^{−13} m^{2}/s. Because each step is a Gaussian draw, 100 D̂/D follows a chi-square law with 100 degrees of freedom, so the 95 percent interval runs from 100 D̂/129.6 to 100 D̂/74.2, that is from 6.81 to 11.89 × 10^{−13} m^{2}/s. That interval holds only if the steps are independent and centred. A steady drift at speed u moves every step by uτ as well, adding u^{2}τ^{2} to each squared step: at u = 0.1 μm/s that is 0.01 μm^{2}, about half a percent of this trajectory's step variance of 1.77 μm^{2}, and it shows up as an average step different from zero. Camera error adds 2σ^{2} to every step's variance and makes neighbouring steps negatively correlated, by −σ^{2}; a negative correlation between neighbours is the sign of it, and then the estimator that uses disjoint pairs of frames is the one to trust. To go from D to N, Section 5 needs a·N = RT/(6πηD): at 293.15 K in water of viscosity 1 mPa·s, this D gives a·N = 1.465 × 10^{17} m/mol, and only a radius measured independently turns that into N."
+      r3: "Einstein expected displacements to be measured rather than speeds, and closed Section 5 hoping that a researcher would soon decide the question. Svedberg in 1906 and Henri in 1908, with the ultramicroscope and the cinematograph, made early attempts; Perrin's measurements from 1908 gave the first convincing confirmation. The format the lab reads, one row per frame, is modern, as are its drift and correlation checks and the estimators that allow for camera noise (Berglund 2010; Vestergaard, Blainey and Flyvbjerg 2014)."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§4, §5)."
+        - "Henri, V. (1908). Étude cinématographique des mouvements browniens. Comptes rendus de l'Académie des sciences 146, 1024–1026."
+        - "Perrin, J. (1909). Mouvement brownien et réalité moléculaire. Annales de chimie et de physique (8) 18, 5–114."
+        - "Berglund, A. J. (2010). Statistics of camera-based single-particle tracking. Physical Review E 82, 011917."
+        - "Vestergaard, C. L., Blainey, P. C. and Flyvbjerg, H. (2014). Optimal estimation of diffusion coefficients from single-particle trajectories. Physical Review E 89, 022726."

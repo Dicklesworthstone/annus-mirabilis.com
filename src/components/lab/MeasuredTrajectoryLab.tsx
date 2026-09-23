@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { BROWNIAN_DATA_CAPTION } from "../../experiments/bm07/definition.ts";
 import {
   type TrajectoryAnalysis,
   trajectoryAnalysisJson,
@@ -27,9 +28,9 @@ import {
   readTrajectoryDraft,
   type TrajectoryDraft,
 } from "../../experiments/bm07/trajectoryDraft.ts";
-
 import { CameraTrajectoryResult } from "./CameraTrajectoryResult.tsx";
 import { Sci } from "./Sci.tsx";
+import { withScripts } from "./subscripts.tsx";
 import { TrajectoryInspection } from "./TrajectoryInspection.tsx";
 
 const estimatorNames = {
@@ -620,6 +621,17 @@ export function MeasuredTrajectoryLab() {
           </div>
         </section>
       )}
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(BROWNIAN_DATA_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(BROWNIAN_DATA_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(BROWNIAN_DATA_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(BROWNIAN_DATA_CAPTION.r3)}
+      </p>
     </section>
   );
 }
