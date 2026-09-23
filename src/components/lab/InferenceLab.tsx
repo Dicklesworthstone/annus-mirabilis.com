@@ -6,7 +6,11 @@ import {
   type InferenceDraft,
   toInferenceDraft,
 } from "../../experiments/bm07/controls.ts";
-import { BM07_SEMANTIC_KIND_TEXT, type Bm07Parameters } from "../../experiments/bm07/definition.ts";
+import {
+  BM07_CAPTION,
+  BM07_SEMANTIC_KIND_TEXT,
+  type Bm07Parameters,
+} from "../../experiments/bm07/definition.ts";
 import { inferenceObservationCsv } from "../../experiments/bm07/export.ts";
 import { decodeBm07Settings, encodeBm07Settings } from "../../experiments/bm07/permalink.ts";
 import { createBm07Session, type PreparedBm07Example } from "../../experiments/bm07/session.ts";
@@ -18,6 +22,7 @@ import {
   InferenceValue,
 } from "./InferencePlots.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
+import { withScripts } from "./subscripts.tsx";
 
 const estimatorNames = {
   "independent-increment-known-zero-drift": "Known zero drift · unbiased",
@@ -27,9 +32,12 @@ const estimatorNames = {
 export function InferenceLab({
   example,
   title = "What can wandering reveal?",
+  readings = true,
 }: {
   example: PreparedBm07Example;
   title?: string;
+  /** False for the optional second laboratory, so the page carries the caption readings once. */
+  readings?: boolean;
 }) {
   const id = useId(),
     [session] = useState(() => createBm07Session(`bm07-${id}`, example, createBm07BrowserChannel));
@@ -778,6 +786,21 @@ export function InferenceLab({
           cross-engine WASM replay.
         </p>
       </details>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      {readings && (
+        <>
+          <p data-detail="0">{withScripts(BM07_CAPTION.r0)}</p>
+          <p data-detail="1">{withScripts(BM07_CAPTION.r1)}</p>
+          <p data-detail="2" hidden>
+            {withScripts(BM07_CAPTION.r2)}
+          </p>
+          <p data-detail="3" hidden>
+            {withScripts(BM07_CAPTION.r3)}
+          </p>
+        </>
+      )}
     </section>
   );
 }
@@ -804,7 +827,13 @@ export function InferenceComparison({ example }: { example: PreparedBm07Example 
           reproduces the same synthetic data; choose a different seed for an independent trial.
         </p>
       </div>
-      {second && <InferenceLab example={example} title="A separately controlled inference" />}
+      {second && (
+        <InferenceLab
+          example={example}
+          title="A separately controlled inference"
+          readings={false}
+        />
+      )}
     </>
   );
 }
