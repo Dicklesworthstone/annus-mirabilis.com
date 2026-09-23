@@ -382,11 +382,11 @@ export async function PaperReader({
         </div>
         <StickyLabRegion>
           <section id="lab-bm-01" className="reader-inline-lab">
-            <h2>Keep the experiment beside the argument</h2>
+            <h2>Try the displacement argument yourself</h2>
             <p>
-              This laboratory stays mounted while you change detail or open a foundation. Applying
-              its controls explicitly starts a host calculation; opening an explanation never starts
-              or restarts a trial.
+              Once open, the tracer ensemble stays open while you change the detail or read a
+              lesson. It runs a new trial only when you apply its settings; opening an explanation
+              never starts one.
             </p>
             <LazyInlineTracerLab />
           </section>
@@ -396,7 +396,7 @@ export async function PaperReader({
         <h2>Read in another form</h2>
         <p>
           <a href={payload.exports.markdown}>Download the full explanation as Markdown</a> ·{" "}
-          <a href={payload.exports.json}>Structured reading records</a> ·{" "}
+          <a href={payload.exports.json}>The same explanation as data (JSON)</a> ·{" "}
           <a href="/foundations/">Browse the foundation library</a>
         </p>
       </section>
