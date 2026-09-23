@@ -8,7 +8,19 @@ import { roleForQuantity } from "../../content/kernel/trace.ts";
 import type { WorkedTrace } from "../../content/kernel/types.ts";
 import { KERNEL_DISPLAY_ROLE_LABELS, type KernelListing } from "../../content/kernel/types.ts";
 import { paperOfId } from "../../equations/paperOfId.ts";
+import { display, unitText } from "./presentation.ts";
 import "./showTheCode.css";
+
+/** A worked value at five significant figures with its power of ten raised, not the raw binary64
+ * string: bm-01's table printed "0.000006156364840452743" and "1.2723450247038662e-8". */
+function traceValue(value: unknown): string {
+  return typeof value === "number" && Number.isFinite(value) ? display(value) : String(value);
+}
+
+/** A unit with its powers raised: the trace's "kg s^{-1}" reads kg s⁻¹. */
+function traceUnit(unit: string): string {
+  return unitText(unit.replace(/\^\{(-?\d+)\}/g, "^$1"));
+}
 
 function TraceTable({ trace }: { trace: WorkedTrace }) {
   return (
@@ -55,8 +67,8 @@ function TraceTable({ trace }: { trace: WorkedTrace }) {
                     row.expression
                   )}
                 </td>
-                <td>{String(row.value)}</td>
-                <td>{row.unit}</td>
+                <td>{traceValue(row.value)}</td>
+                <td>{traceUnit(row.unit)}</td>
               </tr>
             );
           })}
