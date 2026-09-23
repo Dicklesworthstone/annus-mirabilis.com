@@ -1,0 +1,56 @@
+/*
+ * THE PHONE MENU (chrome, pane %48). MenuToggle.tsx says why. Below 580px, and only once the
+ * pre-paint theme script has run (`:root[data-theme]`), the header is one row: the wordmark, this
+ * button, then reading preferences and the theme button; the six links sit under it while it is
+ * open. Everywhere else the button does not show and the header is unchanged.
+ */
+button.menu-toggle {
+  display: none;
+}
+@media (max-width: 579px) {
+  :root[data-theme] .site-header {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+  :root[data-theme] .site-header > .header-controls {
+    grid-area: 1 / 3;
+  }
+  :root[data-theme] button.menu-toggle {
+    grid-area: 1 / 2;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  /* The site's button hover is an accent fill; a phone keeps :hover after a tap, so as on the
+     theme button this one keeps its own colours. */
+  :root[data-theme] button.menu-toggle:hover:not(:disabled) {
+    background: transparent;
+    border-color: transparent;
+    color: var(--ink);
+  }
+  :root[data-theme]:not([data-menu-open]) .site-header > nav {
+    display: none;
+  }
+}
+.menu-toggle-icon {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+.menu-toggle-close,
+button.menu-toggle[aria-expanded="true"] .menu-toggle-bars {
+  display: none;
+}
+button.menu-toggle[aria-expanded="true"] .menu-toggle-close {
+  display: inline;
+}

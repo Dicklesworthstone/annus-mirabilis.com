@@ -7,6 +7,7 @@ import "../a11y/readingSettings/readingSettings.css";
 import "../a11y/modal/modal.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
+import { MenuToggle } from "../components/chrome/MenuToggle.tsx";
 import { PrimaryNavLinks } from "../components/chrome/PrimaryNavLinks.tsx";
 import { FORMULA_OVERFLOW_SOURCE } from "../components/edition/formulaOverflow.inline";
 import { GuidedTourTrail } from "../discovery/tours/GuidedTourTrail.tsx";
@@ -46,7 +47,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <a className="wordmark" href="/">
             Annus Mirabilis<span>Einstein in 1905</span>
           </a>
-          <nav aria-label="Main navigation">
+          <MenuToggle />
+          <nav id="site-nav" aria-label="Main navigation">
             <PrimaryNavLinks />
             <SearchLauncher />
             <NotebookLauncher />
