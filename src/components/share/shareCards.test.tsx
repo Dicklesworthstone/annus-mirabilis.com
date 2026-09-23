@@ -95,7 +95,9 @@ describe("share cards", () => {
       const firstSection = (await loadPaper(paper.slug)).paper.sections[0]?.id;
       expect(firstSection, paper.slug).toBeDefined();
       for (const section of [undefined, firstSection]) {
-        const meta = await paperMetadata({ paperId: paper.slug, section });
+        const meta = await paperMetadata(
+          section === undefined ? { paperId: paper.slug } : { paperId: paper.slug, section },
+        );
         const images = (meta.openGraph?.images ?? []) as { url: string }[];
         expect(
           images.map((image) => image.url),
