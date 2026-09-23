@@ -95,7 +95,7 @@ export default function FluorescencePage() {
         </p>
         <ul style={{ paddingLeft: "1.25rem", listStyleType: "disc" }}>
           <li style={{ marginBottom: "0.5rem" }}>
-            <strong>Deviation Case 1 (Multi-quantum absorption):</strong> If the elementary process
+            <strong>Deviation case 1 (multi-quantum absorption):</strong> If the elementary process
             involves the simultaneous absorption of{" "}
             <span style={{ fontStyle: "italic", fontWeight: 600 }}>k</span> light quanta, the
             available energy is{" "}

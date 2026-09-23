@@ -137,7 +137,7 @@ export const LQ07_PRESETS: Readonly<
   Record<string, Readonly<{ label: string; description: string; parameters: Lq07Parameters }>>
 > = Object.freeze({
   "lq-07-stokes-rule": Object.freeze({
-    label: "Stokes's Rule (§7 as printed)",
+    label: "Stokes's rule (§7 as printed)",
     description:
       "Standard single-quantum budget: exciting UV light at 850 THz (3.515 eV) bounds emission to nu2 <= 850 THz.",
     parameters: Object.freeze({
@@ -153,7 +153,7 @@ export const LQ07_PRESETS: Readonly<
     }),
   }),
   "lq-07-anti-stokes-disallowed": Object.freeze({
-    label: "Anti-Stokes Disallowed (900 THz proposal)",
+    label: "Anti-Stokes disallowed (900 THz proposal)",
     description:
       "Proposing nu2 = 900 THz (3.722 eV) results in a 0.207 eV deficit under standard single-quantum assumptions.",
     parameters: Object.freeze({
@@ -169,7 +169,7 @@ export const LQ07_PRESETS: Readonly<
     }),
   }),
   "lq-07-deviation-multi": Object.freeze({
-    label: "Deviation Case 1 (k = 2 multi-quantum)",
+    label: "Deviation case 1 (k = 2 multi-quantum)",
     description:
       "Two absorbed quanta (7.031 eV) raise the upper frequency bound to nu2,max = 1700 THz, allowing 900 THz emission.",
     parameters: Object.freeze({
@@ -185,7 +185,7 @@ export const LQ07_PRESETS: Readonly<
     }),
   }),
   "lq-07-deviation-non-wien": Object.freeze({
-    label: "Deviation Case 2 (T_src = 20,000 K non-Wien source)",
+    label: "Deviation case 2 (T_src = 20,000 K non-Wien source)",
     description:
       "Exciting radiation outside the Wien domain (e^-x = 0.130 > 0.01) produces an explicit outside-wien-domain refusal.",
     parameters: Object.freeze({
@@ -201,7 +201,7 @@ export const LQ07_PRESETS: Readonly<
     }),
   }),
   "lq-07-modern-thermal": Object.freeze({
-    label: "Modern Thermal Allowance (T_body = 300 K)",
+    label: "Modern thermal allowance (T_body = 300 K)",
     description:
       "Thermal energy of the emitting body (+0.259 eV from vibrational modes) raises nu2,max to 912.51 THz (labeled modern lens).",
     parameters: Object.freeze({

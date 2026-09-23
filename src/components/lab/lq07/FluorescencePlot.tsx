@@ -102,7 +102,7 @@ export function FluorescencePlot({
                 color: "var(--ink)",
               }}
             >
-              Elementary Quantum Energy Ledger
+              Elementary quantum energy ledger
             </span>
             <span
               style={{
@@ -133,10 +133,10 @@ export function FluorescencePlot({
               }}
             >
               {budget.status === "outside-domain"
-                ? "Outside Wien Regime"
+                ? "Outside the Wien regime"
                 : budget.allowed
-                  ? "Allowed by Budget"
-                  : "Disallowed (Deficit)"}
+                  ? "Allowed by the budget"
+                  : "Disallowed (deficit)"}
             </span>
           </div>
 
@@ -147,10 +147,10 @@ export function FluorescencePlot({
               fontSize: "0.75rem",
             }}
           >
-            {regime === "standard-stokes" && "Stokes's Rule (§7)"}
-            {regime === "deviation-multi-quantum" && `Deviation Case 1 (k = ${multiQuantumK})`}
-            {regime === "deviation-non-wien" && "Deviation Case 2 (Wien Check)"}
-            {regime === "modern-thermal" && "Modern Thermal Allowance"}
+            {regime === "standard-stokes" && "Stokes's rule (§7)"}
+            {regime === "deviation-multi-quantum" && `Deviation case 1 (k = ${multiQuantumK})`}
+            {regime === "deviation-non-wien" && "Deviation case 2 (Wien check)"}
+            {regime === "modern-thermal" && "Modern thermal allowance"}
           </span>
         </div>
 
@@ -192,7 +192,7 @@ export function FluorescencePlot({
             strokeWidth="1.5"
           />
           <text x="35" y={groundY + 16} fontSize="10" fontFamily="monospace" fill="var(--muted)">
-            0 eV (Ground State)
+            0 eV (ground state)
           </text>
 
           {/* Bar 1: Absorbed Energy */}
@@ -350,7 +350,7 @@ export function FluorescencePlot({
               fontWeight="600"
               fill="var(--ink)"
             >
-              {budget.allowed ? "Heat (E_other)" : "Energy Deficit"}
+              {budget.allowed ? "Heat (E_other)" : "Energy deficit"}
             </text>
             <text
               x="0"
@@ -423,7 +423,7 @@ export function FluorescencePlot({
               margin: 0,
             }}
           >
-            Spectral Bands &amp; False-Color Legend
+            Spectral bands and false-colour legend
           </h4>
           <span className="fine" style={{ margin: 0, fontSize: "0.75rem" }}>
             Wavelength λ = c / ν
@@ -492,7 +492,7 @@ export function FluorescencePlot({
               }}
             />
             <div>
-              <div style={{ fontWeight: 600 }}>Visible Spectrum</div>
+              <div style={{ fontWeight: 600 }}>Visible spectrum</div>
               <div
                 className="fine"
                 style={{
@@ -572,7 +572,7 @@ export function FluorescencePlot({
                 letterSpacing: "0.05em",
               }}
             >
-              Weak-Illumination Photon Rates (Zero Threshold)
+              Weak-illumination photon rates (zero threshold)
             </span>
             <span
               style={{
@@ -594,7 +594,7 @@ export function FluorescencePlot({
           >
             <div>
               <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
-                Absorbed Rate Ṅ₁:
+                Absorbed rate Ṅ₁:
               </span>
               <span
                 style={{
@@ -608,7 +608,7 @@ export function FluorescencePlot({
             </div>
             <div>
               <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
-                Emitted Rate Ṅ₂:
+                Emitted rate Ṅ₂:
               </span>
               <span
                 style={{
@@ -622,7 +622,7 @@ export function FluorescencePlot({
             </div>
             <div>
               <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
-                Emitted Power:
+                Emitted power:
               </span>
               <span
                 style={{
@@ -636,7 +636,7 @@ export function FluorescencePlot({
             </div>
             <div>
               <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
-                Heat Dissipated:
+                Heat dissipated:
               </span>
               <span
                 style={{

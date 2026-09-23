@@ -24,7 +24,7 @@ import "./fluorescenceLab.css";
 
 export function FluorescenceLab({
   example,
-  title = "Fluorescence Energy Budget & Stokes's Rule",
+  title = "Fluorescence energy budget and Stokes's rule",
 }: {
   example?: PreparedLq07Example | undefined;
   title?: string | undefined;
@@ -158,7 +158,7 @@ export function FluorescenceLab({
       <details className="lab-predict lq07-predict">
         <summary>Predict first</summary>
         {/* Predict Mode Card 1: Stokes Rule */}
-        <section className="lq07-prompt" aria-label="Predict Mode: Energy Conservation">
+        <section className="lq07-prompt" aria-label="Predict first: energy conservation">
           <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
             Predict mode · Energy conservation
           </p>
@@ -314,7 +314,7 @@ export function FluorescenceLab({
         <form onSubmit={submit} className="input-grid">
           {/* 1. Incident Frequency nu1 */}
           <div className="input-field">
-            <label htmlFor={`${id}-nu1`}>Exciting Frequency ν₁ (100 – 3000 THz):</label>
+            <label htmlFor={`${id}-nu1`}>Exciting frequency ν₁ (100 – 3000 THz):</label>
             <div
               style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.3rem" }}
             >
@@ -340,7 +340,7 @@ export function FluorescenceLab({
 
           {/* 2. Emitted Frequency nu2 */}
           <div className="input-field">
-            <label htmlFor={`${id}-nu2`}>Emitted Frequency ν₂ (100 – 3000 THz):</label>
+            <label htmlFor={`${id}-nu2`}>Emitted frequency ν₂ (100 – 3000 THz):</label>
             <div
               style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.3rem" }}
             >
@@ -374,7 +374,7 @@ export function FluorescenceLab({
                 marginBottom: "0.4rem",
               }}
             >
-              Accounting Regime:
+              Accounting regime:
             </span>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
               <button
@@ -382,28 +382,28 @@ export function FluorescenceLab({
                 className={`button ${p.regime === "standard-stokes" ? "" : "secondary"}`}
                 onClick={() => setRegime("standard-stokes")}
               >
-                Stokes's Rule (§7)
+                Stokes's rule (§7)
               </button>
               <button
                 type="button"
                 className={`button ${p.regime === "deviation-multi-quantum" ? "" : "secondary"}`}
                 onClick={() => setRegime("deviation-multi-quantum")}
               >
-                Deviation Case 1 (k-quanta)
+                Deviation case 1 (k quanta)
               </button>
               <button
                 type="button"
                 className={`button ${p.regime === "deviation-non-wien" ? "" : "secondary"}`}
                 onClick={() => setRegime("deviation-non-wien")}
               >
-                Deviation Case 2 (Wien check)
+                Deviation case 2 (Wien check)
               </button>
               <button
                 type="button"
                 className={`button ${p.regime === "modern-thermal" ? "" : "secondary"}`}
                 onClick={() => setRegime("modern-thermal")}
               >
-                Modern Thermal (Anti-Stokes)
+                Modern thermal (anti-Stokes)
               </button>
             </div>
           </div>
@@ -412,7 +412,7 @@ export function FluorescenceLab({
           <div className="input-field" style={{ gridColumn: "1 / -1" }}>
             {p.regime === "deviation-multi-quantum" && (
               <>
-                <label htmlFor={`${id}-k`}>Number of Absorbed Quanta k (1 – 5):</label>
+                <label htmlFor={`${id}-k`}>Number of absorbed quanta k (1 – 5):</label>
                 <div
                   style={{
                     display: "flex",
@@ -440,7 +440,7 @@ export function FluorescenceLab({
 
             {p.regime === "deviation-non-wien" && (
               <>
-                <label htmlFor={`${id}-tsrc`}>Exciting Source Temperature T_src (K):</label>
+                <label htmlFor={`${id}-tsrc`}>Exciting-source temperature T_src (K):</label>
                 <div
                   style={{
                     display: "flex",
@@ -476,7 +476,7 @@ export function FluorescenceLab({
 
             {p.regime === "modern-thermal" && (
               <>
-                <label htmlFor={`${id}-tbody`}>Body Temperature T_body (K):</label>
+                <label htmlFor={`${id}-tbody`}>Body temperature T_body (K):</label>
                 <div
                   style={{
                     display: "flex",
@@ -521,7 +521,7 @@ export function FluorescenceLab({
                       marginBottom: "0.4rem",
                     }}
                   >
-                    Available Channels:
+                    Available channels:
                   </span>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
                     <button
@@ -529,14 +529,14 @@ export function FluorescenceLab({
                       className={`button ${p.channels === "light-plus-heat" ? "" : "secondary"}`}
                       onClick={() => setChannels("light-plus-heat")}
                     >
-                      Light + Heat (E_other ≥ 0)
+                      Light and heat (E_other ≥ 0)
                     </button>
                     <button
                       type="button"
                       className={`button ${p.channels === "light-only" ? "" : "secondary"}`}
                       onClick={() => setChannels("light-only")}
                     >
-                      Light Only (E_other = 0)
+                      Light only (E_other = 0)
                     </button>
                   </div>
                 </div>
@@ -606,20 +606,20 @@ export function FluorescenceLab({
           <table>
             <thead>
               <tr>
-                <th scope="col">Physical Quantity</th>
+                <th scope="col">Quantity</th>
                 <th scope="col">Symbol</th>
-                <th scope="col">Calculated Value</th>
-                <th scope="col">Physical Meaning</th>
+                <th scope="col">Value</th>
+                <th scope="col">Meaning</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <th scope="row">Budget Verdict</th>
+                <th scope="row">Budget verdict</th>
                 <td style={{ fontFamily: "var(--font-mono)" }}>Verdict</td>
                 <td style={{ fontFamily: "var(--font-mono)", fontWeight: "bold" }}>
                   {evaluation.budget.status === "outside-domain" ? (
                     <span className="badge" style={{ color: "var(--accent)" }}>
-                      Outside Domain
+                      Outside domain
                     </span>
                   ) : evaluation.budget.allowed ? (
                     <span className="badge">Allowed</span>
@@ -632,7 +632,7 @@ export function FluorescenceLab({
                 <td className="fine">{evaluation.budget.verdictReason}</td>
               </tr>
               <tr>
-                <th scope="row">Maximum Allowed Frequency</th>
+                <th scope="row">Maximum allowed frequency</th>
                 <td style={{ fontFamily: "var(--font-mono)" }}>ν₂,max</td>
                 <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
                   {(evaluation.budget.nu2MaxHz / 1e12).toFixed(2)} THz
@@ -640,7 +640,7 @@ export function FluorescenceLab({
                 <td className="fine">Upper frequency bound for emitted light</td>
               </tr>
               <tr>
-                <th scope="row">Absorbed Quantum Energy</th>
+                <th scope="row">Absorbed quantum energy</th>
                 <td style={{ fontFamily: "var(--font-mono)" }}>hν₁</td>
                 <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
                   {evaluation.budget.e1Ev.toFixed(4)} eV
@@ -648,7 +648,7 @@ export function FluorescenceLab({
                 <td className="fine">Energy of one exciting light quantum</td>
               </tr>
               <tr>
-                <th scope="row">Emitted Quantum Energy</th>
+                <th scope="row">Emitted quantum energy</th>
                 <td style={{ fontFamily: "var(--font-mono)" }}>hν₂</td>
                 <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
                   {evaluation.budget.e2Ev.toFixed(4)} eV
@@ -656,17 +656,17 @@ export function FluorescenceLab({
                 <td className="fine">Energy of candidate emitted light quantum</td>
               </tr>
               <tr>
-                <th scope="row">Non-Optical Dissipation (Heat)</th>
+                <th scope="row">Non-optical dissipation (heat)</th>
                 <td style={{ fontFamily: "var(--font-mono)" }}>E_other</td>
                 <td style={{ fontFamily: "var(--font-mono)" }}>
                   {evaluation.budget.allowed
                     ? `${evaluation.budget.eOtherEv.toFixed(4)} eV`
-                    : "N/A (Disallowed)"}
+                    : "Not applicable (disallowed)"}
                 </td>
                 <td className="fine">Energy transferred to thermal modes of medium</td>
               </tr>
               <tr>
-                <th scope="row">Energy Deficit</th>
+                <th scope="row">Energy deficit</th>
                 <td style={{ fontFamily: "var(--font-mono)" }}>ΔE</td>
                 <td
                   style={{
@@ -722,7 +722,7 @@ export function FluorescenceLab({
       {/* Static Fallback for no-JS */}
       <noscript>
         <p className="notice" style={{ marginTop: "1.5rem" }}>
-          <strong>Static Worked Example (JavaScript disabled):</strong> Exciting UV light at ν₁ =
+          <strong>Static worked example (JavaScript disabled):</strong> Exciting UV light at ν₁ =
           850 THz (hν₁ = 3.515 eV) limits emitted fluorescence to ν₂ ≤ 850 THz. A proposed emission
           at 900 THz (3.722 eV) has a 0.207 eV deficit and is disallowed.
         </p>
