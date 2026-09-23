@@ -104,3 +104,14 @@
     display: none;
   }
 }
+
+/* The plotted track's vertical extent, stated above the drawing (TrajectoryInspection.tsx). */
+.trajectory-plot-range {
+  margin: 0 0 0.5rem;
+}
+
+/* The track plot is 300 units wide and its labels are sized in those units, so uncapped in the
+   wide results column they were drawn at 55px on a 1440 screen. */
+.trajectory-plot svg[role="img"] {
+  max-width: 21rem;
+}
