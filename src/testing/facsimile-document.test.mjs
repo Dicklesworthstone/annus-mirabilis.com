@@ -119,7 +119,7 @@ test("rejects unsafe URLs, mismatched identity, unknown decisions and invalid pi
   for (const mutate of mutations) {
     const c = config();
     mutate(c);
-    refusesWith(() => project(c), "facsimile-data-invalid", "(document.ts:45)");
+    refusesWith(() => project(c), "facsimile-data-invalid", "(document.ts:49)");
   }
   // An origin the URL parser cannot read at all, which is a different site from one it reads
   // and rejects. Every mutation above is PARSEABLE - "javascript:alert(1)" and
@@ -127,7 +127,7 @@ test("rejects unsafe URLs, mismatched identity, unknown decisions and invalid pi
   // the catch around `new URL` was driven by nothing in this file until now.
   const unparseable = config();
   unparseable.pinned.originUrl = "not a url";
-  refusesWith(() => project(unparseable), "facsimile-data-invalid", "(document.ts:114)");
+  refusesWith(() => project(unparseable), "facsimile-data-invalid", "(document.ts:118)");
 });
 test("same-length wrong page window, stale extract map and out-of-parent pages are rejected", () => {
   // Deleting the anchor leaves `config.verifiedAnchor ?? article.verifiedAnchor` undefined, so
@@ -135,7 +135,7 @@ test("same-length wrong page window, stale extract map and out-of-parent pages a
   // condition at :41. Two sites behind one code, which is why they are cited apart.
   const missingAnchor = config();
   delete missingAnchor.verifiedAnchor;
-  refusesWith(() => project(missingAnchor), "facsimile-data-invalid", "(document.ts:40)");
+  refusesWith(() => project(missingAnchor), "facsimile-data-invalid", "(document.ts:44)");
   const mutations = [
     (c) => (c.articlePages.parentPageIndices = [232, 233, 234]),
     (c) => (c.verifiedAnchor.verifiedBy = ""),
@@ -146,7 +146,7 @@ test("same-length wrong page window, stale extract map and out-of-parent pages a
   for (const mutate of mutations) {
     const c = config();
     mutate(c);
-    refusesWith(() => project(c), "facsimile-data-invalid", "(document.ts:45)");
+    refusesWith(() => project(c), "facsimile-data-invalid", "(document.ts:49)");
   }
 });
 test("supports the configuration schema's nested verified anchor", () => {
@@ -193,7 +193,7 @@ test("malformed and unknown fragments never fabricate a matching page", () => {
     refusesWith(
       () => facsimilePdfHref(project(), page),
       "facsimile-page-out-of-range",
-      "(document.ts:318)",
+      "(document.ts:335)",
     );
 });
 test("inventory identity, page ranges, missing locators, duplicate ids and unsafe aliases fail closed", () => {
@@ -212,7 +212,7 @@ test("inventory identity, page ranges, missing locators, duplicate ids and unsaf
   for (const mutate of mutations) {
     const i = inventory();
     mutate(i);
-    refusesWith(() => project(config(), i), "facsimile-data-invalid", "(document.ts:45)");
+    refusesWith(() => project(config(), i), "facsimile-data-invalid", "(document.ts:49)");
   }
 });
 
