@@ -4,9 +4,29 @@
   "id": "random-walks",
   "title": "From steps to spread",
   "question": "Why does typical displacement grow as the square root of the step count?",
-  "summary": "Independent centred increments add their variances, not their distances.",
+  "summary": "Random steps partly cancel, but their squares add up. After n steps of one metre the average squared distance from the start is n, so the typical distance grows only as the square root of n.",
   "review": "draft",
   "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "A walker flips a coin before every step: heads, one metre to the right; tails, one metre to the left. After four steps, how far from the start is the walker likely to be? Not four metres: the steps partly cancel. Count the walks, and square each final distance so that left and right count alike:"
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "After one step the walker is 1 m away, every time. The squared distance is 1.",
+        "After two steps there are four equally likely walks, ending 2 m right, at the start, at the start, or 2 m left. The squared distances 4, 0, 0 and 4 average 2.",
+        "After four steps there are sixteen equally likely walks. Two end 4 m out, eight end 2 m out and six end at the start. The squared distances average (2 × 16 + 8 × 4) ÷ 16 = 4."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "The average squared distance grows by one square metre per step: after n steps it is n. The typical distance, its square root, grows only as the square root of n: 1 m after one step, about 1.4 m after two, 2 m after four, 10 m after a hundred. To get twice as far takes four times as many steps."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In symbols, call the steps Δ₁, Δ₂ and so on, and the position after n steps X, their sum:"
+    },
     {
       "kind": "formula",
       "latex": "X_n=\\Delta_1+\\ldots+\\Delta_n",
@@ -14,7 +34,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "Assume each increment has zero mean and the same finite mean square l², where l is the root-mean-square size of one step. Expanding the square produces n squared increments plus pairwise products. Independence and zero means remove every expected cross term."
+      "text": "Suppose each step averages zero and has the same mean square l², where l is the typical size of one step (1 m in the coin walk). Squaring the sum gives the n squared steps and many products of two different steps. When the steps are independent and each averages zero, every such product averages zero, as the lesson on independence shows for two coin steps. Only the squares are left to add up:"
     },
     {
       "kind": "formula",
@@ -26,7 +46,7 @@
   "example": [
     {
       "kind": "paragraph",
-      "text": "One hundred steps of RMS size 1 have RMS net displacement 10. Four hundred such steps have RMS net displacement 20. This does not say that any individual walker ends exactly 10 or 20 units away, and it does not count the path length."
+      "text": "A hundred steps of typical size 1 m leave a typical distance of 10 m from the start, because the square root of 100 is 10. Four hundred steps leave 20 m: four times the steps, twice the distance. No single walker has to end exactly 10 or 20 m away; these are typical sizes over many walkers. Nor is the distance from the start the length of the path: to end 10 m from home, the walker has walked 100 m."
     }
   ],
   "exampleTitle": "A hundred steps, then four hundred",
