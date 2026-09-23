@@ -370,7 +370,9 @@ export function LorentzMapLab({
               <tbody>
                 {Object.entries(family.residuals).map(([key, value]) => (
                   <tr key={key}>
-                    <td>{key}</td>
+                    <th scope="row">
+                      {(CONSTRAINT_LABELS as Readonly<Record<string, string>>)[key] ?? key}
+                    </th>
                     <td>
                       <Sci value={value} digits={3} />
                     </td>
