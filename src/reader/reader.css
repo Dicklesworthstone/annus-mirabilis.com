@@ -251,6 +251,50 @@
 .reader-passage h4 {
   font-size: var(--type-small);
 }
+/* THE RESULTS FACE (FaceFallback.tsx) is an outline: a section label, then each result's title,
+   recap and a quiet link to its argument. The measure and the type step come from .reading-column
+   (readingSettings.css), so the reader's own line length and type size hold here as on the
+   reading face. The label is set in the interface sans and muted: it names where a result sits,
+   and the result's own title is what the eye should land on. */
+.results-section {
+  margin-block-start: 2.75rem;
+}
+.results-section > h2 {
+  margin: 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  font-weight: 600;
+  color: var(--muted);
+}
+.results-item {
+  padding-top: 1.4rem;
+  scroll-margin-top: 1.5rem;
+}
+.results-item > h3 {
+  margin: 0;
+  font-size: var(--type-lead);
+  font-weight: 400;
+}
+/* Two classes: `.reader-root p` sets every paragraph's margins at (0,1,1). */
+.results-item > .results-item-recap {
+  margin-block: 0.4rem 0;
+}
+.results-item > .results-item-link {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+}
+.results-item-link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+}
+.results-item-link a:hover {
+  color: var(--ink);
+}
 /* The chooser's derived state marker. A face with no content stays a LINK - the page
    behind it explains what is missing and offers the explanation instead - so this is a
    quiet annotation rather than a disabled control or an apology. Tokens only: no new

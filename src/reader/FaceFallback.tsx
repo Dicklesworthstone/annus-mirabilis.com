@@ -130,14 +130,39 @@ export async function FaceFallback(
           </div>
         </div>
       ) : null}
+      {/*
+        THE RESULTS FACE IS AN OUTLINE OF THE ARGUMENT. It was one display-size heading and one
+        recap per passage, run the full 1,320px frame: on BUILD 22 light quanta's twelve recaps
+        were 170 to 213 characters on one or two lines of ~190. Now each paper section heads its
+        own results, each result is a title and its recap at the reading measure, and each ends
+        in a link to the argument it summarises. Every result keeps its passage id, so a face
+        change still lands on the same passage.
+      */}
       {face === "results" ? (
-        <div data-face-results>
-          {args.map((a) => (
-            <article key={a.id} id={a.id} className="reader-passage">
-              <h2>{a.title}</h2>
-              <p>{a.recap}</p>
-            </article>
-          ))}
+        <div data-face-results className="results-outline reading-column">
+          {sections.map((s) => {
+            const results = args.filter((a) => a.section === s.id);
+            if (results.length === 0) return null;
+            return (
+              <section key={s.id} className="results-section" aria-labelledby={`results-${s.id}`}>
+                <h2 id={`results-${s.id}`}>{s.title}</h2>
+                {results.map((a) => (
+                  <article key={a.id} id={a.id} className="results-item">
+                    <h3>{a.title}</h3>
+                    <p className="results-item-recap">{a.recap}</p>
+                    <p className="results-item-link">
+                      <a
+                        href={`${paperPath(paperId, section)}#${a.id}`}
+                        aria-label={`Read the argument: ${a.title}`}
+                      >
+                        Read the argument
+                      </a>
+                    </p>
+                  </article>
+                ))}
+              </section>
+            );
+          })}
         </div>
       ) : null}
       {SOURCE_FACES.has(face) && facsimile?.kind !== "available" ? (
