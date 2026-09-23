@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { pinBaseline } from "./Baseline.ts";
-import { COMMON_RANDOM_NUMBERS_NOTE, comparisonStatement } from "./comparisonStatement.ts";
+import {
+  COMMON_RANDOM_NUMBERS_NOTE,
+  comparisonDisplay,
+  comparisonStatement,
+} from "./comparisonStatement.ts";
 import { compareBaselines } from "./compatibility.ts";
 import { singleVariationLock } from "./singleVariationLock.ts";
 
@@ -276,4 +280,20 @@ test("a stale or mixed snapshot is not a valid measurement variant", () => {
     ).code,
     "mixed-snapshot",
   );
+});
+
+test("comparisonDisplay writes a power of ten where toString would print e-notation", () => {
+  // After Start on /lab/bm-01/compare/, a 1e300 μm radius read "from 0.5 μm to 1e+300 μm" and its
+  // ratios "5e-301". The one-line form is the plain-text one; markup callers raise the exponent.
+  assert.equal(comparisonDisplay(1e300), "1 × 10^300");
+  assert.equal(comparisonDisplay(5e-301), "5 × 10^−301");
+  assert.equal(comparisonDisplay(3.14851e-7), "3.1485 × 10^−7");
+  assert.equal(comparisonDisplay(-7.0711e-151), "−7.0711 × 10^−151");
+  assert.equal(comparisonDisplay(1e21), "1 × 10^21");
+  // Values toString writes plainly are unchanged.
+  assert.equal(comparisonDisplay(0.31485), "0.31485");
+  assert.equal(comparisonDisplay(0.0025034), "0.0025034");
+  assert.equal(comparisonDisplay(0), "0");
+  assert.equal(comparisonDisplay(2.5e-7, 1e6), "0.25");
+  assert.equal(comparisonDisplay(Number.POSITIVE_INFINITY), "Outside display range");
 });

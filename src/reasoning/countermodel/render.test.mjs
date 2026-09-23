@@ -33,7 +33,9 @@ test("all fourteen outcomes and numerical evidence are rendered without JavaScri
   const html = examples.map((e, i) => renderCountermodelWorkbench(e, `case${i}`)).join("");
   assert.equal((html.match(/data-cell-outcome=/g) || []).length, 14);
   assert.equal((html.match(/<fieldset[^>]*disabled/g) || []).length, 4);
-  assert.ok(html.includes("2.2253e-14"));
+  // A residual of 2.2253 × 10⁻¹⁴ is drawn with a raised exponent; it was printed "2.2253e-14".
+  assert.ok(html.includes("2.2253 × 10<sup>−14</sup>"));
+  assert.ok(!html.includes("2.2253e-14"));
   assert.ok(html.includes("Static worked example"));
   assert.ok(html.includes("full-precision decimal strings"));
   assert.ok(!/<script\b|\son\w+=/.test(html));
