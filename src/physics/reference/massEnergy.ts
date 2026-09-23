@@ -1668,7 +1668,7 @@ export function evaluateEnergySourceCard(
 
       return Object.freeze({
         id: "me-03-card-radium",
-        label: "Radium-226 Alpha Decay",
+        label: "Radium-226 alpha decay",
         description: "Nuclear alpha decay Q = 4.871 MeV per event.",
         citation:
           "NuDat 3.0 / Evaluated Nuclear Structure Data File (ENSDF), Brookhaven National Laboratory (226Ra Q-alpha = 4.871 MeV).",
@@ -1718,7 +1718,7 @@ export function evaluateEnergySourceCard(
 
       return Object.freeze({
         id: "me-03-card-sun",
-        label: "The Sun (Radiated Luminosity)",
+        label: "The Sun (radiated luminosity)",
         description: "Solar radiant energy output of 3.828 × 10^26 W.",
         citation:
           "IAU 2015 Resolution B3 on Recommended Nominal Conversion Constants (Nominal Solar Luminosity = 3.828 × 10^26 W).",
@@ -1768,7 +1768,7 @@ export function evaluateEnergySourceCard(
 
       return Object.freeze({
         id: "me-03-card-coal",
-        label: "Burning Coal",
+        label: "Burning coal",
         description: "Chemical combustion enthalpy 24–35 MJ per kilogram of coal.",
         citation:
           "CRC Handbook of Chemistry and Physics, 104th ed. (Higher heating values of coals: 24–35 MJ/kg).",
@@ -1869,7 +1869,7 @@ export function evaluateEnergySourceCard(
 
       return Object.freeze({
         id: "me-03-card-bulb",
-        label: "100 W Light Bulb (1 Year)",
+        label: "A 100 W light bulb for a year",
         description: "100 W continuous electrical operation for one Julian year (3.156 × 10^9 J).",
         citation:
           "BIPM SI Brochure (9th ed., 2019) / Standard Julian Year: 365.25 days = 31,557,600 s; 100 W × 31,557,600 s = 3.15576 × 10^9 J.",
@@ -1919,7 +1919,7 @@ export function evaluateEnergySourceCard(
 
       return Object.freeze({
         id: "me-03-heated-sealed-box",
-        label: "Heated Sealed Box",
+        label: "A heated sealed box",
         description: "Energy enters via electrical leads and is absorbed internally.",
         citation:
           "Einstein, A. (1906), 'Das Prinzip von der Erhaltung der Schwerpunktsbewegung und die Trägheit der Energie', Ann. Phys. 20, 627–633.",
@@ -1968,7 +1968,7 @@ export function evaluateEnergySourceCard(
 
       return Object.freeze({
         id: "me-03-sealed-lamp-and-mirror",
-        label: "Sealed Lamp and Mirror",
+        label: "A sealed lamp and mirror",
         description: "Combined isolated system where light is emitted and absorbed internally.",
         citation:
           "Einstein, A. (1906), 'Das Prinzip von der Erhaltung der Schwerpunktsbewegung und die Trägheit der Energie', Ann. Phys. 20, 627–633.",
