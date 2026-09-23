@@ -58,6 +58,17 @@ const SR03_CLASS_WORDS: Readonly<Record<string, Readonly<Record<string, string>>
   causalOrder: { "1": "spacelike", "0": "lightlike", "-1": "timelike" },
 };
 
+/** The answer to "Could one of these events have caused the other?", keyed as causalOrder. */
+const SR03_CAUSAL_ANSWERS: Readonly<Record<string, string>> = {
+  "1": "No. Not even light can get from one event to the other in the time between them, so nothing done at one can affect the other, and observers moving differently can disagree about which came first.",
+  "0": "Only by light: a flash leaving the first event arrives just as the second happens, and every observer, however they move, agrees on which came first.",
+  "-1": "It could have. A signal slower than light can get from one event to the other, and every observer, however they move, agrees on which came first.",
+};
+
+function capitalized(word: string | undefined): string {
+  return word ? word.charAt(0).toUpperCase() + word.slice(1) : "";
+}
+
 export function RodSimultaneityLab({
   example,
   title = "Rod measurement, simultaneity, and causal order laboratory",
@@ -169,6 +180,16 @@ export function RodSimultaneityLab({
   const measuredL =
     measOut?.status === "value" && typeof measOut.value === "number" ? measOut.value : null;
   const s2 = s2Out?.status === "value" && typeof s2Out.value === "number" ? s2Out.value : 0;
+  // The time orders and the causal order are the owner's classifications (events.ts), read as
+  // they are published rather than recomputed here from Δt and s².
+  const classOf = (quantityId: string) => {
+    const out = snapshot.outputs.find((o) => o.quantityId === quantityId);
+    return out?.status === "value" && typeof out.value === "number" ? String(out.value) : undefined;
+  };
+  const orderK = SR03_CLASS_WORDS.simultaneityK?.[classOf("simultaneityK") ?? ""];
+  const orderk = SR03_CLASS_WORDS.simultaneityKPrime?.[classOf("simultaneityKPrime") ?? ""];
+  const causalKey = classOf("causalOrder");
+  const causalWord = SR03_CLASS_WORDS.causalOrder?.[causalKey ?? ""];
   const longAxis =
     longAxisOut?.status === "value" && typeof longAxisOut.value === "number"
       ? longAxisOut.value
@@ -689,7 +710,7 @@ export function RodSimultaneityLab({
                 <th scope="col">Δt (s)</th>
                 <th scope="col">Δx (ls)</th>
                 <th scope="col">Simultaneity</th>
-                <th scope="col">s² = Δx² - c²Δt² (ls²)</th>
+                <th scope="col">s² = Δx² − c²Δt² (ls²)</th>
                 <th scope="col">Causal order</th>
               </tr>
             </thead>
@@ -699,15 +720,11 @@ export function RodSimultaneityLab({
                 <td>{fixed(dtK, 3)}</td>
                 <td>{fixed(dxK, 3)}</td>
                 <td>
-                  <span className="badge">
-                    {dtK === 0 ? "Simultaneous" : dtK > 0 ? "Ordered (+)" : "Ordered (-)"}
-                  </span>
+                  <span className="badge">{capitalized(orderK)}</span>
                 </td>
                 <td style={{ fontWeight: "bold" }}>{fixed(s2, 3)}</td>
                 <td>
-                  <span className="badge">
-                    {s2 > 0 ? "Spacelike" : s2 === 0 ? "Lightlike" : "Timelike"}
-                  </span>
+                  <span className="badge">{capitalized(causalWord)}</span>
                 </td>
               </tr>
               <tr>
@@ -715,24 +732,22 @@ export function RodSimultaneityLab({
                 <td>{fixed(dtk, 3)}</td>
                 <td>{fixed(dxk, 3)}</td>
                 <td>
-                  <span className="badge">
-                    {Math.abs(dtk) < 1e-10
-                      ? "Simultaneous"
-                      : dtk > 0
-                        ? "Ordered (+)"
-                        : "Ordered (-)"}
-                  </span>
+                  <span className="badge">{capitalized(orderk)}</span>
                 </td>
                 <td style={{ fontWeight: "bold" }}>{fixed(s2, 3)}</td>
                 <td>
-                  <span className="badge">
-                    {s2 > 0 ? "Spacelike" : s2 === 0 ? "Lightlike" : "Timelike"}
-                  </span>
+                  <span className="badge">{capitalized(causalWord)}</span>
                 </td>
               </tr>
             </tbody>
           </table>
         </section>
+        {causalKey && SR03_CAUSAL_ANSWERS[causalKey] && (
+          <p data-output="causalOrder">
+            <strong>Could one of these events have caused the other?</strong>{" "}
+            {SR03_CAUSAL_ANSWERS[causalKey]}
+          </p>
+        )}
       </div>
 
       {/* The accepted values, in words. */}
