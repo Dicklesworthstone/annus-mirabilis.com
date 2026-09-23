@@ -61,9 +61,9 @@ export default function LightQuantaInvestigationPage() {
       <section className="reading" aria-labelledby="light-before-the-move">
         <h2 id="light-before-the-move">Begin with what the wave description preserves</h2>
         <p>
-          The question is not whether a particle animation can replace interference. A successful
-          description of wave propagation and a hypothesis about energy exchange address different
-          obstacles. The calculations below do not model interference or claim that it disappears.
+          The wave description of how light travels stays as it is. What follows is a hypothesis
+          about how light&rsquo;s energy is exchanged with matter, which is a different question.
+          The calculations below do not model interference, and nothing in them says it disappears.
         </p>
         <StepDoors>
           <StepDoor href="/lab/lq-01/">Investigate prescribed waves and interference</StepDoor>
@@ -105,10 +105,10 @@ export default function LightQuantaInvestigationPage() {
         <details>
           <summary>Two further consequences, with their limits</summary>
           <p>
-            Fluorescence asks how one absorbed energy budget constrains emitted light, including
-            thermal qualifications. Ionization asks which thresholds and count bounds follow without
-            inventing an absorption cross-section or an exact yield. Both retain the distinction
-            between a bound and a measurement.
+            Fluorescence: how the energy one absorption brings in limits the light given out, with
+            the paper&rsquo;s thermal qualifications. Ionization: which thresholds, and which bounds
+            on counts, follow without an invented absorption cross-section or an exact yield. Each
+            gives a bound, and a bound is not a measurement.
           </p>
           <StepDoors>
             <StepDoor href="/lab/lq-07/">
