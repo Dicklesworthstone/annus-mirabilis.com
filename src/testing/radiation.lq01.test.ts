@@ -95,6 +95,39 @@ describe("radiation.lq01: LQ-01 classical wave description and energy spreading 
     }
   });
 
+  test("the instantaneous readout averages over a period to the time-averaged readout, in both unit conventions", () => {
+    // The two readouts are one quantity sampled two ways, so the instant must average to the
+    // average. Normalized, the instant was psi^2 while the average is 2 <psi^2>: two unit waves in
+    // phase read 4 averaged and peaked at 4 instantaneously, averaging 2. Unequal amplitudes and
+    // phases off 0 and pi are included, where a wrong factor cannot hide behind a zero.
+    const wavelength = 500e-9;
+    const period = wavelength / 299792458;
+    const N = 2000;
+    for (const kappa of [undefined, 2.5]) {
+      for (const [A1, A2, delta] of [
+        [1, 1, 0],
+        [1, 1, Math.PI / 2],
+        [1.5, 0.5, 2.1],
+      ] as const) {
+        const base = { A1, A2, r1: 1, r2: 1, wavelength, delta, ...(kappa ? { kappa } : {}) };
+        const averaged = twoSourceIntensity({ ...base, readout: "time-average" });
+        expect(averaged.status).toBe("value");
+        if (averaged.status !== "value") continue;
+        let sum = 0;
+        for (let i = 0; i < N; i++) {
+          const instant = twoSourceIntensity({
+            ...base,
+            readout: "instantaneous",
+            t: (i / N) * period,
+          });
+          expect(instant.status).toBe("value");
+          if (instant.status === "value") sum += instant.value;
+        }
+        expect(withinTolerance(sum / N, averaged.value, { relative: 1e-9 }).ok).toBe(true);
+      }
+    }
+  });
+
   test("plane wave time average over full period equals kappa * A^2 / 2", () => {
     const A = 1.5;
     const lambda = 500e-9;
