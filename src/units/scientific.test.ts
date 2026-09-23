@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { exponentialParts, exponentialSpoken, exponentialText } from "./scientific.ts";
+import {
+  exponentialParts,
+  exponentialSpoken,
+  exponentialText,
+  naturalLogSpoken,
+  partsFromNaturalLog,
+} from "./scientific.ts";
 
 const M = "−";
 
@@ -86,5 +92,53 @@ describe("spoken and one-line forms", () => {
   test("the one-line form marks the exponent", () => {
     expect(exponentialText(2.070974e-20, 6)).toBe(`2.070974 × 10^${M}20`);
     expect(exponentialText(0.999, 6)).toBe("0.9990000");
+  });
+});
+
+describe("partsFromNaturalLog", () => {
+  // /lab/lq-03/ at a 1e300 Hz probe printed "below double-precision range; ln(value) =
+  // -9.598486147758314e+285 (natural log of …)", and "below" for the classical ln of +2644 too.
+  test("a number beyond double precision is a power of ten, above the range as well as below it", () => {
+    expect(partsFromNaturalLog(2644.13217, 3)).toEqual({
+      kind: "scientific",
+      mantissa: "2.148",
+      exponent: "1148",
+    });
+    expect(partsFromNaturalLog(-921.034037, 3)).toEqual({
+      kind: "scientific",
+      mantissa: "1.000",
+      exponent: `${M}400`,
+    });
+  });
+
+  test("it agrees with toExponential wherever the number is representable", () => {
+    for (const v of [1.5e-200, 2.070974e-20, 6.02214076e23, 9.1e250]) {
+      const direct = exponentialParts(v, 3);
+      expect(direct.kind).toBe("scientific");
+      if (direct.kind !== "scientific") continue;
+      expect(partsFromNaturalLog(Math.log(v), 3)).toEqual({
+        kind: "scientific",
+        mantissa: direct.mantissa,
+        exponent: direct.exponent,
+      });
+    }
+  });
+
+  test("a mantissa that rounds up to ten carries into the exponent", () => {
+    expect(partsFromNaturalLog(Math.log(9.9996e5), 3)).toEqual({
+      kind: "scientific",
+      mantissa: "1.000",
+      exponent: "6",
+    });
+  });
+
+  test("past the precision of the exponent only the exponent is written, itself in scientific form", () => {
+    expect(partsFromNaturalLog(-9.598486147758314e285, 3)).toEqual({
+      kind: "power",
+      exponent: { kind: "scientific", mantissa: `${M}4.169`, exponent: "285" },
+    });
+    expect(naturalLogSpoken(-9.598486147758314e285, 3)).toBe(
+      "10 to the power minus 4.169 times 10 to the power 285",
+    );
   });
 });

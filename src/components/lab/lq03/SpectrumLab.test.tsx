@@ -56,4 +56,21 @@ describe("SpectrumLab: server-rendered markup shows real numbers without JavaScr
     expect(html).toContain("NOT the frequency-density peak");
     expect(html).toContain("different numbers on purpose");
   });
+
+  test("a density outside double precision is drawn as a power of ten, never as a raw logarithm", () => {
+    // At a 1e300 Hz probe the Planck and Wien densities underflow and the classical one overflows;
+    // the table printed "below double-precision range; ln(value) = -9.598486147758314e+285".
+    const parameters = { ...LQ03_DEFAULTS, probeNu: 1e300 };
+    const example = {
+      parameters,
+      evaluation: evaluateLq03(parameters),
+      sourceDigest: "src/physics/reference/radiation.ts",
+    };
+    const html = renderToStaticMarkup(<SpectrumComparison example={example} />);
+    for (const leak of ["double-precision", "ln(value)", "NaN", "Infinity", "e+285"]) {
+      expect(html).not.toContain(leak);
+    }
+    // The classical u_lambda at this probe is e^2644.13 J/(m³ m), written 2.147882 × 10^1148.
+    expect(html).toContain("10<sup>1148</sup>");
+  });
 });
