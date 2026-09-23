@@ -63,6 +63,12 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+/* The full-precision readouts are machine output, marked <samp>. The global samp rule would set them
+   at 0.85em, 11.2px here, and let them break anywhere; they keep the table's size and stay whole. */
+.countermodel-scroll samp {
+  font-size: inherit;
+  overflow-wrap: normal;
+}
 .countermodel-matrix {
   width: 100%;
   table-layout: fixed;

@@ -207,7 +207,7 @@ export function ShelfOpticsLab({
         <small id={`${instance}-${field.key}-range`}>
           Supported range: {readablePowers(String(field.min))} to{" "}
           {readablePowers(String(field.max))} {field.unit}. Scientific notation is accepted: type
-          10⁻⁹ as 1e-9.
+          10⁻⁹ as <kbd>1e-9</kbd>.
         </small>
       </div>
     );
