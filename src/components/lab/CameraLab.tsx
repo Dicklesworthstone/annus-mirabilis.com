@@ -6,7 +6,7 @@ import {
   fromCameraDraft,
   toCameraDraft,
 } from "../../experiments/bm08/controls.ts";
-import type { Bm08Parameters } from "../../experiments/bm08/definition.ts";
+import { BM08_CAPTION, type Bm08Parameters } from "../../experiments/bm08/definition.ts";
 import { cameraObservationCsv } from "../../experiments/bm08/export.ts";
 import { decodeBm08Settings, encodeBm08Settings } from "../../experiments/bm08/permalink.ts";
 import { createBm08Session, type PreparedBm08Example } from "../../experiments/bm08/session.ts";
@@ -16,12 +16,16 @@ import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
 import { InferenceInterval as Interval, InferenceValue as Value } from "./InferencePlots.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
+import { withScripts } from "./subscripts.tsx";
 export function CameraLab({
   example,
   title = "What did the camera change?",
+  readings = true,
 }: {
   example: PreparedBm08Example;
   title?: string;
+  /** False for the optional second laboratory, so the page carries the caption readings once. */
+  readings?: boolean;
 }) {
   const id = useId(),
     [session] = useState(() => createBm08Session(`bm08-${id}`, example, createBm08BrowserChannel));
@@ -680,6 +684,21 @@ export function CameraLab({
           host arithmetic, not audited WASM or historical evidence.
         </p>
       </details>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      {readings && (
+        <>
+          <p data-detail="0">{withScripts(BM08_CAPTION.r0)}</p>
+          <p data-detail="1">{withScripts(BM08_CAPTION.r1)}</p>
+          <p data-detail="2" hidden>
+            {withScripts(BM08_CAPTION.r2)}
+          </p>
+          <p data-detail="3" hidden>
+            {withScripts(BM08_CAPTION.r3)}
+          </p>
+        </>
+      )}
     </section>
   );
 }
@@ -694,7 +713,9 @@ export function CameraComparison({ example }: { example: PreparedBm08Example }) 
         </button>
         <p>Each placement has its own accepted settings, worker and observations.</p>
       </div>
-      {second && <CameraLab example={example} title="A separately controlled camera" />}
+      {second && (
+        <CameraLab example={example} title="A separately controlled camera" readings={false} />
+      )}
     </>
   );
 }
