@@ -28,5 +28,11 @@
     "date": "2026-09-16",
     "verdict": "Superseded. The @/* path alias landed in 95661f09; the DONOR_AUDIT rows are drafts of documentation HEAD has written more fully.",
     "reviewedUnder": "am-8wv8"
+  },
+  {
+    "sha": "898f059781a85bd9796a5c7d99f93e04c635e9e0",
+    "date": "2026-09-23",
+    "verdict": "Superseded. The 2026-09-21 rebase autostash on a256e02c, 53 files: 26 byte-for-byte in HEAD, and 1448 of the 1515 non-trivial lines it added to the other 26 code files are verbatim in HEAD (the 27th is .beads/issues.jsonl, a generated export). The residue is prose HEAD has since rewritten, test names re-cited to new line numbers, and one lint workaround; no unlanded work.",
+    "reviewedUnder": "am-8wv8"
   }
 ]
