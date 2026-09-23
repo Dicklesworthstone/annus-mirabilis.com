@@ -453,18 +453,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
       "canvas 2D fillStyle and PDF.js background; CSS custom properties do not resolve in canvas context",
   },
   // Osmotic pressure configuration integral model comparison in ConfigurationPlot (BM-03 §3):
-  {
-    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
-    hex: "#b91c1c",
-    reason:
-      "Locked cluster single-degree-of-freedom model state comparison callout in osmotic pressure (BM-03 §3)",
-  },
-  {
-    file: "src/components/lab/bm03/ConfigurationPlot.tsx",
-    hex: "#1d4ed8",
-    reason:
-      "Independent N_p degrees-of-freedom model state comparison callout in osmotic pressure (BM-03 §3)",
-  },
   // Mass-energy equivalence boundary ledger photon pulse momentum and radiation flux data colors in BoundaryLedgerPlot (ME-03):
   {
     file: "src/components/lab/me03/BoundaryLedgerPlot.tsx",
