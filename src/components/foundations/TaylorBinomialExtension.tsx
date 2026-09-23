@@ -81,8 +81,7 @@ export function TaylorBinomialExtension({
       <Sub>1. Moderate speeds: partial sums at v/c = 0.6 (x = 0.36)</Sub>
       <p>
         At sixty percent the speed of light, x = 0.36. The exact value of γ − 1 is 1/√(1 − 0.36) − 1
-        = 1/0.8 − 1 = 0.25. The progressive partial sums illustrate how higher-order terms
-        accumulate:
+        = 1/0.8 − 1 = 0.25. Add the terms of the series one at a time and the total closes in on it:
       </p>
 
       {/*
@@ -115,26 +114,24 @@ export function TaylorBinomialExtension({
           </caption>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--rule)", textAlign: "left" }}>
-              <th scope="col" style={{ padding: "0.4rem" }}>
-                Order
-              </th>
+              {/* No "Order" column: each term's power of x already says its order, and five
+                  columns scrolled 61px out of a 316px phone column. */}
               <th scope="col" style={{ padding: "0.4rem" }}>
                 Term added
               </th>
               <th scope="col" style={{ padding: "0.4rem" }}>
-                Term value
+                Its value
               </th>
               <th scope="col" style={{ padding: "0.4rem" }}>
-                Partial sum
+                Running total
               </th>
               <th scope="col" style={{ padding: "0.4rem" }}>
-                Difference to exact (0.25)
+                Short of 0.25
               </th>
             </tr>
           </thead>
           <tbody>
             <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-              <td style={{ padding: "0.4rem" }}>1st (linear in x)</td>
               <td style={{ padding: "0.4rem" }}>½ x</td>
               <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
                 0.180000
@@ -153,7 +150,6 @@ export function TaylorBinomialExtension({
               </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-              <td style={{ padding: "0.4rem" }}>2nd (quadratic)</td>
               <td style={{ padding: "0.4rem" }}>⅜ x²</td>
               <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
                 0.048600
@@ -172,7 +168,6 @@ export function TaylorBinomialExtension({
               </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-              <td style={{ padding: "0.4rem" }}>3rd (cubic)</td>
               <td style={{ padding: "0.4rem" }}>⁵/₁₆ x³</td>
               <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
                 0.014580
@@ -191,10 +186,9 @@ export function TaylorBinomialExtension({
               </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-              <td style={{ padding: "0.4rem" }}>4th (quartic)</td>
               <td style={{ padding: "0.4rem" }}>³⁵/₁₂₈ x⁴</td>
               <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
-                0.0045927
+                0.004593
               </td>
               <td
                 style={{
