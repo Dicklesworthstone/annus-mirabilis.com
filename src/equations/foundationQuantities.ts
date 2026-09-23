@@ -1,3 +1,4 @@
+import { ContentError } from "../content/compiler/json.ts";
 import { LIGHT_QUANTA_QUANTITIES } from "./lightQuantaQuantities.ts";
 import { BROWNIAN_QUANTITIES, type Quantity, type QuantityRegistry } from "./quantities.ts";
 
@@ -8,11 +9,21 @@ import { BROWNIAN_QUANTITIES, type Quantity, type QuantityRegistry } from "./qua
  * lesson prints the quantity differently (paper 1's lower-case v for a volume). A glyph is never a
  * key. Dimension order is length, mass, time, temperature, current, amount.
  */
-const pick = (table: QuantityRegistry, id: string, change: Partial<Quantity> = {}): Quantity => {
+export function pickQuantity(
+  table: QuantityRegistry,
+  id: string,
+  change: Partial<Quantity> = {},
+): Quantity {
   const q = table[id];
-  if (!q) throw new RangeError(`A foundation quantity must reuse a registered id: ${id}.`);
+  if (!q)
+    throw new ContentError(
+      "foundation-quantity-unregistered",
+      id,
+      `A foundation lesson reuses a paper's quantity by its registered id, and ${id} is not one.`,
+    );
   return Object.freeze({ ...q, ...change });
-};
+}
+const pick = pickQuantity;
 const own = (q: Quantity): Quantity =>
   Object.freeze({ ...q, dimension: Object.freeze([...q.dimension]) });
 const dimensionless = ["0", "0", "0", "0", "0", "0"];

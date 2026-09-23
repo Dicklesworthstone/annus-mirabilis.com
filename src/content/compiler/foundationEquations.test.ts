@@ -7,6 +7,8 @@
  */
 import { describe, expect, test } from "bun:test";
 import { loadReadingFiles } from "../../../scripts/build-content.ts";
+import { FOUNDATION_QUANTITIES, pickQuantity } from "../../equations/foundationQuantities.ts";
+import { BROWNIAN_QUANTITIES } from "../../equations/quantities.ts";
 import { parseEquationRecord } from "../../equations/record.ts";
 import { compileReadingContent } from "./compile.ts";
 
@@ -143,5 +145,20 @@ describe("foundation lesson equation records", () => {
       [ID],
     );
     expect(codes(result)).toContain("formula-equation-placement");
+  });
+
+  test("refusal foundation-quantity-unregistered: a lesson reuses a paper's quantity only by a registered id", () => {
+    expect(pickQuantity(BROWNIAN_QUANTITIES, "molarGasConstant").glyph).toBe("R");
+    let caught: unknown;
+    try {
+      pickQuantity(BROWNIAN_QUANTITIES, "noSuchQuantity");
+    } catch (error) {
+      caught = error;
+    }
+    expect((caught as { code?: string }).code).toBe("foundation-quantity-unregistered");
+    // The table itself: every entry carries its own id, and a changed glyph keeps the quantity's meaning.
+    for (const [id, q] of Object.entries(FOUNDATION_QUANTITIES)) expect(q.id).toBe(id);
+    expect(FOUNDATION_QUANTITIES.volume?.glyph).toBe("v");
+    expect(FOUNDATION_QUANTITIES.volume?.dimension).toEqual(["3", "0", "0", "0", "0", "0"]);
   });
 });
