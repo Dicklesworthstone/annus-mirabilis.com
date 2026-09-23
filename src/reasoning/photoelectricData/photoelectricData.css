@@ -11,7 +11,7 @@
 .photoelectric-data-workbench .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0; }
 .photo-data-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 1rem; }
 .photo-data-quantity { border-top: 1px solid var(--rule); padding-top: .5rem; overflow-wrap: anywhere; }
-.photo-data-quantity h3 { font-size: var(--type-small); }
+.photo-data-quantity h4 { font-size: var(--type-small); }
 .photo-data-plot { margin: 2rem 0; }
 .photo-data-plot svg { display: block; width: 100%; height: auto; color: var(--ink); }
 .photo-data-plot text { font: 13px var(--font-sans); fill: currentColor; }

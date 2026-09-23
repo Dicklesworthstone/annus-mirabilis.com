@@ -11,7 +11,7 @@ import "./photoelectricData.css";
 
 function display(value: number): string { return Number(value.toPrecision(6)).toString(); }
 function Quantity({ title, result }: { title: string; result: InferredQuantity }) {
-  return <div className="photo-data-quantity"><h3>{title}</h3>{result.status === "value" ? <p>{display(result.value)} ± {display(result.standardError)} {result.unit}<br /><small>One standard error, conditional on the assumptions below.</small></p> : <p><strong>{result.status === "underdetermined" ? "Underdetermined" : "Outside this model"}.</strong> {result.reason}</p>}</div>;
+  return <div className="photo-data-quantity"><h4>{title}</h4>{result.status === "value" ? <p>{display(result.value)} ± {display(result.standardError)} {result.unit}<br /><small>One standard error, conditional on the assumptions below.</small></p> : <p><strong>{result.status === "underdetermined" ? "Underdetermined" : "Outside this model"}.</strong> {result.reason}</p>}</div>;
 }
 function download(text: string, name: string, type: string) {
   const url = URL.createObjectURL(new Blob([text], { type }));
@@ -74,6 +74,46 @@ export function PhotoelectricDataWorkbench({ example, reference }: { example: Ac
     <h2 id={`${id}-title`}>Analyze a stopping-potential record</h2>
     <p className="notice">The initial rows are a constructed teaching example, not measurements. Your CSV stays in this tab unless you download it. There is no server upload, automatic storage or public data link.</p>
     <noscript><p>The complete constructed worked example and its table remain readable. File reading, refitting and downloads need JavaScript.</p></noscript>
+    {/* The accepted analysis comes first, the way every laboratory shows its result before the
+        controls that change it; the form below replaces it with a different record. */}
+    <section aria-labelledby={`${id}-result`} data-accepted-analysis>
+      <h3 id={`${id}-result`}>Accepted analysis: {accepted.label}</h3>
+      <p><strong>{accepted.source === "constructed-example" ? "Constructed example, not historical observations" : "Reader-supplied record; provenance not verified"}</strong>. Revision {accepted.revision}. {selectedCount} of {accepted.record.rows.length} rows used; {accepted.excludedRows.length} explicitly excluded.</p>
+      <p>Accepted assumptions: {accepted.options.weighting === "equal" ? "equal weights and estimated common scatter" : "declared independent voltage uncertainties"}; {accepted.options.offset.kind === "unknown" ? "unknown common voltage offset" : `offset ${accepted.options.offset.volts} ± ${accepted.options.offset.sigmaV} V`}.</p>
+      <PhotoelectricPlots state={accepted} />
+      {result.status === "underdetermined" ? <p className="notice"><strong>Underdetermined.</strong> {result.reason}</p> : <>
+        <div className="photo-data-results">
+          <div className="photo-data-quantity"><h4>Empirical slope</h4><p>{display(result.fit.slope)} ± {display(Math.sqrt(result.fit.slopeVariance))} V/THz</p></div>
+          <div className="photo-data-quantity"><h4>Empirical intercept</h4><p>{display(result.fit.intercept)} ± {display(Math.sqrt(result.fit.interceptVariance))} V</p></div>
+          <Quantity title="Inferred h, conditional on the photoelectric model" result={result.planckEstimate} />
+          <Quantity title="Surface escape work" result={result.workFunction} />
+          <Quantity title="Physical threshold frequency" result={result.threshold} />
+        </div>
+        <p>Reference slope from {reference.constantSetId}: {display(result.referenceSlopeVPerTHz)} V/THz. Relative fitted-slope difference: {display(100 * result.relativeSlopeDifference)}%. This reference does not determine the fitted line.</p>
+        <p>Residual standard deviation: {display(result.fit.residualStandardDeviation)} V; {result.fit.degreesOfFreedom} residual degrees of freedom.{result.fit.reducedChiSquare !== null && ` Reduced chi-square: ${display(result.fit.reducedChiSquare)}.`}</p>
+        {result.warnings.map((warning) => <p className="notice" key={warning}>{warning}</p>)}
+        <p>These are conditional one-standard-error estimates, not confidence intervals, proof of the model, or a complete uncertainty budget. A fit against modern SI is a consistency check, not a redetermination of its defined constants.</p>
+      </>}
+      {accepted.excludedRows.length > 0 && <p className="notice">All-row comparison: {baseline.status === "value" ? `slope ${display(baseline.fit.slope)} V/THz, residual standard deviation ${display(baseline.fit.residualStandardDeviation)} V.` : baseline.reason} Exclusion is a sensitivity calculation, not an automatic outlier test.</p>}
+      <form onSubmit={refit} aria-label="Observation selection">
+        <fieldset disabled={dirty || reading}><legend>Inspect observations and test a stated exclusion</legend>
+          <p>All observations remain in this table and in the CSV. No point is removed automatically. Keep at least three selected rows; excluded points are crosses on the voltage plot.</p>
+          {/* biome-ignore lint/a11y/noNoninteractiveTabindex: the wide data table is a named keyboard-scrollable region */}
+          <div className="photo-data-table" role="region" aria-label="Accepted observations, residuals and row selection" tabIndex={0}>
+            <table><caption>Accepted CSV converted to THz and V. Residuals correspond to the last accepted selection, not unapplied checkboxes.</caption>
+              <thead><tr><th scope="col">Include</th><th scope="col">Row</th><th scope="col">Frequency (THz)</th><th scope="col">Stopping (V)</th><th scope="col">σ (V)</th><th scope="col">Residual (V)</th><th scope="col">Accepted use</th></tr></thead>
+              <tbody>{accepted.record.rows.map((r) => <tr key={r.row}>
+                <td><input type="checkbox" aria-label={`Include observation ${r.row}`} checked={!excluded.includes(r.row)} onChange={(e) => setExcluded((ids) => e.target.checked ? ids.filter((n) => n !== r.row) : [...ids, r.row])} /></td>
+                <th scope="row">{r.row}</th><td>{display(r.frequencyTHz)}</td><td>{display(r.stoppingV)}</td><td>{r.sigmaV === undefined ? "Not supplied" : display(r.sigmaV)}</td><td>{residualByRow.has(r.row) ? display(residualByRow.get(r.row)!) : "Not fitted"}</td><td>{accepted.excludedRows.includes(r.row) ? "Excluded" : "Included"}</td>
+              </tr>)}</tbody>
+            </table>
+          </div>
+          <div className="actions"><button type="submit">Refit selected rows</button><button type="button" onClick={() => setExcluded([])}>Select all rows</button></div>
+        </fieldset>
+      </form>
+      <div className="actions"><button type="button" onClick={() => save("csv")}>Download accepted CSV</button><button type="button" onClick={() => save("report")}>Download analysis report</button></div>
+      <p>The JSON report includes the raw CSV, row exclusions, calibration values and assumptions. It is a private file export, not an authenticated experiment or a public sharing link.</p>
+    </section>
     <form onSubmit={submit} aria-label="Photoelectric data and calibration">
       <fieldset><legend>1. Choose the record</legend>
         <div className="actions">{PHOTOELECTRIC_EXAMPLES.map((e) => <button type="button" key={e.id} onClick={() => selectExample(e.id)}>{e.label}</button>)}</div>
@@ -109,46 +149,8 @@ export function PhotoelectricDataWorkbench({ example, reference }: { example: Ac
       <div className="actions"><button type="submit" disabled={reading}>Analyze record</button>
         <button type="button" onClick={() => { reader.cancel(); setReading(false); setDraft(draftFromAnalysis(accepted)); setDirty(false); setError(""); setNotice("Draft discarded; the accepted record and selection are unchanged."); }}>Discard draft edits</button></div>
     </form>
-    {error && <p className="notice error" role="alert">{error} The accepted result below has not been replaced.</p>}
+    {error && <p className="notice error" role="alert">{error} The accepted result above has not been replaced.</p>}
     <p role="status" aria-live="polite">{notice}</p>
     {(dirty || reading) && <p className="notice">Draft changes are not yet applied. Plots, table, selection and downloads still describe the accepted record.</p>}
-    <section aria-labelledby={`${id}-result`} data-accepted-analysis>
-      <h2 id={`${id}-result`}>Accepted analysis: {accepted.label}</h2>
-      <p><strong>{accepted.source === "constructed-example" ? "Constructed example — not historical observations" : "Reader-supplied record — provenance not verified"}</strong>. Revision {accepted.revision}. {selectedCount} of {accepted.record.rows.length} rows used; {accepted.excludedRows.length} explicitly excluded.</p>
-      <p>Accepted assumptions: {accepted.options.weighting === "equal" ? "equal weights and estimated common scatter" : "declared independent voltage uncertainties"}; {accepted.options.offset.kind === "unknown" ? "unknown common voltage offset" : `offset ${accepted.options.offset.volts} ± ${accepted.options.offset.sigmaV} V`}.</p>
-      {result.status === "underdetermined" ? <p className="notice"><strong>Underdetermined.</strong> {result.reason}</p> : <>
-        <div className="photo-data-results">
-          <div className="photo-data-quantity"><h3>Empirical slope</h3><p>{display(result.fit.slope)} ± {display(Math.sqrt(result.fit.slopeVariance))} V/THz</p></div>
-          <div className="photo-data-quantity"><h3>Empirical intercept</h3><p>{display(result.fit.intercept)} ± {display(Math.sqrt(result.fit.interceptVariance))} V</p></div>
-          <Quantity title="Inferred h, conditional on the photoelectric model" result={result.planckEstimate} />
-          <Quantity title="Surface escape work" result={result.workFunction} />
-          <Quantity title="Physical threshold frequency" result={result.threshold} />
-        </div>
-        <p>Reference slope from {reference.constantSetId}: {display(result.referenceSlopeVPerTHz)} V/THz. Relative fitted-slope difference: {display(100 * result.relativeSlopeDifference)}%. This reference does not determine the fitted line.</p>
-        <p>Residual standard deviation: {display(result.fit.residualStandardDeviation)} V; {result.fit.degreesOfFreedom} residual degrees of freedom.{result.fit.reducedChiSquare !== null && ` Reduced chi-square: ${display(result.fit.reducedChiSquare)}.`}</p>
-        {result.warnings.map((warning) => <p className="notice" key={warning}>{warning}</p>)}
-        <p>These are conditional one-standard-error estimates, not confidence intervals, proof of the model, or a complete uncertainty budget. A fit against modern SI is a consistency check, not a redetermination of its defined constants.</p>
-      </>}
-      {accepted.excludedRows.length > 0 && <p className="notice">All-row comparison: {baseline.status === "value" ? `slope ${display(baseline.fit.slope)} V/THz, residual standard deviation ${display(baseline.fit.residualStandardDeviation)} V.` : baseline.reason} Exclusion is a sensitivity calculation, not an automatic outlier test.</p>}
-      <PhotoelectricPlots state={accepted} />
-      <form onSubmit={refit} aria-label="Observation selection">
-        <fieldset disabled={dirty || reading}><legend>Inspect observations and test a stated exclusion</legend>
-          <p>All observations remain in this table and in the CSV. No point is removed automatically. Keep at least three selected rows; excluded points are crosses on the voltage plot.</p>
-          {/* biome-ignore lint/a11y/noNoninteractiveTabindex: the wide data table is a named keyboard-scrollable region */}
-          <div className="photo-data-table" role="region" aria-label="Accepted observations, residuals and row selection" tabIndex={0}>
-            <table><caption>Accepted CSV converted to THz and V. Residuals correspond to the last accepted selection, not unapplied checkboxes.</caption>
-              <thead><tr><th scope="col">Include</th><th scope="col">Row</th><th scope="col">Frequency (THz)</th><th scope="col">Stopping (V)</th><th scope="col">σ (V)</th><th scope="col">Residual (V)</th><th scope="col">Accepted use</th></tr></thead>
-              <tbody>{accepted.record.rows.map((r) => <tr key={r.row}>
-                <td><input type="checkbox" aria-label={`Include observation ${r.row}`} checked={!excluded.includes(r.row)} onChange={(e) => setExcluded((ids) => e.target.checked ? ids.filter((n) => n !== r.row) : [...ids, r.row])} /></td>
-                <th scope="row">{r.row}</th><td>{display(r.frequencyTHz)}</td><td>{display(r.stoppingV)}</td><td>{r.sigmaV === undefined ? "Not supplied" : display(r.sigmaV)}</td><td>{residualByRow.has(r.row) ? display(residualByRow.get(r.row)!) : "Not fitted"}</td><td>{accepted.excludedRows.includes(r.row) ? "Excluded" : "Included"}</td>
-              </tr>)}</tbody>
-            </table>
-          </div>
-          <div className="actions"><button type="submit">Refit selected rows</button><button type="button" onClick={() => setExcluded([])}>Select all rows</button></div>
-        </fieldset>
-      </form>
-      <div className="actions"><button type="button" onClick={() => save("csv")}>Download accepted CSV</button><button type="button" onClick={() => save("report")}>Download analysis report</button></div>
-      <p>The JSON report includes the raw CSV, row exclusions, calibration values and assumptions. It is a private file export, not an authenticated experiment or a public sharing link.</p>
-    </section>
   </section>;
 }
