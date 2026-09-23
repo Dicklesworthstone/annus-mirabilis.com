@@ -9,7 +9,19 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Take two steps, Δ₁ and Δ₂, and ask for the average of the square of their sum. Multiplying out gives each step squared and a mixed term, twice their product:"
+      "text": "Flip a coin twice and take one step for each flip: a metre to the right for heads, a metre to the left for tails. How far from the start do you end up, on average?"
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "The four outcomes, right-right, right-left, left-right and left-left, are equally likely: one chance in four each.",
+        "They leave you 2 m to the right, back at the start, back at the start, or 2 m to the left.",
+        "Square those distances so that left and right count alike: 4, 0, 0 and 4. Their average is 2, one square metre for each step."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "Combining the two steps added nothing beyond one square metre each. In symbols, with Δ₁ and Δ₂ for the two steps, squaring the sum gives each step squared and a mixed term, twice their product:"
     },
     {
       "kind": "formula",
@@ -19,7 +31,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "Two conditions make the mixed term average to zero. Independence: learning the first step does not change the chances for the second, so the chance of a pair is the product of the two chances. Centring: each step averages zero, left as likely as right. Then the average of the product is the product of the averages, zero times zero:"
+      "text": "In the coin walk the product of the two steps is +1 for right-right and left-left and −1 for the other two, so on average it is zero and the mixed term adds nothing. Two conditions make that happen. Independence: learning the first step does not change the chances for the second, so the chance of a pair is the product of the two chances. Centring: each step averages zero, left as likely as right. Then the average of the product is the product of the averages, zero times zero:"
     },
     {
       "kind": "formula",
@@ -35,14 +47,13 @@
     {
       "kind": "steps",
       "items": [
-        "Two fair steps of size 1, each + or − with equal chance, independent of each other. The four pairs (+,+), (+,−), (−,+) and (−,−) each have probability one quarter.",
-        "Their products are +1, −1, −1, +1: the average product is 0.",
-        "Their sums are +2, 0, 0, −2, and the squared sums 4, 0, 0, 4, with average 2. That is the two squares, 1 + 1, with nothing added by the mixed term.",
-        "If the second step always copies the first, only (+,+) and (−,−) happen. The product is always +1, the squared sum is always 4, and the average is 4, not 2."
+        "Now let the second flip always copy the first. Only right-right and left-left can happen, one chance in two each.",
+        "The product of the two steps is +1 every time, so the mixed term no longer averages zero.",
+        "You always end 2 m from the start, so the squared distance is 4 every time: the average is 4, not 2. Independence removed that extra 2."
       ]
     }
   ],
-  "exampleTitle": "Two coin steps, and what changes when the second copies the first",
+  "exampleTitle": "What changes when the second step copies the first",
   "prerequisites": ["bridge-sum-average", "bridge-negative-numbers-direction"],
   "stoppingPoint": "Before dropping a mixed term, ask two things: does learning one step change the chances for the next, and does each step average zero?",
   "citations": []
