@@ -7,12 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		055096FB8D126E7973B621DC /* ReaderLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBDEAC6506CA4F173D998AFC /* ReaderLocationTests.swift */; };
 		256B0912BCA785EB0D622D9B /* AnnusMirabilisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */; };
+		4F347DAAC224058D5994956C /* ReaderLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E1217410E51C5C95A4A252 /* ReaderLocation.swift */; };
 		5D250543230E23CB29ACA214 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD2DA53DE6BD842758FA3C /* LaunchArguments.swift */; };
+		67833D3163CDDB550D3010E8 /* ReaderStateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2892AE57F3F7A9E453870489 /* ReaderStateUITests.swift */; };
 		6A19BAEAFB16369878DC4405 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0C6198F8914D9B9D69540867 /* Assets.xcassets */; };
 		6DA5C5208F4B92B0B0D6ED3C /* LaunchArgumentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */; };
 		6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */; };
+		94DD47765329488872C319C0 /* EditionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950A8BFF301A9FE3344A71AC /* EditionSession.swift */; };
 		975A55E84F3778A714C9664D /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */; };
+		9F9C13D920769AE53A5B9FAA /* SiteURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CFA1414C3CFD36A14BE9E0C /* SiteURL.swift */; };
 		B1563B04905CF0DCE72C6D88 /* EditionWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */; };
 		DA6870F53C094B8E5454D26E /* EditionCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */; };
 		E9C74E04BCCF49DD33AA7E53 /* EditionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389658343BC6CD373BE08A23 /* EditionCatalog.swift */; };
@@ -42,6 +47,7 @@
 		0C6198F8914D9B9D69540867 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArgumentsTests.swift; sourceTree = "<group>"; };
 		17038BE8A4890AE1F28D1E2F /* AnnusMirabilis.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AnnusMirabilis.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2892AE57F3F7A9E453870489 /* ReaderStateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderStateUITests.swift; sourceTree = "<group>"; };
 		2ACD2DA53DE6BD842758FA3C /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
 		2E91455869D2622BFBFA1270 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		389658343BC6CD373BE08A23 /* EditionCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionCatalog.swift; sourceTree = "<group>"; };
@@ -50,9 +56,13 @@
 		6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
 		7A7D1B3F474E6080BDE63784 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnusMirabilisApp.swift; sourceTree = "<group>"; };
+		950A8BFF301A9FE3344A71AC /* EditionSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionSession.swift; sourceTree = "<group>"; };
 		9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionWebView.swift; sourceTree = "<group>"; };
+		9CFA1414C3CFD36A14BE9E0C /* SiteURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteURL.swift; sourceTree = "<group>"; };
 		D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionCatalogTests.swift; sourceTree = "<group>"; };
+		EBDEAC6506CA4F173D998AFC /* ReaderLocationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderLocationTests.swift; sourceTree = "<group>"; };
 		EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionSchemeHandler.swift; sourceTree = "<group>"; };
+		F6E1217410E51C5C95A4A252 /* ReaderLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderLocation.swift; sourceTree = "<group>"; };
 		FD61E34885795DFE1BCF3EAB /* AnnusMirabilisUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AnnusMirabilisUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -61,6 +71,7 @@
 			isa = PBXGroup;
 			children = (
 				6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */,
+				2892AE57F3F7A9E453870489 /* ReaderStateUITests.swift */,
 			);
 			path = AnnusMirabilisUITests;
 			sourceTree = "<group>";
@@ -80,6 +91,7 @@
 			children = (
 				D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */,
 				15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */,
+				EBDEAC6506CA4F173D998AFC /* ReaderLocationTests.swift */,
 			);
 			path = AnnusMirabilisTests;
 			sourceTree = "<group>";
@@ -111,7 +123,10 @@
 				389658343BC6CD373BE08A23 /* EditionCatalog.swift */,
 				4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */,
 				EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */,
+				950A8BFF301A9FE3344A71AC /* EditionSession.swift */,
 				9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */,
+				F6E1217410E51C5C95A4A252 /* ReaderLocation.swift */,
+				9CFA1414C3CFD36A14BE9E0C /* SiteURL.swift */,
 			);
 			path = Edition;
 			sourceTree = "<group>";
@@ -275,8 +290,11 @@
 				E9C74E04BCCF49DD33AA7E53 /* EditionCatalog.swift in Sources */,
 				F0F1F8A24F70DF2021A0A818 /* EditionLinkPolicy.swift in Sources */,
 				6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */,
+				94DD47765329488872C319C0 /* EditionSession.swift in Sources */,
 				B1563B04905CF0DCE72C6D88 /* EditionWebView.swift in Sources */,
 				5D250543230E23CB29ACA214 /* LaunchArguments.swift in Sources */,
+				4F347DAAC224058D5994956C /* ReaderLocation.swift in Sources */,
+				9F9C13D920769AE53A5B9FAA /* SiteURL.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +304,7 @@
 			files = (
 				DA6870F53C094B8E5454D26E /* EditionCatalogTests.swift in Sources */,
 				6DA5C5208F4B92B0B0D6ED3C /* LaunchArgumentsTests.swift in Sources */,
+				055096FB8D126E7973B621DC /* ReaderLocationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,6 +313,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				975A55E84F3778A714C9664D /* LaunchUITests.swift in Sources */,
+				67833D3163CDDB550D3010E8 /* ReaderStateUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +337,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AnnusMirabilis/Resources/AnnusMirabilis.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -503,6 +524,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AnnusMirabilis/Resources/AnnusMirabilis.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;

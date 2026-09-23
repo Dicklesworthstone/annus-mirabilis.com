@@ -13,6 +13,7 @@ import { THEME_TOKENS } from "../../src/app/theme/tokens.ts";
 import {
   APP_ICON_CONTENTS,
   ASSET_CATALOG,
+  accentColorContents,
   barLayout,
   decodePng,
   encodePng,
@@ -20,7 +21,9 @@ import {
   ICON_SIZE,
   iconPalettes,
   launchBackgroundContents,
+  MARK_SIZE,
   PAGE_COUNTS,
+  PAGE_MARK_CONTENTS,
   rasterize,
 } from "./generate-app-icon.ts";
 
@@ -119,7 +122,26 @@ describe("app icon", () => {
       readFileSync(join(CATALOG, "LaunchBackground.colorset", "Contents.json"), "utf8"),
     );
     assert.deepEqual(launch, launchBackgroundContents());
+    const accent = JSON.parse(
+      readFileSync(join(CATALOG, "AccentColor.colorset", "Contents.json"), "utf8"),
+    );
+    assert.deepEqual(accent, accentColorContents());
+    const mark = JSON.parse(
+      readFileSync(join(CATALOG, "PageMark.imageset", "Contents.json"), "utf8"),
+    );
+    assert.deepEqual(mark, PAGE_MARK_CONTENTS);
   });
+
+  for (const variant of ["light", "dark"] as const) {
+    it(`the committed ${variant} share-preview mark is the same drawing at ${MARK_SIZE} px`, () => {
+      const committed = decodePng(
+        readFileSync(join(CATALOG, "PageMark.imageset", `PageMark-${variant}.png`)),
+      );
+      assert.ok(committed !== null);
+      assert.equal(committed.width, MARK_SIZE);
+      assert.equal(firstDifference(committed.rgb, rasterize(MARK_SIZE, palettes[variant])), -1);
+    });
+  }
 });
 
 describe("PNG encoding", () => {

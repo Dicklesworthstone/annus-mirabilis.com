@@ -13,7 +13,7 @@ struct LaunchArgumentsTests {
         #expect(parsed.openRoute == "/papers/brownian-motion/")
         #expect(parsed.openAnchor == "s4-p2")
         #expect(parsed.uiTest)
-        #expect(!parsed.resetLocalData)
+        #expect(parsed.stateSuite == nil)
     }
 
     @Test("arguments that belong to the system or Xcode are ignored")
@@ -53,5 +53,19 @@ struct LaunchArgumentsTests {
     @Test("an anchor is an id, without # or spaces", arguments: ["#s4", "s4 p2", "s4/p2"])
     func invalidAnchor(anchor: String) {
         #expect(LaunchArguments.parse(["-AMOpenAnchor", anchor]) == .failure(.invalidAnchor(anchor)))
+    }
+
+    @Test("a state suite names a separate store, and only a plain name is accepted")
+    func stateSuite() throws {
+        let parsed = try LaunchArguments.parse(["-AMStateSuite", "uitest-3F2A"]).get()
+        #expect(parsed.stateSuite == "uitest-3F2A")
+        #expect(LaunchArguments.parse(["-AMStateSuite", "../x"]) == .failure(.invalidStateSuite("../x")))
+        #expect(LaunchArguments.parse(["-AMStateSuite", ".."]) == .failure(.invalidStateSuite("..")))
+        #expect(LaunchArguments.parse(["-AMStateSuite"]) == .failure(.missingValue(flag: "-AMStateSuite")))
+    }
+
+    @Test("the retired reset flag is refused, so no test can ask the app to delete data")
+    func resetFlagRetired() {
+        #expect(LaunchArguments.parse(["-AMResetLocalData"]) == .failure(.unknownFlag("-AMResetLocalData")))
     }
 }

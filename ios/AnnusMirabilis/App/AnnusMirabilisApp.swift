@@ -9,33 +9,71 @@ struct AnnusMirabilisApp: App {
     }
 }
 
-/// The bundled edition, read once per process.
+/// The bundled edition, read once per process, and how each window starts.
 enum EditionStore {
     static let catalog: Result<EditionCatalog, EditionCatalogError> = Result { () throws(EditionCatalogError) in
         try EditionCatalog.load()
     }
 
-    static func startURL(arguments: [String] = ProcessInfo.processInfo.arguments) -> URL {
+    /// A new reader session, opened where the reader left off. Nil when the
+    /// installed copy has lost its edition.
+    @MainActor
+    static func makeSession(arguments: [String] = ProcessInfo.processInfo.arguments) -> EditionSession? {
+        guard case .success(let catalog) = catalog else { return nil }
+        var defaults = UserDefaults.standard
+        var exposesRoute = false
+        var launchURL: URL?
         #if DEBUG
-            if case .success(let launch) = LaunchArguments.parse(arguments),
-                let route = launch.openRoute,
-                let url = EditionCatalog.url(route: route, anchor: launch.openAnchor)
-            {
-                return url
+            if case .success(let launch) = LaunchArguments.parse(arguments) {
+                if let suite = launch.stateSuite, let isolated = UserDefaults(suiteName: suite) {
+                    defaults = isolated
+                }
+                exposesRoute = launch.uiTest
+                launchURL = launch.openRoute.flatMap { EditionCatalog.url(route: $0, anchor: launch.openAnchor) }
             }
         #endif
-        return EditionCatalog.homeURL
+        let store = ReaderLocationStore(defaults: defaults)
+        let start = startURL(launchURL: launchURL, saved: store.load(), catalog: catalog)
+        let session = EditionSession(catalog: catalog, store: store, exposesRouteForTests: exposesRoute)
+        session.load(start)
+        return session
+    }
+
+    /// A route given at launch wins, then the page the reader left, if this
+    /// edition still has it, then the home page.
+    static func startURL(launchURL: URL?, saved: ReaderLocation?, catalog: EditionCatalog) -> URL {
+        launchURL ?? saved?.url(in: catalog) ?? EditionCatalog.homeURL
     }
 }
 
 struct RootView: View {
+    @State private var session: EditionSession?
+    @State private var unavailable = false
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
-        switch EditionStore.catalog {
-        case .success(let catalog):
-            EditionWebView(catalog: catalog, startURL: EditionStore.startURL())
-                .ignoresSafeArea()
-        case .failure:
-            EditionUnavailableView()
+        Group {
+            if let session {
+                EditionWebView(session: session)
+                    .ignoresSafeArea()
+                    .overlay(alignment: .bottomTrailing) {
+                        PageActionsButton(session: session)
+                            .padding(.trailing, 16)
+                            .padding(.bottom, 12)
+                    }
+                    .onChange(of: scenePhase, initial: true) { _, phase in
+                        if phase == .active { session.handoff.becomeCurrent() }
+                    }
+            } else if unavailable {
+                EditionUnavailableView()
+            } else {
+                Color("LaunchBackground").ignoresSafeArea()
+            }
+        }
+        .onAppear {
+            guard session == nil, !unavailable else { return }
+            session = EditionStore.makeSession()
+            unavailable = session == nil
         }
     }
 }

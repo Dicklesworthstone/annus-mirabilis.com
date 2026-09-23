@@ -12,11 +12,13 @@
  * Writes into ios/AnnusMirabilis/Resources/Assets.xcassets/:
  *   AppIcon.appiconset/AppIcon-light.png, AppIcon-dark.png, Contents.json
  *   LaunchBackground.colorset/Contents.json
+ *   AccentColor.colorset/Contents.json (the site's accent, for system controls in the app)
+ *   PageMark.imageset/ (the mark at 180 px, for the share sheet's preview)
  *
  * Usage: `bun scripts/app/generate-app-icon.ts`
  */
 
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync, inflateSync } from "node:zlib";
@@ -207,23 +209,45 @@ function colourComponents(rgb: Rgb) {
   return { alpha: "1.000", blue: hex(rgb[2]), green: hex(rgb[1]), red: hex(rgb[0]) };
 }
 
-export function launchBackgroundContents() {
-  const { light, dark } = iconPalettes();
+function colorsetContents(light: Rgb, dark: Rgb) {
   return {
     colors: [
-      {
-        color: { "color-space": "srgb", components: colourComponents(light.ground) },
-        idiom: "universal",
-      },
+      { color: { "color-space": "srgb", components: colourComponents(light) }, idiom: "universal" },
       {
         appearances: [{ appearance: "luminosity", value: "dark" }],
-        color: { "color-space": "srgb", components: colourComponents(dark.ground) },
+        color: { "color-space": "srgb", components: colourComponents(dark) },
         idiom: "universal",
       },
     ],
     info: { author: "xcode", version: 1 },
   };
 }
+
+export function launchBackgroundContents() {
+  const { light, dark } = iconPalettes();
+  return colorsetContents(light.ground, dark.ground);
+}
+
+/** The site's accent, so the share sheet and print options match the page, not iOS blue. */
+export function accentColorContents() {
+  const { light, dark } = iconPalettes();
+  return colorsetContents(light.last, dark.last);
+}
+
+/** The mark for the share sheet's preview: 60 points at 3x. */
+export const MARK_SIZE = 180;
+
+export const PAGE_MARK_CONTENTS = {
+  images: [
+    { filename: "PageMark-light.png", idiom: "universal" },
+    {
+      appearances: [{ appearance: "luminosity", value: "dark" }],
+      filename: "PageMark-dark.png",
+      idiom: "universal",
+    },
+  ],
+  info: { author: "xcode", version: 1 },
+};
 
 export const ASSET_CATALOG = join("ios", "AnnusMirabilis", "Resources", "Assets.xcassets");
 
@@ -247,7 +271,25 @@ function main(): number {
     join(catalog, "LaunchBackground.colorset", "Contents.json"),
     `${JSON.stringify(launchBackgroundContents(), null, 2)}\n`,
   );
-  process.stdout.write(`app icon and launch colour written under ${ASSET_CATALOG}\n`);
+  mkdirSync(join(catalog, "AccentColor.colorset"), { recursive: true });
+  writeFileSync(
+    join(catalog, "AccentColor.colorset", "Contents.json"),
+    `${JSON.stringify(accentColorContents(), null, 2)}\n`,
+  );
+  mkdirSync(join(catalog, "PageMark.imageset"), { recursive: true });
+  writeFileSync(
+    join(catalog, "PageMark.imageset", "PageMark-light.png"),
+    encodePng(MARK_SIZE, MARK_SIZE, rasterize(MARK_SIZE, light)),
+  );
+  writeFileSync(
+    join(catalog, "PageMark.imageset", "PageMark-dark.png"),
+    encodePng(MARK_SIZE, MARK_SIZE, rasterize(MARK_SIZE, dark)),
+  );
+  writeFileSync(
+    join(catalog, "PageMark.imageset", "Contents.json"),
+    `${JSON.stringify(PAGE_MARK_CONTENTS, null, 2)}\n`,
+  );
+  process.stdout.write(`app icon, colours and page mark written under ${ASSET_CATALOG}\n`);
   return 0;
 }
 

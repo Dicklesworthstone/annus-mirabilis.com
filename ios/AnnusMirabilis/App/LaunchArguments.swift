@@ -4,7 +4,10 @@
     /// DEBUG-only launch arguments that open any route and anchor, for UI tests
     /// and screenshots (App plan §2.4). Release builds contain none of this.
     ///
-    /// `-AMOpenRoute /papers/brownian-motion/ -AMOpenAnchor s4 -AMUITest`
+    /// `-AMOpenRoute /papers/brownian-motion/ -AMOpenAnchor s4 -AMUITest -AMStateSuite run-1`
+    ///
+    /// `-AMStateSuite` keeps the app's own remembered state in a separate store,
+    /// so each UI test starts clean without deleting anything a reader saved.
     ///
     /// Arguments that do not begin with `-AM` belong to the system or to Xcode
     /// and are ignored. An unknown `-AM` flag is an error, so a typo in a test
@@ -12,7 +15,7 @@
     struct LaunchArguments: Equatable, Sendable {
         var openRoute: String?
         var openAnchor: String?
-        var resetLocalData = false
+        var stateSuite: String?
         var uiTest = false
 
         enum ParseError: Error, Equatable {
@@ -21,6 +24,7 @@
             case unknownFlag(String)
             case invalidRoute(String)
             case invalidAnchor(String)
+            case invalidStateSuite(String)
         }
 
         static func parse(_ arguments: [String]) -> Result<LaunchArguments, ParseError> {
@@ -33,14 +37,12 @@
                 guard flag.hasPrefix("-AM") else { continue }
                 guard seen.insert(flag).inserted else { return .failure(.repeated(flag: flag)) }
                 switch flag {
-                case "-AMOpenRoute", "-AMOpenAnchor":
+                case "-AMOpenRoute", "-AMOpenAnchor", "-AMStateSuite":
                     guard index < arguments.count, !arguments[index].hasPrefix("-") else {
                         return .failure(.missingValue(flag: flag))
                     }
                     if let error = parsed.assign(flag, value: arguments[index]) { return .failure(error) }
                     index += 1
-                case "-AMResetLocalData":
-                    parsed.resetLocalData = true
                 case "-AMUITest":
                     parsed.uiTest = true
                 default:
@@ -51,12 +53,16 @@
         }
 
         private mutating func assign(_ flag: String, value: String) -> ParseError? {
-            if flag == "-AMOpenRoute" {
+            switch flag {
+            case "-AMOpenRoute":
                 guard Self.isRoute(value) else { return .invalidRoute(value) }
                 openRoute = value
-            } else {
+            case "-AMOpenAnchor":
                 guard Self.isAnchor(value) else { return .invalidAnchor(value) }
                 openAnchor = value
+            default:
+                guard Self.isAnchor(value), !value.hasPrefix(".") else { return .invalidStateSuite(value) }
+                stateSuite = value
             }
             return nil
         }
