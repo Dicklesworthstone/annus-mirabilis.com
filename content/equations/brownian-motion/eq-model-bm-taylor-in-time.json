@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-taylor-in-time",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-diffusion-equation",
+  "title": "The density a short interval later",
+  "spoken": "p of x and t plus tau is approximately p of x and t, plus tau times the partial derivative of p with respect to t.",
+  "explanation": "Over a short interval tau, the density at a fixed place changes by about tau times its rate of change there. Terms in tau squared are dropped.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "tau short compared with the time over which the density changes, so terms in tau squared are dropped.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-taylor-in-time.op.relation",
+    "operator": "approx",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-taylor-in-time.t.density",
+      "quantityId": "probabilityDensity",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-taylor-in-time.t.x",
+          "quantityId": "positionCoordinate1d"
+        },
+        {
+          "kind": "sum",
+          "opId": "eq-model-bm-taylor-in-time.op.later",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-taylor-in-time.t.time",
+              "quantityId": "fieldTimeCoordinate"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-taylor-in-time.t.interval",
+              "quantityId": "stepInterval"
+            }
+          ]
+        }
+      ]
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-bm-taylor-in-time.op.series",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-taylor-in-time.t.value",
+          "quantityId": "probabilityDensity",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-taylor-in-time.t.x2",
+              "quantityId": "positionCoordinate1d"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-taylor-in-time.t.time2",
+              "quantityId": "fieldTimeCoordinate"
+            }
+          ]
+        },
+        {
+          "kind": "product",
+          "opId": "eq-model-bm-taylor-in-time.op.change",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-taylor-in-time.t.interval2",
+              "quantityId": "stepInterval"
+            },
+            {
+              "kind": "derivative",
+              "opId": "eq-model-bm-taylor-in-time.op.rate",
+              "expression": {
+                "kind": "symbol",
+                "termId": "eq-model-bm-taylor-in-time.t.rateP",
+                "quantityId": "probabilityDensity"
+              },
+              "variable": {
+                "kind": "symbol",
+                "termId": "eq-model-bm-taylor-in-time.t.rateT",
+                "quantityId": "fieldTimeCoordinate"
+              },
+              "order": 1,
+              "partial": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.op.relation",
+      "title": "What it asserts",
+      "explanation": "Later density is about the density now plus the change over tau.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.op.later",
+      "title": "One interval later",
+      "explanation": "The time t plus one step interval tau: a later time, not a longer interval.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.op.series",
+      "title": "Now, plus the change",
+      "explanation": "The value now plus the first correction; the next term, in tau squared, is dropped.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.op.change",
+      "title": "The change over tau",
+      "explanation": "The rate of change times the interval.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.op.rate",
+      "title": "Rate at one place",
+      "explanation": "How fast the density changes with time, with x held fixed.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.density",
+      "title": "The density later",
+      "explanation": "Probability per metre of finding the particle at x, one interval after t.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.x",
+      "title": "Position",
+      "explanation": "The place where the density is read, held fixed.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.time",
+      "title": "Time",
+      "explanation": "The time now. Every particle was at x = 0 when it read zero.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.interval",
+      "title": "The step interval",
+      "explanation": "Paper 2's tau: short compared with the time over which the density changes.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.value",
+      "title": "The density now",
+      "explanation": "The density at x at time t.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.x2",
+      "title": "Position",
+      "explanation": "The same x.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.time2",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.interval2",
+      "title": "The step interval",
+      "explanation": "The same tau.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.rateP",
+      "title": "Density",
+      "explanation": "The density whose rate is taken.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-time.t.rateT",
+      "title": "Time",
+      "explanation": "The rate is per unit of time.",
+      "foundation": "partial-derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The density",
+      "nodeId": "eq-model-bm-taylor-in-time.t.density"
+    },
+    {
+      "text": " one "
+    },
+    {
+      "text": "interval",
+      "nodeId": "eq-model-bm-taylor-in-time.t.interval"
+    },
+    {
+      "text": " later is about "
+    },
+    {
+      "text": "the density now",
+      "nodeId": "eq-model-bm-taylor-in-time.t.value"
+    },
+    {
+      "text": " plus the interval times "
+    },
+    {
+      "text": "its rate of change",
+      "nodeId": "eq-model-bm-taylor-in-time.op.rate"
+    },
+    {
+      "text": " at that place."
+    }
+  ]
+}

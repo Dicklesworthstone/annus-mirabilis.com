@@ -233,6 +233,18 @@
   frame: not-applicable
   colorRole: space-geometry
 
+- id: fieldTimeCoordinate
+  name: Time coordinate (field)
+  description: >
+    The clock reading t at which the density p(x, t) is read, with every particle at x = 0 when
+    it reads zero. A time, not an interval: a step interval added to it gives a later time.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  timeKind: coordinate
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
 - id: latentPosition1d
   name: Latent position (one dimension)
   description: A particle's true, unobserved one-dimensional position, distinct from measuredPosition1d.

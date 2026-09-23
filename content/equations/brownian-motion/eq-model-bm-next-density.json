@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-next-density",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-diffusion-equation",
+  "title": "The density one interval later",
+  "spoken": "p of x and t plus tau equals the integral, over every jump Delta from minus infinity to infinity, of p of x minus Delta and t, times phi of Delta.",
+  "explanation": "A particle found at x after one more interval tau was somewhere else a jump earlier. Add up every jump Delta that could have brought it: the density at x minus Delta now, times how likely a jump of that size is.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Jumps in successive intervals are independent, and the jump density phi is the same at every place and every time.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-next-density.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-next-density.t.density",
+      "quantityId": "probabilityDensity",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-next-density.t.x",
+          "quantityId": "positionCoordinate1d"
+        },
+        {
+          "kind": "sum",
+          "opId": "eq-model-bm-next-density.op.later",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-next-density.t.time",
+              "quantityId": "fieldTimeCoordinate"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-next-density.t.interval",
+              "quantityId": "stepInterval"
+            }
+          ]
+        }
+      ]
+    },
+    "right": {
+      "kind": "integral",
+      "opId": "eq-model-bm-next-density.op.integral",
+      "expression": {
+        "kind": "product",
+        "opId": "eq-model-bm-next-density.op.weighted",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-next-density.t.densityNow",
+            "quantityId": "probabilityDensity",
+            "args": [
+              {
+                "kind": "sum",
+                "opId": "eq-model-bm-next-density.op.origin",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-bm-next-density.t.x2",
+                    "quantityId": "positionCoordinate1d"
+                  },
+                  {
+                    "kind": "negate",
+                    "argument": {
+                      "kind": "symbol",
+                      "termId": "eq-model-bm-next-density.t.jump",
+                      "quantityId": "displacementIncrement"
+                    }
+                  }
+                ]
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-bm-next-density.t.time2",
+                "quantityId": "fieldTimeCoordinate"
+              }
+            ]
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-bm-next-density.t.kernel",
+            "quantityId": "transitionKernel",
+            "at": {
+              "kind": "symbol",
+              "termId": "eq-model-bm-next-density.t.jumpArg",
+              "quantityId": "displacementIncrement"
+            }
+          }
+        ]
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-bm-next-density.t.jumpVar",
+        "quantityId": "displacementIncrement"
+      },
+      "lower": {
+        "kind": "negate",
+        "argument": {
+          "kind": "constant",
+          "name": "infinity"
+        }
+      },
+      "upper": {
+        "kind": "constant",
+        "name": "infinity"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-next-density.op.relation",
+      "title": "What it asserts",
+      "explanation": "The density one interval later is fixed by the density now and the jump density alone.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.op.later",
+      "title": "One interval later",
+      "explanation": "The time t plus one step interval tau: a later time, not a longer interval.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.op.integral",
+      "title": "Over every jump",
+      "explanation": "Adds up the arrivals from every possible jump, leftward and rightward.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.op.weighted",
+      "title": "Where it came from, times how likely",
+      "explanation": "The density a jump away, weighted by the chance of that jump.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.op.origin",
+      "title": "Where it came from",
+      "explanation": "x minus Delta: the place a jump of Delta starts from if it ends at x.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.density",
+      "title": "The density later",
+      "explanation": "Probability per metre of finding the particle at x, one interval after t.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.x",
+      "title": "Position",
+      "explanation": "The place where the density is read.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.time",
+      "title": "Time",
+      "explanation": "The time now. Every particle was at x = 0 when it read zero.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.interval",
+      "title": "The step interval",
+      "explanation": "Paper 2's tau: short, yet long enough for successive jumps to be independent.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.densityNow",
+      "title": "The density now",
+      "explanation": "The density at the starting place x minus Delta, at time t.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.x2",
+      "title": "Position",
+      "explanation": "The same x.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.jump",
+      "title": "A jump",
+      "explanation": "How far a particle moves in one interval tau.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.time2",
+      "title": "Time",
+      "explanation": "The same t: the density now.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.kernel",
+      "title": "How likely a jump is",
+      "explanation": "Paper 2's phi: probability per metre of a jump of this size.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.jumpArg",
+      "title": "The jump it describes",
+      "explanation": "phi is read at this jump.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-next-density.t.jumpVar",
+      "title": "Summed over jumps",
+      "explanation": "The variable the integral runs over.",
+      "foundation": "integration"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The density",
+      "nodeId": "eq-model-bm-next-density.t.density"
+    },
+    {
+      "text": " one "
+    },
+    {
+      "text": "interval",
+      "nodeId": "eq-model-bm-next-density.t.interval"
+    },
+    {
+      "text": " later is the "
+    },
+    {
+      "text": "density now",
+      "nodeId": "eq-model-bm-next-density.t.densityNow"
+    },
+    {
+      "text": " one "
+    },
+    {
+      "text": "jump",
+      "nodeId": "eq-model-bm-next-density.t.jump"
+    },
+    {
+      "text": " away, weighted by "
+    },
+    {
+      "text": "how likely that jump is",
+      "nodeId": "eq-model-bm-next-density.t.kernel"
+    },
+    {
+      "text": ", summed over every jump."
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 289 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 290 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -112,6 +112,7 @@ Total: 289 quantities, 45 rejected spellings, 2 reserved spellings.
 | fieldInvariantE2MinusC2B2 | Field invariant: E^2 - c^2 B^2 | 2,2,-6,0,-2,0 | not-applicable | scalar | — |
 | fieldInvariantEDotB | Field invariant: E dot B | 1,2,-5,0,-2,0 | not-applicable | scalar | — |
 | fieldScaleFactorUnknown | Unknown scale factor: psi(v) | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| fieldTimeCoordinate | Time coordinate (field) | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | finiteSpeedMassProxy | Finite-speed mass proxy | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | fourierAmplitude | Fourier amplitude | 1,1,-3,0,-1,0 | not-applicable | scalar | — |
 | fourierPhase | Fourier phase | 0,0,0,0,0,0 | not-applicable | scalar | — |

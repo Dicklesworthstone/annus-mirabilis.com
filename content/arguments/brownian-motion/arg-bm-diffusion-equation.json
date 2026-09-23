@@ -32,7 +32,8 @@
       {
         "kind": "formula",
         "latex": "p(x,t+\\tau)=\\int_{-\\infty}^{\\infty}p(x-\\Delta,t)\\varphi(\\Delta)\\,d\\Delta",
-        "spoken": "The next density is the integral of the previous shifted density times the step density."
+        "spoken": "The density one interval later is the integral, over every jump, of the density one jump away now, times how likely that jump is.",
+        "equations": ["eq-model-bm-next-density"]
       },
       {
         "kind": "paragraph",
@@ -65,7 +66,8 @@
       {
         "kind": "formula",
         "latex": "p(x,t+\\tau)\\approx p(x,t)+\\tau\\frac{\\partial p}{\\partial t}",
-        "spoken": "Keep the density and its first time change on the left."
+        "spoken": "Keep the density and its first time change on the left.",
+        "equations": ["eq-model-bm-taylor-in-time"]
       },
       {
         "kind": "formula",

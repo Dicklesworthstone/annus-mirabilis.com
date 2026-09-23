@@ -30,7 +30,7 @@
       "variable": {
         "kind": "symbol",
         "termId": "eq-model-bm-diffusion-equation.t.time",
-        "quantityId": "observationInterval"
+        "quantityId": "fieldTimeCoordinate"
       },
       "order": 1,
       "partial": true
@@ -115,8 +115,8 @@
     },
     {
       "nodeId": "eq-model-bm-diffusion-equation.t.time",
-      "title": "Observation interval",
-      "explanation": "The time over which displacement is observed.",
+      "title": "Time",
+      "explanation": "The rate is per unit of time, at one fixed place x.",
       "foundation": "random-walks"
     }
   ],

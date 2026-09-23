@@ -46,7 +46,7 @@
         {
           "kind": "symbol",
           "termId": "eq-model-bm-taylor-in-space.t.time",
-          "quantityId": "observationInterval"
+          "quantityId": "fieldTimeCoordinate"
         }
       ]
     },
@@ -241,7 +241,7 @@
     {
       "nodeId": "eq-model-bm-taylor-in-space.t.time",
       "title": "Time",
-      "explanation": "t.",
+      "explanation": "The time at which the density is read, held fixed while x varies.",
       "foundation": "random-walks"
     },
     {

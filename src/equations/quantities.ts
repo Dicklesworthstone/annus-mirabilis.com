@@ -159,6 +159,18 @@ export const BROWNIAN_QUANTITIES: Readonly<Record<string, Quantity>> = Object.fr
         "The coordinate along which the particles spread, in the diffusion equation.",
       ),
       q(
+        "fieldTimeCoordinate",
+        "Time",
+        "t",
+        ["0", "0", "1", "0", "0", "0"],
+        "s",
+        "s",
+        0,
+        "clock-reading",
+        "input",
+        "The time at which the density is read. Every particle is at x = 0 when it reads zero.",
+      ),
+      q(
         "displacement1d",
         "Displacement since the start",
         "x",
