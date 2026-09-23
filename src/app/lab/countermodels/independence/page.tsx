@@ -44,9 +44,9 @@ export default function IndependencePage() {
         </p>
         <p>
           The light-quanta paper’s §5 counts independently placed points. The chance that every one
-          lies in a fraction f of the original volume is fⁿ. One perfectly locked group has only one
-          placement to make, so its corresponding probability is f. The logarithm turns this
-          difference into an entropy coefficient.
+          lies in a fraction f of the original volume is f<sup>n</sup>. One perfectly locked group
+          has only one placement to make, so its corresponding probability is f. The logarithm turns
+          this difference into an entropy coefficient.
         </p>
         <p>
           In the Brownian configuration argument, independently placed units likewise determine the

@@ -148,10 +148,16 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
     const shown = Math.min(Np, 24);
     title = `Step 3: ${Np.toLocaleString()} particles, and the logarithm in the free energy`;
     lead = isPrinted ? (
-      "The product V*ⁿ becomes the sum n lg V* in the logarithm of the free energy."
+      <>
+        The product V*<sup>n</sup> becomes the sum n lg V* in the logarithm of the free energy.
+      </>
     ) : (
       <>
-        The product V<sup>Np</sup> becomes the sum Np ln V in the logarithm of the free energy.
+        The product V
+        <sup>
+          N<sub>p</sub>
+        </sup>{" "}
+        becomes the sum N<sub>p</sub> ln V in the logarithm of the free energy.
       </>
     );
     pictureLabel =
@@ -191,10 +197,16 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
         <p className="bm03-card-title">The configuration integral, in logarithms</p>
         <p className="bm03-math">
           {isPrinted ? (
-            "B = V*ⁿ · J  ⟹  lg B = n lg V* + lg J"
+            <>
+              B = V*<sup>n</sup> · J, so lg B = n lg V* + lg J
+            </>
           ) : (
             <>
-              B = V<sup>Np</sup> · J ⟹ ln B = Np ln V + ln J
+              B = V
+              <sup>
+                N<sub>p</sub>
+              </sup>{" "}
+              · J, so ln B = N<sub>p</sub> ln V + ln J
             </>
           )}
         </p>

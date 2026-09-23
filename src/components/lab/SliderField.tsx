@@ -15,6 +15,7 @@
  */
 
 import "./labShell.css";
+import { withScripts } from "./subscripts.tsx";
 
 export function SliderField({
   id,
@@ -46,7 +47,7 @@ export function SliderField({
   return (
     <div className="input-field lab-slider">
       <label id={`${id}-label`} htmlFor={id}>
-        {label} {unit && <span>({unit})</span>}
+        {withScripts(label)} {unit && <span>({unit})</span>}
       </label>
       <div className="lab-slider-pair">
         <input

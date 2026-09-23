@@ -183,11 +183,11 @@ export function IndependentConfigurationsPlot({
           <span>
             {locked ? (
               <span style={{ color: "var(--accent)", fontWeight: 600 }}>
-                W_locked = f = {fixed(lockedRes.value, 4)}
+                W<sub>locked</sub> = f = {fixed(lockedRes.value, 4)}
               </span>
             ) : (
               <span style={{ color: "var(--ink)", fontWeight: 600 }}>
-                W = fⁿ = ({f.toFixed(2)})<sup>{n}</sup> ={" "}
+                W = f<sup>n</sup> = ({f.toFixed(2)})<sup>{n}</sup> ={" "}
                 {independentProbability.linearRepresentable ? (
                   <Sci value={independentProbability.value} digits={4} />
                 ) : (

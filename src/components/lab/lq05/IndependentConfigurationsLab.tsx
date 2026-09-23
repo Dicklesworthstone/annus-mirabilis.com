@@ -421,7 +421,7 @@ export function IndependentConfigurationsLab({
                 >
                   <input type="checkbox" checked={p.locked} onChange={toggleLocked} />
                   <span className="fine" style={{ fontWeight: 600 }}>
-                    Locked positions counterexample (W = f rather than fⁿ)
+                    Locked positions counterexample (W = f rather than f<sup>n</sup>)
                   </span>
                 </label>
               </div>
@@ -491,7 +491,15 @@ export function IndependentConfigurationsLab({
                   Relative state probability
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
-                  {p.locked ? "W_locked = f" : "W = (V/V₀)ⁿ = fⁿ"}
+                  {p.locked ? (
+                    <>
+                      W<sub>locked</sub> = f
+                    </>
+                  ) : (
+                    <>
+                      W = (V/V₀)<sup>n</sup> = f<sup>n</sup>
+                    </>
+                  )}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: "bold" }}>
                   {p.locked ? (

@@ -71,7 +71,9 @@ export function CoefficientMatchSideBySidePlot({
           <h4>Ideal gas / solute molecules (§5)</h4>
           <p className="lq06-law-given">n = {gasParticles} independent particles</p>
           <p className="lq06-law-eq">S − S₀ = (R/N) · ln W</p>
-          <p className="lq06-law-given">Independent positions, W = (V/V₀)ⁿ:</p>
+          <p className="lq06-law-given">
+            Independent positions, W = (V/V₀)<sup>n</sup>:
+          </p>
           <p className="lq06-law-eq">
             = (R/N) · [ <span className="lq06-law-bracket">n</span> ] · ln(V/V₀)
           </p>

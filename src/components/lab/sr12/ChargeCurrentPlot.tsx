@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { display, fixed } from "../presentation.ts";
 import "./sr12.css";
+import { withScripts } from "../subscripts.tsx";
 
 /** A scalar result's value, or null when the model returned no number. */
 function scalarOf(r: PublishedResult | undefined): number | null {
@@ -123,7 +124,7 @@ function Frame({
   return (
     <div className="sr12-frame">
       <p className="sr12-frame-title">{title}</p>
-      {values ? <p className="fine sr12-frame-values">{values}</p> : null}
+      {values ? <p className="fine sr12-frame-values">{withScripts(values)}</p> : null}
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={ariaLabel}>
         <ArrowMarker />
         {children}
@@ -171,8 +172,8 @@ export function ChargeCurrentPlot({
 
   const frameK = "Laboratory frame K";
   const frameMoving = `Frame k, moving at v = ${v}c`;
-  const kValues = `ρ = ${shown(rho)} C/m³, Jₓ = ${shown(jx)} A/m²`;
-  const movingValues = `ρ′ = ${shown(rhoPrime)} C/m³, J′ₓ = ${shown(jxPrime)} A/m²`;
+  const kValues = `ρ = ${shown(rho)} C/m³, J_{x} = ${shown(jx)} A/m²`;
+  const movingValues = `ρ′ = ${shown(rhoPrime)} C/m³, J′_{x} = ${shown(jxPrime)} A/m²`;
 
   let frames: ReactNode;
   if (mode === "neutral-conductor") {

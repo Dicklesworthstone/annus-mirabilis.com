@@ -17,6 +17,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { SliderField } from "../SliderField.tsx";
+import { withScripts } from "../subscripts.tsx";
 import { MovingMirrorPlot } from "./MovingMirrorPlot.tsx";
 
 function numericOf(item: PublishedResult | undefined): number | null {
@@ -56,7 +57,7 @@ const FIELD_LABELS: Readonly<Record<NumericKey, string>> = {
   beta: "Mirror velocity β = v/c",
   incidentAngleDeg: "Incident angle φ",
   incidentEnergyDensity: "Incident energy density u",
-  mirrorArea: "Mirror surface area Aₘ",
+  mirrorArea: "Mirror surface area A_{m}",
 };
 
 export function MovingMirrorLab({
@@ -246,7 +247,7 @@ export function MovingMirrorLab({
           </fieldset>
           {error ? (
             <p className="notice error" role="alert">
-              {error}
+              {withScripts(error)}
             </p>
           ) : null}
         </div>
@@ -323,7 +324,9 @@ export function MovingMirrorLab({
                 </td>
               </tr>
               <tr>
-                <th scope="row">Work done on the mirror, P·v·Aₘ</th>
+                <th scope="row">
+                  Work done on the mirror, P·v·A<sub>m</sub>
+                </th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="workRate" unit="W" />
                 </td>
@@ -342,9 +345,9 @@ export function MovingMirrorLab({
           </table>
 
           <p>
-            At normal incidence with a receding mirror (β = 0.6), the incident power is 0.4 IAₘ, the
-            reflected power 0.1 IAₘ, and the mirror receives mechanical work at the rate 0.3 IAₘ.
-            Energy is conserved exactly, with zero residual.
+            At normal incidence with a receding mirror (β = 0.6), the incident power is 0.4 IA
+            <sub>m</sub>, the reflected power 0.1 IA<sub>m</sub>, and the mirror receives mechanical
+            work at the rate 0.3 IA<sub>m</sub>. Energy is conserved exactly, with zero residual.
           </p>
         </div>
       </div>

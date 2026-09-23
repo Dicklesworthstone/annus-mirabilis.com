@@ -346,9 +346,9 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
       <details>
         <summary>Connect the joint event to the entropy argument</summary>
         <p>
-          The all-inside constraint has probability W = fⁿ for independent points, but W = f for
-          perfectly locked points. Applying Boltzmann’s logarithm gives ΔS/kB = ln W, with the same
-          reference volume and point count.
+          The all-inside constraint has probability W = f<sup>n</sup> for independent points, but W
+          = f for perfectly locked points. Applying Boltzmann’s logarithm gives ΔS/k<sub>B</sub> =
+          ln W, with the same reference volume and point count.
         </p>
         <p>
           Independent:{" "}

@@ -388,8 +388,9 @@ export function MovingMirrorPlot({
                       aria-hidden="true"
                     />
                     {workRate > 0
-                      ? "work the light does pushing the mirror (P·v·Aₘ)"
-                      : "work the approaching mirror does on the light (P·v·Aₘ)"}
+                      ? "work the light does pushing the mirror"
+                      : "work the approaching mirror does on the light"}{" "}
+                    (P·v·A<sub>m</sub>)
                   </li>
                 ) : null}
                 <li>
