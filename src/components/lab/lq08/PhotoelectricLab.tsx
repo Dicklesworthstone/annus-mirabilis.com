@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
 import {
+  LQ08_CAPTION,
   LQ08_HISTORICAL_CHECK,
   LQ08_MODEL,
   LQ08_NOT_MODELED,
@@ -14,6 +15,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
+import { withScripts } from "../subscripts.tsx";
 import {
   CurrentVoltagePlot,
   EnergyLadderPlot,
@@ -23,6 +25,8 @@ import "./photoelectricLab.css";
 
 export type PhotoelectricLabProps = Readonly<{
   example?: PreparedLq08Example | undefined;
+  /** False for the optional second laboratory, so the page carries the caption readings once. */
+  readings?: boolean;
 }>;
 
 type PredictCandidate = Readonly<{
@@ -235,7 +239,7 @@ function ValueCell({
   return <>Not determined by these settings</>;
 }
 
-export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
+export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabProps) {
   const instanceId = useId();
   const session = useMemo(() => createLq08Session(instanceId, example), [instanceId, example]);
   const view = useSyncExternalStore(
@@ -497,6 +501,21 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
         </section>
       </div>
 
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      {readings && (
+        <>
+          <p data-detail="0">{withScripts(LQ08_CAPTION.r0)}</p>
+          <p data-detail="1">{withScripts(LQ08_CAPTION.r1)}</p>
+          <p data-detail="2" hidden>
+            {withScripts(LQ08_CAPTION.r2)}
+          </p>
+          <p data-detail="3" hidden>
+            {withScripts(LQ08_CAPTION.r3)}
+          </p>
+        </>
+      )}
+
       <div className="lab-bottom">
         <div className="lq08-historical">
           <h3>Einstein’s 1905 §8 check, by order of magnitude</h3>
@@ -569,7 +588,7 @@ export function PhotoelectricComparison({ example }: { example?: PreparedLq08Exa
           stepwise state and accepted results.
         </p>
       </div>
-      {second && <PhotoelectricLab example={example} />}
+      {second && <PhotoelectricLab example={example} readings={false} />}
     </>
   );
 }
