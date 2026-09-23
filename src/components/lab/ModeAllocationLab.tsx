@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useId, useState } from "react";
+import { LQ02_CAPTION } from "../../experiments/lq02/definition.ts";
 import {
   computeLq02Snapshot,
   DEFAULT_LQ02_INPUTS,
@@ -12,6 +13,7 @@ import {
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { fixed } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
+import { withScripts } from "./subscripts.tsx";
 
 const NOT_MODELED = [
   "The mechanism coupling matter and radiation beyond Planck's stated equilibrium condition.",
@@ -367,6 +369,17 @@ export function ModeAllocationLab({
           </p>
         )}
       </details>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(LQ02_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(LQ02_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(LQ02_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(LQ02_CAPTION.r3)}
+      </p>
     </section>
   );
 }
