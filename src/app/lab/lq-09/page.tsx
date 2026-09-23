@@ -58,8 +58,9 @@ export default function IonizationPage() {
           Suppose light of frequency <InlineFormula latex={String.raw`\nu > \nu_0`} /> shines into a
           gas, and a total light energy <InlineFormula latex="L" /> is absorbed. Under
           Einstein&apos;s primary hypothesis that every absorbed quantum of energy{" "}
-          <InlineFormula latex={String.raw`R\beta\nu`} /> ionizes exactly one molecule, the number
-          of ionized gram-molecules <InlineFormula latex="j" /> is given by:
+          <InlineFormula latex={String.raw`R\beta\nu/N`} /> ionizes exactly one molecule, the number
+          of ionized gram-molecules <InlineFormula latex="j" />, each of <InlineFormula latex="N" />{" "}
+          molecules, is given by:
         </p>
         <Formula latex={String.raw`j = \frac{L}{R\beta\nu}`} />
         <p>

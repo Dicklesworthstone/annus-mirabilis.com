@@ -73,7 +73,7 @@ export default function IndependentConfigurationsPage() {
             margin: "1rem 0",
           }}
         >
-          W = (V / V₀)ⁿ &emsp;&Longrightarrow;&emsp; S − S₀ = (R / N) n ln(V / V₀)
+          W = (V / V₀)<sup>n</sup>, so S − S₀ = (R / N) n ln(V / V₀)
         </div>
         <p>
           Comparing this gas entropy with the monochromatic radiation entropy found in §4,{" "}

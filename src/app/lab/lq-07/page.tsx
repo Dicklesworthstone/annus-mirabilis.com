@@ -82,7 +82,7 @@ export default function FluorescencePage() {
             margin: "1rem 0",
           }}
         >
-          hν₁ = hν₂ + E_other &emsp;(E_other ≥ 0) &emsp;&Longrightarrow;&emsp; ν₂ ≤ ν₁
+          hν₁ = hν₂ + E<sub>other</sub>, with E<sub>other</sub> ≥ 0, so ν₂ ≤ ν₁
         </div>
 
         <h3 style={{ fontFamily: "var(--font-serif, serif)", paddingTop: "0.5rem" }}>

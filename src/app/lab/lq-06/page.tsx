@@ -99,14 +99,17 @@ export default function CoefficientMatchPage() {
           constant{" "}
           <InlineFormula latex={String.raw`\beta = 4{,}866\cdot 10^{-11}\text{ K}\cdot\text{s}`} />,
           and Avogadro&apos;s number <InlineFormula latex={String.raw`N = 6{,}17\cdot 10^{23}`} />,
-          Einstein calculated:
+          the product is:
         </p>
         <Formula
-          latex={String.raw`\frac{R\beta}{N} = 6{,}5537\cdot 10^{-27}\text{ erg}\cdot\text{s} \approx 6{,}626\cdot 10^{-27}\text{ erg}\cdot\text{s} = h`}
+          latex={String.raw`\frac{R\beta}{N} = 6{,}5537\cdot 10^{-27}\text{ erg}\cdot\text{s}`}
         />
         <p>
-          This confirmed that the packet energy derived purely from thermodynamic entropy matches
-          Planck&apos;s quantum of action <InlineFormula latex="h" /> to within 1%.
+          Einstein does not print this product. It is the constant Planck called{" "}
+          <InlineFormula latex="h" />, computed from the values Einstein takes from Planck, and it
+          lies about 1.1% below the modern value, 6.626 × 10⁻²⁷ erg·s. So the energy of the packets
+          found from the entropy of radiation alone is Planck&apos;s quantum of action, to that
+          precision.
         </p>
 
         <h2>Mean quantum energy over a Wien spectrum</h2>

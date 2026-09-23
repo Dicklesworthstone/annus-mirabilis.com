@@ -45,15 +45,20 @@ export default function PhotoelectricPage() {
           In &sect;8 of his 1905 paper, Einstein applies the light-quantum hypothesis to the
           generation of cathode rays by light (the photoelectric effect). If monochromatic light
           consists of energy quanta of magnitude{" "}
-          <InlineFormula latex={String.raw`R\beta\nu = h\nu`} />, an absorbed quantum transfers its
-          entire energy to a single electron in the cathode.
+          <InlineFormula latex={String.raw`\frac{R}{N}\beta\nu = h\nu`} />, an absorbed quantum
+          transfers its entire energy to a single electron in the cathode. For one electron, of
+          charge <InlineFormula latex={String.raw`\varepsilon`} />, the body&apos;s stopping
+          potential <InlineFormula latex={String.raw`\Pi`} /> satisfies:
         </p>
-        <Formula latex={String.raw`\Pi E = R\beta\nu - P`} />
+        <Formula latex={String.raw`\Pi\varepsilon = \frac{R}{N}\beta\nu - P`} />
         <p>
-          In modern notation, writing <InlineFormula latex={String.raw`\Pi`} /> as the stopping
-          potential <InlineFormula latex="V_s" />, <InlineFormula latex="E" /> as the elementary
-          charge <InlineFormula latex="e" />, and <InlineFormula latex="P" /> as the surface escape
-          work <InlineFormula latex={String.raw`\Phi`} />:
+          Einstein also writes the same law for a gram-equivalent of charge,{" "}
+          <InlineFormula latex={String.raw`\Pi E = R\beta\nu - P'`} />, which is the one-electron
+          law multiplied by <InlineFormula latex="N" />. In modern notation, writing{" "}
+          <InlineFormula latex={String.raw`\Pi`} /> as the stopping potential{" "}
+          <InlineFormula latex="V_s" />, <InlineFormula latex={String.raw`\varepsilon`} /> as the
+          elementary charge <InlineFormula latex="e" />, and <InlineFormula latex="P" /> as the
+          surface escape work <InlineFormula latex={String.raw`\Phi`} />:
         </p>
         <Formula
           latex={String.raw`e V_s = h\nu - \Phi \implies V_s = \frac{h}{e}\nu - \frac{\Phi}{e}`}

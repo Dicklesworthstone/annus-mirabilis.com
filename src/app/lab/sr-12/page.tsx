@@ -63,10 +63,9 @@ export default function ChargeCurrentPage() {
           For a rectangular current loop of length l<sub>x</sub> = 1 m carrying current I = 1 A at
           0.6c, Lorentz contraction shortens the x-legs to l&prime;<sub>x</sub> = l<sub>x</sub>
           /&gamma; = 0.8 m. The top leg carries charge q&prime;<sub>+</sub> = &minus;(v I l
-          <sub>x</sub>)/c&sup2; &approx; &minus;2.0014&times;10⁻⁹ C while the bottom leg carries
-          q&prime;<sub>&minus;</sub> = +(v I l<sub>x</sub>)/c&sup2; &approx; +2.0014&times;10⁻⁹ C.
-          The total charge remains identically zero, verifying that total charge is an exact Lorentz
-          scalar.
+          <sub>x</sub>)/c&sup2; ≈ &minus;2.0014&times;10⁻⁹ C while the bottom leg carries q&prime;
+          <sub>&minus;</sub> = +(v I l<sub>x</sub>)/c&sup2; ≈ +2.0014&times;10⁻⁹ C. The total charge
+          remains identically zero, verifying that total charge is an exact Lorentz scalar.
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s9">
