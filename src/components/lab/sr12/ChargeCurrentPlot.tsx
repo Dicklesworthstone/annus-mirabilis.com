@@ -396,11 +396,9 @@ export function ChargeCurrentPlot({
       </>
     );
   } else {
-    // The pulse: a sketch only. Its numbers are the continuity residuals in the table below.
-    const bell = Array.from({ length: 49 }, (_, i) => {
-      const x = 4 + (i * (W - 8)) / 48;
-      return `${x.toFixed(1)},${(100 - 70 * Math.exp(-(((x - W / 2) / 38) ** 2))).toFixed(1)}`;
-    }).join(" ");
+    // The pulse: a sketch only, two cubic curves shaped like a bell, not an evaluated density. Its
+    // numbers are the continuity residuals in the table below.
+    const bell = `M 4 100 C ${W / 2 - 60} 100 ${W / 2 - 30} 30 ${W / 2} 30 C ${W / 2 + 30} 30 ${W / 2 + 60} 100 ${W - 4} 100`;
     frames = (
       <>
         <Frame
@@ -409,7 +407,7 @@ export function ChargeCurrentPlot({
           ariaLabel="A bell-shaped pulse of charge density in K"
           caption="A pulse of charge moving along x. This is a sketch, not drawn to scale."
         >
-          <polyline points={bell} fill="none" stroke="var(--plot)" strokeWidth={2.5} />
+          <path d={bell} fill="none" stroke="var(--plot)" strokeWidth={2.5} />
           <line x1={4} x2={W - 4} y1={100} y2={100} stroke="var(--line)" />
         </Frame>
         <Frame
@@ -418,7 +416,7 @@ export function ChargeCurrentPlot({
           ariaLabel="The same pulse described from k"
           caption="The same pulse described from k. Charge is conserved in both frames: the continuity residual ∂ρ/∂t + ∇·J in the table below should be zero in each."
         >
-          <polyline points={bell} fill="none" stroke="var(--accent)" strokeWidth={2.5} />
+          <path d={bell} fill="none" stroke="var(--accent)" strokeWidth={2.5} />
           <line x1={4} x2={W - 4} y1={100} y2={100} stroke="var(--line)" />
         </Frame>
       </>
