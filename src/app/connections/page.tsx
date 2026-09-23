@@ -26,7 +26,7 @@ export default function ConnectionsPage() {
           routes to one number, a shared piece of mathematics, a link drawn later. They used to run
           in another order, so the map's first row was the page's third section and its last row
           the first. */}
-      <section className="reading" id="energy-transformation">
+      <section className="reading page-flush" id="energy-transformation">
         <p className="eyebrow">Uses a result</p>
         <h2>The energy transformation that leaves the relativity paper</h2>
         <p>
@@ -42,7 +42,7 @@ export default function ConnectionsPage() {
           <a href="/lab/me-01">Two energy ledgers</a>
         </p>
       </section>
-      <section className="reading" id="molecular-number">
+      <section className="reading page-flush" id="molecular-number">
         <p className="eyebrow">Separate routes to one number · Companion preview</p>
         <h2>What information lets you infer a molecular number?</h2>
         <p>
@@ -58,7 +58,7 @@ export default function ConnectionsPage() {
           </a>
         </p>
       </section>
-      <section className="reading" id="counting">
+      <section className="reading page-flush" id="counting">
         <p className="eyebrow">Shares a mathematical pattern</p>
         <h2>Counting possibilities without solving every motion</h2>
         <p>
@@ -74,7 +74,7 @@ export default function ConnectionsPage() {
           <a href="/lab/bm-03">Configuration integral</a>
         </p>
       </section>
-      <section className="reading" id="light-thread">
+      <section className="reading page-flush" id="light-thread">
         <p className="eyebrow">Later modern synthesis</p>
         <h2>Light as the instrument</h2>
         <p>
@@ -88,7 +88,7 @@ export default function ConnectionsPage() {
           </a>
         </p>
       </section>
-      <section className="reading">
+      <section className="reading page-flush">
         <h2>Keep the direction of inference visible</h2>
         <p>
           Following a connection never substitutes for reading the argument that supplies it. In

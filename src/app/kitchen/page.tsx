@@ -41,7 +41,7 @@ export default function KitchenGuide() {
           powders, ultraviolet sources or radioactive materials.
         </p>
       </header>
-      <section className="reading">
+      <section className="reading page-flush">
         <h2>Three questions, not three grades</h2>
         <table data-kitchen-stages>
           <caption>What each stage can establish</caption>

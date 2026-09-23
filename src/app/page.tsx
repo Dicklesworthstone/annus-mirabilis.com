@@ -119,7 +119,7 @@ export default function Home() {
         </article>
       </section>
 
-      <section className="reading">
+      <section className="reading page-flush">
         <h2>What the printed page actually says</h2>
         <p>
           The fourth paper runs to three pages and comes down to one line, in the notation it was
@@ -142,7 +142,7 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="reading">
+      <section className="reading page-flush">
         <h2>Where this edition has got to</h2>
         <p>
           The explanations, the instruments and the discovery routes are written and working. The

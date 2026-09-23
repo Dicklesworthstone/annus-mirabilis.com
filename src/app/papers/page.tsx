@@ -177,7 +177,7 @@ export default function Papers() {
           );
         })}
       </ol>
-      <section className="reading">
+      <section className="reading page-flush">
         <h2>The molecular-dimensions companion</h2>
         <p>
           Einstein&rsquo;s doctoral dissertation,{" "}
