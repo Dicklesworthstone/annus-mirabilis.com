@@ -514,6 +514,18 @@
 .reading-formula-relation {
   min-width: 0;
 }
+/* A formula keeps its size when it gains colour: the type of the plain .formula it replaced
+   (globals.css), and the reader's smaller phone size (reader.css, same breakpoint). Inheriting
+   the prose size set coloured mathematics at 23px beside 16px plain formulas on a phone, and
+   pushed paper 2's density integral 48px past a 390px screen. */
+.reading-formula .equation-visual {
+  font-size: var(--type-small);
+}
+@media (max-width: 560px) {
+  .reader-root .reading-formula .equation-visual {
+    font-size: var(--type-fine);
+  }
+}
 .reading-formula .equation-visual .katex-display {
   margin: 0.4rem 0;
 }
