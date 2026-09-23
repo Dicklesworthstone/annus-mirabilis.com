@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-synchrony-rule",
+  "paper": "foundations",
+  "argument": "frames-events",
+  "title": "The synchrony rule",
+  "spoken": "t B minus t A equals t prime A minus t B.",
+  "explanation": "Section 1's definition: the clocks are synchronous if light takes as long, by their readings, from A to B as from B back to A.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A definition, not a measured fact: checking it would need clocks already synchronous.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-synchrony-rule.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "sum",
+      "opId": "eq-model-fd-synchrony-rule.op.outward",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-synchrony-rule.t.arrive",
+          "quantityId": "signalReflectionTimeB"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-synchrony-rule.t.leave",
+            "quantityId": "signalDepartureTimeA"
+          }
+        }
+      ]
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-fd-synchrony-rule.op.back",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-synchrony-rule.t.return",
+          "quantityId": "signalReturnTimeA"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-synchrony-rule.t.arrive2",
+            "quantityId": "signalReflectionTimeB"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-synchrony-rule.op.back",
+      "title": "The trip back",
+      "explanation": "A's reading on return minus B's reading at reflection.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-fd-synchrony-rule.op.outward",
+      "title": "The trip out",
+      "explanation": "B's reading on arrival minus A's reading at departure.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-fd-synchrony-rule.op.relation",
+      "title": "What it defines",
+      "explanation": "Clocks A and B are synchronous when the two trips take equal times.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-fd-synchrony-rule.t.arrive",
+      "title": "B's reading",
+      "explanation": "t_B, when the light reaches B.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-fd-synchrony-rule.t.arrive2",
+      "title": "B's reading",
+      "explanation": "The same t_B.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-fd-synchrony-rule.t.leave",
+      "title": "A's reading at departure",
+      "explanation": "t_A, when the light leaves A.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-fd-synchrony-rule.t.return",
+      "title": "A's reading on return",
+      "explanation": "t'_A, when the light is back at A.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "B's reading",
+      "nodeId": "eq-model-fd-synchrony-rule.t.arrive"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "A's departure reading",
+      "nodeId": "eq-model-fd-synchrony-rule.t.leave"
+    },
+    {
+      "text": " equals "
+    },
+    {
+      "text": "A's return reading",
+      "nodeId": "eq-model-fd-synchrony-rule.t.return"
+    },
+    {
+      "text": " minus B's reading."
+    }
+  ]
+}

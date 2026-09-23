@@ -22,7 +22,8 @@
     {
       "kind": "formula",
       "latex": "t_B - t_A = t'_A - t_B",
-      "spoken": "t B minus t A equals t A prime minus t B: the trip out takes as long as the trip back."
+      "spoken": "t B minus t A equals t A prime minus t B: the trip out takes as long as the trip back.",
+      "equations": ["eq-model-fd-synchrony-rule"]
     },
     {
       "kind": "paragraph",
@@ -42,7 +43,8 @@
     {
       "kind": "formula",
       "latex": "t_B = \\frac{1}{2}\\left(t_A + t'_A\\right)",
-      "spoken": "The time at B equals one half of the sum of A's reading when the flash left and A's reading when it came back."
+      "spoken": "The time at B equals one half of the sum of A's reading when the flash left and A's reading when it came back.",
+      "equations": ["eq-model-fd-reflection-time"]
     },
     {
       "kind": "paragraph",

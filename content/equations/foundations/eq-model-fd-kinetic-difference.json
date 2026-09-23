@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-kinetic-difference",
+  "paper": "foundations",
+  "argument": "work-energy",
+  "title": "Two masses at one speed",
+  "spoken": "K nought minus K one equals one half times m nought minus m one, times v squared.",
+  "explanation": "At the same speed, the difference in energy of motion is half the difference in mass times v squared. The 1905 argument reads this equation the other way.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Both bodies at the same speed, small compared with light's.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-kinetic-difference.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "sum",
+      "opId": "eq-model-fd-kinetic-difference.op.drop",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-kinetic-difference.t.before",
+          "quantityId": "kineticEnergyBefore"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-kinetic-difference.t.after",
+            "quantityId": "kineticEnergyAfter"
+          }
+        }
+      ]
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-kinetic-difference.op.product",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-kinetic-difference.op.half",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "number",
+            "value": "2"
+          }
+        },
+        {
+          "kind": "group",
+          "opId": "eq-model-fd-kinetic-difference.op.massDrop",
+          "argument": {
+            "kind": "sum",
+            "opId": "eq-model-fd-kinetic-difference.op.massDifference",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-kinetic-difference.t.massBefore",
+                "quantityId": "bodyMassBefore"
+              },
+              {
+                "kind": "negate",
+                "argument": {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-kinetic-difference.t.massAfter",
+                  "quantityId": "bodyMassAfter"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "power",
+          "opId": "eq-model-fd-kinetic-difference.op.speedSquare",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-kinetic-difference.t.speed",
+            "quantityId": "frameSpeed"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.op.drop",
+      "title": "The energy difference",
+      "explanation": "K_0 minus K_1.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.op.half",
+      "title": "One half",
+      "explanation": "As in K = mv²/2.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.op.massDifference",
+      "title": "m_0 minus m_1",
+      "explanation": "How much more mass the first body has.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.op.massDrop",
+      "title": "The mass difference, as one quantity",
+      "explanation": "m_0 minus m_1.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.op.product",
+      "title": "Half times the mass difference times v squared",
+      "explanation": "The same formula, with the difference of masses.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.op.relation",
+      "title": "What it asserts",
+      "explanation": "At one speed, a difference in energy of motion is a difference in mass.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.op.speedSquare",
+      "title": "Speed squared",
+      "explanation": "Both bodies move at the same v.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.t.after",
+      "title": "Energy of motion, second body",
+      "explanation": "K_1.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.t.before",
+      "title": "Energy of motion, first body",
+      "explanation": "K_0.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.t.massAfter",
+      "title": "Second mass",
+      "explanation": "m_1.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.t.massBefore",
+      "title": "First mass",
+      "explanation": "m_0.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-difference.t.speed",
+      "title": "The shared speed",
+      "explanation": "v.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The difference in energy of motion",
+      "nodeId": "eq-model-fd-kinetic-difference.op.drop"
+    },
+    {
+      "text": " is half the "
+    },
+    {
+      "text": "difference in mass",
+      "nodeId": "eq-model-fd-kinetic-difference.op.massDifference"
+    },
+    {
+      "text": " times the "
+    },
+    {
+      "text": "speed",
+      "nodeId": "eq-model-fd-kinetic-difference.t.speed"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

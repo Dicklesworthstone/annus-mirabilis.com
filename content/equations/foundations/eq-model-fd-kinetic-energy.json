@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-kinetic-energy",
+  "paper": "foundations",
+  "argument": "work-energy",
+  "title": "Energy of motion",
+  "spoken": "K equals one half m v squared.",
+  "explanation": "At everyday speeds a body's energy of motion is half its mass times its speed squared.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Speeds small compared with light's; not exact close to it.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-kinetic-energy.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-kinetic-energy.t.energy",
+      "quantityId": "bodyKineticEnergy"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-kinetic-energy.op.product",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-kinetic-energy.op.half",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "number",
+            "value": "2"
+          }
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-kinetic-energy.t.mass",
+          "quantityId": "bodyMass"
+        },
+        {
+          "kind": "power",
+          "opId": "eq-model-fd-kinetic-energy.op.speedSquare",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-kinetic-energy.t.speed",
+            "quantityId": "bodySpeed"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-kinetic-energy.op.half",
+      "title": "One half",
+      "explanation": "The factor the work done gives.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-energy.op.product",
+      "title": "Half m v squared",
+      "explanation": "The three factors multiplied.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-energy.op.relation",
+      "title": "What it asserts",
+      "explanation": "Energy of motion grows with the mass and with the square of the speed.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-energy.op.speedSquare",
+      "title": "Speed squared",
+      "explanation": "Doubling the speed multiplies the energy by four.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-energy.t.energy",
+      "title": "Energy of motion",
+      "explanation": "K, in joules.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-energy.t.mass",
+      "title": "Mass",
+      "explanation": "m, in kilograms.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-kinetic-energy.t.speed",
+      "title": "Speed",
+      "explanation": "v, in metres per second.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The energy of motion",
+      "nodeId": "eq-model-fd-kinetic-energy.t.energy"
+    },
+    {
+      "text": " is half the "
+    },
+    {
+      "text": "mass",
+      "nodeId": "eq-model-fd-kinetic-energy.t.mass"
+    },
+    {
+      "text": " times the "
+    },
+    {
+      "text": "speed",
+      "nodeId": "eq-model-fd-kinetic-energy.t.speed"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

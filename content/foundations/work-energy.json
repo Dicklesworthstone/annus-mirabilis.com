@@ -18,7 +18,8 @@
     {
       "kind": "formula",
       "latex": "K=\\frac{1}{2}mv^2",
-      "spoken": "In Newtonian mechanics, kinetic energy is one half times inertial mass times speed squared."
+      "spoken": "In Newtonian mechanics, kinetic energy is one half times inertial mass times speed squared.",
+      "equations": ["eq-model-fd-kinetic-energy"]
     },
     {
       "kind": "paragraph",
@@ -37,7 +38,8 @@
     {
       "kind": "formula",
       "latex": "K_0-K_1=\\frac{1}{2}(m_0-m_1)v^2",
-      "spoken": "At the same low speed, the kinetic-energy drop equals one half times the mass decrease times the squared speed."
+      "spoken": "At the same low speed, the kinetic-energy drop equals one half times the mass decrease times the squared speed.",
+      "equations": ["eq-model-fd-kinetic-difference"]
     },
     {
       "kind": "paragraph",

@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-reflection-time",
+  "paper": "foundations",
+  "argument": "frames-events",
+  "title": "When the light reached B",
+  "spoken": "t B equals one half of t A plus t prime A.",
+  "explanation": "Solving the synchrony rule for t_B: the reflection is at the midpoint of A's two readings. With 0 s and 10 s, it is 5 s.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The synchrony rule of section 1.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-reflection-time.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-reflection-time.t.arrive",
+      "quantityId": "signalReflectionTimeB"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-reflection-time.op.midpoint",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-reflection-time.op.half",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "number",
+            "value": "2"
+          }
+        },
+        {
+          "kind": "group",
+          "opId": "eq-model-fd-reflection-time.op.readings",
+          "argument": {
+            "kind": "sum",
+            "opId": "eq-model-fd-reflection-time.op.sum",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-reflection-time.t.leave",
+                "quantityId": "signalDepartureTimeA"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-reflection-time.t.return",
+                "quantityId": "signalReturnTimeA"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-reflection-time.op.half",
+      "title": "One half",
+      "explanation": "Two equal trips share the round trip.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-reflection-time.op.midpoint",
+      "title": "Half of",
+      "explanation": "The midpoint of A's two readings.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-reflection-time.op.readings",
+      "title": "A's two readings, together",
+      "explanation": "Added before halving.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-reflection-time.op.relation",
+      "title": "What it gives",
+      "explanation": "The reflection happened halfway through the round trip, on A's clock.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-fd-reflection-time.op.sum",
+      "title": "Departure plus return",
+      "explanation": "t_A plus t'_A.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-reflection-time.t.arrive",
+      "title": "B's reading",
+      "explanation": "t_B, set by the rule.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-fd-reflection-time.t.leave",
+      "title": "A's reading at departure",
+      "explanation": "t_A.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-fd-reflection-time.t.return",
+      "title": "A's reading on return",
+      "explanation": "t'_A.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "B's reading",
+      "nodeId": "eq-model-fd-reflection-time.t.arrive"
+    },
+    {
+      "text": " is half of "
+    },
+    {
+      "text": "A's departure reading",
+      "nodeId": "eq-model-fd-reflection-time.t.leave"
+    },
+    {
+      "text": " plus "
+    },
+    {
+      "text": "A's return reading",
+      "nodeId": "eq-model-fd-reflection-time.t.return"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
