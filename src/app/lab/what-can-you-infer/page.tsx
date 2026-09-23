@@ -26,12 +26,8 @@ export default function InferenceWorkbenchPage() {
         </h1>
         <p className="lead">
           A curve can fit more than one explanation. Keep the observations fixed, inspect the
-          compatible parameters, then ask which additional information separates them.
-        </p>
-        <p>
-          These are two built-in synthetic datasets: ideal displacements and camera observations.
-          This workbench does not import your current laboratory state. Changing an information
-          choice neither resamples the observations nor changes the physical model.
+          compatible parameters, then ask which additional information separates them. Both datasets
+          here are synthetic.
         </p>
       </header>
       {examples.map((example) => (
@@ -61,6 +57,13 @@ export default function InferenceWorkbenchPage() {
       </nav>
       <section className="reading">
         <h2>What the calculation does and does not establish</h2>
+        {/* This paragraph opened the page, 168px between a phone's heading and the first case; the
+            lead now says the data are synthetic, and the detail is here. */}
+        <p>
+          The two datasets are built in: ideal displacements and camera observations. This workbench
+          does not import your current laboratory state. Changing an information choice neither
+          resamples the observations nor changes the physical model.
+        </p>
         <p>
           The first case assumes independent Gaussian increments and known zero drift. Its
           conservative molecular-number interval combines diffusion uncertainty with a separately
