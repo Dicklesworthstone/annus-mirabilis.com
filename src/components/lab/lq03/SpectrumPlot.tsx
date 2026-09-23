@@ -14,8 +14,10 @@ import "./spectrum.css";
  * line pattern and by a label at the curve's end, never by colour alone.
  */
 
-const W = 480;
-const H = 300;
+// 300 units wide, like the other lab plots: at 480 units the site's label size rendered at 8.9px
+// on a 390px phone. The legend is HTML under the drawing, where it no longer covers the curves.
+const W = 300;
+const H = 260;
 const PAD = { left: 58, right: 16, top: 16, bottom: 46 };
 const PLOT_W = W - PAD.left - PAD.right;
 const PLOT_H = H - PAD.top - PAD.bottom;
@@ -35,6 +37,8 @@ const LAW_LABEL: Readonly<Record<Lq03SpectrumLaw, string>> = {
 
 const SUPERSCRIPT: Readonly<Record<string, string>> = {
   "-": "⁻",
+  // exponentialParts writes a true minus (U+2212); without this entry it stayed full size, "10−⁶".
+  "−": "⁻",
   "0": "⁰",
   "1": "¹",
   "2": "²",
@@ -117,9 +121,16 @@ export function SpectrumPlot({
     return { law, d };
   });
 
+  // Linear ticks share one power of ten, stated once in the axis title: in a 300-unit drawing,
+  // "2.0 × 10⁻⁶" on every tick ran into its neighbours.
+  const linearTicks = spectrum.xLinearTicks;
+  const tickExponent =
+    !logX && linearTicks.length > 0
+      ? Math.floor(Math.log10(Math.max(...linearTicks.map((v) => Math.abs(v)))))
+      : 0;
   const xTicks = logX
     ? spectrum.xDecades.map((e) => ({ at: e, label: powerOfTen(e) }))
-    : spectrum.xLinearTicks.map((v) => ({ at: Math.log10(v), label: sci(v, 1) }));
+    : linearTicks.map((v) => ({ at: Math.log10(v), label: (v / 10 ** tickExponent).toFixed(1) }));
   // A y label within a text line of the x axis would sit on the first x label.
   const yTicks = logY
     ? spectrum.yDecades
@@ -131,7 +142,10 @@ export function SpectrumPlot({
   const peak = spectrum.peak;
   const clipId = `${titleId}-clip`;
   const unitX = spectrum.coordinate === "frequency" ? "Hz" : "m";
-  const xLabel = spectrum.coordinate === "frequency" ? "Frequency ν (Hz)" : "Wavelength λ (m)";
+  const xQuantity = spectrum.coordinate === "frequency" ? "Frequency ν" : "Wavelength λ";
+  const xLabel = logX
+    ? `${xQuantity} (${unitX})`
+    : `${xQuantity} (${powerOfTen(tickExponent)} ${unitX})`;
   const scaleWord = spectrum.axisScale === "logarithmic" ? "logarithmic" : "linear";
   const description = `The spectrum at T = ${spectrum.temperature} K: energy density ${
     CONVENTION_PHRASE[spectrum.convention]
@@ -139,9 +153,6 @@ export function SpectrumPlot({
     peak ? `${sci(10 ** peak.log10X, 2)} ${unitX}` : "a point outside the drawn range"
   }. Wien's law meets Planck's at high frequency (short wavelength); the classical law meets it at low frequency (long wavelength) and keeps rising where Planck's falls.`;
   const probeInFrame = probeX >= PAD.left && probeX <= PAD.left + PLOT_W;
-  // The legend goes on the side away from Planck's peak, where the curves leave room for it.
-  const peakOnRight = peak ? px(peak.log10X) > PAD.left + PLOT_W / 2 : false;
-  const legendX = peakOnRight ? PAD.left + 10 : PAD.left + PLOT_W - 132;
 
   return (
     <figure className="lq03-spectrum">
@@ -215,17 +226,17 @@ export function SpectrumPlot({
             probe
           </text>
         )}
-        <g transform={`translate(${legendX}, ${PAD.top + 14})`}>
-          {laws.map((law, i) => (
-            <g key={`legend-${law}`} transform={`translate(0, ${i * 18})`}>
-              <line className={CURVE_CLASS[law]} x1={0} y1={-4} x2={26} y2={-4} />
-              <text x={32} y={0}>
-                {LAW_LABEL[law]}
-              </text>
-            </g>
-          ))}
-        </g>
       </svg>
+      <ul className="lq03-legend">
+        {laws.map((law) => (
+          <li key={`legend-${law}`}>
+            <svg viewBox="0 0 26 8" aria-hidden="true">
+              <line className={CURVE_CLASS[law]} x1={0} y1={4} x2={26} y2={4} />
+            </svg>
+            {LAW_LABEL[law]}
+          </li>
+        ))}
+      </ul>
       <figcaption>
         Energy density {CONVENTION_PHRASE[spectrum.convention]}, in{" "}
         {CONVENTION_UNIT[spectrum.convention]}, on {scaleWord} axes. The shaded strip is the band;

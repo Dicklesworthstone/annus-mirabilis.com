@@ -6,10 +6,29 @@
   max-width: 40rem;
   margin: 0 0 1.5rem;
 }
-.lq03-spectrum svg {
+.lq03-spectrum > svg {
   display: block;
   width: 100%;
+  max-width: 21rem;
   height: auto;
+}
+/* The legend under the drawing: each law's dash pattern beside its name. */
+.lq03-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.lq03-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.lq03-legend svg {
+  width: 1.75rem;
+  height: 0.6rem;
 }
 .lq03-spectrum figcaption {
   margin-top: 0.4rem;
