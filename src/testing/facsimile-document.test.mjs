@@ -223,3 +223,31 @@ test("many-to-one edition aliases retain all contributors without changing a can
   assert.equal(resolveFacsimileTarget(d, "#de-mass-energy-s0-p6"), 1);
   assert.equal(resolveFacsimileTarget(d, "#s0-p6"), 2);
 });
+
+test("a closing block's section is its own, not a numbered section, and still refuses a bad one", () => {
+  // Brownian's inventory marks closing-dateline and closing-received `section: closing`
+  // (docs/CONTENT_IDS.md §3). The projector refused the whole face over them ("Invalid source
+  // section."), so /papers/brownian-motion/view/facsimile/ showed only a notice.
+  const i = inventory();
+  i.units.push({
+    id: "closing-dateline",
+    kind: "closing-dateline",
+    section: "closing",
+    locators: [{ page: 641 }],
+  });
+  const document = project(config(), i);
+  const closing = document.units.find((unit) => unit.id === "closing-dateline");
+  assert.equal(closing.section, null);
+  assert.deepEqual([...closing.pdfPages], [3]);
+  // Only the literal "closing" is let through; any other non-numbered section still refuses.
+  for (const section of ["closings", "Closing", "s", "../closing"]) {
+    const bad = inventory();
+    bad.units.push({
+      id: "closing-received",
+      kind: "closing-received",
+      section,
+      locators: [{ page: 641 }],
+    });
+    assert.throws(() => project(config(), bad), /Invalid source section/);
+  }
+});

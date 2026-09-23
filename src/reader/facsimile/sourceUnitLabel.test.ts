@@ -24,7 +24,26 @@ describe("sourceUnitLabel", () => {
 
   test("an unknown shape keeps its id and kind rather than a guessed name", () => {
     expect(sourceUnitLabel("part-1", "part-heading", true)).toBe("part-1 (part heading)");
-    expect(sourceUnitLabel("s3-p2-s1", "sentence", true)).toBe("s3-p2-s1 (sentence)");
+    // A roman printed label is normalised to roman-<n> (CONTENT_IDS.md §4.2) and has no name yet.
+    expect(sourceUnitLabel("eq-roman-2", "display-equation", true)).toBe(
+      "eq-roman-2 (display equation)",
+    );
+  });
+
+  test("sentences and printed equation numbers are named by place and printed label", () => {
+    // Brownian's inventory has 90 sentence units and three printed labels; they reached the page
+    // map once its facsimile face was admitted, as "s0-p1-s1 (sentence)".
+    expect(sourceUnitLabel("s0-p1-s1", "sentence", true)).toBe(
+      "Introduction, paragraph 1, sentence 1",
+    );
+    expect(sourceUnitLabel("s3-p2-s4", "sentence", true)).toBe("§3, paragraph 2, sentence 4");
+    expect(sourceUnitLabel("s0-p2-s3", "sentence", false)).toBe("Paragraph 2, sentence 3");
+    expect(sourceUnitLabel("eq-s3-1", "display-equation", true)).toBe("§3, equation (1)");
+    expect(sourceUnitLabel("eq-2", "display-equation", true)).toBe("Equation (2)");
+    expect(sourceUnitLabel("eq-1p", "display-equation", true)).toBe("Equation (1′)");
+    expect(sourceUnitLabel("eq-7a", "display-equation", true)).toBe("Equation (7a)");
+    // The unnumbered display form still wins over the printed one.
+    expect(sourceUnitLabel("eq-s3-d4", "display-equation", true)).toBe("§3, display equation 4");
   });
 
   test("no unit on a published facsimile is named by its raw id", async () => {
