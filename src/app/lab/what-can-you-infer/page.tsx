@@ -33,11 +33,6 @@ export default function InferenceWorkbenchPage() {
           This workbench does not import your current laboratory state. Changing an information
           choice neither resamples the observations nor changes the physical model.
         </p>
-        <div className="actions">
-          <a href="/lab/bm-07/">Ideal inference laboratory</a>
-          <a href="/lab/bm-08/">Camera laboratory</a>
-          <a href="/papers/brownian-motion/#arg-bm-inference">Return to the argument</a>
-        </div>
       </header>
       {examples.map((example) => (
         <FamilyWorkbench key={example.ideal.observationDigest} example={example} />
@@ -48,6 +43,22 @@ export default function InferenceWorkbenchPage() {
           instructional drafts.
         </p>
       )}
+      {/* The onward links sit after the workbench, in the family's "From here" list; in the intro
+          they stacked into three rows above a phone's first result. */}
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/lab/bm-07/">Ideal inference laboratory</a>
+          </li>
+          <li>
+            <a href="/lab/bm-08/">Camera laboratory</a>
+          </li>
+          <li>
+            <a href="/papers/brownian-motion/#arg-bm-inference">Return to the argument</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading">
         <h2>What the calculation does and does not establish</h2>
         <p>
