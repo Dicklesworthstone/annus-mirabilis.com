@@ -13,26 +13,30 @@ export default function BrownianComparisonPage() {
         <p className="eyebrow">Experiment · Brownian motion · Controlled comparison</p>
         <h1>A smaller spread. But how much smaller?</h1>
         <p className="lead">
-          Double the particle radius without changing the liquid, temperature, observation time or
-          random draws. Then distinguish what you changed from what changed as a consequence.
+          Double the particle radius from 0.5 to 1 μm, and keep the liquid (1.35 mPa·s at 290.15 K),
+          the observation time and the random draws. Then tell what you changed from what changed as
+          a consequence. It is a synthetic model calculation with modern SI constants, not
+          historical measurements.
         </p>
-        <p>
-          The worked comparison uses 290.15 K, viscosity 1.35 mPa·s, and radii 0.5 and 1 micrometre,
-          with explicitly modern SI constants. It is a synthetic model calculation, not historical
-          measurements.
-        </p>
-        <div className="actions">
-          <a href="/lab/bm-01/">Full tracer laboratory</a>
-          <a href="/discover/brownian-motion/investigate/">Guided interval investigation</a>
-          <a href="/lab/countermodels/">
-            Next: compare competing models, not just one changed input
-          </a>
-        </div>
       </header>
       <BrownianComparisonLab
         example={example}
         passage={replayCatalogue.passages["arg-bm-observable"]}
       />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/lab/bm-01/">Full tracer laboratory</a>
+          </li>
+          <li>
+            <a href="/discover/brownian-motion/investigate/">Guided interval investigation</a>
+          </li>
+          <li>
+            <a href="/lab/countermodels/">Compare competing models, not just one changed input</a>
+          </li>
+        </ul>
+      </nav>
     </>
   );
 }

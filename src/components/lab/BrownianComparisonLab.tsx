@@ -110,11 +110,6 @@ export function BrownianComparisonLab({
           {state.phase === "example" ? "Static worked comparison" : "Live host calculation"}
         </p>
       </header>
-      <p>
-        {COMMON_RANDOM_NUMBERS_NOTE} The same recording grid, tracer count, selected coordinate and
-        model are retained. A physical setup change creates a new run; a measurement change reads
-        the existing recording.
-      </p>
       <noscript>
         <p className="notice">
           JavaScript is off. The worked comparison, shared-axis plot, input locks, result tables and
@@ -163,6 +158,13 @@ export function BrownianComparisonLab({
         Starting is explicit. It reconstructs the pinned baseline in a worker before enabling
         changes. Pinning a new baseline accepts the current completed setup as the starting point
         for your next question.
+      </p>
+      {/* After the plot, beside the form it explains: above the plot it pushed the comparison below
+          a phone's first screen. */}
+      <p>
+        {COMMON_RANDOM_NUMBERS_NOTE} The same recording grid, tracer count, selected coordinate and
+        model are retained. A physical setup change creates a new run; a measurement change reads
+        the existing recording.
       </p>
       <form onSubmit={submit} noValidate aria-label="Controlled comparison settings">
         <fieldset disabled={!enabled}>
