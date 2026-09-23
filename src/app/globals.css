@@ -593,8 +593,19 @@ h3 {
 .reading.page-flush {
   margin-inline: 0;
 }
-.reading p {
-  max-width: 70ch;
+/*
+ * CHROME (pane %48): PROSE ON A TOP-LEVEL PAGE KEEPS THE LEAD'S MEASURE, 64ch.
+ *
+ * A `ch` is the width of "0", wider than an average letter of Newsreader, so 70ch held about 80
+ * characters a line, and an intro paragraph with no measure of its own ran to the header's 920px.
+ * Measured on BUILD 24 at 1440, median characters per line: /offline/ 99, /404/ 91, /kitchen/ 85,
+ * /connections/ 84, /notebook/ 80, past the 45-75 the reading columns keep. At 64ch, the measure
+ * .lead already uses: 79, 68, 73, 72, 72, and every paragraph stays at least 670px wide, above the
+ * 666px the "too skinny" fix set. Phones are unchanged; the column is narrower than 64ch there.
+ */
+.reading p,
+.page-intro > p {
+  max-width: 64ch;
 }
 .page-intro {
   padding: 3rem 0;
