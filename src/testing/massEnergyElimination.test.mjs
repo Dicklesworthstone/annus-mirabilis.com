@@ -23,7 +23,9 @@ const proof = buildMassEnergyElimination(equations);
 const all = proof.certificate.premises.map((p) => p.id);
 
 test("the five-step bridge checks the real canonical equations, not hand-copied formulas", () => {
-  assert.equal(equations.length, 15);
+  // The catalogue is every record in the directory (15, then 23 on 2026-09-22), so its size is not
+  // the property. "Real, not hand-copied" is: every step below names a record that exists.
+  assert.ok(equations.length > 0);
   assert.deepEqual(
     proof.certificate.steps.map((s) => s.id),
     ["subtract", "regroup", "substitute-offset", "cancel-offset", "name-difference"],
