@@ -109,4 +109,5 @@ export const SR13_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   radiusCurvatureElectric: c("m", "length", "electron", ["value", "outside-domain"]),
   lorentzFactor: c("1", "dimensionless", "electron", ["value", "outside-domain"]),
   speedRatio: c("1", "ratio", "electron", ["value", "outside-domain"]),
+  trajectoryPositions: c("m", "trajectory-xy", "electron", ["value", "outside-domain"]),
 });

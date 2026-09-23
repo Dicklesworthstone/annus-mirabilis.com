@@ -1015,6 +1015,13 @@ export function evaluateSr13(input: Sr13Input): Readonly<Record<string, Scientif
         "superluminal-speed",
         "Speed must be less than c.",
       ),
+      trajectoryPositions: asOutside(
+        "trajectoryPositions",
+        "m",
+        "trajectory-xy",
+        "superluminal-speed",
+        "Speed must be less than c.",
+      ),
     });
   }
 
@@ -1063,5 +1070,57 @@ export function evaluateSr13(input: Sr13Input): Readonly<Record<string, Scientif
     radiusCurvatureElectric: re,
     lorentzFactor: asValue("lorentzFactor", "1", "dimensionless", g),
     speedRatio: asValue("speedRatio", "1", "ratio", beta),
+    trajectoryPositions: sr13Trajectory(input, beta, charge, mass),
+  });
+}
+
+/** Points along the SR-13 path: enough for a smooth curve at the chamber's size, few enough to
+ * publish in every snapshot. */
+export const SR13_TRAJECTORY_STEPS = 120;
+
+/**
+ * The particle's path in the stationary system over the integration interval, integrated by the
+ * relativistic Boris push from the origin, with the requested speed along the requested direction in
+ * the x-y plane. The value is interleaved positions in metres, x0, y0, x1, y1, ...; z is not
+ * published, since the chamber is drawn in the x-y plane and a field with an x or y magnetic
+ * component moves the particle out of it.
+ */
+function sr13Trajectory(
+  input: Sr13Input,
+  beta: number,
+  charge: number,
+  mass: number,
+): ScientificResult {
+  const duration = input.integrationInterval;
+  if (!(Number.isFinite(duration) && duration > 0)) {
+    return asOutside(
+      "trajectoryPositions",
+      "m",
+      "trajectory-xy",
+      "non-positive-interval",
+      "The integration interval must be a positive time.",
+      "input",
+    );
+  }
+  const direction = (input.initialDirectionDeg * Math.PI) / 180;
+  const speed = Math.sign(input.initialSpeed || 1) * beta * C_SI;
+  const path = integrateBoris(
+    { x: input.electricFieldX, y: input.electricFieldY, z: input.electricFieldZ },
+    { x: input.magneticFieldX, y: input.magneticFieldY, z: input.magneticFieldZ },
+    { x: speed * Math.cos(direction), y: speed * Math.sin(direction), z: 0 },
+    duration,
+    SR13_TRAJECTORY_STEPS,
+    charge,
+    mass,
+  );
+  const positions = new Float64Array(path.points.length * 2);
+  path.points.forEach((point, i) => {
+    positions[2 * i] = point.x;
+    positions[2 * i + 1] = point.y;
+  });
+  return Object.freeze({
+    ...identity("trajectoryPositions", "m", "trajectory-xy", OWNER_ID),
+    status: "value" as const,
+    value: positions,
   });
 }
