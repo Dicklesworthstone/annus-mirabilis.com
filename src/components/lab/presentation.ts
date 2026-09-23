@@ -58,19 +58,22 @@ export function unitText(unit: string): string {
 /**
  * A value at a fixed number of decimal places with the trailing zeros dropped: toFixed alone printed
  * 0.500000, 1.250000 and -1.600000 beside values that needed all six places, so every reading looked
- * equally precise whether it was or not. -0 reads 0.
+ * equally precise whether it was or not. -0 reads 0. A negative value carries the minus sign (U+2212),
+ * as Sci and every typeset number on the site do, not the hyphen toFixed writes.
  */
 export function fixed(value: number, decimals: number): string {
   const text = value.toFixed(decimals);
   const trimmed = text.includes(".") ? text.replace(/0+$/, "").replace(/\.$/, "") : text;
-  return trimmed === "-0" ? "0" : trimmed;
+  return trimmed === "-0" ? "0" : trimmed.replace(/^-/, "−");
 }
 
 /** Presentation rounding and explicit unit conversion only; no physical laws live here. */
 export function display(value: number, factor = 1): string {
   if (!Number.isFinite(value) || !Number.isFinite(factor) || factor <= 0)
     throw new TypeError("A nonfinite display value was rejected.");
-  return readablePowers(formatScaledDecimal(value, Math.log10(factor), 5));
+  // A negative value carries the minus sign, not the hyphen formatScaledDecimal writes: sr-12's moving
+  // frame read "ρ′ = -2.5017 × 10⁻⁹ C/m³".
+  return readablePowers(formatScaledDecimal(value, Math.log10(factor), 5)).replace(/^-/, "−");
 }
 export function identity(snapshot: AcceptedSnapshot) {
   return {

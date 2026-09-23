@@ -759,7 +759,7 @@ export function RodSimultaneityLab({
                         (Math.abs(out.value) < 1e-3 && out.value !== 0) ? (
                           <Sci value={out.value} digits={4} />
                         ) : (
-                          String(Number(fixed(out.value, 4)))
+                          fixed(out.value, 4)
                         )}
                         {out.unit && out.unit !== "1" ? ` ${out.unit.replace("^2", "²")}` : ""}
                       </>

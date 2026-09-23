@@ -15,7 +15,8 @@ export function comparisonDisplay(value: number | string | boolean, factor = 1):
   if (!Number.isFinite(scaled)) return "Outside display range";
   const rounded = Number(scaled.toPrecision(5));
   const text = rounded.toString();
-  return /e/.test(text) ? exponentialText(rounded) : text;
+  // A negative plain decimal carries the minus sign (U+2212), as the power form already does.
+  return /e/.test(text) ? exponentialText(rounded) : text.replace(/^-/, "−");
 }
 export const COMMON_RANDOM_NUMBERS_NOTE =
   "Same seed (common random numbers): isolates the effect of the change; these are not independent trials.";
