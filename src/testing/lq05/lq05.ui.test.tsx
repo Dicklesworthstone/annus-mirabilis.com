@@ -74,7 +74,8 @@ describe("LQ-05 UI components and route", () => {
     expect(html).toContain("<legend>Try</legend>");
     expect(containsHeading(html, "Calculated microstate and entropy outputs")).toBe(true);
     expect(html).toContain("Relative state probability");
-    expect(html).toContain("Dimensionless entropy change ΔS/k_B");
+    // Boltzmann's constant is typeset, k with a lowered B, where it used to print "k_B".
+    expect(html).toContain("Dimensionless entropy change ΔS/k<sub>B</sub>");
   });
 
   test("IndependentConfigurationsPage route renders without errors and includes article sections", () => {
