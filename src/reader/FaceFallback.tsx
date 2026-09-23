@@ -139,7 +139,7 @@ export async function FaceFallback(
         change still lands on the same passage.
       */}
       {face === "results" ? (
-        <div data-face-results className="results-outline reading-column">
+        <div data-face-results className="reading-column">
           {sections.map((s) => {
             const results = args.filter((a) => a.section === s.id);
             if (results.length === 0) return null;
