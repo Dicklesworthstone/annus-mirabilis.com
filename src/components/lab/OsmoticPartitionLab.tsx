@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useId, useState } from "react";
+import { BM02_CAPTION } from "../../experiments/bm02/definition.ts";
 import {
   type Bm02Inputs,
   computeBm02Snapshot,
@@ -11,6 +12,7 @@ import {
 } from "../../experiments/bm02/session";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { Sci } from "./Sci.tsx";
+import { withScripts } from "./subscripts.tsx";
 
 const NOT_MODELED = [
   "Particle interactions and excluded volume above the dilute domain.",
@@ -454,6 +456,16 @@ export function OsmoticPartitionLab({
           <code>temperature</code>.
         </p>
       </details>
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(BM02_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(BM02_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(BM02_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(BM02_CAPTION.r3)}
+      </p>
     </section>
   );
 }

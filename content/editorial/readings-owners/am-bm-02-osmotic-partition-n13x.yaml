@@ -1,0 +1,22 @@
+# Declares this bead as the owner of BM-02's instrument-caption readings. The texts were authored
+# on 2026-09-23 (TopazPrairie): the target below mirrors BM02_CAPTION in
+# src/experiments/bm02/definition.ts, which the lab renders.
+paper: brownian-motion
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - bm-02
+ownerBeadId: am-bm-02-osmotic-partition-n13x
+targets:
+  - kind: caption
+    id: bm-02
+    readings:
+      r0: "A dissolved sugar molecule pushes on a wall that stops it but lets water through, and that push is osmotic pressure. Einstein argued that a particle big enough to see under a microscope pushes in exactly the same way, one particle counting as one molecule, however large it is."
+      r1: "Section 1 begins with van 't Hoff's law for a dilute solution: z gram-molecules in a volume V*, behind a wall that lets the solvent through, press on it with pV* = RTz. For small suspended bodies in place of the dissolved substance, classical thermodynamics expects no force at all, since the free energy seems not to depend on where the wall and the bodies are. The molecular-kinetic theory disagrees: a dissolved molecule differs from a suspended body only in size, so n bodies in V*, far enough apart, should press with p = (RT/N)ν, where ν = n/V*. The instrument evaluates both views. With 1000 spheres of radius 0.5 μm in a million cubic micrometres at 293.15 K, ν = 10^{15} m^{−3} and the pressure is 4.05 × 10^{−6} Pa: a force of 4.05 × 10^{−14} N on a partition of 10^{4} μm^{2}, or the weight of a water column 0.41 nm high. A 0.01 mol/L sugar solution, with 6 × 10^{9} times as many particles in each cubic metre, gives 24.4 kPa by the same law. The radius does not enter; it only limits how crowded the spheres may be before the law needs correcting, here to 1 percent of the volume."
+      r2: "Van 't Hoff's law says pV* = RTz for z gram-molecules in the volume V*. A gram-molecule holds N molecules, so z = n/N for n molecules, and p = (RT/V*)(n/N) = (R/N)Tν, with ν = n/V* the number per unit volume. R/N is Boltzmann's constant, k_{B} = 1.381 × 10^{−23} J/K, so p = νk_{B}T. Einstein's step is to let the n be suspended spheres instead of molecules. Count them: 1000 spheres in 10^{6} μm^{3}, which is 10^{6} × 10^{−18} = 10^{−12} m^{3}, gives ν = 1000/10^{−12} = 10^{15} per cubic metre. With k_{B}T = 1.381 × 10^{−23} × 293.15 = 4.047 × 10^{−21} J, p = 10^{15} × 4.047 × 10^{−21} = 4.05 × 10^{−6} Pa. On a partition of 10^{4} μm^{2} = 10^{−8} m^{2} that is a force of 4.05 × 10^{−14} N. To picture it as a column of water, divide by the water's density times g: 4.05 × 10^{−6}/(998 × 9.81) = 4.1 × 10^{−10} m. For the sugar solution, 0.01 mol/L is 10 mol/m^{3}, or 6.02 × 10^{24} molecules per cubic metre, so p = 6.02 × 10^{24} × 4.047 × 10^{−21} = 2.44 × 10^{4} Pa; the ratio of the two pressures is just the ratio of the counts. The radius appears nowhere in p. It sets how much of the volume the spheres fill: each has volume (4/3)π(0.5 μm)^{3} = 0.524 μm^{3}, so 1000 of them fill 5.2 × 10^{−4} of the space. For hard spheres the ideal law is off by about four times that fraction, so the instrument admits fractions up to 1 percent, where the correction is about 4 percent."
+      r3: "Einstein wrote z for the number of gram-molecules, V* for the partial volume, ν for the number of bodies per unit volume and N for the number of real molecules in a gram-molecule. Van 't Hoff had set out the law of dilute solutions, and its likeness to the gas law, in 1887. The claim that visible particles obey it is Einstein's, made against what classical thermodynamics would expect, and Section 2 derives it from statistical mechanics. Perrin used the same equivalence from 1908, setting it against gravity in the settling of gamboge grains to count molecules."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§1, §2)."
+        - "van 't Hoff, J. H. (1887). Die Rolle des osmotischen Druckes in der Analogie zwischen Lösungen und Gasen. Zeitschrift für physikalische Chemie 1, 481–508."
+        - "Perrin, J. (1908). L'agitation moléculaire et le mouvement brownien. Comptes rendus de l'Académie des sciences 146, 967–970."
