@@ -89,10 +89,16 @@ describe("Papers index: the companion is presented as a companion, outside the f
   });
 });
 
-describe("Papers index: the other three entries are unaffected by the Brownian-specific fields", () => {
-  test("Light quanta, Special relativity, and Mass and energy render their plain title directly", () => {
-    expect(html).toContain("<h2>Light quanta</h2>");
-    expect(html).toContain("<h2>Special relativity</h2>");
-    expect(html).toContain("<h2>Mass and energy</h2>");
+describe("Papers index: the other three entries are named by the site's names", () => {
+  // Each entry names its paper the way the rest of the site does. Where on the entry that name
+  // sits (heading, or after the working title) is the order test's business, not this one's.
+  test("Light quanta, Special relativity, and Mass and energy are named on their entries", () => {
+    const entries = html.split('<li class="paper-entry">').slice(1);
+    for (const name of ["Light quanta", "Special relativity", "Mass and energy"]) {
+      expect(
+        entries.filter((entry) => entry.includes(name)).length,
+        `an entry names ${name}`,
+      ).toBeGreaterThan(0);
+    }
   });
 });
