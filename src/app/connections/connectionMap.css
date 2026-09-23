@@ -96,6 +96,15 @@
   border-top: 0.35rem solid transparent;
   border-bottom: 0.35rem solid transparent;
 }
+/* The arrowhead is a border triangle, and forced colours paint its transparent sides, which made it
+   a square and lost the direction the row is about. There it keeps its own colours, in the system
+   text colour. */
+@media (forced-colors: active) {
+  .connection-map-row[data-kind="borrows"] .connection-map-line::after {
+    forced-color-adjust: none;
+    border-left-color: CanvasText;
+  }
+}
 .connection-map-row[data-kind="same-number"] .connection-map-line {
   border-top: 3px dotted var(--ink);
 }
