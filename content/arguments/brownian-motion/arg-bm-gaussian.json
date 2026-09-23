@@ -47,14 +47,14 @@
       {
         "kind": "foundation",
         "id": "gaussian-distributions",
-        "returnCaption": "Return to normalization and the Gaussian second moment."
+        "returnCaption": "Return to checking the bell curve: its total is one, and its spread is 2Dt."
       }
     ],
     "steps": [
       {
         "kind": "foundation",
         "id": "gaussian-distributions",
-        "returnCaption": "Return to the normalized point-source solution."
+        "returnCaption": "Return to the bell curve for particles that all start at one point."
       },
       {
         "kind": "foundation",

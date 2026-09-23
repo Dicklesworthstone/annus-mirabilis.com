@@ -43,7 +43,7 @@
       {
         "kind": "foundation",
         "id": "mean-variance-rms",
-        "returnCaption": "Return to the observable that must be estimated from displacement data."
+        "returnCaption": "Return to the quantity estimated from measured displacements."
       },
       {
         "kind": "foundation",

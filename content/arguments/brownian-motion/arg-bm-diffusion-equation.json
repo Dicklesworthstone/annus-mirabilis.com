@@ -88,7 +88,7 @@
       {
         "kind": "foundation",
         "id": "integration",
-        "returnCaption": "Return to normalization and cancellation inside the transition integral."
+        "returnCaption": "Return to where the jump chances add up to one and the lopsided terms cancel."
       },
       {
         "kind": "foundation",

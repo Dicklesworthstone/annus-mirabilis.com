@@ -38,7 +38,7 @@
       {
         "kind": "foundation",
         "id": "mean-variance-rms",
-        "returnCaption": "Return to the observable that keeps movement when signed displacements cancel."
+        "returnCaption": "Return to the measurement that still shows movement when left and right cancel."
       }
     ],
     "steps": [
