@@ -55,9 +55,7 @@ export function SaveComparisonReplay({
         setError(result.message);
         return;
       }
-      setMessage(
-        `Comparison snapshot ${state.variant.snapshotVersion} kept in your notebook. ${store.getSnapshot().message}`,
-      );
+      setMessage(`Kept in your notebook. ${store.getSnapshot().message}`);
     } catch (reason) {
       if (alive.current)
         setError(
@@ -74,14 +72,14 @@ export function SaveComparisonReplay({
     <section className="replay-save" aria-labelledby={`${id}-title`}>
       <h3 id={`${id}-title`}>Keep this comparison and your explanation</h3>
       <p>
-        Optional and private. Save the completed evidence, its exact settings and replay recipe, and
-        your own explanation. Your words are not analyzed or assessed. The notebook remains on this
-        device unless you export it.
+        Optional and private. Save the finished comparison, its exact settings and your own
+        explanation. Your words are not analyzed or assessed, and the notebook stays on this device
+        unless you export it.
       </p>
       <p>
         {prediction
-          ? `Prediction recorded before this request: ${REPLAY_PREDICTIONS[prediction]}.`
-          : "No prediction was recorded before this request. You can still save the evidence and your explanation."}
+          ? `Your prediction, made before you ran it: ${REPLAY_PREDICTIONS[prediction]}.`
+          : "You made no prediction before running it. You can still save the comparison and your explanation."}
       </p>
       <fieldset disabled={!ready || saving}>
         <legend>Your explanation, in your own words</legend>

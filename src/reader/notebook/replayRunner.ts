@@ -53,7 +53,7 @@ export function createComparisonReplayRunner(
   const replay = parseComparisonReplay(input);
   let state: ReplayRunState = Object.freeze({
     phase: "idle",
-    message: "Saved evidence only. No replay has started.",
+    message: "Only what you saved is shown. Nothing has been run again.",
     baseline: null,
     variant: null,
     result: null,
@@ -98,7 +98,7 @@ export function createComparisonReplayRunner(
       fail(
         view.refusal?.message ??
           view.outcome?.message ??
-          "Replay stopped before a completed result. Saved evidence is unchanged.",
+          "Stopped before it finished. What you saved is unchanged.",
       );
       return;
     }
@@ -116,7 +116,7 @@ export function createComparisonReplayRunner(
         if (event) {
           emit({
             phase: "variant",
-            message: "Baseline reconstructed. Replaying the one declared change.",
+            message: "The baseline is rebuilt. Now running the one change you made.",
           });
           issue({ ...snapshot.parameters, [event.paramId]: event.value });
           return;
@@ -124,13 +124,18 @@ export function createComparisonReplayRunner(
       }
       const a = state.baseline;
       if (!a || !baselineSnapshot) {
-        fail("A completed replay baseline is required.");
+        fail("The baseline did not finish, so the change cannot be run.");
         return;
       }
       const result = compareBaselines(a, accepted, BM01_COMPARISON);
       const error = verifyBm01Comparison(baselineSnapshot, snapshot, result);
       if (result.kind !== "accepted" || error) {
-        fail(error ?? (result.kind === "refused" ? result.message : "Invalid replay result."));
+        fail(
+          error ??
+            (result.kind === "refused"
+              ? result.message
+              : "The run returned a result this page cannot read."),
+        );
         return;
       }
       const changed = Object.keys(options.identity).some(
@@ -151,13 +156,15 @@ export function createComparisonReplayRunner(
         result,
         reproduction,
         message: changed
-          ? "New identified run completed under the current model. Saved results were not replaced."
+          ? "The new run finished under the current model. What you saved was not replaced."
           : reproduction === "matching-scalars"
-            ? "Replay completed. Saved scalar readouts agree within relative tolerance 1e-12; unseen paths are not certified."
-            : "Replay completed, but some saved scalar readouts differ. Both sets of results remain visible.",
+            ? "Finished. The new numbers agree within relative tolerance 1e-12 of the saved ones, that is, to one part in a trillion. The particles' paths were not saved, so they were not compared."
+            : "Finished, but some numbers differ from the saved ones. Both sets are shown.",
       });
     } catch {
-      fail("The replay returned incompatible result data. Saved evidence is unchanged.");
+      fail(
+        "The run returned results in a form this page cannot compare. What you saved is unchanged.",
+      );
     }
   }
   function issue(parameters: Parameters<ReturnType<typeof createBm01Session>["apply"]>[0]) {
@@ -185,7 +192,7 @@ export function createComparisonReplayRunner(
       baselineSnapshot = null;
       emit({
         phase: "checking",
-        message: "Checking the saved scalar checkpoint before starting a new run.",
+        message: "Checking the saved numbers against their checkpoint before running again.",
         baseline: null,
         variant: null,
         result: null,
@@ -195,7 +202,7 @@ export function createComparisonReplayRunner(
         if (!(await verifyReplayEvidence(replay))) {
           if (generation === thisRun)
             fail(
-              "The saved evidence does not match its checkpoint. Export the original; no replay was started.",
+              "The saved numbers do not match their checkpoint, so nothing was run. Export the original to keep it.",
             );
           return;
         }
@@ -207,35 +214,37 @@ export function createComparisonReplayRunner(
         );
         if (changed && !allowChangedModel) {
           fail(
-            "The model has changed. Explicitly start a new run under the current model to continue.",
+            "The model has changed since you saved this. To continue, choose to run it again under the current model.",
           );
           return;
         }
         if (options.example.sourceDigest !== options.identity.sourceDigest) {
-          fail("Current example and evaluator identities do not match.");
+          fail(
+            "The page's example and its calculation are different versions, so this cannot be run.",
+          );
           return;
         }
         const id = options.newInstanceId?.() ?? `notebook-replay-${crypto.randomUUID()}`;
         if (id === replay.baseline.instanceId || id === replay.variant.instanceId) {
-          fail("A replay requires a new instance identity.");
+          fail("Running it again needs a fresh copy of the instrument.");
           return;
         }
         session = createBm01Session(id, options.example, options.workerFactory);
         unsubscribe = session.subscribe(refresh);
         emit({
           phase: "baseline",
-          message: "Reconstructing the saved baseline with the current evaluator.",
+          message: "Rebuilding the saved baseline with the current calculation.",
         });
         issue(replay.tape.initialConditions);
       } catch {
         if (generation === thisRun)
-          fail("Replay could not start in this environment. The saved evidence is unchanged.");
+          fail("It could not be run again in this browser. What you saved is unchanged.");
       }
     },
     stop() {
       generation++;
       disconnect();
-      emit({ phase: "stopped", message: "Replay stopped. Saved evidence is unchanged." });
+      emit({ phase: "stopped", message: "Stopped. What you saved is unchanged." });
     },
     dispose() {
       generation++;

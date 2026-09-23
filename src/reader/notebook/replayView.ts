@@ -84,11 +84,11 @@ export function mountReplayView(
   root.append(
     node(
       "h5",
-      `What you saw on ${entry.createdAt} (model ${saved.baseline.identity.modelVersion})`,
+      `What you saw on ${entry.createdAt}, with version ${saved.baseline.identity.modelVersion} of the model`,
     ),
     node(
       "p",
-      "Saved synthetic scalar readouts. They are not current results and do not include the latent trajectory history.",
+      "These are the numbers you saw, from simulated particles. They are not recomputed, and the particles' paths were not kept.",
     ),
   );
   const prediction = saved.tape.predictions?.[0];
@@ -99,13 +99,13 @@ export function mountReplayView(
   root.append(
     node(
       "p",
-      `Prediction: ${Object.hasOwn(REPLAY_PREDICTIONS, candidate) ? REPLAY_PREDICTIONS[candidate as keyof typeof REPLAY_PREDICTIONS] : "None recorded before this request"}`,
+      `Your prediction: ${Object.hasOwn(REPLAY_PREDICTIONS, candidate) ? REPLAY_PREDICTIONS[candidate as keyof typeof REPLAY_PREDICTIONS] : "none made before you ran it"}`,
     ),
     node("p", saved.statement),
-    comparison(saved.baseline, saved.variant, "Saved accepted comparison"),
+    comparison(saved.baseline, saved.variant, "The comparison you saved"),
   );
   const fields = node("form");
-  fields.setAttribute("aria-label", "Edit your comparison explanations");
+  fields.setAttribute("aria-label", "Edit your explanations");
   const values = {
     before: saved.explanationBefore,
     after: saved.explanationAfter,
@@ -147,15 +147,18 @@ export function mountReplayView(
   root.append(
     fields,
     node("p", "Your words are kept as written. They are not scored, analyzed or uploaded."),
-    rawEvidence("All saved identities, revisions, full-precision outputs and replay recipe", entry),
+    rawEvidence(
+      "Everything saved with it: versions, seeds, full-precision results and the settings to run it again",
+      entry,
+    ),
   );
   const compatibility = node(
     "p",
-    "Checking current model and passage revisions. No calculation has started.",
+    "Checking whether the model or the passage has changed since you saved this. Nothing is being calculated.",
   );
   const passage = node("a", "Open the current passage");
   passage.href = notebookFrameHref(entry.frame);
-  const runStatus = node("p", "Saved evidence only. No replay has started.");
+  const runStatus = node("p", "Only what you saved is shown. Nothing has been run again.");
   runStatus.setAttribute("role", "status");
   runStatus.setAttribute("aria-live", "polite");
   runStatus.setAttribute("aria-atomic", "true");
@@ -185,14 +188,10 @@ export function mountReplayView(
     fresh.dataset.phase = state.phase;
     if (state.phase === "complete" && state.baseline && state.variant) {
       fresh.replaceChildren(
-        node("h5", "New run: current evaluator results"),
+        node("h5", "Run again now: today's results"),
         node("p", state.message),
-        comparison(
-          state.baseline,
-          state.variant,
-          "New accepted comparison: not the saved evidence",
-        ),
-        rawEvidence("New run identities and full-precision outputs", {
+        comparison(state.baseline, state.variant, "A new comparison, not the one you saved"),
+        rawEvidence("The new run's versions, seeds and full-precision results", {
           baseline: state.baseline,
           variant: state.variant,
         }),
@@ -205,7 +204,7 @@ export function mountReplayView(
     start.disabled = true;
     stop.disabled = false;
     fresh.replaceChildren();
-    runStatus.textContent = "Loading the current evaluator after your replay request.";
+    runStatus.textContent = "Loading the calculation to run it again.";
     void environment
       .createRunner()
       .then((created) => {
@@ -221,18 +220,18 @@ export function mountReplayView(
       .catch(() => {
         if (!disposed && run === generation) {
           runStatus.textContent =
-            "This browser could not load the current evaluator. Saved evidence is unchanged.";
+            "This browser could not load the calculation. What you saved is unchanged.";
           start.disabled = false;
           stop.disabled = true;
         }
       });
   });
   start.disabled = true;
-  const stop = button("Stop replay", () => {
+  const stop = button("Stop", () => {
     clearRunner();
     start.disabled = false;
     stop.disabled = true;
-    runStatus.textContent = "Replay stopped. Saved evidence is unchanged.";
+    runStatus.textContent = "Stopped. What you saved is unchanged.";
   });
   stop.disabled = true;
   controls.append(start, stop);
@@ -250,14 +249,14 @@ export function mountReplayView(
         : `/papers/${entry.frame.paper}/`;
       passage.textContent = status.anchor ? "Open the current passage" : "Open the saved paper";
       start.textContent = changedModel
-        ? "Start a new run under the changed model"
+        ? "Run it again under the changed model"
         : "Replay saved comparison as a new run";
       start.disabled = false;
     })
     .catch(() => {
       if (!disposed)
         compatibility.textContent =
-          "Current model identity could not be loaded. Saved evidence and exports remain available; replay is disabled.";
+          "The current version of the model could not be loaded, so this comparison cannot be run again. What you saved, and its export, are still here.";
     });
   return Object.freeze({
     dispose() {
