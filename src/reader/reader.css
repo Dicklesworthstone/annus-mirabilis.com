@@ -110,6 +110,17 @@
   color: var(--ink);
   font-weight: 600;
 }
+/* Forced colours paint a transparent border in the system text colour, so every face had the bar
+   and only the weight was left to mark the current one. There the bar takes the page's own colour
+   except under the current face. */
+@media (forced-colors: active) {
+  .face-tabs > a {
+    border-bottom-color: Canvas;
+  }
+  .face-tabs > a[aria-current="page"] {
+    border-bottom-color: LinkText;
+  }
+}
 .face-pending {
   margin: 0.75rem 0 0;
 }
