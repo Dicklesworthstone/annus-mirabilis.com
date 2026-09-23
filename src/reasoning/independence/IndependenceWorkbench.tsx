@@ -458,10 +458,14 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
             <details>
               <summary>What the likelihood calculation assumes</summary>
               <p>
-                For bin frequencies hₖ and N total trials, the multinomial likelihood is N! × ∏pₖ^hₖ
-                / ∏hₖ!. It is evaluated in log space. A bin with zero model probability and positive
-                frequency is impossible; an extremely small positive likelihood is not relabeled
-                zero.
+                For bin frequencies h<sub>k</sub> and N total trials, the multinomial likelihood is
+                N! × ∏ p<sub>k</sub>
+                <sup>
+                  h<sub>k</sub>
+                </sup>{" "}
+                / ∏ h<sub>k</sub>!. It is evaluated in log space. A bin with zero model probability
+                and positive frequency is impossible; an extremely small positive likelihood is not
+                relabeled zero.
               </p>
             </details>
           </section>

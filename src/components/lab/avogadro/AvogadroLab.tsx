@@ -333,8 +333,8 @@ export function AvogadroLab() {
           </p>
           <p>
             Do not average these rows. They have different provenance and assumptions. The modern
-            gas constant is defined using Nₐ and kᵦ; agreement in the illustrative diffusion rows is
-            not independent evidence for either constant.
+            gas constant is defined using N<sub>A</sub> and k<sub>B</sub>; agreement in the
+            illustrative diffusion rows is not independent evidence for either constant.
           </p>
         </div>
       </div>

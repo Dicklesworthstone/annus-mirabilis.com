@@ -86,7 +86,7 @@ export const SR12_CAPTION = Object.freeze({
   r0: "Electric charge density and current density transform together under a boost; a wire that is electrically neutral in one frame carries a net charge density in another.",
   r1: "The four-current (cρ, J) transforms as a Lorentz four-vector. The combination (cρ)² − |J|² is an exact relativistic invariant in all inertial frames.",
   r2: "For a current-carrying loop, Lorentz contraction shortens the wire segments while the charge per unit length shifts, ensuring total charge remains invariant while opposite legs carry equal and opposite static charges.",
-  r3: "Section 9 shows that the continuity equation ∂ρ/∂t + ∇·J = 0 is invariant under Lorentz transformation: charge conservation holds identically in all inertial frames without modifying Maxwell's electrodynamics.",
+  r3: "Section 9 shows that the continuity equation ∂ρ/∂t + div J = 0 is invariant under Lorentz transformation: charge conservation holds identically in all inertial frames without modifying Maxwell's electrodynamics.",
 });
 
 const c = (

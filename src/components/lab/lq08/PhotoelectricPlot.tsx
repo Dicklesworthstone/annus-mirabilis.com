@@ -1,7 +1,7 @@
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { visibleColor } from "../../../experiments/lq08/session.ts";
 import { fixed } from "../presentation.ts";
-import { Sci } from "../Sci.tsx";
+import { Sci, SubSvg } from "../Sci.tsx";
 
 export type EnergyLadderProps = Readonly<{
   frequency: number; // Hz
@@ -652,7 +652,7 @@ export function CurrentVoltagePlot({
               fontFamily="var(--font-mono, monospace)"
               fontWeight="600"
             >
-              −Vₛ = −{vs.toFixed(2)} V
+              −V<SubSvg>s</SubSvg> = −{vs.toFixed(2)} V
             </text>
           </g>
         )}

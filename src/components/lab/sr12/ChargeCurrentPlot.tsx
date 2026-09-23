@@ -415,7 +415,7 @@ export function ChargeCurrentPlot({
           title={frameMoving}
           values={null}
           ariaLabel="The same pulse described from k"
-          caption="The same pulse described from k. Charge is conserved in both frames: the continuity residual ∂ρ/∂t + ∇·J in the table below should be zero in each."
+          caption="The same pulse described from k. Charge is conserved in both frames: the continuity residual ∂ρ/∂t + div J in the table below should be zero in each."
         >
           <path d={bell} fill="none" stroke="var(--accent)" strokeWidth={2.5} />
           <line x1={4} x2={W - 4} y1={100} y2={100} stroke="var(--line)" />

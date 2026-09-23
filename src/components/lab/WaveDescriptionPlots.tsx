@@ -536,7 +536,7 @@ export function SpreadingPlot({ power, radius, intensity, shellPower }: Spreadin
             border: "1px solid rgba(16, 185, 129, 0.3)",
           }}
         >
-          ∮ I dA = {fixed(shellPower, 4)} W (P = {power.toFixed(1)} W)
+          ∫ I dA over the sphere = {fixed(shellPower, 4)} W (P = {power.toFixed(1)} W)
         </span>
       </div>
       <p

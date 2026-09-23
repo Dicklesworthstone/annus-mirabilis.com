@@ -224,8 +224,8 @@ export function ChargeCurrentLab({
         </div>
         <p style={{ margin: 0 }}>
           Einstein’s 1905 paper employs Gaussian (CGS) units where Coulomb’s constant is 1 and
-          Maxwell’s divergence equation contains a 4π factor (∇·E = 4πρ). In modern SI, ∇·E = ρ/ε₀
-          where ε₀ = 1/(μ₀c²). Charge and current ratios remain identical across unit systems.
+          Maxwell’s divergence equation contains a 4π factor (div E = 4πρ). In modern SI, div E =
+          ρ/ε₀ where ε₀ = 1/(μ₀c²). Charge and current ratios remain identical across unit systems.
         </p>
       </aside>
 
@@ -601,7 +601,7 @@ export function ChargeCurrentLab({
             {p.mode === "gaussian-pulse" && (
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                  Continuity residual ∂ρ/∂t + ∇·J
+                  Continuity residual ∂ρ/∂t + div J
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   <OutputReading item={contStat} />
