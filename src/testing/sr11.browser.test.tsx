@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import MovingMirrorPage from "../app/lab/sr-11/page.tsx";
+import { fixed } from "../components/lab/presentation.ts";
 import { MovingMirrorLab } from "../components/lab/sr11/MovingMirrorLab.tsx";
 import {
   MIRROR_FRAME,
@@ -112,8 +113,9 @@ describe("SR-11 Moving Mirror Lab View & Route (am-sr-11-moving-mirror-wnz1)", (
         isApplicable
       />,
     );
-    const inflow = (out("incidentPower") - out("workRate")).toFixed(3);
-    const outflow = out("reflectedPower").toFixed(3);
+    // The ledger prints its powers through fixed(), which drops padded zeros ("1.6 W", not "1.600 W").
+    const inflow = fixed(out("incidentPower") - out("workRate"), 3);
+    const outflow = fixed(out("reflectedPower"), 3);
     expect(inflow).toBe(outflow);
     expect(html.split(`${inflow} W`).length - 1).toBe(2);
     expect(html).toContain("work the approaching mirror does on the light");
