@@ -9,6 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
+  LQ03_CAPTION,
   LQ03_DEFAULTS,
   LQ03_NOT_MODELED,
   LQ03_QUESTION,
@@ -27,6 +28,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci, SciFromLn } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
+import { withScripts } from "../subscripts.tsx";
 import { SpectrumPlot } from "./SpectrumPlot.tsx";
 
 type Draft = Readonly<{
@@ -532,6 +534,17 @@ export function SpectrumLab({
           </div>
         </div>
       </div>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(LQ03_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(LQ03_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(LQ03_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(LQ03_CAPTION.r3)}
+      </p>
     </section>
   );
 }
