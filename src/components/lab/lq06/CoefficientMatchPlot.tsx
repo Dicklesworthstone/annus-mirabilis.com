@@ -1,5 +1,6 @@
 "use client";
 
+import { fixed } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
 export type CoefficientMatchPlotProps = Readonly<{
@@ -41,7 +42,7 @@ export function CoefficientMatchSideBySidePlot({
   selectedLabel,
 }: CoefficientMatchPlotProps) {
   const freqTHz = (frequencyHz / 1e12).toFixed(1);
-  const energyNJ = (radiationEnergyJ * 1e9).toFixed(3);
+  const energyNJ = fixed(radiationEnergyJ * 1e9, 3);
   const bracket = hasSelection && selectedLabel ? selectedLabel : "?";
   const relation = !hasSelection ? "=" : isMatch ? "=" : "≠";
 
@@ -80,7 +81,7 @@ export function CoefficientMatchSideBySidePlot({
         {hasSelection && isMatch ? (
           <>
             The laws match: n_eff = NE/(Rβν) = E/(hν) = <Sci value={effectiveCount} digits={4} />{" "}
-            quanta, each carrying ε = hν = {quantumEnergyEv.toFixed(4)} eV.
+            quanta, each carrying ε = hν = {fixed(quantumEnergyEv, 4)} eV.
           </>
         ) : hasSelection ? (
           <>With this term the two laws differ: it is not the exponent n of the gas law.</>
@@ -180,7 +181,7 @@ export function MeanEnergyStripPlot({
                 }}
               />
             </span>
-            <span className="lq06-energy-value">{meanQuantumEnergyEv.toFixed(4)} eV</span>
+            <span className="lq06-energy-value">{fixed(meanQuantumEnergyEv, 4)} eV</span>
           </div>
         </div>
         <div className="lq06-energy-row">
@@ -198,7 +199,7 @@ export function MeanEnergyStripPlot({
                 }}
               />
             </span>
-            <span className="lq06-energy-value">{moleculeKineticEnergyEv.toFixed(4)} eV</span>
+            <span className="lq06-energy-value">{fixed(moleculeKineticEnergyEv, 4)} eV</span>
           </div>
         </div>
         <p className="lq06-energy-ratio">

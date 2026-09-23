@@ -18,7 +18,7 @@ import {
   type PreparedLq07Example,
 } from "../../../experiments/lq07/session.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { identity } from "../presentation.ts";
+import { fixed, identity } from "../presentation.ts";
 import { FluorescencePlot } from "./FluorescencePlot.tsx";
 import "./fluorescenceLab.css";
 
@@ -334,7 +334,7 @@ export function FluorescenceLab({
               <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                 THz
               </span>
-              <span className="fine">({evaluation.budget.e1Ev.toFixed(3)} eV)</span>
+              <span className="fine">({fixed(evaluation.budget.e1Ev, 3)} eV)</span>
             </div>
           </div>
 
@@ -360,7 +360,7 @@ export function FluorescenceLab({
               <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
                 THz
               </span>
-              <span className="fine">({evaluation.budget.e2Ev.toFixed(3)} eV)</span>
+              <span className="fine">({fixed(evaluation.budget.e2Ev, 3)} eV)</span>
             </div>
           </div>
 
@@ -469,7 +469,7 @@ export function FluorescenceLab({
                   </span>
                   {evaluation.budget.wienDeviationExpMinusX !== undefined && (
                     <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                      (e<sup>−x</sup> = {evaluation.budget.wienDeviationExpMinusX.toFixed(4)})
+                      (e<sup>−x</sup> = {fixed(evaluation.budget.wienDeviationExpMinusX, 4)})
                     </span>
                   )}
                 </div>
@@ -507,7 +507,7 @@ export function FluorescenceLab({
                   </span>
                   {evaluation.budget.thermalExtraEv !== undefined && (
                     <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                      (+{evaluation.budget.thermalExtraEv.toFixed(3)} eV)
+                      (+{fixed(evaluation.budget.thermalExtraEv, 3)} eV)
                     </span>
                   )}
                 </div>
@@ -647,7 +647,7 @@ export function FluorescenceLab({
                 <th scope="row">Absorbed quantum energy</th>
                 <td style={{ fontFamily: "var(--font-mono)" }}>hν₁</td>
                 <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                  {evaluation.budget.e1Ev.toFixed(4)} eV
+                  {fixed(evaluation.budget.e1Ev, 4)} eV
                 </td>
                 <td className="fine">Energy of one exciting light quantum</td>
               </tr>
@@ -655,7 +655,7 @@ export function FluorescenceLab({
                 <th scope="row">Emitted quantum energy</th>
                 <td style={{ fontFamily: "var(--font-mono)" }}>hν₂</td>
                 <td style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                  {evaluation.budget.e2Ev.toFixed(4)} eV
+                  {fixed(evaluation.budget.e2Ev, 4)} eV
                 </td>
                 <td className="fine">Energy of candidate emitted light quantum</td>
               </tr>
@@ -666,7 +666,7 @@ export function FluorescenceLab({
                 </td>
                 <td style={{ fontFamily: "var(--font-mono)" }}>
                   {evaluation.budget.allowed
-                    ? `${evaluation.budget.eOtherEv.toFixed(4)} eV`
+                    ? `${fixed(evaluation.budget.eOtherEv, 4)} eV`
                     : "Not applicable (disallowed)"}
                 </td>
                 <td className="fine">Energy transferred to thermal modes of medium</td>
@@ -681,7 +681,7 @@ export function FluorescenceLab({
                     color: "var(--accent)",
                   }}
                 >
-                  {evaluation.budget.energyDeficitEv.toFixed(4)} eV
+                  {fixed(evaluation.budget.energyDeficitEv, 4)} eV
                 </td>
                 <td className="fine">
                   {evaluation.budget.energyDeficitEv > 0

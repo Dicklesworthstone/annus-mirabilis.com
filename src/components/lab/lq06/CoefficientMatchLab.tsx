@@ -13,7 +13,7 @@ import {
 import { createLq06Session, type PreparedLq06Example } from "../../../experiments/lq06/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { identity } from "../presentation.ts";
+import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -325,7 +325,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             min={200}
             max={1200}
             step={10}
-            readout={`${(currentParams.frequency / 1e12).toFixed(1)} THz: each quantum carries ${quantumEnergyEv.toFixed(3)} eV`}
+            readout={`${(currentParams.frequency / 1e12).toFixed(1)} THz: each quantum carries ${fixed(quantumEnergyEv, 3)} eV`}
           />
 
           <fieldset className="lab-choice">
@@ -422,7 +422,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             <tbody>
               <tr data-quantity-id="radiationEnergy">
                 <th scope="row">Radiation energy E</th>
-                <td>{(currentParams.radiationEnergy * 1e9).toFixed(3)} nJ</td>
+                <td>{fixed(currentParams.radiationEnergy * 1e9, 3)} nJ</td>
               </tr>
               <tr data-quantity-id="frequency">
                 <th scope="row">Frequency ν</th>

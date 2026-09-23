@@ -197,7 +197,7 @@ export function DopplerAberrationPlot({
           <svg
             viewBox="420 20 370 320"
             role="img"
-            aria-label={`Moving frame k at beta = ${beta.toFixed(3)}: the same ray at theta' = ${thetaMovingDeg.toFixed(1)} degrees, frequency ${frequencyMovingTHz.toFixed(1)} THz`}
+            aria-label={`Moving frame k at beta = ${fixed(beta, 3)}: the same ray at theta' = ${thetaMovingDeg.toFixed(1)} degrees, frequency ${frequencyMovingTHz.toFixed(1)} THz`}
             style={{ width: "100%", height: "auto", userSelect: "none" }}
           >
             <title>Moving frame k</title>
@@ -228,7 +228,7 @@ export function DopplerAberrationPlot({
             {/* Frame k Right Pane */}
             <g>
               <text x={cx2 - 140} y={40} fontSize="14" fontWeight="600" fill="var(--ink)">
-                Moving Frame k (β = {beta.toFixed(3)}c)
+                Moving Frame k (β = {fixed(beta, 3)}c)
               </text>
               <text x={cx2 - 140} y={60} fontSize="12" fill="var(--muted)">
                 Observer frame · ν′ = {frequencyMovingTHz.toFixed(1)} THz · θ′ ={" "}

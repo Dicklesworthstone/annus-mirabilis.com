@@ -188,7 +188,7 @@ export function ModeAllocationLab({
                 <td>
                   {snapshot.growthRatio === null
                     ? "not computable"
-                    : snapshot.growthRatio.toFixed(3)}
+                    : fixed(snapshot.growthRatio, 3)}
                 </td>
               </tr>
             </tbody>

@@ -1,3 +1,4 @@
+import { fixed } from "../presentation.ts";
 import "./sr11.css";
 
 export interface MovingMirrorPlotProps {
@@ -316,7 +317,7 @@ export function MovingMirrorPlot({
           {isApplicable ? null : (
             <p className="fine sr11-no-reflection">
               No reflection at these settings. Along the normal the light moves at c·cos φ ={" "}
-              {Math.cos(phiIncRad).toFixed(3)}c, no faster than the mirror at {beta.toFixed(3)}c, so
+              {fixed(Math.cos(phiIncRad), 3)}c, no faster than the mirror at {fixed(beta, 3)}c, so
               it never reaches the mirror.
             </p>
           )}
@@ -344,7 +345,7 @@ export function MovingMirrorPlot({
                     />
                   ) : null}
                 </span>
-                <span className="sr11-ledger-value">{inflow.toFixed(3)} W</span>
+                <span className="sr11-ledger-value">{fixed(inflow, 3)} W</span>
               </div>
               <div className="sr11-ledger-row">
                 <span className="sr11-ledger-label">Out</span>
@@ -360,7 +361,7 @@ export function MovingMirrorPlot({
                     />
                   ) : null}
                 </span>
-                <span className="sr11-ledger-value">{outflow.toFixed(3)} W</span>
+                <span className="sr11-ledger-value">{fixed(outflow, 3)} W</span>
               </div>
               <ul className="fine sr11-key">
                 <li>

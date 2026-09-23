@@ -1,5 +1,6 @@
 import type { Lq05Parameters } from "../../../experiments/lq05/definition.ts";
 import type { Lq05Evaluation } from "../../../experiments/lq05/session.ts";
+import { fixed } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
 
 export interface IndependentConfigurationsPlotProps {
@@ -63,7 +64,7 @@ export function IndependentConfigurationsPlot({
               color: "var(--accent)",
             }}
           >
-            Subvolume V = {f.toFixed(3)} V₀ ({Math.round(f * 100)}%)
+            Subvolume V = {fixed(f, 3)} V₀ ({Math.round(f * 100)}%)
           </span>
         </div>
 
@@ -117,7 +118,7 @@ export function IndependentConfigurationsPlot({
             const cy = 16 + yNorm * (boxHeight - 32);
             const inside = cx <= subWidth;
             return {
-              pointId: `particle-${cx.toFixed(3)}-${cy.toFixed(3)}`,
+              pointId: `particle-${fixed(cx, 3)}-${fixed(cy, 3)}`,
               cx,
               cy,
               inside,
@@ -178,7 +179,7 @@ export function IndependentConfigurationsPlot({
           <span>
             {locked ? (
               <span style={{ color: "var(--accent)", fontWeight: 600 }}>
-                W_locked = f = {lockedRes.value.toFixed(4)}
+                W_locked = f = {fixed(lockedRes.value, 4)}
               </span>
             ) : (
               <span style={{ color: "var(--ink)", fontWeight: 600 }}>
@@ -255,7 +256,7 @@ export function IndependentConfigurationsPlot({
                   height: "100%",
                   justifyContent: "flex-end",
                 }}
-                title={`k = ${term.k}: P = ${term.probability.toFixed(4)} (${term.exactProbability.numerator}/${term.exactProbability.denominator})`}
+                title={`k = ${term.k}: P = ${fixed(term.probability, 4)} (${term.exactProbability.numerator}/${term.exactProbability.denominator})`}
               >
                 <div
                   style={{
@@ -351,15 +352,15 @@ export function IndependentConfigurationsPlot({
         >
           <strong>Logarithmic Boltzmann scaling:</strong> log₁₀ W ={" "}
           <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
-            {independentProbability.log10W.toFixed(4)}
+            {fixed(independentProbability.log10W, 4)}
           </span>
           , ln W ={" "}
           <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
-            {independentProbability.lnW.toFixed(4)}
+            {fixed(independentProbability.lnW, 4)}
           </span>
           , ΔS/k_B ={" "}
           <span style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: "bold" }}>
-            {independentProbability.deltaSOverKb.toFixed(4)}
+            {fixed(independentProbability.deltaSOverKb, 4)}
           </span>
           .
         </div>

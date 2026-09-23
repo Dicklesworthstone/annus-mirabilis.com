@@ -11,7 +11,7 @@ import { evaluateMillikanOverlay } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { identity } from "../presentation.ts";
+import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import {
@@ -516,9 +516,9 @@ export function PhotoelectricLab({ example }: PhotoelectricLabProps) {
           </p>
           <p>
             <strong>At these settings:</strong> ν = {(params.frequency / 1e12).toFixed(1)} THz gives
-            hν = {qEnergyEv.toFixed(3)} eV; with the hypothetical Φ ={" "}
+            hν = {fixed(qEnergyEv, 3)} eV; with the hypothetical Φ ={" "}
             {params.workFunction.toFixed(2)} eV the stopping potential is{" "}
-            {vsVal === null ? "not defined, since no electron escapes" : `${vsVal.toFixed(3)} V`}.
+            {vsVal === null ? "not defined, since no electron escapes" : `${fixed(vsVal, 3)} V`}.
           </p>
         </div>
         <div className="not-modeled">

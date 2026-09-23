@@ -1,5 +1,6 @@
 import type { Me01Parameters } from "../../../experiments/me01/definition.ts";
 import type { Me01Snapshot } from "../../../experiments/me01/session.ts";
+import { fixed } from "../presentation.ts";
 import "./me01.css";
 
 export interface TwoLedgersPlotProps {
@@ -30,7 +31,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
   const inL = (x: number | null) =>
     x === null || emittedEnergyRestFrame <= 0
       ? "not computed"
-      : `${(x / emittedEnergyRestFrame).toFixed(4)} L`;
+      : `${fixed(x / emittedEnergyRestFrame, 4)} L`;
 
   // Visual layout: the diagram alone, 340 units wide, so a 12-unit label reads near 12px on a
   // phone. The accounts that shared its 620-unit frame are HTML beside it.

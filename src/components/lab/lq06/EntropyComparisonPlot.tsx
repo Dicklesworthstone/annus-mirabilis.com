@@ -1,4 +1,5 @@
 import type { Lq06SubexpressionChoice } from "../../../experiments/lq06/definition.ts";
+import { fixed } from "../presentation.ts";
 import { SciSvg, SubSvg } from "../Sci.tsx";
 
 export interface EntropyComparisonPlotProps {
@@ -72,7 +73,7 @@ export function EntropyComparisonPlot({
             border: "1px solid var(--line)",
           }}
         >
-          V/V₀ = {volumeRatio.toFixed(2)} | ln(V/V₀) = {Math.log(volumeRatio).toFixed(3)}
+          V/V₀ = {volumeRatio.toFixed(2)} | ln(V/V₀) = {fixed(Math.log(volumeRatio), 3)}
         </span>
       </div>
       <p className="fine" style={{ margin: 0, fontSize: "var(--type-fine)" }}>
@@ -147,7 +148,7 @@ export function EntropyComparisonPlot({
             fill="var(--ink)"
             fontFamily="var(--font-mono, monospace)"
           >
-            {(radiationEnergy * 1e9).toFixed(3)} nJ
+            {fixed(radiationEnergy * 1e9, 3)} nJ
           </text>
           <text x="14" y="122" fontSize="10" fill="var(--muted)">
             Frequency ν:
@@ -288,7 +289,7 @@ export function EntropyComparisonPlot({
             fontFamily="var(--font-mono, monospace)"
             fontWeight="bold"
           >
-            {quantumEnergyEv.toFixed(4)} eV
+            {fixed(quantumEnergyEv, 4)} eV
           </text>
         </g>
 
@@ -328,7 +329,7 @@ export function EntropyComparisonPlot({
             {isMatch ? (
               <tspan fill="var(--plot)">
                 The laws match: n<SubSvg>eff</SubSvg> = NE/(Rβν) = E/(hν), so each quantum carries ε
-                = Rβν/N = hν = {quantumEnergyEv.toFixed(4)} eV
+                = Rβν/N = hν = {fixed(quantumEnergyEv, 4)} eV
               </tspan>
             ) : selectedSubexpression !== "none" ? (
               <tspan fill="var(--ink)">

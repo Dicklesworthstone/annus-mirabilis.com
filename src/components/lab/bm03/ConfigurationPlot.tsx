@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Bm03Parameters } from "../../../experiments/bm03/definition.ts";
 import type { Bm03Evaluation } from "../../../experiments/bm03/session.ts";
+import { fixed } from "../presentation.ts";
 import "./bm03.css";
 
 export interface ConfigurationPlotProps {
@@ -213,7 +214,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
             </>
           ) : (
             <>
-              Factor ratio: 10<sup>{evaluation.log10Exponent.toFixed(4)}</sup> (natural log{" "}
+              Factor ratio: 10<sup>{fixed(evaluation.log10Exponent, 4)}</sup> (natural log{" "}
               {evaluation.naturalLogExponent.toFixed(2)})
             </>
           )}

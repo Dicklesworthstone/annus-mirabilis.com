@@ -16,7 +16,7 @@ import {
 } from "../../../experiments/lq09/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { identity } from "../presentation.ts";
+import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { IonizationCountingPlot, IonizationThresholdLadderPlot } from "./IonizationPlot.tsx";
@@ -356,11 +356,11 @@ export function IonizationLab({ example }: IonizationLabProps) {
               </tr>
               <tr data-quantity-id="quantumEnergyEv">
                 <th scope="row">Energy of one quantum, hν</th>
-                <td>{quantumEnergyEv.toFixed(3)} eV</td>
+                <td>{fixed(quantumEnergyEv, 3)} eV</td>
               </tr>
               <tr data-quantity-id="excessEnergyEv">
                 <th scope="row">Energy left over, hν − J</th>
-                <td>{excessEnergyEv.toFixed(3)} eV</td>
+                <td>{fixed(excessEnergyEv, 3)} eV</td>
               </tr>
               <tr data-quantity-id="absorbedLightEnergy">
                 <th scope="row">Light energy absorbed, L</th>

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
-import { display } from "../presentation.ts";
+import { display, fixed } from "../presentation.ts";
 import "./sr12.css";
 
 /** A scalar result's value, or null when the model returned no number. */
@@ -186,7 +186,7 @@ export function ChargeCurrentPlot({
     const movingCaption =
       boostFraction === 0
         ? "With v = 0, frame k is the laboratory frame and nothing changes."
-        : `Seen from k, the whole wire moves ${boostFraction > 0 ? "left" : "right"} and both rows close up by γ = ${gamma.toFixed(4)}. ${
+        : `Seen from k, the whole wire moves ${boostFraction > 0 ? "left" : "right"} and both rows close up by γ = ${fixed(gamma, 4)}. ${
             sign(rhoPrime) < 0
               ? "The electrons close up very slightly more than the ions"
               : sign(rhoPrime) > 0
@@ -260,7 +260,7 @@ export function ChargeCurrentPlot({
           caption={
             ratio === null
               ? "The model returned no density to compare."
-              : `In k the density is ρ′/ρ = ${ratio.toFixed(3)} times the laboratory's, and the number of charges drawn follows that ratio.`
+              : `In k the density is ρ′/ρ = ${fixed(ratio, 3)} times the laboratory's, and the number of charges drawn follows that ratio.`
           }
         >
           <line x1={4} x2={W - 4} y1={55} y2={55} stroke="var(--line)" strokeDasharray="4 4" />
@@ -301,7 +301,7 @@ export function ChargeCurrentPlot({
           title={frameMoving}
           values={`ρ′ = ${shown(rhoPrime)} C/m³`}
           ariaLabel={`The same sphere in k, flattened along x, total charge ${shown(qPrime)} coulombs`}
-          caption={`In k the sphere is flattened along x by γ = ${gamma.toFixed(4)} and its charge density rises by the same factor, so the total charge is unchanged.`}
+          caption={`In k the sphere is flattened along x by γ = ${fixed(gamma, 4)} and its charge density rises by the same factor, so the total charge is unchanged.`}
         >
           <ellipse
             cx={W / 2}
@@ -428,7 +428,7 @@ export function ChargeCurrentPlot({
       <div className="sr12-figure-head">
         <h3>{MODE_TITLES[mode] ?? "Charge and current in two frames"}</h3>
         <p className="fine">
-          v = {v}c, γ = {gammaValue === null ? "not computed" : gammaValue.toFixed(4)}
+          v = {v}c, γ = {gammaValue === null ? "not computed" : fixed(gammaValue, 4)}
         </p>
       </div>
       <div className="sr12-frames">{frames}</div>

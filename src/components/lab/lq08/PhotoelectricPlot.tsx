@@ -1,5 +1,6 @@
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { visibleColor } from "../../../experiments/lq08/session.ts";
+import { fixed } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
 export type EnergyLadderProps = Readonly<{
@@ -55,7 +56,7 @@ export function EnergyLadderPlot({
       </h3>
       <p className="fine" style={{ margin: "0 0 0.5rem" }}>
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
-          h&nu; = {quantumEnergyEv.toFixed(3)} eV
+          h&nu; = {fixed(quantumEnergyEv, 3)} eV
         </span>
         , &Phi; ={" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
@@ -186,7 +187,7 @@ export function EnergyLadderPlot({
               <tspan baselineShift="sub" fontSize="75%">
                 max
               </tspan>{" "}
-              = {kMaxEv.toFixed(3)} eV
+              = {fixed(kMaxEv, 3)} eV
             </text>
           </>
         ) : (

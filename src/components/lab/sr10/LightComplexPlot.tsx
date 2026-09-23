@@ -490,11 +490,11 @@ export function LightComplexPlot({
           </div>
           <p style={{ margin: "0.25rem 0 0", color: "var(--ink)", lineHeight: 1.5 }}>
             If the packet were treated as a rigid rod, both energy and volume would scale by 1/γ ={" "}
-            {countermodelVolumeFactor.toFixed(4)} (E′_wrong ={" "}
-            {countermodelEnergyJ !== undefined ? countermodelEnergyJ.toFixed(3) : "—"} J). The true
-            energy factor is q = {energyFactor.toFixed(4)} and the true volume factor is 1/q ={" "}
-            {volumeFactor.toFixed(4)}. At φ = 90° in K those differ from 1/γ by γ². At cos φ = β
-            they do not.
+            {fixed(countermodelVolumeFactor, 4)} (E′_wrong ={" "}
+            {countermodelEnergyJ !== undefined ? fixed(countermodelEnergyJ, 3) : "—"} J). The true
+            energy factor is q = {fixed(energyFactor, 4)} and the true volume factor is 1/q ={" "}
+            {fixed(volumeFactor, 4)}. At φ = 90° in K those differ from 1/γ by γ². At cos φ = β they
+            do not.
           </p>
         </div>
       ) : null}

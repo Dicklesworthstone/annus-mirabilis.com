@@ -1,5 +1,6 @@
 import type { Lq07Parameters } from "../../../experiments/lq07/definition.ts";
 import type { Lq07Evaluation } from "../../../experiments/lq07/session.ts";
+import { fixed } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
 export interface FluorescencePlotProps {
@@ -154,7 +155,7 @@ export function FluorescencePlot({
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           role="img"
-          aria-label={`Fluorescence energy budget: incident ${nu1} THz (${budget.e1Ev.toFixed(3)} eV), emitted ${nu2} THz (${budget.e2Ev.toFixed(3)} eV), status ${budget.allowed ? "allowed" : "disallowed"}`}
+          aria-label={`Fluorescence energy budget: incident ${nu1} THz (${fixed(budget.e1Ev, 3)} eV), emitted ${nu2} THz (${fixed(budget.e2Ev, 3)} eV), status ${budget.allowed ? "allowed" : "disallowed"}`}
           style={{
             display: "block",
             width: "100%",
@@ -214,7 +215,7 @@ export function FluorescencePlot({
               x: 60,
               height: h1Px,
               fill: band1.color,
-              value: `${budget.e1Ev.toFixed(3)} eV`,
+              value: `${fixed(budget.e1Ev, 3)} eV`,
               valueFill: "var(--ink)",
               name: "absorbed hν₁",
             },
@@ -223,7 +224,7 @@ export function FluorescencePlot({
               x: 150,
               height: h2Px,
               fill: band2.color,
-              value: `${budget.e2Ev.toFixed(3)} eV`,
+              value: `${fixed(budget.e2Ev, 3)} eV`,
               valueFill: "var(--ink)",
               name: "emitted hν₂",
             },
@@ -285,8 +286,8 @@ export function FluorescencePlot({
               fill={budget.allowed ? "var(--plot)" : "var(--accent)"}
             >
               {budget.allowed
-                ? `+${budget.eOtherEv.toFixed(3)} eV`
-                : `−${budget.energyDeficitEv.toFixed(3)} eV`}
+                ? `+${fixed(budget.eOtherEv, 3)} eV`
+                : `−${fixed(budget.energyDeficitEv, 3)} eV`}
             </text>
             <text x="240" y={groundY + 17} textAnchor="middle" fill="var(--ink)">
               {budget.allowed ? "heat" : "deficit"}
@@ -555,7 +556,7 @@ export function FluorescencePlot({
                   color: "var(--ink)",
                 }}
               >
-                {(rates.emittedPowerWatts * 1e6).toFixed(4)} μW
+                {fixed(rates.emittedPowerWatts * 1e6, 4)} μW
               </span>
             </div>
             <div>
@@ -569,7 +570,7 @@ export function FluorescencePlot({
                   color: "var(--ink)",
                 }}
               >
-                {(rates.dissipatedHeatWatts * 1e6).toFixed(4)} μW
+                {fixed(rates.dissipatedHeatWatts * 1e6, 4)} μW
               </span>
             </div>
           </div>

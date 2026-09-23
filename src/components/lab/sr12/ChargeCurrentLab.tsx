@@ -13,7 +13,7 @@ import { validateSr12Parameters } from "../../../experiments/sr12/parameters.ts"
 import { createSr12Session, type PreparedSr12Example } from "../../../experiments/sr12/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { display, identity, result } from "../presentation.ts";
+import { display, fixed, identity, result } from "../presentation.ts";
 import { ChargeCurrentPlot } from "./ChargeCurrentPlot.tsx";
 
 const C_SI = 299792458;
@@ -267,7 +267,7 @@ export function ChargeCurrentLab({
             }}
           >
             <label htmlFor={`${id}-boost-range`} style={{ fontWeight: 500 }}>
-              Observer boost speed (v/c): {(draft.boost / C_SI).toFixed(3)}
+              Observer boost speed (v/c): {fixed(draft.boost / C_SI, 3)}
             </label>
             <input
               id={`${id}-boost-range`}

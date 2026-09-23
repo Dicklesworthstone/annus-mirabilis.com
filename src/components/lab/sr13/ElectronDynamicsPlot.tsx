@@ -140,11 +140,11 @@ export function ElectronDynamicsPlot({
         {/* The chamber's title and settings are sentences, so they are HTML: inside the 800-unit
             drawing they rendered at 4-5px on a 390px phone. */}
         <p className="sr13-chamber-title">
-          Uniform field chamber (E = <Sci value={eMag} digits={1} /> V/m, B = {bMag.toFixed(3)} T
+          Uniform field chamber (E = <Sci value={eMag} digits={1} /> V/m, B = {fixed(bMag, 3)} T
           {magneticFieldZ > 0 ? ", out of the page" : magneticFieldZ < 0 ? ", into the page" : ""})
         </p>
         <p className="fine sr13-chamber-meta">
-          v₀ = {beta.toFixed(3)}c · γ = {gamma.toFixed(4)} · convention: {forceConvention} (
+          v₀ = {fixed(beta, 3)}c · γ = {fixed(gamma, 4)} · convention: {forceConvention} (
           {massLanguage === "1905" ? "1905 masses" : "modern momentum"})
         </p>
         <svg
@@ -152,7 +152,7 @@ export function ElectronDynamicsPlot({
           viewBox={`0 0 ${width} ${height}`}
           style={{ width: "100%", height: "auto", display: "block", userSelect: "none" }}
           role="img"
-          aria-label={`Electron dynamics trajectory diagram: initial speed v = ${beta.toFixed(2)}c, gamma = ${gamma.toFixed(4)}`}
+          aria-label={`Electron dynamics trajectory diagram: initial speed v = ${beta.toFixed(2)}c, gamma = ${fixed(gamma, 4)}`}
         >
           <title>Relativistic Electron Dynamics and Deflection (Einstein 1905 §10)</title>
 
@@ -583,7 +583,7 @@ export function ElectronDynamicsPlot({
             }}
           >
             {Number.isFinite(radiusCurvatureMagneticM)
-              ? `${radiusCurvatureMagneticM.toFixed(4)} m`
+              ? `${fixed(radiusCurvatureMagneticM, 4)} m`
               : "Straight path (B = 0)"}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
@@ -611,7 +611,7 @@ export function ElectronDynamicsPlot({
             }}
           >
             {Number.isFinite(radiusCurvatureElectricM)
-              ? `${radiusCurvatureElectricM.toFixed(4)} m`
+              ? `${fixed(radiusCurvatureElectricM, 4)} m`
               : "Straight path (E = 0)"}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>

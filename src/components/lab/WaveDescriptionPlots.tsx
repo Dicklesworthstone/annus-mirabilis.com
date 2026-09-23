@@ -1,4 +1,5 @@
 import type { Lq01Parameters } from "../../experiments/lq01/definition.ts";
+import { fixed } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 
 /*
@@ -131,11 +132,11 @@ export function InterferencePlot({
       >
         Two coherent point sources, added as waves. At the centre{" "}
         <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
-          {centerIntensity.toFixed(3)}
+          {fixed(centerIntensity, 3)}
         </strong>
         ; fringe visibility{" "}
         <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
-          {fringeVisibility.toFixed(3)}
+          {fixed(fringeVisibility, 3)}
         </strong>
         {fringeSpacing > 0 && (
           <span>
@@ -535,7 +536,7 @@ export function SpreadingPlot({ power, radius, intensity, shellPower }: Spreadin
             border: "1px solid rgba(16, 185, 129, 0.3)",
           }}
         >
-          ∮ I dA = {shellPower.toFixed(4)} W (P = {power.toFixed(1)} W)
+          ∮ I dA = {fixed(shellPower, 4)} W (P = {power.toFixed(1)} W)
         </span>
       </div>
       <p

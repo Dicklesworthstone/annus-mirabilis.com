@@ -12,6 +12,7 @@ import {
 import { decodeSr03Settings, encodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { fixed } from "./presentation.ts";
 import "./rodSimultaneityLab.css";
 import { identity } from "./presentation.ts";
 import {
@@ -686,14 +687,14 @@ export function RodSimultaneityLab({
             <tbody>
               <tr>
                 <th scope="row">K (Platform)</th>
-                <td>{dtK.toFixed(3)}</td>
-                <td>{dxK.toFixed(3)}</td>
+                <td>{fixed(dtK, 3)}</td>
+                <td>{fixed(dxK, 3)}</td>
                 <td>
                   <span className="badge">
                     {dtK === 0 ? "Simultaneous" : dtK > 0 ? "Ordered (+)" : "Ordered (-)"}
                   </span>
                 </td>
-                <td style={{ fontWeight: "bold" }}>{s2.toFixed(3)}</td>
+                <td style={{ fontWeight: "bold" }}>{fixed(s2, 3)}</td>
                 <td>
                   <span className="badge">
                     {s2 > 0 ? "Spacelike" : s2 === 0 ? "Lightlike" : "Timelike"}
@@ -702,8 +703,8 @@ export function RodSimultaneityLab({
               </tr>
               <tr>
                 <th scope="row">k (Moving)</th>
-                <td>{dtk.toFixed(3)}</td>
-                <td>{dxk.toFixed(3)}</td>
+                <td>{fixed(dtk, 3)}</td>
+                <td>{fixed(dxk, 3)}</td>
                 <td>
                   <span className="badge">
                     {Math.abs(dtk) < 1e-10
@@ -713,7 +714,7 @@ export function RodSimultaneityLab({
                         : "Ordered (-)"}
                   </span>
                 </td>
-                <td style={{ fontWeight: "bold" }}>{s2.toFixed(3)}</td>
+                <td style={{ fontWeight: "bold" }}>{fixed(s2, 3)}</td>
                 <td>
                   <span className="badge">
                     {s2 > 0 ? "Spacelike" : s2 === 0 ? "Lightlike" : "Timelike"}
@@ -757,7 +758,7 @@ export function RodSimultaneityLab({
                         (Math.abs(out.value) < 1e-3 && out.value !== 0) ? (
                           <Sci value={out.value} digits={4} />
                         ) : (
-                          String(Number(out.value.toFixed(4)))
+                          String(Number(fixed(out.value, 4)))
                         )}
                         {out.unit && out.unit !== "1" ? ` ${out.unit.replace("^2", "²")}` : ""}
                       </>

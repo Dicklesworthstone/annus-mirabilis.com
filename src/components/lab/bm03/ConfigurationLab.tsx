@@ -20,7 +20,7 @@ import {
   evaluateBm03,
   type PreparedBm03Example,
 } from "../../../experiments/bm03/session.ts";
-import { identity } from "../presentation.ts";
+import { fixed, identity } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -455,7 +455,7 @@ export function ConfigurationLab({
                       <strong>{evaluation.exactDecimalString}</strong>
                     ) : (
                       <span>
-                        10^{evaluation.log10Exponent.toFixed(4)} (ln ={" "}
+                        10^{fixed(evaluation.log10Exponent, 4)} (ln ={" "}
                         {evaluation.naturalLogExponent.toFixed(2)})
                       </span>
                     )}

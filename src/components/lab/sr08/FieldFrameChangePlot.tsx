@@ -1,6 +1,7 @@
 "use client";
 
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { fixed } from "../presentation.ts";
 import { SciSvg } from "../Sci.tsx";
 import "./sr08.css";
 
@@ -247,8 +248,8 @@ export function FieldFrameChangePlot({
 
         {/* Invariant Footer */}
         <text x="20" y="195" fontSize="10" fill="var(--muted)">
-          E² - c²B² = {diff.toFixed(3)} | E·B = {dot.toFixed(3)} | γ ={" "}
-          {g > 0 ? g.toFixed(4) : "1.0000"}
+          E² - c²B² = {fixed(diff, 3)} | E·B = {fixed(dot, 3)} | γ ={" "}
+          {g > 0 ? fixed(g, 4) : "1.0000"}
         </text>
       </svg>
     </div>
