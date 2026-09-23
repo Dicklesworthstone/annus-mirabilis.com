@@ -377,6 +377,18 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: time-rate
+- id: scaledDisplacement
+  name: Scaled displacement
+  description: >
+    The displacement divided by the square root of 4Dt, the dimensionless u in which the Gaussian's
+    second-moment integral is a pure number (paper 2, section 4).
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: walkStepCount
   name: Number of walk steps
   description: >

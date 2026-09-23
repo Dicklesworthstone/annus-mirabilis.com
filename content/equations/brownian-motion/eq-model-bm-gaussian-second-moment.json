@@ -1,0 +1,339 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-gaussian-second-moment",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-gaussian",
+  "title": "The mean square from the Gaussian",
+  "spoken": "The mean of x squared equals four D t over root pi, times the integral from minus infinity to infinity of u squared e to the minus u squared, d u, which equals two D t.",
+  "explanation": "Changing to the unitless u moves every unit into the factor in front, and leaves an integral worth the square root of pi over two. The mean square is 2Dt.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The Gaussian density that solves the diffusion equation from a point start, one coordinate.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-gaussian-second-moment.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "relation",
+      "opId": "eq-model-bm-gaussian-second-moment.op.definition",
+      "operator": "=",
+      "left": {
+        "kind": "average",
+        "opId": "eq-model-bm-gaussian-second-moment.op.mean",
+        "argument": {
+          "kind": "power",
+          "opId": "eq-model-bm-gaussian-second-moment.op.square",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-gaussian-second-moment.t.displacement",
+            "quantityId": "displacement1d"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      },
+      "right": {
+        "kind": "product",
+        "opId": "eq-model-bm-gaussian-second-moment.op.scaled",
+        "args": [
+          {
+            "kind": "quotient",
+            "opId": "eq-model-bm-gaussian-second-moment.op.prefactor",
+            "numerator": {
+              "kind": "product",
+              "opId": "eq-model-bm-gaussian-second-moment.op.fourDt",
+              "args": [
+                {
+                  "kind": "number",
+                  "value": "4"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-gaussian-second-moment.t.diffusion",
+                  "quantityId": "diffusionCoefficient"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-gaussian-second-moment.t.time",
+                  "quantityId": "observationInterval"
+                }
+              ]
+            },
+            "denominator": {
+              "kind": "root",
+              "opId": "eq-model-bm-gaussian-second-moment.op.rootPi",
+              "degree": 2,
+              "radicand": {
+                "kind": "constant",
+                "name": "pi"
+              }
+            }
+          },
+          {
+            "kind": "integral",
+            "opId": "eq-model-bm-gaussian-second-moment.op.integral",
+            "expression": {
+              "kind": "product",
+              "opId": "eq-model-bm-gaussian-second-moment.op.integrand",
+              "args": [
+                {
+                  "kind": "power",
+                  "opId": "eq-model-bm-gaussian-second-moment.op.uSquare",
+                  "base": {
+                    "kind": "symbol",
+                    "termId": "eq-model-bm-gaussian-second-moment.t.scaled",
+                    "quantityId": "scaledDisplacement"
+                  },
+                  "exponent": {
+                    "num": 2,
+                    "den": 1
+                  }
+                },
+                {
+                  "kind": "function",
+                  "opId": "eq-model-bm-gaussian-second-moment.op.gaussian",
+                  "name": "exp",
+                  "argument": {
+                    "kind": "negate",
+                    "opId": "eq-model-bm-gaussian-second-moment.op.negate",
+                    "argument": {
+                      "kind": "power",
+                      "opId": "eq-model-bm-gaussian-second-moment.op.uSquareExp",
+                      "base": {
+                        "kind": "symbol",
+                        "termId": "eq-model-bm-gaussian-second-moment.t.scaledExp",
+                        "quantityId": "scaledDisplacement"
+                      },
+                      "exponent": {
+                        "num": 2,
+                        "den": 1
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "variable": {
+              "kind": "symbol",
+              "termId": "eq-model-bm-gaussian-second-moment.t.scaledVar",
+              "quantityId": "scaledDisplacement"
+            },
+            "lower": {
+              "kind": "negate",
+              "argument": {
+                "kind": "constant",
+                "name": "infinity"
+              }
+            },
+            "upper": {
+              "kind": "constant",
+              "name": "infinity"
+            }
+          }
+        ]
+      }
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-bm-gaussian-second-moment.op.result",
+      "args": [
+        {
+          "kind": "number",
+          "value": "2"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-gaussian-second-moment.t.diffusion2",
+          "quantityId": "diffusionCoefficient"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-gaussian-second-moment.t.time2",
+          "quantityId": "observationInterval"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.definition",
+      "title": "The mean square as an integral",
+      "explanation": "Averaging x squared over the Gaussian density, rewritten in the unitless variable u.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.fourDt",
+      "title": "Four D t",
+      "explanation": "The width of the Gaussian, squared, up to a factor two.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.gaussian",
+      "title": "The Gaussian shape",
+      "explanation": "e to the minus u squared: the bell curve without its units.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.integral",
+      "title": "Over the whole line",
+      "explanation": "Every value of u, from minus infinity to infinity.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.integrand",
+      "title": "u squared, weighted",
+      "explanation": "Each u squared counts as often as the Gaussian says it occurs.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.mean",
+      "title": "The mean square",
+      "explanation": "Averaged over many particles.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.negate",
+      "title": "Minus",
+      "explanation": "The exponent is negative, so large u are rare.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.prefactor",
+      "title": "The factor in front",
+      "explanation": "4Dt over the square root of pi: what is left after changing to u.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.relation",
+      "title": "What it asserts",
+      "explanation": "The integral is a pure number, and working it out gives the mean square 2Dt.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.result",
+      "title": "Two D t",
+      "explanation": "The integral is the square root of pi over two, so the mean square is 2Dt.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.rootPi",
+      "title": "Root pi",
+      "explanation": "The area under e to the minus u squared, which normalizes the density.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.scaled",
+      "title": "Units times a number",
+      "explanation": "All the metres and seconds sit in the factor in front; the integral is a pure number.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.square",
+      "title": "x squared",
+      "explanation": "Squared, so leftward and rightward moves both count.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.uSquare",
+      "title": "u squared",
+      "explanation": "The square of the scaled displacement.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.op.uSquareExp",
+      "title": "u squared in the exponent",
+      "explanation": "The same scaled displacement, squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "How fast the spread grows. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.diffusion2",
+      "title": "Diffusion coefficient",
+      "explanation": "The same D.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.displacement",
+      "title": "Displacement since the start",
+      "explanation": "How far one particle has moved along x since observation began.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.scaled",
+      "title": "Scaled displacement",
+      "explanation": "x divided by the square root of 4Dt, a pure number.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.scaledExp",
+      "title": "Scaled displacement",
+      "explanation": "The same u, inside the exponent.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.scaledVar",
+      "title": "Summed over u",
+      "explanation": "The variable the integral runs over.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.time",
+      "title": "Observation interval",
+      "explanation": "The time over which displacement is observed.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.time2",
+      "title": "Observation interval",
+      "explanation": "The same t.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The mean of "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.displacement"
+    },
+    {
+      "text": " squared is four "
+    },
+    {
+      "text": "D",
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.diffusion"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.time"
+    },
+    {
+      "text": " over root pi times the integral of "
+    },
+    {
+      "text": "u",
+      "nodeId": "eq-model-bm-gaussian-second-moment.t.scaled"
+    },
+    {
+      "text": " squared times e to the minus u squared, which is two D t."
+    }
+  ]
+}

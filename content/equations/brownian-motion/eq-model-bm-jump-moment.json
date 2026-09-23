@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-jump-moment",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-diffusion-equation",
+  "title": "The diffusion coefficient from the jumps",
+  "spoken": "D equals one over two tau times the integral, from minus infinity to infinity, of Delta squared times phi of Delta, d Delta.",
+  "explanation": "D is the mean squared jump in one short interval, divided by twice that interval. Nothing about the fluid appears here yet; that comes with Stokes' law.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Jumps in successive intervals are independent and symmetric, one coordinate.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-jump-moment.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-jump-moment.t.diffusion",
+      "quantityId": "diffusionCoefficient"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-bm-jump-moment.op.product",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-bm-jump-moment.op.perInterval",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "product",
+            "opId": "eq-model-bm-jump-moment.op.twoTau",
+            "args": [
+              {
+                "kind": "number",
+                "value": "2"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-bm-jump-moment.t.interval",
+                "quantityId": "stepInterval"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "integral",
+          "opId": "eq-model-bm-jump-moment.op.integral",
+          "expression": {
+            "kind": "product",
+            "opId": "eq-model-bm-jump-moment.op.weighted",
+            "args": [
+              {
+                "kind": "power",
+                "opId": "eq-model-bm-jump-moment.op.square",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-jump-moment.t.jump",
+                  "quantityId": "displacementIncrement"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                }
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-bm-jump-moment.t.density",
+                "quantityId": "transitionKernel",
+                "at": {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-jump-moment.t.jumpArg",
+                  "quantityId": "displacementIncrement"
+                }
+              }
+            ]
+          },
+          "variable": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-jump-moment.t.jumpVar",
+            "quantityId": "displacementIncrement"
+          },
+          "lower": {
+            "kind": "negate",
+            "argument": {
+              "kind": "constant",
+              "name": "infinity"
+            }
+          },
+          "upper": {
+            "kind": "constant",
+            "name": "infinity"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-jump-moment.op.integral",
+      "title": "Over every jump",
+      "explanation": "Adds up the contribution of every possible jump, from any leftward to any rightward one.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.op.perInterval",
+      "title": "Per two intervals",
+      "explanation": "One over two tau turns a squared distance per jump into a rate.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.op.product",
+      "title": "Times",
+      "explanation": "The rate factor times the averaged squared jump.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.op.relation",
+      "title": "What it asserts",
+      "explanation": "D is set by the jumps themselves: their mean square, per unit of time.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.op.square",
+      "title": "Jump squared",
+      "explanation": "Squared, so leftward and rightward jumps both add.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.op.twoTau",
+      "title": "Two tau",
+      "explanation": "Twice the interval; the two comes from the second derivative of the density.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.op.weighted",
+      "title": "Weighted by how likely",
+      "explanation": "Each squared jump counts in proportion to how often it happens.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.t.density",
+      "title": "How likely a jump is",
+      "explanation": "Paper 2's phi: probability per metre of a jump of this size. A density, not a probability.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "How fast the spread grows, in square metres per second. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.t.interval",
+      "title": "The short interval",
+      "explanation": "Paper 2's tau: short enough for the density to change little, long enough for jumps to be independent.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.t.jump",
+      "title": "A jump",
+      "explanation": "How far a particle moves in one interval tau.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.t.jumpArg",
+      "title": "The jump it describes",
+      "explanation": "phi is read at this jump.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-bm-jump-moment.t.jumpVar",
+      "title": "Summed over jumps",
+      "explanation": "The variable the integral runs over.",
+      "foundation": "integration"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The diffusion coefficient",
+      "nodeId": "eq-model-bm-jump-moment.t.diffusion"
+    },
+    {
+      "text": " is one over two "
+    },
+    {
+      "text": "tau",
+      "nodeId": "eq-model-bm-jump-moment.t.interval"
+    },
+    {
+      "text": " times the mean of the squared jump "
+    },
+    {
+      "text": "Delta",
+      "nodeId": "eq-model-bm-jump-moment.t.jump"
+    },
+    {
+      "text": ", each jump weighted by its density "
+    },
+    {
+      "text": "phi",
+      "nodeId": "eq-model-bm-jump-moment.t.density"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
