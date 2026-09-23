@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "foundation",
   "id": "entropy-temperature",
-  "title": "Entropy, temperature, and a stated constraint",
+  "title": "Entropy and temperature",
   "question": "What does temperature have to do with entropy?",
   "summary": "Add a little energy to a body at fixed volume and its entropy rises by that energy divided by its absolute temperature. The same energy raises the entropy of a cold body more than that of a hot one.",
   "review": "draft",

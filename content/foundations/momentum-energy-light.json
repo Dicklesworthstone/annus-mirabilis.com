@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "foundation",
   "id": "momentum-energy-light",
-  "title": "Momentum, energy flux, and radiation pressure of light",
+  "title": "The push of light",
   "question": "How hard does a beam of light push on what it hits?",
   "summary": "Light carries momentum as well as energy: its momentum is its energy divided by the speed of light. A surface that absorbs one watt of light is pushed with about 3.34 × 10⁻⁹ newtons, and a mirror that reflects it straight back is pushed twice as hard.",
   "review": "draft",

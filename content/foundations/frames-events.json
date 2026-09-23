@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "foundation",
   "id": "frames-events",
-  "title": "Events, reference frames, and the coordinate grid",
+  "title": "Events and distant clocks",
   "question": "What does it mean to say that two distant events happen at the same time?",
   "summary": "An event happens at one place at one instant. Clocks at different places can only be compared by a rule, and §1 of the relativity paper gives one: send light out and back, and call the clocks synchronous if the trip out takes as long as the trip back.",
   "review": "draft",

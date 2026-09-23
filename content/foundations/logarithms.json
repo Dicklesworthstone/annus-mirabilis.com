@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "foundation",
   "id": "logarithms",
-  "title": "Logarithms and product-to-sum relations",
+  "title": "Logarithms: turning products into sums",
   "question": "Why does entropy need a logarithm?",
   "summary": "A logarithm turns multiplying into adding. When two systems are independent, the probabilities of their states multiply while their entropies add, so entropy has to be a logarithm of probability.",
   "review": "draft",

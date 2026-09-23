@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "foundation",
   "id": "fields-waves",
-  "title": "Fields, continuous waves, and harmonic functions",
+  "title": "Fields and waves",
   "question": "What is a wave in a field, and what does a light detector measure?",
   "summary": "A field gives a value at every place and every time. In a light wave the field swings back and forth hundreds of trillions of times a second, too fast for any detector to follow, so what is measured is the energy delivered on average.",
   "review": "draft",

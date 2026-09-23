@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "foundation",
   "id": "electromagnetism-charges",
-  "title": "Forces on charges, currents, and electromagnetic waves",
+  "title": "Charges, fields and light",
   "question": "What does an electric or a magnetic field do to a charge?",
   "summary": "An electric field pushes a charge along the field. A magnetic field pushes a moving charge sideways. Carrying an electron across a potential difference of one volt gives it one electron volt of energy, 1.602 × 10⁻¹⁹ joules.",
   "review": "draft",

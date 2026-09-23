@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "foundation",
   "id": "taylor-expansion",
-  "title": "A local expansion",
+  "title": "Approximating a curve near a point",
   "question": "Why can a curve be replaced, close to one point, by a few simple terms?",
   "summary": "Close to a point, a smooth curve is described by its value there, its slope and its curvature. Dropping the rest needs a reason: how small the step is, and how fast the dropped terms shrink with it.",
   "review": "draft",

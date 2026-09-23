@@ -103,12 +103,12 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
         },
         {
           id: "exponentials",
-          expectedTitle: "Exponentials and continuous scaling",
+          expectedTitle: "Exponential change",
           expectedContent: ["Where this lesson stops"],
         },
         {
           id: "logarithms",
-          expectedTitle: "Logarithms and product-to-sum relations",
+          expectedTitle: "Logarithms: turning products into sums",
           expectedContent: ["0.693147", "0.301030", "Where this lesson stops"],
         },
       ];

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "foundation",
   "id": "exponentials",
-  "title": "Exponentials and continuous scaling",
+  "title": "Exponential change",
   "question": "What kind of change does an exponential describe?",
   "summary": "An exponential describes change by equal factors: a quantity whose rate of change is proportional to its own size. Whatever sits in the exponent must be a pure number, with no units.",
   "review": "draft",
