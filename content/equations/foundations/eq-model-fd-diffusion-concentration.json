@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-diffusion-concentration",
+  "paper": "foundations",
+  "argument": "derivatives",
+  "title": "The concentration evens out",
+  "spoken": "The partial derivative of f with respect to t equals D times the second partial derivative of f with respect to x.",
+  "explanation": "Where the concentration curves upward it rises, where it curves downward it falls: the same equation the Brownian paper derives in section 4.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "One coordinate, and a diffusion coefficient that does not vary along the tube.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-diffusion-concentration.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "derivative",
+      "opId": "eq-model-fd-diffusion-concentration.op.rate",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-diffusion-concentration.t.conc",
+        "quantityId": "numberDensity"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-diffusion-concentration.t.time",
+        "quantityId": "elapsedTime"
+      },
+      "order": 1,
+      "partial": true
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-diffusion-concentration.op.product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-diffusion-concentration.t.diffusion",
+          "quantityId": "diffusionCoefficient"
+        },
+        {
+          "kind": "derivative",
+          "opId": "eq-model-fd-diffusion-concentration.op.curvature",
+          "expression": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-diffusion-concentration.t.conc2",
+            "quantityId": "numberDensity"
+          },
+          "variable": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-diffusion-concentration.t.position",
+            "quantityId": "positionCoordinate1d"
+          },
+          "order": 2,
+          "partial": true
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-diffusion-concentration.op.curvature",
+      "title": "Change of the slope",
+      "explanation": "The second derivative along x: how fast the slope itself changes.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-concentration.op.product",
+      "title": "D times",
+      "explanation": "The diffusion coefficient scales how fast the curvature evens out.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-concentration.op.rate",
+      "title": "Change in time",
+      "explanation": "How fast the concentration at one place changes, per second.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-concentration.op.relation",
+      "title": "What it asserts",
+      "explanation": "The concentration changes in time as fast as its slope changes along the tube, times D.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-concentration.t.conc",
+      "title": "Concentration",
+      "explanation": "f: particles per unit volume.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-concentration.t.conc2",
+      "title": "Concentration",
+      "explanation": "The same f.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-concentration.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "In square metres per second. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-concentration.t.position",
+      "title": "Position",
+      "explanation": "x, along the tube.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-concentration.t.time",
+      "title": "Time",
+      "explanation": "The variable changed in the first derivative.",
+      "foundation": "derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The rate of change of "
+    },
+    {
+      "text": "f",
+      "nodeId": "eq-model-fd-diffusion-concentration.t.conc"
+    },
+    {
+      "text": " in time is "
+    },
+    {
+      "text": "D",
+      "nodeId": "eq-model-fd-diffusion-concentration.t.diffusion"
+    },
+    {
+      "text": " times its second derivative along "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-fd-diffusion-concentration.t.position"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

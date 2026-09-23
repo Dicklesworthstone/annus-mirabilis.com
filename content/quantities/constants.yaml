@@ -213,6 +213,18 @@
   representationFields: [lnW, log10W]
   colorRole: statistical
 
+- id: timeIncrement
+  name: Time increment
+  description: >
+    A short interval Delta t added to a time t, as in the difference quotient
+    (x(t + Delta t) - x(t)) / Delta t whose limit is a derivative (the foundation lesson on
+    derivatives). Distinct from timeStep, a numerical or replay grid.
+  dimensionStatus: declared
+  dimension: [0, 0, 1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: time-rate
+
 - id: elapsedTime
   name: Elapsed time
   description: A generic time duration, used where no more specific time-kind record applies.

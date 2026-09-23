@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-gaussian-moment-integral",
+  "paper": "foundations",
+  "argument": "gaussian-distributions",
+  "title": "The Gaussian's second moment",
+  "spoken": "One over root pi times the integral of u squared e to the minus u squared, du, equals one half.",
+  "explanation": "The mean of u squared under the unit bell curve is one half. Scaled back to x, that is the mean square 2Dt.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The unit Gaussian e^{-u²}, normalized by root pi.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-gaussian-moment-integral.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "product",
+      "opId": "eq-model-fd-gaussian-moment-integral.op.normalized",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-gaussian-moment-integral.op.norm",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "root",
+            "opId": "eq-model-fd-gaussian-moment-integral.op.rootPi",
+            "degree": 2,
+            "radicand": {
+              "kind": "constant",
+              "name": "pi"
+            }
+          }
+        },
+        {
+          "kind": "integral",
+          "opId": "eq-model-fd-gaussian-moment-integral.op.integral",
+          "expression": {
+            "kind": "product",
+            "opId": "eq-model-fd-gaussian-moment-integral.op.integrand",
+            "args": [
+              {
+                "kind": "power",
+                "opId": "eq-model-fd-gaussian-moment-integral.op.uSquare",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-gaussian-moment-integral.t.u",
+                  "quantityId": "scaledDisplacement"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                }
+              },
+              {
+                "kind": "function",
+                "opId": "eq-model-fd-gaussian-moment-integral.op.gaussian",
+                "name": "exp",
+                "argument": {
+                  "kind": "negate",
+                  "argument": {
+                    "kind": "power",
+                    "opId": "eq-model-fd-gaussian-moment-integral.op.uSquareExp",
+                    "base": {
+                      "kind": "symbol",
+                      "termId": "eq-model-fd-gaussian-moment-integral.t.uExp",
+                      "quantityId": "scaledDisplacement"
+                    },
+                    "exponent": {
+                      "num": 2,
+                      "den": 1
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "variable": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-gaussian-moment-integral.t.uVar",
+            "quantityId": "scaledDisplacement"
+          },
+          "lower": {
+            "kind": "negate",
+            "argument": {
+              "kind": "constant",
+              "name": "infinity"
+            }
+          },
+          "upper": {
+            "kind": "constant",
+            "name": "infinity"
+          }
+        }
+      ]
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-gaussian-moment-integral.op.half",
+      "numerator": {
+        "kind": "number",
+        "value": "1"
+      },
+      "denominator": {
+        "kind": "number",
+        "value": "2"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.gaussian",
+      "title": "The bell curve",
+      "explanation": "e to the minus u squared.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.half",
+      "title": "One half",
+      "explanation": "The value, which makes the mean square 2Dt.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.integral",
+      "title": "Over the whole line",
+      "explanation": "Every value of u.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.integrand",
+      "title": "u squared, weighted",
+      "explanation": "Each u squared counts as often as the bell curve says.",
+      "foundation": "integration"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.norm",
+      "title": "One over root pi",
+      "explanation": "Divides by the area under the bell curve.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.normalized",
+      "title": "Normalized",
+      "explanation": "One over root pi times the integral.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.relation",
+      "title": "What it asserts",
+      "explanation": "The normalized second moment of the unit Gaussian is one half.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.rootPi",
+      "title": "Root pi",
+      "explanation": "The area under e to the minus u squared.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.uSquare",
+      "title": "u squared",
+      "explanation": "The square of the unitless variable.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.op.uSquareExp",
+      "title": "u squared in the exponent",
+      "explanation": "The same u, squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.t.u",
+      "title": "u",
+      "explanation": "x over the square root of 4Dt, a pure number.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.t.uExp",
+      "title": "u",
+      "explanation": "The same u.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-moment-integral.t.uVar",
+      "title": "Summed over u",
+      "explanation": "The variable the integral runs over.",
+      "foundation": "integration"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The mean of "
+    },
+    {
+      "text": "u",
+      "nodeId": "eq-model-fd-gaussian-moment-integral.t.u"
+    },
+    {
+      "text": " squared under the bell curve is one half."
+    }
+  ]
+}

@@ -40,7 +40,8 @@
     {
       "kind": "formula",
       "latex": "\\frac{\\partial f}{\\partial t} = D\\,\\frac{\\partial^2 f}{\\partial x^2}",
-      "spoken": "The partial derivative of f with respect to t equals D times the second partial derivative of f with respect to x."
+      "spoken": "The partial derivative of f with respect to t equals D times the second partial derivative of f with respect to x.",
+      "equations": ["eq-model-fd-diffusion-concentration"]
     },
     {
       "kind": "paragraph",
@@ -68,7 +69,8 @@
     {
       "kind": "formula",
       "latex": "3(t+\\Delta t)^2 - 3t^2 = 6t\\,\\Delta t + 3(\\Delta t)^2",
-      "spoken": "Three times t plus delta t, squared, minus three t squared, equals six t delta t plus three delta t squared."
+      "spoken": "Three times t plus delta t, squared, minus three t squared, equals six t delta t plus three delta t squared.",
+      "equations": ["eq-model-fd-distance-in-interval"]
     },
     {
       "kind": "paragraph",
@@ -77,7 +79,8 @@
     {
       "kind": "formula",
       "latex": "\\frac{6t\\,\\Delta t + 3(\\Delta t)^2}{\\Delta t} = 6t + 3\\,\\Delta t",
-      "spoken": "Six t delta t plus three delta t squared, divided by delta t, equals six t plus three delta t."
+      "spoken": "Six t delta t plus three delta t squared, divided by delta t, equals six t plus three delta t.",
+      "equations": ["eq-model-fd-average-speed-in-interval"]
     },
     {
       "kind": "paragraph",

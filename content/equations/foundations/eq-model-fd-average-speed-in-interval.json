@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-average-speed-in-interval",
+  "paper": "foundations",
+  "argument": "derivatives",
+  "title": "Average speed over a short interval",
+  "spoken": "Six t delta t plus three delta t squared, divided by delta t, equals six t plus three delta t.",
+  "explanation": "Dividing the distance by the interval leaves 6t plus 3 Delta t; as Delta t shrinks, the average settles on 6t metres per second.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "x = 3t² metres with t in seconds.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-average-speed-in-interval.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-average-speed-in-interval.op.average",
+      "numerator": {
+        "kind": "sum",
+        "opId": "eq-model-fd-average-speed-in-interval.op.distance",
+        "args": [
+          {
+            "kind": "product",
+            "opId": "eq-model-fd-average-speed-in-interval.op.linear",
+            "args": [
+              {
+                "kind": "number",
+                "value": "6"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-average-speed-in-interval.t.t",
+                "quantityId": "elapsedTime"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-average-speed-in-interval.t.dt",
+                "quantityId": "timeIncrement"
+              }
+            ]
+          },
+          {
+            "kind": "product",
+            "opId": "eq-model-fd-average-speed-in-interval.op.quadratic",
+            "args": [
+              {
+                "kind": "number",
+                "value": "3"
+              },
+              {
+                "kind": "power",
+                "opId": "eq-model-fd-average-speed-in-interval.op.dtSquare",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-average-speed-in-interval.t.dtSquareDt",
+                  "quantityId": "timeIncrement"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-average-speed-in-interval.t.dtDen",
+        "quantityId": "timeIncrement"
+      }
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-fd-average-speed-in-interval.op.result",
+      "args": [
+        {
+          "kind": "product",
+          "opId": "eq-model-fd-average-speed-in-interval.op.speedPart",
+          "args": [
+            {
+              "kind": "number",
+              "value": "6"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-average-speed-in-interval.t.t2",
+              "quantityId": "elapsedTime"
+            }
+          ]
+        },
+        {
+          "kind": "product",
+          "opId": "eq-model-fd-average-speed-in-interval.op.shrinking",
+          "args": [
+            {
+              "kind": "number",
+              "value": "3"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-average-speed-in-interval.t.dt2",
+              "quantityId": "timeIncrement"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.op.average",
+      "title": "Average speed",
+      "explanation": "Distance covered divided by the time taken.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.op.distance",
+      "title": "Distance covered",
+      "explanation": "6 t Delta t plus 3 Delta t squared, from the step before.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.op.dtSquare",
+      "title": "Delta t squared",
+      "explanation": "The interval times itself.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.op.linear",
+      "title": "6 t Delta t",
+      "explanation": "The part proportional to the interval.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.op.quadratic",
+      "title": "3 times Delta t squared",
+      "explanation": "The part that shrinks faster than the interval.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.op.relation",
+      "title": "What it asserts",
+      "explanation": "The average speed over the interval is 6t plus a part that shrinks with it.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.op.result",
+      "title": "Simplified",
+      "explanation": "Each part divided by Delta t.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.op.shrinking",
+      "title": "3 Delta t",
+      "explanation": "The part that vanishes with the interval.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.op.speedPart",
+      "title": "6 t",
+      "explanation": "What is left when the interval shrinks to nothing: the speed at t.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.t.dt",
+      "title": "The interval",
+      "explanation": "Delta t.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.t.dt2",
+      "title": "The interval",
+      "explanation": "The same Delta t.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.t.dtDen",
+      "title": "Divided by the interval",
+      "explanation": "The time taken.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.t.dtSquareDt",
+      "title": "The interval",
+      "explanation": "The same Delta t.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.t.t",
+      "title": "Time",
+      "explanation": "The start of the interval.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-average-speed-in-interval.t.t2",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The average speed over "
+    },
+    {
+      "text": "Delta t",
+      "nodeId": "eq-model-fd-average-speed-in-interval.t.dtDen"
+    },
+    {
+      "text": " is six "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-fd-average-speed-in-interval.t.t2"
+    },
+    {
+      "text": " plus three Delta t."
+    }
+  ]
+}

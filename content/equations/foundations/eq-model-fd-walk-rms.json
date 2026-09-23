@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-walk-rms",
+  "paper": "foundations",
+  "argument": "random-walks",
+  "title": "The typical distance of a walk",
+  "spoken": "The square root of the mean of X n squared is l times the square root of n.",
+  "explanation": "The root of the mean square is l times the square root of n: one hundred steps of size 1 give 10, four hundred give 20.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Independent steps with zero mean and the same mean square l².",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-walk-rms.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "root",
+      "opId": "eq-model-fd-walk-rms.op.rms",
+      "degree": 2,
+      "radicand": {
+        "kind": "average",
+        "opId": "eq-model-fd-walk-rms.op.mean",
+        "argument": {
+          "kind": "power",
+          "opId": "eq-model-fd-walk-rms.op.square",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-walk-rms.t.net",
+            "quantityId": "displacement1d",
+            "index": "n"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      }
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-walk-rms.op.product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-walk-rms.t.step",
+          "quantityId": "stepRms"
+        },
+        {
+          "kind": "root",
+          "opId": "eq-model-fd-walk-rms.op.rootN",
+          "degree": 2,
+          "radicand": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-walk-rms.t.count",
+            "quantityId": "walkStepCount"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-walk-rms.op.mean",
+      "title": "The mean square",
+      "explanation": "Averaged over many walkers.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-walk-rms.op.product",
+      "title": "l times",
+      "explanation": "The step size times the square root of the count.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-fd-walk-rms.op.relation",
+      "title": "What it asserts",
+      "explanation": "The typical distance grows as the square root of the number of steps.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-fd-walk-rms.op.rms",
+      "title": "Root mean square",
+      "explanation": "Back to a distance.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-walk-rms.op.rootN",
+      "title": "Square root of n",
+      "explanation": "Four times as many steps, twice as far.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-walk-rms.op.square",
+      "title": "Squared",
+      "explanation": "So leftward and rightward ends both count.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-walk-rms.t.count",
+      "title": "Number of steps",
+      "explanation": "n.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-fd-walk-rms.t.net",
+      "title": "Net displacement",
+      "explanation": "X_n, where a walker ends after n steps.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-fd-walk-rms.t.step",
+      "title": "Step size",
+      "explanation": "l, the root-mean-square size of one step.",
+      "foundation": "mean-variance-rms"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The typical distance of "
+    },
+    {
+      "text": "X",
+      "nodeId": "eq-model-fd-walk-rms.t.net"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "l",
+      "nodeId": "eq-model-fd-walk-rms.t.step"
+    },
+    {
+      "text": " times the square root of "
+    },
+    {
+      "text": "n",
+      "nodeId": "eq-model-fd-walk-rms.t.count"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

@@ -42,7 +42,8 @@
     {
       "kind": "formula",
       "latex": "\\frac{1}{\\sqrt\\pi}\\int_{-\\infty}^{\\infty}u^2e^{-u^2}\\,du=\\frac12",
-      "spoken": "The normalized integral of u squared times e to the minus u squared is one half."
+      "spoken": "The normalized integral of u squared times e to the minus u squared is one half.",
+      "equations": ["eq-model-fd-gaussian-moment-integral"]
     },
     {
       "kind": "paragraph",

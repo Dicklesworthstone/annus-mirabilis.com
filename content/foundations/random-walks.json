@@ -19,7 +19,8 @@
     {
       "kind": "formula",
       "latex": "\\langle X_n^2\\rangle=nl^2,\\qquad \\sqrt{\\langle X_n^2\\rangle}=l\\sqrt n",
-      "spoken": "The mean square is n times ell squared, and RMS displacement is ell times the square root of n."
+      "spoken": "The mean square is n times ell squared, and RMS displacement is ell times the square root of n.",
+      "equations": ["eq-model-fd-walk-mean-square", "eq-model-fd-walk-rms"]
     }
   ],
   "example": [

@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-distance-in-interval",
+  "paper": "foundations",
+  "argument": "derivatives",
+  "title": "Distance covered in a short interval",
+  "spoken": "Three times t plus delta t, squared, minus three t squared, equals six t delta t plus three delta t squared.",
+  "explanation": "For x = 3t² metres, the distance covered between t and t + Delta t, multiplied out.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "x = 3t² metres with t in seconds, so the 3 carries metres per second squared.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-distance-in-interval.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "sum",
+      "opId": "eq-model-fd-distance-in-interval.op.difference",
+      "args": [
+        {
+          "kind": "product",
+          "opId": "eq-model-fd-distance-in-interval.op.later",
+          "args": [
+            {
+              "kind": "number",
+              "value": "3"
+            },
+            {
+              "kind": "power",
+              "opId": "eq-model-fd-distance-in-interval.op.laterSquare",
+              "base": {
+                "kind": "sum",
+                "opId": "eq-model-fd-distance-in-interval.op.shifted",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-distance-in-interval.t.t",
+                    "quantityId": "elapsedTime"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-distance-in-interval.t.dt",
+                    "quantityId": "timeIncrement"
+                  }
+                ]
+              },
+              "exponent": {
+                "num": 2,
+                "den": 1
+              }
+            }
+          ]
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "product",
+            "opId": "eq-model-fd-distance-in-interval.op.earlier",
+            "args": [
+              {
+                "kind": "number",
+                "value": "3"
+              },
+              {
+                "kind": "power",
+                "opId": "eq-model-fd-distance-in-interval.op.earlierSquare",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-distance-in-interval.t.t2",
+                  "quantityId": "elapsedTime"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-fd-distance-in-interval.op.expanded",
+      "args": [
+        {
+          "kind": "product",
+          "opId": "eq-model-fd-distance-in-interval.op.linear",
+          "args": [
+            {
+              "kind": "number",
+              "value": "6"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-distance-in-interval.t.t3",
+              "quantityId": "elapsedTime"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-distance-in-interval.t.dt2",
+              "quantityId": "timeIncrement"
+            }
+          ]
+        },
+        {
+          "kind": "product",
+          "opId": "eq-model-fd-distance-in-interval.op.quadratic",
+          "args": [
+            {
+              "kind": "number",
+              "value": "3"
+            },
+            {
+              "kind": "power",
+              "opId": "eq-model-fd-distance-in-interval.op.dtSquare",
+              "base": {
+                "kind": "symbol",
+                "termId": "eq-model-fd-distance-in-interval.t.dtSquareDt",
+                "quantityId": "timeIncrement"
+              },
+              "exponent": {
+                "num": 2,
+                "den": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.difference",
+      "title": "Distance covered",
+      "explanation": "Position at the end of the interval minus position at its start.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.dtSquare",
+      "title": "Delta t squared",
+      "explanation": "The interval times itself.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.earlier",
+      "title": "Position at t",
+      "explanation": "3 times t squared.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.earlierSquare",
+      "title": "t squared",
+      "explanation": "t times itself.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.expanded",
+      "title": "Multiplied out",
+      "explanation": "A part that grows with Delta t and a part that grows with its square.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.later",
+      "title": "Position later",
+      "explanation": "3 times (t + Delta t) squared.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.laterSquare",
+      "title": "Squared",
+      "explanation": "(t + Delta t) times itself.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.linear",
+      "title": "6 t Delta t",
+      "explanation": "The part proportional to the interval.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.quadratic",
+      "title": "3 times Delta t squared",
+      "explanation": "The part that shrinks much faster than the interval.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.relation",
+      "title": "What it asserts",
+      "explanation": "The distance covered in the interval, multiplied out.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.op.shifted",
+      "title": "t plus Delta t",
+      "explanation": "The end of the interval.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.t.dt",
+      "title": "The interval",
+      "explanation": "Delta t, the time added.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.t.dt2",
+      "title": "The interval",
+      "explanation": "The same Delta t.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.t.dtSquareDt",
+      "title": "The interval",
+      "explanation": "The same Delta t.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.t.t",
+      "title": "Time",
+      "explanation": "The start of the interval.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.t.t2",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-distance-in-interval.t.t3",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The distance covered between "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-fd-distance-in-interval.t.t"
+    },
+    {
+      "text": " and t plus "
+    },
+    {
+      "text": "Delta t",
+      "nodeId": "eq-model-fd-distance-in-interval.t.dt"
+    },
+    {
+      "text": " is six t Delta t plus three Delta t squared."
+    }
+  ]
+}

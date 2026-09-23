@@ -80,6 +80,60 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
         glyph: "v",
         definition: "A volume: v_0 is the whole volume the molecules move in, and v a part of it.",
       }),
+      // Derivatives: the Brownian paper's section 4 concentration, and the difference quotient.
+      pick(BROWNIAN_QUANTITIES, "diffusionCoefficient"),
+      pick(BROWNIAN_QUANTITIES, "positionCoordinate1d", {
+        definition: "Position along the tube, the coordinate the concentration varies with.",
+      }),
+      own({
+        id: "numberDensity",
+        name: "Concentration",
+        glyph: "f",
+        dimension: ["-3", "0", "0", "0", "0", "0"],
+        unit: "1/m^3",
+        displayUnit: "1/m^3",
+        displayPower: 0,
+        semanticKind: "number-density",
+        role: "result",
+        definition:
+          "Section 4's f: the number of particles per unit volume at position x and time t.",
+      }),
+      own({
+        id: "elapsedTime",
+        name: "Time",
+        glyph: "t",
+        dimension: ["0", "0", "1", "0", "0", "0"],
+        unit: "s",
+        displayUnit: "s",
+        displayPower: 0,
+        semanticKind: "elapsed-time",
+        role: "input",
+        definition: "The time at which the position or the concentration is read.",
+      }),
+      own({
+        id: "timeIncrement",
+        name: "A short interval",
+        glyph: "\\Delta t",
+        dimension: ["0", "0", "1", "0", "0", "0"],
+        unit: "s",
+        displayUnit: "s",
+        displayPower: 0,
+        // A duration like t, so t + Delta t is a sum of like quantities.
+        semanticKind: "elapsed-time",
+        role: "input",
+        definition:
+          "A short interval added to t in a difference quotient; the derivative is where the quotient settles as it shrinks.",
+      }),
+      // Random walks: a walker's net displacement after n steps, printed X_n in the lesson.
+      pick(BROWNIAN_QUANTITIES, "displacement1d", {
+        glyph: "X",
+        definition:
+          "X_n: a walker's net displacement after n steps, the sum of the n signed steps.",
+      }),
+      pick(BROWNIAN_QUANTITIES, "stepRms"),
+      pick(BROWNIAN_QUANTITIES, "walkStepCount"),
+      // The Gaussian: the unitless variable of the moment integral.
+      pick(BROWNIAN_QUANTITIES, "scaledDisplacement"),
     ].map((q) => [q.id, q]),
   ),
 );

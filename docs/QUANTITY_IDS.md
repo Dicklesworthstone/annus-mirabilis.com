@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 276 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 277 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -250,6 +250,7 @@ Total: 276 quantities, 45 rejected spellings, 2 reserved spellings.
 | systemEnergy | System energy | 2,1,-2,0,0,0 | not-applicable | scalar | — |
 | temperature | Temperature | 0,0,0,1,0,0 | not-applicable | scalar | — |
 | thresholdFrequency | Threshold frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
+| timeIncrement | Time increment | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | timeStep | Time step | 0,0,1,0,0,0 | not-applicable | scalar | — |
 | transformationCoefficientA | Transformation coefficient: a | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | transitionKernel | Transition kernel | -1,0,0,0,0,0 | not-applicable | scalar | — |
