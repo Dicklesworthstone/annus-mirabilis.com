@@ -41,7 +41,7 @@ function getNotApplicableReason(snap: AcceptedSnapshot | null, quantityId: strin
 describe("LQ-08 Photoelectric Apparatus Lab View & Route", () => {
   test("static page renders cleanly without javascript and includes key sections", () => {
     const html = renderToStaticMarkup(<PhotoelectricPage />);
-    expect(html).toContain("Energy is discrete");
+    expect(html).toContain("Brighter light, more electrons.");
     expect(containsHeading(html, "The Single-Quantum Energy Conservation Law")).toBe(true);
     expect(html).toContain('data-view-id="lq-08-energy-diagram"');
     expect(html).toContain('data-view-id="lq-08-stopping-plot"');
