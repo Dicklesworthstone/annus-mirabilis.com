@@ -19,22 +19,24 @@ export function CameraPath({ snapshot }: { snapshot: AcceptedSnapshot }) {
   const tEnd = t.length > 0 ? t.at(t.length - 1) : 1;
   const lo = Math.min(0, ...values),
     hi = Math.max(1e-30, ...values),
-    x = (v: number) => 70 + (460 * v) / (tEnd || 1),
+    // All three camera charts are 300 units wide, like the walk and tracer plots: at 570 units
+    // the site's label size rendered at 7.5px on a 390px phone.
+    x = (v: number) => 68 + (217 * v) / (tEnd || 1),
     y = (v: number) => 242 - (205 * (v - lo)) / (hi - lo || 1);
   return (
     <figure className="plot camera-plot" {...identity(snapshot)}>
       <svg
         role="img"
-        viewBox="0 0 570 300"
+        viewBox="0 0 300 300"
         aria-label="The same x path seen at frame starts, averaged during exposure, and measured by the camera. All positions are available in the numerical table."
       >
-        <path className="axis" d="M70 25V245H530" />
+        <path className="axis" d="M68 25V245H285" />
         {[0, 0.5, 1].map((f) => (
           <g key={`fraction-${f}`}>
-            <text x="63" y={y(lo + f * (hi - lo)) + 4} textAnchor="end">
+            <text x="62" y={y(lo + f * (hi - lo)) + 4} textAnchor="end">
               {display(lo + f * (hi - lo), 1e6)}
             </text>
-            <text x={70 + 460 * f} y="267" textAnchor="middle">
+            <text x={68 + 217 * f} y="267" textAnchor={f === 1 ? "end" : "middle"}>
               {display(tEnd * f)}
             </text>
           </g>
@@ -52,10 +54,10 @@ export function CameraPath({ snapshot }: { snapshot: AcceptedSnapshot }) {
             }).join(" ")}
           />
         ))}
-        <text x="70" y="17">
+        <text x="68" y="17">
           x position (μm)
         </text>
-        <text x="300" y="294" textAnchor="middle">
+        <text x="176" y="294" textAnchor="middle">
           Exposure start time (s)
         </text>
       </svg>
@@ -80,20 +82,25 @@ export function CameraSpeed({ snapshot }: { snapshot: AcceptedSnapshot }) {
     right = Math.log10(t0),
     bottom = Math.log10(a0),
     top = Math.max(Math.log10(b5), bottom + 1);
-  const x = (v: number) => 70 + (460 * (Math.log10(v) - left)) / (right - left || 1),
+  const x = (v: number) => 68 + (217 * (Math.log10(v) - left)) / (right - left || 1),
     y = (v: number) => 238 - (200 * (Math.log10(v) - bottom)) / (top - bottom || 1);
   return (
     <figure className="plot camera-plot" {...identity(snapshot)}>
       <svg
         role="img"
-        viewBox="0 0 570 310"
+        viewBox="0 0 300 310"
         aria-label="Hypothetical zero-exposure apparent speeds on logarithmic axes. Localization error increases the apparent spread per interval. Numerical values follow."
       >
-        <path className="axis" d="M70 25V242H530" />
+        <path className="axis" d="M68 25V242H285" />
         {[0, 2, 5].map((idx) => {
           const tVal = idx < times.length ? times.at(idx) : 0;
           return (
-            <text key={`time-tick-${idx}`} x={x(tVal || 1e-6)} y="265" textAnchor="middle">
+            <text
+              key={`time-tick-${idx}`}
+              x={x(tVal || 1e-6)}
+              y="265"
+              textAnchor={idx === 0 ? "end" : "middle"}
+            >
               {display(tVal)}
             </text>
           );
@@ -117,17 +124,17 @@ export function CameraSpeed({ snapshot }: { snapshot: AcceptedSnapshot }) {
             }).join(" ")}
           />
         ))}
-        <text x="70" y="17">
+        <text x="68" y="17">
           Apparent spread speed (μm/s)
         </text>
-        <text x="300" y="293" textAnchor="middle">
-          Hypothetical spacing (s); logarithmic axes
+        <text x="176" y="293" textAnchor="middle">
+          Hypothetical spacing (s)
         </text>
       </svg>
       <figcaption>
-        Dashed: ideal spread divided by interval. Solid: the same model with localization noise and
-        zero exposure. These are analytical comparisons, not extra observed frames or instantaneous
-        particle velocities.
+        Both axes are logarithmic. Dashed: ideal spread divided by interval. Solid: the same model
+        with localization noise and zero exposure. These are analytical comparisons, not extra
+        observed frames or instantaneous particle velocities.
       </figcaption>
     </figure>
   );
@@ -172,17 +179,17 @@ export function CameraCoverage({ snapshot }: { snapshot: AcceptedSnapshot }) {
   }
 
   const max = Math.max(1.25, ...trials.map((t) => Math.max(t.naiveUpper, t.pairUpper)));
-  const x = (v: number) => 55 + (475 * v) / max,
+  const x = (v: number) => 44 + (241 * v) / max,
     y = (i: number) => 30 + (290 * (i + 0.5)) / (n || 1);
   return (
     <>
       <figure className="plot camera-plot" {...identity(snapshot)}>
         <svg
           role="img"
-          viewBox="0 0 570 365"
+          viewBox="0 0 300 365"
           aria-label="All hypothetical naive and corrected intervals, normalized by the true diffusivity. A vertical line marks the true value. Empty corrected sets are shown as crosses at the left margin, not as zero-width intervals."
         >
-          <path className="axis" d="M55 20V325H530" />
+          <path className="axis" d="M44 20V325H285" />
           <path className="camera-truth" d={`M${x(1)} 20V325`} />
           {trials.map((t) => (
             <g key={t.id}>
@@ -194,7 +201,7 @@ export function CameraCoverage({ snapshot }: { snapshot: AcceptedSnapshot }) {
                 y2={y(t.idx) - 1}
               />
               {t.isEmpty ? (
-                <text x="43" y={y(t.idx) + 4}>
+                <text x="30" y={y(t.idx) + 4}>
                   ×
                 </text>
               ) : (
@@ -209,15 +216,15 @@ export function CameraCoverage({ snapshot }: { snapshot: AcceptedSnapshot }) {
             </g>
           ))}
           {[
-            { id: "bound-0", val: 0 },
-            { id: "bound-1", val: 1 },
-            { id: "bound-max", val: max },
+            { id: "bound-0", val: 0, anchor: "middle" },
+            { id: "bound-1", val: 1, anchor: "middle" },
+            { id: "bound-max", val: max, anchor: "end" },
           ].map((bound) => (
-            <text key={bound.id} x={x(bound.val)} y="344" textAnchor="middle">
+            <text key={bound.id} x={x(bound.val)} y="344" textAnchor={bound.anchor}>
               {display(bound.val)}
             </text>
           ))}
-          <text x="280" y="362" textAnchor="middle">
+          <text x="165" y="362" textAnchor="middle">
             Interval bounds / generating D
           </text>
         </svg>
