@@ -47,7 +47,10 @@ export function LightComplexPlot({
   // around x = 600; each FramePair panel's viewBox crops its own half. The k ellipse's
   // radii are clamped to 130, so it stays inside x 470 to 730 at every speed.
   const cx1 = 200;
-  const cy = 190;
+  // Lower than it was (190), to make room for a two-line subtitle. At the panels' text size, 15.84
+  // viewBox units with a 20.4-unit line box, the one-line subtitle ran past the panel's right edge and
+  // sat on the y-axis label. Title, subtitle and values now stand 21 units apart, above the axis tip.
+  const cy = 214;
   const cx2 = 600;
   const baseRadius = 55;
 
@@ -107,9 +110,11 @@ export function LightComplexPlot({
               <text x={40} y={35} fontSize="14" fontWeight="600" fill="var(--ink)">
                 Stationary Frame K
               </text>
-              <text x={40} y={55} fontSize="12" fill="var(--muted)">
-                Spherical light complex · E = {energyStationaryJ.toFixed(2)} J · V ={" "}
-                {volumeStationaryM3.toFixed(2)} m³
+              <text x={40} y={56} fontSize="12" fill="var(--muted)">
+                Spherical light complex
+              </text>
+              <text x={40} y={77} fontSize="12" fill="var(--muted)">
+                E = {energyStationaryJ.toFixed(2)} J · V = {volumeStationaryM3.toFixed(2)} m³
               </text>
 
               {/* Coordinate axes */}
@@ -132,7 +137,7 @@ export function LightComplexPlot({
               <text x={cx1 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
                 x
               </text>
-              <text x={cx1} y={cy - 125} fontSize="10" fill="var(--muted)" textAnchor="middle">
+              <text x={cx1 + 8} y={cy - 104} fontSize="10" fill="var(--muted)">
                 y
               </text>
 
@@ -189,9 +194,11 @@ export function LightComplexPlot({
                 strokeWidth={1.2}
                 strokeDasharray="2 2"
               />
+              {/* The angle's value is read in the panel's lower corner. Beside the arc it sat on the
+                  circle's edge, and a reader sets φ, so no fixed spot near the ray stays clear. */}
               <text
-                x={cx1 + 32}
-                y={cy - 10}
+                x={40}
+                y={cy + 112}
                 fontSize="12"
                 fontFamily="var(--font-mono, monospace)"
                 fontWeight="500"
@@ -237,9 +244,11 @@ export function LightComplexPlot({
               <text x={cx2 - 140} y={35} fontSize="14" fontWeight="600" fill="var(--ink)">
                 Moving Frame k (β = {beta.toFixed(2)}c)
               </text>
-              <text x={cx2 - 140} y={55} fontSize="12" fill="var(--muted)">
-                Physical complex · E′ = {energyMovingJ.toFixed(2)} J · V′ ={" "}
-                {volumeMovingM3.toFixed(2)} m³
+              <text x={cx2 - 140} y={56} fontSize="12" fill="var(--muted)">
+                Physical complex
+              </text>
+              <text x={cx2 - 140} y={77} fontSize="12" fill="var(--muted)">
+                E′ = {energyMovingJ.toFixed(2)} J · V′ = {volumeMovingM3.toFixed(2)} m³
               </text>
 
               {/* Coordinate axes */}
@@ -262,7 +271,7 @@ export function LightComplexPlot({
               <text x={cx2 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
                 x′
               </text>
-              <text x={cx2} y={cy - 125} fontSize="10" fill="var(--muted)" textAnchor="middle">
+              <text x={cx2 + 8} y={cy - 104} fontSize="10" fill="var(--muted)">
                 y′
               </text>
 
@@ -279,7 +288,7 @@ export function LightComplexPlot({
                 />
                 <text
                   x={25}
-                  y={-5}
+                  y={-9}
                   fontSize="10"
                   fontFamily="var(--font-mono, monospace)"
                   fill="var(--accent)"
@@ -303,8 +312,8 @@ export function LightComplexPlot({
                     strokeDasharray="4 3"
                   />
                   <text
-                    x={cx2 + rx_rod + 6}
-                    y={cy + ry_rod - 10}
+                    x={cx2 + 40}
+                    y={cy + 133}
                     fontSize="9"
                     fontFamily="var(--font-mono, monospace)"
                     fill="var(--muted)"
@@ -349,8 +358,8 @@ export function LightComplexPlot({
                 strokeDasharray="2 2"
               />
               <text
-                x={cx2 + 32}
-                y={cy - 10}
+                x={cx2 + 40}
+                y={cy + 112}
                 fontSize="12"
                 fontFamily="var(--font-mono, monospace)"
                 fontWeight="500"
