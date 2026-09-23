@@ -57,8 +57,10 @@ describe("LQ-05 UI components and route", () => {
       />,
     );
 
-    expect(htmlIndep).toContain("W = fⁿ");
-    expect(htmlLocked).toContain("W_locked = f");
+    // Raised and lowered by markup (c5ac3b9c): no self-hosted face has ⁿ, and "W_locked" was raw.
+    expect(htmlIndep).toContain("W = f<sup>n</sup>");
+    expect(htmlLocked).toContain("W<sub>locked</sub> = f");
+    for (const html of [htmlIndep, htmlLocked]) expect(html).not.toMatch(/ⁿ|W_locked/);
     expect(htmlLocked).toContain("Locked cluster (rigidly coupled)");
   });
 

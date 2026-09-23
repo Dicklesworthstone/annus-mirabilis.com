@@ -97,7 +97,9 @@ describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
       const electrons = Number(counts[2]);
       if (more === "electrons") expect(electrons).toBeGreaterThan(ions);
       else expect(ions).toBeGreaterThan(electrons);
-      expect(html).toContain("J′ₓ = 1.25 A/m²");
+      // J′ with a lowered x (c5ac3b9c); no self-hosted face has ₓ.
+      expect(html).toContain("J′<sub>x</sub> = 1.25 A/m²");
+      expect(html).not.toContain("ₓ");
     }
   });
 });
