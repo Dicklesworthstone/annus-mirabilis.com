@@ -355,3 +355,49 @@ describe("radiation.spectra (am-ref-radiation-15c)", () => {
     });
   });
 });
+
+describe("regimeRelativeErrors measures both approximations against Planck (am-ref-radiation-15c)", () => {
+  // Both errors are (u_approx - u_Planck) / u_Planck, recomputed here from the three densities
+  // themselves rather than from the owner's closed forms. The classical one was 1 - x/(e^x - 1),
+  // which divides by the classical value: equal to first order at small x, but 0.98 at x = 5.76,
+  // where the classical law is 54.9 times Planck's, and a 1% boundary of 0.020067 where the bead
+  // specifies 0.0198678.
+  const set = getConstantSet("modern-si-2019");
+  const kB = 1.380649e-23;
+  const h = 6.62607015e-34;
+  const T = 5000;
+  const valueOf = (r: { status: string; value?: unknown }) => {
+    expect(r.status).toBe("value");
+    return r.value as number;
+  };
+  it("matches the densities at small, middling and large x", () => {
+    for (const x of [0.01, 0.5, 2, 5.759091688039465, 20]) {
+      const nu = (x * kB * T) / h;
+      const planck = valueOf(planckFrequencyEnergyDensity(nu, T, set));
+      const wien = valueOf(wienFrequencyEnergyDensity(nu, T, set));
+      const classical = valueOf(rayleighJeansFrequencyEnergyDensity(nu, T, set));
+      const report = regimeRelativeErrors(nu, T, set);
+      // planck - wien cancels about x / ln 10 digits (8.7 at x = 20, where the two sides differ
+      // by 2e-6 relative), so this side is checked to 1e-5; the classical side has no such
+      // cancellation and is held to 1e-9.
+      expect(
+        withinTolerance(report.wienRelativeError, (planck - wien) / planck, { relative: 1e-5 }).ok,
+      ).toBe(true);
+      expect(
+        withinTolerance(report.rayleighJeansRelativeError, (classical - planck) / planck, {
+          relative: 1e-9,
+        }).ok,
+      ).toBe(true);
+    }
+  });
+  it("puts the 1% classical boundary at the bead's x = 0.0198678", () => {
+    const report = regimeRelativeErrors(600e12, T, set, { epsilonRJ: 0.01 });
+    expect(withinTolerance(report.rayleighJeansBoundaryX, 0.0198678, { relative: 1e-5 }).ok).toBe(
+      true,
+    );
+  });
+  it("reports an error past binary64 as Infinity, never as a plausible finite number", () => {
+    const report = regimeRelativeErrors(1e25, 500, set);
+    expect(report.rayleighJeansRelativeError).toBe(Number.POSITIVE_INFINITY);
+  });
+});

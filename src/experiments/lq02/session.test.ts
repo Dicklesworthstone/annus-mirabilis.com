@@ -39,12 +39,12 @@ describe("computeLq02Snapshot: golden default (T = 1500 K, nu_c = 1e14 Hz)", () 
   });
 
   test("regime boundaries come from the owner's regimeRelativeErrors, never a literal in this module", () => {
-    // The bead text states the classical (Rayleigh-Jeans) 1% boundary as x = 0.0198678, but
-    // solving 1 - x/(e^x - 1) = 0.01 independently (verified here by bisection, not by trusting
-    // the bead's literal) gives x = 0.020067114..., which is what the owner's regimeRelativeErrors
-    // actually returns. Reported to am-ref-radiation-15c / this bead rather than silently matched
-    // to the bead's number or silently "corrected" in the owner, which this bead does not own.
-    expect(snapshot.regimeBoundaries.classicalBoundaryX).toBeCloseTo(0.020067114396262874, 12);
+    // The classical (Rayleigh-Jeans) 1% boundary is where (u_classical - u_Planck)/u_Planck =
+    // (e^x - 1)/x - 1 reaches 0.01, x = 0.0198678, as the bead states. Until 2026-09-23 the owner
+    // divided by u_classical instead, 1 - x/(e^x - 1), and this test pinned the resulting 0.020067
+    // with a note that the discrepancy had been reported to am-ref-radiation-15c; the owner now
+    // follows the bead (tested against the densities in src/testing/radiation.spectra.test.ts).
+    expect(snapshot.regimeBoundaries.classicalBoundaryX).toBeCloseTo(0.019867767798097354, 12);
     expect(snapshot.regimeBoundaries.wienBoundaryX).toBeCloseTo(4.605170186, 6);
   });
 
