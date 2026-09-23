@@ -142,7 +142,7 @@ export function MeanEnergyStripPlot({
         <span
           className="fine"
           style={{
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             fontFamily: "var(--font-mono, monospace)",
           }}
         >
@@ -153,7 +153,7 @@ export function MeanEnergyStripPlot({
       <p
         className="fine"
         style={{
-          fontSize: "0.75rem",
+          fontSize: "var(--type-fine)",
           marginBottom: "1rem",
         }}
       >

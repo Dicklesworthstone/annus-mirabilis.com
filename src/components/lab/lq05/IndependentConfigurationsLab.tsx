@@ -322,7 +322,7 @@ export function IndependentConfigurationsLab({
                 <button
                   type="button"
                   className="button secondary"
-                  style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}
+                  style={{ padding: "0.25rem 0.5rem", fontSize: "var(--type-fine)" }}
                   onClick={() => setFraction(0.5)}
                 >
                   Half (1/2)
@@ -330,7 +330,7 @@ export function IndependentConfigurationsLab({
                 <button
                   type="button"
                   className="button secondary"
-                  style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}
+                  style={{ padding: "0.25rem 0.5rem", fontSize: "var(--type-fine)" }}
                   onClick={() => setFraction(0.25)}
                 >
                   Quarter (1/4)
@@ -338,7 +338,7 @@ export function IndependentConfigurationsLab({
                 <button
                   type="button"
                   className="button secondary"
-                  style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}
+                  style={{ padding: "0.25rem 0.5rem", fontSize: "var(--type-fine)" }}
                   onClick={() => setFraction(1.0)}
                 >
                   Full (1)
@@ -383,7 +383,7 @@ export function IndependentConfigurationsLab({
                   <button
                     type="button"
                     className={`button ${p.view === "enumeration" ? "" : "secondary"}`}
-                    style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
+                    style={{ padding: "0.25rem 0.625rem", fontSize: "var(--type-fine)" }}
                     onClick={() => setViewMode("enumeration")}
                   >
                     Enumeration
@@ -391,7 +391,7 @@ export function IndependentConfigurationsLab({
                   <button
                     type="button"
                     className={`button ${p.view === "sampling" ? "" : "secondary"}`}
-                    style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
+                    style={{ padding: "0.25rem 0.625rem", fontSize: "var(--type-fine)" }}
                     onClick={() => setViewMode("sampling")}
                   >
                     Sampling
@@ -399,7 +399,7 @@ export function IndependentConfigurationsLab({
                   <button
                     type="button"
                     className={`button ${p.view === "logarithmic" ? "" : "secondary"}`}
-                    style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
+                    style={{ padding: "0.25rem 0.625rem", fontSize: "var(--type-fine)" }}
                     onClick={() => setViewMode("logarithmic")}
                   >
                     Logarithmic
@@ -445,7 +445,7 @@ export function IndependentConfigurationsLab({
               marginTop: "0.75rem",
               padding: "0.75rem",
               fontFamily: "var(--font-mono)",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               wordBreak: "break-all",
             }}
           >
@@ -471,7 +471,7 @@ export function IndependentConfigurationsLab({
               width: "100%",
               textAlign: "left",
               fontFamily: "var(--font-mono)",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               borderCollapse: "collapse",
             }}
           >

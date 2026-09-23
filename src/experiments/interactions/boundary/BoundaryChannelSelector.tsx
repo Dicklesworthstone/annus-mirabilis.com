@@ -129,7 +129,7 @@ export function BoundaryChannelSelector({
         <h4
           className="eyebrow"
           style={{
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.05em",
@@ -156,7 +156,7 @@ export function BoundaryChannelSelector({
             className="button"
             style={{
               padding: "0.25rem 0.625rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontWeight: 500,
               background: "var(--panel)",
               border: "1px solid var(--line)",
@@ -174,7 +174,7 @@ export function BoundaryChannelSelector({
             className="button"
             style={{
               padding: "0.25rem 0.625rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontWeight: 500,
               background: "var(--panel)",
               border: "1px solid var(--line)",
@@ -192,7 +192,7 @@ export function BoundaryChannelSelector({
             className="button"
             style={{
               padding: "0.25rem 0.625rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontWeight: 500,
               background: "var(--panel)",
               border: "1px solid var(--line)",
@@ -229,7 +229,7 @@ export function BoundaryChannelSelector({
                   border: isChecked ? "1px solid var(--accent)" : "1px solid var(--line)",
                   background: isChecked ? "var(--wash)" : "var(--panel)",
                   color: "var(--ink)",
-                  fontSize: "0.75rem",
+                  fontSize: "var(--type-fine)",
                   fontWeight: isChecked ? 500 : "normal",
                   cursor: disabled ? "not-allowed" : "pointer",
                 }}
@@ -247,7 +247,7 @@ export function BoundaryChannelSelector({
                 />
                 <div>
                   <div style={{ fontWeight: 600, color: "var(--ink)" }}>{member.label}</div>
-                  <div style={{ color: "var(--muted)", fontSize: "0.75rem" }}>
+                  <div style={{ color: "var(--muted)", fontSize: "var(--type-fine)" }}>
                     {member.description}
                   </div>
                 </div>
@@ -265,7 +265,7 @@ export function BoundaryChannelSelector({
             display: "grid",
             gridTemplateColumns: "repeat(2, 1fr)",
             gap: "0.5rem",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             fontFamily: "var(--font-mono, monospace)",
           }}
         >

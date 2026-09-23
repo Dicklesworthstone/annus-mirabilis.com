@@ -368,7 +368,7 @@ export function LightComplexPlot({
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(min(160px, 100%), 1fr))",
           gap: "0.75rem",
-          fontSize: "0.75rem",
+          fontSize: "var(--type-fine)",
         }}
       >
         <div
@@ -481,7 +481,7 @@ export function LightComplexPlot({
             borderRadius: "0.375rem",
             border: "1px solid rgba(245, 158, 11, 0.4)",
             background: "rgba(245, 158, 11, 0.1)",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
           }}
         >
           <div style={{ fontWeight: 600, color: "var(--ink)" }}>

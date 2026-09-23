@@ -130,7 +130,7 @@ export function ExpressionActionPicker({
           <h4
             className="eyebrow"
             style={{
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontWeight: 600,
               textTransform: "uppercase",
               letterSpacing: "0.05em",
@@ -149,7 +149,7 @@ export function ExpressionActionPicker({
           </h4>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               color: "var(--muted)",
               fontFamily: "var(--font-mono, monospace)",
             }}
@@ -182,7 +182,7 @@ export function ExpressionActionPicker({
                 style={{
                   padding: "0.375rem 0.625rem",
                   borderRadius: "0.25rem",
-                  fontSize: "0.75rem",
+                  fontSize: "var(--type-fine)",
                   textAlign: "left",
                   cursor: disabled ? "not-allowed" : "pointer",
                   background: isSelected ? "var(--accent)" : "var(--panel)",
@@ -215,7 +215,7 @@ export function ExpressionActionPicker({
               border: "1px solid var(--line)",
               borderRadius: "0.25rem",
               marginBottom: "0.75rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
             }}
           >
             <div
@@ -235,7 +235,7 @@ export function ExpressionActionPicker({
                     borderRadius: "0.25rem",
                     color: "var(--muted)",
                     fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.75rem",
+                    fontSize: "var(--type-fine)",
                     border: "1px solid var(--line)",
                   }}
                 >
@@ -253,7 +253,7 @@ export function ExpressionActionPicker({
                 padding: "0.375rem",
                 borderRadius: "0.25rem",
                 color: "var(--ink)",
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 border: "1px solid var(--line)",
               }}
             >
@@ -270,7 +270,7 @@ export function ExpressionActionPicker({
             justifyContent: "space-between",
             paddingTop: "0.5rem",
             borderTop: "1px solid var(--line)",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
           }}
         >
           <button

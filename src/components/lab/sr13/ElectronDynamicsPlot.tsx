@@ -356,7 +356,7 @@ export function ElectronDynamicsPlot({
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))",
           gap: "0.75rem",
-          fontSize: "0.8rem",
+          fontSize: "var(--type-fine)",
         }}
       >
         <div
@@ -449,7 +449,7 @@ export function ElectronDynamicsPlot({
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(min(160px, 100%), 1fr))",
           gap: "0.75rem",
-          fontSize: "0.8rem",
+          fontSize: "var(--type-fine)",
         }}
       >
         <div
@@ -557,7 +557,7 @@ export function ElectronDynamicsPlot({
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))",
           gap: "0.75rem",
-          fontSize: "0.8rem",
+          fontSize: "var(--type-fine)",
         }}
       >
         <div
@@ -618,7 +618,7 @@ export function ElectronDynamicsPlot({
       </div>
 
       {/* Convention Insight Note */}
-      <div className="notice" style={{ fontSize: "0.8rem" }}>
+      <div className="notice" style={{ fontSize: "var(--type-fine)" }}>
         <div style={{ fontWeight: 600 }}>Force Definition Convention Independence</div>
         <p style={{ margin: "0.25rem 0 0" }}>
           Switching between Einstein&apos;s 1905 convention (comoving force / stationary

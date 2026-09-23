@@ -342,7 +342,7 @@ export function DopplerAberrationPlot({
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(min(160px, 100%), 1fr))",
           gap: "0.75rem",
-          fontSize: "0.75rem",
+          fontSize: "var(--type-fine)",
         }}
       >
         <div

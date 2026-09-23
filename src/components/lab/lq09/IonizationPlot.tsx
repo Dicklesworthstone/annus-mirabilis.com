@@ -58,7 +58,7 @@ export function IonizationThresholdLadderPlot({
       </h3>
       <p
         style={{
-          fontSize: "0.75rem",
+          fontSize: "var(--type-fine)",
           color: "var(--muted)",
           marginBottom: "0.5rem",
         }}
@@ -290,7 +290,7 @@ export function IonizationCountingPlot({
       </h3>
       <p
         style={{
-          fontSize: "0.75rem",
+          fontSize: "var(--type-fine)",
           color: "var(--muted)",
           marginBottom: "0.5rem",
         }}

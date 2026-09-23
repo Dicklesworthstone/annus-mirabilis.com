@@ -135,7 +135,7 @@ export function DensityProfilePlot({
           display: "flex",
           flexWrap: "wrap",
           gap: "1rem",
-          fontSize: "0.75rem",
+          fontSize: "var(--type-fine)",
           color: "var(--muted)",
           marginTop: "0.5rem",
         }}
@@ -350,7 +350,7 @@ export function ForceCancellationPanel({
                   borderRadius: "0.25rem",
                   background: "var(--panel)",
                   color: "var(--muted)",
-                  fontSize: "0.75rem",
+                  fontSize: "var(--type-fine)",
                   border: "1px solid var(--line)",
                 }}
               >
@@ -358,7 +358,7 @@ export function ForceCancellationPanel({
               </span>
             )}
           </p>
-          <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--muted)" }}>
+          <p style={{ margin: 0, fontSize: "var(--type-fine)", color: "var(--muted)" }}>
             Calculated directly from the force-balance exponential profile.
           </p>
         </div>
@@ -393,7 +393,7 @@ export function ForceCancellationPanel({
                   borderRadius: "0.25rem",
                   background: "var(--panel)",
                   color: "var(--muted)",
-                  fontSize: "0.75rem",
+                  fontSize: "var(--type-fine)",
                   border: "1px solid var(--line)",
                 }}
               >
@@ -401,7 +401,7 @@ export function ForceCancellationPanel({
               </span>
             )}
           </p>
-          <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--muted)" }}>
+          <p style={{ margin: 0, fontSize: "var(--type-fine)", color: "var(--muted)" }}>
             Measured from the steady-state concentration slope.
           </p>
         </div>

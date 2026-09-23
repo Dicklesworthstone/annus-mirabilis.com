@@ -47,7 +47,7 @@ export function IndependentConfigurationsPlot({
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontFamily: "var(--font-mono, monospace)",
               fontWeight: 500,
               color: "var(--ink)",
@@ -57,7 +57,7 @@ export function IndependentConfigurationsPlot({
           </span>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontFamily: "var(--font-mono, monospace)",
               fontWeight: 600,
               color: "var(--accent)",
@@ -162,7 +162,7 @@ export function IndependentConfigurationsPlot({
             justifyContent: "space-between",
             alignItems: "center",
             marginTop: "0.5rem",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             color: "var(--muted)",
           }}
         >
@@ -220,7 +220,7 @@ export function IndependentConfigurationsPlot({
           </h4>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               color: "var(--muted)",
               fontFamily: "var(--font-mono, monospace)",
             }}
@@ -296,7 +296,7 @@ export function IndependentConfigurationsPlot({
             background: "var(--wash)",
             border: "1px solid var(--line)",
             borderRadius: "0.5rem",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             color: "var(--ink)",
           }}
         >
@@ -323,7 +323,7 @@ export function IndependentConfigurationsPlot({
             background: "var(--wash)",
             border: "1px solid var(--line)",
             borderRadius: "0.5rem",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             color: "var(--ink)",
           }}
         >
@@ -342,7 +342,7 @@ export function IndependentConfigurationsPlot({
             background: "var(--wash)",
             border: "1px solid var(--line)",
             borderRadius: "0.5rem",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             color: "var(--ink)",
           }}
         >

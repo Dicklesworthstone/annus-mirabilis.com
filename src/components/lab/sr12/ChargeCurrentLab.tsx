@@ -185,7 +185,7 @@ export function ChargeCurrentLab({
         className="notice"
         style={{
           margin: "1rem 0",
-          fontSize: "0.8rem",
+          fontSize: "var(--type-fine)",
           display: "flex",
           flexDirection: "column",
           gap: "0.5rem",
@@ -205,7 +205,7 @@ export function ChargeCurrentLab({
             <button
               type="button"
               className={p.unitLayer === "si" ? "button" : "button secondary"}
-              style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem", minHeight: "auto" }}
+              style={{ padding: "0.2rem 0.5rem", fontSize: "var(--type-fine)", minHeight: "auto" }}
               onClick={() => apply({ ...p, unitLayer: "si" })}
             >
               SI (modern)
@@ -213,7 +213,7 @@ export function ChargeCurrentLab({
             <button
               type="button"
               className={p.unitLayer === "gaussian" ? "button" : "button secondary"}
-              style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem", minHeight: "auto" }}
+              style={{ padding: "0.2rem 0.5rem", fontSize: "var(--type-fine)", minHeight: "auto" }}
               onClick={() => apply({ ...p, unitLayer: "gaussian" })}
             >
               Gaussian 1905 (§9)
@@ -258,7 +258,12 @@ export function ChargeCurrentLab({
         >
           <div
             className="input-field"
-            style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.25rem",
+              fontSize: "var(--type-fine)",
+            }}
           >
             <label htmlFor={`${id}-boost-range`} style={{ fontWeight: 500 }}>
               Observer boost speed (v/c): {(draft.boost / C_SI).toFixed(3)}
@@ -299,7 +304,7 @@ export function ChargeCurrentLab({
               onChange={(e) =>
                 setDraft({ ...draft, boost: (parseFloat(e.target.value) || 0) * C_SI })
               }
-              style={{ fontSize: "0.8rem" }}
+              style={{ fontSize: "var(--type-fine)" }}
             />
           </div>
         </div>
@@ -311,7 +316,7 @@ export function ChargeCurrentLab({
               padding: "0.5rem 0.75rem",
               borderLeftColor: "var(--accent)",
               color: "var(--accent)",
-              fontSize: "0.8rem",
+              fontSize: "var(--type-fine)",
             }}
           >
             {error}
@@ -348,7 +353,7 @@ export function ChargeCurrentLab({
                 display: "flex",
                 flexDirection: "column",
                 gap: "0.25rem",
-                fontSize: "0.8rem",
+                fontSize: "var(--type-fine)",
               }}
             >
               <label htmlFor={`${id}-charge-density`} style={{ fontWeight: 500 }}>
@@ -363,12 +368,12 @@ export function ChargeCurrentLab({
                   setDraft({ ...draft, chargeDensity: parseFloat(e.target.value) || 0 })
                 }
                 aria-describedby={`${id}-charge-density-hint`}
-                style={{ fontSize: "0.8rem" }}
+                style={{ fontSize: "var(--type-fine)" }}
               />
               <span
                 id={`${id}-charge-density-hint`}
                 className="fine"
-                style={{ fontSize: "0.75rem" }}
+                style={{ fontSize: "var(--type-fine)" }}
               >
                 Set 0 for neutral conductor
               </span>
@@ -380,7 +385,7 @@ export function ChargeCurrentLab({
                 display: "flex",
                 flexDirection: "column",
                 gap: "0.25rem",
-                fontSize: "0.8rem",
+                fontSize: "var(--type-fine)",
               }}
             >
               <label htmlFor={`${id}-current-density-x`} style={{ fontWeight: 500 }}>
@@ -395,12 +400,12 @@ export function ChargeCurrentLab({
                   setDraft({ ...draft, currentDensityX: parseFloat(e.target.value) || 0 })
                 }
                 aria-describedby={`${id}-current-density-x-hint`}
-                style={{ fontSize: "0.8rem" }}
+                style={{ fontSize: "var(--type-fine)" }}
               />
               <span
                 id={`${id}-current-density-x-hint`}
                 className="fine"
-                style={{ fontSize: "0.75rem" }}
+                style={{ fontSize: "var(--type-fine)" }}
               >
                 Conduction current along x
               </span>
@@ -424,7 +429,7 @@ export function ChargeCurrentLab({
         <table
           style={{
             width: "100%",
-            fontSize: "0.8rem",
+            fontSize: "var(--type-fine)",
             textAlign: "left",
             borderCollapse: "collapse",
           }}
@@ -629,7 +634,7 @@ export function ChargeCurrentLab({
           margin: "1rem 0",
         }}
       >
-        <h4 className="eyebrow" style={{ margin: 0, fontSize: "0.75rem" }}>
+        <h4 className="eyebrow" style={{ margin: 0, fontSize: "var(--type-fine)" }}>
           Predict: is a neutral wire still neutral in a moving frame?
         </h4>
         <p style={{ margin: 0, fontSize: "0.85rem" }}>
@@ -647,7 +652,7 @@ export function ChargeCurrentLab({
               key={cand.id}
               type="button"
               className={prediction === cand.id ? "button" : "button secondary"}
-              style={{ fontSize: "0.75rem" }}
+              style={{ fontSize: "var(--type-fine)" }}
               onClick={() => setPrediction(cand.id)}
             >
               {cand.label}
@@ -661,7 +666,7 @@ export function ChargeCurrentLab({
             style={{
               padding: "0.75rem",
               borderRadius: "0.25rem",
-              fontSize: "0.8rem",
+              fontSize: "var(--type-fine)",
             }}
           >
             <p style={{ margin: "0 0 0.25rem", fontWeight: 600 }}>What the model says</p>
@@ -700,7 +705,7 @@ export function ChargeCurrentLab({
         <p style={{ margin: 0 }}>
           <strong>Continuity invariance (§9):</strong> {SR12_CAPTION.r3}
         </p>
-        <div style={{ paddingTop: "0.5rem", fontSize: "0.75rem" }}>
+        <div style={{ paddingTop: "0.5rem", fontSize: "var(--type-fine)" }}>
           <strong>Not modeled:</strong> {SR12_NOT_MODELED.join(", ")}.
         </div>
       </footer>

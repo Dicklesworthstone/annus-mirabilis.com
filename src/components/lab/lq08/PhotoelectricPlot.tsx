@@ -440,7 +440,7 @@ export function StoppingPotentialPlot({
         <div
           style={{
             marginTop: "0.5rem",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             padding: "0.5rem",
             borderRadius: "0.25rem",
             border: "1px solid var(--line)",
@@ -456,7 +456,7 @@ export function StoppingPotentialPlot({
             style={{
               margin: 0,
               fontFamily: "var(--font-mono, monospace)",
-              fontSize: "0.6875rem",
+              fontSize: "var(--type-fine)",
             }}
           >
             Slope fitted to them: <Sci value={millikanData.fittedSlopeVs} digits={4} /> V&middot;s

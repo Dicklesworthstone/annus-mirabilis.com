@@ -117,7 +117,7 @@ export function PartitionControl({
           <h4
             className="eyebrow"
             style={{
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontWeight: 600,
               textTransform: "uppercase",
               letterSpacing: "0.05em",
@@ -129,7 +129,7 @@ export function PartitionControl({
           </h4>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontFamily: "var(--font-mono, monospace)",
               background: "var(--wash)",
               border: "1px solid var(--line)",
@@ -145,7 +145,7 @@ export function PartitionControl({
         {/* Fixed Quantities Banner */}
         <div
           style={{
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             marginBottom: "0.75rem",
             background: "var(--wash)",
             border: "1px solid var(--line)",
@@ -206,7 +206,7 @@ export function PartitionControl({
             gap: "0.5rem",
             paddingTop: "0.5rem",
             borderTop: "1px solid var(--line)",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
           }}
         >
           <span className="fine" style={{ fontWeight: 500 }}>
@@ -219,7 +219,7 @@ export function PartitionControl({
             className="button"
             style={{
               padding: "0.25rem 0.625rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontFamily: "var(--font-mono, monospace)",
               background: "var(--panel)",
               border: "1px solid var(--line)",
@@ -237,7 +237,7 @@ export function PartitionControl({
             className="button"
             style={{
               padding: "0.25rem 0.625rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontFamily: "var(--font-mono, monospace)",
               background: "var(--panel)",
               border: "1px solid var(--line)",
@@ -255,7 +255,7 @@ export function PartitionControl({
             className="button"
             style={{
               padding: "0.25rem 0.625rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontFamily: "var(--font-mono, monospace)",
               background: "var(--panel)",
               border: "1px solid var(--line)",
@@ -273,7 +273,7 @@ export function PartitionControl({
               alignItems: "center",
               gap: "0.375rem",
               marginLeft: "auto",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
             }}
           >
             <label htmlFor={`${compId}-input`} className="fine">
@@ -301,7 +301,7 @@ export function PartitionControl({
                 borderRadius: "0.25rem",
                 textAlign: "right",
                 fontFamily: "var(--font-mono, monospace)",
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 background: "var(--panel)",
                 color: "var(--ink)",
               }}
@@ -314,7 +314,7 @@ export function PartitionControl({
             role="alert"
             style={{
               marginTop: "0.5rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               color: "var(--accent)",
               fontWeight: 500,
             }}
@@ -328,7 +328,7 @@ export function PartitionControl({
             data-testid="entropy-change-output"
             style={{
               marginTop: "0.5rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               color: "var(--ink)",
               fontWeight: 500,
             }}

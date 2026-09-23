@@ -103,7 +103,7 @@ export function FluorescencePlot({
             </span>
             <span
               style={{
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 padding: "0.125rem 0.5rem",
                 borderRadius: "9999px",
                 fontWeight: "bold",
@@ -141,7 +141,7 @@ export function FluorescencePlot({
             className="fine"
             style={{
               fontFamily: "var(--font-mono, monospace)",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
             }}
           >
             {regime === "standard-stokes" && "Stokes's rule (§7)"}
@@ -316,7 +316,7 @@ export function FluorescencePlot({
                   ? "rgba(16, 185, 129, 0.3)"
                   : "rgba(244, 63, 94, 0.3)"
             }`,
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             lineHeight: 1.6,
             background:
               budget.status === "outside-domain"
@@ -360,7 +360,7 @@ export function FluorescencePlot({
           >
             Spectral bands and false-colour legend
           </h4>
-          <span className="fine" style={{ margin: 0, fontSize: "0.75rem" }}>
+          <span className="fine" style={{ margin: 0, fontSize: "var(--type-fine)" }}>
             Wavelength λ = c / ν
           </span>
         </div>
@@ -370,7 +370,7 @@ export function FluorescencePlot({
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))",
             gap: "0.5rem",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
           }}
         >
           <div
@@ -480,7 +480,7 @@ export function FluorescencePlot({
             borderRadius: "0.75rem",
             padding: "1rem",
             background: "var(--wash)",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             display: "flex",
             flexDirection: "column",
             gap: "0.5rem",

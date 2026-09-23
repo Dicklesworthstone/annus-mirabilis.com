@@ -98,7 +98,7 @@ export function InterferencePlot({
             <span
               className="fine"
               style={{
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 fontWeight: 400,
                 fontFamily: "var(--font-mono, monospace)",
               }}
@@ -110,7 +110,7 @@ export function InterferencePlot({
         <span
           className="fine"
           style={{
-            fontSize: "0.6875rem",
+            fontSize: "var(--type-fine)",
             fontFamily: "var(--font-mono, monospace)",
             padding: "0.125rem 0.5rem",
             borderRadius: "0.25rem",
@@ -125,7 +125,7 @@ export function InterferencePlot({
       <p
         className="fine"
         style={{
-          fontSize: "0.75rem",
+          fontSize: "var(--type-fine)",
           marginBottom: "0.5rem",
         }}
       >
@@ -328,7 +328,7 @@ export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontP
         <span
           className="fine"
           style={{
-            fontSize: "0.6875rem",
+            fontSize: "var(--type-fine)",
             fontFamily: "var(--font-mono, monospace)",
             color: "var(--muted)",
           }}
@@ -339,7 +339,7 @@ export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontP
       <p
         className="fine"
         style={{
-          fontSize: "0.75rem",
+          fontSize: "var(--type-fine)",
           marginBottom: "0.5rem",
         }}
       >
@@ -526,7 +526,7 @@ export function SpreadingPlot({ power, radius, intensity, shellPower }: Spreadin
         <span
           className="fine"
           style={{
-            fontSize: "0.6875rem",
+            fontSize: "var(--type-fine)",
             fontFamily: "var(--font-mono, monospace)",
             padding: "0.125rem 0.5rem",
             borderRadius: "0.25rem",
@@ -541,7 +541,7 @@ export function SpreadingPlot({ power, radius, intensity, shellPower }: Spreadin
       <p
         className="fine"
         style={{
-          fontSize: "0.75rem",
+          fontSize: "var(--type-fine)",
           marginBottom: "0.5rem",
         }}
       >

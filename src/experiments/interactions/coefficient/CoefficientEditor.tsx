@@ -104,7 +104,7 @@ export function CoefficientEditor({
         <h4
           className="eyebrow"
           style={{
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.05em",
@@ -134,7 +134,7 @@ export function CoefficientEditor({
               disabled={disabled}
               onChange={(e) => handleUpdate(e.target.value, val)}
               style={{
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 border: "1px solid var(--line)",
                 borderRadius: "0.25rem",
                 padding: "0.25rem 0.5rem",
@@ -172,7 +172,7 @@ export function CoefficientEditor({
             />
             <span
               style={{
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 fontFamily: "var(--font-mono, monospace)",
                 color: "var(--ink)",
                 width: "3rem",
@@ -188,7 +188,7 @@ export function CoefficientEditor({
               display: "flex",
               alignItems: "center",
               gap: "0.25rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               marginLeft: "auto",
             }}
           >
@@ -218,7 +218,7 @@ export function CoefficientEditor({
                 borderRadius: "0.25rem",
                 textAlign: "right",
                 fontFamily: "var(--font-mono, monospace)",
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 background: "var(--panel)",
                 color: "var(--ink)",
               }}
@@ -227,7 +227,7 @@ export function CoefficientEditor({
               style={{
                 color: "var(--muted)",
                 fontFamily: "var(--font-mono, monospace)",
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
               }}
             >
               {activeComp?.unit}
@@ -246,7 +246,7 @@ export function CoefficientEditor({
           >
             <h5
               style={{
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 fontWeight: "bold",
                 color: "var(--ink)",
                 marginBottom: "0.25rem",
@@ -259,7 +259,7 @@ export function CoefficientEditor({
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(min(140px, 100%), 1fr))",
                 gap: "0.5rem",
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 fontFamily: "var(--font-mono, monospace)",
               }}
             >

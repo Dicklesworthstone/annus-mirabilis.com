@@ -110,7 +110,7 @@ export function IntervalSelector({
           <h4
             className="eyebrow"
             style={{
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontWeight: 600,
               textTransform: "uppercase",
               letterSpacing: "0.05em",
@@ -121,7 +121,7 @@ export function IntervalSelector({
           </h4>
           <span
             style={{
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               fontFamily: "var(--font-mono, monospace)",
               background: "var(--wash)",
               border: "1px solid var(--line)",
@@ -188,7 +188,7 @@ export function IntervalSelector({
             gap: "0.5rem",
             paddingTop: "0.5rem",
             borderTop: "1px solid var(--line)",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
           }}
         >
           {presets.map((preset) => (
@@ -236,7 +236,7 @@ export function IntervalSelector({
                 border: "1px solid var(--line)",
                 borderRadius: "0.25rem",
                 fontFamily: "var(--font-mono, monospace)",
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 background: "var(--panel)",
                 color: "var(--ink)",
               }}
@@ -260,7 +260,7 @@ export function IntervalSelector({
                 border: "1px solid var(--line)",
                 borderRadius: "0.25rem",
                 fontFamily: "var(--font-mono, monospace)",
-                fontSize: "0.75rem",
+                fontSize: "var(--type-fine)",
                 background: "var(--panel)",
                 color: "var(--ink)",
               }}

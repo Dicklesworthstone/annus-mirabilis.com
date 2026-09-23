@@ -119,7 +119,7 @@ export function EventSelector({
         <h4
           className="eyebrow"
           style={{
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.05em",
@@ -150,7 +150,7 @@ export function EventSelector({
                 style={{
                   padding: "0.375rem 0.75rem",
                   borderRadius: "0.25rem",
-                  fontSize: "0.75rem",
+                  fontSize: "var(--type-fine)",
                   fontFamily: "var(--font-mono, monospace)",
                   cursor: disabled ? "not-allowed" : "pointer",
                   background: isSelected ? "var(--accent)" : "var(--panel)",
@@ -171,7 +171,7 @@ export function EventSelector({
             display: "flex",
             alignItems: "center",
             gap: "0.75rem",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
           }}
         >
           <label
@@ -220,7 +220,7 @@ export function EventSelector({
       >
         <h5
           style={{
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             fontWeight: 700,
             color: "var(--ink)",
             marginBottom: "0.25rem",
@@ -231,7 +231,7 @@ export function EventSelector({
         <table
           style={{
             width: "100%",
-            fontSize: "0.75rem",
+            fontSize: "var(--type-fine)",
             textAlign: "left",
             borderCollapse: "collapse",
           }}
@@ -311,7 +311,7 @@ export function EventSelector({
           <div
             style={{
               marginTop: "0.5rem",
-              fontSize: "0.75rem",
+              fontSize: "var(--type-fine)",
               color: "var(--accent)",
               fontWeight: 500,
             }}

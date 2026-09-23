@@ -639,7 +639,7 @@ export function BoundaryLedgerLab({
                 </h3>
                 <p
                   style={{
-                    fontSize: "0.75rem",
+                    fontSize: "var(--type-fine)",
                     color: "var(--muted)",
                     marginBottom: "0.75rem",
                     fontStyle: "italic",
@@ -704,7 +704,7 @@ export function BoundaryLedgerLab({
                       background: "var(--wash)",
                       border: "1px solid var(--line)",
                       borderRadius: "0.25rem",
-                      fontSize: "0.75rem",
+                      fontSize: "var(--type-fine)",
                       color: "var(--ink)",
                     }}
                   >

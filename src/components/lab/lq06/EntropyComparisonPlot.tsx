@@ -63,7 +63,7 @@ export function EntropyComparisonPlot({
         </h3>
         <span
           style={{
-            fontSize: "0.6875rem",
+            fontSize: "var(--type-fine)",
             fontFamily: "var(--font-mono, monospace)",
             padding: "0.125rem 0.5rem",
             borderRadius: "0.25rem",
@@ -75,7 +75,7 @@ export function EntropyComparisonPlot({
           V/V₀ = {volumeRatio.toFixed(2)} | ln(V/V₀) = {Math.log(volumeRatio).toFixed(3)}
         </span>
       </div>
-      <p className="fine" style={{ margin: 0, fontSize: "0.75rem" }}>
+      <p className="fine" style={{ margin: 0, fontSize: "var(--type-fine)" }}>
         Side-by-side mathematical structure: Wien radiation entropy vs. Boltzmann ideal gas entropy
         under identical isothermal volume changes.
       </p>
