@@ -8,6 +8,7 @@ import {
   toBm06Draft as toDraft,
 } from "../../experiments/bm06/controls.ts";
 import {
+  BM06_CAPTION,
   BM06_MODEL,
   BM06_PRESETS,
   BM06_RADIAL_EXPLANATIONS,
@@ -22,6 +23,7 @@ import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
+import { withScripts } from "./subscripts.tsx";
 
 /** The page asks "how likely is a tracer to finish inside this interval", so the interval
  * stays in view; the physical settings and the numerical grid go in the drawer. */
@@ -39,9 +41,14 @@ export function BrownianLab({
   example,
   title = "The spreading laboratory",
   externalDiffusivitySource,
+  readings = false,
 }: {
   example: PreparedBm06Example;
   title?: string;
+  /** The caption readings, shown by the /lab/bm-06/ page's first laboratory only: the Discover
+   * investigation embeds this lab inside its own guided prose, and a second laboratory would
+   * repeat them. */
+  readings?: boolean;
   /** A named BM-01 instance's accepted snapshot, offered by a page such as the guided
    * investigation. BrownianLab never reaches out for this itself; copying remains explicit. */
   externalDiffusivitySource?: ExternalDiffusivitySource;
@@ -458,6 +465,20 @@ export function BrownianLab({
           <GridComparison snapshot={snapshot} />
         </div>
       )}
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      {readings && (
+        <>
+          <p data-detail="0">{withScripts(BM06_CAPTION.r0)}</p>
+          <p data-detail="1">{withScripts(BM06_CAPTION.r1)}</p>
+          <p data-detail="2" hidden>
+            {withScripts(BM06_CAPTION.r2)}
+          </p>
+          <p data-detail="3" hidden>
+            {withScripts(BM06_CAPTION.r3)}
+          </p>
+        </>
+      )}
       <div className="lab-bottom">
         <section {...identity(snapshot)}>
           <h3>One setup, three observation times</h3>
@@ -605,7 +626,7 @@ export function BrownianComparison({ example }: { example: PreparedBm06Example }
   useEffect(() => setReady(true), []);
   return (
     <>
-      <BrownianLab example={example} />
+      <BrownianLab example={example} readings />
       <div className="comparison-toggle">
         <button
           type="button"
