@@ -330,7 +330,7 @@ export async function checkReaderBrowser(browser, url, check) {
     );
 
     const jsonLink = await page
-      .getByRole("link", { name: "Structured reading records", exact: true })
+      .getByRole("link", { name: "The same explanation as data (JSON)", exact: true })
       .getAttribute("href");
     const data = await (await context.request.get(url + jsonLink)).json();
     assert.equal(data.paper.sourceStatus, "in-preparation");
