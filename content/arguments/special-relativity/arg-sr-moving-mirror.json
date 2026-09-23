@@ -33,7 +33,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "At normal incidence and v = 0.6c, the reflected frequency is one quarter of the incident frequency. The intercepted incident power is 0.4 of the fixed-surface value. With incident energy density u, the pressure is 0.5u. These are different quantities."
+        "text": "At normal incidence and \\(v = 0.6c\\), the reflected frequency is one quarter of the incident frequency. The intercepted incident power is 0.4 of the fixed-surface value. With incident energy density \\(u\\), the pressure is \\(0.5u\\). These are different quantities."
       },
       {
         "kind": "paragraph",
@@ -49,7 +49,7 @@
       {
         "kind": "steps",
         "items": [
-          "Compare the incident normal light speed c cos φ with the mirror speed.",
+          "Compare the incident normal light speed \\(c\\cos\\varphi\\) with the mirror speed.",
           "Refuse a reflection event if the ray cannot reach the surface.",
           "Transform the incident wave into the mirror’s rest frame.",
           "Reflect its normal direction there while preserving frequency in that frame.",

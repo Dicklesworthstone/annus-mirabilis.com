@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Radiation energy density changes by q², but the volume of the same moving light complex on a simultaneous slice changes by 1/q. Its total energy therefore changes by q, just like frequency."
+        "text": "Radiation energy density changes by \\(q^2\\), but the volume of the same moving light complex on a simultaneous slice changes by \\(1/q\\). Its total energy therefore changes by \\(q\\), just like frequency."
       }
     ],
     "full": [
@@ -37,7 +37,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "The bounding region travels with the light, so changing the simultaneous slice does not give the ordinary material-volume contraction. At 0.6c with a forward collinear ray, q = 0.5: density becomes one quarter, volume doubles, and total energy becomes one half."
+        "text": "The bounding region travels with the light, so changing the simultaneous slice does not give the ordinary material-volume contraction. At \\(0.6c\\) with a forward collinear ray, \\(q = 0.5\\): density becomes one quarter, volume doubles, and total energy becomes one half."
       },
       {
         "kind": "paragraph",
@@ -45,7 +45,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "The September mass-energy argument imports exactly this light-energy transformation. It does not first assume E = mc² and does not require localized light quanta."
+        "text": "The September mass-energy argument imports exactly this light-energy transformation. It does not first assume \\(E = mc^2\\) and does not require localized light quanta."
       },
       {
         "kind": "foundation",
@@ -61,7 +61,7 @@
           "Specify the boundary enclosing the same light complex.",
           "Intersect its transformed moving boundary with a simultaneous primed-time slice.",
           "Compute the volume factor 1/q for that slice.",
-          "Multiply density and volume factors to obtain q, not q².",
+          "Multiply density and volume factors to obtain \\(q\\), not \\(q^2\\).",
           "Use the collinear 0.6c case to distinguish this result from material contraction."
         ]
       }

@@ -33,11 +33,11 @@
       },
       {
         "kind": "paragraph",
-        "text": "To describe an object moving at w along the moving frame’s positive axis in the original frame, use the inverse relation U = (v + w)/(1 + vw/c²). With v = w = 0.6c, U is 15c/17, about 0.88235c, not 1.2c."
+        "text": "To describe an object moving at \\(w\\) along the moving frame’s positive axis in the original frame, use the inverse relation \\(U = (v + w)/(1 + vw/c^2)\\). With \\(v = w = 0.6c\\), \\(U\\) is \\(15c/17\\), about \\(0.88235c\\), not \\(1.2c\\)."
       },
       {
         "kind": "paragraph",
-        "text": "For a right-moving light ray u_x = c, the passive transformation also gives c. The velocity-composition laboratory shows the difference from Galilean addition without clamping a superluminal arithmetic result."
+        "text": "For a right-moving light ray \\(u_x = c\\), the passive transformation also gives \\(c\\). The velocity-composition laboratory shows the difference from Galilean addition without clamping a superluminal arithmetic result."
       },
       {
         "kind": "foundation",
@@ -49,10 +49,10 @@
       {
         "kind": "steps",
         "items": [
-          "Differentiate x′ = γ(x − vt) along the trajectory.",
-          "Differentiate t′ = γ(t − vx/c²) along that same trajectory.",
-          "Divide dx′ by dt′ only after both have been transformed.",
-          "For transverse motion use dy′ = dy but retain the transformed time denominator.",
+          "Differentiate \\(x' = \\gamma(x - vt)\\) along the trajectory.",
+          "Differentiate \\(t' = \\gamma(t - vx/c^2)\\) along that same trajectory.",
+          "Divide \\(dx'\\) by \\(dt'\\) only after both have been transformed.",
+          "For transverse motion use \\(dy' = dy\\) but retain the transformed time denominator.",
           "Use the inverse relation for the plus-sign composition of two forward speeds.",
           "Distinguish aligned composition from the general non-collinear case."
         ]

@@ -33,11 +33,11 @@
       },
       {
         "kind": "paragraph",
-        "text": "For a plane wave traveling along x with E_y and B_z, the SI vacuum pair is ∂t E_y = −c² ∂x B_z and ∂t B_z = −∂x E_y. Substitute the two derivative operators above into both equations; do not transform only one equation."
+        "text": "For a plane wave traveling along \\(x\\) with \\(E_y\\) and \\(B_z\\), the SI vacuum pair is \\(\\partial_t E_y = -c^2\\,\\partial_x B_z\\) and \\(\\partial_t B_z = -\\partial_x E_y\\). Substitute the two derivative operators above into both equations; do not transform only one equation."
       },
       {
         "kind": "paragraph",
-        "text": "Combining those substituted equations groups E_y − vB_z with B_z − vE_y/c². Multiplication by the common γ produces E′_y and B′_z and restores the corresponding primed equation pair. The field-equations laboratory opens the grouping step rather than treating the field law as a typographic replacement."
+        "text": "Combining those substituted equations groups \\(E_y - vB_z\\) with \\(B_z - vE_y/c^2\\). Multiplication by the common \\(\\gamma\\) produces \\(E'_y\\) and \\(B'_z\\) and restores the corresponding primed equation pair. The field-equations laboratory opens the grouping step rather than treating the field law as a typographic replacement."
       },
       {
         "kind": "paragraph",
@@ -65,7 +65,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The source uses electric-force symbols X, Y, Z and magnetic-force symbols L, M, N, with V for light speed. Its β is γ, not v/c. A field tensor is a later verification language, not a hidden premise of this reconstruction."
+        "text": "The source uses electric-force symbols \\(X, Y, Z\\) and magnetic-force symbols \\(L, M, N\\), with \\(V\\) for light speed. Its \\(\\beta\\) is \\(\\gamma\\), not \\(v/c\\). A field tensor is a later verification language, not a hidden premise of this reconstruction."
       }
     ]
   },

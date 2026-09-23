@@ -40,7 +40,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "For E = 0 and a positive B_z, an observer moving along positive x measures a negative E′_y. At v = 0.6c the factor γ is 1.25. The transformed electric field is not simply the old field copied into a different diagram."
+        "text": "For \\(E = 0\\) and a positive \\(B_z\\), an observer moving along positive \\(x\\) measures a negative \\(E'_y\\). At \\(v = 0.6c\\) the factor \\(\\gamma\\) is 1.25. The transformed electric field is not simply the old field copied into a different diagram."
       },
       {
         "kind": "paragraph",
@@ -57,9 +57,9 @@
         "kind": "steps",
         "items": [
           "Fix the direction of the boost and the field unit convention.",
-          "Leave E_x and B_x unchanged for this aligned boost.",
-          "Mix E_y with B_z and E_z with B_y using the cross-product signs.",
-          "Transform magnetic components with the corresponding v/c² electric terms.",
+          "Leave \\(E_x\\) and \\(B_x\\) unchanged for this aligned boost.",
+          "Mix \\(E_y\\) with \\(B_z\\) and \\(E_z\\) with \\(B_y\\) using the cross-product signs.",
+          "Transform magnetic components with the corresponding \\(v/c^2\\) electric terms.",
           "Transform the particle’s velocity before comparing force descriptions.",
           "Use the inverse field transformation to recover the original components."
         ]
@@ -68,7 +68,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The printed first-order electromotive-force expression is approximate. The exact transformation at finite speed retains γ. Historical magnetic component L is neither paper 1’s light speed nor paper 4’s emitted energy."
+        "text": "The printed first-order electromotive-force expression is approximate. The exact transformation at finite speed retains \\(\\gamma\\). Historical magnetic component \\(L\\) is neither paper 1’s light speed nor paper 4’s emitted energy."
       }
     ]
   },

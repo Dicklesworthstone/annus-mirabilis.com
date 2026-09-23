@@ -28,7 +28,7 @@
     "full": [
       {
         "kind": "paragraph",
-        "text": "The moving origin follows x = vt, so write x′ = a(v)(x − vt). Requiring x′ = ct′ on x = ct and x′ = −ct′ on x = −ct fixes the time combination: t′ = a(v)(t − vx/c²). An overall scale a(v) remains."
+        "text": "The moving origin follows \\(x = vt\\), so write \\(x' = a(v)(x - vt)\\). Requiring \\(x' = ct'\\) on \\(x = ct\\) and \\(x' = -ct'\\) on \\(x = -ct\\) fixes the time combination: \\(t' = a(v)(t - vx/c^2)\\). An overall scale \\(a(v)\\) remains."
       },
       {
         "kind": "formula",
@@ -38,7 +38,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Applying the inverse with speed −v gives a(v)a(−v)(1 − v²/c²) = 1. Isotropy identifies a(v) with a(−v). Continuity from a(0) = 1 selects the positive square root."
+        "text": "Applying the inverse with speed \\(-v\\) gives \\(a(v)\\,a(-v)\\,(1 - v^2/c^2) = 1\\). Isotropy identifies \\(a(v)\\) with \\(a(-v)\\). Continuity from \\(a(0) = 1\\) selects the positive square root."
       },
       {
         "kind": "formula",
@@ -72,7 +72,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "This compact two-light-direction derivation is an editorial reconstruction, not the source’s word-for-word synchronization derivation. Einstein’s printed β is the modern γ used here; his moving-system time τ is not automatically proper time."
+        "text": "This compact two-light-direction derivation is an editorial reconstruction, not the source’s word-for-word synchronization derivation. Einstein’s printed \\(\\beta\\) is the modern \\(\\gamma\\) used here; his moving-system time \\(\\tau\\) is not automatically proper time."
       }
     ]
   },

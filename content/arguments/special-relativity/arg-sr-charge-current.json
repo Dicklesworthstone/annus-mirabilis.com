@@ -33,7 +33,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "The transverse current components remain unchanged for this aligned boost. For ρ = 0 and J_x nonzero, ρ′ generally is not zero. The individual charged species must be transformed consistently rather than treating J/ρ as meaningful at neutrality."
+        "text": "The transverse current components remain unchanged for this aligned boost. For \\(\\rho = 0\\) and \\(J_x\\) nonzero, \\(\\rho'\\) generally is not zero. The individual charged species must be transformed consistently rather than treating \\(J/\\rho\\) as meaningful at neutrality."
       },
       {
         "kind": "paragraph",
@@ -50,8 +50,8 @@
         "kind": "steps",
         "items": [
           "Record both charge density and all current components.",
-          "Transform rho and J_x as a coupled pair.",
-          "Keep J_y and J_z unchanged for the aligned boost.",
+          "Transform \\(\\rho\\) and \\(J_x\\) as a coupled pair.",
+          "Keep \\(J_y\\) and \\(J_z\\) unchanged for the aligned boost.",
           "Do not divide by rho when the original system is neutral.",
           "Check continuity and the boundary of the same charge-carrying body before comparing total charge."
         ]

@@ -52,7 +52,7 @@
           "Fix the meetings being compared.",
           "Specify each clock’s entire path between them.",
           "Integrate the ideal elapsed-time law along each path.",
-          "For constant-speed legs, multiply each coordinate duration by the appropriate inverse γ.",
+          "For constant-speed legs, multiply each coordinate duration by the appropriate inverse \\(\\gamma\\).",
           "Do not substitute a one-way visual delay for elapsed proper time.",
           "Leave an Earth comparison outside the model when gravitational inputs are absent."
         ]

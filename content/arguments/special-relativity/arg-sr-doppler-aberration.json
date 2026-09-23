@@ -39,11 +39,11 @@
       },
       {
         "kind": "paragraph",
-        "text": "Write the same wave phase as ωt − k_x x − k_y y − k_z z. Substitute the inverse event transformation, then read off the new time and space coefficients. That single substitution determines both formulas; an analogy with sound is not the derivation."
+        "text": "Write the same wave phase as \\(\\omega t - k_x x - k_y y - k_z z\\). Substitute the inverse event transformation, then read off the new time and space coefficients. That single substitution determines both formulas; an analogy with sound is not the derivation."
       },
       {
         "kind": "paragraph",
-        "text": "At v = 0.6c and φ = 0, q = 0.5. For φ = 90 degrees, q = 1.25 and cos φ′ = −0.6. The Doppler-and-aberration laboratory labels the angle’s frame so these different comparisons cannot be conflated."
+        "text": "At \\(v = 0.6c\\) and \\(\\varphi = 0\\), \\(q = 0.5\\). For \\(\\varphi = 90\\) degrees, \\(q = 1.25\\) and \\(\\cos\\varphi' = -0.6\\). The Doppler-and-aberration laboratory labels the angle’s frame so these different comparisons cannot be conflated."
       },
       {
         "kind": "foundation",

@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Integrating the longitudinal force gives kinetic energy mc²(γ − 1), not the total rest energy. Accelerating voltage and curvature provide separate experimental relations under specified fields."
+        "text": "Integrating the longitudinal force gives kinetic energy \\(mc^2(\\gamma - 1)\\), not the total rest energy. Accelerating voltage and curvature provide separate experimental relations under specified fields."
       }
     ],
     "full": [
@@ -33,7 +33,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Use dγ/du = γ³u/c² to evaluate the integral. Near zero speed, K approaches mv²/2. At 0.6c the exact value is 0.25mc² whereas the quadratic approximation is 0.18mc², so the approximation error is visible."
+        "text": "Use \\(d\\gamma/du = \\gamma^3 u/c^2\\) to evaluate the integral. Near zero speed, \\(K\\) approaches \\(mv^2/2\\). At \\(0.6c\\) the exact value is \\(0.25\\,mc^2\\) whereas the quadratic approximation is \\(0.18\\,mc^2\\), so the approximation error is visible."
       },
       {
         "kind": "formula",
@@ -43,7 +43,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "The third relation compares electric and magnetic deflection, with force and acceleration conventions kept explicit. In a purely transverse electric field the instantaneous curvature radius is γmv²/(|q|E). The electron-dynamics laboratory separates that local curvature from a magnetic circular orbit at constant speed."
+        "text": "The third relation compares electric and magnetic deflection, with force and acceleration conventions kept explicit. In a purely transverse electric field the instantaneous curvature radius is \\(\\gamma m v^2/(|q|E)\\). The electron-dynamics laboratory separates that local curvature from a magnetic circular orbit at constant speed."
       },
       {
         "kind": "foundation",
@@ -55,7 +55,7 @@
       {
         "kind": "steps",
         "items": [
-          "Write longitudinal force as mγ³ times acceleration.",
+          "Write longitudinal force as \\(m\\gamma^3\\) times acceleration.",
           "Multiply by displacement, using a dx = u du.",
           "Integrate from rest and use the derivative of gamma.",
           "Compare the exact value with the low-speed expansion without calling them equal at 0.6c.",

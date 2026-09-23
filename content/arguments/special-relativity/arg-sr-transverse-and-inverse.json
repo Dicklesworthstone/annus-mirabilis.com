@@ -27,11 +27,11 @@
     "full": [
       {
         "kind": "paragraph",
-        "text": "Write y′ = b(v)y for a transverse axis. On a ray with x = 0, y = ct, the already determined longitudinal map gives x′ = −γvt and t′ = γt. Requiring the transformed ray’s speed to be c gives γ²v² + b²c² = γ²c², hence b² = 1."
+        "text": "Write \\(y' = b(v)\\,y\\) for a transverse axis. On a ray with \\(x = 0\\), \\(y = ct\\), the already determined longitudinal map gives \\(x' = -\\gamma v t\\) and \\(t' = \\gamma t\\). Requiring the transformed ray’s speed to be \\(c\\) gives \\(\\gamma^2 v^2 + b^2 c^2 = \\gamma^2 c^2\\), hence \\(b^2 = 1\\)."
       },
       {
         "kind": "paragraph",
-        "text": "The positive, identity-connected choice gives y′ = y and likewise z′ = z. The inverse map replaces v with −v and exchanges primed and unprimed quantities."
+        "text": "The positive, identity-connected choice gives \\(y' = y\\) and likewise \\(z' = z\\). The inverse map replaces \\(v\\) with \\(-v\\) and exchanges primed and unprimed quantities."
       },
       {
         "kind": "formula",
@@ -41,7 +41,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "At v = 0.6c, γ = 1.25. In units where c = 1, the event (t, x) = (2, 1) becomes (1.75, −0.25); the inverse returns (2, 1). The coordinate-map laboratory can check the same map from either direction."
+        "text": "At \\(v = 0.6c\\), \\(\\gamma = 1.25\\). In units where \\(c = 1\\), the event \\((t, x) = (2, 1)\\) becomes \\((1.75, -0.25)\\); the inverse returns \\((2, 1)\\). The coordinate-map laboratory can check the same map from either direction."
       },
       {
         "kind": "foundation",
@@ -64,7 +64,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "Modern verification may check c²t² − x² − y² − z² or the matrix determinant. Those checks are labeled as consequences of this map, not imported as the historical derivation’s starting point."
+        "text": "Modern verification may check \\(c^2t^2 - x^2 - y^2 - z^2\\) or the matrix determinant. Those checks are labeled as consequences of this map, not imported as the historical derivation’s starting point."
       }
     ]
   },

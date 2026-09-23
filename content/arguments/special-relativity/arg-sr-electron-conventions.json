@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "The printed transverse coefficient compares comoving force with laboratory acceleration and equals mγ². Using laboratory force with laboratory acceleration instead gives mγ. These are different definitions, not two conflicting values of invariant mass."
+        "text": "The printed transverse coefficient compares comoving force with laboratory acceleration and equals \\(m\\gamma^2\\). Using laboratory force with laboratory acceleration instead gives \\(m\\gamma\\). These are different definitions, not two conflicting values of invariant mass."
       }
     ],
     "full": [
@@ -37,11 +37,11 @@
       },
       {
         "kind": "paragraph",
-        "text": "For motion along x, the transverse force in the momentarily comoving frame differs from the laboratory transverse force by γ. Combining it with laboratory acceleration gives the source’s coefficient. Replacing that force with laboratory force changes the ratio."
+        "text": "For motion along x, the transverse force in the momentarily comoving frame differs from the laboratory transverse force by \\(\\gamma\\). Combining it with laboratory acceleration gives the source’s coefficient. Replacing that force with laboratory force changes the ratio."
       },
       {
         "kind": "paragraph",
-        "text": "At 0.6c, γ = 1.25. The longitudinal coefficient is 1.953125m, the printed transverse coefficient is 1.5625m, and the laboratory transverse coefficient is 1.25m. The electron-dynamics laboratory displays the frame convention with the coefficient, rather than “repairing” the printed result."
+        "text": "At \\(0.6c\\), \\(\\gamma = 1.25\\). The longitudinal coefficient is \\(1.953125\\,m\\), the printed transverse coefficient is \\(1.5625\\,m\\), and the laboratory transverse coefficient is \\(1.25\\,m\\). The electron-dynamics laboratory displays the frame convention with the coefficient, rather than “repairing” the printed result."
       },
       {
         "kind": "foundation",
@@ -65,7 +65,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The modern momentum convention is an explicit later comparison. Einstein’s warning that the meanings of force and acceleration determine the “masses” is essential; the source’s transverse result must not be silently replaced by mγ."
+        "text": "The modern momentum convention is an explicit later comparison. Einstein’s warning that the meanings of force and acceleration determine the “masses” is essential; the source’s transverse result must not be silently replaced by \\(m\\gamma\\)."
       }
     ]
   },

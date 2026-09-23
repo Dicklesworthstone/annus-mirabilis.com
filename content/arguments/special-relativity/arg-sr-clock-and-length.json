@@ -58,7 +58,7 @@
           "Specify which clock supplies each time reading.",
           "For a clock’s own ticks, use its worldline and the frame where it is locally at rest.",
           "For a moving length, impose simultaneity in the measuring frame.",
-          "At 0.6c compute γ = 1.25 and its inverse 0.8.",
+          "At \\(0.6c\\) compute \\(\\gamma = 1.25\\) and its inverse 0.8.",
           "Keep the exact loss 0.2 distinct from the second-order approximation 0.18 at that speed."
         ]
       }
