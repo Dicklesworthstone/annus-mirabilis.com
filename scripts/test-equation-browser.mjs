@@ -116,7 +116,7 @@ export async function checkEquationBrowser(browser, url, check) {
         .evaluate((el) => getComputedStyle(el).outlineStyle),
       "solid",
     );
-    await rms.getByRole("button", { name: "Monochrome and patterns", exact: true }).click();
+    await rms.getByRole("button", { name: "Patterns instead of colour", exact: true }).click();
     assert.equal(await rms.getAttribute("data-pattern"), "true");
     assert.ok(
       (

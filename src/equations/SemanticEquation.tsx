@@ -199,19 +199,23 @@ export function SemanticEquation({
           onClick={() => setPattern(!pattern)}
           aria-pressed={pattern}
         >
-          Monochrome and patterns
+          Patterns instead of colour
         </button>
-        <button
-          type="button"
-          className="secondary"
-          disabled={!ready || !selected}
-          onClick={() => {
-            select(null);
-            formula.current?.focus();
-          }}
-        >
-          Clear equation selection
-        </button>
+        {/* Only while something is selected: a disabled button under every card said nothing and
+            took a full-width row on a phone. */}
+        {selected ? (
+          <button
+            type="button"
+            className="secondary"
+            disabled={!ready}
+            onClick={() => {
+              select(null);
+              formula.current?.focus();
+            }}
+          >
+            Clear selection
+          </button>
+        ) : null}
       </div>
       {/* Every term and operation as a button: the way to explore without a pointer or arrow
           keys. It was seven or more full-width buttons stacked under every formula, so it opens
