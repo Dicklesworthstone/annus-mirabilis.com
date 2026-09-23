@@ -16,6 +16,7 @@ import {
   evaluateLq05,
   type PreparedLq05Example,
 } from "../../../experiments/lq05/session.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
@@ -245,8 +246,6 @@ export function IndependentConfigurationsLab({
           paddingTop: "1.5rem",
         }}
       >
-        <h3 style={{ fontSize: "1rem", margin: "0 0 1rem" }}>Interactive parameter controls</h3>
-
         <form
           onSubmit={submit}
           className="input-grid"
@@ -348,54 +347,6 @@ export function IndependentConfigurationsLab({
             </div>
           </div>
 
-          {/* 3. View selector & Locked toggle */}
-          <div className="input-field">
-            <span
-              className="fine"
-              style={{ fontWeight: 600, display: "block", marginBottom: "0.25rem" }}
-            >
-              Display View:
-            </span>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-              <button
-                type="button"
-                className={`button ${p.view === "enumeration" ? "" : "secondary"}`}
-                style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
-                onClick={() => setViewMode("enumeration")}
-              >
-                Enumeration
-              </button>
-              <button
-                type="button"
-                className={`button ${p.view === "sampling" ? "" : "secondary"}`}
-                style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
-                onClick={() => setViewMode("sampling")}
-              >
-                Sampling
-              </button>
-              <button
-                type="button"
-                className={`button ${p.view === "logarithmic" ? "" : "secondary"}`}
-                style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
-                onClick={() => setViewMode("logarithmic")}
-              >
-                Logarithmic
-              </button>
-            </div>
-          </div>
-
-          {/* 4. Locked positions checkbox */}
-          <div className="input-field check" style={{ margin: 0 }}>
-            <label
-              style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}
-            >
-              <input type="checkbox" checked={p.locked} onChange={toggleLocked} />
-              <span className="fine" style={{ fontWeight: 600 }}>
-                Locked positions counterexample (W = f rather than fⁿ)
-              </span>
-            </label>
-          </div>
-
           {/* Form Actions */}
           <div
             style={{
@@ -417,6 +368,63 @@ export function IndependentConfigurationsLab({
                 Unapplied parameter edits.
               </span>
             )}
+          </div>
+          <div style={{ gridColumn: "1 / -1" }}>
+            <ExperimentSettings contents="the display view, the locked-positions counterexample">
+              {/* 3. View selector & Locked toggle */}
+              <div className="input-field">
+                <span
+                  className="fine"
+                  style={{ fontWeight: 600, display: "block", marginBottom: "0.25rem" }}
+                >
+                  Display View:
+                </span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <button
+                    type="button"
+                    className={`button ${p.view === "enumeration" ? "" : "secondary"}`}
+                    style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
+                    onClick={() => setViewMode("enumeration")}
+                  >
+                    Enumeration
+                  </button>
+                  <button
+                    type="button"
+                    className={`button ${p.view === "sampling" ? "" : "secondary"}`}
+                    style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
+                    onClick={() => setViewMode("sampling")}
+                  >
+                    Sampling
+                  </button>
+                  <button
+                    type="button"
+                    className={`button ${p.view === "logarithmic" ? "" : "secondary"}`}
+                    style={{ padding: "0.25rem 0.625rem", fontSize: "0.75rem" }}
+                    onClick={() => setViewMode("logarithmic")}
+                  >
+                    Logarithmic
+                  </button>
+                </div>
+              </div>
+
+              {/* 4. Locked positions checkbox */}
+              <div className="input-field check" style={{ margin: 0 }}>
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  <input type="checkbox" checked={p.locked} onChange={toggleLocked} />
+                  <span className="fine" style={{ fontWeight: 600 }}>
+                    Locked positions counterexample (W = f rather than fⁿ)
+                  </span>
+                </label>
+              </div>
+              <p className="fine">These two apply at once.</p>
+            </ExperimentSettings>
           </div>
         </form>
 
