@@ -5,6 +5,7 @@
  * from the content index; a paper without a payload is not a route.
  */
 import type { Metadata } from "next";
+import { paperShareImages } from "../components/share/shareImages.ts";
 import { getPaperExportLinks, getSectionExportLinks } from "../content/exports/discovery.ts";
 import { PAPER_SLUGS } from "../content/schemas/source.ts";
 import { contentIndex, loadPaper } from "../content/server.ts";
@@ -187,6 +188,10 @@ export async function paperMetadata(request: PaperRouteRequest): Promise<Metadat
   for (const link of exportLinks) {
     types[link.type] = link.href;
   }
+  // The paper's share card (its first page, title and received date) for the paper and every
+  // section and face of it. Next fills og:title, og:description and the Twitter card from the
+  // fields above, so only the image is named here.
+  const images = paperShareImages(resolved.paperId);
   return {
     title,
     description: payload.paper.description,
@@ -195,6 +200,7 @@ export async function paperMetadata(request: PaperRouteRequest): Promise<Metadat
       ...(languages === undefined ? {} : { languages }),
       types,
     },
+    ...(images === undefined ? {} : { openGraph: { images } }),
   };
 }
 

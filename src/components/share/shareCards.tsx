@@ -3,6 +3,10 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { THEME_TOKENS } from "../../app/theme/tokens.ts";
 import { dayAndMonth, dayMonthParts, type FirstPage, loadFirstPages } from "../home/firstPages.ts";
+import { LAB_CARDS, type LabCardId, SHARE_CARD_SIZE } from "./shareImages.ts";
+
+export { LAB_CARDS };
+
 import { defaultInstance } from "./staticFont.ts";
 
 /**
@@ -24,7 +28,7 @@ import { defaultInstance } from "./staticFont.ts";
  * (public/figures/plates/share/), because the renderer reads JPEG and PNG and not WebP.
  */
 
-export const CARD = { width: 1200, height: 630 } as const;
+export const CARD = SHARE_CARD_SIZE;
 /** Nothing is drawn nearer an edge than this. opengraph-image.test.tsx checks the gutter. */
 export const CARD_MARGIN = 56;
 
@@ -32,24 +36,9 @@ const COLOUR = THEME_TOKENS.annalen;
 const SERIF = "Newsreader";
 const SANS = "Plus Jakarta Sans";
 
-/** The instruments with a card of their own: the page's title and the question it opens on. */
-export const LAB_CARDS = {
-  "bm-01": {
-    paperKey: "ap-17-549",
-    title: "The Brownian tracer ensemble",
-    question: "Where does a wandering particle end up?",
-  },
-} as const;
-export type LabCardId = keyof typeof LAB_CARDS;
-
 /** Card ids, each published as /share/<id>.png: the site, the four papers by slug, and labs. */
 export function shareCardIds(): readonly string[] {
   return ["home", ...loadFirstPages().map((p) => p.slug), ...Object.keys(LAB_CARDS)];
-}
-
-/** The Open Graph image entry for a card, as a page's metadata lists it. */
-export function shareImage(id: string, alt: string) {
-  return { url: `/share/${id}.png`, width: CARD.width, height: CARD.height, alt };
 }
 
 const ROOT = process.cwd();

@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { metadata as tracerMetadata } from "../../app/lab/bm-01/page.tsx";
+import { loadPaper } from "../../content/server.ts";
+import { paperMetadata } from "../../reader/paperRoutes.ts";
 import { decodePng, pixelAt } from "../../testing/decodePng.ts";
 import { loadFirstPages } from "../home/firstPages.ts";
 import { CARD, CARD_MARGIN, LAB_CARDS, renderShareCard, shareCardIds } from "./shareCards.tsx";
@@ -81,6 +84,31 @@ describe("share cards", () => {
     expect(
       messages.filter((message) => /dynamic font|failed to (load|download)/i.test(message)),
     ).toEqual([]);
+  });
+
+  // A page that names a card the route does not publish shares a broken image, and nothing in a
+  // browser would show it.
+  test("every paper page, its sections, and bm-01 name a card the route publishes", async () => {
+    const published = new Set(shareCardIds().map((id) => `/share/${id}.png`));
+    const named: string[] = [];
+    for (const paper of loadFirstPages()) {
+      const firstSection = (await loadPaper(paper.slug)).paper.sections[0]?.id;
+      expect(firstSection, paper.slug).toBeDefined();
+      for (const section of [undefined, firstSection]) {
+        const meta = await paperMetadata({ paperId: paper.slug, section });
+        const images = (meta.openGraph?.images ?? []) as { url: string }[];
+        expect(
+          images.map((image) => image.url),
+          `${paper.slug} ${section ?? ""}`,
+        ).toEqual([`/share/${paper.slug}.png`]);
+        named.push(...images.map((image) => image.url));
+      }
+    }
+    const tracer = (tracerMetadata.openGraph?.images ?? []) as { url: string }[];
+    expect(tracer.map((image) => image.url)).toEqual(["/share/bm-01.png"]);
+    named.push(...tracer.map((image) => image.url));
+    expect(named.filter((url) => !published.has(url))).toEqual([]);
+    expect(named.length).toBe(9);
   });
 
   test("an id with no card renders nothing, and the route answers it with a 404", () => {

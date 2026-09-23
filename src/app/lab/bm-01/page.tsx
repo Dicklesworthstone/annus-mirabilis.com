@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { TracerComparison } from "../../../components/lab/TracerLab.tsx";
+import { LAB_CARDS, labShareImages } from "../../../components/share/shareImages.ts";
 import example from "../../../generated/bm01-example.json";
-export const metadata: Metadata = { title: "The Brownian tracer ensemble" };
+export const metadata: Metadata = {
+  title: LAB_CARDS["bm-01"].title,
+  description:
+    "Particles that all follow the same random rule. Their average displacement stays near zero while their typical distance from the start keeps growing, and the instrument shows both.",
+  openGraph: { images: labShareImages("bm-01") },
+};
 export default function TracerPage() {
   return (
     <>

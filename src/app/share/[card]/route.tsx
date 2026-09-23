@@ -1,7 +1,7 @@
 import { renderShareCard, shareCardIds } from "../../../components/share/shareCards.tsx";
 
 // The share cards as build-time static files, /share/<id>.png: the site, each paper by slug, and
-// the instruments that have one. Pages name theirs in their Open Graph metadata (shareImage).
+// the instruments that have one. Pages name theirs in their Open Graph metadata (shareImages.ts).
 export const dynamic = "force-static";
 export const dynamicParams = false;
 
