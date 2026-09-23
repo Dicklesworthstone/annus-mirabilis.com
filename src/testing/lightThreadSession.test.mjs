@@ -125,7 +125,9 @@ test("the constructor refuses settings outside the admission bounds (session.ts:
   assert.ok(thrown, "an out-of-bounds beta must not build a session");
   assert.equal(thrown.code, "parameters-rejected");
   assert.equal(thrown.experimentId, "light-thread");
-  assert.ok(thrown.message.includes("beta"), thrown.message);
+  // It names the offending setting as the reader knows it, not by its key (6a8c500a).
+  assert.ok(thrown.message.includes("observer speed β"), thrown.message);
+  assert.ok(!/\bbeta\b/.test(thrown.message), thrown.message);
 
   const built = createLightThreadSession("light-thread-refusal-apply");
   assert.equal(built.apply({ ...LIGHT_THREAD_DEFAULTS, beta: 1 }).kind, "refused");

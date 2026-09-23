@@ -193,7 +193,9 @@ test("bookmarks round-trip canonically and reject partial, duplicate, or hostile
       );
       assert.equal(error.code, "parameters-rejected");
       assert.equal(error.experimentId, "light-thread");
-      assert.match(error.message, /between -0\.999999 and 0\.999999/);
+      // The reader's name for the setting and a true minus sign (6a8c500a); the key "beta" and a
+      // hyphen were what a reader was shown before.
+      assert.match(error.message, /The observer speed β must be between −0\.999999 and 0\.999999/);
       assert.match(error.message, /admission bounds/);
       return true;
     },
