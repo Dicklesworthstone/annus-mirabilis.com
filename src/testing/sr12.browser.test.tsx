@@ -2,8 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import ChargeCurrentPage from "../app/lab/sr-12/page.tsx";
 import { ChargeCurrentLab } from "../components/lab/sr12/ChargeCurrentLab.tsx";
-import type { PreparedSr12Example } from "../experiments/sr12/session.ts";
+import { ChargeCurrentPlot } from "../components/lab/sr12/ChargeCurrentPlot.tsx";
+import { createSr12Session, type PreparedSr12Example } from "../experiments/sr12/session.ts";
 import rawExample from "../generated/sr12-example.json";
+import { C_SI } from "../physics/reference/fields.ts";
 import { containsHeading } from "./headingText.ts";
 
 /**
@@ -26,7 +28,7 @@ describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
     expect(html).toContain("total charge is invariant");
     expect(html).toContain("Worked case (readable without JavaScript)");
     expect(html).toContain('data-instrument-id="sr-12"');
-    expect(containsHeading(html, "Relativistic Four-Current Visualization")).toBe(true);
+    expect(containsHeading(html, "A neutral wire carrying a current")).toBe(true);
     expect(html).toContain("Unit-system modernization");
     expect(html).toContain("Gaussian 1905 (§9)");
   });
@@ -41,5 +43,50 @@ describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
     expect(html).toContain("Current loop (0.6c)");
     expect(html).toContain("Four-current invariant");
     expect(html).toContain("Predict: is a neutral wire still neutral in a moving frame?");
+  });
+
+  // The drawing once put round(12γ) ions against round(12/γ) electrons in the moving frame, a net
+  // POSITIVE wire printed beside the model's negative ρ′ and against the lab's own reveal. Its
+  // J′ₓ also tested vectors for Float64Array, which the store never publishes, so it always
+  // printed its fallback of 1 A/m². Both rows now follow the snapshot.
+  test("the moving-frame wire is drawn with the sign of the model's ρ′, and shows its J′ₓ", () => {
+    for (const [boost, more] of [
+      [0.6, "electrons"],
+      [-0.6, "ions"],
+    ] as const) {
+      const session = createSr12Session(`test-sr12-wire-${boost}`, example);
+      session.apply({
+        mode: "neutral-conductor",
+        chargeDensity: 0,
+        currentDensityX: 1,
+        boost: boost * C_SI,
+      });
+      const snap = session.getSnapshot().accepted;
+      if (!snap) throw new Error("expected an accepted snapshot");
+      const out = (q: string) => snap.outputs.find((o) => o.quantityId === q);
+      const rhoPrime = out("chargeDensityMoving");
+      if (rhoPrime?.status !== "value" || typeof rhoPrime.value !== "number") {
+        throw new Error("expected a numeric ρ′");
+      }
+      expect(Math.sign(rhoPrime.value)).toBe(more === "electrons" ? -1 : 1);
+      const html = renderToStaticMarkup(
+        <ChargeCurrentPlot
+          rhoStationary={out("chargeDensityStationary")}
+          rhoMoving={rhoPrime}
+          jStationary={out("currentDensityStationary")}
+          jMoving={out("currentDensityMoving")}
+          lorentzFactor={out("lorentzFactor")}
+          boostFraction={boost}
+          mode="neutral-conductor"
+        />,
+      );
+      const counts = /Wire in k: (\d+) positive ions and (\d+) electrons/.exec(html);
+      if (!counts) throw new Error("expected the moving-frame wire's description");
+      const ions = Number(counts[1]);
+      const electrons = Number(counts[2]);
+      if (more === "electrons") expect(electrons).toBeGreaterThan(ions);
+      else expect(ions).toBeGreaterThan(electrons);
+      expect(html).toContain("J′ₓ = 1.25 A/m²");
+    }
   });
 });
