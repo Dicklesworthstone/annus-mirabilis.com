@@ -39,8 +39,14 @@ export async function OfflineChapterLinks({
       throw new Error("An advertised offline chapter is absent from the current build.");
   }
   const onIndex = heading !== undefined;
+  // On /offline/ each list sits under the page's own introduction, so it takes the page's left
+  // edge (page-flush, globals.css). Centred, the lists started 280px right of the introduction at
+  // 1440 and 393px right at 1920, and read as a second page below the first.
   return (
-    <section className="reading offline-chapters" aria-label={heading ?? "Read offline"}>
+    <section
+      className={onIndex ? "reading page-flush offline-chapters" : "reading offline-chapters"}
+      aria-label={heading ?? "Read offline"}
+    >
       <h2>{heading ?? "Read this offline"}</h2>
       {!onIndex && (
         <p>

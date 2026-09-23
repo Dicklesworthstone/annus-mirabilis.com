@@ -44,7 +44,7 @@ export default async function OfflinePage() {
           />
         ))
       ) : (
-        <section className="reading">
+        <section className="reading page-flush">
           <h2>No chapters are offered in this build</h2>
           <p>
             Offline downloads appear only when this build contains eligible chapter files.
