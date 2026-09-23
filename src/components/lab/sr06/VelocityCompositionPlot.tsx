@@ -1,5 +1,5 @@
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
-import { result } from "../presentation.ts";
+import { fixed, result } from "../presentation.ts";
 
 function num(snapshot: AcceptedSnapshot, id: string): number | null {
   const r = result(snapshot, id);
@@ -64,8 +64,8 @@ export function VelocityCompositionPlot({ snapshot }: { snapshot: AcceptedSnapsh
       </svg>
       <p className="fine">
         The dashed circle is light speed. The Galilean sum is labeled and is not the model. Composed
-        speed {U === null ? "unavailable" : `${U.toFixed(6)} c`}
-        {gal === null ? "" : `; Galilean ${gal.toFixed(6)} c`}.
+        speed {U === null ? "unavailable" : `${fixed(U, 6)} c`}
+        {gal === null ? "" : `; Galilean ${fixed(gal, 6)} c`}.
       </p>
       {matrix && matrix.length === 16 ? (
         <table className="sr06-matrix">
@@ -74,7 +74,7 @@ export function VelocityCompositionPlot({ snapshot }: { snapshot: AcceptedSnapsh
             {[0, 1, 2, 3].map((i) => (
               <tr key={i}>
                 {[0, 1, 2, 3].map((j) => (
-                  <td key={j}>{matrix.at(i * 4 + j)?.toFixed(5)}</td>
+                  <td key={j}>{fixed(matrix.at(i * 4 + j), 5)}</td>
                 ))}
               </tr>
             ))}

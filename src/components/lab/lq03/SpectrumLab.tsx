@@ -24,7 +24,7 @@ import {
 } from "../../../experiments/lq03/session.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { identity } from "../presentation.ts";
+import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { SpectrumPlot } from "./SpectrumPlot.tsx";
@@ -88,7 +88,7 @@ function densityText(result: Lq03Evaluation["planck"]["frequency"], unit: string
   const ln = result.logFrequencyEnergyDensity ?? result.logWavelengthEnergyDensity;
   return ln === undefined
     ? "below the plotted range"
-    : `below double-precision range; ln(value) = ${ln.toFixed(5)} (natural log of ${unit})`;
+    : `below double-precision range; ln(value) = ${fixed(ln, 5)} (natural log of ${unit})`;
 }
 
 function scalarText(
@@ -459,7 +459,7 @@ export function SpectrumLab({
                 </tr>
                 <tr>
                   <td>
-                    Per-natural-log-interval peak (x = {evaluation.peakLogInterval.x.toFixed(7)})
+                    Per-natural-log-interval peak (x = {fixed(evaluation.peakLogInterval.x, 7)})
                   </td>
                   <td>
                     <Sci value={evaluation.peakLogInterval.peakFrequency} digits={6} /> Hz
@@ -476,7 +476,7 @@ export function SpectrumLab({
             <h3>Wien and classical regime verdict</h3>
             <p>
               At this temperature and probe frequency, x = h&nu;/(k<sub>B</sub>T) ={" "}
-              {regime.x.toFixed(6)}. Wien's law's relative error here is{" "}
+              {fixed(regime.x, 6)}. Wien's law's relative error here is{" "}
               <Sci value={regime.wienRelativeError} digits={4} />; the classical law's relative
               error is <Sci value={regime.rayleighJeansRelativeError} digits={4} />. {verdict}
             </p>

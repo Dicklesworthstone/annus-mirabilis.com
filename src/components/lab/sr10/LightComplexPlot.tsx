@@ -1,4 +1,5 @@
 import { FramePair } from "../FramePair.tsx";
+import { fixed } from "../presentation.ts";
 
 export interface LightComplexPlotProps {
   beta: number;
@@ -389,7 +390,7 @@ export function LightComplexPlot({
               color: "var(--accent)",
             }}
           >
-            {energyFactor.toFixed(6)}
+            {fixed(energyFactor, 6)}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             γ(1 − β cos φ) = ν′/ν
@@ -414,7 +415,7 @@ export function LightComplexPlot({
               color: "var(--ink)",
             }}
           >
-            {volumeFactor.toFixed(6)}
+            {fixed(volumeFactor, 6)}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             1 / [γ(1 − β cos φ)]
@@ -439,7 +440,7 @@ export function LightComplexPlot({
               color: "var(--ink)",
             }}
           >
-            {energyDensityFactor.toFixed(6)}
+            {fixed(energyDensityFactor, 6)}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             q² = (A′/A)²
@@ -464,7 +465,7 @@ export function LightComplexPlot({
               color: "var(--ink)",
             }}
           >
-            {gamma.toFixed(6)}
+            {fixed(gamma, 6)}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             1 / √(1 − β²)

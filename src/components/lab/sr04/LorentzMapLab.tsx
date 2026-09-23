@@ -19,7 +19,7 @@ import {
   type PreparedSr04Example,
 } from "../../../experiments/sr04/session.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { identity } from "../presentation.ts";
+import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
 const CONSTRAINT_LABELS: Readonly<Record<ConstraintId, string>> = {
@@ -83,7 +83,7 @@ function fractionText(
       ? result.reason
       : statusMessage(result.status);
   }
-  return `${result.value.toFixed(6)}${unit}`;
+  return `${fixed(result.value, 6)}${unit}`;
 }
 
 export function LorentzMapLab({
@@ -340,11 +340,11 @@ export function LorentzMapLab({
               <tbody>
                 <tr>
                   <td>a</td>
-                  <td>{family.value.a.toFixed(6)}</td>
+                  <td>{fixed(family.value.a, 6)}</td>
                 </tr>
                 <tr>
                   <td>b</td>
-                  <td>{family.value.b.toFixed(6)}</td>
+                  <td>{fixed(family.value.b, 6)}</td>
                 </tr>
                 <tr>
                   <td>d (s/m)</td>
@@ -409,8 +409,8 @@ export function LorentzMapLab({
                 {evaluation.laterAids.eigenvalues && (
                   <>
                     {" "}
-                    Eigenvalues on the light lines: {evaluation.laterAids.eigenvalues[0].toFixed(6)}{" "}
-                    and {evaluation.laterAids.eigenvalues[1].toFixed(6)}.
+                    Eigenvalues on the light lines: {fixed(evaluation.laterAids.eigenvalues[0], 6)}{" "}
+                    and {fixed(evaluation.laterAids.eigenvalues[1], 6)}.
                   </>
                 )}
               </p>

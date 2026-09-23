@@ -17,7 +17,7 @@ import {
   type PreparedLq05Example,
 } from "../../../experiments/lq05/session.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { identity } from "../presentation.ts";
+import { fixed, identity } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
 import "./independentConfigurationsLab.css";
@@ -493,7 +493,7 @@ export function IndependentConfigurationsLab({
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: "bold" }}>
                   {p.locked ? (
-                    evaluation.locked.value.toFixed(6)
+                    fixed(evaluation.locked.value, 6)
                   ) : evaluation.independentProbability.linearRepresentable ? (
                     <Sci value={evaluation.independentProbability.value} digits={6} />
                   ) : (
@@ -515,8 +515,8 @@ export function IndependentConfigurationsLab({
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 600 }}>
                   {p.locked
-                    ? Math.log(evaluation.locked.value).toFixed(6)
-                    : evaluation.independentProbability.lnW.toFixed(6)}
+                    ? fixed(Math.log(evaluation.locked.value), 6)
+                    : fixed(evaluation.independentProbability.lnW, 6)}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   Proportional to the entropy difference ΔS / k<sub>B</sub>
@@ -531,8 +531,8 @@ export function IndependentConfigurationsLab({
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 600 }}>
                   {p.locked
-                    ? Math.log(evaluation.locked.value).toFixed(6)
-                    : evaluation.independentProbability.deltaSOverKb.toFixed(6)}
+                    ? fixed(Math.log(evaluation.locked.value), 6)
+                    : fixed(evaluation.independentProbability.deltaSOverKb, 6)}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   Matches Wien-regime radiation entropy S − S₀ = (E / hν) k<sub>B</sub> ln(V/V₀)
@@ -547,8 +547,8 @@ export function IndependentConfigurationsLab({
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   {p.locked
-                    ? Math.log10(evaluation.locked.value).toFixed(6)
-                    : evaluation.independentProbability.log10W.toFixed(6)}
+                    ? fixed(Math.log10(evaluation.locked.value), 6)
+                    : fixed(evaluation.independentProbability.log10W, 6)}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
                   Order of magnitude (for example 10⁻¹⁸ at n = 60)

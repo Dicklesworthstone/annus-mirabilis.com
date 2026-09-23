@@ -1,4 +1,5 @@
 import { FramePair } from "../FramePair.tsx";
+import { fixed } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
 export interface DopplerAberrationPlotProps {
@@ -363,7 +364,7 @@ export function DopplerAberrationPlot({
               color: "var(--accent)",
             }}
           >
-            {dopplerFactor.toFixed(6)}
+            {fixed(dopplerFactor, 6)}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             γ(1 − β cos θ)
@@ -388,7 +389,7 @@ export function DopplerAberrationPlot({
               color: "var(--ink)",
             }}
           >
-            {cosThetaMoving.toFixed(6)}
+            {fixed(cosThetaMoving, 6)}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem" }}>
             (cos θ − β) / (1 − β cos θ)

@@ -1,4 +1,5 @@
 import type { NumericView } from "../../../experiments/store/instanceStore.ts";
+import { fixed } from "../presentation.ts";
 import { Sci, SubSvg } from "../Sci.tsx";
 import "./sr13.css";
 
@@ -79,7 +80,7 @@ export function ElectronDynamicsPlot({
   // printed "1.953125 m" for both, which read as metres beside the radii in metres below, and a
   // custom particle's kilograms were labelled "m" too.
   const massText = (kg: number) =>
-    particle === "electron" ? `${(kg / 9.1093837e-31).toFixed(6)} × m` : `${kg.toPrecision(4)} kg`;
+    particle === "electron" ? `${fixed(kg / 9.1093837e-31, 6)} × m` : `${kg.toPrecision(4)} kg`;
 
   const width = 800;
   const height = 360;

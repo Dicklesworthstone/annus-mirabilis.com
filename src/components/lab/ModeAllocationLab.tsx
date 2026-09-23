@@ -10,6 +10,7 @@ import {
   removeUpperLimit,
 } from "../../experiments/lq02/session";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { fixed } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 
 const NOT_MODELED = [
@@ -211,8 +212,8 @@ export function ModeAllocationLab({
           <p className="model-note">
             §2's Avogadro match and §4's later entropy argument (a separate instrument) use two
             disjoint limits of the same spectrum: the classical region, admitted at the 1% criterion
-            for x ≤ {snapshot.regimeBoundaries.classicalBoundaryX.toFixed(7)}, and the Wien region,
-            admitted at x ≥ {snapshot.regimeBoundaries.wienBoundaryX.toFixed(6)}. Meeting both
+            for x ≤ {fixed(snapshot.regimeBoundaries.classicalBoundaryX, 7)}, and the Wien region,
+            admitted at x ≥ {fixed(snapshot.regimeBoundaries.wienBoundaryX, 6)}. Meeting both
             arguments does not mean one "quantum regime" supplied both numbers.
           </p>
 

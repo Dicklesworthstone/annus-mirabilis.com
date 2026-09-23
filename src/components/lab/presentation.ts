@@ -55,6 +55,17 @@ export function unitText(unit: string): string {
   return unit.replace(/\^(-?\d+)/g, (_, exponent: string) => superscript(exponent));
 }
 
+/**
+ * A value at a fixed number of decimal places with the trailing zeros dropped: toFixed alone printed
+ * 0.500000, 1.250000 and -1.600000 beside values that needed all six places, so every reading looked
+ * equally precise whether it was or not. -0 reads 0.
+ */
+export function fixed(value: number, decimals: number): string {
+  const text = value.toFixed(decimals);
+  const trimmed = text.includes(".") ? text.replace(/0+$/, "").replace(/\.$/, "") : text;
+  return trimmed === "-0" ? "0" : trimmed;
+}
+
 /** Presentation rounding and explicit unit conversion only; no physical laws live here. */
 export function display(value: number, factor = 1): string {
   if (!Number.isFinite(value) || !Number.isFinite(factor) || factor <= 0)
