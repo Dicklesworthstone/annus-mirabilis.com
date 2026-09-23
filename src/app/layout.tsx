@@ -34,6 +34,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SOURCE }} />
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: ensures overflowing formulas are keyboard-reachable with distinct accessible names without bulk-applying tabindex (am-bc6s) */}
         <script dangerouslySetInnerHTML={{ __html: FORMULA_OVERFLOW_SOURCE }} />
+        {/* How a page prints: one column, no chrome, no closed drawers. Loaded only for print, so no
+            screen waits for it (src/platform/print/sitePrint.css, served by print.css/route.ts). */}
+        <link rel="stylesheet" href="/print.css" media="print" />
       </head>
       <body>
         <a className="skip-link" href="#main">

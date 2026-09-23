@@ -1,0 +1,112 @@
+/*
+ * THE SITE ON PAPER (chrome, pane %48; TanElk dispatch 78, item 3). A section page or a lesson
+ * prints as a page of a book: no header, navigation, toggles or drawers; the reading text across
+ * the page's full width at a book size; equations whole; and every colour dark enough to read when
+ * the printer has no colour.
+ *
+ * WHERE IT LOADS. The root layout links this file with media="print", served as /print.css by
+ * src/app/print.css/route.ts. A screen never needs these rules, so they stay off the render path
+ * and out of every route's first-load stylesheets: bundled into globals.css or reader.css, they
+ * would be downloaded, parsed and counted against the route budget on every visit, to be used only
+ * on the rare visit that prints. The browser fetches a print stylesheet at low priority and never
+ * waits for it before painting.
+ *
+ * WHAT IS LEFT ALONE. Per-component print rules (equations.css, foundations.css, reader.css and
+ * others) stay where they are. This file holds the rules that cross surfaces: the site's chrome,
+ * the drawers, and the reading layout's grid.
+ *
+ * WHY EVERY SELECTOR STARTS AT :root. This sheet's place among the bundled stylesheets is not
+ * something the layout controls, so a rule here cannot count on coming last. One extra class of
+ * specificity wins over the screen rule it overrides wherever the two land, without !important.
+ */
+
+@page {
+  margin: 20mm 37mm 22mm;
+}
+
+/* --- The site's chrome belongs to a screen ------------------------------------------------ */
+:root .site-header,
+:root .site-footer,
+:root .skip-link,
+:root .offline-chapters,
+:root .guided-tour-guide,
+:root .guided-tour-loading,
+:root .foundation-page-exit,
+:root .foundation-page-text > p:has(+ .foundation-page-exit),
+:root a.button,
+:root select {
+  display: none;
+}
+/* The paper colour is a screen's; the sheet is the paper. */
+:root,
+:root body {
+  background: white;
+}
+/* A heading printed as the last line of a page belongs to the next. */
+h2,
+h3,
+h4 {
+  break-after: avoid;
+}
+
+/* --- Drawers -------------------------------------------------------------------------------
+   A closed drawer prints as its summary alone: a line saying there is more, on a page that cannot
+   open it. So a closed drawer prints nothing, and an open one prints what the reader opened, with
+   its summary as a plain label rather than a disclosure triangle. The one exception is the status
+   note ("Draft explanation, not yet reviewed"), whose summary is the status and always prints. */
+:root main details:not([open]):not(.callout-note) {
+  display: none;
+}
+summary {
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+summary::marker {
+  content: "";
+}
+.callout-note > summary {
+  padding-left: 0;
+  font-weight: 600;
+}
+
+/* --- The reading layout: one column across the page ---------------------------------------- */
+:root .reader-anatomy {
+  display: block;
+}
+/* The text fills the page's text block, and the margins make that block a book's: 136mm across
+   an A4 sheet, at the scale's small step (about 12pt on paper), holds 71-75 characters a line,
+   inside the 45-75 band the screen columns keep. A full-width line across a 160mm block measured
+   88-90 characters, too long to follow back to the next line. */
+:root .reader-main,
+:root article.foundation-page {
+  max-width: none;
+  margin-inline: 0;
+  font-size: var(--type-small);
+}
+/* The companion column sits beside the text on a screen; on paper it would take a third of every
+   page from the text it accompanies. Its symbol key does not need it: every formula in the text
+   carries its own legend beneath it, in the same quantity colours. */
+:root .reader-companion-column,
+:root .reader-inline-lab,
+:root .reader-root > .page-intro > a {
+  display: none;
+}
+/* On a screen the laboratory is a window that scrolls inside itself; printed that way it would be
+   cut to the window's height. Here its static worked case prints whole, in the flow. */
+:root .reader-sticky-lab {
+  position: static;
+  max-height: none;
+  overflow: visible;
+}
+
+/* --- The first encounter's drag strip -------------------------------------------------------
+   Its markers are white numerals on filled discs, and a printer without "background graphics"
+   drops the fills, leaving white on white. The four readouts in the same box carry the same
+   positions in words and numbers, so they print and the strip and its keyboard hint do not. A box
+   whose only content is a button would print as an empty bar, so it goes with its button. */
+:root .encounter .notice:has(kbd) > :not(.input-grid),
+:root .encounter > .notice:has(> button:only-child) {
+  display: none;
+}
