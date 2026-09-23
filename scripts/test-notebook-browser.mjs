@@ -327,9 +327,8 @@ body{font:18px/1.6 Georgia;margin:16px}button,textarea,input{font:inherit}button
   await page.locator("#trigger").click();
   check(
     "unsupported original remains exportable",
-    (await button(
-      /^(Export preserved original|Download the notebook as it was saved)$/,
-    ).isVisible()) && (await page.evaluate(() => JSON.parse(io.value).schemaVersion === 99)),
+    (await button("Download the notebook as it was saved").isVisible()) &&
+      (await page.evaluate(() => JSON.parse(io.value).schemaVersion === 99)),
   );
   await page.keyboard.press("Escape");
   await page.evaluate(() => window.remount());

@@ -83,19 +83,19 @@ try {
   await page.getByRole("link", { name: "Open your notebook", exact: true }).click();
   const dialog = page.locator("[data-notebook-dialog]");
   const before = await page.evaluate(() => window.replayWorkerCount);
-  await dialog
-    .getByRole("button", { name: /^(Open saved evidence and replay|Open the saved comparison)$/ })
-    .click();
+  await dialog.getByRole("button", { name: "Open the saved comparison", exact: true }).click();
   await dialog
     .getByRole("button", {
-      name: /^(Replay saved comparison as a new run|Run the saved comparison again)$/,
+      name: "Run the saved comparison again",
+      exact: true,
     })
     .waitFor();
   assert.equal(await page.evaluate(() => window.replayWorkerCount), before);
   assert.ok((await dialog.innerText()).includes("What you saw on"));
   await dialog
     .getByRole("button", {
-      name: /^(Replay saved comparison as a new run|Run the saved comparison again)$/,
+      name: "Run the saved comparison again",
+      exact: true,
     })
     .click();
   await page.waitForFunction(
