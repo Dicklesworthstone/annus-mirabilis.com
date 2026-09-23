@@ -189,7 +189,13 @@ describe("scripts/align-editions.ts runner and CLI guards", () => {
 });
 
 describe("scripts/align-editions.ts CLI process execution", () => {
-  test("CLI happy path exits 0 with JSON output", () => {
+  // These two used to expect exit 0 for brownian-motion. Since a07db750 a paper with no authored
+  // alignment edges is refused as empty-alignment, and no paper has English translation units
+  // yet, so the real corpus has no passing paper to spawn against. That went unseen because the
+  // main checkout's spawnSync fails with EBADF and returns early; a clean worktree ran them and
+  // failed. They now assert the CLI's contract at any corpus state: the exit code is the verdict's
+  // own, 0 exactly when no issue was found. The refusal itself is tested in-process above.
+  test("CLI prints JSON whose verdict matches its exit code", () => {
     const proc = spawnSync(
       process.execPath,
       ["scripts/align-editions.ts", "--paper", "brownian-motion"],
@@ -199,10 +205,11 @@ describe("scripts/align-editions.ts CLI process execution", () => {
       },
     );
     if (proc.error && (proc.error as any).code === "EBADF") return;
-    expect(proc.status).toBe(0);
     const parsed = JSON.parse(proc.stdout);
-    expect(parsed.ok).toBe(true);
     expect(parsed.slug).toBe("brownian-motion");
+    expect(parsed.ok).toBe(parsed.issues.length === 0);
+    expect(proc.status).toBe(parsed.ok ? 0 : 1);
+    expect(parsed.exitCode).toBe(proc.status);
   });
 
   test("CLI --require-reviewed exits 1 when unreviewed", () => {
@@ -231,15 +238,15 @@ describe("scripts/align-editions.ts CLI process execution", () => {
     expect(proc.status).toBe(2);
   });
 
-  test("CLI --report writes files and exits 0", () => {
+  test("CLI --report writes both files, whatever the verdict", () => {
     const proc = spawnSync(
       process.execPath,
       ["scripts/align-editions.ts", "--paper", "brownian-motion", "--report"],
       { stdio: ["ignore", "pipe", "pipe"], encoding: "utf8" },
     );
     if (proc.error && (proc.error as any).code === "EBADF") return;
-    expect(proc.status).toBe(0);
     const parsed = JSON.parse(proc.stdout);
+    expect(proc.status).toBe(parsed.ok ? 0 : 1);
     expect(parsed.reportFiles).toBeDefined();
     expect(existsSync(parsed.reportFiles.json)).toBe(true);
     expect(existsSync(parsed.reportFiles.markdown)).toBe(true);

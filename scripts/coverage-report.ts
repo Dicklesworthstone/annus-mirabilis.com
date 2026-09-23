@@ -247,8 +247,9 @@ export async function runCoverageReport(args: string[]): Promise<{
 
   // The provenance block goes to stdout in BOTH modes, because a JSON consumer reading
   // sourceStatus.totalUnits has the same right to know whether that figure was measured. The
-  // report object itself cannot carry it without changing CoverageReport, which belongs to
-  // am-cm-coverage-ledger-0ip; until then this line is the carrier and the limitation is stated.
+  // CoverageReport type cannot carry it without a change that belongs to
+  // am-cm-coverage-ledger-0ip, so under --json it rides as a `provenance` field of the printed
+  // object. It used to follow the JSON as a bare line, which made --json output unparseable.
   const provenance = demonstration
     ? `DEMONSTRATION RUN. ${UNWIRED_DIMENSIONS.join(", ")} are filled from a fixture in scripts/coverage-report.ts, not measured from this repository. Do not cite these figures as coverage.`
     : `NOT MEASURED: ${UNWIRED_DIMENSIONS.join(", ")} have no loader wired (am-cm-coverage-ledger-0ip), so their figures are absent rather than zero. Every other dimension below is measured from its declared input.`;
@@ -259,7 +260,7 @@ export async function runCoverageReport(args: string[]): Promise<{
   // asked for, and main() still refuses so they cannot be cited as coverage.
   const withhold = report.inputs.length === 0 && !demonstration;
   if (json) {
-    console.log(JSON.stringify(report, null, 2));
+    console.log(JSON.stringify({ ...report, provenance }, null, 2));
   } else if (withhold) {
     console.log(
       `# Annus Mirabilis Multi-Dimensional Coverage Ledger\n\n- **Tool Run ID:** \`${toolRunId}\`\n- **Inputs:** None\n\nNo dimension was measured, so no figures are printed.`,
@@ -268,7 +269,7 @@ export async function runCoverageReport(args: string[]): Promise<{
     console.log(formatCoverageMarkdown(report));
     console.log(`\nArtifacts written:\n- JSON: ${jsonPath}\n- Markdown: ${mdPath}`);
   }
-  console.log(`\n${provenance}`);
+  if (!json) console.log(`\n${provenance}`);
 
   return { report, jsonPath, mdPath, provenance, unwiredDimensions: UNWIRED_DIMENSIONS };
 }

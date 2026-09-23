@@ -28,7 +28,7 @@
     "test:browser": "bun scripts/test-mass-energy-browser.mjs && bun scripts/test-lab-browser.mjs",
     "test:search": "node --experimental-strip-types --test src/search/*.test.mjs",
     "test:search:browser": "node --experimental-strip-types scripts/e2e/searchPalette.mjs",
-    "prepare:offline": "bun scripts/build-offline-chapters.ts",
+    "prepare:offline": "bun scripts/build-offline-chapters.ts && bun scripts/build/injectStorageKeys.ts",
     "test:offline": "node --experimental-strip-types --test src/platform/offline/*.test.mjs",
     "test:offline:browser": "node --experimental-strip-types scripts/e2e/offlineChapters.mjs",
     "test:countermodels": "node --experimental-strip-types --test src/physics/reference/countermodels.test.mjs src/reasoning/countermodel/*.test.mjs scripts/generate-countermodels.test.mjs",
