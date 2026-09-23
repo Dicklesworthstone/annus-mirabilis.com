@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { SR13_DEFAULTS } from "../experiments/sr13/definition.ts";
+import { SR13_DEFAULTS, SR13_OUTPUTS } from "../experiments/sr13/definition.ts";
 import { validateSr13Parameters } from "../experiments/sr13/parameters.ts";
 import { decodeSr13Settings, encodeSr13Settings } from "../experiments/sr13/permalink.ts";
 import { createSr13Session, snapshotOutputs } from "../experiments/sr13/session.ts";
@@ -10,7 +10,12 @@ describe("SR-13 session store, parameter validation, and permalinks", () => {
     const snap = session.getSnapshot().accepted;
     expect(snap).toBeDefined();
     expect(snap?.parameters).toBeDefined();
-    expect(snap?.outputs.length).toBe(11);
+    // Every declared output is published and nothing undeclared is: a property that holds however
+    // many outputs the contract names, where "11" broke the day the path was added.
+    expect(new Set(snap?.outputs.map((o) => o.quantityId))).toEqual(
+      new Set(Object.keys(SR13_OUTPUTS)),
+    );
+    expect(Object.keys(SR13_OUTPUTS).length).toBeGreaterThan(0);
     expect(session.acceptedParameters().initialSpeed).toBe(0.6);
   });
 
@@ -87,7 +92,7 @@ describe("SR-13 session store, parameter validation, and permalinks", () => {
 
   test("snapshot outputs match evaluateSr13", () => {
     const outputs = snapshotOutputs(SR13_DEFAULTS);
-    expect(outputs.length).toBe(11);
+    expect(new Set(outputs.map((o) => o.quantityId))).toEqual(new Set(Object.keys(SR13_OUTPUTS)));
     const longM = outputs.find((o) => o.quantityId === "longitudinalMass");
     expect(longM?.status).toBe("value");
   });
