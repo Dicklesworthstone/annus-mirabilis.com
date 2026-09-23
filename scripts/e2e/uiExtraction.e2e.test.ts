@@ -82,13 +82,31 @@ function resolveWithinOut(requestPath: string): string | undefined {
 }
 
 /**
+ * Defects the server plants in what it serves, for the two checks a plant in the browser cannot
+ * reach. The Open Graph check fetches with `page.request`, which `page.route` never sees, and a
+ * 404's status comes from the host. Each counts the responses it altered, because a plant that
+ * altered nothing leaves every check green and reads as robustness.
+ */
+type ServerPlant = "soft-404" | "no-not-found-page" | "og-not-png";
+
+/**
  * Serves `out/` the way a static host does, including the part that matters for the
  * error-boundary check: an unknown path answers 404 with the built not-found page,
  * rather than 200 with a soft "not found" body.
  */
-function startStaticServer(): Promise<{ baseUrl: string; server: Server }> {
+function startStaticServer(
+  plant?: ServerPlant,
+): Promise<{ baseUrl: string; server: Server; plantHits: { count: number } }> {
+  const plantHits = { count: 0 };
   const server = createServer((req, res) => {
     const url = req.url ?? "/";
+    if (plant === "og-not-png" && url.split("?")[0] === "/opengraph-image") {
+      // The right header over the wrong bytes, so only the site's half of the check can fail.
+      plantHits.count += 1;
+      res.writeHead(200, { "content-type": "image/png" });
+      res.end(homeHtml());
+      return;
+    }
     if (url === PLANT_REMOTE_SCRIPT || url === PLANT_BROKEN_ESCAPE) {
       const body =
         url === PLANT_REMOTE_SCRIPT
@@ -128,15 +146,19 @@ function startStaticServer(): Promise<{ baseUrl: string; server: Server }> {
       }
     }
     const notFoundPage = join(OUT_DIR, "404.html");
-    const body = existsSync(notFoundPage) ? readFileSync(notFoundPage) : Buffer.from("Not Found");
-    res.writeHead(404, { "content-type": CONTENT_TYPES[".html"] as string });
+    if (plant === "soft-404" || plant === "no-not-found-page") plantHits.count += 1;
+    const built = plant !== "no-not-found-page" && existsSync(notFoundPage);
+    const body = built ? readFileSync(notFoundPage) : Buffer.from("Not Found");
+    res.writeHead(plant === "soft-404" ? 200 : 404, {
+      "content-type": CONTENT_TYPES[".html"] as string,
+    });
     res.end(body);
   });
   return new Promise((resolveStart) => {
     server.listen(0, "127.0.0.1", () => {
       const address = server.address();
       const port = typeof address === "object" && address !== null ? address.port : 0;
-      resolveStart({ baseUrl: `http://127.0.0.1:${port}`, server });
+      resolveStart({ baseUrl: `http://127.0.0.1:${port}`, server, plantHits });
     });
   });
 }
@@ -319,7 +341,21 @@ async function runChecks(
     if (!/not found|404/i.test(text)) {
       throw new Error("404 status without a not-found page body");
     }
-    return "HTTP 404 with the built not-found page";
+    // The text alone cannot say WHOSE page this is. When 404.html is missing, this file's own
+    // server answers with the bare string "Not Found", which the pattern above accepts, so a
+    // build with no not-found page passed. The built page is a page of the site: it has the
+    // header and a heading in <main>.
+    const heading = await page.evaluate(() =>
+      document.querySelector("header.site-header") === null
+        ? null
+        : (document.querySelector("main h1")?.textContent?.trim() ?? null),
+    );
+    if (!heading) {
+      throw new Error(
+        "404 status, but the body is not the built not-found page (no site header or heading)",
+      );
+    }
+    return `HTTP 404 with the built not-found page, headed "${heading}"`;
   });
 
   // 4. The Open Graph route returns an image. The BYTES are the site's responsibility
@@ -535,6 +571,38 @@ function breakPaletteShortcut(rewritten: { count: number }) {
         body: body.split(TARGET).join('"am-ahyb-no-such-key"!==e.key.toLowerCase()'),
       });
     });
+  };
+}
+
+/**
+ * The storage key ThemeToggle writes (SETTINGS_KEY_PREFIX + "theme" in
+ * src/platform/storage/keys.ts). Written out rather than imported, because this file runs under
+ * node's type stripping; if the key moves, the plant below swallows nothing and its own
+ * reachability count fails, rather than passing on a write it never saw.
+ */
+const THEME_STORAGE_KEY = "am:settings:v1:theme";
+
+/**
+ * Stops the theme toggle's choice from being saved, so the page forgets it on reload: the defect
+ * the check's reload half exists for. Counts the writes it swallowed.
+ */
+function dropThemeWrites(swallowed: { count: number }) {
+  return async (page: import("playwright").Page): Promise<void> => {
+    await page.exposeFunction("__amAhybThemeWriteDropped", () => {
+      swallowed.count += 1;
+    });
+    await page.addInitScript((key: string) => {
+      const setItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (this: Storage, name: string, value: string) {
+        if (name === key) {
+          (
+            window as unknown as { __amAhybThemeWriteDropped: () => void }
+          ).__amAhybThemeWriteDropped();
+          return;
+        }
+        setItem.call(this, name, value);
+      };
+    }, THEME_STORAGE_KEY);
   };
 }
 
@@ -758,4 +826,96 @@ test("am-ahyb planted negative: a remote script breaks the network check and not
   } finally {
     await new Promise<void>((done) => server.close(() => done()));
   }
+});
+
+/**
+ * The three checks the two plants above do not reach, each broken on its own. Every plant runs
+ * the full five checks unchanged, so "only this check failed" is measured, not assumed, and each
+ * failure must carry its own reason: a plant that broke the page in general would fail the right
+ * check for the wrong reason.
+ */
+const ISOLATED_PLANTS = [
+  {
+    name: "theme-not-saved",
+    check: "theme-toggle",
+    reason: /did not persist across reload/,
+  },
+  {
+    name: "soft-404",
+    check: "not-found-404",
+    server: "soft-404",
+    reason: /expected HTTP 404, got 200/,
+  },
+  {
+    name: "no-not-found-page",
+    check: "not-found-404",
+    server: "no-not-found-page",
+    reason: /not the built not-found page/,
+  },
+  {
+    name: "og-not-png",
+    check: "open-graph-image",
+    server: "og-not-png",
+    reason: /is not a PNG/,
+  },
+] as const satisfies readonly {
+  name: string;
+  check: string;
+  server?: ServerPlant;
+  reason: RegExp;
+}[];
+
+test("am-ahyb planted negatives: theme, 404 and Open Graph each fail alone, for their own reason", async () => {
+  assertOutFreshness();
+  if (!existsSync(join(OUT_DIR, "index.html"))) {
+    assert.fail(
+      "out/index.html is absent, so what a reader meets cannot be checked. Run bun run build. " +
+        "This is not-available rather than a pass: a missing artefact is not evidence, and a " +
+        "skip here reports green forever on any machine where out/ happens to be missing.",
+    );
+    return;
+  }
+  const report: string[] = [];
+  for (const plant of ISOLATED_PLANTS) {
+    const serverPlant: ServerPlant | undefined = "server" in plant ? plant.server : undefined;
+    const { baseUrl, server, plantHits } = await startStaticServer(serverPlant);
+    try {
+      for (const engine of ENGINES) {
+        const browser = await engine.launcher.launch();
+        try {
+          const swallowed = { count: 0 };
+          plantHits.count = 0;
+          const outcomes = await runChecks(engine.name, browser, baseUrl, {
+            ...(serverPlant === undefined ? { prepare: dropThemeWrites(swallowed) } : {}),
+            logPrefix: `plant-${plant.name}/`,
+          });
+          const hits = serverPlant === undefined ? swallowed.count : plantHits.count;
+          assert.ok(
+            hits > 0,
+            `${engine.name}/${plant.name}: the plant altered nothing, so it proves nothing`,
+          );
+          const failed = outcomes.filter((o) => !o.ok);
+          assert.deepEqual(
+            failed.map((o) => o.check),
+            [plant.check],
+            `${engine.name}/${plant.name} must fail ${plant.check} and only that: ${failed.map((o) => `${o.check}: ${o.message}`).join("; ")}`,
+          );
+          const message = failed[0]?.message ?? "";
+          assert.match(
+            message,
+            plant.reason,
+            `${engine.name}/${plant.name} failed ${plant.check} for another reason: ${message}`,
+          );
+          report.push(
+            `${engine.name}/${plant.name}: ${hits} altered, ${plant.check} failed: ${message}`,
+          );
+        } finally {
+          await browser.close();
+        }
+      }
+    } finally {
+      await new Promise<void>((done) => server.close(() => done()));
+    }
+  }
+  console.log(`isolated plants (${report.length}):\n  ${report.join("\n  ")}`);
 });
