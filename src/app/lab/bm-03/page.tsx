@@ -51,15 +51,16 @@ export default function ConfigurationPage() {
         <p>
           Einstein&apos;s &sect;2 writes the free energy using the logarithm of an integral over all
           state variables (the configuration integral B). Under the premises of independent particle
-          positions and dilution, the spatial positions of N_p particles contribute a clean volume
-          factor V^{"{"}N_p{"}"}.
+          positions and dilution, the spatial positions of <InlineFormula latex="N_p" /> particles
+          contribute a clean volume factor <InlineFormula latex="V^{N_p}" />.
         </p>
         <Formula
           latex={String.raw`B=\int\cdots\int dx_1\dots dz_n=V^{*n}J,\qquad F=-2\kappa T\lg B=-2\kappa Tn\lg V^*-2\kappa T\lg J+\text{const}`}
         />
         <p>
-          In modern notation, 2&kappa;N = R gives 2&kappa; = k_B, the particle count n is written
-          N_p, and the volume V* is V:
+          In modern notation, <InlineFormula latex={String.raw`2\kappa N = R`} /> gives{" "}
+          <InlineFormula latex={String.raw`2\kappa = k_B`} />, the particle count n is written{" "}
+          <InlineFormula latex="N_p" />, and the volume V* is V:
         </p>
         <Formula latex={String.raw`F=-N_p k_B T\ln V - k_B T\ln J + F_0`} />
 
@@ -76,8 +77,9 @@ export default function ConfigurationPage() {
         <h2>The locked-cluster counterexample: what is actually counted?</h2>
         <p>
           If the particles are rigidly locked together into a single cluster, the spatial
-          arrangements grow only like V (or V/V_0) rather than (V/V_0)^{"{"}N_p{"}"}. The resulting
-          osmotic pressure is that of one independent unit:
+          arrangements grow only like V (or <InlineFormula latex="V/V_0" />) rather than{" "}
+          <InlineFormula latex="(V/V_0)^{N_p}" />. The resulting osmotic pressure is that of one
+          independent unit:
         </p>
         <Formula latex={String.raw`p_{\text{locked}}=\frac{k_B T}{V}`} />
         <p>
