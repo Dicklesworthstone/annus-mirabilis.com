@@ -40,8 +40,10 @@ export function InterferencePlot({
   delta,
 }: InterferencePlotProps) {
   const width = 480;
-  const height = 260;
-  const padding = { top: 30, right: 20, bottom: 40, left: 30 };
+  // 272 tall with a 52-unit bottom margin (it was 260 and 40): the centre's tick label and the axis
+  // title stood 18 units apart at this plot's text size and overlapped. The plot area is unchanged.
+  const height = 272;
+  const padding = { top: 30, right: 20, bottom: 52, left: 30 };
 
   const plotW = width - padding.left - padding.right;
   const plotH = height - padding.top - padding.bottom;
