@@ -1,0 +1,15 @@
+/*
+ * /about/ (chrome and top-level pages, pane %48). The page's own rules only; the introduction,
+ * prose and edges are the site's (page-intro, reading, page-flush in globals.css).
+ */
+.about-section {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  margin-top: 2rem;
+}
+/* The attribution is quoted exactly, so it is set apart from the prose that asks for it. */
+.about-attribution {
+  padding-left: 1rem;
+  border-left: 2px solid var(--rule);
+  font-style: italic;
+}

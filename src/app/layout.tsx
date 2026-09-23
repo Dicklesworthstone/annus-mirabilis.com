@@ -113,6 +113,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <a href="/tours/">Guided reading paths</a>
           </nav>
           <nav aria-label="About this site">
+            <a href="/about/">About this edition</a>
             <a href="/sources/">Where the scans come from</a>
             <a href="/your-data/">What this site stores</a>
             <a href="/offline/">Read without a connection</a>
