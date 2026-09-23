@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { statusMessage } from "../../../experiments/results/explanations.ts";
 import {
   SR08_CAPTION,
   SR08_MODEL,
@@ -17,7 +18,7 @@ import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
 const C_SI = 299792458;
 
 function OutputReading({ item }: { item: PublishedResult | undefined }) {
-  if (!item) return <span>missing</span>;
+  if (!item) return <span>Not computed at these settings.</span>;
   if (item.status === "value") {
     if (typeof item.value === "number") {
       return <span data-quantity-id={item.quantityId}>{display(item.value)}</span>;
@@ -31,7 +32,7 @@ function OutputReading({ item }: { item: PublishedResult | undefined }) {
   if (item.status === "not-applicable" || item.status === "outside-domain") {
     return <span data-quantity-id={item.quantityId}>{item.reason}</span>;
   }
-  return <span data-quantity-id={item.quantityId}>{item.status}</span>;
+  return <span data-quantity-id={item.quantityId}>{statusMessage(item.status)}</span>;
 }
 
 function SnapshotReading({

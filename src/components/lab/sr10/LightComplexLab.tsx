@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { statusMessage } from "../../../experiments/results/explanations.ts";
 import {
   SR10_CAPTION,
   SR10_MODEL,
@@ -44,7 +45,7 @@ function SnapshotReading({
   if (item.status === "outside-domain" || item.status === "not-applicable") {
     return <span data-quantity-id={quantityId}>{item.reason}</span>;
   }
-  return <span data-quantity-id={quantityId}>{item.status}</span>;
+  return <span data-quantity-id={quantityId}>{statusMessage(item.status)}</span>;
 }
 
 export function LightComplexLab({

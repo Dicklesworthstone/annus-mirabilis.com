@@ -25,6 +25,7 @@ import {
 } from "../../experiments/predict/predictState.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { parseResult } from "../../experiments/results/codec.ts";
+import { statusMessage } from "../../experiments/results/explanations.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -44,7 +45,7 @@ function numericOf(item: Output | undefined): number | null {
 }
 
 function OutputReading({ item }: { item: Output | undefined }) {
-  if (!item) return <span>missing</span>;
+  if (!item) return <span>Not computed at these settings.</span>;
   const quantityId = item.quantityId;
   const value = numericOf(item);
   if (item.status === "analytic-limit" && value !== null) {
@@ -60,7 +61,7 @@ function OutputReading({ item }: { item: Output | undefined }) {
   if (item.status === "not-applicable" || item.status === "outside-domain") {
     return <span data-quantity-id={quantityId}>{item.reason}</span>;
   }
-  return <span data-quantity-id={quantityId}>{item.status}</span>;
+  return <span data-quantity-id={quantityId}>{statusMessage(item.status)}</span>;
 }
 
 function SnapshotReading({

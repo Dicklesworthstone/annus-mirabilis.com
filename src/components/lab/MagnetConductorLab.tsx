@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { statusMessage } from "../../experiments/results/explanations.ts";
 import {
   SR02_APPARATUS_CAPTIONS,
   SR02_APPARATUS_LABEL,
@@ -17,7 +18,7 @@ import { display, identity, result } from "./presentation.ts";
 const SPEED_06C = 0.6 * 299792458;
 
 function OutputReading({ item }: { item: PublishedResult | undefined }) {
-  if (!item) return <span>missing</span>;
+  if (!item) return <span>Not computed at these settings.</span>;
   if (item.status === "value" && typeof item.value === "number") {
     return <span data-quantity-id={item.quantityId}>{display(item.value)}</span>;
   }
@@ -38,7 +39,7 @@ function OutputReading({ item }: { item: PublishedResult | undefined }) {
       </span>
     );
   }
-  return <span data-quantity-id={item.quantityId}>{item.status}</span>;
+  return <span data-quantity-id={item.quantityId}>{statusMessage(item.status)}</span>;
 }
 
 function SnapshotReading({

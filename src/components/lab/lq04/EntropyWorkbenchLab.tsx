@@ -1,13 +1,5 @@
 "use client";
 
-/**
- * LQ-04: the radiation entropy workbench (am-lq-04-entropy-workbench-senj).
- *
- * Reads the accepted snapshot only. It never calls `evaluateLq04` itself and never imports
- * `src/physics/reference/radiation.ts`: every number below comes from
- * `src/experiments/lq04/session.ts`'s `buildLq04Snapshot`, so this component and any other
- * consumer of the same snapshot can never disagree.
- */
 import {
   type FormEvent,
   type ReactNode,
@@ -27,6 +19,15 @@ import {
   createLq04Session,
   type PreparedLq04Example,
 } from "../../../experiments/lq04/session.ts";
+/**
+ * LQ-04: the radiation entropy workbench (am-lq-04-entropy-workbench-senj).
+ *
+ * Reads the accepted snapshot only. It never calls `evaluateLq04` itself and never imports
+ * `src/physics/reference/radiation.ts`: every number below comes from
+ * `src/experiments/lq04/session.ts`'s `buildLq04Snapshot`, so this component and any other
+ * consumer of the same snapshot can never disagree.
+ */
+import { statusMessage } from "../../../experiments/results/explanations.ts";
 import type {
   AcceptedSnapshot,
   PublishedResult,
@@ -90,7 +91,7 @@ function valueText(snapshot: AcceptedSnapshot, id: string, unit: string, digits 
   }
   if (output.status === "outside-domain") return output.reason;
   if (output.status === "not-applicable") return output.reason;
-  return `(${output.status})`;
+  return statusMessage(output.status);
 }
 
 export type EntropyWorkbenchLabProps = Readonly<{

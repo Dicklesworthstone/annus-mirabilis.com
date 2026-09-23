@@ -25,6 +25,17 @@ const outcomeRetryActions: Record<RetryGuidance, string> = Object.freeze({
   none: "This device or configuration does not support this calculation.",
 });
 
+/**
+ * The reader sentence for an output status, for a view that holds only the status name. Views used
+ * to print the name itself ("underdetermined", "(analytic-limit)") where a value could not be shown.
+ */
+export function statusMessage(status: string): string {
+  const entry = (outputStatusRegistry as Readonly<Record<string, { message: string } | undefined>>)[
+    status
+  ];
+  return entry?.message ?? "No value is available at these settings.";
+}
+
 /** Resolves reader-facing explanation and next action for an output result. */
 export function explainResult(
   result: ScientificResult | ResultPayload,

@@ -22,6 +22,7 @@ import {
   type Lq03Evaluation,
   type PreparedLq03Example,
 } from "../../../experiments/lq03/session.ts";
+import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
@@ -76,7 +77,7 @@ function fromDraft(d: Draft): unknown {
 
 function densityText(result: Lq03Evaluation["planck"]["frequency"], unit: string): ReactNode {
   if (result.status !== "value") {
-    return result.status === "outside-domain" ? result.reason : `(${result.status})`;
+    return result.status === "outside-domain" ? result.reason : statusMessage(result.status);
   }
   if (result.linearRepresentable)
     return (
@@ -97,7 +98,7 @@ function scalarText(
   if (result.status !== "value" || typeof result.value !== "number") {
     return result.status === "outside-domain" && result.reason
       ? result.reason
-      : `(${result.status})`;
+      : statusMessage(result.status);
   }
   return (
     <>

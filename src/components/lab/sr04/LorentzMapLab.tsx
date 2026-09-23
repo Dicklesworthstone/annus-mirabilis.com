@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { statusMessage } from "../../../experiments/results/explanations.ts";
 import {
   ALL_CONSTRAINTS,
   type ConstraintId,
@@ -80,7 +81,7 @@ function fractionText(
   if (result.status !== "value" || typeof result.value !== "number") {
     return result.status === "outside-domain" && result.reason
       ? result.reason
-      : `(${result.status})`;
+      : statusMessage(result.status);
   }
   return `${result.value.toFixed(6)}${unit}`;
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { statusMessage } from "../../../experiments/results/explanations.ts";
 import {
   SR11_CAPTION,
   SR11_MODEL,
@@ -46,7 +47,7 @@ function SnapshotReading({
   if (item.status === "outside-domain" || item.status === "not-applicable") {
     return <span data-quantity-id={quantityId}>{item.reason}</span>;
   }
-  return <span data-quantity-id={quantityId}>{item.status}</span>;
+  return <span data-quantity-id={quantityId}>{statusMessage(item.status)}</span>;
 }
 
 type NumericKey = "beta" | "incidentAngleDeg" | "incidentEnergyDensity" | "mirrorArea";
