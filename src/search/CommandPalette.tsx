@@ -508,11 +508,14 @@ export function CommandPalette({
           <div
             style={{ fontSize: "0.6875rem", display: "flex", alignItems: "center", gap: "0.5rem" }}
           >
-            <span>↑↓ Navigate</span>
+            {/* Words, not key glyphs: "↵" is in none of the three fonts this site serves, so it
+                drew as a fallback glyph (componentGlyphCoverage). The words match the live
+                palette's own hint in CommandPalette.ts. */}
+            <span>Up and Down to move</span>
             <span>•</span>
-            <span>↵ Select</span>
+            <span>Enter to open</span>
             <span>•</span>
-            <span>ESC Close</span>
+            <span>Escape to close</span>
           </div>
         </div>
       </div>
