@@ -166,7 +166,7 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
         url: "/papers/brownian-motion/",
         measurements: "320px: 288px/288px (diff 0); 1280px: 640px/640px (diff 0)",
         reason:
-          'Reached only through the "Table & Numeric Inputs" tab of the step-1 interaction mode; the default tab renders the visual number line and this element is absent, so a measurement of the page as loaded finds nothing. Measured after clicking that tab, which is the only state in which a reader sees it. The table has four fixed columns of short signed numbers and does not grow with reader input. The file carries exactly one element of this class.',
+          'Reached only through the "Table and typed values" tab of the step-1 interaction mode; the default tab renders the visual number line and this element is absent, so a measurement of the page as loaded finds nothing. Measured after clicking that tab, which is the only state in which a reader sees it. The table has four fixed columns of short signed numbers and does not grow with reader input. The file carries exactly one element of this class.',
         measuredBy: "am-bc6s",
       },
       {
