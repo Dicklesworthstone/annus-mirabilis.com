@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { renderToString } from "katex";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
-import { ContentError } from "../src/content/compiler/json.ts";
+import { citedLessonTitles } from "../src/equations/citedLessonTitles.ts";
 import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
 import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
@@ -57,20 +57,7 @@ await mkdir("src/generated", { recursive: true });
 // names its lesson with it: note titles repeat ("What it asserts" is on nine Brownian relations),
 // and a link named by the note alone reached five different lessons under one name.
 const lessonTitles = (own: readonly (typeof equations)[number][]) =>
-  Object.fromEntries(
-    [...new Set(own.flatMap((equation) => equation.notes.map((note) => note.foundation)))]
-      .sort()
-      .map((id) => {
-        const foundation = result.foundations.find((f) => f.id === id);
-        if (!foundation)
-          throw new ContentError(
-            "equation-note-foundation-missing",
-            id,
-            `An equation note cites the foundation ${id}, which the compiled content does not hold.`,
-          );
-        return [id, foundation.title];
-      }),
-  );
+  citedLessonTitles(own, result.foundations);
 // Each route receives only its paper's payload. Extending admission must not
 // quietly attach every mass-energy equation to the Brownian reader/laboratory.
 for (const [paper, file] of [

@@ -66,9 +66,20 @@ export function sampleAdmissiblePoint(
 // ---------------------------------------------------------------------------
 
 export class SpotCheckDomainError extends Error {
-  constructor(message: string) {
+  /** A typed refusal code where the site has one; the message stays the reader-facing reason. */
+  readonly code: string | undefined;
+  constructor(message: string, code?: string) {
     super(message);
     this.name = "SpotCheckDomainError";
+    this.code = code;
+  }
+}
+
+/** Infinity reached as a value: it is admitted only as an integral's limit. */
+export class SpotCheckLimitError extends SpotCheckDomainError {
+  constructor(code: "spot-check-infinity-limit") {
+    super("infinity is a limit, not a value to sample.", code);
+    this.name = "SpotCheckLimitError";
   }
 }
 
@@ -76,6 +87,8 @@ export function evaluateExpression(
   tree: Expression,
   bindings: Readonly<Record<string, number>>,
 ): number {
+  if (tree.kind === "constant" && tree.name === "infinity")
+    throw new SpotCheckLimitError("spot-check-infinity-limit");
   switch (tree.kind) {
     case "symbol": {
       const value = bindings[tree.termId];
@@ -85,8 +98,6 @@ export function evaluateExpression(
       return (value * scale.num) / scale.den;
     }
     case "constant":
-      if (tree.name === "infinity")
-        throw new SpotCheckDomainError("infinity is a limit, not a value to sample.");
       return Math.PI;
     case "number":
       return Number(tree.value);
