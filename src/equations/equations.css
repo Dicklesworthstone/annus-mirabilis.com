@@ -259,8 +259,15 @@
   margin-inline: auto;
 }
 @media (max-width: 420px) {
-  .semantic-equation .katex {
+  /* The explorer's formula at the reading formula's phone size: type-fine times KaTeX's own
+     1.21em, 15.97px, so it is left out of the 1.05em rule. At 19.95px, 2 of 33 explorer formulas
+     scrolled sideways at 320px and 1 at 390px; at this size, 1 and 0. The glyphs are not the
+     touch targets; the 44px chips are. */
+  .semantic-equation .katex:not(.equation-visual .katex) {
     font-size: 1.05em;
+  }
+  .semantic-equation .equation-visual {
+    font-size: var(--type-fine);
   }
   .semantic-equation .fine {
     font-size: var(--type-fine);
