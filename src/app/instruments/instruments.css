@@ -45,6 +45,19 @@
   object-fit: contain;
 }
 
+/* An instrument whose answer is a table, drawn as one: a heading rule and ruled rows on the mat. */
+.instrument-plate-table {
+  background:
+    linear-gradient(var(--ink), var(--ink)) center 22% / 76% 2px no-repeat,
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(1.1rem - 1px),
+      var(--rule) calc(1.1rem - 1px) 1.1rem
+    )
+    center 30% / 76% 60% no-repeat,
+    var(--wash);
+}
+
 .instrument-question {
   line-height: 1.4;
 }

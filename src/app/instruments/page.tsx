@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
 import { CATALOGUE_IDS, CATALOGUE_STATUS, type CatalogueId } from "../../experiments/catalogue.ts";
@@ -101,9 +101,22 @@ function unaffiliated(): readonly CatalogueId[] {
 /**
  * A picture of the instrument's worked default, when one has been taken. The pictures are written by
  * scripts/generate-instrument-thumbnails.ts from a built page, so an instrument added since the last
- * run has none, and its entry is the question alone rather than a broken image.
+ * run has none, and its entry is the question alone rather than a broken image. The generator's
+ * manifest names the ids it pictured; a file it did not list, such as a results table photographed
+ * before tables were refused, is not shown even though it is still on disk.
  */
+const MANIFEST = join(process.cwd(), "public/figures/instruments/manifest.json");
+const pictured: ReadonlySet<string> | null = existsSync(MANIFEST)
+  ? new Set(
+      Object.keys(
+        (JSON.parse(readFileSync(MANIFEST, "utf8")) as { pictures: Record<string, string> })
+          .pictures,
+      ),
+    )
+  : null;
+
 function specimenPicture(id: CatalogueId): string | undefined {
+  if (pictured && !pictured.has(id)) return undefined;
   const file = `/figures/instruments/${id}.webp`;
   return existsSync(join(process.cwd(), "public", file)) ? file : undefined;
 }
@@ -139,7 +152,11 @@ function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
                     decoding="async"
                   />
                 </span>
-              ) : null}
+              ) : (
+                // No photograph: the instrument answers with a table of numbers, so its plate is a
+                // ruled table in the same frame, and the entries keep one rhythm down the page.
+                <span className="instrument-plate instrument-plate-table" aria-hidden="true" />
+              )}
               <span className="instrument-question">{labName(id)}</span>
             </a>
           </li>

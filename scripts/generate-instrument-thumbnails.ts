@@ -6,14 +6,17 @@
  * every registered catalogue id it loads /lab/<id>/ at 1440x900 in the light theme, waits for the
  * page to settle, and photographs the instrument's main drawing: the first visible <svg> or
  * <canvas> inside the laboratory that is at least 240x140 CSS px. Some instruments draw nothing and
- * answer with a table or a results panel; for those it photographs the first such block, cropped
- * from its top to the catalogue's 16:10 frame. Nothing is computed here; the picture is whatever
- * the built page shows for its own worked example.
+ * answer with a results panel; for those it photographs the first such block, cropped from its top
+ * to the catalogue's 16:10 frame, unless a table falls inside that frame. A table photographed at a
+ * fifth of its size is grey noise, not a picture of the instrument, so such an entry gets no picture
+ * and the catalogue shows its question alone. Nothing is computed here; the picture is whatever the
+ * built page shows for its own worked example.
  *
  * WHAT IT WRITES. public/figures/instruments/<id>.webp, 640px wide (the catalogue shows it about
- * 20rem wide, so this is sharp at 2x), converted with ImageMagick. An id whose page has neither a
- * drawing nor a results block gets no file and is reported, and the catalogue then shows that
- * entry as text only.
+ * 20rem wide, so this is sharp at 2x), converted with ImageMagick, and manifest.json listing the
+ * ids pictured in this run with the kind of picture. The catalogue shows a picture only for an id
+ * the manifest lists, so a file left from an earlier run, such as a table photographed before
+ * tables were refused, is not shown. An id with no usable picture is reported.
  *
  * WHEN TO RE-RUN. After a build that changes how a laboratory draws its default. The pictures are a
  * record of a build, not a live render, and they go stale the way any screenshot does.
@@ -22,7 +25,7 @@
  *        [--out <dir>]   (default public/figures/instruments; point it elsewhere to review first)
  */
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -55,6 +58,16 @@ const context = await browser.newContext({
 });
 const written: string[] = [];
 const missing: string[] = [];
+// The manifest carries over ids this run does not examine (an --only run) and is rewritten for
+// every id it does: pictured, or removed when this run found no usable picture.
+const manifestPath = join(OUT_DIR, "manifest.json");
+const manifest: Record<string, "drawing" | "results"> = existsSync(manifestPath)
+  ? (
+      JSON.parse(readFileSync(manifestPath, "utf8")) as {
+        pictures: Record<string, "drawing" | "results">;
+      }
+    ).pictures
+  : {};
 for (const id of ids) {
   const page = await context.newPage();
   await page.goto(`${base}/lab/${id}/`, { waitUntil: "networkidle" });
@@ -84,12 +97,20 @@ for (const id of ids) {
     const block = [...(root?.querySelectorAll(".lab-results, table") ?? [])].find((el) =>
       visible(el, 100),
     );
-    return block ? { el: block, kind: "results" } : null;
+    if (!block) return null;
+    // The crop is the block's top 16:10 of its width; a table inside it would be the picture.
+    const box = block.getBoundingClientRect();
+    const cropBottom = box.top + Math.min(box.height, box.width * 0.625);
+    const tableInFrame =
+      block.tagName.toLowerCase() === "table" ||
+      [...block.querySelectorAll("table")].some((t) => t.getBoundingClientRect().top < cropBottom);
+    return tableInFrame ? null : { el: block, kind: "results" };
   });
   const found = await handle.evaluate((v) => (v ? v.kind : null));
   const el = found ? (await handle.getProperty("el")).asElement() : null;
   if (!el) {
     missing.push(id);
+    delete manifest[id];
     await page.close();
     continue;
   }
@@ -110,11 +131,14 @@ for (const id of ids) {
   const webp = join(OUT_DIR, `${id}.webp`);
   execFileSync("magick", [png, "-resize", `${WIDTH}x`, "-quality", "78", webp]);
   written.push(`${id} ${found} ${statSync(webp).size} B`);
+  manifest[id] = found === "results" ? "results" : "drawing";
   await page.close();
 }
 await browser.close();
+const sorted = Object.fromEntries(Object.entries(manifest).sort(([a], [b]) => a.localeCompare(b)));
+writeFileSync(manifestPath, `${JSON.stringify({ source: base, pictures: sorted }, null, 2)}\n`);
 console.log(
-  `examined ${ids.length} registered ids; wrote ${written.length}; no drawing found for ${missing.length}`,
+  `examined ${ids.length} registered ids; wrote ${written.length}; no usable picture for ${missing.length}`,
 );
 for (const line of written) console.log(`  ${line}`);
-if (missing.length) console.log(`  no drawing: ${missing.join(", ")}`);
+if (missing.length) console.log(`  no usable picture: ${missing.join(", ")}`);
