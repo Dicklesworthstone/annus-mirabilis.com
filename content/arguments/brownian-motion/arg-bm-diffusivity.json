@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "For the stated dilute-sphere liquid model, higher viscosity lowers \\(D\\). Doubling viscosity halves the predicted mean square at fixed time and divides RMS displacement by \\(\\sqrt{2}\\)."
+        "text": "For small spheres in a liquid, a more viscous liquid gives a smaller \\(D\\): doubling the viscosity halves the mean square at a fixed time and divides the RMS displacement by \\(\\sqrt{2}\\), not by 2."
       }
     ],
     "full": [
@@ -77,7 +77,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "This is an explanatory summary of the physical relation developed before the displacement calculation, not a complete edition of §§1–3. The live laboratories use the explicitly labeled modern SI constant set, not claimed facsimile-verified 1905 numerical inputs."
+        "text": "Einstein reaches this relation in §§2–3 through osmotic pressure and Stokes’s law, writing \\(k\\) for the viscosity and \\(P\\) for the radius: \\(D = \\frac{RT}{N}\\frac{1}{6\\pi kP}\\). His \\(k\\) is not Boltzmann’s constant. William Sutherland published the same relation independently in 1905, and Marian Smoluchowski reached the displacement law by another route in 1906. The laboratories use modern SI constants and say so."
       }
     ]
   },

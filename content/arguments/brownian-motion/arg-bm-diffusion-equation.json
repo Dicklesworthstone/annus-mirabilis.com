@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "The exact step rule averages over possible displacements. With symmetry, finite variance and a justified smooth-scale approximation, its leading evolution is the diffusion equation."
+        "text": "Each tracer’s next position is its present one plus a random jump. Average that rule over every possible jump, take left and right jumps to be equally likely, and on scales larger than one jump the density obeys the diffusion equation."
       }
     ],
     "full": [
@@ -101,7 +101,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The equations here are explanatory modern forms, not facsimile-checked printed formulas. A formal \\(\\tau \\to 0\\) operation is not sufficient by itself: step sizes must scale with \\(\\tau\\) so that diffusivity stays finite and discarded terms vanish. The reader should distinguish this limit from the physical range where independent increments are a useful approximation."
+        "text": "Einstein takes an interval \\(\\tau\\) very short compared with the times we observe, yet long enough that a particle’s motions in two successive intervals are independent. That double condition, not a formal limit \\(\\tau \\to 0\\), is what the expansion needs: the jumps must shrink with \\(\\tau\\) so that \\(D\\) stays finite. Einstein writes the density as \\(f(x, t)\\), the number of particles per unit volume, and the jump law as \\(\\varphi(\\Delta)\\), as here."
       }
     ]
   },

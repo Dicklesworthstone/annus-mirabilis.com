@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Under the stated independent, unbiased, finite-variance step model, mean square grows in proportion to time. Four times the time gives twice the RMS displacement, not four times."
+        "text": "If each step is independent of the last and as likely to go left as right, the mean square grows in proportion to time. Four times the time gives twice the RMS displacement, not four times."
       }
     ],
     "full": [
@@ -83,7 +83,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The coin walk is a teaching route. Independence is a coarse-grained model premise, not a statement about arbitrarily short physical times. An agreeing simulated sample checks the implementation within that model; it is not independent evidence for molecules."
+        "text": "Einstein’s independence holds over his interval \\(\\tau\\), not at every instant: over very short times a particle’s velocity carries over from one moment to the next, which is why \\(\\tau\\) must not be too small. Paul Langevin’s equation of 1908, which keeps the particle’s inertia, shows where that crossover lies. A simulation that agrees with \\(2Dt\\) checks the arithmetic of the model, not the existence of molecules."
       }
     ]
   },

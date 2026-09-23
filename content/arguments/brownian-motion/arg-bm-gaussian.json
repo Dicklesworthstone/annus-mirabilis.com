@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "For the unbounded, drift-free point-source model, spread is Gaussian at positive times and coordinate RMS displacement is \\(\\sqrt{2Dt}\\). The starting distribution is a point mass."
+        "text": "Tracers that all start at one point spread into a bell curve whose width grows with time: along one axis the RMS displacement is \\(\\sqrt{2Dt}\\)."
       }
     ],
     "full": [
@@ -91,7 +91,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The displayed derivation verifies a modern normalized form. It does not replace the diplomatic transcription or establish which notation appears on a printed page. Three independent coordinates give total mean square 6Dt, whereas the paper’s one-coordinate displacement question uses 2Dt."
+        "text": "Einstein writes the solution for \\(n\\) particles starting together as \\(f(x, t) = \\frac{n}{\\sqrt{4\\pi D}}\\frac{e^{-x^2/4Dt}}{\\sqrt{t}}\\), then gives the displacement \\(\\lambda_x = \\sqrt{2Dt}\\). Three independent coordinates would give a total mean square of \\(6Dt\\); the paper asks about one coordinate, hence \\(2Dt\\)."
       }
     ]
   },

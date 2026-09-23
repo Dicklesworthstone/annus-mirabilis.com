@@ -73,7 +73,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "This is an authored mathematical example, not a transcription, translation or historical observation. The source pointer is the Brownian paper’s displacement argument; no claim is made that these four numbers appear there."
+        "text": "The four numbers are this page’s own example. Einstein’s observable is the mean square of the displacement along one axis, \\(\\lambda_x^2\\); its square root, \\(\\lambda_x\\), is the RMS used here."
       }
     ]
   },

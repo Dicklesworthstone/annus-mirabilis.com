@@ -22,7 +22,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "A displacement measurement can constrain molecular number only with additional independently known physical quantities and a valid model. A simulation using an assumed answer is not a new measurement of that answer."
+        "text": "Measured displacements give \\(D\\). Turning \\(D\\) into a count of molecules also needs the temperature, the viscosity and, above all, an independently measured radius. A simulation that assumes the answer cannot measure it."
       }
     ],
     "full": [
@@ -74,7 +74,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "No historical dataset or numerical estimate is supplied here as evidence. The bibliography points to the original argument; source transcription, translation, measurement-error instruments and historical-data inference remain in preparation. This keeps an algebraic inversion separate from a successful empirical determination."
+        "text": "Einstein did not estimate \\(N\\). He took \\(N = 6 \\times 10^{23}\\) from the kinetic theory of gases and predicted a displacement of about 0.8 μm in one second for particles 0.001 mm across in water at 17 °C, closing with the hope that someone would soon test it. Jean Perrin’s measurements from 1908 onward did, and gave values of \\(N\\) near \\(7 \\times 10^{23}\\). This page supplies no dataset of its own."
       }
     ]
   },
