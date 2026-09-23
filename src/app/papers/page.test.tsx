@@ -80,7 +80,10 @@ describe("Papers index: the companion is presented as a companion, outside the f
     ).toBe(4);
     expect(catalogue.toLowerCase()).not.toContain("molecular-dimensions");
 
-    const companion = /<section class="reading">([\s\S]*?)<\/section>/.exec(html)?.[1] ?? "";
+    // The section may carry more classes than "reading" (page-flush sets it on the page's left
+    // edge); the claim is what the section holds, not how it is laid out.
+    const companion =
+      /<section class="reading(?: [^"]*)?">([\s\S]*?)<\/section>/.exec(html)?.[1] ?? "";
     expect(companion.toLowerCase()).toContain("molecular-dimensions");
     expect(companion.toLowerCase()).toContain("companion");
   });
