@@ -42,10 +42,10 @@ export const LQ09_QUESTION =
   "How does single-quantum energy conservation set the frequency threshold for gas ionization, and what determines the relation between absorbed light energy and the count of ionized molecules?";
 
 export const LQ09_CAPTION = Object.freeze({
-  r0: "Single-quantum gas ionization requires photon energy h*nu to meet or exceed the molecular ionization work J_mol. Below this frequency, no single-quantum ionization can occur regardless of beam intensity.",
-  r1: "Einstein §9 equates absorbed light energy L with the number of absorbed quanta: j = L / (R*beta*nu). Under the hypothesis that every absorbed quantum ionizes one molecule, the number of ionized gram-molecules is strictly proportional to absorbed energy.",
-  r2: "When absorption does not produce ionization with 100% efficiency, the count is a declared fraction a * L / (h*nu), or underdetermined with L / (h*nu) as a strict upper bound. No single-quantum process can yield more ions than absorbed quanta.",
-  r3: "Historical note: Einstein tested this threshold against Philipp Lenard's 1900 quartz-transmitted UV air ionization (lambda <= 190 nm, ca. 6.6 V) and Johannes Stark's 1902 cathode-ray gas ionization (ca. 10 V), verifying order-of-magnitude consistency.",
+  r0: "Single-quantum ionization of a gas needs a quantum hν at least equal to the ionization work of one molecule. Below that frequency no single quantum can ionize a molecule, however intense the light.",
+  r1: "Einstein's §9 counts the quanta: if every absorbed quantum ionizes one molecule, absorbed light energy L ionizes j = L/(Rβν) gram-molecules, so the number of ions is strictly proportional to the absorbed energy.",
+  r2: "When absorption does not always ionize, the count is a declared fraction, aL/(hν), or it is underdetermined, with L/(hν) as a strict upper bound. No single-quantum process yields more ions than absorbed quanta.",
+  r3: "Historical note: Einstein compared this bound with two measurements. Lenard's largest effective wavelength for ionizing air, about 1.9 × 10⁻⁵ cm, gives Rβν = 6.4 × 10¹² erg per gram-equivalent; Stark's smallest ionization voltage for air, about 10 V (Die Elektrizität in Gasen, 1902), gives an upper bound of 9.6 × 10¹². Einstein found the two nearly equal.",
 });
 
 export const LQ09_MODEL = Object.freeze({

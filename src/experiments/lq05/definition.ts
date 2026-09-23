@@ -51,9 +51,9 @@ export const LQ05_QUESTION =
   "How does counting independent possibilities produce an entropy that depends on volume like n ln V, and what changes if the things are not independent?";
 
 export const LQ05_CAPTION = Object.freeze({
-  r0: "With n independent points, the chance that all lie in fraction f of the volume is W = f^n, giving entropy difference ΔS = k_B ln W = n k_B ln f.",
-  r1: "Einstein §5 shows that Boltzmann's principle S - S_0 = (R/N) lg W leads to the same volume dependence as Wien radiation when W is computed from independent points.",
-  r2: "For n points distributed uniformly and independently in V_0, the statistical probability that all lie in subvolume V is (V/V_0)^n. If the points are rigidly locked together, the probability is V/V_0, demonstrating that statistical independence is what produces the power n.",
+  r0: "With n independent points, the chance that all lie in a fraction f of the volume is W = f^{n}, giving an entropy difference ΔS = k_{B} ln W = nk_{B} ln f.",
+  r1: "Einstein's §5 shows that Boltzmann's principle, S − S_{0} = (R/N) lg W, gives the same volume dependence as Wien radiation when W is computed from independent points.",
+  r2: "For n points spread uniformly and independently in V_{0}, the probability that all lie in the subvolume V is (V/V_{0})^{n}. If the points are rigidly locked together it is V/V_{0}: statistical independence is what produces the power n.",
   r3: "Historical note: Einstein uses (R/N) lg W where lg denotes the natural logarithm. The paper notes that this derivation of the gas law requires no assumption regarding the laws of motion of the molecules.",
 });
 
