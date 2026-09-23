@@ -1,4 +1,5 @@
 import { OfflineChapterLinks } from "../../../platform/offline/OfflineChapterLinks.tsx";
+import { ScholarlyMetadata } from "../../../platform/scholarly/ScholarlyMetadata.tsx";
 import { PaperPage } from "../../../reader/PaperPage.tsx";
 import { PaperReader } from "../../../reader/PaperReader.tsx";
 import { paperMetadata, paperStaticParams } from "../../../reader/paperRoutes.ts";
@@ -21,6 +22,7 @@ export default async function Page({ params }: { params: Promise<{ paper: string
       <>
         <PaperReader />
         <OfflineChapterLinks paperId="brownian-motion" />
+        <ScholarlyMetadata paperId="brownian-motion" />
       </>
     );
   }
@@ -28,6 +30,7 @@ export default async function Page({ params }: { params: Promise<{ paper: string
     <>
       <PaperPage paperId={paper} />
       <OfflineChapterLinks paperId={paper} />
+      <ScholarlyMetadata paperId={paper} />
     </>
   );
 }
