@@ -34,7 +34,9 @@ const ARG: Argument = {
 };
 
 describe("reportPassageActionsCoverage", () => {
-  test("the Brownian observable fixture flags only the four unauthored obstacle kinds", () => {
+  test("the Brownian observable passage, hard and fully authored, reports no gap", () => {
+    // It flagged four unauthored kinds until all six answers were written; the planted negative
+    // below still proves a missing kind is reported.
     const gaps = reportPassageActionsCoverage([
       {
         paper: "brownian-motion",
@@ -42,10 +44,7 @@ describe("reportPassageActionsCoverage", () => {
         actions: passageActionsFromArgument(ARG),
       },
     ]);
-    expect(gaps.every((g) => g.rule === "hard-passage-missing-obstacle")).toBe(true);
-    expect(gaps.map((g) => g.obstacleKind).sort()).toEqual(
-      ["connectionToPicture", "physicalReason", "tooMuchAtOnce", "unfamiliarWordOrSymbol"].sort(),
-    );
+    expect(gaps).toEqual([]);
   });
 
   test("planted negative: a complete hard record and an example-bearing derivation emit no gaps", () => {

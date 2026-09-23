@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { Argument } from "../../content/schemas/reading.ts";
 import { passageActionsFromArgument } from "./fromArgument.ts";
+import { OBSTACLE_KIND_IDS } from "./passageActions.schema.ts";
 
 const ARG: Argument = {
   schemaVersion: 1,
@@ -32,7 +33,7 @@ const ARG: Argument = {
 };
 
 describe("passageActionsFromArgument", () => {
-  test("the observable argument exposes why, example, try-it, and two authored obstacles", () => {
+  test("the observable argument exposes why, example, try-it, and an answer for every obstacle", () => {
     const actions = passageActionsFromArgument(ARG);
     expect(actions.hard).toBe(true);
     expect(actions.why).toBe("mean-variance-rms");
@@ -40,7 +41,11 @@ describe("passageActionsFromArgument", () => {
     expect(actions.obstacleResponses?.algebraicMove?.foundationLinks?.[0]?.foundationId).toBe(
       "bridge-squaring-square-roots",
     );
-    expect(actions.obstacleResponses?.unfamiliarWordOrSymbol).toBeUndefined();
+    // Every one of the six kinds is answered, each with its own lesson to open.
+    for (const kind of OBSTACLE_KIND_IDS) {
+      expect(actions.obstacleResponses?.[kind]?.explanation.length ?? 0).toBeGreaterThan(40);
+      expect(actions.obstacleResponses?.[kind]?.foundationLinks?.length ?? 0).toBeGreaterThan(0);
+    }
   });
 
   test("planted negative: a different argument does not inherit invented obstacle answers", () => {
