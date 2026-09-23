@@ -366,16 +366,16 @@ describe("regimeRelativeErrors measures both approximations against Planck (am-r
   const kB = 1.380649e-23;
   const h = 6.62607015e-34;
   const T = 5000;
-  const valueOf = (r: { status: string; value?: unknown }) => {
+  const acceptedValue = (r: { status: string; value?: unknown }) => {
     expect(r.status).toBe("value");
     return r.value as number;
   };
   it("matches the densities at small, middling and large x", () => {
     for (const x of [0.01, 0.5, 2, 5.759091688039465, 20]) {
       const nu = (x * kB * T) / h;
-      const planck = valueOf(planckFrequencyEnergyDensity(nu, T, set));
-      const wien = valueOf(wienFrequencyEnergyDensity(nu, T, set));
-      const classical = valueOf(rayleighJeansFrequencyEnergyDensity(nu, T, set));
+      const planck = acceptedValue(planckFrequencyEnergyDensity(nu, T, set));
+      const wien = acceptedValue(wienFrequencyEnergyDensity(nu, T, set));
+      const classical = acceptedValue(rayleighJeansFrequencyEnergyDensity(nu, T, set));
       const report = regimeRelativeErrors(nu, T, set);
       // planck - wien cancels about x / ln 10 digits (8.7 at x = 20, where the two sides differ
       // by 2e-6 relative), so this side is checked to 1e-5; the classical side has no such
