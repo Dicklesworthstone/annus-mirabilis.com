@@ -3,7 +3,7 @@ import { copyFileSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, test } from "node:test";
-import { dayAndMonth, FirstPagesError, loadFirstPages } from "./firstPages.ts";
+import { dayAndMonth, FirstPagesError, firstPagePlate, loadFirstPages } from "./firstPages.ts";
 
 /**
  * The home page's row of first pages is drawn from the provenance receipts at build time, and each
@@ -19,6 +19,14 @@ function receiptsDir(keys: readonly string[]): string {
   const dir = mkdtempSync(join(tmpdir(), "am-first-pages-"));
   for (const key of keys) copyFileSync(join(RECEIPTS, `${key}.md`), join(dir, `${key}.md`));
   return dir;
+}
+
+/** A lossy WebP's frame size, from its VP8 header: bytes 26-29 hold the width and the height. */
+function webpSize(file: string): { width: number; height: number } {
+  const bytes = readFileSync(file);
+  assert.equal(bytes.toString("ascii", 0, 4), "RIFF", file);
+  assert.equal(bytes.toString("ascii", 8, 16), "WEBPVP8 ", `${file} is a lossy WebP`);
+  return { width: bytes.readUInt16LE(26) & 0x3fff, height: bytes.readUInt16LE(28) & 0x3fff };
 }
 
 function refusal(run: () => unknown): FirstPagesError {
@@ -51,6 +59,31 @@ describe("firstPages", () => {
         ["ap-18-639", "1905-09-27", 3],
       ],
     );
+  });
+
+  test("every plate a srcSet names exists at its stated width, in the plate box's 400:662 shape", () => {
+    // A missing or misdrawn file is a broken or stretched plate on exactly the 2x and 3x screens
+    // the larger files are for, and nothing else would notice.
+    for (const key of FOUR) {
+      const { src, srcSet } = firstPagePlate(key);
+      const entries = srcSet.split(", ").map((entry) => {
+        const [url = "", descriptor = ""] = entry.split(" ");
+        return { url, width: Number(descriptor.replace(/w$/, "")) };
+      });
+      assert.deepEqual(
+        entries.map((entry) => entry.width),
+        [400, 800, 1200],
+        key,
+      );
+      assert.equal(src, entries[0]?.url, key);
+      for (const { url, width } of entries) {
+        assert.deepEqual(
+          webpSize(join(resolve("public"), url)),
+          { width, height: (width * 662) / 400 },
+          url,
+        );
+      }
+    }
   });
 
   test("a paper whose receipt is missing refuses with missing-receipt", () => {

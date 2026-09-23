@@ -82,6 +82,23 @@ export function fractionOf1905(iso: string): number {
   return (day - Date.UTC(1905, 0, 1)) / (365 * 86_400_000);
 }
 
+/**
+ * THE PLATE AT THE SCREEN'S DENSITY. Each first page is published at three widths, one crop of the
+ * pinned scan: 400px for a 1x screen, 800 and 1200 for 2x and 3x. A plate is at most 390 CSS px
+ * wide (the home row at 2560), which a 2x screen draws with 780 device pixels, so the 400px file
+ * alone was soft on every high-density screen. The browser picks from srcSet by the `sizes` each
+ * page gives, since images.unoptimized means next/image emits no srcset of its own.
+ */
+export const FIRST_PAGE_PLATE_WIDTHS = [400, 800, 1200] as const;
+
+export function firstPagePlate(key: string): { src: string; srcSet: string } {
+  const at = (width: number) => `/figures/plates/${key}-first-page-${width}.webp`;
+  return {
+    src: at(400),
+    srcSet: FIRST_PAGE_PLATE_WIDTHS.map((width) => `${at(width)} ${width}w`).join(", "),
+  };
+}
+
 /** `options` reaches the receipt loader unchanged; the site passes none and reads docs/provenance. */
 export function loadFirstPages(options: LoadReceiptsOptions = {}): readonly FirstPage[] {
   const loaded = loadProvenanceReceipts(options);

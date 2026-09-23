@@ -1,6 +1,5 @@
-import Image from "next/image";
 import type { CSSProperties } from "react";
-import { dayAndMonth, dayMonthParts, loadFirstPages } from "./firstPages.ts";
+import { dayAndMonth, dayMonthParts, firstPagePlate, loadFirstPages } from "./firstPages.ts";
 import "./firstPages.css";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -30,15 +29,18 @@ export function FirstPages() {
                 </time>
               </p>
               <a href={`/papers/${paper.slug}/`}>
-                {/* One 400px file: a plate is at most about 306 CSS px, so this is sharp at 1x and
-                    soft only at 2x on the widest screens. Images are unoptimized in the static
-                    export, so next/image would not emit a srcset anyway. */}
-                <Image
+                {/* A plain img with a srcSet (firstPagePlate says why). The sizes are the plate's
+                    measured width: half the row on a phone, a quarter from 700px, and at most
+                    22rem once the row stops growing. Biome's noImgElement warns on this; the reason
+                    is here rather than silenced. */}
+                <img
                   className="first-page-plate"
-                  src={`/figures/plates/${paper.key}-first-page-400.webp`}
+                  {...firstPagePlate(paper.key)}
+                  sizes="(min-width: 1280px) 22rem, (min-width: 700px) calc(25vw - 40px), calc(50vw - 24px)"
                   width={400}
                   height={662}
                   loading="eager"
+                  decoding="async"
                   alt=""
                 />
                 <span className="first-page-title">{paper.title}</span>

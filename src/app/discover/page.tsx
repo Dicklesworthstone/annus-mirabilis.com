@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import { dayAndMonth, loadFirstPages } from "../../components/home/firstPages.ts";
+import { dayAndMonth, firstPagePlate, loadFirstPages } from "../../components/home/firstPages.ts";
 import "../../components/home/firstPages.css";
 import {
   isWrittenDiscoveryRoute,
@@ -81,10 +80,15 @@ export default function DiscoverIndex() {
             <li key={route.slug} className="paper-entry">
               {plate && (
                 <div className="paper-entry-plate">
-                  <Image
-                    src={`/figures/plates/${plate.key}-first-page-400.webp`}
+                  {/* A plain img with a srcSet, as on the home row (firstPagePlate says why);
+                      the plate is 14rem wide from 700px and a third of the row below that. */}
+                  <img
+                    {...firstPagePlate(plate.key)}
+                    sizes="(min-width: 700px) 14rem, calc(33.3vw - 16px)"
                     width={400}
                     height={662}
+                    loading="lazy"
+                    decoding="async"
                     alt={`First page of ${plate.title}, as printed`}
                   />
                   <p className="fine">
