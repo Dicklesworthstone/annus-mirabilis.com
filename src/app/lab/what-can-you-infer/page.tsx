@@ -25,9 +25,8 @@ export default function InferenceWorkbenchPage() {
           Change what you know.
         </h1>
         <p className="lead">
-          A curve can fit more than one explanation. Keep the observations fixed, inspect the
-          compatible parameters, then ask which additional information separates them. Both datasets
-          here are synthetic.
+          A curve can fit more than one explanation. Holding the synthetic data fixed, what extra
+          information tells them apart?
         </p>
       </header>
       {examples.map((example) => (
