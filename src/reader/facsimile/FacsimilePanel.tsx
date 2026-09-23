@@ -46,7 +46,10 @@ export function FacsimilePanel({
   const extraAnchors = [...new Set([...aliases, ...sections])];
 
   // In a sectioned paper s0 is the introduction; mass-energy has no sections.
-  const sectioned = document.units.some((unit) => unit.kind === "section-heading");
+  // Inventories name a section heading "section-heading" or, in Brownian's, "heading".
+  const sectioned = document.units.some(
+    (unit) => unit.kind === "section-heading" || unit.kind === "heading",
+  );
   return (
     <section
       id={id}

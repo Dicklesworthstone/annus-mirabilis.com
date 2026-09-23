@@ -39,5 +39,15 @@ export function sourceUnitLabel(id: string, kind: string, sectioned: boolean): s
   if (footnote?.[1] && footnote[2]) return at(footnote[1], `footnote ${footnote[2]}`);
   const display = /^eq-s(\d+)-d(\d+)$/.exec(id);
   if (display?.[1] && display[2]) return at(display[1], `display equation ${display[2]}`);
+  const sentence = /^s(\d+)-p(\d+)-s(\d+)$/.exec(id);
+  if (sentence?.[1] && sentence[2] && sentence[3])
+    return at(sentence[1], `paragraph ${sentence[2]}, sentence ${sentence[3]}`);
+  // A printed equation number, normalised by CONTENT_IDS.md §4.2: "1p" is (1′), "1pp" is (1″).
+  const printed = (label: string) => `(${label.replace(/pp$/, "″").replace(/p$/, "′")})`;
+  const sectionPrinted = /^eq-s(\d+)-(\d+[a-z]?p{0,2})$/.exec(id);
+  if (sectionPrinted?.[1] && sectionPrinted[2])
+    return at(sectionPrinted[1], `equation ${printed(sectionPrinted[2])}`);
+  const paperPrinted = /^eq-(\d+[a-z]?p{0,2})$/.exec(id);
+  if (paperPrinted?.[1]) return `Equation ${printed(paperPrinted[1])}`;
   return `${id} (${kind.replaceAll("-", " ")})`;
 }

@@ -55,14 +55,14 @@ function identifier(value: unknown): value is string {
   return typeof value === "string" && /^[a-z][a-z0-9._:-]{0,159}$/.test(value);
 }
 function sectionFor(unit: Record<string, unknown>): string | null {
-  if (unit.section !== undefined) {
+  if (unit.section !== undefined && unit.section !== "closing") {
     requireData(
       typeof unit.section === "string" && /^s\d+$/.test(unit.section),
       "Invalid source section.",
     );
     return unit.section;
   }
-  // These are the source-id grammar's section tags, not an estimate from paragraph order.
+  // Id-grammar section tags; a closing (section: closing, CONTENT_IDS.md §3) belongs to none.
   const match = String(unit.id).match(/(?:^|-)s(\d+)(?:-|$)/);
   return match ? `s${match[1]}` : null;
 }
