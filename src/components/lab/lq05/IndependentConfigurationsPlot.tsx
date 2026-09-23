@@ -20,6 +20,10 @@ export function IndependentConfigurationsPlot({
   const boxWidth = 320;
   const boxHeight = 160;
   const subWidth = boxWidth * f;
+  // The histogram has n + 1 bars and n reaches 60. Each bar shrinks to its share of the row, and only
+  // every labelStep-th bar carries its k, with the last one (every point inside) always labelled:
+  // a two-digit label needs about 20px, and a phone's row is about 290px for up to 61 bars.
+  const labelStep = [1, 2, 5, 10, 20, 50].find((step) => step * 14 >= n + 1) ?? 100;
 
   return (
     <div
@@ -204,40 +208,22 @@ export function IndependentConfigurationsPlot({
           background: "var(--panel)",
         }}
       >
-        <div
+        <h4
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "0.5rem",
+            fontSize: "var(--type-small)",
+            color: "var(--ink)",
+            fontWeight: 600,
+            margin: "0 0 0.5rem",
           }}
         >
-          <h4
-            style={{
-              fontSize: "var(--type-small)",
-              color: "var(--ink)",
-              fontWeight: 600,
-              margin: 0,
-            }}
-          >
-            Binomial distribution: points inside subvolume P(k)
-          </h4>
-          <span
-            style={{
-              fontSize: "var(--type-fine)",
-              color: "var(--muted)",
-              fontFamily: "var(--font-mono, monospace)",
-            }}
-          >
-            k = 0 .. {n}
-          </span>
-        </div>
+          Binomial distribution P(k): the chance that k of the {n} points lie inside
+        </h4>
 
         <div
           style={{
             display: "flex",
             alignItems: "flex-end",
-            gap: "2px",
+            gap: n > 30 ? "1px" : "2px",
             height: "90px",
             paddingTop: "8px",
           }}
@@ -245,11 +231,13 @@ export function IndependentConfigurationsPlot({
           {binomial.terms.map((term) => {
             const heightPct = Math.max(2, Math.min(100, term.probability * 100 * 2.5));
             const isAllInside = term.k === n;
+            const labelled = isAllInside || (term.k % labelStep === 0 && n - term.k >= labelStep);
             return (
               <div
                 key={`term-${term.k}`}
                 style={{
-                  flex: 1,
+                  flex: "1 1 0",
+                  minWidth: 0,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -268,10 +256,12 @@ export function IndependentConfigurationsPlot({
                 />
                 <span
                   style={{
-                    fontSize: "9px",
+                    fontSize: "var(--type-fine)",
                     fontFamily: "var(--font-mono, monospace)",
                     marginTop: "2px",
                     color: "var(--muted)",
+                    whiteSpace: "nowrap",
+                    visibility: labelled ? undefined : "hidden",
                   }}
                 >
                   {term.k}
