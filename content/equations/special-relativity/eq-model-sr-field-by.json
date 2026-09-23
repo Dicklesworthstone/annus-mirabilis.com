@@ -5,7 +5,7 @@
   "paper": "special-relativity",
   "argument": "arg-sr-field-components",
   "title": "Magnetic field along y",
-  "spoken": "The moving magnetic field along y is gamma times B y plus v E z over c squared.",
+  "spoken": "The magnetic field along y in the moving system is gamma times the sum: the stationary magnetic field along y, plus v times the stationary electric field along z divided by c squared.",
   "explanation": "The magnetic field mixes with the electric field the other way, divided by c squared in SI units.",
   "review": "draft",
   "notation": "modern-pedagogical",

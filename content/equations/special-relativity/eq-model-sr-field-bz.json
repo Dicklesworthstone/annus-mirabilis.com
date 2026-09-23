@@ -5,7 +5,7 @@
   "paper": "special-relativity",
   "argument": "arg-sr-field-components",
   "title": "Magnetic field along z",
-  "spoken": "The moving magnetic field along z is gamma times B z minus v E y over c squared.",
+  "spoken": "The magnetic field along z in the moving system is gamma times the difference: the stationary magnetic field along z, minus v times the stationary electric field along y divided by c squared.",
   "explanation": "The z component, with the opposite sign.",
   "review": "draft",
   "notation": "modern-pedagogical",

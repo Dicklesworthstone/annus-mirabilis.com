@@ -5,7 +5,7 @@
   "paper": "special-relativity",
   "argument": "arg-sr-field-components",
   "title": "Electric field along z",
-  "spoken": "The moving electric field along z is gamma times E z plus v B y.",
+  "spoken": "The electric field along z in the moving system is gamma times the sum: the stationary electric field along z, plus v times the stationary magnetic field along y.",
   "explanation": "The same mixing for the z component, with the opposite sign.",
   "review": "draft",
   "notation": "modern-pedagogical",

@@ -5,7 +5,7 @@
   "paper": "special-relativity",
   "argument": "arg-sr-field-components",
   "title": "Electric field along y",
-  "spoken": "The moving electric field along y is gamma times E y minus v B z.",
+  "spoken": "The electric field along y in the moving system is gamma times the difference: the stationary electric field along y, minus v times the stationary magnetic field along z.",
   "explanation": "With no electric field and a magnetic field along positive z, an observer moving along positive x finds an electric field along negative y: the force on a moving charge becomes, in its own system, an electric force.",
   "review": "draft",
   "notation": "modern-pedagogical",

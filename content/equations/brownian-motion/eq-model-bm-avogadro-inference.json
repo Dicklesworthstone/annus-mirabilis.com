@@ -5,7 +5,7 @@
   "paper": "brownian-motion",
   "argument": "arg-bm-inference",
   "title": "From a measured spread to the number of molecules",
-  "spoken": "N equals R T t over three pi eta a times the mean square displacement.",
+  "spoken": "Avogadro's number N equals the gas constant times the temperature times the observation time, divided by the product of three pi, the viscosity, the particle radius and the mean square displacement.",
   "explanation": "With temperature, viscosity and radius measured independently, the observed mean square gives Avogadro's number. The radius has to come from somewhere else: the spread alone cannot separate it from N.",
   "review": "draft",
   "notation": "modern-pedagogical",
