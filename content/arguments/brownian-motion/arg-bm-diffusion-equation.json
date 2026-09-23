@@ -41,7 +41,8 @@
       {
         "kind": "formula",
         "latex": "D=\\frac{1}{2\\tau}\\int_{-\\infty}^{\\infty}\\Delta^2\\varphi(\\Delta)\\,d\\Delta",
-        "spoken": "D is half the mean-square step divided by the step interval."
+        "spoken": "D is half the mean-square step divided by the step interval.",
+        "equations": ["eq-model-bm-jump-moment"]
       },
       {
         "kind": "formula",

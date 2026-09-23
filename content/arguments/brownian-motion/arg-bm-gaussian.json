@@ -70,7 +70,8 @@
       {
         "kind": "formula",
         "latex": "\\langle x^2\\rangle=\\frac{4Dt}{\\sqrt\\pi}\\int_{-\\infty}^{\\infty}u^2e^{-u^2}\\,du=2Dt",
-        "spoken": "The second moment is four D t times the normalized Gaussian second-moment integral, giving two D t."
+        "spoken": "The second moment is four D t times the normalized Gaussian second-moment integral, giving two D t.",
+        "equations": ["eq-model-bm-gaussian-second-moment"]
       },
       {
         "kind": "paragraph",
