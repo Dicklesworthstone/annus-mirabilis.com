@@ -40,6 +40,15 @@ export interface ThemeTokens {
    * theme is derived against the RECOMPUTED light ratios, not the quoted ones.
    */
   readonly wash: string;
+  /**
+   * The chart colour: plotted lines, bars and the labels drawn in them. It was set once, in
+   * globals.css's :root, to the light theme's #254f49, and the dark theme never redefined it, so in
+   * Kramgasse Night every chart line and label in it sat at 1.77:1 on the paper (measured 2026-09-23
+   * across 93 uses in 24 files). The dark value is solved like muted, rule and wash: #254f49's hue
+   * and saturation held, lightness moved until it reads against the dark paper as the light one does
+   * against the light paper (8.855 against 8.849).
+   */
+  readonly plot: string;
   readonly plotDarkfield: string;
 }
 
@@ -126,6 +135,7 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
     accent: "#ae2119",
     focusRing: "#3f3f3f",
     wash: "#f2f2f2",
+    plot: "#254f49",
     plotDarkfield: "#0f172a",
   }),
   "kramgasse-night": Object.freeze({
@@ -150,6 +160,7 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
     accent: "#e0a458",
     focusRing: "#e8e6e1",
     wash: "#21282f",
+    plot: "#8fcbc2",
     plotDarkfield: "#0d1117",
   }),
 });

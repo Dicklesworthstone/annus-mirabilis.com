@@ -22,6 +22,7 @@
   --accent: #ae2119;
   --focus-ring: #3f3f3f;
   --wash: #f2f2f2;
+  --plot: #254f49;
   --plot-darkfield: #0f172a;
 }
 
@@ -37,6 +38,7 @@
   --accent: #e0a458;
   --focus-ring: #e8e6e1;
   --wash: #21282f;
+  --plot: #8fcbc2;
   --plot-darkfield: #0d1117;
   color-scheme: dark;
 }
@@ -51,6 +53,7 @@
     --accent: #e0a458;
     --focus-ring: #e8e6e1;
     --wash: #21282f;
+    --plot: #8fcbc2;
     --plot-darkfield: #0d1117;
     color-scheme: dark;
   }
