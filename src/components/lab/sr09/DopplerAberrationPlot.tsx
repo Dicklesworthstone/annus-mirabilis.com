@@ -365,7 +365,7 @@ export function DopplerAberrationPlot({
           >
             {dopplerFactor.toFixed(6)}
           </div>
-          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             γ(1 - β cos θ)
           </div>
         </div>
@@ -390,7 +390,7 @@ export function DopplerAberrationPlot({
           >
             {cosThetaMoving.toFixed(6)}
           </div>
-          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             (cos θ - β)/(1 - β cos θ)
           </div>
         </div>
@@ -416,7 +416,7 @@ export function DopplerAberrationPlot({
             >
               {earthOrbitAberrationFormatted}
             </div>
-            <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+            <div className="fine" style={{ marginTop: "0.125rem" }}>
               Modern calculation at 29.8 km/s
             </div>
           </div>
@@ -443,7 +443,7 @@ export function DopplerAberrationPlot({
             >
               <Sci value={secondOrderShift} digits={4} />
             </div>
-            <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+            <div className="fine" style={{ marginTop: "0.125rem" }}>
               Ives–Stilwell 1938 overlay
             </div>
           </div>

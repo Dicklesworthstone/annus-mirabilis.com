@@ -398,7 +398,6 @@ export function FluorescencePlot({
               <div
                 className="fine"
                 style={{
-                  fontSize: "0.625rem",
                   fontFamily: "var(--font-mono, monospace)",
                 }}
               >
@@ -431,7 +430,6 @@ export function FluorescencePlot({
               <div
                 className="fine"
                 style={{
-                  fontSize: "0.625rem",
                   fontFamily: "var(--font-mono, monospace)",
                 }}
               >
@@ -464,7 +462,6 @@ export function FluorescencePlot({
               <div
                 className="fine"
                 style={{
-                  fontSize: "0.625rem",
                   fontFamily: "var(--font-mono, monospace)",
                 }}
               >
@@ -520,7 +517,7 @@ export function FluorescencePlot({
             }}
           >
             <div>
-              <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
+              <span className="fine" style={{ display: "block" }}>
                 Absorbed rate Ṅ₁:
               </span>
               <span
@@ -534,7 +531,7 @@ export function FluorescencePlot({
               </span>
             </div>
             <div>
-              <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
+              <span className="fine" style={{ display: "block" }}>
                 Emitted rate Ṅ₂:
               </span>
               <span
@@ -548,7 +545,7 @@ export function FluorescencePlot({
               </span>
             </div>
             <div>
-              <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
+              <span className="fine" style={{ display: "block" }}>
                 Emitted power:
               </span>
               <span
@@ -562,7 +559,7 @@ export function FluorescencePlot({
               </span>
             </div>
             <div>
-              <span className="fine" style={{ display: "block", fontSize: "0.6875rem" }}>
+              <span className="fine" style={{ display: "block" }}>
                 Heat dissipated:
               </span>
               <span

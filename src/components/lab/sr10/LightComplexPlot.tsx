@@ -391,7 +391,7 @@ export function LightComplexPlot({
           >
             {energyFactor.toFixed(6)}
           </div>
-          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             γ(1 − β cos φ) = ν′/ν
           </div>
         </div>
@@ -416,7 +416,7 @@ export function LightComplexPlot({
           >
             {volumeFactor.toFixed(6)}
           </div>
-          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             1 / [γ(1 − β cos φ)]
           </div>
         </div>
@@ -441,7 +441,7 @@ export function LightComplexPlot({
           >
             {energyDensityFactor.toFixed(6)}
           </div>
-          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             q² = (A′/A)²
           </div>
         </div>
@@ -466,7 +466,7 @@ export function LightComplexPlot({
           >
             {gamma.toFixed(6)}
           </div>
-          <div className="fine" style={{ fontSize: "0.625rem", marginTop: "0.125rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             1 / √(1 − β²)
           </div>
         </div>

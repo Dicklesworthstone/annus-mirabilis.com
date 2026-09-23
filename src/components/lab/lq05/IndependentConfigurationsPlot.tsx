@@ -278,7 +278,7 @@ export function IndependentConfigurationsPlot({
         </div>
         <p
           style={{
-            fontSize: "0.6875rem",
+            fontSize: "var(--type-fine)",
             color: "var(--muted)",
             marginTop: "0.5rem",
             marginBottom: 0,
