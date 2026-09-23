@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 283 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 286 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -70,6 +70,7 @@ Total: 283 quantities, 45 rejected spellings, 2 reserved spellings.
 | displacement1d | Displacement since start (one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | displacementIncrement | Displacement increment | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | displacementVariance1d | Displacement variance (one dimension) | 2,0,0,0,0,0 | not-applicable | scalar | — |
+| distanceFromSource | Distance from the source | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | dopplerFactor | Doppler factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | dragCoefficient | Drag coefficient | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | dragForce | Drag force | 1,1,-2,0,0,0 | not-applicable | scalar | — |
@@ -131,6 +132,7 @@ Total: 283 quantities, 45 rejected spellings, 2 reserved spellings.
 | independentPointCount | Independent point count | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | inducedCircuitCurrent | Induced circuit current | 0,0,0,0,1,0 | not-applicable | scalar | — |
 | inertialMassDecrease | Inertial mass decrease | 0,1,0,0,0,0 | not-applicable | scalar | massLossCoefficient |
+| intensity | Intensity | 0,1,-3,0,0,0 | not-applicable | scalar | — |
 | interceptedPower | Intercepted power | 2,1,-3,0,0,0 | not-applicable | scalar | — |
 | intervalProbability | Interval probability | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | invariantMassSystem | Invariant mass of a system | 0,1,0,0,0,0 | not-applicable | scalar | — |
@@ -238,6 +240,7 @@ Total: 283 quantities, 45 rejected spellings, 2 reserved spellings.
 | signalReflectionTimeB | Signal reflection time at B | 0,0,1,0,0,0 | stationary-system | scalar | — |
 | signalReturnTimeA | Signal return time at A | 0,0,1,0,0,0 | stationary-system | scalar | — |
 | soluteAmount | Solute amount | 0,0,0,0,0,1 | not-applicable | scalar | — |
+| sourcePower | Power of the source | 2,1,-3,0,0,0 | not-applicable | scalar | — |
 | spacetimeIntervalSquared | Squared spacetime interval | 2,0,0,0,0,0 | frame-independent | scalar | intervalSquared |
 | spectralEntropyDensity | Spectral entropy density | -1,1,-1,-1,0,0 | not-applicable | scalar | — |
 | speedDeficitFromLight | Speed deficit from light speed: kappa, lambda | 1,0,-1,0,0,0 | not-applicable | scalar | — |

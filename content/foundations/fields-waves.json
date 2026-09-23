@@ -51,7 +51,8 @@
     {
       "kind": "formula",
       "latex": "I = \\frac{P}{4\\pi r^2}",
-      "spoken": "The intensity equals the power divided by four pi r squared."
+      "spoken": "The intensity equals the power divided by four pi r squared.",
+      "equations": ["eq-model-fd-intensity-sphere"]
     }
   ],
   "exampleTitle": "A 600-terahertz wave and a one-watt lamp",

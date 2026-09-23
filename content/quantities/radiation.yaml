@@ -481,6 +481,40 @@
   frame: not-applicable
   colorRole: field
 
+- id: intensity
+  name: Intensity
+  description: >
+    Power crossing unit area, in watts per square metre: I = P / (4 pi r^2) at a distance r
+    from a source radiating equally in all directions (the foundation lesson on fields and
+    waves). Distinct from incidentPower and interceptedPower, which are totals, not per area.
+  dimensionStatus: declared
+  dimension: [0, 1, -3, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: sourcePower
+  name: Power of the source
+  description: >
+    The total power a source gives out, in watts, as the lamp of the foundation lesson on fields
+    and waves. Distinct from incidentPower, the power arriving on a surface.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+
+- id: distanceFromSource
+  name: Distance from the source
+  description: >
+    The distance r from a point source to where its radiation is received, the radius of the
+    sphere the power spreads over. Distinct from sphereRadius, a rigid body in paper 3.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
 - id: angularWavenumber
   name: Angular wavenumber
   description: >

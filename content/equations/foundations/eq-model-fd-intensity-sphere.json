@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-intensity-sphere",
+  "paper": "foundations",
+  "argument": "fields-waves",
+  "title": "A lamp's intensity falls as the square of the distance",
+  "spoken": "The intensity equals the power divided by four pi r squared.",
+  "explanation": "A 1 W lamp gives 0.0796 watts per square metre at 1 m and a quarter of that at 2 m, because the same power covers a sphere four times larger.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A point source radiating equally in all directions, with nothing absorbing on the way.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-intensity-sphere.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-intensity-sphere.t.intensity",
+      "quantityId": "intensity"
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-intensity-sphere.op.spread",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-intensity-sphere.t.power",
+        "quantityId": "sourcePower"
+      },
+      "denominator": {
+        "kind": "product",
+        "opId": "eq-model-fd-intensity-sphere.op.area",
+        "args": [
+          {
+            "kind": "number",
+            "value": "4"
+          },
+          {
+            "kind": "constant",
+            "name": "pi"
+          },
+          {
+            "kind": "power",
+            "opId": "eq-model-fd-intensity-sphere.op.square",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-fd-intensity-sphere.t.r",
+              "quantityId": "distanceFromSource"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            }
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-intensity-sphere.op.area",
+      "title": "The sphere's area",
+      "explanation": "4 pi r squared.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-intensity-sphere.op.relation",
+      "title": "What it asserts",
+      "explanation": "The lamp's power, shared equally over a sphere around it.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-intensity-sphere.op.spread",
+      "title": "Power over area",
+      "explanation": "The same total power, divided among more square metres the farther out.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-intensity-sphere.op.square",
+      "title": "r squared",
+      "explanation": "Twice as far, four times the area, a quarter of the intensity.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-intensity-sphere.t.intensity",
+      "title": "Intensity",
+      "explanation": "Power per square metre, at distance r.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-intensity-sphere.t.power",
+      "title": "Power of the lamp",
+      "explanation": "P, given out equally in all directions.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-intensity-sphere.t.r",
+      "title": "Distance from the lamp",
+      "explanation": "r, the sphere's radius.",
+      "foundation": "fields-waves"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The intensity",
+      "nodeId": "eq-model-fd-intensity-sphere.t.intensity"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the lamp's power",
+      "nodeId": "eq-model-fd-intensity-sphere.t.power"
+    },
+    {
+      "text": " spread over "
+    },
+    {
+      "text": "a sphere of radius r",
+      "nodeId": "eq-model-fd-intensity-sphere.op.area"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
