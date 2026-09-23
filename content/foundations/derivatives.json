@@ -13,7 +13,24 @@
     },
     {
       "kind": "paragraph",
-      "text": "So shorten the interval instead. Over a shorter interval the average describes a shorter piece of the motion, and for smooth motion the averages settle on one number as the interval shrinks. That number is the derivative, the speed at the instant. The interval is never set to zero, which would mean dividing zero distance by zero time; it only shrinks."
+      "text": "So shorten the interval and watch what happens. A ball rolls so that after t seconds it has gone 3t² metres: 3 m after one second, 12 m after two. Start at the one-second mark and average over shorter and shorter stretches:"
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "Over the next second it goes from 3 m to 12 m: 9 m in 1 s, an average of 9 m/s.",
+        "Over the next tenth of a second it reaches 3.63 m: 0.63 m in 0.1 s, an average of 6.3 m/s.",
+        "Over the next hundredth it reaches 3.0603 m: 0.0603 m in 0.01 s, an average of 6.03 m/s.",
+        "Over the next thousandth it reaches 3.006003 m: 0.006003 m in 0.001 s, an average of 6.003 m/s."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "The averages close in on 6 m/s. That number is the derivative: the ball's speed at the instant t = 1 s. The interval is never set to zero, which would mean dividing zero distance by zero time. It only shrinks, and the averages settle."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In symbols, with Δt for the short interval, the same recipe reads:"
     },
     {
       "kind": "formula",
@@ -26,16 +43,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "Einstein's Brownian paper uses derivatives of a concentration. In §3, the number of particles that diffuse through each unit of area each second is the diffusion coefficient D times the rate at which the concentration ν falls along the tube:"
-    },
-    {
-      "kind": "formula",
-      "latex": "-D\\,\\frac{\\partial \\nu}{\\partial x}",
-      "spoken": "Minus D times the partial derivative of nu with respect to x."
-    },
-    {
-      "kind": "paragraph",
-      "text": "In §4, the rate at which the concentration f at one place changes in time is set equal to D times the rate at which its slope along the tube changes:"
+      "text": "Einstein's Brownian paper needs rates like this for a concentration of particles, which changes along a tube and in time at once. With two things changing, a rate has to say which one it follows, so the paper writes a curly ∂ and holds the other fixed:"
     },
     {
       "kind": "formula",
@@ -45,26 +53,13 @@
     },
     {
       "kind": "paragraph",
-      "text": "The curly ∂ marks a partial derivative, taken while the other variable is held fixed."
+      "text": "The lesson on partial derivatives, listed at the end of this page, reads that equation one piece at a time."
     }
   ],
   "example": [
     {
       "kind": "paragraph",
-      "text": "A body's position after t seconds is x = 3t² metres. At t = 1 s it is at 3 m. Find its speed at exactly that moment by averaging over shorter and shorter intervals that start there."
-    },
-    {
-      "kind": "steps",
-      "items": [
-        "Over the next 1 s it reaches 12 m: 9 m in 1 s, an average of 9 m/s.",
-        "Over the next 0.1 s it reaches 3.63 m: 0.63 m in 0.1 s, an average of 6.3 m/s.",
-        "Over the next 0.01 s it reaches 3.0603 m: 0.0603 m in 0.01 s, an average of 6.03 m/s.",
-        "Over the next 0.001 s it reaches 3.006003 m: 0.006003 m in 0.001 s, an average of 6.003 m/s."
-      ]
-    },
-    {
-      "kind": "paragraph",
-      "text": "The averages settle on 6 m/s, the speed at t = 1 s. The algebra shows why, at any time t. Over an interval Δt the body moves 3(t + Δt)² − 3t² metres. Since (t + Δt)² is t² + 2tΔt + (Δt)², that distance is:"
+      "text": "The list of averages can be explained, not only watched. Start at any time t and let the interval be Δt. In that interval the ball moves 3(t + Δt)² − 3t² metres. Since (t + Δt)² is t² + 2tΔt + (Δt)², that distance is:"
     },
     {
       "kind": "formula",
@@ -87,7 +82,7 @@
       "text": "The 3Δt term shrinks with the interval and leaves 6t metres per second. At t = 1 s that is 6 m/s. The extra 3, 0.3, 0.03 and 0.003 in the list above are that 3Δt term, for Δt of 1, 0.1, 0.01 and 0.001 seconds."
     }
   ],
-  "exampleTitle": "The speed at t = 1 s of a body at x = 3t² metres",
+  "exampleTitle": "Why the averages settle on 6 m/s",
   "prerequisites": [
     {
       "foundationId": "foundation:functions-graphs",
