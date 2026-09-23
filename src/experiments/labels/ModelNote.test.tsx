@@ -49,6 +49,66 @@ const composite: ModelNoteData = {
 };
 
 describe("ModelNote", () => {
+  test("outputs sharing a role, engine sentence and owner are one item, and every output id appears once", () => {
+    // One item per output made bm-01's note 56 items and 3,330px on a phone, each repeating its
+    // sentence and owner. Grouping must shorten the note without dropping or duplicating an output.
+    const engine = "Host calculation (diffusion.moments).";
+    const data: ModelNoteData = {
+      ...composite,
+      outputs: [
+        {
+          outputId: "modelSecondMoment",
+          ownerId: "diffusion.moments",
+          role: "primary",
+          engineSentence: engine,
+        },
+        {
+          outputId: "modelMeanNorm",
+          ownerId: "diffusion.moments",
+          role: "primary",
+          engineSentence: engine,
+        },
+        {
+          outputId: "modelRmsNorm",
+          ownerId: "diffusion.moments",
+          role: "primary",
+          engineSentence: engine,
+        },
+        {
+          outputId: "sampleMean",
+          ownerId: "diffusion.moments",
+          role: "secondary",
+          engineSentence: engine,
+        },
+        {
+          outputId: "tracerPositions",
+          ownerId: "diffusion.recordTracers",
+          role: "primary",
+          engineSentence: engine,
+        },
+      ],
+    };
+    const html = renderToStaticMarkup(createElement(ModelNote, { data }));
+    const outputItems = [
+      ...html.matchAll(/<li>((?:Primary|Secondary) outputs? [^<]*)<\/li>/gu),
+    ].map((m) => m[1] ?? "");
+    // Three groups: the three primary moments together; the secondary one, whose role differs; and
+    // tracerPositions, whose owner differs.
+    expect(outputItems.length).toBe(3);
+    expect(outputItems).toContain(
+      "Primary outputs modelSecondMoment, modelMeanNorm, modelRmsNorm: Host calculation (diffusion.moments). Owner diffusion.moments.",
+    );
+    for (const id of [
+      "modelSecondMoment",
+      "modelMeanNorm",
+      "modelRmsNorm",
+      "sampleMean",
+      "tracerPositions",
+    ]) {
+      expect(outputItems.filter((item) => item.includes(`${id}`)).length).toBe(1);
+    }
+  });
+
   test("renders owners grouped by role, the exact seed string above 2^53, and the independent-trial sentence", () => {
     const html = renderToStaticMarkup(createElement(ModelNote, { data: composite }));
     expect(html).toContain("Primary output tracerPositions");
