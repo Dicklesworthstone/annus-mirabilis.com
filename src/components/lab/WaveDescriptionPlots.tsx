@@ -48,7 +48,10 @@ export function InterferencePlot({
   const plotW = width - padding.left - padding.right;
   const plotH = height - padding.top - padding.bottom;
 
-  const maxVal = Math.max(4.2, centerIntensity * 1.1, selectedIntensity * 1.1);
+  // The scale takes the whole profile: at one instant a point off the centre can be brighter than
+  // the centre, up to twice the averaged peak.
+  const profileMax = screenIntensity ? Math.max(0, ...screenIntensity) : 0;
+  const maxVal = Math.max(4.2, centerIntensity * 1.1, selectedIntensity * 1.1, profileMax * 1.1);
 
   const scaleX = (idx: number, total: number) => padding.left + (idx / (total - 1)) * plotW;
   const scaleY = (val: number) => height - padding.bottom - (Math.max(0, val) / maxVal) * plotH;
@@ -96,7 +99,7 @@ export function InterferencePlot({
             margin: 0,
           }}
         >
-          Brightness across the screen, ⟨I(y)⟩{" "}
+          Brightness across the screen, {readout === "time-average" ? "⟨I(y)⟩" : "I(y)"}{" "}
           {delta !== 0 && (
             <span
               className="fine"

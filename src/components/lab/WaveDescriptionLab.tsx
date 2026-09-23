@@ -529,15 +529,26 @@ export function WaveDescriptionLab({
               </tr>
             </thead>
             <tbody>
-              {VALUE_ROWS[p.mode].map((row) => (
-                <tr key={row.id} data-quantity-id={row.id}>
-                  <th scope="row">{row.label}</th>
-                  <td data-output={row.id}>
-                    <ValueCell snapshot={snapshot} id={row.id} />
-                    {row.unit && ` ${row.unit}`}
-                  </td>
-                </tr>
-              ))}
+              {VALUE_ROWS[p.mode]
+                // Under the instant readout the centre row is already this instant's value, so the
+                // separate instant row would repeat it; and the centre row is not an average then.
+                .filter(
+                  (row) =>
+                    !(p.readout === "instantaneous" && row.id === "instantaneousCenterIntensity"),
+                )
+                .map((row) => (
+                  <tr key={row.id} data-quantity-id={row.id}>
+                    <th scope="row">
+                      {row.id === "centerIntensity" && p.readout === "instantaneous"
+                        ? "Intensity at the centre, this instant"
+                        : row.label}
+                    </th>
+                    <td data-output={row.id}>
+                      <ValueCell snapshot={snapshot} id={row.id} />
+                      {row.unit && ` ${row.unit}`}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </section>
