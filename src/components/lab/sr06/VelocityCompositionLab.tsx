@@ -284,13 +284,17 @@ export function VelocityCompositionLab({
             <caption>Accepted composition (fractions of c)</caption>
             <tbody>
               <tr>
-                <th scope="row">U_x / c</th>
+                <th scope="row">
+                  U<sub>x</sub> / c
+                </th>
                 <td>
                   <Readout snapshot={snapshot} id="composedUxOverC" />
                 </td>
               </tr>
               <tr>
-                <th scope="row">U_y / c</th>
+                <th scope="row">
+                  U<sub>y</sub> / c
+                </th>
                 <td>
                   <Readout snapshot={snapshot} id="composedUyOverC" />
                 </td>
@@ -374,9 +378,9 @@ export function VelocityCompositionLab({
       <section className="action-contract">
         <h3>Same scientific action without the plot</h3>
         <p>
-          Type v/c, w/c, and the angle. Read U_x, U_y, U, the shortfall from light speed, and, in
-          two-boosts mode, the rotation angle from the table. Ask whether the result is still below
-          light speed.
+          Type v/c, w/c, and the angle. Read U<sub>x</sub>, U<sub>y</sub>, U, the shortfall from
+          light speed, and, in two-boosts mode, the rotation angle from the table. Ask whether the
+          result is still below light speed.
         </p>
       </section>
       <p className="not-modeled">Not modeled: {SR06_NOT_MODELED.join("; ")}.</p>

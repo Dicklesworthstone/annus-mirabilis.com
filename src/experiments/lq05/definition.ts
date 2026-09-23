@@ -34,7 +34,7 @@ export const LQ05_MODEL = Object.freeze({
   constantSetId: "modern-si-2019",
   label: "Independent configurations & Boltzmann entropy · host calculation",
   assumptions: Object.freeze([
-    "No favored part of the space or direction in volume V_0.",
+    "No favored part of the space or direction in volume V₀.",
     "Negligible interactions among the n movable points.",
     "Other movable points may also be present without altering the independent distribution.",
     "No assumption is needed about the laws of motion of the points.",

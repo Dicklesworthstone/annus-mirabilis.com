@@ -519,12 +519,12 @@ export function IndependentConfigurationsLab({
                     : evaluation.independentProbability.lnW.toFixed(6)}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                  Proportional to the entropy difference ΔS / k_B
+                  Proportional to the entropy difference ΔS / k<sub>B</sub>
                 </td>
               </tr>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", fontWeight: 500 }}>
-                  Dimensionless entropy change ΔS/k_B
+                  Dimensionless entropy change ΔS/k<sub>B</sub>
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)" }}>
                   {p.locked ? "ln f" : "n ln(V/V₀)"}
@@ -535,7 +535,7 @@ export function IndependentConfigurationsLab({
                     : evaluation.independentProbability.deltaSOverKb.toFixed(6)}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                  Matches Wien-regime radiation entropy S - S₀ = (E / hν) k_B ln(V/V₀)
+                  Matches Wien-regime radiation entropy S − S₀ = (E / hν) k<sub>B</sub> ln(V/V₀)
                 </td>
               </tr>
               <tr style={{ borderBottom: "1px solid var(--line)" }}>
@@ -551,7 +551,7 @@ export function IndependentConfigurationsLab({
                     : evaluation.independentProbability.log10W.toFixed(6)}
                 </td>
                 <td style={{ padding: "0.5rem var(--table-cell-x)", color: "var(--muted)" }}>
-                  Order of magnitude (e.g. 10^-18 for n = 60)
+                  Order of magnitude (for example 10⁻¹⁸ at n = 60)
                 </td>
               </tr>
             </tbody>

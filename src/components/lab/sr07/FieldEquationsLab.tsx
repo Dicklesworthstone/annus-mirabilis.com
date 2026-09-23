@@ -1,6 +1,13 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import {
+  type FormEvent,
+  type ReactNode,
+  useEffect,
+  useId,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   SR07_CAPTION,
   SR07_COMPONENTS,
@@ -20,6 +27,25 @@ import { createSr07Session, type PreparedSr07Example } from "../../../experiment
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity, result } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
+
+/**
+ * The SI forms write a field component as E_x or B_z, and a reader was shown the underscore. Every
+ * component here is a single x, y or z after E or B, so this pattern cannot reach anything else; it
+ * typesets them with a real subscript and leaves the stored strings as they are.
+ */
+function fieldComponents(text: string): ReactNode {
+  const parts: ReactNode[] = [];
+  let last = 0;
+  for (const match of text.matchAll(/([EB])_([xyz])/g)) {
+    const at = match.index ?? 0;
+    parts.push(text.slice(last, at), match[1]);
+    parts.push(<sub key={at}>{match[2]}</sub>);
+    last = at + match[0].length;
+  }
+  if (parts.length === 0) return text;
+  parts.push(text.slice(last));
+  return <>{parts}</>;
+}
 
 function Readout({
   snapshot,
@@ -286,7 +312,7 @@ export function FieldEquationsLab({
             data-equation-id={p.equationId}
             data-unit-layer={p.unitLayer}
           >
-            {displayed}
+            {fieldComponents(displayed)}
           </p>
           <p className="fine">{eq.spoken}</p>
           <p className="fine" data-unit-layer={p.unitLayer} data-unit-system={p.unitLayer}>
@@ -350,7 +376,7 @@ export function FieldEquationsLab({
             <tr key={row.printed}>
               <th scope="row">{row.printed}</th>
               <td>{row.role}</td>
-              <td>{row.si}</td>
+              <td>{fieldComponents(row.si)}</td>
             </tr>
           ))}
         </tbody>
