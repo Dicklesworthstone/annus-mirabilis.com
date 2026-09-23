@@ -131,10 +131,6 @@ export function ComparisonPanel({
             <section key={label}>
               <h4>{label}</h4>
               <p className="comparison-identity">
-                Instance: {entry.instanceId}; run: {entry.runId}; snapshot: {entry.snapshotVersion};
-                accepted input revision: {entry.acceptedInputRevision}.
-              </p>
-              <p className="comparison-identity">
                 Model: {entry.identity.modelVersion}; constants: {entry.identity.constantSetId};
                 stream: {entry.identity.streamVersion}; allocation: {entry.identity.allocationId};
                 executable: {entry.identity.sourceDigest}.

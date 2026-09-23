@@ -662,8 +662,7 @@ export function CameraLab({
       <details className="camera-provenance">
         <summary>Accepted identity, random streams and limits</summary>
         <p>
-          Run {snapshot.runId}; snapshot {snapshot.snapshotVersion}; revisions{" "}
-          {JSON.stringify(snapshot.revisions)}. Owner <code>inference.bm08</code>.
+          Computed by the host reference evaluator <code>inference.bm08</code>.
         </p>
         <p>
           Retained path and bridge draws: <Value snapshot={snapshot} id="recordingDraws" />. New

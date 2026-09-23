@@ -314,8 +314,7 @@ export function KitchenLab({
               <code>{accepted.documentDigest}</code>. Source: <code>{practice.sourceDigest}</code>.
             </p>
             <p>
-              Run {accepted.snapshot.runId}; snapshot {accepted.snapshot.snapshotVersion}. An
-              identity hash records content, not whether an observation is true. Exported JSON
+              An identity hash records content, not whether an observation is true. Exported JSON
               records this analysis but is not a resumable session file.
             </p>
             <dl>

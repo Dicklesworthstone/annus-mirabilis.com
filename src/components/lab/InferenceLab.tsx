@@ -761,9 +761,8 @@ export function InferenceLab({
       <details className="inference-provenance">
         <summary>Accepted calculation identity and limits</summary>
         <p className="fine">
-          Run {snapshot.runId}; snapshot {snapshot.snapshotVersion}; revisions{" "}
-          {JSON.stringify(snapshot.revisions)}. Host reference owner <code>inference.bm07</code>,
-          scenario <code>scenario-bm07-hidden-number</code>.
+          Computed by the host reference evaluator <code>inference.bm07</code>, for the scenario{" "}
+          <code>scenario-bm07-hidden-number</code>.
         </p>
         <p className="fine">
           Primary recording draws: <InferenceValue snapshot={snapshot} id="recordingDraws" />. Work
