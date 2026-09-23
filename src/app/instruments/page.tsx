@@ -108,6 +108,11 @@ function specimenPicture(id: CatalogueId): string | undefined {
   return existsSync(join(process.cwd(), "public", file)) ? file : undefined;
 }
 
+/** An instrument still in preparation may already have a preview page under src/app/lab/. */
+function hasPreviewPage(id: CatalogueId): boolean {
+  return existsSync(join(process.cwd(), "src/app/lab", id, "page.tsx"));
+}
+
 /**
  * Each instrument as a specimen: a small plate of what it shows at its worked default, captioned by
  * the question it answers. The plate is the same mounted-page device as the printed first pages on
@@ -180,33 +185,31 @@ export default function InstrumentsIndex() {
         <section className="instrument-group">
           <h2>Across more than one paper</h2>
           <p>
-            These carry no paper prefix because they do not serve a single argument. That is a fact
-            about the instrument rather than an omission: each one reaches across papers, and a
-            reader arriving from any of them is in the right place.
+            These reach across the papers rather than serving one argument, so a reader arriving
+            from any of them is in the right place.
           </p>
           <InstrumentList ids={loose} />
         </section>
       ) : null}
 
       <section className="reading page-flush">
-        <h2>Not built yet</h2>
+        <h2>In preparation</h2>
+        {/* Named in words, and linked where a preview page already exists, so the gap between
+            what the edition plans and what it has finished stays visible. "In preparation" is the
+            catalogue's own status: the model has no admitted owner yet, which is a different
+            question from whether a page renders (avogadro-lab has one). */}
         <p>
-          The catalogue records {inPreparation.length} further ids as in preparation:{" "}
-          {inPreparation.join(", ")}. They are named here rather than hidden, so the gap between
-          what the edition plans and what it has finished stays visible.
+          Still being finished, and listed so the gap between what the edition plans and what it has
+          finished stays visible:
         </p>
-        <p>
-          {/*
-            The wording is "records as in preparation", not "has no instrument behind them",
-            because the second is false. avogadro-lab carries that status and already has a route
-            and a built page. Readiness here is the catalogue's own signal about whether an
-            instrument is admitted, which is not the same question as whether a page exists, and
-            conflating them would have put a claim on this page that one line of the four
-            contradicts.
-          */}
-          An id in preparation is not admitted to the registry yet, which is a statement about
-          whether its model has an owner rather than about whether anything renders.
-        </p>
+        <ul>
+          {inPreparation.map((id) => (
+            <li key={id}>
+              {hasPreviewPage(id) ? <a href={`/lab/${id}/`}>{labName(id)}</a> : labName(id)}{" "}
+              {hasPreviewPage(id) ? "(a preview page exists)" : null}
+            </li>
+          ))}
+        </ul>
       </section>
     </>
   );
