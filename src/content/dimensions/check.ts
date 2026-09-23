@@ -123,6 +123,28 @@ function areSemanticKindsIncompatible(a: string, b: string): boolean {
   return a !== b;
 }
 
+/**
+ * AFFINE SUMS (orchestrator ruling, dispatch 100). Positions and times are points; displacements
+ * and intervals are vectors. A point plus or minus a vector is a point, and a point minus a point
+ * is a vector, whatever the two authored kinds are: x - Delta is where a particle came from, and
+ * t_B - t_A is how long a signal took. Exactly these two-term forms are allowed across different
+ * kinds; everything else keeps the rule above (point + point, vector - point, and every other
+ * pair of different meanings stays refused, and dimensions are always checked).
+ */
+const AFFINE_POINT_KINDS: ReadonlySet<string> = new Set([
+  "coordinate-position",
+  "coordinate",
+  "clock-reading",
+]);
+const AFFINE_VECTOR_KINDS: ReadonlySet<string> = new Set([
+  "cumulative-displacement",
+  "displacement-increment",
+  "event-separation",
+  "observation-interval",
+  "walk-step-interval",
+  "elapsed-time",
+]);
+
 function areDimensionlessKindsIncompatible(a: string, b: string): boolean {
   if (a === b) return false;
   return pairListed(INCOMPATIBLE_DIMENSIONLESS_KINDS, a, b);
@@ -219,7 +241,33 @@ export function checkDimensions(
     return null;
   }
 
-  function equal(n: unknown, a: unknown, b: unknown): Dimension {
+  /** A term's sign, looking through brackets and negation: x - Delta is x + (-(Delta)). */
+  function signOf(n: unknown): 1 | -1 {
+    const o = (n ?? {}) as Record<string, unknown>;
+    if (o.kind === "negate") return signOf(o.argument) === 1 ? -1 : 1;
+    if (o.kind === "group") return signOf(o.argument);
+    return 1;
+  }
+
+  /** Whether a two-term sum of different kinds is one of the allowed affine forms. */
+  function affineSumAllowed(a: unknown, b: unknown): boolean {
+    const ka = extractSemanticKind(a);
+    const kb = extractSemanticKind(b);
+    if (!ka || !kb || ka === kb) return false;
+    const role = (k: string) =>
+      AFFINE_POINT_KINDS.has(k) ? "point" : AFFINE_VECTOR_KINDS.has(k) ? "vector" : null;
+    const [ra, rb] = [role(ka), role(kb)];
+    const [sa, sb] = [signOf(a), signOf(b)];
+    if (!ra || !rb) return false;
+    // point +/- vector, in either written order, with the point counted positively.
+    if (ra === "point" && rb === "vector") return sa === 1;
+    if (ra === "vector" && rb === "point") return sb === 1;
+    // point - point: exactly one of the two is subtracted.
+    if (ra === "point" && rb === "point") return sa !== sb;
+    return false;
+  }
+
+  function equal(n: unknown, a: unknown, b: unknown, affineOk = false): Dimension {
     const da = visit(a, 0);
     const db = visit(b, 0);
     if (!sameDimension(da, db)) {
@@ -237,7 +285,7 @@ export function checkDimensions(
     }
     const ka = extractSemanticKind(a);
     const kb = extractSemanticKind(b);
-    if (ka && kb && areSemanticKindsIncompatible(ka, kb)) {
+    if (ka && kb && !affineOk && areSemanticKindsIncompatible(ka, kb)) {
       stop(
         n,
         "semantic-mismatch",
@@ -298,8 +346,9 @@ export function checkDimensions(
           return stop(n, "unsupported-check", "Sum requires at least one argument.");
         }
         const first = node.args[0];
+        const affine = node.args.length === 2 && affineSumAllowed(first, node.args[1]);
         for (const arg of node.args.slice(1)) {
-          equal(n, first, arg);
+          equal(n, first, arg, affine);
         }
         return visit(first, depth + 1);
       }
