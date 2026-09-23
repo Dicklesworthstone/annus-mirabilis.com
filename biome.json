@@ -18,7 +18,8 @@
       "!artifacts",
       "!.beads",
       "!docs/design/placeholder",
-      "!public/pdfjs"
+      "!public/pdfjs",
+      "!ios/**/*.xcassets"
     ]
   },
   "formatter": {
