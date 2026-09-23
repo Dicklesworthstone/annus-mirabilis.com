@@ -413,11 +413,15 @@ export function checkDimensions(
         const exprDim = visit(node.expression, depth + 1);
         const varDim = visit(node.variable, depth + 1);
         // A limit is a value of the variable, so it carries the variable's dimension and kind.
-        // A literal zero is the one exception: 0 s and 0 m/s are both written 0.
+        // Zero and infinity are the exceptions: 0 s and 0 m are both written 0, and an unbounded
+        // limit (plus or minus infinity) has no size to carry a dimension.
         for (const bound of [node.lower, node.upper]) {
           if (bound === undefined) continue;
           const b = bound as Record<string, unknown>;
           if (b.kind === "number" && Number(b.value) === 0) continue;
+          const unsigned =
+            b.kind === "negate" ? ((b.argument ?? {}) as Record<string, unknown>) : b;
+          if (unsigned.kind === "constant" && unsigned.name === "infinity") continue;
           equal(n, node.variable, bound);
         }
         return combine(exprDim, varDim);

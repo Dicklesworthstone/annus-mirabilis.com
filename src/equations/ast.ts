@@ -17,7 +17,9 @@ export type Expression =
       /** The quantity's value at an argument, printed glyph(argument): gamma(u), u(t). */
       at?: Expression;
     }>
-  | Readonly<{ kind: "constant"; name: "pi" }>
+  /** "infinity" is admitted only as an integral's limit, or its negation: the density integrals of
+      paper 2, section 4 run from minus to plus infinity. It is never a value in arithmetic. */
+  | Readonly<{ kind: "constant"; name: "pi" | "infinity" }>
   | Readonly<{ kind: "number"; value: string }>
   | (Op & Readonly<{ kind: "sum" | "product"; args: readonly Expression[] }>)
   | (Op & Readonly<{ kind: "quotient"; numerator: Expression; denominator: Expression }>)
@@ -165,7 +167,7 @@ export function parseExpression(
     if (ids.has(value)) fail(path, `Duplicate selectable identity: ${value}.`);
     ids.add(value);
   }
-  function parse(x: unknown, path: string, depth: number): Expression {
+  function parse(x: unknown, path: string, depth: number, limit = false): Expression {
     if (++count > 256 || depth > 24) fail(path, "Expression budget exceeded.");
     const kind =
       x && typeof x === "object" ? Object.getOwnPropertyDescriptor(x, "kind")?.value : null;
@@ -216,7 +218,9 @@ export function parseExpression(
         fail(path, "An index is a component or instance label of one or two letters or digits.");
       if (Object.hasOwn(o, "at")) parse(o.at, `${path}.at`, depth + 1);
     } else if (kind === "constant") {
-      if (o.name !== "pi") fail(path, "Unsupported mathematical constant.");
+      if (o.name === "infinity") {
+        if (!limit) fail(path, "Infinity is admitted only as an integral's limit.");
+      } else if (o.name !== "pi") fail(path, "Unsupported mathematical constant.");
     } else if (kind === "number") {
       if (
         typeof o.value !== "string" ||
@@ -239,7 +243,8 @@ export function parseExpression(
             !["degree", "name", "operator", "order", "partial"].includes(key) &&
             !(key === "exponent" && kind === "power")
           )
-            parse(o[key], `${path}.${key}`, depth + 1);
+            // A negated limit is still a limit: minus infinity is -(infinity).
+            parse(o[key], `${path}.${key}`, depth + 1, limit && kind === "negate");
       }
       if (kind === "power") exactScale(o.exponent, path);
       if (kind === "symbolPower" && (o.exponent as Expression).kind !== "symbol")
@@ -287,8 +292,8 @@ export function parseExpression(
         if (Object.hasOwn(o, "lower") !== Object.hasOwn(o, "upper"))
           fail(path, "A definite integral states both limits.");
         if (Object.hasOwn(o, "lower")) {
-          parse(o.lower, `${path}.lower`, depth + 1);
-          parse(o.upper, `${path}.upper`, depth + 1);
+          parse(o.lower, `${path}.lower`, depth + 1, true);
+          parse(o.upper, `${path}.upper`, depth + 1, true);
         }
       }
     }

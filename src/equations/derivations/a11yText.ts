@@ -79,7 +79,7 @@ export function expressionToSpokenText(expr: Expression): string {
     }
 
     case "constant":
-      return "pi";
+      return expr.name === "infinity" ? "infinity" : "pi";
 
     case "symbol": {
       const base = symbolName(expr);
@@ -113,6 +113,9 @@ export function expressionToSpokenText(expr: Expression): string {
       return `${expr.degree}th root of ${expressionToSpokenText(expr.radicand)}`;
 
     case "negate":
+      // An integral's lower limit reads the way it is said: "from minus infinity".
+      if (expr.argument.kind === "constant" && expr.argument.name === "infinity")
+        return "minus infinity";
       return `negative of ${expressionToSpokenText(expr.argument)}`;
 
     case "group":

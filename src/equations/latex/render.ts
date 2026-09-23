@@ -48,7 +48,7 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
       }
 
       case "constant":
-        s = "\\pi";
+        s = n.name === "infinity" ? "\\infty" : "\\pi";
         break;
 
       case "symbol": {

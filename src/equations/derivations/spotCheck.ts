@@ -85,6 +85,8 @@ export function evaluateExpression(
       return (value * scale.num) / scale.den;
     }
     case "constant":
+      if (tree.name === "infinity")
+        throw new SpotCheckDomainError("infinity is a limit, not a value to sample.");
       return Math.PI;
     case "number":
       return Number(tree.value);
