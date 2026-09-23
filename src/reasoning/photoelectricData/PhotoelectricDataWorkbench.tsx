@@ -163,11 +163,6 @@ export function PhotoelectricDataWorkbench({
       data-execution-label="host"
     >
       <h2 id={`${id}-title`}>Analyze a stopping-potential record</h2>
-      <p className="notice">
-        The initial rows are a constructed teaching example, not measurements. Your CSV stays in
-        this tab unless you download it. There is no server upload, automatic storage or public data
-        link.
-      </p>
       <noscript>
         <p>
           The complete constructed worked example and its table remain readable. File reading,
@@ -187,6 +182,7 @@ export function PhotoelectricDataWorkbench({
           . Revision {accepted.revision}. {selectedCount} of {accepted.record.rows.length} rows
           used; {accepted.excludedRows.length} explicitly excluded.
         </p>
+        <PhotoelectricPlots state={accepted} />
         <p>
           Accepted assumptions:{" "}
           {accepted.options.weighting === "equal"
@@ -198,7 +194,6 @@ export function PhotoelectricDataWorkbench({
             : `offset ${accepted.options.offset.volts} ± ${accepted.options.offset.sigmaV} V`}
           .
         </p>
-        <PhotoelectricPlots state={accepted} />
         {result.status === "underdetermined" ? (
           <p className="notice">
             <strong>Underdetermined.</strong> {result.reason}
@@ -343,6 +338,12 @@ export function PhotoelectricDataWorkbench({
       <form onSubmit={submit} aria-label="Photoelectric data and calibration">
         <fieldset>
           <legend>1. Choose the record</legend>
+          {/* Here, where a reader chooses a file, not above the fit: the first rows are the
+              constructed example the bold line over the plot names. */}
+          <p className="fine">
+            Your CSV stays in this tab unless you download it. Nothing is uploaded, stored or put in
+            a public link.
+          </p>
           <div className="actions">
             {PHOTOELECTRIC_EXAMPLES.map((e) => (
               <button type="button" key={e.id} onClick={() => selectExample(e.id)}>

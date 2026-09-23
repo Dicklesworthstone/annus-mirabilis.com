@@ -28,19 +28,25 @@ export default function PhotoelectricDataPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Light quanta · Local data analysis · Explanatory preview</p>
+        <p className="eyebrow">Light quanta · Your data · Preview</p>
         <h1>What does your stopping-potential line actually identify?</h1>
         <p className="lead">
           A frequency sweep can constrain a slope without settling the surface escape work. Bring a
           record, inspect the residuals, then make the calibration assumption visible.
         </p>
-        <p>
-          <a href="/lab/lq-08/">Return to the photoelectric apparatus</a>
-          {" · "}
-          <a href="/papers/light-quanta/#s8">Read the light-quanta argument, §8</a>
-        </p>
       </header>
       <PhotoelectricDataWorkbench reference={reference} example={initial} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/lab/lq-08/">Return to the photoelectric apparatus</a>
+          </li>
+          <li>
+            <a href="/papers/light-quanta/#s8">Read the light-quanta argument, §8</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading">
         <h2>The line is empirical; the interpretation needs premises</h2>
         <p>
