@@ -169,15 +169,21 @@ export interface CheckOutcome {
   readonly message: string;
 }
 
-/** Everything a failed check needs for someone to see what the browser saw. */
+/**
+ * Everything a failed check needs for someone to see what the browser saw: a screenshot, the
+ * DOM, the console, the network log and a Playwright trace. The directory names the plant as
+ * well as the engine and check, because two plants that fail the same check (soft-404 and
+ * no-not-found-page) otherwise wrote to one directory and the second erased the first.
+ */
 async function retainEvidence(
   browserName: string,
   check: string,
   page: import("playwright").Page,
   consoleLines: readonly string[],
   requests: readonly string[],
+  logPrefix = "",
 ): Promise<string> {
-  const dir = join(EVIDENCE_DIR, `${browserName}-${check}`);
+  const dir = join(EVIDENCE_DIR, `${browserName}-${logPrefix.replace(/\//g, "-")}${check}`);
   mkdirSync(dir, { recursive: true });
   try {
     await page.screenshot({ path: join(dir, "screenshot.png"), fullPage: true });
@@ -202,6 +208,8 @@ async function runChecks(
   } = {},
 ): Promise<CheckOutcome[]> {
   const context = await browser.newContext({ viewport: { ...VIEWPORT } });
+  // One trace chunk per check, written out only when that check fails.
+  await context.tracing.start({ screenshots: true, snapshots: true });
   const page = await context.newPage();
   if (options.prepare) await options.prepare(page);
   const consoleLines: string[] = [];
@@ -214,6 +222,7 @@ async function runChecks(
     const started = performance.now();
     let outcome: CheckOutcome;
     let evidence: string | undefined;
+    await context.tracing.startChunk({ title: check });
     try {
       outcome = { check, ok: true, message: await run() };
     } catch (error) {
@@ -222,7 +231,21 @@ async function runChecks(
         ok: false,
         message: error instanceof Error ? error.message : String(error),
       };
-      evidence = await retainEvidence(browserName, check, page, consoleLines, requests);
+      evidence = await retainEvidence(
+        browserName,
+        check,
+        page,
+        consoleLines,
+        requests,
+        options.logPrefix,
+      );
+    }
+    try {
+      await context.tracing.stopChunk(evidence ? { path: join(evidence, "trace.zip") } : {});
+    } catch (error) {
+      // A trace that could not be written is reported beside the rest, never in place of the
+      // check's own outcome.
+      if (evidence) writeFileSync(join(evidence, "trace-error.txt"), String(error), "utf8");
     }
     results.push(outcome);
     appendUiExtractionLog({
