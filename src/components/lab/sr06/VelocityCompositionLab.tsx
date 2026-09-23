@@ -39,6 +39,13 @@ function Readout({
   );
 }
 
+/** The three arrangements in the reader's words. The mode values stay the model's own ids. */
+const SR06_MODE_LABELS: Readonly<Record<Sr06Mode, string>> = {
+  collinear: "Along one line",
+  angled: "At an angle α",
+  "two-boosts": "Two boosts in turn",
+};
+
 /** The prediction's three options, as [id, words]. The reveal names the reader's choice in words. */
 const SR06_CANDIDATES = [
   ["galilean-sum", "1.2 times light speed"],
@@ -199,16 +206,17 @@ export function VelocityCompositionLab({
               />
             </div>
             <fieldset>
-              <legend>Mode</legend>
+              <legend>How the two motions meet</legend>
               {(["collinear", "angled", "two-boosts"] as const).map((mode) => (
                 <label key={mode}>
                   <input
                     type="radio"
                     name="mode"
+                    value={mode}
                     checked={p.mode === mode}
                     onChange={() => setMode(mode)}
                   />
-                  {mode}
+                  {SR06_MODE_LABELS[mode]}
                 </label>
               ))}
             </fieldset>
