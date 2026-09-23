@@ -46,6 +46,10 @@ export function liveTermsFromRecords(
     if (!rec || typeof rec !== "object") continue;
     const r = rec as Record<string, unknown>;
     if (r.kind !== "equation") continue;
+    // A reading-only equation has no live terms (AGENTS.md scopes this rule to live terms). The
+    // exemption needs BOTH the explicit flag and no bindings: the parser refuses a flagged record
+    // that binds an output, and this condition keeps such a record audited even if it got past.
+    if (r.live === false && Array.isArray(r.bindings) && r.bindings.length === 0) continue;
     if (
       argumentIds.length > 0 &&
       typeof r.argument === "string" &&

@@ -36,6 +36,15 @@ export type EquationRecord = Readonly<{
   bindings: readonly NumericalBinding[];
   sentence: readonly Readonly<{ text: string; nodeId?: string }>[];
   assumptions: readonly string[];
+  /**
+   * `false` declares a READING-ONLY equation: it explains a step of the argument and no laboratory
+   * readout or snapshot value ever reaches it, so it has no live terms and the kernel-binding audit
+   * (src/content/kernel/check.ts) does not ask an instrument's kernel to compute it. Absent means
+   * live, and live records are audited as before: nothing is exempted by default. A reading-only
+   * record may not bind an output (refused below), which is what keeps the flag from becoming an
+   * escape hatch. Orchestrator ruling of 2026-09-23 (dispatch 91).
+   */
+  live?: false;
 }>;
 function fail(path: string, message: string): never {
   throw new ContentError("equation-invalid", path, message);
@@ -48,24 +57,29 @@ function list(x: unknown, path: string): asserts x is unknown[] {
   if (!Array.isArray(x) || x.length > 64) fail(path, "Expected a bounded list.");
 }
 export function parseEquationRecord(input: unknown, path: string): EquationRecord {
-  const o = record(input, path, [
-    "schemaVersion",
-    "kind",
-    "id",
-    "paper",
-    "argument",
-    "title",
-    "spoken",
-    "explanation",
-    "review",
-    "notation",
-    "unitSystem",
-    "tree",
-    "notes",
-    "bindings",
-    "sentence",
-    "assumptions",
-  ]);
+  const o = record(
+    input,
+    path,
+    [
+      "schemaVersion",
+      "kind",
+      "id",
+      "paper",
+      "argument",
+      "title",
+      "spoken",
+      "explanation",
+      "review",
+      "notation",
+      "unitSystem",
+      "tree",
+      "notes",
+      "bindings",
+      "sentence",
+      "assumptions",
+    ],
+    ["live"],
+  );
   const profile = teachingProfile(o.paper);
   if (
     o.schemaVersion !== 1 ||
@@ -129,6 +143,15 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
     if (!c || c.unit !== q.unit || c.semanticKind !== q.semanticKind)
       fail(path, "The output contract does not have this quantity's units and meaning.");
     bindings.add(n.termId);
+  }
+  if (Object.hasOwn(o, "live")) {
+    if (o.live !== false)
+      fail(path, "Only `live: false` may be declared; a live equation omits the field.");
+    if (bindings.size > 0)
+      fail(
+        path,
+        "A reading-only equation (live: false) must not bind a laboratory output: the kernel-binding audit does not check it, so it may never feed a live readout.",
+      );
   }
   list(o.sentence, path);
   if (o.sentence.length === 0) fail(path, "Explain the equation in a sentence.");
