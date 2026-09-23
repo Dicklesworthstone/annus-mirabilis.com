@@ -153,59 +153,50 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
           style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
         >
           <caption style={{ textAlign: "left", fontWeight: "bold", marginBottom: "0.5rem" }}>
-            Thermodynamic partial derivatives and their held-fixed constraints
+            Three derivatives of pressure, and what each holds fixed
           </caption>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--rule)", textAlign: "left" }}>
+              {/* Three columns: "Process" and "Quantity held fixed" said the same thing twice
+                  ("Isothermal", "Temperature T fixed"), and four columns scrolled on a phone. */}
               <th scope="col" style={{ padding: "0.4rem" }}>
-                Process
+                Held fixed
               </th>
               <th scope="col" style={{ padding: "0.4rem" }}>
                 Derivative
               </th>
               <th scope="col" style={{ padding: "0.4rem" }}>
-                Quantity held fixed
-              </th>
-              <th scope="col" style={{ padding: "0.4rem" }}>
-                Physical behavior
+                What happens
               </th>
             </tr>
           </thead>
           <tbody>
             <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-              <td style={{ padding: "0.4rem" }}>
-                <strong>Isothermal</strong>
-              </td>
+              <td style={{ padding: "0.4rem" }}>Temperature T (isothermal)</td>
               <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
                 (∂p / ∂V)<sub>T</sub>
               </td>
-              <td style={{ padding: "0.4rem" }}>Temperature T fixed</td>
               <td style={{ padding: "0.4rem" }}>
-                Heat flows in or out to maintain constant temperature
+                Heat flows in or out to keep the temperature constant.
               </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-              <td style={{ padding: "0.4rem" }}>
-                <strong>Adiabatic</strong>
-              </td>
+              <td style={{ padding: "0.4rem" }}>Entropy S: no heat exchanged (adiabatic)</td>
               <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
                 (∂p / ∂V)<sub>S</sub>
               </td>
-              <td style={{ padding: "0.4rem" }}>Entropy S fixed (no heat exchange)</td>
               <td style={{ padding: "0.4rem" }}>
-                Gas warms upon compression; stiffer response than isothermal
+                The gas warms as it is squeezed, so its pressure climbs faster than at fixed
+                temperature.
               </td>
             </tr>
             <tr style={{ borderBottom: "1px solid var(--rule)" }}>
-              <td style={{ padding: "0.4rem" }}>
-                <strong>Isochoric</strong>
-              </td>
+              <td style={{ padding: "0.4rem" }}>Volume V (isochoric)</td>
               <td style={{ padding: "0.4rem", fontFamily: "var(--font-mono, monospace)" }}>
                 (∂p / ∂T)<sub>V</sub>
               </td>
-              <td style={{ padding: "0.4rem" }}>Volume V fixed</td>
               <td style={{ padding: "0.4rem" }}>
-                Rigid vessel; pressure rises directly with heating
+                In a rigid vessel the pressure rises as the gas is heated.
               </td>
             </tr>
           </tbody>

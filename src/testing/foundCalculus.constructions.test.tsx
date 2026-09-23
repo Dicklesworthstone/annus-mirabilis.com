@@ -113,12 +113,10 @@ test("foundCalculus.constructions: HeldFixedToggle explicitly names held-fixed q
   assert.ok(html.includes("particles / µm⁴"));
 
   // Thermodynamics examples explicitly named
-  assert.ok(html.includes("Isothermal"));
-  assert.ok(html.includes("Temperature T fixed"));
-  assert.ok(html.includes("Adiabatic"));
-  assert.ok(html.includes("Entropy S fixed"));
-  assert.ok(html.includes("Isochoric"));
-  assert.ok(html.includes("Volume V fixed"));
+  // Each row names the process and the quantity it holds fixed, in one cell.
+  assert.ok(html.includes("Temperature T (isothermal)"));
+  assert.ok(html.includes("Entropy S: no heat exchanged (adiabatic)"));
+  assert.ok(html.includes("Volume V (isochoric)"));
 
   // Textual equivalent
   assert.ok(html.includes("What it shows, in words"));
