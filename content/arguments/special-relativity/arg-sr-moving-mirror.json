@@ -42,7 +42,7 @@
       {
         "kind": "foundation",
         "id": "momentum-energy-light",
-        "returnCaption": "Return to can the incident ray reach a receding mirror."
+        "returnCaption": "Return to whether the light can reach a receding mirror."
       }
     ],
     "steps": [

@@ -46,7 +46,7 @@
       {
         "kind": "foundation",
         "id": "partial-derivatives",
-        "returnCaption": "Return to how do the field equations change coordinates."
+        "returnCaption": "Return to how the field equations look in the moving frame."
       }
     ],
     "steps": [

@@ -6,7 +6,7 @@
   "section": "s0",
   "title": "One apparatus, two descriptions",
   "question": "Why should changing the observer change the explanation?",
-  "recap": "A moving conductor in a magnetic field and a moving magnet near a conductor invite different classical explanations. Relativity asks for consistent predictions of the same physical arrangement, not identical numerical field components.",
+  "recap": "Move the magnet past a resting conductor, or the conductor past a resting magnet: the current is the same, yet the physics of 1905 explained the two cases differently. Einstein's paper begins from that asymmetry and asks for one description that depends only on the relative motion.",
   "review": "draft",
   "premises": [
     "Compare inertial descriptions of the same apparatus and events.",
@@ -21,44 +21,44 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "A moving conductor in a magnetic field and a moving magnet near a conductor invite different classical explanations. Relativity asks for consistent predictions of the same physical arrangement, not identical numerical field components."
+        "text": "Move the magnet past a resting conductor, or the conductor past a resting magnet: the current is the same, yet the physics of 1905 explained the two cases differently. Einstein’s paper begins from that asymmetry and asks for one description that depends only on the relative motion."
       }
     ],
     "full": [
       {
         "kind": "paragraph",
-        "text": "In one description, charges move through a magnetic field. In another, the conductor is at rest and an electric field drives them. The apparent explanatory asymmetry motivates the paper; it is not resolved by declaring that electric and magnetic fields have the same values for every observer."
+        "text": "In the usual account of 1905, a magnet moving past a conductor at rest creates an electric field, and that field drives the current. A conductor moving past a magnet at rest meets no electric field at all; the charges moving with it feel a force from the magnetic field instead, and that force drives the current. The two accounts predict the same current for the same relative motion. The paper sets out to remove the asymmetry of the explanation, not to show that the two observers measure the same fields: they do not."
       },
       {
         "kind": "paragraph",
-        "text": "The two postulates state that the laws have the same form in inertial frames and that light propagates in vacuum at a definite speed independent of the source motion. They are the starting point, not consequences of failed ether-drift experiments alone."
+        "text": "Einstein raises two conjectures to the status of postulates. First, the laws of electrodynamics and optics hold in the same form in every frame in which the laws of mechanics hold. Second, light in empty space always travels with a definite speed \\(V\\), whatever the motion of the body that emits it. The paper takes them as its starting point; the unsuccessful attempts to detect motion relative to the ether are cited as what suggests the first, not as a proof of it."
       },
       {
         "kind": "paragraph",
-        "text": "The magnet-and-conductor laboratory compares the descriptions under explicit transformations. At finite relative speed, forces and electromotive quantities must be compared through their transformation laws. The familiar equal-value argument is only a low-speed approximation."
+        "text": "The magnet-and-conductor laboratory compares the two descriptions for the same relative motion. At low speed the electric force in one frame equals the magnetic force in the other; at higher speed they differ by the factor \\(\\gamma\\) derived in §6, which is how a force across the motion changes between frames."
       },
       {
         "kind": "foundation",
         "id": "electromagnetism-charges",
-        "returnCaption": "Return to why should changing the observer change the explanation."
+        "returnCaption": "Return to why changing the observer should change the explanation."
       }
     ],
     "steps": [
       {
         "kind": "steps",
         "items": [
-          "Identify the conductor, magnet, charges, and the observer.",
-          "Describe the same interaction in the other inertial frame.",
-          "Record which quantities change under that change of description.",
-          "State the two postulates before using them.",
-          "Return to §6 to see electric and magnetic components transform together."
+          "Name the pieces: the conductor, the magnet, the charges in the conductor, and the observer who describes them.",
+          "Describe the arrangement from the magnet’s frame: the conductor moves, and a magnetic force drives its charges.",
+          "Describe it from the conductor’s frame: the magnet moves, and an electric field drives the same charges.",
+          "Note what differs between the two descriptions, which field is present, and what does not, the current.",
+          "State the two postulates before using them, and look ahead to §6, where electric and magnetic components turn into each other."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "This is a modern explanatory reconstruction. It neither quotes the opening paragraphs as a translation nor turns the absence of detected ether drift into a deductive proof of the postulates."
+        "text": "This page reconstructs the argument in modern words; it is not a translation of the paper’s opening. Whether the Michelson–Morley experiment shaped Einstein’s own route is a historical question with its own evidence; the paper itself cites only the unsuccessful attempts to detect the earth’s motion through the ether."
       }
     ]
   },

@@ -6,7 +6,7 @@
   "section": "s1",
   "title": "Time at a distant clock is an operation",
   "question": "How can clocks at different places share a time coordinate?",
-  "recap": "Exchange a light signal, assign the distant reflection the midpoint of the departure and return times, and state the equal-travel-time convention. The event time is not the time its image reaches an observer.",
+  "recap": "To set a distant clock, send light to it and back, and give the moment of reflection the time halfway between sending and receiving. That rule defines the time of a distant event; it is not the moment its image arrives.",
   "review": "draft",
   "premises": [
     "The clocks and endpoints are at rest in one inertial frame.",
@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Exchange a light signal, assign the distant reflection the midpoint of the departure and return times, and state the equal-travel-time convention. The event time is not the time its image reaches an observer."
+        "text": "To set a distant clock, send light to it and back, and give the moment of reflection the time halfway between sending and receiving. That rule defines the time of a distant event; it is not the moment its image arrives."
       }
     ],
     "full": [
@@ -39,34 +39,34 @@
       },
       {
         "kind": "paragraph",
-        "text": "If A sends at time 0 and receives the reflected signal at time 10, the convention assigns time 5 at the reflection event at B. A later reception of a photograph of B is another event, not a replacement for that time assignment."
+        "text": "If clock A sends a flash at time 0 and the reflection comes back at time 10, the rule says the flash reached B at time 5. Seeing B later, when its light arrives, is a separate event and does not change that assignment."
       },
       {
         "kind": "paragraph",
-        "text": "The clock-synchronization laboratory retains departure, reflection, reception, and clock-reading records separately. The equal-time rule defines a coordinate procedure in the chosen rest frame."
+        "text": "The rule assumes light takes as long to go as to come back, and Einstein states that as a definition rather than a measurement. It sets clocks within one frame; §2 shows that clocks in another frame, set by the same rule, disagree about which distant events happen at the same time. The clock-synchronization laboratory keeps departure, reflection, return and each clock reading as separate records."
       },
       {
         "kind": "foundation",
         "id": "frames-events",
-        "returnCaption": "Return to how can clocks at different places share a time coordinate."
+        "returnCaption": "Return to how clocks in different places can share a time."
       }
     ],
     "steps": [
       {
         "kind": "steps",
         "items": [
-          "Record departure and return on the same clock at A.",
-          "Identify the intervening reflection event at B.",
-          "Assign its clock reading the arithmetic midpoint.",
-          "Check the assigned outward and return intervals.",
-          "Keep the time of a remote event separate from reception of its signal."
+          "Read departure and return on the same clock at A.",
+          "Name the event in between: the reflection at B.",
+          "Give B’s clock, at that event, the time halfway between departure and return.",
+          "Check the rule: the time out equals the time back.",
+          "Keep the time of a distant event apart from the moment its light reaches you."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "Einstein’s synchronization rule is operational and conventional in its equal-one-way-time assignment. It is not an assertion that every frame shares the resulting distant simultaneity."
+        "text": "Philosophers since Reichenbach (1928) have debated how much of the equal-travel-time rule is a convention rather than a fact; Einstein calls it a definition. Either way, simultaneity set this way belongs to one frame, which is the point of §2."
       }
     ]
   },

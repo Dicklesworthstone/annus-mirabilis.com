@@ -6,7 +6,7 @@
   "section": "s5",
   "title": "The denominator changes as well",
   "question": "Why do two ordinary-looking speeds not simply add?",
-  "recap": "Velocity is a ratio of a spatial difference to a time difference. Transform both differences before dividing, and light speed stays c while collinear subluminal speeds compose below c.",
+  "recap": "A velocity is a distance divided by a time, and both change between frames. Transform both before dividing, and two speeds below c combine to a speed that is still below c, while light stays at c.",
   "review": "draft",
   "premises": [
     "Use the same two neighboring events on a particle’s trajectory.",
@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Velocity is a ratio of a spatial difference to a time difference. Transform both differences before dividing, and light speed stays c while collinear subluminal speeds compose below c."
+        "text": "A velocity is a distance divided by a time, and both change between frames. Transform both before dividing, and two speeds below \\(c\\) combine to a speed that is still below \\(c\\), while light stays at \\(c\\)."
       }
     ],
     "full": [
@@ -33,35 +33,35 @@
       },
       {
         "kind": "paragraph",
-        "text": "To describe an object moving at \\(w\\) along the moving frame’s positive axis in the original frame, use the inverse relation \\(U = (v + w)/(1 + vw/c^2)\\). With \\(v = w = 0.6c\\), \\(U\\) is \\(15c/17\\), about \\(0.88235c\\), not \\(1.2c\\)."
+        "text": "An object moving at \\(w\\) in the moving frame, in the same direction, moves in the original frame at \\(U = (v + w)/(1 + vw/c^2)\\). With \\(v = w = 0.6c\\), \\(U = 15c/17\\), about \\(0.882c\\), not the \\(1.2c\\) that plain addition would give."
       },
       {
         "kind": "paragraph",
-        "text": "For a right-moving light ray \\(u_x = c\\), the passive transformation also gives \\(c\\). The velocity-composition laboratory shows the difference from Galilean addition without clamping a superluminal arithmetic result."
+        "text": "Put light in, \\(u_x = c\\), and the formula returns \\(c\\) in every frame, as the second postulate requires. The velocity-composition laboratory shows the relativistic and the Galilean sums side by side, and prints the Galilean one even when it exceeds \\(c\\)."
       },
       {
         "kind": "foundation",
         "id": "derivatives",
-        "returnCaption": "Return to why do two ordinary-looking speeds not simply add."
+        "returnCaption": "Return to why two ordinary speeds do not simply add."
       }
     ],
     "steps": [
       {
         "kind": "steps",
         "items": [
-          "Differentiate \\(x' = \\gamma(x - vt)\\) along the trajectory.",
-          "Differentiate \\(t' = \\gamma(t - vx/c^2)\\) along that same trajectory.",
-          "Divide \\(dx'\\) by \\(dt'\\) only after both have been transformed.",
-          "For transverse motion use \\(dy' = dy\\) but retain the transformed time denominator.",
-          "Use the inverse relation for the plus-sign composition of two forward speeds.",
-          "Distinguish aligned composition from the general non-collinear case."
+          "Take the change of \\(x' = \\gamma(x - vt)\\) along the object’s path: \\(dx' = \\gamma(dx - v\\,dt)\\).",
+          "Take the change of \\(t' = \\gamma(t - vx/c^2)\\) along the same path: \\(dt' = \\gamma(dt - v\\,dx/c^2)\\).",
+          "Divide only now: \\(u'_x = dx'/dt' = (u_x - v)/(1 - vu_x/c^2)\\).",
+          "Across the motion \\(dy' = dy\\), but the time still changes, so \\(u'_y = u_y/(\\gamma(1 - vu_x/c^2))\\).",
+          "For two speeds in the same direction, use the inverse, with plus signs: \\(U = (v + w)/(1 + vw/c^2)\\).",
+          "Speeds in different directions combine by the general formula, not this aligned one."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "Rapidity and matrix composition are optional modern aids. They must not be treated as additional 1904 premises, nor should the group property erase the rotation associated with non-collinear boosts."
+        "text": "Modern texts often use rapidities, which simply add for boosts along one line, or multiply matrices. Both are later aids, not premises of the 1905 argument, and neither should hide that two boosts in different directions combine into a boost and a rotation, the Thomas–Wigner rotation."
       }
     ]
   },

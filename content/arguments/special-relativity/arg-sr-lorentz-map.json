@@ -6,7 +6,7 @@
   "section": "s3",
   "title": "Light constraints leave a scale to determine",
   "question": "What map can respect both light directions?",
-  "recap": "Linearity and the two light directions constrain space and time to mix. Reciprocity and spatial symmetry then fix a remaining scale, with the positive choice connected to the identity.",
+  "recap": "Ask for a linear map that keeps light at speed c in both directions along the motion, and space and time must mix. One overall factor is left over; going there and back, and the symmetry of space, fix it at gamma.",
   "review": "draft",
   "premises": [
     "Use aligned inertial axes and coincident origins at zero time.",
@@ -22,7 +22,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Linearity and the two light directions constrain space and time to mix. Reciprocity and spatial symmetry then fix a remaining scale, with the positive choice connected to the identity."
+        "text": "Ask for a linear map that keeps light at speed \\(c\\) in both directions along the motion, and space and time must mix. One overall factor is left over; going there and back, and the symmetry of space, fix it at \\(\\gamma\\)."
       }
     ],
     "full": [
@@ -38,7 +38,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Applying the inverse with speed \\(-v\\) gives \\(a(v)\\,a(-v)\\,(1 - v^2/c^2) = 1\\). Isotropy identifies \\(a(v)\\) with \\(a(-v)\\). Continuity from \\(a(0) = 1\\) selects the positive square root."
+        "text": "Going to the moving frame and back, with speed \\(v\\) and then \\(-v\\), must return every event unchanged, which gives \\(a(v)\\,a(-v)\\,(1 - v^2/c^2) = 1\\). Space has no preferred direction, so \\(a(v) = a(-v)\\), and since \\(a(0) = 1\\) the positive root is the one: \\(a(v) = \\gamma\\)."
       },
       {
         "kind": "formula",
@@ -53,26 +53,26 @@
       {
         "kind": "foundation",
         "id": "frames-events",
-        "returnCaption": "Return to what map can respect both light directions."
+        "returnCaption": "Return to finding the map that respects both light directions."
       }
     ],
     "steps": [
       {
         "kind": "steps",
         "items": [
-          "Use the moving origin to determine the combination x − vt.",
-          "Substitute both right-moving and left-moving light paths into the linear time map.",
-          "Solve the resulting coefficient constraints without setting the scale by hand.",
-          "Compose with the inverse transformation.",
-          "Use isotropy to equate the positive-speed and negative-speed scales.",
-          "Choose the identity-connected positive solution, requiring |v| less than c."
+          "The moving origin sits at \\(x = vt\\), so \\(x'\\) must be a multiple of \\(x - vt\\): write \\(x' = a(v)(x - vt)\\).",
+          "Write the time map as a linear combination too, and require light going right, \\(x = ct\\), to have \\(x' = ct'\\), and light going left, \\(x = -ct\\), to have \\(x' = -ct'\\).",
+          "Solve those two conditions: they force \\(t' = a(v)(t - vx/c^2)\\) and leave the factor \\(a(v)\\) open.",
+          "Transform to the moving frame and back; the result must be the identity, so \\(a(v)\\,a(-v)\\,(1 - v^2/c^2) = 1\\).",
+          "Use the symmetry of space, \\(a(v) = a(-v)\\), so \\(a(v)^2 = 1/(1 - v^2/c^2)\\).",
+          "Take the positive root, since \\(a(0) = 1\\): \\(a(v) = \\gamma\\), which is real only for \\(|v| < c\\)."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "This compact two-light-direction derivation is an editorial reconstruction, not the source’s word-for-word synchronization derivation. Einstein’s printed \\(\\beta\\) is the modern \\(\\gamma\\) used here; his moving-system time \\(\\tau\\) is not automatically proper time."
+        "text": "Einstein’s own §3 derivation follows a light signal out and back between clocks and solves a differential equation for the moving system’s time \\(\\tau\\); the two-direction argument here is a shorter modern route to the same map. His \\(\\beta\\) is the modern \\(\\gamma\\), and his \\(\\tau\\) is a coordinate time, not the proper time of modern texts."
       }
     ]
   },

@@ -6,7 +6,7 @@
   "section": "s2",
   "title": "A length is a specified pair of events",
   "question": "Which endpoint measurements define a moving rod’s length?",
-  "recap": "A moving rod’s length uses endpoint positions measured at the same time in the measuring frame. Transforming a pair simultaneous in another frame usually does not produce that measurement.",
+  "recap": "To measure a moving rod, mark both of its ends at the same time in your own frame. Two marks that are simultaneous in another frame are made at different times in yours, so they do not measure the rod.",
   "review": "draft",
   "premises": [
     "The rod moves inertially along the boost axis with a fixed rest length.",
@@ -21,17 +21,17 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "A moving rod’s length uses endpoint positions measured at the same time in the measuring frame. Transforming a pair simultaneous in another frame usually does not produce that measurement."
+        "text": "To measure a moving rod, mark both of its ends at the same time in your own frame. Two marks that are simultaneous in another frame are made at different times in yours, so they do not measure the rod."
       }
     ],
     "full": [
       {
         "kind": "paragraph",
-        "text": "A ruler traveling with the rod measures its rest length. An observer past whom it moves must record both endpoint positions simultaneously in that observer’s frame. Using one endpoint now and the other later includes part of the rod’s motion."
+        "text": "A ruler travelling with the rod gives its rest length. An observer the rod moves past has to note where both ends are at the same moment of that observer’s time; marking one end now and the other a little later adds the distance the rod moved in between."
       },
       {
         "kind": "paragraph",
-        "text": "For the standard frame change, two event differences obey the same Lorentz map as coordinates. A pair with \\(\\Delta t = 0\\) and nonzero \\(\\Delta x\\) generally has nonzero \\(\\Delta t'\\)."
+        "text": "Differences between two events transform by the same map as the events themselves. So a pair with \\(\\Delta t = 0\\) and \\(\\Delta x \\ne 0\\) has \\(\\Delta t' = -\\gamma v\\,\\Delta x/c^2\\), which is not zero for any \\(v \\ne 0\\): what one frame calls simultaneous, the other does not."
       },
       {
         "kind": "formula",
@@ -41,30 +41,30 @@
       },
       {
         "kind": "paragraph",
-        "text": "In the simultaneity laboratory, select a simultaneous slice and inspect the endpoint event identities. A larger transformed separation from an unsuitable pair does not mean the moving rod has become longer."
+        "text": "In the simultaneity laboratory you pick the two end events yourself and see which frame calls them simultaneous. A pair chosen in the wrong frame gives a larger separation, and that does not mean the rod got longer."
       },
       {
         "kind": "foundation",
         "id": "frames-events",
-        "returnCaption": "Return to which endpoint measurements define a moving rod’s length."
+        "returnCaption": "Return to which end marks measure a moving rod."
       }
     ],
     "steps": [
       {
         "kind": "steps",
         "items": [
-          "Choose the frame in which the length is to be measured.",
-          "Choose the same coordinate time for its two endpoint events.",
+          "Choose the frame in which you measure the length.",
+          "Take the two end events at the same time in that frame.",
           "Subtract their positions in that frame.",
-          "When changing frame, transform the event times as well as positions.",
-          "Select a new simultaneous pair in the other frame before calling a separation its measured length."
+          "When you change frame, transform the events’ times as well as their positions.",
+          "In the new frame, choose a new pair of simultaneous end events before calling their separation the rod’s length."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The map used to explain this difference is derived in §3. Its preview here anticipates that result rather than claiming a derivation from the §2 measurement description alone."
+        "text": "Einstein’s §2 argues with light signals and clocks and reaches the relativity of simultaneity without the transformation, which he derives only in §3. The formula here borrows §3’s result to put a number on it."
       }
     ]
   },

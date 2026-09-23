@@ -6,7 +6,7 @@
   "section": "s4",
   "title": "A reunion compares whole paths",
   "question": "Can reciprocal rate descriptions settle a reunion?",
-  "recap": "Reunited clocks compare elapsed times along different paths between shared meetings. Flat-spacetime path accounting does not predict a real equator-versus-pole clock comparison by itself.",
+  "recap": "Two clocks that part and meet again can be compared directly, and the one that travelled shows less elapsed time. That comparison adds up each clock's whole path. Einstein's remark about a clock at the equator needs more than this model, because a real Earth has gravity.",
   "review": "draft",
   "premises": [
     "Use ideal clocks following specified subluminal paths in flat spacetime.",
@@ -21,7 +21,7 @@
     "overview": [
       {
         "kind": "paragraph",
-        "text": "Reunited clocks compare elapsed times along different paths between shared meetings. Flat-spacetime path accounting does not predict a real equator-versus-pole clock comparison by itself."
+        "text": "Two clocks that part and meet again can be compared directly, and the one that travelled shows less elapsed time. That comparison adds up each clock’s whole path. Einstein’s remark about a clock at the equator needs more than this model, because a real Earth has gravity."
       }
     ],
     "full": [
@@ -33,35 +33,35 @@
       },
       {
         "kind": "paragraph",
-        "text": "For two idealized inertial legs at speed magnitude 0.6c lasting a total of 10 coordinate seconds, the traveling clock accumulates 8 seconds when the turnaround duration is neglected. A clock remaining at rest accumulates 10. Each piece and its common endpoints must be specified."
+        "text": "Send one clock out at \\(0.6c\\) and back at the same speed, 10 seconds in all by the clocks at rest, and ignore the turnaround. The travelling clock records 8 seconds and the clock that stayed records 10. To get those numbers you have to name each leg and the two meetings."
       },
       {
         "kind": "paragraph",
-        "text": "The moving-clock laboratory distinguishes a transported-clock comparison from a statement about reciprocal rates between separated inertial clocks. The equator remark has a different boundary: a real rotating Earth includes gravity and is not decided by the flat-spacetime model alone."
+        "text": "Each of two clocks in steady relative motion finds the other running slow, and there is no contradiction until they meet again; the reunion is decided by the two paths. Einstein’s §4 remark that a clock at the equator should run slower than one at a pole is a different case: on the real rotating Earth gravity enters, and this flat-spacetime model does not decide it. The moving-clock laboratory keeps the two kinds of comparison apart."
       },
       {
         "kind": "foundation",
         "id": "integration",
-        "returnCaption": "Return to can reciprocal rate descriptions settle a reunion."
+        "returnCaption": "Return to whether each clock seeing the other run slow can settle a reunion."
       }
     ],
     "steps": [
       {
         "kind": "steps",
         "items": [
-          "Fix the meetings being compared.",
-          "Specify each clock’s entire path between them.",
-          "Integrate the ideal elapsed-time law along each path.",
-          "For constant-speed legs, multiply each coordinate duration by the appropriate inverse \\(\\gamma\\).",
-          "Do not substitute a one-way visual delay for elapsed proper time.",
-          "Leave an Earth comparison outside the model when gravitational inputs are absent."
+          "Name the two meetings you compare between.",
+          "Give each clock’s whole path between those meetings.",
+          "Add up each clock’s elapsed time along its path, using \\(\\Delta\\tau = \\int \\sqrt{1 - u^2/c^2}\\,dt\\).",
+          "For a leg at constant speed, that is the leg’s duration in the resting frame multiplied by \\(1/\\gamma\\).",
+          "Do not use the delay of light reaching you in place of a clock’s elapsed time.",
+          "Leave a comparison on the real Earth outside this model: it needs gravity."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The proper-time integral is modern explanatory notation. The source’s equator remark is preserved for the historical edition rather than silently “corrected”; the present laboratory explicitly refuses a special-relativity-only Earth prediction."
+        "text": "The integral is modern notation; Einstein reasons with a clock carried around a closed curve and states the result to second order. His equator remark stays as he printed it rather than being quietly corrected, and the laboratory declines to make an Earth prediction from special relativity alone."
       }
     ]
   },

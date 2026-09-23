@@ -50,7 +50,7 @@
       {
         "kind": "foundation",
         "id": "integration",
-        "returnCaption": "Return to why does a finite light complex need a volume calculation."
+        "returnCaption": "Return to why a light complex needs its volume."
       }
     ],
     "steps": [
