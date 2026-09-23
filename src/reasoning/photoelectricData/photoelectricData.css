@@ -77,12 +77,11 @@
   fill: currentColor;
 }
 /* The plot is 720 units wide and a phone draws it about 350px wide, so 13 units read at 6.6px there;
-   26 units read at about 13px. The selector names svg[role="img"] because the site-wide
-   `svg[role="img"] text` rule outranks `.photo-data-plot text`, which is why that rule never
-   applied. */
+   26 units read at about 13px. The labels read this size inline (PhotoelectricPlots.tsx), because
+   the site-wide `svg[role="img"] text` rule outranks `.photo-data-plot text` above. */
 @media (max-width: 40rem) {
-  .photo-data-plot svg[role="img"] text {
-    font-size: 26px;
+  .photo-data-plot svg {
+    --photo-label: 26px;
   }
 }
 .photo-data-axis-title {

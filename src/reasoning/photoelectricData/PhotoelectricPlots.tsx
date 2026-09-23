@@ -5,6 +5,10 @@ function number(value: number): string {
   return Number(value.toPrecision(5)).toString();
 }
 /** Only projects the owner's accepted observations and predictions into SVG coordinates. */
+// Set on each label: the site-wide `svg[role="img"] text` rule sets a size on every chart label and
+// outranks a class rule. --photo-label is raised on a phone in photoelectricData.css.
+const labelStyle = { fontSize: "var(--photo-label, 13px)" } as const;
+
 export function PhotoelectricPlots({ state }: { state: AcceptedAnalysis }) {
   const id = useId();
   const result = state.fit;
@@ -78,15 +82,16 @@ export function PhotoelectricPlots({ state }: { state: AcceptedAnalysis }) {
                 x={140 + t * 510}
                 y="239"
                 textAnchor={t === 0 ? "start" : t === 1 ? "end" : "middle"}
+                style={labelStyle}
               >
                 {number(originX + t * spanX)}
               </text>
-              <text x="132" y={219 - t * 180} textAnchor="end">
+              <text x="132" y={219 - t * 180} textAnchor="end" style={labelStyle}>
                 {number(lowY + t * (highY - lowY))}
               </text>
             </g>
           ))}
-          <text x="400" y="266" textAnchor="middle">
+          <text x="400" y="266" textAnchor="middle" style={labelStyle}>
             Frequency (THz)
           </text>
           {residual ? (
