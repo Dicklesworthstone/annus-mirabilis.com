@@ -1,26 +1,122 @@
-.photoelectric-data-workbench { max-width: 72rem; margin: 2rem auto; }
-.photoelectric-data-workbench fieldset { min-width: 0; margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--rule); }
-.photoelectric-data-workbench legend { padding: 0 .35rem; font-weight: 700; }
-.photoelectric-data-workbench label { display: block; margin-top: 1rem; font-weight: 600; }
-.photoelectric-data-workbench input:not([type=checkbox]),
+.photoelectric-data-workbench {
+  max-width: 72rem;
+  margin: 2rem auto;
+}
+.photoelectric-data-workbench fieldset {
+  min-width: 0;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid var(--rule);
+}
+.photoelectric-data-workbench legend {
+  padding: 0 0.35rem;
+  font-weight: 700;
+}
+.photoelectric-data-workbench label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+.photoelectric-data-workbench input:not([type="checkbox"]),
 .photoelectric-data-workbench textarea,
-.photoelectric-data-workbench select { display: block; box-sizing: border-box; max-width: 100%; width: 100%; margin: .4rem 0; padding: .6rem; color: var(--ink); background: var(--paper); border: 1px solid var(--muted); font: inherit; }
-.photoelectric-data-workbench textarea { font-family: var(--font-mono); font-size: var(--type-small); }
-.photoelectric-data-workbench button { min-height: 44px; white-space: normal; }
-.photoelectric-data-workbench input[type=checkbox] { min-width: 24px; min-height: 24px; }
-.photoelectric-data-workbench .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0; }
-.photo-data-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 1rem; }
-.photo-data-quantity { border-top: 1px solid var(--rule); padding-top: .5rem; overflow-wrap: anywhere; }
-.photo-data-quantity h4 { font-size: var(--type-small); }
-.photo-data-plot { margin: 2rem 0; }
-.photo-data-plot svg { display: block; width: 100%; height: auto; color: var(--ink); }
-.photo-data-plot text { font: 13px var(--font-sans); fill: currentColor; }
-.photo-data-plot figcaption { font-size: var(--type-fine); color: var(--muted); }
+.photoelectric-data-workbench select {
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+  margin: 0.4rem 0;
+  padding: 0.6rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--muted);
+  font: inherit;
+}
+.photoelectric-data-workbench textarea {
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+}
+.photoelectric-data-workbench button {
+  min-height: 44px;
+  white-space: normal;
+}
+.photoelectric-data-workbench input[type="checkbox"] {
+  min-width: 24px;
+  min-height: 24px;
+}
+.photoelectric-data-workbench .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+.photo-data-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: 1rem;
+}
+.photo-data-quantity {
+  border-top: 1px solid var(--rule);
+  padding-top: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.photo-data-quantity h4 {
+  font-size: var(--type-small);
+}
+.photo-data-plot {
+  margin: 2rem 0;
+}
+.photo-data-plot svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--ink);
+}
+.photo-data-plot text {
+  font: 13px var(--font-sans);
+  fill: currentColor;
+}
+.photo-data-plot figcaption {
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
 /* The calibrated-offset fields appear only for a known offset; set them under the choice that opened them. */
-.photo-data-calibration { border-inline-start: 2px solid var(--rule); padding-inline-start: 1rem; margin-block-start: 0.5rem; }
-.photo-data-table { overflow-x: auto; max-width: 100%; }
-.photo-data-table table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.photo-data-table th, .photo-data-table td { padding: .6rem; border-bottom: 1px solid var(--rule); text-align: right; white-space: nowrap; }
-.photo-data-table caption { text-align: left; white-space: normal; padding-bottom: .6rem; }
-.photoelectric-data-workbench :focus-visible { outline: 2px solid var(--focus-ring, var(--ink)); outline-offset: 3px; }
-@media print { .photoelectric-data-workbench > form, .photoelectric-data-workbench button, .photoelectric-data-workbench input[type=checkbox] { display: none; } .photo-data-table { overflow: visible; } }
+.photo-data-calibration {
+  border-inline-start: 2px solid var(--rule);
+  padding-inline-start: 1rem;
+  margin-block-start: 0.5rem;
+}
+.photo-data-table {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.photo-data-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.photo-data-table th,
+.photo-data-table td {
+  padding: 0.6rem;
+  border-bottom: 1px solid var(--rule);
+  text-align: right;
+  white-space: nowrap;
+}
+.photo-data-table caption {
+  text-align: left;
+  white-space: normal;
+  padding-bottom: 0.6rem;
+}
+.photoelectric-data-workbench :focus-visible {
+  outline: 2px solid var(--focus-ring, var(--ink));
+  outline-offset: 3px;
+}
+@media print {
+  .photoelectric-data-workbench > form,
+  .photoelectric-data-workbench button,
+  .photoelectric-data-workbench input[type="checkbox"] {
+    display: none;
+  }
+  .photo-data-table {
+    overflow: visible;
+  }
+}

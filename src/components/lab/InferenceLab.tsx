@@ -224,8 +224,8 @@ export function InferenceLab({
                 The synthetic set checks inference machinery on data made with a hidden number. It
                 is not evidence that molecules exist. Perrin 1909 waits on the admitted
                 HistoricalDataset; this instrument will not invent table numbers. Kitchen CSV is
-                analyzed by the existing kitchen session; this laboratory consumes that session and does not
-                re-parse video.
+                analyzed by the existing kitchen session; this laboratory consumes that session and
+                does not re-parse video.
               </p>
             </fieldset>
             <fieldset disabled={!ready}>
@@ -754,9 +754,9 @@ export function InferenceLab({
       </section>
       <p className="not-modeled">
         Not modeled: localization error, blur, correlated or irregularly timed increments, and
-        censoring (see the camera laboratory and kitchen mode); non-Gaussian increments; time-varying drift;
-        polydispersity within one track set; wall effects; uncertainty in C without declared
-        coverages; uncertainty in the gas constant itself.
+        censoring (see the camera laboratory and kitchen mode); non-Gaussian increments;
+        time-varying drift; polydispersity within one track set; wall effects; uncertainty in C
+        without declared coverages; uncertainty in the gas constant itself.
       </p>
       <details className="inference-provenance">
         <summary>Accepted calculation identity and limits</summary>

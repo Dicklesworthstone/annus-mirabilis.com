@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
+import { labName } from "../../reader/actions/labNames.ts";
 import { CATALOGUE_QUESTIONS, CATALOGUE_STATUS, resolveCatalogueAddress } from "../catalogue.ts";
 import { assertOwnerBinding } from "../owners.ts";
-import { labName } from "../../reader/actions/labNames.ts";
-import { SHELF_IDS, SHELF_DEFINITIONS } from "./definition.ts";
+import { SHELF_DEFINITIONS, SHELF_IDS } from "./definition.ts";
 
 for (const id of SHELF_IDS) {
   test(`${id}: registered reference owner, question and accessible link name agree`, () => {
@@ -32,6 +32,6 @@ for (const id of SHELF_IDS) {
 
 test("the instruments index gives optical comparisons their own argument grouping", () => {
   const code = readFileSync(new URL("../../app/instruments/page.tsx", import.meta.url), "utf8");
-  assert.match(code, /^    prefix: "shelf-",$/m);
+  assert.match(code, /^ {4}prefix: "shelf-",$/m);
   assert.match(code, /reviewed historical datasets and strict 1904 modes remain in preparation/);
 });

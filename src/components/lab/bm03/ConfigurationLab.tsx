@@ -384,10 +384,17 @@ export function ConfigurationLab({
                 Step {currentStepIdx + 1} of {STEPS.length}
               </strong>
             </p>
-            <div
-              role="group"
+            <fieldset
               aria-label="Go to a step of the derivation"
-              style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", margin: "0.5rem 0" }}
+              style={{
+                display: "flex",
+                gap: "0.5rem",
+                flexWrap: "wrap",
+                margin: "0.5rem 0",
+                padding: 0,
+                border: 0,
+                minInlineSize: 0,
+              }}
             >
               {STEPS.map((s) => (
                 <button
@@ -400,7 +407,7 @@ export function ConfigurationLab({
                   {s.label}
                 </button>
               ))}
-            </div>
+            </fieldset>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
               <button
                 type="button"

@@ -14,8 +14,19 @@ export function GuidedTourTrail({ compact = false }: { compact?: boolean }) {
     return null;
   }
   return (
-    <Suspense fallback={<p className="guided-tour-loading"><a href="/tours/">Open guided reading outlines</a></p>}>
-      <ActiveTourGuide key={`${pathname}?${query}`} pathname={pathname} search={query.toString()} compact={compact} />
+    <Suspense
+      fallback={
+        <p className="guided-tour-loading">
+          <a href="/tours/">Open guided reading outlines</a>
+        </p>
+      }
+    >
+      <ActiveTourGuide
+        key={`${pathname}?${query}`}
+        pathname={pathname}
+        search={query.toString()}
+        compact={compact}
+      />
     </Suspense>
   );
 }

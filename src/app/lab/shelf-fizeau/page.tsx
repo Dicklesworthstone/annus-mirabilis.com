@@ -3,7 +3,8 @@ import { ShelfOpticsPage } from "../../../components/lab/shelfOptics/ShelfOptics
 
 export const metadata: Metadata = {
   title: "Fizeau: compare moving-water drag hypotheses",
-  description: "An interactive reference-model comparison with explicit assumptions, modern calibration and no invented historical measurements.",
+  description:
+    "An interactive reference-model comparison with explicit assumptions, modern calibration and no invented historical measurements.",
   robots: { index: false },
 };
 

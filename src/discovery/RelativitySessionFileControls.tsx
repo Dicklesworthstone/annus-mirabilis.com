@@ -3,6 +3,10 @@
 import { useEffect, useId, useRef, useState } from "react";
 import "./relativitySessionFiles.css";
 import {
+  createRelativityImportReader,
+  prepareRelativityDownload,
+} from "./relativitySessionTransfer.ts";
+import {
   assessRelativity,
   RELATIVITY_OUTCOMES,
   relativityMeasurement,
@@ -13,10 +17,6 @@ import {
   type RelativitySession,
   type SessionDecode,
 } from "./specialRelativitySession.ts";
-import {
-  createRelativityImportReader,
-  prepareRelativityDownload,
-} from "./relativitySessionTransfer.ts";
 
 /** Session files are an explicit local operation, not a new account or storage backend.
  * Parsing and request arbitration belong to the tested transfer/codec owners.
@@ -47,6 +47,7 @@ export function RelativitySessionFileControls({
   const preview = pending?.original === session ? pending.imported : null;
   const exportText = exported?.original === session ? exported.text : null;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a new session is the trigger; its identity resets the preview, the export and the notice
   useEffect(() => {
     reader.invalidate();
     setPending(null);
@@ -63,7 +64,9 @@ export function RelativitySessionFileControls({
       return;
     }
     setPending({ imported: result.session, original: session });
-    setNotice("Valid session file. Review the replacement below; your current session has not changed.");
+    setNotice(
+      "Valid session file. Review the replacement below; your current session has not changed.",
+    );
   }
 
   async function readFile(file: File | undefined) {
@@ -90,9 +93,13 @@ export function RelativitySessionFileControls({
           link.remove();
         }
       }
-      setNotice("Prepared a PRIVATE session including your note and predictions. Nothing was uploaded. The JSON below can also be copied.");
+      setNotice(
+        "Prepared a PRIVATE session including your note and predictions. Nothing was uploaded. The JSON below can also be copied.",
+      );
     } catch {
-      setNotice("The download could not be started. Your session is unchanged; copy the prepared JSON below when available.");
+      setNotice(
+        "The download could not be started. Your session is unchanged; copy the prepared JSON below when available.",
+      );
     } finally {
       if (objectUrl) {
         const issued = objectUrl;
@@ -125,21 +132,29 @@ export function RelativitySessionFileControls({
 
   return (
     <section aria-labelledby={`${instance}-title`} data-sr-session-files>
-      <h3 id={`${instance}-title`} tabIndex={-1} ref={title}>Save and reopen a private investigation</h3>
+      <h3 id={`${instance}-title`} tabIndex={-1} ref={title}>
+        Save and reopen a private investigation
+      </h3>
       <p>
         A private file keeps the card order, selected example, every recorded prediction and your
-        note. Public links exclude the note and predictions. Export before leaving this page;
-        no automatic storage or upload is used.
+        note. Public links exclude the note and predictions. Export before leaving this page; no
+        automatic storage or upload is used.
       </p>
       <fieldset disabled={disabled}>
         <legend>Export the current session</legend>
         <div className="actions">
-          <button type="button" onClick={() => exportSession(true)}>Download private session JSON</button>
-          <button type="button" onClick={() => exportSession(false)}>Show copyable private JSON</button>
+          <button type="button" onClick={() => exportSession(true)}>
+            Download private session JSON
+          </button>
+          <button type="button" onClick={() => exportSession(false)}>
+            Show copyable private JSON
+          </button>
         </div>
         {exportText !== null && (
           <div>
-            <label htmlFor={`${instance}-export`}>Private JSON — includes your note and predictions</label>
+            <label htmlFor={`${instance}-export`}>
+              Private JSON — includes your note and predictions
+            </label>
             <textarea
               id={`${instance}-export`}
               rows={8}
@@ -153,9 +168,9 @@ export function RelativitySessionFileControls({
       <details>
         <summary>Import a saved session from this device</summary>
         <p>
-          Validation does not change your work. Review the imported note before explicitly
-          replacing the current session. Unknown versions, malformed records and oversized files
-          are rejected rather than repaired into apparently valid arguments.
+          Validation does not change your work. Review the imported note before explicitly replacing
+          the current session. Unknown versions, malformed records and oversized files are rejected
+          rather than repaired into apparently valid arguments.
         </p>
         <fieldset disabled={disabled}>
           <legend>Read and validate a private session</legend>
@@ -184,25 +199,42 @@ export function RelativitySessionFileControls({
             }}
           />
           <div className="actions">
-            <button type="button" onClick={validatePaste}>Validate pasted JSON without replacing my session</button>
-            <button type="button" onClick={cancelImport}>Cancel import</button>
+            <button type="button" onClick={validatePaste}>
+              Validate pasted JSON without replacing my session
+            </button>
+            <button type="button" onClick={cancelImport}>
+              Cancel import
+            </button>
           </div>
           {preview && (
-            <section className="notice" data-sr-import-preview aria-label="Import replacement preview">
+            <section
+              className="notice"
+              data-sr-import-preview
+              aria-label="Import replacement preview"
+            >
               <p>
-                Replacement: {preview.order.length} cards; {relativityMeasurement(preview.measurement).title};
-                {" "}{Object.keys(preview.predictions).length} recorded predictions.
+                Replacement: {preview.order.length} cards;{" "}
+                {relativityMeasurement(preview.measurement).title};{" "}
+                {Object.keys(preview.predictions).length} recorded predictions.
               </p>
               <p>{RELATIVITY_OUTCOMES[assessRelativity(preview.order).outcome]}</p>
-              <label htmlFor={`${instance}-incoming-note`}>The imported note that would replace yours</label>
+              <label htmlFor={`${instance}-incoming-note`}>
+                The imported note that would replace yours
+              </label>
               <textarea id={`${instance}-incoming-note`} rows={5} readOnly value={preview.note} />
-              <p>The entire current session, including its note and predictions, will be replaced.</p>
-              <button type="button" onClick={restore}>Replace current session with this import</button>
+              <p>
+                The entire current session, including its note and predictions, will be replaced.
+              </p>
+              <button type="button" onClick={restore}>
+                Replace current session with this import
+              </button>
             </section>
           )}
         </fieldset>
       </details>
-      <p role="status" aria-atomic="true" data-sr-transfer-notice>{notice}</p>
+      <p role="status" aria-atomic="true" data-sr-transfer-notice>
+        {notice}
+      </p>
     </section>
   );
 }

@@ -1,18 +1,26 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import {
+  createRelativityImportReader,
+  prepareRelativityDownload,
+  RELATIVITY_FILE_BYTE_LIMIT,
+} from "./relativitySessionTransfer.ts";
 import { WORKED_RELATIVITY_ORDER } from "./specialRelativityInvestigation.ts";
 import {
-  decodeRelativityLink, emptyRelativitySession, encodeRelativityLink,
-  exportRelativitySession, importRelativitySession, RELATIVITY_IMPORT_LIMIT,
+  decodeRelativityLink,
+  emptyRelativitySession,
+  encodeRelativityLink,
+  exportRelativitySession,
+  importRelativitySession,
+  RELATIVITY_IMPORT_LIMIT,
   RELATIVITY_NOTE_LIMIT,
 } from "./specialRelativitySession.ts";
-import {
-  createRelativityImportReader, prepareRelativityDownload, RELATIVITY_FILE_BYTE_LIMIT,
-} from "./relativitySessionTransfer.ts";
 
 function session(note = "Private note", changes = {}) {
   return {
-    ...emptyRelativitySession(), order: [...WORKED_RELATIVITY_ORDER], note,
+    ...emptyRelativitySession(),
+    order: [...WORKED_RELATIVITY_ORDER],
+    note,
     predictions: { "same-platform-time": "no", "same-moving-time": "yes", "one-clock": "no" },
     ...changes,
   };
@@ -23,7 +31,10 @@ function file(text) {
 function deferredFile(size = 100) {
   let resolve;
   let reject;
-  const promise = new Promise((done, fail) => { resolve = done; reject = fail; });
+  const promise = new Promise((done, fail) => {
+    resolve = done;
+    reject = fail;
+  });
   return { file: { size, text: () => promise }, resolve, reject };
 }
 
@@ -53,12 +64,18 @@ test("invalid application state is refused before a download payload exists", ()
 
 test("a syntactically valid blocked argument is saved without being repaired", async () => {
   const original = session("Keep my unfinished reasoning", { order: ["normalize", "clocks"] });
-  const decoded = await createRelativityImportReader().read(file(prepareRelativityDownload(original).text));
+  const decoded = await createRelativityImportReader().read(
+    file(prepareRelativityDownload(original).text),
+  );
   assert.deepEqual(decoded.session, original);
 });
 
 test("JSON escaping does not make maximum-length private notes unimportable", async () => {
-  for (const note of ["\0".repeat(RELATIVITY_NOTE_LIMIT), "γ".repeat(RELATIVITY_NOTE_LIMIT), "🧭".repeat(RELATIVITY_NOTE_LIMIT / 2)]) {
+  for (const note of [
+    "\0".repeat(RELATIVITY_NOTE_LIMIT),
+    "γ".repeat(RELATIVITY_NOTE_LIMIT),
+    "🧭".repeat(RELATIVITY_NOTE_LIMIT / 2),
+  ]) {
     const original = session(note);
     const prepared = prepareRelativityDownload(original);
     assert.ok(prepared.text.length <= RELATIVITY_IMPORT_LIMIT);
@@ -68,10 +85,23 @@ test("JSON escaping does not make maximum-length private notes unimportable", as
   }
 });
 
-for (const size of [-1, 0.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1, RELATIVITY_FILE_BYTE_LIMIT + 1]) {
+for (const size of [
+  -1,
+  0.5,
+  Number.NaN,
+  Number.POSITIVE_INFINITY,
+  Number.MAX_SAFE_INTEGER + 1,
+  RELATIVITY_FILE_BYTE_LIMIT + 1,
+]) {
   test(`reject invalid or excessive byte size ${size} before reading bytes`, async () => {
     let reads = 0;
-    const decoded = await createRelativityImportReader().read({ size, text: async () => { reads += 1; return "{}"; } });
+    const decoded = await createRelativityImportReader().read({
+      size,
+      text: async () => {
+        reads += 1;
+        return "{}";
+      },
+    });
     assert.equal(decoded.kind, "invalid");
     assert.equal(reads, 0);
   });
@@ -79,15 +109,35 @@ for (const size of [-1, 0.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SA
 
 test("the byte limit is inclusive and does not substitute for content validation", async () => {
   const validText = exportRelativitySession(session());
-  assert.equal((await createRelativityImportReader().read({ size: RELATIVITY_FILE_BYTE_LIMIT, text: async () => validText })).kind, "session");
-  assert.equal((await createRelativityImportReader().read(file(" ".repeat(RELATIVITY_IMPORT_LIMIT + 1)))).kind, "invalid");
+  assert.equal(
+    (
+      await createRelativityImportReader().read({
+        size: RELATIVITY_FILE_BYTE_LIMIT,
+        text: async () => validText,
+      })
+    ).kind,
+    "session",
+  );
+  assert.equal(
+    (await createRelativityImportReader().read(file(" ".repeat(RELATIVITY_IMPORT_LIMIT + 1)))).kind,
+    "invalid",
+  );
   assert.equal((await createRelativityImportReader().read(file(""))).kind, "invalid");
 });
 
 for (const [name, text] of [
   ["broken JSON", "{"],
-  ["a future file version", exportRelativitySession(session()).replace('"version": 1', '"version": 2')],
-  ["a forged assessment", JSON.stringify({ ...JSON.parse(exportRelativitySession(session())), assessment: { outcome: "aligned-map" } })],
+  [
+    "a future file version",
+    exportRelativitySession(session()).replace('"version": 1', '"version": 2'),
+  ],
+  [
+    "a forged assessment",
+    JSON.stringify({
+      ...JSON.parse(exportRelativitySession(session())),
+      assessment: { outcome: "aligned-map" },
+    }),
+  ],
 ]) {
   test(`file admission preserves codec refusal for ${name}`, async () => {
     const result = await createRelativityImportReader().read(file(text));
@@ -97,7 +147,12 @@ for (const [name, text] of [
 }
 
 test("a failed file read produces an explicit refusal, not an empty session", async () => {
-  const decoded = await createRelativityImportReader().read({ size: 5, text: async () => { throw new Error("Device read failed"); } });
+  const decoded = await createRelativityImportReader().read({
+    size: 5,
+    text: async () => {
+      throw new Error("Device read failed");
+    },
+  });
   assert.equal(decoded.kind, "invalid");
   assert.match(decoded.message, /could not be read/);
   assert.ok(!("session" in decoded));
@@ -128,7 +183,10 @@ test("even an invalid newer selection supersedes an older pending file", async (
   const reader = createRelativityImportReader();
   const older = deferredFile();
   const pending = reader.read(older.file);
-  const result = await reader.read({ size: RELATIVITY_FILE_BYTE_LIMIT + 1, text: async () => "{}" });
+  const result = await reader.read({
+    size: RELATIVITY_FILE_BYTE_LIMIT + 1,
+    text: async () => "{}",
+  });
   older.resolve(exportRelativitySession(session()));
   assert.equal(result.kind, "invalid");
   assert.equal(await pending, null);
@@ -143,7 +201,10 @@ test("explicit invalidation drops pending reads but permits the next attempt", a
   reader.invalidate();
   pendingFile.resolve(exportRelativitySession(session("must not replace current work")));
   assert.equal(await result, null);
-  assert.equal((await reader.read(file(exportRelativitySession(session("next attempt"))))).kind, "session");
+  assert.equal(
+    (await reader.read(file(exportRelativitySession(session("next attempt"))))).kind,
+    "session",
+  );
 });
 
 test("separate workbench readers do not cancel one another", async () => {

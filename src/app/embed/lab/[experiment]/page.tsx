@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EmbedFrame } from "../../../../components/embed/EmbedFrame.tsx";
 import { renderEmbeddedLaboratory } from "../../../../experiments/embed/adapters.tsx";
-import { EMBED_INSTRUMENTS, embedInstrument, isEmbeddableId } from "../../../../experiments/embed/catalogue.ts";
+import {
+  EMBED_INSTRUMENTS,
+  embedInstrument,
+  isEmbeddableId,
+} from "../../../../experiments/embed/catalogue.ts";
 import "../../../../components/lab/labShell.css";
 
 export const dynamicParams = false;
@@ -25,5 +29,9 @@ export default async function EmbeddedLaboratoryPage({ params }: Props) {
   const { experiment } = await params;
   if (!isEmbeddableId(experiment)) notFound();
   const laboratory = await renderEmbeddedLaboratory(experiment);
-  return <EmbedFrame key={experiment} instrumentId={experiment}>{laboratory}</EmbedFrame>;
+  return (
+    <EmbedFrame key={experiment} instrumentId={experiment}>
+      {laboratory}
+    </EmbedFrame>
+  );
 }

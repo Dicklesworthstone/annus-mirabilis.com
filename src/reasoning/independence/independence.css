@@ -1,24 +1,107 @@
-.occupancy-workbench { max-width: 72rem; margin-inline: auto; }
-.occupancy-models { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 1.5rem; }
-.occupancy-workbench fieldset { margin-block: 1.25rem; padding: 1rem; border: 1px solid var(--rule); }
-.occupancy-workbench legend { font-weight: 650; }
-.occupancy-workbench form label, .occupancy-workbench > label { display: block; margin-block: .75rem .25rem; }
-.occupancy-workbench input[type="number"], .occupancy-workbench select { display: block; margin-block-end: 1rem; max-width: 100%; min-height: 2.75rem; }
-.occupancy-workbench textarea, .occupancy-workbench input[readonly] { display: block; width: 100%; box-sizing: border-box; margin-block: .5rem 1rem; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); padding: .6rem; font: inherit; }
-.occupancy-workbench button { min-height: 2.75rem; margin-block: .25rem; }
-.occupancy-check { display: flex; gap: .75rem; align-items: baseline; margin-block: .65rem; }
-.occupancy-table-scroll { overflow-x: auto; max-width: 100%; margin-block: 1rem; }
-.occupancy-workbench table { width: 100%; border-collapse: collapse; text-align: left; }
-.occupancy-workbench caption { text-align: left; padding-block: .5rem; }
-.occupancy-workbench td, .occupancy-workbench th { padding: .65rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
-.occupancy-workbench td { font-variant-numeric: tabular-nums; }
-.occupancy-workbench meter { display: block; width: min(10rem, 100%); height: 1.25rem; }
-.occupancy-workbench details { margin-block: 1.25rem; }
-.occupancy-workbench summary { cursor: pointer; font-weight: 650; min-height: 2.75rem; }
-.occupancy-record { padding-block: 1rem; border-block: 1px solid var(--rule); }
+.occupancy-workbench {
+  max-width: 72rem;
+  margin-inline: auto;
+}
+.occupancy-models {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: 1.5rem;
+}
+.occupancy-workbench fieldset {
+  margin-block: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--rule);
+}
+.occupancy-workbench legend {
+  font-weight: 650;
+}
+.occupancy-workbench form label,
+.occupancy-workbench > label {
+  display: block;
+  margin-block: 0.75rem 0.25rem;
+}
+.occupancy-workbench input[type="number"],
+.occupancy-workbench select {
+  display: block;
+  margin-block-end: 1rem;
+  max-width: 100%;
+  min-height: 2.75rem;
+}
+.occupancy-workbench textarea,
+.occupancy-workbench input[readonly] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-block: 0.5rem 1rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 0.6rem;
+  font: inherit;
+}
+.occupancy-workbench button {
+  min-height: 2.75rem;
+  margin-block: 0.25rem;
+}
+.occupancy-check {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  margin-block: 0.65rem;
+}
+.occupancy-table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  margin-block: 1rem;
+}
+.occupancy-workbench table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.occupancy-workbench caption {
+  text-align: left;
+  padding-block: 0.5rem;
+}
+.occupancy-workbench td,
+.occupancy-workbench th {
+  padding: 0.65rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.occupancy-workbench td {
+  font-variant-numeric: tabular-nums;
+}
+.occupancy-workbench meter {
+  display: block;
+  width: min(10rem, 100%);
+  height: 1.25rem;
+}
+.occupancy-workbench details {
+  margin-block: 1.25rem;
+}
+.occupancy-workbench summary {
+  cursor: pointer;
+  font-weight: 650;
+  min-height: 2.75rem;
+}
+.occupancy-record {
+  padding-block: 1rem;
+  border-block: 1px solid var(--rule);
+}
 @media print {
-  .occupancy-workbench form, .occupancy-workbench fieldset, .occupancy-workbench button { display: none; }
-  .occupancy-table-scroll { overflow: visible; }
-  .occupancy-workbench table { font-size: var(--type-fine); }
-  .occupancy-workbench details > * { display: block; }
+  .occupancy-workbench form,
+  .occupancy-workbench fieldset,
+  .occupancy-workbench button {
+    display: none;
+  }
+  .occupancy-table-scroll {
+    overflow: visible;
+  }
+  .occupancy-workbench table {
+    font-size: var(--type-fine);
+  }
+  .occupancy-workbench details > * {
+    display: block;
+  }
 }

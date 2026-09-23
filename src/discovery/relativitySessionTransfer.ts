@@ -38,8 +38,16 @@ export function createRelativityImportReader() {
     },
     async read(file: LocalRelativityFile): Promise<SessionDecode | null> {
       const request = ++generation;
-      if (!Number.isSafeInteger(file.size) || file.size < 0 || file.size > RELATIVITY_FILE_BYTE_LIMIT) {
-        return { kind: "invalid", message: "This investigation file has an invalid or excessive size. No session was changed." };
+      if (
+        !Number.isSafeInteger(file.size) ||
+        file.size < 0 ||
+        file.size > RELATIVITY_FILE_BYTE_LIMIT
+      ) {
+        return {
+          kind: "invalid",
+          message:
+            "This investigation file has an invalid or excessive size. No session was changed.",
+        };
       }
       try {
         const text = await file.text();
@@ -47,7 +55,10 @@ export function createRelativityImportReader() {
         return importRelativitySession(text);
       } catch {
         if (request !== generation) return null;
-        return { kind: "invalid", message: "The investigation file could not be read. No session was changed." };
+        return {
+          kind: "invalid",
+          message: "The investigation file could not be read. No session was changed.",
+        };
       }
     },
   };

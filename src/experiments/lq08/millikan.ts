@@ -79,6 +79,7 @@ export const MILLIKAN_1916_SODIUM_POINTS: readonly MillikanDataPoint[] = Object.
 
 // Shared numerical owner; preserve the public OLS imports used by the existing laboratory.
 import { fitOls, type OlsLinearFit } from "../../physics/reference/inference/lineFit.ts";
+
 export { fitOls, type OlsLinearFit } from "../../physics/reference/inference/lineFit.ts";
 
 /**

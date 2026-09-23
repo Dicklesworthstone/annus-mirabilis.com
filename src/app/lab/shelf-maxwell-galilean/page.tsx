@@ -3,7 +3,8 @@ import { ShelfOpticsPage } from "../../../components/lab/shelfOptics/ShelfOptics
 
 export const metadata: Metadata = {
   title: "Compare Galilean and Lorentz wave-equation residuals",
-  description: "An interactive reference-model comparison with explicit assumptions, modern calibration and no invented historical measurements.",
+  description:
+    "An interactive reference-model comparison with explicit assumptions, modern calibration and no invented historical measurements.",
   robots: { index: false },
 };
 

@@ -40,10 +40,7 @@ function bigIntComb(n: number, k: number): bigint {
 }
 
 /** Exact binomial distribution of points inside volume fraction f. */
-export function binomialInside(
-  n: number,
-  f: number | { p: bigint; q: bigint },
-): CountDistribution {
+export function binomialInside(n: number, f: number | { p: bigint; q: bigint }): CountDistribution {
   let pBig: bigint;
   let qBig: bigint;
   let fNum: number;

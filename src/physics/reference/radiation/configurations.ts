@@ -6,11 +6,7 @@
 import { executionOutcomeRegistry } from "../../../experiments/results/outcomes.ts";
 import { createPhiloxStream } from "../philox.ts";
 import { packLogRepresentation } from "./representability.ts";
-import type {
-  EnumerationOutcome,
-  Rational,
-  SeededPointSamplingResult,
-} from "./types.ts";
+import type { EnumerationOutcome, Rational, SeededPointSamplingResult } from "./types.ts";
 
 export { binomialInside, lockedPositionsProbability } from "./configurationCounts.ts";
 

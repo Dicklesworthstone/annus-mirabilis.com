@@ -47,8 +47,14 @@ export default function CountermodelPage() {
       {generated.profile === "scaffold" && (
         <aside className="reading" aria-label="Statistical countermodel comparison">
           <h2>A different kind of ambiguity: the same average count</h2>
-          <p>Independent points and one perfectly locked group can share the same average while predicting different fluctuations. Choose a useful measurement, then compare a count record with both models.</p>
-          <a className="button" href="/lab/countermodels/independence/">Test independence versus locked positions</a>
+          <p>
+            Independent points and one perfectly locked group can share the same average while
+            predicting different fluctuations. Choose a useful measurement, then compare a count
+            record with both models.
+          </p>
+          <a className="button" href="/lab/countermodels/independence/">
+            Test independence versus locked positions
+          </a>
         </aside>
       )}
       <section className="reading">
