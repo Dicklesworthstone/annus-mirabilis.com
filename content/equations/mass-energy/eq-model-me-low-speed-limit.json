@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-low-speed-limit",
+  "paper": "mass-energy",
+  "argument": "arg-me-small-speed",
+  "title": "The low-speed limit: the mass the body loses",
+  "spoken": "The limit, as v approaches zero, of 2 L times gamma minus one, over v squared, equals L over c squared.",
+  "explanation": "At any finite speed the quotient is a little larger than L/c². As the speed shrinks it settles on L/c², the coefficient Newtonian mechanics reads as the mass the body lost. The limit is taken, not set at v = 0, where the quotient is not defined.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Two equal, opposite light pulses remove total positive energy L; their symmetry removes recoil in the body’s rest frame.",
+    "The same unchanged additive energy offset before and after emission, so the kinetic-energy drop is exactly L(γ − 1).",
+    "These are authored modern teaching equations, not a reviewed transcription or printed-notation concordance."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-low-speed-limit.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "limit",
+      "opId": "eq-model-me-low-speed-limit.op.limit",
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-me-low-speed-limit.t.speed",
+        "quantityId": "frameSpeed"
+      },
+      "approaches": {
+        "kind": "number",
+        "value": "0"
+      },
+      "expression": {
+        "kind": "quotient",
+        "opId": "eq-model-me-low-speed-limit.op.proxy",
+        "numerator": {
+          "kind": "product",
+          "opId": "eq-model-me-low-speed-limit.op.twice",
+          "args": [
+            {
+              "kind": "number",
+              "value": "2"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-me-low-speed-limit.t.energy",
+              "quantityId": "emittedEnergyRestFrame"
+            },
+            {
+              "kind": "sum",
+              "opId": "eq-model-me-low-speed-limit.op.factorExcess",
+              "args": [
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-me-low-speed-limit.t.gamma",
+                  "quantityId": "lorentzFactor"
+                },
+                {
+                  "kind": "negate",
+                  "argument": {
+                    "kind": "number",
+                    "value": "1"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "denominator": {
+          "kind": "power",
+          "opId": "eq-model-me-low-speed-limit.op.speedSquared",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-me-low-speed-limit.t.speed2",
+            "quantityId": "frameSpeed"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      }
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-me-low-speed-limit.op.coefficient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-me-low-speed-limit.t.energy2",
+        "quantityId": "emittedEnergyRestFrame"
+      },
+      "denominator": {
+        "kind": "power",
+        "opId": "eq-model-me-low-speed-limit.op.lightSquared",
+        "base": {
+          "kind": "symbol",
+          "termId": "eq-model-me-low-speed-limit.t.light",
+          "quantityId": "speedOfLight"
+        },
+        "exponent": {
+          "num": 2,
+          "den": 1
+        }
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-low-speed-limit.op.relation",
+      "title": "What it asserts",
+      "explanation": "The quotient settles on L/c² as the speed shrinks, whatever the size of L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.op.limit",
+      "title": "The limit as v shrinks",
+      "explanation": "The value the quotient settles on as v gets closer and closer to zero. It is not the quotient at v = 0, which divides by zero.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.op.proxy",
+      "title": "Twice the drop over v²",
+      "explanation": "The finite-speed quotient. At every finite speed it is a little larger than L/c².",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.op.twice",
+      "title": "Twice the kinetic-energy drop",
+      "explanation": "2L(γ − 1): twice the exact drop, so that it compares with the Newtonian ½ m v².",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.op.factorExcess",
+      "title": "The factor's excess over one",
+      "explanation": "γ − 1, zero at rest. For small speeds it begins with v²/(2c²).",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.op.speedSquared",
+      "title": "Speed squared",
+      "explanation": "Divide by v² to leave a mass.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.op.coefficient",
+      "title": "The coefficient",
+      "explanation": "L/c²: the energy given off, divided by the square of the speed of light.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.op.lightSquared",
+      "title": "c squared",
+      "explanation": "The speed of light, squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.t.speed",
+      "title": "Observer speed",
+      "explanation": "The speed of the second observer relative to the body, which the limit shrinks toward zero.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.t.speed2",
+      "title": "Observer speed",
+      "explanation": "The same v.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.t.energy",
+      "title": "Emitted energy L",
+      "explanation": "Total energy of both opposite pulses, in the body’s rest frame.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.t.energy2",
+      "title": "Emitted energy L",
+      "explanation": "The same L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.t.gamma",
+      "title": "Lorentz factor",
+      "explanation": "γ for the observer speed v: one at rest, larger at any other speed.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-low-speed-limit.t.light",
+      "title": "Speed of light",
+      "explanation": "c, the speed of light in empty space.",
+      "foundation": "fields-waves"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "As the "
+    },
+    {
+      "text": "observer speed",
+      "nodeId": "eq-model-me-low-speed-limit.t.speed"
+    },
+    {
+      "text": " shrinks, twice the kinetic-energy drop over its square settles on "
+    },
+    {
+      "text": "the emitted energy",
+      "nodeId": "eq-model-me-low-speed-limit.t.energy2"
+    },
+    {
+      "text": " divided by the square of "
+    },
+    {
+      "text": "the speed of light",
+      "nodeId": "eq-model-me-low-speed-limit.t.light"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

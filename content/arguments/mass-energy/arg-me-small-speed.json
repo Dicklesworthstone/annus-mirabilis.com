@@ -42,7 +42,8 @@
       {
         "kind": "formula",
         "latex": "\\lim_{v\\to0}\\frac{2L(\\gamma-1)}{v^2}=\\frac{L}{c^2}",
-        "spoken": "The limit as speed approaches zero of twice the kinetic-energy drop divided by speed squared is L over c squared."
+        "spoken": "The limit as speed approaches zero of twice the kinetic-energy drop divided by speed squared is L over c squared.",
+        "equations": ["eq-model-me-low-speed-limit"]
       },
       {
         "kind": "foundation",
