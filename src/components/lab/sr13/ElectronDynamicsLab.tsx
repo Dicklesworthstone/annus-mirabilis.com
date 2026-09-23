@@ -119,14 +119,6 @@ export function ElectronDynamicsLab({
           available; changing the parameters requires JavaScript.
         </p>
       </noscript>
-      <p data-detail="0">{SR13_CAPTION.r0}</p>
-      <p data-detail="1">{SR13_CAPTION.r1}</p>
-      <p data-detail="2" hidden>
-        {SR13_CAPTION.r2}
-      </p>
-      <p data-detail="3" hidden>
-        {SR13_CAPTION.r3}
-      </p>
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Electron dynamics controls">
           <fieldset disabled={!ready}>
@@ -415,6 +407,15 @@ export function ElectronDynamicsLab({
           </table>
         </div>
       </div>
+      {/* The caption follows the instrument it describes; above it, it came between a phone's heading and the result. */}
+      <p data-detail="0">{SR13_CAPTION.r0}</p>
+      <p data-detail="1">{SR13_CAPTION.r1}</p>
+      <p data-detail="2" hidden>
+        {SR13_CAPTION.r2}
+      </p>
+      <p data-detail="3" hidden>
+        {SR13_CAPTION.r3}
+      </p>
       <p className="fine">Not modeled: {SR13_NOT_MODELED.join("; ")}.</p>
     </section>
   );

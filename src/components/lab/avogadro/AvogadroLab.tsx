@@ -180,11 +180,6 @@ export function AvogadroLab() {
         </div>
         <span className="badge">Companion preview · Host calculation</span>
       </header>
-      <p>
-        The radiation row reconstructs a historical calculation. The other rows use authored
-        illustrative inputs and modern SI constants, so they are consistency checks, not independent
-        counts or historical measurements. No Bancelin dataset is claimed here.
-      </p>
       <noscript>
         <p className="notice">
           The default worked example and its results are readable without JavaScript. Editing or
@@ -342,6 +337,12 @@ export function AvogadroLab() {
           </p>
         </div>
       </div>
+      {/* What these rows are sits directly under them; above the instrument it came between a phone's heading and the result. */}
+      <p>
+        The radiation row reconstructs a historical calculation. The other rows use authored
+        illustrative inputs and modern SI constants, so they are consistency checks, not independent
+        counts or historical measurements. No Bancelin dataset is claimed here.
+      </p>
       <section>
         <h3>What diffusion cannot identify by itself</h3>
         <p>

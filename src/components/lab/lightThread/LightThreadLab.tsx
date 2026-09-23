@@ -197,11 +197,6 @@ export function LightThreadLab() {
         </div>
         <span className="badge">Ideal model, host calculation</span>
       </header>
-      <p>
-        This is a modern comparison using the exact modern SI definitions of h and c, not a
-        reconstruction of what was measured in 1905. A programmed consequence is not experimental
-        confirmation.
-      </p>
       <noscript>
         <p className="notice">
           The default worked example and all its numbers are readable without JavaScript. Changing
@@ -393,6 +388,12 @@ export function LightThreadLab() {
           </section>
         </div>
       </div>
+      {/* What these numbers are sits directly under them; above the instrument it came between a phone's heading and the result. */}
+      <p>
+        This is a modern comparison using the exact modern SI definitions of h and c, not a
+        reconstruction of what was measured in 1905. A programmed consequence is not experimental
+        confirmation.
+      </p>
 
       <details>
         <summary>Model limits and the code behind the numbers</summary>

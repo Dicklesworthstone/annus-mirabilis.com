@@ -198,11 +198,6 @@ export function CameraLab({
           and explanation remain readable. Changing the camera requires JavaScript.
         </p>
       </noscript>
-      <p>
-        A noisy image is not a new physical trajectory. Keep one wandering particle and change how
-        it is observed. Then compare the estimates that ignore camera error with a procedure that
-        accounts for it.
-      </p>
       <div className="lab-columns">
         <div>
           <form onSubmit={submit} noValidate>
@@ -494,6 +489,12 @@ export function CameraLab({
           </div>
         </div>
       </div>
+      {/* The how-to follows the instrument; above it, it came between a phone's heading and the result. */}
+      <p>
+        A noisy image is not a new physical trajectory. Keep one wandering particle and change how
+        it is observed. Then compare the estimates that ignore camera error with a procedure that
+        accounts for it.
+      </p>
       <section className="grid-result camera-results">
         <h3>Look for the camera’s fingerprint</h3>
         <p>
