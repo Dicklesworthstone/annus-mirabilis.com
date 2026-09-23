@@ -47,7 +47,11 @@ describe("am-70ig: the stash inventory ratchet", () => {
     assert.equal(report.stale.length, baseline.length);
   });
 
-  it("the five reviewed stashes do not fail the gate", () => {
+  it("every reviewed stash passes the gate", () => {
+    // A property, not a census: the baseline grows each time a stash is reviewed (a sixth was
+    // recorded on 2026-09-23), so a frozen count breaks on correct work. Non-empty on purpose,
+    // or the assertions below would hold over nothing.
+    assert.ok(baseline.length > 0);
     const entries = baseline.map((b) => ({
       sha: b.sha,
       committedAt: `${b.date}T00:00:00Z`,
@@ -56,7 +60,7 @@ describe("am-70ig: the stash inventory ratchet", () => {
     const report = reviewStashes(entries, baseline);
     assert.deepEqual(report.unacknowledged, []);
     assert.deepEqual(report.stale, []);
-    assert.equal(report.acknowledgedPresent, 5);
+    assert.equal(report.acknowledgedPresent, baseline.length);
   });
 
   it("PLANTED NEGATIVE: a sixth, unreviewed stash fails on the day it is made", () => {
