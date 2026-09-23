@@ -93,37 +93,39 @@ export async function loadLessonBody(
   const target = slot.ownerDocument;
   slot.dataset.lessonState = "loading";
   slot.setAttribute("aria-busy", "true");
+  let lesson: HTMLElement | null = null;
   try {
     const response = await (options.fetch ?? fetch)(lessonPageHref(id));
-    if (!response.ok) throw new Error(`lesson page ${response.status}`);
-    const lesson = extractLesson(await response.text(), target);
-    if (!lesson) throw new Error("lesson page has no lesson body");
-    const construction = lesson.querySelector(CONSTRUCTION_SELECTOR);
-    let constructionSlot: HTMLElement | null = null;
-    if (construction) {
-      constructionSlot = target.createElement("div");
-      constructionSlot.setAttribute("data-construction-slot", id);
-      construction.replaceWith(constructionSlot);
-    }
-    slot.replaceChildren(lesson);
-    slot.dataset.lessonState = "loaded";
-    slot.removeAttribute("aria-busy");
-    if (constructionSlot) {
-      // The lesson has loaded; a construction that cannot mount leaves it in place and points
-      // to the lesson's page, where the construction runs.
-      try {
-        mounted.add(await (options.mount ?? defaultMount)(constructionSlot, id));
-      } catch {
-        constructionSlot.replaceChildren(failure(target, id));
-      }
-    }
-    return "loaded";
+    if (response.ok) lesson = extractLesson(await response.text(), target);
   } catch {
+    // Offline, blocked or aborted: the same as a page with no lesson, handled just below.
+  }
+  if (!lesson) {
     slot.replaceChildren(failure(target, id));
     slot.dataset.lessonState = "failed";
     slot.removeAttribute("aria-busy");
     return "failed";
   }
+  const construction = lesson.querySelector(CONSTRUCTION_SELECTOR);
+  let constructionSlot: HTMLElement | null = null;
+  if (construction) {
+    constructionSlot = target.createElement("div");
+    constructionSlot.setAttribute("data-construction-slot", id);
+    construction.replaceWith(constructionSlot);
+  }
+  slot.replaceChildren(lesson);
+  slot.dataset.lessonState = "loaded";
+  slot.removeAttribute("aria-busy");
+  if (constructionSlot) {
+    // The lesson has loaded; a construction that cannot mount leaves it in place and points
+    // to the lesson's page, where the construction runs.
+    try {
+      mounted.add(await (options.mount ?? defaultMount)(constructionSlot, id));
+    } catch {
+      constructionSlot.replaceChildren(failure(target, id));
+    }
+  }
+  return "loaded";
 }
 
 /** Unmount every construction this module mounted; the reader calls it when it unmounts. */
