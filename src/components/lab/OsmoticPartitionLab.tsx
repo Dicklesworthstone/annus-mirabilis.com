@@ -213,44 +213,6 @@ export function OsmoticPartitionLab({
         </p>
       </noscript>
 
-      <div className="predict-card">
-        <h3>Predict before you calculate</h3>
-        <p>
-          At the same number of particles per volume, does a 1000-times-larger particle push harder,
-          the same, or less on the partition?
-        </p>
-        <div className="actions">
-          <button
-            type="button"
-            className={predictAnswer === "harder" ? "primary" : "secondary"}
-            onClick={() => setPredictAnswer("harder")}
-          >
-            Harder
-          </button>
-          <button
-            type="button"
-            className={predictAnswer === "same" ? "primary" : "secondary"}
-            onClick={() => setPredictAnswer("same")}
-          >
-            The same
-          </button>
-          <button
-            type="button"
-            className={predictAnswer === "less" ? "primary" : "secondary"}
-            onClick={() => setPredictAnswer("less")}
-          >
-            Less
-          </button>
-        </div>
-        {predictAnswer && (
-          <p className="fine">
-            The model: the ideal osmotic pressure depends on the number of particles per volume, not
-            on their size. The size-independence comparison below shows it, with the same calculated
-            pressure at 0.5 nm and at 500 nm for the same count per volume.
-          </p>
-        )}
-      </div>
-
       <div className="lab-columns">
         <form
           onSubmit={submit}
@@ -432,6 +394,45 @@ export function OsmoticPartitionLab({
           )}
         </div>
       </div>
+      {/* The prediction sits under the instrument in a closed disclosure, as on every other lab;
+          open above it, it came between a phone's heading and the partition. */}
+      <details className="lab-predict">
+        <summary>Predict before you calculate</summary>
+        <p>
+          At the same number of particles per volume, does a 1000-times-larger particle push harder,
+          the same, or less on the partition?
+        </p>
+        <div className="actions">
+          <button
+            type="button"
+            className={predictAnswer === "harder" ? "primary" : "secondary"}
+            onClick={() => setPredictAnswer("harder")}
+          >
+            Harder
+          </button>
+          <button
+            type="button"
+            className={predictAnswer === "same" ? "primary" : "secondary"}
+            onClick={() => setPredictAnswer("same")}
+          >
+            The same
+          </button>
+          <button
+            type="button"
+            className={predictAnswer === "less" ? "primary" : "secondary"}
+            onClick={() => setPredictAnswer("less")}
+          >
+            Less
+          </button>
+        </div>
+        {predictAnswer && (
+          <p className="fine">
+            The model: the ideal osmotic pressure depends on the number of particles per volume, not
+            on their size. The size-independence comparison above shows it, with the same calculated
+            pressure at 0.5 nm and at 500 nm for the same count per volume.
+          </p>
+        )}
+      </details>
 
       <section className="lab-bottom">
         <h3>What this model leaves out</h3>
