@@ -45,9 +45,10 @@ export default function MassEnergyRoute() {
           What does it lose?
         </h1>
         <p className="lead">
-          A lamp that has been burning all night is lighter in the morning than it was at dusk. That
-          sounds hard to believe, and it is what the shortest of the four papers argues. You can get
-          there yourself in five moves, and the only hard one is knowing what to subtract.
+          A body at rest gives off two flashes of light. Its energy has gone down, and nothing you
+          can see about it has changed. The shortest of the four papers asks what has, and answers
+          with a number. You can reach it yourself in five moves; the only hard one is knowing what
+          to subtract.
         </p>
         <p className="fine">
           A route you could take, not a transcript of Einstein&rsquo;s private thoughts. Every step
@@ -114,10 +115,10 @@ export default function MassEnergyRoute() {
           body&rsquo;s energy before and after in each account, four quantities in all.
         </p>
         <p>
-          Three of those four you cannot evaluate. You do not know the absolute energy content of a
-          body, in 1904 or now. This is exactly why the second account earns its place: the
-          quantities you cannot supply are the same quantities in both accounts, so a subtraction
-          removes them.
+          You cannot evaluate any of the four, because each contains the body&rsquo;s absolute
+          energy content, which no one knows, in 1904 or now. That is why the second account earns
+          its place: the quantity you cannot supply appears in both accounts, so a subtraction
+          removes it.
         </p>
         <p>
           The two accounts do not agree about the light, though. A given pair of flashes is measured
@@ -218,9 +219,8 @@ export default function MassEnergyRoute() {
         </p>
         <Shelf cards={MASS_ENERGY_SHELF_CARDS} />
         <p className="fine">
-          These cards carry no verification record. Their dates are taken from standard
-          bibliography, not from anyone here having opened the volumes, and the shelf marks each one
-          as awaiting verification rather than implying a check that has not happened.
+          The dates on these cards come from standard bibliographies. No one here has checked them
+          against the volumes, and the shelf marks each card as awaiting verification.
         </p>
       </section>
 
