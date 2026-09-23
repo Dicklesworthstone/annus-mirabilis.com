@@ -17,8 +17,8 @@ export const metadata: Metadata = {
  * The live search is a dialog: press Ctrl/Cmd K, or activate the header link, and
  * src/search/CommandPalette.ts opens over the page. That path is good and is not touched here.
  * Measured on the live palette: before typing it says "N entries available. Try "clocks
- * disagree", "BM-06", or "mean square"", and on no match it says "No matching entries in this
- * build. Try fewer words, a symbol, or a laboratory ID." Both name a next action.
+ * disagree", "Avogadro", or "mean square"", and on no match it says "Nothing matches. Try fewer
+ * words, or a single symbol." Both name a next action.
  *
  * THE QUESTION THIS PAGE ANSWERS is the one nobody had answered: what a reader gets when that
  * script does not run. The header link's fallback pointed at /papers/, so a reader without

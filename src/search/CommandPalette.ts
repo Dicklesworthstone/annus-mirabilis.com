@@ -73,7 +73,7 @@ export function openCommandPalette(
   heading.append(title, closeButton);
   const privacy = element(
     "p",
-    "Queries stay on this device and are not saved. Once loaded, search works offline for the rest of this page session.",
+    "Your searches stay on this device and are not saved. Once the index has loaded, search keeps working offline while this page is open.",
     "fine",
   );
   privacy.id = `${id}-privacy`;
@@ -177,8 +177,8 @@ export function openCommandPalette(
     clearResults();
     if (!input.value.trim()) {
       status.textContent = loaded.engine.size
-        ? `${loaded.engine.size} entries available. Try “clocks disagree”, “BM-06”, or “mean square”.`
-        : "This release profile has no searchable published records yet. Browse the papers for their availability.";
+        ? `${loaded.engine.size} entries available. Try “clocks disagree”, “Avogadro”, or “mean square”.`
+        : "Nothing in this version of the site can be searched yet. The papers page shows what is ready to read.";
       return;
     }
     const found = loaded.engine.search(input.value, {
@@ -247,7 +247,7 @@ export function openCommandPalette(
     select(0);
     status.textContent = hits.length
       ? `${hits.length} result${hits.length === 1 ? "" : "s"} shown${hits.length === SEARCH_LIMITS.results ? "; narrow the search for more specific matches" : ""}.`
-      : "No matching entries in this build. Try fewer words, a symbol, or a laboratory ID.";
+      : "Nothing matches. Try fewer words, or a single symbol.";
   }
   function scheduleSearch() {
     if (timer !== undefined) clearTimeout(timer);
@@ -277,7 +277,7 @@ export function openCommandPalette(
     } catch {
       if (closed) return;
       status.textContent =
-        "Search could not load a complete, verified index. Your reading is unchanged; retry or browse the outlines.";
+        "Search could not load its index. Your page is unchanged; try again, or browse the outlines.";
       retry.hidden = false;
     }
   }
