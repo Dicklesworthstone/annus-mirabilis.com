@@ -94,13 +94,13 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     expect(html).toContain("average endpoint");
 
     // Step 4 & 5: Both proposals accepted
-    expect(html).toContain("Proposal A (Ignore the direction)");
-    expect(html).toContain("Proposal B (Square each displacement)");
-    expect(html).toContain("Both of the following proposals are completely sensible");
+    expect(html).toContain("Proposal A (ignore the direction)");
+    expect(html).toContain("Proposal B (square each displacement)");
+    expect(html).toContain("Both of these proposals are reasonable");
 
     // Step 6 & 7: Mean absolute (2), mean square (5), RMS (2.236) and doubled case (4, 20, 4.472)
-    expect(html).toContain("Scaling: What happens when displacements double?");
-    expect(html).toContain("Mean Absolute Displacement:");
+    expect(html).toContain("What happens when every displacement doubles?");
+    expect(html).toContain("Mean absolute displacement:");
     expect(html).toContain("4 units");
     expect(html).toContain("20 sq units");
 
@@ -209,7 +209,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
 
     // Switch to table mode
     const tableBtn = Array.from(container.querySelectorAll("button")).find((b) =>
-      b.textContent?.includes("Table & Numeric Inputs"),
+      b.textContent?.includes("Table and typed values"),
     );
     expect(tableBtn).toBeDefined();
 
