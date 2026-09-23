@@ -83,7 +83,7 @@ export function PassageActionsBar({
           data-passage-label={passageLabel}
           aria-label={`Copy a link to this passage: ${passageLabel}`}
         >
-          Copy a link to this passage
+          Copy a link
         </button>
       </nav>
       <ObstacleMenu

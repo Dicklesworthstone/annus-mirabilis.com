@@ -14,22 +14,56 @@
 .obstacle-menu [data-obstacle-unavailable] .notice {
   margin: 0.25rem 0 0;
 }
+/* ---------------------------------------------------------------------------
+   EACH PASSAGE ENDS IN ONE QUIET LINE, not a block of controls (TanElk's dispatch 78). Measured on
+   BUILD 21: every passage ended in seven controls over three rows, 156px at 390 and 100px at 1440,
+   so light quanta's twelve passages spent 1,872px of a 31,488px phone page on them. Two of the
+   seven were one action: "Link to this passage" and "Copy a link to this passage". Now:
+   - the five the plan names ("Why?", "Show the missing step", "Show me one example first", "Try
+     it", "Read the original") keep their words;
+   - with JavaScript the copy button is the one link control, and the plain link shows only without
+     it, where it is the way to a passage's address;
+   - the line is set in the interface sans at 13.2px, muted, with no gap between rows: each
+     control still keeps its 44px target height, which is what spaces the rows.
+   --------------------------------------------------------------------------- */
 .passage-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem 1.25rem;
-  margin: 1rem 0;
+  gap: 0 1.1rem;
+  margin: 0.5rem 0 1rem;
   align-items: center;
+  font-family: var(--font-sans);
   font-size: var(--type-fine);
 }
 .passage-actions a,
 .passage-actions button {
   min-height: 44px;
   min-width: 24px;
-  padding: 0.55rem 0;
+  padding: 0;
+  color: var(--muted);
+}
+.passage-actions a:hover,
+.passage-actions button:hover {
+  color: var(--ink);
 }
 .passage-actions button {
-  font-size: var(--type-fine);
+  border: 0;
+  background: none;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+[data-enhanced] .passage-actions [data-passage-canonical-link] {
+  display: none;
+}
+/* The desktop step (readingSettings.css) sets the reading column a size up, and the line with
+   it: at 15.8px it wrapped to two rows of a 666px column. The quiet line stays at the phone's
+   13.2px, which on a desktop is the micro step times that same 1.2. */
+@media (min-width: 80em) {
+  .passage-actions {
+    font-size: var(--type-micro);
+  }
 }
 .reader-controls {
   border-block: 1px solid var(--line);
