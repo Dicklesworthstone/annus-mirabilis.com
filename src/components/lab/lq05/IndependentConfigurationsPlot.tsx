@@ -72,6 +72,9 @@ export function IndependentConfigurationsPlot({
           width="100%"
           height="180"
           style={{
+            // At 606px wide on a desktop the 320-unit box printed its two labels at 24.9px; 22rem
+            // keeps them near 14px and changes nothing on a phone.
+            maxWidth: "22rem",
             overflow: "visible",
             borderRadius: "0.5rem",
             border: "1px solid var(--line)",

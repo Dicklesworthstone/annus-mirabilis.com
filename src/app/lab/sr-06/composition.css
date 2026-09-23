@@ -3,6 +3,17 @@
   width: 100%;
   height: auto;
 }
+
+/* The drawing is 200 units wide and drawn 352px wide, 1.76 pixels to the unit, so the site's SVG
+   text size (--type-fine, 13.2 units) printed its four arrow labels at 23.2px, larger than the
+   page's headings. 7.5 units draws them at the fine step, 13.2px. */
+.sr06-plot {
+  --sr06-label: 7.5px;
+}
+
+.sr06-plot svg[role="img"] text {
+  font-size: var(--sr06-label);
+}
 .sr06-matrix {
   font-variant-numeric: tabular-nums;
   font-size: var(--type-fine);

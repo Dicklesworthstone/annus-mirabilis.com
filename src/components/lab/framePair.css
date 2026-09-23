@@ -13,6 +13,13 @@
   border-inline-start: 1px dashed var(--line);
 }
 
+/* Each panel is 370 units wide, drawn at 290px on a phone, where the site's SVG text size
+   (--type-fine, in viewBox units) printed sr-09's and sr-10's labels at 10.3px. --type-small
+   draws them at 12.4px there and 15.5px in the 362px desktop panels. */
+.frame-pair-panels > svg[role="img"] text {
+  font-size: var(--type-small);
+}
+
 /* Below about 34rem each side-by-side panel would be narrower than 17rem, so stack them. */
 @container (max-width: 34rem) {
   .frame-pair-panels {

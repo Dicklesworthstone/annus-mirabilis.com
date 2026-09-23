@@ -11,3 +11,11 @@
 .lq08 .lq08-historical p {
   margin: 0 0 0.6rem;
 }
+
+/* The three drawings are 360, 380 and 420 units wide and drawn at the column's width, 324px on a
+   phone, so the site's SVG text size (--type-fine, in viewBox units) printed the 420-unit plot's
+   labels at 10.1px. --type-small puts all three between 12.2 and 14.2px there and under 16.2px in
+   the 367px desktop column. Text that carries its own size is untouched. */
+.lq08 svg[role="img"] text {
+  font-size: var(--type-small);
+}
