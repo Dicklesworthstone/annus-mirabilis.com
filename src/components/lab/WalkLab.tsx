@@ -3,7 +3,11 @@ import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from
 import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm05BrowserChannel } from "../../experiments/bm05/browser.ts";
 import { BM05_FIELDS, fromWalkDraft, toWalkDraft } from "../../experiments/bm05/controls.ts";
-import { BM05_PROMPT, type Bm05Parameters } from "../../experiments/bm05/definition.ts";
+import {
+  BM05_CAPTION,
+  BM05_PROMPT,
+  type Bm05Parameters,
+} from "../../experiments/bm05/definition.ts";
 import { decodeBm05Settings, encodeBm05Settings } from "../../experiments/bm05/permalink.ts";
 import { createBm05Session, type PreparedBm05Example } from "../../experiments/bm05/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
@@ -13,6 +17,7 @@ import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts"
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
+import { withScripts } from "./subscripts.tsx";
 import { WalkConvergence, WalkHistogram, WalkPaths } from "./WalkPlots.tsx";
 
 const names = {
@@ -47,9 +52,12 @@ function Reading({
 export function WalkLab({
   example,
   title = "From random steps to diffusion",
+  readings = true,
 }: {
   example: PreparedBm05Example;
   title?: string;
+  /** False for the optional second laboratory, so the page carries the caption readings once. */
+  readings?: boolean;
 }) {
   const id = useId(),
     [session] = useState(() => createBm05Session(`bm05-${id}`, example, createBm05BrowserChannel));
@@ -580,6 +588,20 @@ export function WalkLab({
           <WalkConvergence snapshot={snapshot} />
         </div>
       </div>
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      {readings && (
+        <>
+          <p data-detail="0">{withScripts(BM05_CAPTION.r0)}</p>
+          <p data-detail="1">{withScripts(BM05_CAPTION.r1)}</p>
+          <p data-detail="2" hidden>
+            {withScripts(BM05_CAPTION.r2)}
+          </p>
+          <p data-detail="3" hidden>
+            {withScripts(BM05_CAPTION.r3)}
+          </p>
+        </>
+      )}
       <section className="reading walk-assumptions" {...identity(snapshot)}>
         <h3>Change an assumption, not just a slider</h3>
         <p>
@@ -700,7 +722,7 @@ export function WalkComparison({ example }: { example: PreparedBm05Example }) {
           {second ? "Close second walk laboratory" : "Open an independent walk laboratory"}
         </button>
       </div>
-      {second && <WalkLab example={example} title="A separate walk trial" />}
+      {second && <WalkLab example={example} title="A separate walk trial" readings={false} />}
     </>
   );
 }
