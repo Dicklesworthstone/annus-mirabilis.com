@@ -195,15 +195,17 @@ export function ModeAllocationLab({
           </table>
 
           <p className="model-note">
-            With resonators up to <Sci value={accepted.nuCutoff} digits={3} /> Hz at {accepted.T} K,
-            the classical allocation holds{" "}
-            {snapshot.energyUpToCutoff.status === "value" ? (
-              <Sci value={snapshot.energyUpToCutoff.value} digits={3} />
-            ) : (
-              "an unmodeled amount"
-            )}{" "}
-            J per cubic meter; each tenfold widening multiplies it by 1000. Every resonator
-            oscillation carries the same mean energy <var>k</var>
+            {/* Only a computed energy is stated. The fallback read "holds an unmodeled amount J per
+                cubic meter", with the unit left dangling, whenever the cutoff was refused. */}
+            {snapshot.energyUpToCutoff.status === "value" && (
+              <>
+                With resonators up to <Sci value={accepted.nuCutoff} digits={3} /> Hz at{" "}
+                {accepted.T} K, the classical allocation holds{" "}
+                <Sci value={snapshot.energyUpToCutoff.value} digits={3} /> J per cubic meter; each
+                tenfold widening multiplies it by 1000.{" "}
+              </>
+            )}
+            Every resonator oscillation carries the same mean energy <var>k</var>
             <sub>B</sub>
             <var>T</var> (source notation (<var>R</var>/<var>N</var>)<var>T</var>), which §1 notes
             is two-thirds of a free molecule's mean kinetic energy.

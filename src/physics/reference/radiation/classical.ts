@@ -54,6 +54,22 @@ export function classicalCutoffEnergyDensity(
   // U(nu_c) = (8 * pi * k_B * T / (3 * c^3)) * nu_c^3
   const uCutoff = ((8 * Math.PI * kB * T) / (3 * c ** 3)) * nuCutoff ** 3;
 
+  // The allocation grows as the cube of the cutoff without bound, so a large enough cutoff or
+  // temperature carries the product past the floating-point range (the cube alone leaves it above
+  // a cutoff of about 5.6 x 10^102 Hz). That is a limit of the arithmetic, not a value: returned as
+  // one, it printed "Infinity J/m³" on lq-02 with a NaN share beside it.
+  if (!Number.isFinite(uCutoff)) {
+    return {
+      status: "outside-domain",
+      quantityId,
+      unit,
+      condition: "energy-beyond-number-range",
+      domainKind: "numerical",
+      reason:
+        "At this cutoff the classical energy is larger than this calculation can represent. It grows as the cube of the cutoff without bound.",
+    };
+  }
+
   return {
     status: "value",
     quantityId,
