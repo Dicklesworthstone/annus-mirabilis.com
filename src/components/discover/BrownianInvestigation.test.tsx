@@ -11,7 +11,7 @@ describe("Brownian investigation: server-rendered, readable without JavaScript",
   test("composes one tracer instrument and one spreading instrument", () => {
     expect(html.match(/data-instrument-id="bm-01"/gu)?.length).toBe(1);
     expect(html.match(/data-instrument-id="bm-06"/gu)?.length).toBe(1);
-    expect(html).toContain("One trial. Two questions. Evidence you can keep.");
+    expect(html).toContain("Measure one trial at two intervals, then ask it about probability");
   });
 
   test("offers an explicit coefficient transfer rather than starting a hidden live binding", () => {
