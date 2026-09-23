@@ -28,7 +28,7 @@
       {
         "kind": "formula",
         "latex": "u_x'=\\frac{u_x-v}{1-vu_x/c^2},\\qquad u_y'=\\frac{u_y}{\\gamma(1-vu_x/c^2)}",
-        "spoken": "The transformed longitudinal velocity is u x minus v over one minus v u x over c squared; transverse velocity has the same denominator and an additional gamma.",
+        "spoken": "The transformed velocity along x is the velocity along x minus v, divided by one minus v times the velocity along x over c squared; the transverse velocity has the same denominator and an additional gamma.",
         "equations": ["eq-model-sr-velocity-x", "eq-model-sr-velocity-y"]
       },
       {

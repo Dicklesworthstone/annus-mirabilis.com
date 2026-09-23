@@ -38,7 +38,7 @@
       {
         "kind": "formula",
         "latex": "U(\\nu_c)=\\int_0^{\\nu_c}\\rho_\\nu\\,d\\nu=\\frac{8\\pi k_BT}{3c^3}\\nu_c^3",
-        "spoken": "The energy density below cutoff frequency nu c is eight pi k B T over three c cubed, times cutoff frequency cubed.",
+        "spoken": "The energy density below the cutoff frequency is eight pi times Boltzmann's constant times temperature, divided by three times the speed of light cubed, times the cutoff frequency cubed.",
         "equations": ["eq-model-lq-cutoff-integral", "eq-model-lq-cutoff-total"]
       },
       {

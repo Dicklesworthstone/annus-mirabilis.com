@@ -30,7 +30,7 @@
       {
         "kind": "formula",
         "latex": "\\Delta S_{\\mathrm{gas}}=nk_B\\ln f,\\qquad\\Delta S_{\\mathrm{rad}}=\\frac{E}{B\\nu}\\ln f",
-        "spoken": "The gas entropy change has coefficient n k B; the radiation change has coefficient E over B frequency.",
+        "spoken": "The gas entropy change has coefficient n times Boltzmann's constant; the radiation change has coefficient E divided by B times frequency.",
         "equations": ["eq-model-lq-gas-entropy-change", "eq-model-lq-radiation-entropy-change"]
       },
       {
@@ -40,7 +40,7 @@
       {
         "kind": "formula",
         "latex": "n_{\\mathrm{eff}}=\\frac{E}{k_BB\\nu},\\qquad\\frac{E}{n_{\\mathrm{eff}}}=k_BB\\nu=h\\nu",
-        "spoken": "The effective coefficient is E over k B B frequency. The implied energy scale is k B B frequency, written h frequency in modern notation.",
+        "spoken": "The effective coefficient is E divided by Boltzmann's constant times B times frequency. The implied energy scale is Boltzmann's constant times B times frequency, written h times frequency in modern notation.",
         "equations": ["eq-model-lq-effective-count", "eq-model-lq-energy-per-point"]
       },
       {
