@@ -26,6 +26,10 @@ export interface FirstPage {
   readonly key: string;
   readonly slug: string;
   readonly title: string;
+  /** The title as printed, from the receipt: Einstein's words, shown as they are and never edited. */
+  readonly germanTitle: string;
+  /** The Annalen volume the paper was printed in (series 4). */
+  readonly volume: number;
   readonly received: string;
   readonly printed: string;
   readonly firstPage: number;
@@ -122,6 +126,8 @@ export function loadFirstPages(options: LoadReceiptsOptions = {}): readonly Firs
       key,
       slug: receipt.frontMatter.slug,
       title,
+      germanTitle: paper.titleGerman,
+      volume: paper.journal.volume,
       received,
       printed: date("issue-publication"),
       firstPage: first,
