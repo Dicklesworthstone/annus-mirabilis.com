@@ -47,7 +47,7 @@ export const RELATIVITY_CARDS = [
   },
   {
     id: "light-family",
-    title: "Combine the two constraints — keep the unknown scale",
+    title: "Combine the two constraints, keeping the unknown scale",
     needs: ["forward-ray", "backward-ray"],
     explanation:
       "Adding and subtracting determines b and d relative to a. The common scale a(v) has NOT been fixed. Setting it to gamma here would assume a conclusion still to be earned.",

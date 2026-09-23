@@ -153,7 +153,7 @@ export function RelativitySessionFileControls({
         {exportText !== null && (
           <div>
             <label htmlFor={`${instance}-export`}>
-              Private JSON — includes your note and predictions
+              Private JSON, including your note and predictions
             </label>
             <textarea
               id={`${instance}-export`}
