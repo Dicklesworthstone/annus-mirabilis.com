@@ -396,6 +396,7 @@
 
 /* Boundary ledger plot styles */
 .boundary-ledger-svg-wrap {
+  container-type: inline-size;
   border: 1px solid var(--line);
   background: var(--wash);
   padding: 1rem;
@@ -403,9 +404,61 @@
   border-radius: 4px;
 }
 
+/* The diagram and its ledger: side by side when there is room, the ledger below when not. The
+   ledger was text drawn inside a 640-unit SVG, 6.7px on a phone; it is HTML now. */
+.me03-figure-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@container (min-width: 38rem) {
+  .me03-figure-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.me03-figure-title {
+  margin: 0;
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+.me03-figure-sub {
+  margin: 0.25rem 0 0.75rem;
+}
+
+.me03-ledger {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+}
+
+.me03-ledger dt {
+  color: var(--muted);
+}
+
+.me03-ledger dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* The mass change is the figure the ledger exists for: heavier as well as coloured. */
+.me03-ledger-accent {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.me03-ledger-case {
+  border-top: 1px solid var(--line);
+  padding-top: 0.75rem;
+}
+
+/* 300 units wide: capped so its 12-unit labels read near 14px on a wide screen and 12px on a phone. */
 .boundary-ledger-canvas {
   display: block;
   width: 100%;
+  max-width: 22rem;
   height: auto;
 }
 
