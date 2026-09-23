@@ -55,6 +55,7 @@
 
 .model-note {
   width: 100%;
+  min-width: 0;
   font-size: var(--type-fine);
   line-height: 1.5;
   border: 1px solid var(--line, #c7c5b9);
@@ -74,4 +75,8 @@
 
 .model-note-list > li {
   margin: 0.2rem 0;
+  /* The outputs are listed by identifier, and one such as kolmogorovDistanceToGaussian is a single
+     unbreakable word: on a 320px phone it held bm-05's note at 295px in a 254px column and the page
+     scrolled 8px sideways. */
+  overflow-wrap: anywhere;
 }
