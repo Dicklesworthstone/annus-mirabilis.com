@@ -1,6 +1,7 @@
 /* ME-01 Two Ledgers Laboratory styles (am-vw1o) */
 
 .two-ledgers-svg-wrap {
+  container-type: inline-size;
   border: 1px solid var(--line);
   background: var(--wash);
   padding: 1rem;
@@ -8,9 +9,63 @@
   border-radius: 4px;
 }
 
+/* The pulses and the two accounts: side by side when there is room, the accounts below when not.
+   The accounts were text drawn in a 620-unit SVG, 6.9px on a phone; they are HTML now. */
+.me01-figure-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@container (min-width: 38rem) {
+  .me01-figure-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.me01-figure-title {
+  margin: 0;
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+.me01-figure-sub {
+  margin: 0.25rem 0 0.75rem;
+}
+
+.me01-ledger {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.75rem 0 0;
+}
+
+.me01-ledger dt {
+  font-weight: 600;
+}
+
+.me01-ledger dd {
+  margin: 0;
+}
+
+.me01-equation {
+  font-family: var(--font-mono);
+}
+
+.me01-subtraction {
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.75rem;
+}
+
+.me01-subtraction p {
+  margin: 0.25rem 0 0;
+}
+
+/* 340 units wide: capped so its 12-unit labels read near 12px on a wide screen and on a phone. */
 .two-ledgers-canvas {
   display: block;
   width: 100%;
+  max-width: 22rem;
   height: auto;
 }
 
