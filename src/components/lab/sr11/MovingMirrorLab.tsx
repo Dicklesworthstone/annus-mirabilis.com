@@ -27,13 +27,21 @@ function numericOf(item: PublishedResult | undefined): number | null {
 function SnapshotReading({
   snapshot,
   quantityId,
+  unit,
 }: {
   snapshot: AcceptedSnapshot;
   quantityId: string;
+  /** Printed after a number only: after a refusal's sentence it read as part of the sentence. */
+  unit?: string;
 }) {
   const item = result(snapshot, quantityId);
   if (item.status === "value" && typeof item.value === "number") {
-    return <span data-quantity-id={quantityId}>{display(item.value)}</span>;
+    return (
+      <span data-quantity-id={quantityId}>
+        {display(item.value)}
+        {unit ? ` ${unit}` : ""}
+      </span>
+    );
   }
   if (item.status === "outside-domain" || item.status === "not-applicable") {
     return <span data-quantity-id={quantityId}>{item.reason}</span>;
@@ -292,37 +300,41 @@ export function MovingMirrorLab({
               <tr>
                 <th scope="row">Radiation pressure P</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="radiationPressure" /> Pa
+                  <SnapshotReading snapshot={snapshot} quantityId="radiationPressure" unit="Pa" />
                 </td>
               </tr>
               <tr>
                 <th scope="row">Radiation force F</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="radiationForce" /> N
+                  <SnapshotReading snapshot={snapshot} quantityId="radiationForce" unit="N" />
                 </td>
               </tr>
               <tr>
                 <th scope="row">Incident power</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="incidentPower" /> W
+                  <SnapshotReading snapshot={snapshot} quantityId="incidentPower" unit="W" />
                 </td>
               </tr>
               <tr>
                 <th scope="row">Reflected power</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="reflectedPower" /> W
+                  <SnapshotReading snapshot={snapshot} quantityId="reflectedPower" unit="W" />
                 </td>
               </tr>
               <tr>
                 <th scope="row">Work done on the mirror, P·v·Aₘ</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="workRate" /> W
+                  <SnapshotReading snapshot={snapshot} quantityId="workRate" unit="W" />
                 </td>
               </tr>
               <tr>
                 <th scope="row">Energy balance residual</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="energyBalanceResidual" /> W
+                  <SnapshotReading
+                    snapshot={snapshot}
+                    quantityId="energyBalanceResidual"
+                    unit="W"
+                  />
                 </td>
               </tr>
             </tbody>

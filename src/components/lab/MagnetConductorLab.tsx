@@ -44,11 +44,20 @@ function OutputReading({ item }: { item: PublishedResult | undefined }) {
 function SnapshotReading({
   snapshot,
   quantityId,
+  unit,
 }: {
   snapshot: Parameters<typeof result>[0];
   quantityId: string;
+  /** Printed after a number only: after a refusal's sentence it read as part of the sentence. */
+  unit?: string;
 }) {
-  return <OutputReading item={result(snapshot, quantityId)} />;
+  const item = result(snapshot, quantityId);
+  return (
+    <>
+      <OutputReading item={item} />
+      {unit && item?.status === "value" ? ` ${unit}` : ""}
+    </>
+  );
 }
 
 export function MagnetConductorLab({
@@ -377,37 +386,49 @@ function AnalyticPanel({ snapshot }: { snapshot: Parameters<typeof result>[0] })
           <tr>
             <th scope="row">B (magnet rest)</th>
             <td>
-              <SnapshotReading snapshot={snapshot} quantityId="magneticFieldStationary" /> T
+              <SnapshotReading snapshot={snapshot} quantityId="magneticFieldStationary" unit="T" />
             </td>
           </tr>
           <tr>
             <th scope="row">E (magnet rest)</th>
             <td>
-              <SnapshotReading snapshot={snapshot} quantityId="electricFieldStationary" /> V/m
+              <SnapshotReading
+                snapshot={snapshot}
+                quantityId="electricFieldStationary"
+                unit="V/m"
+              />
             </td>
           </tr>
           <tr>
             <th scope="row">E′_y (conductor rest)</th>
             <td>
-              <SnapshotReading snapshot={snapshot} quantityId="electricFieldMoving" /> V/m
+              <SnapshotReading snapshot={snapshot} quantityId="electricFieldMoving" unit="V/m" />
             </td>
           </tr>
           <tr>
             <th scope="row">Force on q (magnet rest)</th>
             <td>
-              <SnapshotReading snapshot={snapshot} quantityId="transverseForceLaboratory" /> N
+              <SnapshotReading
+                snapshot={snapshot}
+                quantityId="transverseForceLaboratory"
+                unit="N"
+              />
             </td>
           </tr>
           <tr>
             <th scope="row">Force on q (conductor rest)</th>
             <td>
-              <SnapshotReading snapshot={snapshot} quantityId="transverseForceComoving" /> N
+              <SnapshotReading snapshot={snapshot} quantityId="transverseForceComoving" unit="N" />
             </td>
           </tr>
           <tr>
             <th scope="row">Electromotive force, magnet rest</th>
             <td>
-              <SnapshotReading snapshot={snapshot} quantityId="electromotiveForceMagnetFrame" /> V
+              <SnapshotReading
+                snapshot={snapshot}
+                quantityId="electromotiveForceMagnetFrame"
+                unit="V"
+              />
             </td>
           </tr>
           <tr>
@@ -426,7 +447,11 @@ function AnalyticPanel({ snapshot }: { snapshot: Parameters<typeof result>[0] })
           <tr>
             <th scope="row">Endpoint offset</th>
             <td>
-              <SnapshotReading snapshot={snapshot} quantityId="endpointSimultaneityOffset" /> s
+              <SnapshotReading
+                snapshot={snapshot}
+                quantityId="endpointSimultaneityOffset"
+                unit="s"
+              />
             </td>
           </tr>
           <tr>

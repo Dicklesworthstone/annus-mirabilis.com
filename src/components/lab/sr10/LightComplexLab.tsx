@@ -25,13 +25,21 @@ function numericOf(item: PublishedResult | undefined): number | null {
 function SnapshotReading({
   snapshot,
   quantityId,
+  unit,
 }: {
   snapshot: AcceptedSnapshot;
   quantityId: string;
+  /** Printed after a number only: after a refusal's sentence it read as part of the sentence. */
+  unit?: string;
 }) {
   const item = result(snapshot, quantityId);
   if (item.status === "value" && typeof item.value === "number") {
-    return <span data-quantity-id={quantityId}>{display(item.value)}</span>;
+    return (
+      <span data-quantity-id={quantityId}>
+        {display(item.value)}
+        {unit ? ` ${unit}` : ""}
+      </span>
+    );
   }
   if (item.status === "outside-domain" || item.status === "not-applicable") {
     return <span data-quantity-id={quantityId}>{item.reason}</span>;
@@ -320,7 +328,11 @@ export function LightComplexLab({
               <tr>
                 <th scope="row">Physical energy in k (E′)</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="lightComplexEnergyMoving" /> J
+                  <SnapshotReading
+                    snapshot={snapshot}
+                    quantityId="lightComplexEnergyMoving"
+                    unit="J"
+                  />
                 </td>
               </tr>
               <tr>

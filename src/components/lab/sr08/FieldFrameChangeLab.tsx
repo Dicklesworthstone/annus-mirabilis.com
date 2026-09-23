@@ -37,11 +37,20 @@ function OutputReading({ item }: { item: PublishedResult | undefined }) {
 function SnapshotReading({
   snapshot,
   quantityId,
+  unit,
 }: {
   snapshot: Parameters<typeof result>[0];
   quantityId: string;
+  /** Printed after a number only: after a refusal's sentence it read as part of the sentence. */
+  unit?: string;
 }) {
-  return <OutputReading item={result(snapshot, quantityId)} />;
+  const item = result(snapshot, quantityId);
+  return (
+    <>
+      <OutputReading item={item} />
+      {unit && item?.status === "value" ? ` ${unit}` : ""}
+    </>
+  );
 }
 
 export function FieldFrameChangeLab({
@@ -339,25 +348,41 @@ export function FieldFrameChangeLab({
                 <tr>
                   <th scope="row">E (Stationary K)</th>
                   <td>
-                    <SnapshotReading snapshot={snapshot} quantityId="electricFieldStationary" /> V/m
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="electricFieldStationary"
+                      unit="V/m"
+                    />
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">E′ (Moving k)</th>
                   <td>
-                    <SnapshotReading snapshot={snapshot} quantityId="electricFieldMoving" /> V/m
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="electricFieldMoving"
+                      unit="V/m"
+                    />
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">B (Stationary K)</th>
                   <td>
-                    <SnapshotReading snapshot={snapshot} quantityId="magneticFieldStationary" /> T
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="magneticFieldStationary"
+                      unit="T"
+                    />
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">B′ (Moving k)</th>
                   <td>
-                    <SnapshotReading snapshot={snapshot} quantityId="magneticFieldMoving" /> T
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="magneticFieldMoving"
+                      unit="T"
+                    />
                   </td>
                 </tr>
                 <tr>
@@ -376,19 +401,31 @@ export function FieldFrameChangeLab({
                 <tr>
                   <th scope="row">Invariant E · B</th>
                   <td>
-                    <SnapshotReading snapshot={snapshot} quantityId="fieldInvariantEDotB" /> T·V/m
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="fieldInvariantEDotB"
+                      unit="T·V/m"
+                    />
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">Laboratory force F</th>
                   <td>
-                    <SnapshotReading snapshot={snapshot} quantityId="transverseForceLaboratory" /> N
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="transverseForceLaboratory"
+                      unit="N"
+                    />
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">Comoving force F′</th>
                   <td>
-                    <SnapshotReading snapshot={snapshot} quantityId="transverseForceComoving" /> N
+                    <SnapshotReading
+                      snapshot={snapshot}
+                      quantityId="transverseForceComoving"
+                      unit="N"
+                    />
                   </td>
                 </tr>
               </tbody>
