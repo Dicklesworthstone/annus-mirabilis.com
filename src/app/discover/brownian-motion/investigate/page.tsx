@@ -13,7 +13,7 @@ export default function BrownianInvestigationPage() {
     <article className="investigation-page">
       <header className="page-intro">
         <p className="eyebrow">Discover · Brownian motion · Guided investigation</p>
-        <h1>One trial. Two questions. Evidence you can keep.</h1>
+        <h1>Measure one trial at two intervals, then ask it about probability</h1>
         <p className="lead">
           Choose what to measure, compare observation intervals on the same recorded trial, and
           carry its diffusion coefficient into an interval-probability question.

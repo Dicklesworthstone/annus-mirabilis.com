@@ -373,10 +373,7 @@ export function BrownianInvestigation({
         </p>
         <div className="table-scroll" style={{ overflowX: "auto" }}>
           <table>
-            <caption>
-              Pinned baseline versus current completed result · canonical readouts converted only
-              for display
-            </caption>
+            <caption>Pinned baseline versus current completed result, in display units</caption>
             <thead>
               <tr>
                 <th scope="col">Quantity</th>
