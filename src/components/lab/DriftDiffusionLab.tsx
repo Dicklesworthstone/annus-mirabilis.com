@@ -4,6 +4,7 @@ import { createBm04BrowserChannel } from "../../experiments/bm04/browser.ts";
 import { BM04_FIELDS, fromBm04Draft, toBm04Draft } from "../../experiments/bm04/controls.ts";
 import { bm04DataCsv } from "../../experiments/bm04/dataExport.ts";
 import {
+  BM04_CAPTION,
   BM04_MODEL,
   BM04_PRESETS,
   BM04_PROMPT,
@@ -19,6 +20,7 @@ import {
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
+import { withScripts } from "./subscripts.tsx";
 
 type ForceComparison = Readonly<{
   parameters: Bm04Parameters;
@@ -500,6 +502,16 @@ export function DriftDiffusionLab({
         </details>
       </section>
       <ShowTheCode listings={[]} />
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(BM04_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(BM04_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(BM04_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(BM04_CAPTION.r3)}
+      </p>
     </section>
   );
 }
