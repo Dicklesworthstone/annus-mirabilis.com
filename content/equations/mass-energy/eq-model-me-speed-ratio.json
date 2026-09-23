@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-speed-ratio",
+  "paper": "mass-energy",
+  "argument": "arg-me-import",
+  "title": "Beta is speed as a fraction of light speed",
+  "spoken": "Beta equals v over c.",
+  "explanation": "A pure number between zero and one for any body that can carry a clock.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-speed-ratio.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-me-speed-ratio.t.beta",
+      "quantityId": "speedRatio"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-me-speed-ratio.t.speed",
+        "quantityId": "frameSpeed"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-me-speed-ratio.t.light",
+        "quantityId": "speedOfLight"
+      },
+      "opId": "eq-model-me-speed-ratio.op.quotient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-speed-ratio.op.quotient",
+      "title": "v over c",
+      "explanation": "Metres per second over metres per second.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-speed-ratio.op.relation",
+      "title": "What it asserts",
+      "explanation": "A definition.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-speed-ratio.t.beta",
+      "title": "Speed ratio",
+      "explanation": "v over c.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-speed-ratio.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper writes V.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-speed-ratio.t.speed",
+      "title": "Speed of the body",
+      "explanation": "How fast the body moves in the second frame.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "Beta",
+      "nodeId": "eq-model-me-speed-ratio.t.beta"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-me-speed-ratio.t.speed"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-me-speed-ratio.t.light"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

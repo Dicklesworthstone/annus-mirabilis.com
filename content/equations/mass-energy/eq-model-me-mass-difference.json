@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-mass-difference",
+  "paper": "mass-energy",
+  "argument": "arg-me-mass-change",
+  "title": "The mass lost is the energy over c squared",
+  "spoken": "m zero minus m one equals L over c squared.",
+  "explanation": "Before minus after: a positive loss, the emitted energy divided by the speed of light squared.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Low speed, where kinetic energy is one half times mass times speed squared.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-mass-difference.op.relation",
+    "left": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-me-mass-difference.t.before",
+          "quantityId": "bodyMassBefore"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-me-mass-difference.t.after",
+            "quantityId": "bodyMassAfter"
+          }
+        }
+      ],
+      "opId": "eq-model-me-mass-difference.op.difference"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-me-mass-difference.t.energy",
+        "quantityId": "emittedEnergyRestFrame"
+      },
+      "denominator": {
+        "kind": "power",
+        "base": {
+          "kind": "symbol",
+          "termId": "eq-model-me-mass-difference.t.light",
+          "quantityId": "speedOfLight"
+        },
+        "exponent": {
+          "num": 2,
+          "den": 1
+        },
+        "opId": "eq-model-me-mass-difference.op.square"
+      },
+      "opId": "eq-model-me-mass-difference.op.quotient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-mass-difference.op.difference",
+      "title": "Before minus after",
+      "explanation": "Positive when mass is lost.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-me-mass-difference.op.quotient",
+      "title": "L over c squared",
+      "explanation": "A mass.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-mass-difference.op.relation",
+      "title": "What it asserts",
+      "explanation": "Giving off energy L lowers the mass by L over c squared.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-mass-difference.op.square",
+      "title": "c squared",
+      "explanation": "The quantity multiplied by itself.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-mass-difference.t.after",
+      "title": "Mass after",
+      "explanation": "The body's inertial mass afterwards.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-mass-difference.t.before",
+      "title": "Mass before",
+      "explanation": "The body's inertial mass before it emits the light.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-mass-difference.t.energy",
+      "title": "Emitted light energy",
+      "explanation": "The total energy of the two pulses in the body's rest frame; the paper writes L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-mass-difference.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper writes V.",
+      "foundation": "fields-waves"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The mass before",
+      "nodeId": "eq-model-me-mass-difference.t.before"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "the mass after",
+      "nodeId": "eq-model-me-mass-difference.t.after"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "L",
+      "nodeId": "eq-model-me-mass-difference.t.energy"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-me-mass-difference.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

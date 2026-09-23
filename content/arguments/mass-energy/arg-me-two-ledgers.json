@@ -29,7 +29,8 @@
       {
         "kind": "formula",
         "latex": "E_0=E_1+L,\\qquad H_0=H_1+\\gamma L",
-        "spoken": "The initial body energy equals its final energy plus the emitted light, separately in each frame."
+        "spoken": "The initial body energy equals its final energy plus the emitted light, separately in each frame.",
+        "equations": ["eq-model-me-rest-ledger", "eq-model-me-moving-ledger"]
       },
       {
         "kind": "paragraph",

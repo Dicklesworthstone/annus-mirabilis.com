@@ -1,0 +1,346 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-ledger-subtraction-chain",
+  "paper": "mass-energy",
+  "argument": "arg-me-subtraction",
+  "title": "Subtract the two ledgers",
+  "spoken": "H zero minus E zero, minus H one minus E one, equals gamma L minus L, which equals L times gamma minus one.",
+  "explanation": "Each bracket is the kinetic energy plus the same unknown constant, so the unknowns cancel and what is left depends only on L and the speed.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Each frame's energy differs from the other's by the kinetic energy plus a constant that does not change on emission.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-ledger-subtraction-chain.op.relation",
+    "left": {
+      "kind": "relation",
+      "opId": "eq-model-me-ledger-subtraction-chain.op.first",
+      "left": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "group",
+            "opId": "eq-model-me-ledger-subtraction-chain.op.beforeBracket",
+            "argument": {
+              "kind": "sum",
+              "args": [
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-me-ledger-subtraction-chain.t.h0",
+                  "quantityId": "bodyEnergyMovingBefore"
+                },
+                {
+                  "kind": "negate",
+                  "argument": {
+                    "kind": "symbol",
+                    "termId": "eq-model-me-ledger-subtraction-chain.t.e0",
+                    "quantityId": "bodyEnergyRestBefore"
+                  }
+                }
+              ],
+              "opId": "eq-model-me-ledger-subtraction-chain.op.before"
+            }
+          },
+          {
+            "kind": "negate",
+            "argument": {
+              "kind": "group",
+              "opId": "eq-model-me-ledger-subtraction-chain.op.afterBracket",
+              "argument": {
+                "kind": "sum",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-me-ledger-subtraction-chain.t.h1",
+                    "quantityId": "bodyEnergyMovingAfter"
+                  },
+                  {
+                    "kind": "negate",
+                    "argument": {
+                      "kind": "symbol",
+                      "termId": "eq-model-me-ledger-subtraction-chain.t.e1",
+                      "quantityId": "bodyEnergyRestAfter"
+                    }
+                  }
+                ],
+                "opId": "eq-model-me-ledger-subtraction-chain.op.after"
+              }
+            }
+          }
+        ],
+        "opId": "eq-model-me-ledger-subtraction-chain.op.outer"
+      },
+      "right": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "group",
+            "opId": "eq-model-me-ledger-subtraction-chain.op.gammaBracket",
+            "argument": {
+              "kind": "product",
+              "args": [
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-me-ledger-subtraction-chain.t.gamma",
+                  "quantityId": "lorentzFactor"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-me-ledger-subtraction-chain.t.energy",
+                  "quantityId": "emittedEnergyRestFrame"
+                }
+              ],
+              "opId": "eq-model-me-ledger-subtraction-chain.op.gammaL"
+            }
+          },
+          {
+            "kind": "negate",
+            "argument": {
+              "kind": "symbol",
+              "termId": "eq-model-me-ledger-subtraction-chain.t.energy2",
+              "quantityId": "emittedEnergyRestFrame"
+            }
+          }
+        ],
+        "opId": "eq-model-me-ledger-subtraction-chain.op.middle"
+      },
+      "operator": "="
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-me-ledger-subtraction-chain.t.energy3",
+          "quantityId": "emittedEnergyRestFrame"
+        },
+        {
+          "kind": "group",
+          "opId": "eq-model-me-ledger-subtraction-chain.op.gammaMinusOne",
+          "argument": {
+            "kind": "sum",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-me-ledger-subtraction-chain.t.gamma2",
+                "quantityId": "lorentzFactor"
+              },
+              {
+                "kind": "negate",
+                "argument": {
+                  "kind": "number",
+                  "value": "1"
+                }
+              }
+            ],
+            "opId": "eq-model-me-ledger-subtraction-chain.op.gm1"
+          }
+        }
+      ],
+      "opId": "eq-model-me-ledger-subtraction-chain.op.factored"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.after",
+      "title": "H one minus E one",
+      "explanation": "Kinetic energy after, plus the same constant.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.afterBracket",
+      "title": "The after bracket",
+      "explanation": "Kinetic energy after emission, plus the same constant; subtracted as a whole.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.before",
+      "title": "H zero minus E zero",
+      "explanation": "Kinetic energy before, plus the constant.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.beforeBracket",
+      "title": "The before bracket",
+      "explanation": "Kinetic energy before emission, plus the unknown constant.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.factored",
+      "title": "L times gamma minus one",
+      "explanation": "Factored.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.first",
+      "title": "Using the two ledgers",
+      "explanation": "Each frame's energy balance replaces the brackets by the light it gave off.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.gammaBracket",
+      "title": "In brackets",
+      "explanation": "The light's energy in the moving frame, kept together.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.gammaL",
+      "title": "Gamma L",
+      "explanation": "The light energy in the moving frame.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.gammaMinusOne",
+      "title": "In brackets",
+      "explanation": "Gamma minus one, multiplied as a whole by L.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.gm1",
+      "title": "Gamma minus one",
+      "explanation": "Zero at rest, growing with speed.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.middle",
+      "title": "Gamma L minus L",
+      "explanation": "The two ledgers' light, subtracted.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.outer",
+      "title": "Before minus after",
+      "explanation": "The constant cancels.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.op.relation",
+      "title": "What it asserts",
+      "explanation": "The drop in kinetic energy is L times gamma minus one, with no unknown left.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.e0",
+      "title": "Body energy before, rest frame",
+      "explanation": "The body's energy before emission, in its own frame.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.e1",
+      "title": "Body energy after, rest frame",
+      "explanation": "The body's energy after emission, in its own frame.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.energy",
+      "title": "Emitted light energy",
+      "explanation": "The total energy of the two pulses in the body's rest frame; the paper writes L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.energy2",
+      "title": "Emitted light energy",
+      "explanation": "The total energy of the two pulses in the body's rest frame; the paper writes L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.energy3",
+      "title": "Emitted light energy",
+      "explanation": "The total energy of the two pulses in the body's rest frame; the paper writes L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.gamma",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.gamma2",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.h0",
+      "title": "Body energy before, moving frame",
+      "explanation": "The body's energy before emission, in the frame where it moves.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.h1",
+      "title": "Body energy after, moving frame",
+      "explanation": "The body's energy after emission, in the frame where it moves.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "H zero",
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.h0"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "E zero",
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.e0"
+    },
+    {
+      "text": ", minus "
+    },
+    {
+      "text": "H one",
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.h1"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "E one",
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.e1"
+    },
+    {
+      "text": ", is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.gamma"
+    },
+    {
+      "text": "L",
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.energy"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "L",
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.energy2"
+    },
+    {
+      "text": ", which is "
+    },
+    {
+      "text": "L",
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.energy3"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-me-ledger-subtraction-chain.t.gamma2"
+    },
+    {
+      "text": " minus one."
+    }
+  ]
+}

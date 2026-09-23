@@ -26,7 +26,8 @@
       {
         "kind": "formula",
         "latex": "(H_0-E_0)-(H_1-E_1)=(\\gamma L)-L=L(\\gamma-1)",
-        "spoken": "The before frame-energy difference minus the after frame-energy difference equals L times gamma minus one."
+        "spoken": "The before frame-energy difference minus the after frame-energy difference equals L times gamma minus one.",
+        "equations": ["eq-model-me-ledger-subtraction-chain"]
       },
       {
         "kind": "paragraph",

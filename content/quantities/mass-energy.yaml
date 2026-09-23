@@ -168,6 +168,26 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: material
+- id: bodyMassBefore
+  name: Body mass before emission
+  description: >
+    The body's inertial mass before it emits the two light pulses, paper 4's reconstruction in
+    modern notation (m_0). Its difference from bodyMassAfter is inertialMassDecrease.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+- id: bodyMassAfter
+  name: Body mass after emission
+  description: >
+    The body's inertial mass after it has emitted the light pulses (m_1), paper 4 in modern
+    notation.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
 
 - id: massChangeSigned
   name: Signed mass change

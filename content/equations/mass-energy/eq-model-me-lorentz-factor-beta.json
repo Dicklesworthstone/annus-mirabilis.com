@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-lorentz-factor-beta",
+  "paper": "mass-energy",
+  "argument": "arg-me-import",
+  "title": "Gamma written with beta",
+  "spoken": "Gamma equals one over the square root of one minus beta squared.",
+  "explanation": "The same factor as one over the root of one minus v squared over c squared, written with beta.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-lorentz-factor-beta.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-me-lorentz-factor-beta.t.gamma",
+      "quantityId": "lorentzFactor"
+    },
+    "right": {
+      "kind": "quotient",
+      "numerator": {
+        "kind": "number",
+        "value": "1"
+      },
+      "denominator": {
+        "kind": "root",
+        "opId": "eq-model-me-lorentz-factor-beta.op.root",
+        "degree": 2,
+        "radicand": {
+          "kind": "sum",
+          "args": [
+            {
+              "kind": "number",
+              "value": "1"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "power",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-me-lorentz-factor-beta.t.beta",
+                  "quantityId": "speedRatio"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                },
+                "opId": "eq-model-me-lorentz-factor-beta.op.square"
+              }
+            }
+          ],
+          "opId": "eq-model-me-lorentz-factor-beta.op.difference"
+        }
+      },
+      "opId": "eq-model-me-lorentz-factor-beta.op.quotient"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-lorentz-factor-beta.op.difference",
+      "title": "One minus beta squared",
+      "explanation": "Positive for any speed below light.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor-beta.op.quotient",
+      "title": "One over the root",
+      "explanation": "At least one.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor-beta.op.relation",
+      "title": "What it asserts",
+      "explanation": "A definition.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor-beta.op.root",
+      "title": "Its square root",
+      "explanation": "The number that squares to it.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor-beta.op.square",
+      "title": "Beta squared",
+      "explanation": "The quantity multiplied by itself.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor-beta.t.beta",
+      "title": "Speed ratio",
+      "explanation": "v over c.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-lorentz-factor-beta.t.gamma",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "Gamma",
+      "nodeId": "eq-model-me-lorentz-factor-beta.t.gamma"
+    },
+    {
+      "text": " is one over the square root of one minus "
+    },
+    {
+      "text": "beta",
+      "nodeId": "eq-model-me-lorentz-factor-beta.t.beta"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

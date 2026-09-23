@@ -28,7 +28,8 @@
       {
         "kind": "formula",
         "latex": "m_0-m_1=\\frac{L}{c^2},\\qquad\\Delta m=m_1-m_0=-\\frac{L}{c^2}",
-        "spoken": "The mass before minus the mass after is positive L over c squared; the signed final-minus-initial change is negative L over c squared."
+        "spoken": "The mass before minus the mass after is positive L over c squared; the signed final-minus-initial change is negative L over c squared.",
+        "equations": ["eq-model-me-mass-difference", "eq-model-me-mass-change-signed"]
       },
       {
         "kind": "paragraph",

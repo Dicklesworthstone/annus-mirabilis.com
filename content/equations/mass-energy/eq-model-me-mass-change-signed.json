@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-mass-change-signed",
+  "paper": "mass-energy",
+  "argument": "arg-me-mass-change",
+  "title": "The same change, signed",
+  "spoken": "Delta m equals m one minus m zero, which equals minus L over c squared.",
+  "explanation": "After minus before: negative, because the body lost mass. The same fact as the positive loss, with the opposite sign convention.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Low speed.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-mass-change-signed.op.relation",
+    "left": {
+      "kind": "relation",
+      "opId": "eq-model-me-mass-change-signed.op.definition",
+      "left": {
+        "kind": "symbol",
+        "termId": "eq-model-me-mass-change-signed.t.change",
+        "quantityId": "massChangeSigned"
+      },
+      "right": {
+        "kind": "sum",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-me-mass-change-signed.t.after",
+            "quantityId": "bodyMassAfter"
+          },
+          {
+            "kind": "negate",
+            "argument": {
+              "kind": "symbol",
+              "termId": "eq-model-me-mass-change-signed.t.before",
+              "quantityId": "bodyMassBefore"
+            }
+          }
+        ],
+        "opId": "eq-model-me-mass-change-signed.op.difference"
+      },
+      "operator": "="
+    },
+    "right": {
+      "kind": "negate",
+      "argument": {
+        "kind": "quotient",
+        "numerator": {
+          "kind": "symbol",
+          "termId": "eq-model-me-mass-change-signed.t.energy",
+          "quantityId": "emittedEnergyRestFrame"
+        },
+        "denominator": {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-me-mass-change-signed.t.light",
+            "quantityId": "speedOfLight"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          },
+          "opId": "eq-model-me-mass-change-signed.op.square"
+        },
+        "opId": "eq-model-me-mass-change-signed.op.quotient"
+      }
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-mass-change-signed.op.definition",
+      "title": "Its definition",
+      "explanation": "Delta m means after minus before.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-me-mass-change-signed.op.difference",
+      "title": "After minus before",
+      "explanation": "Negative for a loss.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-me-mass-change-signed.op.quotient",
+      "title": "L over c squared",
+      "explanation": "The loss, as a mass.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-mass-change-signed.op.relation",
+      "title": "What it asserts",
+      "explanation": "The mass change is minus L over c squared.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-mass-change-signed.op.square",
+      "title": "c squared",
+      "explanation": "The quantity multiplied by itself.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-mass-change-signed.t.after",
+      "title": "Mass after",
+      "explanation": "The body's inertial mass afterwards.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-mass-change-signed.t.before",
+      "title": "Mass before",
+      "explanation": "The body's inertial mass before it emits the light.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-mass-change-signed.t.change",
+      "title": "Signed mass change",
+      "explanation": "After minus before.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-me-mass-change-signed.t.energy",
+      "title": "Emitted light energy",
+      "explanation": "The total energy of the two pulses in the body's rest frame; the paper writes L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-mass-change-signed.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper writes V.",
+      "foundation": "fields-waves"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The signed change",
+      "nodeId": "eq-model-me-mass-change-signed.t.change"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the mass after",
+      "nodeId": "eq-model-me-mass-change-signed.t.after"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "the mass before",
+      "nodeId": "eq-model-me-mass-change-signed.t.before"
+    },
+    {
+      "text": ": minus "
+    },
+    {
+      "text": "L",
+      "nodeId": "eq-model-me-mass-change-signed.t.energy"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-me-mass-change-signed.t.light"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

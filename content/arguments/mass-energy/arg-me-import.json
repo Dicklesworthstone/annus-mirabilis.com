@@ -36,7 +36,8 @@
       {
         "kind": "formula",
         "latex": "e'=e\\gamma(1-\\beta\\cos\\varphi),\\qquad\\beta=v/c,\\qquad\\gamma=\\frac{1}{\\sqrt{1-\\beta^2}}",
-        "spoken": "The transformed pulse energy is its original energy times gamma times one minus beta cosine phi; beta is speed divided by light speed."
+        "spoken": "The transformed pulse energy is its original energy times gamma times one minus beta cosine phi; beta is speed divided by light speed.",
+        "equations": ["eq-model-me-light-energy-transform", "eq-model-me-speed-ratio", "eq-model-me-lorentz-factor-beta"]
       },
       {
         "kind": "foundation",

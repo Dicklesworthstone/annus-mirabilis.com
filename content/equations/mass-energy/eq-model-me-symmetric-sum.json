@@ -1,0 +1,362 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-symmetric-sum",
+  "paper": "mass-energy",
+  "argument": "arg-me-symmetric-emission",
+  "title": "Two opposite pulses add up to gamma L",
+  "spoken": "L over two gamma times one minus beta cos phi, plus L over two gamma times one plus beta cos phi, equals gamma L.",
+  "explanation": "The direction terms are equal and opposite, so they cancel: the pair carries gamma L in the moving frame whatever the angle.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Two equal pulses in opposite directions, so the body does not recoil.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-symmetric-sum.op.relation",
+    "left": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "product",
+          "args": [
+            {
+              "kind": "quotient",
+              "numerator": {
+                "kind": "symbol",
+                "termId": "eq-model-me-symmetric-sum.t.lF",
+                "quantityId": "emittedEnergyRestFrame"
+              },
+              "denominator": {
+                "kind": "number",
+                "value": "2"
+              },
+              "opId": "eq-model-me-symmetric-sum.op.halfF"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-me-symmetric-sum.t.gF",
+              "quantityId": "lorentzFactor"
+            },
+            {
+              "kind": "group",
+              "opId": "eq-model-me-symmetric-sum.op.bracketF",
+              "argument": {
+                "kind": "sum",
+                "args": [
+                  {
+                    "kind": "number",
+                    "value": "1"
+                  },
+                  {
+                    "kind": "negate",
+                    "argument": {
+                      "kind": "product",
+                      "args": [
+                        {
+                          "kind": "symbol",
+                          "termId": "eq-model-me-symmetric-sum.t.bF",
+                          "quantityId": "speedRatio"
+                        },
+                        {
+                          "kind": "function",
+                          "opId": "eq-model-me-symmetric-sum.op.cosF",
+                          "name": "cos",
+                          "argument": {
+                            "kind": "symbol",
+                            "termId": "eq-model-me-symmetric-sum.t.aF",
+                            "quantityId": "emissionAngle"
+                          }
+                        }
+                      ],
+                      "opId": "eq-model-me-symmetric-sum.op.bcF"
+                    }
+                  }
+                ],
+                "opId": "eq-model-me-symmetric-sum.op.factorF"
+              }
+            }
+          ],
+          "opId": "eq-model-me-symmetric-sum.op.forward"
+        },
+        {
+          "kind": "product",
+          "args": [
+            {
+              "kind": "quotient",
+              "numerator": {
+                "kind": "symbol",
+                "termId": "eq-model-me-symmetric-sum.t.lB",
+                "quantityId": "emittedEnergyRestFrame"
+              },
+              "denominator": {
+                "kind": "number",
+                "value": "2"
+              },
+              "opId": "eq-model-me-symmetric-sum.op.halfB"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-me-symmetric-sum.t.gB",
+              "quantityId": "lorentzFactor"
+            },
+            {
+              "kind": "group",
+              "opId": "eq-model-me-symmetric-sum.op.bracketB",
+              "argument": {
+                "kind": "sum",
+                "args": [
+                  {
+                    "kind": "number",
+                    "value": "1"
+                  },
+                  {
+                    "kind": "product",
+                    "args": [
+                      {
+                        "kind": "symbol",
+                        "termId": "eq-model-me-symmetric-sum.t.bB",
+                        "quantityId": "speedRatio"
+                      },
+                      {
+                        "kind": "function",
+                        "opId": "eq-model-me-symmetric-sum.op.cosB",
+                        "name": "cos",
+                        "argument": {
+                          "kind": "symbol",
+                          "termId": "eq-model-me-symmetric-sum.t.aB",
+                          "quantityId": "emissionAngle"
+                        }
+                      }
+                    ],
+                    "opId": "eq-model-me-symmetric-sum.op.bcB"
+                  }
+                ],
+                "opId": "eq-model-me-symmetric-sum.op.factorB"
+              }
+            }
+          ],
+          "opId": "eq-model-me-symmetric-sum.op.backward"
+        }
+      ],
+      "opId": "eq-model-me-symmetric-sum.op.total"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-me-symmetric-sum.t.g",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-me-symmetric-sum.t.l",
+          "quantityId": "emittedEnergyRestFrame"
+        }
+      ],
+      "opId": "eq-model-me-symmetric-sum.op.gammaL"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.backward",
+      "title": "The second pulse",
+      "explanation": "Its energy in the moving frame.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.bcB",
+      "title": "Beta cos phi",
+      "explanation": "Equal and opposite to the first pulse's.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.bcF",
+      "title": "Beta cos phi",
+      "explanation": "The part that depends on direction.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.bracketB",
+      "title": "In brackets",
+      "explanation": "The second pulse's direction factor.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.bracketF",
+      "title": "In brackets",
+      "explanation": "The first pulse's direction factor.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.cosB",
+      "title": "Cosine of the angle",
+      "explanation": "The same angle; the opposite pulse flips the sign in front of it.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.cosF",
+      "title": "Cosine of the angle",
+      "explanation": "Plus one straight ahead, minus one straight back.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.factorB",
+      "title": "One plus beta cos phi",
+      "explanation": "The pulse sent the opposite way.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.factorF",
+      "title": "One minus beta cos phi",
+      "explanation": "The pulse sent along phi.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.forward",
+      "title": "The first pulse",
+      "explanation": "Its energy in the moving frame.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.gammaL",
+      "title": "Gamma L",
+      "explanation": "The pair's energy in the moving frame.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.halfB",
+      "title": "L over 2",
+      "explanation": "The other pulse's share, the same size.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.halfF",
+      "title": "L over 2",
+      "explanation": "This pulse's share of the light in the rest frame.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.relation",
+      "title": "What it asserts",
+      "explanation": "The pair carries gamma L, independent of the angle.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.op.total",
+      "title": "Both pulses",
+      "explanation": "The beta cos phi terms cancel.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.aB",
+      "title": "Emission angle",
+      "explanation": "The angle between the pulse and the direction of motion.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.aF",
+      "title": "Emission angle",
+      "explanation": "The angle between the pulse and the direction of motion.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.bB",
+      "title": "Speed ratio",
+      "explanation": "v over c.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.bF",
+      "title": "Speed ratio",
+      "explanation": "v over c.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.g",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.gB",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.gF",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.l",
+      "title": "Emitted light energy",
+      "explanation": "The total energy of the two pulses in the body's rest frame; the paper writes L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.lB",
+      "title": "Half the light",
+      "explanation": "Each pulse carries L over 2 in the rest frame.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-symmetric-sum.t.lF",
+      "title": "Half the light",
+      "explanation": "Each pulse carries L over 2 in the rest frame.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "Half the light",
+      "nodeId": "eq-model-me-symmetric-sum.t.lF"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-me-symmetric-sum.t.gF"
+    },
+    {
+      "text": " times one minus "
+    },
+    {
+      "text": "beta",
+      "nodeId": "eq-model-me-symmetric-sum.t.bF"
+    },
+    {
+      "text": " cos "
+    },
+    {
+      "text": "phi",
+      "nodeId": "eq-model-me-symmetric-sum.t.aF"
+    },
+    {
+      "text": ", plus the same with a plus, is "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-me-symmetric-sum.t.g"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "L",
+      "nodeId": "eq-model-me-symmetric-sum.t.l"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

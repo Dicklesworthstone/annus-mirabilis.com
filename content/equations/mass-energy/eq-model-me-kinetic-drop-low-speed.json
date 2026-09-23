@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-kinetic-drop-low-speed",
+  "paper": "mass-energy",
+  "argument": "arg-me-small-speed",
+  "title": "At low speed, the drop looks like a kinetic energy",
+  "spoken": "K zero minus K one is approximately one half times L over c squared times v squared.",
+  "explanation": "The drop has the shape of one half m v squared, with L over c squared standing where a mass stands. That shape, not a coincidence of numbers, is the argument.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Speeds small compared with light; higher powers of v over c dropped.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-kinetic-drop-low-speed.op.relation",
+    "left": {
+      "kind": "sum",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-me-kinetic-drop-low-speed.t.before",
+          "quantityId": "kineticEnergyBefore"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-me-kinetic-drop-low-speed.t.after",
+            "quantityId": "kineticEnergyAfter"
+          }
+        }
+      ],
+      "opId": "eq-model-me-kinetic-drop-low-speed.op.difference"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "number",
+            "value": "2"
+          },
+          "opId": "eq-model-me-kinetic-drop-low-speed.op.half"
+        },
+        {
+          "kind": "quotient",
+          "numerator": {
+            "kind": "symbol",
+            "termId": "eq-model-me-kinetic-drop-low-speed.t.energy",
+            "quantityId": "emittedEnergyRestFrame"
+          },
+          "denominator": {
+            "kind": "power",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-me-kinetic-drop-low-speed.t.light",
+              "quantityId": "speedOfLight"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            },
+            "opId": "eq-model-me-kinetic-drop-low-speed.op.lightSquare"
+          },
+          "opId": "eq-model-me-kinetic-drop-low-speed.op.quotient"
+        },
+        {
+          "kind": "power",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-me-kinetic-drop-low-speed.t.speed",
+            "quantityId": "frameSpeed"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          },
+          "opId": "eq-model-me-kinetic-drop-low-speed.op.speedSquare"
+        }
+      ],
+      "opId": "eq-model-me-kinetic-drop-low-speed.op.product"
+    },
+    "operator": "approx"
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.op.difference",
+      "title": "The drop",
+      "explanation": "Before minus after.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.op.half",
+      "title": "One half",
+      "explanation": "The half in one half m v squared.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.op.lightSquare",
+      "title": "c squared",
+      "explanation": "The quantity multiplied by itself.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.op.product",
+      "title": "One half times L over c squared times v squared",
+      "explanation": "The form of a kinetic energy.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.op.quotient",
+      "title": "L over c squared",
+      "explanation": "In the place of a mass.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.op.relation",
+      "title": "What it asserts",
+      "explanation": "Approximately, to leading order in v over c.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.op.speedSquare",
+      "title": "v squared",
+      "explanation": "The quantity multiplied by itself.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.after",
+      "title": "Kinetic energy after",
+      "explanation": "Measured in the same moving frame, after emission.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.before",
+      "title": "Kinetic energy before",
+      "explanation": "Measured in the moving frame.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.energy",
+      "title": "Emitted light energy",
+      "explanation": "The total energy of the two pulses in the body's rest frame; the paper writes L.",
+      "foundation": "work-energy"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.light",
+      "title": "Speed of light",
+      "explanation": "The paper writes V.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.speed",
+      "title": "Speed of the body",
+      "explanation": "How fast the body moves in the second frame.",
+      "foundation": "frames-events"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The kinetic energy before",
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.before"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "after",
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.after"
+    },
+    {
+      "text": " is approximately one half times "
+    },
+    {
+      "text": "L",
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.energy"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.light"
+    },
+    {
+      "text": " squared times "
+    },
+    {
+      "text": "v",
+      "nodeId": "eq-model-me-kinetic-drop-low-speed.t.speed"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}

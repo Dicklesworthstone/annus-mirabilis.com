@@ -33,7 +33,8 @@
       {
         "kind": "formula",
         "latex": "\\frac{L}{2}\\gamma(1-\\beta\\cos\\varphi)+\\frac{L}{2}\\gamma(1+\\beta\\cos\\varphi)=\\gamma L",
-        "spoken": "The opposite-direction terms cancel, leaving total moving-frame light energy gamma times L."
+        "spoken": "The opposite-direction terms cancel, leaving total moving-frame light energy gamma times L.",
+        "equations": ["eq-model-me-symmetric-sum"]
       }
     ],
     "steps": [

@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-me-light-energy-transform",
+  "paper": "mass-energy",
+  "argument": "arg-me-import",
+  "title": "A pulse's energy seen from the moving frame",
+  "spoken": "e prime equals e times gamma times one minus beta cosine phi.",
+  "explanation": "The relativity paper's section 8 result, taken here as a borrowed premise: a pulse emitted forward loses energy in the moving frame's account, one emitted backward gains it.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "assumptions": [
+    "Paper 3, section 8, taken as a premise, not re-derived here.",
+    "Plane pulses of light.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-me-light-energy-transform.op.relation",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-me-light-energy-transform.t.moving",
+      "quantityId": "lightComplexEnergyMoving"
+    },
+    "right": {
+      "kind": "product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-me-light-energy-transform.t.rest",
+          "quantityId": "lightComplexEnergyStationary"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-me-light-energy-transform.t.gamma",
+          "quantityId": "lorentzFactor"
+        },
+        {
+          "kind": "group",
+          "opId": "eq-model-me-light-energy-transform.op.bracket",
+          "argument": {
+            "kind": "sum",
+            "args": [
+              {
+                "kind": "number",
+                "value": "1"
+              },
+              {
+                "kind": "negate",
+                "argument": {
+                  "kind": "product",
+                  "args": [
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-me-light-energy-transform.t.beta",
+                      "quantityId": "speedRatio"
+                    },
+                    {
+                      "kind": "function",
+                      "opId": "eq-model-me-light-energy-transform.op.cos",
+                      "name": "cos",
+                      "argument": {
+                        "kind": "symbol",
+                        "termId": "eq-model-me-light-energy-transform.t.angle",
+                        "quantityId": "emissionAngle"
+                      }
+                    }
+                  ],
+                  "opId": "eq-model-me-light-energy-transform.op.betaCos"
+                }
+              }
+            ],
+            "opId": "eq-model-me-light-energy-transform.op.factor"
+          }
+        }
+      ],
+      "opId": "eq-model-me-light-energy-transform.op.product"
+    },
+    "operator": "="
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-me-light-energy-transform.op.betaCos",
+      "title": "Beta cos phi",
+      "explanation": "The Doppler-like share that depends on direction.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.op.bracket",
+      "title": "The direction factor",
+      "explanation": "Everything that depends on where the pulse points.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.op.cos",
+      "title": "Cosine of the angle",
+      "explanation": "Plus one for a pulse sent straight ahead, minus one straight back.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.op.factor",
+      "title": "One minus beta cos phi",
+      "explanation": "Smaller forward, larger backward.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.op.product",
+      "title": "e times gamma times the factor",
+      "explanation": "The moving frame's energy.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.op.relation",
+      "title": "What it asserts",
+      "explanation": "The same pulse carries different energies in the two frames.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.t.angle",
+      "title": "Emission angle",
+      "explanation": "The angle between the pulse and the direction of motion.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.t.beta",
+      "title": "Speed ratio",
+      "explanation": "v over c.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.t.gamma",
+      "title": "Lorentz factor",
+      "explanation": "One over the square root of one minus v squared over c squared.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.t.moving",
+      "title": "Pulse energy, moving frame",
+      "explanation": "The pulse's energy in the frame where the body moves.",
+      "foundation": "frames-events"
+    },
+    {
+      "nodeId": "eq-model-me-light-energy-transform.t.rest",
+      "title": "Pulse energy, rest frame",
+      "explanation": "The same pulse's energy in the body's own frame.",
+      "foundation": "work-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The pulse energy in the moving frame",
+      "nodeId": "eq-model-me-light-energy-transform.t.moving"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "its rest-frame energy",
+      "nodeId": "eq-model-me-light-energy-transform.t.rest"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "gamma",
+      "nodeId": "eq-model-me-light-energy-transform.t.gamma"
+    },
+    {
+      "text": " times one minus "
+    },
+    {
+      "text": "beta",
+      "nodeId": "eq-model-me-light-energy-transform.t.beta"
+    },
+    {
+      "text": " times the cosine of "
+    },
+    {
+      "text": "phi",
+      "nodeId": "eq-model-me-light-energy-transform.t.angle"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

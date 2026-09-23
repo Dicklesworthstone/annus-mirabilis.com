@@ -32,7 +32,8 @@
       {
         "kind": "formula",
         "latex": "K_0-K_1\\approx\\frac{1}{2}\\frac{L}{c^2}v^2",
-        "spoken": "At low speed, the kinetic-energy drop is approximately one half times L over c squared times v squared."
+        "spoken": "At low speed, the kinetic-energy drop is approximately one half times L over c squared times v squared.",
+        "equations": ["eq-model-me-kinetic-drop-low-speed"]
       },
       {
         "kind": "paragraph",
