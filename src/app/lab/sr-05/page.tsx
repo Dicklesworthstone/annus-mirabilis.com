@@ -73,11 +73,11 @@ export default function MovingClocksPage() {
           accelerations report exactly the same proper time.
         </p>
         <p className="fine">
-          Ideal model, host calculation. The full event-geometry evaluator (worldline proper time as
-          a general integral, reunion comparisons, and reciprocal-rate redescription across boosted
-          frames) is being built separately; until it lands, this instrument computes
-          piecewise-constant-speed proper time directly from the Lorentz factor, which is exact for
-          every scenario above.
+          Ideal model, host calculation. Every worldline offered here keeps a constant speed along
+          each piece of its path, so its proper time is each piece&rsquo;s coordinate time
+          multiplied by <InlineFormula latex={String.raw`\sqrt{1-v^2/c^2}`} /> and added up, which
+          is exact. A path whose speed changes continuously would need the general integral, which
+          this instrument does not offer.
         </p>
       </section>
     </>
