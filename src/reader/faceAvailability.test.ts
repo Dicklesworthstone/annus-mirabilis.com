@@ -26,11 +26,13 @@ const counts = (over: Partial<FaceContentCounts> = {}): FaceContentCounts => ({
 });
 
 describe("faceAvailability", () => {
-  test("a paper with no edition at all offers only the three non-source faces", () => {
+  test("a paper with no edition at all offers only the two non-source faces", () => {
     const a = faceAvailability(counts());
     expect(a.reading).toBe("available");
     expect(a.results).toBe("available");
-    expect(a.split).toBe("available");
+    // Split's default pair is parallel + explanation; with no parallel face its page is a
+    // notice and a link back, so it is not offered as a face.
+    expect(a.split).toBe("empty");
     expect(a.german).toBe("empty");
     expect(a.english).toBe("empty");
     expect(a.parallel).toBe("empty");
@@ -54,6 +56,16 @@ describe("faceAvailability", () => {
     expect(a.english).toBe("empty");
     expect(a.parallel).toBe("empty");
     expect(a.gloss).toBe("empty");
+  });
+
+  test("split follows its source pane: available exactly when parallel is", () => {
+    // The positive case the change must not lose, and the German-draft case that must not
+    // be read as a pairable source.
+    expect(faceAvailability(counts({ blocks: 10, units: 10 })).split).toBe("available");
+    expect(faceAvailability(counts({ blocks: 10 })).split).toBe("empty");
+    expect(faceAvailability(counts({ germanDraftBlocks: 87 })).split).toBe("empty");
+    for (const c of [counts(), counts({ blocks: 3, units: 3 }), counts({ units: 5 })])
+      expect(faceAvailability(c).split).toBe(faceAvailability(c).parallel);
   });
 
   test("parallel and gloss need BOTH sides, not either", () => {
@@ -87,5 +99,22 @@ describe("faceAvailability", () => {
   test("the table is frozen, so a caller cannot edit one face's answer in place", () => {
     const a = faceAvailability(counts());
     expect(Object.isFrozen(a)).toBe(true);
+  });
+});
+
+describe("FaceChooser's tab order", () => {
+  test("names every fallback face exactly once, Results before German source", async () => {
+    // TAB_ORDER is a hand-written list; a fallback face missing from it would silently
+    // vanish from the chooser. Rendered rather than imported, so the check is on the page.
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { createElement } = await import("react");
+    const { FaceChooser } = await import("./FaceChooser.tsx");
+    const { FACE_FALLBACK_IDS } = await import("./paperRoutes.ts");
+    const html = renderToStaticMarkup(createElement(FaceChooser, { paperId: "mass-energy" }));
+    const order = [...html.matchAll(/data-view-link="([a-z]+)"/g)].map((m) => m[1]);
+    expect(order[0]).toBe("reading");
+    expect([...order.slice(1)].sort()).toEqual([...FACE_FALLBACK_IDS].sort());
+    expect(order.indexOf("results")).toBeLessThan(order.indexOf("german"));
+    expect(order.indexOf("german")).toBeLessThan(order.indexOf("facsimile"));
   });
 });
