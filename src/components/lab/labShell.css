@@ -436,3 +436,20 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell) > p[data-detail="3"
   max-width: 44rem;
   margin-block: 0.5rem 1.25rem;
 }
+
+/* A chart's labels are sized in the drawing's own units (the site-wide svg[role="img"] text rule),
+   so a drawing stretched across a wide results column magnified its labels with it: the 300-unit
+   plots read at 33px at 1440 and a 570-unit one at 29px. Each drawing width is capped at about 1.1
+   times its own units, which puts every label near 15px on a wide screen. A phone is narrower than
+   every cap, so this changes nothing there. */
+.plot svg[role="img"][viewBox^="0 0 300 "] {
+  max-width: 21rem;
+}
+
+.plot svg[role="img"][viewBox^="0 0 570 "] {
+  max-width: 40rem;
+}
+
+.plot svg[role="img"][viewBox^="0 0 640 "] {
+  max-width: 44rem;
+}
