@@ -3,7 +3,7 @@ import { loadPaper } from "../content/server";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
-import { FoundationBody, ReadingBlocks } from "./Blocks";
+import { ReadingBlocks } from "./Blocks";
 import { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter";
 import { LazyInlineTracerLab } from "./LazyInlineTracerLab.tsx";
 import { Companion } from "./layout/Companion.tsx";
@@ -420,11 +420,13 @@ export async function PaperReader({
             <h2 id={`clarification-${f.id}`} tabIndex={-1}>
               {f.title}
             </h2>
-            <FoundationBody
-              foundation={f}
-              foundations={foundations}
-              contextLabel="clarification panel"
-            />
+            {/* The body loads when this lesson opens (src/reader/lessonBody.ts), from its own
+                page; the dialog carried every lesson in full and put the Brownian page over its
+                HTML budget. Without JavaScript the dialog never opens and each lesson link is a
+                real link to that page. */}
+            <div data-lesson-body={f.id}>
+              <p className="fine">Loading the lesson.</p>
+            </div>
             <p>
               <a
                 href={`/foundations/${f.id}/`}

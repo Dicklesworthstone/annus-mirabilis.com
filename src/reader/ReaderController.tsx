@@ -3,6 +3,7 @@ import { useEffect, useId } from "react";
 import { makeDismissible } from "../a11y/modal/dismiss.ts";
 import { FACE_REGISTRY } from "./faces/registry.ts";
 import { InlineFacsimile } from "./facsimile/InlineFacsimile.tsx";
+import { loadLessonBody, unmountLessonConstructions } from "./lessonBody.ts";
 import {
   DETAIL_STORAGE_KEY,
   FACES,
@@ -163,6 +164,11 @@ export function ReaderController(props: Props) {
       for (const panel of root.querySelectorAll<HTMLElement>("[data-foundation-panel]"))
         panel.hidden = panel.dataset.foundationPanel !== frame?.foundationId;
       if (frame) {
+        // The lesson's body arrives when it opens (lessonBody.ts); its title is already here.
+        const lessonBody = root.querySelector<HTMLElement>(
+          `[data-foundation-panel="${frame.foundationId}"] [data-lesson-body]`,
+        );
+        if (lessonBody) void loadLessonBody(lessonBody);
         const heading = root.querySelector<HTMLElement>(
           `[data-foundation-panel="${frame.foundationId}"] h2`,
         );
@@ -432,6 +438,7 @@ export function ReaderController(props: Props) {
       window.removeEventListener("popstate", pop);
       dismissal.abort();
       closeDirectOpenDialog(document);
+      unmountLessonConstructions();
     };
   }, [navigation]);
   return (
