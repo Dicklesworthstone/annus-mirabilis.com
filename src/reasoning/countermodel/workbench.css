@@ -50,6 +50,19 @@
   padding: 0.4rem;
   text-align: left;
 }
+/* A readout is one token. The workbench lets text break anywhere, and inside these tables that
+   let auto layout give the row labels the width and cut each number column to 22px on a 390px
+   phone, and at 1440 too, where the tables sit in a narrow matrix cell: one digit a line. The
+   numbers stay whole, headings and labels break between words, and the table scrolls inside
+   its region instead. */
+.countermodel-scroll th {
+  overflow-wrap: normal;
+}
+.countermodel-scroll td {
+  overflow-wrap: normal;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
 .countermodel-matrix {
   width: 100%;
   table-layout: fixed;
