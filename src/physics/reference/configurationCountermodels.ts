@@ -79,7 +79,8 @@ export function distinguishOccupancy(input: unknown, checks: readonly OccupancyC
   const comparison = compareOccupancyModels(input);
   // All admitted fractions are binary-exact. This is a numerical comparison floor,
   // not measurement uncertainty or a significance threshold.
-  const different = checks.filter((check: OccupancyCheck) => comparison.differences[check] > 1e-12);
+  // Annotated because the Array.isArray guard above narrows a readonly array to any[].
+  const different: OccupancyCheck[] = checks.filter((check: OccupancyCheck) => comparison.differences[check] > 1e-12);
   return Object.freeze({
     status: different.length ? "different-predictions" as const : "underdetermined" as const,
     different: Object.freeze(different),
