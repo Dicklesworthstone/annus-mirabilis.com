@@ -367,7 +367,7 @@ export function ElectronDynamicsPlot({
             background: "var(--wash)",
           }}
         >
-          <div style={{ color: "var(--muted)", fontWeight: 500 }}>Longitudinal Mass (m · γ³)</div>
+          <div style={{ color: "var(--muted)", fontWeight: 500 }}>Longitudinal mass (m · γ³)</div>
           <div
             style={{
               fontSize: "1rem",
@@ -379,8 +379,8 @@ export function ElectronDynamicsPlot({
           >
             {(longitudinalMassKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(6)} m
           </div>
-          <div className="fine" style={{ marginTop: "0.25rem", fontSize: "0.75rem" }}>
-            Section 10 formula: μ / (1 - v²/V²)^(3/2) = γ³m
+          <div className="fine" style={{ marginTop: "0.25rem" }}>
+            Einstein&apos;s §10: μ / (√(1 − v²/V²))³, that is, γ³m
           </div>
         </div>
 
@@ -393,7 +393,7 @@ export function ElectronDynamicsPlot({
           }}
         >
           <div style={{ color: "var(--muted)", fontWeight: 500 }}>
-            Transverse Mass: Comoving (Einstein 1905)
+            Transverse mass, comoving force (Einstein 1905)
           </div>
           <div
             style={{
@@ -407,7 +407,7 @@ export function ElectronDynamicsPlot({
             {(transverseMassComovingKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(6)}{" "}
             m
           </div>
-          <div className="fine" style={{ marginTop: "0.25rem", fontSize: "0.75rem" }}>
+          <div className="fine" style={{ marginTop: "0.25rem" }}>
             Comoving force / stationary acceleration: F′<sub>y</sub> / a<sub>y</sub> = γ²m
           </div>
         </div>
@@ -421,7 +421,7 @@ export function ElectronDynamicsPlot({
           }}
         >
           <div style={{ color: "var(--muted)", fontWeight: 500 }}>
-            Transverse Mass: Laboratory (Planck 1906)
+            Transverse mass, laboratory force (Planck 1906)
           </div>
           <div
             style={{
@@ -437,7 +437,7 @@ export function ElectronDynamicsPlot({
             )}{" "}
             m
           </div>
-          <div className="fine" style={{ marginTop: "0.25rem", fontSize: "0.75rem" }}>
+          <div className="fine" style={{ marginTop: "0.25rem" }}>
             Laboratory force / stationary acceleration: F<sub>y</sub> / a<sub>y</sub> = γm
           </div>
         </div>
@@ -460,7 +460,7 @@ export function ElectronDynamicsPlot({
             background: "var(--wash)",
           }}
         >
-          <div style={{ color: "var(--muted)" }}>Relativistic Kinetic Energy W</div>
+          <div style={{ color: "var(--muted)" }}>Relativistic kinetic energy W</div>
           <div
             style={{
               fontSize: "0.875rem",
@@ -472,7 +472,7 @@ export function ElectronDynamicsPlot({
           >
             {(kineticEnergyJ / 1.602176634e-19 / 1e3).toFixed(2)} keV
           </div>
-          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             mc²(γ − 1)
           </div>
         </div>
@@ -485,7 +485,7 @@ export function ElectronDynamicsPlot({
             background: "var(--wash)",
           }}
         >
-          <div style={{ color: "var(--muted)" }}>Newtonian Kinetic Energy</div>
+          <div style={{ color: "var(--muted)" }}>Newtonian kinetic energy</div>
           <div
             style={{
               fontSize: "0.875rem",
@@ -496,7 +496,7 @@ export function ElectronDynamicsPlot({
           >
             {(kineticEnergyNewtonianJ / 1.602176634e-19 / 1e3).toFixed(2)} keV
           </div>
-          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             ½mv²
           </div>
         </div>
@@ -509,7 +509,7 @@ export function ElectronDynamicsPlot({
             background: "var(--wash)",
           }}
         >
-          <div style={{ color: "var(--muted)" }}>Accelerating Potential P</div>
+          <div style={{ color: "var(--muted)" }}>Accelerating potential P</div>
           <div
             style={{
               fontSize: "0.875rem",
@@ -521,7 +521,7 @@ export function ElectronDynamicsPlot({
           >
             {(acceleratingPotentialV / 1e3).toFixed(2)} kV
           </div>
-          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             W / e (exact)
           </div>
         </div>
@@ -534,7 +534,7 @@ export function ElectronDynamicsPlot({
             background: "var(--wash)",
           }}
         >
-          <div style={{ color: "var(--muted)" }}>Newtonian Potential</div>
+          <div style={{ color: "var(--muted)" }}>Newtonian potential</div>
           <div
             style={{
               fontSize: "0.875rem",
@@ -545,7 +545,7 @@ export function ElectronDynamicsPlot({
           >
             {(acceleratingPotentialNewtonianV / 1e3).toFixed(2)} kV
           </div>
-          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             ½mv² / e
           </div>
         </div>
@@ -583,7 +583,7 @@ export function ElectronDynamicsPlot({
               ? `${radiusCurvatureMagneticM.toFixed(4)} m`
               : "Straight path (B = 0)"}
           </div>
-          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             γmv / (|q|B)
           </div>
         </div>
@@ -611,7 +611,7 @@ export function ElectronDynamicsPlot({
               ? `${radiusCurvatureElectricM.toFixed(4)} m`
               : "Straight path (E = 0)"}
           </div>
-          <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
+          <div className="fine" style={{ marginTop: "0.125rem" }}>
             γmv² / (|q|E)
           </div>
         </div>
