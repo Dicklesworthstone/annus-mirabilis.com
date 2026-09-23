@@ -166,14 +166,8 @@ export function KitchenLab({
         <span className="badge">{accepted ? "Local host calculation" : "No data loaded"}</span>
       </header>
       <p>
-        Import a classroom CSV or inspect the explicitly synthetic practice track. Files,
-        coordinates and derived results are handled in this page and its local worker. They are not
-        sent to a server or placed in a share link.
-      </p>
-      <p className="fine">
-        CSV limit: 2 MiB and 20,000 rows. Capture coordinates from a local video below, or import an
-        existing observation file. Nothing is automatically saved: export observations before
-        closing or reloading the page.
+        Import a classroom CSV, or try the synthetic practice track. Everything stays in this page:
+        nothing is sent to a server or put in a share link.
       </p>
       <noscript>
         <p className="notice">
@@ -181,7 +175,6 @@ export function KitchenLab({
           remain available without it.
         </p>
       </noscript>
-      <VideoTracker key={captureEpoch} disabled={!ready || busy} onAnalyze={load} />
       <div className="kitchen-import">
         <div className="input-field">
           <label htmlFor={`${id}-file`}>Observation CSV</label>
@@ -246,6 +239,11 @@ export function KitchenLab({
           </button>
         </details>
       </div>
+      <p className="fine">
+        CSV limit: 2 MiB and 20,000 rows. To capture coordinates from your own video, use the
+        tracker at the end of this laboratory. Nothing is saved automatically: export observations
+        before closing or reloading the page.
+      </p>
       <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
         {status}
       </p>
@@ -331,6 +329,10 @@ export function KitchenLab({
           </details>
         </>
       )}
+      {/* Last, not first: the tracker is about 3,900px tall on a phone, and above the import it put
+          the one-click practice analysis five screens down. Its result appears in the status line
+          and the analysis above. */}
+      <VideoTracker key={captureEpoch} disabled={!ready || busy} onAnalyze={load} />
     </section>
   );
 }

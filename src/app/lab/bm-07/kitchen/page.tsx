@@ -7,7 +7,7 @@ export default function KitchenObservationPage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">Brownian motion · Local observation analysis</p>
+        <p className="eyebrow">Brownian motion · Your observations</p>
         <h1>
           From your track
           <br />
@@ -17,13 +17,22 @@ export default function KitchenObservationPage() {
           Keep the measured positions, the missing observations and the assumptions together. Change
           the analysis without rewriting the evidence.
         </p>
-        <p>
-          <a href="/kitchen/">Read the observation guide and worksheet</a> ·{" "}
-          <a href="/lab/bm-08/">Start with camera error</a> ·{" "}
-          <a href="/papers/brownian-motion/#arg-bm-inference">Return to the inference argument</a>
-        </p>
       </header>
       <KitchenComparison practice={practice} />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/kitchen/">Read the observation guide and worksheet</a>
+          </li>
+          <li>
+            <a href="/lab/bm-08/">Start with camera error</a>
+          </li>
+          <li>
+            <a href="/papers/brownian-motion/#arg-bm-inference">Return to the inference argument</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading">
         <h2>What this version admits</h2>
         <p>
@@ -40,10 +49,10 @@ export default function KitchenObservationPage() {
           experiment.
         </p>
         <p>
-          Local video annotation is available above; automatic session saving is not.
-          Browser-reported orientation and frame timing are not an independent camera calibration. A
-          CSV export preserves the accepted observations for later import; an analysis export
-          records the result and its assumptions.
+          Local video annotation is available at the end of each laboratory; automatic session
+          saving is not. Browser-reported orientation and frame timing are not an independent camera
+          calibration. A CSV export preserves the accepted observations for later import; an
+          analysis export records the result and its assumptions.
         </p>
         <div className="actions">
           <a href="/edition/kitchen/practice.csv" download>
