@@ -22,21 +22,11 @@ export default function IndependentConfigurationsPage() {
   };
 
   return (
-    <main
-      style={{
-        maxWidth: "64rem",
-        margin: "0 auto",
-        padding: "2rem 1rem",
-      }}
-    >
-      <header className="page-intro" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
-        <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          LQ-05 · Light quanta · Paper 1, §5 heuristic foundation
-        </p>
-        <h1 style={{ fontFamily: "var(--font-serif, serif)" }}>
-          Independent configurations and the gas analogy
-        </h1>
-        <p className="lead" style={{ maxWidth: "42rem", margin: "0.5rem auto 0" }}>
+    <>
+      <header className="page-intro">
+        <p className="eyebrow">Light quanta · Paper 1, §5 heuristic foundation</p>
+        <h1>Independent configurations and the gas analogy</h1>
+        <p className="lead">
           How counting independent configurations produces an entropy law depending on volume as n
           ln(V/V₀), matching Wien-regime radiation and establishing the heuristic light-quantum
           concept.
@@ -111,6 +101,6 @@ export default function IndependentConfigurationsPage() {
           </a>
         </div>
       </section>
-    </main>
+    </>
   );
 }

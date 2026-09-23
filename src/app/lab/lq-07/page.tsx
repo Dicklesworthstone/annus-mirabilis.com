@@ -22,21 +22,11 @@ export default function FluorescencePage() {
   };
 
   return (
-    <main
-      style={{
-        maxWidth: "64rem",
-        margin: "0 auto",
-        padding: "2rem 1rem",
-      }}
-    >
-      <header className="page-intro" style={{ marginBottom: "1.5rem", textAlign: "center" }}>
-        <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-          LQ-07 · Light quanta · Paper 1, §7 energy conservation
-        </p>
-        <h1 style={{ fontFamily: "var(--font-serif, serif)" }}>
-          Stokes's rule and the single-quantum energy budget
-        </h1>
-        <p className="lead" style={{ maxWidth: "42rem", margin: "0.5rem auto 0" }}>
+    <>
+      <header className="page-intro">
+        <p className="eyebrow">Light quanta · Paper 1, §7 energy conservation</p>
+        <h1>Stokes's rule and the single-quantum energy budget</h1>
+        <p className="lead">
           Why the frequency of emitted fluorescent light cannot exceed that of the exciting light
           under elementary quantum transformation, and how Einstein deduced the exact conditions for
           exceptions.
@@ -141,6 +131,6 @@ export default function FluorescencePage() {
           </a>
         </div>
       </section>
-    </main>
+    </>
   );
 }
