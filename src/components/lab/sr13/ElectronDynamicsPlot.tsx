@@ -75,6 +75,12 @@ export function ElectronDynamicsPlot({
   const beta = Math.abs(initialSpeed);
   const gamma = Math.max(1, lorentzFactor || 1);
 
+  // A mass as a multiple of the electron's rest mass m, or in kilograms for a custom particle. It
+  // printed "1.953125 m" for both, which read as metres beside the radii in metres below, and a
+  // custom particle's kilograms were labelled "m" too.
+  const massText = (kg: number) =>
+    particle === "electron" ? `${(kg / 9.1093837e-31).toFixed(6)} × m` : `${kg.toPrecision(4)} kg`;
+
   const width = 800;
   const height = 360;
   const frame = { left: 24, right: width - 24, top: 20, bottom: height - 20 };
@@ -377,7 +383,7 @@ export function ElectronDynamicsPlot({
               color: "var(--ink)",
             }}
           >
-            {(longitudinalMassKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(6)} m
+            {massText(longitudinalMassKg)}
           </div>
           <div className="fine" style={{ marginTop: "0.25rem" }}>
             Einstein&apos;s §10: μ / (√(1 − v²/V²))³, that is, γ³m
@@ -404,8 +410,7 @@ export function ElectronDynamicsPlot({
               color: "var(--accent)",
             }}
           >
-            {(transverseMassComovingKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(6)}{" "}
-            m
+            {massText(transverseMassComovingKg)}
           </div>
           <div className="fine" style={{ marginTop: "0.25rem" }}>
             Comoving force / stationary acceleration: F′<sub>y</sub> / a<sub>y</sub> = γ²m
@@ -432,10 +437,7 @@ export function ElectronDynamicsPlot({
               color: "var(--plot)",
             }}
           >
-            {(transverseMassLaboratoryKg / (particle === "electron" ? 9.1093837e-31 : 1)).toFixed(
-              6,
-            )}{" "}
-            m
+            {massText(transverseMassLaboratoryKg)}
           </div>
           <div className="fine" style={{ marginTop: "0.25rem" }}>
             Laboratory force / stationary acceleration: F<sub>y</sub> / a<sub>y</sub> = γm
