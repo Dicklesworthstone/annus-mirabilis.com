@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-wave-field",
+  "paper": "foundations",
+  "argument": "fields-waves",
+  "title": "A travelling wave's field",
+  "spoken": "The field at x and t equals E nought times the cosine of k x minus omega t.",
+  "explanation": "The field at each place rises and falls in a repeating cycle, and the pattern travels along x: a crest sits wherever kx minus omega t is a whole number of 2 pi.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A single wave of one frequency, travelling along x in empty space.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-wave-field.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-wave-field.t.field",
+      "quantityId": "radiationElectricField",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-wave-field.t.fieldX",
+          "quantityId": "positionCoordinate1d"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-wave-field.t.fieldT",
+          "quantityId": "elapsedTime"
+        }
+      ]
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-wave-field.op.product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-wave-field.t.amplitude",
+          "quantityId": "waveAmplitude"
+        },
+        {
+          "kind": "function",
+          "opId": "eq-model-fd-wave-field.op.cos",
+          "name": "cos",
+          "argument": {
+            "kind": "sum",
+            "opId": "eq-model-fd-wave-field.op.phase",
+            "args": [
+              {
+                "kind": "product",
+                "opId": "eq-model-fd-wave-field.op.space",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-wave-field.t.k",
+                    "quantityId": "angularWavenumber"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-wave-field.t.x",
+                    "quantityId": "positionCoordinate1d"
+                  }
+                ]
+              },
+              {
+                "kind": "negate",
+                "argument": {
+                  "kind": "product",
+                  "opId": "eq-model-fd-wave-field.op.time",
+                  "args": [
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-fd-wave-field.t.omega",
+                      "quantityId": "angularFrequency"
+                    },
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-fd-wave-field.t.t",
+                      "quantityId": "elapsedTime"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-wave-field.op.cos",
+      "title": "The cosine",
+      "explanation": "Repeats each time its argument grows by 2 pi: one crest to the next.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.op.phase",
+      "title": "The phase",
+      "explanation": "kx minus omega t. Where it is constant, the field is the same: a crest moving along x.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.op.product",
+      "title": "Amplitude times a cosine",
+      "explanation": "The cosine swings between minus one and one; the amplitude sets the size.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.op.relation",
+      "title": "What it asserts",
+      "explanation": "At every place and moment the field is the amplitude times a cosine that repeats in space and in time.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.op.space",
+      "title": "k times x",
+      "explanation": "The phase gained along x: 2 pi per wavelength.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.op.time",
+      "title": "omega times t",
+      "explanation": "The phase gained in time: 2 pi per period.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.t.amplitude",
+      "title": "Amplitude",
+      "explanation": "E nought, the field at each crest.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.t.field",
+      "title": "Electric field",
+      "explanation": "E at position x and time t: a field has a value everywhere, at every moment.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.t.fieldT",
+      "title": "Time",
+      "explanation": "t.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.t.fieldX",
+      "title": "Position",
+      "explanation": "x, along the direction of travel.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.t.k",
+      "title": "Wavenumber",
+      "explanation": "k = 2 pi / lambda.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.t.omega",
+      "title": "Angular frequency",
+      "explanation": "omega = 2 pi nu.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.t.t",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-field.t.x",
+      "title": "Position",
+      "explanation": "The same x.",
+      "foundation": "fields-waves"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The field",
+      "nodeId": "eq-model-fd-wave-field.t.field"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "its amplitude",
+      "nodeId": "eq-model-fd-wave-field.t.amplitude"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "a cosine",
+      "nodeId": "eq-model-fd-wave-field.op.cos"
+    },
+    {
+      "text": " of "
+    },
+    {
+      "text": "a phase",
+      "nodeId": "eq-model-fd-wave-field.op.phase"
+    },
+    {
+      "text": " that grows along x and falls with time."
+    }
+  ]
+}

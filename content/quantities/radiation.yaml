@@ -468,6 +468,30 @@
   frame: not-applicable
   colorRole: field
 
+- id: waveAmplitude
+  name: Wave amplitude
+  description: >
+    The largest value E_0 of a single wave's field, reached at each crest, in the foundation
+    lesson on fields and waves. Distinct from fourierAmplitude, one component of a spectral
+    expansion.
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  gaussianDimension: [-1/2, 1/2, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: angularWavenumber
+  name: Angular wavenumber
+  description: >
+    k = 2 pi / lambda, radians per metre: how fast a wave's phase advances along x, as omega
+    = 2 pi nu says how fast it advances in time (the foundation lesson on fields and waves).
+  dimensionStatus: declared
+  dimension: [-1, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
 - id: fourierPhase
   name: Fourier phase
   description: The phase alpha_nu of one Fourier component of radiationElectricField.

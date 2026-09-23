@@ -18,7 +18,8 @@
     {
       "kind": "formula",
       "latex": "E(x,t) = E_0 \\cos(kx - \\omega t), \\qquad c = \\lambda \\nu",
-      "spoken": "The field at x and t is E nought times the cosine of k x minus omega t, and the speed c equals the wavelength times the frequency."
+      "spoken": "The field at x and t is E nought times the cosine of k x minus omega t, and the speed c equals the wavelength times the frequency.",
+      "equations": ["eq-model-fd-wave-field", "eq-model-fd-wave-speed"]
     },
     {
       "kind": "paragraph",

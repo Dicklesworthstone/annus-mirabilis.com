@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-wave-speed",
+  "paper": "foundations",
+  "argument": "fields-waves",
+  "title": "The crests travel at c = lambda nu",
+  "spoken": "The speed c equals the wavelength times the frequency.",
+  "explanation": "If nu crests pass a point each second, each a wavelength lambda behind the last, the pattern moves lambda nu metres each second.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A single wave of one frequency, travelling along x in empty space.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-wave-speed.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-wave-speed.t.c",
+      "quantityId": "speedOfLight"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-wave-speed.op.product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-wave-speed.t.lambda",
+          "quantityId": "wavelength"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-wave-speed.t.nu",
+          "quantityId": "frequency"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-wave-speed.op.product",
+      "title": "Wavelength times frequency",
+      "explanation": "nu crests pass each second, each a wavelength apart.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-speed.op.relation",
+      "title": "What it asserts",
+      "explanation": "The crests move one wavelength for each cycle.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-speed.t.c",
+      "title": "Speed of light",
+      "explanation": "c, the speed of the crests.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-speed.t.lambda",
+      "title": "Wavelength",
+      "explanation": "The distance from one crest to the next.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wave-speed.t.nu",
+      "title": "Frequency",
+      "explanation": "The number of crests passing a point each second.",
+      "foundation": "fields-waves"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The speed",
+      "nodeId": "eq-model-fd-wave-speed.t.c"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the wavelength",
+      "nodeId": "eq-model-fd-wave-speed.t.lambda"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the frequency",
+      "nodeId": "eq-model-fd-wave-speed.t.nu"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
