@@ -55,13 +55,13 @@ export function validateLq04Parameters(input: unknown): Computation<Lq04Paramete
     return bad("Volume ratio must be between 1e-4 and 1e4.");
   }
   if (!Number.isFinite(p.diluteThresholdX) || p.diluteThresholdX < 3 || p.diluteThresholdX > 10) {
-    return bad("The dilute threshold x_min must be between 3 and 10.");
+    return bad("The dilute threshold must be between 3 and 10.");
   }
   if (typeof p.showUnfixedConstantPanel !== "boolean") {
-    return bad("The C(nu) teaching panel toggle must be true or false.");
+    return bad("The C(ν) teaching panel toggle must be true or false.");
   }
   if (!Number.isFinite(p.illustrativeC)) {
-    return bad("The illustrative constant C(nu) must be a finite number.");
+    return bad("The illustrative constant C(ν) must be a finite number.");
   }
 
   return { kind: "accepted", data: Object.freeze({ ...p }) };

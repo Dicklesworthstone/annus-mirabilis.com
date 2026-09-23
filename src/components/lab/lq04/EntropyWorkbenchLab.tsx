@@ -176,7 +176,7 @@ export function EntropyWorkbenchLab({
       <noscript>
         <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built,
-          at nu = <Sci value={LQ04_DEFAULTS.frequency} digits={2} /> Hz and T0 ={" "}
+          at ν = <Sci value={LQ04_DEFAULTS.frequency} digits={2} /> Hz and T<sub>0</sub> ={" "}
           {LQ04_DEFAULTS.referenceTemperature} K with the printed formulas below. Changing settings
           requires JavaScript.
         </p>
@@ -185,7 +185,7 @@ export function EntropyWorkbenchLab({
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Constrained-state comparison controls">
           <fieldset>
-            <legend>Volume ratio V / V0</legend>
+            <legend>Volume ratio V / V₀</legend>
             <fieldset>
               <legend>Quick ratio presets</legend>
               <button type="button" onClick={() => applyRatio(0.5)}>
@@ -233,7 +233,7 @@ export function EntropyWorkbenchLab({
               value={draft.referenceVolume}
               onChange={(e) => setDraft({ ...draft, referenceVolume: e.target.value })}
             />
-            <label htmlFor={`${id}-t0`}>Reference temperature T0 (K)</label>
+            <label htmlFor={`${id}-t0`}>Reference temperature T₀ (K)</label>
             <input
               id={`${id}-t0`}
               type="number"
@@ -241,7 +241,9 @@ export function EntropyWorkbenchLab({
               value={draft.referenceTemperature}
               onChange={(e) => setDraft({ ...draft, referenceTemperature: e.target.value })}
             />
-            <label htmlFor={`${id}-xmin`}>Dilute threshold x_min</label>
+            <label htmlFor={`${id}-xmin`}>
+              Dilute threshold x<sub>min</sub>
+            </label>
             <input
               id={`${id}-xmin`}
               type="number"
@@ -252,7 +254,7 @@ export function EntropyWorkbenchLab({
           </ExperimentSettings>
 
           <fieldset>
-            <legend>C(nu) teaching panel</legend>
+            <legend>C(ν) teaching panel</legend>
             <label>
               <input
                 type="checkbox"
@@ -263,9 +265,7 @@ export function EntropyWorkbenchLab({
             </label>
             {draft.showUnfixedConstantPanel ? (
               <>
-                <label htmlFor={`${id}-illustrative-c`}>
-                  Illustrative C(nu) (J m^-3 Hz^-1 K^-1)
-                </label>
+                <label htmlFor={`${id}-illustrative-c`}>Illustrative C(ν) (J m⁻³ Hz⁻¹ K⁻¹)</label>
                 <input
                   id={`${id}-illustrative-c`}
                   type="number"
@@ -287,7 +287,7 @@ export function EntropyWorkbenchLab({
 
         <div className="lab-results">
           <p className="fine">
-            Fixed energy E = {energyText} at nu = <Sci value={p.frequency} digits={2} /> Hz in a{" "}
+            Fixed energy E = {energyText} at ν = <Sci value={p.frequency} digits={2} /> Hz in a{" "}
             <Sci value={p.bandwidth} digits={2} /> Hz band.
           </p>
 
@@ -297,10 +297,10 @@ export function EntropyWorkbenchLab({
             </p>
           ) : (
             <p role="status">
-              Delta S = {valueText(snapshot, "radiationEntropy", "J/K")} (closed form);{" "}
-              {valueText(snapshot, "radiationEntropyNumeric", "J/K")} (numerical S(V) - S(V0));
-              coefficient E/(B nu) = {valueText(snapshot, "entropyVolumeCoefficient", "J/K")}; E/(h
-              nu) = {valueText(snapshot, "effectiveIndependentCount", "", 6)} (never a count of
+              ΔS = {valueText(snapshot, "radiationEntropy", "J/K")} (closed form);{" "}
+              {valueText(snapshot, "radiationEntropyNumeric", "J/K")} (numerical S(V) − S(V₀));
+              coefficient E/(βν) = {valueText(snapshot, "entropyVolumeCoefficient", "J/K")}; E/(hν)
+              = {valueText(snapshot, "effectiveIndependentCount", "", 6)} (never a count of
               particles).
             </p>
           )}
@@ -314,11 +314,11 @@ export function EntropyWorkbenchLab({
             tabIndex={0}
           >
             <table>
-              <caption>Constrained-state comparison at fixed E, nu, and dNu</caption>
+              <caption>Constrained-state comparison at fixed E, ν and dν</caption>
               <thead>
                 <tr>
                   <th scope="col" />
-                  <th scope="col">Reference (V0)</th>
+                  <th scope="col">Reference (V₀)</th>
                   <th scope="col">Compared (V)</th>
                 </tr>
               </thead>
@@ -329,17 +329,21 @@ export function EntropyWorkbenchLab({
                   <td>{valueText(snapshot, "finalTemperature", "K")}</td>
                 </tr>
                 <tr>
-                  <th scope="row">x = B nu / T</th>
+                  <th scope="row">x = βν / T</th>
                   <td>{valueText(snapshot, "initialX", "")}</td>
                   <td>{valueText(snapshot, "finalX", "")}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Pointwise deviation e^-x</th>
+                  <th scope="row">
+                    Pointwise deviation e<sup>−x</sup>
+                  </th>
                   <td>{valueText(snapshot, "initialPointwiseDeviation", "")}</td>
                   <td>{valueText(snapshot, "finalPointwiseDeviation", "")}</td>
                 </tr>
                 <tr>
-                  <th scope="row">Spectral entropy density s_nu</th>
+                  <th scope="row">
+                    Spectral entropy density s<sub>ν</sub>
+                  </th>
                   <td>{valueText(snapshot, "initialSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
                   <td>{valueText(snapshot, "finalSpectralEntropyDensity", "J/(m³ Hz K)")}</td>
                 </tr>
@@ -350,7 +354,7 @@ export function EntropyWorkbenchLab({
           {p.showUnfixedConstantPanel ? (
             <p className="notice">
               What an unfixed constant would add: extra term ={" "}
-              {valueText(snapshot, "unfixedConstantExtraTerm", "J/K")}; total Delta S with C ={" "}
+              {valueText(snapshot, "unfixedConstantExtraTerm", "J/K")}; total ΔS with C ={" "}
               {valueText(snapshot, "unfixedConstantDeltaS", "J/K")}. This is a teaching comparison,
               not a model of radiation.
             </p>

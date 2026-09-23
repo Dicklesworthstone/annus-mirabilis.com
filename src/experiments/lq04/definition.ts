@@ -55,7 +55,7 @@ export const LQ04_NOT_MODELED: readonly string[] = Object.freeze([
   "Broad bands",
   "How the constrained states are prepared",
   "Walls, mirrors, adiabatic compression, or any mechanism that changes volume",
-  "Any interpretation of E/(h*nu) as a count of particles",
+  "Any interpretation of E/(hν) as a count of particles",
 ]);
 
 const c = (
