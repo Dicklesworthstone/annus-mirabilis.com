@@ -1,12 +1,13 @@
 import { loadFirstPages } from "../../components/home/firstPages.ts";
 import { loadContentIndex } from "../../content/compiler/serverLoaders.ts";
-import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 import {
   commentary,
   historicalArticle,
+  scholarlyGraph,
   type TaggedEntity,
   validateScholarly,
-} from "./scholarly.ts";
+} from "../../content/exports/scholarly.ts";
+import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 
 /**
  * The paper page's structured citation data, rendered into the static HTML so it is there without
@@ -31,10 +32,7 @@ export async function ScholarlyMetadata({ paperId }: { paperId: string }) {
   ];
   validateScholarly(entities);
   // "<" is escaped so no text in a record can close the script element.
-  const json = JSON.stringify({
-    "@context": "https://schema.org",
-    "@graph": entities.map((e) => e.entity),
-  }).replace(/</g, "\\u003c");
+  const json = JSON.stringify(scholarlyGraph(entities)).replace(/</g, "\\u003c");
   return (
     // biome-ignore lint/security/noDangerouslySetInnerHtml: a JSON-LD data block built from validated receipts, with "<" escaped; it is never executed
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: json }} />

@@ -42,6 +42,11 @@ export class ScholarlyError extends Error {
   }
 }
 
+/** The JSON-LD document for a set of entities; schema.org's context lives here, with the other exports. */
+export function scholarlyGraph(entities: readonly TaggedEntity[]): ScholarlyEntity {
+  return { "@context": "https://schema.org", "@graph": entities.map((e) => e.entity) };
+}
+
 export function articleId(slug: string): string {
   return `${SITE}/papers/${slug}/#article`;
 }
