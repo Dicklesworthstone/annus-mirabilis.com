@@ -51,8 +51,8 @@ export default function FieldEquationsPage() {
         <p>
           After the section 3 chain rule and grouping, the same form holds in the moving frame for
           the combinations X, β(Y − (v/V)N), β(Z + (v/V)M) and L, β(M + (v/V)Z), β(N − (v/V)Y). A
-          plane wave along +x at v = 0.6c has transformed amplitude and frequency factors γ(1 − β) =
-          1/2.
+          plane wave along +x at v = 0.6c has its amplitude and frequency transformed by the factor
+          β(1 − v/V) = 1.25 × 0.4 = 1/2, in the paper&apos;s letters, where β is 1.25.
         </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/#s6">
