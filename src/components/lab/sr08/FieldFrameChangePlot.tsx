@@ -18,11 +18,13 @@ export interface FieldFrameChangePlotProps {
   readonly decompose: boolean;
 }
 
+// A vector arrives as a NumericView, not a Float64Array. Testing for Float64Array never matched,
+// so every field and force was drawn as zero while the invariants beneath them were not.
 function extractVector(res: PublishedResult | undefined): [number, number, number] {
-  if (res?.status !== "value" || !(res.value instanceof Float64Array) || res.value.length < 3) {
+  if (res?.status !== "value" || typeof res.value === "number" || res.value.length < 3) {
     return [0, 0, 0];
   }
-  return [res.value[0] ?? 0, res.value[1] ?? 0, res.value[2] ?? 0];
+  return [res.value.at(0), res.value.at(1), res.value.at(2)];
 }
 
 function extractScalar(res: PublishedResult | undefined): number {

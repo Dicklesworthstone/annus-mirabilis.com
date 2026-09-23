@@ -23,12 +23,11 @@ function OutputReading({ item }: { item: PublishedResult | undefined }) {
     if (typeof item.value === "number") {
       return <span data-quantity-id={item.quantityId}>{display(item.value)}</span>;
     }
-    if (item.value instanceof Float64Array) {
-      const formatted = Array.from(item.value)
-        .map((v) => display(v))
-        .join(", ");
-      return <span data-quantity-id={item.quantityId}>({formatted})</span>;
-    }
+    // A vector arrives as a NumericView, not a Float64Array. Testing for Float64Array never
+    // matched, so every vector reading fell through and printed the word "value".
+    const view = item.value;
+    const formatted = Array.from({ length: view.length }, (_, i) => display(view.at(i))).join(", ");
+    return <span data-quantity-id={item.quantityId}>({formatted})</span>;
   }
   if (item.status === "not-applicable" || item.status === "outside-domain") {
     return <span data-quantity-id={item.quantityId}>{item.reason}</span>;
