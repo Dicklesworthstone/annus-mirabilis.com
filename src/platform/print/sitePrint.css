@@ -110,3 +110,23 @@ summary::marker {
 :root .encounter > .notice:has(> button:only-child) {
   display: none;
 }
+
+/* --- Where a link goes, on paper -------------------------------------------------------------
+   A printed link is text with nowhere to click, so an external link prints its address after it,
+   as the offline chapters already do (print.css). Links within the site are named by their text,
+   and a lesson or section on paper is found by that name; printing 241 relative paths on one
+   section page would bury the prose. An internal link that carries a locator ("§4, p. 556")
+   prints the locator instead. */
+:root main a[href^="http"]:not([data-no-print-url])::after,
+:root main a[href^="//"]:not([data-no-print-url])::after {
+  content: " (" attr(href) ")";
+  font-family: var(--font-mono);
+  font-size: var(--type-fine);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+:root main a[data-print-locator]::after {
+  content: " (" attr(data-print-locator) ")";
+  font-size: var(--type-fine);
+  font-weight: 400;
+}
