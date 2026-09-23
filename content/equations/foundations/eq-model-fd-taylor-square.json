@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-taylor-square",
+  "paper": "foundations",
+  "argument": "taylor-expansion",
+  "title": "A Taylor series that stops",
+  "spoken": "x plus Delta, squared, equals x squared plus two x Delta plus Delta squared.",
+  "explanation": "For f(x) = x² the series stops after three terms: f(x), Delta times f'(x) = 2x, and Delta squared over two times f''(x) = 2.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "f(x) = x², whose series has exactly three terms.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-taylor-square.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "power",
+      "opId": "eq-model-fd-taylor-square.op.sumSquare",
+      "base": {
+        "kind": "sum",
+        "opId": "eq-model-fd-taylor-square.op.sum",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-taylor-square.t.x",
+            "quantityId": "positionCoordinate1d"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-taylor-square.t.d",
+            "quantityId": "displacementIncrement"
+          }
+        ]
+      },
+      "exponent": {
+        "num": 2,
+        "den": 1
+      }
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-fd-taylor-square.op.expanded",
+      "args": [
+        {
+          "kind": "power",
+          "opId": "eq-model-fd-taylor-square.op.xSquare",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-taylor-square.t.x2",
+            "quantityId": "positionCoordinate1d"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        },
+        {
+          "kind": "product",
+          "opId": "eq-model-fd-taylor-square.op.cross",
+          "args": [
+            {
+              "kind": "number",
+              "value": "2"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-taylor-square.t.x3",
+              "quantityId": "positionCoordinate1d"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-taylor-square.t.d3",
+              "quantityId": "displacementIncrement"
+            }
+          ]
+        },
+        {
+          "kind": "power",
+          "opId": "eq-model-fd-taylor-square.op.dSquare",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-taylor-square.t.d2",
+            "quantityId": "displacementIncrement"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-taylor-square.op.cross",
+      "title": "2 x Delta",
+      "explanation": "The shift times the slope, 2x.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.op.dSquare",
+      "title": "Delta squared",
+      "explanation": "Half the shift squared times the curvature, 2.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.op.expanded",
+      "title": "Multiplied out",
+      "explanation": "The value, the slope term and the curvature term.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.op.relation",
+      "title": "What it asserts",
+      "explanation": "Shifting x by Delta changes x squared by 2x Delta plus Delta squared.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.op.sum",
+      "title": "x plus Delta",
+      "explanation": "The shifted position.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.op.sumSquare",
+      "title": "Shifted, then squared",
+      "explanation": "(x plus Delta) squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.op.xSquare",
+      "title": "x squared",
+      "explanation": "The value before the shift.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.t.d",
+      "title": "The shift",
+      "explanation": "Delta.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.t.d2",
+      "title": "The shift",
+      "explanation": "The same Delta.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.t.d3",
+      "title": "The shift",
+      "explanation": "The same Delta.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.t.x",
+      "title": "Position",
+      "explanation": "x.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.t.x2",
+      "title": "Position",
+      "explanation": "The same x.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-taylor-square.t.x3",
+      "title": "Position",
+      "explanation": "The same x.",
+      "foundation": "derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "Shifting "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-fd-taylor-square.t.x"
+    },
+    {
+      "text": " by "
+    },
+    {
+      "text": "Delta",
+      "nodeId": "eq-model-fd-taylor-square.t.d"
+    },
+    {
+      "text": " adds two x Delta plus Delta squared to x squared."
+    }
+  ]
+}

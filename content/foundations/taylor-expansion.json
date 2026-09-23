@@ -25,7 +25,8 @@
     {
       "kind": "formula",
       "latex": "(x+\\Delta)^2=x^2+2x\\Delta+\\Delta^2",
-      "spoken": "For the square function, the local expansion is exact through the quadratic term."
+      "spoken": "For the square function, the local expansion is exact through the quadratic term.",
+      "equations": ["eq-model-fd-taylor-square"]
     },
     {
       "kind": "steps",

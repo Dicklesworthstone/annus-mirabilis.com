@@ -70,7 +70,8 @@
       {
         "kind": "formula",
         "latex": "p(x-\\Delta,t)\\approx p-\\Delta\\frac{\\partial p}{\\partial x}+\\frac{\\Delta^2}{2}\\frac{\\partial^2p}{\\partial x^2}",
-        "spoken": "Keep value, slope and curvature of the spatial density on the right."
+        "spoken": "Keep value, slope and curvature of the spatial density on the right.",
+        "equations": ["eq-model-bm-taylor-in-space"]
       },
       {
         "kind": "steps",

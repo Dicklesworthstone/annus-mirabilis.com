@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-taylor-in-space",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-diffusion-equation",
+  "title": "The density one jump away",
+  "spoken": "p at x minus Delta and t is approximately p minus Delta times the partial derivative of p with respect to x, plus Delta squared over two times the second partial derivative of p with respect to x.",
+  "explanation": "Expanding the density about x in the jump Delta keeps its value, its slope and its curvature. Averaged over the jump density, the slope term cancels and the curvature term leaves the diffusion coefficient.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Jumps small compared with the distance over which the density changes, so terms beyond Delta squared are dropped.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-taylor-in-space.op.relation",
+    "operator": "approx",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-bm-taylor-in-space.t.density",
+      "quantityId": "probabilityDensity",
+      "args": [
+        {
+          "kind": "sum",
+          "opId": "eq-model-bm-taylor-in-space.op.origin",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-bm-taylor-in-space.t.x",
+              "quantityId": "positionCoordinate1d"
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "symbol",
+                "termId": "eq-model-bm-taylor-in-space.t.jump",
+                "quantityId": "displacementIncrement"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-taylor-in-space.t.time",
+          "quantityId": "observationInterval"
+        }
+      ]
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-bm-taylor-in-space.op.series",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-taylor-in-space.t.value",
+          "quantityId": "probabilityDensity"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "product",
+            "opId": "eq-model-bm-taylor-in-space.op.slopeTerm",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-bm-taylor-in-space.t.jump2",
+                "quantityId": "displacementIncrement"
+              },
+              {
+                "kind": "derivative",
+                "opId": "eq-model-bm-taylor-in-space.op.slope",
+                "expression": {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-taylor-in-space.t.slopeP",
+                  "quantityId": "probabilityDensity"
+                },
+                "variable": {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-taylor-in-space.t.slopeX",
+                  "quantityId": "positionCoordinate1d"
+                },
+                "order": 1,
+                "partial": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "product",
+          "opId": "eq-model-bm-taylor-in-space.op.curveTerm",
+          "args": [
+            {
+              "kind": "quotient",
+              "opId": "eq-model-bm-taylor-in-space.op.half",
+              "numerator": {
+                "kind": "power",
+                "opId": "eq-model-bm-taylor-in-space.op.jumpSquare",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-bm-taylor-in-space.t.jump3",
+                  "quantityId": "displacementIncrement"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                }
+              },
+              "denominator": {
+                "kind": "number",
+                "value": "2"
+              }
+            },
+            {
+              "kind": "derivative",
+              "opId": "eq-model-bm-taylor-in-space.op.curve",
+              "expression": {
+                "kind": "symbol",
+                "termId": "eq-model-bm-taylor-in-space.t.curveP",
+                "quantityId": "probabilityDensity"
+              },
+              "variable": {
+                "kind": "symbol",
+                "termId": "eq-model-bm-taylor-in-space.t.curveX",
+                "quantityId": "positionCoordinate1d"
+              },
+              "order": 2,
+              "partial": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.op.curve",
+      "title": "Curvature along x",
+      "explanation": "The second derivative of p along x.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.op.curveTerm",
+      "title": "The curvature term",
+      "explanation": "Half Delta squared times the curvature.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.op.half",
+      "title": "Delta squared over two",
+      "explanation": "The Taylor coefficient of the second derivative.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.op.jumpSquare",
+      "title": "Delta squared",
+      "explanation": "The jump times itself; it will be averaged over phi.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.op.origin",
+      "title": "x minus Delta",
+      "explanation": "Where the particle came from: a position minus a displacement is a position.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.op.relation",
+      "title": "What it asserts",
+      "explanation": "The density one jump away is, approximately, its value here corrected by its slope and its curvature.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.op.series",
+      "title": "Value, slope and curvature",
+      "explanation": "The first three terms of a Taylor series in Delta.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.op.slope",
+      "title": "Slope along x",
+      "explanation": "How fast p changes along x.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.op.slopeTerm",
+      "title": "The slope term",
+      "explanation": "Delta times the slope, subtracted because the jump is backwards.",
+      "foundation": "taylor-expansion"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.curveP",
+      "title": "Density",
+      "explanation": "p.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.curveX",
+      "title": "Position",
+      "explanation": "x.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.density",
+      "title": "Density one jump back",
+      "explanation": "p where a particle stood before a jump of Delta, at the same time t.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.jump",
+      "title": "The jump",
+      "explanation": "Delta, one interval's displacement.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.jump2",
+      "title": "The jump",
+      "explanation": "The same Delta.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.jump3",
+      "title": "The jump",
+      "explanation": "The same Delta.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.slopeP",
+      "title": "Density",
+      "explanation": "p.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.slopeX",
+      "title": "Position",
+      "explanation": "x.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.time",
+      "title": "Time",
+      "explanation": "t.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.value",
+      "title": "The density here",
+      "explanation": "p at x, the value the series starts from.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-bm-taylor-in-space.t.x",
+      "title": "Position",
+      "explanation": "x, where the density is read.",
+      "foundation": "derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The density",
+      "nodeId": "eq-model-bm-taylor-in-space.t.density"
+    },
+    {
+      "text": " one jump back is its value here, minus "
+    },
+    {
+      "text": "Delta",
+      "nodeId": "eq-model-bm-taylor-in-space.t.jump2"
+    },
+    {
+      "text": " times the slope, plus half Delta squared times the curvature."
+    }
+  ]
+}
