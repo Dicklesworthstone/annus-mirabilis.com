@@ -103,7 +103,7 @@ export function BrownianComparisonLab({
     >
       <header className="lab-heading">
         <div>
-          <p className="eyebrow">BM-01 · One controlled variation</p>
+          <p className="eyebrow">One controlled variation</p>
           <h2 id={`${uid}-title`}>Change one thing. Keep the question clear.</h2>
         </div>
         <p className="badge">
@@ -121,6 +121,11 @@ export function BrownianComparisonLab({
           explanation remain available.
         </p>
       </noscript>
+      {/* The comparison first, then the controls that request a new one. */}
+      <p role="status" aria-live="polite" aria-atomic="true" className="comparison-status">
+        {state.message}
+      </p>
+      <ComparisonPlot baseline={state.baselineSnapshot} variant={state.variantSnapshot} uid={uid} />
       <div className="actions">
         <button
           type="button"
@@ -265,9 +270,6 @@ export function BrownianComparisonLab({
           {error || state.error}
         </p>
       )}
-      <p role="status" aria-live="polite" aria-atomic="true" className="comparison-status">
-        {state.message}
-      </p>
       {state.requestedParameters && (
         <details>
           <summary>
@@ -288,7 +290,6 @@ export function BrownianComparisonLab({
           </dl>
         </details>
       )}
-      <ComparisonPlot baseline={state.baselineSnapshot} variant={state.variantSnapshot} uid={uid} />
       <ComparisonPanel
         baseline={state.baseline}
         variant={state.variant}
