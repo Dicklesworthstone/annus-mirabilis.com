@@ -666,7 +666,7 @@ export function RodSimultaneityLab({
       <div className="notice" style={{ margin: "1.5rem 0" }}>
         <h3 style={{ marginTop: 0 }}>Spacetime event coordinates and invariant interval</h3>
         <section
-          className="table-scroll"
+          className="table-scroll sr03-interval"
           tabIndex={0}
           aria-label="Spacetime event coordinates and invariant interval table"
         >

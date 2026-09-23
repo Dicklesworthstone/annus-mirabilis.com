@@ -9,3 +9,16 @@
   max-width: 68ch;
   font-size: var(--type-small);
 }
+
+/* The interval table's outer columns are words: the frame ("K (Platform)") and the causal order
+   ("Spacelike"). Below 480px the site lets a table's outermost cells break anywhere, which suits
+   dotted identifiers, but here it squeezed both columns to 22-35px, a few letters a line. They
+   break between words, and the table scrolls inside its labelled region if it must. */
+@media (max-width: 480px) {
+  .table-scroll.sr03-interval th:first-child,
+  .table-scroll.sr03-interval td:first-child,
+  .table-scroll.sr03-interval th:last-child,
+  .table-scroll.sr03-interval td:last-child {
+    overflow-wrap: normal;
+  }
+}
