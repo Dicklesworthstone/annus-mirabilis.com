@@ -218,9 +218,9 @@ export default function BrownianEncounter() {
         <h2>Averages can hide motion.</h2>
         <p>
           Imagine marking each particle’s starting point and looking again after one second. A
-          movement to the right is positive; a movement to the left is negative. In a symmetric
-          model, these signed displacements cancel on average even though the particles have spread
-          out.
+          movement to the right is positive; a movement to the left is negative. When left and right
+          are equally likely, these signed displacements cancel on average, even though the
+          particles have spread out.
         </p>
         <p>
           Before you read on, choose what you would measure: the signed displacement, its size
@@ -306,11 +306,11 @@ export default function BrownianEncounter() {
         <p className="step-number">04 / Turn the question around</p>
         <h2>What can a finite sample tell you?</h2>
         <p>
-          In the next laboratory, the number used to generate a synthetic path is hidden. Its
-          displacements fix how fast the particles spread, but not the radius and the molecular
-          number separately: a larger radius with a smaller number spreads at the same rate. Supply
-          the radius independently, estimate the number, and repeat the experiment to see how often
-          a confidence interval misses.
+          In the next laboratory, the molecular number behind a made-up set of paths is hidden. How
+          fast the particles spread fixes the radius and the number only together: a larger radius
+          with a smaller number spreads at the same rate. So give it the radius from a separate
+          measurement, estimate the number, and run it again and again to see how often the range
+          you quote misses the true number.
         </p>
         <StepDoors>
           <StepDoor href="/lab/bm-07/">Estimate the number and repeat the experiment</StepDoor>
