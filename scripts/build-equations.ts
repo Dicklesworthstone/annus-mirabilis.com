@@ -20,7 +20,11 @@ for (const step of elimination.steps) {
     throw new Error(`Missing derivation foundation ${step.foundation}.`);
 }
 const lowSpeed = buildMassEnergyLowSpeed(massEnergyPaper.equations);
-const equations = result.papers.flatMap((p) => p.equations.map(compileEquation));
+// The foundation lessons' records compile beside the papers', under their own "paper".
+const equations = [
+  ...result.papers.flatMap((p) => p.equations.map(compileEquation)),
+  ...result.foundationEquations.map(compileEquation),
+];
 const sourcePaths = [
   "src/equations/render.ts",
   "src/equations/latex.ts",
@@ -84,6 +88,22 @@ for (const [paper, file] of [
 // component, so whatever it imports ships as first-route JavaScript on /papers/brownian-motion/.
 // Importing the whole Brownian payload put nine derivation-only records (the (A+B)^2 identity,
 // the Avogadro inference) into that bundle and into "Equations for this accepted trial".
+// The foundation lessons' payload: read by FoundationBody on /foundations/ and wherever a paper shows
+// a lesson in place, so a lesson's formula is coloured the same everywhere it appears.
+const foundationEquations = equations.filter((equation) => equation.paper === "foundations");
+await writeFile(
+  "src/generated/foundation-equations.json",
+  `${JSON.stringify(
+    {
+      schemaVersion: 1,
+      rendererDigest,
+      equations: foundationEquations,
+      foundationTitles: lessonTitles(foundationEquations),
+    },
+    null,
+    2,
+  )}\n`,
+);
 const bm01Equations = equations.filter(
   (equation) =>
     equation.paper === "brownian-motion" &&
@@ -116,14 +136,16 @@ const quantityColours: Record<
 for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
   const own = equations.filter((e) => e.paper === paper);
   // A reading formula that names several records shows them side by side: one view, one palette.
-  const shownTogether = (result.papers.find((p) => p.paper.id === paper)?.arguments ?? []).flatMap(
-    (a) =>
-      Object.values(a.readings).flatMap((blocks) =>
-        blocks.flatMap((b) =>
-          b.kind === "formula" && (b.equations?.length ?? 0) > 1 ? [b.equations ?? []] : [],
-        ),
-      ),
-  );
+  const togetherIn = (blocks: readonly (typeof result.foundations)[number]["example"][number][]) =>
+    blocks.flatMap((b) =>
+      b.kind === "formula" && (b.equations?.length ?? 0) > 1 ? [b.equations ?? []] : [],
+    );
+  const shownTogether =
+    paper === "foundations"
+      ? result.foundations.flatMap((f) => togetherIn([...f.explanation, ...f.example]))
+      : (result.papers.find((p) => p.paper.id === paper)?.arguments ?? []).flatMap((a) =>
+          Object.values(a.readings).flatMap(togetherIn),
+        );
   const slots = assignQuantityColours(
     own.map((e) => ({
       id: e.id,

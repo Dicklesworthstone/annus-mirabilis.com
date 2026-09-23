@@ -4,6 +4,7 @@ import "../components/foundations/foundations.css";
 import { type HeadingLevel, headingTag } from "../components/foundations/headingLevel.ts";
 import type { Block, Foundation } from "../content/schemas/reading";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
+import foundationPayload from "../generated/foundation-equations.json";
 import { ColouredFormula } from "./ColouredFormula.tsx";
 import { InlineMathText } from "./InlineMathText.tsx";
 export function FoundationLink({
@@ -109,6 +110,15 @@ export function ReadingBlocks({
     </>
   );
 }
+/**
+ * The lessons' own equation records, so a lesson's formula that names them is shown coloured by
+ * quantity, as a paper's are (owner's ruling: per-quantity colour on every explanation face). The
+ * same map serves the /foundations/ page and every place a paper shows a lesson in place.
+ */
+const LESSON_EQUATIONS: ReadonlyMap<string, CompiledEquation> = new Map(
+  (foundationPayload.equations as readonly CompiledEquation[]).map((e) => [e.id, e]),
+);
+
 export function FoundationBody({
   foundation,
   foundations,
@@ -134,7 +144,11 @@ export function FoundationBody({
     <div className="foundation-lesson">
       <section className="foundation-part">
         <Part className="foundation-question">{foundation.question}</Part>
-        <ReadingBlocks blocks={foundation.explanation} foundations={foundations} />
+        <ReadingBlocks
+          blocks={foundation.explanation}
+          foundations={foundations}
+          equations={LESSON_EQUATIONS}
+        />
       </section>
       <section className="foundation-part">
         <Part className="foundation-part-title">
@@ -149,7 +163,11 @@ export function FoundationBody({
             "One worked example"
           )}
         </Part>
-        <ReadingBlocks blocks={foundation.example} foundations={foundations} />
+        <ReadingBlocks
+          blocks={foundation.example}
+          foundations={foundations}
+          equations={LESSON_EQUATIONS}
+        />
       </section>
       <FoundationConstruction foundationId={foundation.id} headingLevel={headingLevel} />
       <section className="foundation-part foundation-stop callout-limit">
