@@ -169,9 +169,18 @@ export function twoSourceIntensity(
   const a2 = A2 / r2;
 
   if (readout === "instantaneous") {
-    const psi = a1 * Math.cos(omega * t - k * r1) + a2 * Math.cos(omega * t - k * r2);
-    const kFactor = kappa !== undefined ? kappa : 1.0;
-    const intensity = kFactor * psi * psi;
+    // Wave 2 runs delta ahead of wave 1, the same delta the time average uses: k(r1 - r2) from
+    // the geometry, or the phase difference the caller set. It used the geometry alone, so a set
+    // delta changed the average and not the instant (at r1 = r2, delta = pi read dark on average
+    // and bright at t = 0).
+    const phase1 = omega * t - k * r1;
+    const psi = a1 * Math.cos(phase1) + a2 * Math.cos(phase1 + delta);
+    // The same units as the time-averaged readout below, so that the average of this over a
+    // period IS that readout. With kappa, both are kappa times the field squared. Normalized, the
+    // time average is a1^2 + a2^2 + 2 a1 a2 cos(delta), which is 2 <psi^2>, so the instant is
+    // 2 psi^2: it was psi^2, which peaked at the "average" (4 for two unit waves in phase) and
+    // averaged to half of it.
+    const intensity = kappa !== undefined ? kappa * psi * psi : 2 * psi * psi;
     return {
       status: "value",
       quantityId: "incidentPower",
