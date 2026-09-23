@@ -15,6 +15,7 @@ import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result, unitText } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 import styles from "./AvogadroLab.module.css";
 
 const draftOf = (p: AvogadroParameters) =>
@@ -264,7 +265,7 @@ export function AvogadroLab() {
           </fieldset>
           {error && (
             <p className="notice" role="alert">
-              {error}
+              {withScripts(error)}
             </p>
           )}
         </form>

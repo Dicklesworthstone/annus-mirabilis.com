@@ -1,4 +1,5 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { powerOfTenText } from "../../units/scientific.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import type { EndpointPairChoice, FrameId, Sr03Parameters } from "./definition.ts";
 
@@ -71,12 +72,18 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
 
   const L0Raw = raw.L0;
   if (typeof L0Raw !== "number" || !Number.isFinite(L0Raw) || L0Raw < 1e-6 || L0Raw > 1e6) {
-    return refused(["L0"], "Proper rod length L0 must be strictly positive within [1e-6, 1e6] ls.");
+    return refused(
+      ["L0"],
+      `The proper rod length L_{0} must be between ${powerOfTenText(1e-6)} and ${powerOfTenText(1e6)} light-seconds.`,
+    );
   }
 
   const RRaw = raw.R;
   if (typeof RRaw !== "number" || !Number.isFinite(RRaw) || RRaw < 1e-6 || RRaw > 1e6) {
-    return refused(["R"], "Sphere radius R must be strictly positive within [1e-6, 1e6] ls.");
+    return refused(
+      ["R"],
+      `The sphere radius R must be between ${powerOfTenText(1e-6)} and ${powerOfTenText(1e6)} light-seconds.`,
+    );
   }
 
   const endpointPairId = raw.endpointPairId as EndpointPairChoice;

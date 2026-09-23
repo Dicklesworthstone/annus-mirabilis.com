@@ -4,6 +4,7 @@
  * The quantum comparison is a modern synthesis, never a premise of September 1905.
  */
 import { ExperimentRuntimeError } from "../../experiments/refusal.ts";
+import { powerOfTenText } from "../../units/scientific.ts";
 export type LightThreadParameters = Readonly<{
   frequencyHz: number;
   pulseEnergyJ: number;
@@ -37,13 +38,6 @@ const LIGHT_THREAD_READER_NAMES: Readonly<
   beta: Object.freeze({ name: "The observer speed β", unit: "" }),
   angleDeg: Object.freeze({ name: "The pulse direction", unit: "°" }),
 });
-
-function boundText(value: number): string {
-  const exponent = Math.log10(Math.abs(value));
-  if (value !== 0 && Number.isInteger(exponent) && Math.abs(exponent) >= 4)
-    return `${value < 0 ? "−" : ""}10^{${exponent < 0 ? "−" : ""}${Math.abs(exponent)}}`;
-  return String(value).replace(/^-/, "−");
-}
 
 export type LightThreadRefusal = Readonly<{
   kind: "refused";
@@ -85,7 +79,7 @@ export function validateLightThreadParameters(
         parameterId: key,
         reason: (() => {
           const reader = LIGHT_THREAD_READER_NAMES[key as keyof LightThreadParameters];
-          return `${reader.name} must be between ${boundText(bounds.min)}${reader.unit} and ${boundText(bounds.max)}${reader.unit}. These are this instrument's admission bounds.`;
+          return `${reader.name} must be between ${powerOfTenText(bounds.min)}${reader.unit} and ${powerOfTenText(bounds.max)}${reader.unit}. These are this instrument's admission bounds.`;
         })(),
       });
     }

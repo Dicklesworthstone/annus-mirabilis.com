@@ -1,4 +1,5 @@
 /** Bounded, versioned state for the three-method comparison. No notes enter URLs. */
+import { powerOfTenText } from "../../units/scientific.ts";
 import { ExperimentRuntimeError } from "../refusal.ts";
 export const AVOGADRO_DEFAULTS = Object.freeze({
   alphaScale: 1,
@@ -71,7 +72,7 @@ export function validateAvogadroParameters(input: unknown): Validation {
     const field = AVOGADRO_FIELDS[key];
     if (typeof n !== "number" || !Number.isFinite(n) || n < field.min || n > field.max)
       return refused(
-        `${field.label}: enter a finite number from ${field.min} to ${field.max}. No value was clamped.`,
+        `${field.label}: enter a number from ${powerOfTenText(field.min)} to ${powerOfTenText(field.max)}. No value was clamped.`,
       );
     parameters[key] = n;
   }

@@ -36,6 +36,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
+import { withScripts } from "../subscripts.tsx";
 
 type Draft = Readonly<{
   frequency: string;
@@ -281,7 +282,7 @@ export function EntropyWorkbenchLab({
           <button type="submit">Apply</button>
           {error ? (
             <p role="alert" className="error">
-              {error}
+              {withScripts(error)}
             </p>
           ) : null}
         </form>

@@ -155,3 +155,22 @@ export function naturalLogSpoken(ln: number, fractionDigits = 3): string {
       : `${say(e.mantissa)} times 10 to the power ${say(e.exponent)}`;
   return `10 to the power ${inner}`;
 }
+
+/**
+ * A bound written for text the laboratories render through withScripts: an exact power of ten of
+ * 10^4 or more, or 10^−4 or less, is "10^{−24}", which withScripts raises; anything else is its plain
+ * decimal with a true minus sign. Refusal messages printed their admission bounds as JavaScript
+ * writes them: "1e-24 and 1000000", "within [1e-6, 1e6] ls", "between 1e-4 and 1e4".
+ *
+ * The test for an exact power reads toExponential's mantissa rather than comparing with 10 ** n,
+ * which need not equal the literal (10 ** -24 is not 1e-24 in every engine).
+ */
+export function powerOfTenText(value: number): string {
+  if (value !== 0 && Number.isFinite(value)) {
+    const [mantissa, exponentText = "0"] = Math.abs(value).toExponential().split("e");
+    const exponent = Number(exponentText);
+    if (mantissa === "1" && Math.abs(exponent) >= 4)
+      return `${value < 0 ? MINUS : ""}10^{${exponent < 0 ? MINUS : ""}${Math.abs(exponent)}}`;
+  }
+  return String(value).replace(/^-/, MINUS);
+}

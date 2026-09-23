@@ -13,6 +13,7 @@ import { decodeSr03Settings, encodeSr03Settings } from "../../experiments/sr03/p
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { fixed } from "./presentation.ts";
+import { withScripts } from "./subscripts.tsx";
 import "./rodSimultaneityLab.css";
 import { identity } from "./presentation.ts";
 import {
@@ -635,7 +636,7 @@ export function RodSimultaneityLab({
 
               {error && (
                 <p id={`${id}-error`} className="notice error">
-                  {error}
+                  {withScripts(error)}
                 </p>
               )}
 

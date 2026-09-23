@@ -1,4 +1,5 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { powerOfTenText } from "../../units/scientific.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { LQ04_DEFAULTS, type Lq04Parameters } from "./definition.ts";
 
@@ -42,7 +43,7 @@ export function validateLq04Parameters(input: unknown): Computation<Lq04Paramete
     return bad("Band width must be between 1e9 Hz and 1e14 Hz.");
   }
   if (!Number.isFinite(p.referenceVolume) || p.referenceVolume < 1e-6 || p.referenceVolume > 1) {
-    return bad("Reference volume must be between 1e-6 m^3 and 1 m^3.");
+    return bad(`Reference volume must be between ${powerOfTenText(1e-6)} m³ and 1 m³.`);
   }
   if (
     !Number.isFinite(p.referenceTemperature) ||
@@ -52,7 +53,7 @@ export function validateLq04Parameters(input: unknown): Computation<Lq04Paramete
     return bad("Reference temperature must be between 500 K and 10000 K.");
   }
   if (!Number.isFinite(p.volumeRatio) || p.volumeRatio < 1e-4 || p.volumeRatio > 1e4) {
-    return bad("Volume ratio must be between 1e-4 and 1e4.");
+    return bad(`Volume ratio must be between ${powerOfTenText(1e-4)} and ${powerOfTenText(1e4)}.`);
   }
   if (!Number.isFinite(p.diluteThresholdX) || p.diluteThresholdX < 3 || p.diluteThresholdX > 10) {
     return bad("The dilute threshold must be between 3 and 10.");
