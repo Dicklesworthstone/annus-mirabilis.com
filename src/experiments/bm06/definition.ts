@@ -136,15 +136,15 @@ export const BM06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
  */
 export const BM06_RADIAL_EXPLANATIONS = Object.freeze({
   meanRadius2d:
-    "The mean 2D radius <r> = sqrt(pi D t / 2) is smaller than the RMS radius sqrt(<r^2>) = sqrt(4 D t): the extra factor of r in the 2D density weights larger radii more heavily than a signed 1D coordinate does, so the two averages of the same spread disagree.",
+    "The mean 2D radius ⟨r⟩ = √(πDt) is smaller than the RMS radius √⟨r²⟩ = √(4Dt): the extra factor of r in the 2D density weights larger radii more heavily than a signed 1D coordinate does, so the two averages of the same spread disagree.",
   rmsRadius2d:
-    "The RMS 2D radius sqrt(<r^2>) = sqrt(4 D t) is the square root of the mean squared distance from the start, not the mean distance itself -- squaring before averaging always weights the tail more than averaging the radius directly.",
+    "The RMS 2D radius √⟨r²⟩ = √(4Dt) is the square root of the mean squared distance from the start, not the mean distance itself. Squaring before averaging always weights the tail more than averaging the radius directly.",
   mostLikelyRadius2d:
-    "The most likely 2D radius, where the density p_r(r,t) = (r / 2Dt) e^(-r^2/4Dt) peaks, is sqrt(2 D t): the same number as the 1D RMS displacement. The growing circumference of available positions at radius r (proportional to r itself) exactly cancels the falling Gaussian density near the start, moving the peak away from the origin.",
+    "The most likely 2D radius, where the density p(r, t) = (r/2Dt) exp(−r²/4Dt) peaks, is √(2Dt): the same number as the 1D RMS displacement. The growing circumference of available positions at radius r (proportional to r itself) exactly cancels the falling Gaussian density near the start, moving the peak away from the origin.",
   meanRadius3d:
-    "The mean 3D radius <r> = 4 sqrt(D t / pi) counts positions on a growing sphere (area proportional to r^2), pulling the average distance from the start out further than the 2D circumference case.",
+    "The mean 3D radius ⟨r⟩ = 4√(Dt/π) counts positions on a growing sphere (area proportional to r²), pulling the average distance from the start out further than the 2D circumference case.",
   rmsRadius3d:
-    "The RMS 3D radius sqrt(<r^2>) = sqrt(6 D t) reflects three independent coordinate directions, each contributing its own 2 D t to the mean squared displacement (compare the 1D case's single 2 D t).",
+    "The RMS 3D radius √⟨r²⟩ = √(6Dt) reflects three independent coordinate directions, each contributing its own 2Dt to the mean squared displacement (compare the 1D case's single 2Dt).",
 });
 /**
  * Declared as data only (am-read-result-weave-jex, the weave compiler and evaluator these must
