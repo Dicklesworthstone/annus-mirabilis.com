@@ -98,3 +98,60 @@ export function exponentialText(value: number, fractionDigits?: number): string 
   if (parts.kind === "plain") return parts.text;
   return `${parts.mantissa} × 10^${parts.exponent}`;
 }
+
+/**
+ * A positive number known only through its natural logarithm, because it lies outside double
+ * precision: lq-03's Wien tail far past its peak, or the classical density at a 10^300 Hz probe. It
+ * printed as "below double-precision range; ln(value) = -9.598486147758314e+285 (natural log of
+ * J s/m³)", which was also wrong in direction whenever the logarithm was positive.
+ *
+ * It is written the way every other number on the page is, as a mantissa and a power of ten, while
+ * the fractional part of log10 still carries the mantissa's digits. A double holds about 15.9
+ * significant digits, so once log10 needs more than 15 − (fractionDigits + 1) of them for its
+ * integer part, the mantissa would be invented; past that only the exponent is known, and the
+ * number is written as 10 raised to that exponent, itself in scientific form.
+ */
+export type NaturalLogParts =
+  | {
+      readonly kind: "scientific";
+      readonly mantissa: string;
+      readonly exponent: string;
+    }
+  | {
+      /** 10 raised to this exponent, which is itself written in scientific form. */
+      readonly kind: "power";
+      readonly exponent: ExponentialParts;
+    };
+
+export function partsFromNaturalLog(ln: number, fractionDigits = 3): NaturalLogParts {
+  const log10 = ln / Math.LN10;
+  const limit = 10 ** (15 - (fractionDigits + 1));
+  if (Math.abs(log10) < limit) {
+    let exponent = Math.floor(log10);
+    let mantissa = (10 ** (log10 - exponent)).toFixed(fractionDigits);
+    // 9.9996 rounds to "10.000"; carry it into the exponent.
+    if (Number(mantissa) >= 10) {
+      exponent += 1;
+      mantissa = (Number(mantissa) / 10).toFixed(fractionDigits);
+    }
+    return {
+      kind: "scientific",
+      mantissa,
+      exponent: exponent < 0 ? MINUS + String(-exponent) : String(exponent),
+    };
+  }
+  return { kind: "power", exponent: exponentialParts(log10, fractionDigits) };
+}
+
+export function naturalLogSpoken(ln: number, fractionDigits = 3): string {
+  const parts = partsFromNaturalLog(ln, fractionDigits);
+  const say = (text: string) => text.replace(MINUS, "minus ");
+  if (parts.kind === "scientific")
+    return `${parts.mantissa} times 10 to the power ${say(parts.exponent)}`;
+  const e = parts.exponent;
+  const inner =
+    e.kind === "plain"
+      ? say(e.text)
+      : `${say(e.mantissa)} times 10 to the power ${say(e.exponent)}`;
+  return `10 to the power ${inner}`;
+}

@@ -25,7 +25,7 @@ import {
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
-import { Sci } from "../Sci.tsx";
+import { Sci, SciFromLn } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { SpectrumPlot } from "./SpectrumPlot.tsx";
 
@@ -85,10 +85,17 @@ function densityText(result: Lq03Evaluation["planck"]["frequency"], unit: string
         <Sci value={result.value} digits={6} /> {unit}
       </>
     );
+  // Outside double precision the owner reports the natural logarithm. It is drawn as a power of ten
+  // like every other value here; it was printed as "below double-precision range; ln(value) =
+  // -9.598486147758314e+285 (natural log of …)", which also said "below" for a logarithm of +2644.
   const ln = result.logFrequencyEnergyDensity ?? result.logWavelengthEnergyDensity;
-  return ln === undefined
-    ? "below the plotted range"
-    : `below double-precision range; ln(value) = ${fixed(ln, 5)} (natural log of ${unit})`;
+  return ln === undefined ? (
+    "below the plotted range"
+  ) : (
+    <>
+      <SciFromLn ln={ln} digits={6} /> {unit}
+    </>
+  );
 }
 
 function scalarText(

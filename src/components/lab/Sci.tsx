@@ -10,7 +10,12 @@
  * `[data-output]` cells as text, and a copied selection should not carry a spelling.
  */
 
-import { exponentialParts, exponentialSpoken } from "../../units/scientific.ts";
+import {
+  exponentialParts,
+  exponentialSpoken,
+  naturalLogSpoken,
+  partsFromNaturalLog,
+} from "../../units/scientific.ts";
 import "./sci.css";
 
 interface SciProps {
@@ -26,6 +31,39 @@ export function Sci({ value, digits }: SciProps) {
     <span className="sci" role="img" aria-label={exponentialSpoken(value, digits)}>
       {parts.mantissa}
       {" × "}10<sup>{parts.exponent}</sup>
+    </span>
+  );
+}
+
+/**
+ * A number known only through its natural logarithm, because it lies outside double precision,
+ * drawn like every other number on the page: 3.215 × 10⁻⁴⁰⁰, or, when even the exponent is too long
+ * for a mantissa to be meaningful, 10 raised to −4.168 × 10²⁸⁵. See partsFromNaturalLog.
+ */
+export function SciFromLn({ ln, digits }: { readonly ln: number; readonly digits?: number }) {
+  const parts = partsFromNaturalLog(ln, digits);
+  const label = naturalLogSpoken(ln, digits);
+  if (parts.kind === "scientific")
+    return (
+      <span className="sci" role="img" aria-label={label}>
+        {parts.mantissa}
+        {" × "}10<sup>{parts.exponent}</sup>
+      </span>
+    );
+  const e = parts.exponent;
+  return (
+    <span className="sci" role="img" aria-label={label}>
+      10
+      <sup>
+        {e.kind === "plain" ? (
+          e.text
+        ) : (
+          <>
+            {e.mantissa}
+            {" × "}10<sup>{e.exponent}</sup>
+          </>
+        )}
+      </sup>
     </span>
   );
 }
