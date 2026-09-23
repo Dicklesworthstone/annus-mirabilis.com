@@ -26,12 +26,36 @@ const replace = (id, change) =>
     const r = JSON.parse(f.text);
     return r.id === id ? { ...f, text: JSON.stringify(change(r)) } : f;
   });
-test("the authored Brownian chapter joins six arguments and thirteen finite prerequisite lessons", () => {
+test("the authored Brownian chapter joins six arguments and exactly the prerequisite lessons it cites", () => {
   const x = compileReadingContent(files);
   assert.equal(x.ok, true);
   const p = x.papers[0];
   assert.equal(p.arguments.length, 6);
-  assert.equal(p.foundations.length, 13);
+  // The lesson set is a closure, not a number: it was 13 until equation notes cited seven more.
+  // Every lesson the chapter cites (argument help, reading foundation blocks, equation notes) is
+  // present, and every present lesson is cited or is a prerequisite of one that is.
+  const present = new Set(p.foundations.map((f) => f.id));
+  const cited = new Set();
+  for (const a of p.arguments) {
+    for (const id of Object.values(a.help)) cited.add(id);
+    for (const blocks of Object.values(a.readings))
+      for (const b of blocks) if (b.kind === "foundation") cited.add(b.id);
+  }
+  for (const e of p.equations) for (const n of e.notes) cited.add(n.foundation);
+  assert.ok(cited.size > 0);
+  for (const id of cited) assert.ok(present.has(id), `cited lesson ${id} is missing`);
+  const reached = new Set();
+  const visit = (id) => {
+    if (reached.has(id)) return;
+    reached.add(id);
+    const f = p.foundations.find((x) => x.id === id);
+    for (const q of f?.prerequisites ?? [])
+      visit(typeof q === "string" ? q : q.foundationId.replace(/^foundation:/, ""));
+    for (const b of [...(f?.explanation ?? []), ...(f?.example ?? [])])
+      if (b.kind === "foundation") visit(b.id);
+  };
+  for (const id of cited) visit(id);
+  assert.deepEqual([...present].sort(), [...reached].sort());
   assert.ok(p.arguments.every((a) => Object.keys(a.readings).length === 4));
   assert.equal(p.paper.sourceStatus, "in-preparation");
   assert.equal(compileReadingContent([...files].reverse()).papers[0].paper.id, p.paper.id);

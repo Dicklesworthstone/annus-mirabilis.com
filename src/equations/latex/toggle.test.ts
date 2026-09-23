@@ -211,18 +211,20 @@ test("toggle.test: Paper 2 diffusion toggle preserves term bindings across notat
   assertValidKatex(modernColor.latex, true);
 
   // Verify term binding continuity:
-  // Printed has D, R, T, N, k, P
+  // Printed has D, R, T, N, k, P. R and N are constants, like the k_B that replaces them: their
+  // role comes from the registry, and this file pinned the renderer's "input" fallback while the
+  // Brownian registry had no entry for either.
   assert.ok(
     printedColor.latex.includes("\\htmlData{term=eq-bm.t.d}{\\htmlClass{am-role-result}{D}}"),
   );
   assert.ok(
-    printedColor.latex.includes("\\htmlData{term=eq-bm.t.r}{\\htmlClass{am-role-input}{R}}"),
+    printedColor.latex.includes("\\htmlData{term=eq-bm.t.r}{\\htmlClass{am-role-constant}{R}}"),
   );
   assert.ok(
     printedColor.latex.includes("\\htmlData{term=eq-bm.t.t}{\\htmlClass{am-role-input}{T}}"),
   );
   assert.ok(
-    printedColor.latex.includes("\\htmlData{term=eq-bm.t.n}{\\htmlClass{am-role-input}{N}}"),
+    printedColor.latex.includes("\\htmlData{term=eq-bm.t.n}{\\htmlClass{am-role-constant}{N}}"),
   );
   assert.ok(
     printedColor.latex.includes("\\htmlData{term=eq-bm.t.k}{\\htmlClass{am-role-input}{k}}"),
@@ -306,14 +308,8 @@ test("toggle.test: Paper 3 boost coordinate toggle preserves term bindings acros
     concordance,
   });
 
-  assert.equal(
-    printedPlain.latex,
-    "\\tau = \\beta\\,\\left(t - \\frac{v}{V^{2}}\\,x\\right)",
-  );
-  assert.equal(
-    modernPlain.latex,
-    "t' = \\gamma\\,\\left(t - \\frac{v}{c^{2}}\\,x\\right)",
-  );
+  assert.equal(printedPlain.latex, "\\tau = \\beta\\,\\left(t - \\frac{v}{V^{2}}\\,x\\right)");
+  assert.equal(modernPlain.latex, "t' = \\gamma\\,\\left(t - \\frac{v}{c^{2}}\\,x\\right)");
 
   // Colorized toggle
   const printedColor = renderEquationLatex({

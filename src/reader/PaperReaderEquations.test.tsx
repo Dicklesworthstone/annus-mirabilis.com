@@ -1,19 +1,43 @@
 import { describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import TracerPage from "../app/lab/bm-01/page.tsx";
+import { loadPaper } from "../content/server";
 import { getLogger } from "../testing/log/logger.ts";
 import { PaperReader } from "./PaperReader.tsx";
 
 const logger = getLogger("paper-reader-equations");
 
-const EXPECTED_READER_EQUATION_IDS = [
-  "eq-model-bm-apparent-speed",
-  "eq-model-bm-rms",
-  "eq-model-bm-diffusivity",
-  "eq-model-bm-apparent-speed-lab",
-  "eq-model-bm-diffusivity-lab",
-  "eq-model-bm-rms-lab",
-] as const;
+/*
+  THE EXPECTED IDS COME FROM THE RECORDS, not from a frozen list. This file used to pin six ids and
+  six chip names; nine Brownian records took the page to 24 and turned it red while the property it
+  guards (no card on a page shares an id or a chip-nav name with another) still held. The census
+  moved to the containers: the records directory says which equations exist, their bindings say
+  which the tracer laboratory shows, and the compiled outline says which arguments a section holds.
+*/
+type RecordFile = { id: string; argument: string; bindings: readonly { experimentId: string }[] };
+const RECORDS: readonly RecordFile[] = readdirSync(
+  new URL("../../content/equations/brownian-motion/", import.meta.url),
+)
+  .filter((f) => f.endsWith(".json"))
+  .map((f) =>
+    JSON.parse(
+      readFileSync(
+        new URL(`../../content/equations/brownian-motion/${f}`, import.meta.url),
+        "utf8",
+      ),
+    ),
+  );
+/** The laboratory shows the equations bound to one of its outputs, and only those. */
+const LAB_RECORD_IDS = RECORDS.filter((r) => r.bindings.some((b) => b.experimentId === "bm-01"))
+  .map((r) => r.id)
+  .sort();
+const LAB_IDS = LAB_RECORD_IDS.map((id) => `${id}-lab`);
+/** Section pages server-render each argument's cards, scoped to that argument. */
+const readingIdsFor = (argumentIds: readonly string[]) =>
+  RECORDS.filter((r) => argumentIds.includes(r.argument))
+    .map((r) => `${r.id}-reader-${r.argument}`)
+    .sort();
 
 /**
  * Extracts all data-equation-id attribute values from rendered markup.
@@ -121,54 +145,86 @@ export function assertChipNavUniqueness(
 }
 
 describe("PaperReader equation disambiguation (am-txy3)", () => {
-  test("PaperReader renders exactly 6 distinct data-equation-id attributes with no duplicates (AC3)", async () => {
-    const html = renderToStaticMarkup(await PaperReader());
-    const result = assertEquationIdUniqueness(html, EXPECTED_READER_EQUATION_IDS);
+  test("non-vacuity: the laboratory shows some records and leaves others to the reading", () => {
+    // Identity, not census: the three bound records are permanent, and the (A+B)^2 identity is
+    // a reading step no laboratory output can fill.
+    expect(LAB_RECORD_IDS).toEqual([
+      "eq-model-bm-apparent-speed",
+      "eq-model-bm-diffusivity",
+      "eq-model-bm-rms",
+    ]);
+    expect(RECORDS.some((r) => r.id === "eq-model-bm-square-of-sum")).toBe(true);
+    expect(LAB_RECORD_IDS).not.toContain("eq-model-bm-square-of-sum");
+  });
 
-    expect(result.count).toBe(6);
-    expect(result.ids.sort()).toEqual([...EXPECTED_READER_EQUATION_IDS].sort());
+  test("whole-paper page: the laboratory's cards only, each id and chip name once; the reading's load on opening (AC3)", async () => {
+    const html = renderToStaticMarkup(await PaperReader());
+    const result = assertEquationIdUniqueness(html, LAB_IDS);
+    expect(result.ids.sort()).toEqual([...LAB_IDS].sort());
+    const navs = assertChipNavUniqueness(html, LAB_IDS.length);
+    expect(navs.labels.every((l) => l.endsWith("(laboratory model)"))).toBe(true);
+
+    // Every argument with records keeps its explorer, as a disclosure that loads on opening.
+    const withRecords = [...new Set(RECORDS.map((r) => r.argument))].sort();
+    const lazy = [
+      ...html.matchAll(/data-argument-equations="([^"]+)"[^>]*data-equations-loaded="false"/g),
+    ]
+      .map((m) => m[1])
+      .sort();
+    expect(withRecords.length).toBeGreaterThan(0);
+    expect(lazy).toEqual(withRecords);
 
     logger.log({
       testId: "paper-reader-equation-id-uniqueness",
       beadId: "am-txy3",
       outcome: "passed",
-      message:
-        "PaperReader renders exactly 6 unique data-equation-id attributes across reading and laboratory",
+      message: `whole-paper page: ${result.count} laboratory cards, unique; ${lazy.length} argument explorers load on opening`,
     });
   });
 
-  test("PaperReader renders exactly 6 distinct equation-chips nav accessible names (AC3)", async () => {
-    const html = renderToStaticMarkup(await PaperReader());
-    const result = assertChipNavUniqueness(html, 6);
-
-    expect(result.count).toBe(6);
-    const readingLabels = result.labels.filter((l) => l.includes("(reading argument)"));
-    const labLabels = result.labels.filter((l) => l.includes("(laboratory model)"));
-
-    expect(readingLabels.length).toBe(3);
-    expect(labLabels.length).toBe(3);
+  test("every section page: reading and laboratory cards never share an id or a chip name (AC3)", async () => {
+    const { paper, arguments: args } = await loadPaper("brownian-motion");
+    expect(paper.sections.length).toBeGreaterThan(0);
+    let readingCards = 0;
+    for (const section of paper.sections) {
+      const html = renderToStaticMarkup(await PaperReader({ section: section.id }));
+      const reading = readingIdsFor(args.filter((a) => a.section === section.id).map((a) => a.id));
+      const expected = [...reading, ...LAB_IDS];
+      const result = assertEquationIdUniqueness(html, expected);
+      expect(result.ids.sort()).toEqual([...expected].sort());
+      const navs = assertChipNavUniqueness(html, expected.length);
+      expect(navs.labels.filter((l) => l.endsWith("(laboratory model)")).length).toBe(
+        LAB_IDS.length,
+      );
+      readingCards += reading.length;
+    }
+    // Non-vacuity: the sections between them server-render every record's reading card.
+    expect(readingCards).toBe(RECORDS.length);
 
     logger.log({
       testId: "paper-reader-nav-label-uniqueness",
       beadId: "am-txy3",
       outcome: "passed",
-      message:
-        "PaperReader renders 6 equation-chips nav landmarks with mutually unique accessible names (3 reading, 3 lab)",
+      message: `${paper.sections.length} section pages: ${readingCards} reading cards and ${LAB_IDS.length} laboratory cards each, ids and chip names unique`,
     });
   });
 
   test("planted negative: duplicate data-equation-id is rejected", () => {
     const plantedDuplicateHtml = `
-      <div data-equation-id="eq-model-bm-apparent-speed"></div>
-      <div data-equation-id="eq-model-bm-rms"></div>
-      <div data-equation-id="eq-model-bm-diffusivity"></div>
-      <div data-equation-id="eq-model-bm-apparent-speed"></div>
+      <div data-equation-id="eq-model-bm-apparent-speed-lab"></div>
       <div data-equation-id="eq-model-bm-diffusivity-lab"></div>
-      <div data-equation-id="eq-model-bm-rms-lab"></div>
+      <div data-equation-id="eq-model-bm-apparent-speed-lab"></div>
     `;
-    expect(() =>
-      assertEquationIdUniqueness(plantedDuplicateHtml, EXPECTED_READER_EQUATION_IDS),
-    ).toThrow(/Duplicate data-equation-id attributes found: eq-model-bm-apparent-speed/);
+    expect(() => assertEquationIdUniqueness(plantedDuplicateHtml, LAB_IDS)).toThrow(
+      /Duplicate data-equation-id attributes found: eq-model-bm-apparent-speed-lab/,
+    );
+  });
+
+  test("planted negative: a laboratory showing every record is rejected", () => {
+    const plantedAll = RECORDS.map((r) => `<div data-equation-id="${r.id}-lab"></div>`).join("");
+    expect(() => assertEquationIdUniqueness(plantedAll, LAB_IDS)).toThrow(
+      /Expected exactly 3 data-equation-id attributes/,
+    );
   });
 
   test("planted negative: duplicate equation-chips nav accessible name is rejected", () => {
@@ -181,29 +237,22 @@ describe("PaperReader equation disambiguation (am-txy3)", () => {
     );
   });
 
-  test("comparison of equation counts across routes (/papers/brownian-motion/, /lab/bm-01/) (AC5)", async () => {
-    const readerHtml = renderToStaticMarkup(await PaperReader());
-    const readerEqResult = assertEquationIdUniqueness(readerHtml, EXPECTED_READER_EQUATION_IDS);
-    const readerNavResult = assertChipNavUniqueness(readerHtml, 6);
-
-    expect(readerEqResult.count).toBe(6);
-    expect(readerNavResult.count).toBe(6);
-
+  test("the paper's laboratory and /lab/bm-01/ show the same equations, each once (AC5)", async () => {
+    const readerIds = extractEquationIds(renderToStaticMarkup(await PaperReader()));
     const tracerHtml = renderToStaticMarkup(TracerPage());
-    const tracerEqIds = extractEquationIds(tracerHtml);
+    const tracerIds = extractEquationIds(tracerHtml);
     const tracerNavs = extractChipNavLabels(tracerHtml);
 
-    expect(tracerEqIds.length).toBe(3);
-    expect(new Set(tracerEqIds).size).toBe(3);
-    expect(tracerNavs.length).toBe(3);
-    expect(new Set(tracerNavs).size).toBe(3);
+    expect(new Set(tracerIds).size).toBe(tracerIds.length);
+    expect(new Set(tracerNavs).size).toBe(tracerNavs.length);
+    expect([...tracerIds].sort()).toEqual(LAB_RECORD_IDS);
+    expect(readerIds.map((id) => id.replace(/-lab$/, "")).sort()).toEqual(LAB_RECORD_IDS);
 
     logger.log({
       testId: "cross-route-equation-counts",
       beadId: "am-txy3",
       outcome: "passed",
-      message:
-        "/papers/brownian-motion/ has 6 ids (6 distinct) and 6 navs (6 distinct); /lab/bm-01/ has 3 ids (3 distinct) and 3 navs (3 distinct)",
+      message: `/papers/brownian-motion/ and /lab/bm-01/ each show the ${LAB_RECORD_IDS.length} bound equations once`,
     });
   });
 });

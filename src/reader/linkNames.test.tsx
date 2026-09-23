@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import TracerPage from "../app/lab/bm-01/page.tsx";
 import { getKernelListingsForInstrument } from "../content/kernel/listings.ts";
+import { loadPaper } from "../content/server";
 import { PaperPage } from "./PaperPage.tsx";
 import { PaperReader } from "./PaperReader.tsx";
 
@@ -201,7 +202,12 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       const fullReadingLinks = [...byName.entries()].filter(
         ([name]) => name.startsWith("Open ") && name.endsWith(" as a full reading page"),
       );
-      expect(fullReadingLinks.length).toBe(13);
+      // One discriminated link per foundation panel in the clarification dialog. The number of
+      // panels is the paper's foundation set, which grows when an equation note cites a new lesson
+      // (13 became 20 with nine Brownian records), so it is read from the payload, not frozen.
+      const { foundations } = await loadPaper("brownian-motion");
+      expect(foundations.length).toBeGreaterThan(1);
+      expect(fullReadingLinks.length).toBe(foundations.length);
       for (const [_, hrefs] of fullReadingLinks) {
         expect(hrefs.size).toBe(1);
       }
@@ -361,7 +367,9 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       const byName = groupLinksByName(links);
 
       const fullPageDestinations = byName.get("Open this as a full reading page →");
-      expect(fullPageDestinations?.size).toBe(13);
+      const { foundations } = await loadPaper("brownian-motion");
+      expect(foundations.length).toBeGreaterThan(1);
+      expect(fullPageDestinations?.size).toBe(foundations.length);
       expect(BENIGN_SAME_TARGET_NAMES.has("Open this as a full reading page →")).toBe(false);
     });
   });

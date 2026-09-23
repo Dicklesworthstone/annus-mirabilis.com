@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
 import { extractTypeScriptExport } from "../../content/kernel/extractTypeScript.ts";
 import { computeBm01StokesEinsteinTrace } from "../../content/kernel/trace.ts";
+import BROWNIAN from "../../generated/brownian-equations.json";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 
 /*
@@ -71,7 +72,26 @@ describe("show-the-code uses the paper's quantity colours, from CSS", () => {
   });
 
   test("a quantity no Brownian equation shows keeps the ink: the sheet gives it no colour", () => {
-    expect(SHEET).not.toMatch(rule("brownian-motion", "molarGasConstant"));
+    // The example used to be molarGasConstant, until D = RT/(6 pi eta a N) put R in a Brownian
+    // equation and the sheet correctly coloured it. The property holds for any quantity, so it is
+    // checked for all of them: the sheet colours exactly the quantities Brownian equations show.
+    const shown = new Set(
+      (BROWNIAN.equations as readonly { terms: readonly { quantityId: string }[] }[]).flatMap((e) =>
+        e.terms.map((t) => t.quantityId),
+      ),
+    );
+    const coloured = new Set(
+      [
+        ...SHEET.matchAll(
+          /\[data-paper="brownian-motion"\] \[data-quantity-id="([^"]+)"\] \{ --qc: var\(--q-\d\);/g,
+        ),
+      ].map((m) => m[1]),
+    );
+    expect(shown.size).toBeGreaterThan(0);
+    expect([...coloured].sort()).toEqual([...shown].sort());
+    // Identity, not census: gamma belongs to papers 3 and 4 and is never a Brownian quantity.
+    expect(shown.has("lorentzFactor")).toBe(false);
+    expect(SHEET).not.toMatch(rule("brownian-motion", "lorentzFactor"));
   });
 
   test("a listing whose paper cannot be told names none", () => {

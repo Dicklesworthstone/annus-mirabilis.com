@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 import { loadReadingFiles } from "../../scripts/build-content.ts";
 import { compileReadingContent } from "../content/compiler/compile.ts";
@@ -15,18 +15,38 @@ const load = async (name) =>
       "utf8",
     ),
   );
-test("three teaching equations compile with exact quantity bindings and explicit draft provenance", async () => {
+test("every Brownian teaching equation compiles, bound on every term or on none, with explicit draft provenance", async () => {
   const compiled = compileReadingContent(await loadReadingFiles());
   assert.equal(compiled.ok, true, JSON.stringify(compiled.diagnostics));
-  const equations = compiled.papers[0].equations;
-  assert.equal(equations.length, 3);
+  const paper = compiled.papers.find((p) => p.paper.id === "brownian-motion");
+  const equations = paper.equations;
+  // The population is the records directory, not a frozen three: nine reading records joined it.
+  const onDisk = (
+    await readdir(new URL("../../content/equations/brownian-motion/", import.meta.url))
+  ).filter((f) => f.endsWith(".json")).length;
+  assert.equal(equations.length, onDisk);
+  const bound = [];
   for (const e of equations) {
     assert.equal(e.notation, "modern-pedagogical");
     assert.equal(e.review, "draft");
     const nav = navigationTree(e.tree);
     assert.equal(nav.length, e.notes.length);
-    assert.equal(e.bindings.length, nav.filter((n) => n.kind === "term").length);
+    // A laboratory equation binds every term to an output; a reading equation binds none. A partly
+    // bound equation would show some terms live and others static in one formula.
+    const terms = nav.filter((n) => n.kind === "term").length;
+    assert.ok(
+      e.bindings.length === 0 || e.bindings.length === terms,
+      `${e.id}: ${e.bindings.length} of ${terms} terms bound`,
+    );
+    if (e.bindings.length > 0) bound.push(e.id);
   }
+  // Identity, not census: the three laboratory equations, and at least one reading-only record.
+  assert.deepEqual(bound.sort(), [
+    "eq-model-bm-apparent-speed",
+    "eq-model-bm-diffusivity",
+    "eq-model-bm-rms",
+  ]);
+  assert.ok(equations.length > bound.length);
 });
 test("TeX is generated structurally with term and operation markers, not by replacing letters", async () => {
   const rms = parseEquationRecord(await load("rms"), "rms");

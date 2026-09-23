@@ -41,6 +41,13 @@ function evaluate(node, values) {
       return evaluate(node.radicand, values) ** (1 / node.degree);
     case "power":
       return evaluate(node.base, values) ** (node.exponent.num / node.exponent.den);
+    case "group":
+      return evaluate(node.argument, values);
+    case "function": {
+      const f = { cos: Math.cos, sin: Math.sin, exp: Math.exp, ln: Math.log }[node.name];
+      assert.ok(f, `Unexpected test function: ${node.name}`);
+      return f(evaluate(node.argument, values));
+    }
     default:
       throw new Error(`Unexpected test expression: ${node.kind}`);
   }
@@ -62,7 +69,21 @@ const fixture = Object.freeze({
   finiteSpeedMassProxy: 1 / 9,
   inertialMassDecrease: 0.08,
   massChangeSigned: -0.08,
+  // Worked by hand from the values above, not by evaluating a record: beta = 3/5; the body's
+  // mass falls by L/c^2 = 2/25 from 1; one pulse of energy 1 (half of L) sent at 60 degrees,
+  // where cos = 1/2, carries 1 x 1.25 x (1 - 0.6 x 0.5) = 0.875 in the moving frame.
+  speedRatio: 0.6,
+  bodyMassBefore: 1,
+  bodyMassAfter: 0.92,
+  emissionAngle: Math.PI / 3,
+  lightComplexEnergyStationary: 1,
+  lightComplexEnergyMoving: 0.875,
 });
+/** The members of a chained relation, a = b = c, in order. */
+const chain = (node) =>
+  node.kind === "relation" && node.operator === "="
+    ? [...chain(node.left), ...chain(node.right)]
+    : [node];
 function close(actual, expected) {
   assert.ok(
     Math.abs(actual - expected) <= 2e-14 * Math.max(1, Math.abs(expected)),
@@ -87,17 +108,30 @@ for (const source of records) {
   });
   if (source.tree.operator !== "approx") {
     test(`${source.id}: independent ledger fixture satisfies the actual expression`, () => {
-      close(evaluate(source.tree.left, fixture), evaluate(source.tree.right, fixture));
+      // A chain a = b = c is checked link by link, so every member has to hold.
+      const members =
+        source.tree.operator === "=" ? chain(source.tree) : [source.tree.left, source.tree.right];
+      assert.ok(members.length >= 2);
+      for (let i = 1; i < members.length; i++)
+        close(evaluate(members[i - 1], fixture), evaluate(members[i], fixture));
     });
   }
 }
 
-test("all fifteen equations join the real compiler without changing the Brownian slice", async () => {
+test("every mass-energy record joins the real compiler, and none leaks into the Brownian slice", async () => {
   const result = compileReadingContent(await loadReadingFiles());
   assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
   const me = result.papers.find((p) => p.paper.id === "mass-energy");
-  assert.equal(me.equations.length, 15);
-  assert.equal(result.papers.find((p) => p.paper.id === "brownian-motion").equations.length, 3);
+  // Populations from the record directories, not frozen counts (15 and 3 until two batches of
+  // records landed on 2026-09-22).
+  assert.equal(me.equations.length, records.length);
+  const brownianOnDisk = (
+    await readdir(new URL("../../content/equations/brownian-motion/", import.meta.url))
+  ).filter((p) => p.endsWith(".json")).length;
+  const brownian = result.papers.find((p) => p.paper.id === "brownian-motion");
+  assert.equal(brownian.equations.length, brownianOnDisk);
+  assert.ok(brownian.equations.every((e) => e.paper === "brownian-motion"));
+  assert.ok(me.equations.every((e) => e.paper === "mass-energy"));
   for (const eq of me.equations) {
     assert.ok(me.arguments.some((a) => a.id === eq.argument));
     for (const note of eq.notes)
