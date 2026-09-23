@@ -156,9 +156,11 @@ export function decodeFacsimileAvailability(raw: unknown, paperId: string): Facs
       pages: Object.freeze(pages),
       units: Object.freeze(units),
       // Only the one directory the server loader can name for this key; anything else is dropped
-      // and the panel falls back to the PDF frame.
-      plateDir:
-        source.plateDir === `/figures/plates/pages/${source.key}` ? source.plateDir : undefined,
+      // and the panel falls back to the PDF frame. Absent stays absent, so a document without
+      // plates round-trips to exactly what the server projected.
+      ...(source.plateDir === `/figures/plates/pages/${source.key}`
+        ? { plateDir: source.plateDir }
+        : {}),
     }),
   });
 }
