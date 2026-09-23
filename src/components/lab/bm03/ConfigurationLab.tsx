@@ -40,9 +40,12 @@ const STEPS: readonly { id: Bm03Step; label: string; number: number }[] = [
 export function ConfigurationLab({
   example,
   title = "The configuration integral laboratory",
+  readings = true,
 }: {
   example?: PreparedBm03Example | undefined;
   title?: string | undefined;
+  /** False for the optional second laboratory, so the page carries the caption readings once. */
+  readings?: boolean;
 }) {
   const id = useId();
   const [session] = useState(() =>
@@ -530,14 +533,18 @@ export function ConfigurationLab({
           are direct children of .laboratory, which labShell.css's detail rules select with ">".
           They were printed all at once under internal labels, "R0 (Overview):" to "R3 (Historical
           notation & counterexample):", and nested one level deeper the rules could not reach them. */}
-      <p data-detail="0">{withScripts(BM03_CAPTION.r0)}</p>
-      <p data-detail="1">{withScripts(BM03_CAPTION.r1)}</p>
-      <p data-detail="2" hidden>
-        {withScripts(BM03_CAPTION.r2)}
-      </p>
-      <p data-detail="3" hidden>
-        {withScripts(BM03_CAPTION.r3)}
-      </p>
+      {readings && (
+        <>
+          <p data-detail="0">{withScripts(BM03_CAPTION.r0)}</p>
+          <p data-detail="1">{withScripts(BM03_CAPTION.r1)}</p>
+          <p data-detail="2" hidden>
+            {withScripts(BM03_CAPTION.r2)}
+          </p>
+          <p data-detail="3" hidden>
+            {withScripts(BM03_CAPTION.r3)}
+          </p>
+        </>
+      )}
 
       <div className="lab-bottom" style={{ marginTop: "2rem" }}>
         <section>
@@ -612,7 +619,9 @@ export function ConfigurationComparison({ example }: { example?: PreparedBm03Exa
           stepwise state and accepted results.
         </p>
       </div>
-      {second && <ConfigurationLab example={example} title="An independent comparison" />}
+      {second && (
+        <ConfigurationLab example={example} title="An independent comparison" readings={false} />
+      )}
     </>
   );
 }
