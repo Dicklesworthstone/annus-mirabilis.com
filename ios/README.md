@@ -27,7 +27,10 @@ bun scripts/app/xcode.ts build
 bun scripts/app/xcode.ts test
 bun scripts/app/xcode.ts test --device "AM iPad"
 
-# 4. The TypeScript side: the export, the Xcode runner, and the identity check.
+# 4. Redraw the app icon and launch colour from the web theme after a token change.
+bun scripts/app/generate-app-icon.ts
+
+# 5. The TypeScript side: the export, the Xcode runner, the icon, and the identity check.
 bun test scripts/app/
 ```
 
