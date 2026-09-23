@@ -37,7 +37,8 @@
       {
         "kind": "formula",
         "latex": "\\lambda_x=\\sqrt{\\langle x^2\\rangle}=\\sqrt{2Dt}",
-        "spoken": "Coordinate RMS displacement is the square root of two D t."
+        "spoken": "Coordinate RMS displacement is the square root of two D t.",
+        "equations": ["eq-model-bm-rms-from-mean-square"]
       },
       {
         "kind": "paragraph",

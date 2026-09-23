@@ -36,7 +36,8 @@
       {
         "kind": "formula",
         "latex": "D=\\frac{RT}{6\\pi\\eta aN}=\\frac{k_BT}{6\\pi\\eta a}",
-        "spoken": "Stokes–Einstein diffusivity is R T over six pi viscosity radius N, or k B T over six pi viscosity radius."
+        "spoken": "Stokes–Einstein diffusivity is R T over six pi viscosity radius N, or k B T over six pi viscosity radius.",
+        "equations": ["eq-model-bm-diffusivity-molar", "eq-model-bm-diffusivity"]
       },
       {
         "kind": "paragraph",

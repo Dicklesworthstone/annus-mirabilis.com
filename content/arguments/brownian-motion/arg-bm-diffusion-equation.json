@@ -46,7 +46,8 @@
       {
         "kind": "formula",
         "latex": "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}",
-        "spoken": "The retained equation is the diffusion equation."
+        "spoken": "The retained equation is the diffusion equation.",
+        "equations": ["eq-model-bm-diffusion-equation"]
       },
       {
         "kind": "foundation",

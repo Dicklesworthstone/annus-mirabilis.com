@@ -37,7 +37,12 @@
       {
         "kind": "formula",
         "latex": "t=n\\tau,\\qquad D=\\frac{l^2}{2\\tau},\\qquad\\langle x^2\\rangle=2Dt",
-        "spoken": "Elapsed time is n tau; defining D as ell squared over two tau gives mean-square displacement two D t."
+        "spoken": "Elapsed time is n tau; defining D as ell squared over two tau gives mean-square displacement two D t.",
+        "equations": [
+          "eq-model-bm-walk-time",
+          "eq-model-bm-walk-diffusivity",
+          "eq-model-bm-mean-square-growth"
+        ]
       },
       {
         "kind": "foundation",
@@ -54,7 +59,8 @@
       {
         "kind": "formula",
         "latex": "(A+B)^2=A^2+2AB+B^2",
-        "spoken": "The square of A plus B contains two squares and twice the cross product."
+        "spoken": "The square of A plus B contains two squares and twice the cross product.",
+        "equations": ["eq-model-bm-square-of-sum"]
       },
       {
         "kind": "steps",

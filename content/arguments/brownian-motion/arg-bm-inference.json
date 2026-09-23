@@ -29,7 +29,8 @@
       {
         "kind": "formula",
         "latex": "D=\\frac{\\langle x^2\\rangle}{2t},\\qquad N=\\frac{RTt}{3\\pi\\eta a\\langle x^2\\rangle}",
-        "spoken": "Diffusivity is mean-square displacement over twice time; molecular number is R T t over three pi viscosity radius mean-square displacement."
+        "spoken": "Diffusivity is mean-square displacement over twice time; molecular number is R T t over three pi viscosity radius mean-square displacement.",
+        "equations": ["eq-model-bm-diffusivity-from-data", "eq-model-bm-avogadro-inference"]
       },
       {
         "kind": "paragraph",
