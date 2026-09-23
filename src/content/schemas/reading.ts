@@ -1,5 +1,6 @@
 import { type EquationRecord, parseEquationRecord } from "../../equations/record.ts";
 import { ContentError } from "../compiler/json.ts";
+import { InlineMathError, splitInlineMath } from "../inlineMath.ts";
 
 /** Explanatory preview records, not diplomatic source blocks or reviewed translations. */
 export type Block = Readonly<
@@ -213,11 +214,29 @@ export function validateMath(x: unknown, p = "formula"): void {
       error(p, "Unsupported math environment.");
   }
 }
+/*
+  A paragraph's or a step's text: plain text as before, and any inline mathematics between
+  `\(` and `\)` (src/content/inlineMath.ts) held to the same command allowlist as a formula
+  block. A malformed delimiter is refused here, with its code, so it fails compilation rather
+  than reaching a reader as a raw backslash.
+*/
+function prose(x: unknown, p: string): void {
+  text(x, p);
+  let segments: ReturnType<typeof splitInlineMath>;
+  try {
+    segments = splitInlineMath(x);
+  } catch (cause) {
+    if (cause instanceof InlineMathError) error(p, `${cause.message} (${cause.code})`);
+    throw cause;
+  }
+  for (const segment of segments)
+    if (segment.kind === "math") validateMath(segment.value, `${p} inline math`);
+}
 function block(x: unknown, p: string): void {
   const o = object(x, p);
   if (o.kind === "paragraph") {
     keys(o, p, ["kind", "text"]);
-    text(o.text, `${p}.text`);
+    prose(o.text, `${p}.text`);
   } else if (o.kind === "formula") {
     const linked = Object.hasOwn(o, "equations");
     keys(o, p, linked ? ["kind", "latex", "spoken", "equations"] : ["kind", "latex", "spoken"]);
@@ -236,7 +255,7 @@ function block(x: unknown, p: string): void {
       );
   } else if (o.kind === "steps") {
     keys(o, p, ["kind", "items"]);
-    list(o.items, `${p}.items`, text, 1);
+    list(o.items, `${p}.items`, prose, 1);
   } else if (o.kind === "foundation") {
     keys(o, p, ["kind", "id", "returnCaption"]);
     id(o.id, `${p}.id`);
