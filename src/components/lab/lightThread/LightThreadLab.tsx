@@ -5,6 +5,7 @@ import {
   decodeLightThreadParameters,
   encodeLightThreadParameters,
   LIGHT_THREAD_BOUNDS,
+  LIGHT_THREAD_CAPTION,
   LIGHT_THREAD_DEFAULTS,
   LIGHT_THREAD_QUANTITIES,
   type LightThreadParameters,
@@ -423,6 +424,17 @@ export function LightThreadLab() {
           </a>
         </p>
       </details>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(LIGHT_THREAD_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(LIGHT_THREAD_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(LIGHT_THREAD_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(LIGHT_THREAD_CAPTION.r3)}
+      </p>
     </section>
   );
 }
