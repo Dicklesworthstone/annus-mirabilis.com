@@ -1,6 +1,8 @@
 import { ContentError } from "../content/compiler/json.ts";
 import { LIGHT_QUANTA_QUANTITIES } from "./lightQuantaQuantities.ts";
+import { MASS_ENERGY_QUANTITIES } from "./massEnergyQuantities.ts";
 import { BROWNIAN_QUANTITIES, type Quantity, type QuantityRegistry } from "./quantities.ts";
+import { SPECIAL_RELATIVITY_QUANTITIES } from "./specialRelativityQuantities.ts";
 
 /**
  * The quantities the foundation lessons' formulas bind. A lesson is not a paper, so it has its own
@@ -134,6 +136,52 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
       pick(BROWNIAN_QUANTITIES, "walkStepCount"),
       // The Gaussian: the unitless variable of the moment integral.
       pick(BROWNIAN_QUANTITIES, "scaledDisplacement"),
+      // Events and frames: section 1's light signal from clock A to B and back.
+      pick(SPECIAL_RELATIVITY_QUANTITIES, "signalDepartureTimeA"),
+      pick(SPECIAL_RELATIVITY_QUANTITIES, "signalReflectionTimeB"),
+      pick(SPECIAL_RELATIVITY_QUANTITIES, "signalReturnTimeA", { glyph: "t'_A" }),
+      // Energy of motion: one body at everyday speed, then the mass-energy argument's two ledgers.
+      own({
+        id: "bodyKineticEnergy",
+        name: "Energy of motion",
+        glyph: "K",
+        dimension: ["2", "1", "-2", "0", "0", "0"],
+        unit: "J",
+        displayUnit: "J",
+        displayPower: 0,
+        semanticKind: "kinetic-energy",
+        role: "result",
+        definition: "A body's kinetic energy at a speed small compared with light's.",
+      }),
+      own({
+        id: "bodyMass",
+        name: "Mass",
+        glyph: "m",
+        dimension: ["0", "1", "0", "0", "0", "0"],
+        unit: "kg",
+        displayUnit: "kg",
+        displayPower: 0,
+        semanticKind: "body-mass",
+        role: "input",
+        definition: "A body's inertial mass: its resistance to being set moving.",
+      }),
+      own({
+        id: "bodySpeed",
+        name: "Speed",
+        glyph: "v",
+        dimension: ["1", "0", "-1", "0", "0", "0"],
+        unit: "m/s",
+        displayUnit: "m/s",
+        displayPower: 0,
+        semanticKind: "body-speed",
+        role: "input",
+        definition: "How fast the body moves.",
+      }),
+      pick(MASS_ENERGY_QUANTITIES, "kineticEnergyBefore"),
+      pick(MASS_ENERGY_QUANTITIES, "kineticEnergyAfter"),
+      pick(MASS_ENERGY_QUANTITIES, "bodyMassBefore"),
+      pick(MASS_ENERGY_QUANTITIES, "bodyMassAfter"),
+      pick(MASS_ENERGY_QUANTITIES, "frameSpeed"),
     ].map((q) => [q.id, q]),
   ),
 );

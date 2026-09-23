@@ -225,6 +225,38 @@
   frame: not-applicable
   colorRole: time-rate
 
+- id: bodyKineticEnergy
+  name: Kinetic energy of a body
+  description: >
+    A body's energy of motion at a speed small compared with light's, K = mv^2/2, as the foundation
+    lesson on work and energy states it. Distinct from kineticEnergy (paper 3's electron) and the
+    mass-energy ledgers' kineticEnergyBefore and kineticEnergyAfter.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: energy
+- id: bodyMass
+  name: Mass of a body
+  description: >
+    A body's inertial mass in the foundation lesson on work and energy. Distinct from
+    electronMass, particleMass and the mass-energy paper's bodyMassBefore and bodyMassAfter.
+  dimensionStatus: declared
+  dimension: [0, 1, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: material
+- id: bodySpeed
+  name: Speed of a body
+  description: >
+    How fast a body moves, in the foundation lesson on work and energy. Distinct from frameSpeed,
+    the speed of one frame relative to another.
+  dimensionStatus: declared
+  dimension: [1, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
 - id: elapsedTime
   name: Elapsed time
   description: A generic time duration, used where no more specific time-kind record applies.
