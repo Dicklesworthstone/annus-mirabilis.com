@@ -81,9 +81,9 @@ export const SR13_MODEL = Object.freeze({
 
 export const SR13_CAPTION = Object.freeze({
   r0: "Section 10 derives the equations of motion for a slowly accelerated electron by transforming from its instantaneous rest frame back to the stationary system, yielding longitudinal and transverse mass coefficients and unbounded kinetic energy as speed approaches the speed of light.",
-  r1: "Einstein's source convention compares comoving force to stationary acceleration, giving a transverse coefficient m·gamma^2; Planck's laboratory convention (F = dp/dt) gives m·gamma. Both conventions yield identical observable trajectories, potentials, and deflection radii.",
-  r2: "The relativistic kinetic energy W = mc^2(gamma - 1) approaches infinity as v -> c, demonstrating that superluminal velocities have no possibility of existence for ponderable material points.",
-  r3: "Einstein lists three relations accessible to experiment: the velocity-dependent accelerating potential, the magnetic deflection radius, and the ratio of magnetic to electric deflectability A_m / A_e = v/V. Historical measurements by Kaufmann and Bucherer overlay directly onto the predicted curves.",
+  r1: "Einstein's source convention compares comoving force to stationary acceleration, giving a transverse coefficient mγ². Planck's laboratory convention, F = dp/dt, gives mγ. Both conventions predict the same trajectories, potentials and deflection radii.",
+  r2: "The kinetic energy W = mc²(γ − 1) grows without bound as v approaches c. From this Einstein concludes, as with his earlier results, that speeds greater than light's have no possibility of existence.",
+  r3: "Einstein lists three relations open to experiment: the accelerating potential a given speed needs, the radius of curvature in a magnetic field, and the ratio of magnetic to electric deflectability, which equals v/V. Kaufmann's deflection measurements (1902–1906) and Bucherer's (1908) bear on these relations. Neither is digitized here yet, so no measured points are drawn.",
 });
 
 const c = (
