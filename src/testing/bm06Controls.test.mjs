@@ -60,7 +60,9 @@ test("unit display does not fabricate infinity or zero at extreme scales", () =>
 test("rounding the largest finite value cannot overflow the reader's display", () => {
   assert.equal(display(Number.MAX_VALUE), "1.7977 × 10³⁰⁸");
   assert.equal(display(Number.MAX_VALUE, 1e12), "1.7977 × 10³²⁰");
-  assert.equal(display(-Number.MAX_VALUE, 1e-6), "-1.7977 × 10³⁰²");
+  // A negative value carries the minus sign (U+2212), not a hyphen (382816a9).
+  assert.equal(display(-Number.MAX_VALUE, 1e-6), "−1.7977 × 10³⁰²");
+  assert.equal(display(-0.25), "−0.25");
   // No e-exponent survives to a reader at any of these scales.
   for (const value of [1e307, Number.MAX_VALUE, -Number.MAX_VALUE, Number.MIN_VALUE, 6.02e23])
     for (const factor of [1, 1e12, 1e-6]) assert.doesNotMatch(display(value, factor), /\de[+-]?\d/);
