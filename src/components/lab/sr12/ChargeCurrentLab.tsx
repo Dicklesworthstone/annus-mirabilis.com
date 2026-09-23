@@ -14,6 +14,7 @@ import { createSr12Session, type PreparedSr12Example } from "../../../experiment
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, fixed, identity, result } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 import { ChargeCurrentPlot } from "./ChargeCurrentPlot.tsx";
 
 const C_SI = 299792458;
@@ -683,6 +684,17 @@ export function ChargeCurrentLab({
       </section>
 
       {/* Editorial Explanations (R0-R3) */}
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(SR12_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR12_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(SR12_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(SR12_CAPTION.r3)}
+      </p>
+
       <footer
         className="fine"
         style={{
@@ -694,18 +706,6 @@ export function ChargeCurrentLab({
           marginTop: "1rem",
         }}
       >
-        <p style={{ margin: 0 }}>
-          <strong>Overview:</strong> {SR12_CAPTION.r0}
-        </p>
-        <p style={{ margin: 0 }}>
-          <strong>Four-current invariant:</strong> {SR12_CAPTION.r1}
-        </p>
-        <p style={{ margin: 0 }}>
-          <strong>Current loops and total charge:</strong> {SR12_CAPTION.r2}
-        </p>
-        <p style={{ margin: 0 }}>
-          <strong>Continuity invariance (§9):</strong> {SR12_CAPTION.r3}
-        </p>
         <div style={{ paddingTop: "0.5rem", fontSize: "var(--type-fine)" }}>
           <strong>Not modeled:</strong> {SR12_NOT_MODELED.join(", ")}.
         </div>

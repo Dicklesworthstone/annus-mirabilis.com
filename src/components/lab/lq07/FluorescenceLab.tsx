@@ -3,6 +3,7 @@
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { fromLq07Draft, toLq07Draft } from "../../../experiments/lq07/controls.ts";
 import {
+  LQ07_CAPTION,
   LQ07_DEFAULTS,
   LQ07_MODEL,
   LQ07_PRESETS,
@@ -19,6 +20,7 @@ import {
 } from "../../../experiments/lq07/session.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 import { FluorescencePlot } from "./FluorescencePlot.tsx";
 import "./fluorescenceLab.css";
 
@@ -733,6 +735,17 @@ export function FluorescenceLab({
           at 900 THz (3.722 eV) has a 0.207 eV deficit and is disallowed.
         </p>
       </noscript>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(LQ07_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(LQ07_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(LQ07_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(LQ07_CAPTION.r3)}
+      </p>
     </article>
   );
 }

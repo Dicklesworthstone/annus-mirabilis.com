@@ -1745,14 +1745,6 @@ select {
   margin-top: 1rem;
 }
 
-.caption-r1,
-.caption-r2,
-.caption-r3 {
-  font-size: var(--type-fine);
-  color: var(--muted);
-  margin-top: 0.5rem;
-}
-
 .checkbox-row,
 .countermodel-row {
   display: flex;

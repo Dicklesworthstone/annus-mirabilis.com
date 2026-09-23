@@ -23,6 +23,7 @@ import {
 } from "../../../experiments/me01/session.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { SliderField } from "../SliderField.tsx";
+import { withScripts } from "../subscripts.tsx";
 import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
 import "./me01.css";
 import "../showTheCode.css";
@@ -198,7 +199,6 @@ export function TwoLedgersLab({
         <div>
           <p className="eyebrow">{ME01_MODEL.label}</p>
           <h2>{title}</h2>
-          <p className="caption-r0">{ME01_CAPTION.r0}</p>
         </div>
       </div>
 
@@ -411,6 +411,17 @@ const kineticEnergyDifference = premise === "unchanged" ? subtractionDifference 
         <p className="not-modeled-heading">Not modeled in this ideal reference calculation:</p>
         <p className="not-modeled-line">{ME01_NOT_MODELED.join(" · ")}</p>
       </footer>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(ME01_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(ME01_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(ME01_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(ME01_CAPTION.r3)}
+      </p>
     </section>
   );
 }

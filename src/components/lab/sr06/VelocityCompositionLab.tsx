@@ -15,6 +15,7 @@ import { createSr06Session, type PreparedSr06Example } from "../../../experiment
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { result } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 import { VelocityCompositionPlot } from "./VelocityCompositionPlot.tsx";
 
 function Readout({
@@ -130,7 +131,6 @@ export function VelocityCompositionLab({
       <header className="lab-heading">
         <p className="eyebrow">{SR06_MODEL.label}</p>
         <h2>{title}</h2>
-        <p className="caption-r0">{SR06_CAPTION.r0}</p>
       </header>
       <noscript>
         <p className="notice">
@@ -397,12 +397,16 @@ export function VelocityCompositionLab({
           </button>
         ))}
       </div>
-      <p className="caption-r1">{SR06_CAPTION.r1}</p>
-      <p className="caption-r2" hidden>
-        {SR06_CAPTION.r2}
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(SR06_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR06_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(SR06_CAPTION.r2)}
       </p>
-      <p className="caption-r3" hidden>
-        {SR06_CAPTION.r3}
+      <p data-detail="3" hidden>
+        {withScripts(SR06_CAPTION.r3)}
       </p>
     </section>
   );

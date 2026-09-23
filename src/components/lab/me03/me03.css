@@ -27,12 +27,6 @@
   margin-bottom: 1.5rem;
 }
 
-.caption-r0 {
-  margin-top: 0.5rem;
-  font-size: var(--type-small);
-  color: var(--muted);
-}
-
 .box-badges {
   display: flex;
   gap: 0.5rem;

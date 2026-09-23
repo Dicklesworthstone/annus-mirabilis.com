@@ -3,6 +3,7 @@
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { fromLq05Draft, toLq05Draft } from "../../../experiments/lq05/controls.ts";
 import {
+  LQ05_CAPTION,
   LQ05_DEFAULTS,
   LQ05_MODEL,
   LQ05_PRESETS,
@@ -19,6 +20,7 @@ import {
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
+import { withScripts } from "../subscripts.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
 import "./independentConfigurationsLab.css";
 
@@ -615,6 +617,17 @@ export function IndependentConfigurationsLab({
           points in half a volume (f = 0.5), W = (1/2)⁴ = 1/16 = 0.0625. ln W = 4 ln(0.5) ≈ -2.7726.
         </div>
       </noscript>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(LQ05_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(LQ05_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(LQ05_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(LQ05_CAPTION.r3)}
+      </p>
     </article>
   );
 }
