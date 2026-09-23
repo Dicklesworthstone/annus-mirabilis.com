@@ -29,6 +29,15 @@ import {
 } from "./types.ts";
 
 /**
+ * A glyph a power can sit on without brackets: ONE TeX token, optionally with a subscript and
+ * primes (v_{app}, k_B, E'). A glyph of two tokens is not: \Delta t squared printed as
+ * \Delta t^{2} reads as Delta times t squared, so it takes brackets, (\Delta t)^{2}, as the lesson
+ * on derivatives prints it.
+ */
+const SINGLE_TOKEN_GLYPH =
+  /^(?:\\[A-Za-z]+|[A-Za-z0-9])(?:_(?:\{(?:[^{}]|\{[^{}]*\})*\}|\\[A-Za-z]+|[A-Za-z0-9]))?'*$/;
+
+/**
  * Renders an AST expression into LaTeX under the specified options.
  */
 export function renderLatex(tree: Expression, options: RenderLatexOptions = {}): string {
@@ -170,12 +179,14 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
           parentheses, which is what makes (x + y)^2 and (-x)^2 unambiguous.
         */
         const base = n.base;
+        const glyph = base.kind === "symbol" ? resolveSymbolGlyph(base, options).glyph : "";
         const atomic =
           base.kind === "constant" ||
           (base.kind === "number" && /^\d+(\.\d+)?$/.test(base.value)) ||
           (base.kind === "symbol" &&
             (!base.scale || (base.scale.num === 1 && base.scale.den === 1)) &&
-            !resolveSymbolGlyph(base, options).glyph.includes("^"));
+            !glyph.includes("^") &&
+            SINGLE_TOKEN_GLYPH.test(glyph));
         const rendered = render(base);
         const exponent =
           n.kind === "symbolPower"
