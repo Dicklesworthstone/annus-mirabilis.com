@@ -304,7 +304,8 @@ export function BrownianInvestigation({
                 ? `${view.outcome?.message} The worked result remains readable.`
                 : view.status === "paused"
                   ? "Calculation stopped. The last accepted result is unchanged."
-                  : note || `Accepted trial at ${display(parameters.interval)} seconds.`}
+                  : note ||
+                    `Accepted trial at ${display(parameters.interval)} ${parameters.interval === 1 ? "second" : "seconds"}.`}
         </p>
         <div className="actions">
           <button type="button" disabled={!canCapture} onClick={capture}>
@@ -444,16 +445,16 @@ export function BrownianInvestigation({
         <p className="eyebrow">03 · Carry a quantity into a different question</p>
         <h2 id={`${id}-handoff`}>Use the same coefficient to ask about probability.</h2>
         <p>
-          The spreading lab below offers the model diffusion coefficient from pinned snapshot{" "}
-          {baseline.snapshotVersion} of trial <code>{baseline.runId}</code>. Choose its “Copy D
-          from” button to apply that coefficient once. This is not a fitted value from the sample,
-          and later tracer changes do not silently update the spreading lab.
+          The spreading lab below offers the model diffusion coefficient of the trial you pinned
+          above. Choose its “Copy D from the pinned trial” button to apply that coefficient once.
+          This is not a fitted value from the sample, and later tracer changes do not silently
+          update the spreading lab.
         </p>
       </section>
       <BrownianLab
         example={spreadExample}
         title="From this trial to an interval probability"
-        externalDiffusivitySource={diffusivitySource(baseline)}
+        externalDiffusivitySource={{ ...diffusivitySource(baseline), label: "the pinned trial" }}
       />
 
       <section className="laboratory" aria-labelledby={`${id}-notebook`}>

@@ -28,6 +28,8 @@ import { ShowTheCode } from "./ShowTheCode.tsx";
 const INTERVAL_KEYS = new Set(["lower", "upper"]);
 
 export type ExternalDiffusivitySource = Readonly<{
+  /** How the copy button names the source to a reader. Never an instance or run id. */
+  label: string;
   instanceId: string;
   runId: string;
   snapshotVersion: number;
@@ -301,7 +303,7 @@ export function BrownianLab({
                   disabled={dirty || view.pending}
                   onClick={copyDiffusivity}
                 >
-                  Copy D from {externalDiffusivitySource.instanceId}
+                  Copy D from {externalDiffusivitySource.label}
                 </button>
               )}
               {p.copiedDiffusivityValue > 0 && (
@@ -347,8 +349,9 @@ export function BrownianLab({
               {view.requested && (
                 <p>
                   Requested: {String(view.requested.parameters.steps)} time steps,{" "}
-                  {display(view.requested.parameters.t as number)} seconds. The values below retain
-                  their accepted settings.
+                  {display(view.requested.parameters.t as number)}{" "}
+                  {view.requested.parameters.t === 1 ? "second" : "seconds"}. The values below
+                  retain their accepted settings.
                 </p>
               )}
               {view.refusal.rankedRepairs.map((repair) => (

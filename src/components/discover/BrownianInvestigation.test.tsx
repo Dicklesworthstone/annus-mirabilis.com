@@ -15,7 +15,13 @@ describe("Brownian investigation: server-rendered, readable without JavaScript",
   });
 
   test("offers an explicit coefficient transfer rather than starting a hidden live binding", () => {
-    expect(html).toContain("Copy D from investigation-");
+    expect(html).toContain("Copy D from the pinned trial");
+    // The reader is never shown an instance or run id. It used to read "Copy D from
+    // investigation-_R_9bsnpfivdb_" in the browser; a server render prints the same id as
+    // "investigation-:R2:", so the check anchors on the prefix and the run suffix, not on either
+    // form of React's id.
+    const text = html.replace(/<[^>]+>/g, " ");
+    expect(text).not.toMatch(/investigation-|\/run\/\d/);
     expect(html).toContain("not a fitted value from the sample");
     expect(html).toContain("do not silently update the spreading lab");
   });
