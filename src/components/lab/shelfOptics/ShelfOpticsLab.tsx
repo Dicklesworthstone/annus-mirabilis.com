@@ -2,6 +2,7 @@
 
 import { type FormEvent, type ReactNode, useEffect, useId, useState } from "react";
 import {
+  SHELF_CAPTIONS,
   SHELF_DEFINITIONS,
   type ShelfDraft,
   type ShelfId,
@@ -16,6 +17,7 @@ import {
 } from "../../../experiments/shelfOptics/state.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { readablePowers } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 
 /** Four significant figures: the models' inputs are given to about that, and ten figures showed
  * higher-order terms nobody can read ("0.400000005 fringes" for an ether shift of 0.4). */
@@ -154,6 +156,7 @@ export function ShelfOpticsLab({
 }) {
   const instance = useId();
   const definition = SHELF_DEFINITIONS[example.parameters.instrumentId];
+  const caption = SHELF_CAPTIONS[example.parameters.instrumentId];
   const [accepted, setAccepted] = useState(() => shelfSnapshot(example));
   const [draft, setDraft] = useState<ShelfDraft>(() => shelfDraft(example.parameters));
   const [ready, setReady] = useState(false);
@@ -398,6 +401,17 @@ export function ShelfOpticsLab({
           )}
         </div>
       </div>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(caption.r0)}</p>
+      <p data-detail="1">{withScripts(caption.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(caption.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(caption.r3)}
+      </p>
     </section>
   );
 }
