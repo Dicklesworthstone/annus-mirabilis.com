@@ -154,8 +154,11 @@ function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
                 </span>
               ) : (
                 // No photograph: the instrument answers with a table of numbers, so its plate is a
-                // ruled table in the same frame, and the entries keep one rhythm down the page.
-                <span className="instrument-plate instrument-plate-table" aria-hidden="true" />
+                // drawn table in the same frame, and the entries keep one rhythm down the page. The
+                // words say so, because the ruled box alone read as a picture that failed to load.
+                <span className="instrument-plate instrument-plate-table" aria-hidden="true">
+                  <span className="instrument-plate-note">Answers in a table</span>
+                </span>
               )}
               <span className="instrument-question">{labName(id)}</span>
             </a>

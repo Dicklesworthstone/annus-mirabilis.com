@@ -45,17 +45,26 @@
   object-fit: contain;
 }
 
-/* An instrument whose answer is a table, drawn as one: a heading rule and ruled rows on the mat. */
+/* An instrument whose answer is a table, drawn as one: a header band, three columns and ruled rows,
+   with the words under it. Rows and a heading rule alone, full width, read as a blank picture. */
 .instrument-plate-table {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   background:
-    linear-gradient(var(--ink), var(--ink)) center 22% / 76% 2px no-repeat,
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0 calc(1.1rem - 1px),
-      var(--rule) calc(1.1rem - 1px) 1.1rem
-    )
-    center 30% / 76% 60% no-repeat,
+    linear-gradient(var(--rule), var(--rule)) center 16% / 64% 0.9rem no-repeat,
+    repeating-linear-gradient(to right, var(--rule) 0 1px, transparent 1px 33.33%) center 16% / 64%
+    54% no-repeat,
+    repeating-linear-gradient(to bottom, var(--rule) 0 1px, transparent 1px 0.9rem) center 16% / 64%
+    54% no-repeat,
     var(--wash);
+}
+
+.instrument-plate-note {
+  color: var(--muted);
+  font-size: var(--type-fine);
+  letter-spacing: 0.04em;
+  padding-bottom: 0.35rem;
 }
 
 .instrument-question {
@@ -102,6 +111,10 @@
   }
   .instrument-plate {
     padding: 0.25rem;
+  }
+  /* At 6rem the drawn table says enough; the words would not fit beside it. */
+  .instrument-plate-note {
+    display: none;
   }
   /* An instrument without a picture yet keeps the whole row for its question. */
   .instrument-specimen a:not(:has(.instrument-plate)) {
