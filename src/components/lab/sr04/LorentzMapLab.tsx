@@ -6,6 +6,7 @@ import {
   ALL_CONSTRAINTS,
   type ConstraintId,
   joinConstraints,
+  SR04_CAPTION,
   SR04_DEFAULTS,
   SR04_NOT_MODELED,
   SR04_QUESTION,
@@ -21,6 +22,7 @@ import {
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
+import { withScripts } from "../subscripts.tsx";
 
 const CONSTRAINT_LABELS: Readonly<Record<ConstraintId, string>> = {
   "right-moving-light": "Right-moving light stays at c",
@@ -430,6 +432,17 @@ export function LorentzMapLab({
           </details>
         </div>
       </div>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(SR04_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR04_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(SR04_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(SR04_CAPTION.r3)}
+      </p>
     </section>
   );
 }
