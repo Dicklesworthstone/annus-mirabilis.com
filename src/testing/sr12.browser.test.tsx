@@ -45,6 +45,15 @@ describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
     expect(html).toContain("Predict: is a neutral wire still neutral in a moving frame?");
   });
 
+  // The table's OutputReading tested vectors for Float64Array, which the store never publishes, so
+  // both current densities printed the word "value".
+  test("the current-density vectors are printed as components", () => {
+    const html = renderToStaticMarkup(<ChargeCurrentLab example={example} />);
+    expect(html).not.toMatch(/data-quantity-id="[^"]+">value</);
+    expect(html).toContain('data-quantity-id="currentDensityStationary">(1, 0, 0)<');
+    expect(html).toContain('data-quantity-id="currentDensityMoving">(1.25, 0, 0)<');
+  });
+
   // The drawing once put round(12γ) ions against round(12/γ) electrons in the moving frame, a net
   // POSITIVE wire printed beside the model's negative ρ′ and against the lab's own reveal. Its
   // J′ₓ also tested vectors for Float64Array, which the store never publishes, so it always

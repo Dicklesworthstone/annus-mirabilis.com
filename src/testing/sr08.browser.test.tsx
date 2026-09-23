@@ -37,8 +37,22 @@ describe("SR-08 Field Frame Change Lab View & Route (am-sr-08-field-frame-change
 
     const eMov = snap?.outputs.find((o) => o.quantityId === "electricFieldMoving");
     expect(eMov?.status).toBe("value");
-    if (eMov?.status === "value" && eMov.value instanceof Float64Array) {
-      expect(eMov.value[1]).toBeCloseTo(1.25, 6);
+    // This check used to sit behind `eMov.value instanceof Float64Array`, which never holds: the
+    // store publishes vectors as a NumericView. So it never ran. It now fails loudly instead.
+    if (eMov?.status !== "value" || typeof eMov.value === "number") {
+      throw new Error("expected E′ to be a vector");
     }
+    expect(eMov.value.at(1)).toBeCloseTo(1.25, 6);
+  });
+
+  // The same Float64Array test made the drawing draw every field as zero ("E (0.00 V/m)" beside
+  // E² − c²B² = 1.000) and made every vector cell in the table print the word "value".
+  test("vector results are drawn and printed, not zeroed or replaced by their status", () => {
+    const html = renderToStaticMarkup(<FieldFrameChangeLab example={example} />);
+    expect(html).not.toMatch(/data-quantity-id="[^"]+">value</);
+    expect(html).toContain('data-quantity-id="electricFieldStationary">(0, 1, 0)<');
+    expect(html).toContain('data-quantity-id="electricFieldMoving">(0, 1.25, 0)<');
+    expect(html).not.toContain("(0.00 V/m)");
+    expect(html).toMatch(/>E\s*′?\s*\(1\.(00|25) V\/m\)</);
   });
 });
