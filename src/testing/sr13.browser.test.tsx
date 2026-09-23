@@ -102,4 +102,65 @@ describe("SR-13 Electron Dynamics Lab View & Route (am-sr-13-electron-dynamics-b
       expect(note).toContain("not yet been digitized");
     }
   });
+
+  test("the chamber draws the session's computed path, bending toward +y where the magnetic push wins", () => {
+    // The crossed-field preset: at 0.6c and 0.01 T the magnetic push on an electron, along +y,
+    // outweighs the electric one, along -y, eighteen to one. The chamber used to draw a curve of
+    // its own making that bent the electron down. It now projects trajectoryPositions.
+    const session = createSr13Session("test-sr13-chamber", example);
+    session.apply({ ...session.acceptedParameters(), electricFieldY: 1e5, magneticFieldZ: 0.01 });
+    const snap = session.getSnapshot().accepted;
+    if (!snap) throw new Error("expected an accepted snapshot");
+    const published = snap.outputs.find((o) => o.quantityId === "trajectoryPositions");
+    if (published?.status !== "value" || typeof published.value === "number") {
+      throw new Error("expected a published path");
+    }
+    const html = renderToStaticMarkup(
+      <ElectronDynamicsPlot
+        initialSpeed={0.6}
+        initialDirectionDeg={0}
+        electricFieldX={0}
+        electricFieldY={1e5}
+        electricFieldZ={0}
+        magneticFieldX={0}
+        magneticFieldY={0}
+        magneticFieldZ={0.01}
+        forceConvention="source"
+        massLanguage="1905"
+        particle="electron"
+        longitudinalMassKg={1}
+        transverseMassComovingKg={1}
+        transverseMassLaboratoryKg={1}
+        kineticEnergyJ={1}
+        kineticEnergyNewtonianJ={1}
+        acceleratingPotentialV={1}
+        acceleratingPotentialNewtonianV={1}
+        radiusCurvatureMagneticM={1}
+        radiusCurvatureElectricM={1}
+        lorentzFactor={1.25}
+        datasetOverlay="none"
+        trajectory={published.value}
+        integrationIntervalS={2e-9}
+      />,
+    );
+    const d = html.match(
+      /<path d="(M [^"]+)" fill="none" stroke="var\(--plot\)" stroke-width="3"/u,
+    )?.[1];
+    if (!d) throw new Error("expected the drawn path");
+    const points = [...d.matchAll(/[ML] (-?[\d.]+) (-?[\d.]+)/gu)].map((m) => ({
+      x: Number(m[1]),
+      y: Number(m[2]),
+    }));
+    // One drawn point per published position: the drawing adds none and drops none.
+    expect(points.length).toBe(published.value.length / 2);
+    const first = points[0];
+    const last = points.at(-1);
+    if (!first || !last) throw new Error("expected points");
+    // SVG y points down, so bending toward +y means the last point sits above the first.
+    expect(last.y).toBeLessThan(first.y);
+    expect(last.x).toBeGreaterThan(first.x);
+    // +E_y is drawn pointing up, the way the path's y points.
+    expect(html).toContain('y1="40" x2="0" y2="0" stroke="var(--accent)"');
+    expect(html).toContain("drawn to scale");
+  });
 });
