@@ -22,10 +22,11 @@ describe("LorentzMapLab: server-rendered markup shows real numbers without JavaS
     expect(html).toContain("Ideal model, host calculation");
 
     // The default has no constraints enabled: the Galilean residual-report renders.
-    expect(html).toContain("Galilean candidate");
+    expect(html).toContain("The ordinary change of frame (a = b = 1, d = 0)");
 
-    // The slow case's real computed number reaches the markup.
-    expect(html).toContain("-20 m/s");
+    // The slow case's real computed number reaches the markup, with a minus sign, not a hyphen.
+    expect(html).toContain("−20 m/s");
+    expect(html).not.toContain("-20 m/s");
 
     // notModeled is present as a plain line.
     expect(html).toContain("Not modeled:");

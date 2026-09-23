@@ -38,7 +38,8 @@ describe("constraint engine", () => {
       enabledConstraints: ["right-moving-light", "left-moving-light"],
     });
     expect(r.status).toBe("underdetermined");
-    if (r.status === "underdetermined") expect(r.compatibleFamily.includes("free a(v)")).toBe(true);
+    if (r.status === "underdetermined")
+      expect(r.compatibleFamily.includes("a(v) still free")).toBe(true);
   });
 
   test("light + reciprocity: a(v)a(-v) relation", () => {
@@ -47,8 +48,7 @@ describe("constraint engine", () => {
       enabledConstraints: ["right-moving-light", "left-moving-light", "reciprocity"],
     });
     expect(r.status).toBe("underdetermined");
-    if (r.status === "underdetermined")
-      expect(r.compatibleFamily.includes("a(v) a(-v)")).toBe(true);
+    if (r.status === "underdetermined") expect(r.compatibleFamily.includes("a(v)a(−v)")).toBe(true);
   });
 
   test("light + reciprocity + isotropy: two branches", () => {
@@ -101,7 +101,8 @@ describe("constraint engine", () => {
       enabledConstraints: ["isotropy"],
     });
     expect(r.status).toBe("underdetermined");
-    if (r.status === "underdetermined") expect(r.compatibleFamily.includes("even")).toBe(true);
+    if (r.status === "underdetermined")
+      expect(r.compatibleFamily.includes("a(v) = a(−v)")).toBe(true);
   });
 
   test("wrong candidate residuals show which constraint fails", () => {
