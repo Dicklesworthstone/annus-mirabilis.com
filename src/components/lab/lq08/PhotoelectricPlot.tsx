@@ -20,7 +20,10 @@ export function EnergyLadderPlot({
 }: EnergyLadderProps) {
   const width = 360;
   const height = 240;
-  const padding = { top: 30, right: 30, bottom: 40, left: 72 };
+  // left: the level labels are right-aligned 8 units short of it, and at the lab's SVG text size
+  // (15.84 units, about 9.5 a mono character) "−2.20 eV" is 76 wide, so at 72 it began at −12
+  // and lost its minus sign off the drawing's left edge.
+  const padding = { top: 30, right: 30, bottom: 40, left: 94 };
 
   // The drawn range runs from just below the metal's level, -Φ, to just above the level the
   // quantum lifts the electron to, -Φ + hν. It used to be fixed at -1 to 6 eV and clamped, so
@@ -223,8 +226,11 @@ export function StoppingPotentialPlot({
   millikanData,
 }: StoppingPlotProps) {
   const width = 420;
-  const height = 260;
-  const padding = { top: 30, right: 30, bottom: 45, left: 65 };
+  // 272 tall with a 53-unit bottom margin (it was 260 and 45). At the lab's SVG text size (15.84
+  // units, a 21-unit line box) the "400" tick's box met the "0.0" tick's in the corner by 9 × 5
+  // units; the tick labels are lowered 6 units and the title keeps its room below them.
+  const height = 272;
+  const padding = { top: 30, right: 30, bottom: 53, left: 65 };
 
   // Frequency range: 400 THz to 1200 THz (0.4 to 1.2 PHz)
   const minNu = 4.0e14;
@@ -315,7 +321,7 @@ export function StoppingPotentialPlot({
               />
               <text
                 x={x}
-                y={height - padding.bottom + 16}
+                y={height - padding.bottom + 22}
                 textAnchor="middle"
                 fontSize="10"
                 fill="var(--muted)"
@@ -328,7 +334,7 @@ export function StoppingPotentialPlot({
         })}
         <text
           x={width / 2}
-          y={height - 8}
+          y={height - 5}
           textAnchor="middle"
           fontSize="11"
           fill="var(--ink)"
@@ -357,10 +363,10 @@ export function StoppingPotentialPlot({
           );
         })}
         <text
-          x={14}
+          x={18}
           y={height / 2}
           textAnchor="middle"
-          transform={`rotate(-90 14 ${height / 2})`}
+          transform={`rotate(-90 18 ${height / 2})`}
           fontSize="11"
           fill="var(--ink)"
           fontWeight="500"
