@@ -10,6 +10,7 @@ import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPan
 import { MenuToggle } from "../components/chrome/MenuToggle.tsx";
 import { PrimaryNavLinks } from "../components/chrome/PrimaryNavLinks.tsx";
 import { FORMULA_OVERFLOW_SOURCE } from "../components/edition/formulaOverflow.inline";
+import { shareImage } from "../components/share/shareImages.ts";
 import { GuidedTourTrail } from "../discovery/tours/GuidedTourTrail.tsx";
 import { PermalinkRobotsManager } from "../experiments/permalink/PermalinkRobotsManager.tsx";
 import { READER_PREPAINT } from "../reader/detail/prepaint";
@@ -17,11 +18,29 @@ import { NotebookLauncher } from "../reader/notebook/NotebookLauncher.tsx";
 import { SearchLauncher } from "../search/SearchLauncher.tsx";
 import { ThemeToggle } from "./theme/ThemeToggle";
 import { THEME_INIT_SOURCE } from "./theme/themeInit.inline";
+
+/*
+ * EVERY PAGE WITHOUT A CARD OF ITS OWN SHARES THE SITE CARD, AS A .png. Until 2026-09-23 these
+ * pages (109 of 334 in the export) took the image from the opengraph-image.tsx convention, whose
+ * URL has no extension: on Vercel it answered 308 to a trailing slash and then served the PNG as
+ * application/octet-stream, which link previews reject. The same card is published at
+ * /share/home.png by the share route. Naming it here displaces the file convention for this
+ * segment (Next applies a file image only when the segment's own metadata sets no images).
+ */
+const SITE_CARD = [
+  shareImage(
+    "home",
+    "The first printed pages of Einstein's four papers of 1905, each under the day Annalen der Physik received it",
+  ),
+];
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://annus-mirabilis.com"),
   title: { default: "Annus Mirabilis: four papers, one year", template: "%s · Annus Mirabilis" },
   description:
     "An edition, in preparation, of the four papers Einstein sent to the Annalen der Physik in 1905: each explained at the depth you choose, with instruments that work out what follows when you change an assumption.",
+  openGraph: { images: SITE_CARD },
+  twitter: { card: "summary_large_image", images: SITE_CARD },
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

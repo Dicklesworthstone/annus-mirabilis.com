@@ -21,7 +21,7 @@ export const LAB_CARDS = {
 export type LabCardId = keyof typeof LAB_CARDS;
 
 export function shareImage(id: string, alt: string) {
-  return { url: `/share/${id}.png`, ...SHARE_CARD_SIZE, alt };
+  return { url: `/share/${id}.png`, ...SHARE_CARD_SIZE, alt, type: "image/png" };
 }
 
 /** A paper's card, for the paper and every section and face of it, or none for a slug with no card. */
