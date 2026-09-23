@@ -21,6 +21,11 @@ export function escapeWorkbenchText(text: string): string {
     .replaceAll("'", "&#39;");
 }
 const e = escapeWorkbenchText;
+/** A number as escaped HTML, its power of ten raised by markup: display() writes the one-line
+ *  "2.2253 × 10^−14" for plain-text callers, and the residuals here printed "2.2253e-14" before it. */
+function num(value: number | string | boolean): string {
+  return e(display(value)).replace(/ × 10\^(−?\d+)/u, " × 10<sup>$1</sup>");
+}
 function validUid(uid: string): string {
   if (!/^[a-zA-Z][a-zA-Z0-9_-]{0,100}$/u.test(uid))
     throw new TypeError("Invalid workbench placement id.");
@@ -61,12 +66,12 @@ function renderCell(
     undefined,
   );
   const summary = worst
-    ? `<dl class="countermodel-readouts"><dt>Prediction${result.samples.length > 1 ? ` (${e(worst.label)})` : ""}</dt><dd>${e(display(worst.actual))} ${unit}</dd><dt>Reference</dt><dd>${e(display(worst.reference))} ${unit}</dd><dt>Signed residual</dt><dd data-cell-residual>${e(display(worst.residual))} ${unit}</dd><dt>Allowed magnitude</dt><dd>${e(display(worst.allowed))} ${unit}</dd></dl>`
+    ? `<dl class="countermodel-readouts"><dt>Prediction${result.samples.length > 1 ? ` (${e(worst.label)})` : ""}</dt><dd>${num(worst.actual)} ${unit}</dd><dt>Reference</dt><dd>${num(worst.reference)} ${unit}</dd><dt>Signed residual</dt><dd data-cell-residual>${num(worst.residual)} ${unit}</dd><dt>Allowed magnitude</dt><dd>${num(worst.allowed)} ${unit}</dd></dl>`
     : "";
   const samples = result.samples.length
     ? `<div class="countermodel-scroll" role="region" aria-label="${e(test.label)} numerical details" tabindex="0"><table class="countermodel-samples"><caption>Every accepted readout, in ${unit}; full-precision decimal strings</caption><thead><tr><th scope="col">Sample</th><th scope="col">Prediction</th><th scope="col">Reference</th><th scope="col">Signed residual</th><th scope="col">Allowed magnitude</th></tr></thead><tbody>${result.samples.map((sample) => `<tr><th scope="row">${e(sample.label)}</th><td>${e(String(sample.actual))}</td><td>${e(String(sample.reference))}</td><td>${e(String(sample.residual))}</td><td>${e(String(sample.allowed))}</td></tr>`).join("")}</tbody></table></div>`
     : "";
-  return `<p class="countermodel-mobile-label">${e(test.label)}</p><p class="countermodel-counted">${counted ? "Included in the selected comparison" : "Not selected; prediction retained"}</p><p class="countermodel-outcome" data-cell-outcome="${result.outcome}">${e(cellOutcomeText(result, test))}</p>${result.reason ? `<p>${e(result.reason)}</p>` : ""}${summary}<details data-cell-detail="${key}"><summary>Open the calculation: ${e(test.label)}</summary><p>${e(test.explanation)}</p><p>Tolerance: the larger of ${e(display(test.tolerance.absolute))} ${unit} and ${e(display(test.tolerance.relative))} times the larger magnitude of prediction and reference. A rounding-sized boundary band is reported as indeterminate.</p><p>${e(test.tolerance.reason)}</p>${samples}</details>`;
+  return `<p class="countermodel-mobile-label">${e(test.label)}</p><p class="countermodel-counted">${counted ? "Included in the selected comparison" : "Not selected; prediction retained"}</p><p class="countermodel-outcome" data-cell-outcome="${result.outcome}">${e(cellOutcomeText(result, test))}</p>${result.reason ? `<p>${e(result.reason)}</p>` : ""}${summary}<details data-cell-detail="${key}"><summary>Open the calculation: ${e(test.label)}</summary><p>${e(test.explanation)}</p><p>Tolerance: the larger of ${num(test.tolerance.absolute)} ${unit} and ${num(test.tolerance.relative)} times the larger magnitude of prediction and reference. A rounding-sized boundary band is reported as indeterminate.</p><p>${e(test.tolerance.reason)}</p>${samples}</details>`;
 }
 /** The same escaped markup is server-rendered and updated by the small DOM controller. */
 export function renderCountermodelResults(
@@ -80,7 +85,7 @@ export function renderCountermodelResults(
   const rows = spec.candidates.map((_, i) =>
     spec.tests.map((test, j) => classifyCell(snapshot, i, j, test)),
   );
-  return `<table class="countermodel-matrix" role="table"><caption>Candidate predictions at accepted v/c = ${e(display(snapshot.parameters.beta ?? "unavailable"))}. References are ${spec.tests[0]?.kind === "observation" ? "the other candidate’s predictions" : "the stated requirements"}.</caption><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Candidate and conditions</th>${spec.tests.map((test) => `<th id="${uid}-${test.id}-heading" scope="col" role="columnheader">${e(test.label)}</th>`).join("")}</tr></thead><tbody role="rowgroup">${spec.candidates
+  return `<table class="countermodel-matrix" role="table"><caption>Candidate predictions at accepted v/c = ${num(snapshot.parameters.beta ?? "unavailable")}. References are ${spec.tests[0]?.kind === "observation" ? "the other candidate’s predictions" : "the stated requirements"}.</caption><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Candidate and conditions</th>${spec.tests.map((test) => `<th id="${uid}-${test.id}-heading" scope="col" role="columnheader">${e(test.label)}</th>`).join("")}</tr></thead><tbody role="rowgroup">${spec.candidates
     .map((candidate, i) => {
       const row = rows[i];
       if (!row) throw new Error("Missing candidate result row.");

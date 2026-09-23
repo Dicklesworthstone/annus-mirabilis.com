@@ -1,13 +1,21 @@
+import { exponentialText } from "../../units/scientific.ts";
 import type { Baseline } from "./Baseline.ts";
 import type { ComparisonResult } from "./compatibility.ts";
 import type { ComparisonContract } from "./singleVariationLock.ts";
 
+/**
+ * Five significant figures, as plain text: this string also goes into the comparison statement and
+ * the notebook export, which hold no markup. Number#toString switches to e-notation below 10⁻⁶ and
+ * from 10²¹, so a 10^300 μm radius read "from 0.5 μm to 1e+300 μm" with ratios of "5e-301"; those
+ * are written in the one-line power-of-ten form instead ("5 × 10^−301").
+ */
 export function comparisonDisplay(value: number | string | boolean, factor = 1): string {
   if (typeof value !== "number") return String(value);
   const scaled = value * factor;
-  return Number.isFinite(scaled)
-    ? Number(scaled.toPrecision(5)).toString()
-    : "Outside display range";
+  if (!Number.isFinite(scaled)) return "Outside display range";
+  const rounded = Number(scaled.toPrecision(5));
+  const text = rounded.toString();
+  return /e/.test(text) ? exponentialText(rounded) : text;
 }
 export const COMMON_RANDOM_NUMBERS_NOTE =
   "Same seed (common random numbers): isolates the effect of the change; these are not independent trials.";
