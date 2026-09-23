@@ -1,9 +1,14 @@
 "use client";
 
 import { useId, useMemo, useSyncExternalStore } from "react";
-import { SR05_PRESETS, type Sr05Parameters } from "../../../experiments/sr05/definition.ts";
+import {
+  SR05_CAPTION,
+  SR05_PRESETS,
+  type Sr05Parameters,
+} from "../../../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../../../experiments/sr05/session.ts";
 import { readablePowers } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 import "./sr05.css";
 
 export type MovingClocksLabProps = Readonly<{
@@ -253,6 +258,17 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
           </p>
         </section>
       </div>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(SR05_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR05_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(SR05_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(SR05_CAPTION.r3)}
+      </p>
 
       <p className="fine">
         Model: an ideal clock whose rate depends only on its instantaneous speed. Not modeled:
