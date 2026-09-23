@@ -27,13 +27,24 @@ export async function checkReaderBrowser(browser, url, check) {
     const passage = page.locator(`#${firstId}`);
     assert.ok(await passage.locator('[data-reading="1"]').isVisible());
     assert.ok(!(await passage.locator('[data-reading="0"]').isVisible()));
-    assert.ok(!(await passage.locator('[data-reading="2"]').isVisible()));
-    assert.match(await page.locator("[data-source-status]").innerText(), /not the German source/);
+    // Show every step is a native disclosure per passage (PaperPage/PaperReader): without
+    // JavaScript its summary is visible by design and the steps stay closed until opened.
+    const everyStep = passage.locator('details[data-reading="2"]');
+    assert.equal(await everyStep.getAttribute("open"), null);
+    assert.ok(!(await everyStep.locator(":scope > :not(summary)").first().isVisible()));
+    // The status is a native disclosure now, closed by default, so its body is in the
+    // document but not in innerText; the claim is that the page says it, not that it is open.
+    assert.match(
+      (await page.locator("[data-source-status]").textContent()) ?? "",
+      /not the German source/,
+    );
     assert.ok((await page.locator("math").count()) > 10);
     await page.screenshot({ path: "artifacts/browser/reader-no-js-320-top.png" });
-    await passage.locator(".local-steps summary").click();
-    assert.match(await passage.locator(".local-steps").innerText(), /2\.236/);
-    assert.ok(await passage.locator(".local-steps .foundation-inline").first().isVisible());
+    // The passage holds more than one .local-steps disclosure (its equations explorer is one
+    // too), so address the R2 disclosure itself.
+    await everyStep.locator(":scope > summary").click();
+    assert.match(await everyStep.innerText(), /2\.236/);
+    assert.ok(await everyStep.locator(".foundation-inline").first().isVisible());
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     check(
       "reader remains complete without JavaScript, including native derivation disclosures and 320px reflow",
@@ -123,8 +134,8 @@ export async function checkReaderBrowser(browser, url, check) {
     );
     const passage = page.locator(`#${firstId}`),
       dialog = page.locator("[data-clarification-dialog]");
-    const local = passage.locator(".local-steps");
-    await local.locator("summary").click();
+    const local = passage.locator('details[data-reading="2"]');
+    await local.locator(":scope > summary").click();
     const detail = page.locator(".reader-controls [data-detail-control]");
     const historyLength = await page.evaluate(() => history.length);
     await detail.selectOption("0");
@@ -136,7 +147,7 @@ export async function checkReaderBrowser(browser, url, check) {
     assert.equal(await page.evaluate(() => history.length), historyLength);
     await page.locator(".reader-controls [data-lens-control]").check();
     assert.ok(await passage.locator('[data-reading="3"]').isVisible());
-    await local.locator("summary").click();
+    await local.locator(":scope > summary").click();
     check(
       "three reading depths replace history without resetting local expansion; modern qualifications are independent",
     );
@@ -250,7 +261,11 @@ export async function checkReaderBrowser(browser, url, check) {
     );
 
     await detail.selectOption("1");
-    await page.locator('.reader-controls [data-view-link="german"]').click();
+    // The German source tab is a route now (/papers/<x>/view/german/, ReaderController.tsx),
+    // not an in-page switch; ?view=german still resolves for links that carry it, so reach the
+    // in-page source face that way.
+    await page.goto(`${url}${route}?view=german#${firstId}`);
+    await page.locator('[data-reader-root][data-enhanced="true"]').waitFor();
     assert.match(await passage.locator("[data-face-source]").innerText(), /not yet available/);
     assert.ok(!(await passage.locator("[data-face-reading]").isVisible()));
     await page.locator('.reader-controls [data-view-link="reading"]').click();
@@ -335,7 +350,20 @@ export async function checkReaderBrowser(browser, url, check) {
     const data = await (await context.request.get(url + jsonLink)).json();
     assert.equal(data.paper.sourceStatus, "in-preparation");
     assert.equal(data.arguments.length, 6);
-    assert.equal(data.foundations.length, 13);
+    // A census here froze 13 and broke when the lessons grew to 22 ("A count is for reporting,
+    // not for asserting", AGENTS.md). The property: the export lists exactly the foundations
+    // this page offers as lessons, and there is at least one.
+    const offered = await page.evaluate(() =>
+      [
+        ...new Set(
+          [...document.querySelectorAll("[data-foundation-panel]")].map(
+            (e) => e.dataset.foundationPanel,
+          ),
+        ),
+      ].sort(),
+    );
+    assert.ok(offered.length > 0);
+    assert.deepEqual(data.foundations.map((f) => f.id).sort(), offered);
     const markdownLink = await page
       .getByRole("link", { name: "Download the full explanation as Markdown", exact: true })
       .getAttribute("href");
