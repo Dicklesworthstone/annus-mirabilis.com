@@ -1,13 +1,11 @@
 import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
-import { TracerLab } from "../components/lab/TracerLab";
 import { loadPaper } from "../content/server";
-import type { PreparedBm01Example } from "../experiments/bm01/session";
-import tracerExample from "../generated/bm01-example.json";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { FoundationBody, ReadingBlocks } from "./Blocks";
 import { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter";
+import { LazyInlineTracerLab } from "./LazyInlineTracerLab.tsx";
 import { Companion } from "./layout/Companion.tsx";
 import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind.ts";
 import { ReaderLayout } from "./layout/ReaderLayout.tsx";
@@ -390,15 +388,7 @@ export async function PaperReader({
               its controls explicitly starts a host calculation; opening an explanation never starts
               or restarts a trial.
             </p>
-            <details>
-              <summary>Open the tracer ensemble in this reading</summary>
-              <TracerLab
-                example={tracerExample as PreparedBm01Example}
-                title="Investigate the displacement argument"
-                equationScope="lab"
-                equationScopeLabel="laboratory model"
-              />
-            </details>
+            <LazyInlineTracerLab />
           </section>
         </StickyLabRegion>
       </ReaderLayout>
