@@ -196,7 +196,9 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
           parentheses, which is what makes (x + y)^2 and (-x)^2 unambiguous.
         */
         const base = n.base;
+        // An average is already delimited by its angle brackets: <x>^2, never (<x>)^2.
         const atomic =
+          base.kind === "average" ||
           base.kind === "constant" ||
           (base.kind === "number" && /^\d+(\.\d+)?$/.test(base.value)) ||
           (base.kind === "symbol" && isAtomicSymbol(base, options));
