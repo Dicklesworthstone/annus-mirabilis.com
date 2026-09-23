@@ -2311,6 +2311,25 @@ html:is(
 .model-limits {
   margin: 1rem 0;
 }
+/* STACKED DISCLOSURES SHARE ONE RULE. Every <details> draws a hairline above and below it
+   (globals.css) and keeps a margin, so two in a row drew two lines 13-16px apart. On BUILD 24's
+   /papers/light-quanta/, 30 of the 45 top-level disclosures sat directly under another, and every
+   passage ended in a ladder of doubled rules. A disclosure that follows another now overlaps it
+   by the rule's width, so the two share one line and the gap between them goes. */
+.reader-root details:has(+ details) {
+  margin-bottom: 0;
+}
+.reader-root details + details {
+  margin-top: -1px;
+}
+/* In a passage, the reading's last disclosure (every step, or the equations) and "Assumptions and
+   limits" are not siblings: the hidden faces sit between them. */
+.reader-root [data-face-reading] > details:last-of-type {
+  margin-bottom: 0;
+}
+.reader-root .reader-passage > .model-limits {
+  margin-top: -1px;
+}
 
 .foundation-link {
   display: inline-block;
