@@ -272,7 +272,7 @@ export function ConfigurationLab({
                   className={p.notation === "modern" ? "primary" : "secondary"}
                   onClick={() => setNotation("modern")}
                 >
-                  Modern (Np, V, ln, k_B)
+                  Modern (N<sub>p</sub>, V, ln, k<sub>B</sub>)
                 </button>
               </div>
             </div>

@@ -20,7 +20,7 @@ import { gamma, gammaMinusOne } from "./kinematics.ts";
 export const OWNER_ID = "massEnergy";
 export const PRINTED_V_SQUARED_ERG_PER_GRAM = 9e20;
 export const PRINTED_FACTOR_WORDING =
-  "the printed factor is 0.1385 percent larger than the modern c^2";
+  "the printed factor is 0.1385 percent larger than the modern c²";
 export const MASS_ENERGY_PRINTED_FACTOR_SCENARIO = "mass-energy-printed-factor";
 export const C_SI = constantValue(getConstantSet("modern-si-2019"), "speedOfLight").value;
 export const C_CGS = C_SI * 100;

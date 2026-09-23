@@ -79,7 +79,7 @@ export const SR02_APPARATUS_LABEL = "Static worked example";
 
 export const SR02_CAPTION = Object.freeze({
   r0: "The same relative motion of magnet and conductor can be told two ways; nature does not care which body we call at rest.",
-  r1: "In the magnet's rest frame the charges in the moving conductor feel q(v × B). In the conductor's rest frame those charges feel qE', and E' is the transform of the magnet's field. The two electromotive forces along a path across the motion differ by the factor gamma.",
+  r1: "In the magnet's rest frame the charges in the moving conductor feel q(v × B). In the conductor's rest frame those charges feel qE′, and E′ is the transform of the magnet's field. The two electromotive forces along a path across the motion differ by the factor γ.",
   r2: "A path across the boost has endpoint events with Δx = 0, so they are simultaneous in both frames and the length is unchanged. Then the magnet-frame electromotive force is vBℓ and the conductor-frame value is γvBℓ. The excess, γ − 1, is computed as γ²β²/(γ + 1), not by subtracting 1 from γ, which loses the small difference at everyday speeds.",
   r3: "The paper's first paragraph states the classical asymmetry. Section 6 removes it: electric and magnetic forces do not exist independently of the state of motion of the coordinate system. Lorentz's ether plus local time produces the same first-order formulae; that account is empirically equivalent at the speeds of real apparatus, not declared refuted here.",
 });

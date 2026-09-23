@@ -385,13 +385,17 @@ export function ElectronDynamicsLab({
                 </td>
               </tr>
               <tr>
-                <th scope="row">Magnetic curvature radius (R_m)</th>
+                <th scope="row">
+                  Magnetic curvature radius (R<sub>m</sub>)
+                </th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="radiusCurvatureMagnetic" /> m
                 </td>
               </tr>
               <tr>
-                <th scope="row">Electric curvature radius (R_e)</th>
+                <th scope="row">
+                  Electric curvature radius (R<sub>e</sub>)
+                </th>
                 <td>
                   <SnapshotReading snapshot={snapshot} quantityId="radiusCurvatureElectric" /> m
                 </td>

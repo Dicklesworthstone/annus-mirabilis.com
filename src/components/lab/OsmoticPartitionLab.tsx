@@ -256,7 +256,7 @@ export function OsmoticPartitionLab({
               <div className="input-grid">
                 <div className="input-field">
                   <label htmlFor={`${id}-Np`}>
-                    Particle count N_p <span>(count, whole number)</span>
+                    Particle count N<sub>p</sub> <span>(count, whole number)</span>
                   </label>
                   <input
                     id={`${id}-Np`}

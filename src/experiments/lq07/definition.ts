@@ -185,7 +185,7 @@ export const LQ07_PRESETS: Readonly<
     }),
   }),
   "lq-07-deviation-non-wien": Object.freeze({
-    label: "Deviation case 2 (T_src = 20,000 K non-Wien source)",
+    label: "Deviation case 2 (a 20,000 K source, outside the Wien regime)",
     description:
       "Exciting radiation outside the Wien domain (exp(−x) = 0.130 > 0.01) is refused: the single-quantum derivation assumes the Wien regime.",
     parameters: Object.freeze({
@@ -201,7 +201,7 @@ export const LQ07_PRESETS: Readonly<
     }),
   }),
   "lq-07-modern-thermal": Object.freeze({
-    label: "Modern thermal allowance (T_body = 300 K)",
+    label: "Modern thermal allowance (emitting body at 300 K)",
     description:
       "Thermal energy of the emitting body (+0.259 eV from vibrational modes) raises the bound on ν₂ to 912.51 THz (labeled modern lens).",
     parameters: Object.freeze({
