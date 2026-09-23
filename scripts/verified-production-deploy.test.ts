@@ -54,6 +54,21 @@ describe("scripts/verified-production-deploy.ts pipeline safety tests", () => {
     expect(conflicts.some((c) => c.includes("bun run dev"))).toBe(false); // filtered out by workspace check
   });
 
+  test("1b. a shell whose command line names a build is not a build; the build it runs still is", () => {
+    // The shell that launched a deploy is its ancestor, and its argv can read "bun run build && bun
+    // scripts/verified-production-deploy.ts". On 2026-09-23 that made the preflight refuse its own
+    // launcher. Every line below is in the workspace, so only the executable can tell them apart.
+    const psFixture = `
+201 1 03:26 /bin/zsh -c source snap.sh && bun run build > b.log && bun scripts/verified-production-deploy.ts
+202 1 00:40 -zsh -c next build
+203 1 00:12 bash -c "vercel build --prod"
+204 201 00:30 bun run build
+205 204 00:28 node /repo/node_modules/.bin/next build
+`;
+    const conflicts = parseConflictingBuilds(psFixture, "999", () => true);
+    expect(conflicts.map((c) => c.trim().split(/\s+/)[0])).toEqual(["204", "205"]);
+  });
+
   test("2. porcelain filtering with the allowlist filters build info, next-env, and .beads", () => {
     const porcelainInput = `
 ?? tsconfig.tsbuildinfo

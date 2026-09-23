@@ -210,6 +210,12 @@ export function parseConflictingBuilds(
     if (!pid) return false;
     if (pid === currentPid || ppid === currentPid) return false;
     const commandStr = parts.slice(3).join(" ");
+    // A shell is never the build, however its command line reads. The shell that launched this very
+    // deploy carries "bun run build" or "next build" in its argv when one command line runs both, and
+    // it is an ancestor, so the pid/ppid check above cannot exclude it. Gate on the executable, as
+    // AGENTS.md "Ask whether a build is running by gating on the EXECUTABLE" requires.
+    const executable = (parts[3] ?? "").replace(/^-/, "").split("/").pop() ?? "";
+    if (/^(?:zsh|bash|sh|dash|fish)$/.test(executable)) return false;
     if (
       /\b(?:SkyComputerUseClient|Codex Computer Use|Google Chrome|Electron|Antigravity)\b/i.test(
         commandStr,
