@@ -656,7 +656,7 @@ Every entry is verified against the pinned donor tree via read-only `git grep` i
 
 The list holds two kinds of entry, and the difference matters to whoever implements the hygiene scan:
 
-- **Found in the donor tree.** Seventeen of the twenty strings below appear at the pinned revision with a cited path and line. A scan for one of these tests something that demonstrably exists in the donor.
+- **Found in the donor tree.** Sixteen of the nineteen strings below appear at the pinned revision with a cited path and line. A scan for one of these tests something that demonstrably exists in the donor.
 - **Forbidden although absent from the donor tree.** Three do not appear at the pinned revision: `45267`, because the donor spells the port `45_267` with a numeric separator (see 10.4), and `fonts.googleapis.com` and `fonts.gstatic.com`, because the donor never writes those literals; it imports `next/font/google`, which contacts those origins at build time (see 10.6). They remain on the list because they are forbidden in this repository, not because they were found in the donor. Each was verified absent with `git grep -F -e <string> da11ff475902728fd8dd1d9db9f3af37c16ec8a5`, which returned zero matches.
 
 These strings form the input for automated hygiene and gate scans in `am-scaf-extract-scripts-7jm`, `am-scaf-extract-ui-components-c31`, and `am-rel-verified-deploy-qndt`.
@@ -673,7 +673,6 @@ www.classic-patents.com
 classic-patents.vercel.app
 prj_eeVw8BqcY9iO2e0VEQyS5i6rZkE0
 classic-patents
-team_F5Q3EH8Qxu3nDEOyEZLcQPe6
 45_267
 45267
 /patents/us-821393-wright-flyer
@@ -812,6 +811,7 @@ https://solidmechanics.org
   da11ff475902728fd8dd1d9db9f3af37c16ec8a5:scripts/deployment-verification.ts:15:export const CANONICAL_VERCEL_ORG_ID = "team_F5Q3EH8Qxu3nDEOyEZLcQPe6";
   ```
 - **Replacement in Annus Mirabilis:** Must be replaced with the team/org ID owning `annus-mirabilis`.
+- **Removed from the forbidden list on 2026-09-23.** The team that owns `annus-mirabilis` is this same team: this repository's own `.vercel/project.json`, written by `vercel link` for project `annus-mirabilis` (`prj_2x78UKZvaughODjplAHyTIqzIXHM`), names `team_F5Q3EH8Qxu3nDEOyEZLcQPe6`. The id belongs to the account both sites deploy from, not to the donor, so the replacement this entry asks for is the same string, and forbidding it made the real deploy configuration fail hygiene. The donor's project id `prj_eeVw8BqcY9iO2e0VEQyS5i6rZkE0` stays forbidden; it is what identifies the donor's deployment.
 
 ---
 

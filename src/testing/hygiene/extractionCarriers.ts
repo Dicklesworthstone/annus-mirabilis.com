@@ -24,9 +24,9 @@
  * THE OTHER HALF, WHICH THE COVERAGE NUMBER HIDES. The three gates do not enforce one rule
  * set. Their forbidden-token vocabularies, measured as sets:
  *
- *   B (read from docs/DONOR_AUDIT.md section 10.1)   20 tokens
- *   C (FORBIDDEN_DONOR_IDENTITIES)                   20 tokens, identical to B
- *   A (FORBIDDEN_STRINGS + FORBIDDEN_DONOR_CONSTANTS) 35 tokens: those same 20, plus 15
+ *   B (read from docs/DONOR_AUDIT.md section 10.1)   19 tokens
+ *   C (FORBIDDEN_DONOR_IDENTITIES)                   19 tokens, identical to B
+ *   A (FORBIDDEN_STRINGS + FORBIDDEN_DONOR_CONSTANTS) 34 tokens: those same 19, plus 15
  *     donor constants and kernels, plus the DONOR_VOCABULARY word rule that only A runs
  *
  * So A is a strict superset and B and C are the same set twice. Which standard an extracted

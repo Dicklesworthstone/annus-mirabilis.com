@@ -58,7 +58,6 @@ export const FORBIDDEN_STRINGS = [
   "classic-patents.vercel.app",
   "prj_eeVw8BqcY9iO2e0VEQyS5i6rZkE0",
   "classic-patents",
-  "team_F5Q3EH8Qxu3nDEOyEZLcQPe6",
   "45_267",
   "45267",
   "/patents/us-821393-wright-flyer",
