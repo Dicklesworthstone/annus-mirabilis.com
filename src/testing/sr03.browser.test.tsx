@@ -41,7 +41,9 @@ describe("SR-03 Rod Measurement and Simultaneity Lab View & Route (am-sr-03-rod-
       />,
     );
     expect(html).toContain('data-instrument-id="sr-03"');
-    expect(html).toContain("SR-03 · An executable laboratory");
+    // The eyebrow no longer carries the internal id "SR-03": readers see what the lab is, not its key.
+    expect(html).toContain("An executable laboratory");
+    expect(html).not.toContain("SR-03 ·");
     // The prompts sit in one closed disclosure. The two tab buttons that used to switch them were
     // labelled "Relativity of Simultaneity" and "Invariant Causal Order", which named each answer
     // before the question (b52335ab), so the check is for the disclosure and both questions.
