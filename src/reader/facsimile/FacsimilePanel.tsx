@@ -63,11 +63,7 @@ export function FacsimilePanel({
         inline={inline}
       />
       <h2>Read the original scanned pages</h2>
-      <p>
-        These are the pinned journal scans, not a newly typeset transcription or a translation.
-        Printed journal page numbers and PDF page numbers are shown separately. The scan’s
-        machine-readable text may contain errors.
-      </p>
+      <p>These are the pinned journal scans, not a newly typeset transcription or a translation.</p>
       {section && (
         <p className="notice" data-facsimile-section={section}>
           {scope.length > 0
@@ -85,8 +81,21 @@ export function FacsimilePanel({
         <fieldset data-facsimile-controls disabled>
           <legend>Choose a page from the original paper</legend>
           <div className="facsimile-reader-buttons">
-            <button type="button" data-facsimile-previous disabled={initial.pdfPage === 1}>
+            <button
+              type="button"
+              className="secondary"
+              data-facsimile-previous
+              disabled={initial.pdfPage === 1}
+            >
               Previous page
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              data-facsimile-next
+              disabled={initial.pdfPage === document.pages.length}
+            >
+              Next page
             </button>
             <label htmlFor={`${id}-page`}>Printed journal page</label>
             <input
@@ -99,27 +108,35 @@ export function FacsimilePanel({
               size={6}
             />
             <button type="submit">Show page</button>
-            <button
-              type="button"
-              data-facsimile-next
-              disabled={initial.pdfPage === document.pages.length}
-            >
-              Next page
-            </button>
           </div>
-          <button type="button" data-facsimile-share>
-            Copy source-page link
-          </button>
-          <label htmlFor={`${id}-share`}>Shareable source-page link</label>
-          <input
-            id={`${id}-share`}
-            data-facsimile-share-url
-            type="text"
-            readOnly
-            defaultValue={`${faceHref}#${facsimilePageAnchor(initial)}`}
-          />
+          <div className="facsimile-reader-share">
+            <button type="button" className="secondary" data-facsimile-share>
+              Copy source-page link
+            </button>
+            <label htmlFor={`${id}-share`}>Shareable source-page link</label>
+            <input
+              id={`${id}-share`}
+              data-facsimile-share-url
+              type="text"
+              readOnly
+              defaultValue={`${faceHref}#${facsimilePageAnchor(initial)}`}
+            />
+          </div>
         </fieldset>
       </form>
+      {/*
+        THE SCAN COMES FIRST. The viewer used to follow the status line, the direct-PDF links and
+        a caveat, below a toolbar of slab buttons: on BUILD 22's /papers/mass-energy/view/facsimile/
+        it began 1,255px down at 1440 and 1,800px down at 390. It now sits under the page controls
+        that drive it, and what explains or bypasses it follows it.
+      */}
+      <iframe
+        data-facsimile-frame
+        src={facsimilePdfHref(document, initial.pdfPage)}
+        title={`Original scan: printed page ${initial.printedPage}, PDF page ${initial.pdfPage} of ${document.pages.length}`}
+        loading="lazy"
+        referrerPolicy="no-referrer"
+      />
       <p
         id={`${id}-status`}
         data-facsimile-status
@@ -144,17 +161,11 @@ export function FacsimilePanel({
         </a>
       </p>
       <p className="fine">
-        A blank embedded display does not mean the source is missing. The direct PDF links work
-        independently of this frame. Some browsers may ignore PDF page fragments; use the PDF page
-        number shown in the directory in that case.
+        Printed journal page numbers and PDF page numbers are counted separately. The scan’s
+        machine-readable text may contain errors. A blank embedded display does not mean the source
+        is missing. The direct PDF links work independently of this frame. Some browsers may ignore
+        PDF page fragments; use the PDF page number shown in the directory in that case.
       </p>
-      <iframe
-        data-facsimile-frame
-        src={facsimilePdfHref(document, initial.pdfPage)}
-        title={`Original scan: printed page ${initial.printedPage}, PDF page ${initial.pdfPage} of ${document.pages.length}`}
-        loading="lazy"
-        referrerPolicy="no-referrer"
-      />
       <details className="facsimile-reader-provenance">
         <summary>Source identity and limits of verification</summary>
         <dl>
