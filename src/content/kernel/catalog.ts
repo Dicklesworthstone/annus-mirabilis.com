@@ -98,9 +98,9 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     words: words(
       "A symmetric step with finite variance has diffusivity equal to that variance divided by twice the step interval.",
     ),
-    liveTerms: ["diffusionCoefficient", "observationInterval"],
+    liveTerms: ["diffusionCoefficient", "stepInterval"],
     identifierBindings: [
-      bind("kernelDiffusivity", "tau", "observationInterval"),
+      bind("kernelDiffusivity", "tau", "stepInterval"),
       bind("kernelDiffusivity", "kernelDiffusivity", "diffusionCoefficient"),
     ],
     independentReferences: [],
@@ -113,7 +113,8 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     ),
     liveTerms: ["diffusionCoefficient", "rmsDisplacement1d", "observationInterval"],
     identifierBindings: [
-      bind("randomWalkMoments", "tau", "observationInterval"),
+      bind("randomWalkMoments", "tau", "stepInterval"),
+      bind("randomWalkMoments", "elapsedTime", "observationInterval"),
       bind("randomWalkMoments", "diffusion", "diffusionCoefficient"),
       bind("randomWalkMoments", "rms", "rmsDisplacement1d"),
     ],
