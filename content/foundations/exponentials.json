@@ -9,7 +9,19 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Suppose a quantity changes at a rate proportional to its own size. A radioactive sample loses the same fraction of its atoms every hour; a beam of light loses the same fraction of its intensity in every millimetre of absorbing glass. Equal steps then multiply the quantity by equal factors, and its graph is an exponential. The function e to the power x, with e about 2.718, is the one whose rate of change equals its own value everywhere, which is why it describes this kind of change:"
+      "text": "Suppose a quantity changes at a rate proportional to its own size. A radioactive sample loses the same fraction of its atoms every hour; a beam of light loses the same fraction of its intensity in every millimetre of absorbing glass. Take 1,000 atoms that lose half their number each hour:"
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "After one hour 500 remain, after two 250, after three 125.",
+        "The losses shrink as the sample does: 500 in the first hour, 250 in the second, 125 in the third.",
+        "Each hour multiplies the count by the same factor, one half. Equal steps, equal factors: that is exponential change."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "The function e to the power x, with e about 2.718, is the one whose rate of change equals its own value everywhere, which is why it describes this kind of change. In symbols, with N₀ atoms at the start and a constant k that sets how fast they decay (for halving every hour, k is about 0.693 per hour):"
     },
     {
       "kind": "formula",
