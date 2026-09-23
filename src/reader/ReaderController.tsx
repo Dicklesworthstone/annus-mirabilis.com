@@ -88,8 +88,10 @@ export function ReaderController(props: Props) {
      */
     function url() {
       const u = new URL(location.href);
-      if (state.view === "reading") u.searchParams.delete("view");
-      else u.searchParams.set("view", state.view);
+      // An unknown ?view= falls back to the explanation and stays in the address as it
+      // arrived: the fallback is the page's to decide, and rewriting the link is not.
+      if (state.view !== "reading") u.searchParams.set("view", state.view);
+      else if (FACES.includes(u.searchParams.get("view") as Face)) u.searchParams.delete("view");
       if (state.detail === 1) u.searchParams.delete("detail");
       else u.searchParams.set("detail", String(state.detail));
       if (state.lens) u.searchParams.set("lens", "modern");
@@ -453,7 +455,9 @@ export function ReaderController(props: Props) {
           <a href="?view=reading" data-view-link="reading" aria-current="page">
             {FACE_REGISTRY.reading.label}
           </a>
-          <a href="?view=results" data-view-link="results">
+          {/* The href is the static results page, so without JavaScript the link reaches the
+              results face; with it, data-view-link switches the face in place as before. */}
+          <a href={`/papers/${props.registry.paperId}/view/results/`} data-view-link="results">
             {FACE_REGISTRY.results.label}
           </a>
           {/* THE GERMAN SOURCE ROUTE, AND DELIBERATELY WITHOUT data-view-link.
