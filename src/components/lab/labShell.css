@@ -363,6 +363,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* An open code listing takes the whole row. In one of the lab-bottom's two columns it was 242px
+   wide inside the Brownian reading at 1280, with up to 609px of each listing scrolled out of
+   view; across both columns it is 566px there, and on /lab/bm-01/ at 1280 it is 1,116px, where
+   nothing is hidden. Closed, it keeps its column beside what the model leaves out. */
+.lab-bottom > :has(> .show-the-code[open]) {
+  grid-column: 1 / -1;
+}
+
 /* The lab-bottom already draws a rule above itself, so its blocks do not draw another. */
 .lab-bottom > .not-modeled {
   border-top: 0;
