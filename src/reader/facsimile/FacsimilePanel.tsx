@@ -7,6 +7,7 @@ import {
   resolveFacsimileTarget,
 } from "./document.ts";
 import { FacsimileEnhancer } from "./FacsimileEnhancer.tsx";
+import { sourceUnitLabel } from "./sourceUnitLabel.ts";
 import "./facsimileReader.css";
 
 /** No PDF.js, worker, WASM, canvas, or external resource is needed for this source face.
@@ -42,6 +43,8 @@ export function FacsimilePanel({
   );
   const extraAnchors = [...new Set([...aliases, ...sections])];
 
+  // In a sectioned paper s0 is the introduction; mass-energy has no sections.
+  const sectioned = document.units.some((unit) => unit.kind === "section-heading");
   return (
     <section
       id={id}
@@ -202,11 +205,11 @@ export function FacsimilePanel({
           claim. The source inventory is navigation metadata, not the original text.
         </p>
       </details>
-      <h2>Original-page directory</h2>
+      <h2>What is on each printed page</h2>
       <p>
-        The “Open original printed page” links open the scan directly, including without JavaScript.
-        Source identifiers select their first recorded page in the embedded viewer when JavaScript
-        is available. A passage that spans pages retains a link to each page.
+        Each page link opens the scan at that page, with or without JavaScript. With JavaScript, a
+        passage below turns the viewer above to the page where it begins, and a passage that runs
+        onto another page links to each page it is on.
       </p>
       <nav aria-label="Original scan pages" className="facsimile-reader-page-links">
         {document.pages.map((page) => (
@@ -251,9 +254,8 @@ export function FacsimilePanel({
                 .map((unit) => (
                   <li key={unit.id} id={anchorId(unit.id)} tabIndex={-1}>
                     <a href={targetHref(unit.id)} data-facsimile-target={unit.id}>
-                      {unit.id}
-                    </a>{" "}
-                    <span className="fine">({unit.kind.replaceAll("-", " ")})</span>
+                      {sourceUnitLabel(unit.id, unit.kind, sectioned)}
+                    </a>
                     {unit.pdfPages.length > 1 && (
                       <span>
                         {" "}
