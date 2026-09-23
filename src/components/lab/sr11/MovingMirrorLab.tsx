@@ -157,15 +157,6 @@ export function MovingMirrorLab({
         </p>
       </noscript>
 
-      <p data-detail="0">{SR11_CAPTION.r0}</p>
-      <p data-detail="1">{SR11_CAPTION.r1}</p>
-      <p data-detail="2" hidden>
-        {SR11_CAPTION.r2}
-      </p>
-      <p data-detail="3" hidden>
-        {SR11_CAPTION.r3}
-      </p>
-
       <div className="lab-columns">
         <div>
           <fieldset disabled={!ready} className="lab-choice">
@@ -344,6 +335,15 @@ export function MovingMirrorLab({
           </p>
         </div>
       </div>
+      {/* The caption follows the instrument it describes; above it, it came between a phone's heading and the result. */}
+      <p data-detail="0">{SR11_CAPTION.r0}</p>
+      <p data-detail="1">{SR11_CAPTION.r1}</p>
+      <p data-detail="2" hidden>
+        {SR11_CAPTION.r2}
+      </p>
+      <p data-detail="3" hidden>
+        {SR11_CAPTION.r3}
+      </p>
 
       <ShowTheCode listings={getKernelListingsForInstrument("sr-11")} />
 
