@@ -6,8 +6,7 @@ import {
   loadFoundationPayload,
   loadPaperPayload,
 } from "../src/content/compiler/serverLoaders.ts";
-import { expressionLatex } from "../src/equations/latex.ts";
-import { BROWNIAN_QUANTITIES } from "../src/equations/quantities.ts";
+import { recordLatex } from "../src/equations/recordLatex.ts";
 import {
   CATALOGUE_IDS,
   CATALOGUE_QUESTIONS,
@@ -48,10 +47,7 @@ export async function buildSearchIndex(
   }));
   const equationTerms = Object.fromEntries(
     papers.flatMap((paper) =>
-      paper.equations.map((equation) => [
-        equation.id,
-        expressionLatex(equation.tree, BROWNIAN_QUANTITIES),
-      ]),
+      paper.equations.map((equation) => [equation.id, recordLatex(equation) ?? ""]),
     ),
   );
   const documents = documentsFromCompiled(papers, foundations, instruments, profile, equationTerms);

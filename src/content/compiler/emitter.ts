@@ -9,8 +9,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { expressionLatex } from "../../equations/latex.ts";
-import { BROWNIAN_QUANTITIES } from "../../equations/quantities.ts";
+import { recordLatex } from "../../equations/recordLatex.ts";
 import { inlineMathToMarkdown } from "../inlineMath.ts";
 import type { Block, Foundation } from "../schemas/reading.ts";
 import type { PaperPayload } from "./compile.ts";
@@ -65,7 +64,7 @@ function sortKeysRecursively(value: unknown): unknown {
 const sha256Digest = (s: string | Uint8Array) => createHash("sha256").update(s).digest("hex");
 
 /** A foundation's title by id, or undefined when no record carries that id. */
-type FoundationTitle = (id: string) => string | undefined;
+export type FoundationTitle = (id: string) => string | undefined;
 
 /*
   A foundation link says what the page says, "Open the foundation: Fractions and ratios"
@@ -88,6 +87,34 @@ function markdownBlocks(blocks: readonly Block[] | undefined, titleOf: Foundatio
             : `[Open the foundation: ${titleOf(b.id) ?? b.id}](/foundations/${b.id}/)`,
     )
     .join("\n\n");
+}
+
+/**
+ * The Markdown a reader downloads from a paper's page: the explanation, then each teaching
+ * equation in its own paper's letters (recordLatex).
+ */
+export function paperMarkdown(paper: PaperPayload, titleOf: FoundationTitle): string {
+  return (
+    markdownPaper(paper, titleOf) +
+    paper.equations
+      .map((e) => {
+        const rawLatex = "latex" in e && typeof e.latex === "string" ? e.latex : "";
+        return `
+## ${e.title}
+
+Modern teaching equation; review pending.
+
+$$
+${(e.tree ? recordLatex(e) : undefined) ?? rawLatex}
+$$
+
+${e.spoken ?? ""}
+
+${e.explanation ?? ""}
+`;
+      })
+      .join("\n")
+  );
 }
 
 function markdownPaper(p: PaperPayload, titleOf: FoundationTitle): string {
@@ -144,26 +171,7 @@ export async function emitPayloads(options: EmitOptions): Promise<ContentBuildIn
 
   // 1. Emit papers
   for (const paper of options.papers) {
-    const md =
-      markdownPaper(paper, titleOf) +
-      paper.equations
-        .map((e) => {
-          const rawLatex = "latex" in e && typeof e.latex === "string" ? e.latex : "";
-          return `
-## ${e.title}
-
-Modern teaching equation; review pending.
-
-$$
-${e.tree ? expressionLatex(e.tree, BROWNIAN_QUANTITIES) : rawLatex}
-$$
-
-${e.spoken ?? ""}
-
-${e.explanation ?? ""}
-`;
-        })
-        .join("\n");
+    const md = paperMarkdown(paper, titleOf);
 
     const inputRecords = [
       `papers/${paper.paper.id}.json`,
