@@ -348,12 +348,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     reason:
       "Observer velocity vector v and physical kinetic energy change Delta K in moving frame energy ledger",
   },
-  {
-    file: "src/components/lab/me01/TwoLedgersPlot.tsx",
-    hex: "#b45309",
-    reason:
-      "Underdetermined energy difference indicator when equal-emissivity premise C = C' is relaxed",
-  },
   // Physical transport mechanisms in DriftDiffusionPlots (Einstein 1905 paper 2, §3):
   {
     file: "src/components/lab/DriftDiffusionPlots.tsx",
