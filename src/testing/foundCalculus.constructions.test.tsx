@@ -48,7 +48,7 @@ test("foundCalculus.constructions: TableToPlotBuilder renders SSR markup, keyboa
   assert.ok(html.includes(">64</td>"));
 
   // Textual equivalent
-  assert.ok(html.includes("Textual summary of the construction"));
+  assert.ok(html.includes("What it shows, in words"));
   assert.ok(html.includes("square root of time"));
 
   writeCalculusLog({
@@ -66,7 +66,7 @@ test("foundCalculus.constructions: NudgeSensitivityDemo reports Δν, ΔV, and s
   const html = renderToStaticMarkup(<NudgeSensitivityDemo />);
 
   assert.ok(html.includes("nudge-sensitivity-demo"));
-  assert.ok(html.includes("local sensitivity and derivative units"));
+  assert.ok(html.includes("nudge the frequency, watch the stopping voltage"));
   assert.ok(html.includes('aria-label="Frequency nudge step selection"'));
   assert.ok(html.includes('aria-pressed="true"'));
 
@@ -84,7 +84,7 @@ test("foundCalculus.constructions: NudgeSensitivityDemo reports Δν, ΔV, and s
 
   // Textual equivalent. It must name the derivative's units in words; the sentence around them
   // is copy and was rewritten on 2026-09-22, so the assertion holds the units, not the phrasing.
-  assert.ok(html.includes("Textual summary of the construction"));
+  assert.ok(html.includes("What it shows, in words"));
   assert.ok(html.includes("volt-seconds"));
 
   writeCalculusLog({
@@ -103,7 +103,7 @@ test("foundCalculus.constructions: HeldFixedToggle explicitly names held-fixed q
   const html = renderToStaticMarkup(<HeldFixedToggle />);
 
   assert.ok(html.includes("held-fixed-toggle"));
-  assert.ok(html.includes("what is held fixed in a partial derivative"));
+  assert.ok(html.includes("hold time fixed, or hold position fixed"));
   assert.ok(html.includes('aria-pressed="true"'));
 
   // Explicit held-fixed quantities in Brownian motion
@@ -121,7 +121,7 @@ test("foundCalculus.constructions: HeldFixedToggle explicitly names held-fixed q
   assert.ok(html.includes("Volume V fixed"));
 
   // Textual equivalent
-  assert.ok(html.includes("Textual summary of the construction"));
+  assert.ok(html.includes("What it shows, in words"));
 
   writeCalculusLog({
     testId: "held-fixed-toggle-thermodynamics",
@@ -138,7 +138,7 @@ test("foundCalculus.constructions: RepeatedProportionalTable renders compounding
   const html = renderToStaticMarkup(<RepeatedProportionalTable />);
 
   assert.ok(html.includes("repeated-proportional-table"));
-  assert.ok(html.includes("repeated proportional changes and dimensionless exponents"));
+  assert.ok(html.includes("the same fraction lost every step"));
   assert.ok(html.includes("Step n = 0"));
   assert.ok(html.includes("Step n = 1"));
   assert.ok(html.includes("Step n = 5"));
@@ -151,7 +151,7 @@ test("foundCalculus.constructions: RepeatedProportionalTable renders compounding
   assert.ok(html.includes("8.21%"));
 
   // Dimensionless exponents note citing Wien's law and Gaussian diffusion
-  assert.ok(html.includes("Why exponents must always be dimensionless"));
+  assert.ok(html.includes("Why an exponent has no units"));
   assert.ok(html.includes("Wien’s law (Light §4)"));
   assert.ok(html.includes("Brownian diffusion Gaussian (Brownian §4)"));
 
@@ -189,7 +189,7 @@ test("foundCalculus.constructions: LogarithmProductTable carries 1905 'lg' note 
   assert.ok(html.includes(">8</td>"));
 
   // Textual equivalent
-  assert.ok(html.includes("Textual summary of the construction"));
+  assert.ok(html.includes("What it shows, in words"));
 
   writeCalculusLog({
     testId: "logarithm-product-table-lg-note",
@@ -210,9 +210,7 @@ test("foundCalculus.constructions: TaylorBinomialExtension renders series, parti
   // Scoped to the heading element and case-folded (am-edit-voice-lint-trmf): this asserted the
   // exact Title Case in order to check the section is present, and the de-slop pass moves the
   // page to sentence case while the section keeps rendering.
-  assert.ok(
-    containsHeading(html, "Binomial Series Expansion for the Relativistic Lorentz Factor γ"),
-  );
+  assert.ok(containsHeading(html, "Try it: the Lorentz factor at low speed, term by term"));
 
   // Series formula
   assert.ok(html.includes("(1 − x)<sup>−1/2</sup> = 1 + ½ x + ⅜ x² + ⁵/₁₆ x³ + ³⁵/₁₂₈ x⁴"));

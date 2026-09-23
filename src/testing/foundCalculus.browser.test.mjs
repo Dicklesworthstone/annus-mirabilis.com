@@ -89,11 +89,7 @@ describe("browser E2E foundation calculus verification (am-found-calculus-6agg)"
         {
           id: "functions-graphs",
           expectedTitle: "Functions and graphs",
-          expectedContent: [
-            "2Dt",
-            "Where this lesson stops",
-            "Textual summary of the construction",
-          ],
+          expectedContent: ["2Dt", "Where this lesson stops", "What it shows, in words"],
         },
         {
           id: "derivatives",

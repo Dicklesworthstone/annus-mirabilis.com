@@ -61,7 +61,7 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
       data-foundation-construction="functions-graphs"
     >
       <Title id={headingId} className="construction-title">
-        Interactive construction: from a table to a curve
+        Try it: from a table to a curve
       </Title>
       <p>
         In §4 of the Brownian paper, a particle's root-mean-square displacement in a time t is λx =
@@ -266,7 +266,7 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <Sub>Textual summary of the construction</Sub>
+        <Sub>What it shows, in words</Sub>
         <p>
           Each row pairs a time in seconds with the mean square displacement in square micrometres
           and its square root. Four times the time gives twice the displacement, not four times: the

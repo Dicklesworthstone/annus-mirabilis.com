@@ -67,7 +67,7 @@ export function LogarithmProductTable({
       data-foundation-construction="logarithms"
     >
       <Title id={headingId} className="construction-title">
-        Interactive construction: turning multiplication into addition
+        Try it: turning multiplication into addition
       </Title>
       <p>
         In §5 of the light-quanta paper, Einstein takes two independent systems. The probabilities
@@ -214,7 +214,7 @@ export function LogarithmProductTable({
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <Sub>Textual summary of the construction</Sub>
+        <Sub>What it shows, in words</Sub>
         <p>
           For each of three pairs of numbers, the logarithm of the product equals the sum of the two
           logarithms. That is the property entropy needs: the probabilities of independent systems

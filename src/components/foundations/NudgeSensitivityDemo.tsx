@@ -47,7 +47,7 @@ export function NudgeSensitivityDemo({
       data-foundation-construction="derivatives"
     >
       <Title id={headingId} className="construction-title">
-        Interactive construction: local sensitivity and derivative units
+        Try it: nudge the frequency, watch the stopping voltage
       </Title>
       <p>
         In §8 of the light-quanta paper, Einstein predicts that the potential V needed to stop the
@@ -194,7 +194,7 @@ export function NudgeSensitivityDemo({
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <Sub>Textual summary of the construction</Sub>
+        <Sub>What it shows, in words</Sub>
         <p>
           A derivative carries units: volts divided by hertz gives volt-seconds. This model is
           Einstein's §8 straight line, with its slope set to the modern value of h/e, about 4.14 ×

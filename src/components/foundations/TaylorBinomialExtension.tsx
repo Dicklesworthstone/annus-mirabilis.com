@@ -52,7 +52,7 @@ export function TaylorBinomialExtension({
           Extension · The step the mass–energy paper takes
         </p>
         <Title id={headingId} className="construction-title" style={{ margin: "0 0 0.5rem 0" }}>
-          Binomial series expansion for the relativistic Lorentz factor γ
+          Try it: the Lorentz factor at low speed, term by term
         </Title>
       </header>
 

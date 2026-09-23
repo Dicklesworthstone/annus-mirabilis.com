@@ -82,7 +82,7 @@ export function RepeatedProportionalTable({
       data-foundation-construction="exponentials"
     >
       <Title id={headingId} className="construction-title">
-        Interactive construction: repeated proportional changes and dimensionless exponents
+        Try it: the same fraction lost every step
       </Title>
       <p>
         In linear change, an equal amount is added in every equal interval: y = y₀ + mt. In
@@ -206,7 +206,7 @@ export function RepeatedProportionalTable({
       </section>
 
       <div className="dimensionless-exponents-note callout-limit">
-        <Sub>Why exponents must always be dimensionless</Sub>
+        <Sub>Why an exponent has no units</Sub>
         <p>
           There is no such number as e raised to three metres or five seconds: the series e
           <sup>u</sup> = 1 + u + u²/2! + … would add metres to square metres. In a physical law the
@@ -229,7 +229,7 @@ export function RepeatedProportionalTable({
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <Sub>Textual summary of the construction</Sub>
+        <Sub>What it shows, in words</Sub>
         <p>
           Equal steps in time multiply what is left by equal factors: e<sup>−0.5</sup> per 10
           seconds here, so the quantity falls to 1/e, about 0.368, every 20 seconds. That 20 seconds

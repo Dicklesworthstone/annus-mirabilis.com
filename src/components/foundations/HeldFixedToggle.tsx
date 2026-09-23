@@ -23,7 +23,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
       data-foundation-construction="partial-derivatives"
     >
       <Title id={headingId} className="construction-title">
-        Interactive construction: what is held fixed in a partial derivative
+        Try it: hold time fixed, or hold position fixed
       </Title>
       <p>
         In §§3 and 4 of the Brownian paper, the number of suspended particles per unit volume
@@ -144,7 +144,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
         tabIndex={0}
         aria-label="Thermodynamic partial derivatives and their held-fixed constraints, scrollable table"
       >
-        <Sub>Thermodynamic examples: how the fixed constraint changes the derivative</Sub>
+        <Sub>The same care in thermodynamics: what is held fixed changes the answer</Sub>
         <p>
           In thermodynamics, the same symbols have different values depending on what is held fixed:
         </p>
@@ -216,7 +216,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
         className="construction-text-equivalent"
         style={{ fontSize: "0.9rem", marginTop: "1rem" }}
       >
-        <Sub>Textual summary of the construction</Sub>
+        <Sub>What it shows, in words</Sub>
         <p>
           Writing ∂f/∂x asserts that t is held constant during differentiation. Writing ∂f/∂t
           asserts that x is held constant during differentiation. These two operations describe
