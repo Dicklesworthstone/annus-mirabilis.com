@@ -526,23 +526,21 @@ export function ConfigurationLab({
         </div>
       </div>
 
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: they
+          are direct children of .laboratory, which labShell.css's detail rules select with ">".
+          They were printed all at once under internal labels, "R0 (Overview):" to "R3 (Historical
+          notation & counterexample):", and nested one level deeper the rules could not reach them. */}
+      <p data-detail="0">{withScripts(BM03_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(BM03_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(BM03_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(BM03_CAPTION.r3)}
+      </p>
+
       <div className="lab-bottom" style={{ marginTop: "2rem" }}>
         <section>
-          <h3>Einstein&apos;s §2, explained</h3>
-          {/* The four readings follow the reader's detail setting, as on every other laboratory.
-              Here they were printed all at once under internal labels, "R0 (Overview):" to
-              "R3 (Historical notation & counterexample):". */}
-          <p data-detail="0">{withScripts(BM03_CAPTION.r0)}</p>
-          <p data-detail="1">{withScripts(BM03_CAPTION.r1)}</p>
-          <p data-detail="2" hidden>
-            {withScripts(BM03_CAPTION.r2)}
-          </p>
-          <p data-detail="3" hidden>
-            {withScripts(BM03_CAPTION.r3)}
-          </p>
-        </section>
-
-        <section style={{ marginTop: "1rem" }}>
           <h3>What this model assumes</h3>
           {BM03_MODEL.assumptions.map((note) => (
             <p key={note}>• {note}</p>
