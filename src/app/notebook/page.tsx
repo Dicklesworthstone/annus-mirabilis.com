@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Your private reading notebook",
-  description: "Keep questions, examples and notes on your own device, with explicit local export.",
+  description:
+    "Keep questions, worked examples and notes in this browser, and download them as a file to keep.",
 };
 
 export default function NotebookPage() {
@@ -12,8 +13,8 @@ export default function NotebookPage() {
         <p className="eyebrow">Notebook</p>
         <h1>Your reading notebook</h1>
         <p className="lead">
-          Save a question, an example or a next step without losing the argument. Add your own
-          notes, then return to the same passage and reading view.
+          Save a question, an example or a next step without losing your place in the argument. Add
+          your own notes, and come back later to the same passage, in the same view.
         </p>
       </header>
       {/*
@@ -28,8 +29,8 @@ export default function NotebookPage() {
       <div data-notebook-inline />
       <noscript>
         <p className="notice">
-          JavaScript is off. Your private notebook cannot be loaded or edited here without
-          JavaScript. The papers, explanations and outlines remain readable.
+          The notebook needs JavaScript, which is off in this browser. The papers, explanations and
+          outlines read without it.
         </p>
       </noscript>
       {/* What goes in it, how it stays private, and how to keep a copy: three short blocks a
@@ -77,15 +78,16 @@ export default function NotebookPage() {
         <section aria-labelledby="notebook-return">
           <h2 id="notebook-return">Continue where you were</h2>
           <p>
-            Once you have worked with a passage, its place and its recap are kept on this device,
-            and a later visit offers to take you back. You can dismiss it; a link to another passage
-            always wins, and nothing has to be redone.
+            Once you have worked with a passage, its place and a short recap are kept on this
+            device, and on a later visit the home page and the papers index offer, in one line, to
+            take you back. You can dismiss the offer, and a link you follow to another passage
+            always takes you there instead.
           </p>
         </section>
       </div>
       <div className="actions">
         <a href="/papers/">Open the papers and outlines</a>
-        <a href="/discover/brownian-motion/">Start with the Brownian encounter</a>
+        <a href="/discover/brownian-motion/">Start with Brownian motion in Discover</a>
       </div>
     </article>
   );

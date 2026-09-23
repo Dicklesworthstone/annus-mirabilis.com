@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://annus-mirabilis.com"),
   title: { default: "Annus Mirabilis: four papers, one year", template: "%s · Annus Mirabilis" },
   description:
-    "An interactive edition in preparation. Begin with an executable Brownian-motion laboratory and a static, accessible first encounter.",
+    "An edition, in preparation, of the four papers Einstein sent to the Annalen der Physik in 1905: each explained at the depth you choose, with instruments that work out what follows when you change an assumption.",
 };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -77,8 +77,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <p className="site-footer-name">Annus Mirabilis</p>
             <p>
               A critical edition of the four papers Einstein sent to the Annalen der Physik in 1905,
-              in preparation. The instruments here work out their own numbers and say so where each
-              one appears; none of them is a measurement of nature.
+              in preparation. Every number an instrument shows is worked out by that instrument and
+              labelled as a calculation; none of them is a measurement of nature.
             </p>
           </div>
           {/* The four papers again at the foot, because the end of a long paper is where a reader

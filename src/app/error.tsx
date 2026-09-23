@@ -8,12 +8,15 @@ export default function ErrorPage({
   return (
     <section className="reading">
       <h1>This page could not be displayed.</h1>
-      <p>No scientific conclusion follows from this software failure.</p>
+      <p>
+        Part of the site&rsquo;s code failed while drawing it. That is a fault in the software, and
+        it says nothing about the papers or their physics.
+      </p>
       <button type="button" onClick={reset}>
         Try this page again
       </button>
       <p>
-        <a href="/">Return to Annus Mirabilis</a>
+        <a href="/">Go to the home page</a>
       </p>
     </section>
   );
