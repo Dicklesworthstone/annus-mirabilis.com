@@ -282,9 +282,9 @@ export function SpecialRelativityInvestigation({
         <h2 id={`${instance}-measurement`}>Does this pair of events measure a length?</h2>
         <p>
           The moving frame travels at +0.6c relative to the platform; γ = 1.25. These are fixed
-          authored arithmetic examples in modern notation, not live kernel results or observations.
-          Distances are in light-seconds, times in seconds. The same platform rod has endpoints x =
-          0 and x = 10 in both rod examples.
+          worked examples in modern notation, not live calculations or observations. Distances are
+          in light-seconds, times in seconds. The same platform rod has endpoints x = 0 and x = 10
+          in both rod examples.
         </p>
         <label htmlFor={`${instance}-example`}>Choose the event pair</label>
         <select
