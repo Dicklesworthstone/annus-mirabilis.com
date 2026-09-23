@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PhotoelectricDataWorkbench } from "../../../../reasoning/photoelectricData/PhotoelectricDataWorkbench.tsx";
-import { acceptAnalysisDraft, exampleDraft, modernPhotoelectricReference } from "../../../../reasoning/photoelectricData/session.ts";
+import { acceptedExampleAnalysis, modernPhotoelectricReference } from "../../../../reasoning/photoelectricData/session.ts";
 
 export const metadata: Metadata = {
   title: "Infer from a photoelectric stopping-potential record",
@@ -11,8 +11,7 @@ export default function PhotoelectricDataPage() {
   // Numerical acceptance is not historical or editorial review.
   if ((process.env.AM_RELEASE_PROFILE ?? "scaffold") !== "scaffold") return <section className="reading"><h1>Photoelectric data analysis in preparation</h1><p>This release profile does not publish the explanatory draft. <a href="/papers/light-quanta/">Return to the light-quanta paper</a>.</p></section>;
   const reference = modernPhotoelectricReference();
-  const initial = acceptAnalysisDraft(exampleDraft(), reference);
-  if (initial.kind !== "accepted") throw new Error(`Invalid constructed photoelectric example: ${initial.message}`);
+  const initial = acceptedExampleAnalysis(reference);
   return <>
     <header className="page-intro">
       <p className="eyebrow">Light quanta · Local data analysis · Explanatory preview</p>
@@ -20,7 +19,7 @@ export default function PhotoelectricDataPage() {
       <p className="lead">A frequency sweep can constrain a slope without settling the surface escape work. Bring a record, inspect the residuals, then make the calibration assumption visible.</p>
       <p><a href="/lab/lq-08/">Return to the photoelectric apparatus</a>{" · "}<a href="/papers/light-quanta/#s8">Read the light-quanta argument, §8</a></p>
     </header>
-    <PhotoelectricDataWorkbench reference={reference} example={initial.state} />
+    <PhotoelectricDataWorkbench reference={reference} example={initial} />
     <section className="reading">
       <h2>The line is empirical; the interpretation needs premises</h2>
       <p>The fitted relation is measured stopping voltage = slope × frequency + intercept. In the single-quantum model with one unchanged surface, the slope corresponds to h/e, while the intercept combines negative escape work per charge with the instrument’s common voltage offset.</p>

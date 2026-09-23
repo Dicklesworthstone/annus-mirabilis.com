@@ -11,10 +11,20 @@ export type VoltageRecord = Readonly<{
   rows: readonly VoltageRow[];
 }>;
 const NUMBER = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/u;
+/** A refused record or analysis draft. The code is the stable identity, first so the refusal
+ * scanner reads it at the throw; the message is what a reader sees, unchanged. */
+export class PhotoelectricRecordError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "PhotoelectricRecordError";
+    this.code = code;
+  }
+}
 function number(token: string, line: number): number {
-  if (!NUMBER.test(token)) throw new TypeError(`Line ${line}: expected a finite decimal number, not a blank, formula or non-detection.`);
+  if (!NUMBER.test(token)) throw new PhotoelectricRecordError("record-number-invalid", `Line ${line}: expected a finite decimal number, not a blank, formula or non-detection.`);
   const value = Number(token);
-  if (!Number.isFinite(value)) throw new TypeError(`Line ${line}: number is not finite.`);
+  if (!Number.isFinite(value)) throw new PhotoelectricRecordError("record-number-not-finite", `Line ${line}: number is not finite.`);
   return value;
 }
 function cells(line: string, delimiter: string): string[] {
@@ -25,41 +35,41 @@ function cells(line: string, delimiter: string): string[] {
 }
 export function parseVoltageCsv(text: string, speedOfLight: number): VoltageRecord {
   if (typeof text !== "string" || text.length > RECORD_BYTE_LIMIT || new TextEncoder().encode(text).byteLength > RECORD_BYTE_LIMIT) {
-    throw new RangeError("The CSV exceeds the 128 KiB local-file limit.");
+    throw new PhotoelectricRecordError("record-too-large", "The CSV exceeds the 128 KiB local-file limit.");
   }
-  if (!Number.isFinite(speedOfLight) || speedOfLight <= 0) throw new TypeError("A declared positive light-speed calibration is required.");
+  if (!Number.isFinite(speedOfLight) || speedOfLight <= 0) throw new PhotoelectricRecordError("record-light-speed-invalid", "A declared positive light-speed calibration is required.");
   const lines = text.replace(/^\uFEFF/u, "").split(/\r\n|\n|\r/u);
   const first = lines.findIndex((line) => line.trim() !== "");
-  if (first < 0) throw new TypeError("Paste a header and at least three measured stopping potentials.");
+  if (first < 0) throw new PhotoelectricRecordError("record-blank", "Paste a header and at least three measured stopping potentials.");
   const delimiter = lines[first]!.includes("\t") ? "\t" : ",";
   const header = cells(lines[first]!, delimiter);
   if (!["frequency_THz", "frequency_Hz", "wavelength_nm"].includes(header[0] ?? "") || header[1] !== "stopping_V" ||
       !((header.length === 2) || (header.length === 3 && header[2] === "sigma_V"))) {
-    throw new TypeError("Use frequency_THz,stopping_V (or frequency_Hz / wavelength_nm), optionally followed by sigma_V. No other columns are inferred.");
+    throw new PhotoelectricRecordError("record-header-invalid", "Use frequency_THz,stopping_V (or frequency_Hz / wavelength_nm), optionally followed by sigma_V. No other columns are inferred.");
   }
   const column = header[0] as FrequencyColumn;
   const hasSigma = header.length === 3;
   const rows: VoltageRow[] = [];
   for (let i = first + 1; i < lines.length; i++) {
     if (!lines[i]!.trim()) continue;
-    if (rows.length >= RECORD_ROW_LIMIT) throw new RangeError("Use at most 1000 observations.");
+    if (rows.length >= RECORD_ROW_LIMIT) throw new PhotoelectricRecordError("record-too-many-rows", "Use at most 1000 observations.");
     const values = cells(lines[i]!, delimiter);
-    if (values.length !== header.length) throw new TypeError(`Line ${i + 1}: expected ${header.length} numeric fields.`);
+    if (values.length !== header.length) throw new PhotoelectricRecordError("record-field-count", `Line ${i + 1}: expected ${header.length} numeric fields.`);
     const x = number(values[0]!, i + 1);
-    if (x <= 0) throw new RangeError(`Line ${i + 1}: frequency or wavelength must be positive.`);
+    if (x <= 0) throw new PhotoelectricRecordError("record-axis-not-positive", `Line ${i + 1}: frequency or wavelength must be positive.`);
     const frequencyTHz = column === "frequency_THz" ? x : column === "frequency_Hz" ? x / 1e12 : speedOfLight / (x * 1e3);
     const stoppingV = number(values[1]!, i + 1);
     if (frequencyTHz < 1e-6 || frequencyTHz > 1e6 || Math.abs(stoppingV) > 1e4) {
-      throw new RangeError(`Line ${i + 1}: admitted range is 10⁻⁶ to 10⁶ THz and ±10000 V. Check the units.`);
+      throw new PhotoelectricRecordError("record-out-of-range", `Line ${i + 1}: admitted range is 10⁻⁶ to 10⁶ THz and ±10000 V. Check the units.`);
     }
     let sigmaV: number | undefined;
     if (hasSigma) {
       sigmaV = number(values[2]!, i + 1);
-      if (sigmaV < 1e-9 || sigmaV > 1e4) throw new RangeError(`Line ${i + 1}: sigma_V must be between 10⁻⁹ and 10000 V.`);
+      if (sigmaV < 1e-9 || sigmaV > 1e4) throw new PhotoelectricRecordError("record-sigma-out-of-range", `Line ${i + 1}: sigma_V must be between 10⁻⁹ and 10000 V.`);
     }
     rows.push(Object.freeze({ row: rows.length + 1, frequencyTHz, stoppingV, ...(sigmaV !== undefined ? { sigmaV } : {}) }));
   }
-  if (rows.length < 3) throw new RangeError("Use at least three observations; two points cannot estimate residual scatter.");
+  if (rows.length < 3) throw new PhotoelectricRecordError("record-too-few-rows", "Use at least three observations; two points cannot estimate residual scatter.");
   return Object.freeze({ column, hasSigma, rows: Object.freeze(rows) });
 }
 

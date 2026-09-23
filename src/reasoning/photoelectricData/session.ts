@@ -18,7 +18,7 @@ export function modernPhotoelectricReference(): PhotoelectricReference {
     speedOfLight: constantValue(constants, "speedOfLight").value,
   };
 }
-import { parseVoltageCsv, type VoltageRecord } from "./record.ts";
+import { parseVoltageCsv, PhotoelectricRecordError, type VoltageRecord } from "./record.ts";
 
 /** Deliberately constructed rows, not Millikan observations or a random simulation.
  * Their slope is not secretly set to the reference value of h/e.
@@ -47,10 +47,15 @@ export type AcceptedAnalysis = Readonly<{
   fit: PhotoelectricDataFit;
   allRowsFit: PhotoelectricDataFit;
 }>;
-export type AnalysisOutcome = Readonly<{ kind: "accepted"; state: AcceptedAnalysis }> | Readonly<{ kind: "refused"; message: string }>;
+export type AnalysisOutcome = Readonly<{ kind: "accepted"; state: AcceptedAnalysis }> | Readonly<{ kind: "refused"; message: string; code?: string }>;
+/** A refused outcome keeps the message a reader sees and, when the refusal carried one, its code. */
+function refusedOutcome(error: unknown, fallback: string): AnalysisOutcome {
+  const code = error instanceof Error && "code" in error && typeof error.code === "string" ? error.code : undefined;
+  return { kind: "refused", message: error instanceof Error ? error.message : fallback, ...(code ? { code } : {}) };
+}
 export function exampleDraft(id = "linear"): AnalysisDraft {
   const example = PHOTOELECTRIC_EXAMPLES.find((e) => e.id === id);
-  if (!example) throw new TypeError("Unknown constructed example.");
+  if (!example) throw new PhotoelectricRecordError("example-unknown", "Unknown constructed example.");
   return { csv: example.csv, label: example.label, weighting: "declared-sigma", offsetKind: "unknown", offsetVolts: "0", offsetSigmaV: "0" };
 }
 export function draftFromAnalysis(state: AcceptedAnalysis): AnalysisDraft {
@@ -59,33 +64,40 @@ export function draftFromAnalysis(state: AcceptedAnalysis): AnalysisDraft {
     offsetSigmaV: String(state.options.offset.kind === "known" ? state.options.offset.sigmaV : 0) };
 }
 function scalar(text: string): number {
-  if (typeof text !== "string" || !/^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/u.test(text.trim())) throw new TypeError("Calibration values must be explicit finite decimal numbers; blanks are not zero.");
+  if (typeof text !== "string" || !/^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/u.test(text.trim())) throw new PhotoelectricRecordError("calibration-not-decimal", "Calibration values must be explicit finite decimal numbers; blanks are not zero.");
   const n = Number(text);
-  if (!Number.isFinite(n)) throw new TypeError("Calibration values must be finite.");
+  if (!Number.isFinite(n)) throw new PhotoelectricRecordError("calibration-not-finite", "Calibration values must be finite.");
   return n;
 }
 export function acceptAnalysisDraft(draft: AnalysisDraft, reference: PhotoelectricReference, revision = 1): AnalysisOutcome {
   try {
-    if (!Number.isSafeInteger(revision) || revision < 1) throw new TypeError("Invalid analysis revision.");
-    if (typeof draft.label !== "string" || draft.label.length > 160 || /[\u0000-\u001f]/u.test(draft.label)) throw new TypeError("Use a single-line record label of at most 160 characters.");
-    if (draft.offsetKind !== "unknown" && draft.offsetKind !== "known") throw new TypeError("Choose the voltage-offset assumption explicitly.");
+    if (!Number.isSafeInteger(revision) || revision < 1) throw new PhotoelectricRecordError("analysis-revision-invalid", "Invalid analysis revision.");
+    if (typeof draft.label !== "string" || draft.label.length > 160 || /[\u0000-\u001f]/u.test(draft.label)) throw new PhotoelectricRecordError("analysis-label-invalid", "Use a single-line record label of at most 160 characters.");
+    if (draft.offsetKind !== "unknown" && draft.offsetKind !== "known") throw new PhotoelectricRecordError("analysis-offset-kind-missing", "Choose the voltage-offset assumption explicitly.");
     const record = parseVoltageCsv(draft.csv, reference.speedOfLight);
     const options: FitOptions = Object.freeze({ weighting: draft.weighting, offset: draft.offsetKind === "unknown" ? Object.freeze({ kind: "unknown" as const }) : Object.freeze({ kind: "known" as const, volts: scalar(draft.offsetVolts), sigmaV: scalar(draft.offsetSigmaV) }) });
     const fit = analyzePhotoelectricData(record.rows, options, reference);
     const source = PHOTOELECTRIC_EXAMPLES.some((e) => e.csv === draft.csv && e.label === draft.label) ? "constructed-example" : "reader-supplied";
     return { kind: "accepted", state: Object.freeze({ revision, csv: draft.csv, label: draft.label.trim() || "Local record", source, record, options, excludedRows: Object.freeze([]), fit, allRowsFit: fit }) };
   } catch (error) {
-    return { kind: "refused", message: error instanceof Error ? error.message : "The record could not be analyzed." };
+    return refusedOutcome(error, "The record could not be analyzed.");
   }
+}
+/** The constructed example accepted against a reference. The page renders it as the worked
+ * default, so a refused example is a build-time fault, not a reader's input. */
+export function acceptedExampleAnalysis(reference: PhotoelectricReference): AcceptedAnalysis {
+  const initial = acceptAnalysisDraft(exampleDraft(), reference);
+  if (initial.kind !== "accepted") throw new PhotoelectricRecordError("example-refused", `Invalid constructed photoelectric example: ${initial.message}`);
+  return initial.state;
 }
 /** Exclusion is an explicit sensitivity calculation. Rows are retained and the full fit stays visible. */
 export function refitSelectedRows(state: AcceptedAnalysis, excluded: readonly number[], reference: PhotoelectricReference): AnalysisOutcome {
   try {
-    if (new Set(excluded).size !== excluded.length || excluded.some((id) => !state.record.rows.some((r) => r.row === id))) throw new TypeError("Select only unique observations from the accepted record.");
+    if (new Set(excluded).size !== excluded.length || excluded.some((id) => !state.record.rows.some((r) => r.row === id))) throw new PhotoelectricRecordError("selection-rows-invalid", "Select only unique observations from the accepted record.");
     const fit = analyzePhotoelectricData(state.record.rows.filter((r) => !excluded.includes(r.row)), state.options, reference);
     return { kind: "accepted", state: Object.freeze({ ...state, revision: state.revision + 1, fit, excludedRows: Object.freeze([...excluded].sort((a, b) => a - b)) }) };
   } catch (error) {
-    return { kind: "refused", message: error instanceof Error ? error.message : "The selection could not be fitted." };
+    return refusedOutcome(error, "The selection could not be fitted.");
   }
 }
 /** Report is a local evidence export, not an executable saved result or a public share URL. */
