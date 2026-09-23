@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 271 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 273 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -31,6 +31,8 @@ Total: 271 quantities, 45 rejected spellings, 2 reserved spellings.
 | bodyEnergyMovingBefore | Body energy before emission (moving system) | 2,1,-2,0,0,0 | moving-system | scalar | — |
 | bodyEnergyRestAfter | Body energy after emission (stationary system) | 2,1,-2,0,0,0 | stationary-system | scalar | — |
 | bodyEnergyRestBefore | Body energy before emission (stationary system) | 2,1,-2,0,0,0 | stationary-system | scalar | — |
+| bodyMassAfter | Body mass after emission | 0,1,0,0,0,0 | not-applicable | scalar | — |
+| bodyMassBefore | Body mass before emission | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | boltzmannConstant | Boltzmann's constant | 2,1,-2,-1,0,0 | not-applicable | scalar | — |
 | boxLength | Box length | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | boxMass | Box mass | 0,1,0,0,0,0 | not-applicable | scalar | — |
