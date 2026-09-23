@@ -506,16 +506,39 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       </section>
       <p className="fine">{foundations.length} foundation readings sit behind this argument.</p>
       <dialog className="clarification-dialog" data-clarification-dialog aria-modal="true">
-        {/* The X, first so the compass wraps round it; ReaderController wires it, and a press
+        {/* The X, first so the question line wraps round it; ReaderController wires it, and a press
             outside the lesson, to "Return to the exact step". Escape still goes back one step. */}
         <ModalCloseButton
           label="Close the lesson and return to the passage"
           data-clarification-close
         />
+        {/* The question stays above the lesson; the reading settings and the way back sit
+            after it, so on a phone the lesson opens on the first screen. The X is sticky, so a
+            reader can still leave from anywhere in a long lesson. */}
+        <p className="fine reader-compass-question">
+          <strong>The question we were answering:</strong> <span data-compass-question />
+        </p>
+        {foundations.map((f) => (
+          <section key={f.id} data-foundation-panel={f.id} hidden>
+            <h2 id={`clarification-${f.id}`} tabIndex={-1}>
+              {f.title}
+            </h2>
+            <FoundationBody
+              foundation={f}
+              foundations={foundations}
+              contextLabel="clarification panel"
+            />
+            <p>
+              <a
+                href={`/foundations/${f.id}/`}
+                aria-label={`Open ${f.title} as a full reading page`}
+              >
+                Open this as a full reading page →
+              </a>
+            </p>
+          </section>
+        ))}
         <nav className="reader-compass" aria-label="Explanation compass">
-          <p>
-            <strong>The question we were answering:</strong> <span data-compass-question />
-          </p>
           <p>
             <strong>The idea we opened:</strong> <span data-compass-idea />
           </p>
@@ -551,26 +574,6 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             </button>
           </div>
         </nav>
-        {foundations.map((f) => (
-          <section key={f.id} data-foundation-panel={f.id} hidden>
-            <h2 id={`clarification-${f.id}`} tabIndex={-1}>
-              {f.title}
-            </h2>
-            <FoundationBody
-              foundation={f}
-              foundations={foundations}
-              contextLabel="clarification panel"
-            />
-            <p>
-              <a
-                href={`/foundations/${f.id}/`}
-                aria-label={`Open ${f.title} as a full reading page`}
-              >
-                Open this as a full reading page →
-              </a>
-            </p>
-          </section>
-        ))}
       </dialog>
     </div>
   );
