@@ -55,7 +55,9 @@ describe("SR-03 Rod Measurement and Simultaneity Lab View & Route (am-sr-03-rod-
     expect(html).not.toContain("Relativity of Simultaneity");
     expect(html).not.toContain("Invariant Causal Order");
     expect(containsHeading(html, "Spacetime Event Diagram")).toBe(true);
-    expect(containsHeading(html, "Spatial Rod Strip Projection")).toBe(true);
+    // The strip's heading says what it shows, the rod's length in each frame; it was "Spatial rod
+    // strip projection". Matched after the apostrophe, which static markup writes as an entity.
+    expect(containsHeading(html, "length in the two frames")).toBe(true);
   });
 
   test("session initializes with accepted snapshot and preserves parameters", () => {
