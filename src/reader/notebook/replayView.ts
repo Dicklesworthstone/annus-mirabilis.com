@@ -198,7 +198,7 @@ export function mountReplayView(
       );
     }
   }
-  const start = button("Replay saved comparison as a new run", () => {
+  const start = button("Run the saved comparison again", () => {
     clearRunner();
     const run = generation;
     start.disabled = true;
@@ -250,7 +250,7 @@ export function mountReplayView(
       passage.textContent = status.anchor ? "Open the current passage" : "Open the saved paper";
       start.textContent = changedModel
         ? "Run it again under the changed model"
-        : "Replay saved comparison as a new run";
+        : "Run the saved comparison again";
       start.disabled = false;
     })
     .catch(() => {

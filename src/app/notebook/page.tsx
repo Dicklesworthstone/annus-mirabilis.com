@@ -53,8 +53,8 @@ export default function NotebookPage() {
               In the <a href="/lab/bm-01/compare/">controlled Brownian comparison</a>,{" "}
               <strong>Save this comparison and my explanation</strong> keeps the results, the exact
               seeds, the one change you made and your before-and-after explanation. Open it here to
-              look again, or start a new replay on purpose. If the model or the passage changes
-              later, the old record stays, labelled as old.
+              look again, or run it again on purpose. If the model or the passage changes later, the
+              old record stays, labelled as old.
             </li>
           </ul>
         </section>

@@ -103,7 +103,7 @@ export function mountNotebookPanel(
   confirmation.setAttribute("aria-label", "Confirm notebook action");
   const list = node("div");
   list.className = "notebook-entries";
-  const recovery = button("Export preserved original", () => {
+  const recovery = button("Download the notebook as it was saved", () => {
     const raw = store.getSnapshot().recoveryRaw;
     if (raw !== null) download(raw, "notebook-preserved-original.txt", "text/plain;charset=utf-8");
   });
@@ -338,7 +338,7 @@ export function mountNotebookPanel(
         article.append(node("h4", NOTEBOOK_KIND_LABELS[entry.kind]), link, body);
         if (entry.kind === "replay") {
           const evidenceHost = node("div");
-          const inspect = button("Open saved evidence and replay", () => {
+          const inspect = button("Open the saved comparison", () => {
             const request = replayGeneration;
             inspect.disabled = true;
             void Promise.all([import("./replayView.ts"), import("./replayCurrent.ts")])
