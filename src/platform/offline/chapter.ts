@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
+import { citationTitleClose } from "../../content/citationTitle.ts";
 import { hasInlineMath, splitInlineMath } from "../../content/inlineMath.ts";
 import type {
   Argument,
@@ -298,7 +299,7 @@ export function packageOfflineChapter(
     .map((name) => {
       const citation = input.citations.find((item) => item.id === name);
       if (!citation) throw new TypeError(`Missing offline citation: ${name}.`);
-      return `<li>${e(citation.title)}. ${sourceLink(citation)}</li>`;
+      return `<li>${e(citation.title)}${citationTitleClose(citation.title)} ${sourceLink(citation)}</li>`;
     })
     .join("\n");
   const canonical = `${OFFLINE_ORIGIN}/papers/${paper.id}/${section.id}/`;

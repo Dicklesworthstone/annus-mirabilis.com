@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-light-quanta.json";
 import clockEntranceRaw from "../../content/arguments/special-relativity/entrance-special-relativity.json";
 import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
+import { citationTitleClose } from "../content/citationTitle.ts";
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import type { RouteSlug } from "../content/ids.ts";
@@ -495,7 +496,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         <p>{paper.sourceNotice}</p>
         {payload.citations.map((citation) => (
           <p key={citation.id}>
-            <a href={citation.url}>{citation.title}</a>. {citation.locator}
+            <a href={citation.url}>{citation.title}</a>
+            {citationTitleClose(citation.title)} {citation.locator}
           </p>
         ))}
       </section>
