@@ -102,6 +102,22 @@ export function VelocityCompositionLab({
     apply({ ...p, mode });
   }
 
+  // α is the question in "angled" mode, so it sits under the mode choice there. In the other
+  // two modes it is still an input to the composition, so it stays reachable in the drawer.
+  const alphaField = (
+    <div className="input-field">
+      <label htmlFor={`${id}-alpha`}>Angle α in the moving frame (degrees)</label>
+      <input
+        id={`${id}-alpha`}
+        name="alphaDeg"
+        type="number"
+        step="1"
+        value={draft.alphaDeg}
+        onChange={(e) => setDraft({ ...draft, alphaDeg: e.target.value })}
+      />
+    </div>
+  );
+
   return (
     <section className="laboratory-shell" aria-label={title} data-instrument-id="sr-06">
       <header className="lab-heading">
@@ -196,29 +212,9 @@ export function VelocityCompositionLab({
                 </label>
               ))}
             </fieldset>
-            {p.mode === "two-boosts" ? <></> : null}
-            <label>
-              <input
-                type="checkbox"
-                checked={p.showRapidity}
-                onChange={() => apply({ ...p, showRapidity: !p.showRapidity })}
-              />
-              Show rapidity (Minkowski 1908 aid; not the 1905 presentation)
-            </label>
-            <button type="submit">Apply settings</button>
-            <ExperimentSettings contents="the angle in the moving frame and a second boost">
-              <div className="input-grid">
-                <div className="input-field">
-                  <label htmlFor={`${id}-alpha`}>Angle α in the moving frame (degrees)</label>
-                  <input
-                    id={`${id}-alpha`}
-                    name="alphaDeg"
-                    type="number"
-                    step="1"
-                    value={draft.alphaDeg}
-                    onChange={(e) => setDraft({ ...draft, alphaDeg: e.target.value })}
-                  />
-                </div>
+            {p.mode === "angled" ? alphaField : null}
+            {p.mode === "two-boosts" ? (
+              <>
                 <div className="input-field">
                   <label htmlFor={`${id}-v2`}>Second boost speed / c</label>
                   <input
@@ -241,9 +237,23 @@ export function VelocityCompositionLab({
                     onChange={(e) => setDraft({ ...draft, secondAngleDeg: e.target.value })}
                   />
                 </div>
-              </div>
-              <p className="fine">Changes here apply with Apply settings.</p>
-            </ExperimentSettings>
+              </>
+            ) : null}
+            <label>
+              <input
+                type="checkbox"
+                checked={p.showRapidity}
+                onChange={() => apply({ ...p, showRapidity: !p.showRapidity })}
+              />
+              Show rapidity (Minkowski 1908 aid; not the 1905 presentation)
+            </label>
+            <button type="submit">Apply settings</button>
+            {p.mode === "angled" ? null : (
+              <ExperimentSettings contents="the angle α in the moving frame">
+                {alphaField}
+                <p className="fine">Changes here apply with Apply settings.</p>
+              </ExperimentSettings>
+            )}
           </fieldset>
           {error ? <p className="notice error">{error}</p> : null}
           {note ? <p className="fine">{note}</p> : null}
