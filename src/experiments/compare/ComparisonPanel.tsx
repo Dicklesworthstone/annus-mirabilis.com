@@ -56,7 +56,7 @@ export function ComparisonPanel({
               return (
                 <tr key={key} data-comparison-input={key}>
                   <th scope="row">{input.label}</th>
-                  <td>{input.unit || "—"}</td>
+                  <td>{input.unit || "no unit"}</td>
                   <td>
                     {a === undefined ? "Unavailable" : comparisonDisplay(a, input.displayFactor)}
                   </td>

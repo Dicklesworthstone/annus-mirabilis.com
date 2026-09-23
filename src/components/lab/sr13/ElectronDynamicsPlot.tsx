@@ -627,7 +627,7 @@ export function ElectronDynamicsPlot({
           >
             {Number.isFinite(radiusCurvatureMagneticM)
               ? `${radiusCurvatureMagneticM.toFixed(4)} m`
-              : "— (B = 0)"}
+              : "Straight path (B = 0)"}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
             γmv / (|q|B)
@@ -653,7 +653,7 @@ export function ElectronDynamicsPlot({
           >
             {Number.isFinite(radiusCurvatureElectricM)
               ? `${radiusCurvatureElectricM.toFixed(4)} m`
-              : "— (E = 0)"}
+              : "Straight path (E = 0)"}
           </div>
           <div className="fine" style={{ marginTop: "0.125rem", fontSize: "0.7rem" }}>
             γmv² / (|q|E)

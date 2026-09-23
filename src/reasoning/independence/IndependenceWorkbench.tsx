@@ -115,7 +115,7 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
             <input id={`${id}-n`} type="number" min="1" max={MAX_OCCUPANCY_POINTS} step="1" value={nDraft} onChange={(e) => setNDraft(e.target.value)} />
             <label htmlFor={`${id}-q`}>Fraction of the volume</label>
             <select id={`${id}-q`} value={qDraft} onChange={(e) => setQDraft(e.target.value)}>
-              <option value="0">0 — empty region</option><option value="1">1/4</option><option value="2">1/2</option><option value="3">3/4</option><option value="4">1 — whole volume</option>
+              <option value="0">0 (empty region)</option><option value="1">1/4</option><option value="2">1/2</option><option value="3">3/4</option><option value="4">1 (whole volume)</option>
             </select>
             <button type="submit">Apply model settings</button>{" "}
             <button type="button" onClick={() => { setNDraft(String(n)); setQDraft(String(quarters)); setError(""); }}>Discard edited settings</button>
@@ -173,7 +173,7 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
       <p>Or replace the settings and record with an explicitly constructed example:</p>
       <div className="actions"><button type="button" disabled={!ready} onClick={() => illustrate("mixed")}>Illustration: mixed counts</button><button type="button" disabled={!ready} onClick={() => illustrate("all-or-none")}>Illustration: all-or-none counts</button></div>
       {evidence && <section aria-labelledby={`${id}-evidence`} data-evidence-status={evidence.status}>
-        <h3 id={`${id}-evidence`}>{state.evidenceSource === "illustrative" ? "Constructed illustration — not measured data" : "Reader-entered count record — provenance not verified"}</h3>
+        <h3 id={`${id}-evidence`}>{state.evidenceSource === "illustrative" ? "Constructed illustration, not measured data" : "Reader-entered count record; provenance not verified"}</h3>
         <p>Accepted frequencies: <code>{evidence.counts.join(", ")}</code>. {evidence.trials} placements at n = {evidence.settings.n}, f = {evidence.settings.quarters}/4. Edited text is not analyzed until you submit it.</p>
         <p>Empirical mean: {numberText(evidence.empiricalMean)}. Empirical variance (divisor N): {numberText(evidence.empiricalVariance)}. All-inside frequency: {numberText(evidence.empiricalAllInside)}.</p>
         <p><strong>Independent:</strong> {likelihoodText(evidence.independent)}</p><p><strong>Locked:</strong> {likelihoodText(evidence.locked)}</p>

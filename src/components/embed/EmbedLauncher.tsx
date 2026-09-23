@@ -9,5 +9,5 @@ export function EmbedLauncher() {
   const matched = pathname?.match(/^\/lab\/([a-z0-9-]+)\/?$/);
   const id = matched?.[1];
   if (!isEmbeddableId(id)) return null;
-  return <p className="no-print"><a href={`/embed/?instrument=${id}`}>Embed this laboratory on another page</a>{" — starts from its worked defaults, not your current settings."}</p>;
+  return <p className="no-print"><a href={`/embed/?instrument=${id}`}>Embed this laboratory on another page</a>{". It starts from its worked defaults, not your current settings."}</p>;
 }
