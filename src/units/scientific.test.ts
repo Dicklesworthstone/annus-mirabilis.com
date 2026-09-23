@@ -5,6 +5,7 @@ import {
   exponentialText,
   naturalLogSpoken,
   partsFromNaturalLog,
+  powerOfTenText,
 } from "./scientific.ts";
 
 const M = "−";
@@ -140,5 +141,24 @@ describe("partsFromNaturalLog", () => {
     expect(naturalLogSpoken(-9.598486147758314e285, 3)).toBe(
       "10 to the power minus 4.169 times 10 to the power 285",
     );
+  });
+});
+
+describe("powerOfTenText", () => {
+  // Refusal bounds were printed as JavaScript writes them: "1e-24 and 1000000", "[1e-6, 1e6] ls".
+  test("an exact power of ten from 10^4 up or 10^−4 down is written for withScripts to raise", () => {
+    expect(powerOfTenText(1e-24)).toBe(`10^{${M}24}`);
+    expect(powerOfTenText(1e24)).toBe("10^{24}");
+    expect(powerOfTenText(1000000)).toBe("10^{6}");
+    expect(powerOfTenText(1e-4)).toBe(`10^{${M}4}`);
+    expect(powerOfTenText(-1e6)).toBe(`${M}10^{6}`);
+  });
+
+  test("anything else is its plain decimal with a true minus sign", () => {
+    expect(powerOfTenText(1000)).toBe("1000");
+    expect(powerOfTenText(0.001)).toBe("0.001");
+    expect(powerOfTenText(-0.999999)).toBe(`${M}0.999999`);
+    expect(powerOfTenText(180)).toBe("180");
+    expect(powerOfTenText(0)).toBe("0");
   });
 });
