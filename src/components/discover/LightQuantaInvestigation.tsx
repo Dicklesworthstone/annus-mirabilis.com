@@ -561,9 +561,9 @@ export function LightQuantaInvestigation({
           </p>
           <p>
             A positive predicted current also depends on the declared yield and collection model. At
-            a retarding potential between zero and the stopping point, the current is
-            underdetermined without an electron energy distribution. The workbench must show that
-            missing information.
+            a retarding potential between zero and the stopping point, the current cannot be fixed
+            without a distribution of electron energies, so the model gives it as a range, from zero
+            to the saturation current, and not as one number.
           </p>
           <p>
             Partial transfer would instead leave an upper bound on electron energy. Real surface
@@ -638,8 +638,9 @@ export function LightQuantaInvestigation({
           </p>
           <p className="light-digest">Source digest: {example.sourceDigest}</p>
           <p>
-            Existing owners produce the physical laws; this investigation assembles their accepted
-            results. Source identity is not evidence of a correct theory or a reviewed translation.
+            The physics comes from the site&rsquo;s reference calculations, listed below; this
+            investigation puts their accepted results together. Knowing where a number was computed
+            is not evidence that the theory is right, or that a translation has been reviewed.
           </p>
           <ul>
             {execution.owners.map((owner) => (
