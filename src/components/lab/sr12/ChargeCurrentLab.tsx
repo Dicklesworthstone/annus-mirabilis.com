@@ -165,19 +165,6 @@ export function ChargeCurrentLab({
       </header>
 
       {/* Presets */}
-      <nav aria-label="Presets" className="preset-list" style={{ marginBottom: "1rem" }}>
-        {presets.map((preset) => (
-          <button
-            key={preset.id}
-            type="button"
-            className={p.mode === preset.params.mode ? "button" : "button secondary"}
-            onClick={() => apply({ ...p, ...preset.params })}
-          >
-            {preset.label}
-          </button>
-        ))}
-      </nav>
-
       {/* Main interactive visualization */}
       <ChargeCurrentPlot
         rhoStationary={rhoStat}
@@ -242,6 +229,21 @@ export function ChargeCurrentLab({
       </aside>
 
       {/* Controls Form */}
+      {/* The presets follow the visualization they set, as the family's "Try" group does; above it
+          they were 208px between a phone's heading and the result. */}
+      <nav aria-label="Presets" className="preset-list" style={{ marginBottom: "1rem" }}>
+        {presets.map((preset) => (
+          <button
+            key={preset.id}
+            type="button"
+            className={p.mode === preset.params.mode ? "button" : "button secondary"}
+            onClick={() => apply({ ...p, ...preset.params })}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </nav>
+
       <form
         onSubmit={submit}
         className="lab-controls"
