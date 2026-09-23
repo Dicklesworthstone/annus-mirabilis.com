@@ -108,28 +108,26 @@ export default function Papers() {
                 <p lang="de" className="german-title">
                   {paper.german}
                 </p>
-                {paper.workingTitle && paper.plainScope ? (
-                  <>
-                    <h2>{paper.workingTitle}</h2>
-                    {paper.editorialAdditions && paper.editorialAdditions.length > 0 && (
-                      <details className="editorial-additions">
-                        <summary>Editorial: this working title adds a word to the German</summary>
-                        {paper.editorialAdditions.map((addition) => (
-                          <p key={addition.phrase} className="fine">
-                            "{addition.phrase}": {addition.reason}
-                          </p>
-                        ))}
-                      </details>
-                    )}
-                    <p>{paper.plainScope}</p>
-                    <p className="fine">Also known as: {paper.title}.</p>
-                  </>
-                ) : (
-                  <>
-                    <h2>{paper.title}</h2>
-                    <p>{paper.scope}</p>
-                  </>
+                {/* Every entry leads with its English working title, then a plain scope sentence,
+                    and names the paper the site's way only after them (am-design-papers-index-afnu;
+                    TanElk's ruling, dispatch 99). A reader can choose a paper without knowing its
+                    conventional name. The Brownian working title is the one the bead specifies;
+                    the other three are their receipts' titleEnglishWorking. */}
+                <h2 className="paper-entry-title">
+                  {paper.workingTitle ?? plate?.workingTitle ?? paper.title}
+                </h2>
+                {paper.editorialAdditions && paper.editorialAdditions.length > 0 && (
+                  <details className="editorial-additions">
+                    <summary>Editorial: this working title adds a word to the German</summary>
+                    {paper.editorialAdditions.map((addition) => (
+                      <p key={addition.phrase} className="fine">
+                        "{addition.phrase}": {addition.reason}
+                      </p>
+                    ))}
+                  </details>
                 )}
+                <p>{paper.plainScope ?? paper.scope}</p>
+                <p className="fine">Also known as: {paper.title}.</p>
                 <p className="fine">{paper.locator}</p>
                 <p className="badge">{paper.status}</p>
                 {paper.title === "Light quanta" && (

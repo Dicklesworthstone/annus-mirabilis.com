@@ -28,6 +28,8 @@ export interface FirstPage {
   readonly title: string;
   /** The title as printed, from the receipt: Einstein's words, shown as they are and never edited. */
   readonly germanTitle: string;
+  /** The receipt's English working title (titleEnglishWorking), the edition's, recorded there. */
+  readonly workingTitle: string;
   /** The Annalen volume the paper was printed in (series 4). */
   readonly volume: number;
   readonly received: string;
@@ -127,6 +129,7 @@ export function loadFirstPages(options: LoadReceiptsOptions = {}): readonly Firs
       slug: receipt.frontMatter.slug,
       title,
       germanTitle: paper.titleGerman,
+      workingTitle: paper.titleEnglishWorking,
       volume: paper.journal.volume,
       received,
       printed: date("issue-publication"),

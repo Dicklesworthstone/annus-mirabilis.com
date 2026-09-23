@@ -43,6 +43,30 @@
 .paper-entry-body h2 {
   margin-top: 0.4rem;
 }
+/*
+ * CHROME (pane %48): ONE STYLE FOR THE FOUR WORKING TITLES (TanElk's ruling, dispatch 99).
+ *
+ * Every entry now leads with its English working title, 39 to 113 characters, so the heading is
+ * sized for the longest, the Brownian one: the step for a heading within a page, and on a phone,
+ * where it sits in a 228px column beside the plate, the lead step. Only the text length differs
+ * between the four. Measured with the four titles: the Brownian one is 6 lines at 390, 3 at 1440.
+ */
+.paper-entry-title {
+  font-size: var(--type-lead);
+  line-height: 1.2;
+}
+@media (min-width: 700px) {
+  .paper-entry-title {
+    font-size: var(--type-title);
+  }
+}
+/* From 1280px the entries' prose is set larger (wideProse.css), so the title takes the display
+   step to stay clearly above it: the Brownian title is then three lines at 1440 and at 1920. */
+@media (min-width: 1280px) {
+  .paper-entry-title {
+    font-size: var(--type-display);
+  }
+}
 /* Below 700px only the date and the two titles sit beside the plate; the scope, the locator and
    the links run the full width, where a 245px column had set them four words to a line. The body
    wrapper steps out of the layout so its children can take the entry's two columns. */
