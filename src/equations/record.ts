@@ -144,6 +144,10 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
       fail(path, "The output contract does not have this quantity's units and meaning.");
     bindings.add(n.termId);
   }
+  // A lesson's formula explains a tool; no laboratory value ever reaches it, so it is reading-only
+  // by declaration, never by default.
+  if (o.paper === "foundations" && o.live !== false)
+    fail(path, "A foundation lesson's equation is reading-only: declare live: false.");
   if (Object.hasOwn(o, "live")) {
     if (o.live !== false)
       fail(path, "Only `live: false` may be declared; a live equation omits the field.");

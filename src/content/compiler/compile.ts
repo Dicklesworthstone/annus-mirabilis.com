@@ -76,6 +76,8 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
   diagnostics: Diagnostic[];
   papers: PaperPayload[];
   foundations: Foundation[];
+  /** The foundation lessons' equation records, which belong to no paper payload. */
+  foundationEquations: EquationRecord[];
 } {
   const diagnostics: Diagnostic[] = [];
   const records = new Map<string, ReadingRecord>();
@@ -266,10 +268,15 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
       }
     }
     if (r.kind === "equation") {
-      ref(r.paper, "paper", r.id);
-      const argument = ref(r.argument, "argument", r.id);
-      if (argument?.kind === "argument" && argument.paper !== r.paper)
-        issue("equation-placement", r.id, "Equation belongs to a different paper.");
+      if (r.paper === "foundations") {
+        // A lesson's record names the lesson it belongs to where a paper's names an argument.
+        ref(r.argument, "foundation", r.id);
+      } else {
+        ref(r.paper, "paper", r.id);
+        const argument = ref(r.argument, "argument", r.id);
+        if (argument?.kind === "argument" && argument.paper !== r.paper)
+          issue("equation-placement", r.id, "Equation belongs to a different paper.");
+      }
       for (const note of r.notes) ref(note.foundation, "foundation", r.id);
       diagnostics.push({
         severity: "review",
@@ -317,6 +324,22 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
         ref(pId, "foundation", r.id);
       }
       foundationRefs([...r.explanation, ...r.example], r.id);
+      // As in an argument: a lesson's formula is shown AS the records it names, so each must be a
+      // record of this lesson, never a paper's equation or another lesson's.
+      for (const b of [...r.explanation, ...r.example])
+        if (b.kind === "formula")
+          for (const eq of b.equations ?? []) {
+            const record = ref(eq, "equation", r.id);
+            if (
+              record?.kind === "equation" &&
+              (record.paper !== "foundations" || record.argument !== r.id)
+            )
+              issue(
+                "formula-equation-placement",
+                r.id,
+                `Formula names ${eq}, an equation of ${record.argument}.`,
+              );
+          }
     }
   }
 
@@ -420,5 +443,8 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
     diagnostics,
     papers,
     foundations: [...records.values()].filter((r): r is Foundation => r.kind === "foundation"),
+    foundationEquations: [...records.values()].filter(
+      (r): r is EquationRecord => r.kind === "equation" && r.paper === "foundations",
+    ),
   };
 }
