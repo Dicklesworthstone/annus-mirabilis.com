@@ -44,13 +44,20 @@ export function PhotoelectricPlots({ state }: { state: AcceptedAnalysis }) {
       highY = maxY + padY;
     const spanX = hiX - loX || Math.max(1, Math.abs(loX) * 0.01);
     const originX = hiX === loX ? loX - spanX / 2 : loX;
-    const x = (v: number) => 80 + ((v - originX) / spanX) * 570;
+    // The plot starts at x = 140, not 80: at a phone's label size a y value such as -0.06432,
+    // right-aligned at the axis, needs about 115 units of room.
+    const x = (v: number) => 140 + ((v - originX) / spanX) * 510;
     const y = (v: number) => 215 - ((v - lowY) / (highY - lowY)) * 180;
     const label = residual
       ? "Residuals: measured voltage minus fitted voltage"
       : "Stopping potentials and fitted line";
     return (
       <figure className="photo-data-plot">
+        {/* The vertical axis is named in HTML: inside the drawing, at a phone's label size, it
+            collided with the top value on its own axis. */}
+        <p className="photo-data-axis-title">
+          {residual ? "Residual (V)" : "Stopping potential (V)"}
+        </p>
         <svg
           viewBox="0 0 720 275"
           role="img"
@@ -62,25 +69,28 @@ export function PhotoelectricPlots({ state }: { state: AcceptedAnalysis }) {
             {residual ? "residual" : "stopping potential"} in volts on the vertical axis. The
             observation table below contains the same values.
           </desc>
-          <path d="M80 30V215H660" fill="none" stroke="currentColor" />
+          <path d="M140 30V215H660" fill="none" stroke="currentColor" />
           {[0, 0.5, 1].map((t) => (
             <g key={t}>
-              <text x={80 + t * 570} y="239" textAnchor="middle">
+              {/* The first value starts at the axis and the last ends at the plot's edge, so that at a
+                  phone's label size the first clears the lowest value on the vertical axis. */}
+              <text
+                x={140 + t * 510}
+                y="239"
+                textAnchor={t === 0 ? "start" : t === 1 ? "end" : "middle"}
+              >
                 {number(originX + t * spanX)}
               </text>
-              <text x="72" y={219 - t * 180} textAnchor="end">
+              <text x="132" y={219 - t * 180} textAnchor="end">
                 {number(lowY + t * (highY - lowY))}
               </text>
             </g>
           ))}
-          <text x="365" y="266" textAnchor="middle">
+          <text x="400" y="266" textAnchor="middle">
             Frequency (THz)
           </text>
-          <text x="8" y="16">
-            {residual ? "Residual (V)" : "Stopping potential (V)"}
-          </text>
           {residual ? (
-            <path d={`M80 ${y(0)}H650`} stroke="currentColor" strokeDasharray="6 4" />
+            <path d={`M140 ${y(0)}H650`} stroke="currentColor" strokeDasharray="6 4" />
           ) : (
             fitted.length > 0 && (
               <polyline

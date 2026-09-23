@@ -68,12 +68,27 @@
 .photo-data-plot svg {
   display: block;
   width: 100%;
+  max-width: 46rem;
   height: auto;
   color: var(--ink);
 }
 .photo-data-plot text {
   font: 13px var(--font-sans);
   fill: currentColor;
+}
+/* The plot is 720 units wide and a phone draws it about 350px wide, so 13 units read at 6.6px there;
+   26 units read at about 13px. The selector names svg[role="img"] because the site-wide
+   `svg[role="img"] text` rule outranks `.photo-data-plot text`, which is why that rule never
+   applied. */
+@media (max-width: 40rem) {
+  .photo-data-plot svg[role="img"] text {
+    font-size: 26px;
+  }
+}
+.photo-data-axis-title {
+  margin: 0 0 0.25rem;
+  font-size: var(--type-fine);
+  font-weight: 600;
 }
 .photo-data-plot figcaption {
   font-size: var(--type-fine);
