@@ -132,14 +132,14 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     expect(html).toContain('href="/papers/brownian-motion/s5/#s5-p1-s1"');
 
     // Complete worked example numbers for authored case (-3, -1, +1, +3)
-    expect(html).toContain("Authored Example (−3, −1, +1, +3 units):");
+    expect(html).toContain("Authored example (−3, −1, +1, +3 units):");
     expect(html).toContain("Signed sum = (−3) + (−1) + (+1) + (+3) = 0 units.");
     expect(html).toContain("Mean absolute displacement = (3 + 1 + 1 + 3) / 4 = 2 units.");
     expect(html).toContain("Mean square displacement = (9 + 1 + 1 + 9) / 4 = 5 sq units.");
     expect(html).toContain("Root-mean-square displacement (RMS) = √5 ≈ 2.236 units.");
 
     // Complete worked example numbers for doubled case (-6, -2, +2, +6)
-    expect(html).toContain("Doubled Example (−6, −2, +2, +6 units):");
+    expect(html).toContain("Doubled example (−6, −2, +2, +6 units):");
     expect(html).toContain("Signed sum = (−6) + (−2) + (+2) + (+6) = 0 units.");
     expect(html).toContain("Mean absolute displacement = (6 + 2 + 2 + 6) / 4 = 4 units.");
     expect(html).toContain("Mean square displacement = (36 + 4 + 4 + 36) / 4 = 20 sq units.");
