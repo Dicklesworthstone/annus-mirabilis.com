@@ -117,19 +117,6 @@ export function MagnetConductorLab({
           available; changing the settings requires JavaScript.
         </p>
       </noscript>
-      <p data-detail="0">{SR02_CAPTION.r0}</p>
-      <p data-detail="1">{SR02_CAPTION.r1}</p>
-      <p data-detail="2" hidden>
-        {SR02_CAPTION.r2}
-      </p>
-      <p data-detail="3" hidden>
-        {SR02_CAPTION.r3}
-      </p>
-      <p>
-        Choose which body is described as moving, type a speed, and inspect both accounts of the
-        same current. No dragging is required. The ether-plus-local-time account is not declared
-        refuted; at the speeds of real apparatus it agrees to first order in v/c.
-      </p>
       <div className="lab-columns">
         <form
           onSubmit={submit}
@@ -287,6 +274,20 @@ export function MagnetConductorLab({
           )}
         </div>
       </div>
+      {/* The caption and the how-to follow the instrument they describe; above it they were 336px on a phone. */}
+      <p data-detail="0">{SR02_CAPTION.r0}</p>
+      <p data-detail="1">{SR02_CAPTION.r1}</p>
+      <p data-detail="2" hidden>
+        {SR02_CAPTION.r2}
+      </p>
+      <p data-detail="3" hidden>
+        {SR02_CAPTION.r3}
+      </p>
+      <p>
+        Choose which body is described as moving, type a speed, and inspect both accounts of the
+        same current. No dragging is required. The ether-plus-local-time account is not declared
+        refuted; at the speeds of real apparatus it agrees to first order in v/c.
+      </p>
       <p className="fine">Not modeled: {SR02_NOT_MODELED.join("; ")}.</p>
     </section>
   );
