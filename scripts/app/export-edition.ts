@@ -240,6 +240,18 @@ export type EditionFile = {
   readonly contentType: string;
 };
 
+/** Every directory the bundled edition needs, parents before children. */
+export function editionDirectories(files: readonly { readonly path: string }[]): string[] {
+  const directories = new Set<string>();
+  for (const file of files) {
+    const parts = file.path.split("/").slice(0, -1);
+    for (let depth = 1; depth <= parts.length; depth++) {
+      directories.add(parts.slice(0, depth).join("/"));
+    }
+  }
+  return [...directories].sort();
+}
+
 /** Digest over the sorted file table, so identical bytes give an identical edition id. */
 export function editionDigest(files: readonly EditionFile[]): string {
   const hash = createHash("sha256");
@@ -401,13 +413,15 @@ export function exportEdition(options: {
       ...files.map((file) => `$(SRCROOT)/${outFromIos}/${file.path}`),
     ].join("\n")}\n`,
   );
+  const bundled = "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)";
   writeFileSync(
     join(dest, "edition-outputs.xcfilelist"),
     `${[
-      "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/edition-manifest.json",
-      ...files.map(
-        (file) => `$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Edition/${file.path}`,
-      ),
+      `${bundled}/edition-manifest.json`,
+      `${bundled}/Edition`,
+      // The script sandbox grants writes only to declared outputs, directories included.
+      ...editionDirectories(files).map((directory) => `${bundled}/Edition/${directory}`),
+      ...files.map((file) => `${bundled}/Edition/${file.path}`),
     ].join("\n")}\n`,
   );
 

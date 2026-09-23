@@ -1,0 +1,601 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		256B0912BCA785EB0D622D9B /* AnnusMirabilisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */; };
+		5D250543230E23CB29ACA214 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD2DA53DE6BD842758FA3C /* LaunchArguments.swift */; };
+		6A19BAEAFB16369878DC4405 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0C6198F8914D9B9D69540867 /* Assets.xcassets */; };
+		6DA5C5208F4B92B0B0D6ED3C /* LaunchArgumentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */; };
+		6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */; };
+		975A55E84F3778A714C9664D /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */; };
+		B1563B04905CF0DCE72C6D88 /* EditionWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */; };
+		DA6870F53C094B8E5454D26E /* EditionCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */; };
+		E9C74E04BCCF49DD33AA7E53 /* EditionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389658343BC6CD373BE08A23 /* EditionCatalog.swift */; };
+		F0F1F8A24F70DF2021A0A818 /* EditionLinkPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */; };
+		F28367CE6F973CB27EA0DB49 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7A7D1B3F474E6080BDE63784 /* PrivacyInfo.xcprivacy */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D1451CF1EC2C61D1193C3689 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 89FCEFCF5AC998670AE45AA6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C937498692271E46CC8ACBA9;
+			remoteInfo = AnnusMirabilis;
+		};
+		E9A6D3A347193DCBB74E35A7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 89FCEFCF5AC998670AE45AA6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C937498692271E46CC8ACBA9;
+			remoteInfo = AnnusMirabilis;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		04061F4BC26A1CDE6EB3E620 /* AnnusMirabilis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AnnusMirabilis.entitlements; sourceTree = "<group>"; };
+		0C6198F8914D9B9D69540867 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArgumentsTests.swift; sourceTree = "<group>"; };
+		17038BE8A4890AE1F28D1E2F /* AnnusMirabilis.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AnnusMirabilis.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2ACD2DA53DE6BD842758FA3C /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
+		2E91455869D2622BFBFA1270 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		389658343BC6CD373BE08A23 /* EditionCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionCatalog.swift; sourceTree = "<group>"; };
+		403C99A15417A43D75CF8990 /* AnnusMirabilisTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AnnusMirabilisTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionLinkPolicy.swift; sourceTree = "<group>"; };
+		6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
+		7A7D1B3F474E6080BDE63784 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnusMirabilisApp.swift; sourceTree = "<group>"; };
+		9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionWebView.swift; sourceTree = "<group>"; };
+		D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionCatalogTests.swift; sourceTree = "<group>"; };
+		EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionSchemeHandler.swift; sourceTree = "<group>"; };
+		FD61E34885795DFE1BCF3EAB /* AnnusMirabilisUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AnnusMirabilisUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		00425B16411FAD2A3C8489D5 /* AnnusMirabilisUITests */ = {
+			isa = PBXGroup;
+			children = (
+				6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */,
+			);
+			path = AnnusMirabilisUITests;
+			sourceTree = "<group>";
+		};
+		1C129137BA20E9B63220AAA0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				17038BE8A4890AE1F28D1E2F /* AnnusMirabilis.app */,
+				403C99A15417A43D75CF8990 /* AnnusMirabilisTests.xctest */,
+				FD61E34885795DFE1BCF3EAB /* AnnusMirabilisUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		48509B32F2DCACA2F3E4BE8E /* AnnusMirabilisTests */ = {
+			isa = PBXGroup;
+			children = (
+				D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */,
+				15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */,
+			);
+			path = AnnusMirabilisTests;
+			sourceTree = "<group>";
+		};
+		69279A2AB7CF35E92A7B7EA0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				04061F4BC26A1CDE6EB3E620 /* AnnusMirabilis.entitlements */,
+				0C6198F8914D9B9D69540867 /* Assets.xcassets */,
+				2E91455869D2622BFBFA1270 /* Info.plist */,
+				7A7D1B3F474E6080BDE63784 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		6D39ECDB5AB074DE4081B199 /* AnnusMirabilis */ = {
+			isa = PBXGroup;
+			children = (
+				BE7BBFEFD801C628798D0B91 /* App */,
+				9DE7D26EFDB82ED12FBA8269 /* Edition */,
+				69279A2AB7CF35E92A7B7EA0 /* Resources */,
+			);
+			path = AnnusMirabilis;
+			sourceTree = "<group>";
+		};
+		9DE7D26EFDB82ED12FBA8269 /* Edition */ = {
+			isa = PBXGroup;
+			children = (
+				389658343BC6CD373BE08A23 /* EditionCatalog.swift */,
+				4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */,
+				EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */,
+				9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */,
+			);
+			path = Edition;
+			sourceTree = "<group>";
+		};
+		BE7BBFEFD801C628798D0B91 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */,
+				2ACD2DA53DE6BD842758FA3C /* LaunchArguments.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		C8992BED18965E3FA2D0EAA9 = {
+			isa = PBXGroup;
+			children = (
+				6D39ECDB5AB074DE4081B199 /* AnnusMirabilis */,
+				48509B32F2DCACA2F3E4BE8E /* AnnusMirabilisTests */,
+				00425B16411FAD2A3C8489D5 /* AnnusMirabilisUITests */,
+				1C129137BA20E9B63220AAA0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8A873EA6833A4EE313F32E23 /* AnnusMirabilisTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 28D41558603EEB5153B11422 /* Build configuration list for PBXNativeTarget "AnnusMirabilisTests" */;
+			buildPhases = (
+				D04DED9EC94497379B8DEFF6 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				45EB1F69FDFAF357239C5AC4 /* PBXTargetDependency */,
+			);
+			name = AnnusMirabilisTests;
+			packageProductDependencies = (
+			);
+			productName = AnnusMirabilisTests;
+			productReference = 403C99A15417A43D75CF8990 /* AnnusMirabilisTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BAAAD4EB5509256E850362DF /* AnnusMirabilisUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6BCB18C9C307BB191D46F8EE /* Build configuration list for PBXNativeTarget "AnnusMirabilisUITests" */;
+			buildPhases = (
+				FCE1E130E00092EC51FADE0E /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				88ADD47B9502A9A666624911 /* PBXTargetDependency */,
+			);
+			name = AnnusMirabilisUITests;
+			packageProductDependencies = (
+			);
+			productName = AnnusMirabilisUITests;
+			productReference = FD61E34885795DFE1BCF3EAB /* AnnusMirabilisUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		C937498692271E46CC8ACBA9 /* AnnusMirabilis */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84BE4CF45D7C14F769E1F96A /* Build configuration list for PBXNativeTarget "AnnusMirabilis" */;
+			buildPhases = (
+				5858BEB413C18925DB559D89 /* Sources */,
+				038DA6FFDA56F743C90E4D26 /* Resources */,
+				2A077D9052875F2015E88C70 /* Bundle the verified edition */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AnnusMirabilis;
+			packageProductDependencies = (
+			);
+			productName = AnnusMirabilis;
+			productReference = 17038BE8A4890AE1F28D1E2F /* AnnusMirabilis.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		89FCEFCF5AC998670AE45AA6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					BAAAD4EB5509256E850362DF = {
+						TestTargetID = C937498692271E46CC8ACBA9;
+					};
+					C937498692271E46CC8ACBA9 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 92A2022B72B7D30049AF82B3 /* Build configuration list for PBXProject "AnnusMirabilis" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = C8992BED18965E3FA2D0EAA9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1C129137BA20E9B63220AAA0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C937498692271E46CC8ACBA9 /* AnnusMirabilis */,
+				8A873EA6833A4EE313F32E23 /* AnnusMirabilisTests */,
+				BAAAD4EB5509256E850362DF /* AnnusMirabilisUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		038DA6FFDA56F743C90E4D26 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6A19BAEAFB16369878DC4405 /* Assets.xcassets in Resources */,
+				F28367CE6F973CB27EA0DB49 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2A077D9052875F2015E88C70 /* Bundle the verified edition */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"$(SRCROOT)/../generated/app-edition/edition-inputs.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "Bundle the verified edition";
+			outputFileListPaths = (
+				"$(SRCROOT)/../generated/app-edition/edition-outputs.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "# App plan §5.4: the bundle holds exactly the files the edition manifest\n# lists, byte for byte. The export (never this phase) decides what ships.\nset -euo pipefail\nGEN=\"${SRCROOT}/../generated/app-edition\"\nOUT=\"${SRCROOT}/../out\"\nRES=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nDEST=\"${RES}/Edition\"\nREEXPORT=\"bun scripts/app/export-edition.ts\"\nif [ ! -f \"${GEN}/edition-manifest.json\" ]; then\n  echo \"error: This build has no app edition. From the repository root, run: ${REEXPORT}\"\n  exit 1\nfi\nif ! (cd \"${OUT}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: out/ has changed since the edition was exported. From the repository root, run: ${REEXPORT}\"\n  exit 1\nfi\nmkdir -p \"${DEST}\"\n/usr/bin/rsync -a --inplace --files-from=\"${GEN}/edition-files.txt\" \"${OUT}/\" \"${DEST}/\"\n/bin/cp \"${GEN}/edition-manifest.json\" \"${RES}/edition-manifest.json\"\nif ! (cd \"${DEST}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: A bundled edition file does not match its manifest digest.\"\n  exit 1\nfi\nunlisted=\"$(cd \"${DEST}\" && find . -type f | sed 's|^\\./||' | LC_ALL=C sort | LC_ALL=C comm -23 - <(LC_ALL=C sort \"${GEN}/edition-files.txt\"))\"\nif [ -n \"${unlisted}\" ]; then\n  echo \"error: The bundled edition holds files its manifest does not list, first: $(printf '%s\\n' \"${unlisted}\" | head -n 1). Clean the build folder and build again.\"\n  exit 1\nfi\necho \"note: bundled $(wc -l < \"${GEN}/edition-files.txt\" | tr -d ' ') edition files\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5858BEB413C18925DB559D89 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				256B0912BCA785EB0D622D9B /* AnnusMirabilisApp.swift in Sources */,
+				E9C74E04BCCF49DD33AA7E53 /* EditionCatalog.swift in Sources */,
+				F0F1F8A24F70DF2021A0A818 /* EditionLinkPolicy.swift in Sources */,
+				6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */,
+				B1563B04905CF0DCE72C6D88 /* EditionWebView.swift in Sources */,
+				5D250543230E23CB29ACA214 /* LaunchArguments.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D04DED9EC94497379B8DEFF6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA6870F53C094B8E5454D26E /* EditionCatalogTests.swift in Sources */,
+				6DA5C5208F4B92B0B0D6ED3C /* LaunchArgumentsTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FCE1E130E00092EC51FADE0E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				975A55E84F3778A714C9664D /* LaunchUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		45EB1F69FDFAF357239C5AC4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C937498692271E46CC8ACBA9 /* AnnusMirabilis */;
+			targetProxy = E9A6D3A347193DCBB74E35A7 /* PBXContainerItemProxy */;
+		};
+		88ADD47B9502A9A666624911 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C937498692271E46CC8ACBA9 /* AnnusMirabilis */;
+			targetProxy = D1451CF1EC2C61D1193C3689 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1C2514324052FCCABAB4AF7D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AnnusMirabilis/Resources/AnnusMirabilis.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_PREVIEWS = NO;
+				INFOPLIST_FILE = AnnusMirabilis/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.annus-mirabilis.AnnusMirabilis";
+				PRODUCT_NAME = AnnusMirabilis;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2DB008D5DC3A41EC857D869D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		6B0E5923D885BE3ACB5FBD50 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.annus-mirabilis.AnnusMirabilisUITests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = AnnusMirabilis;
+			};
+			name = Release;
+		};
+		AFAEDA89BBDE13BEFDD2CFA8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.annus-mirabilis.AnnusMirabilisTests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AnnusMirabilis.app/AnnusMirabilis";
+			};
+			name = Release;
+		};
+		D74066C18496DDB0DDCF0E41 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		DE285DCE86B91EC2C6FAA16B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AnnusMirabilis/Resources/AnnusMirabilis.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_PREVIEWS = NO;
+				INFOPLIST_FILE = AnnusMirabilis/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.annus-mirabilis.AnnusMirabilis";
+				PRODUCT_NAME = AnnusMirabilis;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F791609D2F90EFCD0597A3F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.annus-mirabilis.AnnusMirabilisUITests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = AnnusMirabilis;
+			};
+			name = Debug;
+		};
+		F924127DDEC2DB459C8162B4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.annus-mirabilis.AnnusMirabilisTests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AnnusMirabilis.app/AnnusMirabilis";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		28D41558603EEB5153B11422 /* Build configuration list for PBXNativeTarget "AnnusMirabilisTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F924127DDEC2DB459C8162B4 /* Debug */,
+				AFAEDA89BBDE13BEFDD2CFA8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		6BCB18C9C307BB191D46F8EE /* Build configuration list for PBXNativeTarget "AnnusMirabilisUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F791609D2F90EFCD0597A3F3 /* Debug */,
+				6B0E5923D885BE3ACB5FBD50 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		84BE4CF45D7C14F769E1F96A /* Build configuration list for PBXNativeTarget "AnnusMirabilis" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE285DCE86B91EC2C6FAA16B /* Debug */,
+				1C2514324052FCCABAB4AF7D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		92A2022B72B7D30049AF82B3 /* Build configuration list for PBXProject "AnnusMirabilis" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2DB008D5DC3A41EC857D869D /* Debug */,
+				D74066C18496DDB0DDCF0E41 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 89FCEFCF5AC998670AE45AA6 /* Project object */;
+}

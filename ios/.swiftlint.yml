@@ -1,0 +1,13 @@
+# SwiftLint 0.63.2 (D-2026-09-23-apple-toolchain). swift-format owns layout, so
+# the rules that contradict its output are off here rather than fought file by file.
+included:
+  - AnnusMirabilis
+  - AnnusMirabilisTests
+  - AnnusMirabilisUITests
+disabled_rules:
+  - trailing_comma      # swift-format adds trailing commas to multi-line literals
+  - opening_brace       # swift-format puts a multi-line condition's brace on its own line
+line_length:
+  warning: 120
+  error: 160
+  ignores_comments: true

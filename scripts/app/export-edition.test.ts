@@ -15,6 +15,7 @@ import {
   contentTypeFor,
   EXCLUSION_RULES,
   editionDigest,
+  editionDirectories,
   exportEdition,
   OCTET_STREAM,
   planEdition,
@@ -186,7 +187,17 @@ describe("exportEdition", () => {
     const outputs = readFileSync(join(dest, "edition-outputs.xcfilelist"), "utf8")
       .trim()
       .split("\n");
-    assert.equal(outputs.length, result.fileCount + 1);
+    const directories = editionDirectories(manifest.files);
+    assert.ok(directories.includes("papers") && directories.includes(`edition/${LIVE}`));
+    assert.ok(
+      directories.indexOf("edition") < directories.indexOf(`edition/${LIVE}`),
+      "parents come first",
+    );
+    assert.equal(outputs.length, 2 + directories.length + result.fileCount);
+    assert.ok(
+      outputs.some((line) => line.endsWith("/Edition/papers")),
+      "a directory is declared",
+    );
     assert.equal(manifest.site.commit, null);
     assert.equal(manifest.site.binding, "unbound");
     assert.equal(manifest.editionDigest, result.editionDigest);
