@@ -85,8 +85,8 @@ export const SR08_MODEL = Object.freeze({
 export const SR08_CAPTION = Object.freeze({
   r0: "Electric and magnetic forces do not exist independently of the coordinate system; a pure electric field in one frame appears as both electric and magnetic fields in another.",
   r1: "Under a boost along x, the parallel field components are unchanged while perpendicular components mix with the factor γ. The field combinations E·B and E² − c²B² are Lorentz invariants.",
-  r2: "A test charge experiences force q(E + u × B) in the laboratory frame and q(E' + u' × B') in the moving frame. Transforming the fields and velocities predicts the comoving force exactly according to the relativistic force law.",
-  r3: "Section 6's new manner of expression determines the force on a moving charge by transforming the field to the charge's instantaneous rest frame, where the force is purely electric qE''. Electrodynamics becomes kinematic and frame-independent.",
+  r2: "A test charge experiences force q(E + u × B) in the laboratory frame and q(E′ + u′ × B′) in the moving frame. Transforming the fields and velocities predicts the comoving force exactly according to the relativistic force law.",
+  r3: "Section 6's new manner of expression determines the force on a moving charge by transforming the field to the charge's instantaneous rest frame, where the force is purely electric, qE″. Electrodynamics becomes kinematic and frame-independent.",
 });
 
 const c = (
