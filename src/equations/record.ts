@@ -1,6 +1,7 @@
 import { ContentError } from "../content/compiler/json.ts";
 import { type Expression, nodeId, parseExpression, record, walk } from "./ast.ts";
 import { checkDimensions } from "./dimensions.ts";
+import { type EquationLayout, layoutProblem } from "./layout.ts";
 import { type PrintedGlyphs, printedGlyphsProblem } from "./printedGlyphs.ts";
 import {
   type TeachingExperiment,
@@ -52,6 +53,11 @@ export type EquationRecord = Readonly<{
    * canonical (src/equations/printedGlyphs.ts). Orchestrator ruling of 2026-09-23 (dispatch 100).
    */
   printedGlyphs?: PrintedGlyphs;
+  /**
+   * An authored layout: "rows" sets a relation chain on one aligned row per relation sign
+   * (src/equations/layout.ts). Absent, the formula is one line. am-eq-static-katex-7da.
+   */
+  layout?: EquationLayout;
 }>;
 function fail(path: string, message: string): never {
   throw new ContentError("equation-invalid", path, message);
@@ -85,7 +91,7 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
       "sentence",
       "assumptions",
     ],
-    ["live", "printedGlyphs"],
+    ["live", "printedGlyphs", "layout"],
   );
   const profile = teachingProfile(o.paper);
   if (
@@ -111,6 +117,10 @@ export function parseEquationRecord(input: unknown, path: string): EquationRecor
   const dimensions = checkDimensions(tree, profile.quantities);
   if (dimensions.status !== "consistent") fail(path, dimensions.reason);
   if (tree.kind !== "relation") fail(path, "A displayed equation must be a relation.");
+  if (Object.hasOwn(o, "layout")) {
+    const problem = layoutProblem(o.layout, tree);
+    if (problem) fail(path, problem);
+  }
   if (Object.hasOwn(o, "printedGlyphs")) {
     const problem = printedGlyphsProblem(o.printedGlyphs, tree, profile.quantities);
     if (problem) fail(path, problem);

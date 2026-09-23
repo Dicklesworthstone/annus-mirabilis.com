@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { renderToString } from "katex";
 import { canonical, quantityBindings } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
+import { relationChain, rowsLatex } from "./layout.ts";
 import { navigationTree } from "./navigation.ts";
 import { recordQuantities } from "./printedGlyphs.ts";
 import { type EquationRecord, parseEquationRecord } from "./record.ts";
@@ -15,8 +16,15 @@ export function compileEquation(input: EquationRecord): CompiledEquation {
   // The formula prints the record's letters; the terms below keep the table's quantities, so a
   // printed letter never reaches the paper's colour map or a binding.
   const printed = recordQuantities(quantities, eq.printedGlyphs);
-  const plain = expressionLatex(eq.tree, printed),
-    marked = expressionLatex(eq.tree, printed, true);
+  // An authored layout ("rows") breaks a chain at its relation signs; without one, one line.
+  // The parser has already refused a layout the tree cannot take, so the chain is well formed.
+  const chain = eq.layout === "rows" ? relationChain(eq.tree) : undefined;
+  const latex = (withMarkers: boolean) =>
+    chain && typeof chain !== "string"
+      ? rowsLatex(chain, (e) => expressionLatex(e, printed, withMarkers), withMarkers)
+      : expressionLatex(eq.tree, printed, withMarkers);
+  const plain = latex(false),
+    marked = latex(true);
   const html = renderToString(marked, {
     displayMode: true,
     output: "html",
