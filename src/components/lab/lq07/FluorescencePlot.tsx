@@ -25,6 +25,9 @@ function getFrequencyBand(nuTHz: number): { name: string; color: string; wavelen
   return { name: "Infrared (IR)", color: "#b91c1c", wavelengthNm: lambdaNm };
 }
 
+/** "Ultraviolet (UV)" read inside a parenthesis: "ultraviolet". */
+const plainBand = (name: string) => name.replace(/\s*\(.*\)$/, "").toLowerCase();
+
 export function FluorescencePlot({
   parameters,
   evaluation,
@@ -43,8 +46,11 @@ export function FluorescencePlot({
   );
   const scale = 220 / maxEnergyEv; // px per eV
 
-  const barWidth = 44;
-  const svgWidth = 460;
+  const barWidth = 40;
+  // 300 units wide, about a phone's width, so a label reads near 12px there: at 460 units, with a
+  // fixed 240px height, every label rendered at 8px. The frequencies, wavelengths and the limit's
+  // value are HTML under the chart.
+  const svgWidth = 300;
   const svgHeight = 280;
   const groundY = 230;
 
@@ -156,12 +162,14 @@ export function FluorescencePlot({
 
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          width="100%"
-          height="240"
           role="img"
           aria-label={`Fluorescence energy budget: incident ${nu1} THz (${budget.e1Ev.toFixed(3)} eV), emitted ${nu2} THz (${budget.e2Ev.toFixed(3)} eV), status ${budget.allowed ? "allowed" : "disallowed"}`}
           style={{
-            overflow: "visible",
+            display: "block",
+            width: "100%",
+            maxWidth: "21rem",
+            height: "auto",
+            margin: "0 auto",
             borderRadius: "0.5rem",
             border: "1px solid var(--line)",
             background: "var(--panel)",
@@ -182,133 +190,83 @@ export function FluorescencePlot({
             </pattern>
           </defs>
 
-          {/* Ground level line */}
+          {/* Ground level */}
           <line
-            x1="30"
+            x1="10"
             y1={groundY}
-            x2={svgWidth - 20}
+            x2={svgWidth - 10}
             y2={groundY}
             stroke="var(--line)"
             strokeWidth="1.5"
           />
-          <text x="35" y={groundY + 16} fontSize="10" fontFamily="monospace" fill="var(--muted)">
-            0 eV (ground state)
+          <text x="10" y={groundY + 34}>
+            0 eV
           </text>
 
-          {/* Bar 1: Absorbed Energy */}
-          <g transform="translate(90, 0)">
-            <rect
-              x={-barWidth / 2}
-              y={groundY - h1Px}
-              width={barWidth}
-              height={h1Px}
-              fill={band1.color}
-              rx="4"
-              opacity="0.9"
-            />
-            <text
-              x="0"
-              y={groundY - h1Px - 8}
-              textAnchor="middle"
-              fontSize="11"
-              fontWeight="bold"
-              fontFamily="monospace"
-              fill="var(--ink)"
-            >
-              {budget.e1Ev.toFixed(3)} eV
-            </text>
-            <text
-              x="0"
-              y={groundY + 16}
-              textAnchor="middle"
-              fontSize="10"
-              fontWeight="600"
-              fill="var(--ink)"
-            >
-              Absorbed (hν₁)
-            </text>
-            <text
-              x="0"
-              y={groundY + 28}
-              textAnchor="middle"
-              fontSize="9"
-              fontFamily="monospace"
-              fill="var(--muted)"
-            >
-              {nu1} THz · {band1.wavelengthNm} nm
-            </text>
-          </g>
-
-          {/* Upper bound threshold line */}
+          {/* The largest emitted quantum the rule allows */}
           <line
-            x1="140"
+            x1="85"
             y1={groundY - hMaxPx}
-            x2={svgWidth - 50}
+            x2={svgWidth - 10}
             y2={groundY - hMaxPx}
             stroke="var(--accent)"
             strokeWidth="1.5"
             strokeDasharray="4 3"
           />
-          <text
-            x={svgWidth - 45}
-            y={groundY - hMaxPx + 3}
-            fontSize="9"
-            fontFamily="monospace"
-            fontWeight="bold"
-            fill="var(--accent)"
-          >
-            ν₂,max = {(budget.nu2MaxHz / 1e12).toFixed(1)} THz
+          <text x={svgWidth - 10} y={groundY - hMaxPx - 5} textAnchor="end" fill="var(--accent)">
+            ν₂,max
           </text>
 
-          {/* Bar 2: Emitted Light Energy */}
-          <g transform="translate(220, 0)">
-            <rect
-              x={-barWidth / 2}
-              y={groundY - h2Px}
-              width={barWidth}
-              height={h2Px}
-              fill={band2.color}
-              rx="4"
-              opacity="0.9"
-            />
-            <text
-              x="0"
-              y={groundY - h2Px - 8}
-              textAnchor="middle"
-              fontSize="11"
-              fontWeight="bold"
-              fontFamily="monospace"
-              fill="var(--ink)"
-            >
-              {budget.e2Ev.toFixed(3)} eV
-            </text>
-            <text
-              x="0"
-              y={groundY + 16}
-              textAnchor="middle"
-              fontSize="10"
-              fontWeight="600"
-              fill="var(--ink)"
-            >
-              Emitted (hν₂)
-            </text>
-            <text
-              x="0"
-              y={groundY + 28}
-              textAnchor="middle"
-              fontSize="9"
-              fontFamily="monospace"
-              fill="var(--muted)"
-            >
-              {nu2} THz · {band2.wavelengthNm} nm
-            </text>
-          </g>
+          {[
+            {
+              key: "absorbed",
+              x: 60,
+              height: h1Px,
+              fill: band1.color,
+              value: `${budget.e1Ev.toFixed(3)} eV`,
+              valueFill: "var(--ink)",
+              name: "absorbed hν₁",
+            },
+            {
+              key: "emitted",
+              x: 150,
+              height: h2Px,
+              fill: band2.color,
+              value: `${budget.e2Ev.toFixed(3)} eV`,
+              valueFill: "var(--ink)",
+              name: "emitted hν₂",
+            },
+          ].map((bar) => (
+            <g key={bar.key}>
+              <rect
+                x={bar.x - barWidth / 2}
+                y={groundY - bar.height}
+                width={barWidth}
+                height={bar.height}
+                fill={bar.fill}
+                rx="4"
+                opacity="0.9"
+              />
+              <text
+                x={bar.x}
+                y={groundY - bar.height - 8}
+                textAnchor="middle"
+                fontWeight="bold"
+                fill={bar.valueFill}
+              >
+                {bar.value}
+              </text>
+              <text x={bar.x} y={groundY + 17} textAnchor="middle" fill="var(--ink)">
+                {bar.name}
+              </text>
+            </g>
+          ))}
 
-          {/* Bar 3: Other Channels (Heat) OR Energy Deficit */}
-          <g transform="translate(340, 0)">
+          {/* Other channels (heat), or the energy deficit */}
+          <g>
             {budget.allowed ? (
               <rect
-                x={-barWidth / 2}
+                x={240 - barWidth / 2}
                 y={groundY - hOtherPx}
                 width={barWidth}
                 height={Math.max(2, hOtherPx)}
@@ -318,7 +276,7 @@ export function FluorescencePlot({
               />
             ) : (
               <rect
-                x={-barWidth / 2}
+                x={240 - barWidth / 2}
                 y={groundY - hDeficitPx}
                 width={barWidth}
                 height={Math.max(4, hDeficitPx)}
@@ -328,42 +286,31 @@ export function FluorescencePlot({
                 rx="4"
               />
             )}
-
             <text
-              x="0"
+              x="240"
               y={groundY - (budget.allowed ? hOtherPx : hDeficitPx) - 8}
               textAnchor="middle"
-              fontSize="11"
               fontWeight="bold"
-              fontFamily="monospace"
               fill={budget.allowed ? "var(--plot)" : "var(--accent)"}
             >
               {budget.allowed
                 ? `+${budget.eOtherEv.toFixed(3)} eV`
-                : `-${budget.energyDeficitEv.toFixed(3)} eV`}
+                : `−${budget.energyDeficitEv.toFixed(3)} eV`}
             </text>
-            <text
-              x="0"
-              y={groundY + 16}
-              textAnchor="middle"
-              fontSize="10"
-              fontWeight="600"
-              fill="var(--ink)"
-            >
-              {budget.allowed ? "Heat (E_other)" : "Energy deficit"}
-            </text>
-            <text
-              x="0"
-              y={groundY + 28}
-              textAnchor="middle"
-              fontSize="9"
-              fontFamily="monospace"
-              fill="var(--muted)"
-            >
-              {budget.allowed ? "Dissipated in medium" : "Forbidden by single-quantum"}
+            <text x="240" y={groundY + 17} textAnchor="middle" fill="var(--ink)">
+              {budget.allowed ? "heat" : "deficit"}
             </text>
           </g>
         </svg>
+        <p className="fine" style={{ margin: "0.6rem 0 0" }}>
+          Absorbed: {nu1} THz, {band1.wavelengthNm} nm ({plainBand(band1.name)}). Emitted: {nu2}{" "}
+          THz, {band2.wavelengthNm} nm ({plainBand(band2.name)}).{" "}
+          {budget.allowed
+            ? "Heat: the rest of the absorbed energy, dissipated in the medium."
+            : "Energy deficit: the emitted quantum would carry more energy than the absorbed quanta supply."}{" "}
+          The dashed line is the largest emitted quantum allowed, ν₂,max ={" "}
+          {(budget.nu2MaxHz / 1e12).toFixed(1)} THz.
+        </p>
 
         {/* Reason / Verdict Callout */}
         <div
