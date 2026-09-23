@@ -1,6 +1,7 @@
 "use client";
 import {
   type KeyboardEvent,
+  type ReactNode,
   useCallback,
   useEffect,
   useId,
@@ -8,6 +9,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { exponentialParts } from "../units/scientific.ts";
 import { useEquationScope } from "./EquationScope.tsx";
 import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
 import { navigate } from "./navigation.ts";
@@ -20,6 +22,23 @@ import "./equations.css";
  * notes share titles, within one equation and across them, and "Read the prerequisite: What it
  * asserts" led to five different lessons. Without the lesson's title it falls back to the note's.
  */
+
+/**
+ * A term's accepted value as a reader sees it. formatScaledDecimal keeps e-notation outside 10⁻⁵ to
+ * 10¹⁵, which suits a typed field but reached readers: bm-01's equation read "Boltzmann constant
+ * 1.3806e-23 J/K". Such a value is drawn as a power of ten with the exponent raised.
+ */
+function termText(text: string): ReactNode {
+  if (!/e[+-]?\d+$/.test(text)) return text;
+  const parts = exponentialParts(Number(text));
+  if (parts.kind === "plain") return parts.text;
+  return (
+    <>
+      {parts.mantissa} × 10<sup>{parts.exponent}</sup>
+    </>
+  );
+}
+
 export function prerequisiteName(noteTitle: string, lessonTitle: string | undefined): string {
   return lessonTitle
     ? `Read the prerequisite: ${lessonTitle}, for ${noteTitle}`
@@ -326,7 +345,7 @@ export function SemanticEquation({
                   <dd data-term-value={t.termId} data-value-kind={v.kind}>
                     {v.kind === "value" ? (
                       <>
-                        {v.text} <span>{v.unit}</span>
+                        {termText(v.text)} <span>{v.unit}</span>
                       </>
                     ) : (
                       v.text
