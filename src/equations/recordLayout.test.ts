@@ -9,11 +9,11 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import type { Expression } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
-import { relationChain, rowsLatex } from "./layout.ts";
 import { BROWNIAN_QUANTITIES } from "./quantities.ts";
 import type { EquationRecord } from "./record.ts";
 import { parseEquationRecord } from "./record.ts";
 import { compileEquation } from "./render.ts";
+import { relationChain, rowsLatex } from "./rowLayout.ts";
 
 const ROOT = new URL("../../content/equations/", import.meta.url);
 const load = (paper: string, id: string) =>

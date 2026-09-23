@@ -1,8 +1,8 @@
 import { ContentError } from "../content/compiler/json.ts";
 import { type Expression, nodeId, parseExpression, record, walk } from "./ast.ts";
 import { checkDimensions } from "./dimensions.ts";
-import { type EquationLayout, layoutProblem } from "./layout.ts";
 import { type PrintedGlyphs, printedGlyphsProblem } from "./printedGlyphs.ts";
+import { type EquationLayout, layoutProblem } from "./rowLayout.ts";
 import {
   type TeachingExperiment,
   type TeachingPaper,
@@ -55,7 +55,7 @@ export type EquationRecord = Readonly<{
   printedGlyphs?: PrintedGlyphs;
   /**
    * An authored layout: "rows" sets a relation chain on one aligned row per relation sign
-   * (src/equations/layout.ts). Absent, the formula is one line. am-eq-static-katex-7da.
+   * (src/equations/rowLayout.ts). Absent, the formula is one line. am-eq-static-katex-7da.
    */
   layout?: EquationLayout;
 }>;

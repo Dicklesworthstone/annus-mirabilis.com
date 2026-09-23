@@ -2,10 +2,10 @@ import { createHash } from "node:crypto";
 import { renderToString } from "katex";
 import { canonical, quantityBindings } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
-import { relationChain, rowsLatex } from "./layout.ts";
 import { navigationTree } from "./navigation.ts";
 import { recordQuantities } from "./printedGlyphs.ts";
 import { type EquationRecord, parseEquationRecord } from "./record.ts";
+import { relationChain, rowsLatex } from "./rowLayout.ts";
 import { teachingProfile } from "./teachingProfiles.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 export function compileEquation(input: EquationRecord): CompiledEquation {
