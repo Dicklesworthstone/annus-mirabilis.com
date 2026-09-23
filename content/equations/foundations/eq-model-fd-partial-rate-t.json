@@ -1,0 +1,295 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-partial-rate-t",
+  "paper": "foundations",
+  "argument": "partial-derivatives",
+  "title": "The profile's rate of change at one place",
+  "spoken": "The partial derivative of f with respect to t at fixed x equals minus one over two t, plus x squared over four D t squared, all times f of x and t.",
+  "explanation": "Near the centre the density falls as the cloud spreads away; farther out it rises as the cloud arrives.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "One particle released at x = 0, one coordinate, constant D.",
+    "A foundation lesson's worked example in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-partial-rate-t.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "derivative",
+      "opId": "eq-model-fd-partial-rate-t.op.rate",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-partial-rate-t.t.f",
+        "quantityId": "probabilityDensity"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-partial-rate-t.t.t",
+        "quantityId": "elapsedTime"
+      },
+      "order": 1,
+      "partial": true,
+      "heldFixed": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-partial-rate-t.t.held",
+          "quantityId": "positionCoordinate1d"
+        }
+      ]
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-partial-rate-t.op.product",
+      "args": [
+        {
+          "kind": "sum",
+          "opId": "eq-model-fd-partial-rate-t.op.bracket",
+          "args": [
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "quotient",
+                "opId": "eq-model-fd-partial-rate-t.op.heightRate",
+                "numerator": {
+                  "kind": "number",
+                  "value": "1"
+                },
+                "denominator": {
+                  "kind": "product",
+                  "opId": "eq-model-fd-partial-rate-t.op.twoT",
+                  "args": [
+                    {
+                      "kind": "number",
+                      "value": "2"
+                    },
+                    {
+                      "kind": "symbol",
+                      "termId": "eq-model-fd-partial-rate-t.t.t2",
+                      "quantityId": "elapsedTime"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "kind": "quotient",
+              "opId": "eq-model-fd-partial-rate-t.op.shapeRate",
+              "numerator": {
+                "kind": "power",
+                "opId": "eq-model-fd-partial-rate-t.op.square",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-partial-rate-t.t.x",
+                  "quantityId": "positionCoordinate1d"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                }
+              },
+              "denominator": {
+                "kind": "product",
+                "opId": "eq-model-fd-partial-rate-t.op.fourDt2",
+                "args": [
+                  {
+                    "kind": "number",
+                    "value": "4"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-partial-rate-t.t.diffusion",
+                    "quantityId": "diffusionCoefficient"
+                  },
+                  {
+                    "kind": "power",
+                    "opId": "eq-model-fd-partial-rate-t.op.tSquared",
+                    "base": {
+                      "kind": "symbol",
+                      "termId": "eq-model-fd-partial-rate-t.t.t3",
+                      "quantityId": "elapsedTime"
+                    },
+                    "exponent": {
+                      "num": 2,
+                      "den": 1
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-partial-rate-t.t.fBack",
+          "quantityId": "probabilityDensity",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-partial-rate-t.t.fBackX",
+              "quantityId": "positionCoordinate1d"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-partial-rate-t.t.fBackT",
+              "quantityId": "elapsedTime"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.bracket",
+      "title": "The bracket",
+      "explanation": "Negative near the centre, where x squared is less than 2Dt; positive farther out.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.fourDt2",
+      "title": "4 D t squared",
+      "explanation": "From differentiating one over t.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.heightRate",
+      "title": "From the height",
+      "explanation": "The height, one over root 4 pi D t, falls as t grows.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.product",
+      "title": "A bracket times f",
+      "explanation": "Both the height and the exponent depend on t, so the bracket has two terms.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.rate",
+      "title": "Rate in t at fixed x",
+      "explanation": "The partial derivative of f with respect to t, with x held fixed: what a probe at one place records.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.relation",
+      "title": "What it asserts",
+      "explanation": "At one place, the rate of change is f times a bracket whose sign depends on how far out the place is.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.shapeRate",
+      "title": "From the shape",
+      "explanation": "The exponent's derivative with respect to t: the bell widens.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.square",
+      "title": "x squared",
+      "explanation": "Squared position: the same on both sides.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.tSquared",
+      "title": "t squared",
+      "explanation": "The derivative of one over t is minus one over t squared.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.op.twoT",
+      "title": "2 t",
+      "explanation": "From differentiating t to the minus one half.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "D.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.f",
+      "title": "Probability density",
+      "explanation": "f, the profile being differentiated.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.fBack",
+      "title": "Probability density",
+      "explanation": "f itself.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.fBackT",
+      "title": "Time",
+      "explanation": "t.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.fBackX",
+      "title": "Position",
+      "explanation": "x.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.held",
+      "title": "Position, held fixed",
+      "explanation": "The subscript x: one place.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.t",
+      "title": "Time",
+      "explanation": "The variable that changes.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.t2",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.t3",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-rate-t.t.x",
+      "title": "Position",
+      "explanation": "The fixed place.",
+      "foundation": "partial-derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The rate at one place",
+      "nodeId": "eq-model-fd-partial-rate-t.op.rate"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "f",
+      "nodeId": "eq-model-fd-partial-rate-t.t.fBack"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "a bracket",
+      "nodeId": "eq-model-fd-partial-rate-t.op.bracket"
+    },
+    {
+      "text": " that is negative near the centre and positive farther out."
+    }
+  ],
+  "printedGlyphs": {
+    "probabilityDensity": "f"
+  }
+}

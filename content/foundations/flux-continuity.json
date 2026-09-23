@@ -14,7 +14,8 @@
     {
       "kind": "formula",
       "latex": "\\frac{\\partial c}{\\partial t}=-\\frac{\\partial J}{\\partial x}",
-      "spoken": "The rate at which the concentration changes equals minus the rate at which the flux changes along x."
+      "spoken": "The rate at which the concentration changes equals minus the rate at which the flux changes along x.",
+      "equations": ["eq-model-fd-continuity"]
     },
     {
       "kind": "paragraph",

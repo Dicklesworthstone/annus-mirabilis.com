@@ -197,6 +197,20 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
         role: "result",
         definition: "How much probability crosses a point per second, along one coordinate.",
       }),
+      // Continuity: particles counted per area per second, beside the concentration they change.
+      own({
+        id: "particleFlux",
+        name: "Particle flux",
+        glyph: "J",
+        dimension: ["-2", "0", "-1", "0", "0", "0"],
+        unit: "1/(m^2 s)",
+        displayUnit: "1/(m^2 s)",
+        displayPower: 0,
+        semanticKind: "particle-flux",
+        role: "result",
+        definition:
+          "The net number of particles crossing a surface per unit area and per second, rightward crossings counted positive.",
+      }),
       // Radiation: Wien's law and section 3's entropy derivative, in the paper's own letters.
       pick(LIGHT_QUANTA_QUANTITIES, "frequencyEnergyDensity", { glyph: "\\rho" }),
       pick(LIGHT_QUANTA_QUANTITIES, "wienConstantAlpha", { glyph: "\\alpha" }),

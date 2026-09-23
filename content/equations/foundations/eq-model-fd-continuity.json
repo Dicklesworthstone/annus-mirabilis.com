@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-continuity",
+  "paper": "foundations",
+  "argument": "flux-continuity",
+  "title": "Continuity: particles are counted, not created",
+  "spoken": "The partial derivative of c with respect to t equals minus the partial derivative of J with respect to x.",
+  "explanation": "If more particles leave a short stretch than enter it, the concentration there falls. The minus sign is that bookkeeping.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "No particles are created or destroyed; one coordinate.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-continuity.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "derivative",
+      "opId": "eq-model-fd-continuity.op.rate",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-continuity.t.c",
+        "quantityId": "numberDensity"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-continuity.t.t",
+        "quantityId": "elapsedTime"
+      },
+      "order": 1,
+      "partial": true
+    },
+    "right": {
+      "kind": "negate",
+      "argument": {
+        "kind": "derivative",
+        "opId": "eq-model-fd-continuity.op.fluxChange",
+        "expression": {
+          "kind": "symbol",
+          "termId": "eq-model-fd-continuity.t.flux",
+          "quantityId": "particleFlux"
+        },
+        "variable": {
+          "kind": "symbol",
+          "termId": "eq-model-fd-continuity.t.x",
+          "quantityId": "positionCoordinate1d"
+        },
+        "order": 1,
+        "partial": true
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-continuity.op.fluxChange",
+      "title": "Change of J along x",
+      "explanation": "How much faster particles leave on the right than arrive on the left, per unit length.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-continuity.op.rate",
+      "title": "Rate of change of c",
+      "explanation": "How fast the concentration changes at one place.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-continuity.op.relation",
+      "title": "What it asserts",
+      "explanation": "Particles are neither made nor destroyed: the concentration changes only by what flows in or out.",
+      "foundation": "flux-continuity"
+    },
+    {
+      "nodeId": "eq-model-fd-continuity.t.c",
+      "title": "Concentration",
+      "explanation": "c, particles per unit volume.",
+      "foundation": "flux-continuity"
+    },
+    {
+      "nodeId": "eq-model-fd-continuity.t.flux",
+      "title": "Particle flux",
+      "explanation": "J, the net number crossing a surface per unit area and per second, rightward positive.",
+      "foundation": "flux-continuity"
+    },
+    {
+      "nodeId": "eq-model-fd-continuity.t.t",
+      "title": "Time",
+      "explanation": "t.",
+      "foundation": "flux-continuity"
+    },
+    {
+      "nodeId": "eq-model-fd-continuity.t.x",
+      "title": "Position",
+      "explanation": "x, along the tube.",
+      "foundation": "flux-continuity"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The concentration's rate of change",
+      "nodeId": "eq-model-fd-continuity.op.rate"
+    },
+    {
+      "text": " is minus "
+    },
+    {
+      "text": "how fast the flux grows along x",
+      "nodeId": "eq-model-fd-continuity.op.fluxChange"
+    },
+    {
+      "text": "."
+    }
+  ],
+  "printedGlyphs": {
+    "numberDensity": "c"
+  }
+}

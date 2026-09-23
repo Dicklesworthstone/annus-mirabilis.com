@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-partial-slope-x",
+  "paper": "foundations",
+  "argument": "partial-derivatives",
+  "title": "The profile's slope along x in one snapshot",
+  "spoken": "The partial derivative of f with respect to x at fixed t equals minus x over two D t, times f of x and t.",
+  "explanation": "The slope is negative to the right of the centre and positive to the left: downhill away from the start in both directions.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "One particle released at x = 0, one coordinate, constant D.",
+    "A foundation lesson's worked example in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-partial-slope-x.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "derivative",
+      "opId": "eq-model-fd-partial-slope-x.op.slope",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-partial-slope-x.t.f",
+        "quantityId": "probabilityDensity"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-partial-slope-x.t.x",
+        "quantityId": "positionCoordinate1d"
+      },
+      "order": 1,
+      "partial": true,
+      "heldFixed": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-partial-slope-x.t.held",
+          "quantityId": "elapsedTime"
+        }
+      ]
+    },
+    "right": {
+      "kind": "negate",
+      "argument": {
+        "kind": "product",
+        "opId": "eq-model-fd-partial-slope-x.op.product",
+        "args": [
+          {
+            "kind": "quotient",
+            "opId": "eq-model-fd-partial-slope-x.op.factor",
+            "numerator": {
+              "kind": "symbol",
+              "termId": "eq-model-fd-partial-slope-x.t.x2",
+              "quantityId": "positionCoordinate1d"
+            },
+            "denominator": {
+              "kind": "product",
+              "opId": "eq-model-fd-partial-slope-x.op.twoDt",
+              "args": [
+                {
+                  "kind": "number",
+                  "value": "2"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-partial-slope-x.t.diffusion",
+                  "quantityId": "diffusionCoefficient"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-partial-slope-x.t.t",
+                  "quantityId": "elapsedTime"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-partial-slope-x.t.fBack",
+            "quantityId": "probabilityDensity",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-partial-slope-x.t.fBackX",
+                "quantityId": "positionCoordinate1d"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-partial-slope-x.t.fBackT",
+                "quantityId": "elapsedTime"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.op.factor",
+      "title": "x over 2Dt",
+      "explanation": "The derivative of x squared over 4Dt with respect to x.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.op.product",
+      "title": "A factor times f",
+      "explanation": "Differentiating an exponential gives it back, times the derivative of its exponent.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.op.relation",
+      "title": "What it asserts",
+      "explanation": "In one snapshot, the slope of the profile is the profile itself times minus x over 2Dt.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.op.slope",
+      "title": "Slope along x at fixed t",
+      "explanation": "The partial derivative of f with respect to x, with t held fixed.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.op.twoDt",
+      "title": "2 D t",
+      "explanation": "Half the 4Dt of the exponent: differentiating x squared brought down a 2.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "D.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.t.f",
+      "title": "Probability density",
+      "explanation": "f, the profile being differentiated.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.t.fBack",
+      "title": "Probability density",
+      "explanation": "f itself, returned by the exponential.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.t.fBackT",
+      "title": "Time",
+      "explanation": "t.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.t.fBackX",
+      "title": "Position",
+      "explanation": "x.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.t.held",
+      "title": "Time, held fixed",
+      "explanation": "The subscript t: one snapshot.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.t.t",
+      "title": "Time",
+      "explanation": "The same fixed t.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.t.x",
+      "title": "Position",
+      "explanation": "The variable that changes.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-partial-slope-x.t.x2",
+      "title": "Position",
+      "explanation": "The same x.",
+      "foundation": "partial-derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The slope along x",
+      "nodeId": "eq-model-fd-partial-slope-x.op.slope"
+    },
+    {
+      "text": ", with "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-fd-partial-slope-x.t.held"
+    },
+    {
+      "text": " held fixed, is minus "
+    },
+    {
+      "text": "x over 2Dt",
+      "nodeId": "eq-model-fd-partial-slope-x.op.factor"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "f",
+      "nodeId": "eq-model-fd-partial-slope-x.t.fBack"
+    },
+    {
+      "text": " itself."
+    }
+  ],
+  "printedGlyphs": {
+    "probabilityDensity": "f"
+  }
+}

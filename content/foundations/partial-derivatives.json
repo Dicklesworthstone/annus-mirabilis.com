@@ -52,7 +52,8 @@
     {
       "kind": "formula",
       "latex": "f(x,t) = \\frac{1}{\\sqrt{4\\pi D t}}\\,e^{-x^2/4Dt}",
-      "spoken": "f of x and t equals one over the square root of four pi D t, times e to the minus x squared over four D t."
+      "spoken": "f of x and t equals one over the square root of four pi D t, times e to the minus x squared over four D t.",
+      "equations": ["eq-model-fd-partial-profile"]
     },
     {
       "kind": "paragraph",
@@ -61,7 +62,8 @@
     {
       "kind": "formula",
       "latex": "\\left(\\frac{\\partial f}{\\partial x}\\right)_t = -\\frac{x}{2Dt}\\,f(x,t)",
-      "spoken": "The partial derivative of f with respect to x at fixed t equals minus x over two D t, times f."
+      "spoken": "The partial derivative of f with respect to x at fixed t equals minus x over two D t, times f.",
+      "equations": ["eq-model-fd-partial-slope-x"]
     },
     {
       "kind": "paragraph",
@@ -70,7 +72,8 @@
     {
       "kind": "formula",
       "latex": "\\left(\\frac{\\partial f}{\\partial t}\\right)_x = \\left(-\\frac{1}{2t} + \\frac{x^2}{4Dt^2}\\right) f(x,t)",
-      "spoken": "The partial derivative of f with respect to t at fixed x equals minus one over two t, plus x squared over four D t squared, all times f."
+      "spoken": "The partial derivative of f with respect to t at fixed x equals minus one over two t, plus x squared over four D t squared, all times f.",
+      "equations": ["eq-model-fd-partial-rate-t"]
     },
     {
       "kind": "paragraph",
