@@ -168,11 +168,11 @@ describe("ME-01 instrument contract (am-me-01-two-ledgers-g1re)", () => {
 
   test("caption readings R0-R3 exist and cover all requirements", () => {
     expect(ME01_CAPTION.r0.includes("Two equal flashes")).toBe(true);
-    expect(ME01_CAPTION.r1.includes("E₀ - E₁ = L")).toBe(true);
+    expect(ME01_CAPTION.r1.includes("E₀ − E₁ = L")).toBe(true);
     expect(ME01_CAPTION.r1.includes("γL")).toBe(true);
     expect(ME01_CAPTION.r2.includes("sum to 2")).toBe(true);
-    expect(ME01_CAPTION.r2.includes("K₀ - K₁ = L(γ - 1)")).toBe(true);
-    expect(ME01_CAPTION.r3.includes("1/√(1 - v²/V²)")).toBe(true);
+    expect(ME01_CAPTION.r2.includes("K₀ − K₁ = L(γ − 1)")).toBe(true);
+    expect(ME01_CAPTION.r3.includes("1/√(1 − v²/V²)")).toBe(true);
     expect(ME01_CAPTION.r3.includes("source premise")).toBe(true);
   });
 
