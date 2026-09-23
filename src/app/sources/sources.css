@@ -1,0 +1,79 @@
+/*
+ * /sources/ (chrome and top-level pages, pane %48). The page's own rules only; the introduction,
+ * prose and edges are the site's (page-intro, reading, page-flush in globals.css).
+ */
+.sources-section {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  margin-top: 2rem;
+}
+.sources-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+@media (min-width: 1100px) {
+  .sources-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 3.5rem;
+  }
+}
+/* A hairline over each scan, so a reader running down the list sees where one ends. */
+.sources-entry {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+.sources-entry-name {
+  margin: 0;
+  font-size: var(--type-lead);
+}
+.sources-entry-title {
+  margin: 0.35rem 0 1rem;
+  font-style: italic;
+  color: var(--muted);
+}
+.sources-facts {
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  line-height: 1.5;
+}
+/* Label over value on a phone; label beside value once there is room for both. */
+.sources-facts > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.1rem;
+}
+@media (min-width: 560px) {
+  .sources-facts > div {
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    gap: 1rem;
+  }
+}
+.sources-facts dt {
+  color: var(--muted);
+}
+.sources-facts dd {
+  margin: 0;
+}
+/* Sixty-four hex digits do not fit a phone line; they break anywhere rather than scroll. */
+.sources-digest {
+  font-family: var(--font-mono);
+  font-size: var(--type-fine);
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+.sources-digest-note {
+  display: block;
+  margin-top: 0.25rem;
+}
+.sources-download {
+  margin: 1rem 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}
