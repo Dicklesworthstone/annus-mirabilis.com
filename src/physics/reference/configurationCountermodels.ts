@@ -27,19 +27,30 @@ export type OccupancyComparison = Readonly<{
   differences: Readonly<Record<OccupancyCheck, number>>;
 }>;
 
+/** A refusal from the occupancy model. The code is first so the refusal scanners read it at the
+ * throw; the message is what a reader sees, unchanged. */
+export class OccupancyModelError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "OccupancyModelError";
+    this.code = code;
+  }
+}
+
 export function validateOccupancySettings(value: unknown): OccupancySettings {
   if (!value || typeof value !== "object" || ![Object.prototype, null].includes(Object.getPrototypeOf(value)))
-    throw new TypeError("Use a plain occupancy-settings record.");
+    throw new OccupancyModelError("settings-not-plain-record", "Use a plain occupancy-settings record.");
   const descriptors = Object.getOwnPropertyDescriptors(value);
   const keys = Reflect.ownKeys(value);
   if (keys.length !== 2 || keys.some((key) => key !== "n" && key !== "quarters") ||
       !["n", "quarters"].every((key) => descriptors[key]?.enumerable && "value" in descriptors[key]))
-    throw new TypeError("Settings must contain only point count and volume quarters.");
+    throw new OccupancyModelError("settings-unknown-fields", "Settings must contain only point count and volume quarters.");
   const { n, quarters } = value as Record<string, unknown>;
   if (typeof n !== "number" || !Number.isInteger(n) || n < 1 || n > MAX_OCCUPANCY_POINTS)
-    throw new RangeError(`Use an integer point count from 1 to ${MAX_OCCUPANCY_POINTS}.`);
+    throw new OccupancyModelError("point-count-out-of-range", `Use an integer point count from 1 to ${MAX_OCCUPANCY_POINTS}.`);
   if (typeof quarters !== "number" || !Number.isInteger(quarters) || quarters < 0 || quarters > 4)
-    throw new RangeError("Choose 0, 1, 2, 3 or 4 quarters of the volume.");
+    throw new OccupancyModelError("volume-quarters-out-of-range", "Choose 0, 1, 2, 3 or 4 quarters of the volume.");
   return Object.freeze({ n, quarters });
 }
 
@@ -75,7 +86,7 @@ export function compareOccupancyModels(input: unknown): OccupancyComparison {
 export function distinguishOccupancy(input: unknown, checks: readonly OccupancyCheck[]) {
   if (!Array.isArray(checks) || checks.length > OCCUPANCY_CHECKS.length ||
       Array.from(checks).some((check) => !OCCUPANCY_CHECKS.includes(check)) || new Set(checks).size !== checks.length)
-    throw new TypeError("Choose unique, known occupancy checks.");
+    throw new OccupancyModelError("checks-invalid", "Choose unique, known occupancy checks.");
   const comparison = compareOccupancyModels(input);
   // All admitted fractions are binary-exact. This is a numerical comparison floor,
   // not measurement uncertainty or a significance threshold.
@@ -109,18 +120,18 @@ export function compareOccupancyEvidence(input: unknown, rawCounts: unknown): Oc
   const comparison = compareOccupancyModels(input);
   const { n } = comparison.settings;
   if (!Array.isArray(rawCounts) || rawCounts.length !== n + 1)
-    throw new TypeError(`Supply exactly ${n + 1} frequencies, for counts 0 through ${n}.`);
+    throw new OccupancyModelError("frequency-count-mismatch", `Supply exactly ${n + 1} frequencies, for counts 0 through ${n}.`);
   const counts: number[] = [];
   let trials = 0;
   for (let k = 0; k <= n; k++) {
     const descriptor = Object.getOwnPropertyDescriptor(rawCounts, String(k));
     if (!descriptor || !("value" in descriptor) || !Number.isSafeInteger(descriptor.value) || descriptor.value < 0)
-      throw new TypeError("Each frequency must be a nonnegative integer; missing bins are not zero.");
+      throw new OccupancyModelError("frequency-not-nonnegative-integer", "Each frequency must be a nonnegative integer; missing bins are not zero.");
     counts.push(descriptor.value);
     trials += descriptor.value;
-    if (trials > MAX_OCCUPANCY_TRIALS) throw new RangeError(`Use at most ${MAX_OCCUPANCY_TRIALS} repeat placements.`);
+    if (trials > MAX_OCCUPANCY_TRIALS) throw new OccupancyModelError("placements-over-limit", `Use at most ${MAX_OCCUPANCY_TRIALS} repeat placements.`);
   }
-  if (trials === 0) throw new RangeError("An empty record is not evidence. Enter at least one placement.");
+  if (trials === 0) throw new OccupancyModelError("record-empty", "An empty record is not evidence. Enter at least one placement.");
   const logFactorials = [0];
   for (let i = 1; i <= trials; i++) logFactorials.push((logFactorials[i - 1] as number) + Math.log(i));
   const logMultiplicity = (logFactorials[trials] as number) - counts.reduce((sum, count) => sum + (logFactorials[count] as number), 0);

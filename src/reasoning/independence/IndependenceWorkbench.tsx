@@ -54,8 +54,9 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
   }
   function apply(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // A draft that is not a whole number is reported here directly; only the model refuses by throwing.
+    if (!/^[1-9][0-9]?$/u.test(nDraft)) { setError("Enter a whole-number point count."); return; }
     try {
-      if (!/^[1-9][0-9]?$/u.test(nDraft)) throw new TypeError("Enter a whole-number point count.");
       accept(applyOccupancySettings(state, { n: Number(nDraft), quarters: Number(qDraft) }));
     } catch (e) { setError(e instanceof Error ? e.message : "Check the settings."); }
   }
@@ -66,8 +67,8 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
   }
   function analyze(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (dirty) { setError("Apply or discard the edited model settings before analyzing a record."); return; }
     try {
-      if (dirty) throw new TypeError("Apply or discard the edited model settings before analyzing a record.");
       setState(analyzeOccupancyRecord(state, histogram));
       setError("");
       setNotice("Count record analyzed locally for the displayed point count and volume fraction.");
