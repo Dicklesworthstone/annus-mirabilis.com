@@ -98,6 +98,12 @@ function densityText(result: Lq03Evaluation["planck"]["frequency"], unit: string
   );
 }
 
+/** x = hν/(k_B T) spans hundreds of decades as the probe moves. fixed() printed 1.2 × 10⁻⁸ as "0" and
+ *  9.6 × 10²⁸⁵ as "9.598486146732442e+285"; mid-range values keep their plain decimals. */
+function xText(x: number): ReactNode {
+  return x >= 1e-3 && x < 1e4 ? fixed(x, 6) : <Sci value={x} digits={6} />;
+}
+
 function scalarText(
   result: { status: string; value?: number; reason?: string },
   unit: string,
@@ -483,7 +489,7 @@ export function SpectrumLab({
             <h3>Wien and classical regime verdict</h3>
             <p>
               At this temperature and probe frequency, x = h&nu;/(k<sub>B</sub>T) ={" "}
-              {fixed(regime.x, 6)}. Wien's law's relative error here is{" "}
+              {xText(regime.x)}. Wien's law's relative error here is{" "}
               <Sci value={regime.wienRelativeError} digits={4} />; the classical law's relative
               error is <Sci value={regime.rayleighJeansRelativeError} digits={4} />. {verdict}
             </p>
