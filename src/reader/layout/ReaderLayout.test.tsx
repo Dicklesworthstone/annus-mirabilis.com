@@ -30,10 +30,20 @@ describe("ReaderLayout markup (am-read-page-anatomy-l0b)", () => {
     assert.match(html, /Margin notes for this passage/);
   });
 
-  it("companion switching is a real link, so it works without JavaScript", () => {
-    assert.match(html, /href="\?companion=explanation"/);
-    assert.match(html, /href="\?companion=laboratory"/);
-    assert.match(html, /aria-current="page"/);
+  it("renders no companion switch by default: a static export cannot serve ?companion=", () => {
+    // Every such link reloaded the same page and dropped the reader's passage (Companion.tsx).
+    assert.doesNotMatch(html, /\?companion=/);
+  });
+
+  it("a switchable companion renders all four kinds, the current one marked", () => {
+    const switchable = renderToStaticMarkup(
+      <Companion kind="laboratory" switchable>
+        <p>Beside this passage.</p>
+      </Companion>,
+    );
+    for (const kind of ["original", "explanation", "equation", "laboratory"])
+      assert.match(switchable, new RegExp(`href="\\?companion=${kind}"`));
+    assert.match(switchable, /aria-current="page"[^>]*>Laboratory</);
   });
 
   it("the bottom sheet is a details/summary, not a drag-only handle", () => {

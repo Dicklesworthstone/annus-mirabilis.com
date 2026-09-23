@@ -103,9 +103,10 @@ describe("PaperReader link accessible names (am-jmma)", () => {
     expect(byName.get(s4SectionName)?.size).toBe(1);
     expect(byName.get(s5SectionName)?.size).toBe(1);
 
-    // 3. Companion links
-    expect(byName.get("Companion: Explanation")?.size).toBe(1);
-    expect(byName.get("Companion: Laboratory")?.size).toBe(1);
+    // 3. Companion links: none. The switch is not rendered (Companion.tsx: a static export
+    // cannot serve ?companion=, so each link reloaded the same page).
+    expect(byName.get("Companion: Explanation")).toBeUndefined();
+    expect(byName.get("Companion: Laboratory")).toBeUndefined();
     expect(byName.get("Explanation")?.size).toBe(1);
   });
 

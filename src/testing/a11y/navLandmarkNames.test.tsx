@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { Companion } from "../../reader/layout/Companion.tsx";
+import { ReaderLayout } from "../../reader/layout/ReaderLayout.tsx";
 import { PaperPage } from "../../reader/PaperPage.tsx";
 import { PaperReader } from "../../reader/PaperReader.tsx";
 
@@ -105,16 +107,37 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
     expect([...names].filter((n) => n.includes("local steps"))).toEqual([]);
   });
 
-  test("companion view side column and bottom sheet navs get distinct accessible names", async () => {
-    const html = renderToStaticMarkup(await PaperReader());
-    const navs = extractNavLandmarks(html);
-    const companionNavs = navs.filter((n) => n.accessibleName.includes("Companion view"));
-
-    expect(companionNavs.length).toBe(2);
+  test("companion view side column and bottom sheet navs get distinct accessible names", () => {
+    // PaperReader renders no companion switch (Companion.tsx says why: a static export cannot
+    // serve ?companion=), so the property is checked where a switch is rendered: the same
+    // companion in both of ReaderLayout's slots.
+    const html = renderToStaticMarkup(
+      <ReaderLayout
+        outline={<nav aria-label="Argument outline" />}
+        companion={
+          <Companion kind="explanation" switchable>
+            <p>Beside this passage.</p>
+          </Companion>
+        }
+      >
+        <article id="arg-bm-observable" />
+      </ReaderLayout>,
+    );
+    const companionNavs = extractNavLandmarks(html).filter((n) =>
+      n.accessibleName.includes("Companion view"),
+    );
     expect(companionNavs.map((n) => n.accessibleName).sort()).toEqual([
       "Companion view (bottom sheet)",
       "Companion view (side column)",
     ]);
+  });
+
+  test("the Brownian reading renders no companion switch whose links could do nothing", async () => {
+    const html = renderToStaticMarkup(await PaperReader());
+    expect(
+      extractNavLandmarks(html).filter((n) => n.accessibleName.includes("Companion view")),
+    ).toEqual([]);
+    expect(html).not.toContain("?companion=");
   });
 
   test("planted negative: duplicate nav accessible names fail reporting both distinct and total counts (AC b)", () => {
