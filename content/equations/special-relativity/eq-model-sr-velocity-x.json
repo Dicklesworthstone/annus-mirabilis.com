@@ -5,7 +5,7 @@
   "paper": "special-relativity",
   "argument": "arg-sr-velocity-composition",
   "title": "Velocity along the motion",
-  "spoken": "The transformed longitudinal velocity is u x minus v over one minus v u x over c squared.",
+  "spoken": "The velocity along x in the moving system is the velocity along x in the stationary system minus the speed of the moving system, divided by one minus that speed times the stationary velocity along x over the speed of light squared.",
   "explanation": "Speeds do not simply subtract. An object moving at 15/17 of c in the stationary system moves at 0.6c in a system that itself moves at 0.6c; light, u_x = c, moves at c in both.",
   "review": "draft",
   "notation": "modern-pedagogical",

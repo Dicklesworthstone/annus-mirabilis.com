@@ -5,7 +5,7 @@
   "paper": "special-relativity",
   "argument": "arg-sr-charge-current",
   "title": "Charge density depends on the frame",
-  "spoken": "Primed charge density is gamma times rho minus v J x over c squared.",
+  "spoken": "The charge density in the moving system is the Lorentz factor times the stationary charge density minus the speed of the moving system times the current density along x over the speed of light squared.",
   "explanation": "A current in one system contributes to the charge density in the other. A wire that is neutral in the stationary system but carries a current is not neutral in the moving system.",
   "review": "draft",
   "notation": "modern-pedagogical",

@@ -5,7 +5,7 @@
   "paper": "light-quanta",
   "argument": "arg-lq-classical-allocation",
   "title": "The total grows as the cutoff cubed",
-  "spoken": "The energy density below cutoff frequency nu c is eight pi k B T over three c cubed, times cutoff frequency cubed.",
+  "spoken": "The energy density below the cutoff frequency is eight pi times Boltzmann's constant times the temperature, divided by three times the speed of light cubed, times the cutoff frequency cubed.",
   "explanation": "Integrating the classical density, which grows as the frequency squared, gives a total that grows as the cutoff cubed. Doubling the cutoff multiplies it by eight, and with no cutoff it has no limit.",
   "review": "draft",
   "notation": "modern-pedagogical",
