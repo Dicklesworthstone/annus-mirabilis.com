@@ -9,7 +9,11 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "A charge q in an electric field E feels a force qE, along the field for a positive charge and against it for a negative one. A charge moving with velocity v through a magnetic field B feels a further force, at right angles both to its motion and to the field. Together these are the Lorentz force:"
+      "text": "A comb run through dry hair lifts small scraps of paper before it touches them. The charge on the comb fills the space around it with an electric field, and the field pushes on any charge placed in it, harder for a larger charge. For a charge q in a field E the force is qE, along the field for a positive charge and against it for a negative one."
+    },
+    {
+      "kind": "paragraph",
+      "text": "A magnet does nothing to a charge at rest. A charge moving with velocity v through a magnetic field B feels a push at right angles both to its motion and to the field, which is what turns an electric motor. Together these are the Lorentz force:"
     },
     {
       "kind": "formula",
