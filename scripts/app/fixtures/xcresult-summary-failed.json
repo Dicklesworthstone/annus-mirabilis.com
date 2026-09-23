@@ -1,0 +1,29 @@
+{
+  "result": "Failed",
+  "totalTestCount": 33,
+  "passedTests": 32,
+  "failedTests": 1,
+  "skippedTests": 0,
+  "testFailures": [
+    {
+      "failureText": "XCTAssertTrue failed - the share sheet did not open",
+      "targetName": "AnnusMirabilisUITests",
+      "testIdentifier": 32,
+      "testIdentifierString": "ReaderStateUITests/testPageActionsSharePrintAndFind()",
+      "testIdentifierURL": "test://com.apple.xcode/AnnusMirabilis/AnnusMirabilisUITests/ReaderStateUITests/testPageActionsSharePrintAndFind",
+      "testName": "testPageActionsSharePrintAndFind()"
+    }
+  ],
+  "devicesAndConfigurations": [
+    {
+      "device": {
+        "deviceId": "F92B0129-4BB1-4CD6-85C8-378B1278C719",
+        "deviceName": "AM iPhone 17",
+        "osBuildNumber": "23B86",
+        "osVersion": "26.1",
+        "platform": "iOS Simulator"
+      }
+    }
+  ],
+  "title": "Test - AnnusMirabilis"
+}

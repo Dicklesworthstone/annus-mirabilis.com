@@ -1,0 +1,20 @@
+{
+  "result": "Passed",
+  "totalTestCount": 19,
+  "passedTests": 19,
+  "failedTests": 0,
+  "skippedTests": 0,
+  "testFailures": [],
+  "devicesAndConfigurations": [
+    {
+      "device": {
+        "deviceId": "F92B0129-4BB1-4CD6-85C8-378B1278C719",
+        "deviceName": "AM iPhone 17",
+        "osBuildNumber": "23B86",
+        "osVersion": "26.1",
+        "platform": "iOS Simulator"
+      }
+    }
+  ],
+  "title": "Test - AnnusMirabilis"
+}
