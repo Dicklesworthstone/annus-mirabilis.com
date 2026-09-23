@@ -60,3 +60,41 @@
     display: none;
   }
 }
+
+/* THE FIRST ENCOUNTERS' CONTROLS ARE SIZED TO WHAT THEY HOLD. Measured on BUILD 24 at 1440: the
+   clock entrance gave its two readings, "0" and "10", 666px-wide text fields; its agreement
+   checkbox was the browser's bare 13x13 box against a 19px label, with its legend and the next
+   fieldset's legend touching it; "Apply readings" touched the legend under it; and its slider was
+   the browser's default blue, the one blue on the page. Light quanta's counting entrance gave its
+   "Tokens" and "Equal parts" choices 666px-wide menus for "2" and "Two".
+   Now each group has room above and below, the fields and menus are as wide as their values, the
+   checkbox is a 20px box on a 44px row, and the slider takes the ink colour the laboratories'
+   sliders use (labShell.css). */
+.counting-entrance fieldset,
+.clock-entrance fieldset {
+  align-items: center;
+  margin-block: 1.25rem;
+}
+.clock-entrance input[type="text"] {
+  width: 6rem;
+}
+.counting-entrance select {
+  width: auto;
+  min-width: 8rem;
+}
+.clock-entrance label:has(> input[type="checkbox"]),
+.counting-entrance label.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+}
+.clock-entrance input[type="checkbox"],
+.counting-entrance input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--ink);
+}
+.clock-entrance input[type="range"] {
+  accent-color: var(--ink);
+}
