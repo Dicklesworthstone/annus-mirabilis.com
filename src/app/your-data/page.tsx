@@ -39,8 +39,8 @@ export default function YourDataPage() {
         <div className="privacy-card">
           <h2 className="privacy-card-title">Take it with you</h2>
           <p className="privacy-card-desc">
-            Export all your saved work, notebook reflections, and predictions at any time as a
-            standard JSON file.
+            Download everything you have saved, your notes and predictions included, as one JSON
+            file, whenever you like.
           </p>
         </div>
 

@@ -183,6 +183,13 @@ export const DISCOVERY_NOTE_KEYS = Object.freeze({
   "special-relativity": "am:discovery-notes:v1:special-relativity",
   "mass-energy": "am:discovery-notes:v1:mass-energy",
 });
+/** Each paper by the name the rest of the site uses, for the label /your-data/ shows. */
+const DISCOVERY_PAPER_NAMES: Readonly<Record<keyof typeof DISCOVERY_NOTE_KEYS, string>> = {
+  "light-quanta": "Light quanta",
+  "brownian-motion": "Brownian motion",
+  "special-relativity": "Special relativity",
+  "mass-energy": "Mass and energy",
+};
 
 export const SEED_ENTRIES: readonly KeyRegistration[] = [
   // Pre-paint settings (data attributes on <html> before first paint).
@@ -240,7 +247,7 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     true,
     ["narrow", "default", "wide"],
     "default",
-    "Line measure",
+    "Line length",
   ),
   setting(
     "typeScale",
@@ -248,7 +255,7 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     true,
     ["100", "112", "125", "150"],
     "100",
-    "Type scale",
+    "Type size",
   ),
   setting(
     "contrast",
@@ -273,7 +280,7 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
     false,
     ["predict-first", "worked-example-first", "explore-directly"],
     "predict-first",
-    "Predict-mode entry preference",
+    "How an instrument opens: predict first, an example first, or explore",
   ),
   setting(
     "glossReasoningWords",
@@ -285,35 +292,55 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
   ),
 
   // Separate documents: discovery drafts never overwrite the general notebook or predictions.
-  ...Object.entries(DISCOVERY_NOTE_KEYS).map(([paper, key]) =>
-    document_(key, "am-read-notebook-tde", 1, `Discovery notes: ${paper}`, { maxBytes: 128_000 }),
+  ...(Object.keys(DISCOVERY_NOTE_KEYS) as (keyof typeof DISCOVERY_NOTE_KEYS)[]).map((paper) =>
+    document_(
+      DISCOVERY_NOTE_KEYS[paper],
+      "am-read-notebook-tde",
+      1,
+      `Discovery notes: ${DISCOVERY_PAPER_NAMES[paper]}`,
+      {
+        maxBytes: 128_000,
+      },
+    ),
   ),
 
   // Documents.
-  document_("am:quarantine:v1", "am-plat-local-storage-km8f", 1, "Recovered (quarantined) data", {
-    exportable: true,
-    clearable: true,
-    maxBytes: 128_000,
-  }),
+  document_(
+    "am:quarantine:v1",
+    "am-plat-local-storage-km8f",
+    1,
+    "Saved data this site could not read, kept aside",
+    {
+      exportable: true,
+      clearable: true,
+      maxBytes: 128_000,
+    },
+  ),
   document_("am:notebook:v1", "am-read-notebook-tde", 1, "Notebook", { maxBytes: 1_048_576 }),
   // Which saved place the reader dismissed "Continue where you left off" for (reader/notebook/browser.ts).
-  document_("am:notebook-recap:v1", "am-read-notebook-tde", 1, "Dismissed continue-reading line", {
-    maxBytes: 1_024,
-  }),
-  document_("am:tours:v1", "am-tours-infra-g518", 1, "Tour progress"),
+  document_(
+    "am:notebook-recap:v1",
+    "am-read-notebook-tde",
+    1,
+    "The “continue where you left off” line you dismissed",
+    {
+      maxBytes: 1_024,
+    },
+  ),
+  document_("am:tours:v1", "am-tours-infra-g518", 1, "Progress on guided reading paths"),
   document_("am:predictions:v1", "am-inst-predict-mode-ti7m", 1, "Saved predictions"),
   document_(
     "am:journeys:v1",
     "am-disc-journey-framework-umbg",
     1,
-    "Discovery journey choices and local progress",
+    "Your choices and progress in Discover",
     {
       exportable: true,
       clearable: true,
       maxBytes: 64_000,
     },
   ),
-  document_("am:clarity:v1", "am-plat-clarity-signal-nlwr", 1, "Clarity signal record"),
+  document_("am:clarity:v1", "am-plat-clarity-signal-nlwr", 1, "Your “this was clear” answers"),
 ];
 
 export const storageKeyRegistry: KeyRegistry = createKeyRegistry(SEED_ENTRIES);
