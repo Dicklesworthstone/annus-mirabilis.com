@@ -10,7 +10,8 @@
     {
       "kind": "formula",
       "latex": "p(x,t)=\\frac{1}{\\sqrt{4\\pi Dt}}\\exp\\left(-\\frac{x^2}{4Dt}\\right)",
-      "spoken": "p of x and t equals one over the square root of four pi D t, times e to the minus x squared over four D t."
+      "spoken": "p of x and t equals one over the square root of four pi D t, times e to the minus x squared over four D t.",
+      "equations": ["eq-model-fd-gaussian-density"]
     },
     {
       "kind": "paragraph",

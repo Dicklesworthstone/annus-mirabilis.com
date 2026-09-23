@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-gaussian-density",
+  "paper": "foundations",
+  "argument": "gaussian-distributions",
+  "title": "The Gaussian that solves the diffusion equation",
+  "spoken": "p of x and t equals one over the square root of four pi D t, times e to the minus x squared over four D t.",
+  "explanation": "Particles that all start at x = 0 spread into a bell curve that flattens and widens with time; its total area stays one.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Every particle starts at x = 0; one coordinate; constant D.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-gaussian-density.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-gaussian-density.t.density",
+      "quantityId": "probabilityDensity",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-gaussian-density.t.x",
+          "quantityId": "positionCoordinate1d"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-gaussian-density.t.t",
+          "quantityId": "elapsedTime"
+        }
+      ]
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-gaussian-density.op.product",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-gaussian-density.op.norm",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "root",
+            "opId": "eq-model-fd-gaussian-density.op.root",
+            "degree": 2,
+            "radicand": {
+              "kind": "product",
+              "opId": "eq-model-fd-gaussian-density.op.fourPiDt",
+              "args": [
+                {
+                  "kind": "number",
+                  "value": "4"
+                },
+                {
+                  "kind": "constant",
+                  "name": "pi"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-gaussian-density.t.diffusion",
+                  "quantityId": "diffusionCoefficient"
+                },
+                {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-gaussian-density.t.t2",
+                  "quantityId": "elapsedTime"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "opId": "eq-model-fd-gaussian-density.op.exp",
+          "name": "exp",
+          "argument": {
+            "kind": "negate",
+            "argument": {
+              "kind": "quotient",
+              "opId": "eq-model-fd-gaussian-density.op.ratio",
+              "numerator": {
+                "kind": "power",
+                "opId": "eq-model-fd-gaussian-density.op.square",
+                "base": {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-gaussian-density.t.x2",
+                  "quantityId": "positionCoordinate1d"
+                },
+                "exponent": {
+                  "num": 2,
+                  "den": 1
+                }
+              },
+              "denominator": {
+                "kind": "product",
+                "opId": "eq-model-fd-gaussian-density.op.width",
+                "args": [
+                  {
+                    "kind": "number",
+                    "value": "4"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-gaussian-density.t.widthD",
+                    "quantityId": "diffusionCoefficient"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-gaussian-density.t.widthT",
+                    "quantityId": "elapsedTime"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-gaussian-density.op.exp",
+      "title": "The bell shape",
+      "explanation": "e to the minus x squared over 4Dt.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.op.fourPiDt",
+      "title": "4 pi D t",
+      "explanation": "Grows with time, so the curve flattens.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.op.norm",
+      "title": "The height",
+      "explanation": "One over root 4 pi D t, so the total probability is one.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.op.product",
+      "title": "Height times shape",
+      "explanation": "A normalizing height times the bell shape.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.op.ratio",
+      "title": "x squared over 4Dt",
+      "explanation": "A pure number: small near the start, large far out.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.op.relation",
+      "title": "What it asserts",
+      "explanation": "The spread of particles that all start at x = 0 is a bell curve that widens with time.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.op.root",
+      "title": "Square root",
+      "explanation": "Of 4 pi D t: the height falls as the curve widens.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.op.square",
+      "title": "x squared",
+      "explanation": "The same shape on both sides of the start.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.op.width",
+      "title": "4 D t",
+      "explanation": "Twice the mean square, 2Dt, doubled.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "Sets how fast the curve widens.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.t.density",
+      "title": "Probability density",
+      "explanation": "p at position x and time t, per metre.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.t.t",
+      "title": "Time",
+      "explanation": "t, since the start.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.t.t2",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.t.widthD",
+      "title": "Diffusion coefficient",
+      "explanation": "The same D.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.t.widthT",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.t.x",
+      "title": "Position",
+      "explanation": "x.",
+      "foundation": "gaussian-distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-gaussian-density.t.x2",
+      "title": "Position",
+      "explanation": "The same x.",
+      "foundation": "gaussian-distributions"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The density",
+      "nodeId": "eq-model-fd-gaussian-density.t.density"
+    },
+    {
+      "text": " at "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-fd-gaussian-density.t.x"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-fd-gaussian-density.t.t"
+    },
+    {
+      "text": " is a bell curve that widens with time."
+    }
+  ]
+}
