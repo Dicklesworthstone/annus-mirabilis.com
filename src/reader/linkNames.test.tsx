@@ -41,6 +41,14 @@ export function groupLinksByName(links: readonly ExtractedLink[]): Map<string, S
   return map;
 }
 
+/** The Brownian section pages, which serve the equation cards the whole-paper page loads lazily. */
+async function brownianSectionPagesHtml(): Promise<string> {
+  const pages = await Promise.all(
+    ["s4", "s5"].map(async (section) => renderToStaticMarkup(await PaperReader({ section }))),
+  );
+  return pages.join("\n");
+}
+
 export const BENIGN_SAME_TARGET_NAMES = new Set([
   "Zero average is not no movement",
   "Why the square grows with time",
@@ -180,9 +188,12 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       const links = extractLinks(html);
       const byName = groupLinksByName(links);
 
-      // 1. "Read the prerequisite": 0 bare instances, all discriminated, each reaches exactly 1 destination
-      expect(byName.has("Read the prerequisite")).toBe(false);
-      const prereqLinks = [...byName.entries()].filter(([name]) =>
+      // 1. "Read the prerequisite": 0 bare instances, all discriminated, each reaches exactly 1
+      // destination. Checked on the section pages, where the equation cards that carry these
+      // links are served: the whole-paper page loads its cards, and its laboratory, on opening.
+      const sectionByName = groupLinksByName(extractLinks(await brownianSectionPagesHtml()));
+      expect(sectionByName.has("Read the prerequisite")).toBe(false);
+      const prereqLinks = [...sectionByName.entries()].filter(([name]) =>
         name.startsWith("Read the prerequisite: "),
       );
       expect(prereqLinks.length).toBeGreaterThan(0);
@@ -345,8 +356,7 @@ describe("PaperReader link accessible names (am-jmma)", () => {
     });
 
     test("planted negative: reverting equation prerequisites to bare 'Read the prerequisite' fails gate", async () => {
-      const jsx = await PaperReader({});
-      let html = renderToStaticMarkup(jsx);
+      let html = await brownianSectionPagesHtml();
       // Revert aria-label on prerequisite links
       html = html.replace(/aria-label="Read the prerequisite: [^"]*"/g, "");
       const links = extractLinks(html);
