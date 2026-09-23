@@ -542,7 +542,6 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   ["notebook-dialog", 0],
   ["notebook-replay", 0],
   ["reader-bottom-sheet", 1],
-  ["reader-sticky-lab", 1],
   ["replay-table", 0],
   ["scale-facts-table-wrap", 1],
   ["search-dialog", 0],
