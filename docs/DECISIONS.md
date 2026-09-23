@@ -962,3 +962,53 @@ thirdPartySwiftPackages: none
 uploadMethod: "xcodebuild -exportArchive with an App Store Connect API key outside the repository"
 appIcon: "asset catalog AppIcon, one 1024 px universal image"
 ```
+
+## D-2026-09-23-app-edition-hosting
+
+- **Question:** From which local origin does the app serve the bundled edition to WKWebView, a custom scheme
+  (`am-edition://edition/`, variant A) or a loopback HTTP server on `127.0.0.1` (variant B)? And is the edition a static
+  export or a crawl of the production build? (bead `am-app-webkit-probe-8hj1`, App plan §5.2, §6.1)
+- **Evidence:** a throwaway probe app (SwiftUI, one `WKWebView`, both variants behind a launch argument) and a probe page,
+  kept in the session scratch directory and not committed. Run on 2026-09-23 on the simulator `AM iPhone 17` (iOS 26.1,
+  23B86); 238 JSON log lines, SHA-256 `b360ec6ab911aa0b0b8ca674bb660e7c26600b435343e18b3cd86df3357e0394`.
+
+  | Check | A: custom scheme | B: loopback |
+  |---|---|---|
+  | `isSecureContext` | pass | pass |
+  | `crypto.subtle.digest` on the page and in a worker | pass | pass |
+  | dedicated worker: load, `fetch`, `compileStreaming` of an `application/wasm` file | pass | pass |
+  | module worker: load, static `import`, `fetch`, `compileStreaming` | pass | pass |
+  | CSP from response headers blocks an inline script (document) | pass | pass |
+  | CSP without `'wasm-unsafe-eval'` refuses WebAssembly on the page and in both worker kinds | refused, as specified | refused, as specified |
+  | `localStorage` persists across app relaunch | **pass** (1, 2, 3, 4, 5 over five launches) | **fail**: the random port changes the origin, so every launch starts at 1 |
+  | WebGL2 context | pass | pass |
+  | MathML renders (`<mfrac>` box 10.9 × 27.2 px) | pass | pass |
+  | `prefers-reduced-motion` and `prefers-color-scheme` follow the system | pass (true when set, false when cleared) | not run |
+  | `UIFindInteraction` present with `isFindInteractionEnabled` | pass | pass |
+  | WebContent process killed: delegate fires, reload restores the route | pass | not run |
+  | The real export (`out/` of 2026-09-22): home page, then `/papers/brownian-motion/` | renders, 5,473 and 16,842 characters of text, Newsreader, Plus Jakarta Sans, JetBrains Mono and KaTeX fonts loaded, no 404 in 89 requests, no script error | not run |
+  | pdf.js facsimile | not concluded: the facsimile route loaded without error, no canvas within 5 s without scrolling | not run |
+
+- **Not run, and why:** no real iPhone is attached to this machine, so the real-device rows (VoiceOver reading of an
+  equation, Lockdown Mode's effect on JIT and WebAssembly, text selection by hand) are not recorded; they stay open on the
+  probe bead. Only the iOS 26.1 runtime is installed, so no result says anything about iOS 17 through 18.
+- **Choice:** **A, the custom scheme `am-edition://edition/`**, served by a `WKURLSchemeHandler` from files in the bundle.
+  The edition is the **static export** Next.js already produces (`output: "export"`, `trailingSlash: true`); the handler maps
+  `/x/` to `/x/index.html`. No crawl.
+- **Reason:** A passed every check B passed and one B cannot: the reader's notes, predictions and reading position live in
+  `localStorage`, and B loses them on every launch unless the port is pinned, which then collides with anything else on the
+  device. A also needs no App Transport Security exception and opens no port. The website links with plain `<a>` elements
+  (one source file imports `next/link`), so navigation in the app is full page loads from the handler, which the probe showed
+  working.
+- **Content-Security-Policy:** the website sends none today (`curl -I https://annus-mirabilis.com/` on 2026-09-23 returns only
+  `strict-transport-security`). The handler sends `X-Content-Type-Options: nosniff` on every response, and the website's CSP
+  from the same source once `am-plat-security-f644` produces one. That policy must carry `'wasm-unsafe-eval'` in
+  `script-src`, or WebKit refuses every WebAssembly compile in the app, as the probe measured.
+- **Minimum iOS:** stays 17.0 and provisional in D-2026-09-23-app-identity. This probe ran on iOS 26.1 only and justifies
+  nothing below it.
+- **Decider:** `agent:GreenOx` under the owner's delegation of 2026-09-23 ("stop asking me… FINISHING ALL THE BEADS"),
+  overrulable.
+- **Date:** 2026-09-23.
+- **Beads unblocked:** `am-app-xcodegen-scaffold-z228`, `am-app-scheme-handler-ghuu`, `am-app-edition-export-kwpu`.
+- **Revisit trigger:** a real-device or Lockdown Mode run disagrees with a row above; a new iOS major; the website adopts a
+  CSP; the edition starts using client-side navigation, whose payload fetches this probe did not exercise.
