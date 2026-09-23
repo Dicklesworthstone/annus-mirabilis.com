@@ -42,7 +42,7 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "stokes-1851-sphere-drag",
     proposition:
-      "Hydrodynamic drag force on a slowly moving sphere in a viscous fluid is F = 6πηav.",
+      "A sphere of radius a moving slowly at speed v through a liquid of viscosity η is held back by a force F = 6πηav.",
     status: "available",
     sources: [{ title: "Trans. Camb. Phil. Soc. 9", locator: "p. 8", date: "1851" }],
     date: {
@@ -57,7 +57,7 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "fick-1855-diffusion-equation",
     proposition:
-      "Macroscopic diffusion equation relating spatial concentration gradients to matter flux.",
+      "Dissolved matter moves down its concentration gradient at a rate proportional to the gradient; with conservation of matter this gives a diffusion equation for the concentration.",
     status: "available",
     sources: [{ title: "Ann. Phys. (Pogg.) 94", locator: "p. 59", date: "1855" }],
     date: {
@@ -72,7 +72,7 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "maxwell-1860-equipartition",
     proposition:
-      "In thermal equilibrium the mean translational kinetic energy is 3/2 k_B T for every suspended particle.",
+      "In a gas in thermal equilibrium every kind of molecule has the same mean kinetic energy of translation, whatever its mass, and that mean is proportional to the absolute temperature.",
     status: "available",
     sources: [{ title: "Phil. Mag. 19", locator: "p. 19", date: "1860" }],
     date: {
@@ -102,7 +102,7 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "exner-1900-particle-speeds",
     proposition:
-      "Measured apparent particle speeds over observation intervals, finding values far below kinetic-theory molecular speeds.",
+      "Exner timed the particles over short intervals; their apparent speeds came out far below the speeds kinetic theory gives molecules.",
     status: "available",
     sources: [{ title: "Ann. Phys. (4) 2", locator: "p. 843", date: "1900" }],
     date: {
@@ -117,7 +117,7 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "siedentopf-1903-ultramicroscope",
     proposition:
-      "The ultramicroscope illuminates colloidal particles from the side, making sub-micron particles visible against a dark field.",
+      "Siedentopf and Zsigmondy's ultramicroscope lights colloidal particles from the side, so particles smaller than a micron show as bright points on a dark field.",
     status: "available",
     sources: [{ title: "Ann. Phys. (4) 10", locator: "p. 1", date: "1903" }],
     date: {
@@ -138,7 +138,7 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "sutherland-1904-dunedin",
     proposition:
-      "The same diffusion formula with a slip correction presented at Dunedin in January 1904.",
+      "William Sutherland presents a formula for the diffusion of a sphere through a liquid, with a correction for slip at its surface, at Dunedin in January 1904.",
     status: "available",
     sources: [
       {
@@ -159,7 +159,8 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   },
   {
     id: "sutherland-1905-phil-mag",
-    proposition: "Diffusion formula with slip correction published in Philosophical Magazine.",
+    proposition:
+      "Sutherland's diffusion formula, with its slip correction, is published in the Philosophical Magazine.",
     status: "parallel-work",
     parallelWorkBasis:
       "The June 1905 Philosophical Magazine publication falls between Annalen's receipt of Einstein's paper on 11 May 1905 and its publication on 18 July 1905.",
@@ -222,9 +223,9 @@ export default function BrownianEncounter() {
           out.
         </p>
         <p>
-          Before revealing the next step, choose what you would measure: signed displacement,
-          absolute displacement, or squared displacement. The last two both retain information about
-          the spread; neither is a test of whether a particle moved “correctly.”
+          Before you read on, choose what you would measure: the signed displacement, its size
+          regardless of sign, or its square. The last two both keep the information about the
+          spread.
         </p>
         <details>
           <summary>Why use the squared displacement?</summary>
@@ -304,10 +305,11 @@ export default function BrownianEncounter() {
         <p className="step-number">04 / Turn the question around</p>
         <h2>What can a finite sample tell you?</h2>
         <p>
-          Now hide the number used to generate a synthetic path. Its displacements constrain a
-          spreading rate, but radius and molecular number can trade off. Declare an independent
-          radius, estimate the number, and repeat the experiment to see why some confidence
-          intervals miss.
+          In the next laboratory, the number used to generate a synthetic path is hidden. Its
+          displacements fix how fast the particles spread, but not the radius and the molecular
+          number separately: a larger radius with a smaller number spreads at the same rate. Supply
+          the radius independently, estimate the number, and repeat the experiment to see how often
+          a confidence interval misses.
         </p>
         <StepDoors>
           <StepDoor href="/lab/bm-07/">Estimate the number and repeat the experiment</StepDoor>
@@ -317,10 +319,9 @@ export default function BrownianEncounter() {
         <p className="step-number">05 / Try it yourself</p>
         <h2>Same quantity, written two ways</h2>
         <p>
-          A displacement scale can be written more than one way without changing what it means. Try
-          rewriting it yourself; the checker compares your expression to the reference numerically,
-          at real sample points across the same ranges the tracer laboratory uses, never by matching
-          text.
+          A displacement scale can be written more than one way without changing what it means.
+          Rewrite it yourself: the checker compares your expression with the reference at sample
+          points across the ranges the tracer laboratory uses, never by matching text.
         </p>
         <ExercisePart part={DISPLACEMENT_SCALE_EXERCISE} />
       </section>
@@ -328,9 +329,8 @@ export default function BrownianEncounter() {
         <h2>The 1904 shelf</h2>
         <Shelf cards={BROWNIAN_SHELF_CARDS} />
         <p className="fine">
-          These cards carry no verification record. Their dates are from standard bibliography, not
-          from anyone here having opened the volumes, and the shelf marks each one as awaiting
-          verification rather than implying a check that has not happened.
+          The dates on these cards come from standard bibliographies. No one here has checked them
+          against the volumes, and the shelf marks each card as awaiting verification.
         </p>
       </section>
       <aside className="notice">
