@@ -9,7 +9,11 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "The first derivative is the slope: the change in the output per unit of the input at that point. The second derivative says how quickly the slope itself changes, which is the curvature. A Taylor expansion builds the value a short step Δ away from these: the value, plus the slope times Δ, plus half the curvature times Δ², then further terms. The further terms are small only when Δ is."
+      "text": "What is 2.1 squared, without a calculator? Start from what you know: 2 squared is 4. Picture a square 2 wide growing to 2.1 wide. It gains two strips, each 2 long and 0.1 thick, which add 0.4, and a small corner, 0.1 by 0.1, which adds 0.01. So 2.1 squared is 4.41. The first correction, 0.4, did almost all the work; the second, 0.01, is forty times smaller."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The same recipe works for any smooth curve, close to a point where you know it. Start with its value there. Add its slope times the step Δ: the slope, or first derivative, is the change in output per unit of input. Then add half its curvature times Δ²: the curvature, or second derivative, says how fast the slope itself changes. Further terms carry higher powers of Δ, so they are small only when Δ is:"
     },
     {
       "kind": "formula",
@@ -29,16 +33,20 @@
       "equations": ["eq-model-fd-taylor-square"]
     },
     {
+      "kind": "paragraph",
+      "text": "Keep only the value and the slope term, 4 + 2 × 2 × Δ, and see what dropping Δ² costs as the step grows:"
+    },
+    {
       "kind": "steps",
       "items": [
-        "Take x = 2 and Δ = 0.1. The value is 2² = 4.",
-        "The slope term is 2 × 2 × 0.1 = 0.4.",
-        "The curvature term is 0.1² = 0.01.",
-        "The three add to 4.41, which is 2.1² exactly. Stopping after the slope term gives 4.4, off by 0.01, the size of Δ²."
+        "Δ = 0.1: 4.4 instead of 4.41. The error, 0.01, is about 0.2 per cent.",
+        "Δ = 0.5: 6 instead of 6.25. The error, 0.25, is 4 per cent.",
+        "Δ = 2: 12 instead of 16. The error, 4, is a quarter of the answer.",
+        "Halving the step quarters the error, because the dropped term is Δ²."
       ]
     }
   ],
-  "exampleTitle": "Squaring 2.1 by keeping two terms",
+  "exampleTitle": "What the dropped term costs",
   "prerequisites": ["bridge-squaring-square-roots"],
   "stoppingPoint": "An expansion is a claim about size. Say which terms you keep, and why the ones you drop are smaller: here, because they carry higher powers of a small step.",
   "citations": []
