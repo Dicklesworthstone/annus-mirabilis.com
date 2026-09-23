@@ -7,6 +7,7 @@ import {
   explainOutcome,
   explainRefusal,
   explainResult,
+  statusMessage,
 } from "../experiments/results/explanations.ts";
 import { statusEnumIds } from "../experiments/results/ids.ts";
 import {
@@ -25,6 +26,7 @@ import { ResultStatusNote } from "../experiments/results/ResultStatusNote.tsx";
 import { ResultValue } from "../experiments/results/ResultValue.tsx";
 import { type RefusalCode, refusalCodeRegistry } from "../experiments/results/refusalCodes.ts";
 import { makeRefusal } from "../experiments/results/refusals.ts";
+import { outputStatusRegistry } from "../experiments/results/types.ts";
 
 describe("results.explanations: Reader-Facing Language & ResultStatusNote Component", () => {
   it("every output status resolves generic message and a next action", () => {
@@ -182,5 +184,26 @@ describe("results.explanations: Reader-Facing Language & ResultStatusNote Compon
     assert.ok(noteHtml.includes("classical spectral energy density"));
     assert.equal(noteHtml.includes("NaN"), false);
     assert.equal(noteHtml.includes("Infinity"), false);
+  });
+});
+
+describe("statusMessage", () => {
+  // Lab views printed the bare status ("underdetermined", "(analytic-limit)") where no value could be
+  // shown. statusMessage gives them the registry's reader sentence instead.
+  it("gives every output status its registry sentence, and never the status name itself", () => {
+    const statuses = Object.keys(outputStatusRegistry);
+    assert.ok(statuses.length > 0);
+    for (const status of statuses) {
+      const message = statusMessage(status);
+      assert.equal(
+        message,
+        outputStatusRegistry[status as keyof typeof outputStatusRegistry].message,
+      );
+      assert.ok(!message.toLowerCase().includes(status), `${status} leaks its name: ${message}`);
+    }
+  });
+
+  it("gives an unknown status a plain sentence rather than echoing it", () => {
+    assert.equal(statusMessage("no-such-status"), "No value is available at these settings.");
   });
 });
