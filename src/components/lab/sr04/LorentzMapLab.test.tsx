@@ -63,6 +63,8 @@ describe("LorentzMapLab: server-rendered markup shows real numbers without JavaS
       sourceDigest: "src/physics/reference/kinematics.ts",
     };
     const html = renderToStaticMarkup(<LorentzMapComparison example={example} />);
-    expect(html).toContain("1.250000");
+    // fixed() drops the zeros toFixed(6) padded on: the fully fixed map reads a = b = 1.25.
+    expect(html).toContain("<td>a</td><td>1.25</td>");
+    expect(html).not.toContain("1.250000");
   });
 });
