@@ -4,8 +4,8 @@
 #
 # Scope note (MaroonTiger, 2026-09-16): the physics owner (src/experiments/lq04/session.ts),
 # manifest, and /lab/lq-04 route landed this pass. The actual R0-R3 caption texts this file
-# declares ownership of have NOT been authored yet -- that is a real, named gap, not an
-# oversight; see this bead's BATCH_PENDING comment for the full list.
+# declares ownership of were authored on 2026-09-23 (TopazPrairie): the target below mirrors
+# LQ04_CAPTION in src/experiments/lq04/definition.ts, which the lab renders.
 paper: light-quanta
 targetKinds:
   - instrument-caption
@@ -13,3 +13,15 @@ scope:
   instrumentIds:
     - lq-04
 ownerBeadId: am-lq-04-entropy-workbench-senj
+targets:
+  - kind: caption
+    id: lq-04
+    readings:
+      r0: "When faint light of one colour is given more room at the same energy, its entropy rises by the same logarithmic law as an ideal gas that expands. That shared law is the clue the paper follows next."
+      r1: "Section 3 turns a radiation law into an entropy: at fixed energy, the entropy S = v∫φ(ρ, ν)dν is a maximum, and with dS = dE/T this gives ∂φ/∂ρ = 1/T, where φ vanishes when the density ρ is zero. Section 4 takes Wien's law, ρ = αν³e^{−βν/T}, which experiment had confirmed for large ν/T, solves it for 1/T and integrates. For radiation of energy E in a narrow band from ν to ν + dν filling a volume v, the dependence on volume is S − S_{0} = (E/βν) ln(v/v_{0}). The instrument holds E, ν and dν fixed, lets you choose the volume ratio, and refuses a state dense enough for Wien's law to fail."
+      r2: "Start from Wien's law, ρ = αν³e^{−βν/T}, where ρ is the energy per unit volume and per unit of frequency. Taking the natural logarithm of both sides gives ln(ρ/αν³) = −βν/T, so 1/T = −(1/βν) ln(ρ/αν³). Section 3 showed that ∂φ/∂ρ = 1/T, so φ is found by integrating 1/T with respect to ρ from φ = 0 at ρ = 0; the result is φ = −(ρ/βν){ln(ρ/αν³) − 1}. Now put the energy E, in the band dν, inside a volume v. Then ρ = E/(v dν), and the entropy is S = vφ dν = −(E/βν){ln(E/(vαν³dν)) − 1}. Only one part of this depends on v: −(E/βν) ln(1/v), which is (E/βν) ln v. Subtracting the same expression at the volume v_{0} leaves S − S_{0} = (E/βν) ln(v/v_{0}). At the instrument's defaults (ν = 6 × 10^{14} Hz, T_{0} = 3000 K, one litre, a band 10^{12} Hz wide) the snapshot has E = 9.06 × 10^{−9} J and E/(βν) = 3.14 × 10^{−13} J/K. Doubling the volume multiplies that coefficient by ln 2, about 0.693, so the entropy rises by 2.18 × 10^{−13} J/K. The same energy is now spread thinner, so ρ halves and βν/T rises by exactly ln 2, from 9.60 to 10.29: the radiation is colder, 2798 K, and further inside the regime where Wien's law holds."
+      r3: "Einstein printed lg for the natural logarithm and used β for the constant in Wien's exponent, so his coefficient E/βν is, in modern notation, k_{B}E/(hν), since β = h/k_{B}. He said plainly that Wien's law is not exactly valid and that his results hold only within certain limits. The comparison with an ideal gas or a dilute solution is his own sentence at the end of Section 4; reading the coefficient in terms of independent energy quanta of size Rβν/N comes only in Section 6, after the probability argument of Section 5. Planck's formula of 1901 was already known, and Einstein works in its Wien limit on purpose."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (§3, §4, §6)."
+        - "Wien, W. (1896). Ueber die Energievertheilung im Emissionsspectrum eines schwarzen Körpers. Annalen der Physik 58, 662–669."
+        - "Planck, M. (1901). Ueber das Gesetz der Energieverteilung im Normalspectrum. Annalen der Physik 4, 553–563."

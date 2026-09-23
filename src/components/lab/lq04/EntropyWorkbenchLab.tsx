@@ -9,6 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
+  LQ04_CAPTION,
   LQ04_DEFAULTS,
   LQ04_NOT_MODELED,
   LQ04_QUESTION,
@@ -376,6 +377,16 @@ export function EntropyWorkbenchLab({
           <ShowTheCode listings={[]} />
         </div>
       </div>
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(LQ04_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(LQ04_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(LQ04_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(LQ04_CAPTION.r3)}
+      </p>
     </section>
   );
 }
