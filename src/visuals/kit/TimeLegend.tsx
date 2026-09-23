@@ -25,8 +25,10 @@ export function TimeLegend({ scale, className = "time-legend" }: TimeLegendProps
       data-quantity-id={quantityId}
     >
       <span className="time-value">{`t = ${value.toFixed(2)} ${unit}`}</span>
+      {/* A comma, not parentheses: the rate text carries its own, so bm-01 read
+          "t = 1.00 s (true rate (1 s/s))". */}
       <span className={`time-rate-badge ${isTrueRate ? "is-true-rate" : "is-scaled-rate"}`}>
-        {` (${rateText})`}
+        {`, ${rateText}`}
       </span>
     </div>
   );
