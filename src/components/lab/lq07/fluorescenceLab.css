@@ -12,3 +12,18 @@
 .lq07-prompt h3 {
   font-size: var(--type-small);
 }
+
+/* The ledger's last column is prose ("Physical meaning"), not a dotted identifier. Below 480px
+   the site lets a table's outermost cells break anywhere, which is right for identifiers, but
+   here it let auto layout squeeze this column to 22px: one character a line, and a 1803px row on
+   a 390px phone. Prose breaks between words, and starts at the left like prose, not like the
+   numbers the site's table defaults are set for. */
+.lq07-ledger td:last-child {
+  text-align: start;
+}
+
+@media (max-width: 480px) {
+  .table-scroll.lq07-ledger td:last-child {
+    overflow-wrap: normal;
+  }
+}

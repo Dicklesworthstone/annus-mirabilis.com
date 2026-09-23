@@ -600,7 +600,7 @@ export function FluorescenceLab({
         <h3 style={{ marginBottom: "1rem" }}>Calculated energy ledger and transition quantities</h3>
 
         <section
-          className="table-scroll"
+          className="table-scroll lq07-ledger"
           aria-label="Calculated energy ledger and transition quantities table"
         >
           <table>
