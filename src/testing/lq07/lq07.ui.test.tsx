@@ -40,14 +40,14 @@ describe("LQ-07 UI components and route", () => {
 
     expect(htmlAllowed).toContain('data-testid="lq07-plot-container"');
     expect(htmlAllowed).toContain('data-allowed="true"');
-    expect(htmlAllowed).toContain("Allowed by Budget");
+    expect(htmlAllowed).toContain("Allowed by the budget");
     expect(htmlAllowed).toContain("<svg");
     expect(htmlAllowed).toContain("</svg>");
-    expect(htmlAllowed).toContain("Spectral Bands");
+    expect(htmlAllowed).toContain("Spectral bands");
 
     expect(htmlDisallowed).toContain('data-allowed="false"');
-    expect(htmlDisallowed).toContain("Disallowed (Deficit)");
-    expect(htmlDisallowed).toContain("Energy Deficit");
+    expect(htmlDisallowed).toContain("Disallowed (deficit)");
+    expect(htmlDisallowed).toContain("Energy deficit");
   });
 
   test("FluorescencePlot renders false-color legend with UV, Visible, and IR bands", () => {
@@ -60,7 +60,7 @@ describe("LQ-07 UI components and route", () => {
     );
 
     expect(html).toContain("Ultraviolet (UV)");
-    expect(html).toContain("Visible Spectrum");
+    expect(html).toContain("Visible spectrum");
     expect(html).toContain("Infrared (IR)");
   });
 
@@ -75,8 +75,8 @@ describe("LQ-07 UI components and route", () => {
     expect(html).toContain("<summary>Predict first</summary>");
     expect(html).toContain("<legend>Try</legend>");
     expect(containsHeading(html, "Calculated energy ledger and transition quantities")).toBe(true);
-    expect(html).toContain("Budget Verdict");
-    expect(html).toContain("Maximum Allowed Frequency");
+    expect(html).toContain("Budget verdict");
+    expect(html).toContain("Maximum allowed frequency");
   });
 
   test("FluorescencePage route renders without errors and includes article sections", () => {
