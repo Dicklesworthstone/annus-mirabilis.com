@@ -77,6 +77,22 @@ export async function verifyFacsimilePdf(
   }
 }
 
+async function everyPagePlated(
+  directory: string,
+  pages: readonly Readonly<{ printedPage: number }>[],
+): Promise<boolean> {
+  try {
+    for (const { printedPage } of pages) {
+      for (const file of [`${printedPage}.webp`, `${printedPage}-1280.webp`]) {
+        if (!(await stat(join(directory, file))).isFile()) return false;
+      }
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function loadFacsimileDocument(
   paperId: string,
   key: string,
@@ -142,7 +158,14 @@ export async function loadFacsimileDocument(
     }
     const pdfDirectory = join(rootDirectory, "public/papers/pdfs");
     await verifyFacsimilePdf(join(pdfDirectory, `${key}.pdf`), document.sha256, pdfDirectory);
-    return Object.freeze({ kind: "available", document });
+    // A phone browser has no dependable inline PDF viewer, so where generate-page-plates.ts has
+    // written both widths for every page, the panel can show the printed page as an image.
+    const plateDir = `/figures/plates/pages/${key}`;
+    const plated = await everyPagePlated(join(rootDirectory, "public", plateDir), document.pages);
+    return Object.freeze({
+      kind: "available",
+      document: plated ? Object.freeze({ ...document, plateDir }) : document,
+    });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return unavailable(

@@ -24,6 +24,10 @@ export type FacsimileDocument = Readonly<{
   inventoryStatus: string | null;
   pages: readonly FacsimilePage[];
   units: readonly FacsimileUnit[];
+  /** Where this paper's page plates live, `/figures/plates/pages/<key>`. Only the server loader
+   * sets it, and only when a 640px and a 1280px plate exist for every page, so a srcset never
+   * names a missing file. Absent, the PDF frame is the only embedded view. */
+  plateDir?: string | undefined;
 }>;
 
 export class FacsimileDataError extends Error {
@@ -312,6 +316,19 @@ export function facsimileSectionPages(
 }
 export function facsimilePageAnchor(page: FacsimilePage): string {
   return `facsimile-page-${page.printedPage}`;
+}
+/** The plate of one printed page, or null when this document has no plates. */
+export function facsimilePlate(
+  document: FacsimileDocument,
+  page: FacsimilePage,
+): Readonly<{ src: string; srcSet: string; alt: string }> | null {
+  if (!document.plateDir) return null;
+  const base = `${document.plateDir}/${page.printedPage}`;
+  return {
+    src: `${base}.webp`,
+    srcSet: `${base}.webp 640w, ${base}-1280.webp 1280w`,
+    alt: `Printed page ${page.printedPage} of the pinned journal scan`,
+  };
 }
 export function facsimilePdfHref(document: FacsimileDocument, pdfPage: number): string {
   if (!document.pages.some((page) => page.pdfPage === pdfPage)) {

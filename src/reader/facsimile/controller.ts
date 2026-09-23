@@ -5,6 +5,7 @@ import {
   type FacsimileDocument,
   facsimilePageAnchor,
   facsimilePdfHref,
+  facsimilePlate,
   resolveFacsimileTarget,
 } from "./document.ts";
 
@@ -27,6 +28,8 @@ export function mountFacsimileReader(
   const share = root.querySelector<HTMLButtonElement>("[data-facsimile-share]");
   const shareField = root.querySelector<HTMLInputElement>("[data-facsimile-share-url]");
   const controls = root.querySelector<HTMLFieldSetElement>("[data-facsimile-controls]");
+  // Optional: present only when the paper has page plates.
+  const plateImage = root.querySelector<HTMLImageElement>("[data-facsimile-plate]");
   if (
     !frame ||
     !form ||
@@ -52,6 +55,12 @@ export function mountFacsimileReader(
     const href = facsimilePdfHref(document, page.pdfPage);
     if (frame!.getAttribute("src") !== href) frame!.setAttribute("src", href);
     frame!.title = `Original scan: printed page ${page.printedPage}, PDF page ${page.pdfPage} of ${document.pages.length}`;
+    const plate = facsimilePlate(document, page);
+    if (plateImage && plate && plateImage.getAttribute("src") !== plate.src) {
+      plateImage.srcset = plate.srcSet;
+      plateImage.src = plate.src;
+      plateImage.alt = plate.alt;
+    }
     direct!.href = href;
     direct!.textContent = `Open printed page ${page.printedPage} in the original PDF`;
     input!.value = String(page.printedPage);
@@ -59,7 +68,10 @@ export function mountFacsimileReader(
     previous!.disabled = page.pdfPage === 1;
     next!.disabled = page.pdfPage === document.pages.length;
     root.dataset.facsimilePdfPage = String(page.pdfPage);
-    status!.textContent = `Selected printed page ${page.printedPage} (PDF page ${page.pdfPage} of ${document.pages.length}). The embedded display depends on your browser's PDF support.`;
+    // The caveat is about the PDF frame, so it goes when the plate is what the reader sees.
+    const showingPlate =
+      plateImage !== null && window!.getComputedStyle(plateImage).display !== "none";
+    status!.textContent = `Selected printed page ${page.printedPage} (PDF page ${page.pdfPage} of ${document.pages.length}).${showingPlate ? "" : " The embedded display depends on your browser's PDF support."}`;
     for (const link of root.querySelectorAll<HTMLAnchorElement>("[data-facsimile-page-link]")) {
       if (link.dataset.facsimilePageLink === String(page.pdfPage))
         link.setAttribute("aria-current", "page");

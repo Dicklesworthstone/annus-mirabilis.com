@@ -15,6 +15,27 @@
   border: 1px solid var(--line);
   background: var(--panel);
 }
+/* A PAGE PLATE ON A PHONE. A phone browser has no dependable inline PDF viewer: at 390 the 717px
+   frame on /papers/mass-energy/view/facsimile/ was blank in Playwright's Chromium and WebKit. Where
+   every page has a plate, a phone or tablet shows the printed page as an image instead, and the
+   PDF stays one link away beneath it. Wider screens keep the frame and never fetch the plate
+   (it is lazy and not displayed). */
+.facsimile-reader-plate {
+  display: none;
+}
+@media (max-width: 900px) {
+  .facsimile-reader-plate {
+    display: block;
+    width: 100%;
+    max-width: 56rem;
+    height: auto;
+    border: 1px solid var(--line);
+    background: var(--panel);
+  }
+  .facsimile-reader:has(.facsimile-reader-plate) iframe {
+    display: none;
+  }
+}
 /* The page controls sit on the viewer they drive, as one quiet row: no box round them, the
    stepping buttons in the secondary style, and the link to share on its own line beneath. */
 .facsimile-reader-toolbar {

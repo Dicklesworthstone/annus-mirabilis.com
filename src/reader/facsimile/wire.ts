@@ -155,6 +155,10 @@ export function decodeFacsimileAvailability(raw: unknown, paperId: string): Facs
       inventoryStatus: source.inventoryStatus,
       pages: Object.freeze(pages),
       units: Object.freeze(units),
+      // Only the one directory the server loader can name for this key; anything else is dropped
+      // and the panel falls back to the PDF frame.
+      plateDir:
+        source.plateDir === `/figures/plates/pages/${source.key}` ? source.plateDir : undefined,
     }),
   });
 }

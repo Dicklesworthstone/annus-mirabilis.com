@@ -3,6 +3,7 @@ import {
   type FacsimileDocument,
   facsimilePageAnchor,
   facsimilePdfHref,
+  facsimilePlate,
   facsimileSectionPages,
   resolveFacsimileTarget,
 } from "./document.ts";
@@ -34,6 +35,7 @@ export function FacsimilePanel({
   const scope = facsimileSectionPages(document, section);
   const initial = scope[0] ?? document.pages[0];
   if (!initial) return null;
+  const plate = facsimilePlate(document, initial);
   const sourceIds = new Set(document.units.map((unit) => unit.id));
   const aliases = [...new Set(document.units.flatMap((unit) => [...unit.aliases]))].filter(
     (alias) => !sourceIds.has(alias),
@@ -130,6 +132,23 @@ export function FacsimilePanel({
         it began 1,255px down at 1440 and 1,800px down at 390. It now sits under the page controls
         that drive it, and what explains or bypasses it follows it.
       */}
+      {/* On a phone or tablet the plate stands in for the frame (facsimileReader.css): a phone
+          browser has no dependable inline PDF viewer. The controller keeps it on the selected
+          page; the PDF stays one link away below. */}
+      {plate ? (
+        <img
+          data-facsimile-plate
+          className="facsimile-reader-plate"
+          src={plate.src}
+          srcSet={plate.srcSet}
+          sizes="(max-width: 56rem) 100vw, 56rem"
+          width={640}
+          height={990}
+          alt={plate.alt}
+          loading="lazy"
+          decoding="async"
+        />
+      ) : null}
       <iframe
         data-facsimile-frame
         src={facsimilePdfHref(document, initial.pdfPage)}
