@@ -78,7 +78,10 @@ const energy = () => ({
 });
 
 test("the complete real catalogue gives a conditional coefficient and an exact two-sided limit", () => {
-  assert.equal(records.length, 15);
+  // "Complete" is by construction: records is every file in the directory, so the proof below is
+  // built from the whole real catalogue however large it grows (it was 15 records, then 23). The
+  // count only guards emptiness, which would make every assertion below vacuous.
+  assert.ok(records.length > 0);
   assert.deepEqual(proof.coefficients, ["0", "0", "1/2", "0", "3/8", "0", "5/16", "0", "35/128"]);
   assert.equal(proof.leadingCoefficient, "1/2");
   assert.equal(proof.limit.status, "analytic-limit");

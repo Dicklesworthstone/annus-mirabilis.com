@@ -55,15 +55,18 @@ test("reader disclosures contain every equation exactly once, scoped to its own 
       ))}
     </>,
   );
-  expect(shell.querySelectorAll("[data-equation-id]").length).toBe(15);
+  // Exactly once each: the population is the paper's compiled payload (15 until eight records
+  // joined it on 2026-09-22), and the ids are checked by name below, not only counted.
+  expect(equations.length).toBeGreaterThan(0);
+  expect(shell.querySelectorAll("[data-equation-id]").length).toBe(equations.length);
   expect(
     new Set(
       [...shell.querySelectorAll("[data-equation-id]")].map((e) =>
         e.getAttribute("data-equation-id"),
       ),
     ).size,
-  ).toBe(15);
-  expect(shell.querySelectorAll("[data-equation-id] math").length).toBe(15);
+  ).toBe(equations.length);
+  expect(shell.querySelectorAll("[data-equation-id] math").length).toBe(equations.length);
   for (const eq of equations) {
     const disclosure = shell.querySelector(`[data-argument-equations="${eq.argument}"]`)!;
     expect(disclosure.querySelector(`[data-equation-id^="${eq.id}-"]`)).not.toBeNull();
