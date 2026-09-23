@@ -31,9 +31,18 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
     const page = await PaperReader({ section: "s4" });
     const html = renderToStaticMarkup(page);
 
-    // Semantic equations rendered within the passage
+    // Semantic equations rendered within the passage. A section page scopes each card to its
+    // argument (as every paper's reader does), so the id carries the argument; the bare record id
+    // this used to name was the Brownian reader's old unscoped card. The card must sit inside its
+    // own passage unit, between that unit's opening and the next one.
     expect(html).toContain("semantic-equation");
-    expect(html).toContain('data-equation-id="eq-model-bm-apparent-speed"');
+    const id = 'data-equation-id="eq-model-bm-apparent-speed-reader-arg-bm-observable"';
+    const unit = html.indexOf('data-unit="arg-bm-observable"');
+    const next = html.indexOf("data-unit=", unit + 1);
+    const card = html.indexOf(id);
+    expect(unit).toBeGreaterThan(-1);
+    expect(card).toBeGreaterThan(unit);
+    if (next > -1) expect(card).toBeLessThan(next);
   });
 
   test("no-JS per-unit expansion exists as a static disclosure", async () => {
