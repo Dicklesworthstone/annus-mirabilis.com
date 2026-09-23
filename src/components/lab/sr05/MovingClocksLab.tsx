@@ -3,6 +3,7 @@
 import { useId, useMemo, useSyncExternalStore } from "react";
 import { SR05_PRESETS, type Sr05Parameters } from "../../../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../../../experiments/sr05/session.ts";
+import { readablePowers } from "../presentation.ts";
 import "./sr05.css";
 
 export type MovingClocksLabProps = Readonly<{
@@ -17,9 +18,19 @@ function numberOf(
   return found?.status === "value" ? (found.value as number) : null;
 }
 
+/**
+ * A reading at `digits` significant figures, with trailing zeros after the decimal point dropped and
+ * a power of ten written as one. The old trim kept "0.800000" and "0.2000000000" whole, since it
+ * only fired when the match began at the point, and a small value came out as "5.000000125e-9".
+ */
 function fmt(value: number | null, digits = 6): string {
-  if (value === null) return "—";
-  return value.toPrecision(digits).replace(/\.?0+$/, (m) => (m.includes(".") ? "" : m));
+  if (value === null) return "not available";
+  const text = value.toPrecision(digits);
+  const [mantissa = text, exponent] = text.split("e");
+  const trimmed = mantissa.includes(".")
+    ? mantissa.replace(/0+$/, "").replace(/\.$/, "")
+    : mantissa;
+  return readablePowers(exponent === undefined ? trimmed : `${trimmed}e${exponent}`);
 }
 
 const PRESET_ORDER = [
