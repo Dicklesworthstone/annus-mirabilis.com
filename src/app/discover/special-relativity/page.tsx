@@ -121,7 +121,7 @@ export default function SpecialRelativityRoute() {
           statements is wrong, or something in the ordinary way of adding speeds is.
         </p>
         <details>
-          <summary>Why the third option is not obvious</summary>
+          <summary>Why the third option is easy to miss</summary>
           <p>
             Adding speeds is not a law anybody tested. It follows from something more basic that has
             never needed defending: that you and I agree on what time it is, so we agree on how long
@@ -163,13 +163,14 @@ export default function SpecialRelativityRoute() {
           Now the work is mechanical, and this is the step that the story usually skips. Take the
           two statements from step 3 as given, take the clock-setting procedure from step 4, and ask
           what relation must hold between one observer&rsquo;s coordinates and the other&rsquo;s.
-          The answer is forced: there is only one set of relations that keeps both principles and
-          reduces to the familiar one at everyday speeds.
+          Add that space and time are the same everywhere and in every direction, and the answer is
+          forced: only one set of relations keeps both principles and reduces to the familiar one at
+          everyday speeds.
         </p>
         <p>
           Work it through rather than read it. The result is often presented as a formula handed
           down; here it is built from a measurement procedure you can carry out, and nothing enters
-          it that was not put in at step 3.
+          it beyond the two principles, the clock-setting rule, and that sameness of space and time.
         </p>
         <StepDoors>
           <StepDoor href="/lab/sr-04/">Build the map rather than receive it</StepDoor>
@@ -178,13 +179,13 @@ export default function SpecialRelativityRoute() {
 
       <section id="step-06">
         <p className="step-number">06 / Read off the consequences</p>
-        <h2>Clocks, rulers and speeds stop behaving</h2>
+        <h2>Moving clocks, moving rods, and added speeds</h2>
         <p>
           A clock moving past you reads less elapsed time than yours between the same two events. A
           rod moving past you measures shorter along its direction of travel. And speeds no longer
           add the way they used to, which is the answer to the puzzle in step 3: the flash comes out
-          at the same speed for both of us, not because either measurement is wrong, but because we
-          disagree about the times and distances that go into it.
+          at the same speed for both of us. Neither measurement is wrong; we disagree about the
+          times and distances that go into it.
         </p>
         <details>
           <summary>What the moving clock reading means</summary>
@@ -233,7 +234,7 @@ export default function SpecialRelativityRoute() {
 
       <section id="step-08">
         <p className="step-number">08 / Check it against the world</p>
-        <h2>Three things already measured</h2>
+        <h2>What had already been measured</h2>
         <p>
           Light in moving water is dragged along, but only partly, by a fraction measured in 1851
           and awkward for the theories of its day. The new way of adding speeds gives that fraction
@@ -258,9 +259,8 @@ export default function SpecialRelativityRoute() {
         </p>
         <Shelf cards={SPECIAL_RELATIVITY_SHELF_CARDS} />
         <p className="fine">
-          These cards carry no verification record. Their dates are from standard bibliography, not
-          from anyone here having opened the volumes, and the shelf marks each one as awaiting
-          verification rather than implying a check that has not happened.
+          The dates on these cards come from standard bibliographies. No one here has checked them
+          against the volumes, and the shelf marks each card as awaiting verification.
         </p>
       </section>
 
@@ -271,8 +271,7 @@ export default function SpecialRelativityRoute() {
           Measured today, the German face of this paper renders about a thousand characters and a
           notice saying the source is not yet available, because the transcription stands at 22 of
           its 31 pages and is being read off the plates a page at a time. So this route carries the
-          argument and the instruments, and the source face is honest about being unfinished rather
-          than dressed up.
+          argument and the instruments, and the source face says plainly that it is unfinished.
         </p>
         <p>
           Nor is any instrument here an experiment. Every number on the laboratories linked above is
