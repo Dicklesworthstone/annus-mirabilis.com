@@ -14,7 +14,7 @@ import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import type { ExecutionStateKind } from "../../experiments/provenance/executionState.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
-import equationPayload from "../../generated/brownian-equations.json";
+import equationPayload from "../../generated/bm01-equations.json";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";

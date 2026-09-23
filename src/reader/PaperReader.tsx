@@ -1,12 +1,9 @@
 import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
 import { TracerLab } from "../components/lab/TracerLab";
 import { loadPaper } from "../content/server";
-import { EquationScope } from "../equations/EquationScope";
-import { SemanticEquation } from "../equations/SemanticEquation";
-import type { CompiledEquation } from "../equations/viewTypes";
 import type { PreparedBm01Example } from "../experiments/bm01/session";
 import tracerExample from "../generated/bm01-example.json";
-import equationPayload from "../generated/brownian-equations.json";
+import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { FoundationBody, ReadingBlocks } from "./Blocks";
@@ -289,13 +286,19 @@ export async function PaperReader({
                         .map((lesson) => (
                           <MissingStepDisclosure key={lesson.id} lesson={lesson} />
                         ))}
-                      <EquationScope scopeLabel="reading argument">
-                        {(equationPayload.equations as readonly CompiledEquation[])
-                          .filter((e) => e.argument === a.id)
-                          .map((e) => (
-                            <SemanticEquation key={e.id} equation={e} />
-                          ))}
-                      </EquationScope>
+                      {/* The explorer cards, as on every other paper: loaded on first opening on
+                          the whole-paper page, server-rendered on the section's own page. They
+                          were rendered in full here for every argument, twelve cards with their
+                          props repeated in the flight data, and the page was 312,857 bytes
+                          gzipped on BUILD 22 against its 250,000 budget. The formula in the
+                          reading carries the colour; the cards are for exploring it. */}
+                      <ArgumentEquations
+                        paperId={paper.id}
+                        argumentId={a.id}
+                        lazy={!section}
+                        sectionHref={`/papers/${paper.id}/${a.section}/#${a.id}`}
+                        title={a.title}
+                      />
                       <aside className="modern-margin callout-limit" data-reading="3" hidden>
                         <h4>Modern qualifications</h4>
                         <ReadingBlocks blocks={a.readings.margin} foundations={foundations} />

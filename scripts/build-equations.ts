@@ -72,6 +72,26 @@ for (const [paper, file] of [
     )}\n`,
   );
 }
+// The tracer laboratory's own payload: only the equations bound to a bm-01 output. It is a client
+// component, so whatever it imports ships as first-route JavaScript on /papers/brownian-motion/.
+// Importing the whole Brownian payload put nine derivation-only records (the (A+B)^2 identity,
+// the Avogadro inference) into that bundle and into "Equations for this accepted trial".
+await writeFile(
+  "src/generated/bm01-equations.json",
+  `${JSON.stringify(
+    {
+      schemaVersion: 1,
+      rendererDigest,
+      equations: equations.filter(
+        (equation) =>
+          equation.paper === "brownian-motion" &&
+          equation.bindings.some((binding) => binding.experimentId === "bm-01"),
+      ),
+    },
+    null,
+    2,
+  )}\n`,
+);
 /*
   ONE COLOUR PER QUANTITY, PER PAPER (owner's ruling, 2026-09-22). The map is computed from the
   paper's records together, because a colour is only unique relative to the other quantities in
