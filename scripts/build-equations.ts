@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { renderToString } from "katex";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
+import { ContentError } from "../src/content/compiler/json.ts";
 import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
 import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
@@ -61,7 +62,12 @@ const lessonTitles = (own: readonly (typeof equations)[number][]) =>
       .sort()
       .map((id) => {
         const foundation = result.foundations.find((f) => f.id === id);
-        if (!foundation) throw new Error(`Equation note cites unknown foundation ${id}.`);
+        if (!foundation)
+          throw new ContentError(
+            "equation-note-foundation-missing",
+            id,
+            `An equation note cites the foundation ${id}, which the compiled content does not hold.`,
+          );
         return [id, foundation.title];
       }),
   );
