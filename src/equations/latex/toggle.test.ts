@@ -609,7 +609,7 @@ test("toggle.test: Toggle contract guarantees unit conversion is NOT applied und
  * undefined and the reader gets a TypeError from the renderer's internals instead of a
  * message naming the form and the equation.
  */
-test("toggle.test: an alternate form that the equation does not declare is refused by name (render.ts:363)", () => {
+test("toggle.test: an alternate form that the equation does not declare is refused by name (render.ts:471)", () => {
   const concordance = loadConcordanceForPaper("special-relativity");
 
   const declaredId = parseAlternateFormId("eq-s6-d7.alt.si");
