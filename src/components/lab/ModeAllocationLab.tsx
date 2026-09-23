@@ -116,67 +116,6 @@ export function ModeAllocationLab({
         </p>
       </noscript>
 
-      <div className="predict-card">
-        <h3>Predict before you calculate</h3>
-        <p>Widening the resonator range from 100 THz to 1000 THz changes the energy by:</p>
-        <div className="actions">
-          <button
-            type="button"
-            className={predictWiden === "10x" ? "primary" : "secondary"}
-            onClick={() => setPredictWiden("10x")}
-          >
-            About ×10
-          </button>
-          <button
-            type="button"
-            className={predictWiden === "1000x" ? "primary" : "secondary"}
-            onClick={() => setPredictWiden("1000x")}
-          >
-            About ×1000
-          </button>
-          <button
-            type="button"
-            className={predictWiden === "levels-off" ? "primary" : "secondary"}
-            onClick={() => setPredictWiden("levels-off")}
-          >
-            It levels off
-          </button>
-        </div>
-        {predictWiden && (
-          <p className="fine">
-            The model: the classical energy density grows as the cube of the cutoff frequency, so
-            widening tenfold multiplies the energy up to the cutoff by 1000. The widen-tenfold
-            action below shows it.
-          </p>
-        )}
-        <p className="fine">
-          Before removing the upper limit: will the total settle at a finite value?
-        </p>
-        <div className="actions">
-          <button
-            type="button"
-            className={predictDiverge === "yes" ? "primary" : "secondary"}
-            onClick={() => setPredictDiverge("yes")}
-          >
-            Yes, it settles
-          </button>
-          <button
-            type="button"
-            className={predictDiverge === "no" ? "primary" : "secondary"}
-            onClick={() => setPredictDiverge("no")}
-          >
-            No, it grows without bound
-          </button>
-        </div>
-        {predictDiverge && (
-          <p className="fine">
-            The model: every resonator frequency receives the same mean energy, so widening the
-            range without limit grows the total without bound. Press &ldquo;remove the upper
-            limit&rdquo; below and read the refusal: this model&apos;s total has no finite value.
-          </p>
-        )}
-      </div>
-
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Mode-allocation settings" className="controls">
           <div className="actions">
@@ -361,6 +300,68 @@ export function ModeAllocationLab({
           </details>
         </div>
       </div>
+      {/* The prediction sits under the instrument in a closed disclosure, as it does on every other
+          lab. Open above it, it was 423px between a phone's heading and the controls. */}
+      <details className="lab-predict">
+        <summary>Predict before you calculate</summary>
+        <p>Widening the resonator range from 100 THz to 1000 THz changes the energy by:</p>
+        <div className="actions">
+          <button
+            type="button"
+            className={predictWiden === "10x" ? "primary" : "secondary"}
+            onClick={() => setPredictWiden("10x")}
+          >
+            About ×10
+          </button>
+          <button
+            type="button"
+            className={predictWiden === "1000x" ? "primary" : "secondary"}
+            onClick={() => setPredictWiden("1000x")}
+          >
+            About ×1000
+          </button>
+          <button
+            type="button"
+            className={predictWiden === "levels-off" ? "primary" : "secondary"}
+            onClick={() => setPredictWiden("levels-off")}
+          >
+            It levels off
+          </button>
+        </div>
+        {predictWiden && (
+          <p className="fine">
+            The model: the classical energy density grows as the cube of the cutoff frequency, so
+            widening tenfold multiplies the energy up to the cutoff by 1000. The widen-tenfold
+            action above shows it.
+          </p>
+        )}
+        <p className="fine">
+          Before removing the upper limit: will the total settle at a finite value?
+        </p>
+        <div className="actions">
+          <button
+            type="button"
+            className={predictDiverge === "yes" ? "primary" : "secondary"}
+            onClick={() => setPredictDiverge("yes")}
+          >
+            Yes, it settles
+          </button>
+          <button
+            type="button"
+            className={predictDiverge === "no" ? "primary" : "secondary"}
+            onClick={() => setPredictDiverge("no")}
+          >
+            No, it grows without bound
+          </button>
+        </div>
+        {predictDiverge && (
+          <p className="fine">
+            The model: every resonator frequency receives the same mean energy, so widening the
+            range without limit grows the total without bound. Press &ldquo;remove the upper
+            limit&rdquo; above and read the refusal: this model&apos;s total has no finite value.
+          </p>
+        )}
+      </details>
     </section>
   );
 }
