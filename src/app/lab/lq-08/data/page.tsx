@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { constantValue, getConstantSet } from "../../../../physics/reference/constants.ts";
 import { PhotoelectricDataWorkbench } from "../../../../reasoning/photoelectricData/PhotoelectricDataWorkbench.tsx";
-import { acceptAnalysisDraft, exampleDraft } from "../../../../reasoning/photoelectricData/session.ts";
+import { acceptAnalysisDraft, exampleDraft, modernPhotoelectricReference } from "../../../../reasoning/photoelectricData/session.ts";
 
 export const metadata: Metadata = {
   title: "Infer from a photoelectric stopping-potential record",
@@ -11,13 +10,7 @@ export const metadata: Metadata = {
 export default function PhotoelectricDataPage() {
   // Numerical acceptance is not historical or editorial review.
   if ((process.env.AM_RELEASE_PROFILE ?? "scaffold") !== "scaffold") return <section className="reading"><h1>Photoelectric data analysis in preparation</h1><p>This release profile does not publish the explanatory draft. <a href="/papers/light-quanta/">Return to the light-quanta paper</a>.</p></section>;
-  const constants = getConstantSet("modern-si-2019");
-  const reference = {
-    constantSetId: constants.id,
-    elementaryCharge: constantValue(constants, "elementaryCharge").value,
-    planckConstant: constantValue(constants, "planckConstant").value,
-    speedOfLight: constantValue(constants, "speedOfLight").value,
-  };
+  const reference = modernPhotoelectricReference();
   const initial = acceptAnalysisDraft(exampleDraft(), reference);
   if (initial.kind !== "accepted") throw new Error(`Invalid constructed photoelectric example: ${initial.message}`);
   return <>

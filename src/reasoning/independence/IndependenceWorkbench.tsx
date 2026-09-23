@@ -1,12 +1,11 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState } from "react";
-import { OCCUPANCY_CHECKS, MAX_OCCUPANCY_POINTS, type OccupancyCheck, type OccupancyLikelihood } from "../../physics/reference/configurationCountermodels.ts";
 import {
   analyzeOccupancyRecord, applyOccupancySettings, clearOccupancyRecord,
   CHECK_LABELS, decodeOccupancyLink, encodeOccupancyLink, illustrativeOccupancyRecord,
-  OCCUPANCY_TEXT_LIMIT, selectOccupancyChecks,
-  type DecodedOccupancyLink, type OccupancyState,
+  MAX_OCCUPANCY_POINTS, OCCUPANCY_CHECKS, OCCUPANCY_TEXT_LIMIT, selectOccupancyChecks,
+  type DecodedOccupancyLink, type OccupancyCheck, type OccupancyLikelihood, type OccupancyState,
 } from "./state.ts";
 import "./independence.css";
 

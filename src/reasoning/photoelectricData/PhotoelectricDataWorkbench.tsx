@@ -1,11 +1,10 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState } from "react";
-import type { InferredQuantity, PhotoelectricReference } from "../../physics/reference/inference/photoelectricData.ts";
 import { createVoltageFileReader } from "./record.ts";
 import {
   acceptAnalysisDraft, draftFromAnalysis, exampleDraft, exportAnalysisReport, PHOTOELECTRIC_EXAMPLES,
-  refitSelectedRows, type AcceptedAnalysis, type AnalysisDraft,
+  refitSelectedRows, type AcceptedAnalysis, type AnalysisDraft, type InferredQuantity, type PhotoelectricReference,
 } from "./session.ts";
 import { PhotoelectricPlots } from "./PhotoelectricPlots.tsx";
 import "./photoelectricData.css";

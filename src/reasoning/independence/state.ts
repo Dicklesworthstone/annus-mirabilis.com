@@ -4,6 +4,10 @@ import {
   type OccupancyCheck, type OccupancyComparison, type OccupancyEvidence, type OccupancySettings,
 } from "../../physics/reference/configurationCountermodels.ts";
 
+// The workbench reads the owner's check ids, point limit and two types through this module, so the
+// component never imports the physics owner itself (the no-physics-in-components boundary).
+export { MAX_OCCUPANCY_POINTS, OCCUPANCY_CHECKS, type OccupancyCheck, type OccupancyLikelihood } from "../../physics/reference/configurationCountermodels.ts";
+
 export const DEFAULT_OCCUPANCY_SETTINGS = Object.freeze({ n: 4, quarters: 2 });
 export const DEFAULT_OCCUPANCY_CHECKS: readonly OccupancyCheck[] = Object.freeze(["mean-count"]);
 export const OCCUPANCY_TEXT_LIMIT = 1024;

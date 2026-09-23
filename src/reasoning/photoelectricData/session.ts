@@ -1,6 +1,23 @@
 import {
   analyzePhotoelectricData, type FitOptions, type PhotoelectricDataFit, type PhotoelectricReference,
 } from "../../physics/reference/inference/photoelectricData.ts";
+import { constantValue, getConstantSet } from "../../physics/reference/constants.ts";
+
+// The workbench and its page read these through this module, so neither imports a physics owner
+// itself (the no-physics-in-components boundary).
+export type { InferredQuantity, PhotoelectricReference } from "../../physics/reference/inference/photoelectricData.ts";
+
+/** The modern SI reference a fitted slope is compared against. It is read from the constant-set
+ * registry and never fitted to a record. */
+export function modernPhotoelectricReference(): PhotoelectricReference {
+  const constants = getConstantSet("modern-si-2019");
+  return {
+    constantSetId: constants.id,
+    elementaryCharge: constantValue(constants, "elementaryCharge").value,
+    planckConstant: constantValue(constants, "planckConstant").value,
+    speedOfLight: constantValue(constants, "speedOfLight").value,
+  };
+}
 import { parseVoltageCsv, type VoltageRecord } from "./record.ts";
 
 /** Deliberately constructed rows, not Millikan observations or a random simulation.
