@@ -236,8 +236,9 @@ describe("BM-03 configuration integral physics & instrument contract", () => {
 
   test("caption readings R0-R3 exist and cover required commentary", () => {
     expect(BM03_CAPTION.r0.includes("Counting where independent particles can be")).toBe(true);
-    expect(BM03_CAPTION.r1.includes("N_p k_B T / V")).toBe(true);
+    // Braced scripts, typeset by withScripts: N_{p}k_{B}T/V reads as Nₚk_BT/V with lowered p and B.
+    expect(BM03_CAPTION.r1.includes("N_{p}k_{B}T/V")).toBe(true);
     expect(BM03_CAPTION.r2.includes("volume-independent factor J")).toBe(true);
-    expect(BM03_CAPTION.r3.includes("2 kappa N = R")).toBe(true);
+    expect(BM03_CAPTION.r3.includes("2κN = R")).toBe(true);
   });
 });
