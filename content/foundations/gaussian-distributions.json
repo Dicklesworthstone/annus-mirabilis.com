@@ -8,6 +8,22 @@
   "review": "draft",
   "explanation": [
     {
+      "kind": "paragraph",
+      "text": "Release many particles at one point in still water and look again after a time t. They have spread out: most are still near the start, fewer are farther away, and as many went left as right. Count how many ended up at each distance and the counts make a bell-shaped curve, the Gaussian. One number sets its width, √(2Dt), the root-mean-square distance. For D = 0.5 µm² per second and t = 1 s the width is 1 µm, and:"
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "Within one width of the start, between −1 µm and +1 µm, end about 68 per cent of the particles.",
+        "Within two widths, ±2 µm, end about 95 per cent; within three, about 99.7 per cent.",
+        "So about one particle in three ends more than one width from where it started, and about one in twenty more than two widths away."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "Wait four times as long and the width doubles, because it grows as the square root of the time. The curve itself, with p the probability per micrometre of finding a particle at displacement x after time t, is:"
+    },
+    {
       "kind": "formula",
       "latex": "p(x,t)=\\frac{1}{\\sqrt{4\\pi Dt}}\\exp\\left(-\\frac{x^2}{4Dt}\\right)",
       "spoken": "p of x and t equals one over the square root of four pi D t, times e to the minus x squared over four D t.",
@@ -15,7 +31,13 @@
     },
     {
       "kind": "paragraph",
-      "text": "Here x is the displacement, t the time since the start and D the diffusion coefficient. Two things need checking: that the total probability under the curve is 1, and that the mean square displacement is 2Dt. One change of variable turns both into standard integrals."
+      "text": "The factor in front keeps the total probability at one as the curve spreads: a wider bell has to be a lower one. The exponential makes the curve fall away on both sides, the same way to the left as to the right, because x appears squared."
+    }
+  ],
+  "example": [
+    {
+      "kind": "paragraph",
+      "text": "In the formula above, x is the displacement, t the time since the start and D the diffusion coefficient. Two things need checking: that the total probability under the curve is 1, and that the mean square displacement is 2Dt. One change of variable turns both into standard integrals."
     },
     {
       "kind": "formula",
@@ -51,18 +73,7 @@
       "text": "Substituting back, the mean square is 4Dt times one half, which is 2Dt: the value the Brownian paper's §4 gives for the mean of the squared displacement, λx² = 2Dt."
     }
   ],
-  "example": [
-    {
-      "kind": "steps",
-      "items": [
-        "The root-mean-square width is √(2Dt). For D = 0.5 µm²/s and t = 1 s it is 1 µm.",
-        "Between −1 µm and +1 µm, within one width of the start, lies about 68.3 per cent of the probability.",
-        "Within two widths, ±2 µm, lies about 95.4 per cent; within three, about 99.7 per cent.",
-        "So about one particle in three ends more than one width from where it started, and about one in twenty more than two widths away."
-      ]
-    }
-  ],
-  "exampleTitle": "Where 68 per cent of the probability sits",
+  "exampleTitle": "Checking the curve: total probability one, and mean square 2Dt",
   "prerequisites": ["integration", "mean-variance-rms"],
   "stoppingPoint": "The bell curve says where many particles end up. Any one particle can end anywhere, and about one in three ends more than one width from its start.",
   "citations": []
