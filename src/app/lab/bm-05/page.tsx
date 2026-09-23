@@ -13,9 +13,7 @@ export default function WalkPage() {
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · The distribution argument</p>
         <h1>
-          Different steps.
-          <br />
-          The same spreading law?
+          <span>Different steps.</span> <span>The same spreading law?</span>
         </h1>
         <p className="lead">
           Begin with a coin walk you can count exactly. Change the shape of each step without

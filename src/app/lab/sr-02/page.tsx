@@ -16,9 +16,7 @@ export default function MagnetConductorPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · The opening asymmetry</p>
         <h1>
-          The same relative motion,
-          <br />
-          two accounts of one current.
+          <span>The same relative motion,</span> <span>two accounts of one current.</span>
         </h1>
         <p className="lead">
           Why does moving the magnet instead of the conductor create an explanatory asymmetry, and

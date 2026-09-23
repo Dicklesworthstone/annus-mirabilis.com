@@ -20,9 +20,7 @@ export default function RodSimultaneityPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Kinematics §2 &amp; §4</p>
         <h1>
-          Simultaneity is relative;
-          <br />
-          moving bodies contract.
+          <span>Simultaneity is relative;</span> <span>moving bodies contract.</span>
         </h1>
         <p className="lead">
           How does relative motion affect the synchronization of clocks, the coordinate measurement

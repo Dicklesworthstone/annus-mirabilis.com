@@ -18,9 +18,8 @@ export default function MovingClocksPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Section 4</p>
         <h1>
-          A moving clock loses time.
-          <br />
-          Not what a camera sees: what the clock reads.
+          <span>A moving clock loses time.</span>{" "}
+          <span>Not what a camera sees: what the clock reads.</span>
         </h1>
         <p className="lead">
           Choose a worldline. Compare the traveling clock's own proper time with the platform clocks

@@ -14,9 +14,7 @@ export default function PhotoelectricPage() {
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Section 8</p>
         <h1>
-          Energy is discrete.
-          <br />
-          Rates scale with power.
+          <span>Energy is discrete.</span> <span>Rates scale with power.</span>
         </h1>
         <p className="lead">
           Why does increasing light intensity release more electrons without increasing their

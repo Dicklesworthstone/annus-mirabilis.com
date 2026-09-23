@@ -16,9 +16,7 @@ export default function ClockSyncPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity &middot; Clock synchronization</p>
         <h1>
-          How do distant clocks
-          <br />
-          agree on a time?
+          <span>How do distant clocks</span> <span>agree on a time?</span>
         </h1>
         <p className="lead">
           A signal goes out, bounces off a distant clock, and comes back. Splitting the round-trip

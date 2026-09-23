@@ -9,9 +9,7 @@ export default function KitchenObservationPage() {
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Your observations</p>
         <h1>
-          From your track
-          <br />
-          to an honest inference.
+          <span>From your track</span> <span>to an honest inference.</span>
         </h1>
         <p className="lead">
           Keep the measured positions, the missing observations and the assumptions together. Change

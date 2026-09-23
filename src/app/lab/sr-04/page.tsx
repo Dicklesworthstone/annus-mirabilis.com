@@ -19,9 +19,7 @@ export default function LorentzMapPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity &middot; The central construction</p>
         <h1>
-          Build the map,
-          <br />
-          don&apos;t receive it.
+          <span>Build the map,</span> <span>don&apos;t receive it.</span>
         </h1>
         <p className="lead">
           What map between two inertial frames keeps both postulates, and what does each requirement

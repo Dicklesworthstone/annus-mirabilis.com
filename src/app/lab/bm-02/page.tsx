@@ -11,9 +11,7 @@ export default function OsmoticPartitionPage() {
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Section 1</p>
         <h1>
-          A particle you can see
-          <br />
-          pushes like one you cannot.
+          <span>A particle you can see</span> <span>pushes like one you cannot.</span>
         </h1>
         <p className="lead">
           Einstein's §1 makes a daring equivalence: a visible suspended particle should exert

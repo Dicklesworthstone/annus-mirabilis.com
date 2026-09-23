@@ -19,9 +19,8 @@ export default function ChargeCurrentPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §9</p>
         <h1>
-          Charge density is frame-dependent,
-          <br />
-          while total charge is invariant.
+          <span>Charge density is frame-dependent,</span>{" "}
+          <span>while total charge is invariant.</span>
         </h1>
         <p className="lead">
           How do charge density and current density transform between inertial frames, and why is a

@@ -15,9 +15,8 @@ export default function CoefficientMatchPage() {
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Section 6</p>
         <h1>
-          The radiation entropy law matches the gas entropy law.
-          <br />
-          The exponent identifies the light quantum.
+          <span>The radiation entropy law matches the gas entropy law.</span>{" "}
+          <span>The exponent identifies the light quantum.</span>
         </h1>
         <p className="lead">
           Why does equating the volume dependence of Wien radiation entropy to Boltzmann&apos;s

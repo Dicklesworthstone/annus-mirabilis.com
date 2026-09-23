@@ -18,9 +18,7 @@ export default function CoefficientPage() {
       <header className="page-intro">
         <p className="eyebrow">Mass and energy · The small-speed coefficient</p>
         <h1>
-          A smaller energy of motion
-          <br />
-          at the same speed.
+          <span>A smaller energy of motion</span> <span>at the same speed.</span>
         </h1>
         <p className="lead">
           Under the unchanged-offset premise, emitting energy L reduces energy of motion by L(γ −

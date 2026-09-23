@@ -19,9 +19,7 @@ export default function DriftDiffusionLabPage() {
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Route A §3</p>
         <h1>
-          Balancing directional drag
-          <br />
-          against random spreading.
+          <span>Balancing directional drag</span> <span>against random spreading.</span>
         </h1>
         <p className="lead">
           How can a drag force and equilibrium determine how fast particles diffuse, and why does

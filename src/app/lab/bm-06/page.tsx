@@ -9,9 +9,7 @@ export default function BrownianLabPage() {
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Laboratory preview</p>
         <h1>
-          From wandering
-          <br />
-          to a measurable spread.
+          <span>From wandering</span> <span>to a measurable spread.</span>
         </h1>
         <p className="lead">
           How far from its starting point might a suspended particle be? Change the time, viscosity

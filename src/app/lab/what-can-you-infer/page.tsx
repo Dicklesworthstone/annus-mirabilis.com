@@ -20,9 +20,7 @@ export default function InferenceWorkbenchPage() {
       <header className="page-intro">
         <p className="eyebrow">Reasoning laboratory · Brownian motion</p>
         <h1>
-          Keep the data.
-          <br />
-          Change what you know.
+          <span>Keep the data.</span> <span>Change what you know.</span>
         </h1>
         <p className="lead">
           A curve can fit more than one explanation. Holding the synthetic data fixed, what extra

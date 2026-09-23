@@ -14,9 +14,8 @@ export default function EntropyWorkbenchPage() {
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Sections 3-4</p>
         <h1>
-          A spectrum has an entropy.
-          <br />
-          Compressing it costs the same way a gas does.
+          <span>A spectrum has an entropy.</span>{" "}
+          <span>Compressing it costs the same way a gas does.</span>
         </h1>
         <p className="lead">
           Within the regime where Wien&apos;s law holds, how does the entropy of monochromatic

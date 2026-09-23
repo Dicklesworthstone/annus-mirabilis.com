@@ -453,3 +453,17 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell) > p[data-detail="3"
 .plot svg[role="img"][viewBox^="0 0 640 "] {
   max-width: 44rem;
 }
+
+/* A lab page's title sets each authored phrase as its own block, and balances it, so a phrase longer
+   than a phone's line wraps evenly instead of leaving one word on a line of its own. With <br />
+   between phrases, 8 of 45 titles did at 390: sr-13's read "Force conventions and / dynamics / of
+   the slowly accelerated / electron." Balancing the whole h1 fixed only the first phrase, and
+   hiding the breaks lost the authored rhythm ("The particle. The / camera. The estimate."). */
+.lab-route .page-intro h1,
+.lab-route .page-intro h1 > span {
+  text-wrap: balance;
+}
+
+.lab-route .page-intro h1 > span {
+  display: block;
+}

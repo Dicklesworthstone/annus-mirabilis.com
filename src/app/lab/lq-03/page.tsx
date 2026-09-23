@@ -19,9 +19,7 @@ export default function SpectrumPage() {
       <header className="page-intro">
         <p className="eyebrow">Light quanta &middot; Radiation spectrum and regime comparison</p>
         <h1>
-          Where Wien's law holds,
-          <br />
-          and where it stops.
+          <span>Where Wien's law holds,</span> <span>and where it stops.</span>
         </h1>
         <p className="lead">
           What does a measured radiation spectrum look like at a given temperature, in which regime

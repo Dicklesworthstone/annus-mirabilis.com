@@ -18,9 +18,7 @@ export default function VelocityCompositionPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Kinematics §5</p>
         <h1>
-          Speeds do not
-          <br />
-          simply add.
+          <span>Speeds do not</span> <span>simply add.</span>
         </h1>
         <p className="lead">
           Why doesn't adding speeds preserve light speed, and what happens when the motions are not

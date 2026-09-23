@@ -15,9 +15,7 @@ export default function BoundaryLedgerPage() {
       <header className="page-intro">
         <p className="eyebrow">Mass–Energy · System boundaries & empirical checks</p>
         <h1>
-          System boundaries
-          <br />
-          and the energy ledger.
+          <span>System boundaries</span> <span>and the energy ledger.</span>
         </h1>
         <p className="lead">
           When energy leaves a body as radiation, which system loses mass, and which does not? Drag

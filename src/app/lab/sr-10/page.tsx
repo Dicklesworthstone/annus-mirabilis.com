@@ -20,9 +20,7 @@ export default function LightComplexPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §8</p>
         <h1>
-          A packet of light does not transform
-          <br />
-          like a rigid material body.
+          <span>A packet of light does not transform</span> <span>like a rigid material body.</span>
         </h1>
         <p className="lead">
           How do the energy and volume of a bounded light complex transform between frames?

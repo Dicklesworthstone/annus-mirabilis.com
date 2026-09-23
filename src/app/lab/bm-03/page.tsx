@@ -21,9 +21,7 @@ export default function ConfigurationPage() {
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · The statistical mechanics derivation</p>
         <h1>
-          Why counting positions
-          <br />
-          gives the pressure law.
+          <span>Why counting positions</span> <span>gives the pressure law.</span>
         </h1>
         <p className="lead">
           How can a vast microscopic problem, with every solvent molecule and every suspended

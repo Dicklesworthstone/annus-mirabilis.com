@@ -13,11 +13,7 @@ export default function CameraPage() {
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · A later measurement model</p>
         <h1>
-          The particle.
-          <br />
-          The camera.
-          <br />
-          The estimate.
+          <span>The particle.</span> <span>The camera.</span> <span>The estimate.</span>
         </h1>
         <p className="lead">
           A camera averages motion during exposure and adds uncertainty to every position. Discover

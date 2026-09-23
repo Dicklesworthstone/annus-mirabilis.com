@@ -15,9 +15,7 @@ export default function TwoLedgersPage() {
       <header className="page-intro">
         <p className="eyebrow">Mass–Energy · The two-ledger derivation</p>
         <h1>
-          Opposite pulses
-          <br />
-          and two energy ledgers.
+          <span>Opposite pulses</span> <span>and two energy ledgers.</span>
         </h1>
         <p className="lead">
           If a body at rest emits two equal pulses of light in opposite directions, what do the

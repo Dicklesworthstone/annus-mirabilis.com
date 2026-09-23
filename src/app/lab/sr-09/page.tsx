@@ -19,9 +19,8 @@ export default function DopplerAberrationPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §7</p>
         <h1>
-          Frequency and direction transform together
-          <br />
-          from the invariance of the phase.
+          <span>Frequency and direction transform together</span>{" "}
+          <span>from the invariance of the phase.</span>
         </h1>
         <p className="lead">
           How do the frequency and propagation direction of light transform between frames?

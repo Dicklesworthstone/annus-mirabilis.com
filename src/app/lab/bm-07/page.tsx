@@ -13,9 +13,7 @@ export default function InferencePage() {
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Learning from a finite sample</p>
         <h1>
-          From wandering
-          <br />
-          to a number.
+          <span>From wandering</span> <span>to a number.</span>
         </h1>
         <p className="lead">
           An equation predicts how particles spread. Turn the question around: what can a finite set

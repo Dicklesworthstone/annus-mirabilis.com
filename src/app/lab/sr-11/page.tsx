@@ -19,9 +19,8 @@ export default function MovingMirrorPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §8</p>
         <h1>
-          Moving mirror reflection, Doppler shift,
-          <br />
-          and radiation pressure energy balance.
+          <span>Moving mirror reflection, Doppler shift,</span>{" "}
+          <span>and radiation pressure energy balance.</span>
         </h1>
         <p className="lead">
           How do the frequency, angle, amplitude, and radiation pressure of light transform when

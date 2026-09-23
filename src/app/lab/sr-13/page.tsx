@@ -19,9 +19,8 @@ export default function ElectronDynamicsPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §10</p>
         <h1>
-          Force conventions and dynamics
-          <br />
-          of the slowly accelerated electron.
+          <span>Force conventions and dynamics</span>{" "}
+          <span>of the slowly accelerated electron.</span>
         </h1>
         <p className="lead">
           What force, work, energy, and deflection relations follow for a slowly accelerated

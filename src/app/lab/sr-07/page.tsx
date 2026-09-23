@@ -18,9 +18,7 @@ export default function FieldEquationsPage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §6</p>
         <h1>
-          The field equations
-          <br />
-          keep their form.
+          <span>The field equations</span> <span>keep their form.</span>
         </h1>
         <p className="lead">
           How do the Maxwell-Hertz equations keep their form under the transformation, and what must

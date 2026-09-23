@@ -19,9 +19,7 @@ export default function FieldFrameChangePage() {
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §6</p>
         <h1>
-          Fields transform together,
-          <br />
-          not as separate realities.
+          <span>Fields transform together,</span> <span>not as separate realities.</span>
         </h1>
         <p className="lead">
           How do electric and magnetic descriptions change together under a boost, and what does a

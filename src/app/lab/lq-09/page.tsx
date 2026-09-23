@@ -14,9 +14,8 @@ export default function IonizationPage() {
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Section 9</p>
         <h1>
-          Threshold frequency sets the bound.
-          <br />
-          Absorbed energy counts the ions.
+          <span>Threshold frequency sets the bound.</span>{" "}
+          <span>Absorbed energy counts the ions.</span>
         </h1>
         <p className="lead">
           How does single-quantum energy conservation set the threshold frequency for ionizing a

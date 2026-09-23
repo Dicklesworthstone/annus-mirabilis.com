@@ -20,9 +20,7 @@ export default function WaveDescriptionPage() {
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Introduction</p>
         <h1>
-          Continuous waves explain
-          <br />
-          purely optical phenomena.
+          <span>Continuous waves explain</span> <span>purely optical phenomena.</span>
         </h1>
         <p className="lead">
           What does a continuous wave description of light explain well, and what exactly does its

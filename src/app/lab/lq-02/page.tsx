@@ -13,9 +13,8 @@ export default function ModeAllocationPage() {
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Sections 1–2</p>
         <h1>
-          Give every resonator its share,
-          <br />
-          and the total never stops growing.
+          <span>Give every resonator its share,</span>{" "}
+          <span>and the total never stops growing.</span>
         </h1>
         <p className="lead">
           §1 gives every linear resonator oscillation the same mean energy, whatever its frequency.
