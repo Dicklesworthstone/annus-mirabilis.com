@@ -19,6 +19,7 @@ import {
 } from "../../../experiments/sr01/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { withScripts } from "../subscripts.tsx";
 import "../showTheCode.css";
 
 function outputByQuantityId(
@@ -177,7 +178,6 @@ export function ClockSyncLab({
       <div className="lab-header">
         <p className="eyebrow">{SR01_MODEL.label}</p>
         <h2>{title}</h2>
-        <p className="caption-r0">{SR01_CAPTION.r0}</p>
       </div>
 
       {linkNote && (
@@ -451,9 +451,21 @@ const roundTripSpeedLsPerS = (2 * separationLs) / (receptionTimeA - emissionTime
         </div>
       </details>
 
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of .laboratory-shell, which labShell.css's detail rules select. Only R0 was shown,
+          under the title, whatever the reader chose. */}
+      <p data-detail="0">{withScripts(SR01_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR01_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(SR01_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(SR01_CAPTION.r3)}
+      </p>
+
       <p className="assumptions-note">
         {SR01_MODEL.assumptions[0]} Alternative:{" "}
-        {SR01_MODEL.alternativeProcedures[0]?.label.toLowerCase()} --{" "}
+        {SR01_MODEL.alternativeProcedures[0]?.label.toLowerCase()}.{" "}
         {SR01_MODEL.alternativeProcedures[0]?.assumption}
       </p>
 
