@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-entropy-slope",
+  "paper": "foundations",
+  "argument": "partial-derivatives",
+  "title": "Entropy against energy, at fixed frequency",
+  "spoken": "The partial derivative of phi with respect to rho, with nu held fixed, equals one over T.",
+  "explanation": "Section 1 of the light-quanta paper: at each frequency, entropy grows with energy at the rate one over the temperature.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Radiation in equilibrium at temperature T.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-entropy-slope.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "derivative",
+      "opId": "eq-model-fd-entropy-slope.op.slope",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-entropy-slope.t.phi",
+        "quantityId": "spectralEntropyDensity"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-entropy-slope.t.rho",
+        "quantityId": "frequencyEnergyDensity"
+      },
+      "order": 1,
+      "partial": true,
+      "heldFixed": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-entropy-slope.t.nu",
+          "quantityId": "frequency"
+        }
+      ]
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-entropy-slope.op.inverse",
+      "numerator": {
+        "kind": "number",
+        "value": "1"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-entropy-slope.t.temp",
+        "quantityId": "temperature"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-entropy-slope.op.inverse",
+      "title": "One over T",
+      "explanation": "The inverse of the temperature.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-slope.op.relation",
+      "title": "What it asserts",
+      "explanation": "The rate entropy grows with energy, at fixed frequency, is one over the temperature.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-slope.op.slope",
+      "title": "A partial derivative",
+      "explanation": "How phi changes with rho while nu is held fixed.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-slope.t.nu",
+      "title": "Held fixed",
+      "explanation": "The frequency nu does not change.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-slope.t.phi",
+      "title": "Entropy density",
+      "explanation": "phi, per unit volume and frequency.",
+      "foundation": "entropy-temperature"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-slope.t.rho",
+      "title": "Energy density",
+      "explanation": "rho, the variable that changes.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-slope.t.temp",
+      "title": "Temperature",
+      "explanation": "T.",
+      "foundation": "entropy-temperature"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The slope of "
+    },
+    {
+      "text": "phi",
+      "nodeId": "eq-model-fd-entropy-slope.t.phi"
+    },
+    {
+      "text": " against "
+    },
+    {
+      "text": "rho",
+      "nodeId": "eq-model-fd-entropy-slope.t.rho"
+    },
+    {
+      "text": " at fixed "
+    },
+    {
+      "text": "nu",
+      "nodeId": "eq-model-fd-entropy-slope.t.nu"
+    },
+    {
+      "text": " is one over "
+    },
+    {
+      "text": "T",
+      "nodeId": "eq-model-fd-entropy-slope.t.temp"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

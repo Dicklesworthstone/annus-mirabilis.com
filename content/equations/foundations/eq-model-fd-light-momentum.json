@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-light-momentum",
+  "paper": "foundations",
+  "argument": "momentum-energy-light",
+  "title": "Light's momentum",
+  "spoken": "p equals E over c.",
+  "explanation": "Maxwell's electrodynamics: light travelling one way carries momentum equal to its energy divided by the speed of light.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Light travelling in one direction.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-light-momentum.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-light-momentum.t.p",
+      "quantityId": "pulseMomentum"
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-light-momentum.op.ratio",
+      "numerator": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-light-momentum.t.energy",
+        "quantityId": "radiationEnergy"
+      },
+      "denominator": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-light-momentum.t.c",
+        "quantityId": "speedOfLight"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-light-momentum.op.ratio",
+      "title": "E over c",
+      "explanation": "Energy divided by the speed of light.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-light-momentum.op.relation",
+      "title": "What it asserts",
+      "explanation": "Light carries momentum equal to its energy divided by c.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-light-momentum.t.c",
+      "title": "Speed of light",
+      "explanation": "c.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-light-momentum.t.energy",
+      "title": "Energy",
+      "explanation": "E, the light's energy.",
+      "foundation": "momentum-energy-light"
+    },
+    {
+      "nodeId": "eq-model-fd-light-momentum.t.p",
+      "title": "Momentum",
+      "explanation": "p, of light travelling one way.",
+      "foundation": "momentum-energy-light"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The momentum",
+      "nodeId": "eq-model-fd-light-momentum.t.p"
+    },
+    {
+      "text": " is the "
+    },
+    {
+      "text": "energy",
+      "nodeId": "eq-model-fd-light-momentum.t.energy"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "c",
+      "nodeId": "eq-model-fd-light-momentum.t.c"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

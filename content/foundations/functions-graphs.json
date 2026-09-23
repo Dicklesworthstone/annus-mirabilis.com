@@ -24,7 +24,8 @@
     {
       "kind": "formula",
       "latex": "\\langle x^2\\rangle = 2Dt",
-      "spoken": "The mean square displacement equals two times the diffusion coefficient times the time."
+      "spoken": "The mean square displacement equals two times the diffusion coefficient times the time.",
+      "equations": ["eq-model-fd-mean-square-line"]
     },
     {
       "kind": "steps",

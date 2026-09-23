@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-diffusion-density",
+  "paper": "foundations",
+  "argument": "diffusion-equation",
+  "title": "The diffusion equation",
+  "spoken": "The partial derivative of p with respect to t equals D times the second partial derivative of p with respect to x.",
+  "explanation": "A dip in the density fills in and a peak flattens, at a rate set by D.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Constant D, one coordinate.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-diffusion-density.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "derivative",
+      "opId": "eq-model-fd-diffusion-density.op.rate",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-diffusion-density.t.density",
+        "quantityId": "probabilityDensity"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-diffusion-density.t.time",
+        "quantityId": "elapsedTime"
+      },
+      "order": 1,
+      "partial": true
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-diffusion-density.op.product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-diffusion-density.t.diffusion",
+          "quantityId": "diffusionCoefficient"
+        },
+        {
+          "kind": "derivative",
+          "opId": "eq-model-fd-diffusion-density.op.curvature",
+          "expression": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-diffusion-density.t.density2",
+            "quantityId": "probabilityDensity"
+          },
+          "variable": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-diffusion-density.t.position",
+            "quantityId": "positionCoordinate1d"
+          },
+          "order": 2,
+          "partial": true
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-diffusion-density.op.curvature",
+      "title": "Curvature along x",
+      "explanation": "The second derivative: how fast the slope changes.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-density.op.product",
+      "title": "D times",
+      "explanation": "The diffusion coefficient scales the evening out.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-density.op.rate",
+      "title": "Change in time",
+      "explanation": "How fast the density at one place changes.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-density.op.relation",
+      "title": "What it asserts",
+      "explanation": "The density rises where it curves upward and falls where it curves downward.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-density.t.density",
+      "title": "Probability density",
+      "explanation": "p, probability per metre.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-density.t.density2",
+      "title": "Probability density",
+      "explanation": "The same p.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-density.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "In square metres per second. Not a speed.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-density.t.position",
+      "title": "Position",
+      "explanation": "x.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-diffusion-density.t.time",
+      "title": "Time",
+      "explanation": "The variable changed in the first derivative.",
+      "foundation": "derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The density",
+      "nodeId": "eq-model-fd-diffusion-density.t.density"
+    },
+    {
+      "text": " changes in time as "
+    },
+    {
+      "text": "D",
+      "nodeId": "eq-model-fd-diffusion-density.t.diffusion"
+    },
+    {
+      "text": " times its curvature along "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-fd-diffusion-density.t.position"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

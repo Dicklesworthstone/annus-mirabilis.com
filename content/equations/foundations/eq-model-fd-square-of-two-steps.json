@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-square-of-two-steps",
+  "paper": "foundations",
+  "argument": "probability-independence",
+  "title": "The square of two steps",
+  "spoken": "Delta 1 plus Delta 2, squared, equals Delta 1 squared plus two Delta 1 Delta 2 plus Delta 2 squared.",
+  "explanation": "Multiplying out gives each step squared and a mixed term, twice their product. Averaging decides what the mixed term contributes.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Any two numbers; the averaging comes next.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-square-of-two-steps.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "power",
+      "opId": "eq-model-fd-square-of-two-steps.op.sumSquare",
+      "base": {
+        "kind": "sum",
+        "opId": "eq-model-fd-square-of-two-steps.op.sum",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-square-of-two-steps.t.a",
+            "quantityId": "displacementIncrement",
+            "index": "1"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-square-of-two-steps.t.b",
+            "quantityId": "displacementIncrement",
+            "index": "2"
+          }
+        ]
+      },
+      "exponent": {
+        "num": 2,
+        "den": 1
+      }
+    },
+    "right": {
+      "kind": "sum",
+      "opId": "eq-model-fd-square-of-two-steps.op.expanded",
+      "args": [
+        {
+          "kind": "power",
+          "opId": "eq-model-fd-square-of-two-steps.op.firstSquare",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-square-of-two-steps.t.a2",
+            "quantityId": "displacementIncrement",
+            "index": "1"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        },
+        {
+          "kind": "product",
+          "opId": "eq-model-fd-square-of-two-steps.op.cross",
+          "args": [
+            {
+              "kind": "number",
+              "value": "2"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-square-of-two-steps.t.a3",
+              "quantityId": "displacementIncrement",
+              "index": "1"
+            },
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-square-of-two-steps.t.b3",
+              "quantityId": "displacementIncrement",
+              "index": "2"
+            }
+          ]
+        },
+        {
+          "kind": "power",
+          "opId": "eq-model-fd-square-of-two-steps.op.secondSquare",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-square-of-two-steps.t.b2",
+            "quantityId": "displacementIncrement",
+            "index": "2"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.op.cross",
+      "title": "The mixed term",
+      "explanation": "Twice the product of the two steps.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.op.expanded",
+      "title": "Multiplied out",
+      "explanation": "Two squares and a mixed term.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.op.firstSquare",
+      "title": "First step squared",
+      "explanation": "Delta 1 squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.op.relation",
+      "title": "What it asserts",
+      "explanation": "The square of a sum is two squares and twice the product.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.op.secondSquare",
+      "title": "Second step squared",
+      "explanation": "Delta 2 squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.op.sum",
+      "title": "Two steps",
+      "explanation": "Delta 1 plus Delta 2.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.op.sumSquare",
+      "title": "The sum, squared",
+      "explanation": "The square of the net displacement of two steps.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.t.a",
+      "title": "First step",
+      "explanation": "Delta 1.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.t.a2",
+      "title": "First step",
+      "explanation": "The same Delta 1.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.t.a3",
+      "title": "First step",
+      "explanation": "The same Delta 1.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.t.b",
+      "title": "Second step",
+      "explanation": "Delta 2.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.t.b2",
+      "title": "Second step",
+      "explanation": "The same Delta 2.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-fd-square-of-two-steps.t.b3",
+      "title": "Second step",
+      "explanation": "The same Delta 2.",
+      "foundation": "random-walks"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The square of "
+    },
+    {
+      "text": "Delta 1",
+      "nodeId": "eq-model-fd-square-of-two-steps.t.a"
+    },
+    {
+      "text": " plus "
+    },
+    {
+      "text": "Delta 2",
+      "nodeId": "eq-model-fd-square-of-two-steps.t.b"
+    },
+    {
+      "text": " is two squares and twice their product."
+    }
+  ]
+}

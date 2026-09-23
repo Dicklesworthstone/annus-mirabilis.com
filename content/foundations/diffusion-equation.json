@@ -10,7 +10,8 @@
     {
       "kind": "formula",
       "latex": "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}",
-      "spoken": "The time rate of change of density is D times its spatial curvature."
+      "spoken": "The time rate of change of density is D times its spatial curvature.",
+      "equations": ["eq-model-fd-diffusion-density"]
     },
     {
       "kind": "paragraph",
@@ -19,7 +20,8 @@
     {
       "kind": "formula",
       "latex": "J=-D\\frac{\\partial p}{\\partial x}",
-      "spoken": "Fick’s constitutive law sends flux down the density gradient."
+      "spoken": "Fick’s constitutive law sends flux down the density gradient.",
+      "equations": ["eq-model-fd-flux-law"]
     },
     {
       "kind": "paragraph",

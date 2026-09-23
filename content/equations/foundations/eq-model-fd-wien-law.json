@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-wien-law",
+  "paper": "foundations",
+  "argument": "exponentials",
+  "title": "Wien's law",
+  "spoken": "rho equals alpha nu cubed e to the minus beta nu over T.",
+  "explanation": "The law Einstein takes as his premise in the light-quanta paper, valid where beta nu over T is large.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Wien's range: beta nu over T large.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-wien-law.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-wien-law.t.rho",
+      "quantityId": "frequencyEnergyDensity"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-wien-law.op.product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-wien-law.t.alpha",
+          "quantityId": "wienConstantAlpha"
+        },
+        {
+          "kind": "power",
+          "opId": "eq-model-fd-wien-law.op.cube",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-wien-law.t.nu",
+            "quantityId": "frequency"
+          },
+          "exponent": {
+            "num": 3,
+            "den": 1
+          }
+        },
+        {
+          "kind": "function",
+          "opId": "eq-model-fd-wien-law.op.exp",
+          "name": "exp",
+          "argument": {
+            "kind": "negate",
+            "argument": {
+              "kind": "quotient",
+              "opId": "eq-model-fd-wien-law.op.ratio",
+              "numerator": {
+                "kind": "product",
+                "opId": "eq-model-fd-wien-law.op.betaNu",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-wien-law.t.beta",
+                    "quantityId": "wienConstantBeta"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-wien-law.t.nu2",
+                    "quantityId": "frequency"
+                  }
+                ]
+              },
+              "denominator": {
+                "kind": "symbol",
+                "termId": "eq-model-fd-wien-law.t.temp",
+                "quantityId": "temperature"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-wien-law.op.betaNu",
+      "title": "beta times nu",
+      "explanation": "The exponent's numerator.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.op.cube",
+      "title": "nu cubed",
+      "explanation": "Grows with frequency, until the exponential wins.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.op.exp",
+      "title": "The exponential",
+      "explanation": "e to the minus beta nu over T.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.op.product",
+      "title": "Three factors",
+      "explanation": "A constant, the cube of the frequency, and an exponential.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.op.ratio",
+      "title": "beta nu over T",
+      "explanation": "A pure number: large at high frequency or low temperature.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.op.relation",
+      "title": "What it asserts",
+      "explanation": "Wien's law: the energy density falls off exponentially at high frequency.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.t.alpha",
+      "title": "Wien's first constant",
+      "explanation": "alpha, fixed by measurement.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.t.beta",
+      "title": "Wien's second constant",
+      "explanation": "beta, in kelvin seconds.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.t.nu",
+      "title": "Frequency",
+      "explanation": "nu.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.t.nu2",
+      "title": "Frequency",
+      "explanation": "The same nu.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.t.rho",
+      "title": "Energy density",
+      "explanation": "rho, per unit volume and per unit frequency.",
+      "foundation": "exponentials"
+    },
+    {
+      "nodeId": "eq-model-fd-wien-law.t.temp",
+      "title": "Temperature",
+      "explanation": "T, in kelvin.",
+      "foundation": "entropy-temperature"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The energy density",
+      "nodeId": "eq-model-fd-wien-law.t.rho"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "alpha",
+      "nodeId": "eq-model-fd-wien-law.t.alpha"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "nu",
+      "nodeId": "eq-model-fd-wien-law.t.nu"
+    },
+    {
+      "text": " cubed times e to the minus beta nu over "
+    },
+    {
+      "text": "T",
+      "nodeId": "eq-model-fd-wien-law.t.temp"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

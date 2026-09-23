@@ -14,7 +14,8 @@
     {
       "kind": "formula",
       "latex": "(\\Delta_1 + \\Delta_2)^2 = \\Delta_1^2 + 2\\Delta_1\\Delta_2 + \\Delta_2^2",
-      "spoken": "Delta one plus delta two, squared, equals delta one squared plus two delta one delta two plus delta two squared."
+      "spoken": "Delta one plus delta two, squared, equals delta one squared plus two delta one delta two plus delta two squared.",
+      "equations": ["eq-model-fd-square-of-two-steps"]
     },
     {
       "kind": "paragraph",

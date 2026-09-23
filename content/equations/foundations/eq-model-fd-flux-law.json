@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-flux-law",
+  "paper": "foundations",
+  "argument": "diffusion-equation",
+  "title": "The flux law",
+  "spoken": "J equals minus D times the partial derivative of p with respect to x.",
+  "explanation": "Probability flows from high density to low, in proportion to the slope. A model premise here, not something conservation alone proves.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A model premise: the flux is proportional to the slope.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-flux-law.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-flux-law.t.flux",
+      "quantityId": "probabilityFlux1d"
+    },
+    "right": {
+      "kind": "negate",
+      "argument": {
+        "kind": "product",
+        "opId": "eq-model-fd-flux-law.op.product",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-flux-law.t.diffusion",
+            "quantityId": "diffusionCoefficient"
+          },
+          {
+            "kind": "derivative",
+            "opId": "eq-model-fd-flux-law.op.slope",
+            "expression": {
+              "kind": "symbol",
+              "termId": "eq-model-fd-flux-law.t.density",
+              "quantityId": "probabilityDensity"
+            },
+            "variable": {
+              "kind": "symbol",
+              "termId": "eq-model-fd-flux-law.t.position",
+              "quantityId": "positionCoordinate1d"
+            },
+            "order": 1,
+            "partial": true
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-flux-law.op.product",
+      "title": "D times the slope",
+      "explanation": "Minus this is the flux: the flow runs downhill.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-fd-flux-law.op.relation",
+      "title": "What it asserts",
+      "explanation": "Probability flows down the slope of the density, faster where the slope is steeper.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-flux-law.op.slope",
+      "title": "Slope of the density",
+      "explanation": "How fast p changes along x.",
+      "foundation": "partial-derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-flux-law.t.density",
+      "title": "Probability density",
+      "explanation": "p.",
+      "foundation": "distributions"
+    },
+    {
+      "nodeId": "eq-model-fd-flux-law.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "How strongly a slope drives a flow.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-flux-law.t.flux",
+      "title": "Flux",
+      "explanation": "J, probability per second crossing a point.",
+      "foundation": "flux-continuity"
+    },
+    {
+      "nodeId": "eq-model-fd-flux-law.t.position",
+      "title": "Position",
+      "explanation": "x.",
+      "foundation": "derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The flux",
+      "nodeId": "eq-model-fd-flux-law.t.flux"
+    },
+    {
+      "text": " is minus "
+    },
+    {
+      "text": "D",
+      "nodeId": "eq-model-fd-flux-law.t.diffusion"
+    },
+    {
+      "text": " times the slope of "
+    },
+    {
+      "text": "p",
+      "nodeId": "eq-model-fd-flux-law.t.density"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

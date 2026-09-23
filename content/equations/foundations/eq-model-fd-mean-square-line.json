@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-mean-square-line",
+  "paper": "foundations",
+  "argument": "functions-graphs",
+  "title": "The mean square against time",
+  "spoken": "The mean of x squared equals two D t.",
+  "explanation": "The mean square grows in proportion to time, so its graph against t is a straight line of slope 2D.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Particles that start at x = 0 and diffuse with constant D.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-mean-square-line.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "average",
+      "opId": "eq-model-fd-mean-square-line.op.mean",
+      "argument": {
+        "kind": "power",
+        "opId": "eq-model-fd-mean-square-line.op.square",
+        "base": {
+          "kind": "symbol",
+          "termId": "eq-model-fd-mean-square-line.t.x",
+          "quantityId": "positionCoordinate1d"
+        },
+        "exponent": {
+          "num": 2,
+          "den": 1
+        }
+      }
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-mean-square-line.op.product",
+      "args": [
+        {
+          "kind": "number",
+          "value": "2"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-mean-square-line.t.diffusion",
+          "quantityId": "diffusionCoefficient"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-mean-square-line.t.time",
+          "quantityId": "elapsedTime"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-mean-square-line.op.mean",
+      "title": "The mean square",
+      "explanation": "Averaged over many particles.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-mean-square-line.op.product",
+      "title": "2 D t",
+      "explanation": "The slope 2D times the time.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-mean-square-line.op.relation",
+      "title": "A straight line",
+      "explanation": "Plotted against t, the mean square is a line through the origin with slope 2D.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-mean-square-line.op.square",
+      "title": "x squared",
+      "explanation": "Squared, so both directions count.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-mean-square-line.t.diffusion",
+      "title": "Diffusion coefficient",
+      "explanation": "Half the slope of the line.",
+      "foundation": "diffusion-equation"
+    },
+    {
+      "nodeId": "eq-model-fd-mean-square-line.t.time",
+      "title": "Time",
+      "explanation": "Along the horizontal axis.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-mean-square-line.t.x",
+      "title": "Position",
+      "explanation": "Where a particle is along x, having started at 0.",
+      "foundation": "derivatives"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The mean of "
+    },
+    {
+      "text": "x",
+      "nodeId": "eq-model-fd-mean-square-line.t.x"
+    },
+    {
+      "text": " squared grows as two "
+    },
+    {
+      "text": "D",
+      "nodeId": "eq-model-fd-mean-square-line.t.diffusion"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-fd-mean-square-line.t.time"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

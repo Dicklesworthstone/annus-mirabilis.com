@@ -36,7 +36,8 @@
     {
       "kind": "formula",
       "latex": "\\rho = \\alpha\\,\\nu^{3} e^{-\\beta \\nu / T}",
-      "spoken": "Rho equals alpha nu cubed times e to the minus beta nu over T."
+      "spoken": "Rho equals alpha nu cubed times e to the minus beta nu over T.",
+      "equations": ["eq-model-fd-wien-law"]
     },
     {
       "kind": "paragraph",

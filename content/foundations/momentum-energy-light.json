@@ -14,7 +14,8 @@
     {
       "kind": "formula",
       "latex": "p = \\frac{E}{c}",
-      "spoken": "Momentum equals energy divided by c."
+      "spoken": "Momentum equals energy divided by c.",
+      "equations": ["eq-model-fd-light-momentum"]
     },
     {
       "kind": "paragraph",

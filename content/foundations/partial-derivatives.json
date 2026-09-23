@@ -36,7 +36,8 @@
     {
       "kind": "formula",
       "latex": "\\left(\\frac{\\partial \\varphi}{\\partial \\rho}\\right)_{\\nu} = \\frac{1}{T}",
-      "spoken": "The partial derivative of phi with respect to rho, at fixed frequency nu, equals one over T."
+      "spoken": "The partial derivative of phi with respect to rho, at fixed frequency nu, equals one over T.",
+      "equations": ["eq-model-fd-entropy-slope"]
     },
     {
       "kind": "paragraph",
