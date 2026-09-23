@@ -187,26 +187,11 @@ export function ElectronDynamicsLab({
                       initialSpeed: 0.6,
                       electricFieldY: 1e5,
                       magneticFieldZ: 0.01,
-                      datasetOverlay: "kaufmann-1902-1906",
+                      datasetOverlay: "none",
                     })
                   }
                 >
-                  Kaufmann 1902–1906 overlay
-                </button>
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() =>
-                    apply({
-                      ...p,
-                      initialSpeed: 0.6,
-                      electricFieldY: 1e5,
-                      magneticFieldZ: 0.01,
-                      datasetOverlay: "bucherer-1908",
-                    })
-                  }
-                >
-                  Bucherer 1908 overlay
+                  Crossed fields (E and B together)
                 </button>
               </div>
             </div>
@@ -309,9 +294,11 @@ export function ElectronDynamicsLab({
                       })
                     }
                   >
-                    <option value="none">None (model curve only)</option>
-                    <option value="kaufmann-1902-1906">Kaufmann 1902–1906 (Radium β-rays)</option>
-                    <option value="bucherer-1908">Bucherer 1908 (Velocity filter)</option>
+                    <option value="none">None, model curve only</option>
+                    <option value="kaufmann-1902-1906">
+                      Kaufmann 1902–1906, not yet digitized
+                    </option>
+                    <option value="bucherer-1908">Bucherer 1908, not yet digitized</option>
                   </select>
                 </div>
               </div>

@@ -302,83 +302,18 @@ export function ElectronDynamicsPlot({
               </g>
             );
           })()}
-
-          {/* Historical Dataset Overlay Points */}
-          {datasetOverlay !== "none" ? (
-            <g>
-              {datasetOverlay === "kaufmann-1902-1906" ? (
-                <g>
-                  {/* Kaufmann 1902-1906 empirical points */}
-                  {[
-                    { id: "kaufmann-pt-1", x: 220, y: 185 },
-                    { id: "kaufmann-pt-2", x: 340, y: 198 },
-                    { id: "kaufmann-pt-3", x: 460, y: 220 },
-                    { id: "kaufmann-pt-4", x: 580, y: 252 },
-                    { id: "kaufmann-pt-5", x: 700, y: 295 },
-                  ].map((pt) => (
-                    <g key={pt.id}>
-                      <circle
-                        cx={pt.x}
-                        cy={pt.y}
-                        r={4}
-                        fill="#f59e0b"
-                        stroke="#b45309"
-                        strokeWidth={1.5}
-                      />
-                      <line
-                        x1={pt.x}
-                        y1={pt.y - 5}
-                        x2={pt.x}
-                        y2={pt.y + 5}
-                        stroke="#b45309"
-                        strokeWidth={1}
-                      />
-                    </g>
-                  ))}
-                </g>
-              ) : (
-                <g>
-                  {/* Bucherer 1908 velocity-filter points */}
-                  {[
-                    { id: "bucherer-pt-1", x: 220, y: 184 },
-                    { id: "bucherer-pt-2", x: 340, y: 196 },
-                    { id: "bucherer-pt-3", x: 460, y: 216 },
-                    { id: "bucherer-pt-4", x: 580, y: 246 },
-                    { id: "bucherer-pt-5", x: 700, y: 286 },
-                  ].map((pt) => (
-                    <g key={pt.id}>
-                      <rect
-                        x={pt.x - 3.5}
-                        y={pt.y - 3.5}
-                        width={7}
-                        height={7}
-                        fill="#10b981"
-                        stroke="#047857"
-                        strokeWidth={1.5}
-                      />
-                      <line
-                        x1={pt.x}
-                        y1={pt.y - 4}
-                        x2={pt.x}
-                        y2={pt.y + 4}
-                        stroke="#047857"
-                        strokeWidth={1}
-                      />
-                    </g>
-                  ))}
-                </g>
-              )}
-            </g>
-          ) : null}
         </svg>
-        {datasetOverlay === "kaufmann-1902-1906" ? (
-          <p className="fine sr13-chamber-legend">
-            ◆ Kaufmann 1902–1906 radium β-ray deflections (ambiguous in 1905–1906)
-          </p>
-        ) : datasetOverlay !== "none" ? (
-          <p className="fine sr13-chamber-legend">
-            ■ Bucherer 1908 crossed-field velocity filter (later evidence favouring
-            Lorentz–Einstein)
+        {/* No Kaufmann or Bucherer measurement is drawn: neither has been digitized as a cited
+            HistoricalDataset (am-data-kaufmann-1902-1906-52ya, am-data-bucherer-1908-w3mf), and the
+            points this drawing used to place were hand-picked pixel positions, which is invented
+            data. The overlay choice says so instead. */}
+        {datasetOverlay !== "none" ? (
+          <p className="fine sr13-chamber-legend" data-overlay-status="not-digitized">
+            {datasetOverlay === "kaufmann-1902-1906"
+              ? "Kaufmann's 1902–1906 deflection measurements are not drawn here."
+              : "Bucherer's 1908 velocity-filter measurements are not drawn here."}{" "}
+            They have not yet been digitized from the published paper, and points placed by eye
+            would be invented data. The curve is the model alone.
           </p>
         ) : null}
       </div>
