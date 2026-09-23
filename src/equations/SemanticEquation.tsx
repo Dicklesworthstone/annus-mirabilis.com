@@ -347,24 +347,41 @@ export function SemanticEquation({
           ))}
         </ul>
         <dl>
-          {equation.notes.map((n) => (
-            <div key={n.nodeId}>
-              <dt>{n.title}</dt>
-              <dd>
-                {n.explanation}{" "}
-                <a
-                  href={`/foundations/${n.foundation}/`}
-                  aria-label={prerequisiteName(n.title, scopeContext?.lessonTitles?.[n.foundation])}
-                >
-                  Read the prerequisite
-                </a>
-              </dd>
-            </div>
-          ))}
+          {/* One line per meaning. A symbol printed twice has two notes, often identical ("Cutoff
+              frequency: the highest frequency the sum includes." twice); the chips above keep one
+              per occurrence, because each selects a different place in the formula. */}
+          {equation.notes
+            .filter(
+              (n, i, all) =>
+                all.findIndex(
+                  (m) =>
+                    m.title === n.title &&
+                    m.explanation === n.explanation &&
+                    m.foundation === n.foundation,
+                ) === i,
+            )
+            .map((n) => (
+              <div key={n.nodeId}>
+                <dt>{n.title}</dt>
+                <dd>
+                  {n.explanation}{" "}
+                  <a
+                    href={`/foundations/${n.foundation}/`}
+                    aria-label={prerequisiteName(
+                      n.title,
+                      scopeContext?.lessonTitles?.[n.foundation],
+                    )}
+                  >
+                    Read the prerequisite
+                  </a>
+                </dd>
+              </div>
+            ))}
         </dl>
         <p className="fine">
-          Exact rational SI dimensions were checked at build time. This is a unit check, not a proof
-          of the model. This teaching record is a draft, not a transcription of a printed equation.
+          Every term&rsquo;s units were checked when this page was built. That checks the units, not
+          the model. This equation is written for this edition in modern notation, not transcribed
+          from the paper, and its review is pending.
         </p>
       </details>
     </div>
