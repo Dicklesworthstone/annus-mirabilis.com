@@ -107,14 +107,18 @@ export default function LightQuantaRoute() {
         <p>
           Before going further, commit to an answer. Thermal equilibrium hands every vibrating
           degree of freedom the same average energy, fixed by the temperature. A box of radiation
-          has vibrations at every frequency. Add up the energy that rule assigns across all of them:
-          does the total come out finite, large but finite, or something else?
+          has vibrations at every frequency. Add up the energy that rule assigns across all of them.
+          Is the total a modest amount, an enormous but definite amount, or no definite amount at
+          all?
         </p>
-        <p>
-          The sum does not converge. Every frequency is handed the same share and there is no
-          highest frequency, so the total energy in the box grows without bound. The paper writes
-          the integral out, and it is infinite.
-        </p>
+        <details>
+          <summary>Check your answer</summary>
+          <p>
+            No definite amount. Every frequency is handed the same share and there is no highest
+            frequency, so the total energy in the box grows without bound. The paper writes the
+            integral out, and it is infinite.
+          </p>
+        </details>
         <details>
           <summary>What this does and does not show</summary>
           <p>
