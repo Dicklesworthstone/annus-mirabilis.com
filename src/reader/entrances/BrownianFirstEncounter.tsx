@@ -224,75 +224,72 @@ export function BrownianFirstEncounter({
             arrow keys to shift its position.
           </p>
 
-          {/* Number line visualization */}
-          <div style={{ position: "relative", padding: "2rem 1rem", userSelect: "none" }}>
-            {/* Horizontal axis */}
-            <div
-              style={{
-                height: "4px",
-                background: "var(--line)",
-                width: "100%",
-                position: "relative",
-                top: "1rem",
-                borderRadius: "9999px",
-              }}
-            />
+          {/* Number line visualization.
+              ONE TRACK FOR EVERYTHING. The axis, the ticks and their labels were positioned
+              against the padded outer box while the markers were positioned against this inner
+              track, so on BUILD 24 a marker at -3 did not stand over the -3 tick (the two
+              references differ by the padding), and the labels sat where the markers ride:
+              markers covered "-2", "2" and "0 (start)", most visibly at 390. Now the axis runs
+              through the middle of the track, the markers sit on it, and every label hangs below
+              the track, so nothing a marker covers is text. The drag handler already measured
+              this same track. */}
+          <div style={{ padding: "0.75rem 1rem 3rem", userSelect: "none" }}>
+            <div ref={trackRef} style={{ position: "relative", height: "2.5rem" }}>
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  top: "50%",
+                  height: "2px",
+                  marginTop: "-1px",
+                  background: "var(--line)",
+                }}
+              />
+              {[-8, -6, -4, -2, 0, 2, 4, 6, 8].map((val) => {
+                const leftPercent = ((val + 8) / 16) * 100;
+                const origin = val === 0;
+                return (
+                  <div key={`tick-${val}`} aria-hidden="true">
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: `${leftPercent}%`,
+                        top: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: origin ? "2px" : "1px",
+                        height: origin ? "2.5rem" : "0.75rem",
+                        background: origin ? "var(--ink)" : "var(--line)",
+                      }}
+                    />
+                    <span
+                      className="fine"
+                      style={{
+                        position: "absolute",
+                        left: `${leftPercent}%`,
+                        top: "calc(100% + 0.35rem)",
+                        transform: "translateX(-50%)",
+                        fontFamily: "var(--font-mono)",
+                        fontWeight: origin ? 600 : undefined,
+                        textAlign: "center",
+                        lineHeight: 1.2,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {val}
+                      {origin ? (
+                        <>
+                          <br />
+                          start
+                        </>
+                      ) : null}
+                    </span>
+                  </div>
+                );
+              })}
 
-            {/* Zero origin tick */}
-            <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                top: "4px",
-                transform: "translateX(-50%)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <div style={{ width: "2px", height: "1.75rem", background: "var(--ink)" }} />
-              <span
-                className="fine"
-                style={{ fontFamily: "var(--font-mono)", fontWeight: 600, marginTop: "0.25rem" }}
-              >
-                0 (start)
-              </span>
-            </div>
-
-            {/* Scale ticks from -8 to +8 */}
-            {[-8, -6, -4, -2, 2, 4, 6, 8].map((val) => {
-              const leftPercent = ((val + 8) / 16) * 100;
-              return (
-                <div
-                  key={`tick-${val}`}
-                  style={{
-                    position: "absolute",
-                    top: "8px",
-                    left: `${leftPercent}%`,
-                    transform: "translateX(-50%)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <div style={{ width: "1px", height: "1.25rem", background: "var(--line)" }} />
-                  <span
-                    className="fine"
-                    style={{
-                      fontSize: "10px",
-                      fontFamily: "var(--font-mono)",
-                      marginTop: "0.5rem",
-                    }}
-                  >
-                    {val}
-                  </span>
-                </div>
-              );
-            })}
-
-            {/* Interactive Particle Markers */}
-            <div ref={trackRef} style={{ position: "relative", height: "3rem" }}>
+              {/* Interactive Particle Markers, centred on the axis */}
               {particleItems.map((item) => {
                 const pos = item.position;
                 const idx = item.index;
@@ -354,8 +351,8 @@ export function BrownianFirstEncounter({
                     style={{
                       position: "absolute",
                       left: `${leftPercent}%`,
-                      transform: "translateX(-50%)",
-                      top: 0,
+                      transform: "translate(-50%, -50%)",
+                      top: "50%",
                       cursor: "ew-resize",
                       touchAction: "none",
                       borderRadius: "50%",
