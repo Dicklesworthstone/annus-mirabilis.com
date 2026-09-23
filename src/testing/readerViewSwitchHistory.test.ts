@@ -179,3 +179,35 @@ describe("view-switch preservation: an existing query key and hash survive the s
     });
   });
 });
+
+describe("an unknown ?view= falls back to the explanation and the address keeps it", () => {
+  // am-read-shell-routes-3ua: "unknown values fall back to `reading` with the URL unchanged".
+  // url() used to delete `view` whenever the state was reading, so ?view=bogus was rewritten
+  // to the bare paper route on mount. A known face is still removed when the reader returns
+  // to the explanation, which is the negative a blanket "never delete view" would fail.
+  test("?view=bogus stays in the address on mount, and html data-view is reading", async () => {
+    window.history.pushState(null, "", "/papers/brownian-motion/?view=bogus#s1");
+    const { reactRoot } = await mount();
+    expect(new URL(location.href).searchParams.get("view")).toBe("bogus");
+    expect(document.documentElement.dataset.view).toBe("reading");
+    act(() => {
+      reactRoot.unmount();
+    });
+  });
+
+  test("a known face is replaced by the next one and removed on return to the explanation", async () => {
+    window.history.pushState(null, "", "/papers/brownian-motion/?view=bogus#s1");
+    const { pageRoot, reactRoot } = await mount();
+    await act(async () => {
+      clickViewLink(pageRoot, "results");
+    });
+    expect(new URL(location.href).searchParams.get("view")).toBe("results");
+    await act(async () => {
+      clickViewLink(pageRoot, "reading");
+    });
+    expect(new URL(location.href).searchParams.has("view")).toBe(false);
+    act(() => {
+      reactRoot.unmount();
+    });
+  });
+});
