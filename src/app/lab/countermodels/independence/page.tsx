@@ -26,24 +26,22 @@ export default function IndependencePage() {
   return (
     <>
       <header className="page-intro">
-        <p className="eyebrow">
-          Reasoning laboratory · Light quanta and Brownian motion · Explanatory preview
-        </p>
+        <p className="eyebrow">Reasoning laboratory · Preview</p>
         <h1>The same average can hide different arrangements.</h1>
         <p className="lead">
           Seeing half the points inside on average does not tell you whether they were placed
-          independently. Keep the point count and region fixed. Change only how the positions depend
-          on one another.
-        </p>
-        <p>
-          These are two explicit ideal candidates, not every possible form of correlation. The
-          comparison calculates predictions and can analyze a count record you enter. It does not
-          produce historical observations or claim a reviewed edition.
+          independently. Keep the point count and region fixed, and compare points placed one by one
+          with points locked to a single shared position.
         </p>
       </header>
       <IndependenceWorkbench example={createOccupancyState()} />
       <section className="reading">
         <h2>Which premise earns the exponent?</h2>
+        <p>
+          These are two explicit ideal candidates, not every possible form of correlation. The
+          comparison calculates predictions and can analyze a count record you enter. It does not
+          produce historical observations or claim a reviewed edition.
+        </p>
         <p>
           The light-quanta paper’s §5 counts independently placed points. The chance that every one
           lies in a fraction f of the original volume is fⁿ. One perfectly locked group has only one

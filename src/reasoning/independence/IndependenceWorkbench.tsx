@@ -170,22 +170,6 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
           </button>
         </aside>
       )}
-      <div className="occupancy-models">
-        <div>
-          <h3>Independent positions</h3>
-          <p>
-            Each labeled point is placed uniformly and independently. Several, all or none may land
-            inside.
-          </p>
-        </div>
-        <div>
-          <h3>Perfectly locked positions</h3>
-          <p>
-            All labeled points share one uniformly placed, coincident position. Only all-in or
-            all-out is possible. This is not a finite-size rigid cluster straddling a boundary.
-          </p>
-        </div>
-      </div>
       {/* The family layout (.lab-columns): controls first, the result second, so a desktop shows them
         side by side and a phone shows the result before the form that drives it. */}
       <div className="lab-columns">
@@ -289,6 +273,24 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
               </tbody>
             </table>
           </section>
+        </div>
+      </div>
+      {/* The two definitions follow the result and its form: above them they held the comparison
+          below a phone's first screen, and the lead already names both candidates. */}
+      <div className="occupancy-models">
+        <div>
+          <h3>Independent positions</h3>
+          <p>
+            Each labeled point is placed uniformly and independently. Several, all or none may land
+            inside.
+          </p>
+        </div>
+        <div>
+          <h3>Perfectly locked positions</h3>
+          <p>
+            All labeled points share one uniformly placed, coincident position. Only all-in or
+            all-out is possible. This is not a finite-size rigid cluster straddling a boundary.
+          </p>
         </div>
       </div>
       <details open>
