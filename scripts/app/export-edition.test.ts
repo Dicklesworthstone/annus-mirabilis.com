@@ -17,6 +17,7 @@ import {
   editionDigest,
   editionDirectories,
   exportEdition,
+  largestFiles,
   OCTET_STREAM,
   planEdition,
   referencedDigests,
@@ -211,8 +212,19 @@ describe("exportEdition", () => {
       (error: unknown) =>
         error instanceof AppExportError &&
         error.code === "edition-over-budget" &&
-        /over the 10-byte budget/.test(error.message),
+        /over the 10-byte budget/.test(error.message) &&
+        /Largest files: index\.html \(\d+ bytes\), /.test(error.message),
     );
+  });
+
+  it("orders the largest files biggest first, breaking ties by path", () => {
+    const files = [
+      { path: "b.html", size: 5 },
+      { path: "a.html", size: 5 },
+      { path: "big.js", size: 9 },
+      { path: "tiny.css", size: 1 },
+    ];
+    assert.equal(largestFiles(files, 3), "big.js (9 bytes), a.html (5 bytes), b.html (5 bytes)");
   });
 
   it("refuses when there is no web build to export", () => {

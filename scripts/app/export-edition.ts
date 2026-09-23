@@ -222,6 +222,18 @@ export function planEdition(paths: readonly string[], digests: ReadonlySet<strin
   return { included, excluded };
 }
 
+/** The `count` largest files, biggest first, as "path (N bytes)", for an over-budget refusal. */
+export function largestFiles(
+  files: readonly { path: string; size: number }[],
+  count: number,
+): string {
+  return [...files]
+    .sort((a, b) => b.size - a.size || (a.path < b.path ? -1 : 1))
+    .slice(0, count)
+    .map((file) => `${file.path} (${file.size} bytes)`)
+    .join(", ");
+}
+
 /** Characters Xcode's file lists or `shasum -c` would misread. */
 export function unsafePathReason(path: string): string | null {
   if (path.includes("$")) {
@@ -354,7 +366,7 @@ export function exportEdition(options: {
   if (totalBytes > budgetBytes) {
     throw new AppExportError(
       "edition-over-budget",
-      `The app edition is ${totalBytes} bytes in ${files.length} files, over the ${budgetBytes}-byte budget (App plan §5.3). Change the budget only with a recorded measurement.`,
+      `The app edition is ${totalBytes} bytes in ${files.length} files, over the ${budgetBytes}-byte budget (App plan §5.3). Change the budget only with a recorded measurement. Largest files: ${largestFiles(files, 10)}`,
     );
   }
 
