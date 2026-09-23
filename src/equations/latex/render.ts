@@ -82,6 +82,7 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
         }
         // The argument sits outside the term's colour: in gamma(u) the u is its own term.
         if (n.at) s = `${s}\\left(${render(n.at)}\\right)`;
+        if (n.args?.length) s = `${s}\\left(${n.args.map(render).join(",\\,")}\\right)`;
         return s;
       }
 

@@ -151,7 +151,12 @@ export function isTreeEquivalentUpToRenames(
         a.index === b.index &&
         (a.at === undefined || b.at === undefined
           ? a.at === b.at
-          : isTreeEquivalentUpToRenames(a.at, b.at, options))
+          : isTreeEquivalentUpToRenames(a.at, b.at, options)) &&
+        (a.args ?? []).length === (b.args ?? []).length &&
+        (a.args ?? []).every((x, i) => {
+          const y = b.args?.[i];
+          return y !== undefined && isTreeEquivalentUpToRenames(x, y, options);
+        })
       );
     }
     case "constant": {

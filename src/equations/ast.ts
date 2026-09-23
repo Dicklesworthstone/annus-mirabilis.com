@@ -16,6 +16,12 @@ export type Expression =
       index?: string;
       /** The quantity's value at an argument, printed glyph(argument): gamma(u), u(t). */
       at?: Expression;
+      /**
+       * The quantity's value at two to four arguments, printed glyph(a, b): paper 2's density
+       * p(x, t) and p(x - Delta, t). An alternative to `at`, never both. The value has the
+       * quantity's own dimension; each argument is still checked.
+       */
+      args?: readonly Expression[];
     }>
   /** "infinity" is admitted only as an integral's limit, or its negation: the density integrals of
       paper 2, section 4 run from minus to plus infinity. It is never a value in arithmetic. */
@@ -64,7 +70,7 @@ export type Expression =
 export function children(n: Expression): readonly Expression[] {
   switch (n.kind) {
     case "symbol":
-      return n.at ? [n.at] : [];
+      return n.at ? [n.at] : (n.args ?? []);
     case "number":
     case "constant":
       return [];
@@ -199,7 +205,7 @@ export function parseExpression(
       path,
       ["kind", ...kindFields],
       kind === "symbol"
-        ? ["scale", "index", "at"]
+        ? ["scale", "index", "at", "args"]
         : kind === "integral"
           ? ["opId", "lower", "upper"]
           : kind === "derivative"
@@ -217,6 +223,15 @@ export function parseExpression(
       if (Object.hasOwn(o, "index") && !/^[a-z0-9]{1,2}$/.test(String(o.index)))
         fail(path, "An index is a component or instance label of one or two letters or digits.");
       if (Object.hasOwn(o, "at")) parse(o.at, `${path}.at`, depth + 1);
+      if (Object.hasOwn(o, "args")) {
+        if (Object.hasOwn(o, "at"))
+          fail(path, "A value is taken at one argument (at) or at several (args), not both.");
+        if (!Array.isArray(o.args) || o.args.length < 2 || o.args.length > 4)
+          fail(path, "Take a value at two to four arguments; use `at` for one.");
+        o.args.forEach((v, i) => {
+          parse(v, `${path}.args[${i}]`, depth + 1);
+        });
+      }
     } else if (kind === "constant") {
       if (o.name === "infinity") {
         if (!limit) fail(path, "Infinity is admitted only as an integral's limit.");

@@ -34,7 +34,9 @@ export function structurallyEqual(a: Expression, b: Expression): boolean {
         a.quantityId === b.quantityId &&
         scaleEqual(a.scale, b.scale) &&
         a.index === b.index &&
-        optionalEqual(a.at, b.at)
+        optionalEqual(a.at, b.at) &&
+        (a.args ?? []).length === (b.args ?? []).length &&
+        (a.args ?? []).every((x, i) => optionalEqual(x, b.args?.[i]))
       );
     case "constant":
       return b.kind === "constant" && a.name === b.name;
@@ -122,6 +124,8 @@ export function substituteNode(
   if (nodeId(root) === targetId) return replacement;
   switch (root.kind) {
     case "symbol":
+      if (root.args)
+        return { ...root, args: root.args.map((x) => substituteNode(x, targetId, replacement)) };
       return root.at ? { ...root, at: substituteNode(root.at, targetId, replacement) } : root;
     case "constant":
     case "number":
@@ -184,7 +188,7 @@ export function containsId(root: Expression, id: string): boolean {
 function childrenOf(n: Expression): readonly Expression[] {
   switch (n.kind) {
     case "symbol":
-      return n.at ? [n.at] : [];
+      return n.at ? [n.at] : (n.args ?? []);
     case "number":
     case "constant":
       return [];

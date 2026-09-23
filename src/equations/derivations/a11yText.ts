@@ -84,6 +84,10 @@ export function expressionToSpokenText(expr: Expression): string {
     case "symbol": {
       const base = symbolName(expr);
       const indexed = expr.index === undefined ? base : `${base} sub ${expr.index}`;
+      if (expr.args?.length) {
+        const spoken = expr.args.map(expressionToSpokenText);
+        return `${indexed} of ${spoken.slice(0, -1).join(", ")} and ${spoken.at(-1)}`;
+      }
       return expr.at ? `${indexed} of ${expressionToSpokenText(expr.at)}` : indexed;
     }
     case "sum":

@@ -277,6 +277,9 @@ export function checkDimensions(
         // gamma(u), u(t): the value of the quantity at an argument has the quantity's own
         // dimension. The argument is still checked, so an inconsistent one is not waved through.
         if (node.at) visit(node.at, depth + 1);
+        // p(x, t): the same for a value at several arguments; each is checked.
+        if (Array.isArray(node.args))
+          for (const arg of node.args as unknown[]) visit(arg as typeof node, depth + 1);
         // An exact `scale` (paper 2's κ at 1/2) is a numeric factor. It never
         // changes a dimension; exactness of the number lives on the constant set.
         return res.dimension;
