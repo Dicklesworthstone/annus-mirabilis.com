@@ -37,7 +37,10 @@ export function DopplerAberrationPlot({
   // Both frames share one 800 × 400 coordinate space, K drawn around x = 200 and k
   // around x = 600; each FramePair panel's viewBox crops its own half.
   const cx1 = 200;
-  const cy = 200;
+  // Lower than it was (200), and each panel 20 units taller, to make room for a two-line subtitle.
+  // At the panels' text size (15.84 viewBox units, a 20.4-unit line box) the one-line subtitle's
+  // baseline sat 12 units above the y-axis letter, which it overlapped in both panels.
+  const cy = 214;
   const cx2 = 600;
   const radius = 120;
 
@@ -89,7 +92,7 @@ export function DopplerAberrationPlot({
       >
         <FramePair>
           <svg
-            viewBox="10 20 370 320"
+            viewBox="10 20 370 340"
             role="img"
             aria-label={`Stationary frame K: the source ray at theta = ${thetaStationaryDeg.toFixed(1)} degrees, frequency ${frequencyStationaryTHz.toFixed(1)} THz`}
             style={{ width: "100%", height: "auto", userSelect: "none" }}
@@ -113,9 +116,11 @@ export function DopplerAberrationPlot({
               <text x={40} y={40} fontSize="14" fontWeight="600" fill="var(--ink)">
                 Stationary Frame K
               </text>
-              <text x={40} y={60} fontSize="12" fill="var(--muted)">
-                Source frame · ν = {frequencyStationaryTHz.toFixed(1)} THz · θ ={" "}
-                {thetaStationaryDeg.toFixed(1)}°
+              <text x={40} y={61} fontSize="12" fill="var(--muted)">
+                Source frame
+              </text>
+              <text x={40} y={82} fontSize="12" fill="var(--muted)">
+                ν = {frequencyStationaryTHz.toFixed(1)} THz · θ = {thetaStationaryDeg.toFixed(1)}°
               </text>
 
               {/* Coordinate axes */}
@@ -138,13 +143,7 @@ export function DopplerAberrationPlot({
               <text x={cx1 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
                 x
               </text>
-              <text
-                x={cx1}
-                y={cy - radius - 8}
-                fontSize="10"
-                fill="var(--muted)"
-                textAnchor="middle"
-              >
+              <text x={cx1 + 8} y={cy - radius + 16} fontSize="10" fill="var(--muted)">
                 y
               </text>
 
@@ -182,9 +181,11 @@ export function DopplerAberrationPlot({
                 strokeWidth={1.2}
                 strokeDasharray="2 2"
               />
+              {/* The angle's value is read in the panel's lower corner: beside the arc it sat among the
+                  wavefronts, which turn with θ, so no fixed spot near the ray stays clear. */}
               <text
-                x={cx1 + 42}
-                y={cy - 12}
+                x={cx1 + 40}
+                y={cy + radius - 14}
                 fontSize="12"
                 fontFamily="var(--font-mono, monospace)"
                 fontWeight="500"
@@ -195,7 +196,7 @@ export function DopplerAberrationPlot({
             </g>
           </svg>
           <svg
-            viewBox="420 20 370 320"
+            viewBox="420 20 370 340"
             role="img"
             aria-label={`Moving frame k at beta = ${fixed(beta, 3)}: the same ray at theta' = ${thetaMovingDeg.toFixed(1)} degrees, frequency ${frequencyMovingTHz.toFixed(1)} THz`}
             style={{ width: "100%", height: "auto", userSelect: "none" }}
@@ -230,9 +231,11 @@ export function DopplerAberrationPlot({
               <text x={cx2 - 140} y={40} fontSize="14" fontWeight="600" fill="var(--ink)">
                 Moving Frame k (β = {fixed(beta, 3)}c)
               </text>
-              <text x={cx2 - 140} y={60} fontSize="12" fill="var(--muted)">
-                Observer frame · ν′ = {frequencyMovingTHz.toFixed(1)} THz · θ′ ={" "}
-                {thetaMovingDeg.toFixed(1)}°
+              <text x={cx2 - 140} y={61} fontSize="12" fill="var(--muted)">
+                Observer frame
+              </text>
+              <text x={cx2 - 140} y={82} fontSize="12" fill="var(--muted)">
+                ν′ = {frequencyMovingTHz.toFixed(1)} THz · θ′ = {thetaMovingDeg.toFixed(1)}°
               </text>
 
               {/* Coordinate axes */}
@@ -255,13 +258,7 @@ export function DopplerAberrationPlot({
               <text x={cx2 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
                 x′
               </text>
-              <text
-                x={cx2}
-                y={cy - radius - 8}
-                fontSize="10"
-                fill="var(--muted)"
-                textAnchor="middle"
-              >
+              <text x={cx2 + 8} y={cy - radius + 16} fontSize="10" fill="var(--muted)">
                 y′
               </text>
 
@@ -278,7 +275,7 @@ export function DopplerAberrationPlot({
                 />
                 <text
                   x={25}
-                  y={-6}
+                  y={-9}
                   fontSize="10"
                   fontFamily="var(--font-mono, monospace)"
                   fill="var(--accent)"
@@ -323,8 +320,8 @@ export function DopplerAberrationPlot({
                 strokeDasharray="2 2"
               />
               <text
-                x={cx2 + 42}
-                y={cy - 12}
+                x={cx2 + 40}
+                y={cy + radius - 14}
                 fontSize="12"
                 fontFamily="var(--font-mono, monospace)"
                 fontWeight="500"
