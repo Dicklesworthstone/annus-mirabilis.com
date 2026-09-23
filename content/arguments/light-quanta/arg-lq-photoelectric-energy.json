@@ -63,6 +63,11 @@
           "Vary power without altering \\(h\\nu\\) or \\(\\Phi\\), then compare energy and rate in separate readouts.",
           "A real experiment can test the model; repeating its own programmed equation cannot independently confirm it."
         ]
+      },
+      {
+        "kind": "foundation",
+        "id": "bridge-a-graph",
+        "returnCaption": "Return to the straight line of electron energy against frequency."
       }
     ],
     "margin": [

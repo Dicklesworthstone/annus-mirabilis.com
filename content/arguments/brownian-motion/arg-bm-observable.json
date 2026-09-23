@@ -44,6 +44,11 @@
     "steps": [
       {
         "kind": "foundation",
+        "id": "bridge-sum-average",
+        "returnCaption": "Return to adding and averaging the four displacements."
+      },
+      {
+        "kind": "foundation",
         "id": "bridge-negative-numbers-direction",
         "returnCaption": "Return to why leftward and rightward displacements can cancel."
       },

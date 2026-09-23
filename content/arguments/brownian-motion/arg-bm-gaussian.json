@@ -57,6 +57,11 @@
         "returnCaption": "Return to the normalized point-source solution."
       },
       {
+        "kind": "foundation",
+        "id": "exponentials",
+        "returnCaption": "Return to the Gaussian's exponential factor."
+      },
+      {
         "kind": "steps",
         "items": [
           "For positive \\(t\\), change variable to \\(u = x/\\sqrt{4Dt}\\). Then \\(x = \\sqrt{4Dt}\\,u\\) and \\(dx = \\sqrt{4Dt}\\,du\\).",
