@@ -1365,8 +1365,8 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
       wienParameterX: x,
       wienDeviationExpMinusX: expMinusX,
       verdictReason: allowed
-        ? "Allowed: Exciting light is in the Wien regime (e^-x <= 0.01) and emitted frequency nu2 <= nu1."
-        : "Disallowed: Emitted frequency nu2 exceeds incident frequency nu1 in the Wien regime.",
+        ? "Allowed: Exciting light is in the Wien regime (exp(−x) ≤ 0.01) and emitted frequency ν₂ ≤ ν₁."
+        : "Disallowed: Emitted frequency ν₂ exceeds incident frequency ν₁ in the Wien regime.",
     });
   }
 
@@ -1438,8 +1438,8 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
   const nu2Max = nu1;
   let allowed = nu2 <= nu1;
   let reason = allowed
-    ? "Allowed under Stokes's rule: emitted quantum energy does not exceed absorbed quantum energy (nu2 <= nu1)."
-    : "Disallowed under standard single-quantum Stokes assumptions: emitted quantum energy exceeds absorbed quantum energy (nu2 > nu1).";
+    ? "Allowed under Stokes's rule: emitted quantum energy does not exceed absorbed quantum energy (ν₂ ≤ ν₁)."
+    : "Disallowed under standard single-quantum Stokes assumptions: emitted quantum energy exceeds absorbed quantum energy (ν₂ > ν₁).";
 
   if (channels === "light-only") {
     if (nu2 < nu1) {

@@ -83,11 +83,11 @@ export function FluorescenceLab({
     e.preventDefault();
     const parsed = fromLq07Draft(draft);
     if (!Number.isFinite(parsed.nu1) || parsed.nu1 <= 0) {
-      setError("Exciting frequency nu1 must be positive.");
+      setError("Exciting frequency ν₁ must be positive.");
       return;
     }
     if (!Number.isFinite(parsed.nu2) || parsed.nu2 <= 0) {
-      setError("Emitted frequency nu2 must be positive.");
+      setError("Emitted frequency ν₂ must be positive.");
       return;
     }
     apply(parsed);
@@ -469,7 +469,7 @@ export function FluorescenceLab({
                   </span>
                   {evaluation.budget.wienDeviationExpMinusX !== undefined && (
                     <span className="fine" style={{ fontFamily: "var(--font-mono)" }}>
-                      (e^-x = {evaluation.budget.wienDeviationExpMinusX.toFixed(4)})
+                      (e<sup>−x</sup> = {evaluation.budget.wienDeviationExpMinusX.toFixed(4)})
                     </span>
                   )}
                 </div>

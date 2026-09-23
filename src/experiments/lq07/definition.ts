@@ -48,9 +48,9 @@ export const LQ07_QUESTION =
   "Why can the frequency of emitted fluorescent light not exceed that of the exciting light under the light-quantum hypothesis, and what are the exact conditions for exceptions?";
 
 export const LQ07_CAPTION = Object.freeze({
-  r0: "Under single-quantum transformation, the emitted quantum cannot exceed the absorbed quantum: h*nu2 <= h*nu1, meaning the emitted frequency cannot exceed the exciting frequency (Stokes's rule).",
-  r1: "Einstein §7 shows that Stokes's empirical rule follows naturally from single-quantum energy conservation: h*nu1 = h*nu2 + E_other with E_other >= 0.",
-  r2: "Einstein explicitly names two deviation cases: (1) multi-quantum absorption, where k absorbed quanta raise the limit to k*nu1, and (2) exciting radiation outside the Wien domain, where the single-quantum derivation does not apply.",
+  r0: "Under single-quantum transformation, the emitted quantum cannot exceed the absorbed quantum: hν₂ ≤ hν₁, meaning the emitted frequency cannot exceed the exciting frequency (Stokes's rule).",
+  r1: "Einstein §7 shows that Stokes's empirical rule follows naturally from single-quantum energy conservation: hν₁ = hν₂ + E, where E ≥ 0 is the energy passed to other channels.",
+  r2: "Einstein explicitly names two deviation cases: (1) multi-quantum absorption, where k absorbed quanta raise the limit to kν₁, and (2) exciting radiation outside the Wien domain, where the single-quantum derivation does not apply.",
   r3: "Historical note: Stokes's 1852 rule was widely considered an absolute law until anti-Stokes lines were observed. Einstein's energy-accounting derivation correctly predicted the possibility of multi-photon deviations and weak-light linearity with zero threshold.",
 });
 
@@ -59,10 +59,10 @@ export const LQ07_MODEL = Object.freeze({
   constantSetId: "modern-si-2019",
   label: "Fluorescence energy budget & weak-illumination rates · host calculation",
   assumptions: Object.freeze([
-    "The exciting light consists of energy quanta of magnitude h*nu1 as derived for the Wien regime.",
+    "The exciting light consists of energy quanta of magnitude hν₁ as derived for the Wien regime.",
     "The absorption and emission of light are elementary processes occurring via single quanta (unless in deviation case 1).",
-    "Each absorbed quantum is transformed into a light quantum of frequency nu2 and/or non-optical energy channels (heat).",
-    "Energy is strictly conserved in every elementary transformation: h*nu1 = h*nu2 + E_other with E_other >= 0.",
+    "Each absorbed quantum is transformed into a light quantum of frequency ν₂ and/or non-optical energy channels (heat).",
+    "Energy is strictly conserved in every elementary transformation: hν₁ = hν₂ + E, where E ≥ 0 is the energy passed to other channels.",
   ]),
   notModeled: Object.freeze([
     "Detailed atomic or molecular energy level structures and transition dipoles.",
@@ -139,7 +139,7 @@ export const LQ07_PRESETS: Readonly<
   "lq-07-stokes-rule": Object.freeze({
     label: "Stokes's rule (§7 as printed)",
     description:
-      "Standard single-quantum budget: exciting UV light at 850 THz (3.515 eV) bounds emission to nu2 <= 850 THz.",
+      "Standard single-quantum budget: exciting UV light at 850 THz (3.515 eV) bounds emission to ν₂ ≤ 850 THz.",
     parameters: Object.freeze({
       nu1: 850,
       nu2: 850,
@@ -155,7 +155,7 @@ export const LQ07_PRESETS: Readonly<
   "lq-07-anti-stokes-disallowed": Object.freeze({
     label: "Anti-Stokes disallowed (900 THz proposal)",
     description:
-      "Proposing nu2 = 900 THz (3.722 eV) results in a 0.207 eV deficit under standard single-quantum assumptions.",
+      "Proposing ν₂ = 900 THz (3.722 eV) results in a 0.207 eV deficit under standard single-quantum assumptions.",
     parameters: Object.freeze({
       nu1: 850,
       nu2: 900,
@@ -171,7 +171,7 @@ export const LQ07_PRESETS: Readonly<
   "lq-07-deviation-multi": Object.freeze({
     label: "Deviation case 1 (k = 2 multi-quantum)",
     description:
-      "Two absorbed quanta (7.031 eV) raise the upper frequency bound to nu2,max = 1700 THz, allowing 900 THz emission.",
+      "Two absorbed quanta (7.031 eV) raise the bound on ν₂ to 1700 THz, allowing 900 THz emission.",
     parameters: Object.freeze({
       nu1: 850,
       nu2: 900,
@@ -187,7 +187,7 @@ export const LQ07_PRESETS: Readonly<
   "lq-07-deviation-non-wien": Object.freeze({
     label: "Deviation case 2 (T_src = 20,000 K non-Wien source)",
     description:
-      "Exciting radiation outside the Wien domain (e^-x = 0.130 > 0.01) produces an explicit outside-wien-domain refusal.",
+      "Exciting radiation outside the Wien domain (exp(−x) = 0.130 > 0.01) is refused: the single-quantum derivation assumes the Wien regime.",
     parameters: Object.freeze({
       nu1: 850,
       nu2: 850,
@@ -203,7 +203,7 @@ export const LQ07_PRESETS: Readonly<
   "lq-07-modern-thermal": Object.freeze({
     label: "Modern thermal allowance (T_body = 300 K)",
     description:
-      "Thermal energy of the emitting body (+0.259 eV from vibrational modes) raises nu2,max to 912.51 THz (labeled modern lens).",
+      "Thermal energy of the emitting body (+0.259 eV from vibrational modes) raises the bound on ν₂ to 912.51 THz (labeled modern lens).",
     parameters: Object.freeze({
       nu1: 850,
       nu2: 900,
