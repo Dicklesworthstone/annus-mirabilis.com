@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
+import { loadFirstPages } from "../../components/home/firstPages.ts";
 import Papers from "./page";
 
 const html = renderToStaticMarkup(<Papers />);
@@ -86,6 +87,49 @@ describe("Papers index: the companion is presented as a companion, outside the f
       /<section class="reading(?: [^"]*)?">([\s\S]*?)<\/section>/.exec(html)?.[1] ?? "";
     expect(companion.toLowerCase()).toContain("molecular-dimensions");
     expect(companion.toLowerCase()).toContain("companion");
+  });
+});
+
+describe("Papers index: every entry can be chosen without knowing its name", () => {
+  // am-design-papers-index-afnu: each entry leads with its English working title and a plain
+  // scope sentence, and names the paper conventionally only after them (TanElk's ruling,
+  // dispatch 99, extended the Brownian order check above to all four).
+  const entries = html.split('<li class="paper-entry">').slice(1);
+  const receipts = loadFirstPages();
+  const expected = [
+    { name: "Light quanta", key: "ap-17-132" },
+    {
+      name: "Brownian motion",
+      title:
+        "On the Motion of Small Particles Suspended in Liquids at Rest, as Required by the Molecular-Kinetic Theory of Heat",
+    },
+    { name: "Special relativity", key: "ap-17-891" },
+    { name: "Mass and energy", key: "ap-18-639" },
+  ].map((paper) => ({
+    ...paper,
+    title: paper.title ?? receipts.find((p) => p.key === paper.key)?.workingTitle ?? "",
+  }));
+
+  test("there are four entries, in the order the journal received the papers", () => {
+    expect(entries).toHaveLength(4);
+    expected.forEach(({ name }, i) => {
+      expect(entries[i], name).toContain(`Also known as: ${name}.`);
+    });
+  });
+
+  test("each entry's heading is its working title, then its scope, then its conventional name", () => {
+    expected.forEach(({ name, title }, i) => {
+      const entry = entries[i] ?? "";
+      expect(title.length, name).toBeGreaterThan(0);
+      const heading = /<h2 class="paper-entry-title">([\s\S]*?)<\/h2>/.exec(entry)?.[1] ?? "";
+      expect(heading, name).toBe(title.replaceAll("&", "&amp;").replaceAll("'", "&#x27;"));
+      const scope = /<\/h2>(?:[\s\S]*?<\/details>)?\s*<p>([\s\S]*?)<\/p>/.exec(entry)?.[1] ?? "";
+      expect(scope.length, `${name}: a scope sentence follows the heading`).toBeGreaterThan(20);
+      expect(entry.indexOf(heading)).toBeLessThan(entry.indexOf(scope));
+      expect(entry.indexOf(scope)).toBeLessThan(entry.indexOf(`Also known as: ${name}.`));
+      // Neither the heading nor the scope sentence needs the name to identify the paper.
+      expect(`${heading} ${scope}`.toLowerCase(), name).not.toContain(name.toLowerCase());
+    });
   });
 });
 
