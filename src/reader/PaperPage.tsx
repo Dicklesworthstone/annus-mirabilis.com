@@ -491,7 +491,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           ))}
         </div>
       </div>
-      <section className="reading" aria-label="References for this explanatory preview">
+      <section
+        className="reading reading-column"
+        aria-label="References for this explanatory preview"
+      >
         <h2>References and source status</h2>
         <p>{paper.sourceNotice}</p>
         {payload.citations.map((citation) => (

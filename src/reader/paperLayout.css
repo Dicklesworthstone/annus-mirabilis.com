@@ -34,6 +34,15 @@
     max-width: calc(15rem + 4rem + var(--reader-measure) * var(--reader-step));
     margin-inline: auto;
   }
+  /* The references and the offline chapters are one track wide and centred on the page, like
+     the composition above; the text column sits 15rem + 4rem right of the composition's edge,
+     so its centre is 9.5rem right of the page's. Shifting them by that puts them on the text's
+     left edge (539 and 750px at 1440 and 1920) instead of 200px to its left. */
+  .reader-root:has(> .reader-layout) > .reading-column,
+  .reader-root:has(> .reader-layout) ~ .reading-column {
+    position: relative;
+    left: 9.5rem;
+  }
 }
 @media (max-width: 900px) {
   .reader-layout {

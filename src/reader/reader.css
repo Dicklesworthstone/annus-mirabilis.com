@@ -2354,6 +2354,15 @@ html:is(
 .model-limits {
   margin: 1rem 0;
 }
+/* THE BLOCKS AFTER THE ARGUMENT READ AT THE ARGUMENT'S MEASURE. A paper page ends in its references
+   and its offline chapters, both `.reading` (globals.css: 760px, 19px). On BUILD 24 they ran 92 to
+   98 characters a full line at 1440 and 81 to 84 at 1920, under text set at 22.8 and 26.2px
+   in a 666 and 769px column. They now carry .reading-column (readingSettings.css), which gives
+   them the reader's own type step and settings, and this takes the reader's measure over the
+   global 760px. Loaded by the Brownian reading as well, whose offline block has the same class. */
+.reading.reading-column {
+  max-width: min(var(--reader-measure), 100%);
+}
 /* STACKED DISCLOSURES SHARE ONE RULE. Every <details> draws a hairline above and below it
    (globals.css) and keeps a margin, so two in a row drew two lines 13-16px apart. On BUILD 24's
    /papers/light-quanta/, 30 of the 45 top-level disclosures sat directly under another, and every

@@ -44,7 +44,9 @@ export async function OfflineChapterLinks({
   // 1440 and 393px right at 1920, and read as a second page below the first.
   return (
     <section
-      className={onIndex ? "reading page-flush offline-chapters" : "reading offline-chapters"}
+      className={
+        onIndex ? "reading page-flush offline-chapters" : "reading reading-column offline-chapters"
+      }
       aria-label={heading ?? "Read offline"}
     >
       <h2>{heading ?? "Read this offline"}</h2>
