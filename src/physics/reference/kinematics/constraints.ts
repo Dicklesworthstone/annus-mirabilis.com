@@ -114,7 +114,7 @@ export function solveCandidateFamily(input: {
     return {
       status: "residual-report",
       residuals,
-      notes: "Galilean candidate: slow objects pass; light x = ±ct fails (speeds c ∓ v).",
+      notes: "Galilean candidate: slow objects pass; light x = ±ct fails (speeds c − v and c + v).",
     };
   }
   const bothLight = enabled.has("right-moving-light") && enabled.has("left-moving-light");
