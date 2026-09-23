@@ -22,6 +22,7 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "gates": "bun scripts/quality-gates.ts --fail-fast --family fast && bun scripts/quality-gates.ts --fail-fast --family browser",
+    "gates:apple": "bun scripts/quality-gates.ts --fail-fast --family apple",
     "test": "bun scripts/prepare-lane.ts && bun test --isolate --timeout 60000 src scripts",
     "test:node": "node --experimental-strip-types scripts/run-node-only-tests.ts",
     "test:reference": "bun run prepare:content && bun run prepare:lab && bun test --isolate --timeout 60000 src/testing/*.test.mjs",

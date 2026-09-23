@@ -12,6 +12,8 @@
  * - Profile runs (`--profile <scaffold|preview|launch>`) fail with exit code 2 if any required step is unavailable.
  */
 
+import { APPLE_STEPS } from "../app/apple-steps.ts";
+
 export type GateFamily = "fast" | "browser" | "perf" | "apple";
 export type GateCadence = "every-run" | "nightly";
 export type GateProfile = "scaffold" | "preview" | "launch";
@@ -584,38 +586,33 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-plat-resource-stress-9zgu",
   },
-  {
-    // NOT RUN BY CI, AND THAT IS THE DECISION RATHER THAN AN OVERSIGHT (am-7bkr, 2026-09-22).
-    //
-    // Measured that day with the CI's own flags: `--fail-fast --family fast --only apple-quality`
-    // and the same with `--family browser` both report Selected Steps: 0. So nothing dsr runs
-    // reaches this step, exactly as browser-acceptance was unreached - and unlike that one, it is
-    // correct here, for three reasons that are each checkable:
-    //
-    //   1. AGENTS.md, iPhone app chapter, verbatim: "Apple validation runs locally as the `apple`
-    //      gate family, not in the website's CI."
-    //   2. `requiredInCi: false` below. browser-acceptance's defect was a gate declaring TRUE
-    //      while nothing ran it; this one has never claimed CI would run it, which is why
-    //      src/testing/ciGateWiring.test.ts does not quantify over it.
-    //   3. scripts/dsr-apple-quality.sh does not exist on disk and neither does ios/. Wiring it
-    //      today would add a permanent not-available row to every run, and wiring it after the
-    //      script lands would start an Xcode build on every dsr check, against rule 1.
-    //
-    // `cadence: every-run` is scoped WITHIN a run of the apple family, which is a local
-    // `--family apple` invocation. It does not claim that CI runs this every time.
-    id: "apple-quality",
-    title: "Apple local quality gate (Xcode / SwiftUI)",
-    command: ["bash", "scripts/dsr-apple-quality.sh"],
-    family: "apple",
-    cadence: "every-run",
-    requiredInCi: false,
-    requiredInProfiles: [],
-    availability: {
-      scriptPath: "scripts/dsr-apple-quality.sh",
-      tool: "xcodebuild",
-    },
-    owner: "am-app-apple-quality-gate-q6gs",
-  },
+  // THE APPLE FAMILY IS NOT RUN BY CI, AND THAT IS THE DECISION RATHER THAN AN OVERSIGHT
+  // (am-7bkr, 2026-09-22; am-app-apple-quality-gate-q6gs, 2026-09-23).
+  //
+  //   1. AGENTS.md, iPhone app chapter: "Apple validation runs locally as the `apple` gate
+  //      family, not in the website's CI." dsr runs --family fast and --family browser, and
+  //      neither selects these steps; scripts/quality-gates/workflowScan.test.ts refuses a
+  //      workflow that invokes --family apple.
+  //   2. Every step below has `requiredInCi: false` and no web release profile, so no web
+  //      deploy waits on Xcode. src/testing/ciGateWiring.test.ts does not quantify over them.
+  //   3. They start Xcode builds, which must never run on every dsr check.
+  //
+  // `cadence: every-run` is scoped within a local `bun run gates:apple`. The steps replace the
+  // single entry that pointed at scripts/dsr-apple-quality.sh, a script that never existed, so
+  // that entry could only ever report not-available.
+  ...APPLE_STEPS.map(
+    (step): GateStep => ({
+      id: step.id,
+      title: step.title,
+      command: ["bun", "scripts/app/apple-quality.ts", "--step", step.id],
+      family: "apple",
+      cadence: "every-run",
+      requiredInCi: false,
+      requiredInProfiles: [],
+      availability: { scriptPath: "scripts/app/apple-quality.ts", tool: "xcodebuild" },
+      owner: "am-app-apple-quality-gate-q6gs",
+    }),
+  ),
 ];
 
 export interface RegistryValidationResult {
