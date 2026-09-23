@@ -68,7 +68,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "Near zero, directly subtracting 1 from γ loses floating-point precision. The reference owner uses the stable identity γ − 1 = γ²β²/(γ + 1). The leading omitted term is positive; the finite-speed proxy approaches the limiting coefficient from above."
+        "text": "Einstein keeps only the leading term: at small speed the energy of motion is \\(\\frac{1}{2}mv^2\\), so he reads the loss of mass, \\(L/V^2\\), from the coefficient of \\(v^2\\). The higher terms matter at large speed, as the drop at 60 percent of light speed shows."
       }
     ]
   },

@@ -71,7 +71,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The \\(A\\) and \\(B\\) used here are editorial names for the spectral constants \\(\\alpha\\) and \\(\\beta\\). Their historical numerical values require the historical constant set; this preview does not manufacture a historical measurement by recomputing with modern constants."
+        "text": "The paper writes the spectral constants as \\(\\alpha\\) and \\(\\beta\\); \\(A\\) and \\(B\\) here are editorial names for them. In §2 Einstein derives \\(N = 6.17 \\times 10^{23}\\) from Planck’s printed constants. The historical constant set reproduces that number and the modern set does not, so the two are kept apart."
       }
     ]
   },

@@ -66,7 +66,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "For rare configurations, a log-probability readout avoids pretending that a finite animation has directly measured an astronomically small probability. The argument concerns the model’s configuration measure."
+        "text": "This is Boltzmann’s principle read backwards. Einstein computes how the entropy of dilute radiation changes with volume, compares it with the entropy of \\(n\\) independent points, \\(k\\ln W\\) with \\(W = f^n\\), and concludes that such radiation behaves thermodynamically as if it consisted of \\(n\\) independent energy quanta. For large \\(n\\), \\(f^n\\) is astronomically small, so the laboratory reports its logarithm."
       }
     ]
   },
