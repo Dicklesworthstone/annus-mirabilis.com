@@ -264,6 +264,7 @@
   .reader-root .reader-outline nav > div > a[aria-current] {
     border-color: var(--accent);
     border-bottom-width: 3px;
+    font-weight: 700;
   }
 }
 .reader-body {
