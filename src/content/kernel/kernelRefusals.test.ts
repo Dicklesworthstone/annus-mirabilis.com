@@ -292,7 +292,7 @@ describe("Kernel bindings refusal sites (bindings.ts) (am-muyh)", () => {
 
 describe("Kernel check refusal sites (check.ts) (am-muyh)", () => {
   // Site 10 (line 103)
-  test("site (check.ts:103) kernel-export-missing: reports kernel-export-missing when extraction fails on missing module/export, accepts valid kernel", () => {
+  test("site (check.ts:107) kernel-export-missing: reports kernel-export-missing when extraction fails on missing module/export, accepts valid kernel", () => {
     const reportedBad: any[] = [];
     const contextBad = {
       records: new Map([
