@@ -24,10 +24,11 @@ import { THEME_INIT_SOURCE } from "./theme/themeInit.inline";
  * pages (109 of 334 in the export) took the image from the opengraph-image.tsx convention, whose
  * URL has no extension: on Vercel it answered 308 to a trailing slash and then served the PNG as
  * application/octet-stream, which link previews reject. The same card is published at
- * /share/home.png by the share route, and naming it here sets twitter:image. It does NOT set
- * og:image while src/app/opengraph-image.tsx exists: Next attaches that file to the root page node
- * as well as the layout, and a file image beats config there (measured in the 19:38 build,
- * 2026-09-23). og:image follows once that file leaves the convention.
+ * /share/home.png by the share route, and naming it here sets both tags. Naming it alone did not
+ * set og:image: Next attaches a folder's opengraph-image file to the page node as well as the
+ * layout, and a file image beats config there (the 19:38 build, 2026-09-23, carried twitter:image
+ * /share/home.png beside og:image /opengraph-image?<hash>). So the module is kept as
+ * src/app/_opengraph-image.tsx, a name outside the file convention, and this is the only source.
  */
 const SITE_CARD = [
   shareImage(

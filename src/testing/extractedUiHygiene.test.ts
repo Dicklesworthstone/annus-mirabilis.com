@@ -46,7 +46,7 @@ export const EXTRACTED_UI_FILES = [
   "src/visuals/three/ThreeStudioScene.ts",
   "src/visuals/three/StudioKernelChips.tsx",
   "src/search/CommandPalette.tsx",
-  "src/app/opengraph-image.tsx",
+  "src/app/_opengraph-image.tsx",
 ] as const;
 
 export interface HeaderValidationResult {

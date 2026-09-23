@@ -11,8 +11,8 @@
 import { describe, expect, test } from "bun:test";
 import type { Metadata } from "next";
 import { shareCardIds } from "../components/share/shareCards.tsx";
+import { alt as fileCardAlt } from "./_opengraph-image.tsx";
 import { metadata } from "./layout.tsx";
-import { alt as fileCardAlt } from "./opengraph-image.tsx";
 
 type ImageEntry = string | URL | { url: string | URL; alt?: string; type?: string };
 

@@ -61,7 +61,7 @@ import { fileURLToPath } from "node:url";
  * 3. src/design/semanticColor/tokens.ts:
  *    Authoritative semantic color system definitions.
  *
- * 4. src/app/opengraph-image.tsx:
+ * 4. src/app/_opengraph-image.tsx:
  *    Server-side OpenGraph social card image generator using @vercel/og canvas. Runs in an isolated
  *    edge runtime to produce a static PNG, completely detached from browser DOM and theme stylesheets.
  *

@@ -8,7 +8,7 @@
 import { describe, expect, test } from "bun:test";
 import { CARD } from "../components/share/shareCards.tsx";
 import { decodePng } from "../testing/decodePng.ts";
-import Image, { alt, contentType, size } from "./opengraph-image.tsx";
+import Image, { alt, contentType, size } from "./_opengraph-image.tsx";
 
 describe("Root OpenGraph Image", () => {
   test("exports the card's 1200x630 size, a png content type, and a text alternative", () => {

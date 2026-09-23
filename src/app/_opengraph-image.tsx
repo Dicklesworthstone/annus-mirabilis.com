@@ -14,6 +14,10 @@
  *   Newsreader and Plus Jakarta Sans. It replaces a template card (a red frame, a star badge, a
  *   pill) that promised an English translation not yet started and named the fourth paper by a
  *   formula it never writes. Every page without a card of its own shares this one.
+ * - 2026-09-23: renamed from opengraph-image.tsx, so Next no longer treats it as the root Open Graph
+ *   image. That convention's URL has no extension (Vercel answered 308 and application/octet-stream)
+ *   and it overrode the layout's /share/home.png on every page without a card. The same card is
+ *   published at /share/home.png; this module stays for its test and its attribution record.
  */
 
 import { CARD, renderSiteCard } from "../components/share/shareCards.tsx";

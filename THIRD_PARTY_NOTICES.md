@@ -63,7 +63,7 @@ This inventory does not state or imply rights to scans, photographs, historical 
 | scripts/fixtures/deployment-target/wrong-project.json | da11ff4 | MIT with OpenAI/Anthropic Rider | `scripts/fixtures/deployment-target/wrong-project.json` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | scripts/smoke-test-deployment.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `scripts/smoke-test-deployment.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | scripts/verified-production-deploy.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `scripts/verified-production-deploy.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
-| src/app/opengraph-image.tsx | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/app/opengraph-image.tsx` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
+| src/app/_opengraph-image.tsx | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/app/_opengraph-image.tsx` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/content/coverage/coverageManifest.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/content/coverage/coverageManifest.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/equations/colorPalette.ts | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/equations/colorPalette.ts` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
 | src/equations/legacy/ColorizedEquation.tsx | da11ff4 | MIT with OpenAI/Anthropic Rider | `src/equations/legacy/ColorizedEquation.tsx` | Extracted from classic-patents.com at da11ff475902728fd8dd1d9db9f3af37c16ec8a5 |
