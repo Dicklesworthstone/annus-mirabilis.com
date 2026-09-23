@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from
 import { createLq01BrowserChannel } from "../../experiments/lq01/browser.ts";
 import { fromLq01Draft, type Lq01Draft, toLq01Draft } from "../../experiments/lq01/controls.ts";
 import {
+  LQ01_CAPTION,
   LQ01_MODEL,
   LQ01_PRESETS,
   LQ01_PROMPTS,
@@ -17,6 +18,7 @@ import { array, identity, result, scalar } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { SliderField } from "./SliderField.tsx";
+import { withScripts } from "./subscripts.tsx";
 import { InterferencePlot, SpreadingPlot, WavefrontPlot } from "./WaveDescriptionPlots.tsx";
 import "./waveDescriptionLab.css";
 
@@ -553,6 +555,17 @@ export function WaveDescriptionLab({
           </table>
         </section>
       </div>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(LQ01_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(LQ01_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(LQ01_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(LQ01_CAPTION.r3)}
+      </p>
 
       <div className="lab-bottom">
         <div className="not-modeled">

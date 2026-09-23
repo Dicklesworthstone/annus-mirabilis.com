@@ -1,8 +1,24 @@
-beadId: am-lq-01-wave-description-kv2r
+# Declares this bead as the owner of LQ-01's instrument-caption readings. Until 2026-09-23 this
+# file declared a target ("caption-lq-01") with the names of four readings and no text. The texts
+# were authored that day (TopazPrairie): the target below mirrors LQ01_CAPTION in
+# src/experiments/lq01/definition.ts, which the lab renders.
+paper: light-quanta
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - lq-01
+ownerBeadId: am-lq-01-wave-description-kv2r
 targets:
-  - instrument: lq-01
-    captions:
-      - r0
-      - r1
-      - r2
-      - r3
+  - kind: caption
+    id: lq-01
+    readings:
+      r0: "Treat light as a continuous wave and two sources make bright and dark stripes, while the light of one source spreads ever thinner over larger and larger spheres. Einstein granted that this picture explains everything purely optical, and asked whether it could still fail where light is produced or absorbed."
+      r1: "The light paper opens by setting the wave theory beside the atomic picture of matter. In Maxwell's theory the energy of light is a continuous function of space: from a point source it spreads over an ever larger volume, while the energy of a body is a sum over a finite number of atoms and electrons. Einstein wrote that the wave theory, working with continuous functions of space, has proved itself excellently for purely optical phenomena and will probably never be replaced by another theory. He then added the caveat this instrument shows: optical observations concern averages over time, not instantaneous values. Two coherent unit waves in phase give an averaged intensity of 4 at the centre, in units of one wave's average, while at one instant the same point swings between 0 and 8 in every cycle; the bright fringes are 33.3 wavelengths apart on a screen 100 wavelengths from sources 3 wavelengths apart. One point source of 1 W spreads to 0.0796 W/m^{2} at 1 m, and the whole sphere around it always receives the full 1 W. His question was whether this continuous picture, confirmed for diffraction, reflection, refraction and dispersion, would still hold for the production and transformation of light."
+      r2: "Start with one wave. At a fixed point its field rises and falls as A cos(ωt), and its square, which carries the energy, goes as A^{2} cos^{2}(ωt). Over a whole cycle cos^{2} averages to 1/2, so the average of the square is A^{2}/2. The instrument measures intensity in units of that average for a wave of amplitude 1, so one unit wave reads 1 on average and 2 at its peak. Now two unit waves arrive in step at the centre of the screen. The fields add first: the total is 2 cos(ωt), and its square is 4 cos^{2}(ωt). In the instrument's units that swings between 0 and 8 in every cycle and averages to 4, which is twice the 1 + 1 you would get by adding the two intensities; the extra 2 is the cross term 2A_{1}A_{2} cos δ with the phase difference δ = 0. Shift one wave by half a cycle, δ = π, and the cross term is −2: the average is 0, a dark stripe. Along the screen the difference in path changes the phase, and the bright stripes repeat each time it grows by one wavelength. For sources d = 3 wavelengths apart and a screen L = 100 wavelengths away, the spacing is λL/d = 100/3 = 33.3 wavelengths. For the spreading, take a point source radiating P = 1 W equally in every direction. At distance r the power crosses a sphere of area 4πr^{2}, so the intensity is P/(4πr^{2}) = 1/(4π × 1^{2}) = 0.0796 W/m^{2} at 1 m, a quarter of that at 2 m, and the total over the sphere is 1 W at every radius. A window of 1 cm^{2}, that is 10^{−4} m^{2}, at 1 m receives about 0.0796 × 10^{−4} = 7.96 × 10^{−6} W; the exact figure for a flat disc differs by about 2 parts in 100 000. As r grows, the energy through any small window keeps falling without limit. The next paragraph of the paper replaces that continuous thinning with a hypothesis: a finite number of energy quanta, localized at points, which move without dividing and are absorbed or produced only as wholes."
+      r3: "The purely optical phenomena Einstein names are diffraction, reflection, refraction and dispersion. He kept the wave theory for them, writing that it would probably never be replaced, and confined his doubt to the production and transformation of light: black-body radiation, photoluminescence and the production of cathode rays by ultraviolet light. He called his own proposal a heuristic point of view, not a proof that light is not a wave. The two-source arrangement is Young's, from the first years of the nineteenth century; the field theory is Maxwell's of 1865, and Hertz produced its waves in 1888. The later dispute over whether single quanta interfere belongs to the history after 1905 and is not part of this paper."
+      r3Citations:
+        - "Einstein, A. (1905). Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt. Annalen der Physik 17, 132–148 (introduction)."
+        - "Young, T. (1804). The Bakerian Lecture: Experiments and calculations relative to physical optics. Philosophical Transactions of the Royal Society of London 94, 1–16."
+        - "Maxwell, J. C. (1865). A dynamical theory of the electromagnetic field. Philosophical Transactions of the Royal Society of London 155, 459–512."
+        - "Hertz, H. (1888). Ueber Strahlen elektrischer Kraft. Sitzungsberichte der Königlich Preussischen Akademie der Wissenschaften zu Berlin, 1297–1307."
