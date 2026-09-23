@@ -77,7 +77,7 @@ export function openCommandPalette(
     "fine",
   );
   privacy.id = `${id}-privacy`;
-  const label = element("label", "Words, symbols, or a laboratory ID");
+  const label = element("label", "Words, names or symbols");
   label.htmlFor = `${id}-query`;
   const input = element("input");
   input.id = `${id}-query`;
