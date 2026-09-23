@@ -27,17 +27,17 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 /**
- * Placeholder production project identity. `projectId`, `projectName`, and
- * `orgId` are intentionally not real Vercel identifiers: `am-rel-vercel-setup-ituk`
- * links the real annus-mirabilis Vercel project and `am-rel-verified-deploy-qndt`
- * fills these constants with its real identity. Until then every assertion
- * built on this constant refuses, because no real `.vercel/project.json` can
- * match a placeholder string.
+ * Canonical production project identity: the Vercel project `annus-mirabilis` in team
+ * `dicklesworthstones-projects`, the one serving annus-mirabilis.com, www and the -seven platform
+ * alias. The values are the ones in the `.vercel/project.json` that the owner's 2026-09-21 deploy
+ * linked. Until 2026-09-22 these were placeholder strings, so every assertion built on them
+ * refused and no deploy could pass this gate; `annus-mirabilis.vercel.app` is still another
+ * account's project and must never match.
  */
 export const CANONICAL_PRODUCTION_PROJECT = {
-  projectId: "PLACEHOLDER_VERCEL_PROJECT_ID_NOT_YET_CONFIGURED",
-  projectName: "PLACEHOLDER_VERCEL_PROJECT_NAME_NOT_YET_CONFIGURED",
-  orgId: "PLACEHOLDER_VERCEL_ORG_ID_NOT_YET_CONFIGURED",
+  projectId: "prj_2x78UKZvaughODjplAHyTIqzIXHM",
+  projectName: "annus-mirabilis",
+  orgId: "team_F5Q3EH8Qxu3nDEOyEZLcQPe6",
   customDomains: ["annus-mirabilis.com", "www.annus-mirabilis.com"] as const,
   platformDomain: "annus-mirabilis-seven.vercel.app" as const,
 } as const;

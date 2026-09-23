@@ -57,16 +57,29 @@ describe("deployment-target canonical project identity", () => {
     }
   });
 
-  test("refuses while the project identity placeholders are unfilled", () => {
-    expect(CANONICAL_PRODUCTION_PROJECT.projectId).toContain("PLACEHOLDER");
-    expect(CANONICAL_PRODUCTION_PROJECT.projectName).toContain("PLACEHOLDER");
-    expect(CANONICAL_PRODUCTION_PROJECT.orgId).toContain("PLACEHOLDER");
+  test("names the real annus-mirabilis project, with no placeholder left", () => {
+    expect(CANONICAL_PRODUCTION_PROJECT.projectName).toBe("annus-mirabilis");
+    for (const value of [
+      CANONICAL_PRODUCTION_PROJECT.projectId,
+      CANONICAL_PRODUCTION_PROJECT.orgId,
+    ]) {
+      expect(value).not.toContain("PLACEHOLDER");
+    }
+    expect(CANONICAL_PRODUCTION_PROJECT.projectId).toMatch(/^prj_[A-Za-z0-9]+$/);
+    expect(CANONICAL_PRODUCTION_PROJECT.orgId).toMatch(/^team_[A-Za-z0-9]+$/);
   });
 
-  test("refuses a plausible-real project config, because the identity is still a placeholder", () => {
-    // No real `.vercel/project.json` can equal an unfillable placeholder, so
-    // a workspace linked to the real annus-mirabilis project still refuses
-    // until am-rel-vercel-setup-ituk replaces these three constants.
+  test("accepts the workspace linked to the canonical project", () => {
+    const canonicalFile = path.join(
+      currentDir,
+      "fixtures/deployment-target/canonical-project.json",
+    );
+    expect(() => assertCanonicalProjectIdentity(canonicalFile)).not.toThrow();
+  });
+
+  test("refuses a same-named project with a different id", () => {
+    // Another account also owns a project called annus-mirabilis
+    // (annus-mirabilis.vercel.app). A matching name with a different id must still refuse.
     const plausibleFile = path.join(
       currentDir,
       "fixtures/deployment-target/plausible-real-project.json",

@@ -55,14 +55,14 @@ describe("deployment verification contract", () => {
       expect(parsed.projectName).toBe(CANONICAL_VERCEL_PROJECT_NAME);
     });
 
-    test("rejects a real-looking project config, because the identity is still a placeholder", () => {
+    test("rejects a same-named project with a different id", () => {
       const realLooking = JSON.stringify({
         projectId: "prj_real0000000000000000000",
         orgId: "team_real00000000000000000",
         projectName: "annus-mirabilis",
       });
       expect(() => parseAndValidateVercelProjectConfig(realLooking)).toThrow(
-        /Incorrect Vercel projectName/,
+        /Incorrect Vercel projectId/,
       );
     });
 

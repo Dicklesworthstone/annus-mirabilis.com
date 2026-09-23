@@ -40,12 +40,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-export const CANONICAL_VERCEL_PROJECT_ID =
-  "PLACEHOLDER_VERCEL_PROJECT_ID__FILLED_BY_am-rel-vercel-setup-ituk";
-export const CANONICAL_VERCEL_ORG_ID =
-  "PLACEHOLDER_VERCEL_ORG_ID__FILLED_BY_am-rel-vercel-setup-ituk";
-export const CANONICAL_VERCEL_PROJECT_NAME =
-  "PLACEHOLDER_VERCEL_PROJECT_NAME__FILLED_BY_am-rel-vercel-setup-ituk";
+export const CANONICAL_VERCEL_PROJECT_ID = "prj_2x78UKZvaughODjplAHyTIqzIXHM";
+export const CANONICAL_VERCEL_ORG_ID = "team_F5Q3EH8Qxu3nDEOyEZLcQPe6";
+export const CANONICAL_VERCEL_PROJECT_NAME = "annus-mirabilis";
 
 export const CANONICAL_PUBLIC_HOSTNAMES = [
   "annus-mirabilis.com",
