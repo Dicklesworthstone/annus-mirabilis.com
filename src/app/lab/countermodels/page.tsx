@@ -22,16 +22,6 @@ export default function CountermodelPage() {
           A candidate can fail a stated constraint, remain useful in a limited regime, or agree with
           another candidate on every measurement you have chosen.
         </p>
-        <p>
-          These are bounded, host-calculated comparisons of model consequences. No experiment of
-          nature is being performed, and no historical data have been manufactured. The explanations
-          remain drafts.
-        </p>
-        <div className="actions">
-          <a href="/lab/sr-04/">Construct the Lorentz map</a>
-          <a href="/lab/sr-03/">Measure rods and simultaneity</a>
-          <a href="/papers/special-relativity/">Return to the paper</a>
-        </div>
       </header>
       {examples.map((example) => (
         <CountermodelWorkbench key={example.case.id} example={example} />
@@ -42,6 +32,20 @@ export default function CountermodelPage() {
           include the explanatory drafts.
         </p>
       )}
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/lab/sr-04/">Construct the Lorentz map</a>
+          </li>
+          <li>
+            <a href="/lab/sr-03/">Measure rods and simultaneity</a>
+          </li>
+          <li>
+            <a href="/papers/special-relativity/">Return to the paper</a>
+          </li>
+        </ul>
+      </nav>
       {/* After the workbenches: this points to a different laboratory, and above them it put a second
           title between the page's question and its first result. */}
       {generated.profile === "scaffold" && (
@@ -59,6 +63,11 @@ export default function CountermodelPage() {
       )}
       <section className="reading">
         <h2>Inspect the calculation, not just its conclusion</h2>
+        <p>
+          These are bounded, host-calculated comparisons of model consequences. No experiment of
+          nature is being performed, and no historical data have been manufactured. The explanations
+          remain drafts.
+        </p>
         <p>
           The ether route constructs a relative coordinate and local time independently of the
           Lorentz event-transform function. Clock rates, moving-rod lengths and composed speeds are
