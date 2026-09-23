@@ -6,11 +6,12 @@
  * every registered catalogue id it loads /lab/<id>/ at 1440x900 in the light theme, waits for the
  * page to settle, and photographs the instrument's main drawing: the first visible <svg> or
  * <canvas> inside the laboratory that is at least 240x140 CSS px. Some instruments draw nothing and
- * answer with a results panel; for those it photographs the first such block, cropped from its top
- * to the catalogue's 16:10 frame, unless a table falls inside that frame. A table photographed at a
- * fifth of its size is grey noise, not a picture of the instrument, so such an entry gets no picture
- * and the catalogue shows its question alone. Nothing is computed here; the picture is whatever the
- * built page shows for its own worked example.
+ * answer with a panel of words, numbers and bars. Those get no picture, and the catalogue shows
+ * their question alone: a panel shown at 20rem is its text at about a quarter of its size, grey
+ * noise rather than a picture of the instrument. That was found first for tables and then, on
+ * 2026-09-23, for the text panels of lq-06, sr-07 and the three shelf instruments, whose pictures
+ * were unreadable lines of type. Nothing is computed here; the picture is whatever the built page
+ * shows for its own worked example.
  *
  * WHAT IT WRITES. public/figures/instruments/<id>.webp, 640px wide (the catalogue shows it about
  * 20rem wide, so this is sharp at 2x), converted with ImageMagick, and manifest.json listing the
@@ -55,6 +56,8 @@ const context = await browser.newContext({
   deviceScaleFactor: 2,
   colorScheme: "light",
   reducedMotion: "reduce",
+  // The repository's rule for any web request, which this is when --base is the live site.
+  userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0",
 });
 const written: string[] = [];
 const missing: string[] = [];
@@ -93,18 +96,7 @@ for (const id of ids) {
         !(el.tagName.toLowerCase() === "svg" && el.parentElement?.closest("svg")) &&
         visible(el, 140),
     );
-    if (drawing) return { el: drawing, kind: "drawing" };
-    const block = [...(root?.querySelectorAll(".lab-results, table") ?? [])].find((el) =>
-      visible(el, 100),
-    );
-    if (!block) return null;
-    // The crop is the block's top 16:10 of its width; a table inside it would be the picture.
-    const box = block.getBoundingClientRect();
-    const cropBottom = box.top + Math.min(box.height, box.width * 0.625);
-    const tableInFrame =
-      block.tagName.toLowerCase() === "table" ||
-      [...block.querySelectorAll("table")].some((t) => t.getBoundingClientRect().top < cropBottom);
-    return tableInFrame ? null : { el: block, kind: "results" };
+    return drawing ? { el: drawing, kind: "drawing" } : null;
   });
   const found = await handle.evaluate((v) => (v ? v.kind : null));
   const el = found ? (await handle.getProperty("el")).asElement() : null;
@@ -116,22 +108,11 @@ for (const id of ids) {
   }
   await el.scrollIntoViewIfNeeded();
   const png = join(work, `${id}.png`);
-  const box = await el.boundingBox();
-  if (found === "results" && box)
-    await page.screenshot({
-      path: png,
-      clip: {
-        x: box.x,
-        y: box.y,
-        width: box.width,
-        height: Math.min(box.height, box.width * 0.625),
-      },
-    });
-  else await el.screenshot({ path: png });
+  await el.screenshot({ path: png });
   const webp = join(OUT_DIR, `${id}.webp`);
   execFileSync("magick", [png, "-resize", `${WIDTH}x`, "-quality", "78", webp]);
   written.push(`${id} ${found} ${statSync(webp).size} B`);
-  manifest[id] = found === "results" ? "results" : "drawing";
+  manifest[id] = "drawing";
   await page.close();
 }
 await browser.close();
