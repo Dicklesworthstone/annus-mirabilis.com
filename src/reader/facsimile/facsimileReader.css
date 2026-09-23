@@ -87,6 +87,39 @@
   outline: 2px solid currentColor;
   outline-offset: 1px;
 }
+/* THE PAGE CONTROLS ON A PHONE. At 390 the toolbar was 325px between the heading and the page:
+   Previous and Next on one row, the page field and Show page on two more, then the copy button,
+   a label and a read-only URL field. Now Previous and Next share a row in halves, the field and
+   Show page share the next, and the URL field stays out of sight until it is focused, which is
+   what the controller does when a clipboard write fails, and what Tab does. 325 to 214px,
+   measured on live mass-energy. */
+@media (max-width: 560px) {
+  .facsimile-reader-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .facsimile-reader-buttons > label {
+    grid-column: 1 / -1;
+    margin-bottom: -0.25rem;
+    font-size: var(--type-fine);
+  }
+  .facsimile-reader-buttons > input {
+    width: 100%;
+  }
+  .facsimile-reader-share > label,
+  .facsimile-reader-share > [data-facsimile-share-url]:not(:focus) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
 /* The direct-PDF fallback beneath the viewer: the route a reader takes when the embedded
    facsimile cannot render. am-vw1o - the class was written in FacsimilePanel.tsx with no rule,
    so the ratchet counted it undeclared. */
