@@ -246,7 +246,9 @@ export function ModeAllocationLab({
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">N_A, defined, 2019 SI (modern)</th>
+                  <th scope="row">
+                    N<sub>A</sub>, defined, 2019 SI (modern)
+                  </th>
                   <td>
                     <Sci value={snapshot.avogadro.modernComparisons.modernAvogadro} digits={8} />{" "}
                     mol⁻¹

@@ -6,7 +6,7 @@ import { evaluateLq05, type PreparedLq05Example } from "../../../experiments/lq0
 export const metadata: Metadata = {
   title: "Independent configurations and Boltzmann entropy",
   description:
-    "Boltzmann's principle S - S_0 = k_B ln W gives an entropy that depends on volume as n ln V, and locking the positions shows where statistical independence enters.",
+    "Boltzmann's principle, S − S₀ = k ln W, gives an entropy that depends on volume as n ln V, and locking the positions shows where statistical independence enters.",
 };
 
 export default function IndependentConfigurationsPage() {
@@ -78,7 +78,7 @@ export default function IndependentConfigurationsPage() {
         <p>
           Comparing this gas entropy with the monochromatic radiation entropy found in §4,{" "}
           <code style={{ fontFamily: "var(--font-mono, monospace)", fontWeight: 600 }}>
-            S − S₀ = (E / hν) k_B ln(V / V₀)
+            S − S₀ = (E / hν) k<sub>B</sub> ln(V / V₀)
           </code>
           , leads directly to the conclusion: monochromatic radiation behaves energetically as if it
           consists of <span style={{ fontStyle: "italic", fontWeight: 600 }}>E / (hν)</span>{" "}

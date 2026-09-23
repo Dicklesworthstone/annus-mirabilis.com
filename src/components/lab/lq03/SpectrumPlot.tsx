@@ -1,7 +1,12 @@
 import type { Lq03Parameters } from "../../../experiments/lq03/definition.ts";
 import type { Lq03Spectrum, Lq03SpectrumLaw } from "../../../experiments/lq03/session.ts";
 import { exponentialParts } from "../../../units/scientific.ts";
+import { withSubscripts } from "../subscripts.tsx";
 import "./spectrum.css";
+
+/** The phrases spell subscripts as u_{ν}; a drawing's accessible name is plain text, so there the
+ * braces and underscore go and the letters stay: "uν". */
+const plainSubscripts = (text: string) => text.replace(/_\{([^{}]+)\}/gu, "$1");
 
 /**
  * The radiation spectrum, drawn. /lab/lq-03/ asked "what does a measured radiation spectrum look
@@ -61,10 +66,10 @@ function sci(value: number, digits: number): string {
 }
 
 const CONVENTION_PHRASE: Readonly<Record<Lq03Parameters["convention"], string>> = {
-  "per-hz": "per hertz, u_ν",
-  "per-m": "per metre of wavelength, u_λ",
-  "per-log": "per natural-log interval, ν u_ν = λ u_λ",
-  "per-decade": "per decade, ln 10 · ν u_ν",
+  "per-hz": "per hertz, u_{ν}",
+  "per-m": "per metre of wavelength, u_{λ}",
+  "per-log": "per natural-log interval, ν u_{ν} = λ u_{λ}",
+  "per-decade": "per decade, ln 10 · ν u_{ν}",
 };
 const CONVENTION_UNIT: Readonly<Record<Lq03Parameters["convention"], string>> = {
   "per-hz": "J m⁻³ Hz⁻¹",
@@ -147,9 +152,9 @@ export function SpectrumPlot({
     ? `${xQuantity} (${unitX})`
     : `${xQuantity} (${powerOfTen(tickExponent)} ${unitX})`;
   const scaleWord = spectrum.axisScale === "logarithmic" ? "logarithmic" : "linear";
-  const description = `The spectrum at T = ${spectrum.temperature} K: energy density ${
-    CONVENTION_PHRASE[spectrum.convention]
-  }, against ${spectrum.coordinate}, on ${scaleWord} axes. Planck's curve peaks at ${
+  const description = `The spectrum at T = ${spectrum.temperature} K: energy density ${plainSubscripts(
+    CONVENTION_PHRASE[spectrum.convention],
+  )}, against ${spectrum.coordinate}, on ${scaleWord} axes. Planck's curve peaks at ${
     peak ? `${sci(10 ** peak.log10X, 2)} ${unitX}` : "a point outside the drawn range"
   }. Wien's law meets Planck's at high frequency (short wavelength); the classical law meets it at low frequency (long wavelength) and keeps rising where Planck's falls.`;
   const probeInFrame = probeX >= PAD.left && probeX <= PAD.left + PLOT_W;
@@ -238,7 +243,7 @@ export function SpectrumPlot({
         ))}
       </ul>
       <figcaption>
-        Energy density {CONVENTION_PHRASE[spectrum.convention]}, in{" "}
+        Energy density {withSubscripts(CONVENTION_PHRASE[spectrum.convention])}, in{" "}
         {CONVENTION_UNIT[spectrum.convention]}, on {scaleWord} axes. The shaded strip is the band;
         the dashed vertical line is the probe frequency.
       </figcaption>

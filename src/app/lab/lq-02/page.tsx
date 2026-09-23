@@ -41,11 +41,11 @@ export default function ModeAllocationPage() {
           latex={String.raw`U(\nu_c) = \int_0^{\nu_c} \frac{8\pi\nu^2}{c^3}k_BT\,d\nu = \frac{8\pi k_BT}{3c^3}\nu_c^3`}
         />
         <p>
-          Every resonator oscillation, at every frequency, carries the same mean energy Ē = k_BT
-          (source notation (R/N)T), two-thirds of a free molecule's mean kinetic energy, as §1
-          notes. Because that mean energy never falls off with frequency, the energy held by
-          resonators up to a cutoff grows as the cube of the cutoff, without limit as the cutoff is
-          removed.
+          Every resonator oscillation, at every frequency, carries the same mean energy Ē = k
+          <sub>B</sub>T (source notation (R/N)T), two-thirds of a free molecule's mean kinetic
+          energy, as §1 notes. Because that mean energy never falls off with frequency, the energy
+          held by resonators up to a cutoff grows as the cube of the cutoff, without limit as the
+          cutoff is removed.
         </p>
         <h2>Why the paper calls this a difficulty, not just an approximation</h2>
         <p>
