@@ -18,6 +18,7 @@ import {
   predictAnswerFor,
 } from "../../../experiments/sr01/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import "../showTheCode.css";
 
 function outputByQuantityId(
@@ -282,16 +283,6 @@ export function ClockSyncLab({
             />
           </div>
           <div className="control-row">
-            <label htmlFor={`emit-${id}`}>Signal emission time at A (s):</label>
-            <input
-              id={`emit-${id}`}
-              type="number"
-              step="0.1"
-              value={draft.emissionTimeA}
-              onChange={(e) => setDraft({ ...draft, emissionTimeA: e.target.value })}
-            />
-          </div>
-          <div className="control-row">
             <label htmlFor={`offb-${id}`}>Initial clock offset (B, s):</label>
             <input
               id={`offb-${id}`}
@@ -306,18 +297,6 @@ export function ClockSyncLab({
         <fieldset className="control-group">
           <legend>Motion</legend>
           <div className="control-row">
-            <label htmlFor={`rodv-${id}`}>Station motion, section 2 (fraction of c):</label>
-            <input
-              id={`rodv-${id}`}
-              type="number"
-              step="0.01"
-              min="-0.95"
-              max="0.95"
-              value={draft.rodBeta}
-              onChange={(e) => setDraft({ ...draft, rodBeta: e.target.value })}
-            />
-          </div>
-          <div className="control-row">
             <label htmlFor={`pairv-${id}`}>Moving clock pair velocity (fraction of c):</label>
             <input
               id={`pairv-${id}`}
@@ -327,6 +306,31 @@ export function ClockSyncLab({
               max="0.95"
               value={draft.pairBeta}
               onChange={(e) => setDraft({ ...draft, pairBeta: e.target.value })}
+            />
+          </div>
+        </fieldset>
+
+        <ExperimentSettings contents="the emission time at A, the stations' motion, the pair's proper length, the frame of description">
+          <div className="control-row">
+            <label htmlFor={`emit-${id}`}>Signal emission time at A (s):</label>
+            <input
+              id={`emit-${id}`}
+              type="number"
+              step="0.1"
+              value={draft.emissionTimeA}
+              onChange={(e) => setDraft({ ...draft, emissionTimeA: e.target.value })}
+            />
+          </div>
+          <div className="control-row">
+            <label htmlFor={`rodv-${id}`}>Station motion, section 2 (fraction of c):</label>
+            <input
+              id={`rodv-${id}`}
+              type="number"
+              step="0.01"
+              min="-0.95"
+              max="0.95"
+              value={draft.rodBeta}
+              onChange={(e) => setDraft({ ...draft, rodBeta: e.target.value })}
             />
           </div>
           <div className="control-row">
@@ -351,7 +355,8 @@ export function ClockSyncLab({
               onChange={(e) => setDraft({ ...draft, frameBeta: e.target.value })}
             />
           </div>
-        </fieldset>
+          <p className="fine">Changes here apply with Apply changes.</p>
+        </ExperimentSettings>
 
         <div className="form-actions">
           <button type="submit" className="button button-primary">
