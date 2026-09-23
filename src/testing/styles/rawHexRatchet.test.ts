@@ -329,42 +329,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     reason:
       "Lorentz force vector F visual representation (arrowhead, vector line, and force label)",
   },
-  {
-    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
-    hex: "#e0f2fe",
-    reason:
-      "Moving frame k active badge background distinguishing reference frame k from stationary frame K",
-  },
-  {
-    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
-    hex: "#0284c7",
-    reason:
-      "Moving frame k active badge border distinguishing reference frame k from stationary frame K",
-  },
-  {
-    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
-    hex: "#0369a1",
-    reason:
-      "Moving frame k active badge text distinguishing reference frame k from stationary frame K",
-  },
-  {
-    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
-    hex: "#fef3c7",
-    reason:
-      "Stationary frame K active badge background distinguishing reference frame K from moving frame k",
-  },
-  {
-    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
-    hex: "#d97706",
-    reason:
-      "Stationary frame K active badge border distinguishing reference frame K from moving frame k",
-  },
-  {
-    file: "src/components/lab/sr08/FieldFrameChangePlot.tsx",
-    hex: "#b45309",
-    reason:
-      "Stationary frame K active badge text distinguishing reference frame K from moving frame k",
-  },
   // Physical pulse directions, frame velocity, and energy ledgers in TwoLedgersPlot (ME-01):
   {
     file: "src/components/lab/me01/TwoLedgersPlot.tsx",
