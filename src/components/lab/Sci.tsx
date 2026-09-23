@@ -73,3 +73,21 @@ export function SciSvg({ value, digits }: SciProps) {
     </>
   );
 }
+
+/**
+ * A subscript inside an SVG `<text>`, where `<sub>` does not exist: "E" then a lowered "y". As in
+ * SciSvg, the lowered tspan is at 0.75 of the parent size, so its 0.25em drop is 0.1875 parent em,
+ * and the empty reset tspan at the parent's size lifts exactly that much, so text after the
+ * subscript continues on the line it started on. Programmer notation (E_y, k_B) is what this
+ * replaces in the laboratories' drawings.
+ */
+export function SubSvg({ children }: { readonly children: string }) {
+  return (
+    <>
+      <tspan dy="0.25em" fontSize="0.75em">
+        {children}
+      </tspan>
+      <tspan dy="-0.1875em">{"\u200b"}</tspan>
+    </>
+  );
+}

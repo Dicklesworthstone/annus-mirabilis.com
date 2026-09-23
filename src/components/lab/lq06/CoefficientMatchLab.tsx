@@ -16,6 +16,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
+import { withSubscripts } from "../subscripts.tsx";
 import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
 import "./coefficientMatchLab.css";
 
@@ -45,12 +46,12 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
       "E/(βν), the radiation's own entropy coefficient.",
     ],
     explanation:
-      "The exponent of V/V₀ is what counts independent things in the gas law. So n_eff = NE/(Rβν) = E/(hν), and each of those things carries E/n_eff = hν.",
+      "The exponent of V/V₀ is what counts independent things in the gas law. So n_{eff} = NE/(Rβν) = E/(hν), and each of those things carries E/n_{eff} = hν.",
   },
   {
     id: "mean-energy-ratio",
     question:
-      "Over a Wien spectrum the mean energy of a light quantum is ⟨ε⟩ = 3k_BT. A gas molecule's mean kinetic energy is (3/2)k_BT. How do they compare at one temperature?",
+      "Over a Wien spectrum the mean energy of a light quantum is ⟨ε⟩ = 3k_{B}T. A gas molecule's mean kinetic energy is (3/2)k_{B}T. How do they compare at one temperature?",
     options: [
       "They are equal, by equipartition.",
       "The quantum's is unboundedly larger, because the field has infinitely many modes.",
@@ -93,7 +94,7 @@ const FIELDS: Readonly<Record<FieldKey, { label: string; scale: number; digits: 
 const VALUE_ROWS: readonly { id: string; label: string; unit: string; scale?: number }[] = [
   {
     id: "effectiveIndependentCount",
-    label: "Number of independent quanta, n_eff",
+    label: "Number of independent quanta, n_{eff}",
     unit: "",
   },
   { id: "quantumEnergy", label: "Energy of each, hν", unit: "J" },
@@ -104,12 +105,12 @@ const VALUE_ROWS: readonly { id: string; label: string; unit: string; scale?: nu
   { id: "gasEntropy", label: "Gas: entropy change", unit: "J/K" },
   {
     id: "meanQuantumEnergyWienEv",
-    label: "Mean quantum energy over a Wien spectrum, 3k_BT",
+    label: "Mean quantum energy over a Wien spectrum, 3k_{B}T",
     unit: "eV",
   },
   {
     id: "moleculeMeanKineticEnergyEv",
-    label: "Mean kinetic energy of a gas molecule, (3/2)k_BT",
+    label: "Mean kinetic energy of a gas molecule, (3/2)k_{B}T",
     unit: "eV",
   },
   { id: "meanEnergyRatio", label: "Ratio of the two", unit: "" },
@@ -259,7 +260,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             <summary>Predict first</summary>
             {PREDICT_PROMPTS.map((prompt) => (
               <fieldset key={prompt.id}>
-                <legend>{prompt.question}</legend>
+                <legend>{withSubscripts(prompt.question)}</legend>
                 {prompt.options.map((option, idx) => (
                   <label key={option} className="lab-predict-candidate">
                     <input
@@ -268,11 +269,11 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                       checked={answers[prompt.id] === idx}
                       onChange={() => setAnswers((a) => ({ ...a, [prompt.id]: idx }))}
                     />
-                    <span>{option}</span>
+                    <span>{withSubscripts(option)}</span>
                   </label>
                 ))}
                 {answers[prompt.id] !== undefined && (
-                  <p className="lab-predict-reveal">{prompt.explanation}</p>
+                  <p className="lab-predict-reveal">{withSubscripts(prompt.explanation)}</p>
                 )}
               </fieldset>
             ))}
@@ -433,7 +434,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
               </tr>
               {VALUE_ROWS.map((row) => (
                 <tr key={row.id} data-quantity-id={row.id}>
-                  <th scope="row">{row.label}</th>
+                  <th scope="row">{withSubscripts(row.label)}</th>
                   <td data-output={row.id}>{formatOutput(getOutput(row.id), row.unit)}</td>
                 </tr>
               ))}

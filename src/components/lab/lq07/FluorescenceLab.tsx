@@ -146,8 +146,8 @@ export function FluorescenceLab({
           <p className="eyebrow">Light quanta · §7 fluorescence &amp; Stokes's rule</p>
           <h2 id={`${id}-title`}>{title}</h2>
           <p className="fine" style={{ marginTop: "0.5rem", fontSize: "0.95rem" }}>
-            What single-quantum energy conservation, hν₁ = hν₂ + E_other, allows a fluorescent body
-            to emit, and where multi-quantum and thermal cases depart from it.
+            What single-quantum energy conservation, hν₁ = hν₂ + E<sub>other</sub>, allows a
+            fluorescent body to emit, and where multi-quantum and thermal cases depart from it.
           </p>
         </div>
       </header>
@@ -220,9 +220,9 @@ export function FluorescenceLab({
             >
               <p style={{ margin: 0 }}>
                 The model: in each elementary process one quantum of energy hν₁ is absorbed. Energy
-                is conserved (hν₁ = hν₂ + E_other, with E_other ≥ 0), so the emitted quantum hν₂
-                cannot exceed hν₁, and ν₂ ≤ ν₁. A brighter beam delivers more quanta each second,
-                not more energy in each one.
+                is conserved (hν₁ = hν₂ + E<sub>other</sub>, with E<sub>other</sub> ≥ 0), so the
+                emitted quantum hν₂ cannot exceed hν₁, and ν₂ ≤ ν₁. A brighter beam delivers more
+                quanta each second, not more energy in each one.
               </p>
             </div>
           )}
@@ -440,7 +440,9 @@ export function FluorescenceLab({
 
             {p.regime === "deviation-non-wien" && (
               <>
-                <label htmlFor={`${id}-tsrc`}>Exciting-source temperature T_src (K):</label>
+                <label htmlFor={`${id}-tsrc`}>
+                  Exciting-source temperature T<sub>src</sub> (K):
+                </label>
                 <div
                   style={{
                     display: "flex",
@@ -476,7 +478,9 @@ export function FluorescenceLab({
 
             {p.regime === "modern-thermal" && (
               <>
-                <label htmlFor={`${id}-tbody`}>Body temperature T_body (K):</label>
+                <label htmlFor={`${id}-tbody`}>
+                  Body temperature T<sub>body</sub> (K):
+                </label>
                 <div
                   style={{
                     display: "flex",
@@ -529,14 +533,14 @@ export function FluorescenceLab({
                       className={`button ${p.channels === "light-plus-heat" ? "" : "secondary"}`}
                       onClick={() => setChannels("light-plus-heat")}
                     >
-                      Light and heat (E_other ≥ 0)
+                      Light and heat (E<sub>other</sub> ≥ 0)
                     </button>
                     <button
                       type="button"
                       className={`button ${p.channels === "light-only" ? "" : "secondary"}`}
                       onClick={() => setChannels("light-only")}
                     >
-                      Light only (E_other = 0)
+                      Light only (E<sub>other</sub> = 0)
                     </button>
                   </div>
                 </div>
@@ -657,7 +661,9 @@ export function FluorescenceLab({
               </tr>
               <tr>
                 <th scope="row">Non-optical dissipation (heat)</th>
-                <td style={{ fontFamily: "var(--font-mono)" }}>E_other</td>
+                <td style={{ fontFamily: "var(--font-mono)" }}>
+                  E<sub>other</sub>
+                </td>
                 <td style={{ fontFamily: "var(--font-mono)" }}>
                   {evaluation.budget.allowed
                     ? `${evaluation.budget.eOtherEv.toFixed(4)} eV`

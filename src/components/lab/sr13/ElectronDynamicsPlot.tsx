@@ -1,4 +1,4 @@
-import { Sci } from "../Sci.tsx";
+import { Sci, SubSvg } from "../Sci.tsx";
 import "./sr13.css";
 
 export interface ElectronDynamicsPlotProps {
@@ -195,7 +195,7 @@ export function ElectronDynamicsPlot({
                   fontSize: "var(--sr13-label, 12px)",
                 }}
               >
-                E_y
+                E<SubSvg>y</SubSvg>
               </text>
             </g>
           ) : null}
@@ -213,7 +213,7 @@ export function ElectronDynamicsPlot({
                   fontSize: "var(--sr13-label, 12px)",
                 }}
               >
-                B_z
+                B<SubSvg>z</SubSvg>
               </text>
             </g>
           ) : null}
@@ -441,7 +441,7 @@ export function ElectronDynamicsPlot({
             m
           </div>
           <div className="fine" style={{ marginTop: "0.25rem", fontSize: "0.75rem" }}>
-            Comoving force / Stationary acceleration: F′_y / a_y = γ²m
+            Comoving force / stationary acceleration: F′<sub>y</sub> / a<sub>y</sub> = γ²m
           </div>
         </div>
 
@@ -471,7 +471,7 @@ export function ElectronDynamicsPlot({
             m
           </div>
           <div className="fine" style={{ marginTop: "0.25rem", fontSize: "0.75rem" }}>
-            Laboratory force / Stationary acceleration: F_y / a_y = γm
+            Laboratory force / stationary acceleration: F<sub>y</sub> / a<sub>y</sub> = γm
           </div>
         </div>
       </div>
@@ -601,7 +601,9 @@ export function ElectronDynamicsPlot({
             background: "var(--wash)",
           }}
         >
-          <div style={{ color: "var(--muted)" }}>Magnetic Curvature Radius (R_m)</div>
+          <div style={{ color: "var(--muted)" }}>
+            Magnetic curvature radius (R<sub>m</sub>)
+          </div>
           <div
             style={{
               fontSize: "0.875rem",
@@ -627,7 +629,9 @@ export function ElectronDynamicsPlot({
             background: "var(--wash)",
           }}
         >
-          <div style={{ color: "var(--muted)" }}>Electric Curvature Radius (R_e)</div>
+          <div style={{ color: "var(--muted)" }}>
+            Electric curvature radius (R<sub>e</sub>)
+          </div>
           <div
             style={{
               fontSize: "0.875rem",

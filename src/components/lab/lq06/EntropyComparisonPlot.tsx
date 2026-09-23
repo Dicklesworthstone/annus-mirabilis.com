@@ -1,5 +1,5 @@
 import type { Lq06SubexpressionChoice } from "../../../experiments/lq06/definition.ts";
-import { SciSvg } from "../Sci.tsx";
+import { SciSvg, SubSvg } from "../Sci.tsx";
 
 export interface EntropyComparisonPlotProps {
   radiationEnergy: number;
@@ -177,7 +177,7 @@ export function EntropyComparisonPlot({
             <SciSvg value={radiationEntropy} digits={4} /> J/K
           </text>
           <text x="14" y="158" fontSize="10" fill="var(--muted)">
-            Effective count n_eff:
+            Effective count n<SubSvg>eff</SubSvg>:
           </text>
           <text
             x="246"
@@ -230,7 +230,7 @@ export function EntropyComparisonPlot({
             fill="var(--muted)"
             fontFamily="var(--font-mono, monospace)"
           >
-            = k_B · n · ln(V/V₀)
+            = k<SubSvg>B</SubSvg> · n · ln(V/V₀)
           </text>
 
           {/* Gas Values */}
@@ -250,7 +250,7 @@ export function EntropyComparisonPlot({
             {gasParticles}
           </text>
           <text x="14" y="122" fontSize="10" fill="var(--muted)">
-            Gas constant R/N = k_B:
+            Gas constant R/N = k<SubSvg>B</SubSvg>:
           </text>
           <text
             x="246"
@@ -327,8 +327,8 @@ export function EntropyComparisonPlot({
           >
             {isMatch ? (
               <tspan fill="var(--plot)">
-                The laws match: n_eff = NE/(Rβν) = E/(hν), so each quantum carries ε = Rβν/N = hν ={" "}
-                {quantumEnergyEv.toFixed(4)} eV
+                The laws match: n<SubSvg>eff</SubSvg> = NE/(Rβν) = E/(hν), so each quantum carries ε
+                = Rβν/N = hν = {quantumEnergyEv.toFixed(4)} eV
               </tspan>
             ) : selectedSubexpression !== "none" ? (
               <tspan fill="var(--ink)">
