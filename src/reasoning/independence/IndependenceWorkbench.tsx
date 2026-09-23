@@ -104,37 +104,45 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
       <div><h3>Independent positions</h3><p>Each labeled point is placed uniformly and independently. Several, all or none may land inside.</p></div>
       <div><h3>Perfectly locked positions</h3><p>All labeled points share one uniformly placed, coincident position. Only all-in or all-out is possible. This is not a finite-size rigid cluster straddling a boundary.</p></div>
     </div>
-    <form onSubmit={apply} aria-label="Configuration comparison settings">
-      <fieldset disabled={!ready}>
-        <legend>Hold these settings fixed for both models</legend>
-        <label htmlFor={`${id}-n`}>Number of labeled points</label>
-        <input id={`${id}-n`} type="number" min="1" max={MAX_OCCUPANCY_POINTS} step="1" value={nDraft} onChange={(e) => setNDraft(e.target.value)} />
-        <label htmlFor={`${id}-q`}>Fraction of the volume</label>
-        <select id={`${id}-q`} value={qDraft} onChange={(e) => setQDraft(e.target.value)}>
-          <option value="0">0 — empty region</option><option value="1">1/4</option><option value="2">1/2</option><option value="3">3/4</option><option value="4">1 — whole volume</option>
-        </select>
-        <button type="submit">Apply model settings</button>{" "}
-        <button type="button" onClick={() => { setNDraft(String(n)); setQDraft(String(quarters)); setError(""); }}>Discard edited settings</button>
-      </fieldset>
-    </form>
-    {dirty && <p className="notice">The controls contain unapplied edits. Every result below still uses {n} points and {quarters}/4 of the volume. Applying changed settings clears the current record.</p>}
-    {error && <p className="notice error" role="alert">{error} The last accepted comparison and record remain unchanged.</p>}
-    <p role="status" aria-atomic="true">{notice}</p>
+    {/* The family layout (.lab-columns): controls first, the result second, so a desktop shows them
+        side by side and a phone shows the result before the form that drives it. */}
+    <div className="lab-columns">
+      <div>
+        <form onSubmit={apply} aria-label="Configuration comparison settings">
+          <fieldset disabled={!ready}>
+            <legend>Hold these settings fixed for both models</legend>
+            <label htmlFor={`${id}-n`}>Number of labeled points</label>
+            <input id={`${id}-n`} type="number" min="1" max={MAX_OCCUPANCY_POINTS} step="1" value={nDraft} onChange={(e) => setNDraft(e.target.value)} />
+            <label htmlFor={`${id}-q`}>Fraction of the volume</label>
+            <select id={`${id}-q`} value={qDraft} onChange={(e) => setQDraft(e.target.value)}>
+              <option value="0">0 — empty region</option><option value="1">1/4</option><option value="2">1/2</option><option value="3">3/4</option><option value="4">1 — whole volume</option>
+            </select>
+            <button type="submit">Apply model settings</button>{" "}
+            <button type="button" onClick={() => { setNDraft(String(n)); setQDraft(String(quarters)); setError(""); }}>Discard edited settings</button>
+          </fieldset>
+        </form>
+        {dirty && <p className="notice">The controls contain unapplied edits. Every result below still uses {n} points and {quarters}/4 of the volume. Applying changed settings clears the current record.</p>}
+        {error && <p className="notice error" role="alert">{error} The last accepted comparison and record remain unchanged.</p>}
+        <p role="status" aria-atomic="true">{notice}</p>
 
-    <fieldset disabled={!ready}>
-      <legend>Which measurements would you keep?</legend>
-      {OCCUPANCY_CHECKS.map((check) => <label className="occupancy-check" key={check}><input type="checkbox" checked={state.checks.includes(check)} onChange={() => toggle(check)} />{CHECK_LABELS[check]}</label>)}
-    </fieldset>
-    <p className="notice" aria-live="polite" data-distinction={state.distinction.status}>
-      {state.distinction.status === "underdetermined"
-        ? "Underdetermined: the selected measurements have identical predictions. These choices cannot distinguish the two candidates."
-        : `Different predictions for: ${state.distinction.different.map((check) => CHECK_LABELS[check]).join("; ")}. This identifies a useful measurement, not a winner without data.`}
-    </p>
-    <div className="occupancy-table-scroll" tabIndex={0} role="region" aria-label="Model prediction table">
-      <table><caption>Predictions at n = {n}, f = {quarters}/4. Counts are dimensionless.</caption>
-        <thead><tr><th scope="col">Observable</th><th scope="col">Independent</th><th scope="col">Locked</th><th scope="col">Kept?</th></tr></thead>
-        <tbody>{OCCUPANCY_CHECKS.map((check) => <tr key={check}><th scope="row">{CHECK_LABELS[check]}</th><td>{numberText(comparison.independent.statistics[check])}</td><td>{numberText(comparison.locked.statistics[check])}</td><td>{state.checks.includes(check) ? "Yes" : "No"}</td></tr>)}</tbody>
-      </table>
+        <fieldset disabled={!ready}>
+          <legend>Which measurements would you keep?</legend>
+          {OCCUPANCY_CHECKS.map((check) => <label className="occupancy-check" key={check}><input type="checkbox" checked={state.checks.includes(check)} onChange={() => toggle(check)} />{CHECK_LABELS[check]}</label>)}
+        </fieldset>
+      </div>
+      <div className="lab-results">
+        <p className="notice" aria-live="polite" data-distinction={state.distinction.status}>
+          {state.distinction.status === "underdetermined"
+            ? "Underdetermined: the selected measurements have identical predictions. These choices cannot distinguish the two candidates."
+            : `Different predictions for: ${state.distinction.different.map((check) => CHECK_LABELS[check]).join("; ")}. This identifies a useful measurement, not a winner without data.`}
+        </p>
+        <div className="occupancy-table-scroll" tabIndex={0} role="region" aria-label="Model prediction table">
+          <table><caption>Predictions at n = {n}, f = {quarters}/4. Counts are dimensionless.</caption>
+            <thead><tr><th scope="col">Observable</th><th scope="col">Independent</th><th scope="col">Locked</th><th scope="col">Kept?</th></tr></thead>
+            <tbody>{OCCUPANCY_CHECKS.map((check) => <tr key={check}><th scope="row">{CHECK_LABELS[check]}</th><td>{numberText(comparison.independent.statistics[check])}</td><td>{numberText(comparison.locked.statistics[check])}</td><td>{state.checks.includes(check) ? "Yes" : "No"}</td></tr>)}</tbody>
+          </table>
+        </div>
+      </div>
     </div>
     <details open><summary>Inspect the full count distributions</summary>
       <p>Each bar uses the same probability scale, zero to one. The numbers are model probabilities, not a sampled histogram.</p>
