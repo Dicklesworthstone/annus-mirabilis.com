@@ -100,7 +100,7 @@ function startStaticServer(
   const plantHits = { count: 0 };
   const server = createServer((req, res) => {
     const url = req.url ?? "/";
-    if (plant === "og-not-png" && url.split("?")[0] === "/opengraph-image") {
+    if (plant === "og-not-png" && (url.split("?")[0] ?? "").startsWith("/share/")) {
       // The right header over the wrong bytes, so only the site's half of the check can fail.
       plantHits.count += 1;
       res.writeHead(200, { "content-type": "image/png" });
@@ -381,21 +381,32 @@ async function runChecks(
     return `HTTP 404 with the built not-found page, headed "${heading}"`;
   });
 
-  // 4. The Open Graph route returns an image. The BYTES are the site's responsibility
-  //    and the header is the host's, so both are checked and named separately: in a
-  //    static export the content type comes from whatever serves the file.
+  // 4. The image the home page names as og:image is a PNG at a URL with a file extension. The
+  //    BYTES are the site's responsibility and the header is the host's, so both are checked and
+  //    named separately. The check reads the URL from the page rather than assuming a route: the
+  //    old /opengraph-image had no extension, and on Vercel that meant a 308 and then
+  //    application/octet-stream, which link previews reject (2e7e7ba2 moved the site card to
+  //    /share/home.png). A plain static server serves an extensionless file happily, so the
+  //    extension itself is asserted.
   await record("open-graph-image", async () => {
-    const response = await page.request.get(`${baseUrl}/opengraph-image`);
-    if (!response.ok()) throw new Error(`opengraph-image returned HTTP ${response.status()}`);
+    await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 20_000 });
+    const named = await page.getAttribute('meta[property="og:image"]', "content");
+    if (!named) throw new Error("the home page names no og:image");
+    const path = new URL(named).pathname;
+    if (!/\.png$/.test(path)) {
+      throw new Error(
+        `og:image ${path} has no .png extension, so a host may redirect or mistype it`,
+      );
+    }
+    const response = await page.request.get(`${baseUrl}${path}`);
+    if (!response.ok()) throw new Error(`${path} returned HTTP ${response.status()}`);
     const body = await response.body();
     if (!body.subarray(0, 8).equals(PNG_SIGNATURE)) {
-      throw new Error(
-        `opengraph-image is not a PNG; first bytes ${body.subarray(0, 8).toString("hex")}`,
-      );
+      throw new Error(`${path} is not a PNG; first bytes ${body.subarray(0, 8).toString("hex")}`);
     }
     const type = response.headers()["content-type"] ?? "";
     if (!type.startsWith("image/")) throw new Error(`content-type was ${type || "absent"}`);
-    return `${body.length} bytes, PNG signature, served as ${type}`;
+    return `${path}: ${body.length} bytes, PNG signature, served as ${type}`;
   });
 
   // 5. What the browser actually requests. The static scan cannot see a font or a
