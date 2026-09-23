@@ -1,6 +1,7 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useId, useState } from "react";
+import { Sci } from "../../components/lab/Sci.tsx";
 import { PhotoelectricPlots } from "./PhotoelectricPlots.tsx";
 import { createVoltageFileReader } from "./record.ts";
 import {
@@ -17,8 +18,12 @@ import {
 } from "./session.ts";
 import "./photoelectricData.css";
 
-function display(value: number): string {
-  return Number(value.toPrecision(6)).toString();
+/** Six significant figures. toString switches to e-notation below 10⁻⁶, so the inferred h read
+ *  "6.39268e-34 ± 2.02661e-35 J s"; those values are drawn as a power of ten instead. */
+function display(value: number): ReactNode {
+  const rounded = Number(value.toPrecision(6));
+  const text = rounded.toString();
+  return /e/.test(text) ? <Sci value={rounded} /> : text;
 }
 function Quantity({ title, result }: { title: string; result: InferredQuantity }) {
   return (
@@ -230,8 +235,9 @@ export function PhotoelectricDataWorkbench({
             <p>
               Residual standard deviation: {display(result.fit.residualStandardDeviation)} V;{" "}
               {result.fit.degreesOfFreedom} residual degrees of freedom.
-              {result.fit.reducedChiSquare !== null &&
-                ` Reduced chi-square: ${display(result.fit.reducedChiSquare)}.`}
+              {result.fit.reducedChiSquare !== null && (
+                <> Reduced chi-square: {display(result.fit.reducedChiSquare)}.</>
+              )}
             </p>
             {result.warnings.map((warning) => (
               <p className="notice" key={warning}>
@@ -248,9 +254,14 @@ export function PhotoelectricDataWorkbench({
         {accepted.excludedRows.length > 0 && (
           <p className="notice">
             All-row comparison:{" "}
-            {baseline.status === "value"
-              ? `slope ${display(baseline.fit.slope)} V/THz, residual standard deviation ${display(baseline.fit.residualStandardDeviation)} V.`
-              : baseline.reason}{" "}
+            {baseline.status === "value" ? (
+              <>
+                slope {display(baseline.fit.slope)} V/THz, residual standard deviation{" "}
+                {display(baseline.fit.residualStandardDeviation)} V.
+              </>
+            ) : (
+              baseline.reason
+            )}{" "}
             Exclusion is a sensitivity calculation, not an automatic outlier test.
           </p>
         )}
