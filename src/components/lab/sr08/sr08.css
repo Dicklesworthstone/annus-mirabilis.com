@@ -1,0 +1,12 @@
+/* SR-08, fields in two frames (FieldFrameChangePlot.tsx). The drawing is 340 units wide and its
+   container is the whole results column, so uncapped it was drawn at twice its size on a wide
+   screen and its labels at 28px. Capped here, they read at about 13px there and 11px on a phone. */
+.field-plot-container .field-svg {
+  max-width: 22rem;
+  margin-inline: auto;
+}
+
+.sr08-plot-frame {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}

@@ -2,6 +2,7 @@
 
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { SciSvg } from "../Sci.tsx";
+import "./sr08.css";
 
 export interface FieldFrameChangePlotProps {
   readonly electricStationary?: PublishedResult;
@@ -84,6 +85,12 @@ export function FieldFrameChangePlot({
 
   return (
     <div className="field-plot-container">
+      {/* The frame is named in HTML: as a badge inside the drawing its words ran past the badge
+          and into the y-axis label. */}
+      <p className="sr08-plot-frame">
+        {isMoving ? "Moving frame k" : "Laboratory frame K"},{" "}
+        {unitLayer === "si" ? "SI units" : "Gaussian units"}
+      </p>
       <svg
         role="img"
         aria-labelledby="sr08-plot-title sr08-plot-desc"
@@ -93,9 +100,7 @@ export function FieldFrameChangePlot({
         className="field-svg"
       >
         <title id="sr08-plot-title">
-          {isMoving
-            ? "Moving Frame (k) Electromagnetic Field Vector Diagram"
-            : "Stationary Frame (K) Electromagnetic Field Vector Diagram"}
+          {isMoving ? "Fields in the moving frame k" : "Fields in the laboratory frame K"}
         </title>
         <desc id="sr08-plot-desc">
           Vector representation of electric field E, magnetic field B, and Lorentz force F under
@@ -153,24 +158,10 @@ export function FieldFrameChangePlot({
         <line x1="30" y1={cy} x2="310" y2={cy} stroke="var(--line)" strokeDasharray="3 3" />
         <line x1={cx} y1="20" x2={cx} y2="200" stroke="var(--line)" strokeDasharray="3 3" />
         <text x="300" y={cy - 6} fontSize="10" fill="var(--muted)">
-          x ({isMoving ? "ξ" : "x"})
+          {isMoving ? "ξ" : "x"}
         </text>
         <text x={cx + 6} y="30" fontSize="10" fill="var(--muted)">
-          y ({isMoving ? "η" : "y"})
-        </text>
-
-        {/* Frame label badge */}
-        <rect
-          x="20"
-          y="20"
-          width="130"
-          height="22"
-          rx="4"
-          fill={isMoving ? "#e0f2fe" : "#fef3c7"}
-          stroke={isMoving ? "#0284c7" : "#d97706"}
-        />
-        <text x="26" y="35" fontSize="11" fontWeight="bold" fill={isMoving ? "#0369a1" : "#b45309"}>
-          {isMoving ? "Moving Frame k (v)" : "Stationary Frame K"} ({unitLayer.toUpperCase()})
+          {isMoving ? "η" : "y"}
         </text>
 
         {/* Electric Field Vector E */}
@@ -199,7 +190,14 @@ export function FieldFrameChangePlot({
               strokeWidth="2"
               markerEnd="url(#arrow-f)"
             />
-            <text x={fx + 6} y={fy + 4} fontSize="10" fontWeight="bold" fill="#2e7d32">
+            <text
+              x={fx - 8}
+              y={fy + 4}
+              textAnchor="end"
+              fontSize="10"
+              fontWeight="bold"
+              fill="#2e7d32"
+            >
               F {isMoving ? "′" : ""}
             </text>
           </g>
