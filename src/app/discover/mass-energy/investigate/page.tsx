@@ -46,7 +46,7 @@ export default function MassEnergyArgumentPage() {
         <p className="notice">
           A route you could take: one argument that is enough to reach the result, not an account of
           Einstein’s private thinking. Editorial and physics review remain pending. The symbols are
-          modern, c, β = v/c and γ; the September paper writes V for the speed of light and the
+          modern: c, β = v/c and γ. The September paper writes V for the speed of light and the
           square root out in full.
         </p>
         <nav className="actions" aria-label="Investigation sections">
@@ -113,8 +113,8 @@ export default function MassEnergyArgumentPage() {
           <p>
             The two balances and their subtraction survive. The combination K₀ − K₁ + (C₀ − C₁) is
             constrained, but K₀ − K₁ is not separately identified. An unspecified offset is not
-            zero. In the laboratory below, relaxing the premise must not produce a fabricated
-            numerical kinetic-energy loss.
+            zero. With the premise relaxed, the laboratory below gives no number for the
+            kinetic-energy loss, because the argument no longer fixes one.
           </p>
         </details>
         <details>
