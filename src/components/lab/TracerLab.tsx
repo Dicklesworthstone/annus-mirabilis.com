@@ -6,7 +6,7 @@ import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
 import { BM01_FIELDS, fromTracerDraft, toTracerDraft } from "../../experiments/bm01/controls.ts";
-import type { Bm01Parameters } from "../../experiments/bm01/definition.ts";
+import { BM01_CAPTION, type Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { decodeBm01Settings, encodeBm01Settings } from "../../experiments/bm01/permalink.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
@@ -19,6 +19,7 @@ import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
+import { withScripts } from "./subscripts.tsx";
 import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
 
 function SamplingBand({
@@ -631,6 +632,16 @@ export function TracerLab({
             </details>
           </div>
         </div>
+        {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+            children of the lab root, which labShell.css's detail rules select. */}
+        <p data-detail="0">{withScripts(BM01_CAPTION.r0)}</p>
+        <p data-detail="1">{withScripts(BM01_CAPTION.r1)}</p>
+        <p data-detail="2" hidden>
+          {withScripts(BM01_CAPTION.r2)}
+        </p>
+        <p data-detail="3" hidden>
+          {withScripts(BM01_CAPTION.r3)}
+        </p>
         <section className="live-equation-group" aria-label="Equations for this accepted trial">
           <h3>Inspect the model behind this trial</h3>
           <p>
