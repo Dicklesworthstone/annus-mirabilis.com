@@ -33,7 +33,35 @@ const SCOPE = [
   "src/app/instruments",
   "src/experiments",
   "src/physics/reference",
+  // The foundation lessons, the Discover routes and the equation explorer, added 2026-09-23 after
+  // RepeatedProportionalTable shipped ⁿ from a system face: this scope did not reach them.
+  "src/components/foundations",
+  "src/components/discover",
+  "src/discovery",
+  "src/app/discover",
+  "src/app/foundations",
+  "src/equations",
 ];
+
+/**
+ * Characters a file needs as data, never shown to a reader: a validator's list of characters to
+ * reject in a reader's input. Keyed by file AND character, not by line, so a new glyph elsewhere in
+ * the same file is still caught.
+ */
+const NOT_READER_FACING: ReadonlyArray<Readonly<{ file: string; char: string; why: string }>> = [
+  {
+    file: "src/discovery/checks/moveSummaryGuard.ts",
+    char: "∝",
+    why: "FORBIDDEN_MATH_CHARS: symbols a plain-language move summary may not contain",
+  },
+  {
+    file: "src/discovery/exercises/normalize.ts",
+    char: "⋅",
+    why: "MULTIPLY_SIGNS: a dot operator a reader may type, normalized to *",
+  },
+];
+const exempt = (h: Hit) =>
+  NOT_READER_FACING.some((e) => h.where.startsWith(`${e.file}:`) && h.char === e.char);
 
 function loadFont(relativePath: string) {
   const buffer = readFileSync(join(REPO_ROOT, "public/fonts", relativePath));
@@ -124,7 +152,7 @@ describe("componentGlyphCoverage: laboratory text is drawn by a self-hosted face
   });
 
   test("no reader-facing string uses a character that none of the three faces draws", () => {
-    const hits = results.flatMap((r) => r.hits);
+    const hits = results.flatMap((r) => r.hits).filter((h) => !exempt(h));
     expect(
       hits.map(
         (h) => `U+${(h.char.codePointAt(0) ?? 0).toString(16).toUpperCase()} ${h.char} ${h.where}`,
