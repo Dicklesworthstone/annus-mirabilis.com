@@ -1,0 +1,66 @@
+/* SR-12, charge and current in two frames (ChargeCurrentPlot.tsx). Each frame is its own small
+   drawing with its title, values and caption in HTML, so nothing in it has to shrink to fit a
+   phone: the two frames sit side by side when the figure is wide enough and stack when not. */
+.sr12-figure {
+  container-type: inline-size;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--panel);
+  padding: 1rem;
+}
+
+.sr12-figure-head {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.5rem;
+}
+
+.sr12-figure-head h3 {
+  margin: 0;
+}
+
+.sr12-figure-head p {
+  margin: 0.25rem 0 0;
+}
+
+.sr12-frames {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@container (min-width: 34rem) {
+  .sr12-frames {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.sr12-frame {
+  min-width: 0;
+}
+
+.sr12-frame-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.sr12-frame-values {
+  margin: 0.125rem 0 0.5rem;
+  font-family: var(--font-mono);
+}
+
+/* 20rem keeps an 11-unit label near 13px on a wide screen; on a phone the drawing is narrower
+   than that and its labels land near 12px. */
+.sr12-frame svg {
+  display: block;
+  width: 100%;
+  max-width: 20rem;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  background: var(--wash);
+}
+
+.sr12-frame-caption {
+  margin: 0.5rem 0 0;
+}
