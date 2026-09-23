@@ -63,7 +63,7 @@ export function ComparisonPlot({
   return (
     <figure className="comparison-plot">
       <svg
-        viewBox="0 0 720 310"
+        viewBox="0 -12 720 322"
         role="img"
         aria-labelledby={`${uid}-plot-title ${uid}-plot-description`}
       >
@@ -125,7 +125,9 @@ export function ComparisonPlot({
           <text x="360" y="300" textAnchor="middle" style={label}>
             Elapsed time
           </text>
-          <text x="68" y="27" style={label}>
+          {/* 12 units higher, in a frame extended 12 upward: at a phone's 26-unit labels the title's
+              descenders met the top value beneath it. */}
+          <text x="68" y="15" style={label}>
             RMS displacement (μm)
           </text>
           <text x="72" y="54" style={label}>
