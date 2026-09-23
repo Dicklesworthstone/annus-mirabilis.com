@@ -49,7 +49,7 @@ describe("CoefficientLab: static rendering (no JavaScript)", () => {
   });
 
   test("printed-factor wording comes from the prepared example, not a live percentage", () => {
-    expect(html).toContain("the printed factor is 0.1385 percent larger than the modern c^2");
+    expect(html).toContain("the printed factor is 0.1385 percent larger than the modern c²");
     expect(html).toContain("einstein-1905-mass-energy-printed");
     expect(html).toContain("modern-si-2019");
   });
