@@ -91,11 +91,11 @@ export function readTermValue(
 }
 export function retainedState(slot: LiveSlot): string {
   const view = slot.view;
-  if (view.pending) return "Previous accepted settings — a new calculation is pending.";
+  if (view.pending) return "Previous accepted settings: a new calculation is pending.";
   if (view.status === "refused")
-    return `Previous accepted settings — request refused. ${view.refusal?.message ?? ""}`;
+    return `Previous accepted settings: request refused. ${view.refusal?.message ?? ""}`;
   if (view.status === "unavailable")
-    return `Previous accepted settings — calculation unavailable. ${view.outcome?.message ?? ""}`;
-  if (view.status === "paused") return "Previous accepted settings — calculation stopped.";
-  return "Values describe this accepted snapshot, not unsaved input edits.";
+    return `Previous accepted settings: calculation unavailable. ${view.outcome?.message ?? ""}`;
+  if (view.status === "paused") return "Previous accepted settings: calculation stopped.";
+  return "These values are for the settings last applied, not for edits you have not applied yet.";
 }
