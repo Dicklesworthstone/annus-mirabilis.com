@@ -18,6 +18,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { CORE_INSTRUMENT_PATTERN, NON_CORE_INSTRUMENT_IDS } from "../content/ids.ts";
+import { CATALOGUE_IDS } from "../experiments/catalogue.ts";
 import { documentsFromCompiled } from "./documents.ts";
 
 /** One registered instrument projection, the shape build-search-index feeds in. */
@@ -32,6 +33,17 @@ function papersFor(ids: readonly string[]): Map<string, string> {
     if (document.type === "instrument") byId.set(document.id, document.paper);
   }
   return byId;
+}
+
+/** The ids that resolve to no search paper, each tried on its own so one throw cannot hide another. */
+function unresolved(ids: readonly string[]): string[] {
+  return ids.filter((id) => {
+    try {
+      return !papersFor([id]).has(`instrument:${id}`);
+    } catch {
+      return true;
+    }
+  });
 }
 
 describe("every registered instrument resolves to a search paper", () => {
@@ -66,6 +78,27 @@ describe("every registered instrument resolves to a search paper", () => {
     for (const id of ["bm-01", "lq-02", "sr-03", "me-01"]) {
       assert.ok(CORE_INSTRUMENT_PATTERN.test(id), `${id} should be a core id`);
     }
+  });
+
+  test("every id in the CATALOGUE resolves to a search paper, enumerated from the catalogue itself", () => {
+    // scripts/build-search-index.ts enumerates CATALOGUE_IDS, so this does too (am-60vs). The two
+    // tests above enumerate the taxonomy in ids.ts, which agreed with the catalogue on 2026-09-20
+    // with nothing to keep it agreeing: an id added to catalogue.ts alone, matching neither the core
+    // pattern nor the declared non-core list, stopped the build and passed them.
+    const ids = [...CATALOGUE_IDS];
+    assert.ok(
+      ids.length > 0,
+      "the instrument catalogue is empty, so 'every id resolves' would be true of nothing",
+    );
+    const missing = unresolved(ids);
+    assert.deepEqual(
+      missing,
+      [],
+      `${missing.length} of ${ids.length} catalogue ids resolve to no search paper: ${missing.join(", ")}`,
+    );
+    // The planted negative, kept: the same enumeration with one id the taxonomy does not know
+    // reports exactly that id, so the check above can fail, and fails for this reason.
+    assert.deepEqual(unresolved([...ids, "not-in-the-taxonomy"]), ["not-in-the-taxonomy"]);
   });
 
   test("an instrument nobody declared still stops the build, loudly and by name", () => {
