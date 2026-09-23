@@ -185,20 +185,6 @@ export function ClockSyncLab({
           {linkNote}
         </p>
       )}
-      <div className="presets-bar">
-        <span className="presets-label">Presets:</span>
-        {SR01_PRESETS.map((pr) => (
-          <button
-            key={pr.presetId}
-            type="button"
-            className="button-preset"
-            onClick={() => loadPreset(pr.presetId)}
-          >
-            {pr.label}
-          </button>
-        ))}
-      </div>
-
       {/*
         A six-column ledger whose content cannot fit a phone: measured 437px against viewports of
         320, 360 and 390, so the document overflowed at every phone width. A table is at least its
@@ -268,6 +254,22 @@ export function ClockSyncLab({
         <dt>Three-station transitivity (A, B, C, mutually at rest)</dt>
         <dd>{ledger.transitivity?.status ?? "unavailable"}</dd>
       </dl>
+
+      {/* The presets follow the ledger they fill, as the family's "Try" group does. Above it they
+          were 431px of buttons between a phone's heading and its first result. */}
+      <div className="presets-bar">
+        <span className="presets-label">Presets:</span>
+        {SR01_PRESETS.map((pr) => (
+          <button
+            key={pr.presetId}
+            type="button"
+            className="button-preset"
+            onClick={() => loadPreset(pr.presetId)}
+          >
+            {pr.label}
+          </button>
+        ))}
+      </div>
 
       <form className="lab-controls" onSubmit={submit}>
         <fieldset className="control-group">
