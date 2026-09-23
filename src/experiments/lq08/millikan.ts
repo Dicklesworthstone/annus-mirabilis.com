@@ -77,85 +77,9 @@ export const MILLIKAN_1916_SODIUM_POINTS: readonly MillikanDataPoint[] = Object.
   }),
 ]);
 
-export interface OlsLinearFit {
-  readonly slope: number;
-  readonly intercept: number;
-  readonly rSquared: number;
-  readonly slopeStandardError: number;
-  readonly interceptStandardError: number;
-  readonly residualVariance: number;
-  readonly sampleCount: number;
-  readonly fittedValues: readonly number[];
-  readonly residuals: readonly number[];
-}
-
-/**
- * Standard ordinary least squares (OLS) linear regression of y on x: y = slope * x + intercept.
- */
-export function fitOls(points: readonly Readonly<{ x: number; y: number }>[]): OlsLinearFit {
-  const n = points.length;
-  if (n < 3) {
-    throw new Error(`OLS fit requires at least 3 points; received ${n}`);
-  }
-
-  let sumX = 0;
-  let sumY = 0;
-  for (const p of points) {
-    sumX += p.x;
-    sumY += p.y;
-  }
-  const meanX = sumX / n;
-  const meanY = sumY / n;
-
-  let ssXX = 0;
-  let ssYY = 0;
-  let ssXY = 0;
-
-  for (const p of points) {
-    const dx = p.x - meanX;
-    const dy = p.y - meanY;
-    ssXX += dx * dx;
-    ssYY += dy * dy;
-    ssXY += dx * dy;
-  }
-
-  if (ssXX <= 0) {
-    throw new Error("Cannot fit OLS line: zero x-variance.");
-  }
-
-  const slope = ssXY / ssXX;
-  const intercept = meanY - slope * meanX;
-  const rSquared = ssYY > 0 ? (ssXY * ssXY) / (ssXX * ssYY) : 1;
-
-  let ssResidual = 0;
-  const fittedValues: number[] = [];
-  const residuals: number[] = [];
-
-  for (const p of points) {
-    const fitY = slope * p.x + intercept;
-    const res = p.y - fitY;
-    fittedValues.push(fitY);
-    residuals.push(res);
-    ssResidual += res * res;
-  }
-
-  const dof = n - 2;
-  const residualVariance = ssResidual / dof;
-  const slopeStandardError = Math.sqrt(residualVariance / ssXX);
-  const interceptStandardError = Math.sqrt(residualVariance * (1 / n + (meanX * meanX) / ssXX));
-
-  return Object.freeze({
-    slope,
-    intercept,
-    rSquared,
-    slopeStandardError,
-    interceptStandardError,
-    residualVariance,
-    sampleCount: n,
-    fittedValues: Object.freeze(fittedValues),
-    residuals: Object.freeze(residuals),
-  });
-}
+// Shared numerical owner; preserve the public OLS imports used by the existing laboratory.
+import { fitOls, type OlsLinearFit } from "../../physics/reference/inference/lineFit.ts";
+export { fitOls, type OlsLinearFit } from "../../physics/reference/inference/lineFit.ts";
 
 /**
  * Fits the Millikan 1916 Sodium stopping potentials against frequency.
