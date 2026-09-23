@@ -11,10 +11,20 @@ export default function BrownianDataPage() {
         <p className="eyebrow">Brownian motion · Your observations</p>
         <h1>What does your recording actually identify?</h1>
         <p className="lead">
-          Bring an explicitly calibrated trajectory CSV, inspect the observations, and ask whether
-          the selected observation model admits them before interpreting an estimate.
+          Load the positions of a particle you tracked, and see which diffusion estimate they
+          support and on what assumptions. No recording? <a href="/lab/bm-07/">bm-07</a> generates a
+          synthetic one to download.
         </p>
       </header>
+      <MeasuredTrajectoryLab />
+      <nav className="lab-onward" aria-label="From here">
+        <h2>From here</h2>
+        <ul>
+          <li>
+            <a href="/lab/bm-07/">Return to the synthetic inference exercise and derivation</a>
+          </li>
+        </ul>
+      </nav>
       <section className="reading" aria-labelledby="trajectory-format">
         <h2 id="trajectory-format">A small, explicit data format</h2>
         <p>
@@ -33,15 +43,6 @@ export default function BrownianDataPage() {
           noise, selection bias and unsupported observation models still receive no interval.
         </p>
       </section>
-      <MeasuredTrajectoryLab />
-      <nav className="lab-onward" aria-label="From here">
-        <h2>From here</h2>
-        <ul>
-          <li>
-            <a href="/lab/bm-07/">Return to the synthetic inference exercise and derivation</a>
-          </li>
-        </ul>
-      </nav>
       <section className="reading" aria-labelledby="trajectory-limits">
         <h2 id="trajectory-limits">An interval is not an authenticity certificate</h2>
         <p>

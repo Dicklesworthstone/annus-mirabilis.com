@@ -241,9 +241,8 @@ export function MeasuredTrajectoryLab() {
         <span className="badge">Local CSV · reference host calculation</span>
       </header>
       <p>
-        Data stay in this browser tab unless you explicitly download an export. This tool does not
-        upload or persist the observations, and they never appear in a share link. Importing a file
-        does not verify that it is a measurement or that the physical model applies.
+        Your data stay in this tab. Nothing is uploaded or stored, and nothing goes into a share
+        link. Loading a file does not show that it is a real measurement, or that the model fits it.
       </p>
       <noscript>
         <p className="notice">
