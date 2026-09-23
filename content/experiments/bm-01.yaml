@@ -377,6 +377,9 @@ owner:
     - kernelFunction: ensembleMoments
       identifier: "rms"
       quantityId: rmsDisplacement1d
+    - kernelFunction: ensembleMoments
+      identifier: "displacements"
+      quantityId: displacement1d
   traceScenarioId: diffusion-einstein-1905-printed
   traceRows:
     - label: "Diffusivity, Einstein preset"

@@ -371,6 +371,24 @@ owner:
     - kernelFunction: ftcs1d
       identifier: "dt"
       quantityId: gridTimeStep
+    - kernelFunction: gaussianPropagator
+      identifier: "x"
+      quantityId: positionCoordinate1d
+    - kernelFunction: gaussianPropagator
+      identifier: "t"
+      quantityId: observationInterval
+    - kernelFunction: gaussianPropagator
+      identifier: "sigma"
+      quantityId: rmsDisplacement1d
+    - kernelFunction: gaussianPropagator
+      identifier: "gaussianPropagator"
+      quantityId: probabilityDensity
+    - kernelFunction: intervalProbability
+      identifier: "x1"
+      quantityId: displacement1d
+    - kernelFunction: intervalProbability
+      identifier: "x2"
+      quantityId: displacement1d
   traceScenarioId: bm-06-one-rms-probability
   traceRows:
     - label: "One-RMS-displacement probability, modern golden inputs"

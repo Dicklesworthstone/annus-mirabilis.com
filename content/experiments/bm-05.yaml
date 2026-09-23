@@ -392,6 +392,27 @@ owner:
     - kernelFunction: continuumLimit
       identifier: "stepScale"
       quantityId: stepRms
+    - kernelFunction: kernelDiffusivity
+      identifier: "diffusion"
+      quantityId: diffusionCoefficient
+    - kernelFunction: randomWalkMoments
+      identifier: "n"
+      quantityId: walkStepCount
+    - kernelFunction: randomWalkMoments
+      identifier: "tau"
+      quantityId: stepInterval
+    - kernelFunction: randomWalkMoments
+      identifier: "elapsedTime"
+      quantityId: observationInterval
+    - kernelFunction: randomWalkMoments
+      identifier: "rms"
+      quantityId: rmsDisplacement1d
+    - kernelFunction: randomWalkMoments
+      identifier: "diffusion"
+      quantityId: diffusionCoefficient
+    - kernelFunction: coinWalkDistribution
+      identifier: "positions"
+      quantityId: positionCoordinate1d
   traceScenarioId: bm-05-gaussian-step-diffusivity
   traceRows:
     - label: "Diffusivity, Gaussian kernel at defaults"
