@@ -227,10 +227,13 @@ export default function MassEnergyRoute() {
       <aside className="notice">
         <h2>What this argument does not establish</h2>
         <p>
-          It does not show that mass and energy are the same thing, and the paper does not claim
-          that. It shows that a body which gives off energy behaves afterwards as though it had less
-          mass, by a definite amount, under the premises named at steps 3 and 4. The famous equation
-          is nowhere in this paper: what is printed is a decrease, for one body, in one situation.
+          It does not show that mass and energy are the same thing. It shows that a body which gives
+          off energy <em>L</em> as light behaves afterwards as though its mass were smaller by{" "}
+          <em>L</em>/<em>V</em>&sup2;, under the premises named at steps 3 and 4. The paper then
+          generalises in one sentence: it calls it evident that nothing depends on the energy
+          leaving as radiation, and concludes that the mass of a body is a measure of its energy
+          content. That last step is a stated inference, not a further derivation, and the familiar
+          equation is printed nowhere in the paper.
         </p>
         <p>
           Nor is any of this an experiment. Every number on the instruments linked above is
