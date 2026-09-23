@@ -14,7 +14,7 @@ describe("SR-08 Field Frame Change Lab View & Route (am-sr-08-field-frame-change
     expect(html).toContain("Special relativity · Electrodynamics §6");
     expect(html).toContain("Worked case (readable without JavaScript)");
     expect(html).toContain('data-instrument-id="sr-08"');
-    expect(html).toContain("Transformation Ledger");
+    expect(html).toContain("Transformation ledger");
     expect(html).toContain("E² − c²B²");
   });
 
