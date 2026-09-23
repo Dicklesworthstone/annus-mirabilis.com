@@ -1,3 +1,5 @@
+import "./sr11.css";
+
 export interface MovingMirrorPlotProps {
   beta: number;
   incidentAngleDeg: number;
@@ -14,6 +16,52 @@ export interface MovingMirrorPlotProps {
   notApplicableReason?: string | undefined;
 }
 
+// Drawing frame. The rays are drawn in screen coordinates with y pointing down, and the physics
+// y-axis is mapped onto it unchanged: the incident ray travels along (cos φ, sin φ), so it arrives
+// from the upper left, and the reflected ray leaves along (cos φ′′′, sin φ′′′), below the normal.
+export const MIRROR_FRAME = {
+  width: 470,
+  height: 410,
+  mirrorX: 270,
+  centerY: 175,
+  mirrorHeight: 210,
+  rayLength: 150,
+} as const;
+
+/** Where the drawn rays start and end. Exported so a test can check the reflection is a mirror
+ * image of the incidence about the normal, not a retrace of it. */
+export function mirrorRayGeometry(incidentAngleDeg: number, phiReflectedDeg: number) {
+  const { mirrorX, centerY, rayLength } = MIRROR_FRAME;
+  const phiInc = (incidentAngleDeg * Math.PI) / 180;
+  const phiRefl = (phiReflectedDeg * Math.PI) / 180;
+  // Near the axis the two rays lie on top of each other; they are drawn a few units apart there
+  // so both stay visible, one just above the normal and one just below.
+  const nearAxis = Math.sin(phiInc) < 0.1 && Math.sin(phiRefl) < 0.1;
+  const split = nearAxis ? 6 : 0;
+  return {
+    incidentStart: {
+      x: mirrorX - rayLength * Math.cos(phiInc),
+      y: centerY - rayLength * Math.sin(phiInc) - split,
+    },
+    incidentEnd: { x: mirrorX, y: centerY - split },
+    reflectedStart: { x: mirrorX, y: centerY + split },
+    reflectedEnd: {
+      x: mirrorX + rayLength * Math.cos(phiRefl),
+      y: centerY + rayLength * Math.sin(phiRefl) + split,
+    },
+  };
+}
+
+const clampLabelX = (x: number) => Math.min(MIRROR_FRAME.width - 50, Math.max(50, x));
+const midpoint = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+  `${a.x},${a.y} ${(a.x + b.x) / 2},${(a.y + b.y) / 2} ${b.x},${b.y}`;
+
+const labelStyle = {
+  fill: "var(--ink)",
+  fontFamily: "var(--font-sans)",
+  fontSize: "var(--sr11-label, 13px)",
+} as const;
+
 export function MovingMirrorPlot({
   beta,
   incidentAngleDeg,
@@ -29,457 +77,334 @@ export function MovingMirrorPlot({
   isApplicable,
   notApplicableReason: _notApplicableReason,
 }: MovingMirrorPlotProps) {
-  const width = 800;
-  const height = 400;
-
-  // Geometry
-  const mirrorX = 380;
-  const centerY = 200;
-  const mirrorHeight = 240;
-
-  // Ray parameters
-  const rayLength = 160;
+  const { width, height, mirrorX, centerY, mirrorHeight } = MIRROR_FRAME;
   const phiIncRad = (incidentAngleDeg * Math.PI) / 180;
-  const phiReflRad = (phiReflectedDeg * Math.PI) / 180;
-
-  // Incident ray comes from top/left towards mirror at (mirrorX, centerY)
-  // In physics coordinate: normal is along +x.
-  // Incident wave direction makes angle phi with normal.
-  const incStartX = mirrorX - rayLength * Math.cos(phiIncRad);
-  const incStartY = centerY - rayLength * Math.sin(phiIncRad);
-
-  // Reflected ray goes away from mirror
-  // Angle with +x normal is phiReflectedDeg
-  const reflEndX = mirrorX + rayLength * Math.cos(phiReflRad);
-  const reflEndY = centerY - rayLength * Math.sin(phiReflRad);
+  const rays = mirrorRayGeometry(incidentAngleDeg, phiReflectedDeg);
 
   // Doppler and physical vector colors
   const incColor = "#f59e0b";
   const reflColor =
     frequencyRatio > 1.01 ? "#3b82f6" : frequencyRatio < 0.99 ? "#ef4444" : "#f59e0b";
+  const reflWords =
+    frequencyRatio > 1.01
+      ? "reflected light, at a higher frequency"
+      : frequencyRatio < 0.99
+        ? "reflected light, at a lower frequency"
+        : "reflected light, at the same frequency";
   const velocityColor = "#10b981";
   const forceColor = "#ec4899";
-  const outputColor = "#3b82f6";
 
-  // Power ledger max scale
-  const totalPower = Math.max(
-    0.1,
-    Math.abs(incidentPower),
-    Math.abs(reflectedPower) + Math.abs(workRate),
-  );
-  const incBarH = Math.min(180, (Math.max(0, incidentPower) / totalPower) * 160);
-  const reflBarH = Math.min(180, (Math.max(0, reflectedPower) / totalPower) * 160);
-  const workBarH = Math.min(180, (Math.max(0, workRate) / totalPower) * 160);
+  // Energy per second at the mirror. A receding mirror is pushed, so the light does work on it
+  // and that work leaves with the reflected light. An approaching mirror does work on the light,
+  // so its work arrives with the incident light. Both rows share one scale.
+  const workIn = Math.max(0, -workRate);
+  const workOut = Math.max(0, workRate);
+  const inflow = Math.max(0, incidentPower) + workIn;
+  const outflow = Math.max(0, reflectedPower) + workOut;
+  const scale = Math.max(1e-12, inflow, outflow);
+  const pct = (x: number) => `${((Math.max(0, x) / scale) * 100).toFixed(1)}%`;
+
+  // The velocity has its own lane below the lowest point a reflected ray or its label can reach
+  // (centerY + rayLength, plus the label), so a ray leaving steeply downward never crosses it.
+  const velocityY = height - 38;
+  const velocityWords =
+    Math.abs(beta) <= 0.01
+      ? "mirror at rest"
+      : beta > 0
+        ? `v = +${beta.toFixed(2)}c, receding`
+        : `v = ${beta.toFixed(2)}c, approaching`;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-      <div
-        style={{
-          borderRadius: "0.5rem",
-          border: "1px solid var(--line)",
-          background: "var(--panel)",
-          padding: "1rem",
-        }}
-      >
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          style={{ width: "100%", height: "auto", userSelect: "none" }}
-          role="img"
-          aria-label={`Moving mirror reflection diagram: mirror speed beta = ${beta.toFixed(2)}, incident angle = ${incidentAngleDeg.toFixed(1)} deg, reflected angle = ${phiReflectedDeg.toFixed(1)} deg`}
-        >
-          <title>Moving Mirror Reflection and Energy Ledger</title>
-
-          {/* Definitions for arrow markers */}
-          <defs>
-            <marker
-              id="arrow-inc"
-              viewBox="0 0 10 10"
-              refX="6"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1 L 10 5 L 0 9 z" fill={incColor} />
-            </marker>
-            <marker
-              id="arrow-refl"
-              viewBox="0 0 10 10"
-              refX="6"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1 L 10 5 L 0 9 z" fill={reflColor} />
-            </marker>
-            <marker
-              id="arrow-normal"
-              viewBox="0 0 10 10"
-              refX="6"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 2 L 8 5 L 0 8 z" fill="currentColor" opacity="0.6" />
-            </marker>
-            <marker
-              id="arrow-velocity"
-              viewBox="0 0 10 10"
-              refX="6"
-              refY="5"
-              markerWidth="7"
-              markerHeight="7"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1 L 10 5 L 0 9 z" fill={velocityColor} />
-            </marker>
-            <marker
-              id="arrow-force"
-              viewBox="0 0 10 10"
-              refX="6"
-              refY="5"
-              markerWidth="7"
-              markerHeight="7"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1 L 10 5 L 0 9 z" fill={forceColor} />
-            </marker>
-          </defs>
-
-          {/* Background Grid & Axis */}
-          <line
-            x1={40}
-            y1={centerY}
-            x2={mirrorX + 180}
-            y2={centerY}
-            stroke="currentColor"
-            strokeDasharray="3 3"
-            opacity="0.25"
-          />
-
-          {/* Mirror Surface */}
-          <rect
-            x={mirrorX - 6}
-            y={centerY - mirrorHeight / 2}
-            width={12}
-            height={mirrorHeight}
-            rx={3}
-            fill="currentColor"
-            opacity="0.85"
-          />
-          {/* Mirror Hatching pattern representing backing */}
-          {Array.from({ length: 12 }, (_, i) => {
-            const y = centerY - mirrorHeight / 2 + 10 + i * 20;
-            return {
-              id: `mirror-hatch-${y}`,
-              y,
-            };
-          }).map((hatch) => (
-            <line
-              key={hatch.id}
-              x1={mirrorX + 6}
-              y1={hatch.y}
-              x2={mirrorX + 14}
-              y2={hatch.y + 8}
-              stroke="currentColor"
-              opacity="0.4"
-              strokeWidth="1.5"
-            />
-          ))}
-
-          {/* Mirror normal vector arrow */}
-          <line
-            x1={mirrorX}
-            y1={centerY}
-            x2={mirrorX - 80}
-            y2={centerY}
-            stroke="currentColor"
-            opacity="0.5"
-            strokeWidth="1.5"
-            markerEnd="url(#arrow-normal)"
-          />
-          <text
-            x={mirrorX - 90}
-            y={centerY - 10}
-            fill="var(--muted)"
-            fontSize="12px"
-            textAnchor="middle"
+    <div className="sr11-figure">
+      <div className="sr11-figure-grid">
+        <div className="sr11-diagram">
+          <svg
+            viewBox={`0 0 ${width} ${height}`}
+            role="img"
+            aria-label={`Moving mirror: speed β = ${beta.toFixed(2)}, light arriving at ${incidentAngleDeg.toFixed(1)} degrees from the normal${isApplicable ? ` and leaving at ${phiReflectedDeg.toFixed(1)} degrees` : ", never reaching the mirror"}`}
           >
-            Normal (n)
-          </text>
+            <title>Moving mirror with incident and reflected light</title>
+            <defs>
+              <marker
+                id="arrow-inc"
+                viewBox="0 0 10 10"
+                refX="5"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto"
+              >
+                <path d="M 0 1 L 10 5 L 0 9 z" fill={incColor} />
+              </marker>
+              <marker
+                id="arrow-refl"
+                viewBox="0 0 10 10"
+                refX="5"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto"
+              >
+                <path d="M 0 1 L 10 5 L 0 9 z" fill={reflColor} />
+              </marker>
+              <marker
+                id="arrow-velocity"
+                viewBox="0 0 10 10"
+                refX="6"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1 L 10 5 L 0 9 z" fill={velocityColor} />
+              </marker>
+              <marker
+                id="arrow-force"
+                viewBox="0 0 10 10"
+                refX="6"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1 L 10 5 L 0 9 z" fill={forceColor} />
+              </marker>
+            </defs>
 
-          {/* Mirror Velocity Vector Arrow */}
-          {Math.abs(beta) > 0.01 && (
-            <g>
+            {/* The normal, drawn through the point where the light meets the mirror */}
+            <line
+              x1={30}
+              y1={centerY}
+              x2={width - 20}
+              y2={centerY}
+              stroke="currentColor"
+              strokeDasharray="3 3"
+              opacity="0.3"
+            />
+            <text x={width - 20} y={centerY + 22} textAnchor="end" style={labelStyle}>
+              normal
+            </text>
+
+            {/* Mirror, with hatching on its back */}
+            <rect
+              x={mirrorX - 6}
+              y={centerY - mirrorHeight / 2}
+              width={12}
+              height={mirrorHeight}
+              rx={3}
+              fill="currentColor"
+              opacity="0.85"
+            />
+            {Array.from({ length: 10 }, (_, i) => centerY - mirrorHeight / 2 + 10 + i * 20).map(
+              (y) => (
+                <line
+                  key={`mirror-hatch-${y}`}
+                  x1={mirrorX + 6}
+                  y1={y}
+                  x2={mirrorX + 14}
+                  y2={y + 8}
+                  stroke="currentColor"
+                  opacity="0.4"
+                  strokeWidth="1.5"
+                />
+              ),
+            )}
+
+            {/* Mirror velocity */}
+            {Math.abs(beta) > 0.01 && (
               <line
                 x1={mirrorX}
-                y1={centerY + mirrorHeight / 2 + 24}
-                x2={mirrorX + beta * 120}
-                y2={centerY + mirrorHeight / 2 + 24}
+                y1={velocityY}
+                x2={mirrorX + beta * 110}
+                y2={velocityY}
                 stroke={velocityColor}
                 strokeWidth="3"
                 markerEnd="url(#arrow-velocity)"
               />
-              <text
-                x={mirrorX + (beta * 120) / 2}
-                y={centerY + mirrorHeight / 2 + 42}
-                fill={velocityColor}
-                fontWeight={500}
-                fontSize="12px"
-                textAnchor="middle"
-              >
-                v ={" "}
-                {beta > 0 ? `+${beta.toFixed(2)}c (receding)` : `${beta.toFixed(2)}c (approaching)`}
-              </text>
-            </g>
-          )}
-
-          {/* Radiation Pressure / Force Vector on Mirror Face */}
-          {isApplicable && radiationForce > 0.001 && (
-            <g>
-              <line
-                x1={mirrorX - 6}
-                y1={centerY}
-                x2={mirrorX + Math.min(80, Math.max(20, radiationForce * 25))}
-                y2={centerY}
-                stroke={forceColor}
-                strokeWidth="2.5"
-                markerEnd="url(#arrow-force)"
-              />
-              <text
-                x={mirrorX + 45}
-                y={centerY - 15}
-                fill={forceColor}
-                fontWeight={500}
-                fontSize="12px"
-                textAnchor="middle"
-              >
-                Radiation force F
-              </text>
-            </g>
-          )}
-
-          {/* Ray Paths */}
-          {isApplicable ? (
-            <g>
-              {/* Incident Ray */}
-              <line
-                x1={incStartX}
-                y1={incStartY}
-                x2={mirrorX}
-                y2={centerY}
-                stroke={incColor}
-                strokeWidth="3"
-                markerMid="url(#arrow-inc)"
-              />
-              <text
-                x={incStartX + 20}
-                y={incStartY - 10}
-                fill={incColor}
-                fontWeight={600}
-                fontSize="12px"
-              >
-                Incident ray (ν, φ = {incidentAngleDeg.toFixed(1)}°)
-              </text>
-
-              {/* Reflected Ray */}
-              <line
-                x1={mirrorX}
-                y1={centerY}
-                x2={reflEndX}
-                y2={reflEndY}
-                stroke={reflColor}
-                strokeWidth="3"
-                markerMid="url(#arrow-refl)"
-              />
-              <text
-                x={reflEndX + 10}
-                y={reflEndY - 10}
-                fill={reflColor}
-                fontWeight={600}
-                fontSize="12px"
-              >
-                Reflected ray (ν′′′/ν = {frequencyRatio.toFixed(3)}, φ′′′ ={" "}
-                {phiReflectedDeg.toFixed(1)}°)
-              </text>
-
-              {/* Angle arc for incident ray */}
-              {incidentAngleDeg > 5 && (
-                <path
-                  d={`M ${mirrorX - 40} ${centerY} A 40 40 0 0 0 ${mirrorX - 40 * Math.cos(phiIncRad)} ${centerY - 40 * Math.sin(phiIncRad)}`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeDasharray="2 2"
-                  opacity="0.6"
-                />
-              )}
-            </g>
-          ) : (
-            /* Interception Limit / Horizon Warning */
-            <g>
-              <line
-                x1={incStartX}
-                y1={incStartY}
-                x2={incStartX + 120 * Math.cos(phiIncRad)}
-                y2={incStartY + 120 * Math.sin(phiIncRad)}
-                stroke="var(--muted)"
-                strokeWidth="2"
-                strokeDasharray="4 4"
-              />
-              <rect
-                x={80}
-                y={80}
-                width={260}
-                height={90}
-                rx={8}
-                fill="var(--wash)"
-                stroke="var(--accent)"
-                strokeWidth="1.5"
-              />
-              <text x={95} y={105} fill="var(--accent)" fontWeight="bold" fontSize="12px">
-                Interception Horizon: cos(φ) ≤ β
-              </text>
-              <text x={95} y={125} fill="var(--accent)" fontSize="12px">
-                Light speed c cos(φ) ≤ v (receding mirror).
-              </text>
-              <text x={95} y={145} fill="var(--accent)" fontSize="12px">
-                The wavefront cannot catch up with the mirror face.
-              </text>
-            </g>
-          )}
-
-          {/* Energy Ledger Bar Chart (Right side of SVG) */}
-          <g transform="translate(580, 40)">
-            <rect
-              x={0}
-              y={0}
-              width={200}
-              height={320}
-              rx={8}
-              fill="var(--panel)"
-              stroke="var(--line)"
-              strokeWidth="1"
-            />
+            )}
             <text
-              x={100}
-              y={26}
-              fill="var(--ink)"
-              fontWeight="bold"
-              fontSize="12px"
+              x={clampLabelX(mirrorX + (Math.abs(beta) > 0.01 ? beta * 55 : 0))}
+              y={velocityY + 24}
               textAnchor="middle"
+              style={labelStyle}
             >
-              Energy Conservation Ledger
+              {velocityWords}
             </text>
-            <text x={100} y={42} fill="var(--muted)" fontSize="10px" textAnchor="middle">
-              {frame === "mirror" ? "Mirror Rest Frame (k)" : "Laboratory Frame (K)"}
-            </text>
+
+            {/* Radiation force on the mirror */}
+            {isApplicable && radiationForce > 0.001 && (
+              <g>
+                <line
+                  x1={mirrorX + 6}
+                  y1={centerY}
+                  x2={mirrorX + 6 + Math.min(80, Math.max(24, radiationForce * 25))}
+                  y2={centerY}
+                  stroke={forceColor}
+                  strokeWidth="2.5"
+                  markerEnd="url(#arrow-force)"
+                />
+                <text x={mirrorX + 36} y={centerY - 12} textAnchor="middle" style={labelStyle}>
+                  F
+                </text>
+              </g>
+            )}
 
             {isApplicable ? (
-              <g transform="translate(20, 60)">
-                {/* Incident Power Column */}
-                <g transform="translate(15, 0)">
-                  <text x={25} y={190} fill="var(--ink)" fontSize="10px" textAnchor="middle">
-                    Incident
-                  </text>
-                  <text
-                    x={25}
-                    y={205}
-                    fill={incColor}
-                    fontWeight="bold"
-                    fontSize="10px"
-                    textAnchor="middle"
-                  >
-                    {incidentPower.toFixed(3)}
-                  </text>
-                  <rect
-                    x={5}
-                    y={170 - incBarH}
-                    width={40}
-                    height={incBarH}
-                    rx={3}
-                    fill={incColor}
-                    opacity="0.9"
-                  />
-                </g>
-
-                {/* Balance Equals sign */}
+              <g>
+                <polyline
+                  points={midpoint(rays.incidentStart, rays.incidentEnd)}
+                  fill="none"
+                  stroke={incColor}
+                  strokeWidth="3"
+                  markerMid="url(#arrow-inc)"
+                />
                 <text
-                  x={80}
-                  y={110}
-                  fill="var(--muted)"
-                  fontWeight="bold"
-                  fontSize="14px"
+                  x={clampLabelX(rays.incidentStart.x)}
+                  y={rays.incidentStart.y - 12}
                   textAnchor="middle"
+                  style={labelStyle}
                 >
-                  =
+                  incident
                 </text>
-
-                {/* Output Power Column (Reflected + Work) */}
-                <g transform="translate(95, 0)">
-                  <text x={25} y={190} fill="var(--ink)" fontSize="10px" textAnchor="middle">
-                    Refl + Work
-                  </text>
-                  <text
-                    x={25}
-                    y={205}
-                    fill={outputColor}
-                    fontWeight="bold"
-                    fontSize="10px"
-                    textAnchor="middle"
-                  >
-                    {(reflectedPower + workRate).toFixed(3)}
-                  </text>
-                  {/* Reflected power segment */}
-                  <rect
-                    x={5}
-                    y={170 - reflBarH - workBarH}
-                    width={40}
-                    height={reflBarH}
-                    rx={3}
-                    fill={reflColor}
-                    opacity="0.9"
+                <polyline
+                  points={midpoint(rays.reflectedStart, rays.reflectedEnd)}
+                  fill="none"
+                  stroke={reflColor}
+                  strokeWidth="3"
+                  markerMid="url(#arrow-refl)"
+                />
+                <text
+                  x={clampLabelX(rays.reflectedEnd.x)}
+                  y={rays.reflectedEnd.y + 24}
+                  textAnchor="middle"
+                  style={labelStyle}
+                >
+                  reflected
+                </text>
+                {incidentAngleDeg > 5 && incidentAngleDeg < 85 && (
+                  <path
+                    d={`M ${mirrorX - 40} ${centerY} A 40 40 0 0 0 ${mirrorX - 40 * Math.cos(phiIncRad)} ${centerY - 40 * Math.sin(phiIncRad)}`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeDasharray="2 2"
+                    opacity="0.6"
                   />
-                  {/* Work rate segment */}
-                  {workBarH > 0 && (
-                    <rect
-                      x={5}
-                      y={170 - workBarH}
-                      width={40}
-                      height={workBarH}
-                      rx={3}
-                      fill={velocityColor}
-                      opacity="0.9"
-                    />
-                  )}
-                </g>
-
-                {/* Ledger Key */}
-                <g transform="translate(0, 220)">
-                  <circle cx={10} cy={6} r={4} fill={incColor} />
-                  <text x={20} y={10} fill="var(--muted)" fontSize="9px">
-                    Incident radiation power
-                  </text>
-
-                  <circle cx={10} cy={20} r={4} fill={reflColor} />
-                  <text x={20} y={24} fill="var(--muted)" fontSize="9px">
-                    Reflected radiation power
-                  </text>
-
-                  <circle cx={10} cy={34} r={4} fill={velocityColor} />
-                  <text x={20} y={38} fill="var(--muted)" fontSize="9px">
-                    Mechanical work rate (P·v·Am)
-                  </text>
-                </g>
+                )}
               </g>
             ) : (
-              <text x={100} y={140} fill="var(--muted)" fontSize="12px" textAnchor="middle">
-                Ledger inactive (no ray hit)
-              </text>
+              <g>
+                <line
+                  x1={rays.incidentStart.x}
+                  y1={rays.incidentStart.y}
+                  x2={rays.incidentStart.x + 120 * Math.cos(phiIncRad)}
+                  y2={rays.incidentStart.y + 120 * Math.sin(phiIncRad)}
+                  stroke="var(--muted)"
+                  strokeWidth="2"
+                  strokeDasharray="4 4"
+                />
+                <text
+                  x={clampLabelX(rays.incidentStart.x)}
+                  y={rays.incidentStart.y - 12}
+                  textAnchor="middle"
+                  style={labelStyle}
+                >
+                  incident
+                </text>
+              </g>
             )}
-          </g>
-        </svg>
+          </svg>
+          {isApplicable ? null : (
+            <p className="fine sr11-no-reflection">
+              No reflection at these settings. Along the normal the light moves at c·cos φ ={" "}
+              {Math.cos(phiIncRad).toFixed(3)}c, no faster than the mirror at {beta.toFixed(3)}c, so
+              it never reaches the mirror.
+            </p>
+          )}
+        </div>
+
+        <div className="sr11-ledger">
+          <p className="sr11-ledger-title">Energy per second</p>
+          <p className="fine sr11-ledger-frame">
+            At the mirror, in the{" "}
+            {frame === "mirror" ? "mirror rest frame (k)" : "laboratory frame (K)"}
+          </p>
+          {isApplicable ? (
+            <>
+              <div className="sr11-ledger-row">
+                <span className="sr11-ledger-label">In</span>
+                <span className="sr11-bar" aria-hidden="true">
+                  <span
+                    className="sr11-seg"
+                    style={{ width: pct(incidentPower), background: incColor }}
+                  />
+                  {workIn > 0 ? (
+                    <span
+                      className="sr11-seg"
+                      style={{ width: pct(workIn), background: velocityColor }}
+                    />
+                  ) : null}
+                </span>
+                <span className="sr11-ledger-value">{inflow.toFixed(3)} W</span>
+              </div>
+              <div className="sr11-ledger-row">
+                <span className="sr11-ledger-label">Out</span>
+                <span className="sr11-bar" aria-hidden="true">
+                  <span
+                    className="sr11-seg"
+                    style={{ width: pct(reflectedPower), background: reflColor }}
+                  />
+                  {workOut > 0 ? (
+                    <span
+                      className="sr11-seg"
+                      style={{ width: pct(workOut), background: velocityColor }}
+                    />
+                  ) : null}
+                </span>
+                <span className="sr11-ledger-value">{outflow.toFixed(3)} W</span>
+              </div>
+              <ul className="fine sr11-key">
+                <li>
+                  <span
+                    className="sr11-swatch"
+                    style={{ background: incColor }}
+                    aria-hidden="true"
+                  />
+                  incident light
+                </li>
+                <li>
+                  <span
+                    className="sr11-swatch"
+                    style={{ background: reflColor }}
+                    aria-hidden="true"
+                  />
+                  {reflWords}
+                </li>
+                {workRate !== 0 ? (
+                  <li>
+                    <span
+                      className="sr11-swatch"
+                      style={{ background: velocityColor }}
+                      aria-hidden="true"
+                    />
+                    {workRate > 0
+                      ? "work the light does pushing the mirror (P·v·Aₘ)"
+                      : "work the approaching mirror does on the light (P·v·Aₘ)"}
+                  </li>
+                ) : null}
+                <li>
+                  <span
+                    className="sr11-swatch"
+                    style={{ background: forceColor }}
+                    aria-hidden="true"
+                  />
+                  F, the radiation force on the mirror
+                </li>
+              </ul>
+            </>
+          ) : (
+            <p className="fine">Nothing is exchanged: no light reaches the mirror.</p>
+          )}
+        </div>
       </div>
     </div>
   );

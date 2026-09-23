@@ -1,0 +1,106 @@
+/* SR-11, the moving mirror (MovingMirrorPlot.tsx). The drawing carries only short labels, sized
+   from --sr11-label, which a narrow-screen rule raises so they stay legible when the drawing is
+   scaled down to a phone. The energy balance is HTML beside the drawing when there is room for
+   it, and below it when there is not. */
+.sr11-figure {
+  container-type: inline-size;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--panel);
+  padding: 1rem;
+}
+
+.sr11-figure-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@container (min-width: 36rem) {
+  .sr11-figure-grid {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    align-items: center;
+  }
+}
+
+.sr11-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 34rem;
+  margin-inline: auto;
+  user-select: none;
+}
+
+@media (max-width: 40rem) {
+  .sr11-diagram svg {
+    --sr11-label: 19px;
+  }
+}
+
+.sr11-no-reflection {
+  margin: 0.5rem 0 0;
+}
+
+/* A grid item: without this, a long key line could widen its column past 15rem. */
+.sr11-ledger {
+  min-width: 0;
+}
+
+.sr11-ledger-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.sr11-ledger-frame {
+  margin: 0.125rem 0 0.75rem;
+}
+
+.sr11-ledger-row {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block: 0.375rem;
+}
+
+.sr11-ledger-label {
+  font-weight: 600;
+}
+
+.sr11-bar {
+  display: flex;
+  height: 0.875rem;
+  border-radius: 0.25rem;
+  background: var(--wash);
+}
+
+.sr11-seg {
+  display: block;
+  height: 100%;
+}
+
+.sr11-ledger-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.sr11-key {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sr11-key li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sr11-swatch {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+}
