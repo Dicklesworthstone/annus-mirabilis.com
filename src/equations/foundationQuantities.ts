@@ -85,7 +85,7 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
       // Derivatives: the Brownian paper's section 4 concentration, and the difference quotient.
       pick(BROWNIAN_QUANTITIES, "diffusionCoefficient"),
       pick(BROWNIAN_QUANTITIES, "positionCoordinate1d", {
-        definition: "Position along the tube, the coordinate the concentration varies with.",
+        definition: "Position along x.",
       }),
       own({
         id: "numberDensity",
@@ -182,6 +182,43 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
       pick(MASS_ENERGY_QUANTITIES, "bodyMassBefore"),
       pick(MASS_ENERGY_QUANTITIES, "bodyMassAfter"),
       pick(MASS_ENERGY_QUANTITIES, "frameSpeed"),
+      // Diffusion: the density and its flux along one coordinate.
+      pick(BROWNIAN_QUANTITIES, "probabilityDensity"),
+      pick(BROWNIAN_QUANTITIES, "displacementIncrement"),
+      own({
+        id: "probabilityFlux1d",
+        name: "Probability flux",
+        glyph: "J",
+        dimension: ["0", "0", "-1", "0", "0", "0"],
+        unit: "1/s",
+        displayUnit: "1/s",
+        displayPower: 0,
+        semanticKind: "probability-flux",
+        role: "result",
+        definition: "How much probability crosses a point per second, along one coordinate.",
+      }),
+      // Radiation: Wien's law and section 3's entropy derivative, in the paper's own letters.
+      pick(LIGHT_QUANTA_QUANTITIES, "frequencyEnergyDensity", { glyph: "\\rho" }),
+      pick(LIGHT_QUANTA_QUANTITIES, "wienConstantAlpha", { glyph: "\\alpha" }),
+      pick(LIGHT_QUANTA_QUANTITIES, "wienConstantBeta", { glyph: "\\beta" }),
+      pick(LIGHT_QUANTA_QUANTITIES, "frequency"),
+      pick(LIGHT_QUANTA_QUANTITIES, "temperature"),
+      pick(LIGHT_QUANTA_QUANTITIES, "spectralEntropyDensity", { glyph: "\\varphi" }),
+      // Light's momentum: Maxwell's p = E/c.
+      pick(LIGHT_QUANTA_QUANTITIES, "radiationEnergy"),
+      pick(LIGHT_QUANTA_QUANTITIES, "speedOfLight"),
+      own({
+        id: "pulseMomentum",
+        name: "Momentum of the light",
+        glyph: "p",
+        dimension: ["1", "1", "-1", "0", "0", "0"],
+        unit: "kg m/s",
+        displayUnit: "kg m/s",
+        displayPower: 0,
+        semanticKind: "light-momentum",
+        role: "result",
+        definition: "The momentum light carries in one direction: its energy divided by c.",
+      }),
     ].map((q) => [q.id, q]),
   ),
 );

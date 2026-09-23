@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 280 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 281 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -203,6 +203,7 @@ Total: 280 quantities, 45 rejected spellings, 2 reserved spellings.
 | positionCoordinate1d | Position coordinate (field, one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | pressure | Gas pressure | -1,1,-2,0,0,0 | not-applicable | scalar | — |
 | probabilityDensity | Probability density (one-dimensional) | -1,0,0,0,0,0 | not-applicable | scalar | — |
+| probabilityFlux1d | Probability flux (one dimension) | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | propagationAngleMoving | Propagation angle (moving system) | 0,0,0,0,0,0 | moving-system | scalar | propagationAngle |
 | propagationAngleStationary | Propagation angle (stationary system) | 0,0,0,0,0,0 | stationary-system | scalar | propagationAngle |
 | properTimeElapsed | Elapsed proper time | 0,0,1,0,0,0 | object-rest | scalar | properTime |

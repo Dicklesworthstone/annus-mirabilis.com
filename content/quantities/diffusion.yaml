@@ -106,6 +106,18 @@
   frame: not-applicable
   colorRole: space-geometry
 
+- id: probabilityFlux1d
+  name: Probability flux (one dimension)
+  description: >
+    The probability per second crossing a point along one coordinate, J = -D dp/dx for the
+    one-dimensional density p (the foundation lesson on the diffusion equation). Distinct from
+    particleFlux and diffusionFlux, which count particles per area per second.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: particleFlux
   name: Particle flux
   description: The total particle flux, the sum of driftFlux and diffusionFlux, paper 2 equation (2).
