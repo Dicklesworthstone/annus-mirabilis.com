@@ -11,6 +11,7 @@ import { navigationTree } from "../equations/navigation.ts";
 import { parseEquationRecord } from "../equations/record.ts";
 import { teachingProfile } from "../equations/teachingProfiles.ts";
 import { evaluateMe02 } from "../physics/reference/massEnergy.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 
 const directory = new URL("../../content/equations/mass-energy/", import.meta.url);
 const records = await Promise.all(
@@ -101,18 +102,18 @@ function close(actual, expected) {
 function approachLimit(node, expected, values) {
   assert.equal(node.variable.quantityId, "frameSpeed", "Only a limit in the speed is fixtured.");
   assert.equal(evaluate(node.approaches, values), 0, "Only a limit toward zero is fixtured.");
-  const gap = (beta) => {
+  const at = (beta) => {
     const moved = {
       ...values,
       frameSpeed: beta * values.speedOfLight,
       lorentzFactor: 1 / Math.sqrt(1 - beta ** 2),
     };
-    return Math.abs(evaluate(node.expression, moved) - expected) / Math.abs(expected);
+    return withinTolerance(evaluate(node.expression, moved), expected, { relative: 1e-6 });
   };
-  const far = gap(1e-2);
-  const near = gap(1e-4);
-  assert.ok(near < far, `Not closing in: ${near} at beta 1e-4, ${far} at 1e-2`);
-  assert.ok(near < 1e-6, `Relative gap ${near} at beta 1e-4`);
+  const far = at(1e-2);
+  const near = at(1e-4);
+  assert.ok(near.diff < far.diff, `Not closing in: ${near.diff} at beta 1e-4, ${far.diff} at 1e-2`);
+  assert.ok(near.ok, `Gap ${near.diff} at beta 1e-4 exceeds ${near.allowed}`);
 }
 
 for (const source of records) {
