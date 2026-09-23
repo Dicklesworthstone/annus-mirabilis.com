@@ -26,13 +26,21 @@ function numericOf(item: PublishedResult | undefined): number | null {
 function SnapshotReading({
   snapshot,
   quantityId,
+  unit,
 }: {
   snapshot: AcceptedSnapshot;
   quantityId: string;
+  /** Printed after a number only: after a refusal's sentence it read "magnitude is zero. m". */
+  unit?: string;
 }) {
   const item = result(snapshot, quantityId);
   if (item.status === "value" && typeof item.value === "number") {
-    return <span data-quantity-id={quantityId}>{display(item.value)}</span>;
+    return (
+      <span data-quantity-id={quantityId}>
+        {display(item.value)}
+        {unit ? ` ${unit}` : ""}
+      </span>
+    );
   }
   if (item.status === "outside-domain" || item.status === "not-applicable") {
     return <span data-quantity-id={quantityId}>{item.reason}</span>;
@@ -357,31 +365,43 @@ export function ElectronDynamicsLab({
               <tr>
                 <th scope="row">Longitudinal mass (m · γ³)</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="longitudinalMass" /> kg
+                  <SnapshotReading snapshot={snapshot} quantityId="longitudinalMass" unit="kg" />
                 </td>
               </tr>
               <tr>
                 <th scope="row">Transverse mass: comoving (m · γ²)</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="transverseMassComoving" /> kg
+                  <SnapshotReading
+                    snapshot={snapshot}
+                    quantityId="transverseMassComoving"
+                    unit="kg"
+                  />
                 </td>
               </tr>
               <tr>
                 <th scope="row">Transverse mass: laboratory (m · γ)</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="transverseMassLaboratory" /> kg
+                  <SnapshotReading
+                    snapshot={snapshot}
+                    quantityId="transverseMassLaboratory"
+                    unit="kg"
+                  />
                 </td>
               </tr>
               <tr>
                 <th scope="row">Relativistic kinetic energy (W)</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="kineticEnergy" /> J
+                  <SnapshotReading snapshot={snapshot} quantityId="kineticEnergy" unit="J" />
                 </td>
               </tr>
               <tr>
                 <th scope="row">Accelerating potential (P = W/e)</th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="acceleratingPotential" /> V
+                  <SnapshotReading
+                    snapshot={snapshot}
+                    quantityId="acceleratingPotential"
+                    unit="V"
+                  />
                 </td>
               </tr>
               <tr>
@@ -389,7 +409,11 @@ export function ElectronDynamicsLab({
                   Magnetic curvature radius (R<sub>m</sub>)
                 </th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="radiusCurvatureMagnetic" /> m
+                  <SnapshotReading
+                    snapshot={snapshot}
+                    quantityId="radiusCurvatureMagnetic"
+                    unit="m"
+                  />
                 </td>
               </tr>
               <tr>
@@ -397,7 +421,11 @@ export function ElectronDynamicsLab({
                   Electric curvature radius (R<sub>e</sub>)
                 </th>
                 <td>
-                  <SnapshotReading snapshot={snapshot} quantityId="radiusCurvatureElectric" /> m
+                  <SnapshotReading
+                    snapshot={snapshot}
+                    quantityId="radiusCurvatureElectric"
+                    unit="m"
+                  />
                 </td>
               </tr>
             </tbody>

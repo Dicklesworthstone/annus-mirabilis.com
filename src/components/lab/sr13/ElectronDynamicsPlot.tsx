@@ -621,13 +621,13 @@ export function ElectronDynamicsPlot({
 
       {/* Convention Insight Note */}
       <div className="notice" style={{ fontSize: "var(--type-fine)" }}>
-        <div style={{ fontWeight: 600 }}>Force Definition Convention Independence</div>
+        <div style={{ fontWeight: 600 }}>The convention changes a name, not what is observed</div>
         <p style={{ margin: "0.25rem 0 0" }}>
           Switching between Einstein&apos;s 1905 convention (comoving force / stationary
-          acceleration, transverse coefficient 1.5625m at 0.6c) and Planck&apos;s 1906 convention
-          (laboratory force, transverse coefficient 1.25m) alters only the named coefficient in the
-          equation of motion. All physical observables (deflection radii, potentials, kinetic
-          energy, and spatial trajectories) remain strictly identical under both conventions.
+          acceleration, transverse coefficient 1.5625 × m at 0.6c) and Planck&apos;s 1906 convention
+          (laboratory force, transverse coefficient 1.25 × m) changes only the coefficient named in
+          the equation of motion. Everything observable, the deflection radii, potentials, kinetic
+          energy and paths, is the same under both.
         </p>
       </div>
     </div>
