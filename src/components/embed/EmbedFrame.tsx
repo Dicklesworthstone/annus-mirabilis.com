@@ -57,8 +57,9 @@ export function EmbedFrame({
       data-embed-ready={String(ready)}
     >
       <header className="embed-attribution">
-        <p>Annus Mirabilis · Interactive critical edition in preparation</p>
+        <p className="embed-brand">Annus Mirabilis · Interactive critical edition in preparation</p>
         <h1>{instrument.title}</h1>
+        {invalid ? null : <p className="embed-question">{instrument.overview}</p>}
         <nav aria-label="Embedded laboratory context">
           <a href={`/lab/${instrumentId}/`} target="_blank" rel="noopener noreferrer">
             Open the full laboratory in a new tab
@@ -86,9 +87,17 @@ export function EmbedFrame({
         </section>
       ) : (
         <>
+          <noscript>
+            <p className="notice">
+              JavaScript is off. The built worked example and all explanations remain readable.
+              Interactive controls and URL presentation options require JavaScript.
+            </p>
+          </noscript>
+          {/* The instrument comes first: an embed sits inside someone else's lesson, usually in a
+              short frame, and the question above it is the one line a reader needs to start. */}
+          <div className="embed-instrument lab-route">{children}</div>
           <section className="embed-guidance" aria-labelledby={`${id}-guidance`}>
-            <h2 id={`${id}-guidance`}>A question to investigate</h2>
-            <p>{instrument.overview}</p>
+            <h2 id={`${id}-guidance`}>The explanation</h2>
             <details open={options.detail === "full" || options.detail === "steps"}>
               <summary>Full explanation</summary>
               <p>{instrument.full}</p>
@@ -97,19 +106,12 @@ export function EmbedFrame({
               <summary>Show every step of the investigation</summary>
               <p>{instrument.steps}</p>
             </details>
-          </section>
-          <p className="notice">
-            An explanatory model, not an observation of nature. This embed starts from the
-            laboratory’s worked defaults, not a saved run. Presentation options change the
-            surrounding guide, never the numerical inputs.
-          </p>
-          <noscript>
             <p className="notice">
-              JavaScript is off. The built worked example and all explanations remain readable.
-              Interactive controls and URL presentation options require JavaScript.
+              An explanatory model, not an observation of nature. This embed starts from the
+              laboratory’s worked defaults, not a saved run. Presentation options change the
+              surrounding guide, never the numerical inputs.
             </p>
-          </noscript>
-          <div className="embed-instrument lab-route">{children}</div>
+          </section>
         </>
       )}
       <footer className="embed-attribution">

@@ -18,6 +18,21 @@ body:has([data-embed-lab]) > main {
 .embedded-laboratory h1 {
   font-size: var(--type-display);
 }
+/* The question under the title is the page's lead; the brand line above it stays quiet. */
+.embed-brand {
+  font-size: var(--type-small);
+  color: var(--muted);
+  margin: 0;
+}
+.embed-question {
+  max-width: 65ch;
+  font-size: var(--type-lead);
+  margin-block: 0.25rem 0.75rem;
+}
+/* Below the instrument, this heading must never outrank the laboratory's title. */
+.embed-guidance h2 {
+  font-size: var(--type-lead);
+}
 .embed-attribution {
   padding-block: 0.75rem;
   border-bottom: 1px solid var(--rule);
