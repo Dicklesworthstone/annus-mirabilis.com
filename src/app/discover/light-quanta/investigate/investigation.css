@@ -115,7 +115,8 @@
   }
   .light-table-scroll th,
   .light-table-scroll td {
-    padding: 0.5rem;
+    /* 0.3rem at the sides: 0.5rem left the comparison table 10px too wide at 390px. */
+    padding: 0.45rem 0.3rem;
     font-size: var(--type-fine);
   }
 }
