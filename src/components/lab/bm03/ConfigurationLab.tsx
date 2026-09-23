@@ -528,18 +528,16 @@ export function ConfigurationLab({
 
       <div className="lab-bottom" style={{ marginTop: "2rem" }}>
         <section>
-          <h3>Editorial commentary on Einstein §2</h3>
-          <p>
-            <strong>R0 (Overview):</strong> {withScripts(BM03_CAPTION.r0)}
+          <h3>Einstein&apos;s §2, explained</h3>
+          {/* The four readings follow the reader's detail setting, as on every other laboratory.
+              Here they were printed all at once under internal labels, "R0 (Overview):" to
+              "R3 (Historical notation & counterexample):". */}
+          <p data-detail="0">{withScripts(BM03_CAPTION.r0)}</p>
+          <p data-detail="1">{withScripts(BM03_CAPTION.r1)}</p>
+          <p data-detail="2" hidden>
+            {withScripts(BM03_CAPTION.r2)}
           </p>
-          <p>
-            <strong>R1 (Physical reasoning):</strong> {withScripts(BM03_CAPTION.r1)}
-          </p>
-          <p>
-            <strong>R2 (Mathematical structure):</strong> {withScripts(BM03_CAPTION.r2)}
-          </p>
-          <p>
-            <strong>R3 (Historical notation & counterexample):</strong>{" "}
+          <p data-detail="3" hidden>
             {withScripts(BM03_CAPTION.r3)}
           </p>
         </section>
