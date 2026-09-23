@@ -288,7 +288,7 @@ export function RodSimultaneityLab({
         >
           <div>
             <p style={{ fontWeight: "bold", margin: 0 }}>
-              Refusal: non-simultaneous endpoint measurement
+              Not a length: the two ends were marked at different times
             </p>
             <p className="fine" style={{ margin: "0.25rem 0 0" }}>
               {measOut?.reason ??
@@ -296,7 +296,7 @@ export function RodSimultaneityLab({
             </p>
           </div>
           <button type="button" onClick={repairToSimultaneous} className="button">
-            Repair to frame-simultaneous endpoints
+            Mark both ends at one time of this frame
           </button>
         </div>
       )}

@@ -62,20 +62,18 @@ export default function RodSimultaneityPage() {
           latex={String.raw`t_B - t_A = \frac{r_{AB}}{c - v}, \qquad t'_A - t_B = \frac{r_{AB}}{c + v}`}
         />
         <p>
-          Because <InlineFormula latex="t_B - t_A \neq t'_A - t_B" />, observers in{" "}
-          <InlineFormula latex="K" /> judge the moving clocks to be desynchronized:
+          The two times differ, <InlineFormula latex="t_B - t_A \neq t'_A - t_B" />. So observers
+          riding with the rod, applying the test of §1, find the two clocks out of step, while
+          observers at rest in <InlineFormula latex="K" /> declare them synchronous. Einstein draws
+          the conclusion at the end of §2: simultaneity has no absolute meaning. Two events that are
+          simultaneous as seen from one system of coordinates are not simultaneous as seen from a
+          system moving relative to it.
         </p>
-        <blockquote>
-          &ldquo;We see that we cannot attach any absolute meaning to the concept of simultaneity,
-          but that two events which, viewed from a system of coordinates, are simultaneous, can no
-          longer be viewed as simultaneous events when viewed from a system which is in motion
-          relative to that system.&rdquo;
-        </blockquote>
 
         <h2>§4: physical meaning of moving rods and spheres</h2>
         <p>
-          In §4, Einstein uses the Lorentz transformation to determine the coordinate dimensions of
-          moving bodies measured simultaneously in the observer’s frame:
+          In §4, Einstein uses the transformation he derived in §3 to find the dimensions of a
+          moving body, measured at one time of the observer’s frame:
         </p>
         <Formula latex={String.raw`x' = \gamma (x - v t) = \frac{x - v t}{\sqrt{1 - v^2/c^2}}`} />
         <p>
@@ -87,12 +85,12 @@ export default function RodSimultaneityPage() {
         />
         <p>
           Similarly, a rigid sphere of radius <InlineFormula latex="R" /> at rest in{" "}
-          <InlineFormula latex="k" /> whose surface satisfies{" "}
-          <InlineFormula latex="(\xi - \xi_0)^2 + \eta^2 + \zeta^2 = R^2" />, when measured at{" "}
-          <InlineFormula latex="t = 0" /> from the stationary system, is an ellipsoid of revolution
-          with semi-axes:
+          <InlineFormula latex="k" />, centred at its origin, has the surface{" "}
+          <InlineFormula latex="\xi^2 + \eta^2 + \zeta^2 = R^2" />. Measured at{" "}
+          <InlineFormula latex="t = 0" /> from the stationary system, it is an ellipsoid of
+          revolution with semi-axes:
         </p>
-        <Formula latex={String.raw`a = R \sqrt{1 - \frac{v^2}{c^2}}, \qquad b = R, \qquad c = R`} />
+        <Formula latex={String.raw`R \sqrt{1 - \frac{v^2}{c^2}}, \qquad R, \qquad R`} />
 
         <h2>Coordinate measurement versus visual appearance</h2>
         <p>
@@ -106,8 +104,9 @@ export default function RodSimultaneityPage() {
 
         <h2>Invariant spacetime intervals and causal order</h2>
         <p>
-          Between any two events <InlineFormula latex="E_1" /> and <InlineFormula latex="E_2" />,
-          the squared spacetime interval is strictly invariant under all Lorentz transformations:
+          This is a later way of stating the same facts, from Minkowski&rsquo;s lecture of 1908
+          rather than the paper. Between any two events <InlineFormula latex="E_1" /> and{" "}
+          <InlineFormula latex="E_2" />, the squared interval is the same in every inertial frame:
         </p>
         <Formula
           latex={String.raw`s^2 = \Delta x^2 + \Delta y^2 + \Delta z^2 - c^2 \Delta t^2 = \Delta x'^2 + \Delta y'^2 + \Delta z'^2 - c^2 \Delta t'^2`}

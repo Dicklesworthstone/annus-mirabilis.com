@@ -588,7 +588,7 @@ export function measureRodLength(
       isSimultaneous: false,
       condition: "non-simultaneous-endpoints",
       reason:
-        "these endpoint events are not simultaneous in the measuring frame, so their separation is not a length measurement (dt != 0)",
+        "These endpoint events are not simultaneous in the measuring frame, so their separation is not a length measurement.",
       repairSuggestedPair: repair.status === "value" ? repair.value : undefined,
     };
   }
