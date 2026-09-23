@@ -26,6 +26,25 @@ export const LIGHT_THREAD_BOUNDS = Object.freeze({
   angleDeg: Object.freeze({ min: 0, max: 180 }),
 });
 
+/* What a refusal calls each setting, and its unit. The reason used to name the parameter key and
+   print the bounds as JavaScript writes them: "pulseEnergyJ must be a finite number between 1e-24 and
+   1000000." Powers of ten are written 10^{n}, which the lab raises with withScripts. */
+const LIGHT_THREAD_READER_NAMES: Readonly<
+  Record<keyof LightThreadParameters, Readonly<{ name: string; unit: string }>>
+> = Object.freeze({
+  frequencyHz: Object.freeze({ name: "The source-frame frequency ν", unit: " Hz" }),
+  pulseEnergyJ: Object.freeze({ name: "The pulse energy E", unit: " J" }),
+  beta: Object.freeze({ name: "The observer speed β", unit: "" }),
+  angleDeg: Object.freeze({ name: "The pulse direction", unit: "°" }),
+});
+
+function boundText(value: number): string {
+  const exponent = Math.log10(Math.abs(value));
+  if (value !== 0 && Number.isInteger(exponent) && Math.abs(exponent) >= 4)
+    return `${value < 0 ? "−" : ""}10^{${exponent < 0 ? "−" : ""}${Math.abs(exponent)}}`;
+  return String(value).replace(/^-/, "−");
+}
+
 export type LightThreadRefusal = Readonly<{
   kind: "refused";
   parameterId: string;
@@ -64,7 +83,10 @@ export function validateLightThreadParameters(
       return Object.freeze({
         kind: "refused",
         parameterId: key,
-        reason: `${key} must be a finite number between ${bounds.min} and ${bounds.max}. These are this instrument's admission bounds.`,
+        reason: (() => {
+          const reader = LIGHT_THREAD_READER_NAMES[key as keyof LightThreadParameters];
+          return `${reader.name} must be between ${boundText(bounds.min)}${reader.unit} and ${boundText(bounds.max)}${reader.unit}. These are this instrument's admission bounds.`;
+        })(),
       });
     }
   }

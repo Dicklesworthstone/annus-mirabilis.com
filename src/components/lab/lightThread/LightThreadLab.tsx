@@ -15,6 +15,7 @@ import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 import styles from "./LightThreadLab.module.css";
 
 const fields: Readonly<Record<keyof LightThreadParameters, string>> = Object.freeze({
@@ -166,7 +167,7 @@ export function LightThreadLab() {
    * answered and the instrument never spoke.
    *
    * What the instrument says instead is editorial content rather than an error
-   * string: "beta must be a finite number between -0.999999 and 0.999999. These are
+   * string: "The observer speed β must be between −0.999999 and 0.999999. These are
    * this instrument's admission bounds." AGENTS.md draws exactly that line - the
    * bounds are numerical admission limits, not claims of physical impossibility -
    * and the page repeats it in its own model-limits disclosure. A widget message
@@ -284,7 +285,7 @@ export function LightThreadLab() {
           </form>
           {error && (
             <p className="notice" role="alert">
-              {error}
+              {withScripts(error)}
             </p>
           )}
           <p role="status" aria-live="polite">
