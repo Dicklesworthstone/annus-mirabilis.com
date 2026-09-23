@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useState, useSyncExternalStore } from "react";
 import {
+  LQ06_CAPTION,
   LQ06_DEFAULTS,
   LQ06_MODEL,
   LQ06_NOT_MODELED,
@@ -442,6 +443,17 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           </table>
         </section>
       </div>
+
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p data-detail="0">{withScripts(LQ06_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(LQ06_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(LQ06_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(LQ06_CAPTION.r3)}
+      </p>
 
       <div className="lab-bottom">
         <div className="not-modeled">
