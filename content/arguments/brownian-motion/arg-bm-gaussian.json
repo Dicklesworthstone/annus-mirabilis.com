@@ -80,7 +80,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "To check the density equation directly: the time derivative is \\(p\\) times \\(\\left(-1/(2t) + x^2/(4Dt^2)\\right)\\). The second spatial derivative is \\(p\\) times \\(\\left(-1/(2Dt) + x^2/(4D^2t^2)\\right)\\). Multiplying the latter by \\(D\\) gives the former."
+        "text": "To check the density equation directly: the time derivative is \\(p\\) times \\((-1/(2t) + x^2/(4Dt^2))\\). The second spatial derivative is \\(p\\) times \\((-1/(2Dt) + x^2/(4D^2t^2))\\). Multiplying the latter by \\(D\\) gives the former."
       },
       {
         "kind": "foundation",
