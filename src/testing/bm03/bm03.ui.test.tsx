@@ -47,7 +47,11 @@ describe("BM-03 UI components and route", () => {
 
     expect(htmlPrinted).toContain("2κT");
     expect(htmlPrinted).toContain("V*");
-    expect(htmlModern).toContain("k_B T");
+    // Modern notation writes Boltzmann's constant with a typeset subscript, k<sub>B</sub>T, not
+    // the programmer's "k_B T" it used when the whole step was drawn as SVG text; and printed
+    // notation must not borrow it for its own formula.
+    expect(htmlModern).toContain("k<sub>B</sub>T");
+    expect(htmlPrinted).not.toContain("k_B");
     expect(htmlModern).toContain("Np");
   });
 
