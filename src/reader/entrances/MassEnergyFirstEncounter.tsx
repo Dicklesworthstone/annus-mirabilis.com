@@ -342,6 +342,48 @@ export function MassEnergyFirstEncounter({
           </tbody>
         </table>
       </section>
+      {/* ON A PHONE THE TWO SPEEDS ARE TWO SHORT LISTS. The 1 percent row holds values like
+          0.0005000375031 J, so the table cannot narrow: at 320 it was 480px in a 262px box with
+          218px out of view behind a sideways scroll. Below 40em each speed is its own list and
+          the table is not displayed; above it, the table only, so a reader meets each number
+          once. */}
+      <div className="me-speed-lists">
+        <p className="fine">
+          Same emission, two speeds. The exact-within-model drop and its low-speed approximation are
+          different quantities. Kinetic interpretation assumes the unchanged offset.
+        </p>
+        {scenarios.map((item) => (
+          <div key={item.id} className="me-speed">
+            <p className="me-speed-label">{item.speedLabel}</p>
+            <dl>
+              <div>
+                <dt>Rest-frame light</dt>
+                <dd>
+                  <Amount reading={item.restLight} />
+                </dd>
+              </div>
+              <div>
+                <dt>Moving-frame light</dt>
+                <dd>
+                  <Amount reading={item.movingLight} />
+                </dd>
+              </div>
+              <div>
+                <dt>Exact drop</dt>
+                <dd>
+                  <Amount reading={item.subtraction} />
+                </dd>
+              </div>
+              <div>
+                <dt>Low-speed approximation</dt>
+                <dd>
+                  <Amount reading={item.quadratic} />
+                </dd>
+              </div>
+            </dl>
+          </div>
+        ))}
+      </div>
       <p>
         The large-number example makes the subtraction easy to see. To identify inertia, compare at
         low speed: the energy of motion then follows the ordinary speed-squared rule. The high-speed

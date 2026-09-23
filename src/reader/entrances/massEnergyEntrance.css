@@ -54,6 +54,47 @@
   border: 1px solid currentColor;
   text-align: start;
 }
+/* The phone form of the comparison (MassEnergyFirstEncounter.tsx): one list per speed. Only one
+   of the table and the lists is ever displayed. */
+.me-speed-lists {
+  display: none;
+}
+.me-speed {
+  padding: 0.75rem;
+  border: 1px solid currentColor;
+  overflow-wrap: normal;
+}
+.me-speed-label {
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+}
+.me-speed dl {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+}
+/* A label and its value share a line when they fit; a long value such as 0.0005000375031 J takes
+   its own line, still at the right, and no word breaks inside itself. */
+.me-speed dl > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 1rem;
+}
+.me-speed dd {
+  margin: 0 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 40em) {
+  .me-table {
+    display: none;
+  }
+  .me-speed-lists {
+    display: grid;
+    gap: 1rem;
+    margin-block: 1rem;
+  }
+}
 .me-entrance details {
   margin-block: 0.75rem;
 }
