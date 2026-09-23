@@ -101,10 +101,18 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
     // callout-limit to the modern margin and four exact-string checks went red.
     expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
 
-    // Content from readings-owners manifest is preserved
-    expect(html).toContain(target.readings.r0);
-    expect(html).toContain(target.readings.r1);
-    expect(html).toContain(target.readings.r2);
-    expect(html).toContain(target.readings.r3.replaceAll("'", "&#x27;"));
+    // Content from readings-owners manifest is preserved, as React escapes it. Only R3 used to be
+    // escaped here, so an apostrophe in any other reading failed the check (bm-01's R1, 2f685a94).
+    const escaped = (text: string) =>
+      text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#x27;");
+    expect(html).toContain(escaped(target.readings.r0));
+    expect(html).toContain(escaped(target.readings.r1));
+    expect(html).toContain(escaped(target.readings.r2));
+    expect(html).toContain(escaped(target.readings.r3));
   });
 });
