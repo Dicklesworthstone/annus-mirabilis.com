@@ -491,6 +491,17 @@ export const AUDITED_SCROLL_CLASSES = [
   // tabIndex={0} and aria-label "Formula: <the equations' titles>", the pattern of the facsimile
   // page map and the kitchen tables.
   "reading-formula-row",
+  // occupancy-table-scroll: overflow-x: auto on the two table wrappers of the independence
+  // countermodel (/lab/countermodels/independence/), which arrived from origin with the markup
+  // already right and no entry here. IndependenceWorkbench.tsx gives both role="region",
+  // tabIndex={0} and a name ("Model prediction table", "Count probability distributions"); the
+  // focus ring is the global :focus-visible outline, which independence.css does not override.
+  "occupancy-table-scroll",
+  // photo-data-table: overflow-x: auto on the observations table of the lq-08 data workbench
+  // (/lab/lq-08/data/). PhotoelectricDataWorkbench.tsx gives it role="region", tabIndex={0} and
+  // aria-label "Accepted observations, residuals and row selection"; the focus ring is the global
+  // :focus-visible outline.
+  "photo-data-table",
 ];
 
 /**
