@@ -1,3 +1,4 @@
+import type { NumericView } from "../../../experiments/store/instanceStore.ts";
 import { Sci, SubSvg } from "../Sci.tsx";
 import "./sr13.css";
 
@@ -24,6 +25,25 @@ export interface ElectronDynamicsPlotProps {
   radiusCurvatureElectricM: number;
   lorentzFactor: number;
   datasetOverlay: "none" | "kaufmann-1902-1906" | "bucherer-1908";
+  /** The kernel's path in metres, x0, y0, x1, y1, ... (trajectoryPositions); absent before it ran. */
+  trajectory?: NumericView | null;
+  integrationIntervalS?: number;
+}
+
+/** A scale-bar length: 1, 2 or 5 times a power of ten, no longer than `limit` metres. */
+function scaleBarMetres(limit: number): number {
+  let unit = 1;
+  while (unit > limit) unit /= 10;
+  while (unit * 10 <= limit) unit *= 10;
+  const multiple = [5, 2, 1].find((m) => m * unit <= limit) ?? 1;
+  return Number((multiple * unit).toPrecision(1));
+}
+
+function lengthLabel(metres: number): string {
+  if (metres >= 1) return `${metres} m`;
+  if (metres >= 0.01) return `${Number((metres * 100).toPrecision(1))} cm`;
+  if (metres >= 0.001) return `${Number((metres * 1000).toPrecision(1))} mm`;
+  return `${Number((metres * 1e6).toPrecision(1))} μm`;
 }
 
 export function ElectronDynamicsPlot({
@@ -49,51 +69,55 @@ export function ElectronDynamicsPlot({
   radiusCurvatureElectricM,
   lorentzFactor,
   datasetOverlay,
+  trajectory = null,
+  integrationIntervalS = 0,
 }: ElectronDynamicsPlotProps) {
   const beta = Math.abs(initialSpeed);
   const gamma = Math.max(1, lorentzFactor || 1);
 
-  // SVG dimensions
   const width = 800;
   const height = 360;
-  const originX = 120;
-  const originY = 180;
+  const frame = { left: 24, right: width - 24, top: 20, bottom: height - 20 };
 
-  // Build a representative trajectory path for visual display
   const eMag = Math.hypot(electricFieldX, electricFieldY, electricFieldZ);
   const bMag = Math.hypot(magneticFieldX, magneticFieldY, magneticFieldZ);
 
-  const numPoints = 60;
-  const totalDisplayLength = 600;
-  const points: { x: number; y: number }[] = [];
-
-  for (let i = 0; i <= numPoints; i++) {
-    const fraction = i / numPoints;
-    const px = originX + fraction * totalDisplayLength;
-
-    let py = originY;
-    if (eMag > 0) {
-      // Deflection in electric field: electron q < 0 in +Ey deflects downward (-y in physics -> +y in SVG)
-      const eSign = Math.sign(electricFieldY || 1);
-      const curvatureFactor = (eMag / 1e5) * (1 / (gamma * Math.max(0.1, beta * beta)));
-      py += eSign * 70 * curvatureFactor * (fraction * fraction);
-    }
-    if (bMag > 0) {
-      // Deflection in magnetic field
-      const bSign = Math.sign(magneticFieldZ || 1);
-      const bFactor = (bMag / 0.01) * (1 / (gamma * Math.max(0.1, beta)));
-      py += bSign * 60 * bFactor * (fraction * fraction);
-    }
-
-    // Clamp inside viewport
-    py = Math.max(30, Math.min(height - 30, py));
-    points.push({ x: px, y: py });
+  // The path is the kernel's (trajectoryPositions), in metres. It is drawn to one scale in both
+  // directions and fitted to the frame, so a gentle bend looks gentle and a tight one looks tight;
+  // nothing here computes where the electron goes. This drawing used to invent its curve from
+  // made-up factors, clamped to the frame, and bent an electron the wrong way in a magnetic field.
+  const count = trajectory ? Math.floor(trajectory.length / 2) : 0;
+  const px = (i: number) => (trajectory ? trajectory.at(2 * i) : 0);
+  const py = (i: number) => (trajectory ? trajectory.at(2 * i + 1) : 0);
+  let minX = 0;
+  let maxX = 0;
+  let minY = 0;
+  let maxY = 0;
+  for (let i = 0; i < count; i++) {
+    minX = Math.min(minX, px(i));
+    maxX = Math.max(maxX, px(i));
+    minY = Math.min(minY, py(i));
+    maxY = Math.max(maxY, py(i));
   }
-
-  const pathD = points.reduce(
-    (acc, pt, idx) => (idx === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`),
-    "",
-  );
+  const spanX = maxX - minX;
+  const spanY = maxY - minY;
+  const innerW = frame.right - frame.left - 120;
+  const innerH = frame.bottom - frame.top - 110;
+  const scale = Math.min(innerW / (spanX || spanY || 1), innerH / (spanY || spanX || 1));
+  const offsetX = frame.left + 60 + (innerW - spanX * scale) / 2 - minX * scale;
+  const offsetY = (frame.top + frame.bottom) / 2 + ((maxY + minY) / 2) * scale;
+  const toX = (x: number) => offsetX + x * scale;
+  const toY = (y: number) => offsetY - y * scale; // physics y points up, SVG y down
+  const originX = toX(0);
+  const originY = toY(0);
+  let pathD = "";
+  for (let i = 0; i < count; i++) {
+    pathD += `${i === 0 ? "M" : "L"} ${toX(px(i)).toFixed(1)} ${toY(py(i)).toFixed(1)} `;
+  }
+  const end = count > 0 ? { x: toX(px(count - 1)), y: toY(py(count - 1)) } : null;
+  const bendsUp = count > 0 && py(count - 1) > 0;
+  const runsLeft = end !== null && end.x < originX;
+  const bar = count > 1 ? scaleBarMetres((0.25 * innerW) / scale) : 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -110,7 +134,7 @@ export function ElectronDynamicsPlot({
             drawing they rendered at 4-5px on a 390px phone. */}
         <p className="sr13-chamber-title">
           Uniform field chamber (E = <Sci value={eMag} digits={1} /> V/m, B = {bMag.toFixed(3)} T
-          {bMag > 0 ? ", out of the page" : ""})
+          {magneticFieldZ > 0 ? ", out of the page" : magneticFieldZ < 0 ? ", into the page" : ""})
         </p>
         <p className="fine sr13-chamber-meta">
           v₀ = {beta.toFixed(3)}c · γ = {gamma.toFixed(4)} · convention: {forceConvention} (
@@ -162,55 +186,60 @@ export function ElectronDynamicsPlot({
 
           <rect width={width} height={height} fill="url(#grid-pattern)" />
 
-          {/* Field Region Indicator */}
+          {/* Field region */}
           <rect
-            x={originX - 20}
-            y={20}
-            width={width - originX}
-            height={height - 40}
+            x={frame.left}
+            y={frame.top}
+            width={frame.right - frame.left}
+            height={frame.bottom - frame.top}
             fill="var(--wash)"
             rx={6}
             strokeDasharray="4 4"
             stroke="var(--line)"
           />
 
-          {/* Field Vectors */}
+          {/* Field directions, top right */}
           {eMag > 0 ? (
-            <g transform="translate(700, 70)">
+            <g transform={`translate(${frame.right - 150}, ${frame.top + 16})`}>
+              {/* Up for +E_y, because the drawing's y points up, as the path's does. */}
               <line
                 x1={0}
-                y1={0}
+                y1={electricFieldY < 0 ? 0 : 40}
                 x2={0}
-                y2={40}
+                y2={electricFieldY < 0 ? 40 : 0}
                 stroke="var(--accent)"
                 strokeWidth={2}
                 markerEnd="url(#arrow-field-e)"
               />
               <text
                 x={10}
-                y={25}
+                y={28}
                 style={{
                   fill: "var(--accent)",
                   fontFamily: "var(--font-mono)",
-                  fontSize: "var(--sr13-label, 12px)",
+                  fontSize: "var(--sr13-label, 16px)",
                 }}
               >
                 E<SubSvg>y</SubSvg>
               </text>
             </g>
           ) : null}
-
           {bMag > 0 ? (
-            <g transform="translate(740, 70)">
+            <g transform={`translate(${frame.right - 60}, ${frame.top + 16})`}>
               <circle cx={0} cy={20} r={10} fill="none" stroke="var(--plot)" strokeWidth={1.5} />
-              <circle cx={0} cy={20} r={3} fill="var(--plot)" />
+              {/* A dot for +B_z, out of the page; a cross for -B_z, into it. */}
+              {magneticFieldZ < 0 ? (
+                <path d="M -5 15 L 5 25 M 5 15 L -5 25" stroke="var(--plot)" strokeWidth={1.5} />
+              ) : (
+                <circle cx={0} cy={20} r={3} fill="var(--plot)" />
+              )}
               <text
                 x={15}
-                y={25}
+                y={28}
                 style={{
                   fill: "var(--plot)",
                   fontFamily: "var(--font-mono)",
-                  fontSize: "var(--sr13-label, 12px)",
+                  fontSize: "var(--sr13-label, 16px)",
                 }}
               >
                 B<SubSvg>z</SubSvg>
@@ -218,91 +247,94 @@ export function ElectronDynamicsPlot({
             </g>
           ) : null}
 
-          {/* Coordinate Axes */}
-          <line
-            x1={originX - 40}
-            y1={originY}
-            x2={width - 40}
-            y2={originY}
-            stroke="var(--line)"
-            strokeWidth={1}
-          />
-          <line
-            x1={originX}
-            y1={30}
-            x2={originX}
-            y2={height - 30}
-            stroke="var(--line)"
-            strokeWidth={1}
-          />
-          <text
-            x={width - 30}
-            y={originY + 4}
-            style={{
-              fill: "var(--muted)",
-              fontSize: "var(--sr13-label, 10px)",
-              fontFamily: "var(--font-sans)",
-            }}
-          >
-            x
-          </text>
-          <text
-            x={originX}
-            y={25}
-            style={{
-              fill: "var(--muted)",
-              fontSize: "var(--sr13-label, 10px)",
-              fontFamily: "var(--font-sans)",
-            }}
-            textAnchor="middle"
-          >
-            y
-          </text>
+          {count > 0 ? (
+            <>
+              {/* Axes through the entry point */}
+              <line
+                x1={frame.left + 8}
+                y1={originY}
+                x2={frame.right - 8}
+                y2={originY}
+                stroke="var(--line)"
+                strokeWidth={1}
+              />
+              <line
+                x1={originX}
+                y1={frame.top + 8}
+                x2={originX}
+                y2={frame.bottom - 8}
+                stroke="var(--line)"
+                strokeWidth={1}
+              />
 
-          {/* Trajectory Curve */}
-          <path d={pathD} fill="none" stroke="var(--plot)" strokeWidth={3} />
+              {/* The computed path */}
+              <path d={pathD} fill="none" stroke="var(--plot)" strokeWidth={3} />
 
-          {/* Initial Entry Point */}
-          <circle cx={originX} cy={originY} r={5} fill="var(--ink)" />
-          {/* Two short lines ending at the entry point: on one line, at a phone's label size, the
-              words ran past the chamber's left edge and "e⁻" was cut off. */}
-          <text
-            x={originX - 12}
-            y={originY - 4}
-            textAnchor="end"
-            style={{
-              fill: "var(--ink)",
-              fontSize: "var(--sr13-label, 12px)",
-              fontFamily: "var(--font-mono)",
-              fontWeight: 500,
-            }}
-          >
-            <tspan x={originX - 12}>e⁻</tspan>
-            <tspan x={originX - 12} dy="1.1em">
-              entry
-            </tspan>
-          </text>
+              <circle cx={originX} cy={originY} r={5} fill="var(--ink)" />
+              {/* The entry label sits on the side the path does not bend or run toward. */}
+              <text
+                x={runsLeft ? originX - 10 : originX + 10}
+                textAnchor={runsLeft ? "end" : "start"}
+                y={bendsUp ? originY + 26 : originY - 12}
+                style={{
+                  fill: "var(--ink)",
+                  fontSize: "var(--sr13-label, 16px)",
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: 500,
+                }}
+              >
+                e⁻ entry
+              </text>
 
-          {/* End Particle Marker */}
-          {(() => {
-            const lastPt = points.length > 0 ? points[points.length - 1] : undefined;
-            if (!lastPt) return null;
-            return (
-              <g transform={`translate(${lastPt.x}, ${lastPt.y})`}>
-                <circle cx={0} cy={0} r={6} fill="var(--plot)" />
-                <circle
-                  cx={0}
-                  cy={0}
-                  r={10}
-                  fill="none"
-                  stroke="var(--plot)"
-                  strokeWidth={1}
-                  strokeDasharray="2 2"
-                />
-              </g>
-            );
-          })()}
+              {end ? (
+                <g transform={`translate(${end.x}, ${end.y})`}>
+                  <circle cx={0} cy={0} r={6} fill="var(--plot)" />
+                  <circle
+                    cx={0}
+                    cy={0}
+                    r={10}
+                    fill="none"
+                    stroke="var(--plot)"
+                    strokeWidth={1}
+                    strokeDasharray="2 2"
+                  />
+                </g>
+              ) : null}
+
+              {/* Scale bar, bottom left */}
+              {bar > 0 ? (
+                <g transform={`translate(${frame.left + 16}, ${frame.bottom - 16})`}>
+                  <line x1={0} y1={0} x2={bar * scale} y2={0} stroke="var(--ink)" strokeWidth={2} />
+                  <line x1={0} y1={-5} x2={0} y2={5} stroke="var(--ink)" strokeWidth={2} />
+                  <line
+                    x1={bar * scale}
+                    y1={-5}
+                    x2={bar * scale}
+                    y2={5}
+                    stroke="var(--ink)"
+                    strokeWidth={2}
+                  />
+                  <text
+                    x={0}
+                    y={-10}
+                    style={{
+                      fill: "var(--ink)",
+                      fontSize: "var(--sr13-label, 16px)",
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
+                    {lengthLabel(bar)}
+                  </text>
+                </g>
+              ) : null}
+            </>
+          ) : null}
         </svg>
+        <p className="fine sr13-chamber-legend">
+          {count > 0 && integrationIntervalS > 0
+            ? `The path over the first ${(integrationIntervalS * 1e9).toPrecision(2)} ns, computed by the model and drawn to scale in the x–y plane.`
+            : "The path appears once the model has run at these settings."}
+        </p>
         {/* No Kaufmann or Bucherer measurement is drawn: neither has been digitized as a cited
             HistoricalDataset (am-data-kaufmann-1902-1906-52ya, am-data-bucherer-1908-w3mf), and the
             points this drawing used to place were hand-picked pixel positions, which is invented

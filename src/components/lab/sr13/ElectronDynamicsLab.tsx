@@ -95,6 +95,10 @@ export function ElectronDynamicsLab({
   const potNewt = numericOf(result(snapshot, "acceleratingPotentialNewtonian")) ?? 0;
   const rm = numericOf(result(snapshot, "radiusCurvatureMagnetic")) ?? Infinity;
   const re = numericOf(result(snapshot, "radiusCurvatureElectric")) ?? Infinity;
+  // The path the chamber draws: the same accepted snapshot as every number beside it. Looked up, not
+  // required, so a snapshot prepared before the kernel published a path renders without one.
+  const path = snapshot.outputs.find((o) => o.quantityId === "trajectoryPositions");
+  const trajectory = path?.status === "value" && typeof path.value !== "number" ? path.value : null;
 
   return (
     <section
@@ -314,16 +318,16 @@ export function ElectronDynamicsLab({
         <div className="lab-results">
           <ElectronDynamicsPlot
             initialSpeed={beta}
-            initialDirectionDeg={draft.initialDirectionDeg}
-            electricFieldX={draft.electricFieldX}
-            electricFieldY={draft.electricFieldY}
-            electricFieldZ={draft.electricFieldZ}
-            magneticFieldX={draft.magneticFieldX}
-            magneticFieldY={draft.magneticFieldY}
-            magneticFieldZ={draft.magneticFieldZ}
-            forceConvention={draft.forceConvention}
-            massLanguage={draft.massLanguage}
-            particle={draft.particle}
+            initialDirectionDeg={p.initialDirectionDeg}
+            electricFieldX={p.electricFieldX}
+            electricFieldY={p.electricFieldY}
+            electricFieldZ={p.electricFieldZ}
+            magneticFieldX={p.magneticFieldX}
+            magneticFieldY={p.magneticFieldY}
+            magneticFieldZ={p.magneticFieldZ}
+            forceConvention={p.forceConvention}
+            massLanguage={p.massLanguage}
+            particle={p.particle}
             longitudinalMassKg={longM}
             transverseMassComovingKg={transMComov}
             transverseMassLaboratoryKg={transMLab}
@@ -334,7 +338,9 @@ export function ElectronDynamicsLab({
             radiusCurvatureMagneticM={rm}
             radiusCurvatureElectricM={re}
             lorentzFactor={gammaVal}
-            datasetOverlay={draft.datasetOverlay}
+            datasetOverlay={p.datasetOverlay}
+            trajectory={trajectory}
+            integrationIntervalS={p.integrationInterval}
           />
           <h3>Values at these settings</h3>
           <table>
