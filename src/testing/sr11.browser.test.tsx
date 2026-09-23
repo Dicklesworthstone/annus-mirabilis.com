@@ -9,9 +9,27 @@ import {
 } from "../components/lab/sr11/MovingMirrorPlot.tsx";
 import { createSr11Session, type PreparedSr11Example } from "../experiments/sr11/session.ts";
 import rawExample from "../generated/sr11-example.json";
-import { movingMirror } from "../physics/reference/waves.ts";
 
 const example = rawExample as unknown as PreparedSr11Example;
+
+/**
+ * The kernel's outputs at one setting, read through the laboratory's own session. A .tsx module may
+ * not import src/physics/reference (the import-boundary gate), and a view test should see exactly
+ * the numbers the view is given.
+ */
+function acceptedAt(beta: number, incidentAngleDeg: number): (id: string) => number {
+  const session = createSr11Session(`test-sr11-${beta}-${incidentAngleDeg}`, example);
+  session.apply({ ...session.acceptedParameters(), beta, incidentAngleDeg });
+  const snap = session.getSnapshot().accepted;
+  if (!snap) throw new Error("expected an accepted snapshot");
+  return (id) => {
+    const out = snap.outputs.find((o) => o.quantityId === id);
+    if (out?.status !== "value" || typeof out.value !== "number") {
+      throw new Error(`expected a number for ${id} at beta ${beta}, ${incidentAngleDeg} degrees`);
+    }
+    return out.value;
+  };
+}
 
 describe("SR-11 Moving Mirror Lab View & Route (am-sr-11-moving-mirror-wnz1)", () => {
   test("server component page renders without JavaScript and includes worked case", () => {
@@ -60,9 +78,8 @@ describe("SR-11 Moving Mirror Lab View & Route (am-sr-11-moving-mirror-wnz1)", (
   // incidence about the normal: same distance from the mirror, opposite side of the normal.
   test("the reflected ray is drawn as a mirror image of the incident ray, not a retrace", () => {
     for (const deg of [10, 30, 60]) {
-      const r = movingMirror(0, (deg * Math.PI) / 180);
-      if (r.status !== "value") throw new Error(`expected a reflection at ${deg} degrees`);
-      const g = mirrorRayGeometry(deg, (r.phiReflectedRad * 180) / Math.PI);
+      const out = acceptedAt(0, deg);
+      const g = mirrorRayGeometry(deg, out("phiReflectedDeg"));
       expect(g.incidentStart.y).toBeLessThan(MIRROR_FRAME.centerY);
       expect(g.reflectedEnd.y).toBeGreaterThan(MIRROR_FRAME.centerY);
       expect(g.reflectedEnd.x).toBeCloseTo(g.incidentStart.x, 9);
@@ -77,27 +94,26 @@ describe("SR-11 Moving Mirror Lab View & Route (am-sr-11-moving-mirror-wnz1)", (
   // reflected light carries more than arrived. The ledger once dropped negative work, so its
   // "in" row showed the incident light alone and the two rows disagreed.
   test("an approaching mirror's work is counted with the energy coming in", () => {
-    const r = movingMirror(-0.6, 0);
-    if (r.status !== "value") throw new Error("expected a reflection head-on");
-    expect(r.workRate).toBeLessThan(0);
+    const out = acceptedAt(-0.6, 0);
+    expect(out("workRate")).toBeLessThan(0);
     const html = renderToStaticMarkup(
       <MovingMirrorPlot
         beta={-0.6}
         incidentAngleDeg={0}
-        phiReflectedDeg={(r.phiReflectedRad * 180) / Math.PI}
-        frequencyRatio={r.frequencyRatio}
-        radiationPressure={r.radiationPressure}
-        radiationForce={r.radiationForce}
-        incidentPower={r.incidentPower}
-        reflectedPower={r.reflectedPower}
-        workRate={r.workRate}
-        energyBalanceResidual={r.energyBalanceResidual}
+        phiReflectedDeg={out("phiReflectedDeg")}
+        frequencyRatio={out("frequencyRatio")}
+        radiationPressure={out("radiationPressure")}
+        radiationForce={out("radiationForce")}
+        incidentPower={out("incidentPower")}
+        reflectedPower={out("reflectedPower")}
+        workRate={out("workRate")}
+        energyBalanceResidual={out("energyBalanceResidual")}
         frame="lab"
         isApplicable
       />,
     );
-    const inflow = (r.incidentPower - r.workRate).toFixed(3);
-    const outflow = r.reflectedPower.toFixed(3);
+    const inflow = (out("incidentPower") - out("workRate")).toFixed(3);
+    const outflow = out("reflectedPower").toFixed(3);
     expect(inflow).toBe(outflow);
     expect(html.split(`${inflow} W`).length - 1).toBe(2);
     expect(html).toContain("work the approaching mirror does on the light");

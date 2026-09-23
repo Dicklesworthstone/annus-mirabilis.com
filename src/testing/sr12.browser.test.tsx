@@ -5,7 +5,6 @@ import { ChargeCurrentLab } from "../components/lab/sr12/ChargeCurrentLab.tsx";
 import { ChargeCurrentPlot } from "../components/lab/sr12/ChargeCurrentPlot.tsx";
 import { createSr12Session, type PreparedSr12Example } from "../experiments/sr12/session.ts";
 import rawExample from "../generated/sr12-example.json";
-import { C_SI } from "../physics/reference/fields.ts";
 import { containsHeading } from "./headingText.ts";
 
 /**
@@ -20,6 +19,9 @@ import { containsHeading } from "./headingText.ts";
  */
 
 const example = rawExample as unknown as PreparedSr12Example;
+// The speed of light in m/s, named here as ChargeCurrentLab names it: a .tsx module may not import
+// src/physics/reference (the import-boundary gate).
+const C_SI = 299_792_458;
 
 describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
   test("static page renders cleanly without JavaScript and includes key sections and mathematical explanations", () => {
