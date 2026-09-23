@@ -42,6 +42,14 @@
   padding: 0;
   color: var(--muted);
 }
+/* A link's text sat at the top of its 44px box while the button centres its own, so on BUILD 21
+   "Copy a link" stood 11px below the links beside it. Centring the links puts one baseline
+   under the whole line. Links only: `.passage-actions button` would outrank `.enhanced-only`
+   and show the copy button to a reader without JavaScript. */
+.passage-actions a {
+  display: inline-flex;
+  align-items: center;
+}
 .passage-actions a:hover,
 .passage-actions button:hover {
   color: var(--ink);

@@ -4,6 +4,33 @@ import { LAB_NAMES } from "./labNames.ts";
 import { ObstacleMenu } from "./ObstacleMenu.tsx";
 import type { PassageActions } from "./passageActions.schema.ts";
 
+/*
+  ONE LINK PER LESSON. The three help actions each name a foundation lesson, and on 36 of the
+  42 argument records all three name the same one: light quanta's allocation passage offered
+  "Why?", "Show the missing step" and "Show me one example first", and all three opened
+  /foundations/integration/. Three promises, one page. A slot that repeats a lesson an earlier
+  slot already offers is not rendered, so each label that shows leads somewhere its neighbours
+  do not. Every lesson stays one tap away, under the first label (in the plan's order) that
+  names it; a record that authors three different lessons still shows all three labels.
+*/
+const HELP_ACTIONS = [
+  ["why", "Why?"],
+  ["missingStep", "Show the missing step"],
+  ["example", "Show me one example first"],
+] as const;
+
+export function distinctHelpActions(
+  actions: PassageActions,
+): readonly { readonly foundationId: string; readonly title: string }[] {
+  const offered = new Set<string>();
+  return HELP_ACTIONS.flatMap(([slot, title]) => {
+    const foundationId = actions[slot];
+    if (!foundationId || offered.has(foundationId)) return [];
+    offered.add(foundationId);
+    return [{ foundationId, title }];
+  });
+}
+
 export function PassageActionsBar({
   paperId,
   passageId,
@@ -24,30 +51,15 @@ export function PassageActionsBar({
   return (
     <>
       <nav className="passage-actions" aria-label={`Actions for ${passageLabel}`}>
-        {actions.why ? (
+        {distinctHelpActions(actions).map(({ foundationId, title }) => (
           <FoundationLink
-            id={actions.why}
-            title="Why?"
+            key={title}
+            id={foundationId}
+            title={title}
             caption={`Return to ${passageLabel}.`}
-            ariaLabel={`Why?: ${passageLabel}`}
+            ariaLabel={`${title}: ${passageLabel}`}
           />
-        ) : null}
-        {actions.missingStep ? (
-          <FoundationLink
-            id={actions.missingStep}
-            title="Show the missing step"
-            caption={`Return to ${passageLabel}.`}
-            ariaLabel={`Show the missing step: ${passageLabel}`}
-          />
-        ) : null}
-        {actions.example ? (
-          <FoundationLink
-            id={actions.example}
-            title="Show me one example first"
-            caption={`Return to ${passageLabel}.`}
-            ariaLabel={`Show me one example first: ${passageLabel}`}
-          />
-        ) : null}
+        ))}
         {actions.tryIt?.kind === "instrument" ? (
           <a href={`/lab/${actions.tryIt.instrumentId}/`} aria-label={`Try it: ${tryItLabel}`}>
             Try it
