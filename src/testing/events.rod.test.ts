@@ -47,7 +47,7 @@ describe("events.rod: Rod length measurement and simultaneous endpoints (am-ref-
     expect(meas.isSimultaneous).toBe(false);
     expect(meas.condition).toBe("non-simultaneous-endpoints");
     expect(meas.reason).toContain(
-      "these endpoint events are not simultaneous in the measuring frame",
+      "These endpoint events are not simultaneous in the measuring frame",
     );
     expect(meas.repairSuggestedPair).toBeDefined();
     if (meas.repairSuggestedPair) {
@@ -98,7 +98,7 @@ describe("events.rod: Rod length measurement and simultaneous endpoints (am-ref-
     expect(meas.isSimultaneous).toBe(false);
     expect(meas.condition).toBe("non-simultaneous-endpoints");
     expect(meas.reason).toContain(
-      "these endpoint events are not simultaneous in the measuring frame",
+      "These endpoint events are not simultaneous in the measuring frame",
     );
     expect(meas.repairSuggestedPair).toBeDefined();
   });
