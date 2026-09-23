@@ -16,4 +16,6 @@ export type CompiledEquation = EquationRecord &
       scale: ExactScale;
       quantity: Quantity;
     }>[];
+    /** The legend's glyph for each quantity this record prints with its own letter. */
+    printedGlyphHtml?: Readonly<Record<string, string>>;
   }>;

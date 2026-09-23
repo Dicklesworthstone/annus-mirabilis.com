@@ -29,7 +29,13 @@ export function colourStyle(colour: QuantityColour | undefined): CSSProperties |
   } as CSSProperties;
 }
 
-/** Each quantity once, in the order its first term appears across the equations given. */
+/**
+ * Each quantity once, in the order its first term appears across the equations given, drawn with
+ * the letter its formula prints: a record that prints the density as f shows f beside the density's
+ * own name. The name and colour are always the paper's; only the glyph can come from the record.
+ * The same quantity printed with two letters in one view is listed under both, so no letter on
+ * screen is left without its name.
+ */
 export function quantityLegend(
   equations: readonly CompiledEquation[],
 ): readonly Readonly<{ quantityId: string; colour: QuantityColour }>[] {
@@ -37,9 +43,13 @@ export function quantityLegend(
   return equations.flatMap((equation) => {
     const colours = paperQuantityColours(equation.paper);
     return equation.terms.flatMap((t) => {
-      const colour = colours[t.quantityId];
-      if (!colour || seen.has(t.quantityId)) return [];
-      seen.add(t.quantityId);
+      const paperColour = colours[t.quantityId];
+      if (!paperColour) return [];
+      const printed = equation.printedGlyphHtml?.[t.quantityId];
+      const colour = printed ? { ...paperColour, glyphHtml: printed } : paperColour;
+      const key = `${t.quantityId}\u0000${colour.glyphHtml}`;
+      if (seen.has(key)) return [];
+      seen.add(key);
       return [{ quantityId: t.quantityId, colour }];
     });
   });

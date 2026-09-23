@@ -3,6 +3,7 @@ import { renderToString } from "katex";
 import { canonical, quantityBindings } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
 import { navigationTree } from "./navigation.ts";
+import { recordQuantities } from "./printedGlyphs.ts";
 import { type EquationRecord, parseEquationRecord } from "./record.ts";
 import { teachingProfile } from "./teachingProfiles.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
@@ -11,8 +12,11 @@ export function compileEquation(input: EquationRecord): CompiledEquation {
     nav = navigationTree(eq.tree),
     allowed = new Set(nav.map((n) => n.id));
   const quantities = teachingProfile(eq.paper)!.quantities;
-  const plain = expressionLatex(eq.tree, quantities),
-    marked = expressionLatex(eq.tree, quantities, true);
+  // The formula prints the record's letters; the terms below keep the table's quantities, so a
+  // printed letter never reaches the paper's colour map or a binding.
+  const printed = recordQuantities(quantities, eq.printedGlyphs);
+  const plain = expressionLatex(eq.tree, printed),
+    marked = expressionLatex(eq.tree, printed, true);
   const html = renderToString(marked, {
     displayMode: true,
     output: "html",
@@ -56,8 +60,25 @@ export function compileEquation(input: EquationRecord): CompiledEquation {
     maxSize: 20,
   });
   const bindings = quantityBindings(eq.tree);
+  // The legend shows the letter the formula prints, beside the quantity's canonical name.
+  const printedGlyphHtml = eq.printedGlyphs
+    ? Object.fromEntries(
+        Object.entries(eq.printedGlyphs).map(([quantityId, glyph]) => [
+          quantityId,
+          renderToString(glyph, {
+            output: "html",
+            throwOnError: true,
+            strict: "error",
+            trust: false,
+            maxExpand: 100,
+            maxSize: 10,
+          }),
+        ]),
+      )
+    : undefined;
   return {
     ...eq,
+    ...(printedGlyphHtml ? { printedGlyphHtml } : {}),
     html,
     mathml,
     plainLatex: plain,

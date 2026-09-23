@@ -20,7 +20,7 @@ export function QuantityLegendList({
     <ul className={className} aria-label={label}>
       {legend.map(({ quantityId, colour }) => (
         <li
-          key={quantityId}
+          key={`${quantityId} ${colour.glyphHtml}`}
           className="equation-quantity"
           data-quantity-id={quantityId}
           style={colourStyle(colour)}

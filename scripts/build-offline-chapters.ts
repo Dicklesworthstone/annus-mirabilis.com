@@ -10,6 +10,7 @@ import {
   loadPaperPayload,
 } from "../src/content/compiler/serverLoaders.ts";
 import { expressionLatex } from "../src/equations/latex.ts";
+import { recordQuantities } from "../src/equations/printedGlyphs.ts";
 import { teachingProfile } from "../src/equations/teachingProfiles.ts";
 import { parseResult } from "../src/experiments/results/codec.ts";
 import { loadOfflineAssets } from "../src/platform/offline/assets.ts";
@@ -151,7 +152,10 @@ export async function buildOfflineChapters(
         id: equation.id,
         argument: equation.argument,
         title: equation.title,
-        latex: expressionLatex(equation.tree, profile.quantities),
+        latex: expressionLatex(
+          equation.tree,
+          recordQuantities(profile.quantities, equation.printedGlyphs),
+        ),
         spoken: equation.spoken,
         explanation: equation.explanation,
       }));
