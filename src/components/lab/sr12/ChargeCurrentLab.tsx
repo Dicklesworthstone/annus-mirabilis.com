@@ -11,6 +11,7 @@ import {
 import { validateSr12Parameters } from "../../../experiments/sr12/parameters.ts";
 import { createSr12Session, type PreparedSr12Example } from "../../../experiments/sr12/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import { ChargeCurrentPlot } from "./ChargeCurrentPlot.tsx";
 
@@ -251,6 +252,7 @@ export function ChargeCurrentLab({
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))",
             gap: "1rem",
+            maxWidth: "36rem",
           }}
         >
           <div
@@ -284,67 +286,20 @@ export function ChargeCurrentLab({
                 border: 0,
               }}
             >
-              Observer Boost Speed (m/s)
+              Observer boost speed, typed (v/c)
             </label>
             <input
               id={`${id}-boost-number`}
               type="number"
-              min="-284802835"
-              max="284802835"
-              value={draft.boost}
-              onChange={(e) => setDraft({ ...draft, boost: parseFloat(e.target.value) || 0 })}
-              style={{ fontSize: "0.8rem" }}
-            />
-          </div>
-
-          <div
-            className="input-field"
-            style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" }}
-          >
-            <label htmlFor={`${id}-charge-density`} style={{ fontWeight: 500 }}>
-              Charge Density ρ (C/m³)
-            </label>
-            <input
-              id={`${id}-charge-density`}
-              type="number"
-              step="0.1"
-              value={draft.chargeDensity}
+              min="-0.95"
+              max="0.95"
+              step="0.01"
+              value={Number((draft.boost / C_SI).toPrecision(12))}
               onChange={(e) =>
-                setDraft({ ...draft, chargeDensity: parseFloat(e.target.value) || 0 })
+                setDraft({ ...draft, boost: (parseFloat(e.target.value) || 0) * C_SI })
               }
-              aria-describedby={`${id}-charge-density-hint`}
               style={{ fontSize: "0.8rem" }}
             />
-            <span id={`${id}-charge-density-hint`} className="fine" style={{ fontSize: "0.75rem" }}>
-              Set 0 for neutral conductor
-            </span>
-          </div>
-
-          <div
-            className="input-field"
-            style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontSize: "0.8rem" }}
-          >
-            <label htmlFor={`${id}-current-density-x`} style={{ fontWeight: 500 }}>
-              Current Density Jx (A/m²)
-            </label>
-            <input
-              id={`${id}-current-density-x`}
-              type="number"
-              step="0.1"
-              value={draft.currentDensityX}
-              onChange={(e) =>
-                setDraft({ ...draft, currentDensityX: parseFloat(e.target.value) || 0 })
-              }
-              aria-describedby={`${id}-current-density-x-hint`}
-              style={{ fontSize: "0.8rem" }}
-            />
-            <span
-              id={`${id}-current-density-x-hint`}
-              className="fine"
-              style={{ fontSize: "0.75rem" }}
-            >
-              Conduction current along x
-            </span>
           </div>
         </div>
 
@@ -377,6 +332,81 @@ export function ChargeCurrentLab({
             Reset defaults
           </button>
         </div>
+
+        <ExperimentSettings contents="the charge density and the current density along x">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))",
+              gap: "1rem",
+            }}
+          >
+            <div
+              className="input-field"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+                fontSize: "0.8rem",
+              }}
+            >
+              <label htmlFor={`${id}-charge-density`} style={{ fontWeight: 500 }}>
+                Charge Density ρ (C/m³)
+              </label>
+              <input
+                id={`${id}-charge-density`}
+                type="number"
+                step="0.1"
+                value={draft.chargeDensity}
+                onChange={(e) =>
+                  setDraft({ ...draft, chargeDensity: parseFloat(e.target.value) || 0 })
+                }
+                aria-describedby={`${id}-charge-density-hint`}
+                style={{ fontSize: "0.8rem" }}
+              />
+              <span
+                id={`${id}-charge-density-hint`}
+                className="fine"
+                style={{ fontSize: "0.75rem" }}
+              >
+                Set 0 for neutral conductor
+              </span>
+            </div>
+
+            <div
+              className="input-field"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+                fontSize: "0.8rem",
+              }}
+            >
+              <label htmlFor={`${id}-current-density-x`} style={{ fontWeight: 500 }}>
+                Current Density Jx (A/m²)
+              </label>
+              <input
+                id={`${id}-current-density-x`}
+                type="number"
+                step="0.1"
+                value={draft.currentDensityX}
+                onChange={(e) =>
+                  setDraft({ ...draft, currentDensityX: parseFloat(e.target.value) || 0 })
+                }
+                aria-describedby={`${id}-current-density-x-hint`}
+                style={{ fontSize: "0.8rem" }}
+              />
+              <span
+                id={`${id}-current-density-x-hint`}
+                className="fine"
+                style={{ fontSize: "0.75rem" }}
+              >
+                Conduction current along x
+              </span>
+            </div>
+          </div>
+          <p className="fine">Changes here apply with Apply parameters.</p>
+        </ExperimentSettings>
       </form>
 
       {/* Telemetry Output Table */}
