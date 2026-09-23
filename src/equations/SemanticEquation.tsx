@@ -291,7 +291,7 @@ export function SemanticEquation({
         data-execution-label={slot?.execution.label ?? "unavailable"}
       >
         <p className="fine">
-          <strong>{slot?.execution.text ?? "Symbolic equation"}</strong>
+          <strong>{slot?.execution.text ?? "No live values"}</strong>
         </p>
         {slot ? (
           <p className="fine" data-retained-state>
@@ -301,7 +301,7 @@ export function SemanticEquation({
           <p className="fine">
             {resolution && resolution.kind !== "resolved"
               ? resolution.message
-              : "No numerical binding is declared."}
+              : "This equation states a relation. No instrument on this page computes its terms."}
           </p>
         )}
         {/* Values exist only with a laboratory slot. Without one, every term read "No accepted
