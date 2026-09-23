@@ -10,6 +10,7 @@
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
+  "live": false,
   "assumptions": [
     "Ordinary algebra; A and B are any numbers.",
     "These are modern teaching equations in SI notation, not a transcription of the printed paper."

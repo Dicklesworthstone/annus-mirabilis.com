@@ -10,6 +10,7 @@
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
+  "live": false,
   "assumptions": [
     "A dilute suspension of spheres, each moving slowly through a Newtonian liquid (Stokes drag).",
     "N is Avogadro's number, the quantity the paper sets out to measure.",

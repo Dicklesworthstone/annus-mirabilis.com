@@ -10,6 +10,7 @@
   "review": "draft",
   "notation": "modern-pedagogical",
   "unitSystem": "si",
+  "live": false,
   "assumptions": [
     "Independent steps with a symmetric step law and a finite mean square step.",
     "Times long compared with one step, distances large compared with one step.",
