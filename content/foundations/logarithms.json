@@ -9,7 +9,11 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "The natural logarithm ln x answers one question: to what power must e, about 2.718, be raised to give x? Its useful property is that it turns multiplying into adding, and a power into a multiple:"
+      "text": "Adding is easier than multiplying, and a logarithm turns one into the other. The natural logarithm of 2 is about 0.693, and of 4 about 1.386. Add them and you get 2.079, which is the natural logarithm of 8, the product of 2 and 4."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The natural logarithm ln x answers one question: to what power must e, about 2.718, be raised to give x? Raised to 0.693, e gives 2, and raised to 1.386 it gives 4. Multiplying two powers of e adds the powers, so raised to 2.079 it gives 8. Written for any numbers, the logarithm of a product is the sum of the logarithms, and a power becomes a multiple:"
     },
     {
       "kind": "formula",
