@@ -54,12 +54,12 @@
       {
         "kind": "steps",
         "items": [
-          "Choose the subvolume fraction f = V/V₀ between zero and one.",
+          "Choose the subvolume fraction \\(f = V/V_0\\) between zero and one.",
           "For a single uniform point, the probability of being inside is f.",
-          "Multiply only when the n positions are independent: W = fⁿ.",
-          "For n = 4 and f = 1/2, count one all-inside result among sixteen equally likely inside/outside patterns.",
-          "Take ln W = n ln f and multiply by k_B for the entropy difference.",
-          "Now lock all positions to one uniform coordinate: there is only one independent condition, so W = f."
+          "Multiply only when the \\(n\\) positions are independent: \\(W = f^n\\).",
+          "For \\(n = 4\\) and \\(f = 1/2\\), count one all-inside result among sixteen equally likely inside/outside patterns.",
+          "Take \\(\\ln W = n \\ln f\\) and multiply by \\(k_B\\) for the entropy difference.",
+          "Now lock all positions to one uniform coordinate: there is only one independent condition, so \\(W = f\\)."
         ]
       }
     ],

@@ -29,7 +29,7 @@
     "full": [
       {
         "kind": "paragraph",
-        "text": "The most energetic electron receives a complete quantum and escapes with the least modeled energy loss. Subtracting the escape work Φ gives the maximum kinetic energy, provided emission is energetically allowed."
+        "text": "The most energetic electron receives a complete quantum and escapes with the least modeled energy loss. Subtracting the escape work \\(\\Phi\\) gives the maximum kinetic energy, provided emission is energetically allowed."
       },
       {
         "kind": "formula",
@@ -43,7 +43,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Power is energy arriving per second. At fixed frequency, dividing it by hν gives the incoming quantum rate. Under a fixed yield, twice the power can therefore produce twice the electron count per second. Below threshold, negative hν − Φ is an energy deficit, not a negative kinetic energy of an emitted electron."
+        "text": "Power is energy arriving per second. At fixed frequency, dividing it by \\(h\\nu\\) gives the incoming quantum rate. Under a fixed yield, twice the power can therefore produce twice the electron count per second. Below threshold, negative \\(h\\nu - \\Phi\\) is an energy deficit, not a negative kinetic energy of an emitted electron."
       },
       {
         "kind": "foundation",
@@ -56,11 +56,11 @@
         "kind": "steps",
         "items": [
           "Choose frequency and escape work independently of optical power.",
-          "Calculate the energy hν available to one electron under the one-quantum hypothesis.",
+          "Calculate the energy \\(h\\nu\\) available to one electron under the one-quantum hypothesis.",
           "Subtract the escape work; an additional loss only lowers the outgoing kinetic energy.",
           "If the budget is below zero, report no energetically allowed emission, not a negative emitted-electron energy.",
-          "At fixed frequency, divide optical power by hν to obtain the incoming quantum rate.",
-          "Vary power without altering hν or Φ, then compare energy and rate in separate readouts.",
+          "At fixed frequency, divide optical power by \\(h\\nu\\) to obtain the incoming quantum rate.",
+          "Vary power without altering \\(h\\nu\\) or \\(\\Phi\\), then compare energy and rate in separate readouts.",
           "A real experiment can test the model; repeating its own programmed equation cannot independently confirm it."
         ]
       }

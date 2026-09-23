@@ -28,7 +28,7 @@
     "full": [
       {
         "kind": "paragraph",
-        "text": "Within a narrow band, write E = V Δν ρν and S = V Δν sν. Substitute ρν = E/(V Δν) into the integrated entropy density. Comparing V with V₀ at the same E and band removes terms independent of volume."
+        "text": "Within a narrow band, write \\(E = V\\,\\Delta\\nu\\,\\rho_\\nu\\) and \\(S = V\\,\\Delta\\nu\\,s_\\nu\\). Substitute \\(\\rho_\\nu = E/(V\\,\\Delta\\nu)\\) into the integrated entropy density. Comparing \\(V\\) with \\(V_0\\) at the same \\(E\\) and band removes terms independent of volume."
       },
       {
         "kind": "formula",
@@ -38,7 +38,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "E/(Bν) has entropy units. Only after identifying B = h/k_B can it be written k_B times the dimensionless coefficient E/(hν). This distinction matters when interpreting a displayed coefficient as a count."
+        "text": "\\(E/(B\\nu)\\) has entropy units. Only after identifying \\(B = h/k_B\\) can it be written \\(k_B\\) times the dimensionless coefficient \\(E/(h\\nu)\\). This distinction matters when interpreting a displayed coefficient as a count."
       },
       {
         "kind": "formula",
@@ -48,7 +48,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Doubling the accessible volume adds (E/(Bν)) ln 2 under the stated constraints. Doubling it again adds the same amount. The radiation-entropy laboratory compares those constrained states and exposes the otherwise hidden constant."
+        "text": "Doubling the accessible volume adds \\((E/(B\\nu))\\ln 2\\) under the stated constraints. Doubling it again adds the same amount. The radiation-entropy laboratory compares those constrained states and exposes the otherwise hidden constant."
       },
       {
         "kind": "foundation",
@@ -60,12 +60,12 @@
       {
         "kind": "steps",
         "items": [
-          "Write the energy density in the initial state as E/(V₀ Δν).",
-          "Write the energy density in the final state as E/(V Δν).",
+          "Write the energy density in the initial state as \\(E/(V_0\\,\\Delta\\nu)\\).",
+          "Write the energy density in the final state as \\(E/(V\\,\\Delta\\nu)\\).",
           "Check the approximation at both densities before comparing them.",
-          "Multiply each spectral entropy density by its own V Δν to obtain total entropy.",
-          "Subtract the two total entropies; the logarithms leave ln(V/V₀).",
-          "Retaining C(ν) would leave Δν C(ν)(V − V₀), so fixing it was essential.",
+          "Multiply each spectral entropy density by its own \\(V\\,\\Delta\\nu\\) to obtain total entropy.",
+          "Subtract the two total entropies; the logarithms leave \\(\\ln(V/V_0)\\).",
+          "Retaining \\(C(\\nu)\\) would leave \\(\\Delta\\nu\\,C(\\nu)\\,(V - V_0)\\), so fixing it was essential.",
           "Do not replace this state comparison with an adiabatic moving-wall trajectory."
         ]
       }
@@ -73,7 +73,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "A modern pointwise comparison gives relative spectral-density error exp(−hν/(k_B T)) for Wien versus Planck. That diagnostic is not, by itself, an error bound for the entire integrated entropy argument."
+        "text": "A modern pointwise comparison gives relative spectral-density error \\(\\exp(-h\\nu/(k_B T))\\) for Wien versus Planck. That diagnostic is not, by itself, an error bound for the entire integrated entropy argument."
       }
     ]
   },

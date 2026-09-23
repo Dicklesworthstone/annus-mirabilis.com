@@ -27,7 +27,7 @@
     "full": [
       {
         "kind": "paragraph",
-        "text": "Write the historical spectral constants as A and B in this explanatory notation. At low ν/T, expanding the exponential denominator gives a term proportional to ν²T. Its coefficient can be compared to the classical allocation from §1."
+        "text": "Write the historical spectral constants as \\(A\\) and \\(B\\) in this explanatory notation. At low \\(\\nu/T\\), expanding the exponential denominator gives a term proportional to \\(\\nu^2 T\\). Its coefficient can be compared to the classical allocation from §1."
       },
       {
         "kind": "formula",
@@ -43,7 +43,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "This comparison is about coefficients and their experimental provenance. In the modern SI, R equals N_A k_B. Inserting that identity and the modern spectral constants recovers the defined N_A; it is not independent evidence for a molecular count."
+        "text": "This comparison is about coefficients and their experimental provenance. In the modern SI, \\(R\\) equals \\(N_A k_B\\). Inserting that identity and the modern spectral constants recovers the defined \\(N_A\\); it is not independent evidence for a molecular count."
       },
       {
         "kind": "paragraph",
@@ -60,9 +60,9 @@
         "kind": "steps",
         "items": [
           "Keep temperature and the frequency-density convention identical in the two formulas.",
-          "For small y = Bν/T, replace exp(y) − 1 by y to leading order.",
-          "Cancel the common ν²T factor at positive frequency and temperature.",
-          "Solve A/B = 8πR/(Nc³) for N.",
+          "For small \\(y = B\\nu/T\\), replace \\(\\exp(y) - 1\\) by \\(y\\) to leading order.",
+          "Cancel the common \\(\\nu^2 T\\) factor at positive frequency and temperature.",
+          "Solve \\(A/B = 8\\pi R/(N c^3)\\) for \\(N\\).",
           "Inspect the provenance of A, B, R, and c before calling the result an inference.",
           "Separate a statement about resonators exchanging energy from a statement about freely propagating radiation."
         ]
@@ -71,7 +71,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "The A and B used here are editorial names for the spectral constants α and β. Their historical numerical values require the historical constant set; this preview does not manufacture a historical measurement by recomputing with modern constants."
+        "text": "The \\(A\\) and \\(B\\) used here are editorial names for the spectral constants \\(\\alpha\\) and \\(\\beta\\). Their historical numerical values require the historical constant set; this preview does not manufacture a historical measurement by recomputing with modern constants."
       }
     ]
   },

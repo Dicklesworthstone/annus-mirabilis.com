@@ -29,7 +29,7 @@
     "full": [
       {
         "kind": "paragraph",
-        "text": "If an event receives only hν_in, emits hν_out, and retains a nonnegative remainder, energy conservation gives a bound on the outgoing frequency. It is a consequence of the assumed event budget, not evidence that all fluorescent events have that budget."
+        "text": "If an event receives only \\(h\\nu_\\text{in}\\), emits \\(h\\nu_\\text{out}\\), and retains a nonnegative remainder, energy conservation gives a bound on the outgoing frequency. It is a consequence of the assumed event budget, not evidence that all fluorescent events have that budget."
       },
       {
         "kind": "formula",

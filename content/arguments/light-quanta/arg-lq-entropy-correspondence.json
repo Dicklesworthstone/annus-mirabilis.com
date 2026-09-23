@@ -35,7 +35,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "If the radiation is interpreted through the independent-element analogy, matching the coefficients suggests n_eff = E/(k_B Bν). Its corresponding energy per element is k_B Bν. The algebra identifies a scale conditional on the analogy; it does not prove the analogy."
+        "text": "If the radiation is interpreted through the independent-element analogy, matching the coefficients suggests \\(n_\\text{eff} = E/(k_B B\\nu)\\). Its corresponding energy per element is \\(k_B B\\nu\\). The algebra identifies a scale conditional on the analogy; it does not prove the analogy."
       },
       {
         "kind": "formula",
@@ -59,9 +59,9 @@
         "items": [
           "Put the two entropy changes beside each other at the same volume ratio.",
           "Identify the shared logarithmic dependence, rather than matching unrelated symbols.",
-          "Equate the two coefficients only as the proposed correspondence: n_eff k_B = E/(Bν).",
-          "Solve for n_eff, then divide E by that coefficient.",
-          "Only now use h = k_B B as modern notation for the inferred energy scale.",
+          "Equate the two coefficients only as the proposed correspondence: \\(n_\\text{eff} k_B = E/(B\\nu)\\).",
+          "Solve for \\(n_\\text{eff}\\), then divide \\(E\\) by that coefficient.",
+          "Only now use \\(h = k_B B\\) as modern notation for the inferred energy scale.",
           "Mark the interpretation as heuristic and keep the Wien-regime restriction.",
           "Ask what additional assumptions are needed to apply the scale to an individual electron or fluorescent event."
         ]

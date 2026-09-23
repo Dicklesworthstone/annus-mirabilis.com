@@ -33,7 +33,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Divide by Aν³ and take the natural logarithm. Its argument is dimensionless. Solving for inverse temperature turns the entropy derivative from §3 into an explicit function of density."
+        "text": "Divide by \\(A\\nu^3\\) and take the natural logarithm. Its argument is dimensionless. Solving for inverse temperature turns the entropy derivative from §3 into an explicit function of density."
       },
       {
         "kind": "formula",
@@ -49,7 +49,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "As positive density approaches zero, ρ ln ρ tends to zero. The remaining limit is C(ν). The boundary condition sν → 0 therefore sets C(ν) = 0. Without this condition, the volume comparison in the next step has an extra term."
+        "text": "As positive density approaches zero, \\(\\rho\\ln\\rho\\) tends to zero. The remaining limit is \\(C(\\nu)\\). The boundary condition \\(s_\\nu \\to 0\\) therefore sets \\(C(\\nu) = 0\\). Without this condition, the volume comparison in the next step has an extra term."
       },
       {
         "kind": "foundation",
@@ -62,19 +62,19 @@
         "kind": "steps",
         "items": [
           "Fix frequency and the positive spectral constants A and B.",
-          "Divide Wien’s law by Aν³, then take the natural logarithm.",
+          "Divide Wien’s law by \\(A\\nu^3\\), then take the natural logarithm.",
           "Solve for 1/T and insert it into the entropy derivative.",
-          "Use the antiderivative of ln(ρ/a): ρ ln(ρ/a) − ρ.",
-          "Retain C(ν), since integration with respect to density can leave a frequency-dependent constant.",
+          "Use the antiderivative of \\(\\ln(\\rho/a)\\): \\(\\rho\\ln(\\rho/a) - \\rho\\).",
+          "Retain \\(C(\\nu)\\), since integration with respect to density can leave a frequency-dependent constant.",
           "Evaluate the zero-density limit: the density-dependent terms vanish.",
-          "Apply the stated zero-radiation condition to fix C(ν), rather than asserting that an arbitrary constant cancels."
+          "Apply the stated zero-radiation condition to fix \\(C(\\nu)\\), rather than asserting that an arbitrary constant cancels."
         ]
       }
     ],
     "margin": [
       {
         "kind": "paragraph",
-        "text": "This explanation uses natural logarithms and editorial A, B notation. The source prints lg. The interpretation of B as h/k_B belongs to the later comparison of coefficients."
+        "text": "This explanation uses natural logarithms and editorial \\(A\\), \\(B\\) notation. The source prints \\(\\lg\\). The interpretation of \\(B\\) as \\(h/k_B\\) belongs to the later comparison of coefficients."
       }
     ]
   },

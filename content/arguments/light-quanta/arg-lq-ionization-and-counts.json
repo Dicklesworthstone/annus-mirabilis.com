@@ -29,7 +29,7 @@
     "full": [
       {
         "kind": "paragraph",
-        "text": "Let I be the required energy for the specified ionization channel. A single quantum can pay this cost only when hν is at least I. A smaller quantum leaves an energy deficit; a larger quantum makes the event energetically possible, not certain."
+        "text": "Let \\(I\\) be the required energy for the specified ionization channel. A single quantum can pay this cost only when \\(h\\nu\\) is at least \\(I\\). A smaller quantum leaves an energy deficit; a larger quantum makes the event energetically possible, not certain."
       },
       {
         "kind": "formula",
@@ -39,7 +39,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "For monochromatic absorbed energy E_abs, the number of absorbed quanta is represented by E_abs/(hν). With at most one counted ionization per quantum this gives an upper bound. It becomes an equality only when all absorbed quanta each produce one counted ionization."
+        "text": "For monochromatic absorbed energy \\(E_\\text{abs}\\), the number of absorbed quanta is represented by \\(E_\\text{abs}/(h\\nu)\\). With at most one counted ionization per quantum this gives an upper bound. It becomes an equality only when all absorbed quanta each produce one counted ionization."
       },
       {
         "kind": "formula",
@@ -62,9 +62,9 @@
         "kind": "steps",
         "items": [
           "Specify the ionization channel and its required energy.",
-          "Compare hν with that energy before trying to assign an event rate.",
+          "Compare \\(h\\nu\\) with that energy before trying to assign an event rate.",
           "Determine the absorbed energy or keep the absorbed fraction unknown.",
-          "Divide monochromatic absorbed energy by hν to obtain the available quantum count.",
+          "Divide monochromatic absorbed energy by \\(h\\nu\\) to obtain the available quantum count.",
           "Under an at-most-one-ionization assumption, treat that count as an upper bound.",
           "Use equality only after declaring that every absorbed quantum produces one counted ionization.",
           "Keep real rates, lost charges, and recombination outside this idealized budget unless independently modeled."

@@ -27,7 +27,7 @@
     "full": [
       {
         "kind": "paragraph",
-        "text": "Counting cavity modes and giving each mode the classical mean energy k_B T produces a spectral energy density uν. A density must be multiplied by a frequency width to give energy per unit volume."
+        "text": "Counting cavity modes and giving each mode the classical mean energy \\(k_B T\\) produces a spectral energy density \\(\\rho_\\nu\\). A density must be multiplied by a frequency width to give energy per unit volume."
       },
       {
         "kind": "formula",
@@ -56,8 +56,8 @@
         "kind": "steps",
         "items": [
           "Specify a positive equilibrium temperature and a finite cutoff frequency.",
-          "Multiply mode density 8πν²/c³ by mean mode energy k_B T.",
-          "Integrate ν² from zero to the cutoff; its integral is the cutoff cubed divided by three.",
+          "Multiply mode density \\(8\\pi\\nu^2/c^3\\) by mean mode energy \\(k_B T\\).",
+          "Integrate \\(\\nu^2\\) from zero to the cutoff; its integral is the cutoff cubed divided by three.",
           "Compare two cutoffs while keeping temperature fixed: a factor two in cutoff gives a factor eight in total.",
           "Let the cutoff increase without bound. There is no finite limiting total to plot.",
           "Do not interpret a numerical refusal at infinite cutoff as zero energy."
@@ -67,7 +67,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "k_B and c are modern explanatory notation. The paper writes R/N for the thermal constant and L for the speed of light. Historical names and later terminology are not additional evidence for the model."
+        "text": "\\(k_B\\) and \\(c\\) are modern explanatory notation. The paper writes \\(R/N\\) for the thermal constant and \\(L\\) for the speed of light. Historical names and later terminology are not additional evidence for the model."
       }
     ]
   },
