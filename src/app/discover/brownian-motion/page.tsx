@@ -180,7 +180,7 @@ const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
 const DISPLACEMENT_SCALE_EXERCISE: ExpressionExercisePart = {
   id: "bm-displacement-scale-rewrite",
   prompt:
-    "The two-dimensional RMS radial displacement is often written 2·sqrt(D·t). Write it a different way, as sqrt(4·D·t).",
+    "Along one axis the mean square displacement is 2·D·t. Watch the same particle in the plane, moving along x and y independently. What is its root mean square distance from the start?",
   declaredNames: ["D", "t"],
   domains: {
     D: { min: 1e-14, max: 1e-10, scale: "log" },
@@ -189,7 +189,7 @@ const DISPLACEMENT_SCALE_EXERCISE: ExpressionExercisePart = {
   referenceSource: "2*sqrt(D*t)",
   tolerance: { absolute: 1e-9, relative: 1e-9 },
   workedExplanation:
-    "sqrt(4*D*t) = sqrt(4)*sqrt(D*t) = 2*sqrt(D*t), since 4 is a perfect square and the square root of a product is the product of the square roots for nonnegative D and t.",
+    "The squared distance from the start is x² + y². Each axis contributes a mean square of 2·D·t, independently, so the mean square distance is 4·D·t, and its root is sqrt(4·D·t) = 2·sqrt(D·t). That is sqrt(2) times the one-axis value, sqrt(2·D·t), not twice it: the two mean squares add, not the two distances.",
 };
 export default function BrownianEncounter() {
   return (
@@ -317,11 +317,12 @@ export default function BrownianEncounter() {
       </section>
       <section id="step-05">
         <p className="step-number">05 / Try it yourself</p>
-        <h2>Same quantity, written two ways</h2>
+        <h2>From one axis to two</h2>
         <p>
-          A displacement scale can be written more than one way without changing what it means.
-          Rewrite it yourself: the checker compares your expression with the reference at sample
-          points across the ranges the tracer laboratory uses, never by matching text.
+          A microscope sees the plane, not one axis. Work out how far a particle gets in two
+          dimensions from what one axis gives you. Any correct form is accepted: the checker
+          compares your expression with the answer at sample values of D and t across the tracer
+          laboratory's ranges, not by matching text.
         </p>
         <ExercisePart part={DISPLACEMENT_SCALE_EXERCISE} />
       </section>
