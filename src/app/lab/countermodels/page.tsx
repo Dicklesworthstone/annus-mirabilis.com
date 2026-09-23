@@ -33,13 +33,6 @@ export default function CountermodelPage() {
           <a href="/papers/special-relativity/">Return to the paper</a>
         </div>
       </header>
-      {generated.profile === "scaffold" && (
-        <aside className="reading" aria-label="Statistical countermodel comparison">
-          <h2>A different kind of ambiguity: the same average count</h2>
-          <p>Independent points and one perfectly locked group can share the same average while predicting different fluctuations. Choose a useful measurement, then compare a count record with both models.</p>
-          <a className="button" href="/lab/countermodels/independence/">Test independence versus locked positions</a>
-        </aside>
-      )}
       {examples.map((example) => (
         <CountermodelWorkbench key={example.case.id} example={example} />
       ))}
@@ -48,6 +41,15 @@ export default function CountermodelPage() {
           The reviewed countermodel cases are in preparation. This publication profile does not
           include the explanatory drafts.
         </p>
+      )}
+      {/* After the workbenches: this points to a different laboratory, and above them it put a second
+          title between the page's question and its first result. */}
+      {generated.profile === "scaffold" && (
+        <aside className="reading" aria-label="Statistical countermodel comparison">
+          <h2>A different kind of ambiguity: the same average count</h2>
+          <p>Independent points and one perfectly locked group can share the same average while predicting different fluctuations. Choose a useful measurement, then compare a count record with both models.</p>
+          <a className="button" href="/lab/countermodels/independence/">Test independence versus locked positions</a>
+        </aside>
       )}
       <section className="reading">
         <h2>Inspect the calculation, not just its conclusion</h2>
