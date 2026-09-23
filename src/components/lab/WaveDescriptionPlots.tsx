@@ -153,6 +153,14 @@ export function InterferencePlot({
           </span>
         )}
         .
+        {readout === "instantaneous" && (
+          <>
+            {" "}
+            No optical observation records an instant like this one: eyes, plates and detectors
+            respond to the average over very many cycles, which is what the paper&apos;s
+            introduction means by time averages.
+          </>
+        )}
       </p>
 
       <svg
