@@ -87,8 +87,9 @@ export function RepeatedProportionalTable({
       <p>
         In linear change, an equal amount is added in every equal interval: y = y₀ + mt. In
         exponential change, the quantity is multiplied by an equal factor in every interval: y = y₀
-        · rⁿ. Every interval takes away the same fraction of what is left. Here each 10-second step
-        multiplies it by e<sup>−0.5</sup>, about 0.607.
+        · r<sup>n</sup> after n intervals. When the factor is less than one, as here, every interval
+        takes away the same fraction of what is left. Each 10-second step multiplies it by e
+        <sup>−0.5</sup>, about 0.607.
       </p>
 
       <fieldset
