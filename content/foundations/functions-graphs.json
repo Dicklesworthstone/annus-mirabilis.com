@@ -9,7 +9,11 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "A function is a rule that gives exactly one value of one quantity for each value of another: the mean square displacement of a Brownian particle for each elapsed time, or the concentration for each position along a tube. It says how one thing responds when another changes."
+      "text": "A bath fills from a tap. After one minute it holds 10 litres, after two 20, after three 30. For each time there is exactly one amount of water, and that pairing, one output for each input, is a function. Plot the pairs with time along the bottom and litres up the side and they fall on a straight line that climbs 10 litres for every minute. The slope, in litres per minute, is how fast the bath fills."
+    },
+    {
+      "kind": "paragraph",
+      "text": "In the papers the pairs are physical: the mean square displacement of a Brownian particle for each elapsed time, or the concentration for each position along a tube. A function says how one thing responds when another changes."
     },
     {
       "kind": "paragraph",

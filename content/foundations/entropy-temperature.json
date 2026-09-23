@@ -9,7 +9,7 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Add a small amount of heat to a body, slowly and reversibly, and keep its volume fixed so that it does no work. Its energy rises by that amount, and its entropy rises by the energy divided by the absolute temperature T:"
+      "text": "Add a small amount of heat to a body, slowly and reversibly, and keep its volume fixed so that it does no work. Its energy rises by that amount, and its entropy rises by the energy divided by its absolute temperature. So one joule raises the entropy of a body at 100 kelvin by 0.01 joule per kelvin, and of a body at 1000 kelvin by only 0.001: the same energy counts for more in a cold body. In symbols, with dE a small gain of energy and T the temperature:"
     },
     {
       "kind": "formula",
@@ -18,7 +18,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "So one joule raises the entropy of a cold body more than that of a hot one: at 100 kelvin by 0.01 joule per kelvin, at 1000 kelvin by 0.001. Read the other way round, 1/T is how steeply a body's entropy climbs as its energy grows."
+      "text": "Read the other way round, 1/T is how steeply a body's entropy climbs as its energy grows."
     },
     {
       "kind": "paragraph",
