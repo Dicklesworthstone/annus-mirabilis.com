@@ -38,7 +38,7 @@ describe("reading-only equation records (live: false)", () => {
   });
 
   test("planted negative: a reading-only record that binds a laboratory output is refused", () => {
-    const bound = { ...load("rms"), live: false };
+    const bound: Record<string, unknown> = { ...load("rms"), live: false };
     expect((bound.bindings as unknown[]).length).toBeGreaterThan(0);
     expect(() => parseEquationRecord(bound, "bound")).toThrow(/must not bind a laboratory output/);
   });
@@ -77,8 +77,7 @@ describe("reading-only equation records (live: false)", () => {
       experiment,
       records([{ ...load("rms"), live: false }]),
     );
-    expect(boundAnyway).toEqual(
-      expect.arrayContaining(["rmsDisplacement1d", "diffusionCoefficient"]),
-    );
+    expect(boundAnyway).toContain("rmsDisplacement1d");
+    expect(boundAnyway).toContain("diffusionCoefficient");
   });
 });
