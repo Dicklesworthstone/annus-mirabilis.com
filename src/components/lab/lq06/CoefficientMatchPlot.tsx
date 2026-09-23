@@ -136,17 +136,8 @@ export function MeanEnergyStripPlot({
           gap: "0.25rem",
         }}
       >
-        <h4
-          style={{
-            fontSize: "0.75rem",
-            fontWeight: "bold",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            color: "var(--ink)",
-            margin: 0,
-          }}
-        >
-          Wien spectrum mean quantum energy vs molecule kinetic energy (§6)
+        <h4 className="lq06-energy-title">
+          Wien spectrum mean quantum energy against a gas molecule’s kinetic energy (§6)
         </h4>
         <span
           className="fine"
@@ -171,86 +162,49 @@ export function MeanEnergyStripPlot({
         h·ν is {ratioAt600THz.toFixed(2)}× this mean quantum energy):
       </p>
 
-      <svg
-        viewBox="0 0 680 140"
-        style={{ width: "100%", height: "auto" }}
-        role="img"
-        aria-label="Mean quantum energy compared to molecule translational kinetic energy"
-      >
-        {/* Wien Quantum Bar (Data series bar kept literal #f43f5e) */}
-        <g transform="translate(20, 20)">
-          <text x="0" y="16" fill="var(--ink)" fontSize="12" fontWeight="bold">
-            Wien Light Quantum Mean Energy: ⟨ε⟩ = 3 k_B T
-          </text>
-          <rect x="0" y="26" width={barWidth} height="20" rx="3" fill="var(--wash)" />
-          <rect x="0" y="26" width={wienWidth} height="20" rx="3" fill="#f43f5e" />
-          <text
-            x={wienWidth + 10}
-            y="41"
-            fill="var(--ink)"
-            fontSize="12"
-            fontFamily="monospace"
-            fontWeight="bold"
-          >
-            {meanQuantumEnergyEv.toFixed(4)} eV
-          </text>
-        </g>
-
-        {/* Gas Molecule Bar (Data series bar kept literal #0ea5e9) */}
-        <g transform="translate(20, 80)">
-          <text x="0" y="16" fill="var(--ink)" fontSize="12" fontWeight="bold">
-            Gas Molecule Kinetic Energy: ⟨E_kin⟩ = 3/2 k_B T
-          </text>
-          <rect x="0" y="26" width={barWidth} height="20" rx="3" fill="var(--wash)" />
-          <rect x="0" y="26" width={gasWidth} height="20" rx="3" fill="#0ea5e9" />
-          <text
-            x={gasWidth + 10}
-            y="41"
-            fill="var(--ink)"
-            fontSize="12"
-            fontFamily="monospace"
-            fontWeight="bold"
-          >
-            {moleculeKineticEnergyEv.toFixed(4)} eV
-          </text>
-        </g>
-
-        {/* 2:1 Badge */}
-        <g transform="translate(560, 45)">
-          <rect
-            x="0"
-            y="0"
-            width="100"
-            height="50"
-            rx="6"
-            fill="var(--wash)"
-            stroke="var(--line)"
-            strokeWidth="1"
-          />
-          <text
-            x="50"
-            y="22"
-            textAnchor="middle"
-            fill="var(--muted)"
-            fontSize="10"
-            fontWeight="bold"
-            letterSpacing="0.05em"
-          >
-            Exact Ratio
-          </text>
-          <text
-            x="50"
-            y="42"
-            textAnchor="middle"
-            fill="var(--ink)"
-            fontSize="16"
-            fontFamily="monospace"
-            fontWeight="bold"
-          >
-            {ratio.toFixed(1)} : 1
-          </text>
-        </g>
-      </svg>
+      {/* Two bars and a ratio are HTML, not a drawing: in a 680-unit SVG every word shrank to 5.6px
+          on a phone. The bars keep the drawing's scale (1.3 times the quantum's mean energy, or
+          1 eV, whichever is larger) and its two data colours. */}
+      <div className="lq06-energy-bars">
+        <div className="lq06-energy-row">
+          <p className="lq06-energy-label">
+            Mean energy of a light quantum in a Wien spectrum, ⟨ε⟩ = 3k<sub>B</sub>T
+          </p>
+          <div className="lq06-energy-track">
+            <span className="lq06-energy-rail" aria-hidden="true">
+              <span
+                className="lq06-energy-bar"
+                style={{
+                  width: `${((wienWidth / barWidth) * 100).toFixed(1)}%`,
+                  background: "#f43f5e",
+                }}
+              />
+            </span>
+            <span className="lq06-energy-value">{meanQuantumEnergyEv.toFixed(4)} eV</span>
+          </div>
+        </div>
+        <div className="lq06-energy-row">
+          <p className="lq06-energy-label">
+            Mean translational kinetic energy of a gas molecule, ⟨E<sub>kin</sub>⟩ = (3/2)k
+            <sub>B</sub>T
+          </p>
+          <div className="lq06-energy-track">
+            <span className="lq06-energy-rail" aria-hidden="true">
+              <span
+                className="lq06-energy-bar"
+                style={{
+                  width: `${((gasWidth / barWidth) * 100).toFixed(1)}%`,
+                  background: "#0ea5e9",
+                }}
+              />
+            </span>
+            <span className="lq06-energy-value">{moleculeKineticEnergyEv.toFixed(4)} eV</span>
+          </div>
+        </div>
+        <p className="lq06-energy-ratio">
+          Ratio of the two: <strong>{ratio.toFixed(1)} : 1</strong>
+        </p>
+      </div>
     </div>
   );
 }

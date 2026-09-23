@@ -172,3 +172,56 @@
 .lq06 .lq06-roles-wrap .lq06-roles {
   margin-block: 0.5rem 1.25rem;
 }
+
+/* The mean-energy comparison (MeanEnergyStripPlot): two labelled bars on one scale and their
+   ratio, in HTML so the labels wrap on a phone instead of shrinking inside a drawing. */
+.lq06-energy-title {
+  margin: 0;
+  font-size: var(--type-small);
+}
+
+.lq06-energy-bars {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.lq06-energy-row {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.lq06-energy-label {
+  margin: 0;
+  font-size: var(--type-small);
+}
+
+.lq06-energy-track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.lq06-energy-rail {
+  display: block;
+  height: 1.25rem;
+  border-radius: 0.2rem;
+  background: var(--wash);
+}
+
+.lq06-energy-bar {
+  display: block;
+  height: 100%;
+  border-radius: 0.2rem;
+}
+
+.lq06-energy-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.lq06-energy-ratio {
+  margin: 0;
+  font-size: var(--type-small);
+}
