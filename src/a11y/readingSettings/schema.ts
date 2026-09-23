@@ -48,7 +48,7 @@ export const READING_SETTINGS_DEFAULTS: ReadingSettings = Object.freeze({
 export const READING_SETTING_LABELS = Object.freeze({
   readingOnly: "Reading-only",
   readingOnlyHelp:
-    "Keep every explanation and static worked case. Do not autoplay or load heavy scenes until you ask.",
+    "Keep every explanation and worked example on the page. Nothing moves or plays by itself, and the larger instruments load only when you ask.",
   measure: "Line length",
   typeScale: "Type size",
   contrast: "Contrast",
