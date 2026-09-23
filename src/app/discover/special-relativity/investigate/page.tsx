@@ -32,8 +32,9 @@ export default function SpecialRelativityInvestigationPage() {
         <p className="eyebrow">Discover · Special relativity · An explanatory investigation</p>
         <h1>What must change when both observers measure the same light speed?</h1>
         <p className="lead">
-          Build the coordinate map from stated assumptions. Then change the measurement question,
-          not the transformation law.
+          Build, from assumptions you choose, the rule that turns one observer&rsquo;s times and
+          places into another&rsquo;s. Then choose different events to measure, and see that the
+          rule itself never changes.
         </p>
         <p className="notice">
           A route you could take, not a transcript of Einstein’s private thoughts. Editorial and

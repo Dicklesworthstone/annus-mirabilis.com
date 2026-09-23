@@ -44,8 +44,9 @@ export default function LightQuantaInvestigationPage() {
         <p className="eyebrow">Discover · Light quanta · An explanatory investigation</p>
         <h1>Can a volume law suggest what light is made of?</h1>
         <p className="lead">
-          Recover an entropy dependence, compare independent and locked configurations, then test
-          what a further energy-transfer hypothesis predicts.
+          Work out how the entropy of light changes with the volume it fills, compare that with
+          points that move independently or all together, then test what follows if light hands over
+          its energy in pieces.
         </p>
         <p className="notice">
           A route you could take, not a transcript of Einstein’s private thoughts. Its numbers are
