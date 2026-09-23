@@ -5,17 +5,19 @@
 .photoelectric-data-workbench input:not([type=checkbox]),
 .photoelectric-data-workbench textarea,
 .photoelectric-data-workbench select { display: block; box-sizing: border-box; max-width: 100%; width: 100%; margin: .4rem 0; padding: .6rem; color: var(--ink); background: var(--paper); border: 1px solid var(--muted); font: inherit; }
-.photoelectric-data-workbench textarea { font-family: var(--font-mono); font-size: .9rem; }
+.photoelectric-data-workbench textarea { font-family: var(--font-mono); font-size: var(--type-small); }
 .photoelectric-data-workbench button { min-height: 44px; white-space: normal; }
 .photoelectric-data-workbench input[type=checkbox] { min-width: 24px; min-height: 24px; }
 .photoelectric-data-workbench .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0; }
 .photo-data-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 1rem; }
 .photo-data-quantity { border-top: 1px solid var(--rule); padding-top: .5rem; overflow-wrap: anywhere; }
-.photo-data-quantity h3 { font-size: 1rem; }
+.photo-data-quantity h3 { font-size: var(--type-small); }
 .photo-data-plot { margin: 2rem 0; }
 .photo-data-plot svg { display: block; width: 100%; height: auto; color: var(--ink); }
 .photo-data-plot text { font: 13px var(--font-sans); fill: currentColor; }
-.photo-data-plot figcaption { font-size: .9rem; color: var(--muted); }
+.photo-data-plot figcaption { font-size: var(--type-fine); color: var(--muted); }
+/* The calibrated-offset fields appear only for a known offset; set them under the choice that opened them. */
+.photo-data-calibration { border-inline-start: 2px solid var(--rule); padding-inline-start: 1rem; margin-block-start: 0.5rem; }
 .photo-data-table { overflow-x: auto; max-width: 100%; }
 .photo-data-table table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .photo-data-table th, .photo-data-table td { padding: .6rem; border-bottom: 1px solid var(--rule); text-align: right; white-space: nowrap; }

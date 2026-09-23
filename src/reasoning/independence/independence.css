@@ -19,6 +19,6 @@
 @media print {
   .occupancy-workbench form, .occupancy-workbench fieldset, .occupancy-workbench button { display: none; }
   .occupancy-table-scroll { overflow: visible; }
-  .occupancy-workbench table { font-size: .85rem; }
+  .occupancy-workbench table { font-size: var(--type-fine); }
   .occupancy-workbench details > * { display: block; }
 }

@@ -178,6 +178,6 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
     <textarea id={`${id}-prediction`} rows={3} maxLength={1200} value={prediction} onChange={(e) => setPrediction(e.target.value)} disabled={!ready} />
     <button type="button" disabled={!ready} onClick={share}>Copy accepted-settings link</button>
     {sharedHref && <p><a href={sharedHref}>Open the shared question</a><input aria-label="Accepted-settings link" readOnly value={sharedHref} /></p>}
-    <p className="muted">The link shares settings and selected measurements only. Your count record and explanation stay out of it. Copy them separately before leaving this tab.</p>
+    <p className="fine">The link shares settings and selected measurements only. Your count record and explanation stay out of it. Copy them separately before leaving this tab.</p>
   </section>;
 }
