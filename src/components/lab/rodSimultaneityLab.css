@@ -5,9 +5,10 @@
   margin-block: 1.5rem;
 }
 
+/* The instrument's four readings, one shown at a time: the main voice, so body size, at a reading
+   measure rather than the full width of the instrument. */
 .sr03-context {
   max-width: 68ch;
-  font-size: var(--type-small);
 }
 
 /* The interval table's outer columns are words: the frame ("K (Platform)") and the causal order

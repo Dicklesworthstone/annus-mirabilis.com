@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from
 import { createSr03BrowserChannel } from "../../experiments/sr03/browser.ts";
 import { fromSr03Draft, type Sr03Draft, toSr03Draft } from "../../experiments/sr03/controls.ts";
 import {
+  SR03_CAPTION,
   SR03_MODEL,
   SR03_PRESETS,
   SR03_PROMPTS,
@@ -658,12 +659,19 @@ export function RodSimultaneityLab({
         </ExperimentSettings>
       </div>
 
-      <p className="sr03-context">
-        In §2 of <em>Zur Elektrodynamik bewegter Körper</em> (1905) Einstein shows that two events
-        simultaneous for one frame are not simultaneous for another in relative motion. In §4 he
-        gives the physical meaning of a moving rod&apos;s length: the positions of its two ends,
-        taken at <strong>one instant of the measuring frame</strong>. A sphere of radius R is
-        measured the same way, along the motion and across it.
+      {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
+          children of the lab root, which labShell.css's detail rules select. */}
+      <p className="sr03-context" data-detail="0">
+        {withScripts(SR03_CAPTION.r0)}
+      </p>
+      <p className="sr03-context" data-detail="1">
+        {withScripts(SR03_CAPTION.r1)}
+      </p>
+      <p className="sr03-context" data-detail="2" hidden>
+        {withScripts(SR03_CAPTION.r2)}
+      </p>
+      <p className="sr03-context" data-detail="3" hidden>
+        {withScripts(SR03_CAPTION.r3)}
       </p>
 
       {/* Spacetime event interval ledger */}
