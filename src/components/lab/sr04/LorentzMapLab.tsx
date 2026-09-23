@@ -27,11 +27,14 @@ import { withScripts } from "../subscripts.tsx";
 const CONSTRAINT_LABELS: Readonly<Record<ConstraintId, string>> = {
   "right-moving-light": "Right-moving light stays at c",
   "left-moving-light": "Left-moving light stays at c",
-  reciprocity: "Reciprocity (inverse map)",
-  isotropy: "Isotropy (a(v) = a(-v))",
-  "identity-branch": "Identity branch (positive root)",
-  "transverse-light": "Transverse light ray",
+  reciprocity: "Reciprocity: the map back to K is the same map at −v",
+  isotropy: "Isotropy: a(v) = a(−v)",
+  "identity-branch": "Identity branch: at v = 0 the map changes nothing",
+  "transverse-light": "A light ray across the motion stays at c",
 };
+
+/** The two light requirements' residuals are speeds, x′/t′ − c in m/s; the others are pure numbers. */
+const LIGHT_RESIDUALS: ReadonlySet<string> = new Set(["right-moving-light", "left-moving-light"]);
 
 type Draft = Readonly<{
   vOverC: string;
@@ -149,6 +152,7 @@ export function LorentzMapLab({
   }
 
   const family = evaluation.family;
+  const enabled = splitConstraints(p.enabledConstraints);
 
   return (
     <section
@@ -338,7 +342,7 @@ export function LorentzMapLab({
           <h3>Construction result</h3>
           {family.status === "value" && (
             <table>
-              <caption>The map every enabled constraint has fixed.</caption>
+              <caption>The map the requirements you ticked have fixed.</caption>
               <tbody>
                 <tr>
                   <td>a</td>
@@ -356,20 +360,36 @@ export function LorentzMapLab({
                 </tr>
                 <tr>
                   <td>transverse scale</td>
-                  <td>{family.value.transverseScale}</td>
+                  <td>
+                    {enabled.includes("transverse-light")
+                      ? fixed(family.value.transverseScale, 6)
+                      : "not fixed yet: tick the light ray across the motion"}
+                  </td>
                 </tr>
               </tbody>
             </table>
           )}
           {family.status === "underdetermined" && (
             <p>
-              Not determined by this data: <strong>{family.compatibleFamily}</strong>. Still needed:{" "}
-              {family.neededInformation.join(", ")}.
+              Not fixed yet. The requirements you ticked give{" "}
+              <strong>{withScripts(family.compatibleFamily)}</strong>. Still to tick:{" "}
+              {family.neededInformation
+                .map(
+                  (need) => (CONSTRAINT_LABELS as Readonly<Record<string, string>>)[need] ?? need,
+                )
+                .join("; ")}
+              .
             </p>
           )}
           {family.status === "residual-report" && (
             <table>
-              <caption>{family.notes}</caption>
+              <caption>{withScripts(family.notes)}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Requirement</th>
+                  <th scope="col">How far it misses (0 means it holds)</th>
+                </tr>
+              </thead>
               <tbody>
                 {Object.entries(family.residuals).map(([key, value]) => (
                   <tr key={key}>
@@ -378,6 +398,7 @@ export function LorentzMapLab({
                     </th>
                     <td>
                       <Sci value={value} digits={3} />
+                      {LIGHT_RESIDUALS.has(key) ? " m/s" : ""}
                     </td>
                   </tr>
                 ))}
@@ -391,8 +412,15 @@ export function LorentzMapLab({
             Slow case (observer {p.observerSpeed} m/s, object {p.objectSpeed} m/s): the ordinary
             change of frame gives{" "}
             {evaluation.slowCaseGalilean.status === "value"
-              ? `${evaluation.slowCaseGalilean.value} m/s`
+              ? `${fixed(evaluation.slowCaseGalilean.value, 6)} m/s`
               : "(unavailable)"}
+            {evaluation.slowCaseDeviation.status === "value" && (
+              <>
+                , and the exact map differs from that by{" "}
+                <Sci value={Math.abs(evaluation.slowCaseDeviation.value.difference)} digits={2} />{" "}
+                m/s
+              </>
+            )}
             . Light rays at v = {p.vOverC}c: right-moving{" "}
             {fractionText(evaluation.rightRayFraction, "c")}, left-moving{" "}
             {fractionText(evaluation.leftRayFraction, "c")}.

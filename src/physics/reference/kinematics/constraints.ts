@@ -101,8 +101,8 @@ export function solveCandidateFamily(input: {
       status: "residual-report",
       residuals: checked.residuals,
       notes: checked.identifiesLongitudinalScale
-        ? "All enabled constraints hold; longitudinal scale is the positive root of a^2 (1 - v^2/c^2) = 1."
-        : "Hand-built candidate residuals; the map is not preinstalled.",
+        ? "Every requirement holds: a is the positive root of a^{2}(1 − v^{2}/c^{2}) = 1."
+        : "Your candidate against each requirement: zero means the requirement holds.",
     };
   }
   if (enabled.size === 0) {
@@ -114,7 +114,8 @@ export function solveCandidateFamily(input: {
     return {
       status: "residual-report",
       residuals,
-      notes: "Galilean candidate: slow objects pass; light x = ±ct fails (speeds c − v and c + v).",
+      notes:
+        "The ordinary change of frame (a = b = 1, d = 0): slow objects pass, and light fails, at c − v one way and c + v the other.",
     };
   }
   const bothLight = enabled.has("right-moving-light") && enabled.has("left-moving-light");
@@ -126,7 +127,7 @@ export function solveCandidateFamily(input: {
   ) {
     return {
       status: "underdetermined",
-      compatibleFamily: "b = a, d = -a v / c^2, free a(v)",
+      compatibleFamily: "b = a and d = −av/c^{2}, with a(v) still free",
       neededInformation: ["reciprocity", "isotropy", "identity-branch"],
       relations: ["b = a", "d = -a*v/(c*c)"],
     };
@@ -134,7 +135,7 @@ export function solveCandidateFamily(input: {
   if (bothLight && enabled.has("reciprocity") && !enabled.has("isotropy")) {
     return {
       status: "underdetermined",
-      compatibleFamily: "a(v) a(-v) (1 - v^2/c^2) = 1",
+      compatibleFamily: "a(v)a(−v)(1 − v^{2}/c^{2}) = 1",
       neededInformation: ["isotropy", "identity-branch"],
       relations: ["b = a", "d = -a*v/(c*c)", "a(v)*a(-v)*(1-v*v/(c*c)) = 1"],
     };
@@ -147,7 +148,7 @@ export function solveCandidateFamily(input: {
   ) {
     return {
       status: "underdetermined",
-      compatibleFamily: "a(v) even, otherwise free",
+      compatibleFamily: "a(v) = a(−v), and otherwise free",
       neededInformation: ["reciprocity", "identity-branch"],
       relations: ["a(v) = a(-v)"],
     };
@@ -160,7 +161,7 @@ export function solveCandidateFamily(input: {
   ) {
     return {
       status: "underdetermined",
-      compatibleFamily: "a = ± (1 - v^2/c^2)^{-1/2}",
+      compatibleFamily: "a = ±1/√(1 − v^{2}/c^{2})",
       neededInformation: ["identity-branch"],
       relations: ["b = a", "d = -a*v/(c*c)", "a*a*(1-v*v/(c*c)) = 1"],
     };
@@ -191,14 +192,14 @@ export function solveCandidateFamily(input: {
   if (enabled.has("isotropy") && !enabled.has("reciprocity") && !bothLight) {
     return {
       status: "underdetermined",
-      compatibleFamily: "a(v) even, otherwise free",
+      compatibleFamily: "a(v) = a(−v), and otherwise free",
       neededInformation: ["right-moving-light", "left-moving-light", "reciprocity"],
       relations: ["a(v) = a(-v)"],
     };
   }
   return {
     status: "underdetermined",
-    compatibleFamily: "enabled set does not close the family",
+    compatibleFamily: "no relation among a, b and d yet",
     neededInformation: [
       "right-moving-light",
       "left-moving-light",
