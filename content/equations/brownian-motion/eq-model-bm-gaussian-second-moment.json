@@ -15,6 +15,7 @@
     "The Gaussian density that solves the diffusion equation from a point start, one coordinate.",
     "These are modern teaching equations in SI notation, not a transcription of the printed paper."
   ],
+  "layout": "rows",
   "tree": {
     "kind": "relation",
     "opId": "eq-model-bm-gaussian-second-moment.op.relation",
