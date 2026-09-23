@@ -63,7 +63,7 @@ export const LAB_NAMES: Readonly<Record<string, string>> = Object.freeze({
   "lq-05": "Independent configurations and the gas analogy",
   "lq-06": "The radiation entropy law matches the gas entropy law.",
   "lq-07": "Stokes's rule and the single-quantum energy budget",
-  "lq-08": "Energy is discrete. Rates scale with power.",
+  "lq-08": "Brighter light, more electrons. Higher frequency, faster ones.",
   "lq-09": "Threshold frequency sets the bound. Absorbed energy counts the ions.",
 
   // On the electrodynamics of moving bodies
