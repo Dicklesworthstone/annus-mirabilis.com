@@ -50,9 +50,9 @@ export const BM03_NOT_MODELED = Object.freeze([
 
 export const BM03_CAPTION = Object.freeze({
   r0: "Counting where independent particles can be, not how they move, gives the pressure. Doubling the room doubles each particle's options.",
-  r1: "Under independence, N_p particles explore volume V with a state-variable integral proportional to V^{N_p}. The free energy contains -k_B T ln(V^{N_p}) = -N_p k_B T ln V. Differentiating with respect to volume yields the pressure p = -dF/dV = N_p k_B T / V.",
-  r2: "One particle has position options proportional to V. Two independent particles have options proportional to V * V = V^2. For N_p independent particles the factor is V^{N_p}. Taking the logarithm turns this product into the sum N_p ln V. The volume derivative removes the volume-independent factor J and the constant offset F_0, leaving p = N_p k_B T / V.",
-  r3: "Einstein's printed §2 notation uses B for the configuration integral, J for the volume-independent factor, lg for the natural logarithm, n for the particle count, V* for volume, and 2 kappa N = R for the gas constant relation. If the particles are locked into a single rigid cluster, the spatial arrangements grow only as V/V_0 rather than (V/V_0)^{N_p}, yielding pressure p = k_B T / V. Pressure counts independently placed units, not constituents.",
+  r1: "Under independence, N_{p} particles explore volume V with a configuration integral proportional to V^{N_{p}}. The free energy contains −k_{B}T ln V^{N_{p}} = −N_{p}k_{B}T ln V. Differentiating with respect to volume gives the pressure p = −∂F/∂V = N_{p}k_{B}T/V.",
+  r2: "One particle has position options proportional to V. Two independent particles have options proportional to V × V = V². For N_{p} independent particles the factor is V^{N_{p}}. Taking the logarithm turns this product into the sum N_{p} ln V. The volume derivative removes the volume-independent factor J and the constant offset F_{0}, leaving p = N_{p}k_{B}T/V.",
+  r3: "Einstein's printed §2 notation uses B for the configuration integral, J for the volume-independent factor, lg for the natural logarithm, n for the particle count, V* for volume, and 2κN = R for the gas constant relation. If the particles are locked into a single rigid cluster, the spatial arrangements grow only as V/V_{0} rather than (V/V_{0})^{N_{p}}, giving pressure p = k_{B}T/V. Pressure counts independently placed units, not constituents.",
 });
 
 export const BM03_MODEL = Object.freeze({
@@ -168,7 +168,7 @@ export const BM03_PRESETS = Object.freeze({
     }),
   }),
   "bm-03-ratio-one": Object.freeze({
-    label: "Volume ratio exactly 1 (Delta F = 0)",
+    label: "Volume ratio exactly 1 (ΔF = 0)",
     parameters: Object.freeze({
       ...BM03_DEFAULTS,
       Np: 2,

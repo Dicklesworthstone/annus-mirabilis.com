@@ -25,6 +25,7 @@ import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { Sci } from "../Sci.tsx";
+import { withScripts } from "../subscripts.tsx";
 
 const PREDICT_REASONING =
   "The model gives 4. Each particle's own positions double, and the two particles are placed independently, so their joint arrangements multiply: 2 × 2 = 4. For Np particles the factor is 2 to the power Np.";
@@ -529,16 +530,17 @@ export function ConfigurationLab({
         <section>
           <h3>Editorial commentary on Einstein §2</h3>
           <p>
-            <strong>R0 (Overview):</strong> {BM03_CAPTION.r0}
+            <strong>R0 (Overview):</strong> {withScripts(BM03_CAPTION.r0)}
           </p>
           <p>
-            <strong>R1 (Physical reasoning):</strong> {BM03_CAPTION.r1}
+            <strong>R1 (Physical reasoning):</strong> {withScripts(BM03_CAPTION.r1)}
           </p>
           <p>
-            <strong>R2 (Mathematical structure):</strong> {BM03_CAPTION.r2}
+            <strong>R2 (Mathematical structure):</strong> {withScripts(BM03_CAPTION.r2)}
           </p>
           <p>
-            <strong>R3 (Historical notation & counterexample):</strong> {BM03_CAPTION.r3}
+            <strong>R3 (Historical notation & counterexample):</strong>{" "}
+            {withScripts(BM03_CAPTION.r3)}
           </p>
         </section>
 

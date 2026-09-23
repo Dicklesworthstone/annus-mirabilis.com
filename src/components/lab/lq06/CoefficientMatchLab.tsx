@@ -16,7 +16,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
-import { withSubscripts } from "../subscripts.tsx";
+import { withScripts } from "../subscripts.tsx";
 import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
 import "./coefficientMatchLab.css";
 
@@ -39,7 +39,7 @@ const PREDICT_PROMPTS: readonly PredictPrompt[] = [
   {
     id: "subexpression-role",
     question:
-      "The radiation's entropy is S − S₀ = (R/N) ln[(V/V₀)^(NE/(Rβν))], and a gas of n molecules has S − S₀ = (R/N) n ln(V/V₀). Which expression plays the part of n?",
+      "The radiation's entropy is S − S₀ = (R/N) ln[(V/V₀)^{NE/(Rβν)}], and a gas of n molecules has S − S₀ = (R/N) n ln(V/V₀). Which expression plays the part of n?",
     options: [
       "E, the total radiant energy.",
       "NE/(Rβν), which is E/(hν).",
@@ -260,7 +260,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             <summary>Predict first</summary>
             {PREDICT_PROMPTS.map((prompt) => (
               <fieldset key={prompt.id}>
-                <legend>{withSubscripts(prompt.question)}</legend>
+                <legend>{withScripts(prompt.question)}</legend>
                 {prompt.options.map((option, idx) => (
                   <label key={option} className="lab-predict-candidate">
                     <input
@@ -269,11 +269,11 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
                       checked={answers[prompt.id] === idx}
                       onChange={() => setAnswers((a) => ({ ...a, [prompt.id]: idx }))}
                     />
-                    <span>{withSubscripts(option)}</span>
+                    <span>{withScripts(option)}</span>
                   </label>
                 ))}
                 {answers[prompt.id] !== undefined && (
-                  <p className="lab-predict-reveal">{withSubscripts(prompt.explanation)}</p>
+                  <p className="lab-predict-reveal">{withScripts(prompt.explanation)}</p>
                 )}
               </fieldset>
             ))}
@@ -434,7 +434,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
               </tr>
               {VALUE_ROWS.map((row) => (
                 <tr key={row.id} data-quantity-id={row.id}>
-                  <th scope="row">{withSubscripts(row.label)}</th>
+                  <th scope="row">{withScripts(row.label)}</th>
                   <td data-output={row.id}>{formatOutput(getOutput(row.id), row.unit)}</td>
                 </tr>
               ))}
