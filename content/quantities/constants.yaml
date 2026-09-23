@@ -177,6 +177,29 @@
   frame: not-applicable
   colorRole: statistical
 
+- id: genericBase
+  name: Any positive number
+  description: >
+    A placeholder for any positive number raised to a power, in the logarithm identity
+    ln(f^n) = n ln f of the foundation lesson on logarithms. Not a physical quantity.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+- id: genericExponent
+  name: Any power
+  description: >
+    A placeholder for any number used as a power, beside genericBase in ln(f^n) = n ln f. Not a
+    physical quantity.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: ratio
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: configurationProbability
   name: Configuration probability
   description: >

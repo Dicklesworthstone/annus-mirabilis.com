@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 274 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 276 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -115,6 +115,8 @@ Total: 274 quantities, 45 rejected spellings, 2 reserved spellings.
 | frequencyEnergyDensity | Frequency-basis spectral energy density | -1,1,-1,0,0,0 | not-applicable | scalar | — |
 | fringeShift | Fringe shift | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | gasEntropyChange | Entropy change of a gas of independent points | 2,1,-2,-1,0,0 | not-applicable | scalar | — |
+| genericBase | Any positive number | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| genericExponent | Any power | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | genericNumberA | Any number A | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | genericNumberB | Any number B | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | gramEquivalentCharge | Gram-equivalent charge | 0,0,1,0,1,-1 | not-applicable | scalar | — |
