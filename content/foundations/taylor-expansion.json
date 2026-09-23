@@ -13,7 +13,7 @@
     },
     {
       "kind": "formula",
-      "latex": "f(x+\\Delta)=f(x)+\\Delta f'(x)+\\frac{\\Delta^2}{2}f''(x)+\\ldots",
+      "latex": "\\begin{aligned}f(x+\\Delta)&=f(x)+\\Delta f'(x)\\\\&\\quad+\\frac{\\Delta^2}{2}f''(x)+\\ldots\\end{aligned}",
       "spoken": "The value a step delta away equals the value, plus delta times the slope, plus half of delta squared times the curvature, plus further terms."
     },
     {
