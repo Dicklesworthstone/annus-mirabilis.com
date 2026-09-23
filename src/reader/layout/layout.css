@@ -74,11 +74,14 @@
   line-height: 1.4;
 }
 
+/* THE READING'S LABORATORY IS READ AT ITS OWN HEIGHT. It was sticky, capped at 40vh and scrolled
+   inside itself: on BUILD 24 at 1440x900 the opened bm-01 laboratory was 18,184px of content in a
+   360px window, 18,731px of it behind a scroll nested inside the page's. The region is the
+   reading's last element, so sticking kept nothing in view, and a phone already showed it at full
+   height (the narrow tier below said so). Every width now does. min-width lets its plots and
+   tables shrink with the column instead of widening it. */
 .reader-sticky-lab {
-  position: sticky;
-  top: var(--reader-scroll-padding);
-  max-height: var(--reader-sticky-lab-max);
-  overflow: auto;
+  min-width: 0;
 }
 
 .reader-split-tabs {
@@ -204,10 +207,6 @@
   }
   .reader-bottom-sheet {
     display: block;
-  }
-  .reader-sticky-lab {
-    position: static;
-    max-height: none;
   }
   .reader-split-tabs {
     display: flex;
