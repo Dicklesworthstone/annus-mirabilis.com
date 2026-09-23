@@ -4,9 +4,17 @@
   "id": "diffusion-equation",
   "title": "What the diffusion coefficient means",
   "question": "What changes when D changes?",
-  "summary": "D measures the rate of growth of a coordinate’s mean square: on an unbounded line that growth is 2D per unit time.",
+  "summary": "D sets how fast a spreading cloud widens. Along one line, the mean square distance of its particles from where they started grows by 2D every second.",
   "review": "draft",
   "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Put a drop of dye into a long tube of still water. At first the dye sits in one spot; an hour later it has spread along the tube, thinner and wider. The diffusion coefficient D says how fast that spreading goes."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The rule it follows is local. Look at one spot. If the dye is thicker on both sides than at the spot itself, a dip, dye drifts in from both sides and the spot fills. If the spot is a peak, thicker than its neighbours, dye drifts out and it thins. The more sharply the dip or peak is curved, the faster it changes, and D sets the pace. With p for how much dye sits per metre of tube at place x and time t:"
+    },
     {
       "kind": "formula",
       "latex": "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}",
@@ -15,7 +23,11 @@
     },
     {
       "kind": "paragraph",
-      "text": "At a local dip with positive curvature, the diffusion term increases density. At a local peak with negative curvature it decreases density. Boundary conditions matter: a closed box conserves its contents, but its long-time distribution is not the unbounded Gaussian."
+      "text": "The right-hand side is D times the curvature, which is positive at a dip and negative at a peak. For one particle instead of a drop of dye, p is the probability per metre of finding it at x. Where the tube ends matters too: a closed tube keeps all its dye, and after a long time spreads it evenly, not in the ever-widening bell of an endless tube."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The same rule can be read as a flow. The amount crossing a point each second runs from thick to thin, faster where the density falls more steeply:"
     },
     {
       "kind": "formula",
@@ -31,7 +43,7 @@
   "example": [
     {
       "kind": "paragraph",
-      "text": "Holding everything else fixed, doubling D doubles the mean square at a given time and multiplies RMS displacement by √2. Four times the elapsed time doubles RMS displacement. Neither comparison specifies a single particle’s path."
+      "text": "Suppose the dye's typical distance from where it started is 1 mm after one minute. Double D, keeping everything else the same: the mean square doubles, so the typical distance becomes about 1.4 mm, the square root of 2 times as far, not twice. Keep the original D and wait four minutes instead of one: the typical distance doubles, to 2 mm. Neither comparison says where any single particle goes."
     }
   ],
   "exampleTitle": "Doubling the diffusion coefficient, then quadrupling the time",
