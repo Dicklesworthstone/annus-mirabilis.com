@@ -4,29 +4,48 @@
  * execution state and does not name comparison kinds or parity rungs.
  */
 import type { ReactElement } from "react";
-import type { ModelNoteData } from "./modelNoteData.ts";
+import type { ModelNoteData, ModelNoteOutput } from "./modelNoteData.ts";
 import "./executionChrome.css";
 
 export type ModelNoteProps = Readonly<{
   data: ModelNoteData;
 }>;
 
+type OutputGroup = Readonly<{ key: string; head: ModelNoteOutput; ids: readonly string[] }>;
+
+/**
+ * Outputs that share a role, an engine sentence and an owner, as one entry. One entry per output
+ * made bm-01's note 50 items and 3,330px tall on a phone, each repeating the same sentence and owner:
+ * "Primary output temperature: Host calculation (bm01.acceptedInputs). Owner bm01.acceptedInputs."
+ */
+function groupOutputs(outputs: readonly ModelNoteOutput[]): OutputGroup[] {
+  const groups = new Map<string, { head: ModelNoteOutput; ids: string[] }>();
+  for (const output of outputs) {
+    const key = `${output.role}\u0000${output.engineSentence}\u0000${output.ownerId}`;
+    const group = groups.get(key);
+    if (group) group.ids.push(output.outputId);
+    else groups.set(key, { head: output, ids: [output.outputId] });
+  }
+  return [...groups].map(([key, group]) => ({ key, head: group.head, ids: group.ids }));
+}
+
+function outputEntry(role: "Primary" | "Secondary", group: OutputGroup): string {
+  const noun = group.ids.length === 1 ? "output" : "outputs";
+  return `${role} ${noun} ${group.ids.join(", ")}: ${group.head.engineSentence} Owner ${group.head.ownerId}.`;
+}
+
 export function ModelNote({ data }: ModelNoteProps): ReactElement {
-  const primary = data.outputs.filter((output) => output.role === "primary");
-  const secondary = data.outputs.filter((output) => output.role === "secondary");
+  const primary = groupOutputs(data.outputs.filter((output) => output.role === "primary"));
+  const secondary = groupOutputs(data.outputs.filter((output) => output.role === "secondary"));
   return (
     <details className="model-note">
       <summary>Model note</summary>
       <ul className="model-note-list">
-        {primary.map((output) => (
-          <li key={`primary-${output.outputId}`}>
-            Primary output {output.outputId}: {output.engineSentence} Owner {output.ownerId}.
-          </li>
+        {primary.map((group) => (
+          <li key={group.key}>{outputEntry("Primary", group)}</li>
         ))}
-        {secondary.map((output) => (
-          <li key={`secondary-${output.outputId}`}>
-            Secondary output {output.outputId}: {output.engineSentence} Owner {output.ownerId}.
-          </li>
+        {secondary.map((group) => (
+          <li key={group.key}>{outputEntry("Secondary", group)}</li>
         ))}
         {data.modelVersion !== undefined ? <li>Model version {data.modelVersion}.</li> : null}
         {data.artifactDigest !== undefined ? <li>Artifact digest {data.artifactDigest}.</li> : null}
