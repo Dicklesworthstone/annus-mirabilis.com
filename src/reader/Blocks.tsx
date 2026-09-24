@@ -177,6 +177,23 @@ export function FoundationBody({
         <Part className="foundation-part-title">Where this lesson stops</Part>
         <p>{foundation.stoppingPoint}</p>
       </section>
+      {/* Extension sections are records of their own (content/foundations/extensions/), attached
+          by the compiler. They go past the stopping point, so they come after it. */}
+      {foundation.extensionSections?.map((section) => (
+        <section key={section.id} className="foundation-part" data-extension-section={section.id}>
+          <Part className="foundation-part-title">
+            <span className="foundation-part-kind">
+              Going further<span className="visually-hidden">: </span>
+            </span>
+            {section.title}
+          </Part>
+          <ReadingBlocks
+            blocks={section.body}
+            foundations={foundations}
+            equations={LESSON_EQUATIONS}
+          />
+        </section>
+      ))}
       {foundation.prerequisites.length > 0 && (
         <nav
           className="prerequisites"

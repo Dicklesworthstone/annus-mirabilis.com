@@ -14,6 +14,7 @@ import {
   type Argument,
   type Block,
   type Citation,
+  extensionSectionsByLesson,
   type Foundation,
   type FoundationExtension,
   foundationExtensionIssues,
@@ -233,6 +234,11 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
   );
   for (const found of foundationExtensionIssues(extensions, foundationIds))
     issue(found.code, found.path, found.message);
+  for (const [lesson, sections] of extensionSectionsByLesson(extensions)) {
+    const target = records.get(lesson);
+    if (target?.kind === "foundation")
+      records.set(lesson, { ...target, extensionSections: sections });
+  }
 
   // Validate legacy-spellings against registered quantity IDs
   for (const group of legacySpellings) {

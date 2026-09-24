@@ -59,6 +59,12 @@ export type Foundation = Header &
     citations: readonly string[];
     returnCaptions?: readonly ReturnCaption[];
     extension?: readonly Block[];
+    /**
+     * Extension sections from content/foundations/extensions/ that name this lesson, attached by
+     * the compiler in id order. Never written in a lesson record: the validator refuses the field
+     * there, so a section is always a record of its own.
+     */
+    extensionSections?: readonly FoundationExtensionSection[];
   }>;
 export type Argument = Header &
   Readonly<{
@@ -510,4 +516,19 @@ export function foundationExtensionIssues(
       });
   }
   return issues;
+}
+
+/** Each lesson's extension sections, in id order, keyed by the lesson's id. Bespoke ones are left out. */
+export function extensionSectionsByLesson(
+  extensions: readonly Readonly<{ extension: FoundationExtension }>[],
+): ReadonlyMap<string, readonly FoundationExtensionSection[]> {
+  const byLesson = new Map<string, FoundationExtensionSection[]>();
+  for (const { extension } of extensions) {
+    if (extension.section === null) continue;
+    const lesson = extension.targetFoundation.replace(/^foundation:/, "");
+    byLesson.set(lesson, [...(byLesson.get(lesson) ?? []), extension.section]);
+  }
+  for (const sections of byLesson.values())
+    sections.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  return byLesson;
 }

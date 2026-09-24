@@ -19,6 +19,7 @@ import { registerSourceManifestCheck } from "../manifest/check.ts";
 import {
   type Argument,
   type Citation,
+  extensionSectionsByLesson,
   type Foundation,
   type FoundationExtension,
   foundationExtensionIssues,
@@ -284,10 +285,6 @@ export async function compileContent(
   // Phase 2 & 3: Validate & Index
   // =========================================================================
   const startValidate = performance.now();
-  const { indexes, errors: indexErrors } = buildContentIndexes(rawRecords);
-  for (const err of indexErrors) {
-    addIssue("error", err.code, err.path, err.message, { family: "structural" });
-  }
   const foundationIds = new Set(
     [...rawRecords.values()].flatMap((r) =>
       r && typeof r === "object" && "kind" in r && r.kind === "foundation" && "id" in r
@@ -297,6 +294,17 @@ export async function compileContent(
   );
   for (const found of foundationExtensionIssues(extensions, foundationIds))
     addIssue("error", found.code, found.path, found.message, { family: "structural" });
+  // Attach each lesson's sections before the indexes are built, so every payload that carries
+  // the lesson, its own and each paper's, carries them too.
+  for (const [lesson, sections] of extensionSectionsByLesson(extensions)) {
+    const target = rawRecords.get(lesson);
+    if (target && typeof target === "object" && "kind" in target && target.kind === "foundation")
+      rawRecords.set(lesson, { ...target, extensionSections: sections });
+  }
+  const { indexes, errors: indexErrors } = buildContentIndexes(rawRecords);
+  for (const err of indexErrors) {
+    addIssue("error", err.code, err.path, err.message, { family: "structural" });
+  }
 
   // Create standard review flags for draft content
   for (const r of rawRecords.values()) {
