@@ -29,7 +29,10 @@ import {
   largestFiles,
   OCTET_STREAM,
   planEdition,
+  RELEASE_RECORD_SCHEMA,
+  readReleaseRecord,
   referencedDigests,
+  releaseBinding,
   SETTINGS_SNAPSHOT_FILE,
   siteBinding,
   TEST_CONSOLE_FILE,
@@ -345,6 +348,32 @@ describe("exportEdition", () => {
     }
   });
 
+  it("records no release unless one is given, and refuses one out/ cannot be tied to", () => {
+    const out = fixture(SITE);
+    const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
+    exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG });
+    const manifest = JSON.parse(readFileSync(join(dest, "edition-manifest.json"), "utf8"));
+    assert.equal(manifest.release, null);
+    assert.equal(manifest.site.binding, "unbound");
+    // The fixture sits in no git worktree, so no release can be shown to be its source.
+    assert.throws(
+      () =>
+        exportEdition({
+          repo: dirname(out),
+          outDir: out,
+          dest: mkdtempSync(join(tmpdir(), "app-edition-dest-")),
+          catalog: CATALOG,
+          release: {
+            schema: RELEASE_RECORD_SCHEMA,
+            toolRunId: "20260924T182708Z-33e8c77b",
+            commit: "d5ff5c76e6388b8b76b5675c3f458987c5c8e5b0",
+            profile: "scaffold",
+          },
+        }),
+      (error: unknown) => error instanceof AppExportError && error.code === "release-unbound",
+    );
+  });
+
   it("refuses an edition over its budget and names the size", () => {
     const out = fixture(SITE);
     const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
@@ -477,6 +506,81 @@ describe("exportEdition", () => {
       () => exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG }),
       (error: unknown) => error instanceof AppExportError && error.code === "unsafe-edition-path",
     );
+  });
+});
+
+describe("releaseBinding", () => {
+  const released = "d5ff5c76e6388b8b76b5675c3f458987c5c8e5b0";
+  // The fields of a real record: artifacts/releases/<commit>-20260924T182708Z-33e8c77b.json.
+  const record = {
+    schema: RELEASE_RECORD_SCHEMA,
+    toolRunId: "20260924T182708Z-33e8c77b",
+    commit: released,
+    profile: "scaffold",
+    candidateUrl: "https://annus-mirabilis-hmudec8mr-dicklesworthstones-projects.vercel.app",
+  };
+  const builtFrom = (head: string | null) =>
+    siteBinding({
+      head,
+      clean: true,
+      headCommittedAt: "2026-09-24T18:20:00Z",
+      outBuiltAt: new Date("2026-09-24T18:25:00Z"),
+    });
+  const refusal = (code: string, pattern: RegExp) => (error: unknown) =>
+    error instanceof AppExportError && error.code === code && pattern.test(error.message);
+
+  it("binds a build of the release's own commit, naming the release", () => {
+    assert.deepEqual(releaseBinding(record, builtFrom(released)), {
+      releaseId: "20260924T182708Z-33e8c77b",
+      commit: released,
+      profile: "scaffold",
+    });
+  });
+
+  it("refuses a build of another commit, naming both", () => {
+    assert.throws(
+      () => releaseBinding(record, builtFrom("c1e80b4b0000000000000000000000000000000a")),
+      refusal(
+        "release-commit-mismatch",
+        /deployed d5ff5c76e638, and out\/ was built from c1e80b4b0000/,
+      ),
+    );
+  });
+
+  it("refuses a build no commit can be read for, and says why", () => {
+    assert.throws(
+      () => releaseBinding(record, builtFrom(null)),
+      refusal("release-unbound", /not inside a git worktree/),
+    );
+  });
+
+  it("reads a record from disk, and refuses a file that is missing or not JSON, naming it", () => {
+    const dir = mkdtempSync(join(tmpdir(), "app-release-record-"));
+    writeFileSync(join(dir, "good.json"), JSON.stringify(record));
+    assert.deepEqual(readReleaseRecord(join(dir, "good.json")), record);
+    writeFileSync(join(dir, "torn.json"), '{"schema": "annus-mirabilis-rel');
+    for (const name of ["torn.json", "absent.json"]) {
+      assert.throws(
+        () => readReleaseRecord(join(dir, name)),
+        refusal("release-record-unreadable", new RegExp(`${name} could not be read as JSON`)),
+        name,
+      );
+    }
+  });
+
+  it("refuses anything that is not a release record, naming each bad field", () => {
+    for (const [bad, field] of [
+      [{ ...record, schema: "annus-mirabilis-release-record.v2" }, /schema is/],
+      [{ ...record, commit: "d5ff5c76" }, /commit is "d5ff5c76"/],
+      [{ ...record, toolRunId: "latest" }, /toolRunId is "latest"/],
+      [{ ...record, profile: "production" }, /profile is "production"/],
+      [null, /schema is undefined/],
+    ] as const) {
+      assert.throws(
+        () => releaseBinding(bad, builtFrom(released)),
+        refusal("release-record-invalid", field),
+      );
+    }
   });
 });
 

@@ -19,7 +19,8 @@
  * - `edition-inputs.xcfilelist` and `edition-outputs.xcfilelist`: the bundling
  *   phase's declared inputs and outputs, so user-script sandboxing stays on.
  *
- * Usage: `bun scripts/app/export-edition.ts [--out <dir>] [--dest <dir>]`
+ * Usage: `bun scripts/app/export-edition.ts [--out <dir>] [--dest <dir>] [--release <record.json>]`,
+ * where the record is one scripts/verified-production-deploy.ts wrote (artifacts/releases/).
  */
 
 import { execFileSync } from "node:child_process";
@@ -59,7 +60,11 @@ export type AppExportErrorCode =
   | "no-route-list"
   | "route-needs-server"
   | "referenced-file-missing"
-  | "pdf-viewer-referenced";
+  | "pdf-viewer-referenced"
+  | "release-record-unreadable"
+  | "release-record-invalid"
+  | "release-unbound"
+  | "release-commit-mismatch";
 
 /** A refusal of the export, with a code a caller or a test can branch on. */
 export class AppExportError extends Error {
@@ -332,6 +337,76 @@ export function siteBinding(input: {
   };
 }
 
+/** The record scripts/verified-production-deploy.ts writes for each web release. */
+export const RELEASE_RECORD_SCHEMA = "annus-mirabilis-release-record.v1";
+
+export type ReleaseBinding = {
+  /** The release record's toolRunId, which names the web release. */
+  readonly releaseId: string;
+  readonly commit: string;
+  readonly profile: "scaffold" | "preview" | "launch";
+};
+
+/** A release record read from disk, or a refusal naming the file when it is not readable JSON. */
+export function readReleaseRecord(path: string): unknown {
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch (error) {
+    throw new AppExportError(
+      "release-record-unreadable",
+      `${path} could not be read as JSON: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
+ * Bind the edition to the web release it is exported for (bead am-app-edition-export-kwpu,
+ * requirement 2 and criterion 3). The release record names the commit that release deployed, and
+ * out/ must be shown to be that commit's build: a site binding that names no commit cannot show
+ * it, and one that names another commit is another release's build. Either refuses, rather than
+ * an edition that claims a release it may not match.
+ */
+export function releaseBinding(record: unknown, site: SiteBinding): ReleaseBinding {
+  const fields = (typeof record === "object" && record !== null ? record : {}) as Record<
+    string,
+    unknown
+  >;
+  const { schema, toolRunId, commit, profile } = fields;
+  const problems = [
+    schema === RELEASE_RECORD_SCHEMA ? null : `schema is ${JSON.stringify(schema)}`,
+    typeof toolRunId === "string" && /^\d{8}T\d{6}Z-[0-9a-f]{8}$/.test(toolRunId)
+      ? null
+      : `toolRunId is ${JSON.stringify(toolRunId)}`,
+    typeof commit === "string" && /^[0-9a-f]{40}$/.test(commit)
+      ? null
+      : `commit is ${JSON.stringify(commit)}`,
+    profile === "scaffold" || profile === "preview" || profile === "launch"
+      ? null
+      : `profile is ${JSON.stringify(profile)}`,
+  ].filter((problem) => problem !== null);
+  if (problems.length > 0) {
+    throw new AppExportError(
+      "release-record-invalid",
+      `Not a ${RELEASE_RECORD_SCHEMA} record: ${problems.join("; ")}.`,
+    );
+  }
+  const id = toolRunId as string;
+  const released = commit as string;
+  if (site.commit === null) {
+    throw new AppExportError(
+      "release-unbound",
+      `Release ${id} deployed ${released.slice(0, 12)}, and no commit can be read for out/: ${site.reason} Export from that commit's build in a clean worktree.`,
+    );
+  }
+  if (site.commit !== released) {
+    throw new AppExportError(
+      "release-commit-mismatch",
+      `Release ${id} deployed ${released.slice(0, 12)}, and out/ was built from ${site.commit.slice(0, 12)}, so this edition would not be that release.`,
+    );
+  }
+  return { releaseId: id, commit: released, profile: profile as ReleaseBinding["profile"] };
+}
+
 /** Characters Xcode's file lists or `shasum -c` would misread. */
 export function unsafePathReason(path: string): string | null {
   if (path.includes("$")) {
@@ -470,6 +545,8 @@ export function exportEdition(options: {
   readonly budgetBytes?: number;
   /** The native screens' data; built from the repository's records when not given. */
   readonly catalog?: NativeCatalog;
+  /** A web release record to bind the edition to (releaseBinding); none leaves release null. */
+  readonly release?: unknown;
 }): ExportResult {
   const { repo, outDir, dest } = options;
   const budgetBytes = options.budgetBytes ?? EDITION_BUDGET_BYTES;
@@ -554,6 +631,7 @@ export function exportEdition(options: {
     headCommittedAt: sourceHeadDate,
     outBuiltAt: outMtime,
   });
+  const release = options.release === undefined ? null : releaseBinding(options.release, binding);
   const digest = editionDigest(files);
 
   const manifest = {
@@ -564,6 +642,7 @@ export function exportEdition(options: {
       nextBuildId: nextBuildId(outDir),
       indexHtmlModifiedAt: outMtime.toISOString(),
     },
+    release,
     site: {
       ...binding,
       sourceTree,
@@ -678,8 +757,10 @@ function main(argv: readonly string[]): number {
   };
   const outDir = resolve(repo, flag("--out") ?? "out");
   const dest = resolve(repo, flag("--dest") ?? "generated/app-edition");
+  const releasePath = flag("--release");
   try {
-    const result = exportEdition({ repo, outDir, dest });
+    const release = releasePath === undefined ? undefined : readReleaseRecord(resolve(releasePath));
+    const result = exportEdition({ repo, outDir, dest, release });
     process.stdout.write(
       `app edition: ${result.fileCount} files, ${result.totalBytes} bytes, ${result.excludedCount} excluded, digest ${result.editionDigest}\n${result.manifestPath}\n`,
     );
