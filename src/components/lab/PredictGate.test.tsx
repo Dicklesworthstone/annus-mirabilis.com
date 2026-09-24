@@ -16,6 +16,7 @@ import {
   readPredictionsDocument,
   writePredictionsDocument,
 } from "../../experiments/predict/predictStorage.ts";
+import { DEFAULT_PREPARED_EXAMPLE as SR02_EXAMPLE } from "../../experiments/sr02/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR06_EXAMPLE } from "../../experiments/sr06/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR08_EXAMPLE } from "../../experiments/sr08/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR09_EXAMPLE } from "../../experiments/sr09/session.ts";
@@ -45,6 +46,7 @@ import {
 import { CameraLab } from "./CameraLab.tsx";
 import { InferenceLab } from "./InferenceLab.tsx";
 import { IonizationLab } from "./lq09/IonizationLab.tsx";
+import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
 import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
 import { presentedOrder } from "./PredictGate.tsx";
 import { ClockSyncLab } from "./sr01/ClockSyncLab.tsx";
@@ -89,6 +91,12 @@ const LABS: readonly (readonly [string, () => ReactElement, string, boolean])[] 
     false,
   ],
   ["sr-01", () => createElement(ClockSyncLab, {}), "Event ledger", false],
+  [
+    "sr-02",
+    () => createElement(MagnetConductorLab, { example: SR02_EXAMPLE }),
+    "Accepted snapshot",
+    true,
+  ],
   [
     "sr-06",
     () => createElement(VelocityCompositionLab, { example: SR06_EXAMPLE }),

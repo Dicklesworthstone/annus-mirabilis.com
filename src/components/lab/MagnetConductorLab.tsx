@@ -24,8 +24,10 @@ import { createSr02Session, type PreparedSr02Example } from "../../experiments/s
 import { SR02_TAPE } from "../../experiments/sr02/tape.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { display, identity, result, sentenceNumber } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 
@@ -75,6 +77,9 @@ function SnapshotReading({
   );
 }
 
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate.
+const SR02_PROMPTS = PREDICT_PROMPTS["sr-02"] ?? [];
+
 export function MagnetConductorLab({
   example,
   title = "Magnet and conductor",
@@ -97,6 +102,8 @@ export function MagnetConductorLab({
     true,
     (restored) => setDraft({ ...restored }),
   );
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("sr-02", SR02_PROMPTS);
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr02Parameters;
   // One sentence for the status line: the force on the charge in each description, which agree.
@@ -175,6 +182,7 @@ export function MagnetConductorLab({
           available; changing the settings requires JavaScript.
         </p>
       </noscript>
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <form
           noValidate
@@ -324,9 +332,10 @@ export function MagnetConductorLab({
         <AcceptedStatus
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
+          response={gate.response}
         />
-        <LabTapeLink link={tapeLink} />
-        <div className="lab-results">
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
+        <div className="lab-results" {...gate.response}>
           {apparatus ? (
             <ApparatusPanel
               motionState={p.motionState}
