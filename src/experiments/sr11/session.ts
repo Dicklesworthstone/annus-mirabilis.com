@@ -1,5 +1,6 @@
 import { evaluateSr11, type Sr11Input } from "../../physics/reference/waves.ts";
 import { encodeResult, parseResult } from "../results/codec.ts";
+import { refuseNonFiniteValues } from "../results/numberRange.ts";
 import type { ScientificResult } from "../results/types.ts";
 import { createInstanceStore, type Parameters } from "../store/instanceStore.ts";
 import { SR11_CLASSES, SR11_DEFAULTS, SR11_OUTPUTS, type Sr11Parameters } from "./definition.ts";
@@ -26,7 +27,18 @@ export function sr11InputFromParameters(p: Sr11Parameters): Sr11Input {
 
 export function snapshotOutputs(p: Sr11Parameters): ScientificResult[] {
   const snap = evaluateSr11(sr11InputFromParameters(p));
-  return [...snap.results];
+  // An energy density or mirror area near 10^300 carries the pressure, force and powers past the
+  // largest number a double can hold. Say so per output instead of letting the store refuse the
+  // whole publication, which no caller catches: the lab sat on "A new calculation is in progress"
+  // and threw an uncaught page error (see numberRange.ts, and sr09/session.ts for the same case).
+  return refuseNonFiniteValues(snap.results, [
+    {
+      parameterId: "incidentEnergyDensity",
+      value: p.incidentEnergyDensity,
+      admissible: SR11_DEFAULTS.incidentEnergyDensity,
+    },
+    { parameterId: "mirrorArea", value: p.mirrorArea, admissible: SR11_DEFAULTS.mirrorArea },
+  ]);
 }
 
 export const DEFAULT_PREPARED_EXAMPLE: PreparedSr11Example = Object.freeze({
