@@ -15,8 +15,8 @@
  * WHAT DOES NOT RUN, and says so in its result rather than passing:
  * - `four-complete-paper-texts`: no paper is complete yet (plan §17.7), so there is nothing to load
  *   under that name. `paper-pages-served-as-built` checks the paper pages that do exist.
- * - `accepted-wasm-result-per-capability`: no FrankenSim WASM artifact is bound
- *   (am-frankensim-repin-and-bind-jvhg).
+ * - `accepted-wasm-result-per-capability`: BM-01 binds FrankenSim's brownian_frames, but an
+ *   accepted result exists only when a browser runs the lab's worker, and no browser runs here.
  * - `deliberate-typed-refusal`: a lab's refusal needs a browser executing the page, and no browser
  *   runs here. The HTTP checks cannot see page errors or execution labels either.
  */
@@ -274,7 +274,7 @@ export async function runCandidateChecksAgainst(
   results.push(
     notRun(
       "accepted-wasm-result-per-capability",
-      "No FrankenSim WASM artifact is bound yet (am-frankensim-repin-and-bind-jvhg); every displayed number is a labelled host calculation.",
+      "FrankenSim's brownian_frames is bound for BM-01 (am-frankensim-repin-and-bind-jvhg), but an accepted result exists only when a browser runs the lab's worker, and these checks are HTTP only.",
     ),
   );
   results.push(
