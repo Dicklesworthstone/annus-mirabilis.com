@@ -1,11 +1,15 @@
 "use client";
 
 import { useId, useMemo, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import {
   LQ09_CAPTION,
   LQ09_DEFAULTS,
-  LQ09_MODEL,
   LQ09_NOT_MODELED,
+  LQ09_OUTPUTS,
   LQ09_PRESETS,
   type Lq09AbsorptionMode,
   type Lq09Parameters,
@@ -15,6 +19,7 @@ import {
   einsteinPrintedIonizationChecks,
   type PreparedLq09Example,
 } from "../../../experiments/lq09/session.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -114,6 +119,16 @@ export function IonizationLab({ example }: IonizationLabProps) {
   );
 
   const accepted = snapshot.accepted;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; no example, no earned label.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      snapshot,
+      LQ09_OUTPUTS,
+      example?.sourceDigest ?? "",
+      accepted !== undefined && accepted === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const currentParams: Lq09Parameters = useMemo(() => {
     return (accepted?.parameters ?? LQ09_DEFAULTS) as unknown as Lq09Parameters;
   }, [accepted]);
@@ -200,14 +215,20 @@ export function IonizationLab({ example }: IonizationLabProps) {
     <section
       className="laboratory lq09"
       data-instrument-id="lq-09"
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, snapshot, "ionizationCount")}
       {...(accepted ? identity(accepted) : {})}
     >
       <header className="lab-heading">
         <p className="eyebrow">Gas ionization by light</p>
         <h2>Gas ionization bounds and counting model</h2>
-        <span className="badge">{LQ09_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={snapshot}
+          modelNote={modelNoteFromView(snapshot, { notModeled: `${LQ09_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
 
       <div className="lab-columns">
         <div>
