@@ -32,7 +32,12 @@
     }
   ],
   "exampleTitle": "Seven particles in, five out",
-  "prerequisites": ["bridge-sum-average"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-sum-average",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "The contents change by the net crossing. A steady count does not mean the particles have stopped, only that as many leave as arrive.",
   "citations": []
 }

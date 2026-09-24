@@ -47,7 +47,12 @@
     }
   ],
   "exampleTitle": "What the dropped term costs",
-  "prerequisites": ["bridge-squaring-square-roots"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-squaring-square-roots",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "An expansion is a claim about size. Say which terms you keep, and why the ones you drop are smaller: here, because they carry higher powers of a small step.",
   "citations": []
 }

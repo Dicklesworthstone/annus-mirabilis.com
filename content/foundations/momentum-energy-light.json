@@ -56,7 +56,16 @@
     }
   ],
   "exampleTitle": "The push of a one-watt beam, absorbed and reflected",
-  "prerequisites": ["functions-graphs", "derivatives"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:functions-graphs",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:derivatives",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "Light's momentum is the push a beam gives when absorbed or reflected. It follows from Maxwell's electrodynamics, with no quantum hypothesis.",
   "citations": []
 }

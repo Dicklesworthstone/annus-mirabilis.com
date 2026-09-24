@@ -33,7 +33,12 @@
     }
   ],
   "exampleTitle": "A flat density across four micrometres",
-  "prerequisites": ["bridge-sum-average"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-sum-average",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "The height of the curve is a density, a probability per unit length. Only the area over an interval is a probability.",
   "citations": []
 }

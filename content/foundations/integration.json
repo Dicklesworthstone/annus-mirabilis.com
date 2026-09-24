@@ -55,7 +55,12 @@
     }
   ],
   "exampleTitle": "A rising density, added up in narrower strips",
-  "prerequisites": ["distributions"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:distributions",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "An integral is a total of height times width over a range, in the units of both. The widths and any endpoint term are part of the calculation, not decoration on the integral sign.",
   "citations": []
 }

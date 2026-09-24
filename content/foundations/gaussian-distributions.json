@@ -74,7 +74,16 @@
     }
   ],
   "exampleTitle": "Checking the curve: total probability one, and mean square 2Dt",
-  "prerequisites": ["integration", "mean-variance-rms"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:integration",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:mean-variance-rms",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "The bell curve says where many particles end up. Any one particle can end anywhere, and about one in three ends more than one width from its start.",
   "citations": []
 }

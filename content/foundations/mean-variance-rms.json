@@ -47,7 +47,16 @@
     }
   ],
   "exampleTitle": "Four displacements, four different averages",
-  "prerequisites": ["bridge-negative-numbers-direction", "bridge-squaring-square-roots"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-negative-numbers-direction",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-squaring-square-roots",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "Say which average you mean. Squaring then averaging, averaging then squaring, and averaging the distances give three different numbers.",
   "citations": []
 }

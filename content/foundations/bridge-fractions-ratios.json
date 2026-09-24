@@ -27,7 +27,12 @@
     }
   ],
   "exampleTitle": "One in four, two in eight",
-  "prerequisites": ["bridge-sum-average"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-sum-average",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "A ratio of two quantities in the same unit is a plain number. A ratio of different units, such as micrometres per second, is a new quantity and keeps its unit.",
   "citations": []
 }

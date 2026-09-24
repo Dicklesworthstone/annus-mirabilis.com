@@ -50,7 +50,16 @@
     }
   ],
   "exampleTitle": "A hundred steps, then four hundred",
-  "prerequisites": ["probability-independence", "mean-variance-rms"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:probability-independence",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:mean-variance-rms",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "The coin walk is a picture, not a claim that molecules push a particle in fixed jumps. The Brownian paper needs only that the particle's moves in successive intervals are independent of one another.",
   "citations": []
 }

@@ -59,7 +59,16 @@
     }
   ],
   "exampleTitle": "An electron across one volt",
-  "prerequisites": ["functions-graphs", "derivatives"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:functions-graphs",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:derivatives",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "Charge is the property that makes electric forces. Fields carry the force between separated charges, without action at a distance.",
   "citations": []
 }

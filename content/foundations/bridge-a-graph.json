@@ -32,7 +32,12 @@
     }
   ],
   "exampleTitle": "Four particles that average to zero",
-  "prerequisites": ["bridge-negative-numbers-direction"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-negative-numbers-direction",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "Before reading a curve, read its two labels and their units, and ask whether its height is a count, a density or a running total.",
   "citations": []
 }

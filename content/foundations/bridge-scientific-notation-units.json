@@ -27,7 +27,12 @@
     }
   ],
   "exampleTitle": "Squaring six micrometres",
-  "prerequisites": ["bridge-fractions-ratios"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-fractions-ratios",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "A measurement is a number and a unit together. Squaring it squares both: (6 × 10⁻⁶ m)² is 3.6 × 10⁻¹¹ m².",
   "citations": []
 }

@@ -32,7 +32,12 @@
     }
   ],
   "exampleTitle": "Doubling every displacement, and what the RMS does",
-  "prerequisites": ["bridge-sum-average"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-sum-average",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "Four times the mean square is twice the RMS. That is why, in the Brownian paper, waiting four times as long doubles the typical distance.",
   "citations": []
 }

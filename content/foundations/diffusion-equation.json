@@ -47,7 +47,16 @@
     }
   ],
   "exampleTitle": "Doubling the diffusion coefficient, then quadrupling the time",
-  "prerequisites": ["flux-continuity", "bridge-squaring-square-roots"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:flux-continuity",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-squaring-square-roots",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "D is measured in square metres per second. Before using it, say where the tube ends and what the model assumes, since both change the answer.",
   "citations": []
 }

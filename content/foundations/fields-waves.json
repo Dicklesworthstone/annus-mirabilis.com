@@ -57,7 +57,16 @@
     }
   ],
   "exampleTitle": "A 600-terahertz wave and a one-watt lamp",
-  "prerequisites": ["functions-graphs", "derivatives"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:functions-graphs",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:derivatives",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "A field is a value assigned to every place and time. A light detector records the energy delivered averaged over many cycles, not the field at one instant.",
   "citations": []
 }

@@ -54,7 +54,16 @@
     }
   ],
   "exampleTitle": "What changes when the second step copies the first",
-  "prerequisites": ["bridge-sum-average", "bridge-negative-numbers-direction"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-sum-average",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-negative-numbers-direction",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "Before dropping a mixed term, ask two things: does learning one step change the chances for the next, and does each step average zero?",
   "citations": []
 }

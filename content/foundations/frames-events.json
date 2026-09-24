@@ -52,7 +52,12 @@
     }
   ],
   "exampleTitle": "Setting a distant clock with one light signal",
-  "prerequisites": ["functions-graphs"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:functions-graphs",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "An event is something that happens at one place and one time. Whether two distant events are simultaneous depends on a rule for setting clocks, which §1 of the relativity paper supplies.",
   "citations": []
 }
