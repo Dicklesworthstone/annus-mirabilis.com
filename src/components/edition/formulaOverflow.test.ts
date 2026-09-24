@@ -57,6 +57,53 @@ describe("formulaOverflow (am-bc6s)", () => {
     }
   });
 
+  test("a named scroll region that is a span or div gets a role that takes the name", async () => {
+    // axe aria-prohibited-attr: aria-label on a span or div with no role. On live
+    // /papers/mass-energy/view/german/ seven overflowing source equations (spans) were named
+    // this way and flagged serious; light-quanta's German face had 46.
+    await installDom();
+    try {
+      const make = (tag: string, attrs: Record<string, string> = {}) => {
+        const el = document.createElement(tag);
+        el.style.overflowX = "auto";
+        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+        Object.defineProperty(el, "scrollWidth", { value: 738, configurable: true });
+        Object.defineProperty(el, "clientWidth", { value: 288, configurable: true });
+        document.body.appendChild(el);
+        return el;
+      };
+      const span = make("span", { "data-latex": "E_0 = E_1 + L" });
+      const section = make("section", { "data-latex": "x' = x - vt" });
+      const figure = make("div", { role: "figure", "data-latex": "a = b" });
+      // Labelled by an earlier pass, its role since stripped (hydration removes what the script set).
+      const stripped = make("span", {
+        "data-scroll-focus": "",
+        "aria-label": "Scrollable mathematical formula: y",
+      });
+
+      initFormulaOverflow();
+
+      expect(span.getAttribute("tabindex")).toBe("0");
+      expect(span.getAttribute("aria-label")).toBe(
+        "Scrollable mathematical formula: E_0 = E_1 + L",
+      );
+      expect(span.getAttribute("role")).toBe("group");
+      // A section takes a name on its own; it gets no role from the script.
+      expect(section.getAttribute("aria-label")).toBe(
+        "Scrollable mathematical formula: x' = x - vt",
+      );
+      expect(section.hasAttribute("role")).toBe(false);
+      // An author's own role is kept.
+      expect(figure.getAttribute("role")).toBe("figure");
+      // A role lost to hydration comes back with the tab stop.
+      expect(stripped.getAttribute("role")).toBe("group");
+
+      for (const el of [span, section, figure, stripped]) el.remove();
+    } finally {
+      await uninstallDom();
+    }
+  });
+
   test("initFormulaOverflow does not throw in any environment", () => {
     expect(() => initFormulaOverflow()).not.toThrow();
   });
