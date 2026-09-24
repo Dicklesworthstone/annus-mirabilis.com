@@ -78,7 +78,7 @@ export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
               This expression is for a one-direction comparison. Comparing opposite flow directions
               doubles it. The admitted range keeps both path speeds positive. The assumed index is
               not a condition-specific calibration of real water; dispersion, detailed apparatus
-              geometry, losses and uncertainty are excluded.
+              geometry, losses and uncertainty are not modeled.
             </p>
             <p>
               Set the flow to zero, reverse its sign, and switch the reversal protocol. Change n to
@@ -91,9 +91,9 @@ export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
           <>
             <p>
               The diagnostic is the scalar forward-travelling wave cos(k(x − ct)) and the vacuum
-              operator ∂²/∂x² − c⁻²∂²/∂t². Its residual is not a six-component derivation of the
-              Maxwell–Hertz field equations. The largest absolute residual is the analytic amplitude
-              over phase, not a sampled numerical maximum.
+              operator ∂²/∂x² − c⁻²∂²/∂t². The six-component Maxwell–Hertz field equations are not
+              modeled: this residual belongs to the scalar wave alone. The largest absolute residual
+              is the analytic amplitude over phase, not a sampled numerical maximum.
             </p>
             <Formula
               latex={String.raw`x'=x-vt,\quad t'=t\quad\Longrightarrow\quad (1-\beta^2)\partial_{x'}^2+\frac{2v}{c^2}\partial_{x'}\partial_{t'}-\frac{1}{c^2}\partial_{t'}^2`}
