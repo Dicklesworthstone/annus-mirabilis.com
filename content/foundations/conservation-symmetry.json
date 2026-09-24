@@ -22,7 +22,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "Conservation works the same way. An energy is not the same number in every frame, but in each frame the energy before equals the energy after. The mass-energy paper uses exactly this. A body at rest sends out two equal pulses of light, L in all, in opposite directions. Seen from a frame moving along the pulses, the pulses carry different energies, and their total is γL rather than L. Each frame keeps its own balance, and comparing the two balances is the whole argument."
+      "text": "Conservation works the same way. An energy is not the same number in every frame, but in each frame the energy before equals the energy after. The mass-energy paper uses exactly this. A body at rest sends out two equal pulses of light, L in all, in opposite directions. Seen from a frame moving along the pulses, the pulses carry different energies, and their total is γL rather than L, where γ = 1/√(1 − v²/c²) is the factor the relativity paper prints as β. Each frame keeps its own balance, and comparing the two balances is the whole argument."
     },
     {
       "kind": "paragraph",

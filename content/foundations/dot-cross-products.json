@@ -46,7 +46,7 @@
         "Projection: \\(\\mathbf{E} = (3, 4, 0)\\) and the boost direction \\((1, 0, 0)\\) give \\(\\mathbf{E}\\cdot(1, 0, 0) = 3\\), the part along the boost. The field's length is \\(\\sqrt{3^2 + 4^2} = 5\\).",
         "Direction: with v along +x and B along +z, \\((1, 0, 0)\\times(0, 0, 1) = (0, -1, 0)\\), so a positive charge is pushed along −y.",
         "Invariance, measuring fields so that c = 1: take \\(\\mathbf{E} = (0, 0.6, 0.8)\\) and \\(\\mathbf{B} = (0, 0, 1)\\), so \\(\\mathbf{E}\\cdot\\mathbf{B} = 0.8\\).",
-        "Seen from a frame moving at 0.6 along x, where γ = 1.25, the §6 rules give \\(\\mathbf{E}' = (0, 0, 1)\\) and \\(\\mathbf{B}' = (0, 0.6, 0.8)\\). Both fields changed, and \\(\\mathbf{E}'\\cdot\\mathbf{B}' = 1 \\times 0.8 = 0.8\\) did not."
+        "Seen from a frame moving at 0.6 along x, where γ = 1.25 (the factor 1/√(1 − v²/c²), which the relativity paper prints as β), the §6 rules give \\(\\mathbf{E}' = (0, 0, 1)\\) and \\(\\mathbf{B}' = (0, 0.6, 0.8)\\). Both fields changed, and \\(\\mathbf{E}'\\cdot\\mathbf{B}' = 1 \\times 0.8 = 0.8\\) did not."
       ]
     }
   ],
