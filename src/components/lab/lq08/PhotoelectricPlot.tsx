@@ -37,6 +37,8 @@ export function EnergyLadderPlot({
   const yWork = scaleY(-workFunction);
   const yPhoton = scaleY(-workFunction + quantumEnergyEv);
   const col = visibleColor(frequency);
+  // The band's colour, set per theme in labShell.css so the photon stands out on either paper.
+  const photonColour = `var(--spectral-${col.band})`;
 
   return (
     <div
@@ -140,7 +142,7 @@ export function EnergyLadderPlot({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 0 L 10 5 L 0 10 z" fill={col.hexColor} />
+            <path d="M 0 0 L 10 5 L 0 10 z" fill={photonColour} />
           </marker>
         </defs>
 
@@ -149,7 +151,7 @@ export function EnergyLadderPlot({
           y1={yWork}
           x2={width / 2 - 20}
           y2={yPhoton}
-          stroke={col.hexColor}
+          stroke={photonColour}
           strokeWidth="3"
           markerEnd="url(#photon-arrow)"
         />
@@ -160,7 +162,7 @@ export function EnergyLadderPlot({
           fontSize="11"
           fontWeight="600"
           fontFamily="var(--font-mono, monospace)"
-          fill={col.hexColor}
+          fill={photonColour}
         >
           +h&nu; = {quantumEnergyEv.toFixed(2)} eV
         </text>

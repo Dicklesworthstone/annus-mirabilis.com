@@ -554,3 +554,36 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[
 .lab-route .page-intro h1 > span {
   display: block;
 }
+
+/* The photon's colour in LQ-08 and LQ-09, by spectral band (visibleColor in
+   src/physics/reference/photoelectric.ts names the band). Each band keeps the hue the reference
+   gives it; where that hex fell under the 3:1 a mark needs on a theme's paper or wash, the value
+   here is the same hue at a lightness that clears 3.3:1 on both. On light paper the reference's
+   yellow stood at 1.35:1, orange at 2.29:1 and green at 2.95:1 on the wash; on the dark theme's
+   paper its ultraviolet purple stood at 1.97:1. The other four bands use the reference's value
+   unchanged in both themes. */
+:is(.lab-route, .embedded-laboratory) {
+  --spectral-ultraviolet: #7b1fa2;
+  --spectral-violet: #5c6bc0;
+  --spectral-blue: #1e88e5;
+  --spectral-green: #3e9542;
+  --spectral-yellow: #9d8002;
+  --spectral-orange: #c36d00;
+  --spectral-red: #e53935;
+  --spectral-infrared: #8d6e63;
+}
+:root[data-theme="kramgasse-night"] :is(.lab-route, .embedded-laboratory) {
+  --spectral-ultraviolet: #af46dc;
+  --spectral-green: #43a047;
+  --spectral-yellow: #fdd835;
+  --spectral-orange: #fb8c00;
+}
+/* Without JavaScript the pre-paint script never sets data-theme; this repeats the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) :is(.lab-route, .embedded-laboratory) {
+    --spectral-ultraviolet: #af46dc;
+    --spectral-green: #43a047;
+    --spectral-yellow: #fdd835;
+    --spectral-orange: #fb8c00;
+  }
+}

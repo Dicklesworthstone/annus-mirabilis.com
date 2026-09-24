@@ -43,6 +43,8 @@ export function IonizationThresholdLadderPlot({
   const yIonization = scaleY(ionizationEnergyEv);
   const yPhoton = scaleY(quantumEnergyEv);
   const col = visibleColor(frequency);
+  // The band's colour, set per theme in labShell.css so the photon stands out on either paper.
+  const photonColour = `var(--spectral-${col.band})`;
 
   return (
     <div data-view-id="lq-09-energy-ladder">
@@ -101,7 +103,7 @@ export function IonizationThresholdLadderPlot({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1 L 10 5 L 0 9 z" fill={col.hexColor} />
+            <path d="M 0 1 L 10 5 L 0 9 z" fill={photonColour} />
           </marker>
           <marker
             id="lq09-excess-arrow"
@@ -163,7 +165,7 @@ export function IonizationThresholdLadderPlot({
           y1={yGround}
           x2={padding.left + 80}
           y2={yPhoton}
-          stroke={col.hexColor}
+          stroke={photonColour}
           strokeWidth="3"
           markerEnd="url(#lq09-photon-arrow)"
         />
@@ -172,7 +174,7 @@ export function IonizationThresholdLadderPlot({
           y={(yGround + yPhoton) / 2}
           fontSize="11"
           fontWeight="600"
-          fill={col.hexColor}
+          fill={photonColour}
         >
           h&nu; = {quantumEnergyEv.toFixed(2)} eV
         </text>
