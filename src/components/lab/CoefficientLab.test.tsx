@@ -17,8 +17,20 @@ describe("CoefficientLab: static rendering (no JavaScript)", () => {
     expect(html).toContain('data-instrument-id="me-02"');
   });
 
-  test("declares a host execution label", () => {
-    expect(html).toContain('data-execution-label="host"');
+  // The label is derived (am-inst-execution-labels-5ywv); until bc034703 the root hard-coded "host".
+  // The page's no-JavaScript render is the example computed at build time, with a real source
+  // digest, so it earns the static label. This fixture's digest is the placeholder
+  // "source:sha256:default", which earns no calculation label at all.
+  test("the page's build-time render earns the static label, never a hard-coded host label", async () => {
+    const page = renderToStaticMarkup(await CoefficientPage());
+    expect(page).toContain('data-execution-label="static"');
+    expect(page).toContain("Static worked example");
+    expect(page).not.toContain('data-execution-label="host"');
+  });
+
+  test("an example without a real source digest earns neither the static nor the host label", () => {
+    expect(html).not.toContain('data-execution-label="static"');
+    expect(html).not.toContain('data-execution-label="host"');
   });
 
   test("includes a noscript notice so a no-JavaScript reader is never shown an empty box", () => {
