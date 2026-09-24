@@ -1390,10 +1390,6 @@ export function assertEditionContract(
           if (target !== TRANSLATION_UNIT_PLACEHOLDER && target !== "") declaredEnglishUnits += 1;
         }
       }
-      // The English face's loader (src/reader/faces/bilingualLoader.ts) and the content
-      // compiler read translation units from content/translation-units/<slug>/. Until
-      // 2026-09-24 this read content/translations/, which nothing writes, so it would have
-      // told a paper with translation units that it had no English face.
       const translationDir = join(root, `content/translation-units/${slug}`);
       if (!existsSync(translationDir)) {
         displayUnavailable =
