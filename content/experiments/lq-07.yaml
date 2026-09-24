@@ -407,12 +407,13 @@ predictMode:
     - promptId: lq-07-predict-higher-frequency
       supportedCandidateId: lq-07-predict-higher-frequency-never
       controlId: nu2
-      question: "Can fluorescent emission occur at higher frequency than the exciting light (nu2 > nu1) under single-quantum absorption?"
+      question: "One quantum of the exciting light is absorbed at a time. Can the emitted light have a higher frequency than the exciting light (ν₂ > ν₁)?"
+      explanation: "In each elementary process one quantum of energy hν₁ is absorbed. Energy is conserved, hν₁ = hν₂ + E_{other} with E_{other} ≥ 0, so the emitted quantum hν₂ cannot exceed hν₁, and ν₂ ≤ ν₁. A brighter beam delivers more quanta each second, not more energy in each one."
       candidates:
         - id: lq-07-predict-higher-frequency-never
           label: "Never"
           description: "Each emitted quantum cannot exceed the energy of one absorbed quantum (h*nu2 <= h*nu1)."
-          separatingAssumption: "Single-quantum energy conservation: h*nu1 = h*nu2 + E_other with E_other >= 0."
+          separatingAssumption: "Takes one absorbed quantum to supply the whole energy of one emitted quantum, hν₁ = hν₂ + E_{other} with E_{other} ≥ 0, so ν₂ ≤ ν₁. This is Stokes's rule as §7 obtains it."
         - id: lq-07-predict-higher-frequency-intensity
           label: "With intense light"
           description: "Higher illumination power supplies more energy per second to pump higher-energy emission."
@@ -424,17 +425,18 @@ predictMode:
     - promptId: lq-07-predict-weak-light
       supportedCandidateId: lq-07-predict-weak-light-linear
       controlId: absorbedPowerMicrowatts
-      question: "How does the fluorescence emission rate behave as the incident light becomes extremely weak?"
+      question: "As the exciting light becomes very weak, how does the rate of emitted light change?"
+      explanation: "Each absorbed quantum acts on its own, with probability Y of producing an emitted quantum, so the emitted rate is proportional to the absorbed power however weak the light, with no threshold. A wave picture might suggest a threshold, or a delay while energy gathers; the light-quantum hypothesis gives neither."
       candidates:
         - id: lq-07-predict-weak-light-linear
           label: "Strictly proportional with zero threshold"
           description: "Each absorbed quantum acts independently with probability Y, yielding an emission rate exactly proportional to absorbed power."
-          separatingAssumption: "Light-quantum independence: individual photon absorption events trigger emission directly."
+          separatingAssumption: "Takes each absorbed quantum to act on its own, with probability Y of producing an emitted one, so the emitted rate is Y times the absorbed rate at any power."
         - id: lq-07-predict-weak-light-threshold
           label: "Stops below a threshold"
           description: "Weak illumination fails to accumulate enough wave energy to excite the atom, so emission ceases entirely."
           separatingAssumption: "This assumes a molecule must gather a minimum of continuous energy before it can emit, as a wave picture might suggest. Each absorbed quantum acts on its own, so no threshold appears."
         - id: lq-07-predict-weak-light-quadratic
           label: "Drops quadratically"
-          description: "Weak illumination reduces the probability of paired photon interactions, dropping emission faster than linear."
+          description: "Weak light makes paired absorptions rarer, so emission falls faster than in proportion."
           separatingAssumption: "This assumes each emission needs two quanta absorbed together, so the rate would fall as the square of the absorbed power. In the paper's hypothesis one quantum is enough."

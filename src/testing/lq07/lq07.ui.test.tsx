@@ -74,10 +74,33 @@ describe("LQ-07 UI components and route", () => {
     expect(html).not.toContain('data-execution-label="static"');
     expect(html).toContain("<noscript>");
     expect(html).toContain("JavaScript disabled");
-    // Both predictions sit in one closed disclosure under the drawing, and the presets are the
-    // family's "Try" group (lq-07 instrument-first).
-    expect(html).toContain("<summary>Predict first</summary>");
-    expect(html).toContain("<legend>Try</legend>");
+    // The drawing comes first, then both predictions, then the family's "Try" presets (dispatch
+    // 156, option c). The absorbed and emitted bars stay in view; what the prompts ask about waits.
+    const drawing = html.indexOf("Fluorescence energy budget: incident");
+    const panel = html.indexOf('data-predict-gate="awaiting"');
+    const presets = html.indexOf("<legend>Try</legend>");
+    expect(drawing).toBeGreaterThan(-1);
+    expect(drawing < panel && panel < presets).toBe(true);
+    expect(html).toContain("absorbed hν₁");
+    expect(html).toContain("emitted hν₂");
+    // Server markup asks, so each part that answers waits: the budget badge, the ν₂,max line, the
+    // heat or deficit bar, the verdict, the rates, the status line and the ledger.
+    expect(html).toMatch(/<span data-predict-response="awaiting"[^>]*>Allowed by the budget/);
+    expect(html).toMatch(
+      /<g data-predict-response="awaiting"><line[^>]*><\/line><text[^>]*>ν₂,max/,
+    );
+    expect(html).toMatch(
+      /<g data-predict-response="awaiting"><rect[^>]*><\/rect><text[^>]*>\+[\d.]+ eV/,
+    );
+    expect(html).toMatch(/<div data-predict-response="awaiting"[^>]*><strong>Verdict:<\/strong>/);
+    expect(html).toMatch(
+      /<div data-predict-response="awaiting"[^>]*><div[^>]*><span[^>]*>Rates at this absorbed power/,
+    );
+    expect(html).toMatch(/<p[^>]*data-predict-response="awaiting"[^>]*>/);
+    expect(html).toMatch(
+      /<section data-predict-response="awaiting"[^>]*><h3[^>]*>Calculated energy ledger and transition quantities/,
+    );
+    expect(html).not.toContain('data-predict-response="shown"');
     expect(containsHeading(html, "Calculated energy ledger and transition quantities")).toBe(true);
     expect(html).toContain("Budget verdict");
     expect(html).toContain("Maximum allowed frequency");

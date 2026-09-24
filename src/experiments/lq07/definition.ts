@@ -155,7 +155,7 @@ export const LQ07_PRESETS: Readonly<
     }),
   }),
   "lq-07-anti-stokes-disallowed": Object.freeze({
-    label: "Anti-Stokes disallowed (900 THz proposal)",
+    label: "Emission above the exciting light (ν₂ = 900 THz)",
     description:
       "Proposing ν₂ = 900 THz (3.722 eV) results in a 0.207 eV deficit under standard single-quantum assumptions.",
     parameters: Object.freeze({

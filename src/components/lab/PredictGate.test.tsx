@@ -55,6 +55,7 @@ import { DriftDiffusionLab } from "./DriftDiffusionLab.tsx";
 import { InferenceLab } from "./InferenceLab.tsx";
 import { IndependentConfigurationsLab } from "./lq05/IndependentConfigurationsLab.tsx";
 import { CoefficientMatchLab } from "./lq06/CoefficientMatchLab.tsx";
+import { FluorescenceLab } from "./lq07/FluorescenceLab.tsx";
 import { IonizationLab } from "./lq09/IonizationLab.tsx";
 import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
 import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
@@ -148,6 +149,13 @@ const LABS: readonly GatedLab[] = [
     result: "Values at these settings",
     sharesTape: true,
     statusLine: false,
+  },
+  {
+    lab: "lq-07",
+    element: () => createElement(FluorescenceLab, {}),
+    result: "Calculated energy ledger and transition quantities",
+    sharesTape: true,
+    statusLine: true,
   },
   {
     lab: "lq-09",

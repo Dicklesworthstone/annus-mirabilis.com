@@ -7,6 +7,12 @@ export interface FluorescencePlotProps {
   parameters: Lq07Parameters;
   evaluation: Lq07Evaluation;
   clipId?: string;
+  /**
+   * A predict gate's attribute (PredictGate.tsx). The absorbed and emitted bars, the axis and the
+   * band legend stay in view. The verdict, the ν₂,max line, the heat or deficit bar and the rates
+   * answer the prompts, so they wait.
+   */
+  response?: Readonly<{ "data-predict-response": "shown" | "awaiting" }>;
 }
 
 /**
@@ -36,6 +42,7 @@ export function FluorescencePlot({
   parameters,
   evaluation,
   clipId = "lq07-plot-clip",
+  response,
 }: FluorescencePlotProps) {
   const { nu1, nu2, regime, multiQuantumK } = parameters;
   const { budget, rates } = evaluation;
@@ -107,6 +114,7 @@ export function FluorescencePlot({
               Elementary quantum energy ledger
             </span>
             <span
+              {...response}
               style={{
                 fontSize: "var(--type-fine)",
                 padding: "0.125rem 0.5rem",
@@ -202,18 +210,20 @@ export function FluorescencePlot({
           </text>
 
           {/* The largest emitted quantum the rule allows */}
-          <line
-            x1="85"
-            y1={groundY - hMaxPx}
-            x2={svgWidth - 10}
-            y2={groundY - hMaxPx}
-            stroke="var(--accent)"
-            strokeWidth="1.5"
-            strokeDasharray="4 3"
-          />
-          <text x={svgWidth - 10} y={groundY - hMaxPx - 5} textAnchor="end" fill="var(--accent)">
-            ν₂,max
-          </text>
+          <g {...response}>
+            <line
+              x1="85"
+              y1={groundY - hMaxPx}
+              x2={svgWidth - 10}
+              y2={groundY - hMaxPx}
+              stroke="var(--accent)"
+              strokeWidth="1.5"
+              strokeDasharray="4 3"
+            />
+            <text x={svgWidth - 10} y={groundY - hMaxPx - 5} textAnchor="end" fill="var(--accent)">
+              ν₂,max
+            </text>
+          </g>
 
           {[
             {
@@ -260,7 +270,7 @@ export function FluorescencePlot({
           ))}
 
           {/* Other channels (heat), or the energy deficit */}
-          <g>
+          <g {...response}>
             {budget.allowed ? (
               <rect
                 x={240 - barWidth / 2}
@@ -301,15 +311,18 @@ export function FluorescencePlot({
         <p className="fine" style={{ margin: "0.6rem 0 0" }}>
           Absorbed: {numberText(nu1)} THz, {band1.wavelengthNm} nm ({plainBand(band1.name)}).
           Emitted: {numberText(nu2)} THz, {band2.wavelengthNm} nm ({plainBand(band2.name)}).{" "}
-          {budget.allowed
-            ? "Heat: the rest of the absorbed energy, dissipated in the medium."
-            : "Energy deficit: the emitted quantum would carry more energy than the absorbed quanta supply."}{" "}
-          The dashed line is the largest emitted quantum allowed, ν₂,max ={" "}
-          {(budget.nu2MaxHz / 1e12).toFixed(1)} THz.
+          <span {...response}>
+            {budget.allowed
+              ? "Heat: the rest of the absorbed energy, dissipated in the medium."
+              : "Energy deficit: the emitted quantum would carry more energy than the absorbed quanta supply."}{" "}
+            The dashed line is the largest emitted quantum allowed, ν₂,max ={" "}
+            {(budget.nu2MaxHz / 1e12).toFixed(1)} THz.
+          </span>
         </p>
 
         {/* Reason / Verdict Callout */}
         <div
+          {...response}
           style={{
             marginTop: "1rem",
             padding: "0.75rem",
@@ -480,12 +493,13 @@ export function FluorescencePlot({
 
       {/* 3. Rates and Intensity Linearity Readout */}
       {(rates.status === "not-applicable" || rates.status === "outside-domain") && rates.reason && (
-        <p className="fine" data-rates-status={rates.status}>
+        <p className="fine" data-rates-status={rates.status} {...response}>
           No emission rates: {rates.reason}
         </p>
       )}
       {rates.status === "value" && (
         <div
+          {...response}
           style={{
             border: "1px solid var(--line)",
             borderRadius: "0.75rem",
@@ -507,7 +521,7 @@ export function FluorescencePlot({
             }}
           >
             <span style={{ fontWeight: 600, color: "var(--ink)" }}>
-              Weak-illumination photon rates (zero threshold)
+              Rates at this absorbed power
             </span>
             <span
               style={{
