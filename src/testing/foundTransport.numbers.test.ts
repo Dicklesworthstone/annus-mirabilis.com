@@ -124,3 +124,33 @@ describe("thermal energy of a nitrogen molecule and of a grain at 293 K", () => 
     expect(constantValue(modern, "boltzmannConstant").value).toBe(1.380649e-23);
   });
 });
+
+describe("work, entropy counting and entropy with temperature", () => {
+  test("½ × 3 × 2² = 6 J and ½ × 2 × 2² = 4 J, differing by 2 J", () => {
+    const t = text("work-energy");
+    expect(roundsTo(0.5 * 3 * 2 ** 2, 6, 1)).toBe(true);
+    expect(roundsTo(0.5 * 2 * 2 ** 2, 4, 1)).toBe(true);
+    expect(t).toContain("½ × 3 × 2² = 6 joules");
+    expect(t).toContain("½ × 2 × 2² = 4 joules");
+    expect(t).toContain("differ by 2 joules");
+  });
+
+  test("N ln ½ is about −4.2 × 10²³, and R ln ½ = 8.314 × (−0.693) is about −5.76 J/K", () => {
+    const t = text("entropy-multiplicity");
+    expect(roundsTo(6.02e23 * Math.log(0.5), -4.2e23, 2)).toBe(true);
+    expect(roundsTo(Math.log(0.5), -0.693, 3)).toBe(true);
+    expect(roundsTo(8.314 * Math.log(0.5), -5.76, 3)).toBe(true);
+    // The printed rounding of ln ½ gives the same figure, so the line can be redone as printed.
+    expect(roundsTo(8.314 * -0.693, -5.76, 3)).toBe(true);
+    expect(t).toContain("about −4.2 × 10²³");
+    expect(t).toContain("8.314 × (−0.693), about −5.76 joules per kelvin");
+  });
+
+  test("3 J into 300 K raises the entropy by 0.01 J/K, and into 150 K by twice that", () => {
+    const t = text("entropy-temperature");
+    expect(roundsTo(3 / 300, 0.01, 1)).toBe(true);
+    expect(roundsTo(3 / 150, 0.02, 1)).toBe(true);
+    expect(t).toContain("3 J ÷ 300 K = 0.01 joule per kelvin");
+    expect(t).toContain("0.02 joule per kelvin, twice as much");
+  });
+});
