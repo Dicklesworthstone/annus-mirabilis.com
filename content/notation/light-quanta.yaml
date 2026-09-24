@@ -1,10 +1,12 @@
 # Scoped Notation Concordance for Light Quanta (ap-17-132)
 # Specification: AGENTS.md, am-not-concordance-model-uag, am-not-entries-light-quanta-9cb.
-# Verification status: all entries are marked pending per honesty constraint
-# (no pinned facsimile scan is currently committed in the repository).
-# Glyphs and scopes follow AGENTS.md, the quantity registry, and the bead's
-# required list. They are not compared to page pixels. Absence is recorded;
-# invented facsimile readings are not admitted.
+# Verification status: on 2026-09-24 an agent (agent:ConcordanceCheck-light-quanta)
+# read every glyph by eye from the plate images of printed pages 132 to 148
+# (public/figures/plates/pages/ap-17-132/), never the text layer and never OCR.
+# Each entry records that check, and the page and paragraph of its first printed
+# use where it has one; four editorial entries are marked as not printed.
+# No human has reviewed them. Scopes and bindings follow AGENTS.md, the quantity
+# registry and the bead's required list; they were not re-derived from the plates.
 # No parallel markdown ledger: pending/verified status lives on each entry.
 
 paper: light-quanta
@@ -31,7 +33,7 @@ entries:
     notes: "The value R = 8.31 · 10⁷ erg/(mol·K) is the one this edition uses for Einstein's printed constants: an input, not a correction of anything printed."
     sources:
       facsimilePage: 134
-      anchor: lq-s2-p1
+      anchor: lq-s1-p3
     verification:
       printed: true
       checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. Italic R, named 'die absolute Gaskonstante', first printed on page 134 (§1) beside the first display of R over N. An agent check, not a human review; human review pending."
@@ -58,14 +60,14 @@ entries:
       kind: cross-paper
       collidesWith: ["magneticFieldComponent"]
       collidesWithModern: ["magneticFieldComponent"]
-      firstUseAnchor: lq-s2-p1
+      firstUseAnchor: lq-s1-p3
       firstUseBySection:
         - sectionId: lq-s2
-          anchor: lq-s2-p1
+          anchor: lq-s2-p2
     notes: "Avogadro's number here and in paper 2; a magnetic-field component in paper 3. The printed 6.17 · 10²³ is kept as printed, as one of Einstein's constants, not corrected."
     sources:
       facsimilePage: 134
-      anchor: lq-s2-p1
+      anchor: lq-s1-p3
     verification:
       printed: true
       checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. Italic N, first printed on page 134 (§1) as 'die Anzahl der wirklichen Moleküle in einem Grammäquivalent'; its value 6,17 · 10²³ is printed in §2 on page 137. An agent check, not a human review; human review pending."
@@ -100,19 +102,19 @@ entries:
       kind: within-paper
       collidesWith: ["lq.C.universalEntropyConstant"]
       collidesWithModern: ["k_B"]
-      firstUseAnchor: lq-s1-p1
+      firstUseAnchor: lq-s1-p3
       firstUseBySection:
         - sectionId: lq-s1
-          anchor: lq-s1-p1
+          anchor: lq-s1-p3
         - sectionId: lq-s5
-          anchor: lq-s5-p1
+          anchor: lq-s5-p6
     notes: "Modern notation writes the ratio R/N as Boltzmann's constant, a symbol the paper never prints. The C of §5 is identified with R/N later in the argument; until then the two are kept apart."
     sources:
-      facsimilePage: 133
-      anchor: lq-s1-p1
+      facsimilePage: 134
+      anchor: lq-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 133 carries no mathematics. The group is first printed on page 134 (§1) as R over N in a stacked fraction multiplying T; the inline form R/N is first printed on page 141. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 133 carries no mathematics. The group is first printed on page 134 (§1) as R over N in a stacked fraction multiplying T; the inline form R/N is first printed on page 141. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -139,13 +141,13 @@ entries:
             kind: term
             terms: ["avogadroConstant"]
         modernGlyph: "h"
-    notes: "The paper never writes h. Modern notation writes the whole group Rβ/N as Planck's constant h."
+    notes: "The paper never writes h. It prints this group only with ν attached, as Rβν/N (first on page 143) and as (R/N)βν. Modern notation writes the whole group Rβ/N as Planck's constant h."
     sources:
-      facsimilePage: 134
-      anchor: lq-s2-p1
+      facsimilePage: 143
+      anchor: lq-s6-p6
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 143 (public/figures/plates/pages/ap-17-132/143-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 134 does not carry this group. It is printed only with ν attached: first as Rβν/N on page 143 (§6, 'Energiequanten von der Größe Rβν/N'), then as (R/N)βν on pages 144 and 145 and as R over N times βν on page 146. The string Rβ/N without ν is not printed. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 143 (public/figures/plates/pages/ap-17-132/143-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry this group. It is printed only with ν attached: first as Rβν/N on page 143 (§6, 'Energiequanten von der Größe Rβν/N'), then as (R/N)βν on pages 144 and 145 and as R over N times βν on page 146. The string Rβ/N without ν is not printed. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -177,23 +179,23 @@ entries:
       kind: cross-toggle
       collidesWith: ["lorentzFactor", "speedRatio"]
       collidesWithModern: ["\\gamma", "speedRatio"]
-      firstUseAnchor: lq-s2-p1
+      firstUseAnchor: lq-s2-p2
       firstUseBySection:
         - sectionId: lq-s2
-          anchor: lq-s2-p1
+          anchor: lq-s2-p2
         - sectionId: lq-s6
           anchor: lq-s6-p1
         - sectionId: lq-s8
-          anchor: lq-s8-p1
+          anchor: lq-s8-p2
         - sectionId: lq-s9
           anchor: lq-s9-p1
     notes: "The third meaning of β. In paper 3 it is the factor a modern reader writes γ. It is not v/c: read as v/c, every later formula looks plausible and is wrong. Modern notation replaces the whole expression, not just the letter."
     sources:
-      facsimilePage: 134
-      anchor: lq-s2-p1
+      facsimilePage: 136
+      anchor: lq-s2-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 134 does not carry β. β is first printed on page 136 (§2), in the exponent of Planck's formula and as β = 4,866 · 10⁻¹¹. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry β. β is first printed on page 136 (§2), in the exponent of Planck's formula and as β = 4,866 · 10⁻¹¹. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -226,19 +228,19 @@ entries:
       kind: within-paper
       collidesWith: ["lq.alpha_nu.fourierPhase"]
       collidesWithModern: ["fourierPhase"]
-      firstUseAnchor: lq-s1-p1
+      firstUseAnchor: lq-s2-p2
       firstUseBySection:
         - sectionId: lq-s1
           anchor: lq-s1-p1
         - sectionId: lq-s2
-          anchor: lq-s2-p1
+          anchor: lq-s2-p2
     notes: "This page never carries or corrects a printed value. A suspected misprint in the exponent of α is recorded with the scan's provenance, not here."
     sources:
-      facsimilePage: 133
-      anchor: lq-s1-p1
+      facsimilePage: 136
+      anchor: lq-s2-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 133 carries no mathematics. α is first printed on page 136, in §2 (Planck's formula and its value). It is not printed in §1, whose only alphas are the Fourier phases of the footnote on page 135. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 133 carries no mathematics. α is first printed on page 136, in §2 (Planck's formula and its value). It is not printed in §1, whose only alphas are the Fourier phases of the footnote on page 135. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -262,19 +264,19 @@ entries:
       kind: within-paper
       collidesWith: ["lq.L.absorbedLightEnergy", "magneticFieldComponent", "emittedEnergyRestFrame"]
       collidesWithModern: ["absorbedLightEnergy", "magneticFieldComponent", "emittedEnergyRestFrame"]
-      firstUseAnchor: lq-s1-p1
+      firstUseAnchor: lq-s1-p4
       firstUseBySection:
         - sectionId: lq-s1
-          anchor: lq-s1-p1
+          anchor: lq-s1-p4
         - sectionId: lq-s2
-          anchor: lq-s2-p1
+          anchor: lq-s2-p2
     notes: "The speed of light here; a magnetic-field component in paper 3 §6; emitted energy in paper 4. The L of §9 is a different quantity. The value 3 · 10¹⁰ cm/s is an input this edition supplies."
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-p1
+      facsimilePage: 135
+      anchor: lq-s1-p4
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic L, 'die Lichtgeschwindigkeit', is first printed on page 135 (§1), in Planck's relation for the mean resonator energy; it is printed again in §2 on pages 136 and 137. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. Italic L, 'die Lichtgeschwindigkeit', is first printed on page 135 (§1), in Planck's relation for the mean resonator energy; it is printed again in §2 on pages 136 and 137. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -293,13 +295,13 @@ entries:
       target:
         form: symbol
         modernGlyph: "u_\\nu"
-    notes: "Energy density per unit frequency, never per unit wavelength. Whether the paper also prints ρ without the subscript has not yet been checked against the scan, so no such entry is listed."
+    notes: "Energy density per unit frequency, never per unit wavelength. In §§3 and 4 the paper also prints ρ without the subscript (pages 137 to 139); that form has no entry of its own."
     sources:
-      facsimilePage: 133
-      anchor: lq-s1-p1
+      facsimilePage: 135
+      anchor: lq-s1-p4
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 133 carries no mathematics. Greek rho with subscript ν is first printed on page 135 (§1), 'ρ_ν dν die Energie pro Volumeneinheit'. The plate's rho has a tail that curls to the left, the letterform LaTeX writes varrho; the letter is rho either way. §§3–4 print the same letter without the subscript (pages 137 to 139). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 133 carries no mathematics. Greek rho with subscript ν is first printed on page 135 (§1), 'ρ_ν dν die Energie pro Volumeneinheit'. The plate's rho has a tail that curls to the left, the letterform LaTeX writes varrho; the letter is rho either way. §§3–4 print the same letter without the subscript (pages 137 to 139). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -323,19 +325,19 @@ entries:
       kind: within-paper
       collidesWith: ["lq.phi.entropyAsFunctionOfProbability", "transitionKernel", "volumeFraction"]
       collidesWithModern: ["entropy", "transitionKernel", "volumeFraction"]
-      firstUseAnchor: lq-s3-p1
+      firstUseAnchor: lq-s3-p2
       firstUseBySection:
         - sectionId: lq-s3
-          anchor: lq-s3-p1
+          anchor: lq-s3-p2
         - sectionId: lq-s4
-          anchor: lq-s4-p1
+          anchor: lq-s4-p2
     notes: "Spectral entropy density here; the transition probability density in paper 2; an angle in paper 3; a volume fraction in the dissertation. The φ(W) of §5 is a different quantity."
     sources:
-      facsimilePage: 135
-      anchor: lq-s3-p1
+      facsimilePage: 137
+      anchor: lq-s3-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 137 (public/figures/plates/pages/ap-17-132/137-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 does not carry φ. φ, in its open looped form, is first printed on page 137 (§3), in the integral for S and 'wobei φ eine Funktion der Variabeln ρ und ν'. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 137 (public/figures/plates/pages/ap-17-132/137-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 135 does not carry φ. φ, in its open looped form, is first printed on page 137 (§3), in the integral for S and 'wobei φ eine Funktion der Variabeln ρ und ν'. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -362,19 +364,19 @@ entries:
       kind: within-paper
       collidesWith: ["lq.S.gasEntropy"]
       collidesWithModern: ["entropy"]
-      firstUseAnchor: lq-s3-p1
+      firstUseAnchor: lq-s3-p2
       firstUseBySection:
         - sectionId: lq-s3
-          anchor: lq-s3-p1
+          anchor: lq-s3-p2
         - sectionId: lq-s4
-          anchor: lq-s4-p1
+          anchor: lq-s4-p2
     notes: "Radiation entropy in §§3–4. §5 reuses S for the entropy of a gas or dilute solution."
     sources:
-      facsimilePage: 135
-      anchor: lq-s3-p1
+      facsimilePage: 137
+      anchor: lq-s3-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 137 (public/figures/plates/pages/ap-17-132/137-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 does not carry S. Italic S, the entropy of the radiation, is first printed on page 137 (§3); §6 prints it again for radiation entropy on page 142. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 137 (public/figures/plates/pages/ap-17-132/137-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 135 does not carry S. Italic S, the entropy of the radiation, is first printed on page 137 (§3); §6 prints it again for radiation entropy on page 142. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -394,11 +396,11 @@ entries:
         form: symbol
         modernGlyph: "S_0"
     sources:
-      facsimilePage: 135
-      anchor: lq-s3-p1
+      facsimilePage: 139
+      anchor: lq-s4-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 139 (public/figures/plates/pages/ap-17-132/139-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 does not carry S₀. S₀ is first printed on page 139 (§4), 'die Entropie der Strahlung mit S₀, falls dieselbe das Volumen v₀ besitzt'. It is not printed in §3. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 139 (public/figures/plates/pages/ap-17-132/139-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 135 does not carry S₀. S₀ is first printed on page 139 (§4), 'die Entropie der Strahlung mit S₀, falls dieselbe das Volumen v₀ besitzt'. It is not printed in §3. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -422,17 +424,17 @@ entries:
       kind: within-paper
       collidesWith: ["lq.S.radiationEntropy"]
       collidesWithModern: ["radiationEntropy"]
-      firstUseAnchor: lq-s5-p1
+      firstUseAnchor: lq-s5-p2
       firstUseBySection:
         - sectionId: lq-s5
-          anchor: lq-s5-p1
+          anchor: lq-s5-p2
     notes: "Within-paper collision with radiation entropy of §§3–4. Same printed S, different quantity."
     sources:
-      facsimilePage: 139
-      anchor: lq-s5-p1
+      facsimilePage: 140
+      anchor: lq-s5-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 139 is §4. In §5, italic S is first printed on page 140, as the entropy of a system (S = S₁ + S₂ = φ(W)); the system is made an ideal gas or dilute solution on page 141. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 139 is §4. In §5, italic S is first printed on page 140, as the entropy of a system (S = S₁ + S₂ = φ(W)); the system is made an ideal gas or dilute solution on page 141. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -452,11 +454,11 @@ entries:
         form: symbol
         modernGlyph: "S_0"
     sources:
-      facsimilePage: 139
-      anchor: lq-s5-p1
+      facsimilePage: 141
+      anchor: lq-s5-p6
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 141 (public/figures/plates/pages/ap-17-132/141-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 139 is §4. In §5, S₀ is first printed on page 141, 'die Entropie bei einem gewissen Anfangszustande eines betrachteten Systems'. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 141 (public/figures/plates/pages/ap-17-132/141-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 139 is §4. In §5, S₀ is first printed on page 141, 'die Entropie bei einem gewissen Anfangszustande eines betrachteten Systems'. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -480,21 +482,21 @@ entries:
       kind: within-paper
       collidesWith: ["lq.E.systemEnergy", "lq.E.gramEquivalentCharge", "electricFieldStationary", "bodyEnergyRestBefore"]
       collidesWithModern: ["systemEnergy", "gramEquivalentCharge", "electricFieldStationary"]
-      firstUseAnchor: lq-s3-p1
+      firstUseAnchor: lq-s3-p4
       firstUseBySection:
         - sectionId: lq-s3
-          anchor: lq-s3-p1
+          anchor: lq-s3-p4
         - sectionId: lq-s4
-          anchor: lq-s4-p1
+          anchor: lq-s4-p2
         - sectionId: lq-s6
           anchor: lq-s6-p1
     notes: "Radiation energy in §§3–4 and §6. Not the §5-footnote system energy and not the §8 gram-equivalent charge. An electric field in paper 3. A body's rest-frame energy in paper 4."
     sources:
-      facsimilePage: 135
-      anchor: lq-s3-p1
+      facsimilePage: 138
+      anchor: lq-s3-p4
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 138 (public/figures/plates/pages/ap-17-132/138-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 carries a barred E with subscript ν (the mean resonator energy), not this E. Italic E is first printed in the entry's scope on page 138 (§3), in the differential dE, as the energy of unit volume of radiation; as the energy of radiation between ν and ν + dν it is first printed on page 139 (§4). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 138 (public/figures/plates/pages/ap-17-132/138-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 135 carries a barred E with subscript ν (the mean resonator energy), not this E. Italic E is first printed in the entry's scope on page 138 (§3), in the differential dE, as the energy of unit volume of radiation; as the energy of radiation between ν and ν + dν it is first printed on page 139 (§4). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -513,13 +515,13 @@ entries:
       target:
         form: symbol
         modernGlyph: "V"
-    notes: "Modern notation writes this volume as V. Whether the scan prints v or V has not yet been checked; the entry follows the transcription."
+    notes: "Modern notation writes this volume as V. The paper prints a lowercase italic v, first on page 137."
     sources:
-      facsimilePage: 135
-      anchor: lq-s3-p1
+      facsimilePage: 137
+      anchor: lq-s3-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 137 (public/figures/plates/pages/ap-17-132/137-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 does not carry this glyph. The volume is printed as a lowercase italic v, 'das Volumen v', first on page 137 (§3), not as V. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 137 (public/figures/plates/pages/ap-17-132/137-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 135 does not carry this glyph. The volume is printed as a lowercase italic v, 'das Volumen v', first on page 137 (§3), not as V. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -539,11 +541,11 @@ entries:
         form: symbol
         modernGlyph: "V_0"
     sources:
-      facsimilePage: 135
-      anchor: lq-s3-p1
+      facsimilePage: 139
+      anchor: lq-s4-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 139 (public/figures/plates/pages/ap-17-132/139-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 does not carry v₀. Lowercase italic v with subscript 0 is first printed on page 139 (§4). It is not printed in §3. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 139 (public/figures/plates/pages/ap-17-132/139-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 135 does not carry v₀. Lowercase italic v with subscript 0 is first printed on page 139 (§4). It is not printed in §3. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -563,11 +565,11 @@ entries:
         form: symbol
         modernGlyph: "n"
     sources:
-      facsimilePage: 139
-      anchor: lq-s5-p1
+      facsimilePage: 141
+      anchor: lq-s5-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 141 (public/figures/plates/pages/ap-17-132/141-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 139 is §4. Italic n is first printed on page 141 (§5), 'eine Anzahl (n) beweglicher Punkte'. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 141 (public/figures/plates/pages/ap-17-132/141-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 139 is §4. Italic n is first printed on page 141 (§5), 'eine Anzahl (n) beweglicher Punkte'. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -587,11 +589,11 @@ entries:
         form: symbol
         modernGlyph: "W"
     sources:
-      facsimilePage: 139
-      anchor: lq-s5-p1
+      facsimilePage: 140
+      anchor: lq-s5-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 139 is §4. Italic W is first printed in §5 on page 140 (W₁, W₂ and W = W₁ · W₂); W as the probability of a volume configuration, (v/v₀) to the power n, is printed on page 142. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 139 is §4. Italic W is first printed in §5 on page 140 (W₁, W₂ and W = W₁ · W₂); W as the probability of a volume configuration, (v/v₀) to the power n, is printed on page 142. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -615,19 +617,19 @@ entries:
       kind: within-paper
       collidesWith: ["lq.T.longAveragingInterval"]
       collidesWithModern: ["longAveragingInterval"]
-      firstUseAnchor: lq-s1-p1
+      firstUseAnchor: lq-s1-p3
       firstUseBySection:
         - sectionId: lq-s1
-          anchor: lq-s1-p1
+          anchor: lq-s1-p3
         - sectionId: lq-s2
-          anchor: lq-s2-p1
+          anchor: lq-s2-p2
     notes: "Temperature in the body of the paper. The §1 footnote's long averaging interval is a different T."
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-p1
+      facsimilePage: 134
+      anchor: lq-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic T, 'die absolute Temperatur', is first printed on page 134 (§1). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. Italic T, 'die absolute Temperatur', is first printed on page 134 (§1). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -651,19 +653,19 @@ entries:
       kind: cross-paper
       collidesWith: ["numberDensity"]
       collidesWithModern: ["numberDensity"]
-      firstUseAnchor: lq-s1-p1
+      firstUseAnchor: lq-s1-p4
       firstUseBySection:
         - sectionId: lq-s1
-          anchor: lq-s1-p1
+          anchor: lq-s1-p4
         - sectionId: lq-s7
           anchor: lq-s7-p1
     notes: "Frequency here and in paper 3. Number density in paper 2. Cyclic, not angular; a missing 2 pi is invisible to dimensions."
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-p1
+      facsimilePage: 135
+      anchor: lq-s1-p4
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. ν is first printed on page 135 (§1), as 'die Eigenfrequenz ν' and 'ν die Frequenz'. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. ν is first printed on page 135 (§1), as 'die Eigenfrequenz ν' and 'ν die Frequenz'. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -734,11 +736,11 @@ entries:
         modernGlyph: "\\ln"
     notes: "Modern ISO 80000-2 (and DIN 1302) reads lg as log_10. In this paper lg is the natural logarithm."
     sources:
-      facsimilePage: 134
-      anchor: lq-s2-p1
+      facsimilePage: 139
+      anchor: lq-s4-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 139 (public/figures/plates/pages/ap-17-132/139-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 134 does not carry lg. lg is first printed, upright, on page 139 (§4), in the inverted Wien law for 1/T. It is not printed in §2 or §3. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 139 (public/figures/plates/pages/ap-17-132/139-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry lg. lg is first printed, upright, on page 139 (§4), in the inverted Wien law for 1/T. It is not printed in §2 or §3. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -762,11 +764,11 @@ entries:
         modernGlyph: "Z"
     notes: "One component of the radiation's electric field."
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-fn1
+      facsimilePage: 135
+      anchor: lq-s1-fn3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic Z, 'die Z-Komponente der elektrischen Kraft (Z)', is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. Italic Z, 'die Z-Komponente der elektrischen Kraft (Z)', is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -786,11 +788,11 @@ entries:
         form: symbol
         modernGlyph: "A_\\nu"
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-fn1
+      facsimilePage: 135
+      anchor: lq-s1-fn3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic A with subscript ν is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the Fourier series; the footnote also prints the members A₁, A₂. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. Italic A with subscript ν is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the Fourier series; the footnote also prints the members A₁, A₂. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -814,17 +816,17 @@ entries:
       kind: within-paper
       collidesWith: ["lq.alpha.wienConstant"]
       collidesWithModern: ["wienConstantAlpha"]
-      firstUseAnchor: lq-s1-fn1
+      firstUseAnchor: lq-s1-fn3
       firstUseBySection:
         - sectionId: lq-s1-fn1
-          anchor: lq-s1-fn1
+          anchor: lq-s1-fn3
     notes: "An angle, distinct from Planck's and Wien's alpha."
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-fn1
+      facsimilePage: 135
+      anchor: lq-s1-fn3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. α with subscript ν is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the Fourier series; the footnote also prints the members α₁, α₂. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. α with subscript ν is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the Fourier series; the footnote also prints the members α₁, α₂. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -848,17 +850,17 @@ entries:
       kind: within-paper
       collidesWith: ["lq.T.temperature"]
       collidesWithModern: ["temperature"]
-      firstUseAnchor: lq-s1-fn1
+      firstUseAnchor: lq-s1-fn3
       firstUseBySection:
         - sectionId: lq-s1-fn1
-          anchor: lq-s1-fn1
+          anchor: lq-s1-fn3
     notes: "Despite the printed T, this is never temperature."
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-fn1
+      facsimilePage: 135
+      anchor: lq-s1-fn3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic T, 'eine relativ zu allen in Betracht zu ziehenden Schwingungsdauern sehr große Zeit', is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), as the time limit t = T and in t/T. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. Italic T, 'eine relativ zu allen in Betracht zu ziehenden Schwingungsdauern sehr große Zeit', is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), as the time limit t = T and in t/T. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -878,11 +880,11 @@ entries:
         form: symbol
         modernGlyph: "t"
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-fn1
+      facsimilePage: 135
+      anchor: lq-s1-fn3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic t is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the time limits t = 0 and t = T and in t/T. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. Italic t is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the time limits t = 0 and t = T and in t/T. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -902,11 +904,11 @@ entries:
         form: symbol
         modernGlyph: "f"
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-fn1
+      facsimilePage: 135
+      anchor: lq-s1-fn3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic f is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in d W = f(A₁ A₂ ... α₁ α₂ ...) dA₁ dA₂ ... An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. Italic f is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in d W = f(A₁ A₂ ... α₁ α₂ ...) dA₁ dA₂ ... An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -917,7 +919,7 @@ entries:
       unicode: "F₁"
       latex: "F_1"
       variant: subscripted
-    meaning: "Probability density F_ν in the factorization of the §1 footnote"
+    meaning: "Probability densities F₁, F₂ and so on in the factorization of the §1 footnote"
     binding:
       nonQuantityKind: function-label
     operation:
@@ -927,11 +929,11 @@ entries:
         modernGlyph: "F_\\nu"
     notes: "Corrected 2026-09-24 from the plate: the footnote prints F₁(A₁) F₂(A₂) ..., with numeral subscripts (page 135); it never prints F with the subscript ν."
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-fn1
+      facsimilePage: 135
+      anchor: lq-s1-fn3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. The entry recorded F with subscript ν, which is not printed: the footnote marked 2) of §1 on page 135 (the Fourier-series footnote) prints only F₁(A₁) F₂(A₂) ..., with numeral subscripts. Glyph corrected to F₁. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. The entry recorded F with subscript ν, which is not printed: the footnote marked 2) of §1 on page 135 (the Fourier-series footnote) prints only F₁(A₁) F₂(A₂) ..., with numeral subscripts. Glyph corrected to F₁. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -942,7 +944,7 @@ entries:
       unicode: "f₁"
       latex: "f_1"
       variant: subscripted
-    meaning: "Probability density f_ν in the factorization of the §1 footnote"
+    meaning: "Probability densities f₁, f₂ and so on in the factorization of the §1 footnote"
     binding:
       nonQuantityKind: function-label
     operation:
@@ -952,11 +954,11 @@ entries:
         modernGlyph: "f_\\nu"
     notes: "Corrected 2026-09-24 from the plate: the footnote prints f₁(α₁) · f₂(α₂) ..., with numeral subscripts (page 135); it never prints f with the subscript ν."
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-fn1
+      facsimilePage: 135
+      anchor: lq-s1-fn3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. The entry recorded f with subscript ν, which is not printed: the footnote marked 2) of §1 on page 135 (the Fourier-series footnote) prints only f₁(α₁) · f₂(α₂) ..., with numeral subscripts. Glyph corrected to f₁. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. The entry recorded f with subscript ν, which is not printed: the footnote marked 2) of §1 on page 135 (the Fourier-series footnote) prints only f₁(α₁) · f₂(α₂) ..., with numeral subscripts. Glyph corrected to f₁. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -976,11 +978,11 @@ entries:
         form: symbol
         modernGlyph: "\\mathrm{d}W"
     sources:
-      facsimilePage: 132
-      anchor: lq-s1-fn1
+      facsimilePage: 135
+      anchor: lq-s1-fn3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Printed as d W (italic d and italic W, set with a space), 'Wahrscheinlichkeiten d W', in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. Printed as d W (italic d and italic W, set with a space), 'Wahrscheinlichkeiten d W', in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1007,17 +1009,17 @@ entries:
       kind: within-paper
       collidesWith: ["wavelength"]
       collidesWithModern: ["wavelength"]
-      firstUseAnchor: lq-s3-p1
+      firstUseAnchor: lq-s3-p3
       firstUseBySection:
         - sectionId: lq-s3
-          anchor: lq-s3-p1
-    notes: "Never a wavelength. A printed wavelength in §9 is not admitted without the facsimile."
+          anchor: lq-s3-p3
+    notes: "Never a wavelength. §9 names a wavelength only in words and prints no symbol for it (page 148)."
     sources:
-      facsimilePage: 135
-      anchor: lq-s3-p1
+      facsimilePage: 138
+      anchor: lq-s3-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 138 (public/figures/plates/pages/ap-17-132/138-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 does not carry λ. λ is first printed on page 138 (§3), 'wobei λ von ν unabhängig ist'. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 138 (public/figures/plates/pages/ap-17-132/138-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 135 does not carry λ. λ is first printed on page 138 (§3), 'wobei λ von ν unabhängig ist'. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1044,17 +1046,17 @@ entries:
       kind: within-paper
       collidesWith: ["lq.phi.spectralEntropyDensity"]
       collidesWithModern: ["spectralEntropyDensity"]
-      firstUseAnchor: lq-s5-p1
+      firstUseAnchor: lq-s5-p2
       firstUseBySection:
         - sectionId: lq-s5
-          anchor: lq-s5-p1
+          anchor: lq-s5-p2
     notes: "The values of phi(W) are the entropy. Distinct from the §§3–4 spectral entropy density."
     sources:
-      facsimilePage: 139
-      anchor: lq-s5-p1
+      facsimilePage: 140
+      anchor: lq-s5-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 139 is §4. φ(W), in the open looped φ, is first printed in §5 on page 140, S = S₁ + S₂ = φ(W), beside φ₁(W₁) and φ₂(W₂). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 139 is §4. φ(W), in the open looped φ, is first printed in §5 on page 140, S = S₁ + S₂ = φ(W), beside φ₁(W₁) and φ₂(W₂). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1078,17 +1080,17 @@ entries:
       kind: within-paper
       collidesWith: ["lq.R_over_N.boltzmannConstant"]
       collidesWithModern: ["k_B"]
-      firstUseAnchor: lq-s5-p1
+      firstUseAnchor: lq-s5-p6
       firstUseBySection:
         - sectionId: lq-s5
-          anchor: lq-s5-p1
+          anchor: lq-s5-p6
     notes: "Identified with R/N later in §5. Distinct from entropyVolumeCoefficient."
     sources:
-      facsimilePage: 139
-      anchor: lq-s5-p1
+      facsimilePage: 141
+      anchor: lq-s5-p6
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 141 (public/figures/plates/pages/ap-17-132/141-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 139 is §4. Italic C is first printed on page 141 (§5), 'Die Größe C ist also eine universelle Konstante', with the value R/N. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 141 (public/figures/plates/pages/ap-17-132/141-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 139 is §4. Italic C is first printed on page 141 (§5), 'Die Größe C ist also eine universelle Konstante', with the value R/N. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1118,11 +1120,11 @@ entries:
           anchor: lq-s5-fn1
     notes: "System energy of the §5 footnote, never radiation energy and never the §8 gram-equivalent charge."
     sources:
-      facsimilePage: 141
+      facsimilePage: 142
       anchor: lq-s5-fn1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 142 (public/figures/plates/pages/ap-17-132/142-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 141 does not carry this footnote. The footnote of §5 is printed on page 142: 'Ist E die Energie des Systems', in -d(E - TS) = p dv = T dS. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 142 (public/figures/plates/pages/ap-17-132/142-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 141 does not carry this footnote. The footnote of §5 is printed on page 142: 'Ist E die Energie des Systems', in -d(E - TS) = p dv = T dS. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1152,11 +1154,11 @@ entries:
           anchor: lq-s5-fn1
     notes: "Gas pressure. Not the §8 escape work P and not P-prime."
     sources:
-      facsimilePage: 141
+      facsimilePage: 142
       anchor: lq-s5-fn1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 142 (public/figures/plates/pages/ap-17-132/142-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 141 does not carry this footnote. Lowercase italic p is printed in the footnote of §5 on page 142, in -d(E - TS) = p dv and pv = R(n/N)T. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 142 (public/figures/plates/pages/ap-17-132/142-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 141 does not carry this footnote. Lowercase italic p is printed in the footnote of §5 on page 142, in -d(E - TS) = p dv and pv = R(n/N)T. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1180,11 +1182,11 @@ entries:
         modernGlyph: "V_{\\mathrm{s}}"
     notes: "Always a magnitude, never a signed potential. In the printed check Π is in abvolts, and Π · 10⁻⁸ is read as volts. This page does not correct the printed number."
     sources:
-      facsimilePage: 145
-      anchor: lq-s8-p1
+      facsimilePage: 146
+      anchor: lq-s8-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 145 does not carry Π. Italic capital Π, 'zum positiven Potential Π geladen', is first printed on page 146 (§8). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 145 does not carry Π. Italic capital Π, 'zum positiven Potential Π geladen', is first printed on page 146 (§8). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1204,11 +1206,11 @@ entries:
         form: symbol
         modernGlyph: "e"
     sources:
-      facsimilePage: 145
-      anchor: lq-s8-p1
+      facsimilePage: 146
+      anchor: lq-s8-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 145 does not carry ε. ε, in its rounded open form, 'wobei ε die elektrische Masse des Elektrons bedeutet', is first printed on page 146 (§8). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 145 does not carry ε. ε, in its rounded open form, 'wobei ε die elektrische Masse des Elektrons bedeutet', is first printed on page 146 (§8). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1232,17 +1234,17 @@ entries:
       kind: cross-paper
       collidesWith: ["particleRadius", "lq.Pprime.workFunctionPerGramEquivalent", "lq.p.pressure"]
       collidesWithModern: ["particleRadius", "workFunctionPerGramEquivalent", "pressure"]
-      firstUseAnchor: lq-s8-p1
+      firstUseAnchor: lq-s8-p2
       firstUseBySection:
         - sectionId: lq-s8
-          anchor: lq-s8-p1
+          anchor: lq-s8-p2
     notes: "Work function here. Particle radius in paper 2. Distinct from P-prime (per gram-equivalent) and from the §5-footnote pressure p."
     sources:
-      facsimilePage: 145
-      anchor: lq-s8-p1
+      facsimilePage: 146
+      anchor: lq-s8-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 145 does not carry P. Italic P, 'eine (für den Körper charakteristische) Arbeit P', is first printed on page 146 (§8). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 145 does not carry P. Italic P, 'eine (für den Körper charakteristische) Arbeit P', is first printed on page 146 (§8). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1266,17 +1268,17 @@ entries:
       kind: within-paper
       collidesWith: ["lq.E.radiationEnergy", "lq.E.systemEnergy"]
       collidesWithModern: ["radiationEnergy", "systemEnergy"]
-      firstUseAnchor: lq-s8-p1
+      firstUseAnchor: lq-s8-p3
       firstUseBySection:
         - sectionId: lq-s8
-          anchor: lq-s8-p1
+          anchor: lq-s8-p3
     notes: "Not an energy. Modern notation writes F, the Faraday constant. The printed 9.6 · 10³ abcoulombs per gram-equivalent is 9.6 · 10⁴ C/mol, beside the modern 96485.33 C/mol. The printed value is kept as printed."
     sources:
-      facsimilePage: 145
-      anchor: lq-s8-p1
+      facsimilePage: 146
+      anchor: lq-s8-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 145 does not carry this E. Italic E, 'die Ladung eines Grammäquivalentes eines einwertigen Ions', and 'E = 9,6 · 10³', printed on page 146 (§8). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 145 does not carry this E. Italic E, 'die Ladung eines Grammäquivalentes eines einwertigen Ions', and 'E = 9,6 · 10³', printed on page 146 (§8). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1300,17 +1302,17 @@ entries:
       kind: within-paper
       collidesWith: ["lq.P.workFunction", "lq.p.pressure"]
       collidesWithModern: ["workFunction", "pressure"]
-      firstUseAnchor: lq-s8-p1
+      firstUseAnchor: lq-s8-p3
       firstUseBySection:
         - sectionId: lq-s8
-          anchor: lq-s8-p1
+          anchor: lq-s8-p3
     notes: "The modern symbol shown here is not yet confirmed by a reviewer. Distinct from P and from p."
     sources:
-      facsimilePage: 145
-      anchor: lq-s8-p1
+      facsimilePage: 146
+      anchor: lq-s8-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 145 does not carry P′. Italic P with a prime is first printed on page 146 (§8), in ΠE = Rβν - P′ and 'P′ = 0'. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 146 (public/figures/plates/pages/ap-17-132/146-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 145 does not carry P′. Italic P with a prime is first printed on page 146 (§8), in ΠE = Rβν - P′ and 'P′ = 0'. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1333,11 +1335,11 @@ entries:
         form: symbol
         modernGlyph: "J"
     sources:
-      facsimilePage: 147
+      facsimilePage: 148
       anchor: lq-s9-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 147 ends at the §9 heading and carries no J. Italic J, 'die (theoretische) Ionisierungsarbeit pro Grammäquivalent', is first printed on page 148 (§9). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 147 ends at the §9 heading and carries no J. Italic J, 'die (theoretische) Ionisierungsarbeit pro Grammäquivalent', is first printed on page 148 (§9). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1358,11 +1360,11 @@ entries:
         modernGlyph: "j"
     notes: "An amount of substance, never a rate."
     sources:
-      facsimilePage: 147
-      anchor: lq-s9-p1
+      facsimilePage: 148
+      anchor: lq-s9-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 147 carries no j. Italic j, 'der Anzahl j der durch dieselbe ionisierten Grammoleküle', is printed on page 148 (§9), in j = L/(Rβν). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 147 carries no j. Italic j, 'der Anzahl j der durch dieselbe ionisierten Grammoleküle', is printed on page 148 (§9), in j = L/(Rβν). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1386,17 +1388,17 @@ entries:
       kind: within-paper
       collidesWith: ["lq.L.speedOfLight", "speedOfLight"]
       collidesWithModern: ["c", "speedOfLight"]
-      firstUseAnchor: lq-s9-p1
+      firstUseAnchor: lq-s9-p3
       firstUseBySection:
         - sectionId: lq-s9
-          anchor: lq-s9-p1
+          anchor: lq-s9-p3
     notes: "Not the speed of light; the L of §§1–2 is a different quantity."
     sources:
-      facsimilePage: 147
-      anchor: lq-s9-p1
+      facsimilePage: 148
+      anchor: lq-s9-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 147 carries no L. Italic L, 'der absorbierten Lichtmenge L', is printed on page 148 (§9), in j = L/(Rβν). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 147 carries no L. Italic L, 'der absorbierten Lichtmenge L', is printed on page 148 (§9), in j = L/(Rβν). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1423,7 +1425,7 @@ entries:
             kind: term
             terms: ["avogadroConstant"]
         modernGlyph: "I"
-    notes: "Listed in its per-molecule form. Whether the paper prints J/N as a group has not yet been checked against the scan."
+    notes: "Listed in its per-molecule form. The paper never prints J/N; it prints J alone (page 148)."
     sources:
       facsimilePage: 147
       anchor: lq-s9-p1
@@ -1454,11 +1456,11 @@ entries:
       exact: true
     notes: "1 erg = 10⁻⁷ J. This page never corrects a printed number. Corrected 2026-09-24 from the plate: the paper prints this unit once, capitalized, as Erg (page 148, §9)."
     sources:
-      facsimilePage: 134
-      anchor: lq-s2-p1
+      facsimilePage: 148
+      anchor: lq-s9-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 134 does not carry this unit. The paper prints it once, upright and capitalized, as Erg, on page 148 (§9): 'Rβν = 6,4 · 10¹² Erg'. Glyph corrected from erg to Erg. It is not printed in §1, §2 or §8. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry this unit. The paper prints it once, upright and capitalized, as Erg, on page 148 (§9): 'Rβν = 6,4 · 10¹² Erg'. Glyph corrected from erg to Erg. It is not printed in §1, §2 or §8. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1479,11 +1481,11 @@ entries:
       factor: 0.01
       exact: true
     sources:
-      facsimilePage: 134
-      anchor: lq-s2-p1
+      facsimilePage: 148
+      anchor: lq-s9-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 134 does not carry this unit. cm is printed once, upright, on page 148 (§9), after Lenard's largest effective wavelength for air. It is not printed in §1, §2 or §8. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 148 (public/figures/plates/pages/ap-17-132/148-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry this unit. cm is printed once, upright, on page 148 (§9), after Lenard's largest effective wavelength for air. It is not printed in §1, §2 or §8. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -1504,11 +1506,11 @@ entries:
       factor: 0.001
       exact: true
     sources:
-      facsimilePage: 134
-      anchor: lq-s2-p1
+      facsimilePage: 137
+      anchor: lq-s2-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 137 (public/figures/plates/pages/ap-17-132/137-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 134 does not carry this unit. The paper prints g once, upright, on page 137 (§2), '1,62 · 10⁻²⁴ g.', beside the word Gramm. It is not printed in §1, §8 or §9. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 137 (public/figures/plates/pages/ap-17-132/137-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry this unit. The paper prints g once, upright, on page 137 (§2), '1,62 · 10⁻²⁴ g.', beside the word Gramm. It is not printed in §1, §8 or §9. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
