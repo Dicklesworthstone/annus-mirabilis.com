@@ -1,15 +1,20 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import {
   LQ08_CAPTION,
   LQ08_HISTORICAL_CHECK,
-  LQ08_MODEL,
   LQ08_NOT_MODELED,
+  LQ08_OUTPUTS,
   LQ08_PRESETS,
 } from "../../../experiments/lq08/definition.ts";
 import { evaluateMillikanOverlay } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -254,6 +259,16 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
   const [error, setError] = useState("");
 
   const accepted = view.accepted;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; no example, no earned label.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      LQ08_OUTPUTS,
+      example?.sourceDigest ?? "",
+      accepted !== undefined && accepted === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const params = (accepted?.parameters ??
     example?.parameters ?? {
       incidentPower: 0.001,
@@ -335,14 +350,20 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
       className="laboratory lq08"
       data-testid="photoelectric-lab"
       data-instrument-id="lq-08"
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "stoppingPotentialMagnitude")}
       {...(accepted ? identity(accepted) : {})}
     >
       <header className="lab-heading">
         <p className="eyebrow">The photoelectric apparatus</p>
         <h2>Photoelectric apparatus laboratory</h2>
-        <span className="badge">{LQ08_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${LQ08_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
 
       <div className="lab-columns">
         <div>
