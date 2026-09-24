@@ -27,7 +27,6 @@ export function BrownianFirstEncounter({
 }: BrownianFirstEncounterProps) {
   const [entries, setEntries] = useState<readonly number[]>(initialEntries);
   const [activeTab, setActiveTab] = useState<"visual" | "table">("visual");
-  const [showWhySquare, setShowWhySquare] = useState<boolean>(false);
   const [liveAnnouncement, setLiveAnnouncement] = useState<string>("");
 
   const liveRegionId = useId();
@@ -469,7 +468,7 @@ export function BrownianFirstEncounter({
                       {Math.abs(val)} units
                     </td>
                     <td style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}>
-                      {val * val} sq units
+                      {val * val} squared units
                     </td>
                   </tr>
                 );
@@ -539,7 +538,7 @@ export function BrownianFirstEncounter({
               color: "var(--accent)",
             }}
           >
-            {totals.meanSquare.toFixed(2)} <span className="fine">sq units</span>
+            {totals.meanSquare.toFixed(2)} <span className="fine">squared units</span>
           </span>
           <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
             Proposal B (square first)
@@ -563,7 +562,7 @@ export function BrownianFirstEncounter({
             {totals.rootMeanSquare.toFixed(3)} <span className="fine">units</span>
           </span>
           <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-            √(Mean Square)
+            √(mean square)
           </span>
         </div>
       </div>
@@ -631,7 +630,7 @@ export function BrownianFirstEncounter({
                 Mean square displacement:
               </span>
               <strong style={{ fontVariantNumeric: "tabular-nums" }}>
-                (36 + 4 + 4 + 36) / 4 = 20 sq units
+                (36 + 4 + 4 + 36) / 4 = 20 squared units
               </strong>{" "}
               (quadruples from 5)
             </div>
@@ -679,8 +678,9 @@ export function BrownianFirstEncounter({
             assumption is not a claim about molecular motion at arbitrarily short times.
           </p>
           <p>
-            Absolute values do not possess this mathematical linearity when steps are added
-            together, which is why mean square has a particularly simple additive calculation.
+            Absolute values have no such rule: the average absolute value of a sum is not, in
+            general, the sum of the average absolute values. That is why the mean square is the
+            measure that adds.
           </p>
         </section>
 
@@ -695,42 +695,30 @@ export function BrownianFirstEncounter({
         </section>
       </div>
 
-      {/* Collapsible details: Why the square is useful */}
-      <div className="notice" style={{ margin: "1.5rem 0" }}>
-        <button
-          type="button"
-          onClick={() => setShowWhySquare((v) => !v)}
-          className="button secondary"
-          style={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <span>Why the square is useful: a two-step algebraic demonstration</span>
-          <span className="fine">{showWhySquare ? "Hide ▲" : "Show ▼"}</span>
-        </button>
-        {showWhySquare && (
-          <div style={{ marginTop: "1rem", fontSize: "0.95rem" }}>
-            <p>
-              Consider two successive independent steps Δx₁ and Δx₂, each equally likely to be +1 or
-              −1:
-            </p>
-            <ul style={{ fontFamily: "var(--font-mono)", fontSize: "0.85rem" }}>
-              <li>Possibility 1: (+1, +1) → Total = +2, Squared = 4</li>
-              <li>Possibility 2: (+1, −1) → Total = 0, Squared = 0</li>
-              <li>Possibility 3: (−1, +1) → Total = 0, Squared = 0</li>
-              <li>Possibility 4: (−1, −1) → Total = −2, Squared = 4</li>
-            </ul>
-            <p>
-              The average total displacement is (2 + 0 + 0 − 2)/4 = <strong>0</strong>. The average
-              squared displacement is (4 + 0 + 0 + 4)/4 = <strong>2</strong> (exactly 1² + 1²). The
-              cross term (+2, −2, −2, +2) summed to zero!
-            </p>
-          </div>
-        )}
-      </div>
+      {/* A native disclosure. It was a button that rendered its content only once clicked: no
+          aria-expanded, and with JavaScript off the demonstration could never be opened. */}
+      <details className="notice" style={{ margin: "1.5rem 0" }}>
+        <summary>Why the square is useful: two steps, worked out</summary>
+        <p>
+          Take two successive independent steps, Δ<i>x</i>
+          <sub>1</sub> and Δ<i>x</i>
+          <sub>2</sub>, each equally likely to be +1 or −1. The four possibilities are equally
+          likely:
+        </p>
+        <ul>
+          <li>+1 then +1: total +2, squared 4</li>
+          <li>+1 then −1: total 0, squared 0</li>
+          <li>−1 then +1: total 0, squared 0</li>
+          <li>−1 then −1: total −2, squared 4</li>
+        </ul>
+        <p>
+          The average total is (2 + 0 + 0 − 2) / 4 = <strong>0</strong>. The average square is (4 +
+          0 + 0 + 4) / 4 = <strong>2</strong>, which is 1² + 1²: the squares of the two steps add.
+          The cross terms, 2 Δ<i>x</i>
+          <sub>1</sub> Δ<i>x</i>
+          <sub>2</sub>, are +2, −2, −2 and +2, and they average to zero.
+        </p>
+      </details>
 
       <p>
         <a href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
@@ -797,7 +785,7 @@ export function BrownianFirstEncounter({
                   }}
                   className="button secondary"
                 >
-                  Open the mean, variance and RMS drawer
+                  Open the lesson on mean, variance and RMS
                 </a>
               </div>
 
@@ -812,7 +800,7 @@ export function BrownianFirstEncounter({
               >
                 <div>
                   <span className="eyebrow" style={{ display: "block", marginBottom: "0.25rem" }}>
-                    Less guidance · Laboratory & paper
+                    Less guidance · Laboratory and paper
                   </span>
                   <p className="fine" style={{ marginBottom: "0.75rem" }}>
                     Test thousands of particles in the tracer-ensemble laboratory or jump straight
@@ -866,7 +854,7 @@ export function BrownianFirstEncounter({
               <br />
               Mean absolute displacement = (3 + 1 + 1 + 3) / 4 = 2 units.
               <br />
-              Mean square displacement = (9 + 1 + 1 + 9) / 4 = 5 sq units.
+              Mean square displacement = (9 + 1 + 1 + 9) / 4 = 5 squared units.
               <br />
               Root-mean-square displacement (RMS) = √5 ≈ 2.236 units.
             </div>
@@ -877,7 +865,7 @@ export function BrownianFirstEncounter({
               <br />
               Mean absolute displacement = (6 + 2 + 2 + 6) / 4 = 4 units.
               <br />
-              Mean square displacement = (36 + 4 + 4 + 36) / 4 = 20 sq units.
+              Mean square displacement = (36 + 4 + 4 + 36) / 4 = 20 squared units.
               <br />
               Root-mean-square displacement (RMS) = √20 ≈ 4.472 units.
             </div>
