@@ -19,6 +19,7 @@
  * does, rather than appearing inline where the ledger happened to put them.
  */
 
+import { Fragment } from "react";
 import type { GermanSourceFace } from "../../content/editions/germanSourceFace.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
@@ -40,6 +41,7 @@ export function GermanDraftFace({
   sectionId,
   availability,
   plate,
+  explainedBy,
 }: {
   readonly face: GermanSourceFace;
   /** For the face chooser. Without it this page had no way to another face but Back. */
@@ -56,6 +58,13 @@ export function GermanDraftFace({
   /** The paper's own German title, from its metadata record. Used when no masthead block is in scope. */
   readonly germanTitle: string;
   readonly sectionId?: string | undefined;
+  /**
+   * The explanation passages each printed paragraph is bound to (content/bindings), by its manifest
+   * anchor: the paragraph links to them, in the static HTML (am-bind-paragraphs-and-displays-me-u7bu).
+   */
+  readonly explainedBy?: Readonly<
+    Record<string, readonly Readonly<{ id: string; title: string }>[]>
+  >;
 }) {
   const blocks = sectionId
     ? face.blocks.filter((b) => b.id === sectionId || b.id.startsWith(`${sectionId}-`))
@@ -106,6 +115,23 @@ export function GermanDraftFace({
     appears only as an alias on the block that absorbed it.
   */
   const anchor = (id: string) => face.anchors.anchorOf[id] ?? id;
+  // "Explained in <passage>", after a bound paragraph: a way from the German to its explanation
+  // that needs no script. It is navigation beside the source, never part of it.
+  const explained = (id: string) => {
+    const passages = explainedBy?.[anchor(id)] ?? [];
+    if (passages.length === 0) return null;
+    return (
+      <p className="fine source-explained-by" data-explained-by={anchor(id)}>
+        Explained in{" "}
+        {passages.map((passage, i) => (
+          <Fragment key={passage.id}>
+            {i === 0 ? "" : i === passages.length - 1 ? " and " : ", "}
+            <a href={`/papers/${paperId}/#${passage.id}`}>{passage.title}</a>
+          </Fragment>
+        ))}
+      </p>
+    );
+  };
   const aliasesOf = (id: string) =>
     Object.entries(face.anchors.aliases)
       .filter(([, target]) => target === anchor(id))
@@ -176,24 +202,26 @@ export function GermanDraftFace({
               ) : block.kind === "equation" ? (
                 sourceDisplayEquation(block.text, block.label, anchor(block.id), block.id)
               ) : (
-                <p
-                  key={block.id}
-                  id={anchor(block.id)}
-                  className="source-paragraph"
-                  lang="de"
-                  data-block-kind={block.kind}
-                  data-printed-page={printedPage(block.id)}
-                >
-                  {aliasesOf(block.id)}
-                  {renderSourceMarkup(
-                    block.text,
-                    block.id,
-                    block.displayEquationIds?.map(anchor),
-                    // Where a page turned inside this paragraph: its page, and no id. The segment
-                    // the ledger broke off was never a manifest unit, so it names nothing.
-                    block.joinedIds?.map((id) => ({ page: printedPage(id) })),
-                  )}
-                </p>
+                <Fragment key={block.id}>
+                  <p
+                    id={anchor(block.id)}
+                    className="source-paragraph"
+                    lang="de"
+                    data-block-kind={block.kind}
+                    data-printed-page={printedPage(block.id)}
+                  >
+                    {aliasesOf(block.id)}
+                    {renderSourceMarkup(
+                      block.text,
+                      block.id,
+                      block.displayEquationIds?.map(anchor),
+                      // Where a page turned inside this paragraph: its page, and no id. The segment
+                      // the ledger broke off was never a manifest unit, so it names nothing.
+                      block.joinedIds?.map((id) => ({ page: printedPage(id) })),
+                    )}
+                  </p>
+                  {explained(block.id)}
+                </Fragment>
               ),
             )}
           </div>
@@ -202,22 +230,24 @@ export function GermanDraftFace({
             <section className="source-footnotes" aria-label="Footnotes">
               <h2>Fußnoten</h2>
               {footnotes.map((block) => (
-                <p
-                  key={block.id}
-                  id={anchor(block.id)}
-                  className="source-footnote"
-                  lang="de"
-                  data-printed-page={printedPage(block.id)}
-                >
-                  {aliasesOf(block.id)}
-                  {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
-                  {renderSourceMarkup(
-                    block.text,
-                    block.id,
-                    block.displayEquationIds?.map(anchor),
-                    block.joinedIds?.map((id) => ({ page: printedPage(id) })),
-                  )}
-                </p>
+                <Fragment key={block.id}>
+                  <p
+                    id={anchor(block.id)}
+                    className="source-footnote"
+                    lang="de"
+                    data-printed-page={printedPage(block.id)}
+                  >
+                    {aliasesOf(block.id)}
+                    {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
+                    {renderSourceMarkup(
+                      block.text,
+                      block.id,
+                      block.displayEquationIds?.map(anchor),
+                      block.joinedIds?.map((id) => ({ page: printedPage(id) })),
+                    )}
+                  </p>
+                  {explained(block.id)}
+                </Fragment>
               ))}
             </section>
           ) : null}

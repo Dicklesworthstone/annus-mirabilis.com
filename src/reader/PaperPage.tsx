@@ -5,6 +5,7 @@ import { Fragment } from "react";
 import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-light-quanta.json";
 import clockEntranceRaw from "../../content/arguments/special-relativity/entrance-special-relativity.json";
 import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
+import { loadParagraphBindings } from "../content/bindings/paragraphBindings.ts";
 import { citationTitleClose } from "../content/citationTitle.ts";
 import { loadGermanSourceFace, printedUnits } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
@@ -60,6 +61,7 @@ import { passageKind } from "./passageKind.ts";
 import { ReaderController } from "./ReaderController.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
 import { SectionPager } from "./SectionPager.tsx";
+import { SourceParagraphs } from "./SourceParagraphs.tsx";
 import { UnexplainedOutlineEntry, UnexplainedPartsLine } from "./UnexplainedParts.tsx";
 import { outlineOrder, paperParts, unexplainedParts } from "./unexplainedParts.ts";
 import "./reader.css";
@@ -164,9 +166,21 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     scanHref: `/papers/pdfs/${draft.bibKey}.pdf`,
                   }
                 : undefined;
+            // Each printed paragraph's explanation passages (content/bindings), by manifest anchor.
+            const titles = new Map(paperRecord.arguments.map((a) => [a.id, a.title]));
+            const explainedBy = Object.fromEntries(
+              (loadParagraphBindings(process.cwd(), resolved.paperId) ?? []).map((b) => [
+                b.unit,
+                b.passages.flatMap((id) => {
+                  const title = titles.get(id);
+                  return title ? [{ id, title }] : [];
+                }),
+              ]),
+            );
             return (
               <GermanDraftFace
                 face={draft}
+                explainedBy={explainedBy}
                 paperId={resolved.paperId}
                 paperTitle={paperRecord.paper.title}
                 germanTitle={paperRecord.paper.germanTitle}
@@ -251,6 +265,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   // Einstein's beta and paper 2's k, called out in red where the explanation first uses them.
+  // The printed paragraphs each passage explains, with their overviews (content/bindings).
+  const boundParagraphs = loadParagraphBindings(process.cwd(), paper.id) ?? [];
   const firstUses = firstUseCallouts(
     loadConcordanceForPaper(paper.id).entries,
     args,
@@ -444,6 +460,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     {firstUses.get(a.id)?.map((entry) => (
                       <FirstUseCallout key={entry.id} entry={entry} />
                     ))}
+                    <SourceParagraphs
+                      paperId={paper.id}
+                      bindings={boundParagraphs.filter((b) => b.passages.includes(a.id))}
+                    />
                     <div data-face-reading>
                       {(["overview", "full"] as const).map((reading, i) => (
                         <div

@@ -149,3 +149,10 @@
     opacity: 0.9;
   }
 }
+/* "Explained in <passage>" after a printed paragraph (GermanDraftFace.tsx): navigation set beside
+   the German in the interface face, muted and small, never read as part of the source. */
+.source-explained-by {
+  margin-block: -0.5rem 1rem;
+  font-family: var(--font-sans);
+  color: var(--muted);
+}

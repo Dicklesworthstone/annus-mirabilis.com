@@ -173,3 +173,40 @@ export function checkParagraphBindings(root: string, paper: string): BindingRepo
 /** "mass-energy: 14 of 14 paragraphs bound, 7 of 7 printed displays bound or declared, ..." */
 export const reportLine = (r: BindingReport): string =>
   `${r.paper}: ${r.paragraphs.bound} of ${r.paragraphs.of} paragraphs bound, ${r.displays.bound} of ${r.displays.of} printed displays bound or declared, ${r.obligations.resolved} of ${r.obligations.of} obligations resolved`;
+
+export type ParagraphBinding = Readonly<{
+  unit: string;
+  passages: readonly string[];
+  r0: string;
+  /** "Paragraph 6" or "Footnote 2", counted in printed order among the paper's paragraphs. */
+  label: string;
+}>;
+
+/**
+ * The paper's paragraph bindings in printed order, with a reader-facing label for each, or null
+ * when it has none. The renderer's view of content/bindings/<paper>.yaml; checkParagraphBindings
+ * is what makes the build refuse a bad one.
+ */
+export function loadParagraphBindings(
+  root: string,
+  paper: string,
+): readonly ParagraphBinding[] | null {
+  const file = join(root, "content", "bindings", `${paper}.yaml`);
+  if (!existsSync(file)) return null;
+  const raw = parseYaml(readFileSync(file, "utf8")) as { paragraphs?: Paragraph[] } | null;
+  let paragraphs = 0;
+  let footnotes = 0;
+  return (raw?.paragraphs ?? []).flatMap((p) => {
+    if (typeof p.unit !== "string") return [];
+    const footnote = /-fn\d+$/.test(p.unit);
+    const label = footnote ? `Footnote ${++footnotes}` : `Paragraph ${++paragraphs}`;
+    return [
+      {
+        unit: p.unit,
+        passages: strings(p.passages),
+        r0: typeof p.r0 === "string" ? p.r0.trim() : "",
+        label,
+      },
+    ];
+  });
+}

@@ -2751,3 +2751,17 @@ html:is(
     border-style: dashed;
   }
 }
+/* THE PRINTED PARAGRAPHS A PASSAGE EXPLAINS (SourceParagraphs.tsx): a closed disclosure listing
+   each with its overview and a link to it on the German face, the way back from explanation to
+   text. */
+.passage-source-paragraphs {
+  margin-block: 0.5rem 1rem;
+  font-size: var(--type-small);
+}
+.passage-source-paragraphs ul {
+  margin-block: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+.passage-source-paragraphs li + li {
+  margin-top: 0.4rem;
+}
