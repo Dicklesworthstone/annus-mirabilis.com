@@ -79,8 +79,8 @@ export default function IndependencePage() {
           <a href="/lab/lq-05/">Count independent configurations</a>
           <a href="/lab/bm-03/">From configuration counts to osmotic pressure</a>
           <a href="/papers/light-quanta/#s5">Light-quanta paper, §5</a>
-          <a href="/papers/brownian-motion/#arg-bm-configuration">
-            Brownian configuration argument
+          <a href="/papers/brownian-motion/view/german/#s2">
+            Brownian configuration argument, §2 in the German original
           </a>
           <a href="/lab/countermodels/">Compare the relativity countermodels</a>
         </nav>

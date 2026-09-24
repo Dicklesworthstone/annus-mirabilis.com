@@ -35,7 +35,9 @@ export default function DriftDiffusionLabPage() {
             <a href="/discover/brownian-motion/">Start with the discovery journey</a>
           </li>
           <li>
-            <a href="/papers/brownian-motion/#s3">Read Section 3 of Einstein’s 1905 paper</a>
+            <a href="/papers/brownian-motion/view/german/#s3">
+              Read Section 3 of Einstein’s 1905 paper, in the German original
+            </a>
           </li>
         </ul>
       </nav>

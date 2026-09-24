@@ -36,8 +36,8 @@ export default function ConfigurationPage() {
         <h2>From here</h2>
         <ul>
           <li>
-            <a href="/papers/brownian-motion/#arg-bm-configuration">
-              Read the statistical argument and open its derivation steps
+            <a href="/papers/brownian-motion/view/german/#s2">
+              Read the statistical argument, §2 in the German original
             </a>
           </li>
         </ul>

@@ -6,7 +6,7 @@ export const EMBED_INSTRUMENTS = [
   {
     id: "bm-03",
     title: "Counting configurations and osmotic pressure",
-    source: "/papers/brownian-motion/#arg-bm-configuration",
+    source: "/papers/brownian-motion/view/german/#s2",
     overview: "Compare independently placed particles with one locked cluster.",
     full: "Hold the temperature and volume fixed while changing what counts as an independently placed unit. The counterexample changes the independence assumption, not merely the drawing.",
     steps:
@@ -179,7 +179,7 @@ export const EMBED_INSTRUMENTS = [
   {
     id: "bm-04",
     title: "Drift-diffusion balance and the Stokes-Einstein relation",
-    source: "/papers/brownian-motion/#s3",
+    source: "/papers/brownian-motion/view/german/#s3",
     overview: "Push suspended particles with a steady force and see drift and diffusion balance.",
     full: "The force makes the particles drift and pile up, and their random motion spreads them back out. At balance the diffusion coefficient is fixed by the temperature and the drag of the liquid alone, whatever the force was.",
     steps:
