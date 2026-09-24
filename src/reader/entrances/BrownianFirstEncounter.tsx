@@ -178,6 +178,7 @@ export function BrownianFirstEncounter({
           <button
             type="button"
             onClick={() => setActiveTab("visual")}
+            aria-pressed={activeTab === "visual"}
             className={`button ${activeTab === "visual" ? "" : "secondary"}`}
           >
             Number line
@@ -185,6 +186,7 @@ export function BrownianFirstEncounter({
           <button
             type="button"
             onClick={() => setActiveTab("table")}
+            aria-pressed={activeTab === "table"}
             className={`button ${activeTab === "table" ? "" : "secondary"}`}
           >
             Table and typed values

@@ -54,6 +54,14 @@
 }
 /* The checkbox was the browser's default blue, the one blue on the page; the counting and clock
    entrances already give theirs the ink colour and a 20px box (countingEntrance.css). */
+/* The chosen traveler says so by more than a screen reader's "pressed", as the laboratories'
+   choice groups do (labShell.css): both speeds were drawn as the same outlined button, so which
+   account the ledgers showed was only in the sentence under them. */
+.me-entrance button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
 .me-entrance input[type="checkbox"] {
   width: 1.25rem;
   height: 1.25rem;
