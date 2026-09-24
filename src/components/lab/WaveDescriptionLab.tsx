@@ -12,15 +12,17 @@ import {
   LQ01_PRESETS,
   type Lq01Parameters,
 } from "../../experiments/lq01/definition.ts";
-import { decodeLq01Settings, encodeLq01Settings } from "../../experiments/lq01/permalink.ts";
+import { LQ01_DRAFT_TAPE } from "../../experiments/lq01/draftTape.ts";
+import { decodeLq01Settings } from "../../experiments/lq01/permalink.ts";
 import { createLq01Session, type PreparedLq01Example } from "../../experiments/lq01/session.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, identity, result, scalar, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
@@ -139,6 +141,10 @@ export function WaveDescriptionLab({
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [linkNote, setLinkNote] = useState("");
+  // A shared ?tape= link puts its settings in the form and starts nothing; Apply calculates them.
+  const tapeLink = useDraftTapeLink(LQ01_DRAFT_TAPE, p, true, (settings) =>
+    setDraft(toLq01Draft(settings as unknown as Lq01Parameters)),
+  );
 
   useEffect(() => {
     setReady(true);
@@ -199,17 +205,6 @@ export function WaveDescriptionLab({
     setDraft(toLq01Draft(parameters));
     setError("");
     apply(parameters);
-  }
-
-  async function share() {
-    const url = new URL(window.location.pathname, window.location.origin);
-    url.search = encodeLq01Settings(session.acceptedParameters());
-    try {
-      await navigator.clipboard.writeText(url.href);
-      setLinkNote("Link to the accepted settings copied.");
-    } catch {
-      setLinkNote("Copy the accepted-settings link from the field below.");
-    }
   }
 
   const primaryResult = result(snapshot, "centerIntensity");
@@ -463,9 +458,6 @@ export function WaveDescriptionLab({
               )}
               <div className="actions">
                 <button type="submit">Apply settings</button>
-                <button type="button" onClick={share} className="secondary">
-                  Copy settings link
-                </button>
               </div>
             </ExperimentSettings>
 
@@ -482,6 +474,7 @@ export function WaveDescriptionLab({
           summary={statusSummary}
           response={gate.response}
         />
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
 
         <div className="lab-results">
           {interference ? (

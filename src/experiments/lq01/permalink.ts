@@ -1,4 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import { LQ01_DEFAULTS, type Lq01Parameters } from "./definition.ts";
 import { validateLq01Parameters } from "./parameters.ts";
 
@@ -21,9 +22,13 @@ export type Lq01SettingsLink = Readonly<
   | { kind: "invalid"; message: string }
 >;
 
-/** Links are untrusted input. Loading a link never schedules a calculation. */
+/**
+ * Links are untrusted input. Loading a link never schedules a calculation. A ?tape= address is the
+ * draft tape's to read (draftTape.ts), so this older reader leaves it alone rather than calling it
+ * an invalid settings link.
+ */
 export function decodeLq01Settings(search: string): Lq01SettingsLink {
-  if (!search || search === "?") return { kind: "absent" };
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "absent" };
   const invalid = (): Lq01SettingsLink => ({
     kind: "invalid",
     message:
