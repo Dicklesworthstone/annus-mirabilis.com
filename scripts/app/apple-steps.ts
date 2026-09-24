@@ -14,7 +14,7 @@ export const APPLE_STEPS = [
   { id: "apple-swiftlint", title: "Apple: SwiftLint, strict" },
   { id: "apple-swift-format", title: "Apple: swift-format lint, strict" },
   { id: "apple-generated-fresh", title: "Apple: icon and page mark match their generator" },
-  { id: "apple-edition-fresh", title: "Apple: the exported edition still matches out/" },
+  { id: "apple-edition-fresh", title: "Apple: the exported edition still matches the build it came from" },
   { id: "apple-simulators", title: "Apple: the named simulators exist (created, never deleted)" },
   { id: "apple-build", title: "Apple: simulator build for testing" },
   { id: "apple-unit-tests", title: "Apple: unit tests (Swift Testing)" },
