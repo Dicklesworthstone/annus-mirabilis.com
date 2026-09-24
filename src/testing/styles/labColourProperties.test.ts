@@ -25,6 +25,13 @@ import { THEME_TOKENS } from "../../app/theme/tokens";
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const LAB_STYLE_DIRS = ["src/components/lab", "src/app/lab"];
 const MARK_MIN = 3;
+/** Text needs 4.5:1 (WCAG 1.4.3). A property a stylesheet uses as `color:` is text by that use. */
+const TEXT_MIN = 4.5;
+/** Properties that colour text from outside the stylesheets, as an SVG text fill in a component. */
+const TEXT_PROPERTIES: ReadonlySet<string> = new Set([
+  // "Screen" on LQ-01's wave field (WaveDescriptionPlots.tsx).
+  "--lq01-field-ink",
+]);
 
 type Surface = "paper" | "wash" | "plotDarkfield";
 /** Most drawings sit on the paper or a wash panel; a property drawn on another surface says so. */
@@ -93,8 +100,22 @@ export function colourDeclarations(css: string): ColourDeclaration[] {
   return out;
 }
 
+/** Custom properties the stylesheet uses as a text colour: `color: var(--x)`, comments blanked. */
+export function textColourProperties(css: string): Set<string> {
+  const text = css.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, " "));
+  return new Set(
+    [...text.matchAll(/(?:^|[;{\s])color\s*:\s*var\(\s*(--[a-z0-9-]+)\s*[,)]/g)].flatMap((m) =>
+      m[1] ? [m[1]] : [],
+    ),
+  );
+}
+
 /** Every reason the declarations in one stylesheet fall short. */
-export function colourFindings(file: string, declarations: readonly ColourDeclaration[]): string[] {
+export function colourFindings(
+  file: string,
+  declarations: readonly ColourDeclaration[],
+  textProperties: ReadonlySet<string> = new Set(),
+): string[] {
   const findings: string[] = [];
   const byProperty = new Map<string, ColourDeclaration[]>();
   for (const d of declarations) {
@@ -122,9 +143,11 @@ export function colourFindings(file: string, declarations: readonly ColourDeclar
         ["dark", "kramgasse-night"],
       ] as const) {
         const ratio = contrastRatio(values[theme], THEME_TOKENS[id][surface]);
-        if (ratio < MARK_MIN)
+        const min =
+          textProperties.has(property) || TEXT_PROPERTIES.has(property) ? TEXT_MIN : MARK_MIN;
+        if (ratio < min)
           findings.push(
-            `${file} ${property}: ${values[theme]} is ${ratio.toFixed(2)}:1 on the ${theme} theme's ${surface}`,
+            `${file} ${property}: ${values[theme]} is ${ratio.toFixed(2)}:1 on the ${theme} theme's ${surface}, under ${min}:1`,
           );
       }
     }
@@ -146,18 +169,25 @@ describe("lab drawing colours stand out on their surface in both themes", () => 
     const findings: string[] = [];
     let properties = 0;
     let declaring = 0;
+    let text = 0;
     for (const file of files) {
-      const declarations = colourDeclarations(readFileSync(file, "utf8"));
+      const css = readFileSync(file, "utf8");
+      const declarations = colourDeclarations(css);
       if (declarations.length === 0) continue;
       declaring += 1;
-      properties += new Set(declarations.map((d) => d.property)).size;
-      findings.push(...colourFindings(relative(ROOT, file), declarations));
+      const declared = new Set(declarations.map((d) => d.property));
+      const textProperties = textColourProperties(css);
+      properties += declared.size;
+      text += [...declared].filter((p) => textProperties.has(p) || TEXT_PROPERTIES.has(p)).length;
+      findings.push(...colourFindings(relative(ROOT, file), declarations, textProperties));
     }
     console.log(
-      `[lab colours] ${files.length} stylesheets, ${declaring} declaring colours; ${properties} properties; ${findings.length} findings`,
+      `[lab colours] ${files.length} stylesheets, ${declaring} declaring colours; ${properties} properties, ${text} of them text; ${findings.length} findings`,
     );
     // Not vacuous: on 2026-09-24 six stylesheets declared 17 such properties.
     expect(properties).toBeGreaterThan(0);
+    // The text arm is exercised by the tree, not only by the plants below.
+    expect(text).toBeGreaterThan(0);
     expect(findings).toEqual([]);
   });
 
@@ -181,6 +211,20 @@ describe("lab drawing colours stand out on their surface in both themes", () => 
     ]);
   });
 
+  test("a property used as a text colour is held to 4.5:1, and only a `color:` use counts", () => {
+    const css = `
+      .a { --reading: #16a34a; color: var(--reading); }
+      .b { --drawn: #16a34a; background-color: var(--drawn); border-color: var(--drawn); }
+      /* .c { color: var(--drawn); } */
+    `;
+    expect([...textColourProperties(css)]).toEqual(["--reading"]);
+    expect(colourFindings("text.css", colourDeclarations(css), textColourProperties(css))).toEqual([
+      "text.css --reading: #16a34a is 3.18:1 on the light theme's paper, under 4.5:1",
+      "text.css --reading: #16a34a is 2.94:1 on the light theme's wash, under 4.5:1",
+      "text.css --drawn: #16a34a is 2.94:1 on the light theme's wash, under 3:1",
+    ]);
+  });
+
   test("planted negatives: low contrast, dark blocks that disagree, and an unrecognised context", () => {
     const css = `
       .x { --faint: #10b981; --drift: #047857; --ok: #047857; }
@@ -192,8 +236,8 @@ describe("lab drawing colours stand out on their surface in both themes", () => 
     `;
     expect(colourFindings("plant.css", colourDeclarations(css))).toEqual([
       "plant.css:7 --printed: declared outside a recognised theme context",
-      "plant.css --faint: #10b981 is 2.45:1 on the light theme's paper",
-      "plant.css --faint: #10b981 is 2.27:1 on the light theme's wash",
+      "plant.css --faint: #10b981 is 2.45:1 on the light theme's paper, under 3:1",
+      "plant.css --faint: #10b981 is 2.27:1 on the light theme's wash, under 3:1",
       "plant.css --drift: dark #10b981 but no-script dark #34d399",
     ]);
   });
