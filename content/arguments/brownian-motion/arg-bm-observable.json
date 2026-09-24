@@ -81,7 +81,7 @@
   "help": {
     "why": "mean-variance-rms",
     "missingStep": "bridge-squaring-square-roots",
-    "example": "mean-variance-rms"
+    "example": "random-walks"
   },
   "experiments": ["bm-01"],
   "meaning": {

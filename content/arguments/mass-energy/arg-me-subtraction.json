@@ -54,7 +54,11 @@
     ]
   },
   "prerequisites": [{ "id": "arg-me-two-ledgers", "edge": "premise" }],
-  "help": { "why": "work-energy", "missingStep": "work-energy", "example": "work-energy" },
+  "help": {
+    "why": "work-energy",
+    "missingStep": "bridge-equals-sign-relationship",
+    "example": "conservation-symmetry"
+  },
   "experiments": ["me-01"],
   "meaning": {
     "logicalRole": "derivation",

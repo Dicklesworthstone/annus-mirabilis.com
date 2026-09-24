@@ -71,7 +71,11 @@
     ]
   },
   "prerequisites": [{ "id": "arg-sr-lorentz-map", "edge": "premise" }],
-  "help": { "why": "derivatives", "missingStep": "derivatives", "example": "derivatives" },
+  "help": {
+    "why": "derivatives",
+    "missingStep": "bridge-fractions-ratios",
+    "example": "frames-events"
+  },
   "experiments": ["sr-06"],
   "meaning": {
     "logicalRole": "derivation",

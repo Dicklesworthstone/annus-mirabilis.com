@@ -83,8 +83,8 @@
   "prerequisites": [],
   "help": {
     "why": "probability-independence",
-    "missingStep": "probability-independence",
-    "example": "probability-independence"
+    "missingStep": "logarithms",
+    "example": "entropy-multiplicity"
   },
   "experiments": ["lq-05"],
   "meaning": {
