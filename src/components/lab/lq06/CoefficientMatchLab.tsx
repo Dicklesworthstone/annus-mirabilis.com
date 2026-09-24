@@ -28,48 +28,16 @@ import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
 import "./coefficientMatchLab.css";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 
 export type CoefficientMatchLabProps = Readonly<{
   example?: PreparedLq06Example | undefined;
 }>;
 
-type PredictPrompt = Readonly<{
-  id: string;
-  question: string;
-  options: readonly string[];
-  explanation: string;
-}>;
-
-/**
- * Two predictions. The answer is revealed after a choice and reads the same whichever option
- * was chosen: a prediction is a starting point, never a score.
- */
-const PREDICT_PROMPTS: readonly PredictPrompt[] = [
-  {
-    id: "subexpression-role",
-    question:
-      "The radiation's entropy is S − S₀ = (R/N) ln[(V/V₀)^{NE/(Rβν)}], and a gas of n molecules has S − S₀ = (R/N) n ln(V/V₀). Which expression plays the part of n?",
-    options: [
-      "E, the total radiant energy.",
-      "NE/(Rβν), which is E/(hν).",
-      "E/(βν), the radiation's own entropy coefficient.",
-    ],
-    explanation:
-      "The exponent of V/V₀ is what counts independent things in the gas law. So n_{eff} = NE/(Rβν) = E/(hν), and each of those things carries E/n_{eff} = hν.",
-  },
-  {
-    id: "mean-energy-ratio",
-    question:
-      "Over a Wien spectrum the mean energy of a light quantum is ⟨ε⟩ = 3k_{B}T. A gas molecule's mean kinetic energy is (3/2)k_{B}T. How do they compare at one temperature?",
-    options: [
-      "They are equal, by equipartition.",
-      "The quantum's is unboundedly larger, because the field has infinitely many modes.",
-      "The quantum's is twice the molecule's.",
-    ],
-    explanation:
-      "In §6 Einstein finds ⟨ε⟩ = 3(R/N)T by integrating the Wien distribution, exactly twice the (3/2)(R/N)T of a monatomic gas molecule.",
-  },
-];
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate. They
+// replace two prompts this file kept for itself; both, with their explanations, are in the manifest.
+const LQ06_PROMPTS = PREDICT_PROMPTS["lq-06"] ?? [];
 
 /** The candidate expressions for "the number of things", in the reader's words. */
 const SUBEXPRESSIONS: readonly { id: Lq06SubexpressionChoice; label: string; desc: string }[] = [
@@ -200,7 +168,8 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
   );
   const hasSelection = currentParams.selectedSubexpression !== "none";
 
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("lq-06", LQ06_PROMPTS);
   const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
   const [error, setError] = useState("");
 
@@ -273,7 +242,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           view={snapshot}
           modelNote={modelNoteFromView(snapshot, { notModeled: `${LQ06_NOT_MODELED.join("; ")}.` })}
         />
-        <LabTapeLink link={tapeLink} />
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
       </div>
 
       <noscript>
@@ -283,31 +252,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         </p>
       </noscript>
 
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <div>
-          <details className="lab-predict">
-            <summary>Predict first</summary>
-            {PREDICT_PROMPTS.map((prompt) => (
-              <fieldset key={prompt.id}>
-                <legend>{withScripts(prompt.question)}</legend>
-                {prompt.options.map((option, idx) => (
-                  <label key={option} className="lab-predict-candidate">
-                    <input
-                      type="radio"
-                      name={`${uid}-${prompt.id}`}
-                      checked={answers[prompt.id] === idx}
-                      onChange={() => setAnswers((a) => ({ ...a, [prompt.id]: idx }))}
-                    />
-                    <span>{withScripts(option)}</span>
-                  </label>
-                ))}
-                {answers[prompt.id] !== undefined && (
-                  <p className="lab-predict-reveal">{withScripts(prompt.explanation)}</p>
-                )}
-              </fieldset>
-            ))}
-          </details>
-
           <fieldset className="lab-choice lq06-subexpressions">
             <legend>Which expression plays the part of n, the number of things?</legend>
             <div className="actions">
@@ -381,7 +328,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           )}
         </div>
 
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           <div className="lq06-plots">
             <CoefficientMatchSideBySidePlot
               radiationEnergyJ={currentParams.radiationEnergy}

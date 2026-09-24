@@ -45,6 +45,7 @@ import {
 } from "../../testing/reactDom.ts";
 import { CameraLab } from "./CameraLab.tsx";
 import { InferenceLab } from "./InferenceLab.tsx";
+import { CoefficientMatchLab } from "./lq06/CoefficientMatchLab.tsx";
 import { IonizationLab } from "./lq09/IonizationLab.tsx";
 import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
 import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
@@ -68,80 +69,129 @@ import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
  * rule that hides it applies under the reader pre-paint's data-detail, which only a running script
  * sets. Each row names a lab and a piece of its result's text, which the server markup must carry.
  */
-const LABS: readonly (readonly [string, () => ReactElement, string, boolean])[] = [
-  [
-    "bm-07",
-    () =>
+/**
+ * The gated labs. `result` is text from each lab's result that the server markup must carry.
+ * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-07 and BM-08 share none
+ * (their worker runner is not written); LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
+ * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; LQ-06 has none.
+ */
+type GatedLab = Readonly<{
+  lab: string;
+  element: () => ReactElement;
+  result: string;
+  sharesTape: boolean;
+  statusLine: boolean;
+}>;
+
+const LABS: readonly GatedLab[] = [
+  {
+    lab: "bm-07",
+    element: () =>
       createElement(InferenceLab, { example: rawBm07Example as unknown as PreparedBm07Example }),
-    "What the data identify",
-    false,
-  ],
-  [
-    "bm-08",
-    () => createElement(CameraLab, { example: rawBm08Example as unknown as PreparedBm08Example }),
-    "Four estimates, different assumptions",
-    false,
-  ],
-  ["me-03", () => createElement(BoundaryLedgerLab, {}), "Cited energy-source boundary facts", true],
-  ["lq-09", () => createElement(IonizationLab, {}), "Values at these settings", false],
-  // BM-07 and BM-08 share no ?tape= link (their worker runner is not written); LQ-09, ME-01 and
-  // SR-01 have none yet, their bindings waiting in a worktree (dispatch 145).
-  [
-    "me-01",
-    () => createElement(TwoLedgersLab, { example: ME01_EXAMPLE }),
-    "Derivation steps",
-    false,
-  ],
-  ["sr-01", () => createElement(ClockSyncLab, {}), "Event ledger", false],
-  [
-    "sr-02",
-    () => createElement(MagnetConductorLab, { example: SR02_EXAMPLE }),
-    "Accepted snapshot",
-    true,
-  ],
-  [
-    "sr-06",
-    () => createElement(VelocityCompositionLab, { example: SR06_EXAMPLE }),
-    "Accepted composition",
-    true,
-  ],
-  [
-    "sr-08",
-    () => createElement(FieldFrameChangeLab, { example: SR08_EXAMPLE }),
-    "Transformation ledger",
-    true,
-  ],
-  [
-    "sr-09",
-    () => createElement(DopplerAberrationLab, { example: SR09_EXAMPLE }),
-    "Values at these settings",
-    true,
-  ],
-  [
-    "sr-10",
-    () =>
+    result: "What the data identify",
+    sharesTape: false,
+    statusLine: true,
+  },
+  {
+    lab: "bm-08",
+    element: () =>
+      createElement(CameraLab, { example: rawBm08Example as unknown as PreparedBm08Example }),
+    result: "Four estimates, different assumptions",
+    sharesTape: false,
+    statusLine: true,
+  },
+  {
+    lab: "lq-06",
+    element: () => createElement(CoefficientMatchLab, {}),
+    result: "Values at these settings",
+    sharesTape: true,
+    statusLine: false,
+  },
+  {
+    lab: "lq-09",
+    element: () => createElement(IonizationLab, {}),
+    result: "Values at these settings",
+    sharesTape: false,
+    statusLine: true,
+  },
+  {
+    lab: "me-01",
+    element: () => createElement(TwoLedgersLab, { example: ME01_EXAMPLE }),
+    result: "Derivation steps",
+    sharesTape: false,
+    statusLine: true,
+  },
+  {
+    lab: "me-03",
+    element: () => createElement(BoundaryLedgerLab, {}),
+    result: "Cited energy-source boundary facts",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "sr-01",
+    element: () => createElement(ClockSyncLab, {}),
+    result: "Event ledger",
+    sharesTape: false,
+    statusLine: true,
+  },
+  {
+    lab: "sr-02",
+    element: () => createElement(MagnetConductorLab, { example: SR02_EXAMPLE }),
+    result: "Accepted snapshot",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "sr-06",
+    element: () => createElement(VelocityCompositionLab, { example: SR06_EXAMPLE }),
+    result: "Accepted composition",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "sr-08",
+    element: () => createElement(FieldFrameChangeLab, { example: SR08_EXAMPLE }),
+    result: "Transformation ledger",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "sr-09",
+    element: () => createElement(DopplerAberrationLab, { example: SR09_EXAMPLE }),
+    result: "Values at these settings",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "sr-10",
+    element: () =>
       createElement(LightComplexLab, { example: rawSr10Example as unknown as PreparedSr10Example }),
-    "Values at these settings",
-    true,
-  ],
-  [
-    "sr-11",
-    () => createElement(MovingMirrorLab, { example: SR11_EXAMPLE }),
-    "Values at these settings",
-    true,
-  ],
-  [
-    "sr-12",
-    () => createElement(ChargeCurrentLab, { example: SR12_EXAMPLE }),
-    "Charge and current density telemetry across frames",
-    true,
-  ],
-  [
-    "sr-13",
-    () => createElement(ElectronDynamicsLab, { example: SR13_EXAMPLE }),
-    "Values at these settings",
-    true,
-  ],
+    result: "Values at these settings",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "sr-11",
+    element: () => createElement(MovingMirrorLab, { example: SR11_EXAMPLE }),
+    result: "Values at these settings",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "sr-12",
+    element: () => createElement(ChargeCurrentLab, { example: SR12_EXAMPLE }),
+    result: "Charge and current density telemetry across frames",
+    sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "sr-13",
+    element: () => createElement(ElectronDynamicsLab, { example: SR13_EXAMPLE }),
+    result: "Values at these settings",
+    sharesTape: true,
+    statusLine: true,
+  },
 ];
 
 type Handlers = Record<string, ((...args: unknown[]) => void) | undefined>;
@@ -201,7 +251,7 @@ describe("with JavaScript, a first-time reader answers before the result shows",
     await uninstallDom();
   });
 
-  for (const [lab, element, , sharesTape] of LABS) {
+  for (const { lab, element, sharesTape, statusLine } of LABS) {
     const prompt = PREDICT_PROMPTS[lab]?.[0];
     const supported = prompt?.candidates.find((c) => c.id === prompt.supportedCandidateId);
     const other = prompt?.candidates.find((c) => c.id !== prompt.supportedCandidateId);
@@ -214,7 +264,7 @@ describe("with JavaScript, a first-time reader answers before the result shows",
         expect(waiting.every((s) => s === "awaiting")).toBe(true);
         // Every status line states the result, so each one waits, itself or inside a waiting region.
         const lines = [...container.querySelectorAll(".status-line")];
-        expect(lines.length).toBeGreaterThan(0);
+        expect(lines.length > 0).toBe(statusLine);
         for (const line of lines) expect(line.closest("[data-predict-response]")).not.toBeNull();
         expect(
           container.querySelector("[data-predict-gate]")?.getAttribute("data-predict-gate"),
@@ -391,7 +441,7 @@ describe("a gated lab's prompts judge no choice and speak the paper's vocabulary
   // "naive" is left out: BM-08 names an estimator "naive D", a statistics term, not a verdict.
   const judging =
     /\b(?:wrong(?:ly)?|incorrect(?:ly)?|mistaken(?:ly)?|confus(?:ed|es|ion)|misappl\w*|foolish)\b/i;
-  for (const [lab] of LABS) {
+  for (const { lab } of LABS) {
     test(`${lab}: no judging word, and no "photon", in anything a reader can see`, () => {
       const copy = (PREDICT_PROMPTS[lab] ?? []).flatMap(readerCopy);
       expect(copy.length).toBeGreaterThan(0);
@@ -435,12 +485,12 @@ describe("without JavaScript, nothing is hidden", () => {
       .filter(([, selector]) => selector?.includes(needle))
       .map(([, selector, body]) => ({ selector: (selector ?? "").trim(), body: body ?? "" }));
 
-  for (const [lab, element, resultText] of LABS) {
+  for (const { lab, element, result: resultText, statusLine } of LABS) {
     test(`${lab}: the server markup carries the result beside the waiting attribute`, () => {
       const html = renderToStaticMarkup(element());
       expect(html).toContain('data-predict-response="awaiting"');
       expect(html).toContain(resultText);
-      expect(html).toMatch(/class="[^"]*\bstatus-line\b/);
+      if (statusLine) expect(html).toMatch(/class="[^"]*\bstatus-line\b/);
     });
   }
 

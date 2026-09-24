@@ -291,17 +291,36 @@ predictMode:
     - promptId: lq-06-predict-subexpression
       supportedCandidateId: lq-06-cand-count
       controlId: selectedSubexpression
-      question: "In the equation S - S_0 = (R/N) ln[(V/V_0)^(N*E / (R*beta*nu))], what quantity corresponds to the particle count n in S - S_0 = (R/N) n ln(V/V_0)?"
+      question: "The radiation's entropy is S − S₀ = (R/N) ln[(V/V₀)^{NE/(Rβν)}], and a gas of n molecules has S − S₀ = (R/N) n ln(V/V₀). Which expression plays the part of n?"
+      explanation: "The exponent of V/V₀ is what counts independent things in the gas law. So n_{eff} = NE/(Rβν) = E/(hν), and each of those things carries E/n_{eff} = hν."
       candidates:
         - id: lq-06-cand-count
-          label: "n = N*E / (R*beta*nu) = E / (h*nu)"
+          label: "NE/(Rβν), which is E/(hν)."
           description: "The exponent of the volume ratio V/V_0 plays exactly the role of the number of independent things"
           separatingAssumption: "Mathematical equivalence: the logarithm laws equate the exponent in W = (V/V_0)^n to the radiation coefficient."
         - id: lq-06-cand-energy
-          label: "n = E"
+          label: "E, the total radiant energy."
           description: "Total radiation energy directly replaces particle count"
-          separatingAssumption: "Dimensional error: energy has units of Joules, while n is a dimensionless count."
+          separatingAssumption: "This counts the energy itself. E is measured in joules, while n is a pure count, so E cannot stand where n stands."
         - id: lq-06-cand-entropy-coeff
-          label: "n = E / (beta*nu)"
+          label: "E/(βν), the radiation's own entropy coefficient."
           description: "The unscaled radiation entropy coefficient"
-          separatingAssumption: "Missing Boltzmann constant: E / (beta*nu) has units of J/K (entropy), not dimensionless count."
+          separatingAssumption: "This leaves out the factor N/R. E/(βν) has the units of an entropy, J/K, not of a pure count."
+    - promptId: lq-06-predict-mean-energy
+      supportedCandidateId: lq-06-cand-twice
+      controlId: temperature
+      question: "Over a Wien spectrum, how does the mean energy of a light quantum compare with a gas molecule's mean kinetic energy at the same temperature?"
+      explanation: "In §6 Einstein finds ⟨ε⟩ = 3(R/N)T by integrating the Wien distribution, exactly twice the (3/2)(R/N)T of a monatomic gas molecule."
+      candidates:
+        - id: lq-06-cand-equal
+          label: "They are equal, by equipartition."
+          description: "Equipartition gives the quantum and the molecule the same mean energy"
+          separatingAssumption: "This applies equipartition to the light quanta as to gas molecules. Averaged over a Wien spectrum, a quantum's energy comes to 3(R/N)T, not (3/2)(R/N)T."
+        - id: lq-06-cand-unbounded
+          label: "The quantum's is unboundedly larger, because the field has infinitely many modes."
+          description: "The field's endless modes make the mean energy unbounded"
+          separatingAssumption: "This counts every mode of the field, as the classical radiation law does, so the energy per quantum would grow without limit. Over a Wien spectrum the mean is finite, 3(R/N)T."
+        - id: lq-06-cand-twice
+          label: "The quantum's is twice the molecule's."
+          description: "Over a Wien spectrum the mean is 3(R/N)T, twice the molecule's (3/2)(R/N)T"
+          separatingAssumption: "Integrating the Wien distribution gives the quantum a mean energy of 3(R/N)T."
