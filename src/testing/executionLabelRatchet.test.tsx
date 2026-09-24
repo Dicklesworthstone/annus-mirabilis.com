@@ -20,31 +20,27 @@ import { exportMarkup } from "./exportMarkup.ts";
  * leave it when it does: the list is compared for equality, so a migrated lab left on the list
  * fails as slack, and a new hard-coded label fails as a regression.
  *
- * The four that remain, and why (recorded on the bead):
- * - no digested example: ShelfOptics;
- * - no instance store for deriveHostExecution to read: ModeAllocation (LQ-02), OsmoticPartition
- *   (BM-02);
- * - a build-time snapshot whose outputs are not in the contract the lab declares, so a digest
- *   would still derive "unavailable": Configuration (BM-03).
+ * The one that remains, and why (recorded on the bead): Configuration (BM-03), whose build-time
+ * snapshot carries outputs that are not in the contract the lab declares, so a digest would still
+ * derive "unavailable". ModeAllocation (LQ-02), OsmoticPartition (BM-02) and ShelfOptics left the
+ * list in f16dcaa3: with no instance store, each is static while its state is still the one it
+ * started from, as the reasoning workbenches are (12a926b9).
  * WaveDescription and DriftDiffusion derive their label without a model note: their not-modeled
  * lists live only in the manifests.
  */
-const STILL_HARD_CODED = [
-  "lab/ModeAllocationLab.tsx",
-  "lab/OsmoticPartitionLab.tsx",
-  "lab/bm03/ConfigurationLab.tsx",
-  "lab/shelfOptics/ShelfOpticsLab.tsx",
-];
+const STILL_HARD_CODED = ["lab/bm03/ConfigurationLab.tsx"];
 
 /** Routes whose labs now derive the label; each must render the static label at build time. */
 const DERIVED_ROUTES = [
   "avogadro-lab",
   "light-thread",
+  "bm-02",
   "bm-04",
   "bm-05",
   "bm-06",
   "bm-07",
   "lq-01",
+  "lq-02",
   "lq-03",
   "lq-04",
   "lq-05",
@@ -68,24 +64,20 @@ const DERIVED_ROUTES = [
   "sr-11",
   "sr-12",
   "sr-13",
+  "shelf-fizeau",
+  "shelf-maxwell-galilean",
+  "shelf-michelson-morley",
 ];
 
 /**
- * The routes that may render "host" at build time: the four listed labs' routes, and no other.
+ * The routes that may render "host" at build time: the listed lab's route, and no other.
  * The source scan above reads one directory and a set of spellings; this reads what every lab page
  * actually renders, so neither a new spelling nor a lab outside src/components escapes it. Until
  * 2026-09-24 it did not exist, and rendering every lab route found two more build-time "host"
  * labels, in src/reasoning (countermodels/independence and lq-08/data, fixed in 12a926b9). May only
  * shrink, with STILL_HARD_CODED.
  */
-const HOST_AT_BUILD_TIME = [
-  "bm-02/",
-  "bm-03/",
-  "lq-02/",
-  "shelf-fizeau/",
-  "shelf-maxwell-galilean/",
-  "shelf-michelson-morley/",
-];
+const HOST_AT_BUILD_TIME = ["bm-03/"];
 
 /**
  * Routes whose instrument root may render with no label at build time. The kitchen holds no data
