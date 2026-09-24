@@ -7,6 +7,7 @@ import {
   type NumericExercisePart,
   type NumericVerdict,
   numericPartProblems,
+  plainText,
   unitLabel,
 } from "../../discovery/exercises/numeric.ts";
 import { Sci } from "../lab/Sci.tsx";
@@ -94,7 +95,9 @@ export function NumericPart({ part }: { part: NumericExercisePart }) {
                     <span key={i}>{segment}</span>
                   ) : (
                     // biome-ignore lint/suspicious/noArrayIndexKey: a fixed sentence; segments never reorder
-                    <Sci key={i} value={segment.number} />
+                    <span key={i}>
+                      {plainText(segment.number) ?? <Sci value={segment.number} />}
+                    </span>
                   ),
                 )
               : verdict.message}

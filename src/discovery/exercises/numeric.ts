@@ -127,8 +127,22 @@ export function unitLabel(unit: string): string {
 
 /** A value as a reader would write it: at most four significant figures, powers of ten as ×10^. */
 function shown(value: number, figures = 4): string {
-  const parts = exponentialParts(Number(value.toPrecision(figures)));
+  const rounded = Number(value.toPrecision(figures)) + 0;
+  const plain = plainText(rounded);
+  if (plain !== null) return plain;
+  const parts = exponentialParts(rounded);
   return parts.kind === "plain" ? parts.text : `${parts.mantissa} × 10^${parts.exponent}`;
+}
+
+/**
+ * A number between a thousandth and a million written as a plain decimal, 80 and not 8 × 10¹,
+ * with a true minus; null outside that range, where a power of ten reads better. The page draws
+ * the null case with Sci, so text and page agree on which numbers get a power of ten.
+ */
+export function plainText(value: number): string | null {
+  const size = Math.abs(value);
+  if (!Number.isFinite(value) || (size !== 0 && (size < 1e-3 || size >= 1e6))) return null;
+  return String(value).replace("-", "\u2212");
 }
 
 const TENS: Readonly<Record<number, readonly [string, string]>> = {

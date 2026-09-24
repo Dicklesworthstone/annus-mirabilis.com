@@ -4,6 +4,7 @@ import {
   checkNumericAnswer,
   ExerciseReferenceError,
   type NumericExercisePart,
+  plainText,
   referenceFromEvaluation,
 } from "./numeric.ts";
 
@@ -182,6 +183,27 @@ describe("a right number in the wrong unit is told which unit it belongs to", ()
     const verdict = checkNumericAnswer(LAMBDA, "7.948e-5", "m");
     expect(verdict.message).not.toContain("would agree in");
     expect(verdict.message).toStartWith("Your value is about a hundred times the reference.");
+  });
+});
+
+describe("numbers read as a person writes them", () => {
+  test("80 cm is 80, not 8 × 10¹; 7.713 × 10⁻²⁰ keeps its power of ten", () => {
+    const rod: NumericExercisePart = {
+      ...LAMBDA,
+      units: ["m", "cm"],
+      reference: referenceFromEvaluation({ status: "value", value: 0.8 }, context),
+    };
+    expect(checkNumericAnswer(rod, "80", "cm").message).toStartWith(
+      "This agrees with the reference, 80\u00a0cm,",
+    );
+    expect(plainText(80)).toBe("80");
+    expect(plainText(-0.5)).toBe("\u22120.5");
+    expect(plainText(0)).toBe("0");
+    expect(plainText(999999)).toBe("999999");
+    expect(plainText(1e6)).toBeNull();
+    expect(plainText(7.713e-20)).toBeNull();
+    expect(plainText(0.001)).toBe("0.001");
+    expect(plainText(0.00099)).toBeNull();
   });
 });
 
