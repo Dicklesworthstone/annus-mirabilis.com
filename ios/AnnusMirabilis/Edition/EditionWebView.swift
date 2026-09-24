@@ -19,6 +19,7 @@ struct EditionWebView: UIViewRepresentable {
 /// keeps its navigation; this adds no second menu of destinations.
 struct PageActionsButton: View {
     let session: EditionSession
+    @State private var showingReaderData = false
 
     var body: some View {
         Menu {
@@ -41,6 +42,12 @@ struct PageActionsButton: View {
             } label: {
                 Label("Find on this page", systemImage: "text.magnifyingglass")
             }
+            Divider()
+            Button {
+                showingReaderData = true
+            } label: {
+                Label("Your data on this device", systemImage: "tray.full")
+            }
         } label: {
             Image(systemName: "ellipsis")
                 .font(.body.weight(.semibold))
@@ -50,8 +57,11 @@ struct PageActionsButton: View {
         }
         .tint(.primary)
         .accessibilityLabel("Page actions")
-        .accessibilityHint("Share, print, or find on this page")
+        .accessibilityHint("Share, print, or find on this page, or see your data on this device")
         .accessibilityIdentifier("page-actions")
+        .sheet(isPresented: $showingReaderData) {
+            ReaderDataView(session: session)
+        }
     }
 }
 

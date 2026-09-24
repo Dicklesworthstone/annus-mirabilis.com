@@ -61,10 +61,17 @@ struct ReaderData: Sendable {
     /// The file /your-data/ writes, from the app's copy: every exportable namespace that holds
     /// something, or only those whose key starts with `prefix`.
     func export(prefix: String? = nil, at date: Date) -> ReaderDataExport {
+        export(at: date) { key in prefix.map { key.hasPrefix($0) } ?? true }
+    }
+
+    /// The same file for exactly one namespace.
+    func export(key: String, at date: Date) -> ReaderDataExport {
+        export(at: date) { $0 == key }
+    }
+
+    private func export(at date: Date, including include: (String) -> Bool) -> ReaderDataExport {
         let namespaces = manifest.registry.compactMap { entry -> ReaderDataExport.Namespace? in
-            guard entry.exportable, prefix.map({ entry.key.hasPrefix($0) }) ?? true,
-                let raw = values[entry.key]
-            else { return nil }
+            guard entry.exportable, include(entry.key), let raw = values[entry.key] else { return nil }
             // As the site does: a document is its parsed JSON, an unreadable one its text.
             let isJSON =
                 entry.kind == "document"

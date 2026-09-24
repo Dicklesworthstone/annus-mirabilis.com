@@ -124,6 +124,19 @@ struct ReaderDataTests {
         #expect((single["value"] as? [String: Any]).map(NSDictionary.init(dictionary:)) == expected[one])
     }
 
+    @Test("one row's export is exactly that namespace, as the site exports it by name")
+    func exportOneKey() throws {
+        let (cases, expected) = try fixture()
+        let index = try #require(cases.firstIndex { $0.prefix == "am:discovery-notes:v1:brownian-motion" })
+        let item = cases[index]
+        let data = ReaderData(
+            manifest: ReaderDataManifest(snapshot: Self.snapshot, registry: item.registry), values: item.storage)
+        let exported = data.export(key: "am:discovery-notes:v1:brownian-motion", at: try date(item.exportedAt))
+        #expect(NSDictionary(dictionary: exported.replyObject()) == expected[index])
+        // A key is not a prefix here: "am:discovery-notes:v1:" names no single namespace.
+        #expect(data.export(key: "am:discovery-notes:v1:", at: try date(item.exportedAt)).namespaces.isEmpty)
+    }
+
     @Test("this build's edition carries the site's registry and names the mirror's record")
     func bundledRegistry() throws {
         let catalog = try EditionCatalog.load()

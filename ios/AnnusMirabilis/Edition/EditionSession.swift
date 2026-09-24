@@ -144,10 +144,27 @@ final class EditionSession {
             presenter = next
         }
         let sheet = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        sheet.popoverPresentationController?.sourceView = webView
-        sheet.popoverPresentationController?.sourceRect = CGRect(
-            x: webView.bounds.midX, y: webView.bounds.midY, width: 1, height: 1)
+        // Anchored in the presenter's own view: the web view sits under any sheet the app shows.
+        if let anchor = presenter.view {
+            sheet.popoverPresentationController?.sourceView = anchor
+            sheet.popoverPresentationController?.sourceRect = CGRect(
+                x: anchor.bounds.midX, y: anchor.bounds.midY, width: 1, height: 1)
+        }
         presenter.present(sheet, animated: true)
+    }
+
+    /// The reader's data as the app holds it; nil when this build has no store or registry.
+    func loadReaderData() -> ReaderData.LoadResult? {
+        guard let store = router.store, let manifest = catalog.readerData else { return nil }
+        return ReaderData.load(from: store, manifest: manifest)
+    }
+
+    /// Writes an export of the reader's data and offers it in the share sheet.
+    func share(_ export: ReaderDataExport) {
+        guard let file = ExportFiles.destination(suggested: export.suggestedFilename),
+            (try? export.jsonData().write(to: file, options: .atomic)) != nil
+        else { return }
+        presentShareSheet(for: file)
     }
 
     /// Print, or save as PDF, the page as the edition's print styles set it.
@@ -260,16 +277,7 @@ final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDo
     func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String)
         async -> URL?
     {
-        // A fresh folder in the app's temporary directory; the system clears it, the reader
-        // chooses where the file goes from the share sheet.
-        let folder = FileManager.default.temporaryDirectory
-            .appendingPathComponent("exports", isDirectory: true)
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        guard (try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)) != nil else {
-            return nil
-        }
-        let name = Self.safeFilename(suggestedFilename)
-        let destination = folder.appendingPathComponent(name, isDirectory: false)
+        guard let destination = ExportFiles.destination(suggested: suggestedFilename) else { return nil }
         destinations[ObjectIdentifier(download)] = destination
         return destination
     }
@@ -284,7 +292,7 @@ final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDo
     }
 
     /// The page's suggested name, reduced to a plain file name.
-    static func safeFilename(_ suggested: String) -> String {
+    nonisolated static func safeFilename(_ suggested: String) -> String {
         let last = (suggested as NSString).lastPathComponent
         let cleaned = String(
             last.unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) || "-_. ".unicodeScalars.contains($0) }
@@ -328,5 +336,20 @@ final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDo
         case .refuse:
             return .cancel
         }
+    }
+}
+
+/// Files the reader takes away: a page's own export, or the app's export of the reader's data.
+/// Each goes in a fresh folder in the app's temporary directory, which the system clears; the
+/// reader chooses where it goes from the share sheet.
+enum ExportFiles {
+    static func destination(suggested: String) -> URL? {
+        let folder = FileManager.default.temporaryDirectory
+            .appendingPathComponent("exports", isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        guard (try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)) != nil else {
+            return nil
+        }
+        return folder.appendingPathComponent(EditionNavigator.safeFilename(suggested), isDirectory: false)
     }
 }
