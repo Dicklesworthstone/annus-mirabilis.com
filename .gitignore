@@ -26,6 +26,9 @@ yarn-error.log*
 bun.lockb
 .turbo
 *.tsbuildinfo
+# ruff (the Python linter) leaves this at the root when run on scripts/figures; the root-allowlist
+# gate refuses any unignored root entry.
+.ruff_cache/
 
 # OS
 .DS_Store
