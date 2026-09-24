@@ -9,7 +9,7 @@ export type Sr01ParameterCheck =
 const SPEED_NAMES: Partial<Record<keyof Sr01Parameters, string>> = {
   rodBeta: "the stations' speed (section 2)",
   pairBeta: "the moving pair's velocity",
-  frameBeta: "the frame of description's speed",
+  frameBeta: "the frame of description",
 };
 
 function refuseBeta(name: keyof Sr01Parameters, value: number): Sr01ParameterCheck | null {
@@ -20,7 +20,9 @@ function refuseBeta(name: keyof Sr01Parameters, value: number): Sr01ParameterChe
       refusal: makeRefusal(
         "nonfinite-input",
         { parameterIds: [name] },
-        { details: { requirements: `Enter ${speed} as a fraction of c, between −1 and 1.` } },
+        {
+          details: { requirements: `Enter ${speed} as a fraction of c strictly between −1 and 1.` },
+        },
       ),
     };
   }
