@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BROWNIAN_LATER_EVIDENCE } from "../../content/brownianShelf.ts";
 import { WORLD_CHECK } from "../../discovery/brownian/journeyII.ts";
+import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
+import { createBm01Session } from "../../experiments/bm01/session.ts";
 import example from "../../generated/bm01-example.json";
 import { BrownianWorldCheck } from "./BrownianWorldCheck.tsx";
 
@@ -63,5 +65,41 @@ describe("the check against the world reads the tracer ensemble's accepted snaps
     const text = render(example).replace(/<[^>]+>/g, " ");
     expect(text).not.toContain("World check · #");
     expect(text).not.toContain("constants: einstein-1905-brownian-printed");
+  });
+});
+
+describe("with no accepted snapshot the check refuses", () => {
+  test("world-check-snapshot-missing: it throws its code rather than show a readout the ensemble never produced", () => {
+    // A real session whose snapshot reports nothing accepted, the state a store is in before its
+    // first result is published. createBm01Session itself refuses an example it cannot publish,
+    // so an embedder's session is the only route into this site.
+    const real = createBm01Session("world-check-refusal", example, createBm01BrowserChannel);
+    const empty = { ...real.getServerSnapshot(), accepted: null };
+    const session: typeof real = {
+      ...real,
+      getSnapshot: () => empty,
+      getServerSnapshot: () => empty,
+    };
+    expect(() =>
+      renderToStaticMarkup(
+        <BrownianWorldCheck
+          example={example}
+          check={WORLD_CHECK}
+          laterEvidence={BROWNIAN_LATER_EVIDENCE}
+          session={session}
+        />,
+      ),
+    ).toThrow("world-check-snapshot-missing");
+    // Positive control: the same real session, snapshot intact, renders the readout.
+    expect(
+      renderToStaticMarkup(
+        <BrownianWorldCheck
+          example={example}
+          check={WORLD_CHECK}
+          laterEvidence={BROWNIAN_LATER_EVIDENCE}
+          session={real}
+        />,
+      ),
+    ).toContain('data-world-check-quantity="lambdaX1s"');
   });
 });

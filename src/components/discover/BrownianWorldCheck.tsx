@@ -32,14 +32,18 @@ export function BrownianWorldCheck({
   example,
   check,
   laterEvidence,
+  session: sharedSession,
 }: {
   example: PreparedBm01Example;
   check: WorldCheckType;
   laterEvidence: readonly KnowledgeCard[];
+  /** A session owned by whoever embeds the check, as TracerLab takes one. Omitted, it owns its own. */
+  session?: ReturnType<typeof createBm01Session> | undefined;
 }) {
   const id = useId();
-  const [session] = useState(() =>
-    createBm01Session(`world-check-${id}`, example, createBm01BrowserChannel),
+  const [session] = useState(
+    () =>
+      sharedSession ?? createBm01Session(`world-check-${id}`, example, createBm01BrowserChannel),
   );
   const view = useSyncExternalStore(
     session.subscribe,
@@ -47,7 +51,9 @@ export function BrownianWorldCheck({
     session.getServerSnapshot,
   );
   const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
-  if (!snapshot) throw new Error("Missing accepted tracer snapshot");
+  // Refused, not guessed: without an accepted snapshot there is no prediction to compare, and a
+  // readout of zeros or of the inputs would be a number the instrument never produced.
+  if (!snapshot) throw new Error("world-check-snapshot-missing", { cause: session });
   const p = snapshot.parameters as Bm01Parameters;
   const [ready, setReady] = useState(false);
   const [note, setNote] = useState("");
