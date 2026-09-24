@@ -34,10 +34,6 @@
   width: auto;
   flex: 0 0 auto;
 }
-.shelf-lab :is(input, textarea, button, summary, .shelf-table-scroll):focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
-}
 .shelf-table-scroll {
   overflow-x: auto;
   margin-block: 1.5rem;

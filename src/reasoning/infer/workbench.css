@@ -118,10 +118,6 @@
 .inference-workbench button {
   min-height: 44px;
 }
-.inference-workbench :focus-visible {
-  outline: 3px solid currentColor;
-  outline-offset: 3px;
-}
 @media (max-width: 600px) {
   .inference-workbench .infer-fields,
   .inference-workbench .infer-readouts {
