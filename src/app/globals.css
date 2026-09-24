@@ -739,7 +739,10 @@ h3 {
      same reason. */
   letter-spacing: -0.02em;
 }
-.encounter header {
+/* The route's own opening header only. As a descendant selector it also gave 3rem to every
+   component header inside the route (the world check, the move, the forks, the doors), which
+   opened a 48px gap under each one's title row on live. */
+.encounter > header {
   margin-bottom: 3rem;
 }
 /* Discover (pane %33). A route opens on a two-sentence question the reader has to read twice,
