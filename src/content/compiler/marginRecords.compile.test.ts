@@ -17,7 +17,7 @@ const corpus = await loadReadingFiles();
 const misconception = (id: string, change: Record<string, unknown> = {}) => ({
   kind: "misconception",
   id,
-  paper: "mass-energy",
+  paper: "fixture-paper",
   temptingClaims: ["A fixture claim."],
   whyTempting: "A fixture reason.",
   whereItIsTrue: "none",
@@ -48,8 +48,11 @@ const note = (id: string, change: Record<string, unknown> = {}) => ({
 });
 
 const file = (path: string, record: unknown) => ({ path, text: JSON.stringify(record) });
-const miscPath = (id: string) => `misconceptions/mass-energy/${id}.json`;
-const notePath = (id: string) => `editorial-notes/mass-energy/${id}.json`;
+// Fixtures are filed under a paper with no real records. They were filed under mass-energy until
+// its seven entries landed (dispatch 163), when one fixture plus seven real entries stopped being a
+// ledger short of five and the minimum case below could no longer fire.
+const miscPath = (id: string) => `misconceptions/fixture-paper/${id}.json`;
+const notePath = (id: string) => `editorial-notes/fixture-paper/${id}.json`;
 
 const compilers = [
   ["reading", compileReadingContent],
@@ -114,15 +117,21 @@ test("checkMisconceptionRecord refuses a record whose id or paper disagrees with
   };
   // The control: id and paper both agree with the path, so it is admitted.
   expect(
-    refused(misconception("misc-me-fixture-x"), { id: "misc-me-fixture-x", paper: "mass-energy" }),
+    refused(misconception("misc-me-fixture-x"), {
+      id: "misc-me-fixture-x",
+      paper: "fixture-paper",
+    }),
   ).toBe("admitted");
   expect(
-    refused(misconception("misc-me-fixture-x"), { id: "misc-me-fixture-z", paper: "mass-energy" }),
+    refused(misconception("misc-me-fixture-x"), {
+      id: "misc-me-fixture-z",
+      paper: "fixture-paper",
+    }),
   ).toBe("path-identity");
   expect(
     refused(misconception("misc-me-fixture-x", { paper: "light-quanta" }), {
       id: "misc-me-fixture-x",
-      paper: "mass-energy",
+      paper: "fixture-paper",
     }),
   ).toBe("path-identity");
 });
