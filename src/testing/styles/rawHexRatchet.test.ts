@@ -227,11 +227,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
   },
   {
     file: "src/components/lab/WaveDescriptionPlots.tsx",
-    hex: "#e11d48",
-    reason: "Selected screen position probe marker line, circle, and text in InterferencePlot",
-  },
-  {
-    file: "src/components/lab/WaveDescriptionPlots.tsx",
     hex: "#38bdf8",
     reason:
       "Coherent wave source S1 crest wavefront rings, pinhead marker, and screen center intensity spot in WavefrontPlot",
