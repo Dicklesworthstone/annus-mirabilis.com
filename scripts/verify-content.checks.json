@@ -3,6 +3,7 @@
   "checks": [
     { "id": "structural-duplicate-id", "family": "structural" },
     { "id": "structural-missing-source-block", "family": "structural" },
+    { "id": "formula-equations", "family": "structural" },
     { "id": "structural-broken-alignment", "family": "structural" },
     { "id": "structural-dangling-citation", "family": "structural" },
     { "id": "structural-impossible-date-order", "family": "structural" },
