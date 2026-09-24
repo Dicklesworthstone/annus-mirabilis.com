@@ -28,6 +28,12 @@
  * its ASCII spelling ("alpha_v", "1.35*10^-2"). Each links to the first entry that uses it; the
  * old links pointed at 121 anchors that no element carried.
  */
+/* On a phone .page-intro has 2rem above, so the concordance does too. */
+@media (max-width: 560px) {
+  .notation-page {
+    padding-top: 2rem;
+  }
+}
 .notation-header {
   margin-bottom: 2.5rem;
 }

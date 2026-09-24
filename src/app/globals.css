@@ -1416,8 +1416,9 @@ samp,
     padding-inline: 0;
     border-inline: 0;
   }
+  /* 2rem above, as .page-intro has on a phone. */
   .hero {
-    padding: 2.5rem 0;
+    padding: 2rem 0 2.5rem;
   }
   .lead {
     font-size: var(--type-body);
