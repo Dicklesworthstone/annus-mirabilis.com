@@ -18,8 +18,9 @@ import { decodeSr06Settings, encodeSr06Settings } from "../../../experiments/sr0
 import { createSr06Session, type PreparedSr06Example } from "../../../experiments/sr06/session.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { result } from "../presentation.ts";
+import { fixed, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { VelocityCompositionPlot } from "./VelocityCompositionPlot.tsx";
 
@@ -90,6 +91,17 @@ export function VelocityCompositionLab({
   const [note, setNote] = useState("");
   const [predict, setPredict] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  // One sentence for the status line: the composed speed beside the Galilean sum.
+  const numberAt = (quantityId: string) => {
+    const item = result(snapshot, quantityId);
+    return item.status === "value" && typeof item.value === "number" ? item.value : null;
+  };
+  const composed = numberAt("composedSpeedOverC");
+  const galilean = numberAt("galileanSpeedOverC");
+  const statusSummary =
+    composed === null
+      ? "the composed speed is not defined at these settings."
+      : `composing ${fixed(p.frameBeta, 4)}c with ${fixed(p.movingSpeed, 4)}c at ${fixed(p.alphaDeg, 1)}° gives ${fixed(composed, 4)}c${galilean === null ? "" : `, where Galileo's addition gives ${fixed(galilean, 4)}c`}.`;
 
   useEffect(() => {
     setReady(true);
@@ -302,6 +314,10 @@ export function VelocityCompositionLab({
             </button>
           </p>
         </form>
+        <AcceptedStatus
+          worked={snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
         <div>
           <VelocityCompositionPlot snapshot={snapshot} />
           <table className="inference-summary">

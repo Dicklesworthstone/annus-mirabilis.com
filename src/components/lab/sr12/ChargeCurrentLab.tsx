@@ -19,8 +19,9 @@ import { validateSr12Parameters } from "../../../experiments/sr12/parameters.ts"
 import { createSr12Session, type PreparedSr12Example } from "../../../experiments/sr12/session.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { display, fixed, identity, result } from "../presentation.ts";
+import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { ChargeCurrentPlot } from "./ChargeCurrentPlot.tsx";
 import "../labControls.css";
@@ -100,6 +101,18 @@ export function ChargeCurrentLab({
   const loopTot = result(snapshot, "loopTotalCharge");
   const sphereStat = result(snapshot, "sphereTotalChargeStationary");
   const sphereMov = result(snapshot, "sphereTotalChargeMoving");
+  // One sentence for the status line: the charge density in each frame, and what it means for
+  // the neutrality a reader is asked to predict.
+  const rhoK =
+    rhoStat?.status === "value" && typeof rhoStat.value === "number" ? rhoStat.value : null;
+  const rhoPrime =
+    rhoMov?.status === "value" && typeof rhoMov.value === "number" ? rhoMov.value : null;
+  const charge = (rho: number) =>
+    rho === 0 ? "neutral" : rho < 0 ? "negatively charged" : "positively charged";
+  const statusSummary =
+    rhoK === null || rhoPrime === null
+      ? "the moving frame's charge density is not computed at these settings."
+      : `in the laboratory the charge density is ${sentenceNumber(rhoK)} C/m³ (${charge(rhoK)}); described from the frame moving at ${fixed(p.boost / C_SI, 3)}c it is ${sentenceNumber(rhoPrime)} C/m³ (${charge(rhoPrime)}).`;
 
   const presets = [
     {
@@ -455,6 +468,10 @@ export function ChargeCurrentLab({
           <p className="fine">Changes here apply with Apply parameters.</p>
         </ExperimentSettings>
       </form>
+      <AcceptedStatus
+        worked={snapshot === session.getServerSnapshot().accepted}
+        summary={statusSummary}
+      />
 
       {/* Telemetry Output Table */}
       <section

@@ -13,6 +13,7 @@ import {
 } from "../../../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../../../experiments/sr05/session.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import "./sr05.css";
@@ -97,6 +98,19 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
   const equatorRate = numberOf(outputs, "equatorFractionalRate");
   const equatorNs = numberOf(outputs, "equatorApproxNanosecondsPerDay");
   const dailyLossSpeedBeta = numberOf(outputs, "dailyLossSpeedBeta");
+  // One sentence for the status line: what the platform clocks and the moving clock read.
+  const route =
+    params === undefined
+      ? ""
+      : ({
+          inertial: " in a straight line",
+          "out-and-back": " out and back",
+          circle: " round a circle",
+        }[params.worldlinePreset] ?? "");
+  const statusSummary =
+    params === undefined || properTime === null || coordinateTime === null
+      ? "no clock reading is available for these settings."
+      : `a clock moving at ${fmt(params.speed)}c${route}: the platform clocks read ${fmt(coordinateTime)} s while it reads ${fmt(properTime)} s.`;
 
   return (
     <section
@@ -152,6 +166,10 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
               <dd data-field="coordinateDuration">{fmt(params.coordinateDuration)} s</dd>
             </dl>
           ) : null}
+          <AcceptedStatus
+            worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
+            summary={statusSummary}
+          />
         </div>
 
         <section

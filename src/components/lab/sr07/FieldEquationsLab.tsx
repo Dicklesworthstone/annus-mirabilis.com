@@ -30,8 +30,9 @@ import {
 import { decodeSr07Settings, encodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
 import { createSr07Session, type PreparedSr07Example } from "../../../experiments/sr07/session.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { identity, result } from "../presentation.ts";
+import { fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
 
@@ -147,6 +148,10 @@ export function FieldEquationsLab({
   const formOk = result(snapshot, "formInvariant");
   const invariant =
     formOk.status === "value" && typeof formOk.value === "number" && formOk.value === 1;
+  // One sentence for the status line: whether the six equations keep their form, and the largest
+  // residual the plane-wave check found.
+  const residual = result(snapshot, "residualMax");
+  const statusSummary = `boosting at ${fixed(p.boostBeta, 4)}c, the six Maxwell–Hertz equations ${invariant ? "keep their form" : "do not keep their form"} in the moving system${residual.status === "value" && typeof residual.value === "number" ? `; the largest residual at twenty seeded events is ${sentenceNumber(residual.value)}` : ""}.`;
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation of the residuals a host calculation. The algebra above them
@@ -329,7 +334,15 @@ export function FieldEquationsLab({
               </button>
             </ExperimentSettings>
           </form>
-          {error ? <p className="notice error">{error}</p> : null}
+          {error ? (
+            <p className="notice error" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <AcceptedStatus
+            worked={snapshot === undefined || snapshot === session.getServerSnapshot().accepted}
+            summary={statusSummary}
+          />
         </div>
 
         <div className="lab-results">

@@ -16,6 +16,7 @@ import {
 } from "../../experiments/sr03/definition.ts";
 import { decodeSr03Settings, encodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
+import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { fixed } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
@@ -205,6 +206,16 @@ export function RodSimultaneityLab({
 
   const isNonSimultaneousRefusal =
     measOut?.status === "not-applicable" && measOut.reason.includes("simultaneous");
+  // One sentence for the status line, the verdict the strip figure prints: how far apart the two
+  // readings are in the measuring frame, and whether that separation is a length there. The
+  // readings are the chosen event pair, not necessarily the rod's ends.
+  const dxShown = p.measuringFrame === "K" ? dxK : dxk;
+  const cdtShown = p.measuringFrame === "K" ? dtK : dtk;
+  const statusSummary = `the two readings are ${fixed(dxShown, 2)} ls and cΔt = ${fixed(cdtShown, 2)} ls apart in frame ${p.measuringFrame}; ${
+    isNonSimultaneousRefusal
+      ? "they are not simultaneous there, so their separation is not a length measurement"
+      : `they are simultaneous there, so their separation is a distance in frame ${p.measuringFrame}: ${measuredL === null ? "not computed" : `${fixed(measuredL, 2)} ls`}`
+  }.`;
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -696,6 +707,10 @@ export function RodSimultaneityLab({
             </fieldset>
           </form>
         </ExperimentSettings>
+        <AcceptedStatus
+          worked={snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
       </div>
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
