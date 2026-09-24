@@ -19,6 +19,7 @@ import { claimedDisplayIds } from "./displayClaims.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
 import { glossReviewSummary } from "./glossReview.ts";
 import { renderInlines } from "./inlines.tsx";
+import { speakInlines } from "./mathSpeech.ts";
 import type { FaceId } from "./registry.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
@@ -102,9 +103,9 @@ export function GlossFace({
       .map((tId) => translationMap.get(tId))
       .filter(Boolean) as TranslationUnit[];
     if (trUnits.length === 0) return undefined;
-    return trUnits
-      .map((u) => u.inlines.map((inl) => ("text" in inl ? inl.text : "")).join(" "))
-      .join(" ");
+    // Every word and every quantity: speakInlines keeps emphasis and speaks each formula, where
+    // this took text inlines alone and left a sentence's formulas out of what a screen reader heard.
+    return trUnits.map((u) => speakInlines(u.inlines)).join(" ");
   };
   const glossSentenceFor = (block: SourceBlock, sp: SourceBlock["sentenceSpans"][number]) => (
     <GlossSentence
