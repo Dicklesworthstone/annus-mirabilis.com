@@ -172,4 +172,24 @@ describe("SR-11 publishes its powers in watts, with the speed of light in m/s", 
     expect(read("radiationPressure")).toBeCloseTo(0.5, 12);
     expect(Math.abs(read("energyBalanceResidual")) / read("incidentPower")).toBeLessThan(1e-12);
   });
+
+  test("the mirror's own frame reports intensity-based powers and the 0.5 N force in SI", () => {
+    // In the mirror frame the ledger takes an intensity, u·c. Passing u alone (as before the
+    // fix) gave 0.25 W and a force of 0.5/c = 1.67 × 10⁻⁹ N.
+    const snap = evaluateSr11({
+      beta: 0.6,
+      incidentAngleDeg: 0,
+      incidentEnergyDensity: 1,
+      mirrorArea: 1,
+      frame: "mirror",
+    });
+    const read = (id: string) => {
+      const r = snap.results.find((o) => o.quantityId === id);
+      return r?.status === "value" && typeof r.value === "number" ? r.value : Number.NaN;
+    };
+    expect(read("incidentPower") / C_SI).toBeCloseTo(0.25, 12);
+    expect(read("reflectedPower") / C_SI).toBeCloseTo(0.25, 12);
+    expect(read("workRate")).toBe(0);
+    expect(read("radiationForce")).toBeCloseTo(0.5, 12);
+  });
 });
