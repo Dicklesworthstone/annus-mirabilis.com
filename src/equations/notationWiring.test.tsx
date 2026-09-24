@@ -14,6 +14,7 @@ import { ColouredFormula } from "../reader/ColouredFormula.tsx";
 import type { EquationRecord } from "./record.ts";
 import { compileEquation, compileEquationWithNotation } from "./render.ts";
 import { SemanticEquation } from "./SemanticEquation.tsx";
+import { withQuantityIds } from "./termQuantities.ts";
 
 const { entries } = loadConcordanceForPaper("special-relativity");
 const record = (id: string): EquationRecord =>
@@ -70,10 +71,12 @@ describe("the views carry both forms", () => {
     const html = renderToStaticMarkup(<SemanticEquation equation={slowClock} />);
     const printed = slowClock.notationForm;
     if (printed?.state !== "printed") throw new Error("slow-clock has no printed form");
-    // The drawing in his letters is the one compiled for it, beside today's.
-    expect(html).toContain(printed.html);
+    // The drawing in his letters is the one compiled for it, beside today's; each term span
+    // carries its exact quantity id as well (termQuantities.ts, dispatch 144), and nothing else
+    // in the compiled drawing changes.
+    expect(html).toContain(withQuantityIds(printed.html, slowClock.terms));
     expect(html).toContain(printed.mathml);
-    expect(html).toContain(slowClock.html);
+    expect(html).toContain(withQuantityIds(slowClock.html, slowClock.terms));
     expect(html.match(/data-notation-form="printed"/g)?.length).toBe(4);
     expect(html.match(/data-notation-form="modern"/g)?.length).toBe(4);
     expect(html).toContain("Einstein&#x27;s letters");
@@ -94,7 +97,7 @@ describe("the views carry both forms", () => {
     expect(mixed).toContain("data-notation-note");
     const whole = renderToStaticMarkup(<ColouredFormula equations={[slowClock]} />);
     if (slowClock.notationForm?.state === "printed")
-      expect(whole).toContain(slowClock.notationForm.html);
+      expect(whole).toContain(withQuantityIds(slowClock.notationForm.html, slowClock.terms));
     // Visual and MathML for the relation, and the two renamed quantities' legend glyphs.
     expect(whole.match(/data-notation-form="printed"/g)?.length).toBe(4);
     expect(whole).not.toContain("data-notation-note");
