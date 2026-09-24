@@ -14,6 +14,8 @@
  * - `edition-files.txt`: the list `rsync --files-from` copies;
  * - `bridge-user-script.js`: the native bridge's document-start script, whose
  *   SHA-256 the manifest records; the app injects it only when the digest matches;
+ * - `test-console.js`: the test console (src/platform/app-bridge/testConsole.ts),
+ *   pinned the same way, which only a DEBUG build injects and only in a UI test;
  * - `edition-inputs.xcfilelist` and `edition-outputs.xcfilelist`: the bundling
  *   phase's declared inputs and outputs, so user-script sandboxing stays on.
  *
@@ -31,6 +33,7 @@ import {
   SETTINGS_SNAPSHOT_TEMPLATE,
   SITE_TYPE_SIZES,
 } from "../../src/platform/app-bridge/settingsSnapshot.ts";
+import { TEST_CONSOLE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/testConsole.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
 import {
   buildNativeCatalog,
@@ -44,6 +47,7 @@ export const EDITION_SCHEMA_VERSION = "annus-mirabilis-app-edition.v1";
 /** The bridge user script, written beside the manifest and bundled beside it, never inside Edition/. */
 export const BRIDGE_SCRIPT_FILE = "bridge-user-script.js";
 export const SETTINGS_SNAPSHOT_FILE = "settings-snapshot.js";
+export const TEST_CONSOLE_FILE = "test-console.js";
 
 export type AppExportErrorCode =
   | "no-web-build"
@@ -503,6 +507,14 @@ export function exportEdition(options: {
         bytes: Buffer.byteLength(SETTINGS_SNAPSHOT_TEMPLATE),
         placeholder: SETTINGS_SNAPSHOT_PLACEHOLDER,
       },
+      {
+        // A UI test's evidence (bead am-app-test-harness-da6e): injected only by a DEBUG build.
+        id: "test-console",
+        file: TEST_CONSOLE_FILE,
+        sha256: createHash("sha256").update(TEST_CONSOLE_USER_SCRIPT_SOURCE).digest("hex"),
+        bytes: Buffer.byteLength(TEST_CONSOLE_USER_SCRIPT_SOURCE),
+        debugOnly: true,
+      },
     ],
     // The site's type-size steps, which the app maps the reader's system text size onto.
     settings: { typeSizes: SITE_TYPE_SIZES },
@@ -527,6 +539,7 @@ export function exportEdition(options: {
   writeFileSync(join(dest, "edition-files.txt"), files.map((file) => `${file.path}\n`).join(""));
   writeFileSync(join(dest, BRIDGE_SCRIPT_FILE), BRIDGE_USER_SCRIPT_SOURCE);
   writeFileSync(join(dest, SETTINGS_SNAPSHOT_FILE), SETTINGS_SNAPSHOT_TEMPLATE);
+  writeFileSync(join(dest, TEST_CONSOLE_FILE), TEST_CONSOLE_USER_SCRIPT_SOURCE);
   writeFileSync(join(dest, NATIVE_CATALOG_FILE), catalogText);
   // The bundling phase reads out/ from wherever this export read it, not only the main checkout.
   writeFileSync(join(dest, "edition-source.txt"), `${outDir}\n`);
@@ -538,6 +551,7 @@ export function exportEdition(options: {
       "$(SRCROOT)/../generated/app-edition/edition-files.txt",
       `$(SRCROOT)/../generated/app-edition/${BRIDGE_SCRIPT_FILE}`,
       `$(SRCROOT)/../generated/app-edition/${SETTINGS_SNAPSHOT_FILE}`,
+      `$(SRCROOT)/../generated/app-edition/${TEST_CONSOLE_FILE}`,
       `$(SRCROOT)/../generated/app-edition/${NATIVE_CATALOG_FILE}`,
       "$(SRCROOT)/../generated/app-edition/edition-source.txt",
       ...files.map((file) => `${outDir}/${file.path}`),
@@ -550,6 +564,7 @@ export function exportEdition(options: {
       `${bundled}/edition-manifest.json`,
       `${bundled}/${BRIDGE_SCRIPT_FILE}`,
       `${bundled}/${SETTINGS_SNAPSHOT_FILE}`,
+      `${bundled}/${TEST_CONSOLE_FILE}`,
       `${bundled}/${NATIVE_CATALOG_FILE}`,
       `${bundled}/Edition`,
       // The script sandbox grants writes only to declared outputs, directories included.

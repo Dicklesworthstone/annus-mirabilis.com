@@ -16,6 +16,7 @@ import {
   SETTINGS_SNAPSHOT_TEMPLATE,
   SITE_TYPE_SIZES,
 } from "../../src/platform/app-bridge/settingsSnapshot.ts";
+import { TEST_CONSOLE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/testConsole.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
 import {
   AppExportError,
@@ -31,6 +32,7 @@ import {
   referencedDigests,
   SETTINGS_SNAPSHOT_FILE,
   siteBinding,
+  TEST_CONSOLE_FILE,
   unsafePathReason,
 } from "./export-edition.ts";
 import {
@@ -232,10 +234,10 @@ describe("exportEdition", () => {
       directories.indexOf("edition") < directories.indexOf(`edition/${LIVE}`),
       "parents come first",
     );
-    // The manifest, the two user scripts, the catalogue, and Edition/ itself, then its
+    // The manifest, the three user scripts, the catalogue, and Edition/ itself, then its
     // directories and files.
-    assert.equal(outputs.length, 5 + directories.length + result.fileCount);
-    const [script, snapshot] = manifest.userScripts;
+    assert.equal(outputs.length, 6 + directories.length + result.fileCount);
+    const [script, snapshot, testConsole] = manifest.userScripts;
     const written = readFileSync(join(dest, BRIDGE_SCRIPT_FILE), "utf8");
     assert.equal(written, BRIDGE_USER_SCRIPT_SOURCE);
     assert.equal(script.file, BRIDGE_SCRIPT_FILE);
@@ -266,6 +268,16 @@ describe("exportEdition", () => {
       "exactly one placeholder",
     );
     assert.ok(outputs.some((line) => line.endsWith(`/${SETTINGS_SNAPSHOT_FILE}`)));
+    // The test console: pinned like the bridge, and marked as a DEBUG build's alone.
+    const consoleText = readFileSync(join(dest, TEST_CONSOLE_FILE), "utf8");
+    assert.equal(consoleText, TEST_CONSOLE_USER_SCRIPT_SOURCE);
+    assert.deepEqual(
+      [testConsole.id, testConsole.file, testConsole.debugOnly],
+      ["test-console", TEST_CONSOLE_FILE, true],
+    );
+    assert.equal(testConsole.sha256, createHash("sha256").update(consoleText).digest("hex"));
+    assert.ok(outputs.some((line) => line.endsWith(`/${TEST_CONSOLE_FILE}`)));
+    assert.ok(inputs.some((line) => line.endsWith(`/${TEST_CONSOLE_FILE}`)));
     assert.deepEqual(manifest.settings, { typeSizes: [...SITE_TYPE_SIZES] });
     // The native screens' data, pinned like the scripts.
     const catalogText = readFileSync(join(dest, NATIVE_CATALOG_FILE), "utf8");
