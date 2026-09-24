@@ -365,6 +365,19 @@
   fill: var(--ink);
 }
 
+/* ProductsView.tsx: the parallelogram a and b span, and arrow b, thinner than a. */
+.products-area {
+  fill: var(--wash);
+  stroke: var(--muted);
+  stroke-width: 1.25;
+  stroke-dasharray: 7 5;
+}
+
+.products-arrow-b {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
 /* Print Media Styles */
 @media print {
   .proportional-controls,

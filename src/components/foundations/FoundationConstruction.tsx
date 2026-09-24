@@ -7,6 +7,7 @@ import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
 import { MagnitudeScale } from "./MagnitudeScale.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
+import { ProductsView } from "./ProductsView.tsx";
 import { RapidityAdder } from "./RapidityAdder.tsx";
 import { RepeatedIntervals } from "./RepeatedIntervals.tsx";
 import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
@@ -64,5 +65,7 @@ export function FoundationConstruction({
       return <RapidityAdder headingLevel={headingLevel} />;
     case "vectors-components":
       return <TurnedAxes headingLevel={headingLevel} />;
+    case "dot-cross-products":
+      return <ProductsView headingLevel={headingLevel} />;
   }
 }
