@@ -7,8 +7,15 @@ import {
   type KitchenOptions,
 } from "../../../experiments/bm07/kitchen/definition.ts";
 import { kitchenAnalysisJson } from "../../../experiments/bm07/kitchen/export.ts";
+import {
+  type KeptKitchenObservations,
+  keepKitchen,
+  readKeptKitchen,
+  removeKeptKitchen,
+} from "../../../experiments/bm07/kitchen/kitchenStorage.ts";
 import { KITCHEN_LIMITS, type KitchenDocument } from "../../../experiments/bm07/kitchen/schema.ts";
 import { createKitchenSession } from "../../../experiments/bm07/kitchen/session.ts";
+import { createStorageContext } from "../../../platform/storage/store.ts";
 import { identity } from "../presentation.ts";
 import {
   KitchenAnalysisControls,
@@ -43,11 +50,16 @@ export function KitchenLab({
     [reading, setReading] = useState(false),
     [confirmClear, setConfirmClear] = useState(false),
     [captureEpoch, setCaptureEpoch] = useState(0);
+  // Observations are kept on this device only when the reader asks (am-bm-07-kitchen-mode-mays).
+  const [storage] = useState(() => createStorageContext()),
+    [kept, setKept] = useState<KeptKitchenObservations | undefined>(undefined),
+    [keptNote, setKeptNote] = useState("");
   const fileInput = useRef<HTMLInputElement>(null),
     fileGeneration = useRef(0),
     downloads = useRef(new Set<string>());
   useEffect(() => {
     setReady(true);
+    setKept(readKeptKitchen(storage));
     return () => {
       fileGeneration.current++;
       session.disconnect();
@@ -56,7 +68,7 @@ export function KitchenLab({
       });
       downloads.current.clear();
     };
-  }, [session]);
+  }, [session, storage]);
   const busy = reading || state.preparing || state.view.pending;
   function catchError(error: unknown) {
     setError(
@@ -128,6 +140,37 @@ export function KitchenLab({
       catchError(error);
     }
   }
+  function keep() {
+    if (!accepted) return;
+    const csv = exportKitchenCsv(accepted.document);
+    const rows = accepted.document.points.length;
+    const written = keepKitchen(storage, csv, rows);
+    if (written.status === "ok") {
+      setKept({ schemaVersion: 1, csv, rows });
+      setKeptNote(
+        `Kept ${rows} observation rows on this device. Restore them here later, or remove them here or in your saved data.`,
+      );
+    } else if (written.status === "quota") {
+      setKeptNote(
+        "This browser's storage for the site is full, so nothing was kept. Export the observations to keep them.",
+      );
+    } else {
+      setKeptNote(
+        "This browser is not keeping site data (private browsing or blocked storage), so nothing was kept. Export the observations to keep them.",
+      );
+    }
+  }
+  function restoreKept() {
+    if (!kept) return;
+    fileGeneration.current++;
+    setKeptNote("");
+    void load(kept.csv).catch(catchError);
+  }
+  function removeKept() {
+    removeKeptKitchen(storage);
+    setKept(undefined);
+    setKeptNote("Removed the observations kept on this device.");
+  }
   function stop() {
     fileGeneration.current++;
     setReading(false);
@@ -169,6 +212,22 @@ export function KitchenLab({
         Import a classroom CSV, or try the synthetic practice track. Everything stays in this page:
         nothing is sent to a server or put in a share link.
       </p>
+      {kept && !accepted && (
+        <div className="notice">
+          <p>
+            You kept {kept.rows} observation rows on this device. Restore them to continue, or
+            remove them.
+          </p>
+          <div className="actions">
+            <button type="button" disabled={!ready || busy} onClick={restoreKept}>
+              Restore kept observations
+            </button>
+            <button type="button" className="secondary" onClick={removeKept}>
+              Remove kept observations
+            </button>
+          </div>
+        </div>
+      )}
       <noscript>
         <p className="notice">
           Local analysis requires JavaScript. The guide, schema, practice CSV and worksheet below
@@ -241,12 +300,17 @@ export function KitchenLab({
       </div>
       <p className="fine">
         CSV limit: 2 MiB and 20,000 rows. To capture coordinates from your own video, use the
-        tracker at the end of this laboratory. Nothing is saved automatically: export observations
-        before closing or reloading the page.
+        tracker at the end of this laboratory. Nothing is saved automatically: export the
+        observations, or keep them on this device, before closing or reloading the page.
       </p>
       <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
         {status}
       </p>
+      {keptNote && (
+        <p className="status-line" role="status" aria-live="polite">
+          {keptNote}
+        </p>
+      )}
       {error && (
         <p role="alert" className="notice error">
           {error}
@@ -269,6 +333,14 @@ export function KitchenLab({
             >
               Reanalyze accepted observations
             </button>
+            <button type="button" className="secondary" onClick={keep}>
+              Keep these observations on this device
+            </button>
+            {kept && (
+              <button type="button" className="secondary" onClick={removeKept}>
+                Remove the kept copy
+              </button>
+            )}
             <button type="button" className="secondary" onClick={() => setConfirmClear(true)}>
               Clear local observations
             </button>
@@ -277,8 +349,8 @@ export function KitchenLab({
             <div className="notice">
               <p>
                 Clear observations and drafts, including unsaved video annotations, from this
-                laboratory? This stops its worker and releases its video. Downloaded files and the
-                other laboratory are not deleted.
+                laboratory? This stops its worker and releases its video. Downloaded files, a copy
+                kept on this device, and the other laboratory are not deleted.
               </p>
               <button type="button" onClick={clear}>
                 Confirm clear this laboratory

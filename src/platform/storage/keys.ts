@@ -340,6 +340,18 @@ export const SEED_ENTRIES: readonly KeyRegistration[] = [
       maxBytes: 64_000,
     },
   ),
+  // Kept only when the reader presses "Keep these observations on this device" (kitchen mode).
+  document_(
+    "am:kitchen:v1",
+    "am-bm-07-kitchen-mode-mays",
+    1,
+    "Kitchen-mode observations you chose to keep: clicks and calibration, never video",
+    {
+      exportable: true,
+      clearable: true,
+      maxBytes: 2_200_000,
+    },
+  ),
   document_("am:clarity:v1", "am-plat-clarity-signal-nlwr", 1, "Your “this was clear” answers"),
 ];
 
