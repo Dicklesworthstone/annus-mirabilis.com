@@ -211,11 +211,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
   },
   {
     file: "src/components/lab/RodSimultaneityPlots.tsx",
-    hex: "#10b981",
-    reason: "Spacetime origin reference event E1(0,0) marker in Minkowski diagram",
-  },
-  {
-    file: "src/components/lab/RodSimultaneityPlots.tsx",
     hex: "#f43f5e",
     reason: "Spacetime comparison event E2(dx, c*dt) marker in Minkowski diagram",
   },
@@ -352,34 +347,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
     hex: "#3b82f6",
     reason: "Particle tracer trajectory path and endpoint marker data color in Canvas 2D rendering",
   },
-  // Physical ray paths, Doppler shifts, vectors, and power ledgers in MovingMirrorPlot (SR-11):
-  {
-    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
-    hex: "#f59e0b",
-    reason:
-      "Incident light wave vector and unshifted reflected ray spectral color in moving mirror reflection",
-  },
-  {
-    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
-    hex: "#3b82f6",
-    reason:
-      "Doppler blueshifted reflected light wave vector and total output power ledger in moving mirror reflection",
-  },
-  {
-    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
-    hex: "#ef4444",
-    reason: "Doppler redshifted reflected light wave vector in moving mirror reflection",
-  },
-  {
-    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
-    hex: "#10b981",
-    reason: "Mirror velocity vector and mechanical work rate in moving mirror reflection",
-  },
-  {
-    file: "src/components/lab/sr11/MovingMirrorPlot.tsx",
-    hex: "#ec4899",
-    reason: "Radiation pressure force vector acting on moving mirror face",
-  },
   // Atmospheric procedural sky canvas texture in ThreeStudioScene:
   {
     file: "src/visuals/three/ThreeStudioScene.ts",
@@ -491,6 +458,25 @@ export function countUnallowlistedHexColors(
     }
   }
   return count;
+}
+
+/**
+ * Allowlist entries whose colour no longer appears in its file's code. An entry outlives the
+ * colour it excused whenever a plot moves to a theme token, and a stale entry is a standing
+ * permission: the colour could come back to that file without the ratchet counting it.
+ */
+export function staleAllowlistEntries(
+  allowlist: readonly DataColorAllowlistEntry[],
+  readSource: (file: string) => string | null,
+): string[] {
+  const stale: string[] = [];
+  for (const entry of allowlist) {
+    const source = readSource(entry.file);
+    if (source === null) stale.push(`${entry.file} ${entry.hex}: the file does not exist`);
+    else if (!extractRawHexColors(source).includes(entry.hex.toLowerCase()))
+      stale.push(`${entry.file} ${entry.hex}: not in the file's code`);
+  }
+  return stale;
 }
 
 export interface AuditResult {
@@ -673,6 +659,31 @@ describe("raw hex colors ratchet (am-design-themes-typography-288q)", () => {
       expect(entry.file.length).toBeGreaterThan(0);
       expect(entry.reason.length).toBeGreaterThan(10);
     }
+  });
+
+  test("every allowlist entry's colour still appears in its file's code", () => {
+    const stale = staleAllowlistEntries(DATA_COLOR_ALLOWLIST, (file) =>
+      existsSync(join(ROOT, file)) ? readFileSync(join(ROOT, file), "utf8") : null,
+    );
+    console.log(
+      `[raw hex allowlist] ${DATA_COLOR_ALLOWLIST.length} entries; ${stale.length} stale`,
+    );
+    expect(stale).toEqual([]);
+  });
+
+  test("planted negative: a stale entry is caught, including one whose colour is only in a comment", () => {
+    const allowlist: DataColorAllowlistEntry[] = [
+      { file: "a.tsx", hex: "#10b981", reason: "present in code, so not stale" },
+      { file: "a.tsx", hex: "#f59e0b", reason: "named only in a comment, so stale" },
+      { file: "a.tsx", hex: "#3b82f6", reason: "absent from the file, so stale" },
+      { file: "gone.tsx", hex: "#ef4444", reason: "the file is missing, so stale" },
+    ];
+    const source = 'const e1 = "#10B981"; // once drawn in #f59e0b';
+    expect(staleAllowlistEntries(allowlist, (file) => (file === "a.tsx" ? source : null))).toEqual([
+      "a.tsx #f59e0b: not in the file's code",
+      "a.tsx #3b82f6: not in the file's code",
+      "gone.tsx #ef4444: the file does not exist",
+    ]);
   });
 
   test("the ratchet baseline records non-negative integers only for audited paths", () => {
