@@ -28,29 +28,42 @@ const corpus = async () => [
   { path: "foundations/extensions/fixture-extension.json", text: JSON.stringify(fixture) },
 ];
 const sectionIds = (f: Foundation | undefined) => (f?.extensionSections ?? []).map((s) => s.id);
+/**
+ * The target's sections without the fixture. Measured, not assumed: the lesson has real sections
+ * of its own (8b9e5e7d), and an expectation of exactly one section broke the moment they landed.
+ */
+const baseline = async () => compileReadingContent(await loadReadingFiles());
+const withFixture = (ids: readonly string[]) => [...ids, "fixture-extension"].sort();
 
 describe("the compilers attach a section to the lesson it names", () => {
   test("sync: the lesson's own payload and the paper payload that carries it", async () => {
+    const before = sectionIds((await baseline()).foundations.find((f) => f.id === TARGET));
     const result = compileReadingContent(await corpus());
-    expect(sectionIds(result.foundations.find((f) => f.id === TARGET))).toEqual([
-      "fixture-extension",
-    ]);
+    expect(sectionIds(result.foundations.find((f) => f.id === TARGET))).toEqual(
+      withFixture(before),
+    );
     const inPapers = result.papers.flatMap((p) => p.foundations.filter((f) => f.id === TARGET));
     expect(inPapers.length).toBeGreaterThan(0);
-    for (const f of inPapers) expect(sectionIds(f)).toEqual(["fixture-extension"]);
+    for (const f of inPapers) expect(sectionIds(f)).toEqual(withFixture(before));
   });
 
   test("async: the lesson's payload, as prepare:content emits it", async () => {
+    const before = sectionIds((await baseline()).foundations.find((f) => f.id === TARGET));
     const result = await compileContent(await corpus());
-    expect(sectionIds(result.foundations.find((f) => f.id === TARGET))).toEqual([
-      "fixture-extension",
-    ]);
+    expect(sectionIds(result.foundations.find((f) => f.id === TARGET))).toEqual(
+      withFixture(before),
+    );
   });
 
   test("no other lesson gains a section, and the bespoke Taylor extension is not attached", async () => {
+    const before = await baseline();
     const result = compileReadingContent(await corpus());
-    const withSections = result.foundations.filter((f) => sectionIds(f).length > 0);
-    expect(withSections.map((f) => f.id)).toEqual([TARGET]);
+    for (const f of result.foundations)
+      if (f.id !== TARGET)
+        expect(sectionIds(f), f.id).toEqual(
+          sectionIds(before.foundations.find((b) => b.id === f.id)),
+        );
+    expect(sectionIds(result.foundations.find((f) => f.id === "taylor-expansion"))).toEqual([]);
   });
 
   test("a lesson record may not write extensionSections itself", () => {
@@ -92,8 +105,10 @@ describe("FoundationBody draws the section after the stopping point", () => {
   });
 
   test("a lesson with no sections renders none", async () => {
-    const result = compileReadingContent(await loadReadingFiles());
-    const lesson = result.foundations.find((f) => f.id === TARGET) as Foundation;
+    // A lesson with no construction, so the static render needs no lazy island, and no section.
+    const result = await baseline();
+    const lesson = result.foundations.find((f) => f.id === "flux-continuity") as Foundation;
+    expect(sectionIds(lesson)).toEqual([]);
     const html = renderToStaticMarkup(
       <FoundationBody foundation={lesson} foundations={result.foundations} />,
     );
