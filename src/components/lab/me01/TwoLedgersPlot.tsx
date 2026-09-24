@@ -100,7 +100,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
                 markerHeight="6"
                 orient="auto-start-reverse"
               >
-                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--me01-pulse-1)" />
               </marker>
               <marker
                 id="arrow-pulse2"
@@ -167,7 +167,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
               y1={cy}
               x2={x1}
               y2={y1}
-              stroke="#2563eb"
+              stroke="var(--me01-pulse-1)"
               strokeWidth="3.5"
               markerEnd="url(#arrow-pulse1)"
             />

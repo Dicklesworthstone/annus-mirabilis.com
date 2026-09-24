@@ -1,12 +1,26 @@
 /* ME-01 Two Ledgers Laboratory styles (am-vw1o) */
 
 .two-ledgers-svg-wrap {
+  --me01-pulse-1: #2563eb;
   container-type: inline-size;
   border: 1px solid var(--line);
   background: var(--wash);
   padding: 1rem;
   margin: 1rem 0;
   border-radius: 4px;
+}
+
+/* The first pulse's blue. #2563eb stands at 4.62:1 on the light theme's wash and only 2.88:1 on
+   the dark theme's, under the 3:1 a mark needs, so the dark theme takes a lighter blue of the
+   same hue, 5.86:1 there. The second pulse's orange and the velocity's green clear 3:1 on both. */
+:root[data-theme="kramgasse-night"] .two-ledgers-svg-wrap {
+  --me01-pulse-1: #60a5fa;
+}
+/* Without JavaScript the pre-paint script never sets data-theme; this repeats the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .two-ledgers-svg-wrap {
+    --me01-pulse-1: #60a5fa;
+  }
 }
 
 /* The pulses and the two accounts: side by side when there is room, the accounts below when not.

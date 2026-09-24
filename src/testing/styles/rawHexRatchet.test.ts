@@ -312,12 +312,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
   // Physical pulse directions, frame velocity, and energy ledgers in TwoLedgersPlot (ME-01):
   {
     file: "src/components/lab/me01/TwoLedgersPlot.tsx",
-    hex: "#2563eb",
-    reason:
-      "Physical forward light pulse 1 energy vector and quantity label in moving observer frame",
-  },
-  {
-    file: "src/components/lab/me01/TwoLedgersPlot.tsx",
     hex: "#ea580c",
     reason:
       "Physical backward light pulse 2 energy vector and quantity label in moving observer frame",
