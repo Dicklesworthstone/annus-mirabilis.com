@@ -7,6 +7,7 @@
 import type { CSSProperties } from "react";
 import quantityColourPayload from "../generated/quantity-colours.json";
 import "../generated/quantity-colours.css";
+import "../generated/quantity-colours-by-paper.css";
 import { QUANTITY_PALETTE } from "./quantityColours.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 

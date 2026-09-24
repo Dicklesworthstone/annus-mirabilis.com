@@ -13,7 +13,7 @@ import { ShowTheCode } from "./ShowTheCode.tsx";
   row take the colour their quantity has in the paper's equations, the same var(--q-n) the formula
   uses. Before, identifiers took a hue hashed from the id (dark green on the dark theme) and trace
   rows the three role colours, so viscosity was ochre in the equation and brown beside it. The
-  colour now comes from src/generated/quantity-colours.css, keyed by the root's data-paper and
+  colour now comes from src/generated/quantity-colours-by-paper.css, keyed by the root's data-paper and
   the element's quantity id, so the component ships no colour map in its JavaScript.
 */
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -47,8 +47,9 @@ function openTag(html: string, tag: string, quantityId: string): string {
   return match?.[0] ?? "";
 }
 
+// The per-paper rules live in their own sheet, which ShowTheCode imports (am-ywtb).
 const SHEET = readFileSync(
-  fileURLToPath(new URL("../../generated/quantity-colours.css", import.meta.url)),
+  fileURLToPath(new URL("../../generated/quantity-colours-by-paper.css", import.meta.url)),
   "utf8",
 );
 const rule = (paper: string, quantityId: string) =>

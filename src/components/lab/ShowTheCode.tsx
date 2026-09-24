@@ -9,6 +9,7 @@ import type { WorkedTrace } from "../../content/kernel/types.ts";
 import { KERNEL_DISPLAY_ROLE_LABELS, type KernelListing } from "../../content/kernel/types.ts";
 import { paperOfId } from "../../equations/paperOfId.ts";
 import { display, readablePowers, unitText } from "./presentation.ts";
+import "../../generated/quantity-colours-by-paper.css";
 import "./showTheCode.css";
 import { withScripts } from "./subscripts.tsx";
 

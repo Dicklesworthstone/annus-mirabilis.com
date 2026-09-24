@@ -21,6 +21,7 @@ import { SymbolicValue, TermInspector } from "./TermInspector.tsx";
 import { termFacts, termGlyphHtml } from "./termFacts.ts";
 import { withQuantityIds } from "./termQuantities.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
+import "../generated/quantity-colours-by-paper.css";
 import "./equations.css";
 
 /**
@@ -175,10 +176,12 @@ export function SemanticEquation({
   const equationId = effectiveScope ? `${equation.id}-${effectiveScope}` : equation.id;
   /*
     ONE COLOUR PER QUANTITY, from CSS alone. The root names its paper (data-paper), each coloured
-    element carries its quantity id, and src/generated/quantity-colours.css maps the pair to a
-    slot; the formula's KaTeX term spans are mapped by term id in the same sheet. This component
-    imports no colour map: importing one put every paper's quantities, with rendered glyphs, into
-    the first-route JavaScript (initial-route-js went 842 bytes over on the Brownian page).
+    element carries its quantity id (the formula's KaTeX term spans too, since withQuantityIds),
+    and src/generated/quantity-colours-by-paper.css, imported above, maps the pair to a slot. It
+    is imported here because a lab page has no reading formula to bring it (am-ywtb: the explorer
+    on /lab/bm-01/ showed blank chip dots). This component imports no colour map: importing one
+    put every paper's quantities, with rendered glyphs, into the first-route JavaScript
+    (initial-route-js went 842 bytes over on the Brownian page).
   */
   const quantityOfTerm = (id: string | undefined) =>
     id ? equation.terms.find((t) => t.termId === id)?.quantityId : undefined;
