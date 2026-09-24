@@ -11,6 +11,7 @@ import {
 } from "./detail/applyElsewhere.ts";
 import { FACE_REGISTRY } from "./faces/registry.ts";
 import { InlineFacsimile } from "./facsimile/InlineFacsimile.tsx";
+import { createPlaceHold, landingPlace, readingPlace } from "./holdPlace.ts";
 import { placeOf, scrollToKeep } from "./keepPlace.ts";
 import { loadLessonBody, unmountLessonConstructions } from "./lessonBody.ts";
 import {
@@ -91,6 +92,18 @@ export function ReaderController(props: Props) {
     */
     let layers = initialOverrideState(state.detail);
     let applyDetail: HTMLElement | null = null;
+    // The reader's passage stays where it stood while a Detail change or loading steps reshape the
+    // page above it (holdPlace.ts); WebKit has no scroll anchoring of its own.
+    const placeHold = createPlaceHold(root);
+    const passageInView = () =>
+      readingPlace(
+        [...root.querySelectorAll("article.reader-passage[data-unit]")],
+        window.innerHeight,
+      );
+    const loadSteps = (placeholder: HTMLElement) =>
+      loadStepsBody(placeholder, {
+        insert: (change) => placeHold.across(passageInView, change),
+      });
     const unitOf = (steps: Element) => steps.closest("article[data-unit]")?.id ?? "";
     let trigger = 0;
     let returnAnimation = 0;
@@ -160,14 +173,22 @@ export function ReaderController(props: Props) {
     function render(previous?: ReaderState, message = "") {
       cancelReturn();
       root.dataset.ready = "false";
-      document.documentElement.dataset.detail = String(state.detail);
-      // The steps reading is one <details> per passage (PaperPage, PaperReader). At "Show every
-      // step" it IS the passage's text, so it is open; leaving that level closes it again. A
-      // passage the reader set on its own (an override) keeps its setting either way, and
-      // otherwise a reader's own open or closed choice is left alone.
-      if (state.detail === 2 || previous?.detail === 2)
-        for (const steps of root.querySelectorAll<HTMLDetailsElement>('details[data-reading="2"]'))
-          steps.open = effectiveDetailForUnit(layers, unitOf(steps)) === 2;
+      const swapReadings = () => {
+        document.documentElement.dataset.detail = String(state.detail);
+        // The steps reading is one <details> per passage (PaperPage, PaperReader). At "Show every
+        // step" it IS the passage's text, so it is open; leaving that level closes it again. A
+        // passage the reader set on its own (an override) keeps its setting either way, and
+        // otherwise a reader's own open or closed choice is left alone.
+        if (state.detail === 2 || previous?.detail === 2)
+          for (const steps of root.querySelectorAll<HTMLDetailsElement>(
+            'details[data-reading="2"]',
+          ))
+            steps.open = effectiveDetailForUnit(layers, unitOf(steps)) === 2;
+      };
+      // A Detail change keeps the passage at the reader's reading line where it stood.
+      if (previous && previous.detail !== state.detail)
+        placeHold.across(passageInView, swapReadings);
+      else swapReadings();
       document.documentElement.dataset.lens = state.lens ? "modern" : "paper";
       document.documentElement.dataset.view = state.view;
       root.dataset.view = state.view;
@@ -493,13 +514,13 @@ export function ReaderController(props: Props) {
       if (details.matches('details[data-reading="2"]')) noteOverride(details);
       if (!details.open) return;
       const placeholder = details.querySelector<HTMLElement>(":scope > [data-steps-body]");
-      if (placeholder) void loadStepsBody(placeholder);
+      if (placeholder) void loadSteps(placeholder);
     };
     root.addEventListener("toggle", toggleSteps, true);
     for (const placeholder of root.querySelectorAll<HTMLElement>(
       "details[open] > [data-steps-body]",
     ))
-      void loadStepsBody(placeholder);
+      void loadSteps(placeholder);
     /* The owner's rule for every overlay: an X top right, and a press outside closes it. Both
        close the whole lesson stack and return to the passage, as "Return to the exact step"
        does; Escape keeps its own meaning here, one step back (the cancel handler above). */
@@ -516,6 +537,15 @@ export function ReaderController(props: Props) {
     const openSearchOnMount = location.search;
     save();
     render();
+    /*
+      ARRIVING AT A NAMED PASSAGE WHILE THE STEPS ABOVE IT LOAD (?detail=2#arg-...): the fragment
+      scroll set off for where the passage stood before they arrived, so the passage is put at the
+      top now and held there while they land.
+    */
+    const named = urlNamesPassage ? document.getElementById(state.anchor) : null;
+    if (named && root.querySelector('details[data-reading="2"][open] > [data-steps-body]')) {
+      placeHold.hold(landingPlace(named));
+    }
     queueMicrotask(() => openFromSearch(document, openSearchOnMount));
     /*
       THE OUTLINE SAYS WHERE THE READER IS. Each section of the outline is a group whose first
@@ -571,6 +601,7 @@ export function ReaderController(props: Props) {
       unmountLessonConstructions();
       unmountStepsConstructions();
       placeApply(null);
+      placeHold.release();
     };
   }, [navigation]);
   return (

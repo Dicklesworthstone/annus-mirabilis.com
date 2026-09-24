@@ -96,7 +96,12 @@ function headingLevelOf(construction: Element): HeadingLevel {
  */
 export async function loadStepsBody(
   placeholder: HTMLElement,
-  options: Readonly<{ fetch?: typeof fetch; mount?: Mount }> = {},
+  options: Readonly<{
+    fetch?: typeof fetch;
+    mount?: Mount;
+    /** Runs the insertion; the reader passes one that keeps the reader's place (holdPlace.ts). */
+    insert?: (change: () => void) => void;
+  }> = {},
 ): Promise<"loaded" | "failed" | "skipped"> {
   const argumentId = placeholder.getAttribute(STEPS_BODY_ATTRIBUTE) ?? "";
   const src = placeholder.dataset.stepsSrc ?? "";
@@ -137,7 +142,7 @@ export async function loadStepsBody(
       construction.replaceWith(slot);
     }
   }
-  placeholder.replaceWith(...nodes);
+  (options.insert ?? ((change) => change()))(() => placeholder.replaceWith(...nodes));
   details.dataset.stepsState = "loaded";
   for (const { slot, id, level } of slots) {
     try {
