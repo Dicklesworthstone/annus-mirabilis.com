@@ -315,7 +315,17 @@ export function parseYaml(text: string): unknown {
     }
 
     if (clean.startsWith('"') && clean.endsWith('"') && clean.length >= 2) {
-      return clean.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+      // One pass, so an escaped backslash is never read as the start of another escape: "\\u00df"
+      // is a backslash and "u00df", while "\u00df" is ß. A \u escape was left undecoded until
+      // 2026-09-24, and ten readings in two receipts reached /sources/ as "da\u00df" and "\u03c6(x)".
+      // Any other backslash sequence is kept as written, as it always was.
+      return clean
+        .slice(1, -1)
+        .replace(
+          /\\(?:(["\\])|u([0-9a-fA-F]{4}))/g,
+          (_, char: string | undefined, hex: string | undefined) =>
+            char ?? String.fromCharCode(Number.parseInt(hex ?? "", 16)),
+        );
     }
 
     if (clean.startsWith("'") && clean.endsWith("'") && clean.length >= 2) {
