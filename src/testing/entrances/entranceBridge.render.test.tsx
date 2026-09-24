@@ -95,7 +95,7 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     // 4. Part 3: continueWith routes
     expect(lower(html)).toContain(lower("Continue With Your Choice of Guidance"));
     expect(html).toContain("More guidance · Foundations");
-    expect(html).toContain("Less guidance · Laboratory &amp; paper");
+    expect(html).toContain("Less guidance · Laboratory and paper");
     expect(html).toContain('href="/foundations/mean-variance-rms"');
     expect(html).toContain('href="/lab/bm-01"');
     expect(html).toContain('data-instrument-id="bm-01"');
@@ -135,14 +135,14 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     expect(html).toContain("Authored example (−3, −1, +1, +3 units):");
     expect(html).toContain("Signed sum = (−3) + (−1) + (+1) + (+3) = 0 units.");
     expect(html).toContain("Mean absolute displacement = (3 + 1 + 1 + 3) / 4 = 2 units.");
-    expect(html).toContain("Mean square displacement = (9 + 1 + 1 + 9) / 4 = 5 sq units.");
+    expect(html).toContain("Mean square displacement = (9 + 1 + 1 + 9) / 4 = 5 squared units.");
     expect(html).toContain("Root-mean-square displacement (RMS) = √5 ≈ 2.236 units.");
 
     // Complete worked example numbers for doubled case (-6, -2, +2, +6)
     expect(html).toContain("Doubled example (−6, −2, +2, +6 units):");
     expect(html).toContain("Signed sum = (−6) + (−2) + (+2) + (+6) = 0 units.");
     expect(html).toContain("Mean absolute displacement = (6 + 2 + 2 + 6) / 4 = 4 units.");
-    expect(html).toContain("Mean square displacement = (36 + 4 + 4 + 36) / 4 = 20 sq units.");
+    expect(html).toContain("Mean square displacement = (36 + 4 + 4 + 36) / 4 = 20 squared units.");
     expect(html).toContain("Root-mean-square displacement (RMS) = √20 ≈ 4.472 units.");
   });
 });

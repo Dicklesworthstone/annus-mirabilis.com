@@ -102,7 +102,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     expect(html).toContain("What happens when every displacement doubles?");
     expect(html).toContain("Mean absolute displacement:");
     expect(html).toContain("4 units");
-    expect(html).toContain("20 sq units");
+    expect(html).toContain("20 squared units");
 
     // Step 8: Why the mean square has a simple additive rule (independent steps, cross terms vanish)
     expect(html).toContain("Why the mean square has a simple additive rule");
