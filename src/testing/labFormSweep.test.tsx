@@ -17,7 +17,9 @@ import { createContainer, installDom, removeContainer, uninstallDom } from "./re
  * For "abc", "" and ±1e300 the reader must see a refusal, and:
  * - the accepted state does not advance;
  * - no run is requested;
- * - no NaN or Infinity appears.
+ * - no NaN or Infinity appears, and no developer's error text: ExperimentRuntimeError's
+ *   "[experiment] ... (outside-numeric-range)" form, which LQ-06 showed a reader for a typed 1e300
+ *   while this pattern could not see it.
  * The one allowance: ±1e300 may be accepted in a field whose declared domain is open on that side,
  * or that declares none, as long as nothing raw appears. (In a real browser "abc" cannot be typed
  * into a number field and arrives as "", so both stand for the same reader.)
@@ -36,6 +38,7 @@ const UNFINISHED: readonly string[] = [
   "bm-07",
   "lq-01",
   "lq-03",
+  "lq-06",
   "lq-07",
   "lq-08",
   "lq-09",
@@ -49,7 +52,8 @@ const UNFINISHED: readonly string[] = [
 ];
 
 const VALUES = ["abc", "", "1e300", "-1e300"] as const;
-const RAW = /\bNaN\b|\bInfinity\b|\[object |must be a finite number between/g;
+const RAW =
+  /\bNaN\b|\bInfinity\b|\[object |must be a finite number between|\[(?:experiment|[a-z]{2}-\d{2})\] | \((?:[a-z]+-)+[a-z]+\)/g;
 
 function propsKey(el: Element): string | undefined {
   return Object.keys(el).find((k) => k.startsWith("__reactProps$"));
