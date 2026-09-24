@@ -390,8 +390,17 @@ export function SemanticEquation({
                 <dt>{n.title}</dt>
                 <dd>
                   {n.explanation}{" "}
+                  {/* A link record like every other lesson link in the papers: on a paper page
+                      ReaderController opens the lesson beside the passage and returns to it;
+                      anywhere else it is a plain link to the lesson's page. */}
                   <a
                     href={`/foundations/${n.foundation}/`}
+                    data-foundation={n.foundation}
+                    data-return-caption={
+                      equation.title
+                        ? `Back to the equation: ${equation.title}`
+                        : "Back to the equation."
+                    }
                     aria-label={prerequisiteName(
                       n.title,
                       scopeContext?.lessonTitles?.[n.foundation],

@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadPaper } from "../content/server";
 import { prerequisiteName } from "../equations/SemanticEquation.tsx";
 import { exportMarkup } from "../testing/exportMarkup.ts";
+import { PaperPage } from "./PaperPage.tsx";
 import { PaperReader } from "./PaperReader.tsx";
 
 /*
@@ -64,6 +65,47 @@ describe("equation prerequisite links name their lesson", () => {
     }
     // Non-vacuity: the section pages render explorer cards with prerequisite links.
     expect(names).toBeGreaterThan(0);
+  });
+
+  test("on every section page of the four papers, each prerequisite link is a link record", async () => {
+    // am-ep-foundations-z1e: "every foundation link in the four papers is a link record with an
+    // authored return caption". Measured on live 01478983: 964 of these links had neither, so on a
+    // paper page they left it instead of opening the lesson beside the passage.
+    const pages: { id: string; html: string }[] = [];
+    for (const { id, html } of await sectionPages())
+      pages.push({ id: `brownian-motion/${id}`, html });
+    for (const paperId of ["light-quanta", "special-relativity", "mass-energy"]) {
+      const { paper } = await loadPaper(paperId);
+      for (const s of paper.sections)
+        pages.push({
+          id: `${paperId}/${s.id}`,
+          html: await exportMarkup(await PaperPage({ paperId, section: s.id })),
+        });
+    }
+    let links = 0;
+    const papers = new Set<string>();
+    for (const { id, html } of pages)
+      for (const m of html.matchAll(/<a\b([^>]*aria-label="Read the prerequisite[^"]*"[^>]*)>/g)) {
+        const attrs = m[1] ?? "";
+        const lesson = /href="\/foundations\/([^/"]+)\/"/.exec(attrs)?.[1];
+        links++;
+        papers.add(id.split("/")[0] ?? "");
+        expect({ page: id, foundation: /data-foundation="([^"]*)"/.exec(attrs)?.[1] }).toEqual({
+          page: id,
+          foundation: lesson,
+        });
+        expect(/data-return-caption="Back to the equation[^"]*"/.test(attrs), id).toBe(true);
+      }
+    console.log(`[prerequisite links] ${pages.length} section pages, ${links} links`);
+    // Non-vacuity, and the four papers each contribute: a page type that stopped rendering its
+    // explorer cards would otherwise drop out unnoticed.
+    expect(links).toBeGreaterThan(0);
+    expect([...papers].sort()).toEqual([
+      "brownian-motion",
+      "light-quanta",
+      "mass-energy",
+      "special-relativity",
+    ]);
   });
 
   test("planted negative: names made from the note title alone collide again", async () => {
