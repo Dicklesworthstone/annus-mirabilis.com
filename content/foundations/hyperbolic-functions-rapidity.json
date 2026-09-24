@@ -13,7 +13,7 @@
     },
     {
       "kind": "formula",
-      "latex": "\\operatorname{cosh}x = \\frac{e^x + e^{-x}}{2},\\qquad \\operatorname{sinh}x = \\frac{e^x - e^{-x}}{2},\\qquad \\operatorname{tanh}x = \\frac{\\operatorname{sinh}x}{\\operatorname{cosh}x}",
+      "latex": "\\begin{gathered} \\operatorname{cosh}x = \\frac{e^x + e^{-x}}{2}, \\\\ \\operatorname{sinh}x = \\frac{e^x - e^{-x}}{2}, \\\\ \\operatorname{tanh}x = \\frac{\\operatorname{sinh}x}{\\operatorname{cosh}x} \\end{gathered}",
       "spoken": "cosh x is e to the x plus e to the minus x, over two; sinh x is e to the x minus e to the minus x, over two; and tanh x is sinh x over cosh x."
     },
     {
@@ -22,7 +22,7 @@
     },
     {
       "kind": "formula",
-      "latex": "\\gamma = \\operatorname{cosh}\\varphi,\\qquad \\frac{\\gamma v}{c} = \\operatorname{sinh}\\varphi,\\qquad \\frac{v}{c} = \\operatorname{tanh}\\varphi",
+      "latex": "\\begin{gathered} \\gamma = \\operatorname{cosh}\\varphi, \\\\ \\frac{\\gamma v}{c} = \\operatorname{sinh}\\varphi, \\\\ \\frac{v}{c} = \\operatorname{tanh}\\varphi \\end{gathered}",
       "spoken": "gamma is cosh phi, gamma v over c is sinh phi, and v over c is tanh phi."
     },
     {
@@ -31,7 +31,7 @@
     },
     {
       "kind": "formula",
-      "latex": "\\operatorname{tanh}(\\varphi_1 + \\varphi_2) = \\frac{\\operatorname{tanh}\\varphi_1 + \\operatorname{tanh}\\varphi_2}{1 + \\operatorname{tanh}\\varphi_1\\,\\operatorname{tanh}\\varphi_2}",
+      "latex": "\\begin{aligned} &\\operatorname{tanh}(\\varphi_1 + \\varphi_2) \\\\ &\\quad = \\frac{\\operatorname{tanh}\\varphi_1 + \\operatorname{tanh}\\varphi_2}{1 + \\operatorname{tanh}\\varphi_1\\,\\operatorname{tanh}\\varphi_2} \\end{aligned}",
       "spoken": "tanh of phi one plus phi two equals tanh phi one plus tanh phi two, over one plus tanh phi one times tanh phi two."
     },
     {

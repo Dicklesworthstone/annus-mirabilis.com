@@ -33,7 +33,7 @@
     },
     {
       "kind": "formula",
-      "latex": "\\left[\\frac{100 \\times 0.43}{129.5612},\\ \\frac{100 \\times 0.43}{74.2219}\\right] = [0.3319,\\ 0.5793]\\ \\mu\\mathrm{m}^2/\\mathrm{s}",
+      "latex": "\\begin{aligned} &\\left[\\frac{100 \\times 0.43}{129.5612},\\ \\frac{100 \\times 0.43}{74.2219}\\right] \\\\ &\\quad = [0.3319,\\ 0.5793]\\ \\mu\\mathrm{m}^2/\\mathrm{s} \\end{aligned}",
       "spoken": "The interval runs from 43 divided by 129.5612 to 43 divided by 74.2219, that is from 0.3319 to 0.5793 square micrometres per second."
     },
     {

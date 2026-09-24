@@ -13,7 +13,7 @@
     },
     {
       "kind": "formula",
-      "latex": "\\mathbf{a}\\cdot\\mathbf{b} = a_x b_x + a_y b_y + a_z b_z = |\\mathbf{a}|\\,|\\mathbf{b}|\\cos θ",
+      "latex": "\\begin{aligned} \\mathbf{a}\\cdot\\mathbf{b} &= a_x b_x + a_y b_y + a_z b_z \\\\ &= |\\mathbf{a}|\\,|\\mathbf{b}|\\cos θ \\end{aligned}",
       "spoken": "a dot b equals a x b x plus a y b y plus a z b z, which equals the length of a times the length of b times the cosine of the angle between them."
     },
     {

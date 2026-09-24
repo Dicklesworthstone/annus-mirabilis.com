@@ -17,7 +17,7 @@
     },
     {
       "kind": "formula",
-      "latex": "1.35\\times10^{-2}\\,\\mathrm{P}\\times\\frac{0.1\\,\\mathrm{Pa\\,s}}{1\\,\\mathrm{P}} = 1.35\\times10^{-3}\\,\\mathrm{Pa\\,s}",
+      "latex": "\\begin{aligned} &1.35\\times10^{-2}\\,\\mathrm{P}\\times\\frac{0.1\\,\\mathrm{Pa\\,s}}{1\\,\\mathrm{P}} \\\\ &\\quad = 1.35\\times10^{-3}\\,\\mathrm{Pa\\,s} \\end{aligned}",
       "spoken": "1.35 times ten to the minus two poise, times 0.1 pascal-seconds per poise, equals 1.35 times ten to the minus three pascal-seconds."
     },
     {
@@ -46,7 +46,7 @@
     },
     {
       "kind": "formula",
-      "latex": "1\\,\\mathrm{abV} = 10^{-8}\\,\\mathrm{V},\\qquad 1\\,\\mathrm{abC} = 10\\,\\mathrm{C},\\qquad 1\\,\\mathrm{statV} = 299.792458\\,\\mathrm{V},\\qquad 1\\,\\mathrm{G} = 10^{-4}\\,\\mathrm{T}",
+      "latex": "\\begin{gathered} 1\\,\\mathrm{abV} = 10^{-8}\\,\\mathrm{V}, \\\\ 1\\,\\mathrm{abC} = 10\\,\\mathrm{C}, \\\\ 1\\,\\mathrm{statV} = 299.792458\\,\\mathrm{V}, \\\\ 1\\,\\mathrm{G} = 10^{-4}\\,\\mathrm{T} \\end{gathered}",
       "spoken": "One abvolt corresponds to ten to the minus eight volts, one abcoulomb to ten coulombs, one statvolt to 299.792458 volts, and one gauss to ten to the minus four tesla, all by convention."
     }
   ],

@@ -17,7 +17,7 @@
     },
     {
       "kind": "formula",
-      "latex": "x^2 + y^2 + z^2 = c^2 t^2 \\quad\\text{and}\\quad x'^2 + y'^2 + z'^2 = c^2 t'^2",
+      "latex": "\\begin{gathered} x^2 + y^2 + z^2 = c^2 t^2 \\\\ \\text{and} \\\\ x'^2 + y'^2 + z'^2 = c^2 t'^2 \\end{gathered}",
       "spoken": "x squared plus y squared plus z squared equals c squared t squared, and the same with every coordinate primed."
     },
     {
