@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FluorescenceLab } from "../../../components/lab/lq07/FluorescenceLab.tsx";
 import { LQ07_DEFAULTS } from "../../../experiments/lq07/definition.ts";
 import { evaluateLq07, type PreparedLq07Example } from "../../../experiments/lq07/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "Fluorescence energy budget and Stokes's rule",
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
 export default function FluorescencePage() {
   const evalResult = evaluateLq07(LQ07_DEFAULTS);
   const example: PreparedLq07Example = {
-    sourceDigest: "src/physics/reference/photoelectric.ts",
+    // The host source, by digest (scripts/generate-lab-digests.mjs).
+    sourceDigest: labDigests["lq-07"],
     parameters: LQ07_DEFAULTS,
     results: evalResult.outputs.map(
       (o) => `${o.quantityId}=${o.status === "value" ? String(o.value) : o.status}`,
