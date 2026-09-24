@@ -117,7 +117,7 @@ export function TwoLedgersLab({
       return;
     }
     if (parsed.emittedEnergyRestFrame <= 0) {
-      setError("Emitted energy L must be a positive finite number.");
+      setError("Enter an emitted energy L greater than zero.");
       setRefusalCode(null);
       return;
     }

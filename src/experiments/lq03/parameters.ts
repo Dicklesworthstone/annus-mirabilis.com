@@ -1,4 +1,5 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { exponentialParts } from "../../units/scientific.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { LQ03_DEFAULTS, type Lq03Parameters } from "./definition.ts";
 
@@ -11,6 +12,14 @@ const CONVENTIONS = ["per-hz", "per-m", "per-log", "per-decade"] as const;
  * acceptance criteria). An inverted or empty band is refused here, at the schema
  * boundary, before it ever reaches the owner's band integral.
  */
+/** A frequency in Hz as the refusal sentence shows it, typeset by the lab: "6 × 10^{14} Hz". */
+function hz(value: number): string {
+  const parts = exponentialParts(value);
+  return parts.kind === "plain"
+    ? `${parts.text} Hz`
+    : `${parts.mantissa} × 10^{${parts.exponent}} Hz`;
+}
+
 export function validateLq03Parameters(input: unknown): Computation<Lq03Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
@@ -40,7 +49,7 @@ export function validateLq03Parameters(input: unknown): Computation<Lq03Paramete
   // becomes visibly slow (~1s) at T=10000K with the default 400-600 THz band and does not
   // terminate by T=1e5K -- reported to BoldHarbor, not patched here (not this bead's file).
   if (!Number.isFinite(p.T) || p.T < 500 || p.T > 10000)
-    return bad("Temperature must be between 500 K and 10000 K.");
+    return bad("Enter a temperature from 500 to 10 000 K.");
   if (!(COORDINATES as readonly string[]).includes(p.coordinate))
     return bad("Choose frequency or wavelength as the horizontal coordinate.");
   if (!(AXIS_SCALES as readonly string[]).includes(p.axisScale))
@@ -55,10 +64,10 @@ export function validateLq03Parameters(input: unknown): Computation<Lq03Paramete
     p.nu2 < 1e11 ||
     p.nu2 > 1e16
   )
-    return bad("Band edges must be between 1e11 Hz and 1e16 Hz.");
+    return bad("Enter band edges from 10^{11} to 10^{16} Hz.");
   if (p.nu2 <= p.nu1)
     return bad(
-      `The upper band edge (${p.nu2} Hz) must be strictly greater than the lower edge (${p.nu1} Hz); this band is inverted or empty, not a smaller region.`,
+      `Enter an upper band edge above the lower one: ${hz(p.nu2)} is not above ${hz(p.nu1)}, so this band is inverted or empty, not a smaller region.`,
     );
   if (
     typeof p.showPlanck !== "boolean" ||
@@ -68,10 +77,10 @@ export function validateLq03Parameters(input: unknown): Computation<Lq03Paramete
     return bad("Choose which laws are shown as true or false.");
   if (!Number.isFinite(p.epsilon) || p.epsilon <= 0 || p.epsilon >= 1)
     return bad(
-      "Regime tolerance must be a fraction strictly between 0 and 1 (for example 0.01 for 1%).",
+      "Enter a regime tolerance as a fraction above 0 and below 1, for example 0.01 for 1 percent.",
     );
   if (!Number.isFinite(p.probeNu) || p.probeNu <= 0)
-    return bad("The probe frequency must be a positive finite number in Hz.");
+    return bad("Enter a probe frequency greater than zero, in Hz.");
 
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }

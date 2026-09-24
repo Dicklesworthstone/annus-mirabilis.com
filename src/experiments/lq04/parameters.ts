@@ -37,32 +37,32 @@ export function validateLq04Parameters(input: unknown): Computation<Lq04Paramete
   const p = input as Lq04Parameters;
 
   if (!Number.isFinite(p.frequency) || p.frequency < 1e13 || p.frequency > 1e16) {
-    return bad("Frequency must be between 1e13 Hz and 1e16 Hz.");
+    return bad(`Enter a frequency from ${powerOfTenText(1e13)} to ${powerOfTenText(1e16)} Hz.`);
   }
   if (!Number.isFinite(p.bandwidth) || p.bandwidth < 1e9 || p.bandwidth > 1e14) {
-    return bad("Band width must be between 1e9 Hz and 1e14 Hz.");
+    return bad(`Enter a band width from ${powerOfTenText(1e9)} to ${powerOfTenText(1e14)} Hz.`);
   }
   if (!Number.isFinite(p.referenceVolume) || p.referenceVolume < 1e-6 || p.referenceVolume > 1) {
-    return bad(`Reference volume must be between ${powerOfTenText(1e-6)} m³ and 1 m³.`);
+    return bad(`Enter a reference volume from ${powerOfTenText(1e-6)} to 1 m³.`);
   }
   if (
     !Number.isFinite(p.referenceTemperature) ||
     p.referenceTemperature < 500 ||
     p.referenceTemperature > 10000
   ) {
-    return bad("Reference temperature must be between 500 K and 10000 K.");
+    return bad("Enter a reference temperature from 500 to 10 000 K.");
   }
   if (!Number.isFinite(p.volumeRatio) || p.volumeRatio < 1e-4 || p.volumeRatio > 1e4) {
-    return bad(`Volume ratio must be between ${powerOfTenText(1e-4)} and ${powerOfTenText(1e4)}.`);
+    return bad(`Enter a volume ratio from ${powerOfTenText(1e-4)} to ${powerOfTenText(1e4)}.`);
   }
   if (!Number.isFinite(p.diluteThresholdX) || p.diluteThresholdX < 3 || p.diluteThresholdX > 10) {
-    return bad("The dilute threshold must be between 3 and 10.");
+    return bad("Enter a dilute threshold from 3 to 10.");
   }
   if (typeof p.showUnfixedConstantPanel !== "boolean") {
     return bad("The C(ν) teaching panel toggle must be true or false.");
   }
   if (!Number.isFinite(p.illustrativeC)) {
-    return bad("The illustrative constant C(ν) must be a finite number.");
+    return bad("Enter the illustrative constant C(ν) as a number.");
   }
 
   return { kind: "accepted", data: Object.freeze({ ...p }) };

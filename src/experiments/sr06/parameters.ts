@@ -7,6 +7,17 @@ export type Sr06ParameterCheck =
 
 const MODES: readonly Sr06Mode[] = ["collinear", "angled", "two-boosts"];
 
+/** What each numeric control is called on the page (VelocityCompositionLab), with its unit. */
+const SR06_FIELD_NAMES: Partial<Record<string, string>> = {
+  frameBeta: "the frame speed v/c",
+  movingSpeed: "the moving-frame speed w/c",
+  alphaDeg: "the angle α, in degrees,",
+  secondBeta: "the second boost speed v/c",
+  secondAngleDeg: "the second boost angle, in degrees,",
+  mediumIndex: "the medium index n",
+  flowSpeed: "the medium flow speed, in m/s,",
+};
+
 export function validateSr06Parameters(input: unknown): Sr06ParameterCheck {
   const bad = (requirements: string, parameterIds: string[] = [], code = "invalid-parameter") => ({
     kind: "refused" as const,
@@ -31,7 +42,7 @@ export function validateSr06Parameters(input: unknown): Sr06ParameterCheck {
       typeof SR06_DEFAULTS[k] === "number" &&
       (typeof p[k] !== "number" || !Number.isFinite(p[k]))
     )
-      return bad("Use finite numbers in the stated units.");
+      return bad(`Enter ${SR06_FIELD_NAMES[k] ?? "this value"} as a number.`, [k]);
   }
   if (Math.abs(p.frameBeta) >= 1 || Math.abs(p.secondBeta) >= 1)
     return {
@@ -53,10 +64,10 @@ export function validateSr06Parameters(input: unknown): Sr06ParameterCheck {
       ),
     };
   if (p.movingSpeed < 0 || p.movingSpeed > 1)
-    return bad("The moving-frame speed is between 0 and c inclusive.", ["movingSpeed"]);
+    return bad("Enter a moving-frame speed w/c from 0 to 1.", ["movingSpeed"]);
   if (!(p.mediumIndex > 1) || p.mediumIndex > 3)
-    return bad("The medium index n is greater than 1 and at most 3.", ["mediumIndex"]);
+    return bad("Enter a medium index n above 1 and at most 3.", ["mediumIndex"]);
   if (!Number.isFinite(p.flowSpeed) || Math.abs(p.flowSpeed) > 1e3)
-    return bad("The medium flow speed is at most 1000 m/s.", ["flowSpeed"]);
+    return bad("Enter a medium flow speed of at most 1000 m/s either way.", ["flowSpeed"]);
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }

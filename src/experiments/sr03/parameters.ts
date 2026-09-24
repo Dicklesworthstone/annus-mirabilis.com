@@ -52,7 +52,13 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
   if (typeof vRaw !== "number" || !Number.isFinite(vRaw)) {
     return {
       kind: "refused",
-      refusal: makeRefusal("nonfinite-input", { parameterIds: ["v"] }),
+      refusal: makeRefusal(
+        "nonfinite-input",
+        { parameterIds: ["v"] },
+        {
+          details: { requirements: "Enter the relative speed v, as a fraction of c, as a number." },
+        },
+      ),
     };
   }
 
@@ -113,9 +119,16 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
     if (![customT1, customX1, customT2, customX2].every(Number.isFinite)) {
       return {
         kind: "refused",
-        refusal: makeRefusal("nonfinite-input", {
-          parameterIds: ["customT1", "customX1", "customT2", "customX2"],
-        }),
+        refusal: makeRefusal(
+          "nonfinite-input",
+          { parameterIds: ["customT1", "customX1", "customT2", "customX2"] },
+          {
+            details: {
+              requirements:
+                "Enter both events' times, in seconds, and positions, in light-seconds, as numbers.",
+            },
+          },
+        ),
       };
     }
   }

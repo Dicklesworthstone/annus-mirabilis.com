@@ -380,7 +380,7 @@ export function SpectrumLab({
           </fieldset>
           {error && (
             <p id={`${id}-error`} className="notice" role="alert">
-              {error}
+              {withScripts(error)}
             </p>
           )}
         </form>

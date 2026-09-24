@@ -24,27 +24,27 @@ export function validateBm03Parameters(input: unknown): Computation<Bm03Paramete
 
   const Np = obj.Np;
   if (typeof Np !== "number" || !Number.isSafeInteger(Np) || Np < 1) {
-    return bad("Particle count Np must be a whole positive integer (Np >= 1).");
+    return bad("Enter a whole number of particles Np, at least 1.");
   }
 
   const volumeRatio = obj.volumeRatio;
   if (typeof volumeRatio !== "number" || !Number.isFinite(volumeRatio) || volumeRatio <= 0) {
-    return bad("Volume ratio V/V0 must be a positive finite number.");
+    return bad("Enter a volume ratio V/V₀ greater than zero.");
   }
 
   const V0 = obj.V0;
   if (typeof V0 !== "number" || !Number.isFinite(V0) || V0 <= 0) {
-    return bad("Reference volume V0 must be a positive finite volume in μm³.");
+    return bad("Enter a reference volume V₀ greater than zero, in μm³.");
   }
 
   const T = obj.T;
   if (typeof T !== "number" || !Number.isFinite(T) || T <= 0) {
-    return bad("Temperature T must be a positive finite temperature in Kelvin.");
+    return bad("Enter a temperature T above 0 K.");
   }
 
   const model = obj.model as Bm03Model | undefined;
   if (model !== "independent" && model !== "locked-cluster") {
-    return bad("Model must be either 'independent' or 'locked-cluster'.");
+    return bad("Choose the independent-particle model or the locked cluster.");
   }
 
   const step = obj.step as Bm03Step | undefined;
@@ -55,13 +55,13 @@ export function validateBm03Parameters(input: unknown): Computation<Bm03Paramete
     step !== "derivative"
   ) {
     return bad(
-      "Step must be one of 'one-particle', 'two-particles', 'many-particles', 'derivative'.",
+      "Choose one of the four steps: one particle, two particles, many particles, or the derivative.",
     );
   }
 
   const notation = obj.notation as Bm03Notation | undefined;
   if (notation !== "printed" && notation !== "modern") {
-    return bad("Notation must be either 'printed' or 'modern'.");
+    return bad("Choose printed or modern notation.");
   }
 
   return {

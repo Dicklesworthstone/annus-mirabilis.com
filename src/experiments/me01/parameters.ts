@@ -36,7 +36,8 @@ export function validateMe01Parameters(input: unknown): Me01ParameterCheck {
         {
           details: {
             code: "superluminal-observer",
-            requirements: "No inertial observer moves at or above the speed of light (|v/c| < 1).",
+            requirements:
+              "Enter an observer speed v/c strictly between −1 and 1: no inertial observer moves at or above light speed.",
           },
         },
       ),
@@ -50,7 +51,7 @@ export function validateMe01Parameters(input: unknown): Me01ParameterCheck {
       refusal: makeRefusal(
         "invalid-parameter",
         { parameterIds: ["emittedEnergyRestFrame"] },
-        { details: { requirements: "Emitted energy L must be a positive finite number (L > 0)." } },
+        { details: { requirements: "Enter an emitted energy L greater than zero." } },
       ),
     };
   }
@@ -62,7 +63,7 @@ export function validateMe01Parameters(input: unknown): Me01ParameterCheck {
       refusal: makeRefusal(
         "invalid-parameter",
         { parameterIds: ["emissionAngle"] },
-        { details: { requirements: "Emission angle phi must be a finite number of degrees." } },
+        { details: { requirements: "Enter the emission angle φ as a number of degrees." } },
       ),
     };
   }

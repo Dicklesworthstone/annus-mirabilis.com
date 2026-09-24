@@ -45,8 +45,8 @@ export function validateSr07Parameters(input: unknown): Sr07ParameterCheck {
     return bad("Choose an admitted equation, wave, and polarization.");
   if (!UNITS.includes(p.unitLayer)) return bad("Choose printed Gaussian or modern SI.");
   if (!Number.isInteger(p.stepIndex) || p.stepIndex < 0 || p.stepIndex > 5)
-    return bad("Step index is an integer from 0 through 5.");
-  if (!Number.isFinite(p.boostBeta)) return bad("Boost speed must be finite.");
+    return bad("Choose a step from 0 to 5.");
+  if (!Number.isFinite(p.boostBeta)) return bad("Enter the validation boost v/c as a number.");
   if (Math.abs(p.boostBeta) >= 1) {
     return {
       kind: "refused",
@@ -61,6 +61,6 @@ export function validateSr07Parameters(input: unknown): Sr07ParameterCheck {
       ),
     };
   }
-  if (Math.abs(p.boostBeta) > 0.95) return bad("Validation boosts stay inside |v/c| ≤ 0.95.");
+  if (Math.abs(p.boostBeta) > 0.95) return bad("Enter a validation boost v/c from −0.95 to 0.95.");
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }
