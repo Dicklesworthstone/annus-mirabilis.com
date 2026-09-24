@@ -248,7 +248,7 @@ export function ReaderController(props: Props) {
       )
         return;
       const control = event.target.closest<HTMLElement>(
-        "[data-clarification-open],[data-foundation],[data-view-link],[data-reader-anchor],[data-reader-back],[data-reader-close],[data-copy-passage],[data-apply-detail]",
+        "[data-clarification-open],[data-foundation],[data-view-link],[data-reader-anchor],[data-reader-back],[data-reader-close],[data-copy-passage]",
       );
       if (!control || !root.contains(control)) return;
       if (control.dataset.clarificationOpen) {
@@ -335,18 +335,6 @@ export function ReaderController(props: Props) {
       } else if (control.hasAttribute("data-reader-close")) {
         event.preventDefault();
         change({ ...state, frames: [] }, false, "Returned to the exact step.");
-      } else if (control.hasAttribute("data-apply-detail")) {
-        event.preventDefault();
-        // The latest override's level becomes the page's, and the overrides go (applyElsewhere.ts),
-        // so the page's new level reaches every passage.
-        layers = applyElsewhere(layers);
-        placeApply(null);
-        setDetail(
-          layers.globalDetail,
-          layers.globalDetail === 2
-            ? "Every step is shown in every passage."
-            : "The full explanation is shown in every passage.",
-        );
       } else if (
         control.dataset.copyPassage &&
         registry.anchors.includes(control.dataset.copyPassage)
@@ -416,7 +404,22 @@ export function ReaderController(props: Props) {
           : null,
       );
     }
-    /** The one "Apply this to the rest of the page" control, beside the latest override. */
+    /** The latest override's level becomes the page's, and the overrides go (applyElsewhere.ts). */
+    function applyToPage() {
+      layers = applyElsewhere(layers);
+      placeApply(null);
+      setDetail(
+        layers.globalDetail,
+        layers.globalDetail === 2
+          ? "Every step is shown in every passage."
+          : "The full explanation is shown in every passage.",
+      );
+    }
+    /**
+     * The one "Apply this to the rest of the page" control, beside the latest override. Script
+     * makes it, so the page's markup never holds it and it takes its own listener rather than
+     * the root's delegated one, which answers controls the markup carries.
+     */
     function placeApply(at: HTMLDetailsElement | null) {
       if (!at) {
         applyDetail?.remove();
@@ -431,6 +434,7 @@ export function ReaderController(props: Props) {
         button.className = "secondary";
         button.setAttribute("data-apply-detail", "");
         button.textContent = "Apply this to the rest of the page";
+        button.addEventListener("click", applyToPage);
         applyDetail.append(button);
       }
       at.after(applyDetail);
@@ -566,6 +570,7 @@ export function ReaderController(props: Props) {
       closeDirectOpenDialog(document);
       unmountLessonConstructions();
       unmountStepsConstructions();
+      placeApply(null);
     };
   }, [navigation]);
   return (
