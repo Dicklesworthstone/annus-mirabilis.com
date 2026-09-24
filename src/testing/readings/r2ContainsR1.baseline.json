@@ -1,0 +1,258 @@
+{
+  "bead": "am-r2-contains-r1-gate-wxf5",
+  "measuredAt": "2026-09-24",
+  "examined": 42,
+  "violators": {
+    "arg-bm-diffusion-equation": {
+      "paper": "brownian-motion",
+      "missing": [
+        "eq-model-bm-next-density",
+        "eq-model-bm-jump-moment",
+        "eq-model-bm-diffusion-equation"
+      ],
+      "wordGap": 0
+    },
+    "arg-bm-diffusivity": {
+      "paper": "brownian-motion",
+      "missing": ["eq-model-bm-diffusivity-molar+eq-model-bm-diffusivity"],
+      "wordGap": 0
+    },
+    "arg-bm-gaussian": {
+      "paper": "brownian-motion",
+      "missing": [
+        "p(x,t)=\\frac{e^{-x^2/(4Dt)}}{\\sqrt{4\\piDt}}\\quad(t>0)",
+        "eq-model-bm-rms-from-mean-square"
+      ],
+      "wordGap": 0
+    },
+    "arg-bm-independent-steps": {
+      "paper": "brownian-motion",
+      "missing": [
+        "eq-model-bm-sum-of-steps",
+        "eq-model-bm-walk-time+eq-model-bm-walk-diffusivity+eq-model-bm-mean-square-growth"
+      ],
+      "wordGap": 0
+    },
+    "arg-bm-inference": {
+      "paper": "brownian-motion",
+      "missing": ["eq-model-bm-diffusivity-from-data+eq-model-bm-avogadro-inference"],
+      "wordGap": 2
+    },
+    "arg-bm-observable": {
+      "paper": "brownian-motion",
+      "missing": ["\\langlex\\rangle=0,\\qquad\\langlex^2\\rangle>0"],
+      "wordGap": 0
+    },
+    "arg-lq-classical-allocation": {
+      "paper": "light-quanta",
+      "missing": [
+        "eq-model-lq-classical-density",
+        "eq-model-lq-cutoff-integral+eq-model-lq-cutoff-total"
+      ],
+      "wordGap": 0
+    },
+    "arg-lq-entropy-correspondence": {
+      "paper": "light-quanta",
+      "missing": [
+        "eq-model-lq-gas-entropy-change+eq-model-lq-radiation-entropy-change",
+        "eq-model-lq-effective-count+eq-model-lq-energy-per-point"
+      ],
+      "wordGap": 0
+    },
+    "arg-lq-entropy-temperature": {
+      "paper": "light-quanta",
+      "missing": ["eq-model-lq-entropy-temperature"],
+      "wordGap": 42
+    },
+    "arg-lq-fixed-band-volume": {
+      "paper": "light-quanta",
+      "missing": ["eq-model-lq-volume-entropy", "eq-model-lq-unfixed-constant"],
+      "wordGap": 12
+    },
+    "arg-lq-fluorescence-budget": {
+      "paper": "light-quanta",
+      "missing": ["eq-model-lq-fluorescence-bound"],
+      "wordGap": 34
+    },
+    "arg-lq-independent-configurations": {
+      "paper": "light-quanta",
+      "missing": ["eq-model-lq-configuration-probability+eq-model-lq-configuration-entropy"],
+      "wordGap": 39
+    },
+    "arg-lq-ionization-and-counts": {
+      "paper": "light-quanta",
+      "missing": ["eq-model-lq-ionization-threshold", "eq-model-lq-ion-count-bound"],
+      "wordGap": 37
+    },
+    "arg-lq-photoelectric-energy": {
+      "paper": "light-quanta",
+      "missing": ["eq-model-lq-photoelectric-maximum+eq-model-lq-threshold-frequency"],
+      "wordGap": 28
+    },
+    "arg-lq-planck-constants": {
+      "paper": "light-quanta",
+      "missing": [
+        "eq-model-lq-planck-low-frequency",
+        "eq-model-lq-coefficient-match+eq-model-lq-avogadro-from-spectrum"
+      ],
+      "wordGap": 35
+    },
+    "arg-lq-stopping-and-losses": {
+      "paper": "light-quanta",
+      "missing": ["eq-model-lq-stopping-energy"],
+      "wordGap": 48
+    },
+    "arg-lq-wave-and-transfer": {
+      "paper": "light-quanta",
+      "missing": [],
+      "wordGap": 65
+    },
+    "arg-lq-wien-integration": {
+      "paper": "light-quanta",
+      "missing": [
+        "eq-model-lq-wien-spectrum",
+        "eq-model-lq-wien-inverse-temperature",
+        "eq-model-lq-wien-entropy-density"
+      ],
+      "wordGap": 0
+    },
+    "arg-me-constant-premise": {
+      "paper": "mass-energy",
+      "missing": [
+        "eq-model-me-offset-before+eq-model-me-offset-after",
+        "eq-model-me-kinetic-drop-difference"
+      ],
+      "wordGap": 0
+    },
+    "arg-me-import": {
+      "paper": "mass-energy",
+      "missing": [
+        "eq-model-me-light-energy-transform+eq-model-me-speed-ratio+eq-model-me-lorentz-factor-beta"
+      ],
+      "wordGap": 0
+    },
+    "arg-me-mass-change": {
+      "paper": "mass-energy",
+      "missing": ["eq-model-me-mass-difference+eq-model-me-mass-change-signed"],
+      "wordGap": 8
+    },
+    "arg-me-scope": {
+      "paper": "mass-energy",
+      "missing": [],
+      "wordGap": 41
+    },
+    "arg-me-small-speed": {
+      "paper": "mass-energy",
+      "missing": ["eq-model-me-kinetic-drop-low-speed", "eq-model-me-low-speed-limit"],
+      "wordGap": 0
+    },
+    "arg-me-subtraction": {
+      "paper": "mass-energy",
+      "missing": ["eq-model-me-ledger-subtraction-chain"],
+      "wordGap": 10
+    },
+    "arg-me-symmetric-emission": {
+      "paper": "mass-energy",
+      "missing": ["eq-model-me-symmetric-sum"],
+      "wordGap": 0
+    },
+    "arg-me-two-ledgers": {
+      "paper": "mass-energy",
+      "missing": ["eq-model-me-rest-ledger+eq-model-me-moving-ledger"],
+      "wordGap": 4
+    },
+    "arg-sr-charge-current": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-charge-density+eq-model-sr-current-density"],
+      "wordGap": 55
+    },
+    "arg-sr-clock-and-length": {
+      "paper": "special-relativity",
+      "missing": [
+        "eq-model-sr-time-dilation+eq-model-sr-length-contraction",
+        "eq-model-sr-slow-clock"
+      ],
+      "wordGap": 27
+    },
+    "arg-sr-doppler-aberration": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-doppler-ratio+eq-model-sr-doppler-factor", "eq-model-sr-aberration"],
+      "wordGap": 24
+    },
+    "arg-sr-electron-conventions": {
+      "paper": "special-relativity",
+      "missing": [
+        "eq-model-sr-longitudinal-mass+eq-model-sr-transverse-mass-printed+eq-model-sr-transverse-mass-laboratory"
+      ],
+      "wordGap": 0
+    },
+    "arg-sr-electron-work": {
+      "paper": "special-relativity",
+      "missing": [
+        "eq-model-sr-electron-work-integral+eq-model-sr-electron-work-result",
+        "eq-model-sr-electron-energy+eq-model-sr-magnetic-radius"
+      ],
+      "wordGap": 0
+    },
+    "arg-sr-field-components": {
+      "paper": "special-relativity",
+      "missing": [
+        "eq-model-sr-field-ex+eq-model-sr-field-bx+eq-model-sr-field-ey+eq-model-sr-field-by+eq-model-sr-field-ez+eq-model-sr-field-bz"
+      ],
+      "wordGap": 7
+    },
+    "arg-sr-field-derivatives": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-partial-t+eq-model-sr-partial-x"],
+      "wordGap": 21
+    },
+    "arg-sr-light-complex": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-light-density+eq-model-sr-light-volume+eq-model-sr-light-energy"],
+      "wordGap": 63
+    },
+    "arg-sr-lorentz-map": {
+      "paper": "special-relativity",
+      "missing": [
+        "eq-model-sr-map-ansatz-position+eq-model-sr-map-ansatz-time",
+        "eq-model-sr-lorentz-factor+eq-model-sr-map-position+eq-model-sr-map-time"
+      ],
+      "wordGap": 0
+    },
+    "arg-sr-magnet-conductor": {
+      "paper": "special-relativity",
+      "missing": [],
+      "wordGap": 136
+    },
+    "arg-sr-moving-mirror": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-mirror-frequency"],
+      "wordGap": 9
+    },
+    "arg-sr-rod-events": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-simultaneity-offset"],
+      "wordGap": 62
+    },
+    "arg-sr-synchronization": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-sync-equal-legs", "eq-model-sr-sync-midpoint"],
+      "wordGap": 53
+    },
+    "arg-sr-transported-clock": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-transported-clock"],
+      "wordGap": 56
+    },
+    "arg-sr-transverse-and-inverse": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-inverse-position+eq-model-sr-inverse-time"],
+      "wordGap": 14
+    },
+    "arg-sr-velocity-composition": {
+      "paper": "special-relativity",
+      "missing": ["eq-model-sr-velocity-x+eq-model-sr-velocity-y"],
+      "wordGap": 10
+    }
+  }
+}
