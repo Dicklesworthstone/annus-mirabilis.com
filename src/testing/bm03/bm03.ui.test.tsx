@@ -62,7 +62,8 @@ describe("BM-03 UI components and route", () => {
     expect(html).toContain('data-execution-label="static"');
     expect(html).toContain("<noscript>");
     expect(html).toContain("JavaScript is off.");
-    expect(html).toContain("Predict before deriving");
+    // The question comes from the manifest's prompt, drawn by the predict gate (am-inst-predict-mode-ti7m).
+    expect(html).toContain('data-predict-prompt="bm-03-predict-volume-factor"');
     expect(html).toContain("Presets and parameters");
     expect(html).toContain("One accepted calculation");
     expect(html).toContain('data-output="factorRatio"');

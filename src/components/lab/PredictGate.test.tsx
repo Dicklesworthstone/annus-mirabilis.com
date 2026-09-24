@@ -43,6 +43,7 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
+import { ConfigurationLab } from "./bm03/ConfigurationLab.tsx";
 import { CameraLab } from "./CameraLab.tsx";
 import { InferenceLab } from "./InferenceLab.tsx";
 import { CoefficientMatchLab } from "./lq06/CoefficientMatchLab.tsx";
@@ -72,7 +73,7 @@ import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
  * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-07 and BM-08 share none
- * (their worker runner is not written); LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
+ * (their worker runner is not written); BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
  * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; LQ-06 has none.
  */
 type GatedLab = Readonly<{
@@ -84,6 +85,13 @@ type GatedLab = Readonly<{
 }>;
 
 const LABS: readonly GatedLab[] = [
+  {
+    lab: "bm-03",
+    element: () => createElement(ConfigurationLab, {}),
+    result: "One accepted calculation",
+    sharesTape: false,
+    statusLine: true,
+  },
   {
     lab: "bm-07",
     element: () =>

@@ -26,12 +26,15 @@ import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { fixed, identity, numberText, readablePowers, sentenceNumber } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
 
-const PREDICT_REASONING =
-  "The model gives 4. Each particle's own positions double, and the two particles are placed independently, so their joint arrangements multiply: 2 × 2 = 4. For Np particles the factor is 2 to the power Np.";
+// The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate. Its
+// explanation is the reasoning this file kept for itself.
+const BM03_PROMPTS = PREDICT_PROMPTS["bm-03"] ?? [];
 
 const STEPS: readonly { id: Bm03Step; label: string; number: number }[] = [
   { id: "one-particle", label: "1. One particle", number: 1 },
@@ -78,7 +81,8 @@ export function ConfigurationLab({
   const [error, setError] = useState("");
   const [linkNote, setLinkNote] = useState("");
   const [sharedUrl, setSharedUrl] = useState("");
-  const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("bm-03", BM03_PROMPTS);
 
   const evaluation = evaluateBm03(p);
   // One sentence for the status line: how many more arrangements the larger volume allows, and the
@@ -197,46 +201,13 @@ export function ConfigurationLab({
         </p>
       </noscript>
 
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <form
           onSubmit={submit}
           aria-label="Configuration integral settings"
           aria-describedby={error ? `${id}-error` : undefined}
         >
-          {/* The model's answer comes after a choice and reads the same whichever was chosen: a
-              prediction is a starting point, never a score. Without JavaScript the choices do
-              nothing, so the same reasoning is a disclosure a reader can open. */}
-          <details className="lab-predict">
-            <summary>Predict before deriving</summary>
-            <fieldset>
-              <legend>
-                Doubling the volume available to two independent particles multiplies the number of
-                position arrangements by 2, 4, or 8?
-              </legend>
-              {(["2", "4", "8"] as const).map((factor) => (
-                <label key={factor} className="lab-predict-candidate">
-                  <input
-                    type="radio"
-                    name={`${id}-predict`}
-                    value={factor}
-                    checked={predictAnswer === factor}
-                    onChange={() => setPredictAnswer(factor)}
-                  />
-                  <span>Multiplies by {factor}</span>
-                </label>
-              ))}
-              {predictAnswer ? (
-                <p className="lab-predict-reveal" role="status">
-                  You chose {predictAnswer}. {PREDICT_REASONING}
-                </p>
-              ) : (
-                <details>
-                  <summary>The model&apos;s answer</summary>
-                  <p className="fine">{PREDICT_REASONING}</p>
-                </details>
-              )}
-            </fieldset>
-          </details>
           <fieldset disabled={!ready}>
             <legend>Presets and parameters</legend>
             <div className="preset-list">
@@ -396,9 +367,13 @@ export function ConfigurationLab({
             </p>
           )}
         </form>
-        <AcceptedStatus worked={executionKind === "static-example"} summary={statusSummary} />
+        <AcceptedStatus
+          worked={executionKind === "static-example"}
+          summary={statusSummary}
+          response={gate.response}
+        />
 
-        <div className="lab-results" {...identity(snapshot)}>
+        <div className="lab-results" {...identity(snapshot)} {...gate.response}>
           {/* SVG Construction Visual */}
           <ConfigurationPlot
             parameters={p}

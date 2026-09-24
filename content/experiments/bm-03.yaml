@@ -411,11 +411,12 @@ predictMode:
       supportedCandidateId: factor-4
       controlId: Np
       question: "Doubling the volume available to two independent particles multiplies the number of position arrangements by 2, 4, or 8?"
+      explanation: "The model gives 4. Each particle's own positions double, and the two particles are placed independently, so their joint arrangements multiply: 2 × 2 = 4. For N_{p} particles the factor is 2 to the power N_{p}."
       candidates:
         - id: factor-2
           label: "Multiplies by 2"
           description: "Treats the volume factor as proportional to volume regardless of particle count."
-          separatingAssumption: "Assumes position options grow like V instead of V^2 for two particles."
+          separatingAssumption: "This lets the arrangements grow like V, as for one particle. With two particles placed independently they grow like V², so doubling V gives 4."
         - id: factor-4
           label: "Multiplies by 4"
           description: "Each independent particle has 2 times the volume, so 2 * 2 = 4 arrangements."
@@ -423,4 +424,4 @@ predictMode:
         - id: factor-8
           label: "Multiplies by 8"
           description: "Assumes three-dimensional volume cubing per particle."
-          separatingAssumption: "Confuses the 3 spatial dimensions of one coordinate with the power Np of particle count."
+          separatingAssumption: "This cubes the factor, as if the three dimensions of space set the power. The power is the number of particles, N_{p} = 2, so doubling V gives 2² = 4."
