@@ -8,8 +8,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { renderSourceMarkup } from "../../reader/faces/sourceMarkup.tsx";
+import { parseYaml } from "../provenance/yaml.ts";
 import { blockStartPages } from "./blockPages.ts";
-import { CONTINUES, type JoinedBlock, joinPageContinuations } from "./joinContinuations.ts";
+import { loadGermanSourceFace } from "./germanSourceFace.ts";
+import { CONTINUES, JOINED, type JoinedBlock, joinPageContinuations } from "./joinContinuations.ts";
 import { type ProposedBlock, segmentLedger } from "./segmentLedger.ts";
 
 const LEDGERS = {
@@ -86,7 +88,7 @@ describe("on the real ledgers", () => {
     const lq = joinPageContinuations(segment(ledger("ap-17-132")));
     const s3p2 = lq.find((b) => b.id === "s3-p2");
     expect(s3p2?.joinedIds).toContain("s3-p3");
-    expect(s3p2?.text).toMatch(/und \$\\nu\$\[\[CONTINUES\]\] bedeutet\. Es kann/);
+    expect(s3p2?.text).toMatch(/und \$\\nu\$\[\[JOINED\]\] bedeutet\. Es kann/);
     expect(lq.some((b) => b.kind === "paragraph" && b.text.startsWith("bedeutet."))).toBe(false);
   });
 });
@@ -152,7 +154,7 @@ describe("the face renders a join", () => {
     const html = renderToStaticMarkup(
       <p>
         {renderSourceMarkup(
-          `Eins zwei${CONTINUES} drei vier.${CONTINUES}`,
+          `Eins zwei${JOINED} drei vier.${CONTINUES}`,
           "s0-p1",
           [],
           [{ id: "s0-p2", page: 102 }],
@@ -167,5 +169,84 @@ describe("the face renders a join", () => {
   test("with no joins, every marker is dropped as before", () => {
     const html = renderToStaticMarkup(<p>{renderSourceMarkup(`Eins zwei${CONTINUES}`, "x")}</p>);
     expect(html).toBe("<p>Eins zwei</p>");
+  });
+});
+
+describe("each printed paragraph is one paragraph on the German face", () => {
+  /*
+    Checked against the plate-read manifests' paragraph starts, page by page (each manifest
+    paragraph's first locator), and against the plates themselves: mass-energy pp. 639-641, 12
+    paragraphs; light quanta pp. 135, 136, 137, 139, 142, 146; Brownian motion pp. 554, 557, 559.
+  */
+  for (const paper of ["light-quanta", "brownian-motion", "mass-energy"] as const) {
+    test(`${paper}: the face starts a paragraph on each page where the print does`, () => {
+      const face = loadGermanSourceFace(paper);
+      expect(face).not.toBeNull();
+      const units = (
+        parseYaml(
+          readFileSync(
+            join(process.cwd(), "content/source-blocks", paper, "manifest.yaml"),
+            "utf8",
+          ),
+        ) as { units: { kind: string; locators?: { page?: number }[] }[] }
+      ).units;
+      const printed = new Map<number, number>();
+      for (const u of units)
+        if (u.kind === "paragraph") {
+          const page = u.locators?.[0]?.page ?? -1;
+          printed.set(page, (printed.get(page) ?? 0) + 1);
+        }
+      const onFace = new Map<number, number>();
+      for (const b of face?.blocks ?? [])
+        if (b.kind === "paragraph") {
+          const page = face?.printedPages.pages[b.id] ?? -1;
+          onFace.set(page, (onFace.get(page) ?? 0) + 1);
+        }
+      expect(printed.size).toBeGreaterThan(1);
+      expect([...onFace].sort()).toEqual([...printed].sort());
+    });
+  }
+
+  test("the plates' continuations are joined and their indented paragraphs are not", () => {
+    const lq = loadGermanSourceFace("light-quanta");
+    const bm = loadGermanSourceFace("brownian-motion");
+    const starts = (face: typeof lq) =>
+      (face?.blocks ?? []).filter((b) => b.kind === "paragraph").map((b) => b.text.trimStart());
+    const lqStarts = starts(lq);
+    const bmStarts = starts(bm);
+    // Flush left on the plate, so inside a paragraph (pp. 136, 137, 139, 143; 554, 557, 559).
+    for (const words of ["Diese als Bedingung", "Man erkennt, daß diese", "Es sei nun eine"])
+      expect(lqStarts.some((t) => t.startsWith(words))).toBe(false);
+    expect(lqStarts.some((t) => t.startsWith("und vergleicht man"))).toBe(false);
+    for (const words of ["Es werde angenommen", "Nun können wir aber", "Durch Eliminieren von"])
+      expect(bmStarts.some((t) => t.startsWith(words))).toBe(false);
+    // Indented on the plate, so each still opens a paragraph (pp. 139, 142, 146; 554, 559).
+    for (const words of ["Diese Gleichung zeigt", "Es ist bemerkenswert", "Setzt man $E"])
+      expect(lqStarts.some((t) => t.startsWith(words))).toBe(true);
+    for (const words of ["Die Gleichung (1) benutzen", "Wir wollen berechnen"])
+      expect(bmStarts.some((t) => t.startsWith(words))).toBe(true);
+  });
+
+  test("a footnote keeps its own displays and words (light quanta p. 135)", () => {
+    const lq = loadGermanSourceFace("light-quanta");
+    const note = lq?.blocks.find(
+      (b) => b.kind === "footnote" && b.text.startsWith("Diese Voraussetzung läßt sich"),
+    );
+    expect(note?.text).toContain("wobei $A_\\nu \\geq 0$");
+    expect(note?.displayEquationIds?.length).toBe(3);
+    const body = (lq?.blocks ?? []).filter((b) => b.kind === "paragraph");
+    expect(body.some((b) => b.text.includes("wobei $A_\\nu \\geq 0$"))).toBe(false);
+    // The retired paragraph id stays an anchor, in the footnote.
+    expect(note?.joinedIds?.length).toBe(1);
+  });
+
+  test("no display is printed twice and every id stays unique", () => {
+    for (const paper of ["light-quanta", "brownian-motion", "mass-energy"] as const) {
+      const face = loadGermanSourceFace(paper);
+      const claimed = (face?.blocks ?? []).flatMap((b) => b.displayEquationIds ?? []);
+      expect(new Set(claimed).size).toBe(claimed.length);
+      const ids = (face?.blocks ?? []).flatMap((b) => [b.id, ...(b.joinedIds ?? [])]);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
   });
 });
