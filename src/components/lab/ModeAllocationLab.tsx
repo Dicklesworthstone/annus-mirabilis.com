@@ -306,12 +306,9 @@ export function ModeAllocationLab({
             </p>
           </details>
 
-          <details>
-            <summary>What this model leaves out</summary>
-            {NOT_MODELED.map((line) => (
-              <p key={line}>• {line}</p>
-            ))}
-          </details>
+          <p className="fine">
+            Not modeled: {NOT_MODELED.map((line) => line.replace(/\.$/, "")).join("; ")}.
+          </p>
 
           <details>
             <summary>

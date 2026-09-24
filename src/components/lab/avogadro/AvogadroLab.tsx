@@ -428,14 +428,17 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
         · <a href="/lab/lq-02/">Inspect the historical radiation calculation</a> ·{" "}
         <a href="/papers/light-quanta/#s2">Read light quanta §2</a>
       </p>
+      <p className="fine">
+        Not modeled: solvation, molecular shape, concentrated-solution interactions, measurement
+        error and historical data fitting.
+      </p>
       <details>
         <summary>Assumptions, provenance and the code behind the numbers</summary>
         <p>
           These are host reference calculations, not FrankenSim/WASM execution. Hydrodynamic
           spheres, dilute solutions, the Stokes drag law and uniform solvent conditions are
-          idealizations. Solvation, molecular shape, concentrated-solution interactions, measurement
-          error and historical data fitting are not modeled. Shared controls do not make the two
-          sets of illustrative observations a single experiment.
+          idealizations. Shared controls do not make the two sets of illustrative observations a
+          single experiment.
         </p>
         <p>
           Every displayed quantity comes from one instance-scoped accepted snapshot. Invalid drafts
