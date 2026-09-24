@@ -2,10 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { renderToStaticMarkup } from "react-dom/server";
 import EmbeddedLaboratoryPage from "../app/embed/lab/[experiment]/page.tsx";
 import { strictParse } from "../content/schemas/strictParse.ts";
 import { EMBED_INSTRUMENTS } from "../experiments/embed/catalogue.ts";
+import { exportMarkup } from "./exportMarkup.ts";
 
 /**
  * A manifest's `embeddable: true` is a promise that /embed/lab/<id>/ exists. On 2026-09-23 29
@@ -46,7 +46,7 @@ describe("the embed catalogue keeps the manifests' embeddable promise", () => {
   for (const { id } of EMBED_INSTRUMENTS) {
     test(`/embed/lab/${id}/ renders the real laboratory with a link back`, async () => {
       const element = await EmbeddedLaboratoryPage({ params: Promise.resolve({ experiment: id }) });
-      const html = renderToStaticMarkup(element);
+      const html = await exportMarkup(element);
       expect(html).toContain(`href="/lab/${id}/"`);
       expect(html).not.toContain("prepared example did not pass its own check");
       if (!id.startsWith("shelf-")) expect(html).toContain(`data-instrument-id="${id}`);
