@@ -25,7 +25,7 @@
     },
     {
       "kind": "formula",
-      "latex": "\\frac{dN}{dt} = -kN \\qquad\\text{so}\\qquad N(t) = N_0\\,e^{-kt}",
+      "latex": "\\begin{gathered} \\frac{dN}{dt} = -kN, \\\\ \\text{so}\\quad N(t) = N_0\\,e^{-kt} \\end{gathered}",
       "spoken": "If the rate of change of N is minus k times N, then N at time t is N nought times e to the minus k t."
     },
     {
