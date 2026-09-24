@@ -18,12 +18,18 @@ import { renderToStaticMarkup } from "react-dom/server";
  */
 const LAB_ROOT = fileURLToPath(new URL("../app/lab", import.meta.url));
 
+/** Dynamic route segments need params to render, so they are skipped and reported by name. */
+const skippedDynamic: string[] = [];
+
 function pageFiles(dir: string): string[] {
   const out: string[] = [];
   for (const name of readdirSync(dir)) {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) {
-      if (name.startsWith("[")) continue; // dynamic segments need params; counted as skipped below
+      if (name.startsWith("[")) {
+        skippedDynamic.push(relative(LAB_ROOT, path));
+        continue;
+      }
       out.push(...pageFiles(path));
     } else if (name === "page.tsx") out.push(path);
   }
@@ -81,7 +87,7 @@ describe("lab forms leave number validation to the lab (noValidate)", () => {
       }
     }
     console.log(
-      `[lab forms] rendered ${rendered} of ${files.length} lab pages; ${numeric} numeric forms; ${failures.length} without noValidate; ${unrendered.length} unrendered`,
+      `[lab forms] rendered ${rendered} of ${files.length} lab pages; ${numeric} numeric forms; ${failures.length} without noValidate; ${unrendered.length} unrendered; ${skippedDynamic.length} dynamic segments skipped${skippedDynamic.length ? ` (${skippedDynamic.join(", ")})` : ""}`,
     );
     for (const u of unrendered) console.log(`  unrendered: ${u}`);
     // Not vacuous: most lab pages render server-side, and many carry a numeric form.
