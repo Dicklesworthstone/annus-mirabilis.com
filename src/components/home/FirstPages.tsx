@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 import { dayAndMonth, dayMonthParts, firstPagePlate, loadFirstPages } from "./firstPages.ts";
 import "./firstPages.css";
+import { germanTextCount, germanTextState } from "../../content/germanTextState.ts";
+import type { RouteSlug } from "../../content/ids.ts";
 import { translationSentence, translationState } from "../../content/translationState.ts";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -35,6 +37,12 @@ export function FirstPages({ invitations = false }: { invitations?: boolean }) {
   const translationNow = translationSentence(
     translationState(process.cwd()),
     new Map(papers.map((paper) => [paper.slug, paper.title])),
+  );
+  const germanNow = germanTextCount(
+    papers.map((paper) => ({
+      title: paper.title,
+      state: germanTextState(paper.slug as RouteSlug),
+    })),
   );
   return (
     <figure className="first-pages">
@@ -119,9 +127,8 @@ export function FirstPages({ invitations = false }: { invitations?: boolean }) {
           from, never typed into the copy. */}
       <figcaption className="fine">
         Each paper&rsquo;s first page as printed, dated by the day the journal received it:{" "}
-        {papers.reduce((sum, paper) => sum + paper.pages, 0)} printed pages in all. The German text
-        is set for three of the four. {translationNow} Scans: Bell &amp; Howell / UMI microfilm, via
-        the Internet Archive.
+        {papers.reduce((sum, paper) => sum + paper.pages, 0)} printed pages in all. {germanNow}{" "}
+        {translationNow} Scans: Bell &amp; Howell / UMI microfilm, via the Internet Archive.
       </figcaption>
     </figure>
   );

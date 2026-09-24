@@ -345,7 +345,9 @@ export default function AboutPage() {
           ))}
           <div>
             <dt>The translation</dt>
-            <dd>None yet: no English translation has been made.</dd>
+            {/* Counted from content/translation-units (dispatch 153). This read "None yet: no
+                English translation has been made." after 43 drafted passages were live. */}
+            <dd>{translationNow}</dd>
           </div>
         </dl>
         <p>So a citation takes one of these forms, with the date you read it:</p>

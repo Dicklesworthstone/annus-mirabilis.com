@@ -59,6 +59,14 @@ const NUMBER_WORDS = [
 const inWords = (n: number) => NUMBER_WORDS[n] ?? String(n);
 
 /**
+ * A paper's short title as it reads mid-sentence: "Mass and energy" becomes "mass and energy", and
+ * a proper noun keeps its capital, so "Brownian motion" stays "Brownian motion".
+ */
+export function nameInSentence(title: string): string {
+  return /^Brownian\b/.test(title) ? title : title.charAt(0).toLowerCase() + title.slice(1);
+}
+
+/**
  * One sentence on the translation's state, for any page that mentions it. `names` gives each
  * paper's reader-facing name by slug.
  */
@@ -68,7 +76,7 @@ export function translationSentence(
 ): string {
   if (state.length === 0) return "The English translation has not been started.";
   const parts = state.map((paper) => {
-    const name = (names.get(paper.slug) ?? paper.slug).toLowerCase();
+    const name = nameInSentence(names.get(paper.slug) ?? paper.slug);
     const drafted =
       paper.machineDrafts === paper.units
         ? "all drafted by a machine"

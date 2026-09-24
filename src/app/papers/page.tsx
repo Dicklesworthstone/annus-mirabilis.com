@@ -3,6 +3,30 @@ import { firstPagePlate, loadFirstPages } from "../../components/home/firstPages
 import "../../components/home/firstPages.css";
 import "./papersIndex.css";
 import "../../components/home/wideProse.css";
+import { type GermanTextState, germanTextState } from "../../content/germanTextState.ts";
+import type { RouteSlug } from "../../content/ids.ts";
+import { type PaperTranslation, translationState } from "../../content/translationState.ts";
+
+/*
+ * Each paper's badge says where its German text and English translation stand, read from the
+ * records at build time (dispatch 153). It was typed per paper, and after 43 machine-drafted
+ * English passages of mass-energy went live it still said "English translation not started" on all
+ * four. A draft is called a draft.
+ */
+const GERMAN_WORDS: Readonly<Record<GermanTextState, string>> = {
+  reviewed: "German text reviewed",
+  draft: "German text in unreviewed draft",
+  "in-transcription": "German text in transcription",
+  "not-started": "German text not started",
+};
+
+function englishWords(translation: PaperTranslation | undefined): string {
+  if (!translation) return "English translation not started";
+  if (translation.reviewed === translation.units) return "English translation reviewed";
+  if (translation.reviewed === 0) return "English translation in unreviewed draft";
+  return `English translation in draft, ${translation.reviewed} of ${translation.units} passages reviewed`;
+}
+
 export const metadata: Metadata = {
   title: "The four papers",
   description:
@@ -16,7 +40,6 @@ const papers = [
       "Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt",
     received: "Received 18 March 1905",
     locator: "Annalen der Physik (4), 17, 132–148 (1905)",
-    status: "German text set · English translation not started",
     scope:
       "Light behaves, in how it is produced and absorbed, as though its energy sits in separate pieces. Einstein calls this a heuristic viewpoint in the title itself, and says where he thinks the wave description stops being the useful one.",
   },
@@ -27,7 +50,6 @@ const papers = [
       "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
     received: "Received 11 May 1905",
     locator: "Annalen der Physik (4), 17, 549–560 (1905)",
-    status: "German text set · English translation not started",
     plainScope:
       "If heat is the motion of molecules, a particle visible under a microscope and suspended in a liquid at rest should never stop moving. Einstein works out how far it should wander in a given time: a number a laboratory can check.",
     workingTitle:
@@ -48,7 +70,6 @@ const papers = [
     german: "Zur Elektrodynamik bewegter Körper",
     received: "Received 30 June 1905",
     locator: "Annalen der Physik (4), 17, 891–921 (1905)",
-    status: "German text in transcription · English translation not started",
     scope:
       "Move a magnet past a coil, or the coil past the magnet, and you measure the same current; the textbook account of the day told two different stories. Einstein rebuilds the measurement of time around that mismatch, beginning with what it takes to set two distant clocks.",
   },
@@ -58,13 +79,17 @@ const papers = [
     german: "Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?",
     received: "Received 27 September 1905",
     locator: "Annalen der Physik (4), 18, 639–641 (1905)",
-    status: "German text set · English translation not started",
     scope:
       "Three pages that follow from the June paper. One body's energy is written down twice, from rest and from a frame gliding past, and the two accounts are subtracted. A body that gives off energy has less mass afterwards.",
   },
 ];
 export default function Papers() {
   const plates = loadFirstPages();
+  const translations = translationState(process.cwd());
+  const statusOf = (slug: string) =>
+    `${GERMAN_WORDS[germanTextState(slug as RouteSlug)]} · ${englishWords(
+      translations.find((t) => t.slug === slug),
+    )}`;
   return (
     <>
       <header className="page-intro">
@@ -133,7 +158,7 @@ export default function Papers() {
                 <p>{paper.plainScope ?? paper.scope}</p>
                 <p className="fine">Also known as: {paper.title}.</p>
                 <p className="fine">{paper.locator}</p>
-                <p className="badge">{paper.status}</p>
+                <p className="badge">{statusOf(paper.slug)}</p>
                 {paper.title === "Light quanta" && (
                   <div className="actions">
                     <a href="/papers/light-quanta/">Read the argument</a>

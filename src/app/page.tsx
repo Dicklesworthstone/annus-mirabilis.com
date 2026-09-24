@@ -2,12 +2,22 @@ import { Formula } from "../components/edition/Formula.tsx";
 import { FirstPages } from "../components/home/FirstPages.tsx";
 import "../components/home/wideProse.css";
 import { loadFirstPages } from "../components/home/firstPages.ts";
+import { germanTextSentences, germanTextState } from "../content/germanTextState.ts";
+import type { RouteSlug } from "../content/ids.ts";
 import { translationSentence, translationState } from "../content/translationState.ts";
 export default function Home() {
   // Counted from content/translation-units, so this line changes when the units do (dispatch 150).
+  const papers = loadFirstPages();
   const translationNow = translationSentence(
     translationState(process.cwd()),
-    new Map(loadFirstPages().map((paper) => [paper.slug, paper.title])),
+    new Map(papers.map((paper) => [paper.slug, paper.title])),
+  );
+  // Read from the German faces' own loader, so relativity's line changes when its face does.
+  const germanNow = germanTextSentences(
+    papers.map((paper) => ({
+      title: paper.title,
+      state: germanTextState(paper.slug as RouteSlug),
+    })),
   );
   return (
     <>
@@ -153,10 +163,8 @@ export default function Home() {
       <section className="reading page-flush">
         <h2>Where this edition has got to</h2>
         <p>
-          The explanations, the instruments and the discovery routes are written and working. The
-          German text is set for the light-quanta, Brownian motion and mass-energy papers. The
-          relativity paper is still being transcribed from the printed plates, a page at a time, and
-          its German face says so.
+          The explanations, the instruments and the discovery routes are written and working.{" "}
+          {germanNow}
         </p>
         <p>
           {translationNow} Every drafted passage is marked as a draft where it appears. For a paper
