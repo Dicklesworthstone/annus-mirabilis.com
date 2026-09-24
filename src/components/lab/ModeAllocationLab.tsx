@@ -12,8 +12,9 @@ import {
   type RadiationResult,
   removeUpperLimit,
 } from "../../experiments/lq02/session";
+import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { display, fixed } from "./presentation.ts";
+import { display, fixed, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { withScripts } from "./subscripts.tsx";
 
@@ -84,6 +85,13 @@ export function ModeAllocationLab({
   const [predictDiverge, setPredictDiverge] = useState<"yes" | "no" | null>(null);
 
   const snapshot: Lq02Snapshot = computeLq02Snapshot(accepted);
+  // One sentence for the status line: the energy the classical allocation holds up to the cutoff,
+  // and what widening the cutoff tenfold does to it.
+  const cutoffAndTemperature = `with resonators up to ${sentenceNumber(accepted.nuCutoff)} Hz at ${sentenceNumber(accepted.T)} K`;
+  const statusSummary =
+    snapshot.energyUpToCutoff.status === "value"
+      ? `${cutoffAndTemperature}, the classical allocation holds ${sentenceNumber(snapshot.energyUpToCutoff.value)} J per cubic metre${snapshot.growthRatio === null ? "." : `, and widening the cutoff tenfold multiplies it by ${sentenceNumber(snapshot.growthRatio)}.`}`
+      : `${cutoffAndTemperature}, the classical allocation's energy is not computed.`;
 
   function apply(next: Lq02Inputs) {
     if (
@@ -201,6 +209,7 @@ export function ModeAllocationLab({
             </p>
           )}
         </form>
+        <AcceptedStatus worked={executionKind === "static-example"} summary={statusSummary} />
 
         <div className="readouts">
           <table>
