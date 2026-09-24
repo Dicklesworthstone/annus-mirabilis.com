@@ -237,7 +237,7 @@ export default function BrownianEncounter() {
         </details>
         <StepDoors>
           <StepDoor href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps">
-            See the step where the cross terms drop out
+            Go straight to the explanation: the step where the cross terms drop out
           </StepDoor>
         </StepDoors>
         <StepDoors>
@@ -269,6 +269,9 @@ export default function BrownianEncounter() {
           </p>
         </details>
         <StepDoors>
+          <StepDoor href="/papers/brownian-motion/s4/#arg-bm-gaussian">
+            Go straight to the explanation: why the spread grows as the square root of time
+          </StepDoor>
           <StepDoor href="/lab/bm-06/">Compare the observation times in the laboratory</StepDoor>
           <StepDoor href="/lab/bm-05/">
             Build the argument from coin, uniform and Gaussian steps
@@ -301,6 +304,11 @@ export default function BrownianEncounter() {
             viscosity when you edit temperature; they are separate settings.
           </p>
         </details>
+        <StepDoors>
+          <StepDoor href="/foundations/distributions/">
+            Go straight to the explanation: why a curve’s height is not a probability
+          </StepDoor>
+        </StepDoors>
       </section>
       <section id="step-04">
         <p className="step-number">04 / Turn the question around</p>
@@ -313,6 +321,9 @@ export default function BrownianEncounter() {
           you quote misses the true number.
         </p>
         <StepDoors>
+          <StepDoor href="/papers/brownian-motion/s5/#arg-bm-inference">
+            Go straight to the explanation: what would let us count molecules
+          </StepDoor>
           <StepDoor href="/lab/bm-07/">Estimate the number and repeat the experiment</StepDoor>
         </StepDoors>
       </section>
