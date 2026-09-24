@@ -4,8 +4,8 @@
  * itself inside the layout's <main>, so a change to that page's structure fails here first.
  */
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { renderToStaticMarkup } from "react-dom/server";
 import FoundationPage from "../app/foundations/[concept]/page.tsx";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
 import {
   extractLesson,
@@ -17,7 +17,9 @@ import { PaperReader } from "./PaperReader.tsx";
 
 async function lessonPage(concept: string): Promise<string> {
   const page = await FoundationPage({ params: Promise.resolve({ concept }) });
-  return `<!doctype html><html><body><main id="main">${renderToStaticMarkup(page)}</main></body></html>`;
+  // Rendered as the export renders it: a lesson's construction is a lazy island, which a cold
+  // renderToStaticMarkup would leave out of the page this loader fetches.
+  return `<!doctype html><html><body><main id="main">${await exportMarkup(page)}</main></body></html>`;
 }
 
 function slotFor(id: string): HTMLElement {
@@ -143,7 +145,7 @@ describe("loadLessonBody", () => {
 
 describe("the paper page ships lesson titles, not lesson bodies", () => {
   test("every clarification panel has a heading and a load slot, and no lesson body", async () => {
-    const html = renderToStaticMarkup(await PaperReader());
+    const html = await exportMarkup(await PaperReader());
     const page = new DOMParser().parseFromString(html, "text/html");
     const panels = [...page.querySelectorAll("[data-foundation-panel]")];
     expect(panels.length).toBeGreaterThan(0);

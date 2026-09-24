@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { act, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import { renderToStaticMarkup } from "react-dom/server";
 import { LowSpeedExplorer } from "../equations/derivations/LowSpeedExplorer.tsx";
 import type { LowSpeedProofView } from "../equations/derivations/lowSpeedView.ts";
 import generated from "../generated/mass-energy-low-speed.json";
 import { MassEnergyLowSpeed } from "../reader/MassEnergyLowSpeed.tsx";
+import { exportMarkup } from "./exportMarkup.ts";
 import { createContainer, installDom, removeContainer, uninstallDom } from "./reactDom.ts";
 
 const proof = generated as LowSpeedProofView;
@@ -38,9 +38,11 @@ async function toggle(container: HTMLElement, id: string) {
   });
 }
 
-test("the entire low-speed argument is static MathML and text, without a required answer", () => {
+test("the entire low-speed argument is static MathML and text, without a required answer", async () => {
   const shell = document.createElement("div");
-  shell.innerHTML = renderToStaticMarkup(<MassEnergyLowSpeed />);
+  // The explorer is a lazy island (lazyIslands.tsx); render as the export does, so the page a
+  // reader without JavaScript is served is what is checked, whichever test loaded it first.
+  shell.innerHTML = await exportMarkup(<MassEnergyLowSpeed />);
   expect(shell.querySelector("#me-low-speed-derivation")).not.toBeNull();
   expect(states(shell)).toEqual(Array(5).fill("supported"));
   expect(shell.querySelectorAll("math").length).toBe(8);
