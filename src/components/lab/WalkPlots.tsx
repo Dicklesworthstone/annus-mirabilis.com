@@ -93,6 +93,10 @@ export function WalkHistogram({ snapshot }: { snapshot: AcceptedSnapshot }) {
               height={207 - bin.yObs}
               className="histogram-bar"
             />
+            <path
+              d={`M${bin.xVal + 1} ${bin.yExact}H${bin.nextX - 1}`}
+              className="walk-exact-halo"
+            />
             <path d={`M${bin.xVal + 1} ${bin.yExact}H${bin.nextX - 1}`} className="walk-exact" />
           </g>
         ))}

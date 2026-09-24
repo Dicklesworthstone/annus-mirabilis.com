@@ -4,9 +4,19 @@
   stroke-width: 1;
   opacity: 0.48;
 }
+/* The finite-step law's marks: ink over a paper halo. A mark can sit above its bar, on the bar's
+   top edge or inside the bar, and the bars are --plot. The old fixed teal, #225448, was the light
+   theme's --plot near enough, so a mark on or inside a bar vanished into it there (4 of the 5 on
+   the default settings), and on the dark theme's paper it stood at 1.87:1. Ink stands at 10:1
+   or better on either paper, and the halo parts it from a bar of any colour. */
+.walk-exact-halo {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 5.5;
+}
 .walk-exact {
   fill: none;
-  stroke: #225448;
+  stroke: var(--ink);
   stroke-width: 2.5;
 }
 .walk-assumptions {
