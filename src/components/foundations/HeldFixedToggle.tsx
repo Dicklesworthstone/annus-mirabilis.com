@@ -26,20 +26,17 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
         Try it: hold time fixed, or hold position fixed
       </Title>
       <p>
-        In §§3 and 4 of the Brownian paper, the number of suspended particles per unit volume
-        depends on the position x along a tube and on the elapsed time t; §4 calls it f(x, t).
-        Because two independent variables can change, asking for “the rate of change of
-        concentration” is ambiguous until you specify which coordinate is held fixed.
+        In §4 of the Brownian paper, f(x, t) is the number of particles per unit volume at a place x
+        along a tube, at a time t. “How fast does the concentration change?” then has two answers,
+        and which one you mean depends on what you keep still: the moment, or the place.
       </p>
 
       <fieldset
         className="toggle-controls"
-        aria-label="Coordinate held fixed selector"
+        aria-label="What to keep still"
         style={{ border: "none", padding: 0, margin: "1rem 0" }}
       >
-        <p style={{ fontWeight: "bold", margin: "0.5rem 0" }}>
-          Choose which coordinate to hold fixed:
-        </p>
+        <p style={{ fontWeight: "bold", margin: "0.5rem 0" }}>Keep one of them still:</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
           <button
             type="button"
@@ -54,7 +51,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
               cursor: "pointer",
             }}
           >
-            Hold time t fixed: Spatial derivative ∂f/∂x
+            One moment: hold t fixed, ∂f/∂x
           </button>
           <button
             type="button"
@@ -69,7 +66,7 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
               cursor: "pointer",
             }}
           >
-            Hold position x fixed: Time derivative ∂f/∂t
+            One place: hold x fixed, ∂f/∂t
           </button>
         </div>
       </fieldset>
@@ -86,39 +83,27 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
       >
         {activeMode === "time-fixed" ? (
           <div>
-            <Sub style={{ margin: "0 0 0.5rem 0" }}>Case A: Hold time t fixed (∂f / ∂x)</Sub>
+            <Sub style={{ margin: "0 0 0.5rem 0" }}>One moment: t fixed, ∂f/∂x</Sub>
             <p>
-              <strong>Quantity held fixed:</strong> Time t (a single snapshot across the tube).
+              Freeze the moment and compare neighbouring places, as in a single photograph of the
+              tube. ∂f/∂x says how steeply the concentration changes along it: particles per µm³ for
+              each µm, which is particles per µm⁴.
             </p>
             <p>
-              <strong>Meaning:</strong> Spatial concentration gradient. You inspect different
-              positions along the tube at one frozen instant.
-            </p>
-            <p>
-              <strong>Physical units:</strong> particles / (µm³ · µm) = particles / µm⁴.
-            </p>
-            <p>
-              <strong>Role in Brownian motion:</strong> Fick’s first law of diffusion states that
-              the particle flux is proportional to this spatial gradient: J = −D (∂f/∂x).
+              Particles drift down that slope. The flux, the number crossing each square micrometre
+              in a second, is J = −D ∂f/∂x: Fick’s first law.
             </p>
           </div>
         ) : (
           <div>
-            <Sub style={{ margin: "0 0 0.5rem 0" }}>Case B: Hold position x fixed (∂f / ∂t)</Sub>
+            <Sub style={{ margin: "0 0 0.5rem 0" }}>One place: x fixed, ∂f/∂t</Sub>
             <p>
-              <strong>Quantity held fixed:</strong> Position x (a single point under the
-              microscope).
+              Keep your eye on one spot under the microscope and let time run. ∂f/∂t says how fast
+              the count there rises or falls: particles per µm³ for each second.
             </p>
             <p>
-              <strong>Meaning:</strong> Local accumulation rate over time. You monitor one fixed
-              spot and count how fast the particle count rises or falls.
-            </p>
-            <p>
-              <strong>Physical units:</strong> particles / (µm³ · s).
-            </p>
-            <p>
-              <strong>Role in Brownian motion:</strong> Conservation of matter (the continuity
-              equation) equates this rate to the divergence of flux: ∂f/∂t = −∂J/∂x = D (∂²f/∂x²).
+              Particles are neither made nor destroyed, so the count at a spot changes only by what
+              flows in and out: ∂f/∂t = −∂J/∂x = D ∂²f/∂x². That is the diffusion equation of §4.
             </p>
           </div>
         )}
@@ -144,9 +129,9 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
         tabIndex={0}
         aria-label="Thermodynamic partial derivatives and their held-fixed constraints, scrollable table"
       >
-        <Sub>The same care in thermodynamics: what is held fixed changes the answer</Sub>
+        <Sub>The same question in thermodynamics</Sub>
         <p>
-          In thermodynamics, the same symbols have different values depending on what is held fixed:
+          Squeeze a gas and its pressure rises, but by how much depends on what else you keep fixed:
         </p>
         <table
           className="data-table"
@@ -209,11 +194,10 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
       >
         <Sub>What it shows, in words</Sub>
         <p>
-          Writing ∂f/∂x asserts that t is held constant during differentiation. Writing ∂f/∂t
-          asserts that x is held constant during differentiation. These two operations describe
-          different physical phenomena and carry different physical dimensions. In thermodynamics,
-          the subscript notation (∂p/∂V)<sub>T</sub> versus (∂p/∂V)<sub>S</sub> shows the difference
-          on the page.
+          ∂f/∂x compares places at one moment; ∂f/∂t follows one place through time. They answer
+          different questions and carry different units. In thermodynamics a subscript names what is
+          held fixed, so (∂p/∂V)<sub>T</sub> and (∂p/∂V)<sub>S</sub> are different numbers for the
+          same gas.
         </p>
       </div>
     </section>

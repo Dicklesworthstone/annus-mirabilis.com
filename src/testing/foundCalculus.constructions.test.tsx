@@ -107,10 +107,10 @@ test("foundCalculus.constructions: HeldFixedToggle explicitly names held-fixed q
   assert.ok(html.includes('aria-pressed="true"'));
 
   // Explicit held-fixed quantities in Brownian motion
-  assert.ok(html.includes("Hold time t fixed"));
-  assert.ok(html.includes("Time t (a single snapshot across the tube)"));
-  assert.ok(html.includes("Spatial concentration gradient"));
-  assert.ok(html.includes("particles / µm⁴"));
+  assert.ok(html.includes("One moment: hold t fixed"));
+  assert.ok(html.includes("as in a single photograph of the"));
+  assert.ok(html.includes("how steeply the concentration changes along it"));
+  assert.ok(html.includes("particles per µm⁴"));
 
   // Thermodynamics examples explicitly named
   // Each row names the process and the quantity it holds fixed, in one cell.
@@ -444,8 +444,8 @@ test("foundCalculus.constructions: E2E 1 - From Brownian §4, open foundation:pa
       positionBtn.dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0 }));
     });
     assert.ok(
-      pageRoot.textContent?.includes("Case B: Hold position x fixed"),
-      "Case B time derivative ∂c/∂t must be active after toggle",
+      pageRoot.textContent?.includes("One place: x fixed, ∂f/∂t"),
+      "The one-place panel (x fixed, ∂f/∂t) must be active after toggle",
     );
 
     // Step 3: Return to the exact step
