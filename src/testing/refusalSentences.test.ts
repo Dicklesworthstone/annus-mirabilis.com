@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { BM08_DEFAULTS } from "../experiments/bm08/definition.ts";
+import { validateBm08Parameters } from "../experiments/bm08/parameters.ts";
 import { ME02_DEFAULTS } from "../experiments/me02/definition.ts";
 import { validateMe02Parameters } from "../experiments/me02/parameters.ts";
 import { ME03_DEFAULTS } from "../experiments/me03/definition.ts";
@@ -161,6 +163,45 @@ describe("ME-03 refusals say what to enter, in words", () => {
       expect(sentence).toContain(names);
       expect(sentence).not.toMatch(IDENTIFIER);
       expect(sentence).not.toMatch(CODE_TOKEN);
+    });
+  }
+});
+
+/**
+ * BM-08 answered every out-of-range value with one of three run-on sentences ("Use 3–1000
+ * increments, 1–4 second frame spacing, one or two coordinates, 5–200 stationary clicks and
+ * exposure between zero and frame spacing.") that named no parameter. Each control now gets its own
+ * sentence and its own parameterIds.
+ */
+const BM08_CASES: readonly (readonly [
+  keyof typeof BM08_DEFAULTS,
+  Record<string, unknown>,
+  string,
+])[] = [
+  ["D", { D: 1 }, "diffusivity"],
+  ["flowDrift", { flowDrift: 0.01 }, "fluid drift"],
+  ["stageDrift", { stageDrift: -0.01 }, "stage drift"],
+  ["sigma", { sigma: 0.01 }, "localization standard deviation"],
+  ["dt", { dt: 0.5, exposure: 0.25 }, "frame spacing"],
+  ["d", { d: 3 }, "observed coordinates"],
+  ["M", { M: 2 }, "displacements"],
+  ["clicks", { clicks: 1000 }, "stationary clicks"],
+  ["exposure", { exposure: 2 }, "exposure"],
+  ["coverage", { coverage: 0.3 }, "coverage"],
+  ["coverageTrials", { coverageTrials: 500 }, "hypothetical trials"],
+];
+
+describe("BM-08 refusals name one control and say what to enter", () => {
+  for (const [id, bad, names] of BM08_CASES) {
+    test(`${id} out of range`, () => {
+      const checked = validateBm08Parameters({ ...BM08_DEFAULTS, ...bad });
+      expect(checked.kind).toBe("refused");
+      if (checked.kind !== "refused") return;
+      expect(checked.refusal.affected?.parameterIds).toEqual([id]);
+      const sentence = refusalSentence(checked.refusal);
+      expect(/^(Enter|Choose)\b/.test(sentence)).toBe(true);
+      expect(sentence).toContain(names);
+      expect(sentence).not.toMatch(IDENTIFIER);
     });
   }
 });
