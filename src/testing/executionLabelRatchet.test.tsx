@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
+import { exportMarkup } from "./exportMarkup.ts";
 
 /**
  * am-inst-execution-labels-5ywv: an execution label is earned from the derived state, never written
@@ -66,7 +67,34 @@ const DERIVED_ROUTES = [
   "sr-13",
 ];
 
+/**
+ * The routes that may render "host" at build time: the four listed labs' routes, and no other.
+ * The source scan above reads one directory and a set of spellings; this reads what every lab page
+ * actually renders, so neither a new spelling nor a lab outside src/components escapes it. Until
+ * 2026-09-24 it did not exist, and rendering every lab route found two more build-time "host"
+ * labels, in src/reasoning (countermodels/independence and lq-08/data, fixed in 12a926b9). May only
+ * shrink, with STILL_HARD_CODED.
+ */
+const HOST_AT_BUILD_TIME = [
+  "bm-02/",
+  "bm-03/",
+  "lq-02/",
+  "shelf-fizeau/",
+  "shelf-maxwell-galilean/",
+  "shelf-michelson-morley/",
+];
+
 const COMPONENTS = fileURLToPath(new URL("../components/", import.meta.url));
+const LAB_APP = fileURLToPath(new URL("../app/lab/", import.meta.url));
+
+/** Every page module under src/app/lab, as a path relative to it ending in "/" ("" is /lab/). */
+function labPages(dir: string, base = ""): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const full = `${dir}${name}`;
+    if (statSync(full).isDirectory()) return labPages(`${full}/`, `${base}${name}/`);
+    return name === "page.tsx" ? [base] : [];
+  });
+}
 const LITERAL = new RegExp(
   [
     'data-execution-label="host"',
@@ -146,5 +174,32 @@ describe("execution labels are derived, not written", () => {
       expect({ route, labels: [...new Set(labels)] }).toEqual({ route, labels: ["static"] });
       expect(html).toContain("Static worked example");
     }
+  });
+
+  test("no lab route renders a host label at build time except the listed labs' routes", async () => {
+    const pages = labPages(LAB_APP);
+    const host: string[] = [];
+    let renders = 0;
+    for (const rel of pages) {
+      const mod = await import(`${LAB_APP}${rel}page.tsx`);
+      const dynamic = rel.includes("[");
+      const paramsList: object[] =
+        dynamic && mod.generateStaticParams ? await mod.generateStaticParams() : [{}];
+      for (const params of paramsList) {
+        const out = mod.default({
+          searchParams: Promise.resolve({}),
+          params: Promise.resolve(params),
+        });
+        const html = await exportMarkup(out instanceof Promise ? await out : out);
+        renders += 1;
+        if (html.includes('data-execution-label="host"'))
+          host.push(dynamic ? `${rel}${JSON.stringify(params)}` : rel);
+      }
+    }
+    console.log(
+      `[execution labels] ${renders} lab renders over ${pages.length} page modules; ${host.length} render "host" at build time`,
+    );
+    expect(pages.length).toBeGreaterThan(40);
+    expect(host.sort()).toEqual([...HOST_AT_BUILD_TIME].sort());
   });
 });
