@@ -545,6 +545,12 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   ["facsimile-canvas-container", 1],
   ["facsimile-stage", 1],
   ["genealogy-graph-wrapper", 1],
+  // A display printed inside its German sentence (inlines.tsx), made a block that scrolls in its
+  // own line so a formula wider than a phone column no longer widens the page (dispatch 149: 61px
+  // at 390 on live d5ff5c76's parallel face). One JSX element, with no tabIndex in the TSX: like
+  // linear-formula-scroll, its tab stop is added at runtime by formulaOverflow.inline.ts, and only
+  // when it overflows.
+  ["inline-display", 1],
   ["inference-workbench", 0],
   ["kitchen-guide", 1],
   ["kitchen-lab", 1],
