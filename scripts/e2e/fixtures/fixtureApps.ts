@@ -193,8 +193,8 @@ export const RUNTIME_FIXTURE_ENTRY: FixtureAppEntry = Object.freeze({
   owner: "am-rt-browser-conformance-09i5",
   staticInputs: [
     {
-      from: "public/wasm/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion_bg.wasm",
-      servedPath: "fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion_bg.wasm",
+      from: "public/wasm/fs-annus-diffusion/80a1f8fda6f69003/fs_annus_diffusion_bg.wasm",
+      servedPath: "fs-annus-diffusion/80a1f8fda6f69003/fs_annus_diffusion_bg.wasm",
     },
     {
       from: "public/wasm/manifest.json",

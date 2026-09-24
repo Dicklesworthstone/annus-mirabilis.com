@@ -266,15 +266,15 @@ describe("Font and WASM collection", () => {
     const manifest = {
       schemaVersion: 1,
       bundleId: "fs-annus-diffusion",
-      bundleDir: "public/wasm/fs-annus-diffusion/105d7ffc15414de5",
-      revisions: { frankensim: "5bbbfae6f7de614422f6f97f5798a3e00f8ad813" },
+      bundleDir: "public/wasm/fs-annus-diffusion/80a1f8fda6f69003",
+      revisions: { frankensim: "01824653087a69272d5a9c0c6ea2e2789ad05f54" },
       files: {
-        "fs_annus_diffusion_bg.wasm": { sha256: "abc", bytes: 154 },
+        "fs_annus_diffusion_bg.wasm": { sha256: "abc", bytes: 92751 },
       },
     };
 
     const wasmOnDisk = [
-      "public/wasm/fs-annus-diffusion/105d7ffc15414de5/fs_annus_diffusion_bg.wasm",
+      "public/wasm/fs-annus-diffusion/80a1f8fda6f69003/fs_annus_diffusion_bg.wasm",
       "public/wasm/unregistered_rogue_artifact.wasm", // ROGUE FILE
     ];
 
