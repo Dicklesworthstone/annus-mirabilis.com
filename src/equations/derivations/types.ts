@@ -104,7 +104,15 @@ export interface DerivationStep {
   readonly modelStatus?: string | undefined;
   readonly verification: StepVerification;
   readonly scopeChange?: ScopeChange | undefined;
+  /**
+   * An authored break for a side too wide for a phone: "terms" sets a sum one term per row.
+   * Absent, each side is one line; the renderer never decides to break one (mathRenderer.ts).
+   */
+  readonly layout?: StepLayout | undefined;
 }
+
+/** Which side of a step, before or after, is set one term per row. */
+export type StepLayout = Readonly<{ from?: "terms"; to?: "terms" }>;
 
 export interface DerivationChain {
   readonly id: string;

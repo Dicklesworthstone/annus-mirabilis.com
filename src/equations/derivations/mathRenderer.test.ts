@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { renderToString } from "katex";
 import type { Expression } from "../ast.ts";
 import { expressionToDerivationLatex } from "./mathRenderer.ts";
+import { parseDerivationStep } from "./schema.ts";
 
 /*
   The derivation renderer wrapped every power's base in brackets, so the Brownian missing-step
@@ -58,5 +59,56 @@ describe("a derivation step's power takes brackets only where they change the me
         ).not.toThrow();
       }
     expect(squares).toBeGreaterThan(0);
+  });
+});
+
+describe('a step side authored "terms" is set one term per row', () => {
+  const B: Expression = { kind: "symbol", termId: "B", quantityId: "stepB" };
+  const sum: Expression = { kind: "sum", args: [A, B, A], opId: "total" } as Expression;
+
+  test("each term on its own row, the highlight boxing the whole, and still valid KaTeX", () => {
+    const tex = expressionToDerivationLatex(sum, new Set(["total"]), true, "terms");
+    expect(tex).toStartWith("\\htmlData{expression-id=total}{\\boxed{\\begin{aligned}");
+    expect(tex.split("\\\\").length).toBe(3);
+    expect(tex.match(/\{\}\+/g)?.length).toBe(2);
+    expect(() =>
+      renderToString(tex, { displayMode: true, throwOnError: true, trust: true }),
+    ).not.toThrow();
+    // Without the layout, the same sum is one line: the renderer never breaks on its own.
+    expect(expressionToDerivationLatex(sum, new Set(["total"]), true)).not.toContain("aligned");
+  });
+
+  test("the shipped chain breaks exactly the two sides that ran wider than a phone", () => {
+    const record = JSON.parse(
+      readFileSync(
+        new URL("../../../content/equations/derivations/bm-variance.yaml", import.meta.url),
+        "utf8",
+      ),
+    ) as { chain: { steps: { id: string; layout?: Record<string, string> }[] } };
+    // Measured on live at 320px, 2026-09-24: these two ran 309 and 307px in a 254px box.
+    const broken = record.chain.steps.flatMap((s) =>
+      Object.keys(s.layout ?? {}).map((side) => `${s.id}.${side}`),
+    );
+    expect(broken.sort()).toEqual(["bm-variance-average.to", "bm-variance-cross.from"]);
+  });
+
+  test("planted: the schema refuses a layout on a side that is not a sum, or an unknown one", () => {
+    const step = (layout: unknown, to: Expression = sum) => ({
+      id: "s",
+      from: sum,
+      to,
+      changedSubexpressionIds: [],
+      rule: { kind: "expand", params: {} },
+      reasonKind: "algebra",
+      reasons: { r0: "a", r1: "b", r2: "c" },
+      premiseRefs: [],
+      isMove: false,
+      verification: { status: "authored-unverified" },
+      layout,
+    });
+    expect(() => parseDerivationStep(step({ to: "terms" }), "s")).not.toThrow();
+    expect(() => parseDerivationStep(step({ to: "terms" }, A), "s")).toThrow(/not a sum/);
+    expect(() => parseDerivationStep(step({ to: "rows" }), "s")).toThrow(/only step layout/);
+    expect(() => parseDerivationStep(step({ middle: "terms" }), "s")).toThrow(/"from" or "to"/);
   });
 });

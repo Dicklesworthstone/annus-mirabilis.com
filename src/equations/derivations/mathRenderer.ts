@@ -9,13 +9,21 @@ import type { Expression } from "../ast.ts";
 import { nodeId } from "../ast.ts";
 
 /**
- * Converts a symbolic Expression tree to a formatted LaTeX string.
+ * Converts a symbolic Expression tree to a formatted LaTeX string. With `layout` "terms", a
+ * top-level sum is set one term per row (an authored break, types.ts StepLayout); a highlight on
+ * the sum still boxes the whole of it.
  */
 export function expressionToDerivationLatex(
   tree: Expression,
   highlightIds?: ReadonlySet<string>,
   annotate = false,
+  layout?: "terms",
 ): string {
+  const highlight = (n: Expression, s: string): string => {
+    const id = nodeId(n);
+    if (!id || !highlightIds?.has(id)) return s;
+    return annotate ? `\\htmlData{expression-id=${id}}{\\boxed{${s}}}` : `\\mathbf{${s}}`;
+  };
   const render = (n: Expression): string => {
     let s: string;
     switch (n.kind) {
@@ -122,14 +130,14 @@ export function expressionToDerivationLatex(
         s = "\\dots";
     }
 
-    const id = nodeId(n);
-    if (id && highlightIds?.has(id)) {
-      s = annotate ? `\\htmlData{expression-id=${id}}{\\boxed{${s}}}` : `\\mathbf{${s}}`;
-    }
-
-    return s;
+    return highlight(n, s);
   };
 
+  if (layout === "terms" && tree.kind === "sum") {
+    // A plus sign starting a row is still binary: {} before it keeps the spacing of one line.
+    const rows = tree.args.map((a, i) => `&${i === 0 ? "" : "{}+"} ${render(a)}`);
+    return highlight(tree, `\\begin{aligned}${rows.join(" \\\\ ")}\\end{aligned}`);
+  }
   return render(tree);
 }
 

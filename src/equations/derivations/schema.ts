@@ -218,6 +218,25 @@ export function parseDerivationStep(val: unknown, path: string): DerivationStep 
     scopeChange = { from: sc.from.trim(), to: sc.to.trim(), bridgeId: sc.bridgeId.trim() };
   }
 
+  // An authored break, only where it can apply: "terms" needs that side to be a sum.
+  let layout: { from?: "terms"; to?: "terms" } | undefined;
+  if (val.layout !== undefined) {
+    if (!isObject(val.layout)) fail(`${path}.layout`, "layout must be an object.");
+    layout = {};
+    for (const [side, value] of Object.entries(val.layout)) {
+      if (side !== "from" && side !== "to")
+        fail(`${path}.layout.${side}`, 'a layout names the side "from" or "to".');
+      if (value !== "terms") fail(`${path}.layout.${side}`, 'the only step layout is "terms".');
+      const expression = side === "from" ? from : to;
+      if (expression.kind !== "sum" || expression.args.length < 2)
+        fail(
+          `${path}.layout.${side}`,
+          '"terms" sets a sum one term per row; this side is not a sum.',
+        );
+      layout[side] = "terms";
+    }
+  }
+
   return Object.freeze({
     id,
     from,
@@ -233,6 +252,7 @@ export function parseDerivationStep(val: unknown, path: string): DerivationStep 
     ...(approximation ? { approximation } : {}),
     ...(sourceAnchor ? { sourceAnchor } : {}),
     ...(historicalStatus ? { historicalStatus } : {}),
+    ...(layout ? { layout } : {}),
     ...(modelStatus ? { modelStatus } : {}),
     verification,
     ...(scopeChange ? { scopeChange } : {}),

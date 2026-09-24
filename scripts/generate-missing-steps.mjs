@@ -41,9 +41,9 @@ export async function generateMissingSteps(
     inputs.push(raw);
     const lesson = parseMissingStepLesson(parseContentJson(raw, file), allowed, anchors);
     checkWorkedTransitions(lesson);
-    const math = (expression, highlights) => {
+    const math = (expression, highlights, layout) => {
       const html = renderToString(
-        expressionToDerivationLatex(expression, new Set(highlights), true),
+        expressionToDerivationLatex(expression, new Set(highlights), true, layout),
         {
           displayMode: true,
           output: "htmlAndMathml",
@@ -83,8 +83,9 @@ export async function generateMissingSteps(
       return {
         id: t.id,
         title: t.title,
-        fromHtml: math(step.from, t.changedSubexpressionIds),
-        toHtml: math(step.to, t.changedSubexpressionIds),
+        // An authored break (a step's layout) sets a side one term per row; absent, one line.
+        fromHtml: math(step.from, t.changedSubexpressionIds, step.layout?.from),
+        toHtml: math(step.to, t.changedSubexpressionIds, step.layout?.to),
         changed: t.changedSubexpressionIds,
         rule: missingStepRuleStatement(step.rule),
         premiseTexts: lesson.premises.filter((p) => t.premiseIds.includes(p.id)).map((p) => p.text),
