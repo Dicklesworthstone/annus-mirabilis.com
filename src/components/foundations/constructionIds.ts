@@ -27,6 +27,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "hyperbolic-functions-rapidity",
   "vectors-components",
   "dot-cross-products",
+  "conservation-symmetry",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];

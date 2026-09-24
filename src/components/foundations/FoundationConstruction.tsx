@@ -2,6 +2,7 @@
 
 import { BoostTable } from "./BoostTable.tsx";
 import { foundationConstructionId } from "./constructionIds.ts";
+import { DescriptionOrWorld } from "./DescriptionOrWorld.tsx";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
 import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
@@ -67,5 +68,7 @@ export function FoundationConstruction({
       return <TurnedAxes headingLevel={headingLevel} />;
     case "dot-cross-products":
       return <ProductsView headingLevel={headingLevel} />;
+    case "conservation-symmetry":
+      return <DescriptionOrWorld headingLevel={headingLevel} />;
   }
 }
