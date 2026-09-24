@@ -187,13 +187,14 @@ export function FluorescencePlot({
           </defs>
 
           {/* Ground level, labelled at its left end like an axis tick. The label used to sit below
-              the line under "absorbed hν₁", and on a phone it read as that bar's value. */}
+              the line under "absorbed hν₁", and on a phone it read as that bar's value. The bars
+              stand on it, so it takes --muted (5.98:1), not --line's 1.45:1, as in LQ-08 and LQ-09. */}
           <line
             x1="40"
             y1={groundY}
             x2={svgWidth - 10}
             y2={groundY}
-            stroke="var(--line)"
+            stroke="var(--muted)"
             strokeWidth="1.5"
           />
           <text x="36" y={groundY + 4} textAnchor="end">
