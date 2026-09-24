@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
+import { ExplanationPart } from "../../../components/discover/ExplanationPart.tsx";
 import { LightQuantaWorldCheck } from "../../../components/discover/LightQuantaWorldCheck.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
@@ -12,13 +13,23 @@ import { Doors } from "../../../discovery/Doors.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
 import { GREATEST_ENERGY_EXERCISE } from "../../../discovery/lightQuanta/electronExercise.ts";
 import {
+  H_FROM_STOPPING_LINE,
+  INTENSITY_EXPLANATION,
+  LOCKED_POSITIONS_EXPLANATION,
+  PPE_EXPLANATION,
+  QUANTA_PER_SECOND,
+  THRESHOLD_TWO_EV,
+} from "../../../discovery/lightQuanta/journeyExercises.ts";
+import {
   DOORS,
   FIRST_HONEST_QUESTION,
   FORK_ENTROPY_ACCOUNT,
   FORK_ONE_LUMP,
+  LQ05_LOCKED_HREF,
   MOVE,
   MOVE_HREF,
   NAGGING_FACT,
+  PPE_TASK,
   SOURCE_JUMPS,
   WORLD_CHECK,
 } from "../../../discovery/lightQuanta/journeyI.ts";
@@ -28,6 +39,7 @@ import {
   PRINTED_STOPPING_CHECK,
 } from "../../../discovery/lightQuanta/worldCheck.ts";
 import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
+import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
@@ -358,6 +370,34 @@ export default function LightQuantaRoute() {
           have, and it is cited here rather than plotted: this edition&rsquo;s table of
           Millikan&rsquo;s points is withdrawn.
         </p>
+      </section>
+
+      <section id="step-09">
+        <p className="step-number">09 / Try it yourself</p>
+        <h2>Five pieces of the argument to work by hand</h2>
+        <p>
+          The first three put the rule to numbers under a modern lens, with today&rsquo;s value of
+          Planck&rsquo;s constant h, which the paper never writes: it has R, β and N, and h is their
+          later shorthand, Rβ/N. The checker converts your unit and compares numbers, not text.
+        </p>
+        <p>First, read the constant off a line, as the photoelectric effect lets you.</p>
+        <NumericPart part={H_FROM_STOPPING_LINE} />
+        <p>Next, the lowest frequency that frees anything from a made-up surface.</p>
+        <NumericPart part={THRESHOLD_TWO_EV} />
+        <p>Then how many quanta an ordinary green source gives off.</p>
+        <NumericPart part={QUANTA_PER_SECOND} />
+        <p>
+          Two to put in your own words: one from step 07, and one you can try first in the counting
+          laboratory&rsquo;s <a href={LQ05_LOCKED_HREF}>locked counterexample</a>.
+        </p>
+        <ExplanationPart part={INTENSITY_EXPLANATION} />
+        <ExplanationPart part={LOCKED_POSITIONS_EXPLANATION} />
+        <p>
+          Last, a prediction to make before you change anything, in the laboratory at{" "}
+          <a href="#step-08">step 08</a>.
+        </p>
+        <PpeTask task={PPE_TASK} />
+        <ExplanationPart part={PPE_EXPLANATION} />
       </section>
 
       <aside className="notice">

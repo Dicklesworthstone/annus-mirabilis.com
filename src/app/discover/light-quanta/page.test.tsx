@@ -10,9 +10,11 @@ import {
   FIRST_HONEST_QUESTION,
   FORK_ENTROPY_ACCOUNT,
   FORK_ONE_LUMP,
+  LQ05_LOCKED_HREF,
   MOVE,
   MOVE_HREF,
   NAGGING_FACT,
+  PPE_TASK,
   SOURCE_JUMPS,
 } from "../../../discovery/lightQuanta/journeyI.ts";
 import { LQ05_PRESETS } from "../../../experiments/lq05/definition.ts";
@@ -312,6 +314,56 @@ describe("what Einstein actually wrote, and two doors to the same place", () => 
     const errors = checkVoice(words.join(" "), { context: "prose" }).filter(
       (f) => f.severity === "error",
     );
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+});
+
+describe("step 09: five pieces to work by hand, then predict, perturb and explain", () => {
+  const stepNine = () => {
+    const start = html.indexOf('<section id="step-09"');
+    expect(start).toBeGreaterThan(html.indexOf('<section id="step-08"'));
+    expect(html.indexOf('<aside class="notice"')).toBeGreaterThan(start);
+    return html.slice(start, html.indexOf('<aside class="notice"'));
+  };
+
+  test("three numeric parts, two explanations, the task, and its explanation, in that order", () => {
+    const step = stepNine();
+    const order = [
+      'data-exercise-part="lq-h-from-stopping-line"',
+      'data-exercise-part="lq-threshold-two-ev"',
+      'data-exercise-part="lq-quanta-per-second-green"',
+      'data-exercise-part="lq-intensity-and-greatest-energy"',
+      'data-exercise-part="lq-locked-positions"',
+      `data-ppe-task-id="${PPE_TASK.promptId}"`,
+      'data-exercise-part="lq-ppe-below-and-above-threshold"',
+    ].map((marker) => {
+      const at = step.indexOf(marker);
+      expect(at, marker).toBeGreaterThan(-1);
+      return at;
+    });
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    expect(PPE_TASK.promptId).toBe("ppe-light-quanta-s7-s9");
+  });
+
+  test("the locked counterexample link opens LQ-05 at exactly its registered preset", () => {
+    const decoded = decodeLq05Settings(LQ05_LOCKED_HREF.slice(LQ05_LOCKED_HREF.indexOf("?")));
+    if (decoded.kind !== "settings") throw new Error(`the link decodes as ${decoded.kind}`);
+    expect(decoded.parameters).toEqual({ ...LQ05_PRESETS["lq-05-locked-positions"]?.parameters });
+    expect(decoded.parameters.locked).toBe(true);
+    expect(stepNine()).toContain(`href="${LQ05_LOCKED_HREF.replace(/&/g, "&amp;")}"`);
+  });
+
+  test("h is introduced as the later shorthand Rβ/N, and the task names the laboratory it uses", () => {
+    const step = text(stepNine());
+    expect(step).toContain("h is their later shorthand, Rβ/N");
+    expect(PPE_TASK.perturbPrompt).toContain("The intensity probe (rate vs energy)");
+    expect(stepNine()).toContain('href="#step-08"');
+  });
+
+  test("the task's words pass the voice lint and name no photon", () => {
+    const words = [PPE_TASK.task, PPE_TASK.perturbPrompt, PPE_TASK.explainPrompt].join(" ");
+    expect(words.toLowerCase()).not.toContain("photon");
+    const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });
 });

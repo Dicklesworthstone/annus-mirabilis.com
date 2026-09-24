@@ -26,7 +26,7 @@ export const ROUTE_INDEX: readonly RouteIndexEntry[] = [
     germanTitle:
       "Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt",
     blurb:
-      "The wave theory was not in trouble in 1904, and this route keeps every one of its successes. Optical experiments measure averages over time; the route looks at what they never reached, the moment light is emitted or absorbed. Eight steps, nine instruments, and nothing on the shelf from after 1904.",
+      "The wave theory was not in trouble in 1904, and this route keeps every one of its successes. Optical experiments measure averages over time; the route looks at what they never reached, the moment light is emitted or absorbed. Nine steps, nine instruments, five pieces to work by hand, and nothing on the shelf from after 1904.",
     steps: [
       "Start with what works",
       "Find the edge of the evidence",
@@ -36,6 +36,7 @@ export const ROUTE_INDEX: readonly RouteIndexEntry[] = [
       "Compare the two, and read the exponent",
       "Demand consequences",
       "Check it against the world",
+      "Try it yourself",
     ],
   },
   {

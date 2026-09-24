@@ -12,6 +12,7 @@ import type {
   Doors,
   Fork,
   JourneyMove,
+  PpeTask,
   SourceJump,
   WorldCheck,
 } from "../../content/schemas/journey.ts";
@@ -260,6 +261,13 @@ export const LQ05_N60_LOG_HREF = N60_LOG
   ? `/lab/lq-05/?${encodeLq05Settings(N60_LOG.parameters)}`
   : "/lab/lq-05/";
 
+const LOCKED = LQ05_PRESETS["lq-05-locked-positions"];
+
+/** LQ-05 at its locked counterexample, for step 09's explanation item; as above if renamed. */
+export const LQ05_LOCKED_HREF = LOCKED
+  ? `/lab/lq-05/?${encodeLq05Settings(LOCKED.parameters)}`
+  : "/lab/lq-05/";
+
 /**
  * The doors (plan §9.5): the paper's argument, and a side door for programmers through the
  * microstate counter of LQ-05. Both arrive at the effective count of §6, n = (N/R)(E/βν), which is
@@ -288,4 +296,18 @@ export const DOORS: Doors = {
         "Write the loop: the chance that n labelled points all sit in a fraction f of the box is f to the power n. Given that the entropy of dilute radiation changes with volume like (E/βν) ln f, invert it to a count. The same loop shows what happens when the points are not independent. In the modern lens the count is E/hν, with h = Rβ/N.",
     },
   ],
+};
+
+/**
+ * Predict, perturb, explain (am-disc-journey-i-chain-n1lh; its id follows am-disc-ppe-teachback-
+ * wnp7's ppe-<paper slug>-<sections>). The perturbation is made in the laboratory already on this
+ * page at step 08, through its own controls and its preset button, so nothing is re-embedded.
+ */
+export const PPE_TASK: PpeTask = {
+  promptId: "ppe-light-quanta-s7-s9",
+  task: "Predict first. A lamp gets brighter, but its frequency stays below the threshold. Of the number of electrons freed each second, the greatest energy any of them leaves with, and the power falling on the metal, which should not rise merely because the laboratory draws more marks arriving?",
+  perturbPrompt:
+    "In the laboratory at step 08, keep the 2 eV surface, set the frequency below 483.6 THz, and double the incident power: the count of electrons stays at zero, and the laboratory says that in this model no electron is emitted. Then press its preset “The intensity probe (rate vs energy)”, which is above the threshold, and double the power again: the rate rises, and the greatest energy stays where it was.",
+  explainPrompt:
+    "Explain both results in terms of what one quantum can do, and say what the moving marks in the laboratory are and are not.",
 };
