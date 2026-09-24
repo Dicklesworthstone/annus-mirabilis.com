@@ -56,7 +56,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
   const outputs: readonly PublishedResult[] = Object.freeze([
     {
       quantityId: "configurationProbability",
-      unit: "",
+      unit: "1",
       semanticKind: "probability",
       ownerId: "radiation.independentPointsProbability",
       status: "value",
@@ -64,7 +64,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
     },
     {
       quantityId: "lnW",
-      unit: "",
+      unit: "1",
       semanticKind: "log-probability",
       ownerId: "radiation.independentPointsProbability",
       status: "value",
@@ -72,7 +72,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
     },
     {
       quantityId: "log10W",
-      unit: "",
+      unit: "1",
       semanticKind: "log10-probability",
       ownerId: "radiation.independentPointsProbability",
       status: "value",
@@ -80,7 +80,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
     },
     {
       quantityId: "deltaSOverKb",
-      unit: "",
+      unit: "1",
       semanticKind: "entropy-dimensionless",
       ownerId: "radiation.independentPointsProbability",
       status: "value",
@@ -88,7 +88,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
     },
     {
       quantityId: "sampleFraction",
-      unit: "",
+      unit: "1",
       semanticKind: "empirical-probability",
       ownerId: "radiation.sampleIndependentPoints",
       status: "value",
@@ -96,7 +96,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
     },
     {
       quantityId: "successCount",
-      unit: "",
+      unit: "1",
       semanticKind: "success-count",
       ownerId: "radiation.sampleIndependentPoints",
       status: "value",
@@ -104,7 +104,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
     },
     {
       quantityId: "drawCountAfter",
-      unit: "",
+      unit: "1",
       semanticKind: "draw-count",
       ownerId: "radiation.sampleIndependentPoints",
       status: "value",
@@ -112,7 +112,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
     },
     {
       quantityId: "expectedTrialsToOne",
-      unit: "",
+      unit: "1",
       semanticKind: "expected-trials",
       ownerId: "radiation.independentPointsProbability",
       status: "value",
@@ -120,7 +120,7 @@ export function evaluateLq05(parameters: Lq05Parameters): Lq05Evaluation {
     },
     {
       quantityId: "lockedProbability",
-      unit: "",
+      unit: "1",
       semanticKind: "locked-probability",
       ownerId: "radiation.lockedPositionsProbability",
       status: "value",
