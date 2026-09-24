@@ -31,7 +31,7 @@ import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { PredictPanel } from "./PredictPanel.tsx";
 import "./coefficientLab.css";
-import { refusalSentence } from "../../experiments/results/refusals.ts";
+import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { display, identity, result } from "./presentation.ts";
 
 type Output = ScientificResult | PublishedResult;

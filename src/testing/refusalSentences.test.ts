@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { ME02_DEFAULTS } from "../experiments/me02/definition.ts";
 import { validateMe02Parameters } from "../experiments/me02/parameters.ts";
-import { refusalSentence } from "../experiments/results/refusals.ts";
+import { refusalSentence } from "../experiments/results/refusalSentence.ts";
 import { SR02_DEFAULTS } from "../experiments/sr02/definition.ts";
 import { validateSr02Parameters } from "../experiments/sr02/parameters.ts";
 import { SR08_DEFAULTS } from "../experiments/sr08/definition.ts";

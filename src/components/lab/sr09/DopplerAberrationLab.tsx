@@ -1,7 +1,7 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
-import { refusalSentence } from "../../../experiments/results/refusals.ts";
+import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import {
   SR09_CAPTION,
   SR09_MODEL,

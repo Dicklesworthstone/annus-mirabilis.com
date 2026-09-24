@@ -36,10 +36,3 @@ export function makeRefusal(
     ...(options.details === undefined ? {} : { details: options.details }),
   };
 }
-
-/** The sentence a reader is shown for a refusal: the validator's specific requirement when it gave
- * one in details.requirements, otherwise the code's registered message. */
-export function refusalSentence(refusal: Pick<RequestRefusal, "message" | "details">): string {
-  const requirement = refusal.details?.requirements;
-  return typeof requirement === "string" && requirement.trim() ? requirement : refusal.message;
-}
