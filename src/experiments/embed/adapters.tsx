@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import type { PreparedLq06Example } from "../lq06/session.ts";
 import type { PreparedLq07Example } from "../lq07/session.ts";
+import type { MillikanOverlayResult } from "../lq08/millikan.ts";
 import type { EmbeddableId } from "./catalogue.ts";
 import {
   LazyBrownianLab,
@@ -143,8 +144,11 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
     }
     case "lq-08": {
       const { default: example } = await import("../../generated/lq08-example.json");
-      const { loadMillikanOverlay } = await import("../lq08/millikanRecord.ts");
-      return <LazyPhotoelectricLab example={example} millikan={loadMillikanOverlay()} />;
+      // Judged at prepare time (scripts/generate-lq08-overlay.mjs): plain data, no loader here.
+      const { default: millikan } = await import("../../generated/lq08-millikan-overlay.json");
+      return (
+        <LazyPhotoelectricLab example={example} millikan={millikan as MillikanOverlayResult} />
+      );
     }
     case "lq-09": {
       const { default: example } = await import("../../generated/lq09-example.json");

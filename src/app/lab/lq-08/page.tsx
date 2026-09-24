@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
 import { PhotoelectricComparison } from "../../../components/lab/lq08/PhotoelectricLab.tsx";
-import { loadMillikanOverlay } from "../../../experiments/lq08/millikanRecord.ts";
+import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import example from "../../../generated/lq08-example.json";
+// Judged from the record at prepare time (scripts/generate-lq08-overlay.mjs); no loader in the bundle.
+import millikan from "../../../generated/lq08-millikan-overlay.json";
 
 export const metadata: Metadata = {
   title: "Photoelectric apparatus and stopping potential",
@@ -26,7 +28,7 @@ export default function PhotoelectricPage() {
         </p>
       </header>
 
-      <PhotoelectricComparison example={example} millikan={loadMillikanOverlay()} />
+      <PhotoelectricComparison example={example} millikan={millikan as MillikanOverlayResult} />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>

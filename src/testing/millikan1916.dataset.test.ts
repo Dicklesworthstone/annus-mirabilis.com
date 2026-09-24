@@ -7,6 +7,7 @@ import { loadHistoricalDataset } from "../content/datasets/loader.ts";
 import { renderEmbeddedLaboratory } from "../experiments/embed/adapters.tsx";
 import { getOwnerTheoreticalLine } from "../experiments/lq08/millikan.ts";
 import { loadMillikanOverlay } from "../experiments/lq08/millikanRecord.ts";
+import generatedOverlay from "../generated/lq08-millikan-overlay.json";
 import { getConstantSet } from "../physics/reference/constants.ts";
 import { exportMarkup } from "./exportMarkup.ts";
 
@@ -64,6 +65,11 @@ describe("the withdrawn Millikan 1916 sodium record", () => {
     expect(values.length).toBe(record.rows.length * 2);
     for (const value of values) expect(serialized).not.toContain(String(value));
     for (const token of voltages) expect(serialized).not.toContain(token);
+  });
+
+  it("the page and embed read a prepare-time copy that equals what the record yields now", () => {
+    // Pages import src/generated/lq08-millikan-overlay.json so no loader enters a route bundle.
+    expect(generatedOverlay).toEqual(JSON.parse(JSON.stringify(loadMillikanOverlay())));
   });
 
   for (const [surface, render] of [
