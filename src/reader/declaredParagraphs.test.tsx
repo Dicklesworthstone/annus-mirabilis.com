@@ -3,6 +3,11 @@
  * and is listed under none; and a paper printed with sections labels its paragraphs by part
  * (content/bindings, am-bind-paragraphs-and-displays-bm-gzg2). Checked on every paper that has a
  * bindings file whose explanation page is PaperPage, with non-vacuity asserted on the declared set.
+ *
+ * The note needs the paragraph on the German face. Relativity is bound before its German text is on
+ * the site (am-bind-paragraphs-and-displays-sr-nlea), so a declared paragraph there has no place to
+ * carry it yet; it must still link to no passage and be listed under none. So that this cannot
+ * excuse every paper at once, some declared paragraph must be on a German face and carry the note.
  */
 import { describe, expect, test } from "bun:test";
 import { readdirSync } from "node:fs";
@@ -19,28 +24,44 @@ const papers = readdirSync(join(process.cwd(), "content", "bindings"))
   .filter((p) => p !== "brownian-motion")
   .sort();
 
+// Each paper's German face, rendered once. A paragraph is on it when the face publishes its anchor.
+const germanOf = new Map<string, string>();
+for (const paper of papers)
+  germanOf.set(
+    paper,
+    renderToStaticMarkup(await PaperPage({ paperId: paper, face: "german" } as never)),
+  );
+const onFace = (paper: string, unit: string) =>
+  (germanOf.get(paper) ?? "").includes(` id="${unit}"`);
+
 describe("declared paragraphs and part labels", () => {
   test("some paper with a bindings file declares a paragraph unexplained, so the check examines something", () => {
     const declared = papers.flatMap((p) =>
-      (loadParagraphBindings(process.cwd(), p) ?? []).filter((b) => b.unexplained),
+      (loadParagraphBindings(process.cwd(), p) ?? [])
+        .filter((b) => b.unexplained)
+        .map((b) => ({ paper: p, unit: b.unit })),
     );
-    console.log(`[declared paragraphs] ${declared.length} across ${papers.join(", ")}`);
+    const shown = declared.filter((d) => onFace(d.paper, d.unit));
+    console.log(
+      `[declared paragraphs] ${declared.length} across ${papers.join(", ")}, ${shown.length} of them on a German face`,
+    );
     expect(declared.length).toBeGreaterThan(0);
+    expect(shown.length).toBeGreaterThan(0);
   });
 
   for (const paper of papers)
     test(`${paper}: each declared paragraph says so on the German face and is listed under no passage`, async () => {
       const bindings = loadParagraphBindings(process.cwd(), paper) ?? [];
-      const german = renderToStaticMarkup(
-        await PaperPage({ paperId: paper, face: "german" } as never),
-      );
+      const german = germanOf.get(paper) ?? "";
       const explanation = await exportMarkup(await PaperPage({ paperId: paper } as never));
       const wrong: string[] = [];
       for (const b of bindings) {
         const note = german.includes(`data-not-explained="${b.unit}"`);
         const linked = german.includes(`data-explained-by="${b.unit}"`);
         const listed = explanation.includes(`data-source-paragraph="${b.unit}"`);
-        if (b.unexplained && (!note || linked || listed))
+        // Without its German text on the site, a paragraph has no place for the note.
+        const needsNote = onFace(paper, b.unit);
+        if (b.unexplained && ((needsNote && !note) || linked || listed))
           wrong.push(`${b.unit}: declared, note ${note}, linked ${linked}, listed ${listed}`);
         if (!b.unexplained && note) wrong.push(`${b.unit}: bound, yet says not yet explained`);
       }
