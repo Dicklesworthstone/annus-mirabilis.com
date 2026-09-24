@@ -22,6 +22,7 @@ import { passageKind } from "./passageKind.ts";
 import { QuantityLegendList } from "./QuantityLegendList.tsx";
 import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
+import { SectionPager } from "./SectionPager.tsx";
 import { sectionPlate } from "./sectionPlate.ts";
 import "./reader.css";
 
@@ -95,7 +96,9 @@ export async function PaperReader({
             remains pending; none of these passages is presented as Einstein’s wording.
           </p>
         </PaperStatus>
-        {section && <a href="/papers/brownian-motion/">Read the whole available argument →</a>}
+        {section && (
+          <a href={`/papers/brownian-motion/#${section}`}>Read this section in the whole paper →</a>
+        )}
       </header>
       <ReaderController registry={registry} titles={titles} questions={questions} />
       <noscript>
@@ -110,31 +113,39 @@ export async function PaperReader({
           <>
             <h2>Follow the argument</h2>
             <nav aria-label="Argument outline">
-              {sections.map((s) => (
-                <div key={s.id}>
-                  <a
-                    data-reader-anchor={s.id}
-                    href={`#${s.id}`}
-                    aria-current={section === s.id ? "page" : undefined}
-                  >
-                    {s.title}
-                  </a>
-                  {args
-                    .filter((a) => a.section === s.id)
-                    .map((a) => (
-                      <a key={a.id} data-reader-anchor={a.id} href={`#${a.id}`}>
-                        {a.title}
-                      </a>
-                    ))}
-                  <a
-                    className="fine"
-                    href={`/papers/${paper.id}/${s.id}/`}
-                    aria-label={`Section-only reading: ${s.title}`}
-                  >
-                    Section-only reading →
-                  </a>
-                </div>
-              ))}
+              {/* Every section of the paper, on a section's own page too; the others link to
+                  their pages. */}
+              {paper.sections.map((s) =>
+                sections.includes(s) ? (
+                  <div key={s.id}>
+                    <a
+                      data-reader-anchor={s.id}
+                      href={`#${s.id}`}
+                      aria-current={section === s.id ? "page" : undefined}
+                    >
+                      {s.title}
+                    </a>
+                    {args
+                      .filter((a) => a.section === s.id)
+                      .map((a) => (
+                        <a key={a.id} data-reader-anchor={a.id} href={`#${a.id}`}>
+                          {a.title}
+                        </a>
+                      ))}
+                    <a
+                      className="fine"
+                      href={`/papers/${paper.id}/${s.id}/`}
+                      aria-label={`Section-only reading: ${s.title}`}
+                    >
+                      Section-only reading →
+                    </a>
+                  </div>
+                ) : (
+                  <div key={s.id}>
+                    <a href={`/papers/${paper.id}/${s.id}/`}>{s.title}</a>
+                  </div>
+                ),
+              )}
             </nav>
           </>
         }
@@ -408,6 +419,9 @@ export async function PaperReader({
                 ))}
             </section>
           ))}
+          {section ? (
+            <SectionPager paperId={paper.id} sections={paper.sections} current={section} />
+          ) : null}
         </div>
         <StickyLabRegion>
           <section id="lab-bm-01" className="reader-inline-lab">

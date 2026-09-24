@@ -124,6 +124,43 @@
 .face-pending {
   margin: 0.75rem 0 0;
 }
+/* THE SECTION BEFORE AND AFTER (SectionPager.tsx), under a section's own page: the direction small,
+   the section's own title at the size of the text it follows, so the next section reads as the
+   next thing to read. */
+.section-pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: 2rem;
+}
+.section-pager > a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 14rem;
+  max-width: 26rem;
+  font-family: var(--font-serif);
+  font-size: var(--type-body);
+  text-decoration: none;
+}
+/* The title is the link's underlined words; the direction above it is a label. */
+.section-pager > a > :last-child {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.section-pager > a:hover > :last-child {
+  text-decoration-thickness: 2px;
+}
+.section-pager > a[rel="next"] {
+  margin-left: auto;
+  text-align: right;
+}
+.section-pager-direction {
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
 @media (max-width: 560px) {
   .face-tabs {
     column-gap: 1rem;

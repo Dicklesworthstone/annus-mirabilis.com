@@ -53,6 +53,7 @@ import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
 import { ReaderController } from "./ReaderController.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
+import { SectionPager } from "./SectionPager.tsx";
 import "./reader.css";
 import "./paperLayout.css";
 
@@ -315,7 +316,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             reasoning, including why the two disclosures are not treated the same way. */}
         {sectionId ? null : <p className="lead">{paper.description}</p>}
         <PaperStatus paper={paper} />
-        {sectionId ? <a href={paperPath(paper.id)}>Read the whole available argument →</a> : null}
+        {sectionId ? (
+          <a href={`${paperPath(paper.id)}#${sectionId}`}>Read this section in the whole paper →</a>
+        ) : null}
         {entryAnchor && (
           <p>
             <a href={`${paperPath(paper.id)}#${entryAnchor}`}>
@@ -329,10 +332,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         <aside className="reader-outline">
           <h2>Follow the argument</h2>
           <nav aria-label="Argument outline">
-            {sections.map((s) => (
+            {/* Every section of the paper, on a section's own page too: the others are plain
+                links to their pages, and only this page's sections move within it. */}
+            {paper.sections.map((s) => (
               <div key={s.id}>
                 <a
-                  data-reader-anchor={s.id}
+                  data-reader-anchor={sections.includes(s) ? s.id : undefined}
                   href={paperPath(paper.id, s.id)}
                   aria-current={sectionId === s.id ? "page" : undefined}
                   aria-label={s.title}
@@ -547,6 +552,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                 ))}
             </section>
           ))}
+          {sectionId ? (
+            <SectionPager paperId={paper.id} sections={paper.sections} current={sectionId} />
+          ) : null}
         </div>
       </div>
       <section
