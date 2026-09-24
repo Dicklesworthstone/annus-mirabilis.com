@@ -81,14 +81,18 @@ export function PaperMargins({ margins }: { margins: Margins }) {
                 {note.sourceSupport.map((source, n) => {
                   const c = citations.get(source.citationId);
                   if (!c) return null;
+                  // Each source reads as one sentence: title, locator, the note's own page, and
+                  // one full stop. A locator already ends in one, so it is dropped before the page.
+                  const where = source.locator
+                    ? `${c.locator.replace(/\.$/, "")}, ${source.locator}.`
+                    : c.locator;
                   return (
                     <span key={`${source.citationId}-${source.locator ?? n}`}>
-                      {n > 0 && "; "}
+                      {n > 0 && " "}
                       <cite>
                         <a href={c.url}>{c.title}</a>
                       </cite>
-                      {citationTitleClose(c.title)} {c.locator}
-                      {source.locator ? `, ${source.locator}` : ""}
+                      {citationTitleClose(c.title)} {where}
                     </span>
                   );
                 })}

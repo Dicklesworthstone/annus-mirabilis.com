@@ -100,6 +100,8 @@ describe("the sections on the page", () => {
   test("a note shows its source as a link, with the locator the note gives", () => {
     expect(html).toContain('<a href="https://doi.org/10.1002/andp.19053231314">');
     expect(html).toContain("p. 641");
+    // The locator's own full stop is not doubled before the page ("(1905). , p. 641").
+    expect(html).not.toMatch(/\.\s*,/);
   });
 
   test("inline mathematics is typeset in claims, readings and notes, never shown as TeX", () => {
