@@ -46,38 +46,43 @@ export function validateLq09Parameters(input: unknown): Computation<Lq09Paramete
   for (const key of numericKeys) {
     const v = p[key];
     if (typeof v !== "number" || !Number.isFinite(v)) {
-      return bad(`Parameter "${key}" must be a finite number.`);
+      return bad(`Enter a finite number for ${key}.`);
     }
   }
 
   if (p.frequency <= 0) {
-    return bad("Frequency must be strictly positive.");
+    return bad("Enter a frequency greater than zero.");
   }
   if (p.ionizationEnergyEv < 0) {
     return bad("Ionization energy cannot be negative.");
   }
   if (p.incidentPower < 0) {
-    return bad("Incident optical power cannot be negative.");
+    return bad("Enter a light power of zero or more.");
   }
   if (p.absorptionEfficiency < 0 || p.absorptionEfficiency > 1) {
-    return bad("Absorption efficiency must be in [0, 1].");
+    return bad("Enter a share of the light absorbed from 0 to 1.");
   }
   if (p.duration < 0) {
-    return bad("Duration cannot be negative.");
+    return bad("Enter an exposure of zero seconds or more.");
   }
   if (p.declaredFraction < 0 || p.declaredFraction > 1) {
-    return bad("Declared ionization fraction must be in [0, 1].");
+    return bad("Enter a share of absorbed quanta that ionize, a, from 0 to 1.");
   }
 
   const validModes = ["all-absorbed-ionizes", "declared-fraction", "unknown"];
   if (!validModes.includes(p.absorptionMode)) {
     return bad(
-      "Absorption mode must be 'all-absorbed-ionizes', 'declared-fraction', or 'unknown'.",
+      "Choose whether every absorbed quantum ionizes, a declared share does, or the share is unknown.",
     );
   }
 
   if (typeof p.gasName !== "string" || typeof p.gasCitation !== "string") {
     return bad("Gas name and citation must be strings.");
+  }
+  // A named gas brings a measured ionization energy, so it needs a source. Refused here, before
+  // evaluation, so the owner's zero-filled refusal record never reaches a view as values.
+  if (p.gasName.trim().length > 0 && p.gasCitation.trim().length === 0) {
+    return bad(`Cite a source for the gas "${p.gasName.trim()}": a named gas needs one.`);
   }
 
   return { kind: "accepted", data: Object.freeze({ ...p }) };

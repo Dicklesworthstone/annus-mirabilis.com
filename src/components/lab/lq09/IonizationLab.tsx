@@ -361,8 +361,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
                 <td>{fixed(quantumEnergyEv, 3)} eV</td>
               </tr>
               <tr data-quantity-id="excessEnergyEv">
-                <th scope="row">Energy left over, hν − J</th>
-                <td>{fixed(excessEnergyEv, 3)} eV</td>
+                <th scope="row">
+                  {excessEnergyEv < 0 ? "Energy short, J − hν" : "Energy left over, hν − J"}
+                </th>
+                <td>{fixed(Math.abs(excessEnergyEv), 3)} eV</td>
               </tr>
               <tr data-quantity-id="absorbedLightEnergy">
                 <th scope="row">Light energy absorbed, L</th>
