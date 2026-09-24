@@ -10,11 +10,13 @@ import WebKit
 final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     /// Called for every accepted `route.changed`: route, anchor, title.
     var onRoute: ((String, String?, String) -> Void)?
+    /// Called for every accepted `settings.changed` that names the page's theme.
+    var onTheme: ((String) -> Void)?
 
     private var limiter = BridgeRateLimiter()
     private let capabilities: [String]
 
-    init(capabilities: [String] = ["route", "share", "print", "find"]) {
+    init(capabilities: [String] = ["route", "theme", "share", "print", "find"]) {
         self.capabilities = capabilities
     }
 
@@ -62,6 +64,9 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         switch message.type {
         case "hello":
             return ["status": "ok", "value": ["bridgeVersion": BridgeProtocol.version, "capabilities": capabilities]]
+        case "settings.changed":
+            if case .string(let theme) = message.body["theme"] { onTheme?(theme) }
+            return ["status": "ok"]
         case "route.changed":
             var route = ""
             var anchor: String?

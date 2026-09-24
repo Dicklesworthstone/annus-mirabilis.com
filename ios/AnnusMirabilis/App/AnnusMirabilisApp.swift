@@ -22,11 +22,13 @@ enum EditionStore {
         guard case .success(let catalog) = catalog else { return nil }
         var defaults = UserDefaults.standard
         var exposesRoute = false
+        var ephemeral = false
         var launchURL: URL?
         #if DEBUG
             if case .success(let launch) = LaunchArguments.parse(arguments) {
                 if let suite = launch.stateSuite, let isolated = UserDefaults(suiteName: suite) {
                     defaults = isolated
+                    ephemeral = true
                 }
                 exposesRoute = launch.uiTest
                 launchURL = launch.openRoute.flatMap { EditionCatalog.url(route: $0, anchor: launch.openAnchor) }
@@ -34,7 +36,8 @@ enum EditionStore {
         #endif
         let store = ReaderLocationStore(defaults: defaults)
         let start = startURL(launchURL: launchURL, saved: store.load(), catalog: catalog)
-        let session = EditionSession(catalog: catalog, store: store, exposesRouteForTests: exposesRoute)
+        let session = EditionSession(
+            catalog: catalog, store: store, exposesRouteForTests: exposesRoute, ephemeralWebStorage: ephemeral)
         session.load(start)
         return session
     }
@@ -56,6 +59,7 @@ struct RootView: View {
             if let session {
                 EditionWebView(session: session)
                     .ignoresSafeArea()
+                    .preferredColorScheme(session.pageColorScheme)
                     .overlay(alignment: .bottomTrailing) {
                         PageActionsButton(session: session)
                             .padding(.trailing, 16)

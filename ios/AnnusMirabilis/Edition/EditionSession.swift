@@ -1,5 +1,6 @@
 import Observation
 import SafariServices
+import SwiftUI
 import UIKit
 import WebKit
 
@@ -20,6 +21,8 @@ final class EditionSession {
     let bridgeInstalled: Bool
     /// The last route the page itself reported through the bridge: its readiness signal.
     private(set) var bridgeRoute: String?
+    /// The page's own theme, as the page reports it; nil until it does.
+    private(set) var pageColorScheme: ColorScheme?
 
     @ObservationIgnored private let store: ReaderLocationStore
     @ObservationIgnored private let navigator: EditionNavigator
@@ -27,7 +30,13 @@ final class EditionSession {
     @ObservationIgnored private let exposesRouteForTests: Bool
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
 
-    init(catalog: EditionCatalog, store: ReaderLocationStore, exposesRouteForTests: Bool = false) {
+    /// `ephemeralWebStorage` gives the page a non-persistent WebKit store. UI tests use it
+    /// (with -AMStateSuite) so a theme or note set in one test never reaches the next, and
+    /// nothing has to be deleted to start clean. A reader's launch never sets it.
+    init(
+        catalog: EditionCatalog, store: ReaderLocationStore, exposesRouteForTests: Bool = false,
+        ephemeralWebStorage: Bool = false
+    ) {
         self.catalog = catalog
         self.store = store
         self.exposesRouteForTests = exposesRouteForTests
@@ -37,12 +46,16 @@ final class EditionSession {
         let bridgeSource = catalog.verifiedBridgeScript()
         self.bridgeInstalled = bridgeSource != nil
         self.webView = EditionSession.makeWebView(
-            catalog: catalog, navigator: navigator, router: router, bridgeSource: bridgeSource)
+            catalog: catalog, navigator: navigator, router: router, bridgeSource: bridgeSource,
+            ephemeralWebStorage: ephemeralWebStorage)
         self.handoff = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
         handoff.isEligibleForHandoff = true
         handoff.isEligibleForSearch = false
         handoff.isEligibleForPublicIndexing = false
         webView.userActivity = handoff
+        router.onTheme = { [weak self] theme in
+            self?.didReceiveTheme(theme)
+        }
         router.onRoute = { [weak self] route, anchor, title in
             self?.didReceiveRoute(route: route, anchor: anchor, title: title)
         }
@@ -76,6 +89,27 @@ final class EditionSession {
 
     /// The page's own report of where it is, sent by the bridge script when the
     /// document is ready and on every anchor change.
+    /// The page's theme (App plan §8.7). While the reader has not chosen one, the
+    /// page reports "system" and the app sets nothing: the page, the band behind the
+    /// status bar and the status bar all follow the device together. Once the reader
+    /// chooses, the window follows that choice, which the page then keeps whatever
+    /// the device does.
+    func didReceiveTheme(_ theme: String) {
+        switch theme {
+        case "kramgasse-night": pageColorScheme = .dark
+        case "annalen": pageColorScheme = .light
+        default: pageColorScheme = nil
+        }
+        let paper = UIColor(named: "LaunchBackground") ?? .systemBackground
+        let band =
+            pageColorScheme.map { scheme in
+                paper.resolvedColor(with: UITraitCollection(userInterfaceStyle: scheme == .dark ? .dark : .light))
+            } ?? paper
+        webView.backgroundColor = band
+        webView.scrollView.backgroundColor = band
+        webView.underPageBackgroundColor = band
+    }
+
     func didReceiveRoute(route: String, anchor: String?, title: String) {
         bridgeRoute = route + (anchor.map { "#\($0)" } ?? "")
         if !title.isEmpty { self.title = title }
@@ -101,7 +135,8 @@ final class EditionSession {
     }
 
     private static func makeWebView(
-        catalog: EditionCatalog, navigator: EditionNavigator, router: BridgeRouter, bridgeSource: String?
+        catalog: EditionCatalog, navigator: EditionNavigator, router: BridgeRouter, bridgeSource: String?,
+        ephemeralWebStorage: Bool
     ) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         // The bridge exists only when its script matched the recorded digest (App plan §7).
@@ -112,7 +147,7 @@ final class EditionSession {
                 router, contentWorld: .page, name: BridgeProtocol.handlerName)
         }
         configuration.setURLSchemeHandler(EditionSchemeHandler(catalog: catalog), forURLScheme: EditionCatalog.scheme)
-        configuration.websiteDataStore = .default()
+        configuration.websiteDataStore = ephemeralWebStorage ? .nonPersistent() : .default()
         configuration.mediaTypesRequiringUserActionForPlayback = .all
         configuration.allowsInlineMediaPlayback = true
         configuration.dataDetectorTypes = []
