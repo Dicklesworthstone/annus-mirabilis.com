@@ -56,13 +56,20 @@ const ENERGY_FIGURE_WORDS: Readonly<Record<string, string>> = {
 export function BoundaryLedgerLab({
   example,
   title = "System-boundary energy ledger with cited energy-source cards",
+  session: sharedSession,
 }: {
   example?: PreparedMe03Example | undefined;
   title?: string | undefined;
+  /**
+   * A session owned by the component that embeds the lab, so that something beside it reads the
+   * same accepted snapshot (the mass-energy journey's check against the world). Omitted, the lab
+   * owns its own, as on /lab/me-03/.
+   */
+  session?: ReturnType<typeof createMe03Session> | undefined;
 }) {
   const id = useId();
-  const [session] = useState(() =>
-    createMe03Session(`me03-${id}`, example?.parameters ?? ME03_DEFAULTS),
+  const [session] = useState(
+    () => sharedSession ?? createMe03Session(`me03-${id}`, example?.parameters ?? ME03_DEFAULTS),
   );
 
   const view = useSyncExternalStore(
