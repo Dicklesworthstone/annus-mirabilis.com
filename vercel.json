@@ -5,5 +5,9 @@
   "installCommand": "npx --yes bun@1.4.0 install --frozen-lockfile",
   "git": {
     "deploymentEnabled": false
-  }
+  },
+  "redirects": [
+    { "source": "/opengraph-image", "destination": "/share/home.png", "permanent": true },
+    { "source": "/opengraph-image/", "destination": "/share/home.png", "permanent": true }
+  ]
 }
