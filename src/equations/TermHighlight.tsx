@@ -14,8 +14,8 @@ import {
 } from "react";
 
 /**
- * TERMS AS TARGETS (dispatch 144, the owner: "more like the ones from the classic-patents site,
- * with hover-over and stuff"). Pointing at, focusing or clicking any element that carries a
+ * TERMS AS TARGETS (dispatch 144: the owner asked for equations like the donor site's, "with
+ * hover-over and stuff"). Pointing at, focusing or clicking any element that carries a
  * quantity id lights every element in this block that carries the SAME id: the glyphs in the
  * formula, the phrase in the sentence, the chip and the legend line.
  *
