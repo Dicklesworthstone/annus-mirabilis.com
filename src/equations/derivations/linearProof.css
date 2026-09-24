@@ -37,7 +37,11 @@
 .linear-formula {
   overflow-wrap: anywhere;
 }
-.linear-formula > [aria-hidden] {
+/* The box that scrolls is this wrapper, never the aria-hidden formula inside it: the page's
+   overflow script gives a scrolling box a tab stop, and one inside aria-hidden content is a
+   focus stop assistive technology is told does not exist (axe aria-hidden-focus). Measured on
+   /papers/mass-energy/ at 320px on 2026-09-24: four such stops. */
+.linear-formula-scroll {
   overflow-x: auto;
   padding-block: 0.4rem;
 }

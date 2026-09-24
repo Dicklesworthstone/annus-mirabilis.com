@@ -13,7 +13,9 @@ import "./linearProof.css";
 function MathBlock({ value }: { value: LowSpeedFormula }) {
   return (
     <div className="linear-formula">
-      <div aria-hidden="true" {...{ dangerouslySetInnerHTML: { __html: value.html } }} />
+      <div className="linear-formula-scroll">
+        <div aria-hidden="true" {...{ dangerouslySetInnerHTML: { __html: value.html } }} />
+      </div>
       <div className="linear-mathml" {...{ dangerouslySetInnerHTML: { __html: value.mathml } }} />
       <p className="fine">{value.spoken}</p>
     </div>

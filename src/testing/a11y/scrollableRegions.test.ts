@@ -533,7 +533,10 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   ["kitchen-guide", 1],
   ["kitchen-lab", 1],
   ["latex-block-wrapper", 1],
-  ["linear-formula", 2],
+  // The rule used to be `.linear-formula > [aria-hidden]`, crediting the ancestor; the element that
+  // scrolls is now a named wrapper, so the entry names it (2026-09-24). Its tab stop is added at
+  // runtime by formulaOverflow.inline.ts, only when it overflows, hence no tabIndex in the TSX.
+  ["linear-formula-scroll", 2],
   ["low-speed-table", 1],
   ["mass-energy-investigation", 1],
   ["me-table", 0],
@@ -557,7 +560,8 @@ export const NOT_YET_AUDITED = new Map<string, number>([
     the 51 derived classes never appear as the subject of an overflow rule, and 9 of them were
     already in these lists (camera-results, controlled-comparison, inference-workbench,
     kitchen-guide, kitchen-lab, linear-formula, mass-energy-investigation, notebook-replay,
-    show-the-code). This is the tenth, recorded the same way.
+    show-the-code). This is the tenth, recorded the same way. (linear-formula has since left the
+    list: on 2026-09-24 its rule moved to the element that scrolls, .linear-formula-scroll.)
 
     The 1 is the count the list's own contract asks for - elements carrying the class with no
     tabIndex - and it is honest rather than a debt anyone should pay: a page wrapper that does

@@ -47,7 +47,9 @@ export function LinearProofExplorer({
     if (!e) throw new Error(`Missing build-checked equation ${id}.`);
     return (
       <div className="linear-formula" data-proof-equation={e.id}>
-        <div aria-hidden="true" {...{ dangerouslySetInnerHTML: { __html: e.html } }} />
+        <div className="linear-formula-scroll">
+          <div aria-hidden="true" {...{ dangerouslySetInnerHTML: { __html: e.html } }} />
+        </div>
         <div className="linear-mathml" {...{ dangerouslySetInnerHTML: { __html: e.mathml } }} />
         <p className="fine">{e.spoken}</p>
       </div>
