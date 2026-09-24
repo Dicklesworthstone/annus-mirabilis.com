@@ -44,7 +44,9 @@ describe("SR-12 Lab View & Route (am-sr-12-charge-current-bgq0)", () => {
     expect(html).toContain("Gaussian pulse continuity (0.5c)");
     expect(html).toContain("Current loop (0.6c)");
     expect(html).toContain("Four-current invariant");
-    expect(html).toContain("Predict: is a neutral wire still neutral in a moving frame?");
+    // The question comes from the manifest's prompt, drawn by the predict gate (am-inst-predict-mode-ti7m).
+    expect(html).toContain('data-predict-prompt="sr-12-predict-neutral-wire"');
+    expect(html).toContain("is the wire still electrically neutral?");
   });
 
   // The table's OutputReading tested vectors for Float64Array, which the store never publishes, so

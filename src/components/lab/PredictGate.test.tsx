@@ -17,6 +17,7 @@ import { DEFAULT_PREPARED_EXAMPLE as SR06_EXAMPLE } from "../../experiments/sr06
 import { DEFAULT_PREPARED_EXAMPLE as SR09_EXAMPLE } from "../../experiments/sr09/session.ts";
 import type { PreparedSr10Example } from "../../experiments/sr10/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR11_EXAMPLE } from "../../experiments/sr11/session.ts";
+import { DEFAULT_PREPARED_EXAMPLE as SR12_EXAMPLE } from "../../experiments/sr12/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR13_EXAMPLE } from "../../experiments/sr13/session.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import rawSr10Example from "../../generated/sr10-example.json";
@@ -40,6 +41,7 @@ import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
 import { DopplerAberrationLab } from "./sr09/DopplerAberrationLab.tsx";
 import { LightComplexLab } from "./sr10/LightComplexLab.tsx";
 import { MovingMirrorLab } from "./sr11/MovingMirrorLab.tsx";
+import { ChargeCurrentLab } from "./sr12/ChargeCurrentLab.tsx";
 import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
 
 /**
@@ -74,6 +76,11 @@ const LABS: readonly (readonly [string, () => ReactElement, string])[] = [
     "Values at these settings",
   ],
   [
+    "sr-12",
+    () => createElement(ChargeCurrentLab, { example: SR12_EXAMPLE }),
+    "Charge and current density telemetry across frames",
+  ],
+  [
     "sr-13",
     () => createElement(ElectronDynamicsLab, { example: SR13_EXAMPLE }),
     "Values at these settings",
@@ -92,6 +99,11 @@ function responses(container: HTMLElement): string[] {
   return [...container.querySelectorAll("[data-predict-response]")].map(
     (el) => el.getAttribute("data-predict-response") ?? "",
   );
+}
+
+/** An explanation as the page shows it: a braced script's letters stand inline in textContent. */
+function shownText(text: string): string {
+  return text.replace(/[_^]\{([^{}]*)\}/g, "$1");
 }
 
 async function settle() {
@@ -181,6 +193,8 @@ describe("with JavaScript, a first-time reader answers before the result shows",
             .querySelector("[data-predict-adjudication]")
             ?.getAttribute("data-predict-adjudication"),
         ).toBe("match");
+        if (prompt?.explanation)
+          expect(container.textContent).toContain(shownText(prompt.explanation));
         const stored = getStoredPrompt(
           readPredictionsDocument(createStorageContext()),
           lab,
@@ -239,6 +253,8 @@ describe("with JavaScript, a first-time reader answers before the result shows",
         await settle();
         expect(responses(container).every((s) => s === "shown")).toBe(true);
         expect(container.querySelector("[data-predict-adjudication]")).toBeNull();
+        if (prompt?.explanation)
+          expect(container.textContent).toContain(shownText(prompt.explanation));
         expect(
           getStoredPrompt(
             readPredictionsDocument(createStorageContext()),

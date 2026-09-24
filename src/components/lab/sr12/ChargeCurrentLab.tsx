@@ -27,6 +27,8 @@ import { display, fixed, identity, result, sentenceNumber } from "../presentatio
 import { withScripts } from "../subscripts.tsx";
 import { ChargeCurrentPlot } from "./ChargeCurrentPlot.tsx";
 import "../labControls.css";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 
 const C_SI = 299792458;
 
@@ -47,6 +49,10 @@ function OutputReading({ item }: { item: PublishedResult | undefined }) {
   }
   return <span data-quantity-id={item.quantityId}>{statusMessage(item.status)}</span>;
 }
+
+// The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate. It
+// replaces a question this file kept for itself, drawn below the results it asked about.
+const SR12_PROMPTS = PREDICT_PROMPTS["sr-12"] ?? [];
 
 export function ChargeCurrentLab({
   example,
@@ -70,9 +76,10 @@ export function ChargeCurrentLab({
     true,
     (restored) => setDraft({ ...restored }),
   );
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("sr-12", SR12_PROMPTS);
   const [draft, setDraft] = useState<Sr12Parameters>(() => ({ ...example.parameters }));
   const [error, setError] = useState("");
-  const [prediction, setPrediction] = useState<string | null>(null);
 
   const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
   if (!snapshot) return null;
@@ -220,22 +227,27 @@ export function ChargeCurrentLab({
         </p>
       </noscript>
 
+      {/* Asked first: the question, then the result it asks about. */}
+      <PredictGatePanels gate={gate} />
+
       {/* Presets */}
       {/* Main interactive visualization */}
-      <ChargeCurrentPlot
-        rhoStationary={rhoStat}
-        rhoMoving={rhoMov}
-        jStationary={jStat}
-        jMoving={jMov}
-        lorentzFactor={gRes}
-        boostFraction={p.boost / C_SI}
-        mode={p.mode}
-        loopLegChargePos={legPos}
-        loopLegChargeNeg={legNeg}
-        loopTotal={loopTot}
-        sphereTotalStationary={sphereStat}
-        sphereTotalMoving={sphereMov}
-      />
+      <div {...gate.response}>
+        <ChargeCurrentPlot
+          rhoStationary={rhoStat}
+          rhoMoving={rhoMov}
+          jStationary={jStat}
+          jMoving={jMov}
+          lorentzFactor={gRes}
+          boostFraction={p.boost / C_SI}
+          mode={p.mode}
+          loopLegChargePos={legPos}
+          loopLegChargeNeg={legNeg}
+          loopTotal={loopTot}
+          sphereTotalStationary={sphereStat}
+          sphereTotalMoving={sphereMov}
+        />
+      </div>
 
       {/* Unit System Explanatory Note */}
       <aside
@@ -481,11 +493,13 @@ export function ChargeCurrentLab({
       <AcceptedStatus
         worked={snapshot === session.getServerSnapshot().accepted}
         summary={statusSummary}
+        response={gate.response}
       />
-      <LabTapeLink link={tapeLink} />
+      <LabTapeLink link={withPredictions(tapeLink, gate)} />
 
       {/* Telemetry Output Table */}
       <section
+        {...gate.response}
         className="table-scroll"
         aria-label="Charge and current density telemetry across frames"
         style={{
@@ -688,67 +702,6 @@ export function ChargeCurrentLab({
             )}
           </tbody>
         </table>
-      </section>
-
-      {/* Predict Mode */}
-      <section
-        style={{
-          padding: "1rem",
-          background: "var(--wash)",
-          border: "1px solid var(--line)",
-          borderRadius: "0.25rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-          margin: "1rem 0",
-        }}
-      >
-        <h4 className="eyebrow" style={{ margin: 0, fontSize: "var(--type-fine)" }}>
-          Predict: is a neutral wire still neutral in a moving frame?
-        </h4>
-        <p id={`${id}-predict-question`} style={{ margin: 0, fontSize: "0.85rem" }}>
-          A neutral wire in the laboratory carries a current in the +x direction. Described from a
-          frame moving in the +x direction at 0.6c, is the wire still electrically neutral?
-        </p>
-
-        <fieldset aria-labelledby={`${id}-predict-question`} className="button-group">
-          {[
-            { id: "still-neutral", label: "Still neutral (ρ′ = 0)" },
-            { id: "negatively-charged", label: "Negatively charged (ρ′ < 0)" },
-            { id: "positively-charged", label: "Positively charged (ρ′ > 0)" },
-          ].map((cand) => (
-            <button
-              key={cand.id}
-              type="button"
-              className={prediction === cand.id ? "button" : "button secondary"}
-              aria-pressed={prediction === cand.id}
-              style={{ fontSize: "var(--type-fine)" }}
-              onClick={() => setPrediction(cand.id)}
-            >
-              {cand.label}
-            </button>
-          ))}
-        </fieldset>
-
-        {prediction && (
-          <div
-            className="notice"
-            style={{
-              padding: "0.75rem",
-              borderRadius: "0.25rem",
-              fontSize: "var(--type-fine)",
-            }}
-          >
-            <p style={{ margin: "0 0 0.25rem", fontWeight: 600 }}>What the model says</p>
-            <p style={{ margin: 0 }}>
-              Because charge density and current density transform together like a four-vector, ρ′ =
-              γ(ρ − vJ<sub>x</sub>/c²). When ρ = 0 and J<sub>x</sub> &gt; 0 with v &gt; 0, ρ′ = −γvJ
-              <sub>x</sub>/c² &lt; 0. The moving observer describes the wire as carrying a net
-              negative charge density. Conversely, an observer moving in the −x direction (v &lt; 0)
-              observes a net positive charge density.
-            </p>
-          </div>
-        )}
       </section>
 
       {/* Editorial Explanations (R0-R3) */}

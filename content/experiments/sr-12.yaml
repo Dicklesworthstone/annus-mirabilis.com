@@ -305,17 +305,18 @@ predictMode:
     - promptId: sr-12-predict-neutral-wire
       supportedCandidateId: negatively-charged
       controlId: boost
-      question: "A neutral wire carries a current in the +x direction. Described from a frame moving in the +x direction, is the wire still neutral?"
+      question: "A neutral wire in the laboratory carries a current in the +x direction. Described from a frame moving in the +x direction at 0.6c, is the wire still electrically neutral?"
+      explanation: "Charge density and current density transform together like a four-vector: ρ′ = γ(ρ − vJ_{x}/c²). With ρ = 0, J_{x} > 0 and v > 0, ρ′ = −γvJ_{x}/c² < 0, so the moving observer describes the wire as carrying a net negative charge density. An observer moving in the −x direction (v < 0) describes a net positive one."
       candidates:
         - id: still-neutral
-          label: Still neutral
+          label: "Still neutral (ρ′ = 0)"
           description: "The wire remains electrically neutral in all inertial frames."
           separatingAssumption: "Charge density is assumed to be an absolute scalar invariant across frames."
         - id: negatively-charged
-          label: Negatively charged
+          label: "Negatively charged (ρ′ < 0)"
           description: "A net negative charge density appears: rho' = -gamma * v * Jx / c^2 < 0."
           separatingAssumption: "Charge density and current density transform together as components of a relativistic four-vector."
         - id: positively-charged
-          label: Positively charged
+          label: "Positively charged (ρ′ > 0)"
           description: "A net positive charge density appears."
           separatingAssumption: "The sign of relative motion is inverted in the Lorentz transformation."

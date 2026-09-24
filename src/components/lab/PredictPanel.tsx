@@ -17,6 +17,7 @@ import type {
   PredictPromptRecord,
 } from "../../experiments/predict/predictState.ts";
 import "./predict.css";
+import { withScripts } from "./subscripts.tsx";
 
 export type PredictPanelCandidate = Readonly<{
   id: string;
@@ -594,7 +595,7 @@ export function PredictPanel({
       ) : null}
 
       {prompt.explanation && explained ? (
-        <p data-predict-explanation="">{prompt.explanation}</p>
+        <p data-predict-explanation="">{withScripts(prompt.explanation)}</p>
       ) : null}
 
       {record.state === "revealed" && record.choice !== null ? (
