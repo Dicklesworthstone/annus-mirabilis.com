@@ -460,6 +460,9 @@ presets:
       cancelInternalEnergies: true
       cancelAdditiveConstant: true
       notation: "printed"
+tapeModel:
+  modelId: mass-energy-two-ledgers-host
+  modelVersion: 1
 predictMode:
   enabled: true
   prompts:

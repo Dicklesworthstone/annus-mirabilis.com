@@ -365,6 +365,9 @@ presets:
       pairBeta: 0.6
       pairSeparationLs: 10
       frameBeta: 0
+tapeModel:
+  modelId: sr-01-clock-sync-host
+  modelVersion: 1
 predictMode:
   enabled: true
   prompts:

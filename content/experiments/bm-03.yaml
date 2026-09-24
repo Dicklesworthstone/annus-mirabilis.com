@@ -401,6 +401,9 @@ historicalOverlays: []
 realRate:
   natural: false
 embeddable: true
+tapeModel:
+  modelId: bm03-configuration-integral-v1
+  modelVersion: 1
 predictMode:
   enabled: true
   prompts:

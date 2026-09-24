@@ -316,6 +316,9 @@ presets:
 realRate:
   natural: false
 embeddable: true
+tapeModel:
+  modelId: lq09-ionization-reference-v1
+  modelVersion: 1
 predictMode:
   enabled: true
   prompts:
