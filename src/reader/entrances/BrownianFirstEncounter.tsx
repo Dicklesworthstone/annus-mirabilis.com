@@ -653,12 +653,23 @@ export function BrownianFirstEncounter({
           <p>
             First expand the square of a sum. This algebra holds without an independence assumption:
           </p>
+          {/* Set as mathematics in the reading face: upright Δ, italic x, real subscripts and
+              superscripts. It was this encounter's one formula still in the code face, left
+              behind when fda364c0 moved the rest of its arithmetic into the reading type. */}
           <section
             className="formula"
-            style={{ textAlign: "center", fontFamily: "var(--font-mono)" }}
+            style={{ textAlign: "center" }}
             aria-label="Square of sum expansion formula"
           >
-            (Δx₁ + Δx₂)² = Δx₁² + 2·Δx₁·Δx₂ + Δx₂²
+            (Δ<i>x</i>
+            <sub>1</sub> + Δ<i>x</i>
+            <sub>2</sub>)<sup>2</sup> = Δ<i>x</i>
+            <sub>1</sub>
+            <sup>2</sup> + 2 Δ<i>x</i>
+            <sub>1</sub> Δ<i>x</i>
+            <sub>2</sub> + Δ<i>x</i>
+            <sub>2</sub>
+            <sup>2</sup>
           </section>
           <p>
             Now assume the displacements over the chosen time intervals are independent and each has
