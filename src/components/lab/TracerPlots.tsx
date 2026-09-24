@@ -56,7 +56,8 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
             return <path key={path} d={path} className="curve tracer-path" />;
           })}
         </g>
-        <circle cx="150" cy="150" r="3" />
+        {/* The common release point. Unfilled, it took SVG's default black: 1.30:1 on the dark paper. */}
+        <circle cx="150" cy="150" r="3" fill="var(--ink)" />
         <ScaleBar
           scale={representationScale}
           physicalLength={1}
