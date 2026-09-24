@@ -159,14 +159,23 @@ function groupByPaper(list: readonly Entry[], titles: ReadonlyMap<string, string
 export default async function SearchIndexPage() {
   const entries = await readIndex();
   const titles = new Map(loadFirstPages().map((p) => [p.slug, p.title]));
+  const href = (entry: Entry) => (entry.anchor ? `${entry.route}#${entry.anchor}` : entry.route);
+  // An entry that repeats an earlier one exactly, the same title leading to the same place, is
+  // listed once, under the first kind in TYPE_ORDER. An argument's synopsis is indexed as its own
+  // document under the argument's title and link: on live 211e9af4 all 42 "Argument synopses"
+  // repeated an entry of "Arguments". The key is title AND destination: an equation leads to the
+  // argument that holds it, under its own title, and is a separate entry a reader looks for.
+  const seen = new Set<string>();
   const byType = new Map<string, Entry[]>();
-  for (const entry of entries) {
-    const list = byType.get(entry.type) ?? [];
-    list.push(entry);
-    byType.set(entry.type, list);
+  for (const type of TYPE_ORDER) {
+    for (const entry of entries) {
+      const key = `${href(entry)}\u0000${entry.title}`;
+      if (entry.type !== type || seen.has(key)) continue;
+      seen.add(key);
+      byType.set(type, [...(byType.get(type) ?? []), entry]);
+    }
   }
   const sections = TYPE_ORDER.filter((type) => (byType.get(type)?.length ?? 0) > 0);
-  const href = (entry: Entry) => (entry.anchor ? `${entry.route}#${entry.anchor}` : entry.route);
 
   return (
     <>
@@ -178,9 +187,9 @@ export default async function SearchIndexPage() {
             sits inside the field, shown only where there is a keyboard to press it on. */}
         <SearchPageField />
         <p className="lead">
-          All {entries.length} entries the edition has indexed are listed below, each linking to the
-          passage, argument, equation, instrument or lesson it names. Your browser&rsquo;s own find
-          reaches every one of them.
+          Every entry in the edition&rsquo;s index is listed below, once each: {seen.size} of them,
+          each linking to the passage, argument, equation, instrument or lesson it names. Your
+          browser&rsquo;s own find reaches every one of them.
         </p>
       </section>
 
