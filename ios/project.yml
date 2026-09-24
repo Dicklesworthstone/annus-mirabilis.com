@@ -58,7 +58,7 @@ targets:
           # lists, byte for byte. The export (never this phase) decides what ships.
           set -euo pipefail
           GEN="${SRCROOT}/../generated/app-edition"
-          OUT="${SRCROOT}/../out"
+          OUT="$(cat "${GEN}/edition-source.txt")"
           RES="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
           DEST="${RES}/Edition"
           REEXPORT="bun scripts/app/export-edition.ts"
@@ -67,12 +67,13 @@ targets:
             exit 1
           fi
           if ! (cd "${OUT}" && /usr/bin/shasum -a 256 -c --quiet "${GEN}/edition.sha256"); then
-            echo "error: out/ has changed since the edition was exported. From the repository root, run: ${REEXPORT}"
+            echo "error: ${OUT} has changed since the edition was exported. From the repository root, run: ${REEXPORT} --out <that out directory>"
             exit 1
           fi
           mkdir -p "${DEST}"
           /usr/bin/rsync -a --inplace --files-from="${GEN}/edition-files.txt" "${OUT}/" "${DEST}/"
           /bin/cp "${GEN}/edition-manifest.json" "${RES}/edition-manifest.json"
+          /bin/cp "${GEN}/bridge-user-script.js" "${RES}/bridge-user-script.js"
           if ! (cd "${DEST}" && /usr/bin/shasum -a 256 -c --quiet "${GEN}/edition.sha256"); then
             echo "error: A bundled edition file does not match its manifest digest."
             exit 1
@@ -89,6 +90,9 @@ targets:
     platform: iOS
     sources:
       - path: AnnusMirabilisTests
+      # The bridge's golden messages: the same file the TypeScript schema tests read.
+      - path: ../src/platform/app-bridge/fixtures/messages.json
+        buildPhase: resources
     dependencies:
       - target: AnnusMirabilis
     settings:

@@ -14,9 +14,17 @@ struct EditionManifest: Decodable, Sendable {
         let contentType: String
     }
 
+    /// A document-start script the app may inject, pinned by SHA-256 (the bridge).
+    struct UserScript: Decodable, Sendable, Equatable {
+        let id: String
+        let file: String
+        let sha256: String
+    }
+
     let schemaVersion: String
     let editionDigest: String
     let files: [File]
+    var userScripts: [UserScript]?
 }
 
 enum EditionCatalogError: Error, Equatable {
@@ -33,6 +41,8 @@ struct EditionCatalog: Sendable {
     /// The folder in the app bundle that holds the edition's files.
     let root: URL
     let editionDigest: String
+    /// The bridge script's manifest entry, when the export recorded one.
+    let bridgeScript: EditionManifest.UserScript?
     private let files: [String: EditionManifest.File]
 
     init(root: URL, manifest: EditionManifest) throws(EditionCatalogError) {
@@ -42,6 +52,7 @@ struct EditionCatalog: Sendable {
         self.root = root
         self.editionDigest = manifest.editionDigest
         self.files = Dictionary(manifest.files.map { ($0.path, $0) }, uniquingKeysWith: { first, _ in first })
+        self.bridgeScript = manifest.userScripts?.first { $0.id == "bridge" }
     }
 
     static func load(from bundle: Bundle = .main) throws(EditionCatalogError) -> EditionCatalog {
@@ -56,6 +67,14 @@ struct EditionCatalog: Sendable {
         }
         return try EditionCatalog(
             root: bundle.bundleURL.appendingPathComponent("Edition", isDirectory: true), manifest: manifest)
+    }
+
+    /// Where the manifest and its user scripts sit: the bundle, beside Edition/.
+    var scriptDirectory: URL { root.deletingLastPathComponent() }
+
+    /// The bridge script's source, only if its bytes match the recorded digest.
+    func verifiedBridgeScript() -> String? {
+        BridgeScript.load(bridgeScript, directory: scriptDirectory)
     }
 
     var fileCount: Int { files.count }

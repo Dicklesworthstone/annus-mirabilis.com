@@ -16,9 +16,14 @@ final class EditionSession {
 
     private(set) var currentURL: URL?
     private(set) var title: String?
+    /// Whether the digest-checked bridge script was injected into this web view.
+    let bridgeInstalled: Bool
+    /// The last route the page itself reported through the bridge: its readiness signal.
+    private(set) var bridgeRoute: String?
 
     @ObservationIgnored private let store: ReaderLocationStore
     @ObservationIgnored private let navigator: EditionNavigator
+    @ObservationIgnored private let router: BridgeRouter
     @ObservationIgnored private let exposesRouteForTests: Bool
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
 
@@ -27,12 +32,20 @@ final class EditionSession {
         self.store = store
         self.exposesRouteForTests = exposesRouteForTests
         self.navigator = EditionNavigator(catalog: catalog)
-        self.webView = EditionSession.makeWebView(catalog: catalog, navigator: navigator)
+        let router = BridgeRouter()
+        self.router = router
+        let bridgeSource = catalog.verifiedBridgeScript()
+        self.bridgeInstalled = bridgeSource != nil
+        self.webView = EditionSession.makeWebView(
+            catalog: catalog, navigator: navigator, router: router, bridgeSource: bridgeSource)
         self.handoff = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
         handoff.isEligibleForHandoff = true
         handoff.isEligibleForSearch = false
         handoff.isEligibleForPublicIndexing = false
         webView.userActivity = handoff
+        router.onRoute = { [weak self] route, anchor, title in
+            self?.didReceiveRoute(route: route, anchor: anchor, title: title)
+        }
 
         observations.append(
             webView.observe(\.url, options: [.initial, .new]) { [weak self] webView, _ in
@@ -59,8 +72,15 @@ final class EditionSession {
         handoff.needsSave = true
         guard let url, let location = ReaderLocation(editionURL: url, catalog: catalog) else { return }
         store.save(location)
+    }
+
+    /// The page's own report of where it is, sent by the bridge script when the
+    /// document is ready and on every anchor change.
+    func didReceiveRoute(route: String, anchor: String?, title: String) {
+        bridgeRoute = route + (anchor.map { "#\($0)" } ?? "")
+        if !title.isEmpty { self.title = title }
         if exposesRouteForTests {
-            webView.accessibilityValue = location.display
+            webView.accessibilityValue = bridgeRoute
         }
     }
 
@@ -80,8 +100,17 @@ final class EditionSession {
         webView.findInteraction?.presentFindNavigator(showingReplace: false)
     }
 
-    private static func makeWebView(catalog: EditionCatalog, navigator: EditionNavigator) -> WKWebView {
+    private static func makeWebView(
+        catalog: EditionCatalog, navigator: EditionNavigator, router: BridgeRouter, bridgeSource: String?
+    ) -> WKWebView {
         let configuration = WKWebViewConfiguration()
+        // The bridge exists only when its script matched the recorded digest (App plan §7).
+        if let bridgeSource {
+            configuration.userContentController.addUserScript(
+                WKUserScript(source: bridgeSource, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page))
+            configuration.userContentController.addScriptMessageHandler(
+                router, contentWorld: .page, name: BridgeProtocol.handlerName)
+        }
         configuration.setURLSchemeHandler(EditionSchemeHandler(catalog: catalog), forURLScheme: EditionCatalog.scheme)
         configuration.websiteDataStore = .default()
         configuration.mediaTypesRequiringUserActionForPlayback = .all
