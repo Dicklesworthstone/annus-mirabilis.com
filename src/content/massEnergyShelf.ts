@@ -150,4 +150,73 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     },
     admittedStages: ["stage-03"],
   },
+  {
+    id: "thomson-1881-electromagnetic-mass",
+    proposition:
+      "J. J. Thomson finds that a charged sphere moving through the ether carries a magnetic field whose energy makes the sphere harder to accelerate: its charge adds to its inertia.",
+    status: "available",
+    sources: [
+      {
+        title: "On the Electric and Magnetic Effects produced by the Motion of Electrified Bodies",
+        date: "1881",
+        locator: "Phil. Mag. (5) 11, 229",
+      },
+    ],
+    date: {
+      earliest: "1881",
+      latest: "1881",
+      precision: "year",
+      latestYear: 1881,
+      eventKind: "published",
+    },
+    limits:
+      "An electromagnetic addition to the inertia of a charged body. It says nothing about uncharged matter, or about energy leaving a body.",
+    admittedStages: ["stage-05"],
+  },
+  {
+    id: "poincare-1900-fictitious-fluid",
+    proposition:
+      "To keep the centre of mass of a body and its field moving uniformly when the body emits radiation, Poincaré treats electromagnetic energy as a fictitious fluid whose mass is its energy divided by the square of the speed of light.",
+    status: "available",
+    sources: [
+      {
+        title: "La théorie de Lorentz et le principe de réaction",
+        date: "1900",
+        locator: "Arch. néerl. sci. exactes nat. (2) 5, 252",
+      },
+    ],
+    date: {
+      earliest: "1900",
+      latest: "1900",
+      precision: "year",
+      latestYear: 1900,
+      eventKind: "published",
+    },
+    limits:
+      "The fluid is bookkeeping for the field, which Poincaré himself calls fictitious. It is not a claim that emitting light changes the inertia of the body that emits it.",
+    admittedStages: ["stage-05"],
+  },
+  {
+    id: "hasenoehrl-1904-cavity-radiation",
+    proposition:
+      "Hasenöhrl finds that the radiation enclosed in a moving cavity adds to the cavity's apparent mass, by an amount proportional to the radiation's energy divided by the square of the speed of light.",
+    status: "available",
+    sources: [
+      {
+        title: "Zur Theorie der Strahlung in bewegten Körpern",
+        date: "1904",
+        locator: "Ann. Phys. (4) 15, 344",
+      },
+    ],
+    date: {
+      earliest: "1904",
+      latest: "1904",
+      precision: "year",
+      latestYear: 1904,
+      eventKind: "published",
+    },
+    limits:
+      "Derived for radiation shut in a cavity, not for a body's own energy, and with a numerical factor he corrected in 1905 that differs from the later result.",
+    admittedStages: ["stage-05"],
+  },
 ];

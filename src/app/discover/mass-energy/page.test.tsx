@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { checkVoice } from "../../../content/checks/voice/index.ts";
+import {
+  FIRST_HONEST_QUESTION,
+  FORK_POINCARE,
+  MOVE,
+  NAGGING_FACT,
+  PPE_TASK,
+  SOURCE_JUMPS,
+} from "../../../discovery/massEnergy/journeyIV.ts";
 import MassEnergyEncounter from "./page";
 
 /**
@@ -55,6 +63,94 @@ describe("step 05 puts the coefficient to a number", () => {
     );
     expect(part).toContain("some 35 micrograms");
     const errors = checkVoice(part, { context: "prose" }).filter((f) => f.severity === "error");
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+});
+
+/**
+ * Journey IV's skeleton (plan §9.1, §9.5; dispatch 139): the shelf first, the nagging fact and the
+ * first honest question, the chain with its move marked, Poincaré's fork worked honestly, and a
+ * predict-perturb-explain task.
+ */
+describe("the route carries the discovery skeleton", () => {
+  const at = (marker: string) => {
+    const i = html.indexOf(marker);
+    expect(i, marker).toBeGreaterThan(-1);
+    return i;
+  };
+
+  test("its parts come in the plan's order", () => {
+    const order = [
+      'id="shelf"',
+      'id="nagging-fact"',
+      'id="first-question"',
+      'id="step-01"',
+      'id="step-03"',
+      "data-move-marker",
+      'id="step-04"',
+      'id="step-05"',
+      'id="arg-fork-poincare-fluid"',
+      'data-ppe-task-id="me-predict-perturb-explain-joule"',
+      'id="in-the-paper"',
+    ].map(at);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
+  test("the move is marked at the two accounts and opens that argument", () => {
+    const start = at("data-move-marker");
+    const marker = html.slice(start, html.indexOf("</aside>", start));
+    expect(text(marker)).toContain("The move");
+    expect(marker).toContain('href="/papers/mass-energy/#arg-me-two-ledgers"');
+    expect(start).toBeGreaterThan(at('id="step-03"'));
+    expect(start).toBeLessThan(at('id="step-04"'));
+  });
+
+  test("Poincaré's fluid is worked as equivalent within its scope, not refuted", () => {
+    const start = at('id="arg-fork-poincare-fluid"');
+    const fork = html.slice(start, html.indexOf("</section>", start));
+    expect(text(fork)).toContain("Henri Poincaré, 1900");
+    expect(fork).toContain('data-outcome-type="empirically-equivalent-not-refuted"');
+    expect(fork).toContain('data-outcome-type="papers-route"');
+    expect(fork).not.toContain('data-outcome-type="dead-end-on-constraint"');
+    expect(html).toContain('href="#card-poincare-1900-fictitious-fluid"');
+  });
+
+  test("the shelf carries electromagnetic mass, Poincaré's fluid and Hasenöhrl's cavity", () => {
+    for (const id of [
+      "thomson-1881-electromagnetic-mass",
+      "poincare-1900-fictitious-fluid",
+      "hasenoehrl-1904-cavity-radiation",
+    ])
+      expect(html).toContain(`id="card-${id}"`);
+  });
+
+  test("every in-page link lands on an element of the page", () => {
+    const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+    const targets = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1] ?? "");
+    expect(targets.length).toBeGreaterThan(3);
+    expect(targets.filter((target) => !ids.has(target))).toEqual([]);
+  });
+
+  test("the new prose passes the voice lint", () => {
+    const words = [
+      NAGGING_FACT,
+      FIRST_HONEST_QUESTION,
+      MOVE.label,
+      MOVE.r0Summary.text,
+      PPE_TASK.task,
+      PPE_TASK.perturbPrompt,
+      PPE_TASK.explainPrompt,
+      FORK_POINCARE.question,
+      ...FORK_POINCARE.branches.flatMap((b) => [
+        b.label,
+        b.hypothesis,
+        b.worksWhen,
+        b.outcome.plainLanguage,
+        ...b.steps.map((s) => s.text),
+      ]),
+      ...SOURCE_JUMPS.flatMap((j) => [j.label, j.pointer]),
+    ].join(" ");
+    const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });
 });

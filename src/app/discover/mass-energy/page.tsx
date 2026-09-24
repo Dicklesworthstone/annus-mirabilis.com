@@ -4,9 +4,22 @@ import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { MASS_ENERGY_SHELF_CARDS } from "../../../content/massEnergyShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { Fork } from "../../../discovery/Fork.tsx";
+import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
+import {
+  FIRST_HONEST_QUESTION,
+  FORK_POINCARE,
+  MOVE,
+  MOVE_HREF,
+  NAGGING_FACT,
+  PPE_TASK,
+  SOURCE_JUMPS,
+} from "../../../discovery/massEnergy/journeyIV.ts";
 import { MASS_GIVEN_UP_EXERCISE } from "../../../discovery/massEnergy/massExercise.ts";
 import { SEALED_LAMP_YEAR } from "../../../discovery/massEnergy/numericExercises.ts";
+import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
+import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
@@ -21,7 +34,7 @@ export const metadata: Metadata = {
  * A reconstruction, not a biography. Every step is a move a reader can make from the shelf
  * below; none of it claims to be what Einstein thought.
  *
- * ON THE SHELF CARDS. Five are pre-1905 and carry status "available". The sixth is the
+ * ON THE SHELF CARDS. Eight are pre-1905 and carry status "available". The ninth is the
  * light-complex transformation from section 8 of the June relativity paper, which is 1905 and
  * therefore NOT on a 1904 shelf. AGENTS.md permits exactly this one import for this journey
  * provided its provenance is shown, so it is declared `admittedImport` and cardRules requires
@@ -33,9 +46,9 @@ export const metadata: Metadata = {
  * performed none of those: these dates come from standard bibliography, not from my having
  * opened the volumes. Supplying a method I did not use would be the fabricated-evidence
  * failure the verification field exists to prevent. Unverified cards render with
- * CardDetail's visible "Awaiting verification" marker, which is the honest state, and
- * publicationGate.ts refuses them in the production and preview profiles until a human
- * verifies them. That refusal is correct and I have not worked around it.
+ * CardDetail's visible "Awaiting verification" marker, which is the honest state. The build's
+ * shelf gate (scripts/check-shelf-publication.ts, run by prepare:content) refuses a card shown
+ * as verified without a verification record, and one that carries half a record.
  */
 
 export default function MassEnergyRoute() {
@@ -60,6 +73,33 @@ export default function MassEnergyRoute() {
         </p>
       </header>
       <RouteMap slug="mass-energy" />
+
+      <section id="shelf">
+        <h2>The 1904 shelf, and the one thing that is not on it</h2>
+        <p>
+          Eight of the nine results below were available to a careful reader at the end of 1904. The
+          ninth is the June 1905 transformation used at step 3, and it is marked as an import
+          because it is one.
+        </p>
+        <Shelf cards={MASS_ENERGY_SHELF_CARDS} />
+        <p className="fine">
+          The dates on these cards come from standard bibliographies. No one here has checked them
+          against the volumes, and the shelf marks each card as awaiting verification.
+        </p>
+      </section>
+
+      <section id="nagging-fact" aria-labelledby="nagging-fact-title">
+        <p className="eyebrow" id="nagging-fact-title">
+          The nagging fact
+        </p>
+        <p className="lead">{NAGGING_FACT}</p>
+      </section>
+      <section id="first-question" aria-labelledby="first-question-title">
+        <p className="eyebrow" id="first-question-title">
+          The first honest question
+        </p>
+        <p className="lead">{FIRST_HONEST_QUESTION}</p>
+      </section>
 
       <section id="step-01">
         <p className="step-number">01 / Start with a body that does nothing</p>
@@ -160,6 +200,7 @@ export default function MassEnergyRoute() {
           </StepDoor>
         </StepDoors>
       </section>
+      <MoveMarker move={MOVE} href={MOVE_HREF} />
 
       <section id="step-04">
         <p className="step-number">04 / Subtract</p>
@@ -240,20 +281,8 @@ export default function MassEnergyRoute() {
           </StepDoor>
         </StepDoors>
       </section>
-
-      <section id="shelf">
-        <h2>The 1904 shelf, and the one thing that is not on it</h2>
-        <p>
-          Five of the six results below were available to a careful reader at the end of 1904. The
-          sixth is the June 1905 transformation used at step 3, and it is marked as an import
-          because it is one.
-        </p>
-        <Shelf cards={MASS_ENERGY_SHELF_CARDS} />
-        <p className="fine">
-          The dates on these cards come from standard bibliographies. No one here has checked them
-          against the volumes, and the shelf marks each card as awaiting verification.
-        </p>
-      </section>
+      <Fork fork={FORK_POINCARE} />
+      <PpeTask task={PPE_TASK} />
 
       <aside className="notice">
         <h2>What this argument does not establish</h2>
@@ -281,6 +310,9 @@ export default function MassEnergyRoute() {
           conclusion in a single sentence. Its German text is on this site, not yet reviewed; the
           English translation is not written yet.
         </p>
+        {SOURCE_JUMPS.map((jump) => (
+          <SourceJump key={jump.id} jump={jump} />
+        ))}
         <div className="actions">
           <a className="button" href="/papers/mass-energy/">
             Read the argument as the paper makes it
