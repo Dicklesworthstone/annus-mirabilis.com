@@ -545,6 +545,48 @@ describe("the order a gate draws candidates in", () => {
   });
 });
 
+/**
+ * A table of results waits with the plots. On 2026-09-24 three gated labs hid their plots and
+ * status line but left a table in view that answered their own prompt: LQ-06's and LQ-09's
+ * "Values at these settings", and BM-08's moment and speed tables (fixed in 24a13952). The status
+ * test above could not see it, since it looks only at elements that already wait. A table held in
+ * a closed disclosure is left alone: the reader has to open it, as with LQ-06's derivation card.
+ */
+describe("a table a reader could answer the prompt from waits too", () => {
+  beforeEach(async () => {
+    await installDom();
+  });
+  afterEach(async () => {
+    await uninstallDom();
+  });
+
+  function tablesIn(element: ReactElement) {
+    const container = createContainer();
+    container.innerHTML = renderToStaticMarkup(element);
+    const tables = [...container.querySelectorAll("table")].filter(
+      (t) => !t.closest("noscript") && !t.closest("details:not([open])"),
+    );
+    const inView = tables
+      .filter((t) => !t.closest("[data-predict-response]"))
+      .map((t) => t.querySelector("caption, th")?.textContent ?? "(unnamed table)");
+    removeContainer(container);
+    return { count: tables.length, inView };
+  }
+
+  for (const { lab, element } of LABS) {
+    test(`${lab}: every table outside a closed disclosure waits in the server markup`, () => {
+      expect(tablesIn(element()).inView).toEqual([]);
+    });
+  }
+
+  test("the property reads real tables: most gated labs have one", () => {
+    // Not a census: it fails only if the tables vanished, which would make the loop above pass
+    // on nothing.
+    const withTables = LABS.filter(({ element }) => tablesIn(element()).count > 0);
+    expect(withTables.length * 2).toBeGreaterThan(LABS.length);
+  });
+});
+
 describe("without JavaScript, nothing is hidden", () => {
   const css = readFileSync(
     resolve(dirname(fileURLToPath(import.meta.url)), "predict.css"),
