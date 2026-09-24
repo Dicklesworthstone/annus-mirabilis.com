@@ -137,7 +137,8 @@ export function SemanticEquation({
   const quantityOfTerm = (id: string | undefined) =>
     id ? equation.terms.find((t) => t.termId === id)?.quantityId : undefined;
   const legend = [...new Map(equation.terms.map((t) => [t.quantityId, t.quantity.name]))];
-  const printedNotation = equation.notationForm?.state === "printed" ? equation.notationForm : undefined;
+  const printedNotation =
+    equation.notationForm?.state === "printed" ? equation.notationForm : undefined;
   const navLabel = effectiveScopeLabel
     ? `Terms and operations in ${equation.title || equation.id} (${effectiveScopeLabel})`
     : `Terms and operations in ${equation.title || equation.id}`;
