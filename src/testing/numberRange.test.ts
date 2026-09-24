@@ -96,7 +96,29 @@ describe("labs that square a large input publish a typed refusal instead of refu
     ],
   ] as const;
 
+  // Since dispatch 165 a lab refuses a setting outside its manifest's declared domain before
+  // computing, so 1e300 no longer reaches the squaring there; refuseNonFiniteValues, above, still
+  // guards the owners. A reader of such a lab gets the range in words, with the accepted trial kept.
+  // The labs listed here have had that fix; the others still compute and type the overflow.
+  const REFUSED_BEFORE_COMPUTING: readonly string[] = ["sr-12"];
+
   for (const [name, make, parameters] of cases) {
+    if (REFUSED_BEFORE_COMPUTING.some((lab) => name.startsWith(`${lab},`))) {
+      test(`${name}: refused by name before computing, and the accepted trial is kept`, () => {
+        const session = make();
+        const before = session.getSnapshot().accepted;
+        const applied = session.apply(parameters);
+        expect(applied.kind).toBe("refused");
+        if (applied.kind === "refused") {
+          expect(applied.refusal.code).toBe("outside-model-domain");
+          expect(String(applied.refusal.details?.requirements)).toMatch(
+            /^Enter the .+, the range this model describes/,
+          );
+        }
+        expect(session.getSnapshot().accepted).toBe(before);
+      });
+      continue;
+    }
     test(`${name}: Apply is accepted and the snapshot holds no non-finite value`, () => {
       const session = make();
       const before = session.getSnapshot().accepted?.snapshotVersion;

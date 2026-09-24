@@ -1,6 +1,11 @@
 "use client";
 
 import { type FormEvent, useId, useState, useSyncExternalStore } from "react";
+import {
+  declaredDomains,
+  domainRequirement,
+} from "../../../experiments/controls/declaredDomain.ts";
+import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -54,6 +59,24 @@ function OutputReading({ item }: { item: PublishedResult | undefined }) {
 // replaces a question this file kept for itself, drawn below the results it asked about.
 const SR12_PROMPTS = PREDICT_PROMPTS["sr-12"] ?? [];
 
+/**
+ * The fields a reader types, as text, read on Apply (dispatch 165): parseFloat(field) || 0 turned a
+ * cleared field into 0 and applied it without a word.
+ */
+type Sr12Typed = Readonly<{ boost: string; rho: string; jx: string }>;
+function typedFrom(p: Sr12Parameters): Sr12Typed {
+  return {
+    boost: String(Number((p.boost / C_SI).toPrecision(12))),
+    rho: String(p.chargeDensity),
+    jx: String(p.currentDensityX),
+  };
+}
+/** A typed boost that overflows once multiplied by c reads as outside the declared range. */
+const BOOST_DOMAIN = declaredDomains("sr-12").boost;
+const BOOST_TOO_LARGE = BOOST_DOMAIN
+  ? domainRequirement(BOOST_DOMAIN, { label: "Boost speed", unit: "c", scale: 1 / C_SI })
+  : "Enter a boost speed below the speed of light.";
+
 export function ChargeCurrentLab({
   example,
   title = "Charge and current density in moving frames",
@@ -79,11 +102,16 @@ export function ChargeCurrentLab({
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-12", SR12_PROMPTS);
   const [draft, setDraft] = useState<Sr12Parameters>(() => ({ ...example.parameters }));
+  const [typed, setTyped] = useState<Sr12Typed>(() => typedFrom(example.parameters));
   const [error, setError] = useState("");
 
   const snapshot = view.accepted ?? session.getServerSnapshot().accepted;
   if (!snapshot) return null;
   const p = snapshot.parameters as unknown as Sr12Parameters;
+  // The slider follows the typed boost while it is one the slider can show; otherwise it keeps the
+  // applied boost, and Apply names the problem.
+  const typedBoost = typed.boost.trim() === "" ? Number.NaN : Number(typed.boost);
+  const sliderBoost = Math.abs(typedBoost) <= 0.95 ? typedBoost : draft.boost / C_SI;
 
   function apply(parameters: Sr12Parameters) {
     const outcome = session.apply(parameters);
@@ -92,12 +120,24 @@ export function ChargeCurrentLab({
       return;
     }
     setDraft(parameters);
+    setTyped(typedFrom(parameters));
     setError("");
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const checked = validateSr12Parameters(draft);
+    const boost = readTypedNumber(typed.boost, "the boost speed", (v) => v * C_SI, BOOST_TOO_LARGE);
+    if (boost.kind === "refused") return setError(boost.requirement);
+    const rho = readTypedNumber(typed.rho, "the charge density ρ");
+    if (rho.kind === "refused") return setError(rho.requirement);
+    const jx = readTypedNumber(typed.jx, "the current density Jx");
+    if (jx.kind === "refused") return setError(jx.requirement);
+    const checked = validateSr12Parameters({
+      ...draft,
+      boost: boost.value,
+      chargeDensity: rho.value,
+      currentDensityX: jx.value,
+    });
     if (checked.kind !== "accepted") {
       setError(refusalSentence(checked.refusal));
       return;
@@ -342,7 +382,7 @@ export function ChargeCurrentLab({
             }}
           >
             <label htmlFor={`${id}-boost-range`} style={{ fontWeight: 500 }}>
-              Observer boost speed (v/c): {fixed(draft.boost / C_SI, 3)}
+              Observer boost speed (v/c): {fixed(sliderBoost, 3)}
             </label>
             <input
               id={`${id}-boost-range`}
@@ -350,8 +390,8 @@ export function ChargeCurrentLab({
               min="-0.95"
               max="0.95"
               step="0.01"
-              value={draft.boost / C_SI}
-              onChange={(e) => setDraft({ ...draft, boost: parseFloat(e.target.value) * C_SI })}
+              value={sliderBoost}
+              onChange={(e) => setTyped({ ...typed, boost: e.target.value })}
               style={{ width: "100%" }}
             />
             <label
@@ -376,10 +416,8 @@ export function ChargeCurrentLab({
               min="-0.95"
               max="0.95"
               step="0.01"
-              value={Number((draft.boost / C_SI).toPrecision(12))}
-              onChange={(e) =>
-                setDraft({ ...draft, boost: (parseFloat(e.target.value) || 0) * C_SI })
-              }
+              value={typed.boost}
+              onChange={(e) => setTyped({ ...typed, boost: e.target.value })}
               style={{ fontSize: "var(--type-fine)" }}
             />
           </div>
@@ -388,6 +426,7 @@ export function ChargeCurrentLab({
         {error && (
           <div
             className="notice"
+            role="alert"
             style={{
               padding: "0.5rem 0.75rem",
               borderLeftColor: "var(--accent)",
@@ -439,10 +478,8 @@ export function ChargeCurrentLab({
                 id={`${id}-charge-density`}
                 type="number"
                 step="0.1"
-                value={draft.chargeDensity}
-                onChange={(e) =>
-                  setDraft({ ...draft, chargeDensity: parseFloat(e.target.value) || 0 })
-                }
+                value={typed.rho}
+                onChange={(e) => setTyped({ ...typed, rho: e.target.value })}
                 aria-describedby={`${id}-charge-density-hint`}
                 style={{ fontSize: "var(--type-fine)" }}
               />
@@ -471,10 +508,8 @@ export function ChargeCurrentLab({
                 id={`${id}-current-density-x`}
                 type="number"
                 step="0.1"
-                value={draft.currentDensityX}
-                onChange={(e) =>
-                  setDraft({ ...draft, currentDensityX: parseFloat(e.target.value) || 0 })
-                }
+                value={typed.jx}
+                onChange={(e) => setTyped({ ...typed, jx: e.target.value })}
                 aria-describedby={`${id}-current-density-x-hint`}
                 style={{ fontSize: "var(--type-fine)" }}
               />

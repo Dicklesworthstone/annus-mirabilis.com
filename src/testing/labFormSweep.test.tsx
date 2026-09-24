@@ -48,7 +48,6 @@ const UNFINISHED: readonly string[] = [
   "sr-09",
   "sr-10",
   "sr-11",
-  "sr-12",
   "sr-13",
 ];
 

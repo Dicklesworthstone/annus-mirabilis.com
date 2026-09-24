@@ -1,4 +1,5 @@
 import { C_SI, type Sr12Input } from "../../physics/reference/fields.ts";
+import { withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { SR12_DEFAULTS, type Sr12Parameters } from "./definition.ts";
 
@@ -24,7 +25,16 @@ const SR12_FIELD_NAMES: Readonly<Record<string, string>> = {
   pulseAmplitude: "the pulse amplitude",
 };
 
-export function validateSr12Parameters(input: unknown): Sr12ParameterCheck {
+/**
+ * An optional setting: its default when absent, and NaN (refused by name below) when it is present
+ * but not a number. It used to take the default for a present "abc" as well, without a word.
+ */
+function optionalNumber(o: Record<string, unknown>, key: string, fallback: number): number {
+  if (!(key in o) || o[key] === undefined) return fallback;
+  return typeof o[key] === "number" ? o[key] : Number.NaN;
+}
+
+function validateSr12Fields(input: unknown): Sr12ParameterCheck {
   if (input === null || typeof input !== "object") {
     return {
       kind: "refused",
@@ -34,23 +44,23 @@ export function validateSr12Parameters(input: unknown): Sr12ParameterCheck {
   const o = input as Record<string, unknown>;
   const boost = typeof o.boost === "number" ? o.boost : Number.NaN;
   const chargeDensity = typeof o.chargeDensity === "number" ? o.chargeDensity : Number.NaN;
-  const currentDensityX = typeof o.currentDensityX === "number" ? o.currentDensityX : 0;
-  const currentDensityY = typeof o.currentDensityY === "number" ? o.currentDensityY : 0;
-  const currentDensityZ = typeof o.currentDensityZ === "number" ? o.currentDensityZ : 0;
+  const currentDensityX = optionalNumber(o, "currentDensityX", 0);
+  const currentDensityY = optionalNumber(o, "currentDensityY", 0);
+  const currentDensityZ = optionalNumber(o, "currentDensityZ", 0);
 
-  const carrierVelocityX = typeof o.carrierVelocityX === "number" ? o.carrierVelocityX : 0;
-  const carrierVelocityY = typeof o.carrierVelocityY === "number" ? o.carrierVelocityY : 0;
-  const carrierVelocityZ = typeof o.carrierVelocityZ === "number" ? o.carrierVelocityZ : 0;
+  const carrierVelocityX = optionalNumber(o, "carrierVelocityX", 0);
+  const carrierVelocityY = optionalNumber(o, "carrierVelocityY", 0);
+  const carrierVelocityZ = optionalNumber(o, "carrierVelocityZ", 0);
 
-  const sphereRadius = typeof o.sphereRadius === "number" ? o.sphereRadius : 1;
-  const sphereCharge = typeof o.sphereCharge === "number" ? o.sphereCharge : (4 / 3) * Math.PI;
+  const sphereRadius = optionalNumber(o, "sphereRadius", 1);
+  const sphereCharge = optionalNumber(o, "sphereCharge", (4 / 3) * Math.PI);
 
-  const loopCurrent = typeof o.loopCurrent === "number" ? o.loopCurrent : 1;
-  const loopLengthX = typeof o.loopLengthX === "number" ? o.loopLengthX : 1;
-  const loopLengthY = typeof o.loopLengthY === "number" ? o.loopLengthY : 0.5;
+  const loopCurrent = optionalNumber(o, "loopCurrent", 1);
+  const loopLengthX = optionalNumber(o, "loopLengthX", 1);
+  const loopLengthY = optionalNumber(o, "loopLengthY", 0.5);
 
-  const pulseWidth = typeof o.pulseWidth === "number" ? o.pulseWidth : 1;
-  const pulseAmplitude = typeof o.pulseAmplitude === "number" ? o.pulseAmplitude : 1;
+  const pulseWidth = optionalNumber(o, "pulseWidth", 1);
+  const pulseAmplitude = optionalNumber(o, "pulseAmplitude", 1);
 
   if (!Number.isFinite(boost) || Math.abs(boost) >= C_SI) {
     return {
@@ -201,3 +211,13 @@ export function sr12InputFromParameters(p: Sr12Parameters): Sr12Input {
 }
 
 export { SR12_DEFAULTS };
+
+/**
+ * The fields above, then every range content/experiments/sr-12.yaml declares (dispatch 134). The
+ * boost is stored in m/s and typed as a fraction of c, so its sentence is written in c.
+ */
+export function validateSr12Parameters(input: unknown): Sr12ParameterCheck {
+  return withinDeclaredDomain("sr-12", validateSr12Fields(input), {
+    boost: { label: "Boost speed", unit: "c", scale: 1 / C_SI },
+  });
+}
