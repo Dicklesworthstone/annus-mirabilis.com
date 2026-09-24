@@ -398,9 +398,9 @@ entries:
       anchor: lq-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 139 (public/figures/plates/pages/ap-17-132/139-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 does not carry S₀. S₀ is first printed on page 139 (§4), 'die Entropie der Strahlung mit S₀, falls dieselbe das Volumen v₀ besitzt'. It is not printed in §3. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.S.gasEntropy
     paper: light-quanta
@@ -494,9 +494,9 @@ entries:
       anchor: lq-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 138 (public/figures/plates/pages/ap-17-132/138-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 carries a barred E with subscript ν (the mean resonator energy), not this E. Italic E is first printed in the entry's scope on page 138 (§3), in the differential dE, as the energy of unit volume of radiation; as the energy of radiation between ν and ν + dν it is first printed on page 139 (§4). An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.v.volume
     paper: light-quanta
@@ -543,9 +543,9 @@ entries:
       anchor: lq-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 139 (public/figures/plates/pages/ap-17-132/139-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 135 does not carry v₀. Lowercase italic v with subscript 0 is first printed on page 139 (§4). It is not printed in §3. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.n.independentPointCount
     paper: light-quanta
@@ -738,9 +738,9 @@ entries:
       anchor: lq-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 139 (public/figures/plates/pages/ap-17-132/139-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 134 does not carry lg. lg is first printed, upright, on page 139 (§4), in the inverted Wien law for 1/T. It is not printed in §2 or §3. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   # =========================================================================
   # §1 footnote on Planck's equilibrium condition
@@ -766,9 +766,9 @@ entries:
       anchor: lq-s1-fn1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic Z, 'die Z-Komponente der elektrischen Kraft (Z)', is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote). An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.A_nu.fourierAmplitude
     paper: light-quanta
@@ -790,9 +790,9 @@ entries:
       anchor: lq-s1-fn1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic A with subscript ν is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the Fourier series; the footnote also prints the members A₁, A₂. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.alpha_nu.fourierPhase
     paper: light-quanta
@@ -824,9 +824,9 @@ entries:
       anchor: lq-s1-fn1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. α with subscript ν is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the Fourier series; the footnote also prints the members α₁, α₂. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.T.longAveragingInterval
     paper: light-quanta
@@ -858,9 +858,9 @@ entries:
       anchor: lq-s1-fn1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic T, 'eine relativ zu allen in Betracht zu ziehenden Schwingungsdauern sehr große Zeit', is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), as the time limit t = T and in t/T. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.t.elapsedTime
     paper: light-quanta
@@ -882,9 +882,9 @@ entries:
       anchor: lq-s1-fn1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic t is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the time limits t = 0 and t = T and in t/T. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.f.probabilityDensity
     paper: light-quanta
@@ -906,16 +906,16 @@ entries:
       anchor: lq-s1-fn1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Italic f is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in d W = f(A₁ A₂ ... α₁ α₂ ...) dA₁ dA₂ ... An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.F_nu.probabilityDensity
     paper: light-quanta
     scope: ["lq-s1-fn1"]
     glyph:
-      unicode: "F_ν"
-      latex: "F_\\nu"
+      unicode: "F₁"
+      latex: "F_1"
       variant: subscripted
     meaning: "Probability density F_ν in the factorization of the §1 footnote"
     binding:
@@ -925,21 +925,22 @@ entries:
       target:
         form: symbol
         modernGlyph: "F_\\nu"
+    notes: "Corrected 2026-09-24 from the plate: the footnote prints F₁(A₁) F₂(A₂) ..., with numeral subscripts (page 135); it never prints F with the subscript ν."
     sources:
       facsimilePage: 132
       anchor: lq-s1-fn1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. The entry recorded F with subscript ν, which is not printed: the footnote marked 2) of §1 on page 135 (the Fourier-series footnote) prints only F₁(A₁) F₂(A₂) ..., with numeral subscripts. Glyph corrected to F₁. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.f_nu.probabilityDensity
     paper: light-quanta
     scope: ["lq-s1-fn1"]
     glyph:
-      unicode: "f_ν"
-      latex: "f_\\nu"
+      unicode: "f₁"
+      latex: "f_1"
       variant: subscripted
     meaning: "Probability density f_ν in the factorization of the §1 footnote"
     binding:
@@ -949,14 +950,15 @@ entries:
       target:
         form: symbol
         modernGlyph: "f_\\nu"
+    notes: "Corrected 2026-09-24 from the plate: the footnote prints f₁(α₁) · f₂(α₂) ..., with numeral subscripts (page 135); it never prints f with the subscript ν."
     sources:
       facsimilePage: 132
       anchor: lq-s1-fn1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. The entry recorded f with subscript ν, which is not printed: the footnote marked 2) of §1 on page 135 (the Fourier-series footnote) prints only f₁(α₁) · f₂(α₂) ..., with numeral subscripts. Glyph corrected to f₁. An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   - id: lq.dW.probabilityElement
     paper: light-quanta
@@ -978,9 +980,9 @@ entries:
       anchor: lq-s1-fn1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-132)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's page 132 carries no mathematics. Printed as d W (italic d and italic W, set with a space), 'Wahrscheinlichkeiten d W', in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote). An agent check, not a human review; human review pending."
+      by: "agent:ConcordanceCheck-light-quanta"
+      date: "2026-09-24"
 
   # =========================================================================
   # §3 Lagrange multiplier
