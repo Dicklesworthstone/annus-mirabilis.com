@@ -55,15 +55,24 @@ describe("am-not-entries-light-quanta-9cb: light-quanta notation concordance", (
     );
   });
 
-  test("Honesty: every entry is pending facsimile verification", () => {
+  test("Honesty: no entry claims a human review; each is pending or an agent check that says so", () => {
+    // Until 2026-09-24 every entry was pending and this required it. The glyphs have since been
+    // read by an agent from the plate images (am-concordance-glyphs-verified-against-plates-13lx),
+    // so the property worth holding is that none is presented as reviewed by a person.
     const file = loadConcordanceForPaper(paper);
+    let agentChecked = 0;
     for (const entry of file.entries) {
+      const { checkedAgainst, by } = entry.verification;
+      const pending = checkedAgainst.toLowerCase().includes("pending");
+      const agentCheck = by.startsWith("agent:") && checkedAgainst.includes("not a human review");
+      if (agentCheck) agentChecked += 1;
       assert.ok(
-        entry.verification.checkedAgainst.toLowerCase().includes("pending"),
-        `${entry.id} must record pending facsimile verification`,
+        pending || agentCheck,
+        `${entry.id} must be pending, or an agent check that says it is not a human review`,
       );
     }
-    logPass("honesty-pending-verification", "All entries marked pending facsimile");
+    assert.ok(agentChecked > 0, "the population of agent checks is not empty");
+    logPass("honesty-no-human-review-claimed", `${agentChecked} agent checks, none a review`);
   });
 
   test("Bindings: beta at a §2 anchor binds wienConstantBeta, is danger, and is not the Lorentz factor", () => {
@@ -82,7 +91,8 @@ describe("am-not-entries-light-quanta-9cb: light-quanta notation concordance", (
       assert.equal(res.entry.operation.target.form, "expression");
     }
     assert.equal(modernSymbolFor(paper, "lq-s2", "\\beta", emptyManifestIndex, file), "h/k_B");
-    assert.equal(firstUseInSection(paper, "lq-s2", "\\beta", file), "lq-s2-p1");
+    // Page 136: s2-p1 prints no symbol; beta is first printed in s2-p2, in Planck's formula.
+    assert.equal(firstUseInSection(paper, "lq-s2", "\\beta", file), "lq-s2-p2");
     logPass("beta-is-wien-constant", "beta binds wienConstantBeta, not lorentzFactor", {
       glyph: "\\beta",
       entryId: res.entry.id,
