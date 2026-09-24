@@ -1,0 +1,67 @@
+# GlossUnit s0-p7-s3: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, ap-18-639.
+id: "s0-p7-s3"
+sentenceId: "s0-p7-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "8b3e361d12b4335c0b7d8c17fc6dd918230fa4f7ca169547b07008b5eacd1616"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Für"
+    english: "for"
+  - german: "diesen"
+    english: "this"
+  - german: "Vorgang"
+    english: "process"
+  - german: "muß"
+    english: "must"
+    lemma: "müssen"
+    grammarNote: "necessity: asserted as required (spelled muß)"
+    noteClass: "necessity"
+  - german: "das"
+    english: "the"
+  - german: "Energieprinzip"
+    english: "energy principle"
+    lemma: "Energieprinzip"
+    grammarNote: "compound: Energie + Prinzip"
+    noteClass: "compound"
+  - german: "gelten"
+    english: "hold"
+  - german: "und"
+  - german: "zwar"
+  - german: "nach"
+    english: "according to"
+  - german: "dem"
+    english: "the"
+  - german: "Prinzip"
+    english: "principle"
+  - german: "der"
+    english: "of the"
+  - german: "Relativität"
+    english: "relativity"
+  - german: "in"
+  - german: "bezug"
+  - german: "auf"
+  - german: "beide"
+    english: "both"
+  - german: "Koordinatensysteme"
+    english: "coordinate systems"
+multiwordUnits:
+  - tokenIndices:
+      - 7
+      - 8
+    english: "and indeed"
+    kind: "fixed-phrase"
+  - tokenIndices:
+      - 14
+      - 15
+      - 16
+    english: "with respect to"
+    kind: "fixed-phrase"

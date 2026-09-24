@@ -1,0 +1,53 @@
+# GlossUnit s0-p4-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, ap-18-639.
+id: "s0-p4-s1"
+sentenceId: "s0-p4-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "bfebdb13d8094b051574951339220f3012c12f207889c0811958929d9c2fae80"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Gestützt"
+    english: "relying"
+  - german: "auf"
+    english: "on"
+  - german: "diese"
+    english: "these"
+  - german: "Grundlagen"
+    english: "foundations"
+  - german: "leitete"
+  - german: "ich"
+    english: "I"
+  - german: "unter"
+    english: "among"
+  - german: "anderem"
+    english: "other things"
+  - german: "das"
+    english: "the"
+  - german: "nachfolgende"
+    english: "following"
+  - german: "Resultat"
+    english: "result"
+  - german: "ab"
+  - german: "l. c."
+    english: "loc. cit."
+    lemma: "l. c."
+    grammarNote: "abbreviation: loco citato, in the place cited"
+    noteClass: "abbreviation"
+  - german: "§ 8"
+    english: "§ 8"
+multiwordUnits:
+  - tokenIndices:
+      - 4
+      - 11
+    english: "derived"
+    kind: "separable-verb"
+    grammarNote: "ableiten, split: leitete ... ab"
+    noteClass: "separable-verb"

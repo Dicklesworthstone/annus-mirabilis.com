@@ -1,0 +1,23 @@
+# GlossUnit closing-dateline: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, ap-18-639.
+id: "closing-dateline"
+sentenceId: "closing-dateline"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "1691828be3d4808f190c491050fd64cc9a0b508e7bc6a0bd5b42a8343556bbf2"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Bern"
+    english: "Bern"
+  - german: "September"
+    english: "September"
+  - german: "1905."
+    english: "1905"
+multiwordUnits: []

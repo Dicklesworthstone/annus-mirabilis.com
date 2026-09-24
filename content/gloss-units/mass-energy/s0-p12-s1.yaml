@@ -1,0 +1,61 @@
+# GlossUnit s0-p12-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, ap-18-639.
+id: "s0-p12-s1"
+sentenceId: "s0-p12-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "afd13ac7bd3f97fbab38a4b048a120a454091c05ad7cd3c079689c86686c4951"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Gibt"
+  - german: "ein"
+    english: "a"
+  - german: "Körper"
+    english: "body"
+  - german: "die"
+    english: "the"
+  - german: "Energie"
+    english: "energy"
+  - german: "in"
+    english: "in"
+  - german: "Form"
+    english: "form"
+  - german: "von"
+    english: "of"
+  - german: "Strahlung"
+    english: "radiation"
+  - german: "ab"
+  - german: "so"
+    english: "then"
+    lemma: "so"
+    grammarNote: "condition: so opens the consequent of the condition before it"
+    noteClass: "condition"
+  - german: "verkleinert"
+  - german: "sich"
+  - german: "seine"
+    english: "its"
+  - german: "Masse"
+    english: "mass"
+  - german: "um"
+    english: "by"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 9
+    english: "gives off"
+    kind: "separable-verb"
+    grammarNote: "abgeben, split: Gibt ... ab; the verb-first clause states a condition, 'if a body gives off'"
+    noteClass: "condition"
+  - tokenIndices:
+      - 11
+      - 12
+    english: "diminishes"
+    kind: "reflexive"
+    grammarNote: "reflexive: sich verkleinern"

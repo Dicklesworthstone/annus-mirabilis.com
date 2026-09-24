@@ -1,0 +1,38 @@
+# GlossUnit masthead-title: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, ap-18-639.
+id: "masthead-title"
+sentenceId: "masthead-title"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "41dec4141394191d2c4b7c08205e29651448219ea06fc781186ea187bf8900af"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Ist"
+    english: "is"
+  - german: "die"
+    english: "the"
+  - german: "Trägheit"
+    english: "inertia"
+  - german: "eines"
+    english: "of a"
+  - german: "Körpers"
+    english: "body"
+  - german: "von"
+    english: "on"
+  - german: "seinem"
+    english: "its"
+  - german: "Energieinhalt"
+    english: "energy content"
+    lemma: "Energieinhalt"
+    grammarNote: "compound: Energie + Inhalt"
+    noteClass: "compound"
+  - german: "abhängig"
+    english: "dependent"
+multiwordUnits: []

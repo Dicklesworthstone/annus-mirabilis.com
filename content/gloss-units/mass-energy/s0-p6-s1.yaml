@@ -1,0 +1,57 @@
+# GlossUnit s0-p6-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, ap-18-639.
+id: "s0-p6-s1"
+sentenceId: "s0-p6-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "bbb94dbf35c941d9ef752a5f2cc9088fde9d2126d1344c5cd022a78bc488cc00"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Es"
+  - german: "befinde"
+  - german: "sich"
+  - german: "nun"
+    english: "now"
+  - german: "im"
+    english: "in the"
+  - german: "System"
+    english: "system"
+  - german: "ein"
+    english: "a"
+  - german: "ruhender"
+    english: "resting"
+  - german: "Körper"
+    english: "body"
+  - german: "dessen"
+    english: "whose"
+  - german: "Energie"
+    english: "energy"
+  - german: "auf"
+    english: "to"
+  - german: "das"
+    english: "the"
+  - german: "System"
+    english: "system"
+  - german: "bezogen"
+    english: "referred"
+  - german: "sei"
+    english: "be"
+    lemma: "sein"
+    grammarNote: "Konjunktiv I: a supposition, 'let ... be'"
+    noteClass: "konjunktiv-i"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+      - 2
+    english: "let there be"
+    kind: "fixed-phrase"
+    grammarNote: "Konjunktiv I: es befinde sich, a supposition, 'let there be'"
+    noteClass: "konjunktiv-i"

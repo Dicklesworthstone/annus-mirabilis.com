@@ -1,0 +1,82 @@
+# GlossUnit s0-p7-s11: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, ap-18-639.
+id: "s0-p7-s11"
+sentenceId: "s0-p7-s11"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "6e859692cc3293855751299cdac9bc6943dd7f8b7297bb920d213b26e74065ea"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "kinetische"
+    english: "kinetic"
+  - german: "Energie"
+    english: "energy"
+  - german: "des"
+    english: "of the"
+  - german: "Körpers"
+    english: "body"
+  - german: "in"
+  - german: "bezug"
+  - german: "auf"
+  - german: "nimmt"
+  - german: "infolge"
+    english: "as a result of"
+    lemma: "infolge"
+    grammarNote: "consequence: marks a step that follows"
+    noteClass: "consequence"
+  - german: "der"
+    english: "the"
+  - german: "Lichtaussendung"
+    english: "emission of light"
+  - german: "ab"
+  - german: "und"
+  - german: "zwar"
+  - german: "um"
+    english: "by"
+  - german: "einen"
+    english: "an"
+  - german: "von"
+    english: "of"
+  - german: "den"
+    english: "the"
+  - german: "Qualitäten"
+    english: "qualities"
+  - german: "des"
+    english: "of the"
+  - german: "Körpers"
+    english: "body"
+  - german: "unabhängigen"
+    english: "independent"
+    lemma: "unabhängig"
+    grammarNote: "participle closing an attributive phrase before its noun"
+    noteClass: "attributive-phrase"
+  - german: "Betrag"
+    english: "amount"
+multiwordUnits:
+  - tokenIndices:
+      - 5
+      - 6
+      - 7
+    english: "with respect to"
+    kind: "fixed-phrase"
+  - tokenIndices:
+      - 8
+      - 12
+    english: "decreases"
+    kind: "separable-verb"
+    grammarNote: "abnehmen, split: nimmt ... ab"
+    noteClass: "separable-verb"
+  - tokenIndices:
+      - 13
+      - 14
+    english: "and indeed"
+    kind: "fixed-phrase"

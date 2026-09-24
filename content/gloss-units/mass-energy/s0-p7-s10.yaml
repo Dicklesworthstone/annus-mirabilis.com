@@ -1,0 +1,31 @@
+# GlossUnit s0-p7-s10: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, ap-18-639.
+id: "s0-p7-s10"
+sentenceId: "s0-p7-s10"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "6d599466be5ba84baef313f8adf5f1635e4023dec4a58e99aba0a5f92c238798"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+  - german: "erhalten"
+  - german: "also"
+    english: "therefore"
+    lemma: "also"
+    grammarNote: "consequence: marks a step that follows"
+    noteClass: "consequence"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+    english: "we obtain"
+    kind: "fixed-phrase"
+    grammarNote: "formula phrase of a derivation"
+    noteClass: "formula-phrase"
