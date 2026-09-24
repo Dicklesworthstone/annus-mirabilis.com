@@ -33,8 +33,12 @@ describe("LQ-08 Predict-Mode Prompts (am-lq-08-photoelectric-va5a)", () => {
     const candIds = prompt?.candidates.map((c) => c.id);
     expect(candIds).toEqual(["energy-increases", "energy-unchanged", "energy-decreases"]);
 
+    // The model's answer, and its note gives the model's reason: one quantum, of energy hν, to one
+    // electron. (Until 840cae6d this pinned the note's old label, "Light-quantum assumption".)
+    expect(prompt?.supportedCandidateId).toBe("energy-unchanged");
     const unchangedCand = prompt?.candidates.find((c) => c.id === "energy-unchanged");
-    expect(unchangedCand?.separatingAssumption).toContain("Light-quantum assumption");
+    for (const term of ["one quantum", "hν", "one electron"])
+      expect(unchangedCand?.separatingAssumption).toContain(term);
   });
 
   it("Prompt 2 (lq-08-predict-raise-frequency): on frequency with correct candidate options", () => {
@@ -49,8 +53,12 @@ describe("LQ-08 Predict-Mode Prompts (am-lq-08-photoelectric-va5a)", () => {
     const candIds = prompt?.candidates.map((c) => c.id);
     expect(candIds).toEqual(["rate-rises", "rate-falls", "rate-unchanged"]);
 
+    // The model's answer, and its reason: the power is the number of quanta times hν.
+    // (Until 840cae6d this pinned the note's old label, "Light-quantum accounting".)
+    expect(prompt?.supportedCandidateId).toBe("rate-falls");
     const fallsCand = prompt?.candidates.find((c) => c.id === "rate-falls");
-    expect(fallsCand?.separatingAssumption).toContain("Light-quantum accounting");
+    for (const term of ["number of quanta", "times hν", "fewer"])
+      expect(fallsCand?.separatingAssumption).toContain(term);
   });
 
   it("Prompt 3 (lq-08-predict-two-metals): on workFunction with correct candidate options", () => {
@@ -65,8 +73,12 @@ describe("LQ-08 Predict-Mode Prompts (am-lq-08-photoelectric-va5a)", () => {
     const candIds = prompt?.candidates.map((c) => c.id);
     expect(candIds).toEqual(["lines-parallel", "lines-crossing", "lines-identical"]);
 
+    // The model's answer, and its reason: the slope is h/e, with nothing about the metal in it.
+    // (Until 840cae6d this pinned the note's old label, "Universal quantum slope".)
+    expect(prompt?.supportedCandidateId).toBe("lines-parallel");
     const parallelCand = prompt?.candidates.find((c) => c.id === "lines-parallel");
-    expect(parallelCand?.separatingAssumption).toContain("Universal quantum slope");
+    for (const term of ["h/e", "nothing about the metal", "work function"])
+      expect(parallelCand?.separatingAssumption).toContain(term);
   });
 
   it("symbolScan: questions, labels, and descriptions are completely free of mathematical symbols", () => {
