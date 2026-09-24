@@ -13,6 +13,7 @@ import {
   readPredictionsDocument,
   writePredictionsDocument,
 } from "../../experiments/predict/predictStorage.ts";
+import { DEFAULT_PREPARED_EXAMPLE as SR06_EXAMPLE } from "../../experiments/sr06/session.ts";
 import type { PreparedSr10Example } from "../../experiments/sr10/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR11_EXAMPLE } from "../../experiments/sr11/session.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -32,6 +33,7 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
+import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
 import { LightComplexLab } from "./sr10/LightComplexLab.tsx";
 import { MovingMirrorLab } from "./sr11/MovingMirrorLab.tsx";
 
@@ -42,15 +44,25 @@ import { MovingMirrorLab } from "./sr11/MovingMirrorLab.tsx";
  * a candidate, saying "I have one in mind", or skipping shows them. Without JavaScript nothing is
  * hidden, since the panel's controls could not work: the markup carries the result, and the only
  * rule that hides it applies under the reader pre-paint's data-detail, which only a running script
- * sets. SR-10 and SR-11 are the first two laboratories drawn from their manifests' prompts.
+ * sets. Each row names a lab and a piece of its result's text, which the server markup must carry.
  */
-const LABS: readonly (readonly [string, () => ReactElement])[] = [
+const LABS: readonly (readonly [string, () => ReactElement, string])[] = [
+  [
+    "sr-06",
+    () => createElement(VelocityCompositionLab, { example: SR06_EXAMPLE }),
+    "Accepted composition",
+  ],
   [
     "sr-10",
     () =>
       createElement(LightComplexLab, { example: rawSr10Example as unknown as PreparedSr10Example }),
+    "Values at these settings",
   ],
-  ["sr-11", () => createElement(MovingMirrorLab, { example: SR11_EXAMPLE })],
+  [
+    "sr-11",
+    () => createElement(MovingMirrorLab, { example: SR11_EXAMPLE }),
+    "Values at these settings",
+  ],
 ];
 
 type Handlers = Record<string, ((...args: unknown[]) => void) | undefined>;
@@ -262,11 +274,11 @@ describe("without JavaScript, nothing is hidden", () => {
       .filter(([, selector]) => selector?.includes(needle))
       .map(([, selector, body]) => ({ selector: (selector ?? "").trim(), body: body ?? "" }));
 
-  for (const [lab, element] of LABS) {
+  for (const [lab, element, resultText] of LABS) {
     test(`${lab}: the server markup carries the result beside the waiting attribute`, () => {
       const html = renderToStaticMarkup(element());
       expect(html).toContain('data-predict-response="awaiting"');
-      expect(html).toContain("Values at these settings");
+      expect(html).toContain(resultText);
       expect(html).toContain('class="status-line"');
     });
   }

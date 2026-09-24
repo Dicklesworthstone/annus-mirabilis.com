@@ -22,13 +22,3 @@
   padding: 0.15rem 0.4rem;
   text-align: right;
 }
-.predict-block label {
-  display: block;
-  margin: 0.25rem 0;
-}
-.predict-block .input-field {
-  margin: 0.25rem 0;
-}
-.predict-block .input-field > label {
-  margin: 0;
-}

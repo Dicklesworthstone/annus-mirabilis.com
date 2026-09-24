@@ -20,8 +20,10 @@ import { createSr06Session, type PreparedSr06Example } from "../../../experiment
 import { SR06_TAPE } from "../../../experiments/sr06/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { VelocityCompositionPlot } from "./VelocityCompositionPlot.tsx";
@@ -55,12 +57,9 @@ const SR06_MODE_LABELS: Readonly<Record<Sr06Mode, string>> = {
   "two-boosts": "Two boosts in turn",
 };
 
-/** The prediction's three options, as [id, words]. The reveal names the reader's choice in words. */
-const SR06_CANDIDATES = [
-  ["galilean-sum", "1.2 times light speed"],
-  ["relativistic-15-17", "About 0.88 of light speed"],
-  ["unchanged-0-6c", "0.6 of light speed"],
-] as const;
+// The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate. It
+// replaces a copy of the question and its three candidates that this file kept for itself.
+const SR06_PROMPTS = PREDICT_PROMPTS["sr-06"] ?? [];
 
 export function VelocityCompositionLab({
   example,
@@ -84,6 +83,8 @@ export function VelocityCompositionLab({
     true,
     (restored) => setDraft(toSr06Draft(restored)),
   );
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("sr-06", SR06_PROMPTS);
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr06Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv). The eyebrow used to print "Ideal model,
@@ -99,8 +100,6 @@ export function VelocityCompositionLab({
   const [draft, setDraft] = useState(() => toSr06Draft(p));
   const [error, setError] = useState("");
   const [note, setNote] = useState("");
-  const [predict, setPredict] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
   // One sentence for the status line: the composed speed beside the Galilean sum.
   const numberAt = (quantityId: string) => {
     const item = result(snapshot, quantityId);
@@ -114,7 +113,6 @@ export function VelocityCompositionLab({
       : `composing ${fixed(p.frameBeta, 4)}c with ${fixed(p.movingSpeed, 4)}c at ${fixed(p.alphaDeg, 1)}° gives ${fixed(composed, 4)}c${galilean === null ? "" : `, where Galileo's addition gives ${fixed(galilean, 4)}c`}.`;
 
   useEffect(() => {
-    setReady(true);
     const shared = decodeSr06Settings(window.location.search);
     if (shared.kind === "settings") {
       setDraft(toSr06Draft(shared.parameters));
@@ -184,43 +182,7 @@ export function VelocityCompositionLab({
           0.882353c. Changing settings requires JavaScript.
         </p>
       </noscript>
-      <details className="lab-predict sr06-predict">
-        <summary>Predict first</summary>
-        {predict === null ? (
-          <form
-            className="predict-block"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const chosen = new FormData(e.currentTarget).get("candidate");
-              if (typeof chosen === "string") setPredict(chosen);
-            }}
-          >
-            <fieldset>
-              <legend id={`${id}-predict`}>
-                An object moves at 0.6c relative to a frame that moves at 0.6c. What speed does the
-                platform measure?
-              </legend>
-              {SR06_CANDIDATES.map(([value, label]) => (
-                <label key={value} className="lab-predict-candidate">
-                  <input type="radio" name="candidate" value={value} /> <span>{label}</span>
-                </label>
-              ))}
-            </fieldset>
-            <button type="submit" disabled={!ready}>
-              Record this prediction
-            </button>
-          </form>
-        ) : (
-          <p
-            className="lab-predict-reveal"
-            data-prompt-id="sr-06-predict-collinear"
-            data-candidate-id={predict}
-          >
-            You predicted: {SR06_CANDIDATES.find(([value]) => value === predict)?.[1] ?? predict}.
-            The composition below is the model&apos;s answer, not a score.
-          </p>
-        )}
-      </details>
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <form onSubmit={submit} noValidate>
           <fieldset>
@@ -327,9 +289,10 @@ export function VelocityCompositionLab({
         <AcceptedStatus
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
+          response={gate.response}
         />
-        <LabTapeLink link={tapeLink} />
-        <div>
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
+        <div {...gate.response}>
           <VelocityCompositionPlot snapshot={snapshot} />
           <table className="inference-summary">
             <caption>Accepted composition (fractions of c)</caption>

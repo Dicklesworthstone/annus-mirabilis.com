@@ -514,11 +514,6 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[
   border: 0;
 }
 
-.sr06-predict {
-  max-width: 44rem;
-  margin-block: 0.5rem 1.25rem;
-}
-
 .bm04-predict {
   max-width: 44rem;
   margin-block: 0.5rem 1.25rem;
