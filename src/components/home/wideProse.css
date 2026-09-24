@@ -47,7 +47,10 @@
 
   /* The papers' entries on the home page, /papers/ and /discover/, the closing sections of these
      pages, and an intro's own paragraph where it has one (/discover/, /offline/). */
-  :root .paper-catalogue article p,
+  /* Unclassed paragraphs and the German title only. `article p` also caught the home page's
+     "Received 18 March · Ann. Phys. 17, 132" eyebrows and set them at 22.42px from 1280px up,
+     twice the 11px every other eyebrow on the site keeps. */
+  :root .paper-catalogue article p:where(:not([class]), .german-title),
   :root .paper-entry-body > p:where(:not([class]), .german-title),
   :root .reading.page-flush p:not(.fine),
   :root main > .page-intro > p:not([class]),
