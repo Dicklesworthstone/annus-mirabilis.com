@@ -3,11 +3,40 @@
    scaled down to a phone. The energy balance is HTML beside the drawing when there is room for
    it, and below it when there is not. */
 .sr11-figure {
+  --sr11-incident: #b45309;
+  --sr11-higher: #1d4ed8;
+  --sr11-lower: #b91c1c;
+  --sr11-velocity: #047857;
+  --sr11-force: #be185d;
   container-type: inline-size;
   border: 1px solid var(--line);
   border-radius: 0.5rem;
   background: var(--panel);
   padding: 1rem;
+}
+
+/* The drawing's five colours: the incident light amber, light reflected at a higher frequency
+   blue and at a lower one red, the mirror's velocity green, the force on it pink. Each hue has a
+   darker value on the light theme's panel and a brighter one on the dark theme's, so every ray,
+   arrow, key swatch and ledger bar stands at 3:1 or better in both (4.85 to 6.48:1 light, 4.30 to
+   7.54:1 dark). The bright values alone drew the incident ray at 2.08:1 and the velocity at
+   2.45:1 on the light paper. */
+:root[data-theme="kramgasse-night"] .sr11-figure {
+  --sr11-incident: #f59e0b;
+  --sr11-higher: #3b82f6;
+  --sr11-lower: #ef4444;
+  --sr11-velocity: #10b981;
+  --sr11-force: #ec4899;
+}
+/* Without JavaScript the pre-paint script never sets data-theme; these repeat the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .sr11-figure {
+    --sr11-incident: #f59e0b;
+    --sr11-higher: #3b82f6;
+    --sr11-lower: #ef4444;
+    --sr11-velocity: #10b981;
+    --sr11-force: #ec4899;
+  }
 }
 
 .sr11-figure-grid {

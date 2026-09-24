@@ -83,18 +83,22 @@ export function MovingMirrorPlot({
   const phiIncRad = (incidentAngleDeg * Math.PI) / 180;
   const rays = mirrorRayGeometry(incidentAngleDeg, phiReflectedDeg);
 
-  // Doppler and physical vector colors
-  const incColor = "#f59e0b";
+  // The drawing's colours, set per theme in sr11.css so each stands on the panel in both.
+  const incColor = "var(--sr11-incident)";
   const reflColor =
-    frequencyRatio > 1.01 ? "#3b82f6" : frequencyRatio < 0.99 ? "#ef4444" : "#f59e0b";
+    frequencyRatio > 1.01
+      ? "var(--sr11-higher)"
+      : frequencyRatio < 0.99
+        ? "var(--sr11-lower)"
+        : "var(--sr11-incident)";
   const reflWords =
     frequencyRatio > 1.01
       ? "reflected light, at a higher frequency"
       : frequencyRatio < 0.99
         ? "reflected light, at a lower frequency"
         : "reflected light, at the same frequency";
-  const velocityColor = "#10b981";
-  const forceColor = "#ec4899";
+  const velocityColor = "var(--sr11-velocity)";
+  const forceColor = "var(--sr11-force)";
 
   // Energy per second at the mirror. A receding mirror is pushed, so the light does work on it
   // and that work leaves with the reflected light. An approaching mirror does work on the light,
