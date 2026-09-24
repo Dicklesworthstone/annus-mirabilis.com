@@ -214,12 +214,24 @@ export function EnergyLadderPlot({
   );
 }
 
+const MEASURED_NOTE_STYLE = {
+  marginTop: "0.5rem",
+  fontSize: "var(--type-fine)",
+  padding: "0.5rem",
+  borderRadius: "0.25rem",
+  border: "1px solid var(--line)",
+  background: "var(--wash)",
+  color: "var(--ink)",
+} as const;
+
 export type StoppingPlotProps = Readonly<{
   currentFrequency: number; // Hz
   currentWorkFunction: number; // eV
   currentStoppingPotential: number | null; // V
+  /** Whether the reader has the recorded points turned on. A withheld result is noted either way. */
   millikanOverlay: boolean;
-  millikanData?: MillikanOverlayResult;
+  /** Built on the server from the record's plot verdict; only a "plottable" result draws points. */
+  millikanData?: MillikanOverlayResult | undefined;
 }>;
 
 export function StoppingPotentialPlot({
@@ -410,9 +422,9 @@ export function StoppingPotentialPlot({
         )}
 
         {/* Millikan 1916 Data Points Overlay */}
-        {millikanOverlay && millikanData?.dataset?.points && (
+        {millikanOverlay && millikanData?.kind === "plottable" && (
           <g data-testid="millikan-dataset">
-            {millikanData.dataset.points.map((pt) => {
+            {millikanData.points.map((pt) => {
               const cx = scaleX(pt.frequencyHz);
               const cy = scaleY(pt.stoppingPotentialVolts);
               return (
@@ -447,18 +459,21 @@ export function StoppingPotentialPlot({
             </g>
           )}
       </svg>
-      {millikanOverlay && millikanData && (
-        <div
-          style={{
-            marginTop: "0.5rem",
-            fontSize: "var(--type-fine)",
-            padding: "0.5rem",
-            borderRadius: "0.25rem",
-            border: "1px solid var(--line)",
-            background: "var(--wash)",
-            color: "var(--ink)",
-          }}
-        >
+      {millikanData?.kind === "withheld" && (
+        <div style={MEASURED_NOTE_STYLE} data-testid="millikan-withheld">
+          <p style={{ fontWeight: 600, margin: "0 0 0.25rem" }}>
+            Millikan’s 1916 sodium measurements are not shown yet.
+          </p>
+          <p className="fine" style={{ margin: "0 0 0.25rem" }}>
+            {millikanData.reason}
+          </p>
+          <p className="fine" style={{ margin: 0 }}>
+            {millikanData.citation}
+          </p>
+        </div>
+      )}
+      {millikanOverlay && millikanData?.kind === "plottable" && (
+        <div style={MEASURED_NOTE_STYLE}>
           <p style={{ fontWeight: 600, margin: "0 0 0.25rem" }}>
             Millikan’s 1916 sodium measurements, later evidence
           </p>

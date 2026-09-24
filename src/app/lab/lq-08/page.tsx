@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
 import { PhotoelectricComparison } from "../../../components/lab/lq08/PhotoelectricLab.tsx";
+import { loadMillikanOverlay } from "../../../experiments/lq08/millikanRecord.ts";
 import example from "../../../generated/lq08-example.json";
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default function PhotoelectricPage() {
         </p>
       </header>
 
-      <PhotoelectricComparison example={example} />
+      <PhotoelectricComparison example={example} millikan={loadMillikanOverlay()} />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>

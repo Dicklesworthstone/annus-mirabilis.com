@@ -3825,6 +3825,25 @@ export type HistoricalDataset = HistoricalDatasetFields &
     withdrawal?: DatasetWithdrawal | undefined;
   }>;
 
+/**
+ * Whether a view may show a HistoricalDataset's values (am-data-millikan-1916-zh2q).
+ *
+ * Only a standing measurement is shown. A withdrawn record keeps its rows on file for review, and
+ * every view that plots, tabulates or cites a dataset as evidence asks this first. The Millikan 1916
+ * sodium record was plotted on LQ-08 as measurements while its six rows sat on one straight line to
+ * a fifth of a millivolt, and nothing between the record and the plot could say no.
+ */
+const SHOWN_EVIDENCE: ReadonlySet<DatasetEvidenceStatus> = new Set([
+  "historical-measurement",
+  "modern-observation",
+]);
+
+export function datasetValuesMayBeShown(
+  dataset: Pick<HistoricalDataset, "evidenceStatus">,
+): boolean {
+  return SHOWN_EVIDENCE.has(dataset.evidenceStatus);
+}
+
 /** A withdrawn record says when and why; a standing one carries no withdrawal. */
 function validateDatasetWithdrawal(
   o: Record<string, unknown>,

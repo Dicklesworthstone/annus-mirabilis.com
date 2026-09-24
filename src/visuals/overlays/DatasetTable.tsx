@@ -1,5 +1,10 @@
 import type { ReactElement } from "react";
-import type { DataCell, HistoricalDataset } from "../../content/schemas/experiment.ts";
+import {
+  type DataCell,
+  datasetValuesMayBeShown,
+  type HistoricalDataset,
+} from "../../content/schemas/experiment.ts";
+import { DatasetWithheld } from "./DatasetWithheld.tsx";
 
 export interface DatasetTableProps {
   readonly dataset: HistoricalDataset;
@@ -9,10 +14,18 @@ export interface DatasetTableProps {
   readonly className?: string | undefined;
 }
 
+/** A record whose values may not be shown is replaced by a note saying why (am-data-millikan-1916-zh2q). */
+export function DatasetTable(props: DatasetTableProps): ReactElement {
+  if (!datasetValuesMayBeShown(props.dataset)) {
+    return <DatasetWithheld dataset={props.dataset} className={props.className} />;
+  }
+  return <ShownDatasetTable {...props} />;
+}
+
 /**
  * Accessible tabular view of historical dataset rows, column roles, and fit summaries.
  */
-export function DatasetTable({
+function ShownDatasetTable({
   dataset,
   seriesId,
   selectedRowIndex,

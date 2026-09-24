@@ -1,5 +1,10 @@
 import { type ReactElement, useState } from "react";
-import type { DataCell, HistoricalDataset } from "../../content/schemas/experiment.ts";
+import {
+  type DataCell,
+  datasetValuesMayBeShown,
+  type HistoricalDataset,
+} from "../../content/schemas/experiment.ts";
+import { DatasetWithheld } from "./DatasetWithheld.tsx";
 
 export interface DatasetEvidenceRevealProps {
   readonly dataset: HistoricalDataset;
@@ -10,6 +15,14 @@ export interface DatasetEvidenceRevealProps {
   readonly className?: string | undefined;
 }
 
+/** A record whose values may not be shown is replaced by a note saying why (am-data-millikan-1916-zh2q). */
+export function DatasetEvidenceReveal(props: DatasetEvidenceRevealProps): ReactElement {
+  if (!datasetValuesMayBeShown(props.dataset)) {
+    return <DatasetWithheld dataset={props.dataset} className={props.className} />;
+  }
+  return <ShownDatasetEvidenceReveal {...props} />;
+}
+
 /**
  * 4-step disclosure component:
  * 1. Source region locator & scan crop (honoring rights)
@@ -17,7 +30,7 @@ export interface DatasetEvidenceRevealProps {
  * 3. Applied transformations & normalization
  * 4. Durable citation & digitizer revision attribution
  */
-export function DatasetEvidenceReveal({
+function ShownDatasetEvidenceReveal({
   dataset,
   seriesId,
   selectedRowIndex = 0,

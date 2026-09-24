@@ -4,9 +4,9 @@
  * never recomputes or re-authors what that registry already owns.
  */
 import type { ArgumentNode } from "../../../content/schemas/argument.ts";
-import type {
-  DatasetAddressesResult,
-  HistoricalDataset,
+import {
+  datasetValuesMayBeShown,
+  type HistoricalDataset,
 } from "../../../content/schemas/experiment.ts";
 import type { PremiseEdgeType } from "../../../content/schemas/meanings.ts";
 import {
@@ -207,8 +207,9 @@ export function projectReception(
 ): readonly ReceptionEntry[] {
   const entries: ReceptionEntry[] = [];
   for (const dataset of datasets) {
-    const addresses =
-      (dataset as { addressesResults?: readonly DatasetAddressesResult[] }).addressesResults ?? [];
+    // A withdrawn record is not evidence for anything (am-data-millikan-1916-zh2q).
+    if (!datasetValuesMayBeShown(dataset)) continue;
+    const addresses = dataset.addressesResults ?? [];
     for (const entry of addresses) {
       if (entry.resultId !== resultId) continue;
       const { date, precision } = dateOf(dataset);

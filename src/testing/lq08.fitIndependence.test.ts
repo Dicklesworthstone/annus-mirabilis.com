@@ -1,12 +1,40 @@
 import { describe, expect, it } from "bun:test";
+import type { DatasetPlotVerdict } from "../content/datasets/plotVerdict.ts";
 import {
   evaluateMillikanOverlay,
-  fitMillikanSodiumData,
+  fitStoppingPoints,
   getOwnerTheoreticalLine,
-  MILLIKAN_1916_SODIUM_POINTS,
-  type MillikanDataPoint,
+  type MeasuredStoppingPoint,
+  type MillikanOverlayResult,
 } from "../experiments/lq08/millikan.ts";
 import { stoppingLine } from "../physics/reference/photoelectric.ts";
+
+/**
+ * Constructed rows, not Millikan's observations: fit independence is a property of the plumbing and
+ * needs no historical data. Until 2026-09-24 these tests used the Millikan 1916 record's rows, which
+ * were withdrawn (am-data-millikan-1916-zh2q). The slope is near h/e and deliberately not equal to it.
+ */
+const CONSTRUCTED: DatasetPlotVerdict = Object.freeze({
+  kind: "plottable",
+  datasetId: "constructed-stopping-line",
+  citation: "Constructed for this test",
+  points: [
+    [5.0e14, 0.3],
+    [6.0e14, 0.71],
+    [7.0e14, 1.13],
+    [8.0e14, 1.52],
+    [9.0e14, 1.95],
+  ].map(([x, y], rowIndex) => Object.freeze({ rowIndex, x: x as number, y: y as number })),
+});
+const CONSTRUCTED_POINTS: readonly MeasuredStoppingPoint[] =
+  CONSTRUCTED.kind === "plottable"
+    ? CONSTRUCTED.points.map((p) => ({ frequencyHz: p.x, stoppingPotentialVolts: p.y }))
+    : [];
+
+function plotted(result: MillikanOverlayResult) {
+  if (result.kind !== "plottable") throw new TypeError(`overlay withheld: ${result.reason}`);
+  return result;
+}
 
 describe("LQ-08 Millikan Fit Independence & Epistemic Separation (am-lq-08-photoelectric-va5a)", () => {
   it("rendered model line slope equals stoppingLine(Phi).slope bitwise (h/e) and is independent of fit", () => {
@@ -24,7 +52,7 @@ describe("LQ-08 Millikan Fit Independence & Epistemic Separation (am-lq-08-photo
     expect(theoreticalLine.slope).toBe(refStoppingLine.slope);
     expect(Object.is(theoreticalLine.slope, refStoppingLine.slope)).toBe(true);
 
-    const overlay = evaluateMillikanOverlay(workFunctionEv);
+    const overlay = plotted(evaluateMillikanOverlay(CONSTRUCTED, workFunctionEv));
     expect(overlay.modelLineSource).toBe("owner");
     expect(overlay.modelLineSlopeVs).toBe(theoreticalLine.slope);
     expect(overlay.modelLineSlopeVs).toBe(refStoppingLine.slope);
@@ -35,16 +63,16 @@ describe("LQ-08 Millikan Fit Independence & Epistemic Separation (am-lq-08-photo
   });
 
   it("shifting experimental dataset by 20% changes fitted slope while leaving model line slope invariant", () => {
-    const baselineFit = fitMillikanSodiumData();
+    const baselineFit = fitStoppingPoints(CONSTRUCTED_POINTS);
     const baselineTheory = getOwnerTheoreticalLine(2.2);
 
     // Shift dataset stopping potentials by +20%
-    const shiftedPoints: readonly MillikanDataPoint[] = MILLIKAN_1916_SODIUM_POINTS.map((p) => ({
+    const shiftedPoints: readonly MeasuredStoppingPoint[] = CONSTRUCTED_POINTS.map((p) => ({
       ...p,
       stoppingPotentialVolts: p.stoppingPotentialVolts * 1.2,
     }));
 
-    const shiftedFit = fitMillikanSodiumData(shiftedPoints);
+    const shiftedFit = fitStoppingPoints(shiftedPoints);
 
     // Fitted slope must change by ~20%
     expect(shiftedFit.slope).toBeCloseTo(baselineFit.slope * 1.2, 5);
@@ -79,7 +107,7 @@ describe("LQ-08 Millikan Fit Independence & Epistemic Separation (am-lq-08-photo
       }
     }
 
-    const validOverlay = evaluateMillikanOverlay(2.2);
+    const validOverlay = plotted(evaluateMillikanOverlay(CONSTRUCTED, 2.2));
     expect(() => assertModelLineIndependence(validOverlay)).not.toThrow();
 
     // Sourcing from fit must throw
@@ -101,21 +129,13 @@ describe("LQ-08 Millikan Fit Independence & Epistemic Separation (am-lq-08-photo
     ).toThrow("Epistemic circularity failure");
   });
 
-  it("Millikan 1916 dataset presents cited source and documented points with standard error", () => {
-    const overlay = evaluateMillikanOverlay(2.2);
-    expect(overlay.dataset.citation).toContain("Millikan, R. A. (1916)");
-    expect(overlay.dataset.citation).toContain("Physical Review 7, 355–389");
-    expect(overlay.dataset.points.length).toBe(6);
-
-    // Verify sodium mercury line frequencies and potentials
-    const p546 = overlay.dataset.points.find((p) => p.originalTokenWavelength === "546.1");
-    expect(p546).toBeDefined();
-    expect(p546?.frequencyHz).toBe(5.489e14);
-    expect(p546?.stoppingPotentialVolts).toBe(0.475);
-
-    const fit = fitMillikanSodiumData();
-    expect(fit.rSquared).toBeGreaterThan(0.99); // Millikan's line is famously straight (R^2 > 0.999)
-    expect(fit.slopeStandardError).toBeGreaterThan(0);
-    expect(fit.sampleCount).toBe(6);
+  it("the overlay carries the verdict's citation and points in row order, with a standard error", () => {
+    const overlay = plotted(evaluateMillikanOverlay(CONSTRUCTED, 2.2));
+    expect(overlay.citation).toBe("Constructed for this test");
+    expect(overlay.points).toEqual(CONSTRUCTED_POINTS);
+    expect(overlay.fittedSlopeStdErr).toBeGreaterThan(0);
+    const fit = fitStoppingPoints(CONSTRUCTED_POINTS);
+    expect(fit.sampleCount).toBe(CONSTRUCTED_POINTS.length);
+    expect(overlay.fittedSlopeVs).toBe(fit.slope);
   });
 });

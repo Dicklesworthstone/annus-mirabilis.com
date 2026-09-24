@@ -143,7 +143,8 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
     }
     case "lq-08": {
       const { default: example } = await import("../../generated/lq08-example.json");
-      return <LazyPhotoelectricLab example={example} />;
+      const { loadMillikanOverlay } = await import("../lq08/millikanRecord.ts");
+      return <LazyPhotoelectricLab example={example} millikan={loadMillikanOverlay()} />;
     }
     case "lq-09": {
       const { default: example } = await import("../../generated/lq09-example.json");

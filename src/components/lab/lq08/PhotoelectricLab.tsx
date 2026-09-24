@@ -12,7 +12,7 @@ import {
   LQ08_OUTPUTS,
   LQ08_PRESETS,
 } from "../../../experiments/lq08/definition.ts";
-import { evaluateMillikanOverlay } from "../../../experiments/lq08/millikan.ts";
+import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
@@ -32,6 +32,8 @@ import "./photoelectricLab.css";
 
 export type PhotoelectricLabProps = Readonly<{
   example?: PreparedLq08Example | undefined;
+  /** Millikan's 1916 points, or why they are withheld: built on the server from the record. */
+  millikan?: MillikanOverlayResult | undefined;
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
 }>;
@@ -246,7 +248,7 @@ function ValueCell({
   return <>Not determined by these settings</>;
 }
 
-export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabProps) {
+export function PhotoelectricLab({ example, millikan, readings = true }: PhotoelectricLabProps) {
   const instanceId = useId();
   const session = useMemo(() => createLq08Session(instanceId, example), [instanceId, example]);
   const view = useSyncExternalStore(
@@ -312,8 +314,6 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
   // Saturation current in microamperes: e * eRate * 1e6
   const iSatMicroAmps = eRateVal * 1.602176634e-19 * 1e6;
   const pcMicroAmps = pcVal !== null ? pcVal * 1e6 : null;
-
-  const millikanData = useMemo(() => evaluateMillikanOverlay(), []);
 
   function apply(patch: Partial<Lq08Params>) {
     const outcome = session.apply(patch);
@@ -449,7 +449,9 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
             </div>
           </fieldset>
 
-          <ExperimentSettings contents="work function, quantum efficiency, collector potential, Millikan’s 1916 data">
+          <ExperimentSettings
+            contents={`work function, quantum efficiency, collector potential${millikan?.kind === "plottable" ? ", Millikan’s 1916 data" : ""}`}
+          >
             <SliderField
               {...field("workFunction")}
               label={FIELDS.workFunction.label}
@@ -475,14 +477,16 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
               max={3}
               step={0.05}
             />
-            <label className="check">
-              <input
-                type="checkbox"
-                checked={showMillikan}
-                onChange={(e) => setShowMillikan(e.target.checked)}
-              />
-              Show Millikan’s 1916 sodium measurements on the stopping-potential plot
-            </label>
+            {millikan?.kind === "plottable" && (
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={showMillikan}
+                  onChange={(e) => setShowMillikan(e.target.checked)}
+                />
+                Show Millikan’s 1916 sodium measurements on the stopping-potential plot
+              </label>
+            )}
           </ExperimentSettings>
 
           {error && (
@@ -510,7 +514,7 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
               currentWorkFunction={params.workFunction}
               currentStoppingPotential={vsVal}
               millikanOverlay={showMillikan}
-              millikanData={millikanData}
+              millikanData={millikan}
             />
             <CurrentVoltagePlot
               collectorPotential={params.collectorPotential}
@@ -602,14 +606,20 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
   );
 }
 
-export function PhotoelectricComparison({ example }: { example?: PreparedLq08Example }) {
+export function PhotoelectricComparison({
+  example,
+  millikan,
+}: {
+  example?: PreparedLq08Example;
+  millikan?: MillikanOverlayResult;
+}) {
   const [second, setSecond] = useState(false);
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
 
   return (
     <>
-      <PhotoelectricLab example={example} />
+      <PhotoelectricLab example={example} millikan={millikan} />
       <div
         className="comparison-toggle"
         style={{
@@ -633,7 +643,7 @@ export function PhotoelectricComparison({ example }: { example?: PreparedLq08Exa
           stepwise state and accepted results.
         </p>
       </div>
-      {second && <PhotoelectricLab example={example} readings={false} />}
+      {second && <PhotoelectricLab example={example} millikan={millikan} readings={false} />}
     </>
   );
 }

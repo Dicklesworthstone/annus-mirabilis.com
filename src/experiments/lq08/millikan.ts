@@ -1,98 +1,46 @@
 /**
- * Millikan 1916 Sodium Dataset and OLS Linear Regression (am-lq-08-photoelectric-va5a).
+ * LQ-08's measured-points overlay: the points it may draw and the line fitted to them
+ * (am-lq-08-photoelectric-va5a, am-data-millikan-1916-zh2q).
+ *
+ * The points come only from a HistoricalDataset record through datasetPlotVerdict, which the page
+ * runs on the server (millikanRecord.ts). A withheld record arrives here as a reason and a citation,
+ * never as values. Until 2026-09-24 the points were a copy typed into this file, so the record's
+ * evidence status could change and the plot would not have noticed.
  *
  * Epistemic separation:
- * 1. Inspecting raw experimental data points (Millikan 1916 Table IV / Figure 3).
+ * 1. Inspecting the recorded points.
  * 2. Fitting an empirical OLS regression line (yielding experimental slope and standard error).
  * 3. Overlaying the theoretical model line (where the slope comes STRICTLY from the reference
  *    physics owner h/e, with modelLineSource === "owner", NEVER derived from the fit).
  */
 
+import type { DatasetPlotVerdict, PlotAxis } from "../../content/datasets/plotVerdict.ts";
 import {
   type ConstantSet,
   constantValue,
   getConstantSet,
 } from "../../physics/reference/constants.ts";
-
-export interface MillikanDataPoint {
-  readonly wavelengthNm: number;
-  readonly frequencyHz: number;
-  readonly stoppingPotentialVolts: number;
-  readonly originalTokenWavelength?: string;
-  readonly originalTokenFrequency?: string;
-  readonly originalTokenPotential?: string;
-}
-
-/**
- * Historical Millikan 1916 sodium data points transcribed from Physical Review 7, 355-389.
- */
-export const MILLIKAN_1916_SODIUM_POINTS: readonly MillikanDataPoint[] = Object.freeze([
-  Object.freeze({
-    wavelengthNm: 546.1,
-    frequencyHz: 5.489e14,
-    stoppingPotentialVolts: 0.475,
-    originalTokenWavelength: "546.1",
-    originalTokenFrequency: "5.489",
-    originalTokenPotential: "0.475",
-  }),
-  Object.freeze({
-    wavelengthNm: 435.8,
-    frequencyHz: 6.879e14,
-    stoppingPotentialVolts: 1.049,
-    originalTokenWavelength: "435.8",
-    originalTokenFrequency: "6.879",
-    originalTokenPotential: "1.049",
-  }),
-  Object.freeze({
-    wavelengthNm: 404.7,
-    frequencyHz: 7.408e14,
-    stoppingPotentialVolts: 1.267,
-    originalTokenWavelength: "404.7",
-    originalTokenFrequency: "7.408",
-    originalTokenPotential: "1.267",
-  }),
-  Object.freeze({
-    wavelengthNm: 365.0,
-    frequencyHz: 8.214e14,
-    stoppingPotentialVolts: 1.6,
-    originalTokenWavelength: "365.0",
-    originalTokenFrequency: "8.214",
-    originalTokenPotential: "1.600",
-  }),
-  Object.freeze({
-    wavelengthNm: 312.6,
-    frequencyHz: 9.329e14,
-    stoppingPotentialVolts: 2.06,
-    originalTokenWavelength: "312.6",
-    originalTokenFrequency: "9.329",
-    originalTokenPotential: "2.060",
-  }),
-  Object.freeze({
-    wavelengthNm: 253.5,
-    frequencyHz: 1.183e15,
-    stoppingPotentialVolts: 3.092,
-    originalTokenWavelength: "253.5",
-    originalTokenFrequency: "11.83",
-    originalTokenPotential: "3.092",
-  }),
-]);
-
 // Shared numerical owner; preserve the public OLS imports used by the existing laboratory.
 import { fitOls, type OlsLinearFit } from "../../physics/reference/inference/lineFit.ts";
 
 export { fitOls, type OlsLinearFit } from "../../physics/reference/inference/lineFit.ts";
 
-/**
- * Fits the Millikan 1916 Sodium stopping potentials against frequency.
- */
-export function fitMillikanSodiumData(
-  points: readonly MillikanDataPoint[] = MILLIKAN_1916_SODIUM_POINTS,
-): OlsLinearFit {
-  const pairs = points.map((p) => ({
-    x: p.frequencyHz,
-    y: p.stoppingPotentialVolts,
-  }));
-  return fitOls(pairs);
+export const MILLIKAN_1916_DATASET_ID = "millikan-1916-sodium";
+
+/** The two columns the stopping-potential plot reads, by canonical quantity id and unit. */
+export const STOPPING_LINE_AXES: Readonly<{ x: PlotAxis; y: PlotAxis }> = Object.freeze({
+  x: Object.freeze({ quantityId: "frequency", unit: "Hz" }),
+  y: Object.freeze({ quantityId: "stoppingPotentialMagnitude", unit: "V" }),
+});
+
+export interface MeasuredStoppingPoint {
+  readonly frequencyHz: number;
+  readonly stoppingPotentialVolts: number;
+}
+
+/** Fits recorded stopping potentials against frequency. */
+export function fitStoppingPoints(points: readonly MeasuredStoppingPoint[]): OlsLinearFit {
+  return fitOls(points.map((p) => ({ x: p.frequencyHz, y: p.stoppingPotentialVolts })));
 }
 
 export type ModelLineSource = "owner" | "fit";
@@ -124,20 +72,49 @@ export function getOwnerTheoreticalLine(workFunctionEv: number, set?: ConstantSe
   });
 }
 
-export function evaluateMillikanOverlay(workFunctionEv = 2.2, set?: ConstantSet) {
-  const fit = fitMillikanSodiumData();
+export type MillikanOverlayResult =
+  | Readonly<{
+      kind: "plottable";
+      citation: string;
+      points: readonly MeasuredStoppingPoint[];
+      fittedSlopeVs: number;
+      fittedSlopeStdErr: number;
+      modelLineSlopeVs: number;
+      modelLineSource: ModelLineSource;
+    }>
+  | Readonly<{ kind: "withheld"; citation: string; reason: string }>;
+
+/**
+ * What the stopping-potential plot shows beside the model line. A withheld verdict stays withheld,
+ * and so does a record with fewer than three usable rows, since no line can be fitted to it.
+ */
+export function evaluateMillikanOverlay(
+  verdict: DatasetPlotVerdict,
+  workFunctionEv = 2.2,
+  set?: ConstantSet,
+): MillikanOverlayResult {
+  if (verdict.kind === "withheld") {
+    return Object.freeze({ kind: "withheld", citation: verdict.citation, reason: verdict.reason });
+  }
+  const points = verdict.points.map((p) =>
+    Object.freeze({ frequencyHz: p.x, stoppingPotentialVolts: p.y }),
+  );
+  if (points.length < 3) {
+    return Object.freeze({
+      kind: "withheld",
+      citation: verdict.citation,
+      reason: `Only ${points.length} of its rows give both a frequency and a stopping potential, and a line needs three.`,
+    });
+  }
+  const fit = fitStoppingPoints(points);
   const theoretical = getOwnerTheoreticalLine(workFunctionEv, set);
   return Object.freeze({
+    kind: "plottable",
+    citation: verdict.citation,
+    points: Object.freeze(points),
     fittedSlopeVs: fit.slope,
     fittedSlopeStdErr: fit.slopeStandardError,
     modelLineSlopeVs: theoretical.slope,
     modelLineSource: theoretical.source,
-    dataset: Object.freeze({
-      citation:
-        'Millikan, R. A. (1916). A Direct Photoelectric Determination of Planck\'s "h". Physical Review 7, 355–389.',
-      points: MILLIKAN_1916_SODIUM_POINTS,
-    }),
   });
 }
-
-export type MillikanOverlayResult = ReturnType<typeof evaluateMillikanOverlay>;

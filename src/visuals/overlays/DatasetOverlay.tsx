@@ -1,9 +1,14 @@
 import { type ReactElement, useState } from "react";
 import { getDatasetShelfStatus } from "../../content/datasets/shelf.ts";
-import type { DataCell, HistoricalDataset } from "../../content/schemas/experiment.ts";
+import {
+  type DataCell,
+  datasetValuesMayBeShown,
+  type HistoricalDataset,
+} from "../../content/schemas/experiment.ts";
 import type { Projector } from "../kit/types.ts";
 import { DatasetEvidenceReveal } from "./DatasetEvidenceReveal.tsx";
 import { DatasetTable } from "./DatasetTable.tsx";
+import { DatasetWithheld } from "./DatasetWithheld.tsx";
 
 export interface DatasetOverlayProps {
   readonly dataset: HistoricalDataset;
@@ -23,11 +28,19 @@ export interface DatasetOverlayProps {
   readonly className?: string | undefined;
 }
 
+/** A record whose values may not be shown is replaced by a note saying why (am-data-millikan-1916-zh2q). */
+export function DatasetOverlay(props: DatasetOverlayProps): ReactElement {
+  if (!datasetValuesMayBeShown(props.dataset)) {
+    return <DatasetWithheld dataset={props.dataset} className={props.className} />;
+  }
+  return <ShownDatasetOverlay {...props} />;
+}
+
 /**
  * Historical dataset visual overlay for SVG instruments.
  * Renders empirical observations, bounds, and fitted laws with non-color differentiators.
  */
-export function DatasetOverlay({
+function ShownDatasetOverlay({
   dataset,
   seriesId,
   xColumnIndex = 0,
