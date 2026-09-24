@@ -59,6 +59,20 @@ export function MissingStepPanel({
       <p>
         <strong>Rule:</strong> {step.rule}
       </p>
+      {step.tool && (
+        <p>
+          <a
+            href={`/foundations/${step.tool}/`}
+            data-foundation={step.tool}
+            data-return-caption={`Return to ${lesson.title.toLowerCase()}: ${step.title}.`}
+            // Four steps share the visible text and reach different lessons, so the name says
+            // which lesson and which step (src/reader/linkNames.test.tsx).
+            aria-label={`Open the mathematical tool behind this step: ${step.toolTitle ?? step.tool}, for ${step.title}`}
+          >
+            Open the mathematical tool behind this step →
+          </a>
+        </p>
+      )}
       <p>{step.readings.r1}</p>
       <details>
         <summary>In fewer words</summary>

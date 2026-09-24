@@ -9,6 +9,10 @@ export type CompiledMissingStep = Readonly<{
   premiseTexts: readonly string[];
   readings: Readonly<{ r0: string; r1: string; r2: string }>;
   isMove: boolean;
+  /** The foundation lesson the step's reason relies on, as a bare slug; null while it has none. */
+  tool: string | null;
+  /** That lesson's title, so the link can name the lesson it opens; null with no tool. */
+  toolTitle: string | null;
 }>;
 export type CompiledMissingStepLesson = Readonly<{
   id: string;

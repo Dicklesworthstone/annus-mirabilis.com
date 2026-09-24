@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { stripCommentsAndPreserveStrings } from "../../../scripts/rsc-client-boundary.ts";
 import { contentIndex, loadPaper } from "../../content/server";
 import { ELIMINATION_STEPS } from "../../equations/derivations/massEnergyElimination.ts";
+import type { CompiledMissingStepLesson } from "../../equations/missingStep/compiled.ts";
+import missingSteps from "../../generated/missing-steps.json";
 import { lessonUses } from "./lessonUses.ts";
 import { MASS_ENERGY_DERIVATION_ARGUMENT, passageLessons } from "./passageLessons.ts";
 
@@ -60,6 +62,16 @@ describe("lessons a passage links from outside its record", () => {
         u.href.endsWith(`/#${MASS_ENERGY_DERIVATION_ARGUMENT}`),
       ),
     ).toBe(false);
+  });
+
+  test("each missing-step lesson's step tools are credited to the argument that shows it", () => {
+    const lessonsWithTools = (missingSteps.lessons as readonly CompiledMissingStepLesson[]).filter(
+      (l) => l.steps.some((s) => s.tool),
+    );
+    expect(lessonsWithTools.length).toBeGreaterThan(0);
+    for (const lesson of lessonsWithTools)
+      for (const step of lesson.steps)
+        if (step.tool) expect(extra.get(lesson.argument)?.has(step.tool), step.id).toBe(true);
   });
 
   test("PaperPage still mounts the derivation in the argument this module credits", () => {

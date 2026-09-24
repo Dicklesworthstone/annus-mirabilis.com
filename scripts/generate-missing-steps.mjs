@@ -68,6 +68,16 @@ export async function generateMissingSteps(
         throw new Error("Missing-step mathematics lacks its MathML equivalent.");
       return html;
     };
+    // Each tool's lesson title, read from the lesson's own record, so the step's link can say
+    // which lesson it opens. A tool that names no lesson fails here, when the file cannot be read.
+    const toolTitles = new Map();
+    for (const s of lesson.chain.steps)
+      if (s.tool) {
+        const slug = s.tool.replace(/^foundation:/, "");
+        const raw = await readFile(resolve(root, "content/foundations", `${slug}.json`), "utf8");
+        inputs.push(raw);
+        toolTitles.set(slug, parseContentJson(raw, `foundations/${slug}.json`).title);
+      }
     const steps = lesson.transitions.map((t) => {
       const step = lesson.chain.steps.find((s) => s.id === t.fromStepId);
       return {
@@ -80,6 +90,12 @@ export async function generateMissingSteps(
         premiseTexts: lesson.premises.filter((p) => t.premiseIds.includes(p.id)).map((p) => p.text),
         readings: step.reasons,
         isMove: step.isMove,
+        // The foundation lesson this step's reason relies on, as a bare slug, or null while the
+        // step has none (scripts/audit-derivation-tools.ts lists those).
+        tool: step.tool ? step.tool.replace(/^foundation:/, "") : null,
+        toolTitle: step.tool
+          ? (toolTitles.get(step.tool.replace(/^foundation:/, "")) ?? null)
+          : null,
       };
     });
     if (profile === "scaffold")

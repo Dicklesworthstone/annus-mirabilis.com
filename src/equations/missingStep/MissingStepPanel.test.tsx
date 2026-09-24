@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import generated from "../../generated/missing-steps.json";
 import type { CompiledMissingStepLesson } from "./compiled.ts";
@@ -11,6 +13,35 @@ if (!lesson)
   );
 const example = lesson;
 describe("missing-step reader content", () => {
+  test("each step links the lesson its reason relies on, and that lesson exists", () => {
+    // am-ep-equations-y76: "no step silently ships without the tool its reason relies on".
+    expect(example.steps.length).toBeGreaterThan(0);
+    for (const step of example.steps) {
+      expect(step.tool, step.id).not.toBeNull();
+      const tool = step.tool as string;
+      expect(existsSync(join(process.cwd(), "content/foundations", `${tool}.json`)), tool).toBe(
+        true,
+      );
+      const html = renderToStaticMarkup(<MissingStepPanel lesson={example} step={step} />);
+      expect(html).toContain(`href="/foundations/${tool}/" data-foundation="${tool}"`);
+      expect(html).toContain("Open the mathematical tool behind this step →");
+      expect(html).toMatch(/data-return-caption="Return to [^"]+: [^"]+\."/);
+      // Named by lesson and step: the visible text is the same on every step.
+      expect(step.toolTitle, step.id).not.toBeNull();
+      expect(html).toContain(
+        `aria-label="Open the mathematical tool behind this step: ${step.toolTitle}, for ${step.title}"`,
+      );
+    }
+  });
+  test("a step with no tool renders no tool link", () => {
+    const step = example.steps[0];
+    if (!step) throw new Error("Expansion absent.");
+    const html = renderToStaticMarkup(
+      <MissingStepPanel lesson={example} step={{ ...step, tool: null, toolTitle: null }} />,
+    );
+    expect(html).not.toContain("Open the mathematical tool behind this step");
+    expect(html).not.toContain("data-foundation=");
+  });
   test("renders four keyboard links and four complete native disclosures", () => {
     const html = renderToStaticMarkup(<MissingStepDisclosure lesson={example} />);
     expect(html.match(/data-clarification-open=/g)?.length).toBe(4);
