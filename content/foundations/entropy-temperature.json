@@ -50,7 +50,10 @@
     }
   ],
   "exampleTitle": "Three joules into a reservoir held at 300 kelvin",
-  "prerequisites": ["partial-derivatives", "integration"],
+  "prerequisites": [
+    { "foundationId": "foundation:partial-derivatives", "kind": "proof-edge" },
+    { "foundationId": "foundation:integration", "kind": "cross-link" }
+  ],
   "stoppingPoint": "Before using 1/T as an entropy slope, say what is held fixed. Before comparing two entropies, say whether they are totals or per unit volume, and what fixes the constant.",
   "citations": ["ap-17-132"]
 }

@@ -47,7 +47,10 @@
     }
   ],
   "exampleTitle": "Two bodies at the same speed, different masses",
-  "prerequisites": ["bridge-squaring-square-roots", "bridge-fractions-ratios"],
+  "prerequisites": [
+    { "foundationId": "foundation:bridge-squaring-square-roots", "kind": "cross-link" },
+    { "foundationId": "foundation:bridge-fractions-ratios", "kind": "cross-link" }
+  ],
   "stoppingPoint": "At the same low speed, less energy of motion means less mass. The comparison gives only a difference in mass, never the total energy stored inside the body.",
   "citations": ["ap-18-639"]
 }
