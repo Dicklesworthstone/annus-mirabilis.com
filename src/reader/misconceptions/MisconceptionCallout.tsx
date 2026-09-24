@@ -4,11 +4,14 @@
  * authors content, never recomputes physics, and never touches the review-record gate itself
  * (that is `interventionGate.ts`'s job; this component only renders whatever status it is given).
  *
+ * Its texts may carry `\( … \)` mathematics, typeset by InlineMathText (dispatch 163).
+ *
  * Static structure only: a native <details> disclosure, so the callout works without JavaScript
  * and the collapsed/expanded state survives print. Both tempting opposites, when present, render
  * with equal prominence -- neither is listed first as "the" claim.
  */
 import type { Misconception } from "../../content/schemas/argument.ts";
+import { InlineMathText } from "../InlineMathText.tsx";
 import { parseWhatIsTrue, textForDetail } from "./types.ts";
 
 export type InterventionStatus =
@@ -44,7 +47,9 @@ export function MisconceptionCallout({
       data-lens={modernLens ? "modern" : "printed"}
     >
       <details open={expanded}>
-        <summary>A common wrong turn: {misconception.temptingClaims[0]}</summary>
+        <summary>
+          A common wrong turn: <InlineMathText text={misconception.temptingClaims[0] ?? ""} />
+        </summary>
 
         <div className="misconception-body">
           <h4 className="sr-only">Tempting claims</h4>
@@ -53,28 +58,30 @@ export function MisconceptionCallout({
             data-claim-count={misconception.temptingClaims.length}
           >
             {misconception.temptingClaims.map((claim) => (
-              <li key={claim}>{claim}</li>
+              <li key={claim}>
+                <InlineMathText text={claim} />
+              </li>
             ))}
           </ul>
 
           <p className="misconception-why-tempting" data-section="why-tempting">
-            {misconception.whyTempting}
+            <InlineMathText text={misconception.whyTempting} />
           </p>
 
           <p className="misconception-where-true" data-section="where-it-is-true">
             {misconception.whereItIsTrue === "none" ? (
               <em>There is no reading under which this is a correct thing to say.</em>
             ) : (
-              misconception.whereItIsTrue
+              <InlineMathText text={misconception.whereItIsTrue} />
             )}
           </p>
 
           <p className="misconception-what-is-true" data-section="what-is-true">
-            {whatIsTrueText}
+            <InlineMathText text={whatIsTrueText} />
             {margin && (
               <span className="misconception-margin" data-margin="r3">
                 {" "}
-                {margin}
+                <InlineMathText text={margin} />
               </span>
             )}
           </p>
@@ -94,7 +101,9 @@ export function MisconceptionCallout({
             )}
 
           {misconception.staticTreatment && (
-            <p className="misconception-static-treatment">{misconception.staticTreatment.reason}</p>
+            <p className="misconception-static-treatment">
+              <InlineMathText text={misconception.staticTreatment.reason} />
+            </p>
           )}
 
           {misconception.sources.length > 0 && (

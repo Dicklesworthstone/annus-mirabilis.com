@@ -164,7 +164,7 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
       // one as an unknown reading record, so none could exist. Each is checked against its schema
       // and its path here. Editorial notes are admitted as the production compiler admits them;
       // why they are not checked here is in marginRecords.ts. Neither joins the reading payload:
-      // the paper page reads them itself (src/reader/paperMargins.ts).
+      // the paper page reads them itself (src/reader/marginRecords.ts).
       if (routeMatch.kind === "misconception") {
         checkMisconceptionRecord(parseContentFile(file), file.path, routeMatch.params);
         continue;

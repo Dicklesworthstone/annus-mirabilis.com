@@ -10,7 +10,7 @@
  * and epistemic checks and their tests read (`kind: "editorial-note"`, `noteKind`, `paper`, an
  * author with a name). Validating one here breaks the other's tests. Until that is decided both
  * compilers admit a note as they find it, and the paper page validates the notes it renders
- * against the schema (src/reader/paperMargins.ts).
+ * against the schema (src/reader/marginRecords.ts).
  */
 import { validateMisconception } from "../schemas/argument.ts";
 import { ContentError } from "./loaders.ts";

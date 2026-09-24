@@ -48,7 +48,9 @@ import {
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
 import { OutlineSectionTitle } from "./OutlineSectionTitle.tsx";
+import { PaperMargins } from "./PaperMargins.tsx";
 import { notationReach, notationReachLine, paperEquations } from "./paperEquations.ts";
+import { loadPaperMargins } from "./marginRecords.ts";
 import {
   isFaceFallbackId,
   type PaperRouteRequest,
@@ -662,6 +664,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           ) : null}
         </div>
       </div>
+      {/* A paper's common wrong turns and historian's margin (dispatch 163), on the whole-paper
+          page only, and only where the paper has records. */}
+      {sectionId ? null : <PaperMargins margins={loadPaperMargins(paper.id)} />}
       <section
         className="reading reading-column"
         aria-label="References for this explanatory preview"
