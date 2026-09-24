@@ -47,15 +47,41 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper's mirror is the plane ξ = 0 of k, moving at v along x; the incident light has amplitude A, direction cosine cos φ and frequency ν in K, and the reflected light \\(A'''\\), \\(\\varphi'''\\) and \\(\\nu'''\\); P is the light pressure and V the speed of light. \\(\\nu_{\\mathrm{ref}}\\) below is the paper's \\(\\nu'''\\)."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Compare the light’s speed along the mirror’s normal, \\(c\\cos\\varphi\\), with the mirror’s speed \\(v\\).",
-          "If \\(c\\cos\\varphi\\) is not greater than \\(v\\), the light never reaches the mirror. Stop here: there is no reflection.",
-          "Otherwise transform the incident wave into the mirror’s rest frame.",
-          "Reflect it there. In that frame the angle of reflection equals the angle of incidence and the frequency does not change.",
-          "Transform the reflected wave back to the original frame.",
-          "To compare incident power, reflected power and the work done on the mirror, count energy by the rate at which it crosses the moving surface."
+          "First, does the light reach the mirror? The light's speed along the mirror's normal is c cos φ, and the mirror recedes at v. If \\(c\\cos\\varphi\\) is not greater than v, the light never catches the mirror and there is no reflection to calculate.",
+          "Otherwise go to the mirror's frame k with §7's rules: \\(A'=A\\,q\\), \\(\\cos\\varphi'=(\\cos\\varphi-v/V)/(1-(v/V)\\cos\\varphi)\\), \\(\\nu'=\\nu\\,q\\), with \\(q=(1-(v/V)\\cos\\varphi)/\\sqrt{1-(v/V)^2}\\).",
+          "Reflect in k, where the mirror is at rest: \\(A''=A'\\), \\(\\cos\\varphi''=-\\cos\\varphi'\\), \\(\\nu''=\\nu'\\).",
+          "Transform back to K, with −v: each quantity gains the factor \\((1+(v/V)\\cos\\varphi'')/\\sqrt{1-(v/V)^2}\\). Put in \\(\\cos\\varphi''\\) and collect: \\(A'''=A\\frac{1-2\\frac{v}{V}\\cos\\varphi+(v/V)^2}{1-(v/V)^2}\\), as the paper prints it, and the frequency changes by the same factor."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{\\nu_{\\mathrm{ref}}}{\\nu}=\\frac{1-2(v/c)\\cos\\varphi+(v/c)^2}{1-(v/c)^2}",
+        "spoken": "The reflected frequency ratio is one minus twice v over c cosine phi plus v over c squared, divided by one minus v over c squared.",
+        "equations": ["eq-model-sr-mirror-frequency"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked at normal incidence, v = 0.6c: \\((1-1.2+0.36)/(1-0.36)=0.16/0.64\\) = 0.25. The reflected light has a quarter of the incident frequency.",
+          "Energy arriving at unit area of the mirror per unit time, measured in K: \\(\\frac{A^2}{8\\pi}(V\\cos\\varphi-v)\\). The mirror recedes, so it intercepts light at the rate \\(V\\cos\\varphi-v\\), not V. At normal incidence and 0.6c that is 0.4 of a fixed mirror's rate.",
+          "Energy leaving unit area per unit time: \\(\\frac{A'''^2}{8\\pi}(-V\\cos\\varphi'''+v)\\). By the energy principle, the difference is the work the light pressure does per unit time, which the paper sets equal to P times v.",
+          "Solving gives the pressure, as printed: \\(P=2\\frac{A^2}{8\\pi}\\frac{(\\cos\\varphi-v/V)^2}{1-(v/V)^2}\\).",
+          "Worked at normal incidence and 0.6c, with u the incident energy density \\(A^2/8\\pi\\): \\(P=2u\\times0.16/0.64\\) = 0.5 u.",
+          "To first order in v/V the paper recovers \\(P=2\\frac{A^2}{8\\pi}\\cos^2\\varphi\\), in agreement with experience and with other theories.",
+          "The paper's method in one line: transform the light to a frame in which the body is at rest, solve the problem of optics there, and transform back. It says every problem of the optics of moving bodies can be reduced this way to problems of the optics of bodies at rest.",
+          "The mirror here is ideal: its motion is prescribed, and it has no recoil, absorption or thickness."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "momentum-energy-light",
+        "returnCaption": "Return to whether the light can reach a receding mirror."
       }
     ],
     "margin": [

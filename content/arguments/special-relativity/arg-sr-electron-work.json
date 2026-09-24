@@ -53,15 +53,53 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper's electron has charge ε and mass μ (m here); it starts at rest at the origin of K and moves along the X axis under an electrostatic force X; W is its energy of motion, P the potential difference it has passed through, its magnetic and electric deflectabilities \\(A_m\\) and \\(A_e\\), R the radius of curvature of its path, N a magnetic force across its motion, and V the speed of light."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Write the force along the motion as \\(m\\gamma^3\\) times the acceleration.",
-          "Work is force times distance. Along the path, acceleration times a small distance \\(dx\\) equals \\(u\\,du\\), so the work in one small step is \\(m\\gamma^3 u\\,du\\).",
-          "Add up the steps from rest to speed \\(v\\). Since \\(m\\gamma^3 u = mc^2\\,d\\gamma/du\\), the total is \\(mc^2(\\gamma - 1)\\).",
-          "Compare with the low-speed formula \\(mv^2/2\\): the two agree as \\(v\\) goes to zero, and at \\(0.6c\\) they differ, 0.25 against 0.18 in units of \\(mc^2\\).",
-          "For an accelerating voltage \\(U\\), set \\(|q|U = K\\), assuming the electron loses no energy to radiation on the way.",
-          "For bending, keep the magnetic case, a circle at constant speed, apart from the electric case, a curvature that holds only at one instant."
+          "The energy taken from the electrostatic field is \\(\\intε X\\,dx\\). The electron is accelerated slowly and so gives off no energy as radiation, so that energy all becomes its energy of motion W.",
+          "The first of equations (A) holds throughout: \\(ε X=\\mu\\beta^3\\frac{d^2x}{dt^2}\\). Along the path, acceleration times a small distance is \\(v\\,dv\\), so \\(ε X\\,dx=\\mu\\beta^3v\\,dv\\).",
+          "Integrate from rest to speed v, using \\(\\frac{d}{dv}\\frac{1}{\\sqrt{1-v^2/V^2}}=\\frac{v}{V^2}\\beta^3\\): the paper's result \\(W=\\mu V^2\\left\\{\\frac{1}{\\sqrt{1-(v/V)^2}}-1\\right\\}\\). In the explanatory letters, the formula below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "K=\\int_0^v m\\gamma(u)^3u\\,du=mc^2(\\gamma-1)",
+        "spoken": "Integrating the longitudinal work from rest gives m c squared times gamma minus one.",
+        "equations": ["eq-model-sr-electron-work-integral", "eq-model-sr-electron-work-result"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "At low speed, \\(1/\\sqrt{1-ε}\\) is about \\(1+ε/2\\), so W approaches \\(\\frac{1}{2}mv^2\\).",
+          "Worked at 0.6c: exact \\((1.25-1)mc^2=0.25\\,mc^2\\); low-speed \\(0.5\\times0.36\\,mc^2=0.18\\,mc^2\\). For an electron, with modern SI constants, \\(mc^2\\) is about 511 kiloelectronvolts, so W is about 127.7 kiloelectronvolts.",
+          "W becomes infinite at v = V. The paper concludes, as from its earlier results, that speeds greater than light have no possibility of existence.",
+          "The paper lists three properties of the motion that experiment can reach. First: an electric force Y and a magnetic force N deflect an electron moving at v equally when \\(Y=N\\,v/V\\), so the ratio of magnetic to electric deflectability gives the speed, \\(A_m/A_e=v/V\\), and the speed can be measured independently.",
+          "Second: the potential difference passed through and the speed gained are related by \\(P=\\int X\\,dx=\\frac{\\mu}{ε}V^2\\left\\{\\frac{1}{\\sqrt{1-(v/V)^2}}-1\\right\\}\\). In SI, charge times voltage equals W. Worked: to reach 0.6c from rest, an electron needs about 128 kilovolts, with no energy lost to radiation.",
+          "Third: the radius of curvature R when a magnetic force N across the motion is the only deflecting force. From the second of (A), \\(v^2/R=\\frac{ε}{\\mu}\\frac{v}{V}N\\sqrt{1-(v/V)^2}\\), so \\(R=V^2\\frac{\\mu}{ε}\\frac{v/V}{\\sqrt{1-(v/V)^2}}\\frac{1}{N}\\). In SI that is \\(r_B=\\gamma mv/(|q|B)\\), the second formula below."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "|q|U=K,\\qquad r_B=\\frac{\\gamma mv}{|q|B}",
+        "spoken": "For acceleration from rest, charge magnitude times voltage magnitude supplies kinetic energy; in a transverse magnetic field the circular radius is gamma m v over charge magnitude B.",
+        "equations": ["eq-model-sr-electron-energy", "eq-model-sr-magnetic-radius"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked: an electron at 0.6c in a field of 0.1 tesla circles with radius \\(1.25\\times m\\times0.6c/(|q|\\times0.1)\\), about 1.28 centimetres, with modern SI constants.",
+          "Keep the magnetic case, a circle at constant speed, apart from bending in an electric field, which also changes the speed and so gives a radius that holds only at one instant.",
+          "The paper calls these three relations a complete expression of the laws by which, according to the theory, the electron must move. They hold within its assumptions: the fields as specified, and no energy lost to radiation.",
+          "The kinetic energy formula alone does not give the September paper's result that a body's mass changes with its energy content; that needs the argument from the light complex of §8."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "integration",
+        "returnCaption": "Return to the energy it takes to accelerate an electron."
       }
     ],
     "margin": [

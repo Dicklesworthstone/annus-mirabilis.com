@@ -55,15 +55,45 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: in §8 the paper's light has amplitude A in K and \\(A'\\) in k, and \\(A^2/8\\pi\\) is its energy per unit volume in Gaussian units; a, b, c are the direction cosines of the wave normal in K, R the radius of a sphere that moves with the light, S and \\(S'\\) the volumes enclosed, E and \\(E'\\) the energy of the light complex, and V the speed of light. This explanation writes u for the energy density, \\(V_{\\mathrm{packet}}\\) for the volume, and q for the frequency factor \\(\\gamma(1-(v/c)\\cos\\varphi)\\) of §7."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Transform the wave’s amplitude. The energy density goes as its square, so it changes by \\(q^2\\).",
-          "Draw a boundary around the light complex: a sphere that moves with the light.",
-          "Find the region that moving boundary encloses at one instant of the new time \\(t'\\).",
-          "Its volume is \\(1/q\\) times the original volume.",
-          "Multiply density by volume: \\(q^2 \\times 1/q = q\\). The total energy changes by \\(q\\), the same factor as the frequency, and not by \\(q^2\\).",
-          "Check the case along the motion at \\(0.6c\\): 0.5 with the correct volume, and 0.2 if the volume is shrunk like a material body’s."
+          "The density. §7 found that the amplitude changes by the same factor q as the frequency, so the energy density, which goes as the amplitude squared, changes by \\(q^2\\).",
+          "The paper points out that \\(A'^2/A^2\\) would be the ratio of the energies only if the light complex had the same volume in K and k. It does not.",
+          "A boundary around the same light: the sphere \\((x-Vat)^2+(y-Vbt)^2+(z-Vct)^2=R^2\\) moves with the light, so no energy crosses its surface, and it always encloses the same light complex.",
+          "The same surface seen in k at the instant τ = 0: substitute \\(x=\\beta ξ\\) (since τ = 0 means \\(t=vx/V^2\\)), \\(t=\\beta vξ/V^2\\), y = η, z = ζ. The paper prints the result, an ellipsoid: \\((\\beta ξ-a\\beta\\frac{v}{V}ξ)^2+(η-b\\beta\\frac{v}{V}ξ)^2+(ζ-c\\beta\\frac{v}{V}ξ)^2=R^2\\).",
+          "Its volume. The left side is a sphere of radius R in new coordinates \\(u_1=\\beta(1-av/V)ξ\\), \\(u_2=η-b\\beta(v/V)ξ\\), \\(u_3=ζ-c\\beta(v/V)ξ\\). That change of coordinates is triangular, so it multiplies volumes by the product of its diagonal, \\(\\beta(1-av/V)\\cdot1\\cdot1\\).",
+          "So the ellipsoid's volume is the sphere's divided by \\(\\beta(1-a\\,v/V)\\), which is q: \\(S'/S=\\sqrt{1-(v/V)^2}/(1-(v/V)\\cos\\varphi)=1/q\\), as the paper prints it.",
+          "Multiply density by volume: \\(q^2\\times1/q=q\\). Together, the three formulas below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{u'}{u}=q^2,\\qquad\\frac{V_{\\mathrm{packet}}'}{V_{\\mathrm{packet}}}=\\frac{1}{q},\\qquad\\frac{E'}{E}=q",
+        "spoken": "Energy density scales by q squared, packet volume by inverse q, and total energy by q.",
+        "equations": [
+          "eq-model-sr-light-density",
+          "eq-model-sr-light-volume",
+          "eq-model-sr-light-energy"
+        ]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The paper's result, printed as \\(E'/E=(1-\\frac{v}{V}\\cos\\varphi)/\\sqrt{1-(v/V)^2}\\), becomes \\(\\sqrt{(1-v/V)/(1+v/V)}\\) for φ = 0. It remarks that the energy and the frequency of a light complex change with the observer's motion by the same law.",
+          "Worked at 0.6c, light travelling the same way as the observer: q = 0.5. The density falls to 0.25 of its value, the volume doubles, and the energy is \\(0.25\\times2=0.5\\) of what it was.",
+          "The tempting mistake: treat the light complex as a body at rest in K and shrink its volume by 1/1.25 = 0.8. That gives \\(0.25\\times0.8=0.2\\), not 0.5. The boundary moves with the light, not with a body at rest in either frame, so the contraction of a material body does not apply to it.",
+          "A case that cannot catch the mistake: light crossing the motion at right angles in K has q = 1.25, and 1/q = 0.8 happens to equal the material factor. Test with light along the motion.",
+          "The calculation needs no light quanta. The mass-energy paper of September 1905 starts from exactly this transformation of light energy, and does not assume its own conclusion in advance."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "integration",
+        "returnCaption": "Return to why a light complex needs its volume."
       }
     ],
     "margin": [

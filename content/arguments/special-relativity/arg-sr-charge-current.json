@@ -47,14 +47,39 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: in §9 the paper writes ρ for the divergence of its Gaussian electric force, which it calls 4π times the density of electricity, and \\((u_x,u_y,u_z)\\) for the velocity of the electricity; in k these are \\(\\rho'\\) and \\((u_ξ,u_η,u_ζ)\\). This explanation writes ρ for the charge density itself and \\(J_x=\\rho u_x\\) for the current along x, in SI units, where the paper's factors of 4π and V are absorbed."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Write down the charge density \\(\\rho\\) and all three current components.",
-          "Transform \\(\\rho\\) and \\(J_x\\) together, as a pair: \\(\\rho' = \\gamma(\\rho - vJ_x/c^2)\\) and \\(J'_x = \\gamma(J_x - v\\rho)\\).",
-          "Leave \\(J_y\\) and \\(J_z\\) unchanged, since they are across the motion.",
-          "If the wire is neutral, do not divide \\(J_x\\) by \\(\\rho\\). To find a velocity, transform the positive and the negative charges separately.",
-          "Check the continuity equation, and compare the total charge of the same body, before comparing totals between frames."
+          "The paper extends the Maxwell–Hertz equations of §6 by the convection current: each equation for the electric force gains a term \\(u\\rho\\). With electric masses bound to small rigid bodies, ions and electrons, these are the electromagnetic basis of Lorentz's electrodynamics and optics of moving bodies.",
+          "Transforming them with §3 and §6 gives the same equations in k, with \\(u_ξ=\\frac{u_x-v}{1-u_xv/V^2}\\), \\(u_η=\\frac{u_y}{\\beta(1-u_xv/V^2)}\\), \\(u_ζ=\\frac{u_z}{\\beta(1-u_xv/V^2)}\\), and \\(\\rho'=\\beta\\left(1-\\frac{vu_x}{V^2}\\right)\\rho\\).",
+          "By §5, \\((u_ξ,u_η,u_ζ)\\) is the velocity of the electricity measured in k. So, on the paper's kinematic principles, the electrodynamic basis of Lorentz's theory agrees with the principle of relativity.",
+          "Rewrite the density rule with \\(J_x=\\rho u_x\\): \\(\\rho'=\\gamma(\\rho-vJ_x/c^2)\\). Multiply \\(\\rho'\\) by \\(u_ξ\\) and simplify: \\(J'_x=\\gamma(J_x-v\\rho)\\). The pair is below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\rho'=\\gamma\\left(\\rho-\\frac{vJ_x}{c^2}\\right),\\qquad J_x'=\\gamma(J_x-v\\rho)",
+        "spoken": "The primed charge density is gamma times rho minus v times the current along x over c squared; the primed current along x is gamma times the current along x minus v times rho.",
+        "equations": ["eq-model-sr-charge-density", "eq-model-sr-current-density"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The components across the motion carry the same factor in their velocity and in the density, so \\(J'_y=J_y\\) and \\(J'_z=J_z\\).",
+          "A neutral wire, ρ = 0, carrying current \\(J_x\\): then \\(\\rho'=-\\gamma vJ_x/c^2\\), not zero for any v other than zero.",
+          "Why, charge by charge: the positive ions are at rest with density \\(\\rho_+\\), and the electrons move at \\(u\\) with density \\(-\\rho_+\\). The paper's rule gives the ions \\(\\gamma\\rho_+\\) and the electrons \\(-\\gamma\\rho_+(1-vu/c^2)\\). Their sum is \\(\\gamma\\rho_+vu/c^2\\), which is \\(-\\gamma vJ_x/c^2\\) since \\(J_x=-\\rho_+u\\).",
+          "Worked: 1 ampere through a wire of 1 square millimetre is \\(J_x=10^{6}\\) amperes per square metre. For an observer walking along it at 1 metre per second, \\(\\rho'\\) is about \\(−1.1\\times10^{-11}\\) coulombs per cubic metre. At 0.6c it would be about \\(−2.5\\times10^{-3}\\).",
+          "There is no single velocity to find by dividing \\(J_x\\) by ρ: in a neutral wire that divides by zero. Transform the positive and the negative charges separately.",
+          "Charge is kept. The paper states the theorem: if a charged body moves in any way and its charge does not change as seen from a system moving with it, then its charge is also constant as seen from K. Compare the total charge of the same body, each frame adding it up at one of its own instants; a fixed box of space is a different comparison, because charge flows through its walls."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "flux-continuity",
+        "returnCaption": "Return to how a neutral wire carries charge density in another frame."
       }
     ],
     "margin": [

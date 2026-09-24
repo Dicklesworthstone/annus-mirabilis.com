@@ -2,36 +2,5 @@
   "bead": "am-r2-contains-r1-gate-wxf5",
   "measuredAt": "2026-09-24",
   "examined": 42,
-  "violators": {
-    "arg-sr-charge-current": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-charge-density+eq-model-sr-current-density"],
-      "wordGap": 55
-    },
-    "arg-sr-electron-conventions": {
-      "paper": "special-relativity",
-      "missing": [
-        "eq-model-sr-longitudinal-mass+eq-model-sr-transverse-mass-printed+eq-model-sr-transverse-mass-laboratory"
-      ],
-      "wordGap": 0
-    },
-    "arg-sr-electron-work": {
-      "paper": "special-relativity",
-      "missing": [
-        "eq-model-sr-electron-work-integral+eq-model-sr-electron-work-result",
-        "eq-model-sr-electron-energy+eq-model-sr-magnetic-radius"
-      ],
-      "wordGap": 0
-    },
-    "arg-sr-light-complex": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-light-density+eq-model-sr-light-volume+eq-model-sr-light-energy"],
-      "wordGap": 63
-    },
-    "arg-sr-moving-mirror": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-mirror-frequency"],
-      "wordGap": 9
-    }
-  }
+  "violators": {}
 }

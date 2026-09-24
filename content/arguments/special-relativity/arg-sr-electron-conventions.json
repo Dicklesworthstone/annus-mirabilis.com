@@ -51,15 +51,45 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: in §10 the paper's electron is a point particle of charge ε and mass μ, where μ is its mass while it moves slowly; X, Y, Z are the electric force and M, N magnetic components, in Gaussian units; β is the modern γ and V the speed of light. This explanation writes m for μ, and F with a frame label for each force."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Let the electron move along \\(x\\). Forces and accelerations along \\(x\\) are longitudinal; those along \\(y\\) or \\(z\\) are transverse.",
-          "For every ratio, say which frame the force is measured in and which frame the acceleration is measured in.",
-          "In the electron’s momentary rest frame its motion is slow, so ordinary mechanics holds there: force equals \\(m\\) times acceleration.",
-          "Transform the force and the acceleration to the laboratory, each by its own rule.",
-          "Form Einstein’s mixed ratio, rest-frame force over laboratory acceleration, and the all-laboratory ratio.",
-          "Keep the electron’s mass \\(m\\) apart from both ratios: each ratio depends on the direction of the force, and \\(m\\) does not."
+          "The only assumption about the law of motion: when the electron is at rest at some moment, in the next instant it moves by \\(\\mu\\frac{d^2x}{dt^2}=ε X\\), and likewise for y and z, ordinary mechanics for slow motion.",
+          "Now let the electron have speed v along x at the moment t = 0, at the origin of K. It is then at rest in the system k moving at v, so in k, for small times, \\(\\mu\\frac{d^2ξ}{d\\tau^2}=ε X'\\) and likewise for η and ζ.",
+          "Transform back to K with §3 and §6, using \\(X'=X\\), \\(Y'=\\beta(Y-\\frac{v}{V}N)\\), \\(Z'=\\beta(Z+\\frac{v}{V}M)\\). The paper's equations (A): \\(\\frac{d^2x}{dt^2}=\\frac{ε}{\\mu}\\frac{1}{\\beta^3}X\\), \\(\\frac{d^2y}{dt^2}=\\frac{ε}{\\mu}\\frac{1}{\\beta}(Y-\\frac{v}{V}N)\\), and the same for z.",
+          "Rewrite them as the paper does: \\(\\mu\\beta^3\\frac{d^2x}{dt^2}=ε X=ε X'\\) and \\(\\mu\\beta^2\\frac{d^2y}{dt^2}=ε\\beta(Y-\\frac{v}{V}N)=ε Y'\\).",
+          "Read \\(εX'\\), \\(εY'\\), \\(εZ'\\) as the force on the electron measured in a system moving with it at that moment; the paper says it could be measured with a spring balance at rest in that system.",
+          "Keep mass times acceleration equal to force, with that force and with accelerations measured in K. Then the ratio of force to acceleration is \\(\\mu\\beta^3\\) along the motion and \\(\\mu\\beta^2\\) across it: the paper's longitudinal mass \\(\\mu/(\\sqrt{1-(v/V)^2})^3\\) and transverse mass \\(\\mu/(1-(v/V)^2)\\).",
+          "Measure the transverse force in K as well: it is smaller than the co-moving force by the factor β, so that ratio is \\(m\\gamma\\). The three ratios are below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{F_x}{a_x}=m\\gamma^3,\\qquad\\frac{F_y'}{a_y}=m\\gamma^2,\\qquad\\frac{F_y}{a_y}=m\\gamma",
+        "spoken": "Longitudinal laboratory force over acceleration is m gamma cubed. Rest-frame transverse force over laboratory acceleration is m gamma squared. Laboratory transverse force over laboratory acceleration is m gamma.",
+        "equations": [
+          "eq-model-sr-longitudinal-mass",
+          "eq-model-sr-transverse-mass-printed",
+          "eq-model-sr-transverse-mass-laboratory"
+        ]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked at 0.6c, γ = 1.25: longitudinal 1.953125 m, Einstein's transverse 1.5625 m, and the all-laboratory transverse ratio 1.25 m.",
+          "The paper's own warning, kept with its result: with other definitions of force and of acceleration, other numbers for these masses would be obtained, so theories of the electron's motion must be compared with great care.",
+          "The transverse mass \\(m\\gamma^2\\) is Einstein's, under his convention: force measured in the co-moving system, acceleration in K. The later habit of defining force as the rate of change of momentum gives \\(m\\gamma\\) for the same transverse case; it is a different convention, and it does not correct his result.",
+          "The paper adds that these results hold for any ponderable material point too, since a vanishingly small charge turns it into an electron in its sense.",
+          "The electron's mass m is one number; each ratio depends on the direction of the force and on the frames used, and m does not."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "work-energy",
+        "returnCaption": "Return to why there are two transverse coefficients."
       }
     ],
     "margin": [
