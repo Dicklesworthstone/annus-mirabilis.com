@@ -1,11 +1,15 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
+import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
+import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { createSr03BrowserChannel } from "../../experiments/sr03/browser.ts";
 import { fromSr03Draft, type Sr03Draft, toSr03Draft } from "../../experiments/sr03/controls.ts";
 import {
   SR03_CAPTION,
-  SR03_MODEL,
+  SR03_OUTPUTS,
   SR03_PRESETS,
   SR03_PROMPTS,
   type Sr03Parameters,
@@ -202,6 +206,16 @@ export function RodSimultaneityLab({
   const isNonSimultaneousRefusal =
     measOut?.status === "not-applicable" && measOut.reason.includes("simultaneous");
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR03_OUTPUTS,
+      example.sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory"
@@ -213,7 +227,7 @@ export function RodSimultaneityLab({
       data-input-revision={view.requested?.revisions.input ?? 1}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...executionLabelAttributes(executionKind)}
       data-source-digest={example.sourceDigest}
       data-result-status={measOut?.status ?? "value"}
       {...(view.refusal ? { "data-refusal-code": view.refusal.code } : {})}
@@ -240,7 +254,7 @@ export function RodSimultaneityLab({
             <p className="eyebrow">An executable laboratory</p>
             <h2 id={`${id}-title`}>{title}</h2>
           </div>
-          <span className="badge">{SR03_MODEL.label}</span>
+          <ExecutionLabel state={executionKind} />
         </div>
       </header>
 
