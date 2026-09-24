@@ -9,6 +9,8 @@
 import { describe, expect, test } from "bun:test";
 import { loadReadingFiles } from "../../../scripts/build-content.ts";
 import { compileContent, compileReadingContent } from "./compile.ts";
+import { ContentError } from "./loaders.ts";
+import { checkMisconceptionRecord } from "./marginRecords.ts";
 
 const corpus = await loadReadingFiles();
 
@@ -99,6 +101,31 @@ for (const [name, compile] of compilers)
       );
     });
   });
+
+test("checkMisconceptionRecord refuses a record whose id or paper disagrees with its path: path-identity", () => {
+  const refused = (record: unknown, params: { id?: string; paper?: string }) => {
+    try {
+      checkMisconceptionRecord(record, miscPath("misc-me-fixture-x"), params);
+    } catch (error) {
+      if (error instanceof ContentError) return error.code;
+      throw error;
+    }
+    return "admitted";
+  };
+  // The control: id and paper both agree with the path, so it is admitted.
+  expect(
+    refused(misconception("misc-me-fixture-x"), { id: "misc-me-fixture-x", paper: "mass-energy" }),
+  ).toBe("admitted");
+  expect(
+    refused(misconception("misc-me-fixture-x"), { id: "misc-me-fixture-z", paper: "mass-energy" }),
+  ).toBe("path-identity");
+  expect(
+    refused(misconception("misc-me-fixture-x", { paper: "light-quanta" }), {
+      id: "misc-me-fixture-x",
+      paper: "mass-energy",
+    }),
+  ).toBe("path-identity");
+});
 
 test("production: the five-entry minimum counts a paper's misconceptions", async () => {
   // The production compiler already handed kind-tagged misconceptions to this check; what kept it
