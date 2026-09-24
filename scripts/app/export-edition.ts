@@ -37,6 +37,8 @@ import {
 } from "../../src/platform/app-bridge/settingsSnapshot.ts";
 import { TEST_CONSOLE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/testConsole.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
+import { TestLogger } from "../../src/testing/log/logger.ts";
+import { RUN_IDENTITY_PATTERN } from "../../src/testing/log/schema.ts";
 import {
   buildNativeCatalog,
   NATIVE_CATALOG_FILE,
@@ -493,7 +495,7 @@ export function checkRoutesAndReferences(
   outDir: string,
   paths: readonly string[],
   included: readonly string[],
-): void {
+): number {
   const sitemap = join(outDir, "sitemap.xml");
   let routes: string[] = [];
   try {
@@ -528,15 +530,64 @@ export function checkRoutesAndReferences(
       `${absent.length} file(s) a page asks for are not in the build, and no exclusion rule names them: ${absent.slice(0, 10).join("; ")}`,
     );
   }
+  return routes.length;
 }
 
 export type ExportResult = {
   readonly manifestPath: string;
+  /** Routes the build's sitemap lists, each of which has its page in the edition. */
+  readonly routeCount: number;
   readonly fileCount: number;
   readonly totalBytes: number;
   readonly excludedCount: number;
+  /** What each exclusion rule dropped, as the manifest records it. */
+  readonly exclusions: readonly {
+    readonly rule: string;
+    readonly files: number;
+    readonly bytes: number;
+  }[];
   readonly editionDigest: string;
+  readonly release: ReleaseBinding | null;
+  readonly siteBinding: SiteBinding["binding"];
 };
+
+/** The export's JSONL suite (bead am-app-edition-export-kwpu, requirement 9). */
+export const EXPORT_LOG_SUITE = "app-edition-export";
+
+/**
+ * The export's one log event: what shipped, or the refusal with its code. Counts and identities
+ * only: the rules' reasons stay in the manifest, which is where a reader of the export looks.
+ */
+export function exportLogEvent(
+  outcome: { readonly result: ExportResult } | { readonly error: unknown },
+): Record<string, unknown> {
+  const base = { testId: "export-edition", beadId: "am-app-edition-export-kwpu" };
+  if ("result" in outcome) {
+    const { result } = outcome;
+    return {
+      ...base,
+      outcome: "passed",
+      artifactDigest: result.editionDigest,
+      message: `${result.fileCount} files, ${result.totalBytes} bytes, ${result.routeCount} routes, ${result.excludedCount} excluded`,
+      extra: {
+        routeCount: result.routeCount,
+        fileCount: result.fileCount,
+        totalBytes: result.totalBytes,
+        excludedCount: result.excludedCount,
+        exclusions: result.exclusions,
+        release: result.release,
+        siteBinding: result.siteBinding,
+      },
+    };
+  }
+  const { error } = outcome;
+  return {
+    ...base,
+    outcome: "failed",
+    resultStatus: error instanceof AppExportError ? error.code : "error",
+    message: error instanceof Error ? error.message : String(error),
+  };
+}
 
 export function exportEdition(options: {
   readonly repo: string;
@@ -574,7 +625,7 @@ export function exportEdition(options: {
   const digests = referencedDigests(paths, (path) => readFileSync(join(outDir, path), "utf8"));
   const plan = planEdition(paths, digests);
 
-  checkRoutesAndReferences(outDir, paths, plan.included);
+  const routeCount = checkRoutesAndReferences(outDir, paths, plan.included);
   const viewerUsers = pdfViewerReferences(plan.included, (path) =>
     readFileSync(join(outDir, path), "utf8"),
   );
@@ -633,6 +684,14 @@ export function exportEdition(options: {
   });
   const release = options.release === undefined ? null : releaseBinding(options.release, binding);
   const digest = editionDigest(files);
+  const exclusions = EXCLUSION_RULES.map((rule) => {
+    const dropped = plan.excluded.get(rule.id) ?? [];
+    return {
+      rule: rule.id,
+      files: dropped.length,
+      bytes: dropped.reduce((sum, path) => sum + statSync(join(outDir, path)).size, 0),
+    };
+  });
 
   const manifest = {
     schemaVersion: EDITION_SCHEMA_VERSION,
@@ -650,12 +709,12 @@ export function exportEdition(options: {
     },
     budget: { maxBytes: budgetBytes, totalBytes, fileCount: files.length },
     exclusions: EXCLUSION_RULES.map((rule) => {
-      const dropped = plan.excluded.get(rule.id) ?? [];
+      const dropped = exclusions.find((entry) => entry.rule === rule.id);
       return {
         rule: rule.id,
         reason: rule.reason,
-        files: dropped.length,
-        bytes: dropped.reduce((sum, path) => sum + statSync(join(outDir, path)).size, 0),
+        files: dropped?.files ?? 0,
+        bytes: dropped?.bytes ?? 0,
       };
     }),
     untypedFiles: untyped,
@@ -742,10 +801,14 @@ export function exportEdition(options: {
 
   return {
     manifestPath,
+    routeCount,
     fileCount: files.length,
     totalBytes,
     excludedCount: [...plan.excluded.values()].reduce((sum, list) => sum + list.length, 0),
+    exclusions,
     editionDigest: digest,
+    release,
+    siteBinding: binding.binding,
   };
 }
 
@@ -758,19 +821,30 @@ function main(argv: readonly string[]): number {
   const outDir = resolve(repo, flag("--out") ?? "out");
   const dest = resolve(repo, flag("--dest") ?? "generated/app-edition");
   const releasePath = flag("--release");
+  // A gate run passes its own id (quality-gates.ts sets AM_LOG_RUN_ID), so its steps share one run.
+  const given = process.env.AM_LOG_RUN_ID;
+  const logger = new TestLogger(
+    EXPORT_LOG_SUITE,
+    given !== undefined && RUN_IDENTITY_PATTERN.test(given) ? given : undefined,
+    join(repo, "artifacts", "test-logs"),
+  );
   try {
     const release = releasePath === undefined ? undefined : readReleaseRecord(resolve(releasePath));
     const result = exportEdition({ repo, outDir, dest, release });
+    logger.log(exportLogEvent({ result }));
     process.stdout.write(
-      `app edition: ${result.fileCount} files, ${result.totalBytes} bytes, ${result.excludedCount} excluded, digest ${result.editionDigest}\n${result.manifestPath}\n`,
+      `app edition: ${result.fileCount} files, ${result.totalBytes} bytes, ${result.routeCount} routes, ${result.excludedCount} excluded, digest ${result.editionDigest}\n${result.manifestPath}\n${logger.filePath}\n`,
     );
     return 0;
   } catch (error) {
+    logger.log(exportLogEvent({ error }));
     const code = error instanceof AppExportError ? ` [${error.code}]` : "";
     process.stderr.write(
-      `export-edition${code}: ${error instanceof Error ? error.message : String(error)}\n`,
+      `export-edition${code}: ${error instanceof Error ? error.message : String(error)}\n${logger.filePath}\n`,
     );
     return 1;
+  } finally {
+    logger.flushSync();
   }
 }
 

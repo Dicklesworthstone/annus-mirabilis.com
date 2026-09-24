@@ -10,6 +10,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import { readerDataManifest } from "../../src/platform/app-bridge/readerData.ts";
 import {
   SETTINGS_SNAPSHOT_PLACEHOLDER,
@@ -18,14 +19,19 @@ import {
 } from "../../src/platform/app-bridge/settingsSnapshot.ts";
 import { TEST_CONSOLE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/testConsole.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
+import { newRunIdentity, TestLogger } from "../../src/testing/log/logger.ts";
+import { parseLogLine } from "../../src/testing/log/schema.ts";
+import { spawnObserved } from "../spawnObserved.ts";
 import {
   AppExportError,
   BRIDGE_SCRIPT_FILE,
   contentTypeFor,
   EXCLUSION_RULES,
+  EXPORT_LOG_SUITE,
   editionDigest,
   editionDirectories,
   exportEdition,
+  exportLogEvent,
   largestFiles,
   OCTET_STREAM,
   planEdition,
@@ -372,6 +378,87 @@ describe("exportEdition", () => {
         }),
       (error: unknown) => error instanceof AppExportError && error.code === "release-unbound",
     );
+  });
+
+  it("gives the gate one schema-valid log event: what shipped, or the refusal and its code", () => {
+    const out = fixture(SITE);
+    const result = exportEdition({
+      repo: dirname(out),
+      outDir: out,
+      dest: mkdtempSync(join(tmpdir(), "app-edition-dest-")),
+      catalog: CATALOG,
+    });
+    let refusal: unknown;
+    try {
+      exportEdition({
+        repo: dirname(out),
+        outDir: out,
+        dest: mkdtempSync(join(tmpdir(), "app-edition-dest-")),
+        catalog: CATALOG,
+        budgetBytes: 10,
+      });
+    } catch (error) {
+      refusal = error;
+    }
+    assert.ok(refusal instanceof AppExportError);
+
+    const root = mkdtempSync(join(tmpdir(), "app-export-log-"));
+    const logger = new TestLogger(EXPORT_LOG_SUITE, "20260924T190000Z-0a1b2c3d", root);
+    logger.log(exportLogEvent({ result }));
+    logger.log(exportLogEvent({ error: refusal }));
+    logger.flushSync();
+    assert.equal(
+      logger.filePath,
+      join(root, "app-edition-export", "20260924T190000Z-0a1b2c3d.jsonl"),
+    );
+    // parseLogLine validates each line against the shared schema, which is closed.
+    const [shipped, refused, ...rest] = readFileSync(logger.filePath, "utf8")
+      .trim()
+      .split("\n")
+      .map(parseLogLine);
+    assert.deepEqual(rest, []);
+
+    assert.equal(shipped?.outcome, "passed");
+    assert.equal(shipped?.artifactDigest, result.editionDigest);
+    // The fixture's sitemap lists / and /papers/.
+    assert.equal(result.routeCount, 2);
+    assert.equal(shipped?.extra?.routeCount, 2);
+    assert.equal(shipped?.extra?.fileCount, result.fileCount);
+    assert.equal(shipped?.extra?.totalBytes, result.totalBytes);
+    const exclusions = (shipped?.extra?.exclusions ?? []) as { rule: string; files: number }[];
+    assert.equal(exclusions.find((entry) => entry.rule === "unused-pdf-viewer")?.files, 2);
+    assert.equal(shipped?.extra?.release, null);
+
+    assert.equal(refused?.outcome, "failed");
+    assert.equal(refused?.resultStatus, "edition-over-budget");
+    assert.match(refused?.message ?? "", /over the 10-byte budget/);
+  });
+
+  it("logs from the command line under the gate's run id, refusal included", () => {
+    const repo = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+    const logRunId = newRunIdentity();
+    // This fixture lacks the pages the repository's own catalogue opens, so the command refuses
+    // (catalog-route-missing): the failed branch is the one a gate most needs to see logged.
+    const run = spawnObserved(
+      process.execPath,
+      [
+        ...(process.versions.bun ? [] : ["--experimental-strip-types"]),
+        "scripts/app/export-edition.ts",
+        "--out",
+        fixture(SITE),
+        "--dest",
+        mkdtempSync(join(tmpdir(), "app-edition-dest-")),
+      ],
+      { cwd: repo, env: { ...process.env, AM_LOG_RUN_ID: logRunId } },
+    );
+    const log = join(repo, "artifacts", "test-logs", EXPORT_LOG_SUITE, `${logRunId}.jsonl`);
+    assert.equal(run.exitCode, 1, run.stderr);
+    assert.ok(run.stderr.includes(log), run.stderr);
+    const events = readFileSync(log, "utf8").trim().split("\n").map(parseLogLine);
+    assert.equal(events.length, 1);
+    assert.equal(events[0]?.logRunId, logRunId);
+    assert.equal(events[0]?.outcome, "failed");
+    assert.equal(events[0]?.resultStatus, "catalog-route-missing");
   });
 
   it("refuses an edition over its budget and names the size", () => {
