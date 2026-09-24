@@ -50,8 +50,14 @@
     }
   ],
   "prerequisites": [
-    "bridge-scientific-notation-units",
-    "bridge-fractions-ratios"
+    {
+      "foundationId": "foundation:bridge-scientific-notation-units",
+      "kind": "cross-link"
+    },
+    {
+      "foundationId": "foundation:bridge-fractions-ratios",
+      "kind": "cross-link"
+    }
   ],
   "stoppingPoint": "This lesson stops at the drag on one slow sphere. Why the same 6πηa also sets how fast a crowd of such spheres spreads by diffusion is the subject of §§3 and 5 of the Brownian paper.",
   "citations": [

@@ -50,9 +50,18 @@
     }
   ],
   "prerequisites": [
-    "entropy-temperature",
-    "bridge-scientific-notation-units",
-    "bridge-fractions-ratios"
+    {
+      "foundationId": "foundation:entropy-temperature",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-scientific-notation-units",
+      "kind": "cross-link"
+    },
+    {
+      "foundationId": "foundation:bridge-fractions-ratios",
+      "kind": "cross-link"
+    }
   ],
   "stoppingPoint": "This lesson stops at the pressure of a dilute suspension. How that pressure, balanced against a force on each grain, fixes how fast the grains spread is §3 of the Brownian paper.",
   "citations": [
