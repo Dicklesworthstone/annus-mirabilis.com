@@ -1,11 +1,11 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { MetadataRoute } from "next";
-import { loadProvenanceReceipts } from "../content/provenance/loadReceipts.ts";
 import { contentIndex } from "../content/server.ts";
 import { ROUTE_INDEX } from "../discovery/routeIndex.ts";
 import { isSitemapExemptUrl } from "../experiments/permalink/canonical.ts";
 import { absoluteUrl, readerSitemapEntries } from "../reader/paperRoutes.ts";
+import { receiptsByPage } from "./sources/receiptPages.ts";
 
 export const dynamic = "force-static";
 
@@ -92,9 +92,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((payload) => payload.kind === "foundation")
     .map((payload) => `/foundations/${payload.id}/`)
     .sort();
-  const sources = loadProvenanceReceipts()
-    .receipts.flatMap(({ receipt }) => (receipt ? [`/sources/${receipt.frontMatter.slug}/`] : []))
-    .sort();
+  // One receipt page per paper; the 1911 correction is a section of the dissertation's page.
+  const sources = [...receiptsByPage().keys()].map((paper) => `/sources/${paper}/`).sort();
   const paths = [
     ...FIXED_PAGES,
     ...ROUTE_INDEX.map((route) => `/discover/${route.slug}/`),

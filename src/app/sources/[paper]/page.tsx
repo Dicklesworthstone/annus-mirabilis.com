@@ -2,32 +2,34 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { loadFirstPages } from "../../../components/home/firstPages.ts";
 import "../../../components/home/wideProse.css";
-import { loadProvenanceReceipts } from "../../../content/provenance/loadReceipts.ts";
+import type { RouteSlug } from "../../../content/ids.ts";
 import type { ReceiptFrontMatter, WitnessKind } from "../../../content/provenance/receiptSchema.ts";
+import { receiptsByPage } from "../receiptPages.ts";
 import "../sources.css";
 import { TRANSCRIPTION_WORDS, transcriptionOf } from "../transcription.ts";
 
 /*
  * ONE PAPER'S RECEIPT, AT /sources/<paper>/ (am-design-sources-about-zumd). Addressed by the
- * paper's route slug; the bibliographic key names files and never appears in a URL.
+ * paper's route slug; the bibliographic key names files and never appears in a URL. The
+ * dissertation's page also carries the 1911 correction's receipt, as a section of its own
+ * (receiptPages.ts says why), so there is one page per paper and none for the correction.
  *
  * It shows what the receipt records as data: which journal page each scan page is and what it
  * holds, what the transcription was compared against, and how far the transcription has got. The
- * printing-error records are shown as a count and the printed pages concerned, not their text: the
- * records are working notes, with the German transliterated ("Ueberlegung"), and quoting one as
- * "as printed" would misstate the page.
+ * printing-error records are counted here, with the printed pages concerned; their readings are in
+ * the correction log on /sources/, labelled as the records' own spelling, because the records
+ * transliterate the German ("Ueberlegung") and quoting one as "as printed" would misstate the page.
  */
 
 export const dynamicParams = false;
 
-function receipts(): ReceiptFrontMatter[] {
-  return loadProvenanceReceipts().receipts.flatMap(({ receipt }) =>
-    receipt ? [receipt.frontMatter] : [],
-  );
+/** The receipts on this paper's page, the paper's own first; undefined for a slug with none. */
+function receiptsFor(paper: string): readonly ReceiptFrontMatter[] | undefined {
+  return receiptsByPage().get(paper as RouteSlug);
 }
 
 export function generateStaticParams() {
-  return receipts().map((fm) => ({ paper: fm.slug }));
+  return [...receiptsByPage().keys()].map((paper) => ({ paper }));
 }
 
 const COMPANION_NAMES: Readonly<Record<string, string>> = {
@@ -49,7 +51,7 @@ export async function generateMetadata({
   params: Promise<{ paper: string }>;
 }): Promise<Metadata> {
   const { paper } = await params;
-  const fm = receipts().find((r) => r.slug === paper);
+  const fm = receiptsFor(paper)?.[0];
   return fm
     ? {
         title: `Sources: ${nameOf(fm)}`,
@@ -115,13 +117,12 @@ function formatDay(iso: string): string {
 
 export default async function ReceiptPage({ params }: { params: Promise<{ paper: string }> }) {
   const { paper } = await params;
-  const fm = receipts().find((r) => r.slug === paper);
-  if (!fm) notFound();
+  const list = receiptsFor(paper);
+  const fm = list?.[0];
+  if (!list || !fm) notFound();
   const name = nameOf(fm);
   const hasPaperPage = loadFirstPages().some((p) => p.key === fm.key);
-  const errors = fm.typographicalErrors;
-  const withdrawn = errors.filter((e) => e.status === "retracted");
-  const errorPages = [...new Set(errors.map((e) => e.locator.printedPage))].sort((a, b) => a - b);
+  const companions = list.length > 1;
   return (
     <div>
       <header className="page-intro page-flush">
@@ -131,8 +132,9 @@ export default async function ReceiptPage({ params }: { params: Promise<{ paper:
           <i>{fm.paper.titleGerman}</i>
         </p>
         <p>
-          The receipt for this paper&rsquo;s scan: which page of the journal each scan page is, what
-          the transcription was compared against, and how far it has got.{" "}
+          {companions
+            ? `The receipts for its ${sentenceNumber(list.length).toLowerCase()} scans, one after the other: which page of the journal each scan page is, what each transcription was compared against, and how far it has got.`
+            : "The receipt for this paper’s scan: which page of the journal each scan page is, what the transcription was compared against, and how far it has got."}{" "}
           <a href="/sources/">All the scans</a>
           {hasPaperPage ? (
             <>
@@ -143,8 +145,45 @@ export default async function ReceiptPage({ params }: { params: Promise<{ paper:
         </p>
       </header>
 
-      <section className="reading page-flush sources-section" aria-labelledby="receipt-pages">
-        <h2 id="receipt-pages">Pages</h2>
+      {companions ? (
+        list.map((receipt) => (
+          <section
+            key={receipt.slug}
+            id={receipt.slug}
+            className="page-flush sources-section"
+            aria-labelledby={`${receipt.slug}-name`}
+          >
+            <h2 id={`${receipt.slug}-name`}>{nameOf(receipt)}</h2>
+            <p className="sources-entry-title" lang="de">
+              {receipt.paper.titleGerman}
+            </p>
+            <ReceiptSections fm={receipt} ids={`${receipt.slug}-`} heading="h3" />
+          </section>
+        ))
+      ) : (
+        <ReceiptSections fm={fm} ids="receipt-" heading="h2" />
+      )}
+    </div>
+  );
+}
+
+/** One receipt's pages, witnesses and state, under headings of the given rank. */
+function ReceiptSections({
+  fm,
+  ids,
+  heading: Heading,
+}: {
+  fm: ReceiptFrontMatter;
+  ids: string;
+  heading: "h2" | "h3";
+}) {
+  const errors = fm.typographicalErrors;
+  const withdrawn = errors.filter((e) => e.status === "retracted");
+  const errorPages = [...new Set(errors.map((e) => e.locator.printedPage))].sort((a, b) => a - b);
+  return (
+    <>
+      <section className="reading page-flush sources-section" aria-labelledby={`${ids}pages`}>
+        <Heading id={`${ids}pages`}>Pages</Heading>
         <table className="receipt-pages">
           <thead>
             <tr>
@@ -165,8 +204,8 @@ export default async function ReceiptPage({ params }: { params: Promise<{ paper:
         </table>
       </section>
 
-      <section className="reading page-flush sources-section" aria-labelledby="receipt-witnesses">
-        <h2 id="receipt-witnesses">What the transcription is compared against</h2>
+      <section className="reading page-flush sources-section" aria-labelledby={`${ids}witnesses`}>
+        <Heading id={`${ids}witnesses`}>What the transcription is compared against</Heading>
         <ul className="receipt-witnesses">
           {fm.witnesses.map((w) => (
             <li key={`${w.kind}-${w.identity}`}>
@@ -181,15 +220,21 @@ export default async function ReceiptPage({ params }: { params: Promise<{ paper:
         </ul>
       </section>
 
-      <section className="reading page-flush sources-section" aria-labelledby="receipt-state">
-        <h2 id="receipt-state">How far the transcription has got</h2>
+      <section className="reading page-flush sources-section" aria-labelledby={`${ids}state`}>
+        <Heading id={`${ids}state`}>How far the transcription has got</Heading>
         <p>{TRANSCRIPTION_WORDS[transcriptionOf(fm.key)]}</p>
         <p>
           {errors.length === 0
             ? "No printing error has been recorded against these pages."
             : `${errors.length === 1 ? "One printing error has" : `${sentenceNumber(errors.length)} printing errors have`} been recorded against these pages, on ${errorPages.length === 1 ? "page" : "pages"} ${errorPages.join(", ")}${withdrawn.length > 0 ? `; ${sentenceNumber(withdrawn.length).toLowerCase()} of them ${withdrawn.length === 1 ? "was" : "were"} later withdrawn, and ${withdrawn.length === 1 ? "is" : "are"} kept with the reason` : ""}. The source keeps what was printed; a correction is only ever offered beside it.`}
+          {errors.length > 0 ? (
+            <>
+              {" "}
+              <a href="/sources/#corrections">The correction log</a> lists each one.
+            </>
+          ) : null}
         </p>
       </section>
-    </div>
+    </>
   );
 }

@@ -3,7 +3,9 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
+import { firstSentence } from "./corrections.ts";
 import Sources from "./page";
+import { reuseOf, textLayerWords } from "./reuse.ts";
 
 /**
  * /sources/ against the real receipts. Properties, not a census: the receipts grow, and every
@@ -85,7 +87,68 @@ describe("/sources/", () => {
     expect(html).toContain("scans below");
   });
 
-  test("no em dash in the page's text", () => {
-    expect(html.replace(/<[^>]+>/g, "")).not.toContain("—");
+  test("each entry states its scan's recorded reuse terms, and its text layer where one is recorded", () => {
+    for (const { fm } of receipts) {
+      const entry = entries.find((e) => e.includes(fm.scan.sha256)) ?? "";
+      const text = entry.replace(/<[^>]+>/g, "").replace(/&#x27;|&rsquo;/g, "’");
+      expect(text).toContain(reuseOf(fm).words.replace(/'/g, "’"));
+      const layer = textLayerWords(fm);
+      if (layer) expect(text).toContain(layer.replace(/'/g, "’"));
+      else expect(entry).not.toContain("<dt>Text layer</dt>");
+    }
+  });
+
+  test("the correction log holds every record once, with the printed reading beside the proposed one", () => {
+    const records = receipts.flatMap(({ fm }) => fm.typographicalErrors);
+    // Guards: records exist, and some are withdrawn, or the checks below prove nothing.
+    expect(records.length).toBeGreaterThan(0);
+    expect(records.some((r) => r.status === "retracted")).toBe(true);
+    const log = html.split('id="corrections"')[1] ?? "";
+    const items = log.split("<li ").slice(1);
+    expect(items.length).toBe(records.length);
+    const escape = (t: string) =>
+      t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#x27;");
+    for (const record of records) {
+      const item = items.filter((i) => i.startsWith(`id="${record.id}"`));
+      expect({ id: record.id, once: item.length }).toEqual({ id: record.id, once: 1 });
+      const body = item[0] ?? "";
+      expect(body).toContain(`Printed: <span lang="de">${escape(record.originalReading)}</span>`);
+      expect(body).toContain(`Proposed: <span lang="de">${escape(record.proposedReading)}</span>`);
+      if (record.status === "retracted") {
+        expect(body).toContain("withdrawn");
+        expect(body).toContain(escape(firstSentence(record.retraction?.reason ?? "")));
+      } else expect(body).not.toContain("Withdrawn on");
+    }
+  });
+
+  test("the log runs newest first, and keeps translation corrections apart", () => {
+    const log = html.split('id="corrections"')[1] ?? "";
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const dates = [...log.matchAll(/Recorded (\d+) (\w+) (\d{4})/g)].map(
+      ([, d, m, y]) =>
+        `${y}-${String(months.indexOf(m as string) + 1).padStart(2, "0")}-${(d as string).padStart(2, "0")}`,
+    );
+    expect(dates.length).toBeGreaterThan(1);
+    expect(dates).toEqual([...dates].sort().reverse());
+    expect(log).toContain('id="corrections-translation"');
+  });
+
+  test("no em dash in the page's own text; a printed reading keeps the dash it was printed with", () => {
+    // Quoted German is the source's, not this page's copy.
+    const own = html.replace(/<span lang="de">[^<]*<\/span>/g, "").replace(/<[^>]+>/g, "");
+    expect(own).not.toContain("—");
   });
 });

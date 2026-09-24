@@ -1,6 +1,6 @@
+import { ROUTE_SLUGS, type RouteSlug } from "../../content/ids.ts";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 import type { ReceiptFrontMatter } from "../../content/provenance/receiptSchema.ts";
-import { ROUTE_SLUGS, type RouteSlug } from "../../content/ids.ts";
 import { SourcesError } from "./refusals.ts";
 
 /*

@@ -157,3 +157,18 @@
   margin-bottom: 0.6rem;
   overflow-wrap: anywhere;
 }
+
+/* The correction log: one record per item, its date and place in the fine face, then what was
+   printed and what is proposed, each on its own line so the two can be compared by eye. */
+.sources-corrections {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sources-corrections > li {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--line);
+}
+.sources-corrections > li > p {
+  margin: 0.2rem 0;
+}

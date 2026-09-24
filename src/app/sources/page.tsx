@@ -11,7 +11,10 @@ import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts
 import type { PaperDate, RightsStatus } from "../../content/provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
 import { citationOf } from "./citation.ts";
+import { correctionLog, LAYER_NAMES } from "./corrections.ts";
+import { receiptHref } from "./receiptPages.ts";
 import { assertServedDigest, requireReceipt, rightsWordsFor } from "./refusals.ts";
+import { reuseOf, textLayerWords } from "./reuse.ts";
 import { TRANSCRIPTION_WORDS, transcriptionOf } from "./transcription.ts";
 import "./sources.css";
 
@@ -143,6 +146,10 @@ function loadScans() {
         download,
         transcription: transcriptionOf(key),
         citation: citationOf(fm),
+        reuse: reuseOf(fm),
+        textLayer: textLayerWords(fm),
+        receipt: receiptHref(fm.slug),
+        typographicalErrors: fm.typographicalErrors,
         published,
         plate: plated ? firstPagePlate(key) : undefined,
       };
@@ -153,6 +160,11 @@ function loadScans() {
 export default function SourcesPage() {
   const scans = loadScans();
   const reviewed = scans.filter((scan) => scan.transcription === "reviewed").length;
+  const nameOf = new Map(scans.map((scan) => [scan.slug, scan.name]));
+  const hrefOf = new Map(scans.map((scan) => [scan.slug, scan.receipt]));
+  const corrections = correctionLog(
+    scans.map((scan) => ({ slug: scan.slug, typographicalErrors: scan.typographicalErrors })),
+  );
   return (
     <div>
       <header className="page-intro page-flush">
@@ -245,6 +257,16 @@ export default function SourcesPage() {
                   </dd>
                 </div>
                 <div>
+                  <dt>Reuse</dt>
+                  <dd>{scan.reuse.words}</dd>
+                </div>
+                {scan.textLayer ? (
+                  <div>
+                    <dt>Text layer</dt>
+                    <dd>{scan.textLayer}</dd>
+                  </div>
+                ) : null}
+                <div>
                   <dt>SHA-256</dt>
                   <dd>
                     <code className="sources-digest">{scan.asset.sha256}</code>
@@ -266,7 +288,7 @@ export default function SourcesPage() {
                 </div>
               </dl>
               <p className="sources-download">
-                <a href={`/sources/${scan.slug}/`}>The full receipt</a>
+                <a href={scan.receipt}>The full receipt</a>
                 {scan.download ? (
                   <>
                     {" "}
@@ -318,6 +340,67 @@ export default function SourcesPage() {
           writing in modern notation, marked as awaiting review. The English translation has not
           been started.
         </p>
+      </section>
+
+      <section className="reading page-flush sources-section" aria-labelledby="corrections">
+        <h2 id="corrections">Corrections</h2>
+        <p>
+          Each suspected misprint in the German is recorded against the page it is on, with what was
+          printed and what was probably meant. The German text keeps what was printed: a correction
+          is offered beside it, never made in it. A correction that turns out to be wrong is
+          withdrawn, and kept with its reason.
+        </p>
+        <p className="fine">
+          Readings are given as each record writes them, which is not always the printed spelling:
+          some records write ä as ae and Greek letters by name. The page image is the authority.
+        </p>
+        <h3 id="corrections-source">{LAYER_NAMES.source}</h3>
+        {corrections.source.length === 0 ? (
+          <p>No correction has been recorded against it.</p>
+        ) : (
+          <ol className="sources-corrections">
+            {corrections.source.map((c) => (
+              <li key={c.id} id={c.id}>
+                <p className="fine">
+                  Recorded {formatDay(c.recordedAt)} &middot;{" "}
+                  <a href={hrefOf.get(c.receiptSlug)}>{nameOf.get(c.receiptSlug)}</a>, page{" "}
+                  {c.printedPage}
+                  {c.withdrawn ? " \u00b7 withdrawn" : ""}
+                </p>
+                <p>
+                  Printed: <span lang="de">{c.printed}</span>
+                </p>
+                <p>
+                  Proposed: <span lang="de">{c.proposed}</span>
+                </p>
+                {c.withdrawn ? (
+                  <p>
+                    Withdrawn on {formatDay(c.withdrawn.at)}: {c.withdrawn.reason}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        )}
+        <h3 id="corrections-translation">{LAYER_NAMES.translation}</h3>
+        {corrections.translation.length === 0 ? (
+          <p>None: no English translation has been made yet.</p>
+        ) : (
+          <ol className="sources-corrections">
+            {corrections.translation.map((c) => (
+              <li key={c.id} id={c.id}>
+                <p className="fine">
+                  Recorded {formatDay(c.recordedAt)} &middot;{" "}
+                  <a href={hrefOf.get(c.receiptSlug)}>{nameOf.get(c.receiptSlug)}</a>, page{" "}
+                  {c.printedPage}
+                </p>
+                <p>
+                  Was: {c.printed}; now: {c.proposed}
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
     </div>
   );
