@@ -9,6 +9,7 @@ import {
 import "../../components/home/wideProse.css";
 import type { PaperDate, RightsStatus } from "../../content/provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
+import { translationSentence, translationState } from "../../content/translationState.ts";
 import { citationOf } from "./citation.ts";
 import { correctionLog, LAYER_NAMES } from "./corrections.ts";
 import { checkedReceipts, receiptHref } from "./receiptPages.ts";
@@ -159,6 +160,11 @@ export default function SourcesPage() {
     readFileSync(join(process.cwd(), "docs", "DECISIONS.md"), "utf8"),
   );
   const libraries = runtimeLibraries(process.cwd());
+  const translation = translationState(process.cwd());
+  const translationNow = translationSentence(
+    translation,
+    new Map(loadFirstPages().map((paper) => [paper.slug, paper.title])),
+  );
   // The scans' terms, from their receipts: how many scans each reader-facing wording covers.
   const termsCounts = [...new Set(scans.map((scan) => scan.rights))].map((words) => ({
     words,
@@ -319,6 +325,24 @@ export default function SourcesPage() {
         </p>
       </section>
 
+      <section className="reading page-flush sources-section" aria-labelledby="edition-policy">
+        <h2 id="edition-policy">How the edition treats its sources</h2>
+        <ul>
+          <li>
+            The English translation is the edition&rsquo;s own, made from the German, sentence by
+            sentence.
+          </li>
+          <li>
+            Published translations are cited only as comparison witnesses. None is reused, and a
+            reading taken from one names it.
+          </li>
+          <li>
+            A machine draft is labelled as a draft wherever it appears, and nothing is marked
+            reviewed until a named person has checked it against the German. {translationNow}
+          </li>
+        </ul>
+      </section>
+
       <section className="reading page-flush sources-section" aria-labelledby="sources-rights">
         <h2 id="sources-rights">Whose text this is</h2>
         <p>
@@ -332,7 +356,7 @@ export default function SourcesPage() {
           they were read.
         </p>
         <p>
-          The English translation on this site will be its own, made from the German. The published
+          The English translation on this site is its own, made from the German. The published
           translations (Perrett and Jeffery, 1923; Cowper, 1926; Arons and Peppard, 1965; Beck,
           1989) are not reused. They serve only as witnesses to compare readings against, and a
           reading taken from one will name it. The two older ones are in the public domain in the
@@ -393,8 +417,7 @@ export default function SourcesPage() {
             ? "No transcription has yet been reviewed by a second reader."
             : `${inWords(reviewed)} of the ${inWords(scans.length)} transcriptions have been reviewed by a second reader.`}{" "}
           A draft is shown as a draft wherever it appears, and the explanations on this site are new
-          writing in modern notation, marked as awaiting review. The English translation has not
-          been started.
+          writing in modern notation, marked as awaiting review. {translationNow}
         </p>
       </section>
 
@@ -440,7 +463,11 @@ export default function SourcesPage() {
         )}
         <h3 id="corrections-translation">{LAYER_NAMES.translation}</h3>
         {corrections.translation.length === 0 ? (
-          <p>None: no English translation has been made yet.</p>
+          <p>
+            {translation.length === 0
+              ? "None: no English translation has been made yet."
+              : "No correction has been recorded against it yet."}
+          </p>
         ) : (
           <ol className="sources-corrections">
             {corrections.translation.map((c) => (

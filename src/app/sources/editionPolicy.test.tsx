@@ -1,0 +1,92 @@
+import { describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { renderToStaticMarkup } from "react-dom/server";
+import { loadFirstPages } from "../../components/home/firstPages.ts";
+import { translationSentence, translationState } from "../../content/translationState.ts";
+import About from "../about/page";
+import Home from "../page";
+import Sources from "./page";
+
+/**
+ * The edition's policy on its sources, stated on /sources/, and the English translation's state,
+ * counted from content/translation-units on every page that mentions it (dispatch 150, item 3).
+ * Three pages said "The English translation has not been started" after 43 machine-drafted units
+ * of the mass-energy paper went live.
+ */
+const ROOT = process.cwd();
+const textOf = (html: string) =>
+  html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#x27;/g, "'")
+    .replace(/&rsquo;/g, "’")
+    .replace(/\s+/g, " ");
+const names = new Map(loadFirstPages().map((paper) => [paper.slug, paper.title]));
+
+describe("the edition's policy on its sources", () => {
+  const html = renderToStaticMarkup(<Sources />);
+  const start = html.indexOf('id="edition-policy"');
+  const policy = textOf(html.slice(start, html.indexOf("</section>", start)));
+
+  test("/sources/ states the three rules, plainly", () => {
+    expect(start).toBeGreaterThan(-1);
+    expect(policy).toContain("The English translation is the edition’s own, made from the German");
+    expect(policy).toContain("Published translations are cited only as comparison witnesses");
+    expect(policy).toContain("A machine draft is labelled as a draft wherever it appears");
+    expect(policy).toContain("nothing is marked reviewed until a named person has checked it");
+    expect(policy).not.toContain("—");
+  });
+});
+
+describe("the translation's state is counted from its units", () => {
+  const state = translationState(ROOT);
+
+  test("the count matches the unit files, read a second way", () => {
+    // Independent of translationState's YAML parse: count the files and their review lines.
+    const dir = join(ROOT, "content", "translation-units");
+    for (const paper of state) {
+      const files = readdirSync(join(dir, paper.slug)).filter((f) => f.endsWith(".yaml"));
+      const texts = files.map((f) => readFileSync(join(dir, paper.slug, f), "utf8"));
+      expect(paper.units).toBe(texts.filter((t) => /^kind: "?translation-unit"?$/m.test(t)).length);
+      expect(paper.machineDrafts).toBe(
+        texts.filter((t) => /^reviewState: "?machine-draft"?$/m.test(t)).length,
+      );
+      expect(paper.reviewed).toBe(
+        texts.filter((t) => /^reviewState: "?reviewed"?$/m.test(t)).length,
+      );
+    }
+  });
+
+  test("/sources/, /about/ and the home page all carry the counted sentence, and none the stale one", () => {
+    const sentence = translationSentence(state, names);
+    for (const [page, html] of [
+      ["/sources/", renderToStaticMarkup(<Sources />)],
+      ["/about/", renderToStaticMarkup(<About />)],
+      ["/", renderToStaticMarkup(<Home />)],
+    ] as const) {
+      const text = textOf(html);
+      expect({ page, counted: text.includes(sentence) }).toEqual({ page, counted: true });
+      if (state.length > 0) {
+        expect({ page, stale: text.includes("has not been started") }).toEqual({
+          page,
+          stale: false,
+        });
+      }
+    }
+  });
+
+  test("the sentence says what the units say: none, drafts, and reviews", () => {
+    expect(translationSentence([], names)).toBe("The English translation has not been started.");
+    const drafted = translationSentence(
+      [{ slug: "mass-energy", units: 43, machineDrafts: 43, reviewed: 0 }],
+      names,
+    );
+    expect(drafted).toContain("43 passages, all drafted by a machine, and none reviewed yet");
+    const mixed = translationSentence(
+      [{ slug: "mass-energy", units: 43, machineDrafts: 40, reviewed: 3 }],
+      names,
+    );
+    expect(mixed).toContain("40 of them drafted by a machine");
+    expect(mixed).toContain("three reviewed");
+  });
+});

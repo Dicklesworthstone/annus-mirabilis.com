@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { dayAndMonth, loadFirstPages } from "../../components/home/firstPages.ts";
 import "../../components/home/wideProse.css";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
+import { translationSentence, translationState } from "../../content/translationState.ts";
 import { reuseOf } from "../sources/reuse.ts";
 import "./about.css";
 import { PORTRAIT } from "./portrait.ts";
@@ -179,6 +180,11 @@ export default function AboutPage() {
   const example = loadExampleAnchors();
   const examplePaper = revisions.papers.find((p) => p.slug === EXAMPLE_PAPER);
   const reuse = loadReuse();
+  // Counted from content/translation-units, so this line changes when the units do (dispatch 150).
+  const translationNow = translationSentence(
+    translationState(process.cwd()),
+    new Map(loadFirstPages().map((paper) => [paper.slug, paper.title])),
+  );
   const [small, large] = PORTRAIT.served;
   return (
     <div className="about-page">
@@ -292,9 +298,9 @@ export default function AboutPage() {
           calculation. None of them is a measurement of nature.
         </p>
         <p>
-          The English translation, when it is made, will be the edition&rsquo;s own, made from the
-          German. It has not been started. Published translations are used only to compare readings
-          against, as <a href="/sources/">Sources</a> explains.
+          The English translation is the edition&rsquo;s own, made from the German. {translationNow}{" "}
+          Published translations are used only to compare readings against, as{" "}
+          <a href="/sources/#edition-policy">Sources</a> explains.
         </p>
       </section>
 

@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { dayAndMonth, dayMonthParts, firstPagePlate, loadFirstPages } from "./firstPages.ts";
 import "./firstPages.css";
+import { translationSentence, translationState } from "../../content/translationState.ts";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -30,6 +31,11 @@ export function exampleHref(slug: string): string {
  */
 export function FirstPages({ invitations = false }: { invitations?: boolean }) {
   const papers = loadFirstPages();
+  // Counted from content/translation-units, so the caption changes when the units do (dispatch 150).
+  const translationNow = translationSentence(
+    translationState(process.cwd()),
+    new Map(papers.map((paper) => [paper.slug, paper.title])),
+  );
   return (
     <figure className="first-pages">
       <ol
@@ -114,8 +120,8 @@ export function FirstPages({ invitations = false }: { invitations?: boolean }) {
       <figcaption className="fine">
         Each paper&rsquo;s first page as printed, dated by the day the journal received it:{" "}
         {papers.reduce((sum, paper) => sum + paper.pages, 0)} printed pages in all. The German text
-        is set for three of the four; the English translation, made from the German, has not been
-        started. Scans: Bell &amp; Howell / UMI microfilm, via the Internet Archive.
+        is set for three of the four. {translationNow} Scans: Bell &amp; Howell / UMI microfilm, via
+        the Internet Archive.
       </figcaption>
     </figure>
   );

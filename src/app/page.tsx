@@ -1,7 +1,14 @@
 import { Formula } from "../components/edition/Formula.tsx";
 import { FirstPages } from "../components/home/FirstPages.tsx";
 import "../components/home/wideProse.css";
+import { loadFirstPages } from "../components/home/firstPages.ts";
+import { translationSentence, translationState } from "../content/translationState.ts";
 export default function Home() {
+  // Counted from content/translation-units, so this line changes when the units do (dispatch 150).
+  const translationNow = translationSentence(
+    translationState(process.cwd()),
+    new Map(loadFirstPages().map((paper) => [paper.slug, paper.title])),
+  );
   return (
     <>
       <section className="hero hero-with-plates">
@@ -152,9 +159,10 @@ export default function Home() {
           its German face says so.
         </p>
         <p>
-          The English translation has not been started. Every English, parallel and interlinear face
-          on the site currently tells you it is unavailable instead of showing you a paraphrase and
-          letting you assume it was checked against the German.
+          {translationNow} Every drafted passage is marked as a draft where it appears. For a paper
+          with no translation yet, the English, parallel and interlinear faces say it is unavailable
+          instead of showing you a paraphrase and letting you assume it was checked against the
+          German.
         </p>
         <p>
           The page images come from scans listed, each with its source, its terms and its digest, on
