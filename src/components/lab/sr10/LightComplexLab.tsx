@@ -24,8 +24,9 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { display, identity, result } from "../presentation.ts";
+import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { LightComplexPlot } from "./LightComplexPlot.tsx";
 
@@ -118,6 +119,17 @@ export function LightComplexLab({
   const qFactor = numericOf(result(snapshot, "dopplerFactor"));
   const gammaVal = numericOf(result(snapshot, "lorentzFactor"));
   const energyDensityFactor = numericOf(result(snapshot, "energyDensityFactor"));
+  // One sentence for the status line: the light complex's energy, volume and ray in each frame.
+  const statusSummary =
+    beta !== null &&
+    phiK !== null &&
+    phiPrime !== null &&
+    energyK !== null &&
+    energyPrime !== null &&
+    volumeK !== null &&
+    volumePrime !== null
+      ? `seen from the frame moving at ${fixed(beta, 3)}c, a light complex of ${sentenceNumber(energyK)} J filling ${sentenceNumber(volumeK)} m³ in the stationary frame carries ${sentenceNumber(energyPrime)} J in ${sentenceNumber(volumePrime)} m³, ${fixed(phiPrime, 1) === fixed(phiK, 1) ? `its ray still at ${fixed(phiK, 1)}°` : `its ray at ${fixed(phiPrime, 1)}° instead of ${fixed(phiK, 1)}°`}.`
+      : "the moving frame's energy and volume are outside the model's domain for these settings.";
   const volumeFactor = numericOf(result(snapshot, "volumeFactor"));
   // The rigid-body countermodel is a labelled comparison beside the accepted snapshot, for the same
   // accepted settings; none of the reader's numbers is taken from it.
@@ -315,6 +327,10 @@ export function LightComplexLab({
             ) : null}
           </fieldset>
         </form>
+        <AcceptedStatus
+          worked={snapshot === undefined || snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
         <div className="lab-results">
           {beta !== null &&
           phiK !== null &&

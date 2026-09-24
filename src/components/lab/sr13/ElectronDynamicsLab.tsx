@@ -20,8 +20,9 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { display, identity, result } from "../presentation.ts";
+import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { ElectronDynamicsPlot } from "./ElectronDynamicsPlot.tsx";
 
@@ -115,6 +116,13 @@ export function ElectronDynamicsLab({
   // required, so a snapshot prepared before the kernel published a path renders without one.
   const path = snapshot.outputs.find((o) => o.quantityId === "trajectoryPositions");
   const trajectory = path?.status === "value" && typeof path.value !== "number" ? path.value : null;
+  // One sentence for the status line: the electron's kinetic energy and the potential that gives
+  // it, each beside what Newton's formula says.
+  const statusSummary =
+    numericOf(result(snapshot, "kineticEnergy")) !== null &&
+    numericOf(result(snapshot, "acceleratingPotential")) !== null
+      ? `an electron at ${fixed(beta, 3)}c, γ = ${fixed(gammaVal, 4)}, carries ${sentenceNumber(keExact)} J of kinetic energy where Newton's formula gives ${sentenceNumber(keNewt)} J; reaching this speed from rest takes ${sentenceNumber(potExact)} V, against ${sentenceNumber(potNewt)} V by Newton's formula.`
+      : "the electron's energy is outside the model's domain at this speed.";
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -348,6 +356,10 @@ export function ElectronDynamicsLab({
             ) : null}
           </fieldset>
         </form>
+        <AcceptedStatus
+          worked={snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
         <div className="lab-results">
           <ElectronDynamicsPlot
             initialSpeed={beta}

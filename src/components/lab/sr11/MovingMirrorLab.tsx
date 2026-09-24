@@ -20,8 +20,9 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { display, identity, result } from "../presentation.ts";
+import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { SliderField } from "../SliderField.tsx";
@@ -151,6 +152,12 @@ export function MovingMirrorLab({
   const isApplicable = freqRatio !== null;
   const notApplicableItem = result(snapshot, "frequencyRatio");
   const notApplicableReason = "reason" in notApplicableItem ? notApplicableItem.reason : undefined;
+  // One sentence for the status line: where the light leaves, at what frequency, and where the
+  // arriving power goes.
+  const statusSummary =
+    freqRatio !== null && phiReflDeg !== null && pInc !== null && pRefl !== null && pWork !== null
+      ? `light meeting a mirror that moves at ${fixed(p.beta, 3)}c, ${fixed(p.incidentAngleDeg, 1)}° from the normal, leaves at ${fixed(phiReflDeg, 1)}° with ${fixed(freqRatio, 4)} of its frequency; of ${sentenceNumber(pInc)} W arriving, ${sentenceNumber(pRefl)} W is reflected and ${sentenceNumber(pWork)} W does work on the mirror.`
+      : (notApplicableReason ?? "the reflection is not defined for these settings.");
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -277,6 +284,10 @@ export function MovingMirrorLab({
               {withScripts(error)}
             </p>
           ) : null}
+          <AcceptedStatus
+            worked={snapshot === session.getServerSnapshot().accepted}
+            summary={statusSummary}
+          />
         </div>
 
         <div className="lab-results">

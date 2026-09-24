@@ -20,8 +20,9 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { display, identity, result } from "../presentation.ts";
+import { display, fixed, identity, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { DopplerAberrationPlot } from "./DopplerAberrationPlot.tsx";
 
@@ -97,6 +98,16 @@ export function DopplerAberrationLab({
   const gammaVal = numericOf(result(snapshot, "lorentzFactor"));
   const receding = numericOf(result(snapshot, "recedingDopplerFactor"));
   const approaching = numericOf(result(snapshot, "approachingDopplerFactor"));
+  // One sentence for the status line: the ray in each frame and the Doppler factor between them.
+  const statusSummary =
+    doppler !== null &&
+    thetaK !== null &&
+    thetaPrime !== null &&
+    nuK !== null &&
+    nuPrime !== null &&
+    beta !== null
+      ? `a ray at ${fixed(thetaK, 1)}° and ${fixed(nuK / 1e12, 1)} THz in the stationary frame K arrives in the frame moving at ${fixed(beta, 3)}c at ${fixed(thetaPrime, 1)}° and ${fixed(nuPrime / 1e12, 1)} THz, a Doppler factor of ${fixed(doppler, 4)}.`
+      : "the moving frame's angle and frequency are outside the model's domain for these settings.";
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
   const executionKind = executionStateKindFromHostLabel(
@@ -242,6 +253,10 @@ export function DopplerAberrationLab({
             ) : null}
           </fieldset>
         </form>
+        <AcceptedStatus
+          worked={snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
         <div className="lab-results">
           {doppler !== null &&
           thetaK !== null &&
