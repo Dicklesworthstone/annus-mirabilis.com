@@ -18,7 +18,8 @@
     {
       "kind": "formula",
       "latex": "|\\mathbf{v}| = \\sqrt{v_x^2 + v_y^2}",
-      "spoken": "The length of v is the square root of v x squared plus v y squared."
+      "spoken": "The length of v is the square root of v x squared plus v y squared.",
+      "equations": ["eq-model-fd-vector-length"]
     },
     {
       "kind": "paragraph",

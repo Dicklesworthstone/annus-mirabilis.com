@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-vector-length",
+  "paper": "foundations",
+  "argument": "vectors-components",
+  "title": "The length of a velocity from its components",
+  "spoken": "The length of v is the square root of v x squared plus v y squared.",
+  "explanation": "Pythagoras on the arrow: the two components are the sides of a right triangle and the speed is its long side.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Two dimensions, with the x and y axes at right angles.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-vector-length.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-vector-length.t.length",
+      "quantityId": "velocityMagnitude"
+    },
+    "right": {
+      "kind": "root",
+      "opId": "eq-model-fd-vector-length.op.root",
+      "degree": 2,
+      "radicand": {
+        "kind": "sum",
+        "opId": "eq-model-fd-vector-length.op.sum",
+        "args": [
+          {
+            "kind": "power",
+            "opId": "eq-model-fd-vector-length.op.squareX",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-fd-vector-length.t.vx",
+              "quantityId": "velocityComponentX"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            }
+          },
+          {
+            "kind": "power",
+            "opId": "eq-model-fd-vector-length.op.squareY",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-fd-vector-length.t.vy",
+              "quantityId": "velocityComponentY"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            }
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-vector-length.op.relation",
+      "title": "What it asserts",
+      "explanation": "The arrow's length can be computed from any pair of perpendicular components, so turning the axes leaves it unchanged.",
+      "foundation": "vectors-components"
+    },
+    {
+      "nodeId": "eq-model-fd-vector-length.op.root",
+      "title": "The square root",
+      "explanation": "Undoes the squaring, so the result is a speed and not a squared speed.",
+      "foundation": "vectors-components"
+    },
+    {
+      "nodeId": "eq-model-fd-vector-length.op.sum",
+      "title": "The two squares added",
+      "explanation": "The squares of the sides of a right triangle add to the square of its long side.",
+      "foundation": "vectors-components"
+    },
+    {
+      "nodeId": "eq-model-fd-vector-length.op.squareX",
+      "title": "v_x squared",
+      "explanation": "Squaring makes the sign of the component irrelevant.",
+      "foundation": "vectors-components"
+    },
+    {
+      "nodeId": "eq-model-fd-vector-length.op.squareY",
+      "title": "v_y squared",
+      "explanation": "The same for the component across x.",
+      "foundation": "vectors-components"
+    },
+    {
+      "nodeId": "eq-model-fd-vector-length.t.length",
+      "title": "|v|, the speed",
+      "explanation": "The length of the velocity arrow.",
+      "foundation": "vectors-components"
+    },
+    {
+      "nodeId": "eq-model-fd-vector-length.t.vx",
+      "title": "v_x",
+      "explanation": "How far the arrow reaches along x.",
+      "foundation": "vectors-components"
+    },
+    {
+      "nodeId": "eq-model-fd-vector-length.t.vy",
+      "title": "v_y",
+      "explanation": "How far it reaches along y.",
+      "foundation": "vectors-components"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The speed",
+      "nodeId": "eq-model-fd-vector-length.t.length"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the square root",
+      "nodeId": "eq-model-fd-vector-length.op.root"
+    },
+    {
+      "text": " of "
+    },
+    {
+      "text": "the two components' squares added",
+      "nodeId": "eq-model-fd-vector-length.op.sum"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
