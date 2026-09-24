@@ -37,6 +37,17 @@ import { withScripts } from "./subscripts.tsx";
 
 type Output = ScientificResult | PublishedResult;
 
+/** Reader names for the two constant sets of the printed-factor comparison; the ids stay in data attributes. */
+const CONSTANT_SET_NAMES: Readonly<Record<string, string>> = Object.freeze({
+  "einstein-1905-mass-energy-printed": "the paper's printed constants",
+  "modern-si-2019": "2019 SI",
+});
+function ConstantSetName({ id }: { id: string }) {
+  return (
+    <span data-constant-set={id}>{CONSTANT_SET_NAMES[id] ?? "its declared constant set"}</span>
+  );
+}
+
 function numericOf(item: Output | undefined): number | null {
   if (!item) return null;
   if (item.status === "value" && typeof item.value === "number") return item.value;
@@ -512,9 +523,11 @@ export function CoefficientLab({
               </tbody>
             </table>
             <p>
-              Printed mass change {display(printed.printedGrams)} g ({printed.printedConstantSetId})
-              for L = {display(printed.emittedEnergyErg)} erg. Modern mass change{" "}
-              {display(printed.modernGrams)} g ({printed.modernConstantSetId}). {printed.wording}.
+              Printed mass change {display(printed.printedGrams)} g (
+              <ConstantSetName id={printed.printedConstantSetId} />) for L ={" "}
+              {display(printed.emittedEnergyErg)} erg; modern mass change{" "}
+              {display(printed.modernGrams)} g (<ConstantSetName id={printed.modernConstantSetId} />
+              ): {printed.wording}.
             </p>
           </div>
         </div>
