@@ -13,6 +13,7 @@ import { createSr08Session, type PreparedSr08Example } from "../../../experiment
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
 
 const C_SI = 299792458;
@@ -136,13 +137,13 @@ export function FieldFrameChangeLab({
         </p>
       </noscript>
 
-      <p data-detail="0">{SR08_CAPTION.r0}</p>
-      <p data-detail="1">{SR08_CAPTION.r1}</p>
+      <p data-detail="0">{withScripts(SR08_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR08_CAPTION.r1)}</p>
       <p data-detail="2" hidden>
-        {SR08_CAPTION.r2}
+        {withScripts(SR08_CAPTION.r2)}
       </p>
       <p data-detail="3" hidden>
-        {SR08_CAPTION.r3}
+        {withScripts(SR08_CAPTION.r3)}
       </p>
 
       <div className="lab-columns">
