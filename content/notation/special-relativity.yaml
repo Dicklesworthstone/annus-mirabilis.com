@@ -1434,9 +1434,9 @@ entries:
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 911 (public/figures/plates/pages/ap-17-891/911-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 910 does not print it; its first use is on p. 911. The curled phi, 'den Winkel φ bildet', in ν′ = ν(1 − cos φ·v/V)/√(1 − (v/V)²). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.varphiprime.propagationAngleMoving
     paper: special-relativity
@@ -1460,8 +1460,8 @@ entries:
       anchor: sr-s7-p6
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 912 (PDF page 22), not a review"
-      by: "agent:SapphireCastle"
+      checkedAgainst: "Plate of printed page 912 (public/figures/plates/pages/ap-17-891/912-1280.webp): glyph read by eye from the page image, not the text layer. The curled phi with a prime, 'Nennt man φ′ den Winkel zwischen Wellennormale (Strahlrichtung) im bewegten System und der Verbindungslinie Lichtquelle-Beobachter', in cos φ′ = (cos φ − v/V)/(1 − (v/V) cos φ). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.A.lightAmplitudeStationary
@@ -1486,9 +1486,9 @@ entries:
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 912 (public/figures/plates/pages/ap-17-891/912-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 910 does not print it; its first use is on p. 912. Italic capital A, 'Nennt man A bez. A′ die Amplitude der elektrischen oder magnetischen Kraft im ruhenden bez. im bewegten System gemessen'. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.Aprime.lightAmplitudeMoving
     paper: special-relativity
@@ -1511,9 +1511,9 @@ entries:
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 912 (public/figures/plates/pages/ap-17-891/912-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 910 does not print it; its first use is on p. 912. Italic capital A with a prime, in the same sentence and in A′² = A²(1 − (v/V) cos φ)²/(1 − (v/V)²). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.R.lightSphereRadius
     paper: special-relativity
@@ -1544,9 +1544,9 @@ entries:
       anchor: sr-s8-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 913 (public/figures/plates/pages/ap-17-891/913-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 911 does not print it; its first use is on p. 913. Italic capital R, in the sphere (x − Vat)² + (y − Vbt)² + (z − Vct)² = R² that moves with the light (§8). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.E.lightComplexEnergyStationary
     paper: special-relativity
@@ -1579,9 +1579,9 @@ entries:
       anchor: sr-s8-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 913 (public/figures/plates/pages/ap-17-891/913-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 912 does not print it; its first use is on p. 913. Italic capital E, 'Nennt man also E die im ruhenden System gemessene ... Lichtenergie' (§8). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.Eprime.lightComplexEnergyMoving
     paper: special-relativity
@@ -1605,9 +1605,9 @@ entries:
       anchor: sr-s8-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 913 (public/figures/plates/pages/ap-17-891/913-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 912 does not print it; its first use is on p. 913. Italic capital E with a prime, 'E′ die im bewegten System gemessene Lichtenergie' (§8). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.P.radiationPressureMirror
     paper: special-relativity
@@ -1629,9 +1629,9 @@ entries:
       anchor: sr-s8-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 915 (public/figures/plates/pages/ap-17-891/915-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 913 does not print it; its first use is on p. 915. Italic capital P, 'wobei P der Lichtdruck ist', in P = 2·(A²/8π)·(cos φ − v/V)²/(1 − (v/V)²). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.rho.chargeDensityStationary
     paper: special-relativity
@@ -1657,9 +1657,9 @@ entries:
       anchor: sr-s9-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 916 (public/figures/plates/pages/ap-17-891/916-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 914 does not print it; its first use is on p. 916. Greek rho, printed in the curled form ϱ: ϱ = ∂X/∂x + ∂Y/∂y + ∂Z/∂z, 'die 4π-fache Dichte der Elektrizität' (§9). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.rhoprime.chargeDensityMoving
     paper: special-relativity
@@ -1684,9 +1684,9 @@ entries:
       anchor: sr-s9-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 916 (public/figures/plates/pages/ap-17-891/916-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 914 does not print it; its first use is on p. 916. Curled rho with a prime, ϱ′ = ∂X′/∂ξ + ∂Y′/∂η + ∂Z′/∂ζ = β(1 − v·u_x/V²)ϱ (§9). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.uxi.chargeVelocityMoving
     paper: special-relativity
@@ -1709,9 +1709,9 @@ entries:
       anchor: sr-s9-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 916 and 917 (public/figures/plates/pages/ap-17-891/916-1280.webp, public/figures/plates/pages/ap-17-891/917-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 915 does not print it; its first use is on p. 916. Italic u with subscript ξ, (u_x − v)/(1 − u_x·v/V²) = u_ξ; p. 917 calls (u_ξ, u_η, u_ζ) the velocity of the electric masses measured in k. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.varepsilon.electronCharge
     paper: special-relativity
@@ -1734,9 +1734,9 @@ entries:
       anchor: sr-s10-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 917 (public/figures/plates/pages/ap-17-891/917-1280.webp): glyph read by eye from the page image, not the text layer. Greek epsilon in the open form ε, 'ein punktförmiges, mit einer elektrischen Ladung ε versehenes Teilchen' (§10). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.mu.electronMass
     paper: special-relativity
@@ -1758,9 +1758,9 @@ entries:
       anchor: sr-s10-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 917 (public/figures/plates/pages/ap-17-891/917-1280.webp): glyph read by eye from the page image, not the text layer. Greek μ, 'μ die Masse des Elektrons bedeutet, sofern dasselbe langsam bewegt ist' (§10). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.transverse.transverseMassComoving
     paper: special-relativity
@@ -1783,9 +1783,9 @@ entries:
       anchor: sr-s10-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 918 and 919 (public/figures/plates/pages/ap-17-891/918-1280.webp, public/figures/plates/pages/ap-17-891/919-1280.webp): glyph read by eye from the page image, not the text layer. μβ² is printed on p. 919 as the coefficient of d²y/dt² in μβ²·d²y/dt² = εY′, and the display reads 'Transversale Masse = μ/(1 − (v/V)²)', with a capital T at the head of the line; p. 918 has 'transversalen' Masse in running text. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.longitudinal.longitudinalMass
     paper: special-relativity
@@ -1807,9 +1807,9 @@ entries:
       anchor: sr-s10-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 919 (public/figures/plates/pages/ap-17-891/919-1280.webp): glyph read by eye from the page image, not the text layer. μβ³ is printed on p. 919 as the coefficient of d²x/dt² in μβ³·d²x/dt² = εX = εX′, and the display reads 'Longitudinale Masse = μ/(√(1 − (v/V)²))³', with a capital L at the head of the line. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.W.electronWork
     paper: special-relativity
@@ -1832,8 +1832,8 @@ entries:
       anchor: sr-s10-p10
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 920 (PDF page 30), not a review"
-      by: "agent:SapphireCastle"
+      checkedAgainst: "Plate of printed page 920 (public/figures/plates/pages/ap-17-891/920-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital W, 'der Bewegungsenergie W des Elektrons', in W = ∫εX dx = μV²{1/√(1 − (v/V)²) − 1} (§10). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
 modernOnlySymbols:
