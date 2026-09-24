@@ -1,5 +1,6 @@
 import type { ExactScale } from "./ast.ts";
 import type { NavigationNode } from "./navigation.ts";
+import type { NotationNoteTarget } from "./notationNoteTarget.ts";
 import type { Quantity } from "./quantities.ts";
 import type { EquationRecord } from "./record.ts";
 /** Serialized, pre-rendered route-local payload. Rendering imports are server-only. */
@@ -32,6 +33,10 @@ export type CompiledEquation = EquationRecord &
           sentence: EquationRecord["sentence"];
           glyphHtml: Readonly<Record<string, string>>;
         }
-      | { state: "modern" }
+      | {
+          state: "modern";
+          /** Where the reader finds Einstein's letters instead (notationNoteTarget.ts). */
+          seeAt?: NotationNoteTarget;
+        }
     >;
   }>;

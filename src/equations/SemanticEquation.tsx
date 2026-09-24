@@ -211,7 +211,9 @@ export function SemanticEquation({
           </>
         ) : null}
       </section>
-      {equation.notationForm?.state === "modern" ? <NotationNote /> : null}
+      {equation.notationForm?.state === "modern" ? (
+        <NotationNote seeAt={equation.notationForm.seeAt} />
+      ) : null}
       {(printedNotation
         ? ([
             ["modern", equation.sentence],

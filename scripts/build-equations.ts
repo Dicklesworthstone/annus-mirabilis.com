@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { renderToString } from "katex";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
@@ -7,9 +8,11 @@ import { citedLessonTitles } from "../src/equations/citedLessonTitles.ts";
 import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
 import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
+import { notationNoteTarget } from "../src/equations/notationNoteTarget.ts";
 import { assignQuantityColours, QUANTITY_PALETTE } from "../src/equations/quantityColours.ts";
 import { compileEquation, compileEquationWithNotation } from "../src/equations/render.ts";
 import { NOTATION_TOGGLE_PAPERS } from "../src/reader/navigation/state.ts";
+import { paperSourceFaces } from "../src/reader/paperSourceFaces.ts";
 import { loadReadingFiles } from "./build-content.ts";
 
 const result = compileReadingContent(await loadReadingFiles());
@@ -25,19 +28,38 @@ const lowSpeed = buildMassEnergyLowSpeed(massEnergyPaper.equations);
 // The papers whose explanation faces carry the notation toggle (am-read-perspective-toggle-abd):
 // each of their records is drawn a second time in Einstein's letters, read from the paper's
 // concordance for the section its argument sits in.
+// Where a formula that keeps today's letters sends the reader for Einstein's, by the face
+// chooser's own rule: the German face only when it renders text (notationNoteTarget.ts).
+const sourceFacesOf = new Map(
+  await Promise.all(
+    result.papers
+      .filter((p) => NOTATION_TOGGLE_PAPERS.includes(p.paper.id))
+      .map(async (p) => [p.paper.id, await paperSourceFaces(p.paper.id)] as const),
+  ),
+);
 // The foundation lessons' records compile beside the papers', under their own "paper".
 const equations = [
   ...result.papers.flatMap((p) => {
     if (!NOTATION_TOGGLE_PAPERS.includes(p.paper.id)) return p.equations.map(compileEquation);
     const { entries } = loadConcordanceForPaper(p.paper.id);
     const sectionOf = new Map(p.arguments.map((a) => [a.id, a.section]));
+    const sources = sourceFacesOf.get(p.paper.id);
+    const pdf = `papers/pdfs/${p.paper.citation}.pdf`;
+    const pdfHref = existsSync(`public/${pdf}`) ? `/${pdf}` : null;
     // A record with no section is matched to no entry, so it keeps today's letters and says so.
-    return p.equations.map((e) =>
-      compileEquationWithNotation(e, {
+    return p.equations.map((e) => {
+      const section = (e.argument ? sectionOf.get(e.argument) : undefined) ?? "";
+      return compileEquationWithNotation(e, {
         entries,
-        section: (e.argument ? sectionOf.get(e.argument) : undefined) ?? "",
-      }),
-    );
+        section,
+        seeAt: notationNoteTarget({
+          paperId: p.paper.id,
+          germanAvailable: sources?.availability.german === "available",
+          germanFragment: sources?.sectionFragment(section) ?? "",
+          pdfHref,
+        }),
+      });
+    });
   }),
   ...result.foundationEquations.map(compileEquation),
 ];
@@ -46,6 +68,7 @@ const sourcePaths = [
   "src/equations/latex.ts",
   "src/equations/latex/render.ts",
   "src/equations/notationForms.ts",
+  "src/equations/notationNoteTarget.ts",
   "content/notation/special-relativity.yaml",
   "src/equations/record.ts",
   "src/equations/ast.ts",

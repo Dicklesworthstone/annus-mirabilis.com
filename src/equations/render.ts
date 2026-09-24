@@ -5,6 +5,7 @@ import { canonical, quantityBindings } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
 import { navigationTree } from "./navigation.ts";
 import { type PrintedForm, printedForm } from "./notationForms.ts";
+import type { NotationNoteTarget } from "./notationNoteTarget.ts";
 import { recordQuantities } from "./printedGlyphs.ts";
 import type { QuantityRegistry } from "./quantities.ts";
 import { type EquationRecord, parseEquationRecord } from "./record.ts";
@@ -18,6 +19,8 @@ import type { CompiledEquation } from "./viewTypes.ts";
 export type NotationContext = Readonly<{
   entries: readonly ConcordanceEntry[];
   section: string;
+  /** Where a formula that keeps today's letters sends the reader for Einstein's. */
+  seeAt?: NotationNoteTarget | undefined;
 }>;
 
 /** A letter as a sentence says it: gamma for \gamma, t′ for t'. */
@@ -92,7 +95,8 @@ function compile(input: EquationRecord, notation: NotationContext | undefined): 
    * (notationForms.ts: a formula is never drawn half in each). Nothing when his letters are ours.
    */
   function einsteinsLetters(form: PrintedForm): CompiledEquation["notationForm"] {
-    if (form.state === "modern") return { state: "modern" };
+    if (form.state === "modern")
+      return notation?.seeAt ? { state: "modern", seeAt: notation.seeAt } : { state: "modern" };
     const letters = Object.entries(form.letters);
     const components = Object.entries(form.components);
     if (letters.length === 0 && components.length === 0) return undefined;

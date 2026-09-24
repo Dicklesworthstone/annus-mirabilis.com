@@ -74,7 +74,13 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
           );
         })}
       </section>
-      {held ? <NotationNote /> : null}
+      {held ? (
+        <NotationNote
+          seeAt={equations
+            .map((e) => (e.notationForm?.state === "modern" ? e.notationForm.seeAt : undefined))
+            .find((target) => target !== undefined)}
+        />
+      ) : null}
       <QuantityLegendList legend={legend} label="Quantities in this formula" />
     </div>
   );

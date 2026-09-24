@@ -20,14 +20,15 @@ const record = (id: string): EquationRecord =>
   JSON.parse(
     readFileSync(join(process.cwd(), "content/equations/special-relativity", `${id}.json`), "utf8"),
   );
-const NOTE = "Shown in modern letters; Einstein's are on the German source face.";
 const slowClock = compileEquationWithNotation(record("eq-model-sr-slow-clock"), {
   entries,
   section: "s4",
 });
+const PDF = "/papers/pdfs/ap-17-891.pdf";
 const dopplerFactor = compileEquationWithNotation(record("eq-model-sr-doppler-factor"), {
   entries,
   section: "s7",
+  seeAt: { face: "facsimile", href: PDF },
 });
 
 describe("compileEquationWithNotation", () => {
@@ -53,7 +54,10 @@ describe("compileEquationWithNotation", () => {
   });
 
   test("a record held by one symbol is marked, and carries no second drawing", () => {
-    expect(dopplerFactor.notationForm).toEqual({ state: "modern" });
+    expect(dopplerFactor.notationForm).toEqual({
+      state: "modern",
+      seeAt: { face: "facsimile", href: PDF },
+    });
   });
 
   test("without a context nothing is added: the other papers' payloads are unchanged", () => {
@@ -78,7 +82,9 @@ describe("the views carry both forms", () => {
 
   test("a held card says so in one line and switches nothing", () => {
     const html = renderToStaticMarkup(<SemanticEquation equation={dopplerFactor} />);
-    expect(html).toContain(NOTE.replace("'", "&#x27;"));
+    expect(html).toContain("Shown in modern letters; Einstein&#x27;s are in the");
+    expect(html).toContain(`href="${PDF}"`);
+    expect(html).not.toContain("German source face");
     expect(html).not.toContain("data-notation-form");
   });
 
