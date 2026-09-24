@@ -474,6 +474,11 @@ export function FluorescencePlot({
       </div>
 
       {/* 3. Rates and Intensity Linearity Readout */}
+      {rates.status === "not-applicable" && rates.reason && (
+        <p className="fine" data-rates-status="not-applicable">
+          No emission rates: {rates.reason}
+        </p>
+      )}
       {rates.status === "value" && (
         <div
           style={{
@@ -561,7 +566,7 @@ export function FluorescencePlot({
             </div>
             <div>
               <span className="fine" style={{ display: "block" }}>
-                Heat dissipated:
+                {rates.dissipatedHeatWatts < 0 ? "Heat drawn from the body:" : "Heat dissipated:"}
               </span>
               <span
                 style={{
@@ -570,7 +575,7 @@ export function FluorescencePlot({
                   color: "var(--ink)",
                 }}
               >
-                {fixed(rates.dissipatedHeatWatts * 1e6, 4)} μW
+                {fixed(Math.abs(rates.dissipatedHeatWatts) * 1e6, 4)} μW
               </span>
             </div>
           </div>

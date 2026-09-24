@@ -37,13 +37,32 @@ export function evaluateLq07(parameters: Lq07Parameters): Lq07Evaluation {
     channels: parameters.channels,
   });
 
-  const rates = fluorescenceRates({
+  const counted = fluorescenceRates({
     nu1: nu1Hz,
     nu2: nu2Hz,
     absorbedPowerWatts,
     quantumYield: parameters.quantumYield,
     regime: parameters.regime,
   });
+  // The rate owner converts power to quanta and does not judge the transformation. When the
+  // budget forbids it, or does not apply, no light of frequency nu2 is emitted in this model, so
+  // there is no emitted rate or power to report: counting one would emit more energy per quantum
+  // than was absorbed.
+  const rates: FluorescenceRatesResult =
+    counted.status === "value" && (budget.status === "outside-domain" || !budget.allowed)
+      ? Object.freeze({
+          ...counted,
+          status: "not-applicable",
+          emittedRatePerSecond: 0,
+          emittedPowerWatts: 0,
+          dissipatedHeatWatts: 0,
+          energyEfficiency: 0,
+          reason:
+            budget.status === "outside-domain"
+              ? "The single-quantum energy budget does not apply to this exciting light, so no emission rate follows from it."
+              : "One quantum of the exciting light has too little energy to produce light of this frequency, so nothing is emitted at it.",
+        })
+      : counted;
 
   const outputs: readonly PublishedResult[] = Object.freeze([
     budget.status === "outside-domain"
@@ -127,16 +146,17 @@ export function evaluateLq07(parameters: Lq07Parameters): Lq07Evaluation {
       status: "value",
       value: budget.energyDeficitEv,
     },
-    rates.status === "not-applicable"
+    // Light is absorbed whether or not the emission is allowed, so this reads the count itself.
+    counted.status === "not-applicable"
       ? {
           quantityId: "absorbedRate",
           unit: "s^-1",
           semanticKind: "event-rate",
           ownerId: "photoelectric.fluorescenceRates",
           status: "not-applicable",
-          reason: rates.reason ?? "Multi-quantum absorption rate is non-linear.",
+          reason: counted.reason ?? "Multi-quantum absorption rate is non-linear.",
         }
-      : rates.status === "outside-domain"
+      : counted.status === "outside-domain"
         ? {
             quantityId: "absorbedRate",
             unit: "s^-1",
@@ -145,7 +165,7 @@ export function evaluateLq07(parameters: Lq07Parameters): Lq07Evaluation {
             status: "outside-domain",
             condition: "invalid-rates-input",
             domainKind: "input",
-            reason: rates.reason ?? "Invalid rates input",
+            reason: counted.reason ?? "Invalid rates input",
             boundary: {
               parameterId: "absorbedPowerMicrowatts",
               value: parameters.absorbedPowerMicrowatts,
@@ -157,7 +177,7 @@ export function evaluateLq07(parameters: Lq07Parameters): Lq07Evaluation {
             semanticKind: "event-rate",
             ownerId: "photoelectric.fluorescenceRates",
             status: "value",
-            value: rates.absorbedRatePerSecond,
+            value: counted.absorbedRatePerSecond,
           },
     rates.status === "not-applicable"
       ? {

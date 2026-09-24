@@ -1533,7 +1533,7 @@ export function fluorescenceRates(input: FluorescenceRatesInput): FluorescenceRa
       dissipatedHeatWatts: 0,
       quantumYield,
       energyEfficiency: 0,
-      reason: "the one-quantum-per-event proportionality assumes low density",
+      reason: "Several quanta can combine in one emission here, so no single-quantum rate applies.",
     });
   }
 
@@ -1569,7 +1569,7 @@ export function fluorescenceRates(input: FluorescenceRatesInput): FluorescenceRa
   const dotN1 = eq1 > 0 ? absorbedPowerWatts / eq1 : 0;
   const dotN2 = quantumYield * dotN1;
   const pEmit = dotN2 * eq2;
-  const pHeat = Math.max(0, absorbedPowerWatts - pEmit);
+  const pHeat = absorbedPowerWatts - pEmit; // signed, never clamped: negative is heat drawn from the body
   const efficiency = absorbedPowerWatts > 0 ? pEmit / absorbedPowerWatts : 0;
 
   return Object.freeze({
