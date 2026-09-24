@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { strictParse } from "../../content/schemas/strictParse.ts";
 import { LQ05_DEFAULTS } from "../../experiments/lq05/definition.ts";
 import {
   LQ05_MAX_POINTS,
@@ -16,9 +19,17 @@ const check = (over: Record<string, unknown>) =>
   validateLq05Parameters({ ...LQ05_DEFAULTS, ...over });
 
 describe("lq-05 enforces its declared domain", () => {
-  test("the bounds are the manifest's", () => {
-    expect(LQ05_MAX_POINTS).toBe(60);
-    expect(LQ05_MAX_TRIALS).toBe(1_000_000);
+  test("the bounds are the manifest's model-domain maxima, read from lq-05.yaml", () => {
+    const manifest = strictParse(
+      readFileSync(
+        fileURLToPath(new URL("../../../content/experiments/lq-05.yaml", import.meta.url)),
+        "utf8",
+      ),
+      "yaml",
+    ) as { parameters: { id: string; modelDomain?: { max?: number } }[] };
+    const max = (id: string) => manifest.parameters.find((p) => p.id === id)?.modelDomain?.max;
+    expect(LQ05_MAX_POINTS).toBe(max("n") as number);
+    expect(LQ05_MAX_TRIALS).toBe(max("trials") as number);
   });
 
   test("n = 60 and trials = 1 000 000 are admitted", () => {
