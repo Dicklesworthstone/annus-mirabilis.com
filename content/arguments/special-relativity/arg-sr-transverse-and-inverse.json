@@ -51,14 +51,41 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: in the paper the moving system's sideways coordinates are η and ζ, and the explanation writes \\(y'\\) and \\(z'\\). β is the modern γ and V the speed of light, c here. The explanation's primed letters, \\(x'\\) and \\(t'\\), are the paper's ξ and τ."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Allow a sideways scale factor: write \\(y' = b(v)\\,y\\) instead of assuming \\(b = 1\\).",
-          "Follow a ray that moves straight across the motion in the original frame: \\(x = 0\\), \\(y = ct\\).",
-          "In the moving frame the ray also drifts backwards, \\(x' = -\\gamma vt\\), with \\(t' = \\gamma t\\); require its total speed to be \\(c\\).",
-          "That gives \\(\\gamma^2 v^2 + b^2 c^2 = \\gamma^2 c^2\\), so \\(b^2 = 1\\); take \\(b = 1\\), the root that is 1 at rest.",
-          "Check the inverse on a whole event, time and position together, not just one coordinate."
+          "Allow a sideways scale factor rather than assume there is none: \\(y'=b(v)\\,y\\).",
+          "Follow a ray that moves straight across the motion in K: x = 0 and y = ct.",
+          "The longitudinal map, already fixed, gives for that ray \\(x'=\\gamma(0-vt)=-\\gamma vt\\) and \\(t'=\\gamma(t-0)=\\gamma t\\). In k the ray also drifts backwards along \\(x'\\).",
+          "Its sideways position in k is \\(y'=b\\,ct\\). Its speed in k must be c, so after a time \\(t'\\) it has gone \\(ct'\\): \\((\\gamma vt)^2+(bct)^2=(c\\gamma t)^2\\).",
+          "Divide by \\(t^2\\): \\(\\gamma^2v^2+b^2c^2=\\gamma^2c^2\\), so \\(b^2c^2=\\gamma^2(c^2-v^2)\\). Since \\(\\gamma^2=c^2/(c^2-v^2)\\), the right side is \\(c^2\\), and \\(b^2=1\\).",
+          "Take b = 1, the root that is 1 at rest: \\(y'=y\\), and the same argument along z gives \\(z'=z\\).",
+          "The paper reaches the same place by its own steps: seen from K, light along the η axis travels at \\(\\sqrt{V^2-v^2}\\), which gives \\(η=a\\frac{V}{\\sqrt{V^2-v^2}}y\\), and after the unknown factor φ(v) is fixed at 1, η = y and ζ = z.",
+          "The inverse map. Transforming from k back to K is the same kind of transformation with speed −v, since K moves at −v relative to k. So swap the primed and unprimed letters and replace v by −v."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "x=\\gamma(x'+vt'),\\qquad t=\\gamma\\left(t'+\\frac{vx'}{c^2}\\right)",
+        "spoken": "The inverse transformation uses plus v and exchanges the two frames.",
+        "equations": ["eq-model-sr-inverse-position", "eq-model-sr-inverse-time"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked at v = 0.6c, γ = 1.25, in units where c = 1. Take the event (t, x) = (2, 1). Forward: \\(x'=1.25(1-0.6\\times2)=−0.25\\) and \\(t'=1.25(2-0.6\\times1)=1.75\\).",
+          "Back again: \\(x=1.25(-0.25+0.6\\times1.75)=1.25\\times0.8=1\\) and \\(t=1.25(1.75+0.6\\times(-0.25))=1.25\\times1.6=2\\). The event returns to (2, 1).",
+          "Check a whole event, time and position together. Inverting one coordinate alone can pass while the pair fails.",
+          "The paper's own check of consistency uses a third system moving at −v relative to k: going there and back must be the identity, which in its notation is \\(\\varphi(v)\\varphi(-v)=1\\)."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "bridge-squaring-square-roots",
+        "returnCaption": "Return to why the sideways coordinates stay unchanged."
       }
     ],
     "margin": [

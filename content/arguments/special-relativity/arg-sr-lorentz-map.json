@@ -63,15 +63,65 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper's stationary system K has coordinates x, y, z and time t; the moving system k has ξ, η, ζ and time τ, where τ is the time read on clocks at rest in k and set by §1's rule: a time coordinate, not a reading carried by one clock. V is the speed of light (c below), and the paper's β is the modern γ. The explanation writes \\(x'\\) and \\(t'\\) for ξ and τ. In §3 the paper also writes \\(x'=x-vt\\) for a different quantity, a Galilean helper coordinate, which is not ξ."
+      },
+      {
         "kind": "steps",
         "items": [
-          "The moving origin sits at \\(x = vt\\), so \\(x'\\) must be a multiple of \\(x - vt\\): write \\(x' = a(v)(x - vt)\\).",
-          "Write the time map as a linear combination too, and require light going right, \\(x = ct\\), to have \\(x' = ct'\\), and light going left, \\(x = -ct\\), to have \\(x' = -ct'\\).",
-          "Solve those two conditions: they force \\(t' = a(v)(t - vx/c^2)\\) and leave the factor \\(a(v)\\) open.",
-          "Transform to the moving frame and back; the result must be the identity, so \\(a(v)\\,a(-v)\\,(1 - v^2/c^2) = 1\\).",
-          "Use the symmetry of space, \\(a(v) = a(-v)\\), so \\(a(v)^2 = 1/(1 - v^2/c^2)\\).",
-          "Take the positive root, since \\(a(0) = 1\\): \\(a(v) = \\gamma\\), which is real only for \\(|v| < c\\)."
+          "The shorter route this explanation takes first. k moves at speed v along K's x axis, and its origin follows x = vt. A point at rest in k keeps a fixed value of \\(x-vt\\), so the moving coordinate must be a multiple of it: \\(x'=a(v)(x-vt)\\), with a(v) not yet known.",
+          "The paper states why the map is linear: space and time are the same everywhere, so equal steps in one system correspond to equal steps in the other.",
+          "Write the time map as a general linear combination, \\(t'=Pt+Qx\\), and ask light to keep its speed c in k in both directions along x.",
+          "Light going right, x = ct: then \\(x'=a(c-v)t\\) and \\(t'=(P+Qc)t\\), and \\(x'=ct'\\) requires \\(a(c-v)=c(P+Qc)\\).",
+          "Light going left, x = −ct: then \\(x'=-a(c+v)t\\) and \\(t'=(P-Qc)t\\), and \\(x'=-ct'\\) requires \\(a(c+v)=c(P-Qc)\\).",
+          "Add the two conditions: \\(2ac=2cP\\), so P = a. Subtract them: \\(-2av=2Qc^2\\), so \\(Q=-av/c^2\\). That gives the time map below, with the same unknown factor."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "x'=a(v)(x-vt),\\qquad t'=a(v)\\left(t-\\frac{vx}{c^2}\\right)",
+        "spoken": "The light constraints give a common coefficient multiplying x minus vt and t minus vx over c squared.",
+        "equations": ["eq-model-sr-map-ansatz-position", "eq-model-sr-map-ansatz-time"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Go to k and back. Transforming with speed v and then with −v must return every event unchanged. Put the first map into the second: \\(x''=a(-v)a(v)\\left[(x-vt)+v\\left(t-\\frac{vx}{c^2}\\right)\\right]=a(v)a(-v)\\left(1-\\frac{v^2}{c^2}\\right)x\\). So \\(a(v)a(-v)(1-v^2/c^2)=1\\).",
+          "Space has no preferred direction, so the factor cannot depend on which way k moves: a(v) = a(−v). Then \\(a(v)^2=1/(1-v^2/c^2)\\).",
+          "At v = 0 nothing changes, so a(0) = 1 and the positive root is the one. That root is γ, which is real only for speeds below c."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\gamma=\\frac{1}{\\sqrt{1-v^2/c^2}},\\qquad x'=\\gamma(x-vt),\\quad t'=\\gamma\\left(t-\\frac{vx}{c^2}\\right)",
+        "spoken": "The Lorentz factor is one over the square root of one minus v squared over c squared, giving the standard space and time transformation.",
+        "equations": [
+          "eq-model-sr-lorentz-factor",
+          "eq-model-sr-map-position",
+          "eq-model-sr-map-time"
+        ]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked at v = 0.6c: \\(1-v^2/c^2=0.64\\), \\(\\sqrt{0.64}=0.8\\), γ = 1/0.8 = 1.25. Check going there and back: 1.25 × 1.25 × 0.64 = 1.",
+          "The paper's own route, which this explanation shortens. It writes \\(x'=x-vt\\), so that a point at rest in k has fixed \\(x'\\), y, z, and first finds τ as a function of \\(x'\\), y, z and t.",
+          "A light ray leaves the origin of k at τ₀, is reflected at \\(x'\\) at τ₁, and is back at τ₂; §1's rule in k requires \\(\\frac{1}{2}(\\tau_0+\\tau_2)=\\tau_1\\). In K the ray goes out at V − v and back at V + v, and taking \\(x'\\) very small turns the condition into a differential equation for τ: \\(\\frac{\\partial\\tau}{\\partial x'}+\\frac{v}{V^2-v^2}\\frac{\\partial\\tau}{\\partial t}=0\\).",
+          "Light along the other two axes crosses, seen from K, at \\(\\sqrt{V^2-v^2}\\), which gives \\(\\partial\\tau/\\partial y=0\\) and \\(\\partial\\tau/\\partial z=0\\). Since τ is linear, \\(\\tau=a\\left(t-\\frac{v}{V^2-v^2}x'\\right)\\).",
+          "A ray sent along ξ at τ = 0 has ξ = Vτ, and in K it moves away from k's origin at V − v, so \\(x'/(V-v)=t\\). Substituting gives \\(ξ=a\\frac{V^2}{V^2-v^2}x'\\), and rays along the other axes give η and ζ. Putting back \\(x'=x-vt\\), the paper reaches \\(τ=\\varphi(v)\\beta\\left(t-\\frac{v}{V^2}x\\right)\\), \\(ξ=\\varphi(v)\\beta(x-vt)\\), \\(η=\\varphi(v)y\\), \\(ζ=\\varphi(v)z\\), with \\(\\beta=1/\\sqrt{1-(v/V)^2}\\) and φ an unknown function of v.",
+          "The check that the two principles agree: a spherical light wave sent from the common origin at t = τ = 0, \\(x^2+y^2+z^2=V^2t^2\\) in K, becomes \\(ξ^2+η^2+ζ^2=V^2\\tau^2\\) in k, a spherical wave of speed V there too.",
+          "Fixing φ: a third system moving at −v relative to k must be at rest relative to K, which gives \\(\\varphi(v)\\varphi(-v)=1\\). A rod along η, moving across its own length, has length \\(l/\\varphi(v)\\) in K, and by symmetry that cannot depend on the direction of motion, so \\(\\varphi(v)=\\varphi(-v)\\). Together, φ(v) = 1, and the paper's printed result is \\(τ=\\beta(t-vx/V^2)\\), \\(ξ=\\beta(x-vt)\\), η = y, ζ = z."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "matrices-linear-maps",
+        "returnCaption": "Return to the map x′ = γ(x − vt), t′ = γ(t − vx/c²), with its factor γ."
+      },
+      {
+        "kind": "foundation",
+        "id": "frames-events",
+        "returnCaption": "Return to finding the map that respects both light directions."
       }
     ],
     "margin": [

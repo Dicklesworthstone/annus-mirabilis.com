@@ -47,15 +47,43 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: in §5 a point moves in k with constant velocity components \\(w_ξ\\) and \\(w_η\\), so that \\(ξ=w_ξ\\tau\\), \\(η=w_η\\tau\\), ζ = 0; the resulting speed in K is U, w is the speed in k, α the angle between the velocities v and w, and V the speed of light. The formula below goes the other way, from K to the moving frame, and writes \\(u_x\\) and \\(u_y\\) in K and \\(u'_x\\) and \\(u'_y\\) in the moving frame."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Take the change of \\(x' = \\gamma(x - vt)\\) along the object’s path: \\(dx' = \\gamma(dx - v\\,dt)\\).",
-          "Take the change of \\(t' = \\gamma(t - vx/c^2)\\) along the same path: \\(dt' = \\gamma(dt - v\\,dx/c^2)\\).",
-          "Divide only now: \\(u'_x = dx'/dt' = (u_x - v)/(1 - vu_x/c^2)\\).",
-          "Across the motion \\(dy' = dy\\), but the time still changes, so \\(u'_y = u_y/(\\gamma(1 - vu_x/c^2))\\).",
-          "For two speeds in the same direction, use the inverse, with plus signs: \\(U = (v + w)/(1 + vw/c^2)\\).",
-          "Speeds in different directions combine by the general formula, not this aligned one."
+          "A velocity is a small displacement divided by the small time it takes. Both change between frames, so transform both before dividing.",
+          "Along the object's path, take the change of \\(x'=\\gamma(x-vt)\\): \\(dx'=\\gamma(dx-v\\,dt)\\).",
+          "Take the change of \\(t'=\\gamma(t-vx/c^2)\\) along the same path: \\(dt'=\\gamma(dt-v\\,dx/c^2)\\).",
+          "Divide, and then divide numerator and denominator by dt: \\(u'_x=\\frac{dx'}{dt'}=\\frac{u_x-v}{1-vu_x/c^2}\\).",
+          "Across the motion \\(dy'=dy\\), but the time still changes, so \\(u'_y=\\frac{dy}{\\gamma(dt-v\\,dx/c^2)}=\\frac{u_y}{\\gamma(1-vu_x/c^2)}\\)."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "u_x'=\\frac{u_x-v}{1-vu_x/c^2},\\qquad u_y'=\\frac{u_y}{\\gamma(1-vu_x/c^2)}",
+        "spoken": "The transformed velocity along x is the velocity along x minus v, divided by one minus v times the velocity along x over c squared; the transverse velocity has the same denominator and an additional gamma.",
+        "equations": ["eq-model-sr-velocity-x", "eq-model-sr-velocity-y"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The paper's direction, from k to K, uses the inverse transformation and so carries plus signs. For the point above it prints \\(x=\\frac{w_ξ+v}{1+vw_ξ/V^2}t\\) and \\(y=\\frac{\\sqrt{1-(v/V)^2}}{1+vw_ξ/V^2}w_ηt\\).",
+          "So the law of the parallelogram of velocities holds, in this theory, only as a first approximation. The paper's general result for the resulting speed is symmetric in v and w.",
+          "With w along the X axis too, the paper's formula becomes \\(U=\\frac{v+w}{1+vw/V^2}\\).",
+          "Worked: v = w = 0.6c. Plain addition would give 1.2c. The formula gives \\(1.2c/(1+0.36)=1.2c/1.36\\), which is 15c/17, about 0.882c.",
+          "Two speeds below light always give a speed below light. The paper shows it by writing v = V − κ and w = V − λ with κ and λ positive and less than V: then \\(U=V\\frac{2V-κ-\\lambda}{2V-κ-\\lambda+κ\\lambda/V}\\), which is less than V because the denominator is larger than the numerator. In the worked case κ = λ = 0.4V and \\(U=V\\times1.2/1.36\\).",
+          "Light stays at V: put w = V and \\(U=\\frac{V+v}{1+v/V}=V\\), as the second principle requires.",
+          "A worked sideways case in the paper's direction: \\(w_η=0.5c\\), \\(w_ξ=0\\), v = 0.6c. Then the sideways speed in K is \\(\\sqrt{1-0.36}\\times0.5c=0.4c\\), and the point also moves along x at 0.6c.",
+          "The paper remarks that the same formula comes from composing two transformations of §3: a third system moving at w relative to k is related to K by the same equations with v replaced by \\((v+w)/(1+vw/V^2)\\).",
+          "Speeds in different directions combine by the general formula, not by this aligned one."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "derivatives",
+        "returnCaption": "Return to why two ordinary speeds do not simply add."
       }
     ],
     "margin": [

@@ -53,14 +53,55 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: in §4 the paper's rigid sphere has radius R at rest in the moving system k; a clock at k's origin shows k's time τ; V is the speed of light. The formula below writes Δτ for the time that clock itself shows between two of its ticks and Δt for the time K's clocks give between the same two ticks; \\(L_0\\) is a rod's length at rest and L its length measured in K."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Say which clock gives each time reading.",
-          "For the moving clock’s own time, use two ticks at the same place in the clock’s rest frame.",
-          "For a moving length, mark both ends at the same time in the measuring frame.",
-          "At \\(0.6c\\), \\(\\gamma = 1.25\\) and \\(1/\\gamma = 0.8\\).",
-          "The exact loss is \\(1 - 0.8 = 0.2\\) of each second; the low-speed formula \\(v^2/2c^2\\) gives 0.18, close but not equal."
+          "The rod. A sphere of radius R at rest in k has the surface \\(ξ^2+η^2+ζ^2=R^2\\).",
+          "Express it in K at the time t = 0, marking every point of the surface at that one instant of K: then \\(ξ=\\beta x\\), η = y and ζ = z, so \\(\\beta^2x^2+y^2+z^2=R^2\\).",
+          "Read the shape: an ellipsoid with semi-axes \\(R/\\beta\\) along the motion and R, R across it. The paper prints the long axis as \\(R\\sqrt{1-(v/V)^2}\\), the same thing. Only the dimension along the motion is shortened.",
+          "So a rod of rest length \\(L_0\\) along the motion, with both ends marked at one time of K, measures \\(L=L_0/\\gamma\\).",
+          "The clock. The clock at k's origin shows \\(τ=\\beta(t-vx/V^2)\\) and sits at x = vt.",
+          "Substitute x = vt: \\(τ=\\beta t\\left(1-\\frac{v^2}{V^2}\\right)=t\\sqrt{1-(v/V)^2}\\), since β times \\(1-v^2/V^2\\) is its square root.",
+          "So between two of its ticks, at one place in k, the moving clock shows Δτ while K's clocks advance \\(\\Delta t=\\gamma\\Delta\\tau\\). The two formulas below, one for the clock and one for the rod."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\Delta t=\\gamma\\Delta\\tau,\\qquad L=\\frac{L_0}{\\gamma}",
+        "spoken": "Coordinate time between a moving clock’s ticks is gamma times its proper elapsed time; simultaneous moving-rod length is rest length over gamma.",
+        "equations": ["eq-model-sr-time-dilation", "eq-model-sr-length-contraction"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked at v = 0.6c, γ = 1.25: the moving clock shows 0.8 second while K's clocks advance 1 second, and a rod 1 metre long at rest measures 0.8 metre. The same number comes out of two different measurements.",
+          "Keep the two protocols apart. For the clock, the two ticks happen at one place in the clock's frame. For the rod, the two end marks happen at one time in the measuring frame.",
+          "How much the clock loses per second of K: \\(1-\\sqrt{1-(v/V)^2}\\). At 0.6c that is 1 − 0.8 = 0.2 second in each second.",
+          "The paper also gives the loss to second order, dropping terms of fourth and higher order in v/V: \\(\\sqrt{1-ε}\\) is about \\(1-ε/2\\) for small ε, so the loss is about \\(\\frac{1}{2}(v/V)^2\\). That is the formula below."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "1-\\frac{1}{\\gamma}\\approx\\frac{1}{2}\\frac{v^2}{c^2}",
+        "spoken": "At small speed, the clock’s fractional loss per coordinate second approaches one half v squared over c squared.",
+        "equations": ["eq-model-sr-slow-clock"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "At 0.6c the second-order formula gives \\(\\frac{1}{2}\\times0.36=0.18\\), close to the exact 0.2 but not equal; at 3 metres per second the two would agree to many decimal places.",
+          "The effect runs both ways: the paper notes that bodies and clocks at rest in K, examined from k, show the same results.",
+          "The paper adds that at v = V every moving object would shrink to a flat figure, as seen from K, and that for speeds greater than light the considerations lose their meaning.",
+          "A measurement is not a photograph. The contracted length is found by marking both ends at one instant of K; a camera records light that arrives together, which left different parts of the body at different times."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "frames-events",
+        "returnCaption": "Return to what a moving clock and rod actually report."
       }
     ],
     "margin": [

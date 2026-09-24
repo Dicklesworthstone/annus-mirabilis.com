@@ -47,15 +47,40 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper's clocks sit at points A and B of the stationary system K, in step with each other; one is moved from A to B at speed v, taking a time t; V is the speed of light. The formula below writes u(t) for a clock's speed at each moment and Δτ for the time that clock itself shows along its path."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Name the two meetings you compare between.",
-          "Give each clock’s whole path between those meetings.",
-          "Add up each clock’s elapsed time along its path, using \\(\\Delta\\tau = \\int \\sqrt{1 - u^2/c^2}\\,dt\\).",
-          "For a leg at constant speed, that is the leg’s duration in the resting frame multiplied by \\(1/\\gamma\\).",
-          "Do not use the delay of light reaching you in place of a clock’s elapsed time.",
-          "Leave a comparison on the real Earth outside this model: it needs gravity."
+          "The paper's first case: two clocks at A and B, in step in K. Move the clock at A to B at constant speed v. It takes a time t by K's clocks.",
+          "While moving, the clock loses \\(1-\\sqrt{1-(v/V)^2}\\) of each second, as the previous passage found. So on arrival it is behind the clock that was at B all along by \\(t\\left(1-\\sqrt{1-(v/V)^2}\\right)\\), which the paper gives to second order as \\(\\frac{1}{2}tv^2/V^2\\) seconds.",
+          "The paper extends the result to a clock moved along any polygon from A to B, and to the case where A and B coincide, so that the clock comes back to where it started.",
+          "Assuming the same holds for a continuously curved path, the paper states the theorem: of two clocks in step at A, one is moved around a closed curve at constant speed and returns after t seconds; it is then behind the one that stayed by \\(\\frac{1}{2}t(v/V)^2\\) seconds.",
+          "In modern notation the clock's own elapsed time along any path is the sum of its small steps, each slowed by the factor for the speed it has at that moment. That is the formula below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\Delta\\tau=\\int_{t_0}^{t_1}\\sqrt{1-\\frac{u(t)^2}{c^2}}\\,dt",
+        "spoken": "An ideal clock’s elapsed proper time is the path integral of the square root of one minus its speed squared over c squared.",
+        "equations": ["eq-model-sr-transported-clock"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "For a leg at constant speed u, the square root is constant and the integral is just the leg's duration in K times \\(\\sqrt{1-u^2/c^2}\\), that is, divided by γ.",
+          "Worked: send a clock out at 0.6c and back at 0.6c, 10 seconds in all by K's clocks, and ignore the turnaround. Each leg is slowed by 0.8, so the travelling clock shows 10 × 0.8 = 8 seconds; the clock that stayed shows 10. The paper's second-order formula gives a lag of \\(\\frac{1}{2}\\times10\\times0.36=1.8\\) seconds, against the exact 2.",
+          "To get those numbers you have to name the two meetings and each clock's whole path between them. Each of two clocks in steady relative motion finds the other slow; there is no contradiction until they meet again, and then the paths decide.",
+          "Acceleration at the turnaround changes the path. In this formula it adds no slowing of its own: only the speed at each moment enters.",
+          "The paper concludes that a balance-wheel clock at the earth's equator must run slower, by a very small amount, than an identical clock at a pole under otherwise identical conditions. That remark stays as printed. On the real rotating earth gravity enters, and this model, which has no gravity, does not decide it.",
+          "Do not use the delay of light reaching you in place of a clock's elapsed time."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "integration",
+        "returnCaption": "Return to whether each clock seeing the other run slow can settle a reunion."
       }
     ],
     "margin": [

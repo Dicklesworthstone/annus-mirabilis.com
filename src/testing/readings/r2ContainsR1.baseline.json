@@ -8,14 +8,6 @@
       "missing": ["eq-model-sr-charge-density+eq-model-sr-current-density"],
       "wordGap": 55
     },
-    "arg-sr-clock-and-length": {
-      "paper": "special-relativity",
-      "missing": [
-        "eq-model-sr-time-dilation+eq-model-sr-length-contraction",
-        "eq-model-sr-slow-clock"
-      ],
-      "wordGap": 27
-    },
     "arg-sr-doppler-aberration": {
       "paper": "special-relativity",
       "missing": ["eq-model-sr-doppler-ratio+eq-model-sr-doppler-factor", "eq-model-sr-aberration"],
@@ -53,33 +45,10 @@
       "missing": ["eq-model-sr-light-density+eq-model-sr-light-volume+eq-model-sr-light-energy"],
       "wordGap": 63
     },
-    "arg-sr-lorentz-map": {
-      "paper": "special-relativity",
-      "missing": [
-        "eq-model-sr-map-ansatz-position+eq-model-sr-map-ansatz-time",
-        "eq-model-sr-lorentz-factor+eq-model-sr-map-position+eq-model-sr-map-time"
-      ],
-      "wordGap": 0
-    },
     "arg-sr-moving-mirror": {
       "paper": "special-relativity",
       "missing": ["eq-model-sr-mirror-frequency"],
       "wordGap": 9
-    },
-    "arg-sr-transported-clock": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-transported-clock"],
-      "wordGap": 56
-    },
-    "arg-sr-transverse-and-inverse": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-inverse-position+eq-model-sr-inverse-time"],
-      "wordGap": 14
-    },
-    "arg-sr-velocity-composition": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-velocity-x+eq-model-sr-velocity-y"],
-      "wordGap": 10
     }
   }
 }
