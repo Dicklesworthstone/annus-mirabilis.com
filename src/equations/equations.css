@@ -517,6 +517,11 @@
   column-gap: 2.5rem;
   max-width: 100%;
   overflow-x: auto;
+  /* Sideways only. With overflow-x: auto, overflow-y computes to auto, and KaTeX's glyph boxes
+     run up to 3px below the row (line height, not ink). So on live 2026-09-24, 45 rows on 24 paper
+     pages at 1280px were vertical scroll boxes with nothing to scroll, each given a tab stop by the
+     overflow script. hidden clips only what auto already clipped. */
+  overflow-y: hidden;
 }
 .reading-formula-relation {
   min-width: 0;
