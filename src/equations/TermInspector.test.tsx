@@ -43,9 +43,10 @@ describe("a dimension in words, in the basis length, mass, time, temperature, cu
       "length² × mass × time⁻² × temperature⁻¹ × amount⁻¹",
     );
   });
-  test("a root keeps its fraction, and all zero is a pure number", () => {
-    expect(dimensionText(["1/2", "0", "0", "0", "0", "0"])).toBe("length¹ᐟ²");
-    expect(dimensionText(["-3/2", "0", "0", "0", "0", "0"])).toBe("length⁻³ᐟ²");
+  test("a root keeps its fraction, written in characters every face draws", () => {
+    expect(dimensionText(["1/2", "0", "0", "0", "0", "0"])).toBe("length^(1/2)");
+    expect(dimensionText(["-3/2", "0", "0", "0", "0", "0"])).toBe("length^(\u22123/2)");
+    expect(unitText("m^(1/2)")).toBe("m^(1/2)");
     expect(dimensionText(["0", "0", "0", "0", "0", "0"])).toBe(PURE_NUMBER);
   });
 });

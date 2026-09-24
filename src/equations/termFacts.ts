@@ -28,11 +28,15 @@ const SUPERSCRIPT: Readonly<Record<string, string>> = {
   "8": "⁸",
   "9": "⁹",
   "-": "⁻",
-  "/": "ᐟ",
 };
 
-function superscript(exponent: string): string {
-  return [...exponent].map((c) => SUPERSCRIPT[c] ?? c).join("");
+/**
+ * An exponent as a reader sees it: an integer raised, "²" or "⁻¹". A fraction is written ^(1/2),
+ * because no face the site ships draws a raised slash (componentGlyphCoverage.test.ts).
+ */
+function exponentText(exponent: string): string {
+  if (/^-?\d+$/.test(exponent)) return [...exponent].map((c) => SUPERSCRIPT[c] ?? c).join("");
+  return `^(${exponent.replace("-", "\u2212")})`;
 }
 
 /** Said once, for a unit and for a dimension alike, so a pure number reads the same in both rows. */
@@ -40,13 +44,13 @@ export const PURE_NUMBER = "none: a pure number";
 
 /**
  * A dimension vector in words, "length² × time⁻¹". Exponents are the record's exact strings, so a
- * root keeps its fraction ("length¹ᐟ²") and nothing is rounded. All zero is a pure number.
+ * root keeps its fraction ("length^(1/2)") and nothing is rounded. All zero is a pure number.
  */
 export function dimensionText(dimension: readonly string[]): string {
   const parts = BASES.flatMap((base, i) => {
     const exponent = (dimension[i] ?? "0").trim();
     if (/^-?0+$/.test(exponent)) return [];
-    return [exponent === "1" ? base : `${base}${superscript(exponent)}`];
+    return [exponent === "1" ? base : `${base}${exponentText(exponent)}`];
   });
   return parts.length > 0 ? parts.join(" × ") : PURE_NUMBER;
 }
@@ -59,7 +63,7 @@ export function unitText(displayUnit: string): string {
   const unit = displayUnit.trim();
   if (unit === "1" || unit === "") return PURE_NUMBER;
   return unit
-    .replace(/\^\(?(-?\d+(?:\/\d+)?)\)?/g, (_, exponent: string) => superscript(exponent))
+    .replace(/\^\(?(-?\d+(?:\/\d+)?)\)?/g, (_, exponent: string) => exponentText(exponent))
     .replace(/\s*\*\s*/g, "·")
     .replace(/ +/g, "·");
 }
