@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
+import { ExplanationPart } from "../../../components/discover/ExplanationPart.tsx";
 import { MassEnergyWorldCheck } from "../../../components/discover/MassEnergyWorldCheck.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
@@ -23,8 +24,16 @@ import {
   SOURCE_JUMPS,
   WORLD_CHECK,
 } from "../../../discovery/massEnergy/journeyIV.ts";
-import { MASS_GIVEN_UP_EXERCISE } from "../../../discovery/massEnergy/massExercise.ts";
-import { SEALED_LAMP_YEAR } from "../../../discovery/massEnergy/numericExercises.ts";
+import {
+  EQUAL_AND_OPPOSITE_EXPLANATION,
+  MASS_GIVEN_UP_EXERCISE,
+  PULSE_SUM_EXERCISE,
+} from "../../../discovery/massEnergy/massExercise.ts";
+import {
+  BOX_RECOIL,
+  PROXY_AT_SIX_TENTHS,
+  SEALED_LAMP_YEAR,
+} from "../../../discovery/massEnergy/numericExercises.ts";
 import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { SourceJump } from "../../../discovery/SourceJump.tsx";
@@ -318,7 +327,29 @@ export default function MassEnergyRoute() {
           written.
         </p>
       </section>
-      <PpeTask task={PPE_TASK} />
+      <section id="step-07">
+        <p className="step-number">07 / Try it yourself</p>
+        <h2>Four pieces of the argument to work by hand</h2>
+        <p>
+          First the step that makes the direction of the light irrelevant. Any correct form is
+          accepted: the checker compares your expression with the answer at sample values of L, v
+          and V, not by matching text.
+        </p>
+        <ExercisePart part={PULSE_SUM_EXERCISE} />
+        <p>
+          Next the 1906 route, the side door below. The number is small enough that the sign is the
+          only thing you could see.
+        </p>
+        <NumericPart part={BOX_RECOIL} />
+        <p>
+          Then the step that decides where the mass is read: at a finite speed the quotient is not
+          yet the mass.
+        </p>
+        <NumericPart part={PROXY_AT_SIX_TENTHS} />
+        <p>Last, the choice the whole argument rests on, in your own words.</p>
+        <ExplanationPart part={EQUAL_AND_OPPOSITE_EXPLANATION} />
+        <PpeTask task={PPE_TASK} />
+      </section>
 
       <aside className="notice">
         <h2>What this argument does not establish</h2>

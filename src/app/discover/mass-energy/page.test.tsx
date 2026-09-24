@@ -106,6 +106,8 @@ describe("the route carries the discovery skeleton", () => {
       'id="arg-fork-field-or-energy"',
       'id="step-06"',
       "data-world-check-live",
+      'id="step-07"',
+      'data-exercise-part="me-pulse-sum"',
       'data-ppe-task-id="me-predict-perturb-explain-joule"',
       'id="in-the-paper"',
       "data-journey-doors",
@@ -146,6 +148,23 @@ describe("the route carries the discovery skeleton", () => {
     expect(ELIMINATION_STEPS.filter((s) => /\bmove\b/i.test(words(s))).map((s) => s.id)).toEqual(
       [],
     );
+  });
+
+  test("step 07 carries the four exercises the journey bead lists, each in its own words", () => {
+    const start = at('id="step-07"');
+    const step = html.slice(start, html.indexOf('id="in-the-paper"'));
+    for (const id of [
+      "me-pulse-sum",
+      "me-box-recoil",
+      "me-finite-speed-proxy",
+      "me-equal-and-opposite",
+    ])
+      expect(step).toContain(`data-exercise-part="${id}"`);
+    expect(step).toContain('data-ppe-task-id="me-predict-perturb-explain-joule"');
+    const errors = checkVoice(text(step), { context: "prose" }).filter(
+      (f) => f.severity === "error",
+    );
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });
 
   test("the page calls one step the move, and it is the marker's", () => {
