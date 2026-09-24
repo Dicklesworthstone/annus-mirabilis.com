@@ -13,6 +13,14 @@
  * Brownian counts toward that: when light quanta became fully bound, the papers on PaperPage had no
  * declared paragraph left on a German face, and the guard went red on an empty population.
  *
+ * The live declared set cannot carry that guard for long: it empties as passages are written. When
+ * Brownian's introduction, §1 and §2 were bound (dispatch 160), no declared paragraph was left on
+ * any German face (relativity's two are not on its face), and the guard would have gone red on an
+ * empty population for the second time. So the note's witness is a fixture on a real German face:
+ * Brownian's face rendered with one paragraph planted as declared, which must carry the note in
+ * place of its link while a bound neighbour keeps its link. The live population keeps the other half,
+ * which does not empty: every bound paragraph on a German face, none of which may carry the note.
+ *
  * Not taken: excusing the note only where the ledger lacks the paragraph's printed page
  * (ledgerGaps.ts). Relativity's two declared units, s1-fn1 on p. 893 and s5-p8 on p. 907, are on
  * pages its ledger has drafted, yet its German face publishes none of its anchors, so that check
@@ -24,7 +32,9 @@ import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadParagraphBindings } from "../content/bindings/paragraphBindings.ts";
+import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
+import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
 import { PaperPage } from "./PaperPage.tsx";
 
 const withBindings = readdirSync(join(process.cwd(), "content", "bindings"))
@@ -45,18 +55,48 @@ const onFace = (paper: string, unit: string) =>
   (germanOf.get(paper) ?? "").includes(` id="${unit}"`);
 
 describe("declared paragraphs and part labels", () => {
-  test("some paper with a bindings file declares a paragraph unexplained, so the check examines something", () => {
-    const declared = withBindings.flatMap((p) =>
-      (loadParagraphBindings(process.cwd(), p) ?? [])
-        .filter((b) => b.unexplained)
-        .map((b) => ({ paper: p, unit: b.unit })),
+  test("the live check examines something: bound paragraphs on a German face, which must carry no note", () => {
+    const all = withBindings.flatMap((p) =>
+      (loadParagraphBindings(process.cwd(), p) ?? []).map((b) => ({ paper: p, ...b })),
     );
+    const declared = all.filter((b) => b.unexplained);
     const shown = declared.filter((d) => onFace(d.paper, d.unit));
+    const boundShown = all.filter((b) => !b.unexplained && onFace(b.paper, b.unit));
     console.log(
-      `[declared paragraphs] ${declared.length} across ${withBindings.join(", ")}, ${shown.length} of them on a German face`,
+      `[declared paragraphs] ${declared.length} across ${withBindings.join(", ")}, ${shown.length} of them on a German face; ${boundShown.length} bound paragraphs on a German face`,
     );
-    expect(declared.length).toBeGreaterThan(0);
-    expect(shown.length).toBeGreaterThan(0);
+    // Reported, not asserted: the declared set shrinks to nothing as passages are written. The
+    // note itself is witnessed by the fixture test below.
+    expect(boundShown.length).toBeGreaterThan(0);
+  });
+
+  test("witness: on a real German face, a declared paragraph carries the note in place of its link", () => {
+    const face = loadGermanSourceFace("brownian-motion");
+    if (!face) throw new Error("Brownian's German face did not load; the witness cannot run.");
+    const render = (declared: readonly string[]) =>
+      renderToStaticMarkup(
+        <GermanDraftFace
+          face={face}
+          paperId="brownian-motion"
+          paperTitle="Brownian motion"
+          germanTitle="Brownsche Bewegung"
+          explainedBy={{
+            "s1-p1": [{ id: "arg-bm-osmotic-suspended", title: "Passage one" }],
+            "s1-p2": [{ id: "arg-bm-osmotic-suspended", title: "Passage one" }],
+          }}
+          notExplained={new Set(declared)}
+        />,
+      );
+    const planted = render(["s1-p1"]);
+    expect(planted).toContain('data-not-explained="s1-p1"');
+    expect(planted).not.toContain('data-explained-by="s1-p1"');
+    // A bound neighbour keeps its link and carries no note.
+    expect(planted).toContain('data-explained-by="s1-p2"');
+    expect(planted).not.toContain('data-not-explained="s1-p2"');
+    // Nothing declared: no note anywhere, and the paragraph has its link back.
+    const none = render([]);
+    expect(none).not.toContain("data-not-explained=");
+    expect(none).toContain('data-explained-by="s1-p1"');
   });
 
   for (const paper of withBindings) {

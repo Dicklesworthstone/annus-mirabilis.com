@@ -28,9 +28,11 @@ function after(html: string, marker: string): string {
 }
 
 describe("brownian-motion: paragraph to explanation and back, without JavaScript", () => {
-  test("there are bound paragraphs and declared ones, so both checks below examine something", () => {
+  test("there are bound paragraphs, so the checks below examine something", () => {
+    // The declared set empties as passages are written, so it is reported, not required; the note
+    // it would carry is witnessed on a real German face in declaredParagraphs.test.tsx.
+    console.log(`[brownian paragraphs] ${bound.length} bound, ${declared.length} declared`);
     expect(bound.length).toBeGreaterThan(0);
-    expect(declared.length).toBeGreaterThan(0);
     expect(bound.length + declared.length).toBe(bindings.length);
   });
 
