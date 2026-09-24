@@ -524,6 +524,12 @@ html:is(
 .clarification-dialog h2 {
   font-size: var(--type-title);
 }
+/* The lesson's title takes focus when the dialog opens, so a screen reader starts there. It is not
+   a control, and WebKit drew the 3px accent ring round it after a tap or click, which read as an
+   error box on the title. Tab goes on to the next control, which keeps its ring. */
+.clarification-dialog h2:focus-visible {
+  outline: none;
+}
 .foundation-page {
   max-width: 780px;
   margin: 3rem auto;
