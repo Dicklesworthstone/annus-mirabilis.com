@@ -686,9 +686,9 @@ entries:
       anchor: sr-s4-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 903 (public/figures/plates/pages/ap-17-891/903-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital R, 'eine starre Kugel vom Radius R, welche relativ zum bewegten System k ruht' (§4). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.w.velocityInMovingFrame
     paper: special-relativity
@@ -711,9 +711,9 @@ entries:
       anchor: sr-s5-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 905 (public/figures/plates/pages/ap-17-891/905-1280.webp): glyph read by eye from the page image, not the text layer. Italic w, the speed of the point relative to k, w² = w_ξ² + w_η² (§5). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.U.velocityComposed
     paper: special-relativity
@@ -736,9 +736,9 @@ entries:
       anchor: sr-s5-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 905 (public/figures/plates/pages/ap-17-891/905-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital U, U² = (dx/dt)² + (dy/dt)², the resulting speed in K (§5). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.alpha.velocityDirectionAngle
     paper: special-relativity
@@ -760,9 +760,9 @@ entries:
       anchor: sr-s5-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 905 and 906 (public/figures/plates/pages/ap-17-891/905-1280.webp, public/figures/plates/pages/ap-17-891/906-1280.webp): glyph read by eye from the page image, not the text layer. Greek α, α = arctg of w_η over w_ξ on p. 905; p. 906 calls it the angle between the velocities v and w. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.kappa.speedDeficitFromLight
     paper: special-relativity
@@ -785,9 +785,9 @@ entries:
       anchor: sr-s5-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 906 (public/figures/plates/pages/ap-17-891/906-1280.webp): glyph read by eye from the page image, not the text layer. Greek kappa in v = V − κ, 'wobei κ und λ positiv und kleiner als V seien'. The printed letterform is the curled kappa ϰ rather than κ; the letter is kappa either way. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.lambda.speedDeficitFromLight
     paper: special-relativity
@@ -810,9 +810,9 @@ entries:
       anchor: sr-s5-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 906 (public/figures/plates/pages/ap-17-891/906-1280.webp): glyph read by eye from the page image, not the text layer. Greek λ in w = V − λ, 'wobei κ und λ positiv und kleiner als V seien'. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   # =========================================================================
   # Electrodynamics (§§6–10)
@@ -840,9 +840,9 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 907 (public/figures/plates/pages/ap-17-891/907-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital X in the Maxwell-Hertz equations, 'wobei (X, Y, Z) den Vektor der elektrischen, (L, M, N) den der magnetischen Kraft bedeutet' (§6). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.Y.electricFieldStationary
     paper: special-relativity
@@ -867,9 +867,9 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 907 (public/figures/plates/pages/ap-17-891/907-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital Y in the Maxwell-Hertz equations, 'wobei (X, Y, Z) den Vektor der elektrischen ... Kraft bedeutet' (§6). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.Z.electricFieldStationary
     paper: special-relativity
@@ -894,9 +894,9 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 907 (public/figures/plates/pages/ap-17-891/907-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital Z in the Maxwell-Hertz equations, 'wobei (X, Y, Z) den Vektor der elektrischen ... Kraft bedeutet' (§6). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.L.magneticFieldStationary
     paper: special-relativity
@@ -930,9 +930,9 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 907 (public/figures/plates/pages/ap-17-891/907-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital L in the Maxwell-Hertz equations, '(L, M, N) den der magnetischen Kraft' (§6). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.M.magneticFieldStationary
     paper: special-relativity
@@ -957,9 +957,9 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 907 (public/figures/plates/pages/ap-17-891/907-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital M in the Maxwell-Hertz equations, '(L, M, N) den der magnetischen Kraft' (§6). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.N.magneticFieldStationary
     paper: special-relativity
@@ -993,9 +993,9 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 907 (public/figures/plates/pages/ap-17-891/907-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital N in the Maxwell-Hertz equations, '(L, M, N) den der magnetischen Kraft' (§6). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.Yprime.electricFieldMoving
     paper: special-relativity
@@ -1020,9 +1020,9 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 907 does not print it; its first use is on p. 908. Italic capital Y with a prime, in ((X′, Y′, Z′) und (L′, M′, N′)), the forces of the moving system k; p. 909 prints Y′ = β(Y − (v/V)N). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.Xprime.electricFieldMoving
     paper: special-relativity
@@ -1047,8 +1047,8 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
-      by: "agent:SapphireCastle"
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital X with a prime. First printed on p. 908, where (X′, Y′, Z′) is the electric force of the moving system k; the entry's p. 909 prints it in X′ = X. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.Zprime.electricFieldMoving
@@ -1074,8 +1074,8 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
-      by: "agent:SapphireCastle"
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital Z with a prime. First printed on p. 908, in (X′, Y′, Z′); the entry's p. 909 prints Z′ = β(Z + (v/V)M). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.Lprime.magneticFieldMoving
@@ -1101,8 +1101,8 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
-      by: "agent:SapphireCastle"
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital L with a prime. First printed on p. 908, in (L′, M′, N′), the magnetic force of the moving system k; the entry's p. 909 prints L′ = L. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.Mprime.magneticFieldMoving
@@ -1128,8 +1128,8 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
-      by: "agent:SapphireCastle"
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital M with a prime. First printed on p. 908, in (L′, M′, N′); the entry's p. 909 prints M′ = β(M + (v/V)Z). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.Nprime.magneticFieldMoving
@@ -1155,8 +1155,8 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
-      by: "agent:SapphireCastle"
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital N with a prime. First printed on p. 908, in (L′, M′, N′); the entry's p. 909 prints N′ = β(N − (v/V)Y). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.gaussianE.unitConversion
@@ -1207,9 +1207,9 @@ entries:
       anchor: sr-s6-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Greek ψ, 'eventuell von v abhängigen Faktor ψ(v)', in X′ = ψ(v)X and the five equations beside it. On p. 909 the paper prints this factor's relations with φ, not ψ: φ(v)·φ(−v) = 1 and φ(v) = 1. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.Phi.wavePhase
     paper: special-relativity
@@ -1231,9 +1231,9 @@ entries:
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 910 (public/figures/plates/pages/ap-17-891/910-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 909 does not print it; its first use is on p. 910. Capital Greek Φ, in X = X₀ sin Φ and Φ = ω(t − (ax + by + cz)/V), §7. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.omega.waveAngularFrequencyStationary
     paper: special-relativity
@@ -1256,9 +1256,9 @@ entries:
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 910 (public/figures/plates/pages/ap-17-891/910-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 909 does not print it; its first use is on p. 910. Greek ω, in Φ = ω(t − (ax + by + cz)/V), §7. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.nu.waveFrequencyStationary
     paper: special-relativity
@@ -1291,9 +1291,9 @@ entries:
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 911 (public/figures/plates/pages/ap-17-891/911-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 909 does not print it; its first use is on p. 911. Greek ν, 'einer unendlich fernen Lichtquelle von der Frequenz ν'; on the plate it is plainly distinct from the italic v on the next line. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.nuprime.waveFrequencyMoving
     paper: special-relativity
@@ -1316,9 +1316,9 @@ entries:
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 911 (public/figures/plates/pages/ap-17-891/911-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 909 does not print it; its first use is on p. 911. Greek ν with a prime, 'die von dem Beobachter wahrgenommene Frequenz ν′ des Lichtes'. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.l.directionCosineStationary
     paper: special-relativity
