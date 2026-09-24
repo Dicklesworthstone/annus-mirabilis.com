@@ -8,10 +8,15 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import {
   LQ04_CAPTION,
   LQ04_DEFAULTS,
   LQ04_NOT_MODELED,
+  LQ04_OUTPUTS,
   LQ04_QUESTION,
   type Lq04Parameters,
 } from "../../../experiments/lq04/definition.ts";
@@ -20,6 +25,7 @@ import {
   createLq04Session,
   type PreparedLq04Example,
 } from "../../../experiments/lq04/session.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 /**
  * LQ-04: the radiation entropy workbench (am-lq-04-entropy-workbench-senj).
  *
@@ -120,6 +126,16 @@ export function EntropyWorkbenchLab({
     buildLq04Snapshot(`lq04-${id}`, "lq04-init", LQ04_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Lq04Parameters;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; no example, no earned label.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      LQ04_OUTPUTS,
+      example?.sourceDigest ?? "",
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const [draft, setDraft] = useState(() => toDraft(p));
   const [error, setError] = useState("");
 
@@ -164,15 +180,21 @@ export function EntropyWorkbenchLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "radiationEntropy")}
     >
       <header className="lab-heading">
         <div>
           <p className="eyebrow">Radiation entropy workbench</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">Ideal model, host calculation</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${LQ04_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
 
       <p className="lab-question">{LQ04_QUESTION}</p>
 
