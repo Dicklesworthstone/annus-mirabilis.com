@@ -211,8 +211,14 @@ export type ParagraphBinding = Readonly<{
   unit: string;
   passages: readonly string[];
   r0: string;
-  /** "Paragraph 6" or "Footnote 2", counted in printed order among the paper's paragraphs. */
+  /**
+   * "Paragraph 6" or "Footnote 2", counted in printed order, for a paper printed without sections
+   * (mass-energy); "§4, paragraph 7" or "Introduction, paragraph 2", counted within each part, for
+   * a paper with sections, where a count across the whole paper would tell a reader nothing.
+   */
   label: string;
+  /** Declared: no passage explains this paragraph yet, so it links to none. */
+  unexplained: boolean;
 }>;
 
 /**
@@ -227,19 +233,28 @@ export function loadParagraphBindings(
   const file = join(root, "content", "bindings", `${paper}.yaml`);
   if (!existsSync(file)) return null;
   const raw = parseYaml(readFileSync(file, "utf8")) as { paragraphs?: Paragraph[] } | null;
-  let paragraphs = 0;
-  let footnotes = 0;
-  return (raw?.paragraphs ?? []).flatMap((p) => {
-    if (typeof p.unit !== "string") return [];
+  const entries = (raw?.paragraphs ?? []).filter(
+    (p): p is Paragraph & { unit: string } => typeof p.unit === "string",
+  );
+  const partOf = (unit: string) => /^(s\d+)-/.exec(unit)?.[1] ?? "s0";
+  const sectioned = entries.some((p) => partOf(p.unit) !== "s0");
+  const counts = new Map<string, number>();
+  return entries.map((p) => {
     const footnote = /-fn\d+$/.test(p.unit);
-    const label = footnote ? `Footnote ${++footnotes}` : `Paragraph ${++paragraphs}`;
-    return [
-      {
-        unit: p.unit,
-        passages: strings(p.passages),
-        r0: typeof p.r0 === "string" ? p.r0.trim() : "",
-        label,
-      },
-    ];
+    const part = sectioned ? partOf(p.unit) : "";
+    const key = `${part}:${footnote ? "fn" : "p"}`;
+    const n = (counts.get(key) ?? 0) + 1;
+    counts.set(key, n);
+    const kind = footnote ? "footnote" : "paragraph";
+    const label = !sectioned
+      ? `${footnote ? "Footnote" : "Paragraph"} ${n}`
+      : `${part === "s0" ? "Introduction" : `§${part.slice(1)}`}, ${kind} ${n}`;
+    return {
+      unit: p.unit,
+      passages: strings(p.passages),
+      r0: typeof p.r0 === "string" ? p.r0.trim() : "",
+      label,
+      unexplained: p.status === PARAGRAPH_STATUS,
+    };
   });
 }

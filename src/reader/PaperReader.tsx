@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import brownianEntrance from "../../content/arguments/brownian-motion/entrance-brownian-motion.json";
 import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
+import { loadParagraphBindings } from "../content/bindings/paragraphBindings.ts";
 import { printedUnits } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
@@ -32,6 +33,7 @@ import { QuantityLegendList } from "./QuantityLegendList.tsx";
 import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
 import { SectionPager } from "./SectionPager.tsx";
+import { SourceParagraphs } from "./SourceParagraphs.tsx";
 import { sectionPlate } from "./sectionPlate.ts";
 import { UnexplainedOutlineEntry, UnexplainedPartsLine } from "./UnexplainedParts.tsx";
 import { outlineOrder, paperParts, unexplainedParts } from "./unexplainedParts.ts";
@@ -61,6 +63,8 @@ export async function PaperReader({
   // "Read the original" opens the German face at the passage's section (paperSourceFaces.ts).
   const sources = await paperSourceFaces(paper.id);
   const equationsById = paperEquations(paper.id);
+  // Each passage lists the printed paragraphs it explains (content/bindings), with links back.
+  const boundParagraphs = loadParagraphBindings(process.cwd(), paper.id) ?? [];
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
@@ -327,6 +331,10 @@ export async function PaperReader({
                     {firstUses.get(a.id)?.map((entry) => (
                       <FirstUseCallout key={entry.id} entry={entry} />
                     ))}
+                    <SourceParagraphs
+                      paperId={paper.id}
+                      bindings={boundParagraphs.filter((b) => b.passages.includes(a.id))}
+                    />
                     <div data-face-reading>
                       {(["overview", "full"] as const).map((reading, i) => (
                         <div

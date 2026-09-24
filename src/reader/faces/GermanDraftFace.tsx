@@ -42,6 +42,7 @@ export function GermanDraftFace({
   availability,
   plate,
   explainedBy,
+  notExplained,
 }: {
   readonly face: GermanSourceFace;
   /** For the face chooser. Without it this page had no way to another face but Back. */
@@ -65,6 +66,11 @@ export function GermanDraftFace({
   readonly explainedBy?: Readonly<
     Record<string, readonly Readonly<{ id: string; title: string }>[]>
   >;
+  /**
+   * The anchors of printed paragraphs declared unexplained (content/bindings): no passage explains
+   * them yet, and the face says so under each, instead of saying nothing.
+   */
+  readonly notExplained?: ReadonlySet<string> | undefined;
 }) {
   const blocks = sectionId
     ? face.blocks.filter((b) => b.id === sectionId || b.id.startsWith(`${sectionId}-`))
@@ -118,6 +124,12 @@ export function GermanDraftFace({
   // "Explained in <passage>", after a bound paragraph: a way from the German to its explanation
   // that needs no script. It is navigation beside the source, never part of it.
   const explained = (id: string) => {
+    if (notExplained?.has(anchor(id)))
+      return (
+        <p className="fine source-explained-by" data-not-explained={anchor(id)}>
+          Not yet explained on this site.
+        </p>
+      );
     const passages = explainedBy?.[anchor(id)] ?? [];
     if (passages.length === 0) return null;
     return (

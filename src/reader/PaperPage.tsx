@@ -168,8 +168,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                 : undefined;
             // Each printed paragraph's explanation passages (content/bindings), by manifest anchor.
             const titles = new Map(paperRecord.arguments.map((a) => [a.id, a.title]));
+            const bindings = loadParagraphBindings(process.cwd(), resolved.paperId) ?? [];
+            const notExplained = new Set(bindings.filter((b) => b.unexplained).map((b) => b.unit));
             const explainedBy = Object.fromEntries(
-              (loadParagraphBindings(process.cwd(), resolved.paperId) ?? []).map((b) => [
+              bindings.map((b) => [
                 b.unit,
                 b.passages.flatMap((id) => {
                   const title = titles.get(id);
@@ -181,6 +183,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               <GermanDraftFace
                 face={draft}
                 explainedBy={explainedBy}
+                notExplained={notExplained}
                 paperId={resolved.paperId}
                 paperTitle={paperRecord.paper.title}
                 germanTitle={paperRecord.paper.germanTitle}
