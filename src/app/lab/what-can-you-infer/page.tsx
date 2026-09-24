@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { withScripts } from "../../../components/lab/subscripts.tsx";
 import generated from "../../../generated/inference-workbench.json";
+import { INFER_CAPTION } from "../../../reasoning/infer/caption.ts";
 import { parseInferenceEvidence } from "../../../reasoning/infer/evidence.ts";
 import { FamilyWorkbench } from "../../../reasoning/infer/FamilyWorkbench.tsx";
 import "../../../components/lab/showTheCode.css";
@@ -30,6 +32,18 @@ export default function InferenceWorkbenchPage() {
       {examples.map((example) => (
         <FamilyWorkbench key={example.ideal.observationDigest} example={example} />
       ))}
+      {examples.length > 0 && (
+        <section className="lab-readings" aria-label="The inference in words">
+          <p data-detail="0">{withScripts(INFER_CAPTION.r0)}</p>
+          <p data-detail="1">{withScripts(INFER_CAPTION.r1)}</p>
+          <p data-detail="2" hidden>
+            {withScripts(INFER_CAPTION.r2)}
+          </p>
+          <p data-detail="3" hidden>
+            {withScripts(INFER_CAPTION.r3)}
+          </p>
+        </section>
+      )}
       {examples.length === 0 && (
         <p className="notice">
           The reviewed inference cases are in preparation. This publication profile excludes the
