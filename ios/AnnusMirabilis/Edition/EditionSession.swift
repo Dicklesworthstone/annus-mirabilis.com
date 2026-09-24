@@ -16,6 +16,8 @@ final class EditionSession {
     let handoff: NSUserActivity
 
     private(set) var currentURL: URL?
+    /// Whether the edition's own history has a step to go back to (goBack).
+    private(set) var canGoBack = false
     private(set) var title: String?
     /// Whether the digest-checked bridge script was injected into this web view.
     let bridgeInstalled: Bool
@@ -103,6 +105,10 @@ final class EditionSession {
         observations.append(
             webView.observe(\.url, options: [.initial, .new]) { [weak self] webView, _ in
                 MainActor.assumeIsolated { self?.didChange(url: webView.url) }
+            })
+        observations.append(
+            webView.observe(\.canGoBack, options: [.initial, .new]) { [weak self] webView, _ in
+                MainActor.assumeIsolated { self?.canGoBack = webView.canGoBack }
             })
         observations.append(
             webView.observe(\.title, options: [.new]) { [weak self] webView, _ in
@@ -213,15 +219,6 @@ final class EditionSession {
         }
         lastSafariLink = url
         presenter.present(SFSafariViewController(url: url), animated: true)
-    }
-
-    /// The controller at the top of the window's presentation chain.
-    var topPresenter: UIViewController? {
-        guard var presenter = webView.window?.rootViewController else { return nil }
-        while let next = presenter.presentedViewController {
-            presenter = next
-        }
-        return presenter
     }
 
     /// Called for every change of page, including a jump to an anchor.

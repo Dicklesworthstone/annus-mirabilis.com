@@ -120,6 +120,9 @@ struct RootView: View {
                                     text: session.lastSafariLink?.absoluteString ?? "none", id: "debug-safari-link")
                                 DebugProbe(text: String(session.webProcessTerminations), id: "debug-web-terminations")
                                 DebugProbe(text: session.mirroredKeys.joined(separator: ","), id: "debug-mirror")
+                                // WebKit's own address for the page, which follows pushState steps
+                                // that the bridge's route does not (ReturnStackUITests).
+                                DebugProbe(text: session.currentURL?.absoluteString ?? "none", id: "debug-url")
                                 DebugProbe(
                                     text: session.deliveredLifecycleEvents.joined(separator: ", "),
                                     id: "debug-lifecycle")

@@ -29,6 +29,14 @@ struct PageActionsButton: View {
 
     var body: some View {
         Menu {
+            // The only visible way back: the edge swipe does the same, but nothing shows it exists.
+            Button {
+                session.goBack()
+            } label: {
+                Label("Back", systemImage: "chevron.backward")
+            }
+            .disabled(!session.canGoBack)
+            Divider()
             if session.nativeCatalog != nil {
                 Button {
                     showingContents = true
@@ -75,7 +83,7 @@ struct PageActionsButton: View {
             Label("Page actions", systemImage: "ellipsis")
         }
         .accessibilityLabel("Page actions")
-        .accessibilityHint("Contents, share, print, or find on this page, or see your data on this device")
+        .accessibilityHint("Back, contents, share, print, or find on this page, or see your data on this device")
         .accessibilityIdentifier("page-actions")
         // A sheet is its own presentation: without this it follows the device, not the reader's theme.
         .sheet(isPresented: $showingReaderData) {

@@ -74,6 +74,23 @@ extension EditionSession {
         loadFailure = url ?? lastRequestedURL ?? currentURL ?? EditionCatalog.homeURL
     }
 
+    /// The controller at the top of the window's presentation chain.
+    var topPresenter: UIViewController? {
+        guard var presenter = webView.window?.rootViewController else { return nil }
+        while let next = presenter.presentedViewController {
+            presenter = next
+        }
+        return presenter
+    }
+
+    /// Native back (bead am-app-edition-webview-ju3v, requirement 3): a step back through the
+    /// edition's own history, the same step the edge swipe takes, so a lesson opened beside the text
+    /// closes and the reader is back at the passage. With no history there is nothing to do: the
+    /// reader has no native navigation stack of its own to pop.
+    func goBack() {
+        if webView.canGoBack { webView.goBack() }
+    }
+
     /// Loads the page that failed, once more.
     func retryLoad() {
         guard let url = loadFailure else { return }
