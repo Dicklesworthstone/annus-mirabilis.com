@@ -9,6 +9,7 @@ import {
   numericPartProblems,
   unitLabel,
 } from "../../discovery/exercises/numeric.ts";
+import { Sci } from "../lab/Sci.tsx";
 
 export type { NumericExercisePart } from "../../discovery/exercises/numeric.ts";
 
@@ -85,7 +86,19 @@ export function NumericPart({ part }: { part: NumericExercisePart }) {
       </form>
       {verdict && (
         <div className="exercise-verdict" role="status">
-          <p>{verdict.message}</p>
+          <p>
+            {"segments" in verdict
+              ? verdict.segments.map((segment, i) =>
+                  typeof segment === "string" ? (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: a fixed sentence; segments never reorder
+                    <span key={i}>{segment}</span>
+                  ) : (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: a fixed sentence; segments never reorder
+                    <Sci key={i} value={segment.number} />
+                  ),
+                )
+              : verdict.message}
+          </p>
         </div>
       )}
       <details className="exercise-worked">

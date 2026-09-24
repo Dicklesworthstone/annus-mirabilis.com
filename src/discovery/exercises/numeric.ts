@@ -17,6 +17,8 @@ import { withinTolerance } from "../../units/tolerance.ts";
 export interface NumericReference {
   /** In the family's base SI unit. */
   readonly value: number;
+  /** A plain value, or a coefficient identified in a limit (referenceFromEvaluation). */
+  readonly resultStatus: "value" | "analytic-limit";
   readonly quantityId: string;
   readonly constantSetId: string;
   readonly owner: string;
@@ -46,9 +48,21 @@ export interface NumericExercisePart {
 
 export type NumericVerdict =
   | Readonly<{ kind: "input-error"; message: string }>
-  | Readonly<{ kind: "agrees"; message: string }>
-  | Readonly<{ kind: "slip"; message: string; ratio: number }>
-  | Readonly<{ kind: "differs"; message: string; ratio: number }>;
+  | Readonly<{ kind: "agrees"; message: string; segments: readonly Segment[] }>
+  | Readonly<{ kind: "slip"; message: string; segments: readonly Segment[]; ratio: number }>
+  | Readonly<{ kind: "differs"; message: string; segments: readonly Segment[]; ratio: number }>;
+
+/**
+ * A verdict as text and numbers, so a page can draw each number as a power of ten with a spoken
+ * name (Sci) while `message` stays the same sentence in plain text. Numbers are already rounded.
+ */
+export type Segment = string | Readonly<{ number: number }>;
+
+const n = (value: number, figures: number): Segment => ({
+  number: Number(value.toPrecision(figures)) + 0,
+});
+const said = (segments: readonly Segment[]) =>
+  segments.map((s) => (typeof s === "string" ? s : shown(s.number))).join("");
 
 /** A reference evaluation that did not produce a value. The code lets a test name the refusal. */
 export class ExerciseReferenceError extends Error {
@@ -63,23 +77,42 @@ export class ExerciseReferenceError extends Error {
 /**
  * The reference for a numeric part, from a reference evaluator's typed result. Anything but a
  * finite value is refused, which fails the build of the page that computes it.
+ *
+ * One typed state is a number by another route: an analytic limit whose representation is a
+ * coefficient, such as the mass coefficient L/c² identified at vanishing speed. A part accepts it
+ * only when its author says so with `limitCoefficient`, and the reference records that it came
+ * from a limit. Without the option, a limit is refused like any other non-value.
  */
 export function referenceFromEvaluation(
-  result: Readonly<{ status: string; value?: unknown; quantityId?: string }>,
+  result: Readonly<{
+    status: string;
+    value?: unknown;
+    quantityId?: string;
+    representation?: unknown;
+  }>,
   context: Readonly<{ constantSetId: string; owner: string; exerciseId: string }>,
+  options: Readonly<{ limitCoefficient?: boolean }> = {},
 ): NumericReference {
+  const representation = result.representation as
+    | Readonly<{ kind?: unknown; value?: unknown }>
+    | undefined;
+  const number =
+    result.status === "value"
+      ? result.value
+      : result.status === "analytic-limit" &&
+          options.limitCoefficient === true &&
+          representation?.kind === "coefficient"
+        ? representation.value
+        : undefined;
   // A value that is an array of samples is not one number to check an answer against either.
-  if (
-    result.status !== "value" ||
-    typeof result.value !== "number" ||
-    !Number.isFinite(result.value)
-  )
+  if (typeof number !== "number" || !Number.isFinite(number))
     throw new ExerciseReferenceError(
       "exercise-reference-not-a-value",
       `Exercise ${context.exerciseId}: the reference from ${context.owner} is ${result.status}, not a value, so there is nothing to check an answer against.`,
     );
   return Object.freeze({
-    value: result.value,
+    value: number,
+    resultStatus: result.status === "value" ? "value" : "analytic-limit",
     quantityId: result.quantityId ?? "unknown",
     constantSetId: context.constantSetId,
     owner: context.owner,
@@ -144,15 +177,17 @@ export function numericPartProblems(part: NumericExercisePart): readonly string[
 }
 
 /** The ratio in words: "about a thousand times the reference", or "0.62 times the reference". */
-function ratioSentence(ratio: number): string {
-  if (ratio < 0) return "Your value has the opposite sign to the reference.";
-  if (ratio === 0) return "Your value is zero, and the reference is not.";
+function ratioSentence(ratio: number): readonly Segment[] {
+  if (ratio < 0) return ["Your value has the opposite sign to the reference."];
+  if (ratio === 0) return ["Your value is zero, and the reference is not."];
   const exponent = Math.round(Math.log10(ratio));
   const words = TENS[Math.abs(exponent)];
   const nearPower = withinTolerance(ratio, 10 ** exponent, { relative: 0.05 }).ok;
   if (words && nearPower)
-    return `Your value is about ${exponent > 0 ? `${words[0]} the reference` : `${words[1]} the reference`}. A factor that size usually comes from a unit or a power of ten, so check both.`;
-  return `Your value is ${shown(ratio, 2)} times the reference.`;
+    return [
+      `Your value is about ${exponent > 0 ? `${words[0]} the reference` : `${words[1]} the reference`}. A factor that size usually comes from a unit or a power of ten, so check both.`,
+    ];
+  return ["Your value is ", n(ratio, 2), " times the reference."];
 }
 
 /** Checks a typed value in a chosen unit against the part's reference. Nothing throws. */
@@ -171,22 +206,23 @@ export function checkNumericAnswer(
   const si = convertValue(value, unit, base);
   const reference = part.reference.value;
   const inChosenUnit = convertValue(reference, base, unit);
-  const referenceText = `${shown(inChosenUnit)} ${unitLabel(unit)}`;
   const compared = withinTolerance(si, reference, part.tolerance);
-  if (compared.ok)
-    return {
-      kind: "agrees",
-      message: `This agrees with the reference, ${referenceText}, within ${shown(part.tolerance.relative * 100, 2)} percent. ${part.reference.executionLabel}.`,
-    };
+  if (compared.ok) {
+    const segments = [
+      "This agrees with the reference, ",
+      n(inChosenUnit, 4),
+      `\u00a0${unitLabel(unit)}, within ${shown(part.tolerance.relative * 100, 2)} percent. ${part.reference.executionLabel}.`,
+    ];
+    return { kind: "agrees", segments, message: said(segments) };
+  }
   const ratio = si / reference;
   const slip = (part.commonSlips ?? []).find(
     (s) => withinTolerance(ratio, s.factor, { relative: part.tolerance.relative }).ok,
   );
-  if (slip)
-    return {
-      kind: "slip",
-      ratio,
-      message: `Your value is ${shown(ratio, 3)} times the reference. ${slip.message}`,
-    };
-  return { kind: "differs", ratio, message: ratioSentence(ratio) };
+  if (slip) {
+    const segments = ["Your value is ", n(ratio, 3), ` times the reference. ${slip.message}`];
+    return { kind: "slip", ratio, segments, message: said(segments) };
+  }
+  const segments = ratioSentence(ratio);
+  return { kind: "differs", ratio, segments, message: said(segments) };
 }

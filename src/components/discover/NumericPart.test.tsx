@@ -12,6 +12,7 @@ const PART: NumericExercisePart = {
   units: ["um", "nm", "m"],
   reference: {
     value: 7.947832833416785e-7,
+    resultStatus: "value",
     quantityId: "rmsDisplacement1d",
     constantSetId: "einstein-1905-brownian-printed",
     owner: "diffusion.rmsDisplacement",

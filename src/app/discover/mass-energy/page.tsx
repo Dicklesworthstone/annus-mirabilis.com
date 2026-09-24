@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { MASS_ENERGY_SHELF_CARDS } from "../../../content/massEnergyShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { SEALED_LAMP_YEAR } from "../../../discovery/massEnergy/numericExercises.ts";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
@@ -220,6 +222,11 @@ export default function MassEnergyRoute() {
             nothing, which is a different thing from taking the limit.
           </p>
         </details>
+        <p>
+          Now put a number to it. The coefficient is small in the units of everyday things, and
+          working one case shows how small.
+        </p>
+        <NumericPart part={SEALED_LAMP_YEAR} />
         <StepDoors>
           <StepDoor href="/papers/mass-energy/#arg-me-small-speed">
             Go straight to the explanation: why the slow-speed coefficient is the one to read

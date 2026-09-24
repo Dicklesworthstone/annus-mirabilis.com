@@ -76,8 +76,9 @@ describe("units are converted before comparison", () => {
   });
 
   test("the agreement names the reference in the reader's unit and the execution label", () => {
+    // The number and its unit are held together by a no-break space.
     expect(checkNumericAnswer(LAMBDA, "794.8", "nm").message).toBe(
-      "This agrees with the reference, 794.8 nm, within 1 percent. Ideal model, host calculation.",
+      "This agrees with the reference, 794.8\u00a0nm, within 1 percent. Ideal model, host calculation.",
     );
   });
 });
@@ -100,6 +101,7 @@ describe("a declared common slip produces its hint, and only its hint", () => {
     expect(verdict).toEqual({
       kind: "differs",
       ratio: 2 / 0.7947832833416785,
+      segments: ["Your value is ", { number: 2.5 }, " times the reference."],
       message: "Your value is 2.5 times the reference.",
     });
   });
@@ -160,6 +162,58 @@ describe("a reference that is not a value fails, with a code, where it is comput
       }
       expect(code).toBe("exercise-reference-not-a-value");
     });
+});
+
+describe("a verdict's segments say the same sentence as its message", () => {
+  test("each number is rounded once, and drawn as the message writes it", () => {
+    for (const [value, unit] of [
+      ["0.79", "um"],
+      ["0.562", "um"],
+      ["2", "um"],
+      ["0.79", "m"],
+      ["3e-9", "m"],
+    ] as const) {
+      const verdict = checkNumericAnswer(LAMBDA, value, unit);
+      if (!("segments" in verdict)) throw new TypeError(`${value} ${unit} has no segments`);
+      const numbers = verdict.segments.filter((s) => typeof s !== "string");
+      expect(numbers.every((s) => typeof s !== "string" && Number.isFinite(s.number))).toBe(true);
+      const words = verdict.segments.filter((s): s is string => typeof s === "string");
+      for (const piece of words) expect(verdict.message).toContain(piece);
+    }
+  });
+});
+
+describe("a coefficient identified in a limit is a reference only when the part says so", () => {
+  const limit = {
+    status: "analytic-limit",
+    quantityId: "inertialMassDecrease",
+    representation: { kind: "coefficient", value: 3.51152357690522e-8 },
+  };
+
+  test("accepted with limitCoefficient, and recorded as coming from a limit", () => {
+    const reference = referenceFromEvaluation(limit, context, { limitCoefficient: true });
+    expect(reference.value).toBe(3.51152357690522e-8);
+    expect(reference.resultStatus).toBe("analytic-limit");
+  });
+
+  test("refused without it, and refused when the limit is not a coefficient", () => {
+    for (const [result, options] of [
+      [limit, {}],
+      [{ ...limit, representation: { kind: "point-mass", value: 1 } }, { limitCoefficient: true }],
+      [
+        { status: "outside-domain", representation: { kind: "coefficient", value: 1 } },
+        { limitCoefficient: true },
+      ],
+    ] as const) {
+      let code = "no refusal";
+      try {
+        referenceFromEvaluation(result, context, options);
+      } catch (error) {
+        code = error instanceof ExerciseReferenceError ? error.code : "another error";
+      }
+      expect(code).toBe("exercise-reference-not-a-value");
+    }
+  });
 });
 
 describe("every reader-facing sentence passes the voice lint", () => {
