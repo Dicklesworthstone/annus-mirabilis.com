@@ -68,9 +68,23 @@ export function expressionToDerivationLatex(
       case "quotient":
         s = `\\frac{${render(n.numerator)}}{${render(n.denominator)}}`;
         break;
-      case "power":
-        s = `\\left(${render(n.base)}\\right)^{${n.exponent.den === 1 ? n.exponent.num : `\\frac{${n.exponent.num}}{${n.exponent.den}}`}}`;
+      case "power": {
+        // The equation renderer's rule (latex/render.ts): an atomic base takes no brackets. The
+        // missing-step panels printed <(A)^2> where the explorer beside them prints <A^2>. A sum,
+        // a negative number, a scaled letter or a glyph with its own superscript keeps them.
+        const base = render(n.base);
+        const atomic =
+          n.base.kind === "average" ||
+          n.base.kind === "constant" ||
+          (n.base.kind === "number" && /^\d+(\.\d+)?$/.test(n.base.value)) ||
+          (n.base.kind === "symbol" &&
+            (!n.base.scale || (n.base.scale.num === 1 && n.base.scale.den === 1)) &&
+            !base.includes("^"));
+        const exponent =
+          n.exponent.den === 1 ? n.exponent.num : `\\frac{${n.exponent.num}}{${n.exponent.den}}`;
+        s = `${atomic ? base : `\\left(${base}\\right)`}^{${exponent}}`;
         break;
+      }
       case "root":
         s = `\\sqrt${n.degree === 2 ? "" : `[${n.degree}]`}{${render(n.radicand)}}`;
         break;
