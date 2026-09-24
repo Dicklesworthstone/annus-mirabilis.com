@@ -278,6 +278,8 @@ export function createBm03Session(
     outcome: null,
   };
 
+  const serverView = view;
+
   return {
     subscribe(callback: () => void) {
       listeners.add(callback);
@@ -286,8 +288,12 @@ export function createBm03Session(
     getSnapshot(): ExperimentView {
       return view;
     },
+    // The view the page was built with, frozen, as React's server snapshot must be and as BM-08's
+    // is. It returned the live view, so ConfigurationLab's "is this still the build's example"
+    // identity test held for every accepted run, and the badge read "Static worked example" over
+    // results computed from the reader's own settings (measured on live after 0ed262bc).
     getServerSnapshot(): ExperimentView {
-      return view;
+      return serverView;
     },
     acceptedParameters(): Bm03Parameters {
       return currentParams;

@@ -230,6 +230,7 @@ export function createSr04Session(
     outcome: null,
   };
 
+  const serverView = view;
   return {
     subscribe(callback: () => void) {
       listeners.add(callback);
@@ -238,8 +239,12 @@ export function createSr04Session(
     getSnapshot(): ExperimentView {
       return view;
     },
+    // The view the page was built with, frozen, as React's server snapshot must be. It returned
+    // the live view, so the lab's "is this still the build's example" identity test held for every
+    // accepted run and the label stayed "Static worked example" over the reader's own results
+    // (BM-03's session had the same fault, measured on live).
     getServerSnapshot(): ExperimentView {
-      return view;
+      return serverView;
     },
     acceptedParameters(): Sr04Parameters {
       return currentParams;
