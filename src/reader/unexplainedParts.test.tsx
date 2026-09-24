@@ -4,6 +4,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { loadParagraphBindings } from "../content/bindings/paragraphBindings.ts";
 import { printedUnits } from "../content/editions/germanSourceFace.ts";
 import { loadPaper } from "../content/server.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
@@ -11,7 +12,13 @@ import { FaceFallback } from "./FaceFallback.tsx";
 import { ledgerGaps, pageRanges } from "./ledgerGaps.ts";
 import { PaperReader } from "./PaperReader.tsx";
 import { UnexplainedPartsLine } from "./UnexplainedParts.tsx";
-import { outlineOrder, paperParts, partLabel, unexplainedParts } from "./unexplainedParts.ts";
+import {
+  explainedElsewhere,
+  outlineOrder,
+  paperParts,
+  partLabel,
+  unexplainedParts,
+} from "./unexplainedParts.ts";
 
 const ROOT = process.cwd();
 
@@ -24,15 +31,46 @@ describe("the parts of a paper, and the ones not yet explained", () => {
     expect(paperParts([{ section: "closing" }, { section: "s2" }, {}])).toEqual(["s2"]);
   });
 
-  test("Brownian: the introduction and sections 1 to 3 have no explanation", async () => {
+  test("Brownian: the introduction, §1 and §2 have no explanation; §3 is explained from §5", async () => {
     const { arguments: passages } = await loadPaper("brownian-motion");
     const parts = paperParts(printedUnits(ROOT, "brownian-motion"));
-    expect(unexplainedParts(parts, new Set(passages.map((a) => a.section)))).toEqual([
+    const filed = new Set(passages.map((a) => a.section));
+    // No passage is filed under §3, yet every §3 paragraph is bound to the §5 passage that derives
+    // the same diffusion coefficient (content/bindings/brownian-motion.yaml).
+    expect(unexplainedParts(parts, filed)).toEqual(["s0", "s1", "s2", "s3"]);
+    const elsewhere = explainedElsewhere(
+      parts,
+      filed,
+      loadParagraphBindings(ROOT, "brownian-motion") ?? [],
+    );
+    expect([...elsewhere]).toEqual([["s3", ["arg-bm-diffusivity"]]]);
+    expect(unexplainedParts(parts, new Set([...filed, ...elsewhere.keys()]))).toEqual([
       "s0",
       "s1",
       "s2",
-      "s3",
     ]);
+  });
+
+  test("a part is explained elsewhere only when every paragraph of it is bound", () => {
+    const parts = ["s0", "s1", "s2", "s3"];
+    const b = (unit: string, passages: string[], unexplained = false) => ({
+      unit,
+      passages,
+      unexplained,
+    });
+    const bindings = [
+      b("s1-p1", ["arg-a"]),
+      b("s1-p2", ["arg-b", "arg-a"]),
+      b("s2-p1", ["arg-a"]),
+      b("s2-p2", [], true),
+      b("s3-p1", ["arg-c"]),
+    ];
+    // §1 is all bound; §2 has a declared paragraph; §3 is filed, so it is a section already.
+    expect([...explainedElsewhere(parts, new Set(["s3"]), bindings)]).toEqual([
+      ["s1", ["arg-a", "arg-b"]],
+    ]);
+    // A part with no bindings at all is not explained anywhere.
+    expect(explainedElsewhere(parts, new Set(), []).size).toBe(0);
   });
 
   test("a reading for a section takes it out of the line: nothing is hand-typed", () => {
@@ -53,25 +91,28 @@ describe("the parts of a paper, and the ones not yet explained", () => {
   });
 
   test("the outline keeps printed order, explained sections and missing parts together", () => {
-    const order = outlineOrder([{ id: "s4" }, { id: "s5" }], ["s0", "s1", "s2", "s3"]);
-    expect(order.map((e) => (e.kind === "section" ? e.section.id : `(${e.part})`))).toEqual([
-      "(s0)",
-      "(s1)",
-      "(s2)",
-      "(s3)",
-      "s4",
-      "s5",
-    ]);
+    const order = outlineOrder([{ id: "s4" }, { id: "s5" }], ["s0", "s1", "s2"], ["s3"]);
+    expect(
+      order.map((e) =>
+        e.kind === "section" ? e.section.id : e.kind === "missing" ? `(${e.part})` : `[${e.part}]`,
+      ),
+    ).toEqual(["(s0)", "(s1)", "(s2)", "[s3]", "s4", "s5"]);
     expect(partLabel("s0")).toBe("the introduction");
     expect(partLabel("s3")).toBe("§3");
   });
 
   test("the Brownian page says so in its static HTML, and lists the parts in its outline", async () => {
     const html = await exportMarkup(await PaperReader());
-    expect(html).toContain('data-unexplained-parts="s0 s1 s2 s3"');
+    expect(html).toContain('data-unexplained-parts="s0 s1 s2"');
     expect(html).toContain("Not yet explained on this site:");
-    for (const part of ["s0", "s1", "s2", "s3"])
+    for (const part of ["s0", "s1", "s2"])
       expect(html).toContain(`data-unexplained-part="${part}"`);
+    expect(html).not.toContain('data-unexplained-part="s3"');
+    // §3 is in the outline, pointing at the passage that explains it.
+    // The whole paper carries the passage, so the link stays on the page.
+    const at = html.indexOf('data-explained-elsewhere="s3"');
+    expect(at).toBeGreaterThan(-1);
+    expect(html.slice(at, html.indexOf("</div>", at))).toContain('href="#arg-bm-diffusivity"');
     // Each part opens Einstein's text for that part, never a section page that does not exist.
     expect(html).toMatch(/href="\/papers\/brownian-motion\/view\/german\/#s0-p1"/);
     expect(html).not.toMatch(/href="\/papers\/brownian-motion\/s[0-3]\/"/);

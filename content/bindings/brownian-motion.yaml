@@ -1,0 +1,269 @@
+# Which explanation passage explains each printed paragraph, footnote and display of the
+# Brownian-motion paper (am-bind-paragraphs-and-displays-bm-gzg2), under the explanation-grain
+# decision D-2026-09-24-explanation-grain. Units are the frozen manifest's
+# (content/source-blocks/brownian-motion); the bindings and the r0 lines were written from the
+# plates of printed pages 549 to 560, read by eye. A paragraph no passage explains yet is
+# declared unexplained with its reason, never covered by an invented passage. The r0 lines are
+# explanatory preview prose, not a translation and not Einstein's words; no review is claimed.
+paper: brownian-motion
+decision: D-2026-09-24-explanation-grain
+paragraphs:
+  - unit: s0-p1
+    status: unexplained
+    reason: "No explanation passage covers the introduction yet; the paper page lists it as not yet explained."
+    r0: "Einstein sets out to show that, on the molecular-kinetic theory of heat, bodies large enough to see in a microscope, suspended in a liquid, must move by amounts a microscope can detect. These motions may be the so-called Brownian molecular motion, but he finds the reports available to him too imprecise to judge."
+  - unit: s0-p2
+    status: unexplained
+    reason: "No explanation passage covers the introduction yet; the paper page lists it as not yet explained."
+    r0: "If the motion and its laws can be observed, classical thermodynamics no longer holds exactly for spaces visible under a microscope, and the true size of atoms can be determined exactly; if the predicted motion is not found, that is a serious argument against the molecular-kinetic view of heat."
+  - unit: s1-p1
+    status: unexplained
+    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+    r0: "A dissolved substance held in part of a liquid by a wall that lets the solvent through presses on that wall with the osmotic pressure, which for a dilute solution obeys the gas law, pressure times volume equals R times T times the number of gram-molecules."
+  - unit: s1-p2
+    status: unexplained
+    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+    r0: "By classical thermodynamics, small suspended bodies held back by the same kind of wall should exert no force on it, because the free energy of the system seems not to depend on where the wall and the bodies are."
+  - unit: s1-p3
+    status: unexplained
+    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+    r0: "On the molecular-kinetic view a dissolved molecule differs from a suspended body only in size, so suspended bodies in slow irregular motion should press on the wall as dissolved molecules do, with osmotic pressure RT/N times their number per unit volume, N being the number of real molecules in a gram-molecule; §2 is to show that the theory leads there."
+  - unit: s2-fn1
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    r0: "The footnote says that this section assumes Einstein's earlier papers on the foundations of thermodynamics, of 1902 and 1903, and that neither they nor the section itself is needed to understand the paper's results."
+  - unit: s2-p1
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    r0: "Using his earlier statistical theory of heat, Einstein writes the entropy of a system whose state is fixed by its state variables as an integral over all their allowed values, and from it the free energy, minus RT/N times the logarithm of that integral, B."
+  - unit: s2-p2
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    r0: "A liquid of volume V holds n dissolved molecules or suspended bodies kept by a semipermeable wall within a part V* of it; where the wall stands changes the limits of the integral B, and the particles together take up little of V*."
+  - unit: s2-p3
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    r0: "Computing B exactly would be hopeless even with the whole molecular picture fixed, but all that is needed is how the free energy depends on the volume V* in which the particles are held."
+  - unit: s2-p4
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    r0: "Split the integral according to where each particle's centre lies: for small boxes around the centres, all inside V*, the contribution is the product of the box sizes times a factor J that does not depend on the wall; boxes of the same sizes placed elsewhere give a factor J′."
+  - unit: s2-p5
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    r0: "The share of B from a set of boxes is the probability of finding the particles' centres in them at a moment chosen at random; if the particles move independently, the liquid is uniform and no forces act, equal boxes are equally probable, so J equals J′."
+  - unit: s2-fn2
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    r0: "The footnote cites Einstein's 1903 paper in Annalen der Physik, volume 11, page 170."
+  - unit: s2-p7
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    r0: "So J depends neither on V* nor on where the particles are; integrating gives B as J times V* to the power n, the free energy follows, and its change with V* is the osmotic pressure, RT/N times the number of particles per unit volume."
+  - unit: s2-p8
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    r0: "This shows that osmotic pressure follows from the molecular-kinetic theory of heat, and that on this theory equal numbers of dissolved molecules and suspended bodies behave exactly alike as regards osmotic pressure at great dilution."
+  - unit: s3-p1
+    passages: [arg-bm-diffusivity]
+    r0: "Suspended particles are spread irregularly through a liquid, and each is acted on by a force K that depends on position but not on time; for simplicity the force points along the X axis everywhere."
+    note: "Covered by arg-bm-diffusivity's balance statement, which takes the force as given (a small force F on each particle); the passage does not set up the virtual displacement of §3."
+  - unit: s3-p2
+    passages: [arg-bm-diffusivity]
+    r0: "In equilibrium the number of particles per unit volume varies along x so that the free energy does not change under any small virtual displacement; working out the energy and entropy changes gives equation (1), in which the force K is held in balance by osmotic pressure. The passage that explains §3 states this balance directly; it does not follow Einstein's route through the variation of the free energy."
+    note: "Covered by arg-bm-diffusivity's balance statement (the force density balances the osmotic-pressure gradient), not by Einstein's route through the variation of the free energy."
+  - unit: s3-p5
+    passages: [arg-bm-diffusivity]
+    r0: "Einstein uses equation (1) to find the diffusion coefficient, reading the equilibrium as two opposed processes: the particles drifting under the force K, and diffusion driven by their irregular thermal motion."
+  - unit: s3-p6
+    passages: [arg-bm-diffusivity]
+    r0: "For spheres of radius P in a liquid of viscosity k, the force K gives each particle the speed K divided by 6πkP, so that many particles times that speed cross unit area in unit time."
+  - unit: s3-fn1
+    passages: [arg-bm-diffusivity]
+    r0: "The footnote refers to Kirchhoff's lectures on mechanics, lecture 26, section 4, for the drag on a sphere moving slowly through a liquid."
+  - unit: s3-p7
+    passages: [arg-bm-diffusivity]
+    r0: "With D the diffusion coefficient, diffusion carries particles across unit area at a rate D times the fall of their number per unit volume along x; in dynamic equilibrium the drift and the diffusion cancel, which is equation (2)."
+  - unit: s3-p8
+    passages: [arg-bm-diffusivity]
+    r0: "Equations (1) and (2) together give D as RT/N divided by 6πkP: apart from universal constants and the absolute temperature, the diffusion coefficient depends only on the liquid's viscosity and the size of the particles."
+  - unit: s4-p1
+    passages: [arg-bm-diffusion-equation]
+    r0: "Einstein now examines more closely the irregular motions, brought about by the thermal motion of the molecules, that give rise to the diffusion of §3."
+  - unit: s4-p2
+    passages: [arg-bm-independent-steps]
+    r0: "Each particle is assumed to move independently of all the others, and the motions of one particle in different time intervals count as independent too, as long as the intervals are not taken too small."
+  - unit: s4-p3
+    passages: [arg-bm-independent-steps, arg-bm-diffusion-equation]
+    r0: "He introduces a time interval τ, very small compared with the intervals one can observe, but long enough that a particle's motions in two successive intervals are independent events."
+  - unit: s4-p4
+    passages: [arg-bm-diffusion-equation]
+    r0: "In each interval τ every particle's x coordinate changes by some amount Δ, positive or negative; the number of particles with a change between Δ and Δ + dΔ is n φ(Δ) dΔ, where φ adds up to one over all Δ, is non-zero only for very small Δ, and is the same for Δ and −Δ."
+  - unit: s4-p5
+    passages: [arg-bm-diffusion-equation]
+    r0: "He asks how the diffusion coefficient depends on φ, again restricting himself to a number of particles per unit volume that depends only on x and t."
+  - unit: s4-p6
+    passages: [arg-bm-diffusion-equation]
+    r0: "Calling that number f(x, t), he expresses the particles present at time t + τ through those present at time t, expands for small τ and small Δ, drops the terms that vanish by symmetry or are very small, and, calling the mean square jump divided by twice τ the quantity D, obtains equation (1): the rate of change of f in time equals D times its second derivative in x."
+  - unit: s4-p9
+    passages: [arg-bm-diffusion-equation]
+    r0: "This is the known differential equation of diffusion, and D is recognised as the diffusion coefficient."
+  - unit: s4-p10
+    passages: [arg-bm-gaussian]
+    r0: "Because the particles move independently, each can be measured from its own starting point at time zero; f then counts particles by how far they have moved, it still obeys equation (1), all start at one point, and the solution is the spreading curve of diffusion from a point."
+  - unit: s4-p11
+    passages: [arg-bm-gaussian, arg-bm-observable]
+    r0: "The displacements in any time t are distributed like random errors; what matters is how the constant in the exponent depends on D, and it gives the root of the mean square displacement along X, λx, as the square root of 2Dt."
+  - unit: s4-p12
+    passages: [arg-bm-independent-steps, arg-bm-observable]
+    r0: "The mean displacement therefore grows as the square root of the time, and the root mean square of the total displacement in space is λx times the square root of 3."
+  - unit: s5-p1
+    passages: [arg-bm-diffusivity]
+    r0: "Combining the diffusion coefficient found in §3 for small spheres of radius P with the displacement law of §4 and eliminating D gives λx in terms of the time, the temperature, the viscosity k and the radius P."
+  - unit: s5-p2
+    passages: [arg-bm-diffusivity, arg-bm-inference]
+    r0: "Taking N as 6 · 10²³ from the kinetic theory of gases, water at 17 °C as the liquid, and particles 0.001 mm across, λx for one second comes to 8 · 10⁻⁵ cm, or 0.8 micron, and about 6 microns in one minute."
+  - unit: s5-p3
+    passages: [arg-bm-inference]
+    r0: "Turned around, the same relation can be used to determine N from observed displacements."
+  - unit: s5-p4
+    passages: [arg-bm-inference]
+    r0: "Einstein closes by hoping that a researcher will soon succeed in deciding the question raised here, which he calls important for the theory of heat."
+displays:
+  - unit: eq-s1-d1
+    status: unexplained
+    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+  - unit: eq-s1-d2
+    status: unexplained
+    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d1
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d2
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d3
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d4
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d5
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d6
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d7
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d8
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d9
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d10
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d11
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s2-d12
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - unit: eq-s3-d1
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-s3-d2
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-s3-d3
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-s3-1
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-s3-d4
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-s3-d5
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-s3-d6
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-s3-d7
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-s3-d8
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-2
+    status: no-record
+    reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
+  - unit: eq-s3-d9
+    equations: [eq-model-bm-diffusivity-molar]
+  - unit: eq-s4-d1
+    status: no-record
+    reason: "The frequency law dn = nφ(Δ)dΔ is stated in the prose of arg-bm-diffusion-equation, which defines φ(Δ) as the density of a jump Δ in τ; no equation record draws it."
+  - unit: eq-s4-d2
+    status: no-record
+    reason: "The normalisation of φ is used in arg-bm-diffusion-equation, where it cancels the zeroth-order term; no equation record draws it."
+  - unit: eq-s4-d3
+    status: no-record
+    reason: "The symmetry of φ is used in arg-bm-diffusion-equation, where it removes the first moment; no equation record draws it."
+  - unit: eq-s4-d4
+    equations: [eq-model-bm-next-density]
+  - unit: eq-s4-d5
+    equations: [eq-model-bm-taylor-in-time]
+  - unit: eq-s4-d6
+    equations: [eq-model-bm-taylor-in-space]
+  - unit: eq-s4-d7
+    status: no-record
+    reason: "The expansion under the integral is carried out in the steps of arg-bm-diffusion-equation, between its two Taylor records; no single record draws the combined line."
+  - unit: eq-s4-d8
+    status: no-record
+    reason: "The normalisation of φ, printed a second time where it is used; arg-bm-diffusion-equation uses it to cancel the zeroth-order term, and no equation record draws it."
+  - unit: eq-s4-d9
+    equations: [eq-model-bm-jump-moment]
+  - unit: eq-s4-1
+    equations: [eq-model-bm-diffusion-equation]
+  - unit: eq-s4-d10
+    status: no-record
+    reason: "The starting condition, every particle at its own origin and n in all, is described in the prose of arg-bm-gaussian; no equation record draws it."
+  - unit: eq-s4-d11
+    status: no-record
+    reason: "arg-bm-gaussian shows the normalised spreading curve p(x, t) as a formula without an equation record; this display is n times that curve."
+  - unit: eq-s4-d12
+    equations: [eq-model-bm-rms-from-mean-square]
+  - unit: eq-s5-d1
+    equations: [eq-model-bm-diffusivity-molar]
+  - unit: eq-s5-d2
+    equations: [eq-model-bm-rms]
+  - unit: eq-s5-d3
+    status: no-record
+    reason: "λx = √t · √(RT/N · 1/(3πkP)) follows by eliminating D between the two records above, as arg-bm-diffusivity and arg-bm-inference do in prose; no equation record draws it."
+  - unit: eq-s5-d4
+    status: printed-value
+    reason: "Einstein's worked number, λx = 8 · 10⁻⁵ cm = 0.8 micron for one second, is a printed value; the §5 passages recompute it in their worked steps, and it is not an equation record."
+  - unit: eq-s5-d5
+    equations: [eq-model-bm-avogadro-inference]
+obligations:
+  - obligation: "arg:brownian-introduction-conditional"
+    status: unexplained
+    reason: "No explanation passage covers the introduction yet; the paper page lists it as not yet explained."
+  - obligation: "arg:brownian-osmotic-pressure"
+    status: unexplained
+    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+  - obligation: "arg:brownian-statistical-mechanics"
+    status: unexplained
+    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+  - obligation: "arg:brownian-stokes-diffusion"
+    passages: [arg-bm-diffusivity]
+  - obligation: "arg:brownian-random-walk-diffusion"
+    passages: [arg-bm-independent-steps, arg-bm-diffusion-equation, arg-bm-gaussian, arg-bm-observable]
+  - obligation: "arg:brownian-displacement-scale"
+    passages: [arg-bm-diffusivity, arg-bm-inference]
+  - obligation: "arg:brownian-closing-outlook"
+    passages: [arg-bm-inference]

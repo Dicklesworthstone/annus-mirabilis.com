@@ -43,6 +43,20 @@ describe("mass-energy's source is bound to its explanation", () => {
   });
 });
 
+describe("every paper on the required list is fully bound or declared", () => {
+  for (const paper of BINDINGS_REQUIRED)
+    test(paper, () => {
+      const r = checkParagraphBindings(ROOT, paper);
+      if (!r) throw new Error(`${paper} is required and has no manifest`);
+      console.log(`[bindings] ${reportLine(r)}`);
+      expect(r.problems).toEqual([]);
+      expect(r.paragraphs.of).toBeGreaterThan(0);
+      expect(r.paragraphs.bound + r.paragraphs.declared).toBe(r.paragraphs.of);
+      expect(r.displays.bound).toBe(r.displays.of);
+      expect(r.obligations.resolved).toBe(r.obligations.of);
+    });
+});
+
 describe("each gap is refused by name", () => {
   const problems = (name: string, edit: (yaml: string) => string) =>
     checkParagraphBindings(copyWith(name, edit), "mass-energy")?.problems ?? ["no report"];

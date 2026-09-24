@@ -65,3 +65,34 @@ export function UnexplainedOutlineEntry({ part, href }: { part: string; href: st
     </div>
   );
 }
+
+/**
+ * An outline entry for a part explained by passages filed under another part (explainedElsewhere):
+ * it names the passage and links to it, so the part is neither missing from the outline nor called
+ * unexplained. The first link carries the place, like a section's, so a phone shows it as a chip;
+ * any further passages follow as the passage links under a section do.
+ */
+export function ExplainedElsewhereOutlineEntry({
+  part,
+  passages,
+}: {
+  part: string;
+  passages: readonly Readonly<{ id: string; title: string; href: string }>[];
+}) {
+  const mark = part === "s0" ? "Introduction" : `§${part.slice(1)}`;
+  const [first, ...rest] = passages;
+  if (!first) return null;
+  return (
+    <div data-explained-elsewhere={part}>
+      <a href={first.href} aria-label={`${mark}, explained in ${first.title}`}>
+        <span className="outline-section-mark">{mark}</span>
+        <span className="outline-section-name">{` · explained in ${first.title}`}</span>
+      </a>
+      {rest.map((p) => (
+        <a key={p.id} href={p.href}>
+          {p.title}
+        </a>
+      ))}
+    </div>
+  );
+}

@@ -419,6 +419,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     href={partHref(entry.part)}
                   />
                 );
+              // No part of these papers is explained elsewhere, and none is passed here.
+              if (entry.kind !== "section") return null;
               const s = entry.section;
               return (
                 <div key={s.id}>

@@ -35,8 +35,17 @@ import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
 import { SectionPager } from "./SectionPager.tsx";
 import { SourceParagraphs } from "./SourceParagraphs.tsx";
 import { sectionPlate } from "./sectionPlate.ts";
-import { UnexplainedOutlineEntry, UnexplainedPartsLine } from "./UnexplainedParts.tsx";
-import { outlineOrder, paperParts, unexplainedParts } from "./unexplainedParts.ts";
+import {
+  ExplainedElsewhereOutlineEntry,
+  UnexplainedOutlineEntry,
+  UnexplainedPartsLine,
+} from "./UnexplainedParts.tsx";
+import {
+  explainedElsewhere,
+  outlineOrder,
+  paperParts,
+  unexplainedParts,
+} from "./unexplainedParts.ts";
 import "./reader.css";
 
 /** The Brownian first encounter's id (BrownianFirstEncounter.tsx), a return anchor like a passage. */
@@ -70,10 +79,19 @@ export async function PaperReader({
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
   // The parts of the paper no passage explains yet, from its frozen manifest (unexplainedParts.ts),
   // each linked to Einstein's text: the German face at that part, else the facsimile.
-  const missingParts = unexplainedParts(
-    paperParts(printedUnits(process.cwd(), "brownian-motion")),
-    new Set(payload.arguments.map((a) => a.section)),
-  );
+  // A part whose paragraphs are all bound to passages filed under another part is explained there
+  // (explainedElsewhere): named in the outline with those passages, and not called unexplained.
+  const parts = paperParts(printedUnits(process.cwd(), "brownian-motion"));
+  const filed = new Set(payload.arguments.map((a) => a.section));
+  const elsewhere = explainedElsewhere(parts, filed, boundParagraphs);
+  const missingParts = unexplainedParts(parts, new Set([...filed, ...elsewhere.keys()]));
+  const passageLink = (id: string) => {
+    const passage = payload.arguments.find((a) => a.id === id);
+    if (!passage) return [];
+    const here = args.some((a) => a.id === id);
+    const href = here ? `#${id}` : `/papers/${paper.id}/${passage.section}/#${id}`;
+    return [{ id, title: passage.title, href }];
+  };
   const pdf = `papers/pdfs/${paper.citation}.pdf`;
   const pdfHref = existsSync(join(process.cwd(), "public", pdf)) ? `/${pdf}` : null;
   const partHref = (part: string) => originalHref(paper.id, sources, part) ?? pdfHref;
@@ -172,7 +190,15 @@ export async function PaperReader({
             <nav aria-label="Argument outline">
               {/* Every section of the paper, on a section's own page too; the others link to
                   their pages. */}
-              {outlineOrder(paper.sections, missingParts).map((entry) => {
+              {outlineOrder(paper.sections, missingParts, [...elsewhere.keys()]).map((entry) => {
+                if (entry.kind === "elsewhere")
+                  return (
+                    <ExplainedElsewhereOutlineEntry
+                      key={entry.part}
+                      part={entry.part}
+                      passages={(elsewhere.get(entry.part) ?? []).flatMap(passageLink)}
+                    />
+                  );
                 if (entry.kind === "missing")
                   return (
                     <UnexplainedOutlineEntry

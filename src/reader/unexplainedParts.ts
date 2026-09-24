@@ -19,6 +19,32 @@ export function paperParts(
   return [...parts].sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
 }
 
+/**
+ * Parts no passage is filed under whose every printed paragraph is nonetheless bound to a passage
+ * (content/bindings): each such part with the passages that explain it, in printed order. The
+ * Brownian paper's §3 is explained by the §5 passage that derives the same diffusion coefficient
+ * by the same balance, so §3 is explained, only not in place. A part with any paragraph declared
+ * unexplained stays unexplained.
+ */
+export function explainedElsewhere(
+  parts: readonly string[],
+  filed: ReadonlySet<string>,
+  bindings: readonly Readonly<{
+    unit: string;
+    passages: readonly string[];
+    unexplained: boolean;
+  }>[],
+): ReadonlyMap<string, readonly string[]> {
+  const out = new Map<string, readonly string[]>();
+  for (const part of parts) {
+    if (filed.has(part)) continue;
+    const own = bindings.filter((b) => /^(s\d+)-/.exec(b.unit)?.[1] === part);
+    if (own.length === 0 || own.some((b) => b.unexplained || b.passages.length === 0)) continue;
+    out.set(part, [...new Set(own.flatMap((b) => b.passages))]);
+  }
+  return out;
+}
+
 /** The parts no explanation passage covers, in printed order. */
 export function unexplainedParts(
   parts: readonly string[],
@@ -32,15 +58,24 @@ export function partLabel(part: string): string {
   return part === "s0" ? "the introduction" : `§${part.slice(1)}`;
 }
 
-/** The outline in printed order: explained sections and unexplained parts together. */
+/**
+ * The outline in printed order: explained sections, parts explained by passages filed elsewhere,
+ * and unexplained parts together.
+ */
 export function outlineOrder<S extends Readonly<{ id: string }>>(
   sections: readonly S[],
   missing: readonly string[],
-): readonly ({ kind: "section"; section: S } | { kind: "missing"; part: string })[] {
+  elsewhere: readonly string[] = [],
+): readonly (
+  | { kind: "section"; section: S }
+  | { kind: "missing"; part: string }
+  | { kind: "elsewhere"; part: string }
+)[] {
   const n = (id: string) => Number(id.slice(1));
   return [
     ...sections.map((section) => ({ kind: "section" as const, section })),
     ...missing.map((part) => ({ kind: "missing" as const, part })),
+    ...elsewhere.map((part) => ({ kind: "elsewhere" as const, part })),
   ].sort(
     (a, b) =>
       n(a.kind === "section" ? a.section.id : a.part) -

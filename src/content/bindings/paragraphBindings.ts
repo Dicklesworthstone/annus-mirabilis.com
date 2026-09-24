@@ -19,7 +19,11 @@ import { join } from "node:path";
 import { parseYaml } from "../provenance/yaml.ts";
 
 /** Papers whose source must be fully bound. A paper joins when its bindings are written. */
-export const BINDINGS_REQUIRED: readonly string[] = ["mass-energy"];
+export const BINDINGS_REQUIRED: readonly string[] = [
+  "mass-energy",
+  "light-quanta",
+  "brownian-motion",
+];
 
 export type BindingReport = Readonly<{
   paper: string;
