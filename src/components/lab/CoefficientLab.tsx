@@ -167,7 +167,10 @@ function CoefficientBars({ snapshot, clipId }: { snapshot: AcceptedSnapshot; cli
             width={row.width}
             height="10"
             fill="currentColor"
-            fillOpacity={row.id === "quadratic" || row.id === "limit" ? 0.45 : 0.85}
+            // The approximation's bar is the lighter one. At 0.45 it stood at 2.34:1 on the light
+            // paper, under the 3:1 a mark needs; at 0.6 it is 3.33:1 there (5.54:1 on the dark
+            // paper) and still a shade apart from the exact bar, whose label also names it.
+            fillOpacity={row.id === "quadratic" || row.id === "limit" ? 0.6 : 0.85}
           />
         </g>
       ))}
