@@ -14,6 +14,8 @@ import {
 import {
   type BilingualEdition,
   loadBilingualEdition,
+  paperDateFromReceipt,
+  receiptPaperIdentity,
   setBilingualEditionTestOverride,
   sortBlocksByManifest,
 } from "./bilingualLoader.ts";
@@ -123,5 +125,56 @@ describe("bilingualLoader", () => {
     expect(dateline?.precision).toBe("month");
     expect(dateline?.earliest.slice(0, 7)).toBe(dateline?.latest.slice(0, 7));
     expect((dateline?.earliest ?? "") < (dateline?.latest ?? "")).toBe(true);
+  });
+
+  // The loader turns any of these into "no edition" (null); these reach each coded refusal directly.
+  const refusalCode = (fn: () => unknown): string => {
+    try {
+      fn();
+    } catch (e) {
+      return (e as { code?: string }).code ?? "uncoded";
+    }
+    return "did-not-throw";
+  };
+  const emptyRoot = () => mkdtempSync(join(tmpdir(), "am-bilingual-receipt-"));
+
+  test("paper-citation-missing: a paper that names no citation key has no journal record", () => {
+    expect(refusalCode(() => receiptPaperIdentity(emptyRoot(), undefined))).toBe(
+      "paper-citation-missing",
+    );
+  });
+
+  test("receipt-missing: a key with no provenance receipt refuses rather than printing a journal", () => {
+    expect(refusalCode(() => receiptPaperIdentity(emptyRoot(), "ap-18-639"))).toBe(
+      "receipt-missing",
+    );
+  });
+
+  test("receipt-paper-missing: a receipt with no paper journal record refuses", () => {
+    const root = emptyRoot();
+    mkdirSync(join(root, "docs/provenance"), { recursive: true });
+    writeFileSync(
+      join(root, "docs/provenance/ap-18-639.md"),
+      "---\nkey: ap-18-639\n---\n\nNo paper.\n",
+    );
+    expect(refusalCode(() => receiptPaperIdentity(root, "ap-18-639"))).toBe(
+      "receipt-paper-missing",
+    );
+  });
+
+  test("receipt-date-invalid: a receipt date that is not ISO day, month or year refuses", () => {
+    const date = {
+      type: "date-line",
+      iso: "September 1905",
+      precision: "month",
+      source: "test",
+      verifiedAt: "2026-09-24",
+    } as const;
+    expect(refusalCode(() => paperDateFromReceipt(date))).toBe("receipt-date-invalid");
+    // The control: the same date written as ISO converts to the month's interval.
+    expect(paperDateFromReceipt({ ...date, iso: "1905-09" })).toMatchObject({
+      earliest: "1905-09-01",
+      latest: "1905-09-30",
+    });
   });
 });

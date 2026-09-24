@@ -94,7 +94,7 @@ export function sortBlocksByManifest(
   );
 }
 
-class BilingualPaperRecordError extends Error {
+export class BilingualPaperRecordError extends Error {
   readonly code: string;
   constructor(code: string, message: string) {
     super(message);
@@ -104,7 +104,7 @@ class BilingualPaperRecordError extends Error {
 }
 
 /** The paper identity (titles, dates, journal) a provenance receipt records for a key. */
-function receiptPaperIdentity(rootDir: string, bibKey: string | undefined): PaperIdentity {
+export function receiptPaperIdentity(rootDir: string, bibKey: string | undefined): PaperIdentity {
   if (!bibKey) {
     throw new BilingualPaperRecordError(
       "paper-citation-missing",
@@ -129,7 +129,7 @@ function receiptPaperIdentity(rootDir: string, bibKey: string | undefined): Pape
 }
 
 /** A receipt date (one ISO string at day, month or year precision) as the interval Paper uses. */
-function paperDateFromReceipt(d: PaperIdentity["dates"][number]): PaperDate {
+export function paperDateFromReceipt(d: PaperIdentity["dates"][number]): PaperDate {
   const iso = String(d.iso);
   const m = /^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$/.exec(iso);
   if (!m) {
