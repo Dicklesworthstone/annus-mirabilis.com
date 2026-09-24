@@ -103,7 +103,14 @@ describe("a measured D fixes the product aN, not a and N", () => {
   });
 
   test("double a and halve N: D is exactly what it was; double a alone and it is not", () => {
-    expect(close(value(stokesEinsteinD({ T, eta, a: 2 * a }, setHalfN).result), D)).toBe(true);
+    // pzqv: "to within 10⁻¹² relative, computed through am-ref-diffusion-lr3 and compared with
+    // withinTolerance".
+    const invariant = withinTolerance(
+      value(stokesEinsteinD({ T, eta, a: 2 * a }, setHalfN).result),
+      D,
+      { relative: 1e-12 },
+    );
+    expect(invariant.ok).toBe(true);
     expect(close(value(stokesEinsteinD({ T, eta, a: 2 * a }, setN).result), D)).toBe(false);
     expect(text).toContain(
       "Double a and halve N, and \\(6\\pi\\eta a N\\), and with it D, is exactly what it was. The answer is a curve, not a number.",
