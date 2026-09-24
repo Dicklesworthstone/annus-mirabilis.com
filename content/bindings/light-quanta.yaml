@@ -180,8 +180,7 @@ paragraphs:
     passages: [arg-lq-photoelectric-energy]
     r0: "As far as Einstein can see, the view does not contradict what Lenard observed: if each quantum acts independently, the speeds of the electrons do not depend on the intensity of the light, while the number of electrons leaving is proportional to it."
   - unit: s8-p8
-    status: unexplained
-    reason: "No passage states the photoelectric laws' limits of validity; the passage on the fluorescence budget explains the conditions for Stokes's rule, but not their carry-over to the photoelectric effect."
+    passages: [arg-lq-photoelectric-limits]
     r0: "Einstein adds that the likely limits of validity of these laws call for remarks like those he made about deviations from Stokes's rule."
   - unit: s8-p9
     passages: [arg-lq-stopping-and-losses]

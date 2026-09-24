@@ -53,7 +53,7 @@
     {
       "id": "s8",
       "title": "§8 · photoelectric energy and counts",
-      "arguments": ["arg-lq-photoelectric-energy", "arg-lq-stopping-and-losses"]
+      "arguments": ["arg-lq-photoelectric-energy", "arg-lq-photoelectric-limits", "arg-lq-stopping-and-losses"]
     },
     {
       "id": "s9",

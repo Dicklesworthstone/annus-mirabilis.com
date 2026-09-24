@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-photoelectric-limits",
+  "paper": "light-quanta",
+  "section": "s8",
+  "title": "Einstein's own limits on the photoelectric laws",
+  "question": "Where does Einstein expect his photoelectric regularities might stop holding?",
+  "recap": "Einstein qualifies his photoelectric laws the way he qualified Stokes's rule: they may fail when so many light quanta act at once that one electron gathers energy from several, or when the light is not like black radiation within the range of Wien's law.",
+  "review": "draft",
+  "premises": [
+    "The regularities in question are those of the paragraph before: the speeds of the escaping electrons do not depend on the intensity of the light, and their number is proportional to it.",
+    "In §7 Einstein named two conditions under which Stokes's rule might fail.",
+    "§8 says only that similar remarks would apply to the photoelectric laws; it does not spell them out."
+  ],
+  "limitations": [
+    "The two conditions are carried over from §7 by the analogy Einstein's sentence invites; §8 does not state them itself, so this passage marks them as a reading of his remark.",
+    "The paper gives no intensity and no temperature at which the laws fail, and neither does this passage."
+  ],
+  "citations": ["ap-17-132", "cit-millikan-1916"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Einstein adds a caution to his photoelectric laws: they probably have limits, of the same kind as the exceptions he allowed to Stokes's rule for fluorescence."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "After working out how the escaping electrons should behave, Einstein adds one sentence of caution: about the presumable limits of validity of these regularities, remarks would have to be made like those about the presumable deviations from Stokes's rule. His word, 'mutmaßlich', means presumable: he expects limits, and he does not locate them."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The regularities are those of the paragraph before. If each energy quantum gives its energy to electrons independently of all the others, the speeds of the escaping electrons do not depend on the intensity of the exciting light, while their number is proportional to it. The energy relation behind them assumes one quantum for one electron:"
+      },
+      {
+        "kind": "formula",
+        "latex": "ΠE=R\\beta\\nu-P'",
+        "spoken": "Pi times E equals R beta nu minus P prime."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The remarks on Stokes's rule, in §7, named two conditions. First, so many quanta are being transformed at once in each unit of volume that one produced quantum can take its energy from several exciting quanta. Second, the light is not of the kind black radiation has within the range of Wien's law, for instance light from a body so hot that Wien's law no longer holds at the wavelength concerned."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Carried over, as the sentence invites: in very intense light an electron might gather energy from more than one quantum, and then its energy is no longer bounded by one quantum's (R/N)βν less the work P it spends leaving. For light outside Wien's range, the entropy argument of §6 that gave quanta of size Rβν/N does not apply, so it does not secure the size of the energy portions. Einstein spells out neither case for the photoelectric effect; the caution stays a caution."
+      },
+      {
+        "kind": "foundation",
+        "id": "work-energy",
+        "returnCaption": "Return to the energy one quantum can give an electron."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "paragraph",
+        "text": "Letters: Π is the potential the illuminated body reaches, E the charge of a gram-equivalent of a univalent ion, P′ the work for a gram-equivalent of electrons to leave the body, R the gas constant, N the number of molecules in a gram-molecule, β the constant from Planck's formula in §2, and ν the frequency. (R/N)βν is the energy of one quantum; later physics writes it hν."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The regularities being qualified come from the paragraph before: each quantum gives its energy to electrons independently of all the others.",
+          "Consequence one: the speeds of the escaping electrons, the quality of the cathode rays, do not depend on the intensity of the light, because each electron still receives the energy of a single quantum.",
+          "Consequence two: the number of electrons leaving is proportional to the intensity, other things equal, because doubling the intensity doubles the number of quanta arriving.",
+          "Both rest on one quantum for one electron, which gives the stopping condition, for a gram-equivalent of electrons:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "ΠE=R\\beta\\nu-P'",
+        "spoken": "Pi times E equals R beta nu minus P prime."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked case, with the paper's own check: P′ = 0, R = 8.31 × 10⁷, β = 4.866 × 10⁻¹¹, ν = 1.03 × 10¹⁵ and E = 9.6 × 10³. Then Rβν = 8.31 × 10⁷ × 4.866 × 10⁻¹¹ × 1.03 × 10¹⁵ ≈ 4.16 × 10¹², and Π = Rβν / E ≈ 4.3 × 10⁸, which the paper converts to about 4.3 volts. One quantum, one electron.",
+          "The first condition from §7, carried over: if so many quanta are being transformed at once in each unit of volume that one electron could take energy from two quanta, the energy available to it could reach twice (R/N)βν, and the equation above would no longer bound it. The paper names no intensity at which that begins.",
+          "The second condition from §7, carried over: the quantum picture came from the entropy of radiation within the range of Wien's law (§6). Light well outside that range, such as light from a very hot source at the wavelength used, is not covered by that argument, so the argument does not fix the size of its energy portions.",
+          "What Einstein asserts is only that such remarks would have to be made. He calls the limits presumable and leaves their details open, so neither carried-over case is a prediction of the paper."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "orders-of-magnitude",
+        "returnCaption": "Return to the size of the stopping potential in the paper's check."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "In 1905 the photoelectric data were Lenard's, and the paper claims only that its view does not contradict them, as far as Einstein can see. Millikan's measurements of 1916 later tested the straight-line relation between stopping potential and frequency; that is later evidence, not a premise available in 1905. Emission in which one electron takes the energy of two light quanta at once was observed only after lasers made such intensities available, decades later; it is one concrete form of the first condition, and the paper does not anticipate it in any detail."
+      }
+    ]
+  },
+  "prerequisites": [
+    {
+      "id": "arg-lq-photoelectric-energy",
+      "edge": "premise"
+    },
+    {
+      "id": "arg-lq-fluorescence-budget",
+      "edge": "cross-reference"
+    }
+  ],
+  "help": {
+    "why": "work-energy",
+    "missingStep": "orders-of-magnitude",
+    "example": "work-energy"
+  },
+  "experiments": [],
+  "meaning": {
+    "logicalRole": "qualification",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}
