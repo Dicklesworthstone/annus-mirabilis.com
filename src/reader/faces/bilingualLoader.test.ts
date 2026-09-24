@@ -122,6 +122,6 @@ describe("bilingualLoader", () => {
     const dateline = paper?.dates.find((d) => d.type === "date-line");
     expect(dateline?.precision).toBe("month");
     expect(dateline?.earliest.slice(0, 7)).toBe(dateline?.latest.slice(0, 7));
-    expect(dateline?.earliest < (dateline?.latest ?? "")).toBe(true);
+    expect((dateline?.earliest ?? "") < (dateline?.latest ?? "")).toBe(true);
   });
 });
