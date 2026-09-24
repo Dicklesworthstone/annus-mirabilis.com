@@ -291,6 +291,39 @@
   background: var(--ink);
 }
 
+/*
+ * Repeated-experiment intervals (RepeatedIntervals.tsx), one row each in a .magnitude-rows list. A
+ * miss is hollow and dashed and its row says "misses" in words, so no colour carries the verdict.
+ */
+.interval-track {
+  position: relative;
+  display: block;
+  height: 0.9rem;
+  margin-top: 0.3rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.interval-truth {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--muted);
+}
+
+.interval-bar {
+  position: absolute;
+  top: 0.25rem;
+  height: 0.4rem;
+  background: var(--ink);
+}
+
+.interval-bar-miss {
+  border: 1px dashed var(--ink);
+  background: transparent;
+}
+
 /* Print Media Styles */
 @media print {
   .proportional-controls,

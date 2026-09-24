@@ -6,6 +6,7 @@ import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
 import { MagnitudeScale } from "./MagnitudeScale.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
+import { RepeatedIntervals } from "./RepeatedIntervals.tsx";
 import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
 import { ScalingTable } from "./ScalingTable.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
@@ -52,5 +53,7 @@ export function FoundationConstruction({
       return <MagnitudeScale headingLevel={headingLevel} />;
     case "quantities-units":
       return <UnitCancellationTable headingLevel={headingLevel} />;
+    case "error-and-inference":
+      return <RepeatedIntervals headingLevel={headingLevel} />;
   }
 }

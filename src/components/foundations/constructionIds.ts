@@ -22,6 +22,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "ratios-scaling",
   "orders-of-magnitude",
   "quantities-units",
+  "error-and-inference",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
