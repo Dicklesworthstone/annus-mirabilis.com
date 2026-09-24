@@ -39,7 +39,7 @@ test("connections lead to the real laboratory route rather than an isolated cata
     "utf8",
   );
   assert.ok(connections.includes('href="/lab/light-thread"'));
-  assert.ok(laboratory.includes("<LightThreadLab />"));
+  assert.ok(/<LightThreadLab[\s/>]/.test(laboratory));
   assert.ok(layout.includes("<PrimaryNavLinks"));
   assert.ok(nav.includes('href: "/connections/"'));
   assert.ok(laboratory.includes('canonical: "/lab/light-thread/"'));
