@@ -13,7 +13,7 @@ import {
   removeUpperLimit,
 } from "../../experiments/lq02/session";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { fixed } from "./presentation.ts";
+import { display, fixed } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { withScripts } from "./subscripts.tsx";
 
@@ -92,6 +92,21 @@ export function ModeAllocationLab({
       !Number.isFinite(next.probeFrequency)
     ) {
       setError("Every field must be a real, finite number. Check for a typo or an empty field.");
+      return;
+    }
+    // Each field is a positive quantity. A zero or negative value used to reach the kernel, and the
+    // table printed its outside-domain reason in every row: "Not modeled here: Cutoff frequency must
+    // be positive and finite (got -1e+300)."
+    if (next.T <= 0) {
+      setError("Enter a temperature above 0 K.");
+      return;
+    }
+    if (next.nuCutoff <= 0) {
+      setError("Enter a highest resonator frequency above 0 Hz.");
+      return;
+    }
+    if (next.probeFrequency <= 0) {
+      setError("Enter a probe frequency above 0 Hz.");
       return;
     }
     setAccepted(next);
@@ -223,7 +238,7 @@ export function ModeAllocationLab({
             {snapshot.energyUpToCutoff.status === "value" && (
               <>
                 With resonators up to <Sci value={accepted.nuCutoff} digits={3} /> Hz at{" "}
-                {accepted.T} K, the classical allocation holds{" "}
+                {display(accepted.T)} K, the classical allocation holds{" "}
                 <Sci value={snapshot.energyUpToCutoff.value} digits={3} /> J per cubic meter; each
                 tenfold widening multiplies it by 1000.{" "}
               </>
