@@ -10,6 +10,8 @@ import {
   PHI_MAX,
   SUGAR_0P01M_INPUTS,
 } from "../../experiments/bm02/session";
+import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
+import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { Sci } from "./Sci.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -146,6 +148,10 @@ export function OsmoticPartitionLab({
 }) {
   const id = useId();
   const [accepted, setAccepted] = useState<Bm02Inputs>(example);
+  // Earned per state (am-inst-execution-labels-5ywv): the build's worked example until a reader's
+  // settings are accepted, a host calculation after. There is no instance store here, so the test is
+  // identity with the state the lab started from, as in the reasoning workbenches (12a926b9).
+  const executionKind = accepted === example ? "static-example" : "host-accepted";
   const [draft, setDraft] = useState<Draft>(() => toDraft(example));
   const [error, setError] = useState("");
   const [predictAnswer, setPredictAnswer] = useState<"harder" | "same" | "less" | null>(null);
@@ -199,12 +205,13 @@ export function OsmoticPartitionLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-02"
-      data-execution-label="host"
+      {...executionLabelAttributes(executionKind)}
       data-model={accepted.model}
     >
       <header className="lab-heading">
         <p className="eyebrow">The osmotic partition</p>
         <h2 id={`${id}-title`}>{title}</h2>
+        <span className="badge">{executionLabelFor(executionKind).text}</span>
       </header>
 
       <noscript>

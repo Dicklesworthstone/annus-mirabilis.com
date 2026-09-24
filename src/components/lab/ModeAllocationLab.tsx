@@ -1,6 +1,8 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useId, useState } from "react";
+import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
+import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LQ02_CAPTION } from "../../experiments/lq02/definition.ts";
 import {
   computeLq02Snapshot,
@@ -63,6 +65,10 @@ export function ModeAllocationLab({
 }) {
   const id = useId();
   const [accepted, setAccepted] = useState<Lq02Inputs>(example);
+  // Earned per state (am-inst-execution-labels-5ywv): the build's worked example until a reader's
+  // settings are accepted, a host calculation after. There is no instance store here, so the test is
+  // identity with the state the lab started from, as in the reasoning workbenches (12a926b9).
+  const executionKind = accepted === example ? "static-example" : "host-accepted";
   const [draft, setDraft] = useState<Draft>(() => toDraft(example));
   const [error, setError] = useState("");
   const [divergence, setDivergence] = useState<RadiationResult<number> | null>(null);
@@ -105,11 +111,12 @@ export function ModeAllocationLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-02"
-      data-execution-label="host"
+      {...executionLabelAttributes(executionKind)}
     >
       <header className="lab-heading">
         <p className="eyebrow">Classical mode-energy allocation</p>
         <h2 id={`${id}-title`}>{title}</h2>
+        <span className="badge">{executionLabelFor(executionKind).text}</span>
       </header>
 
       <noscript>

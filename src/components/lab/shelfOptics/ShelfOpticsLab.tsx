@@ -1,6 +1,8 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useEffect, useId, useState } from "react";
+import { executionLabelFor } from "../../../experiments/labels/executionLabelFor.ts";
+import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import {
   SHELF_CAPTIONS,
   SHELF_DEFINITIONS,
@@ -157,7 +159,12 @@ export function ShelfOpticsLab({
   const instance = useId();
   const definition = SHELF_DEFINITIONS[example.parameters.instrumentId];
   const caption = SHELF_CAPTIONS[example.parameters.instrumentId];
-  const [accepted, setAccepted] = useState(() => shelfSnapshot(example));
+  const [initial] = useState(() => shelfSnapshot(example));
+  const [accepted, setAccepted] = useState(initial);
+  // Earned per state (am-inst-execution-labels-5ywv): the build's worked example until a reader's
+  // settings are accepted, a host calculation after. There is no instance store here, so the test is
+  // identity with the snapshot the lab started from, as in the reasoning workbenches (12a926b9).
+  const executionKind = accepted === initial ? "static-example" : "host-accepted";
   const [draft, setDraft] = useState<ShelfDraft>(() => shelfDraft(example.parameters));
   const [ready, setReady] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -248,12 +255,13 @@ export function ShelfOpticsLab({
       data-run-id={`${instance}-${accepted.revision}`}
       data-snapshot-version={accepted.revision}
       data-accepted-input-revision={accepted.revision}
-      data-execution-label="host"
+      {...executionLabelAttributes(executionKind)}
       data-calibration="modern-si-2019"
       data-ready={String(ready)}
     >
       <header className="lab-heading">
         <h2 id={`${instance}-title`}>Change one setting and compare the consequences</h2>
+        <span className="badge">{executionLabelFor(executionKind).text}</span>
       </header>
       <noscript>
         <p className="notice">
