@@ -12,7 +12,8 @@
  * only when every symbol it binds resolves cleanly; one symbol that does not keeps the WHOLE
  * formula in today's letters, and the reader is told so in one line. A symbol resolves when:
  * - exactly one entry bound to its quantity (and to its component, where Einstein printed one
- *   letter per component: X, Y, Z for the electric force) applies in the section;
+ *   letter per component: X, Y, Z for the electric force) applies in the section; an entry that
+ *   records a printed number for the quantity is its value, not a letter, and is not counted;
  * - that entry is a rename, and its modern letter is the one the record prints;
  * - what Einstein printed is one letter. Where he wrote a factor out (1/sqrt(1 - v^2/V^2) for
  *   gamma in the mass-energy paper) or a difference (K_0 - K_1), putting it in a symbol's place
@@ -96,6 +97,17 @@ const indexOf = (entry: ConcordanceEntry): string | undefined =>
   "quantityId" in entry.binding ? entry.binding.index : undefined;
 
 /**
+ * An entry whose printed glyph is a number records a value of its quantity, not a letter for it:
+ * the Brownian paper's "k = 1,35 . 10⁻²" on p. 559 is bound to viscosity for its unit conversion.
+ * It never competes with the entry that gives the quantity its letter (k), so it is not a
+ * candidate; two entries that both print letters for one quantity are still ambiguous. A numeral
+ * only: digits, separators, a product sign and a power of ten. "2\kappa" is a product of a number
+ * and a letter, not a value, and stays a candidate.
+ */
+export const printsValue = (entry: ConcordanceEntry): boolean =>
+  /^[0-9](?:[0-9.,{}\s]|\\cdot|\\times)*(?:\^\{-?[0-9]+\})?$/.test(entry.glyph.latex);
+
+/**
  * Einstein's letters for `tree` in `section`, or the reasons it keeps today's. `table` is the
  * record's own table: the letters the formula prints now, after any per-record override.
  */
@@ -133,6 +145,7 @@ export function printedForm(
       (e) =>
         "quantityId" in e.binding &&
         e.binding.quantityId === quantityId &&
+        !printsValue(e) &&
         scopeMatches(e.scope, section, section),
     );
     // A component Einstein printed as its own letter is found by its index. Any other label

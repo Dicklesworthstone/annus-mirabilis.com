@@ -10,7 +10,7 @@ import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import type { ConcordanceEntry } from "../content/schemas/concordance.ts";
 import type { Expression } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
-import { componentKey, type PrintedForm, printedForm } from "./notationForms.ts";
+import { componentKey, type PrintedForm, printedForm, printsValue } from "./notationForms.ts";
 import { recordQuantities } from "./printedGlyphs.ts";
 import type { QuantityRegistry } from "./quantities.ts";
 import { teachingProfile } from "./teachingProfiles.ts";
@@ -154,6 +154,64 @@ describe("printedForm", () => {
     const twin = { ...v, id: "sr.C.speedOfLight", glyph: { unicode: "C", latex: "C" } };
     const f = form("eq-model-sr-slow-clock", "s4", [...entries, twin]);
     expect(reasons(f)).toEqual(["speedOfLight:ambiguous"]);
+  });
+
+  describe("a printed number bound to a quantity is its value, not a letter (Brownian p. 559)", () => {
+    const bmTable = recordQuantities(teachingProfile("brownian-motion")?.quantities ?? {}, {
+      avogadroConstant: "N_A",
+    });
+    const bm = loadConcordanceForPaper("brownian-motion").entries;
+    const molar = (): Expression =>
+      JSON.parse(
+        readFileSync(
+          join(ROOT, "content/equations/brownian-motion/eq-model-bm-diffusivity-molar.json"),
+          "utf8",
+        ),
+      ).tree;
+    const boundTo = (e: ConcordanceEntry, q: string) =>
+      "quantityId" in e.binding && e.binding.quantityId === q;
+
+    test("section 5's viscosity is k, beside the entry that records k = 1,35 . 10⁻²", () => {
+      // Not vacuous: section 5 has both an entry giving viscosity a letter and one recording its
+      // printed value, so without the rule the letter would be refused as ambiguous.
+      const here = bm.filter((e) => boundTo(e, "viscosity") && e.scope.includes("bm-s5"));
+      expect(here.map((e) => e.glyph.latex).sort()).toEqual(["1{,}35 . 10^{-2}", "k"]);
+      const f = printedForm(molar(), bmTable, bm, "s5");
+      expect(reasons(f)).toEqual([]);
+      expect(f.state === "printed" ? f.letters.viscosity?.latex : undefined).toBe("k");
+    });
+
+    test("only a numeral is a value: 1,35 . 10⁻², 1 and 2,5 are; 2κ and every letter are not", () => {
+      const all = ["brownian-motion", "molecular-dimensions", "special-relativity", "light-quanta"]
+        .flatMap((p) => loadConcordanceForPaper(p).entries)
+        .filter((e) => "quantityId" in e.binding);
+      const values = all.filter(printsValue).map((e) => e.id);
+      // The printed values, by identity: water's viscosity on p. 559 and the dissertation's two
+      // viscosity-law coefficients (1 in 1906, 2,5 after the 1911 correction).
+      for (const id of [
+        "bm.poise.viscosityUnitConversion",
+        "md.one.viscosityLawCoefficient1906",
+        "md.fiveHalves.viscosityLawCoefficient1911",
+      ])
+        expect(values).toContain(id);
+      // Whatever the corpus holds: a value prints no letter, and a letter is never a value.
+      const letterIn = (latex: string) => /[A-Za-z]/.test(latex.replace(/\\(?:cdot|times)/g, ""));
+      for (const e of all)
+        expect([e.id, printsValue(e) && letterIn(e.glyph.latex)]).toEqual([e.id, false]);
+      expect(all.filter((e) => letterIn(e.glyph.latex)).length).toBeGreaterThan(0);
+      // A product of a number and a letter, bound to Boltzmann's constant, is not a value.
+      const twoKappa = bm.find((e) => e.id === "bm.2kappa.groupBoltzmann") as ConcordanceEntry;
+      expect(twoKappa.glyph.latex).toBe("2\\kappa");
+      expect(printsValue(twoKappa)).toBe(false);
+    });
+
+    test("two entries that both print a letter for viscosity are still ambiguous", () => {
+      const k = bm.find((e) => e.id === "bm.k.viscosity") as ConcordanceEntry;
+      const twin = { ...k, id: "bm.eta.viscosity", glyph: { unicode: "η", latex: "\\eta" } };
+      expect(reasons(printedForm(molar(), bmTable, [...bm, twin], "s5"))).toEqual([
+        "viscosity:ambiguous",
+      ]);
+    });
   });
 
   test("an entry applies only in its sections", () => {
