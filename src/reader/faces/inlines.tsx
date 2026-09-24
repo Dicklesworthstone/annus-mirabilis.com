@@ -66,6 +66,9 @@ export function renderInlines(
             return (
               <span
                 key={key}
+                // A block of its own line (reader.css .inline-display): an inline span cannot
+                // scroll, so a formula wider than a phone column widened the page instead.
+                className="inline-display"
                 id={node.equationId}
                 data-block-id={node.equationId}
                 data-equation-id={node.equationId}

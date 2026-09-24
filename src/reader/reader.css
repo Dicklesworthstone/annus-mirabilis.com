@@ -856,35 +856,76 @@ html:is(
   margin-top: 0.15rem;
 }
 
-/* Bilingual faces and sentence alignment (am-read-bilingual-faces-pao) */
-.parallel-face-container {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+/* Bilingual faces and sentence alignment (am-read-bilingual-faces-pao).
+
+   THE PARALLEL FACE IS ONE ROW PER GERMAN BLOCK, holding that block's English (parallelRows.ts):
+   two columns on a wide screen, German then English on a phone. It was two whole columns, and a
+   phone stacked them, so on live d5ff5c76 at 390px the English began at 7,099px, below every
+   German block and footnote. The rule between the columns is each German half's right edge, and
+   the rows have no gap between them, so on a wide screen it runs down the page unbroken. */
+.parallel-grid {
+  margin-top: 1.5rem;
 }
 
-.parallel-grid,
-.parallel-columns {
+.parallel-heads,
+.parallel-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 2rem;
 }
 
-.parallel-grid.parallel-stacked,
-.parallel-grid[data-layout="stacked"],
-[data-layout="stacked"] .parallel-grid {
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-}
-
-.parallel-column {
+.parallel-half {
   min-width: 0;
+  padding-bottom: 1.5rem;
 }
 
-.parallel-column-german,
-.parallel-german {
+.parallel-half-german {
+  grid-column: 1;
   border-right: 1px solid var(--line);
   padding-right: 2rem;
+}
+
+/* English with no German block of its own (parallelRows.ts) still sits in the English column. */
+.parallel-half-english {
+  grid-column: 2;
+}
+
+.parallel-stacked .parallel-heads,
+.parallel-stacked .parallel-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* The German source's draft label, over the German column. */
+.parallel-notice {
+  max-width: calc(50% - 1rem);
+}
+
+/* Each half names its language. A screen reader hears the name on every width; the eye needs it
+   only where the halves stack, so on a wide screen it is visually hidden and the column heads
+   show. Two classes, because `.reader-root p` sets margin-block on every paragraph at (0,1,1). */
+.parallel-half .parallel-half-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* A display printed inside its sentence (inlines.tsx) is a span inside a <p>, and an inline box
+   cannot scroll, so the page did: on live d5ff5c76 two German formulas (eq-s0-d3, eq-s0-d4)
+   widened the mass-energy parallel face by 61px at 390 and, with a third, 135px at 320. As a
+   block it takes a line of its own and scrolls inside it. overflow-y is hidden for the reason
+   sourceMarkup.css gives: KaTeX's glyph boxes run below the line, and auto would make each a
+   vertical scroll box with nothing to scroll. The English display is .equation-body, below. */
+.inline-display {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .align-sentences-btn {
@@ -980,35 +1021,47 @@ html:is(
   color: #4b5563;
 }
 
+/* On a phone each row is its German, then its English, each under its language's name, and a
+   hairline closes the pair. The column heads go: the halves name themselves. */
 @media (max-width: 768px) {
-  .parallel-grid,
-  .parallel-columns {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  .parallel-heads {
+    display: none;
   }
-  .parallel-column-german,
-  .parallel-german {
-    border-right: none;
+  .parallel-row {
+    grid-template-columns: minmax(0, 1fr);
     border-bottom: 1px solid var(--line);
+    margin-bottom: 1.25rem;
+  }
+  .parallel-half-german,
+  .parallel-half-english {
+    grid-column: 1;
+  }
+  .parallel-half-german {
+    border-right: none;
     padding-right: 0;
-    padding-bottom: 1.5rem;
+    padding-bottom: 1rem;
+  }
+  .parallel-half .parallel-half-label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0 0 0.35rem;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    font-family: var(--font-sans);
+    font-size: var(--type-fine);
+    color: var(--muted);
+  }
+  .parallel-notice {
+    max-width: none;
   }
 }
 
-/* 320 px narrow touch viewport stacked layout */
+/* 320 px narrow touch viewport. No side padding of its own: main carries the page gutter (16px
+   either side under 560px, globals.css), and the 0.25rem this rule added sat inside it. */
 @media (max-width: 320px) {
-  .parallel-face-container,
-  .reader-root.face-parallel {
-    padding: 0 0.25rem;
-    max-width: 320px;
-  }
-  .parallel-grid,
-  .parallel-columns {
-    grid-template-columns: 100%;
-    gap: 1rem;
-  }
-  .parallel-column {
-    max-width: 100%;
+  .parallel-half {
     overflow-wrap: break-word;
     word-break: break-word;
   }
@@ -1610,8 +1663,15 @@ html:is(
   width: 100%;
 }
 
+/* A div in an equation block (SourceBlock.tsx), and a span in an English paragraph
+   (TranslationParagraphs.tsx), where it was inline and so could not scroll: without display: block
+   the mass-energy English face widened by 77px at 390 in the static harness. overflow-y as for
+   .inline-display above. */
 .equation-body {
+  display: block;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   text-align: center;
 }
 
@@ -1672,6 +1732,18 @@ html:is(
   padding: 0.25rem 0.5rem;
   border-radius: 3px;
   cursor: pointer;
+}
+
+/* These buttons are hidden until focused (.visually-hidden-focusable), but the rules above give
+   them padding, a border and a margin at the same specificity, loaded later, so the "1px" hidden
+   box was about 19px wide. At the end of a line near the right edge it widened the page: 2px on
+   live d5ff5c76 at 320 (s0-p12-s1), and 4 to 5px in the parallel face's rows. Until focused they
+   have none of the three. */
+.align-sentences-btn.visually-hidden-focusable:not(:focus),
+.show-aligned-action.visually-hidden-focusable:not(:focus) {
+  padding: 0;
+  border-width: 0;
+  margin: -1px;
 }
 
 .block-editorial-notes {
@@ -2384,19 +2456,16 @@ html:is(
   border-radius: 4px;
 }
 
-.parallel-stacked {
-  grid-template-columns: 1fr !important;
-}
-
-.parallel-english {
-  padding-left: 1rem;
-}
-
 .column-heading {
   font-size: var(--type-body);
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--line);
   padding-bottom: 0.5rem;
+}
+
+/* The parallel face's column heads are paragraphs, and `.reader-root p` sets margin-block at (0,1,1). */
+.parallel-heads .column-heading {
+  margin-block: 0 1rem;
 }
 
 .source-blocks-list,

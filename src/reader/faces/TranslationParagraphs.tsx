@@ -33,7 +33,8 @@ import { renderInlines } from "./inlines.tsx";
 import { evaluateUnitReviewState } from "./reviewState.ts";
 
 type GroupKind = "paragraph" | "display" | "footnote" | "other";
-type Group = { kind: GroupKind; key: string; units: TranslationUnit[] };
+/** Units set together: one source paragraph, display, footnote or other block, by its id (`key`). */
+export type Group = { kind: GroupKind; key: string; units: TranslationUnit[] };
 
 const BADGE_CLASS: Readonly<Record<"reviewed" | "in-progress" | "draft", string>> = {
   reviewed: "badge-reviewed",
@@ -50,11 +51,18 @@ function footnoteMarks(inlines: readonly Inline[], into: Map<string, string>): v
   }
 }
 
-/** The source block each unit renders: its alignment edge's block, else its sentence's owner. */
+/**
+ * The source block each unit renders: its alignment edge's block, else its sentence's owner.
+ *
+ * `standaloneDisplays` names equation blocks the German side prints as blocks of their own rather
+ * than inside their paragraph (the parallel face's rows): their English stands alone too, so it
+ * can sit beside them, instead of joining the paragraph its block is containedIn.
+ */
 export function groupTranslationUnits(
   units: readonly TranslationUnit[],
   alignment?: Alignment | undefined,
   blocks: readonly SourceBlock[] = [],
+  standaloneDisplays: ReadonlySet<string> = new Set(),
 ): Group[] {
   const edgeBlock = new Map<string, string>();
   for (const e of alignment?.edges ?? [])
@@ -90,8 +98,9 @@ export function groupTranslationUnits(
     const key = sourceOf(unit);
     const last = groups[groups.length - 1];
     if (kind === "display") {
-      const host =
-        blockById.get(key)?.containedIn ?? (last?.kind === "paragraph" ? last.key : undefined);
+      const host = standaloneDisplays.has(key)
+        ? undefined
+        : (blockById.get(key)?.containedIn ?? (last?.kind === "paragraph" ? last.key : undefined));
       if (last?.kind === "paragraph" && last.key === host) last.units.push(unit);
       else groups.push({ kind: "display", key, units: [unit] });
     } else if (kind === "paragraph" && last?.kind === "paragraph" && last.key === key) {
@@ -117,6 +126,12 @@ export interface TranslationParagraphsProps {
   readonly footnoteUnits?: ReadonlyMap<string, string> | undefined;
   /** The review label most of the face's units share; a unit is badged only when it differs. */
   readonly commonLabel?: string | undefined;
+  /**
+   * Only these groups, from groupTranslationUnits over the same units: the parallel face sets each
+   * source block's English beside that block. Footnote marks and review records still come from
+   * every unit, so a footnote's mark prints though the sentence that carries it is in another row.
+   */
+  readonly groups?: readonly Group[] | undefined;
 }
 
 export function TranslationParagraphs({
@@ -128,6 +143,7 @@ export function TranslationParagraphs({
   anchorPrefix = "",
   footnoteUnits,
   commonLabel,
+  groups,
 }: TranslationParagraphsProps) {
   const records = new Map<string, ReviewRecord>();
   for (const r of reviewRecords) for (const s of r.scope) records.set(s.recordId, r);
@@ -256,7 +272,7 @@ export function TranslationParagraphs({
 
   return (
     <>
-      {groupTranslationUnits(units, alignment, blocks).map((group) => {
+      {(groups ?? groupTranslationUnits(units, alignment, blocks)).map((group) => {
         const key = `${group.kind}-${group.key}-${group.units[0]?.id}`;
         if (group.kind === "footnote") {
           const source = group.units[0]?.sourceRefs[0]?.id ?? group.key;

@@ -88,8 +88,15 @@ describe("ParallelFace render tests", () => {
     expect(html).toContain('data-view="parallel"');
     expect(html).toContain('data-face="parallel"');
     expect(html).toContain('data-parallel-grid="true"');
-    expect(html).toContain('data-parallel-column="german"');
-    expect(html).toContain('data-parallel-column="english"');
+    // One row per German block, each holding its German and, where there is one, its English:
+    // the two columns are the two halves of every row (parallelRows.ts).
+    const row = html.indexOf('data-parallel-row="bm-s4-p1"');
+    expect(row).toBeGreaterThan(-1);
+    const german = html.indexOf('data-parallel-half="german"', row);
+    const english = html.indexOf('data-parallel-half="english"', row);
+    expect(german).toBeGreaterThan(row);
+    expect(english).toBeGreaterThan(german);
+    expect(english).toBeLessThan(html.indexOf("data-parallel-row=", row + 1));
     expect(html).toContain("Deutscher Originaltext");
     expect(html).toContain("English Translation");
   });
@@ -143,8 +150,8 @@ describe("ParallelFace render tests", () => {
     expect(html).toContain('data-stacked-at-320="true"');
     expect(html).toContain("layout-stacked");
     expect(html).toContain("parallel-stacked");
-    expect(html).toContain('data-parallel-column="german"');
-    expect(html).toContain('data-parallel-column="english"');
+    expect(html).toContain('data-parallel-half="german"');
+    expect(html).toContain('data-parallel-half="english"');
   });
 
   test("JavaScript-disabled reading lane renders complete static bilingual content and notice", () => {

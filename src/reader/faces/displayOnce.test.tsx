@@ -7,6 +7,7 @@
  * block. A second equation block that no paragraph claims is the control: it must still render.
  */
 import { describe, expect, test } from "bun:test";
+import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { SourceFaceNotice } from "../../content/provenance/sourceFaceNotice.ts";
 import {
@@ -124,11 +125,18 @@ const tex = (html: string, latex: string) =>
   html.split(
     `<annotation encoding="application/x-tex">${latex.replace(/&/g, "&amp;")}</annotation>`,
   ).length - 1;
-const germanColumn = (html: string) =>
-  html.slice(
-    html.indexOf('data-parallel-column="german"'),
-    html.indexOf('data-parallel-column="english"'),
-  );
+/**
+ * The parallel face's German side: every row's German half, in reading order. The face was two whole
+ * columns and this sliced the German one out of the markup; it is now one row per German block with
+ * that block's English (parallelRows.ts), so the German side is the German halves taken together.
+ */
+const germanHalves = (html: string) => {
+  const { document } = new Window();
+  document.body.innerHTML = html;
+  return [...document.querySelectorAll('[data-parallel-half="german"]')]
+    .map((half) => half.outerHTML)
+    .join("");
+};
 
 describe("each display is printed once, in place", () => {
   test("the parallel face's German column prints the display inside its sentence, once", () => {
@@ -140,7 +148,7 @@ describe("each display is printed once, in place", () => {
         alignment={ALIGNMENT}
       />,
     );
-    const de = germanColumn(html);
+    const de = germanHalves(html);
     expect(tex(de, LATEX)).toBe(1);
     expect(de).not.toContain('data-block-wrapper="eq-t-d1"');
     // In place: inside the paragraph, after the words that introduce it and before "wobei".
@@ -166,31 +174,36 @@ describe("each display is printed once, in place", () => {
 });
 
 describe("the parallel face's labels and citation", () => {
-  test("the German column carries the source's draft notice when one is passed, and only then", () => {
-    const withNotice = germanColumn(
-      renderToStaticMarkup(
-        <ParallelFace
-          paper={FIXTURE_MASS_ENERGY_PAPER}
-          blocks={BLOCKS}
-          units={UNITS}
-          alignment={ALIGNMENT}
-          germanNotice={NOTICE}
-        />,
-      ),
+  test("the German side carries the source's draft notice when one is passed, and only then", () => {
+    const withNotice = renderToStaticMarkup(
+      <ParallelFace
+        paper={FIXTURE_MASS_ENERGY_PAPER}
+        blocks={BLOCKS}
+        units={UNITS}
+        alignment={ALIGNMENT}
+        germanNotice={NOTICE}
+      />,
     );
-    expect(withNotice).toContain("data-source-draft-notice");
-    expect(withNotice).toContain("Machine draft, not reviewed");
-    const without = germanColumn(
-      renderToStaticMarkup(
-        <ParallelFace
-          paper={FIXTURE_MASS_ENERGY_PAPER}
-          blocks={BLOCKS}
-          units={UNITS}
-          alignment={ALIGNMENT}
-        />,
-      ),
+    // Over the German column, marked German, and before the first row of text it qualifies.
+    const { document } = new Window();
+    document.body.innerHTML = withNotice;
+    const notice = document.querySelector(".parallel-notice");
+    expect(notice?.getAttribute("lang")).toBe("de");
+    expect(notice?.innerHTML).toContain("data-source-draft-notice");
+    expect(notice?.textContent).toContain("Machine draft, not reviewed");
+    expect(withNotice.indexOf("data-source-draft-notice")).toBeLessThan(
+      withNotice.indexOf("data-parallel-row="),
+    );
+    const without = renderToStaticMarkup(
+      <ParallelFace
+        paper={FIXTURE_MASS_ENERGY_PAPER}
+        blocks={BLOCKS}
+        units={UNITS}
+        alignment={ALIGNMENT}
+      />,
     );
     expect(without).not.toContain("data-source-draft-notice");
+    expect(without).not.toContain("parallel-notice");
   });
 
   test("the citation is the paper's own journal record", () => {

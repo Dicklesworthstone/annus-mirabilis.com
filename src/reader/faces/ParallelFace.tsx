@@ -14,12 +14,13 @@ import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { withoutClaimedDisplays } from "./displayClaims.ts";
-import { FootnotesSection } from "./Footnote.tsx";
+import { FootnoteItem } from "./Footnote.tsx";
+import { type ParallelRow, parallelRows } from "./parallelRows.ts";
 import type { FaceId } from "./registry.ts";
 import { isPaperTranslationUnreviewed, translationReviewSummary } from "./reviewState.ts";
 import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
-import { TranslationParagraphs } from "./TranslationParagraphs.tsx";
+import { groupTranslationUnits, TranslationParagraphs } from "./TranslationParagraphs.tsx";
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
@@ -79,6 +80,34 @@ export function ParallelFace({
   // A display its paragraph prints in place is not printed again as its own block.
   const mainBlocks = withoutClaimedDisplays(filteredBlocks.filter((b) => b.kind !== "footnote"));
   const published = paper.dates.find((d) => d.type === "issue-publication");
+  // One row per German block, holding that block's English (parallelRows.ts).
+  // A display the German prints as its own block keeps its English beside it, not in the paragraph.
+  const standaloneDisplays = new Set(
+    mainBlocks.filter((b) => b.kind === "equation").map((b) => b.id),
+  );
+  const { rows, footnoteRows } = parallelRows(
+    mainBlocks,
+    footnoteBlocks,
+    groupTranslationUnits(units, alignment, blocks, standaloneDisplays),
+    blocks,
+  );
+  const english = (row: ParallelRow) =>
+    row.english.length === 0 ? null : (
+      <div className="parallel-half parallel-half-english" data-parallel-half="english" lang="en">
+        <p className="parallel-half-label">English</p>
+        <TranslationParagraphs
+          units={units}
+          groups={row.english}
+          alignment={alignment}
+          blocks={blocks}
+          reviewRecords={reviewRecords}
+          editorialNotes={editorialNotes}
+          anchorPrefix={ENGLISH_ANCHOR_PREFIX}
+          footnoteUnits={footnoteUnits}
+          commonLabel={review.commonLabel}
+        />
+      </div>
+    );
 
   return (
     <div
@@ -140,48 +169,64 @@ export function ParallelFace({
         data-layout={isStacked ? "stacked" : "side-by-side"}
         data-stacked-layout={isStacked ? "true" : "responsive"}
       >
-        <section
-          className="parallel-column parallel-german"
-          aria-label="German source face"
-          data-parallel-column="german"
-          lang="de"
-        >
-          <h2 className="column-heading">Deutscher Originaltext</h2>
-          {germanNotice ? <SourceFaceNotice notice={germanNotice} /> : null}
-          <div className="source-blocks-list">
-            {mainBlocks.map((block) => (
-              <SourceBlockItem
-                key={block.id}
-                block={block}
-                paperSlug={paper.slug}
-                editorialNotes={editorialNotes}
-              />
+        {/* The columns' names, over the columns on a wide screen. Each half also carries its
+            language's name, which a phone shows and a screen reader hears on every width, so
+            these are for the eye alone. */}
+        <div className="parallel-heads" aria-hidden="true">
+          <p className="column-heading" lang="de">
+            Deutscher Originaltext
+          </p>
+          <p className="column-heading">English Translation</p>
+        </div>
+        {germanNotice ? (
+          <div className="parallel-notice" lang="de">
+            <SourceFaceNotice notice={germanNotice} />
+          </div>
+        ) : null}
+        {rows.map((row) => (
+          <div key={row.key} className="parallel-row" data-parallel-row={row.key}>
+            {row.block ? (
+              <div
+                className="parallel-half parallel-half-german"
+                data-parallel-half="german"
+                lang="de"
+              >
+                <p className="parallel-half-label">Deutsch</p>
+                <SourceBlockItem
+                  block={row.block}
+                  paperSlug={paper.slug}
+                  editorialNotes={editorialNotes}
+                />
+              </div>
+            ) : null}
+            {english(row)}
+          </div>
+        ))}
+        {footnoteRows.length > 0 ? (
+          <section className="reader-footnotes" aria-labelledby="footnotes-heading">
+            <h2 id="footnotes-heading" className="footnotes-heading" lang="de">
+              Fußnoten
+            </h2>
+            {footnoteRows.map((row, index) => (
+              <div key={row.key} className="parallel-row" data-parallel-row={row.key}>
+                {row.block ? (
+                  <div
+                    className="parallel-half parallel-half-german"
+                    data-parallel-half="german"
+                    lang="de"
+                  >
+                    <p className="parallel-half-label">Deutsch</p>
+                    {/* One list per footnote, so it can sit in its row; start keeps its number. */}
+                    <ol className="footnotes-list" start={index + 1}>
+                      <FootnoteItem footnote={row.block} />
+                    </ol>
+                  </div>
+                ) : null}
+                {english(row)}
+              </div>
             ))}
-          </div>
-          <FootnotesSection footnotes={footnoteBlocks} heading="Fußnoten" />
-        </section>
-
-        <section
-          className="parallel-column parallel-english"
-          aria-label="English translation face"
-          data-parallel-column="english"
-          lang="en"
-        >
-          <h2 className="column-heading">English Translation</h2>
-          <div className="translation-units-list">
-            {/* Einstein's paragraphs, as the German column sets them (TranslationParagraphs). */}
-            <TranslationParagraphs
-              units={units}
-              alignment={alignment}
-              blocks={blocks}
-              reviewRecords={reviewRecords}
-              editorialNotes={editorialNotes}
-              anchorPrefix={ENGLISH_ANCHOR_PREFIX}
-              footnoteUnits={footnoteUnits}
-              commonLabel={review.commonLabel}
-            />
-          </div>
-        </section>
+          </section>
+        ) : null}
       </div>
 
       <AlignmentController index={alignmentIndex} />
