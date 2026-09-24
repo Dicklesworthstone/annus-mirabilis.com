@@ -15,6 +15,7 @@ import { createSr02Session, type PreparedSr02Example } from "../../experiments/s
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { display, identity, result } from "./presentation.ts";
+import { withScripts } from "./subscripts.tsx";
 
 const SPEED_06C = 0.6 * 299792458;
 
@@ -286,13 +287,13 @@ export function MagnetConductorLab({
         </div>
       </div>
       {/* The caption and the how-to follow the instrument they describe; above it they were 336px on a phone. */}
-      <p data-detail="0">{SR02_CAPTION.r0}</p>
-      <p data-detail="1">{SR02_CAPTION.r1}</p>
+      <p data-detail="0">{withScripts(SR02_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR02_CAPTION.r1)}</p>
       <p data-detail="2" hidden>
-        {SR02_CAPTION.r2}
+        {withScripts(SR02_CAPTION.r2)}
       </p>
       <p data-detail="3" hidden>
-        {SR02_CAPTION.r3}
+        {withScripts(SR02_CAPTION.r3)}
       </p>
       <p>
         Choose which body is described as moving, type a speed, and inspect both accounts of the
