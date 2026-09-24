@@ -17,10 +17,18 @@
  *   a readiness point instead of guessing from the web view's URL;
  * - posts `settings.changed` with the reader's chosen theme, or "system" while
  *   the page is following the device, when the document is ready and whenever
- *   the theme changes, so the app's chrome matches the page.
+ *   the theme changes, so the app's chrome matches the page;
+ * - rewrites the app's own origin to https://annus-mirabilis.com in text the
+ *   page copies (navigator.clipboard.writeText) or shares (navigator.share),
+ *   so a copied link opens for the person it is sent to.
  */
 
-import { BRIDGE_VERSION, MESSAGE_HANDLER_NAME, NATIVE_EVENT_NAMES } from "./schemas.ts";
+import {
+  BRIDGE_VERSION,
+  MESSAGE_HANDLER_NAME,
+  NATIVE_EVENT_NAMES,
+  SITE_ORIGIN,
+} from "./schemas.ts";
 
 /**
  * The site's theme storage key, its "no choice yet" value, and its theme ids:
@@ -43,6 +51,7 @@ export function installBridge(
   themeKey: string,
   followSystem: string,
   themeIds: readonly string[],
+  siteOrigin: string,
 ): void {
   const w = window as unknown as {
     __AM_APP__?: unknown;
@@ -81,6 +90,50 @@ export function installBridge(
     configurable: false,
     enumerable: false,
   });
+  // Links the page copies or shares name the app's own origin (the site builds
+  // them from location.origin). Rewritten to the website's, they open for
+  // whoever receives them; untouched, they would open nothing.
+  const editionOrigin = location.origin;
+  if (
+    typeof editionOrigin === "string" &&
+    editionOrigin !== siteOrigin &&
+    editionOrigin !== "null"
+  ) {
+    const escaped = editionOrigin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const pattern = new RegExp(`${escaped}(?=[/?#]|$)`, "g");
+    const toSite = (text: string) => text.replace(pattern, siteOrigin);
+    const nav = navigator as Navigator & {
+      clipboard?: { writeText?: (text: string) => Promise<void> };
+    };
+    const clipboard = nav.clipboard;
+    if (clipboard && typeof clipboard.writeText === "function") {
+      const writeText = clipboard.writeText.bind(clipboard);
+      try {
+        Object.defineProperty(clipboard, "writeText", {
+          value: (text: string) => writeText(toSite(String(text))),
+          configurable: true,
+        });
+      } catch {
+        /* Leave the clipboard as it was. */
+      }
+    }
+    if (typeof nav.share === "function") {
+      const share = nav.share.bind(nav);
+      try {
+        Object.defineProperty(nav, "share", {
+          value: (data: ShareData) =>
+            share({
+              ...data,
+              ...(data?.url === undefined ? {} : { url: toSite(String(data.url)) }),
+              ...(data?.text === undefined ? {} : { text: toSite(String(data.text)) }),
+            }),
+          configurable: true,
+        });
+      } catch {
+        /* Leave sharing as it was. */
+      }
+    }
+  }
   const reportRoute = () => {
     let anchor: string | null = null;
     if (location.hash.length > 1) {
@@ -147,6 +200,7 @@ export const BRIDGE_USER_SCRIPT_SOURCE = `(${installBridge.toString()})(${[
   SITE_THEME_KEY,
   SITE_THEME_FOLLOW_SYSTEM,
   SITE_THEME_IDS,
+  SITE_ORIGIN,
 ]
   .map((argument) => JSON.stringify(argument))
   .join(",")});`;
