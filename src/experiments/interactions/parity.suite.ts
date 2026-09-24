@@ -51,6 +51,18 @@ export type EnergyLedgerOwner = Readonly<{
   }>;
 }>;
 
+type ChainStep = Readonly<{ from: unknown; to: unknown }>;
+/** What the derivations family calls: verifyChain.ts's verifyChain, with the chain it checks (the
+ * me-two-ledgers fixture), or an owner of the same shape. The suite imports neither. */
+type DerivationReport = Readonly<{
+  passed: boolean;
+  stepReports: readonly Readonly<{ passed: boolean }>[];
+}>;
+export type DerivationOwner = Readonly<{
+  verifyChain: (chain: never) => DerivationReport;
+  chain: Readonly<{ id: string; steps: readonly ChainStep[] }>;
+}>;
+
 type EventCoordinates = Readonly<{ t: number; x: number; y: number; z: number }>;
 /** What the clock-event family calls: events.ts's classifySimultaneity, in its units of seconds and
  * light-seconds (c = 1), or an owner of the same shape. */
@@ -346,24 +358,52 @@ export async function familyParityCases(
     }
 
     case "derivations": {
-      // ME-01: Two ledgers chain operations
-      const operationIds = [
-        "angle-factors",
-        "sum-removes-angle",
-        "radical-group",
-        "subtraction-balances",
-        "premise-substitution",
-      ];
-
+      // ME-01's subtraction panel chains me-two-ledgers. Checked BY THE OWNER passed in
+      // options.owner (verifyChain.ts's verifyChain and the chain fixture): every step verifies,
+      // and the same chain with its first step's result replaced by its input does not, so a
+      // verifier that approves everything fails here. The case used to check that a hard-coded
+      // list of five operation ids had five entries; those ids existed nowhere else.
+      const expected = { chainId: "chain-me-two-ledgers", passes: true, corruptedPasses: false };
+      const owner = options.owner as Partial<DerivationOwner> | null | undefined;
+      if (!owner || typeof owner.verifyChain !== "function" || !owner.chain?.steps?.length) {
+        results.push({
+          parityCaseId: "derivations-me01-two-ledgers-steps",
+          family,
+          ownerSource: options.ownerSource,
+          ownerLabel: options.ownerLabel,
+          passed: false,
+          expected,
+          actual: null,
+          message:
+            "No owner was exercised: pass an owner with verifyChain and the me-two-ledgers chain.",
+        });
+        break;
+      }
+      const verify = owner.verifyChain as (chain: unknown) => DerivationReport;
+      const chain = owner.chain;
+      const report = verify(chain);
+      const [first, ...rest] = chain.steps;
+      const corrupted = verify({ ...chain, steps: [{ ...first, to: first?.from }, ...rest] });
+      const actual = {
+        chainId: chain.id,
+        passes:
+          report.passed &&
+          report.stepReports.length === chain.steps.length &&
+          report.stepReports.every((step) => step.passed),
+        corruptedPasses: corrupted.passed,
+        steps: chain.steps.length,
+      };
       results.push({
         parityCaseId: "derivations-me01-two-ledgers-steps",
         family,
         ownerSource: options.ownerSource,
         ownerLabel: options.ownerLabel,
-        passed: operationIds.length === 5,
-        expected: 5,
-        actual: operationIds.length,
-        message: "Derivation chain me-two-ledgers declares all five valid justified steps.",
+        passed:
+          actual.chainId === expected.chainId && actual.passes && actual.corruptedPasses === false,
+        expected,
+        actual,
+        message:
+          "The owner verifies every step of me-two-ledgers and rejects the chain once a step's result is replaced by its input.",
       });
       break;
     }
