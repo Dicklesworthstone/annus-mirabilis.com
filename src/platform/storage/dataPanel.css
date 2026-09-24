@@ -11,10 +11,11 @@
 
 .your-data-page {
   max-width: 54rem;
-  margin: 0 auto;
-  /* No side padding: main already carries the page gutter. The second 1rem inset cost a 390px
-     phone 32px of a 358px column and set the page off the header's left edge. */
-  padding: 2rem 0;
+  /* Flush with the header's left edge and starting at the same height as the other top-level pages:
+     centred, with 2rem above, the heading sat at x=288, y=232 at 1440 against the others' 60, 200.
+     No side padding either: main already carries the page gutter. */
+  margin: 0;
+  padding: 0 0 2rem;
 }
 
 .privacy-guarantees {
