@@ -13,6 +13,7 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import type { ExecutionStateKind } from "../../experiments/provenance/executionState.ts";
+import { FRANKENSIM_BROWNIAN_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import equationPayload from "../../generated/bm01-equations.json";
@@ -483,7 +484,7 @@ export function TracerLab({
                   },
                   engineSentences: {
                     tracerPositions: isFrankenSim
-                      ? "Computed with FrankenSim (brownian_frames)."
+                      ? FRANKENSIM_BROWNIAN_ENGINE_SENTENCE
                       : "Host reference calculation (recordTracers).",
                     sampleMean: "Host reduction (ensembleMoments).",
                     sampleMeanAbsolute: "Host reduction (ensembleMoments).",

@@ -1,7 +1,12 @@
 import { BM01_CLASSES, type Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import type { TracerRecording } from "../../physics/reference/diffusion/tracers.ts";
-import { createBm01Recording, measureBm01 } from "../operations/bm01.ts";
+import {
+  type Bm01Recorder,
+  createBm01Recording,
+  HOST_TRACER_RECORDER,
+  measureBm01,
+} from "../operations/bm01.ts";
 import {
   BM01_PROTOCOL,
   decodeLabRequest,
@@ -10,10 +15,16 @@ import {
   type LabResponse,
   labHello,
 } from "../protocol/bm01.ts";
-/** One privately held realization per worker. Re-observation has zero PRNG calls. */
+/**
+ * One privately held realization per worker. Re-observation has zero PRNG calls.
+ * `recorder` records the ensemble: the host reference by default, or FrankenSim's compiled
+ * brownian_frames when the worker has loaded the pinned module. One host keeps one recorder for
+ * its lifetime, so a run never switches engines part-way.
+ */
 export function createBm01Host(
   send: (message: LabResponse | LabHello) => void,
   sourceDigest: string,
+  recorder: Bm01Recorder = HOST_TRACER_RECORDER,
 ) {
   let active: LabRequest | null = null,
     stopped = false,
@@ -51,10 +62,10 @@ export function createBm01Host(
       const recording =
         reused && activeCache !== null
           ? { kind: "accepted" as const, data: activeCache.recording }
-          : await createBm01Recording(p, { cancelled: () => cancelled || stopped });
+          : await createBm01Recording(p, { cancelled: () => cancelled || stopped }, recorder);
       if (recording.kind !== "accepted") result = recording;
       else {
-        result = measureBm01(recording.data, p, reused);
+        result = measureBm01(recording.data, p, reused, recorder.ownerId);
         if (result.kind === "accepted" && !cancelled && !stopped)
           cache = { runId: message.token.runId, parameters: p, recording: recording.data };
       }

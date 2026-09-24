@@ -1,4 +1,5 @@
 import {
+  BM01_HOST_RECORDER_OWNER,
   BM01_OUTPUTS,
   type Bm01Parameters,
   comparisonIndices,
@@ -10,6 +11,7 @@ import { validateBm01Parameters } from "../../experiments/bm01/parameters.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
 import { makeRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
+import { ownerAdmitted } from "../../experiments/store/instanceStore.ts";
 import { getConstantSet } from "../../physics/reference/constants.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { ensembleMomentBands } from "../../physics/reference/diffusion/statistics.ts";
@@ -19,6 +21,7 @@ import {
   observationGridCheck,
   recordTracers,
   type TracerRecording,
+  type TracerSetup,
   tracerDisplacements,
 } from "../../physics/reference/diffusion/tracers.ts";
 import { kolmogorovDistanceToGaussian } from "../../physics/reference/diffusion/walkLaws.ts";
@@ -34,6 +37,24 @@ export type Bm01Evaluation = Readonly<{
   stepIndex: number;
   simulationTime: number;
 }>;
+/**
+ * Who records the tracer ensemble. The host reference is the default. The worker may hand in
+ * FrankenSim's compiled brownian_frames instead (src/workers/wasm/frankensimTracerRecorder.ts).
+ * Either way the recording has the same layout, and every statistic below is the same host
+ * reduction of it. Only the three outputs read straight from the recording name the recorder
+ * as their owner.
+ */
+export type Bm01Recorder = Readonly<{
+  ownerId: string;
+  record(
+    setup: TracerSetup,
+    options: Parameters<typeof recordTracers>[1],
+  ): Promise<Computation<TracerRecording>>;
+}>;
+export const HOST_TRACER_RECORDER: Bm01Recorder = Object.freeze({
+  ownerId: BM01_HOST_RECORDER_OWNER,
+  record: recordTracers,
+});
 function value(result: ScientificResult): number {
   if (result.status !== "value" || typeof result.value !== "number")
     throw new RangeError("A model value was not numerically representable.");
@@ -44,7 +65,7 @@ function unwrap<T>(r: Computation<T> | ScientificResult): T {
     throw new RangeError("A reduction was not numerically representable.");
   return r.data;
 }
-function number(id: string, v: number | Float64Array): ScientificResult {
+function number(id: string, v: number | Float64Array, owner?: string): ScientificResult {
   const contract = BM01_OUTPUTS[id];
   if (!contract) throw new RangeError(`Unknown BM01 output: ${id}`);
   if (typeof v === "number" ? !Number.isFinite(v) : !v.every(Number.isFinite))
@@ -53,7 +74,7 @@ function number(id: string, v: number | Float64Array): ScientificResult {
     quantityId: id,
     unit: contract.unit,
     semanticKind: contract.semanticKind,
-    ownerId: contract.ownerId,
+    ownerId: owner ?? contract.ownerId,
     status: "value",
     value: v,
   };
@@ -79,6 +100,7 @@ function failed(): Computation<never> {
 export async function createBm01Recording(
   input: unknown,
   options: Parameters<typeof recordTracers>[1] = {},
+  recorder: Bm01Recorder = HOST_TRACER_RECORDER,
 ): Promise<Computation<TracerRecording>> {
   const p = validateBm01Parameters(input);
   if (p.kind !== "accepted") return p;
@@ -99,7 +121,7 @@ export async function createBm01Recording(
     };
   const grid = observationGridCheck(p.data.interval, p.data.h, Math.round(p.data.H / p.data.h));
   if (grid.kind !== "accepted") return grid;
-  return recordTracers(
+  return recorder.record(
     {
       M: p.data.M,
       steps: Math.round(p.data.H / p.data.h),
@@ -115,9 +137,12 @@ export function measureBm01(
   recording: TracerRecording,
   p: Bm01Parameters,
   reused: boolean,
+  recordedBy: string = BM01_HOST_RECORDER_OWNER,
 ): Computation<Bm01Evaluation> {
   const checked = validateBm01Parameters(p);
   if (checked.kind !== "accepted") return checked;
+  const positionsContract = BM01_OUTPUTS.tracerPositions;
+  if (!positionsContract || !ownerAdmitted(positionsContract, recordedBy)) return failed();
   const selected = observationGridCheck(p.interval, p.h, recording.setup.steps);
   if (selected.kind !== "accepted") return selected;
   try {
@@ -154,7 +179,7 @@ export function measureBm01(
       number("modelSecondMoment", value(model.total.result)),
       number("modelMeanNorm", value(model.meanRadius.result)),
       number("modelRmsNorm", value(model.rmsRadius.result)),
-      number("tracerPositions", positions),
+      number("tracerPositions", positions, recordedBy),
     ];
     for (const [id, v] of [
       ["sampleMean", axis.mean],
@@ -185,7 +210,7 @@ export function measureBm01(
           traces[(i * TRACE_POINTS + k) * 2 + a] =
             recording.values[(i * 3 + a) * (recording.setup.steps + 1) + index] ?? 0;
     }
-    outputs.push(number("traceCoordinates", traces), number("traceTimes", traceTimes));
+    outputs.push(number("traceCoordinates", traces, recordedBy), number("traceTimes", traceTimes));
     const span = sigma > 0 ? 5 * sigma : 1e-6,
       edges = Float64Array.from(
         { length: HISTOGRAM_BINS + 1 },
@@ -299,7 +324,7 @@ export function measureBm01(
       );
     }
     outputs.push(
-      number("recordingDraws", recording.draws),
+      number("recordingDraws", recording.draws, recordedBy),
       number("reusedRecording", reused ? 1 : 0),
       number("ensembleSize", p.M),
       number("signedMean", axis.mean),
