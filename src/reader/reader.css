@@ -582,6 +582,18 @@ html:is(
   }
 }
 @media print {
+  /* On paper a link cannot be followed, so it says where it goes: the site's own pages by their
+     full address, other sites by theirs. In-page links (#...) are left alone. */
+  .reader-root .reader-passage a[href^="/"]::after {
+    content: " (annus-mirabilis.com" attr(href) ")";
+    font-size: var(--type-fine);
+    overflow-wrap: anywhere;
+  }
+  .reader-root .reader-passage a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: var(--type-fine);
+    overflow-wrap: anywhere;
+  }
   .reader-controls,
   .reader-outline,
   .passage-actions,
