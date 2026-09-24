@@ -6,6 +6,7 @@ import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
 import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
+import { ScalingTable } from "./ScalingTable.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
 import { UnitConversionCalculator } from "./UnitConversionCalculator.tsx";
@@ -43,5 +44,7 @@ export function FoundationConstruction({
       return <TaylorBinomialExtension headingLevel={headingLevel} />;
     case "unit-system-1905":
       return <UnitConversionCalculator headingLevel={headingLevel} />;
+    case "ratios-scaling":
+      return <ScalingTable headingLevel={headingLevel} />;
   }
 }
