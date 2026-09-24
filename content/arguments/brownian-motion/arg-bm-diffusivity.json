@@ -66,6 +66,11 @@
     ],
     "steps": [
       {
+        "kind": "foundation",
+        "id": "ratios-scaling",
+        "returnCaption": "Return to why doubling the viscosity divides the spread by the square root of 2."
+      },
+      {
         "kind": "steps",
         "items": [
           "Name the quantities: \\(T\\) is absolute temperature, \\(\\eta\\) dynamic viscosity, \\(a\\) tracer radius, \\(R\\) molar gas constant, and \\(N\\) molecular number per mole.",

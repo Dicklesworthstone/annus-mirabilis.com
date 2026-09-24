@@ -34,13 +34,13 @@ entries:
     kind: node
     cluster: quantities-magnitudes
     ownerBead: am-found-quantities-magnitudes-igxe
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:orders-of-magnitude"
     kind: node
     cluster: quantities-magnitudes
     ownerBead: am-found-quantities-magnitudes-igxe
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:unit-system-1905"
     kind: node

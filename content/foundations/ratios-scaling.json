@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "ratios-scaling",
+  "title": "Ratios and scaling",
+  "question": "If one quantity doubles, what happens to the others?",
+  "summary": "Many laws say how one quantity scales with another: in proportion, inversely, as a square, or as a square root. Knowing which lets you predict the effect of a change without working out any absolute number.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Double the side of a square and its area grows four times. Double the side of a cube and its volume grows eight times. Length, area and volume scale as the first, second and third power of the side."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Physical laws scale in the same ways. Stokes's drag on a sphere is in proportion to its radius: double the radius, double the drag. So a particle's diffusion coefficient D is inversely proportional to its radius: double the radius, and D halves."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\lambda_x=\\sqrt{2Dt},\\qquad D=\\frac{k_BT}{6\\pi\\eta a}",
+      "spoken": "lambda x is the square root of 2 D t, and D is k B T over six pi eta a."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The spread of a diffusing particle grows as the square root of D times the time. So halving D does not halve the spread: it divides it by √2, about 1.41. The tempting first thought, that twice the radius means half as far, is out by that factor, and so is the same thought about twice the viscosity."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Scaling can also run away. Before 1905, giving every mode of radiation in a box its classical share of heat energy made the total grow as the cube of the highest frequency allowed: widen the range tenfold and the energy grows a thousandfold, without limit. That is the difficulty §1 of the light-quanta paper sets out."
+    }
+  ],
+  "exampleTitle": "Double the radius: how far does the particle get?",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "A sphere of radius 0.5 μm in the paper's water at 17 °C spreads 0.7948 μm in 1 s (the paper's constants, set einstein-1905-brownian-printed).",
+        "Double the radius to 1 μm. \\(D = k_BT/(6\\pi\\eta a)\\) halves.",
+        "λx = √(2Dt) is multiplied by √½ = 0.7071, so it becomes 0.7948 × 0.7071 = 0.5620 μm, not half of 0.7948.",
+        "Doubling the viscosity instead does exactly the same: D halves and λx is multiplied by 0.7071."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-fractions-ratios",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-squaring-square-roots",
+      "kind": "proof-edge"
+    }
+  ],
+  "stoppingPoint": "This lesson stops at how a change scales. Why D depends on the radius and the viscosity in the first place is the lesson on viscosity and Stokes drag.",
+  "citations": ["ap-17-549", "ap-17-132"]
+}

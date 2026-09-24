@@ -57,6 +57,11 @@
     ],
     "steps": [
       {
+        "kind": "foundation",
+        "id": "orders-of-magnitude",
+        "returnCaption": "Return to the hydrogen atom's 1.62 × 10⁻²⁴ gram and the number N."
+      },
+      {
         "kind": "steps",
         "items": [
           "Keep temperature and the frequency-density convention identical in the two formulas.",

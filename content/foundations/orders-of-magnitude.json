@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "orders-of-magnitude",
+  "title": "Orders of magnitude",
+  "question": "How big, how fast and how energetic are the things in the 1905 papers, measured against each other?",
+  "summary": "An order of magnitude is a power of ten. Placing the papers' numbers on that scale shows which effects are tiny, which are comparable, and which can safely be ignored.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Two numbers of the same order differ by less than a factor of ten. Numbers several orders apart belong to different worlds, and comparing them usually tells you which effect can be ignored."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Sizes. A water molecule is about 0.3 nanometres across and a Brownian grain about 1 micrometre: the grain is roughly 3,000 times larger. The light-quanta paper prints the mass of a hydrogen atom as 1/N gram, 1.62 × 10⁻²⁴ g."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Speeds against light. The ratio v/c is about 3.3 × 10⁻⁶ for a rifle bullet at 1,000 m/s, 8.3 × 10⁻⁷ for a jet at 250 m/s, and 9.9 × 10⁻⁵ for the Earth in its orbit at 29.8 km/s. The corrections of relativity go as the square of v/c, so for the Earth they are about 10⁻⁸. Only Kaufmann's fast electrons, a large fraction of the speed of light, reached speeds where they are not small."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Energies of light. One quantum hν of red light (650 nm) carries about 1.91 electron volts, green (530 nm) 2.34 eV, and ultraviolet (250 nm) 4.96 eV. The light paper's photoelectric estimate, about 4.3 volts, is of the same order."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Molecular kicks. An estimate of how often water molecules strike a grain 1 μm across gives about 1.6 × 10¹⁹ blows a second, and about 6 × 10¹⁹ for a grain of 1 μm radius. The assumptions are rough, so the honest statement is 10¹⁹ to 10²⁰ blows a second: far too many for any single blow to be seen."
+    }
+  ],
+  "exampleTitle": "Two estimates, done with powers of ten",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "The Earth: v/c = 29,800 ÷ 299,792,458 ≈ 9.9 × 10⁻⁵. Squared, that is about 9.9 × 10⁻⁹, near 10⁻⁸.",
+        "Water's molecules: 1,000 kg per cubic metre divided by 0.018015 kg per gram-molecule, times 6.02 × 10²³, is 3.34 × 10²⁸ molecules per cubic metre.",
+        "Molecules near 600 m/s crossing a surface at a quarter of n times their mean speed give about 5 × 10³⁰ strikes per square metre each second.",
+        "A sphere 1 μm across has a surface of 3.1 × 10⁻¹² m², so it takes about 1.6 × 10¹⁹ strikes a second. The inputs are rough, so the result is an order of magnitude, 10¹⁹ to 10²⁰."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-scientific-notation-units",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-fractions-ratios",
+      "kind": "proof-edge"
+    }
+  ],
+  "stoppingPoint": "This lesson places numbers on a scale of powers of ten. Converting the papers' printed units into SI units is a separate step, with its own conventions.",
+  "citations": ["ap-17-132", "ap-17-549", "ap-17-891"]
+}
