@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation-extension",
+  "id": "same-curve-different-causes",
+  "targetFoundation": "foundation:distributions",
+  "ownerBead": "am-found-statistics-inference-pzqv",
+  "title": "One curve from different causes, and a curve turned around",
+  "body": [
+    {
+      "kind": "paragraph",
+      "text": "A distribution can be fixed without its causes being fixed. The spreading of Brownian particles has one curve for each value of D, and in the Brownian paper D = RT/(N · 6πkP), with k the liquid's viscosity and P the particle's radius. At a fixed temperature and viscosity, a radius twice as large with an N half as large gives the same D, so it gives the same curve. No number of observed displacements can tell the two apart: the samples depend only on the product N·P, so only that product can be read from them."
+    },
+    {
+      "kind": "foundation",
+      "id": "two-measurements-two-unknowns",
+      "returnCaption": "Return to one curve from different causes"
+    },
+    {
+      "kind": "paragraph",
+      "text": "A change of variable reshapes a distribution. If an estimate of D is turned into an estimate of N by dividing a constant by it, the distribution of N is not the distribution of D relabelled. Equal steps in D become unequal steps in N, so the density is stretched in some places and squeezed in others, while each pair of matching intervals keeps the same probability."
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "Suppose an estimate of D comes out as 4 or 6 with equal chance. Its average is 5, the true value, so it has no bias.",
+        "Estimate N as 60 ÷ D. The two outcomes give 15 and 10, whose average is 12.5, but 60 ÷ 5 is 12. The turned estimate is too large by about 4 per cent on average, though nothing about the measurement changed.",
+        "An interval survives the turn with its ends swapped: D between 4 and 6 is the same event as N between 10 and 15, so the two have the same probability.",
+        "For an estimate built from q = 100 squared Gaussian displacements the same effect is smaller: the turned estimate is too large on average by the factor q/(q − 2) = 1.0204, about 2 per cent."
+      ]
+    },
+    {
+      "kind": "foundation",
+      "id": "error-and-inference",
+      "returnCaption": "Return to a curve turned around"
+    }
+  ],
+  "citations": []
+}

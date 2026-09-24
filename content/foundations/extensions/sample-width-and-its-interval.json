@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation-extension",
+  "id": "sample-width-and-its-interval",
+  "targetFoundation": "foundation:gaussian-distributions",
+  "ownerBead": "am-found-statistics-inference-pzqv",
+  "title": "How far a sample's width can stray",
+  "body": [
+    {
+      "kind": "paragraph",
+      "text": "The bell curve says where one particle is likely to end. It also says how far a whole sample's width can stray from the model's. Divide each measured displacement by √(2Dt) and it becomes a draw from the standard bell curve, whose mean square is 1. The sum of q such squares follows a curve of its own, the chi-square distribution with q degrees of freedom, whose mean is q."
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "With q = 100 squared displacements, 95 samples in 100 have a mean square between 0.742 and 1.296 times 2Dt. Their widths, the square roots, lie between 0.86 and 1.14 times the true width.",
+        "With q = 4, the same 95 samples in 100 run from 0.121 to 2.79 times 2Dt: a mean square about an eighth of the true one, or nearly three times it.",
+        "The spread narrows as q grows, but it is never zero for a finite sample."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "Turned around, the same two points of the chi-square curve make an interval for D from a single sample. With q = 100, and \\(D_{\\mathrm{est}}\\) for the estimate:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left[\\frac{100\\,D_{\\mathrm{est}}}{129.56},\\ \\frac{100\\,D_{\\mathrm{est}}}{74.22}\\right]",
+      "spoken": "From one hundred D est over one hundred twenty-nine point five six, to one hundred D est over seventy-four point two two."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Used on sample after sample, this recipe catches the true D in 95 of every 100 of them. The promise is about the recipe, repeated. It says nothing more about any one interval once it has been drawn."
+    },
+    {
+      "kind": "paragraph",
+      "text": "All of this assumes the displacements follow the bell curve and are independent of one another. Reading errors and overlapping windows break the second assumption, and then q is not the number of independent squares, so the interval's promise no longer holds as stated."
+    },
+    {
+      "kind": "foundation",
+      "id": "error-and-inference",
+      "returnCaption": "Return to how far a sample's width can stray"
+    }
+  ],
+  "citations": []
+}

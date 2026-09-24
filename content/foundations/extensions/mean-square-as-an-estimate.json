@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation-extension",
+  "id": "mean-square-as-an-estimate",
+  "targetFoundation": "foundation:mean-variance-rms",
+  "ownerBead": "am-found-statistics-inference-pzqv",
+  "title": "One sample's mean square, and what the microscope adds",
+  "body": [
+    {
+      "kind": "paragraph",
+      "text": "In the Brownian problem the model's mean square displacement along one coordinate is 2Dt. A sample's mean square is an estimate of it: average the squares of the displacements actually measured, then divide by 2t to estimate D. If the four displacements above, −3, −1, +1 and +3 μm, were measured after t = 1 s along one coordinate, their mean square of 5 μm² would give D = 5 ÷ 2 = 2.5 μm² per second."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Averaged over many samples, this estimate lands on the true value: it has no bias. One sample scatters, and the scatter shrinks only with the square root of the number q of independent squared displacements. For displacements drawn from the bell curve, the spread of the estimate, as a fraction of the true value, is:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\frac{\\mathrm{spread}}{D}=\\sqrt{\\frac{2}{q}}",
+      "spoken": "The spread of the estimate, divided by D, equals the square root of two over q."
+    },
+    {
+      "kind": "steps",
+      "items": [
+        "With q = 4, as above, the spread is about 71 per cent of D, so four particles say little.",
+        "With q = 100 it is about 14 per cent.",
+        "To halve the spread, measure four times as many independent displacements."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "If the particles might also drift, the mean has to be estimated from the same numbers. The average squared deviation from that estimated mean then comes out too small, by the factor (M − 1)/M on average, because the estimated mean sits closer to the sample than the true one does. Dividing the sum by M − 1 instead of M removes that bias."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The microscope adds an error of its own. A measured step is the difference of two position readings, so if each reading is off by an error of spread σ in each coordinate, the step's mean square gains 2σ² per coordinate. For D = 0.5 μm² per second and t = 1 s the true mean square is 2Dt = 1 μm². A reading error of σ = 0.1 μm adds 0.02 μm², 2 per cent; σ = 0.3 μm adds 0.18 μm², 18 per cent. Unless it is subtracted, all of it is read as extra diffusion."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Two neighbouring steps share the reading between them, so their errors are related, with a covariance of −σ². The steps are then not independent, and cutting one path into overlapping windows does not help: the windows reuse the same readings, so they do not add independent squares to q."
+    },
+    {
+      "kind": "foundation",
+      "id": "error-and-inference",
+      "returnCaption": "Return to one sample's mean square as an estimate of 2Dt"
+    }
+  ],
+  "citations": []
+}
