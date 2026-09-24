@@ -7,6 +7,10 @@
   border-top: 1px solid var(--line);
   margin-top: 2rem;
 }
+/* A sentence of prose inside the full-width scans section keeps the reading measure. */
+.sources-note {
+  max-width: 64ch;
+}
 .sources-list {
   list-style: none;
   margin: 0;
@@ -76,4 +80,8 @@
   margin: 1rem 0 0;
   font-family: var(--font-sans);
   font-size: var(--type-small);
+}
+/* A citation carries a DOI, which may not break at a space. */
+.sources-cite {
+  overflow-wrap: anywhere;
 }

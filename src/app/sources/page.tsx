@@ -6,6 +6,7 @@ import "../../components/home/wideProse.css";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 import type { PaperDate, RightsStatus } from "../../content/provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
+import { citationOf } from "./citation.ts";
 import { assertServedDigest, requireReceipt, rightsWordsFor } from "./refusals.ts";
 import "./sources.css";
 
@@ -146,6 +147,7 @@ function loadScans() {
         terms: fm.scan.termsStatements ?? [],
         download,
         transcription: transcriptionOf(key),
+        citation: citationOf(fm),
         published,
       };
     })
@@ -203,6 +205,12 @@ export default function SourcesPage() {
 
       <section className="page-flush sources-section" aria-labelledby="sources-scans">
         <h2 id="sources-scans">The scans</h2>
+        <p className="sources-note">
+          Each paper&rsquo;s page carries the same record in a machine-readable form, with this
+          site&rsquo;s own commentary kept as a separate entry. It helps reference managers and
+          search engines read the record correctly; it does not decide where, or how, any of them
+          lists the paper.
+        </p>
         <ol className="sources-list">
           {scans.map((scan) => (
             <li key={scan.key} className="sources-entry">
@@ -271,6 +279,10 @@ export default function SourcesPage() {
                 <div>
                   <dt>Transcription</dt>
                   <dd>{TRANSCRIPTION_WORDS[scan.transcription]}</dd>
+                </div>
+                <div>
+                  <dt>Cite as</dt>
+                  <dd className="sources-cite">{scan.citation}</dd>
                 </div>
               </dl>
               {scan.download ? (
