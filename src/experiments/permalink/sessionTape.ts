@@ -8,7 +8,7 @@
  */
 import type { U64String } from "../identity/u64.ts";
 import { ExperimentRuntimeError } from "../refusal.ts";
-import { quantizeFloat } from "../tape/controlTape.ts";
+import { computeTapeDigest, quantizeFloat } from "../tape/controlTape.ts";
 import { decodeTapePermalinkInBrowser } from "./browserCodec.ts";
 import { type ReplayRunner, replayTape } from "./replay.ts";
 import type { ExperimentEnvironment, TapeAcceptedCheckpoint, TapeV2 } from "./types.ts";
@@ -37,7 +37,7 @@ export type LabTapeBinding = Readonly<{
 type TapeState = Record<string, number | string>;
 
 /** A refusal's sentence, if the outcome carries one. */
-function requirementsOf(outcome: ApplyOutcome): string {
+export function requirementsOf(outcome: ApplyOutcome): string {
   const refusal = (outcome as { refusal?: { details?: { requirements?: unknown } } }).refusal;
   const requirements = refusal?.details?.requirements;
   return typeof requirements === "string" ? requirements : "";
@@ -75,6 +75,10 @@ export function settingsFromTape(
 /**
  * FNV-1a over the sorted settings: numbers quantized to 10⁻⁶, strings by character. It confirms
  * that replay reached the recorded settings; the exact values travel in the initial conditions.
+ *
+ * The first form, kept only to verify links shared with it (host:fnv1a:). Rounding to an absolute
+ * 10⁻⁶ reads every value below 5 × 10⁻⁷ as 0, so it could not tell BM-04's 8 fN force from 12 fN,
+ * nor a radius of 0.3 μm from 0.4 μm. New tapes carry tapeStateDigestV2.
  */
 export function tapeStateDigest(state: TapeState, actionIndex: number): string {
   let h = (2166136261 ^ actionIndex) >>> 0;
@@ -96,6 +100,56 @@ export function tapeStateDigest(state: TapeState, actionIndex: number): string {
 }
 
 /**
+ * 64-bit FNV-1a over "key=value;" for each sorted setting, a number written to 12 significant digits
+ * and a string as it is, then the action index. A femtonewton force and a micrometre radius count as
+ * fully as a temperature. Written host: and sixteen hex digits, which the tape schema's digest
+ * pattern already admits, and which its length tells apart from LQ-08's eight.
+ */
+export function tapeStateDigestV2(state: TapeState, actionIndex: number): string {
+  const mask = (1n << 64n) - 1n;
+  let h = 0xcbf29ce484222325n;
+  const mix = (text: string) => {
+    for (let i = 0; i < text.length; i++) {
+      h ^= BigInt(text.charCodeAt(i));
+      h = (h * 0x100000001b3n) & mask;
+    }
+  };
+  for (const key of Object.keys(state).sort()) {
+    const value = state[key];
+    mix(`${key}=${typeof value === "number" ? value.toPrecision(12) : `"${value}"`};`);
+  }
+  mix(`@${actionIndex}`);
+  return `host:${h.toString(16).padStart(16, "0")}`;
+}
+
+/**
+ * The three digest forms a live link may carry: v2 (host: and sixteen hex digits), the first form
+ * (host:fnv1a:, shared from 4c0c2c7c until v2), and LQ-08's own before the general runner (host: and
+ * eight hex digits, computeTapeDigest over its numeric settings).
+ */
+export type TapeDigestForm = "fnv1a64" | "fnv1a" | "lq08-legacy";
+
+export function digestFormOf(digest: string): TapeDigestForm {
+  if (digest.startsWith("host:fnv1a:")) return "fnv1a";
+  if (/^host:[0-9a-f]{16}$/.test(digest)) return "fnv1a64";
+  return "lq08-legacy";
+}
+
+/** A state's digest in the given form, so a replay can be compared with the link it came from. */
+export function tapeStateDigestIn(
+  form: TapeDigestForm,
+  state: TapeState,
+  actionIndex: number,
+): string {
+  if (form === "fnv1a64") return tapeStateDigestV2(state, actionIndex);
+  if (form === "fnv1a") return tapeStateDigest(state, actionIndex);
+  const numeric: Record<string, number> = {};
+  for (const [key, value] of Object.entries(state))
+    if (typeof value === "number") numeric[key] = value;
+  return computeTapeDigest(numeric, actionIndex, 0).digest;
+}
+
+/**
  * Replays a tape through the laboratory's own session. A setting it refuses stops the replay, and
  * refusalSentence() keeps the laboratory's sentence for it, since replayTape's notice carries the
  * raw error.
@@ -103,6 +157,7 @@ export function tapeStateDigest(state: TapeState, actionIndex: number): string {
 export function createSessionReplayRunner(
   binding: LabTapeBinding,
   session: TapeSession,
+  form: TapeDigestForm = "fnv1a64",
 ): ReplayRunner & Readonly<{ refusalSentence(): string }> {
   let actionIndex = 0;
   let refusal = "";
@@ -132,7 +187,7 @@ export function createSessionReplayRunner(
       return {
         acceptedActionIndex: actionIndex,
         acceptedInputRevision: session.getSnapshot().accepted?.revisions.input ?? 0,
-        digest: tapeStateDigest(current(), actionIndex),
+        digest: tapeStateDigestIn(form, current(), actionIndex),
       };
     },
     getCurrentState() {
@@ -208,7 +263,12 @@ export function restoreTape(
     };
   }
   const before = { ...session.acceptedParameters() };
-  const runner = createSessionReplayRunner(binding, session);
+  // The checkpoint is computed in the form the link carries, so links shared before v2 still verify.
+  const runner = createSessionReplayRunner(
+    binding,
+    session,
+    digestFormOf(tape.acceptedCheckpoint.digest),
+  );
   const replayed = replayTape(tape, runner);
   if (replayed.kind === "success") return { kind: "restored" };
   // A refusal stops before anything is applied; an invalid or unverified replay may not have.
