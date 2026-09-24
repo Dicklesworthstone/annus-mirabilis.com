@@ -547,7 +547,7 @@ export type PredictCandidate = Readonly<{
   relation?: string | undefined;
 }>;
 
-export type PredictPrompt = Readonly<{
+export type PredictPromptFields = Readonly<{
   promptId: string;
   controlId?: string | undefined;
   actionId?: string | undefined;
@@ -1419,7 +1419,7 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
         controlId: (pr.controlId as string) || undefined,
         actionId: (pr.actionId as string) || undefined,
         question: (pr.question as string) || "",
-        candidates,
+        ...promptCandidates(pr, candidates, prPath),
         sketchAxes,
         verbalChoices: Array.isArray(pr.verbalChoices) ? (pr.verbalChoices as string[]) : undefined,
         valueTargets: Array.isArray(pr.valueTargets) ? (pr.valueTargets as number[]) : undefined,
@@ -3878,4 +3878,38 @@ function validateDatasetWithdrawal(
     );
   }
   return { evidenceStatus, withdrawal: { date: raw.date, reason: raw.reason } };
+}
+
+// ============================================================================
+// PREDICT PROMPT: THE SUPPORTED CANDIDATE
+// Kept at the end of the file: the refusal tests above cite their sites by line.
+// ============================================================================
+
+/**
+ * A predict prompt names which of its candidates the laboratory's model supports
+ * (am-inst-predict-mode-ti7m). PredictPanel needs it to reveal the chosen candidate's separating
+ * assumption after the result; until 2026-09-24 no manifest carried it, so every adoption had to
+ * copy the prompt into TypeScript by hand, as ME-02 did.
+ */
+export type PredictPrompt = PredictPromptFields &
+  Readonly<{
+    supportedCandidateId?: string | undefined;
+  }>;
+
+function promptCandidates(
+  pr: Record<string, unknown>,
+  candidates: readonly PredictCandidate[],
+  prPath: string,
+): Readonly<{ candidates: readonly PredictCandidate[]; supportedCandidateId?: string }> {
+  const supported = pr.supportedCandidateId;
+  if (supported === undefined) return { candidates };
+  if (typeof supported !== "string" || !candidates.some((c) => c.id === supported)) {
+    throw new ExperimentValidationError(
+      "predict-supported-candidate-unknown",
+      `Predict prompt "${String(pr.promptId)}" names supportedCandidateId "${String(supported)}", which is not one of its candidates (${candidates.map((c) => c.id).join(", ")}).`,
+      "Experiment",
+      `${prPath}.supportedCandidateId`,
+    );
+  }
+  return { candidates, supportedCandidateId: supported };
 }

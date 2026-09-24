@@ -3970,3 +3970,29 @@ test("ConstantSet: (experiment.ts:3657) invalid-entry-kind rejected when entry k
   const accepted = validateConstantSet(strictParse(yaml, "yaml"));
   assert.equal(accepted.entries[0]?.kind, "printed-historical");
 });
+
+test("Experiment: a predict prompt's supportedCandidateId must be one of its own candidates (predict-supported-candidate-unknown)", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const prompt = raw.predictMode.prompts[0];
+  // Absent: nothing is claimed, and nothing is invented.
+  assert.equal(
+    (validateExperiment(raw).predictMode as any).prompts[0].supportedCandidateId,
+    undefined,
+  );
+  // One of its own candidates: kept.
+  prompt.supportedCandidateId = prompt.candidates[1].id;
+  const accepted = validateExperiment(raw) as any;
+  assert.equal(accepted.predictMode.prompts[0].supportedCandidateId, prompt.candidates[1].id);
+  // Anything else: refused, naming the prompt.
+  prompt.supportedCandidateId = "not-a-candidate";
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "predict-supported-candidate-unknown");
+      assert.ok(err.message.includes(prompt.promptId));
+      return true;
+    },
+  );
+});
