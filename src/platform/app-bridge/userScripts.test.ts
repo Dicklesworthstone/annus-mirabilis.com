@@ -237,7 +237,11 @@ describe("the bridge user script", () => {
     }
   });
 
-  it("uses the site's own theme key and values", async () => {
+  // themeInit.inline.ts imports without extensions, which Node's loader refuses; Bun,
+  // the lane this file runs in, resolves them. Under Node the comparison is skipped, not faked.
+  it("uses the site's own theme key and values", {
+    skip: "Bun" in globalThis ? false : "the site's theme module does not load in Node",
+  }, async () => {
     const site = await import("../../app/theme/themeInit.inline.ts");
     assert.equal(SITE_THEME_KEY, site.THEME_STORAGE_KEY);
     assert.equal(SITE_THEME_FOLLOW_SYSTEM, site.THEME_FOLLOW_SYSTEM);
