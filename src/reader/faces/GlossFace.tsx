@@ -1,5 +1,7 @@
 import { GlossReasoningToggle } from "./GlossReasoningToggle.tsx";
 import "./glossReasoning.css";
+import { Fragment } from "react";
+import { plainText } from "../../content/schemas/inlines.ts";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type {
   Alignment,
@@ -13,8 +15,9 @@ import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
-import { FootnotesSection } from "./Footnote.tsx";
+import { claimedDisplayIds } from "./displayClaims.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
+import { renderInlines } from "./inlines.tsx";
 import type { FaceId } from "./registry.ts";
 import { isPaperTranslationUnreviewed, translationReviewSummary } from "./reviewState.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
@@ -89,6 +92,62 @@ export function GlossFace({
   // Footnote blocks to render in the bottom footnotes section
   const footnoteBlocks = blocks.filter((b) => b.kind === "footnote");
 
+  // The aligned English of a sentence, as the gloss line under it reads it.
+  const englishFor = (sentenceId: string): string | undefined => {
+    const targets = alignmentIndex?.sourceToTarget.get(sentenceId);
+    const trUnits = (targets ?? [])
+      .map((tId) => translationMap.get(tId))
+      .filter(Boolean) as TranslationUnit[];
+    if (trUnits.length === 0) return undefined;
+    return trUnits
+      .map((u) => u.inlines.map((inl) => ("text" in inl ? inl.text : "")).join(" "))
+      .join(" ");
+  };
+  const glossSentenceFor = (block: SourceBlock, sp: SourceBlock["sentenceSpans"][number]) => (
+    <GlossSentence
+      key={sp.id}
+      sentenceId={sp.id}
+      germanText={block.diplomaticText.slice(sp.span.start, sp.span.end)}
+      glossUnit={glossMap.get(sp.id)}
+      englishTranslation={englishFor(sp.id)}
+      paperSlug={paper.slug}
+      showReasoningWords
+      modalityClasses={modalityClasses}
+    />
+  );
+  // Each display is printed once (displayClaims.ts): after the sentence whose span holds its
+  // reference, and not again as a free-standing block after the whole paragraph.
+  const claimedDisplays = claimedDisplayIds(blocks);
+  const equationById = new Map(blocks.filter((b) => b.kind === "equation").map((b) => [b.id, b]));
+  const renderEquation = (eq: SourceBlock) => (
+    <SourceBlockComponent
+      key={eq.id}
+      block={eq}
+      paperSlug={paper.slug}
+      editorialNotes={editorialNotes}
+    />
+  );
+  const displaysIn = (
+    block: SourceBlock,
+    span: { start: number; end: number },
+    placed: Set<string>,
+  ): SourceBlock[] => {
+    const out: SourceBlock[] = [];
+    let offset = 0;
+    for (const node of block.inlines) {
+      const length = Array.from(plainText([node])).length;
+      if (node.kind === "math" && node.display && node.equationId) {
+        const eq = equationById.get(node.equationId);
+        if (eq && !placed.has(eq.id) && offset >= span.start && offset <= span.end) {
+          placed.add(eq.id);
+          out.push(eq);
+        }
+      }
+      offset += length;
+    }
+    return out;
+  };
+
   // Determine if gloss translation is unreviewed
   const hasUnreviewed = isPaperTranslationUnreviewed(translations, reviewRecords);
   const glossReview = translationReviewSummary(translations, reviewRecords);
@@ -144,11 +203,11 @@ export function GlossFace({
       {/* Main Blocks Stream */}
       <main className="gloss-face-content">
         {blocks.map((block) => {
-          if (block.kind === "footnote") {
-            // Footnotes are collected and rendered at the end of the section
-            return null;
-          }
-
+          // Footnotes are collected into their own glossed list below.
+          if (block.kind === "footnote") return null;
+          // A display its paragraph prints is set after the sentence that prints it.
+          if (block.kind === "equation")
+            return claimedDisplays.has(block.id) ? null : renderEquation(block);
           if (block.kind === "heading" || block.kind === "part-heading") {
             return (
               <SourceBlockComponent
@@ -159,15 +218,22 @@ export function GlossFace({
               />
             );
           }
-
-          if (block.kind === "equation") {
+          // A masthead or closing line is glossed as one unit, under its block id.
+          const single = block.sentenceSpans?.length === 1 ? block.sentenceSpans[0] : undefined;
+          if (
+            (block.kind === "masthead" || block.kind === "closing") &&
+            single &&
+            glossMap.has(single.id)
+          ) {
             return (
-              <SourceBlockComponent
+              <div
                 key={block.id}
-                block={block}
-                paperSlug={paper.slug}
-                editorialNotes={editorialNotes}
-              />
+                className="gloss-block-wrapper"
+                data-block-id={block.id}
+                data-block-kind={block.kind}
+              >
+                {glossSentenceFor(block, single)}
+              </div>
             );
           }
 
@@ -185,49 +251,19 @@ export function GlossFace({
               </span>
             ));
 
-            // If sentence spans exist, render each sentence with its gloss
+            // If sentence spans exist, render each sentence with its gloss, and after it any
+            // display the sentence prints.
             if (block.sentenceSpans && block.sentenceSpans.length > 0) {
+              const placed = new Set<string>();
               return (
                 <div key={block.id} className="gloss-block-wrapper" data-block-id={block.id}>
                   {locators}
-                  {block.sentenceSpans.map((sp) => {
-                    const glossUnit = glossMap.get(sp.id);
-                    const germanSentenceText = block.diplomaticText.slice(
-                      sp.span.start,
-                      sp.span.end,
-                    );
-
-                    // Lookup aligned English translation if available
-                    let englishText: string | undefined;
-                    if (alignmentIndex) {
-                      const targets = alignmentIndex.sourceToTarget.get(sp.id);
-                      if (targets && targets.length > 0) {
-                        const trUnits = targets
-                          .map((tId) => translationMap.get(tId))
-                          .filter(Boolean) as TranslationUnit[];
-                        if (trUnits.length > 0) {
-                          englishText = trUnits
-                            .map((u) =>
-                              u.inlines.map((inl) => ("text" in inl ? inl.text : "")).join(" "),
-                            )
-                            .join(" ");
-                        }
-                      }
-                    }
-
-                    return (
-                      <GlossSentence
-                        key={sp.id}
-                        sentenceId={sp.id}
-                        germanText={germanSentenceText}
-                        glossUnit={glossUnit}
-                        englishTranslation={englishText}
-                        paperSlug={paper.slug}
-                        showReasoningWords
-                        modalityClasses={modalityClasses}
-                      />
-                    );
-                  })}
+                  {block.sentenceSpans.map((sp) => (
+                    <Fragment key={sp.id}>
+                      {glossSentenceFor(block, sp)}
+                      {displaysIn(block, sp.span, placed).map(renderEquation)}
+                    </Fragment>
+                  ))}
                 </div>
               );
             }
@@ -254,8 +290,38 @@ export function GlossFace({
         })}
       </main>
 
-      {/* Footnotes Section */}
-      {footnoteBlocks.length > 0 && <FootnotesSection footnotes={footnoteBlocks} />}
+      {/* Footnotes, each glossed as one unit under its block id. No backlink: this face renders
+          no footnote marks, so a link back to one would name an id the page lacks. */}
+      {footnoteBlocks.length > 0 && (
+        <section className="reader-footnotes" aria-labelledby="gloss-footnotes-heading">
+          <h2 id="gloss-footnotes-heading" className="footnotes-heading">
+            Footnotes
+          </h2>
+          <ol className="footnotes-list">
+            {footnoteBlocks.map((fn) => {
+              const sp = fn.sentenceSpans?.[0];
+              return (
+                <li
+                  key={fn.id}
+                  id={`footnote-${fn.id}`}
+                  className="footnote-item"
+                  role="doc-footnote"
+                  data-footnote-id={fn.id}
+                >
+                  {fn.originalLabel ? (
+                    <span className="footnote-ref">{fn.originalLabel} </span>
+                  ) : null}
+                  {sp && glossMap.has(sp.id) ? (
+                    glossSentenceFor(fn, sp)
+                  ) : (
+                    <span lang="de">{renderInlines(fn.inlines, undefined, `fn-${fn.id}`)}</span>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      )}
 
       {alignmentIndex && <AlignmentController index={alignmentIndex} />}
     </article>
