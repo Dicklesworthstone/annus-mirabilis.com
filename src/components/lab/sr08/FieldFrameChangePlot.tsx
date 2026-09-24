@@ -141,7 +141,7 @@ export function FieldFrameChangePlot({
             markerHeight="6"
             orient="auto-start-reverse"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2e7d32" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--sr08-force)" />
           </marker>
         </defs>
 
@@ -187,7 +187,7 @@ export function FieldFrameChangePlot({
               y1={cy}
               x2={fx}
               y2={fy}
-              stroke="#2e7d32"
+              stroke="var(--sr08-force)"
               strokeWidth="2"
               markerEnd="url(#arrow-f)"
             />
