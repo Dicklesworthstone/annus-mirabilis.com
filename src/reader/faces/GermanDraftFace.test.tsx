@@ -116,7 +116,9 @@ describe("the German face a reader is served", () => {
       expect(equationIds.length).toBeGreaterThan(0);
       expect(draft.match(/class="katex-display"/g)?.length).toBe(equationIds.length);
       for (const id of equationIds) {
-        expect(html.split(`id="${id}"`).length - 1).toBe(1);
+        // Published under its frozen manifest id (manifestAnchors.ts), not its segment id.
+        const anchor = face.anchors.anchorOf[id] ?? id;
+        expect(html.split(`id="${anchor}"`).length - 1).toBe(1);
       }
     }
   });

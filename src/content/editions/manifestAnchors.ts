@@ -59,6 +59,11 @@ export function manifestAnchors(
   pages: Readonly<Record<string, number>>,
   aliasPath?: string,
 ): ManifestAnchors {
+  // A paper with no frozen manifest has no frozen ids to publish; its own are all there are.
+  if (units.length === 0) {
+    const own = blocks.flatMap((b) => [b.id, ...(b.displayEquationIds ?? [])]);
+    return { anchorOf: Object.fromEntries(own.map((id) => [id, id])), aliases: {} };
+  }
   const problems: string[] = [];
   const anchorOf: Record<string, string> = {};
   const manifestIds = new Set(units.map((u) => u.id));

@@ -98,7 +98,7 @@ describe("the German face's anchors are the frozen manifest's ids", () => {
 });
 
 describe("a face the manifest cannot pair is refused, never guessed", () => {
-  test("(manifestAnchors.ts:106) manifest-anchors-unpaired when the manifest lacks one paragraph", () => {
+  test("(manifestAnchors.ts:111) manifest-anchors-unpaired when the manifest lacks one paragraph", () => {
     const face = loadGermanSourceFace("mass-energy", ROOT);
     if (!face) throw new Error("mass-energy has no German face");
     const units = printedUnits(ROOT, "mass-energy");
