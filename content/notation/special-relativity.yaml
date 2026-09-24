@@ -393,16 +393,6 @@ entries:
       target:
         form: symbol
         modernGlyph: "\\ell"
-    collision:
-      severity: caution
-      kind: within-paper
-      collidesWith: ["sr.l.directionCosineStationary"]
-      firstUseAnchor: sr-s2-p2
-      firstUseBySection:
-        - sectionId: sr-s2
-          anchor: sr-s2-p2
-        - sectionId: sr-s3
-          anchor: sr-s3-p22
     notes: "Lowercase l here is a length, in §2 and again in §3 (p. 902). The direction cosines of §§7–8 are printed a, b, c, not l."
     sources:
       facsimilePage: 895
@@ -618,7 +608,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "a(v)"
-    notes: "The printed a is not the a(v) that some modern derivations introduce; that one is listed under Symbols this edition adds."
+    notes: "The printed a is not the a(v) that some modern derivations introduce; that one is listed under Symbols this edition adds. In §§7–8 the letter a is a direction cosine of the wave normal."
     sources:
       facsimilePage: 899
       anchor: sr-s3-p10
@@ -1327,8 +1317,8 @@ entries:
     paper: special-relativity
     scope: ["sr-s7", "sr-s8"]
     glyph:
-      unicode: "l"
-      latex: "l"
+      unicode: "a"
+      latex: "a"
       variant: plain
     meaning: "Direction cosine of the wave normal in K"
     binding:
@@ -1342,27 +1332,27 @@ entries:
     collision:
       severity: caution
       kind: within-paper
-      collidesWith: ["sr.l.lengthProper"]
+      collidesWith: ["sr.a.transformationCoefficientA"]
       firstUseAnchor: sr-s7-p1
       firstUseBySection:
         - sectionId: sr-s7
           anchor: sr-s7-p1
-    notes: "In §§2–3, lowercase l is the rod length."
+    notes: "Corrected 2026-09-24 from the plate: the paper prints the direction cosines of the wave normal as a, b, c (pp. 910 and 913), not l, m, n. In §3 the letter a is a different quantity, the undetermined coefficient of the transformation."
     sources:
-      facsimilePage: 909
+      facsimilePage: 910
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 910 and 913 (public/figures/plates/pages/ap-17-891/910-1280.webp, public/figures/plates/pages/ap-17-891/913-1280.webp): glyph read by eye from the page image, not the text layer. Italic a, first printed on p. 910 in Φ = ω(t − (ax + by + cz)/V), 'a, b, c die Richtungskosinus der Wellennormalen', and again on p. 913, 'Sind a, b, c die Richtungskosinus der Wellennormalen des Lichtes im ruhenden System', in the sphere (x − Vat)² + (y − Vbt)² + (z − Vct)² = R². No l is printed as a direction cosine on pp. 910-915; the entry recorded l until 2026-09-24 and its glyph was corrected from these plates. The first of the three direction cosines. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.m.directionCosineStationary
     paper: special-relativity
     scope: ["sr-s7", "sr-s8"]
     glyph:
-      unicode: "m"
-      latex: "m"
+      unicode: "b"
+      latex: "b"
       variant: plain
     meaning: "Direction cosine of the wave normal in K"
     binding:
@@ -1373,21 +1363,22 @@ entries:
       target:
         form: symbol
         modernGlyph: "n_y"
+    notes: "Corrected 2026-09-24 from the plate: printed b (pp. 910 and 913), not m."
     sources:
-      facsimilePage: 909
+      facsimilePage: 910
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 910 and 913 (public/figures/plates/pages/ap-17-891/910-1280.webp, public/figures/plates/pages/ap-17-891/913-1280.webp): glyph read by eye from the page image, not the text layer. Italic b, first printed on p. 910 in Φ = ω(t − (ax + by + cz)/V), 'a, b, c die Richtungskosinus der Wellennormalen', and again on p. 913, 'Sind a, b, c die Richtungskosinus der Wellennormalen des Lichtes im ruhenden System', in the sphere (x − Vat)² + (y − Vbt)² + (z − Vct)² = R². No m is printed as a direction cosine on pp. 910-915; the entry recorded m until 2026-09-24 and its glyph was corrected from these plates. The second of the three direction cosines. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.n.directionCosineStationary
     paper: special-relativity
     scope: ["sr-s7", "sr-s8"]
     glyph:
-      unicode: "n"
-      latex: "n"
+      unicode: "c"
+      latex: "c"
       variant: plain
     meaning: "Direction cosine of the wave normal in K"
     binding:
@@ -1398,14 +1389,15 @@ entries:
       target:
         form: symbol
         modernGlyph: "n_z"
+    notes: "Corrected 2026-09-24 from the plate: printed c (pp. 910 and 913), not n."
     sources:
-      facsimilePage: 909
+      facsimilePage: 910
       anchor: sr-s7-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 910 and 913 (public/figures/plates/pages/ap-17-891/910-1280.webp, public/figures/plates/pages/ap-17-891/913-1280.webp): glyph read by eye from the page image, not the text layer. Italic c, first printed on p. 910 in Φ = ω(t − (ax + by + cz)/V), 'a, b, c die Richtungskosinus der Wellennormalen', and again on p. 913, 'Sind a, b, c die Richtungskosinus der Wellennormalen des Lichtes im ruhenden System', in the sphere (x − Vat)² + (y − Vbt)² + (z − Vct)² = R². No n is printed as a direction cosine on pp. 910-915; the entry recorded n until 2026-09-24 and its glyph was corrected from these plates. The third of the three direction cosines. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.varphi.propagationAngleStationary
     paper: special-relativity
