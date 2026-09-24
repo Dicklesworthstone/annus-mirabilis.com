@@ -44,10 +44,19 @@ describe("SR-03 Rod Measurement and Simultaneity Lab View & Route (am-sr-03-rod-
     // The eyebrow no longer carries the internal id "SR-03": readers see what the lab is, not its key.
     expect(html).toContain("An executable laboratory");
     expect(html).not.toContain("SR-03 ·");
-    // The prompts sit in one closed disclosure. The two tab buttons that used to switch them were
-    // labelled "Relativity of Simultaneity" and "Invariant Causal Order", which named each answer
-    // before the question (b52335ab), so the check is for the disclosure and both questions.
-    expect(html).toContain("<summary>Predict before calculating</summary>");
+    // Both prompts sit in the predict gate's panel (dispatch 156, option c). The two tab buttons
+    // that used to switch them were labelled "Relativity of Simultaneity" and "Invariant Causal
+    // Order", which named each answer before the question (b52335ab), so the check is for the
+    // panel and both questions. The drawings come before it; the ledger and values wait.
+    expect(html).toContain('data-predict-gate="awaiting"');
+    expect(html.indexOf('data-view-id="sr-03-strip-view"')).toBeLessThan(
+      html.indexOf('data-predict-gate="awaiting"'),
+    );
+    expect(html).toMatch(
+      /class="lab-values" data-view-id="sr-03-data-table" data-predict-response="awaiting"/,
+    );
+    expect(html).toMatch(/<span data-predict-response="awaiting"> and \(x′, ct′\)/);
+    expect(html).not.toContain('data-predict-response="shown"');
     const text = html.replaceAll("&#x27;", "'").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
     for (const key of ["endpoint-pair", "causal-order"] as const) {
       expect(text).toContain(SR03_PROMPTS[key].question);

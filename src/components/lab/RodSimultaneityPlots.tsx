@@ -132,6 +132,11 @@ export interface MinkowskiDiagramPlotProps {
   dtK: number;
   dxk: number;
   dtk: number;
+  /**
+   * A predict gate's attribute (PredictGate.tsx). E₂'s coordinates in k give dt′, the first
+   * prompt's answer, so that half of the note waits; the axes, events and K coordinates stay.
+   */
+  response?: Readonly<{ "data-predict-response": "shown" | "awaiting" }>;
 }
 
 export function MinkowskiDiagramPlot({
@@ -144,6 +149,7 @@ export function MinkowskiDiagramPlot({
   dtK,
   dxk,
   dtk,
+  response,
 }: MinkowskiDiagramPlotProps) {
   const width = 480;
   const height = 280;
@@ -286,8 +292,12 @@ export function MinkowskiDiagramPlot({
       </svg>
       <p className="fine sr03-figure-note">
         Axes in light-seconds. E₁ is at the origin in both frames. E₂ is at (x, ct) = (
-        {e2K.x.toFixed(1)}, {e2K.t.toFixed(1)}) in frame K and (x′, ct′) = ({dxk.toFixed(1)},{" "}
-        {dtk.toFixed(1)}) in frame k.
+        {e2K.x.toFixed(1)}, {e2K.t.toFixed(1)}) in frame K
+        <span {...response}>
+          {" "}
+          and (x′, ct′) = ({dxk.toFixed(1)}, {dtk.toFixed(1)}) in frame k
+        </span>
+        .
       </p>
     </div>
   );

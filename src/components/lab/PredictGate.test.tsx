@@ -22,6 +22,7 @@ import {
   writePredictionsDocument,
 } from "../../experiments/predict/predictStorage.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR02_EXAMPLE } from "../../experiments/sr02/session.ts";
+import type { PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR06_EXAMPLE } from "../../experiments/sr06/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR08_EXAMPLE } from "../../experiments/sr08/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR09_EXAMPLE } from "../../experiments/sr09/session.ts";
@@ -36,6 +37,7 @@ import rawBm07Example from "../../generated/bm07-example.json";
 import rawBm08Example from "../../generated/bm08-example.json";
 import rawLq01Example from "../../generated/lq01-example.json";
 import { type GeneratedPredictPrompt, PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import rawSr03Example from "../../generated/sr03-example.json";
 import rawSr10Example from "../../generated/sr10-example.json";
 import { createStorageContext } from "../../platform/storage/store.ts";
 import { applyReaderPrepaint } from "../../reader/detail/prepaint.ts";
@@ -68,6 +70,7 @@ import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
 import { BoundaryLedgerLab } from "./me03/BoundaryLedgerLab.tsx";
 import { OsmoticPartitionLab } from "./OsmoticPartitionLab.tsx";
 import { presentedOrder } from "./PredictGate.tsx";
+import { RodSimultaneityLab } from "./RodSimultaneityLab.tsx";
 import { ClockSyncLab } from "./sr01/ClockSyncLab.tsx";
 import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
 import { FieldFrameChangeLab } from "./sr08/FieldFrameChangeLab.tsx";
@@ -92,7 +95,7 @@ import { WaveDescriptionLab } from "./WaveDescriptionLab.tsx";
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
  * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-01, BM-04, BM-05, BM-07,
- * BM-08 and LQ-01 share none (their worker runner is not written), and BM-02 and LQ-02 have no tape binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
+ * BM-08, LQ-01 and SR-03 share none (their worker runner is not written), and BM-02 and LQ-02 have no tape binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
  * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
@@ -245,6 +248,16 @@ const LABS: readonly GatedLab[] = [
     element: () => createElement(MagnetConductorLab, { example: SR02_EXAMPLE }),
     result: "Accepted snapshot",
     sharesTape: true,
+    statusLine: true,
+  },
+  {
+    lab: "sr-03",
+    element: () =>
+      createElement(RodSimultaneityLab, {
+        example: rawSr03Example as unknown as PreparedSr03Example,
+      }),
+    result: "Spacetime event coordinates and invariant interval",
+    sharesTape: false,
     statusLine: true,
   },
   {

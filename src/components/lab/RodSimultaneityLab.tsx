@@ -11,14 +11,15 @@ import {
   SR03_CAPTION,
   SR03_OUTPUTS,
   SR03_PRESETS,
-  SR03_PROMPTS,
   type Sr03Parameters,
 } from "../../experiments/sr03/definition.ts";
 import { decodeSr03Settings, encodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { sr03ReadingsView } from "../../experiments/sr03/readings.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { fixed } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 import "./rodSimultaneityLab.css";
@@ -37,6 +38,8 @@ export type RodSimultaneityLabProps = Readonly<{
 }>;
 
 /** The values table's row names, in the reader's words. */
+const SR03_GATE_PROMPTS = PREDICT_PROMPTS["sr-03"] ?? [];
+
 const SR03_VALUE_LABELS: Readonly<Record<string, string>> = {
   spatialSeparationK: "Distance between the events in K, Δx",
   temporalSeparationK: "Time between the events in K, Δt",
@@ -109,7 +112,8 @@ export function RodSimultaneityLab({
   const [linkNote, setLinkNote] = useState("");
 
   // Predict mode state
-  const [selectedCandidates, setSelectedCandidates] = useState<Record<string, string>>({});
+  // The drawings and the controls come first; dt′, the interval ledger and the values wait.
+  const gate = usePredictGate("sr-03", SR03_GATE_PROMPTS);
 
   useEffect(() => {
     setReady(true);
@@ -306,6 +310,7 @@ export function RodSimultaneityLab({
           dtK={dtK}
           dxk={dxk}
           dtk={dtk}
+          response={gate.response}
         />
       </div>
 
@@ -346,47 +351,7 @@ export function RodSimultaneityLab({
       )}
 
       <div className="sr03-controls">
-        <details className="lab-predict">
-          <summary>Predict before calculating</summary>
-          {(["endpoint-pair", "causal-order"] as const).map((key) => {
-            const prompt = SR03_PROMPTS[key];
-            if (!prompt) return null;
-            const chosen = selectedCandidates[prompt.id];
-            return (
-              <fieldset key={prompt.id}>
-                <legend>{prompt.question}</legend>
-                {prompt.candidates.map((c) => (
-                  <label key={c.id} className="lab-predict-candidate">
-                    <input
-                      type="radio"
-                      name={`${id}-predict-${prompt.id}`}
-                      value={c.id}
-                      checked={chosen === c.id}
-                      onChange={() =>
-                        setSelectedCandidates((prev) => ({ ...prev, [prompt.id]: c.id }))
-                      }
-                    />
-                    <span>
-                      <strong>{c.label}.</strong> {c.description}
-                    </span>
-                  </label>
-                ))}
-                {chosen && (
-                  <div className="lab-predict-reveal">
-                    <p>{prompt.modelReveal}</p>
-                    {/* The assumption behind each option is shown only for the one the reader
-                        chose: listed under every option before a choice, it named the right one
-                        ("= -6.0 s") and the wrong ones ("Wrong sign..."). */}
-                    <p>
-                      Your choice rests on:{" "}
-                      {prompt.candidates.find((c) => c.id === chosen)?.separatingAssumption}
-                    </p>
-                  </div>
-                )}
-              </fieldset>
-            );
-          })}
-        </details>
+        <PredictGatePanels gate={gate} />
 
         <fieldset className="lab-choice">
           <legend>Try</legend>
@@ -708,6 +673,7 @@ export function RodSimultaneityLab({
         <AcceptedStatus
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
+          response={gate.response}
         />
       </div>
 
@@ -726,8 +692,8 @@ export function RodSimultaneityLab({
         {withScripts(SR03_CAPTION.r3)}
       </p>
 
-      {/* Spacetime event interval ledger */}
-      <div className="notice" style={{ margin: "1.5rem 0" }}>
+      {/* Spacetime event interval ledger: Δt in k and the causal order answer the prompts. */}
+      <div className="notice" style={{ margin: "1.5rem 0" }} {...gate.response}>
         <h3 style={{ marginTop: 0 }}>Spacetime event coordinates and invariant interval</h3>
         <section
           className="table-scroll sr03-interval"
@@ -782,7 +748,7 @@ export function RodSimultaneityLab({
       </div>
 
       {/* The accepted values, in words. */}
-      <div className="lab-values" data-view-id="sr-03-data-table">
+      <div className="lab-values" data-view-id="sr-03-data-table" {...gate.response}>
         <h3>Values at these settings</h3>
         <section className="table-scroll" tabIndex={0} aria-label="Values at these settings">
           <table className="data-table">

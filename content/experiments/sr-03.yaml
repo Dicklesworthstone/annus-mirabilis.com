@@ -435,42 +435,44 @@ predictMode:
       supportedCandidateId: earlier-trailing
       controlId: endpointPairId
       question: "At v = 0.6c, two events that mark the ends of a moving 10-ls rod are measured simultaneously in platform frame K (dt = 0, dx = 8 ls). What is their time separation dt' in the rod's rest frame k?"
+      explanation: "Clocks in k are set by light signals in their own frame, so events simultaneous in K are not simultaneous in k. The transformation gives dt′ = γ(dt − v dx/c²); with dt = 0, dx = 8 ls, v = 0.6c and γ = 1.25 that is dt′ = −1.25 × 0.6 × 8 s = −6.0 s, the front end's reading first."
       candidates:
         - id: earlier-trailing
           label: "Front end earlier (dt' < 0)"
           description: "The front end measurement occurs earlier than the rear end measurement in the rod frame."
           relation: "dt' = -gamma * v * dx / c^2"
-          separatingAssumption: "Relativity of simultaneity: dt' = -gamma * v * dx / c^2 = -6.0 s."
+          separatingAssumption: "Applies the transformation to the time as well as the place: dt′ = γ(dt − v dx/c²) = −1.25 × 0.6 × 8 s = −6.0 s, so readings simultaneous in K are not simultaneous in k."
         - id: still-simultaneous
           label: "Simultaneous in both frames (dt' = 0)"
           description: "Events simultaneous in one frame must be simultaneous in all frames."
           relation: "dt' = dt = 0"
-          separatingAssumption: "Classical absolute time assumption."
+          separatingAssumption: "Keeps one time for every frame, as Galilean kinematics does. §2 of the paper shows that events simultaneous in one frame are not simultaneous in a frame moving relative to it."
         - id: later-trailing
           label: "Front end later (dt' > 0)"
           description: "The front end measurement occurs later than the rear end measurement in k."
           relation: "dt' > 0"
-          separatingAssumption: "Reversed sign for Lorentz coordinate boost."
+          separatingAssumption: "Gives the time shift the opposite sign, +γ v dx/c². With the rod moving along +x, the front end's reading comes first in the rod's frame, not last."
     - promptId: sr-03-predict-causal-order
       supportedCandidateId: order-preserved
       controlId: v
-      question: "If two events have a timelike separation (s² < 0, so a subluminal signal could connect them), what happens to their time order when viewed from a frame moving at 0.95c?"
+      question: "If two events have a timelike separation (s² < 0, so a signal slower than light could connect them), what happens to their time order when viewed from a frame moving at 0.95c?"
+      explanation: "For a timelike pair |dx| < c|dt|, so v dx/c² is smaller in size than dt for every speed below c, and dt′ = γ(dt − v dx/c²) keeps the sign of dt. Every inertial frame agrees which event came first; only a spacelike pair can change order."
       candidates:
         - id: order-preserved
           label: "Order is invariant"
           description: "Every inertial frame agrees which event occurred first."
           relation: "sgn(dt') = sgn(dt)"
-          separatingAssumption: "Lorentz invariance of timelike causal order."
+          separatingAssumption: "Uses s² < 0: then |v dx/c²| < |dt| for any speed below c, so dt′ = γ(dt − v dx/c²) has the sign of dt in every frame."
         - id: order-reverses
           label: "Time order reverses"
           description: "At sufficiently high relative speed, the time order reverses."
           relation: "sgn(dt') = -sgn(dt)"
-          separatingAssumption: "Confusing spacelike order dependence with timelike order invariance."
+          separatingAssumption: "Carries over what holds for a spacelike pair, whose order does depend on the frame. For a timelike pair no frame slower than light reverses it."
         - id: becomes-simultaneous
           label: "Becomes simultaneous"
           description: "There exists an inertial frame where the two events occur at the same time."
           relation: "dt' = 0"
-          separatingAssumption: "Assuming simultaneity is reachable for timelike intervals."
+          separatingAssumption: "Lets some frame make the two events simultaneous. That needs v = c² dt/dx, which is faster than light when the pair is timelike."
 acceptanceCases:
   - sr03-signature-0.6c
 defaultScenario: sr03-signature-0.6c
