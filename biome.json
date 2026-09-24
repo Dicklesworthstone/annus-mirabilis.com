@@ -18,6 +18,7 @@
       "!artifacts",
       "!.beads",
       "!docs/design/placeholder",
+      "!public/wasm/fs-annus-diffusion",
       "!public/pdfjs",
       "!ios/**/*.xcassets"
     ]
