@@ -1,3 +1,5 @@
+import { withinDeclaredDomain } from "../controls/declaredDomain.ts";
+import { optionalNumber } from "../controls/typedNumber.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import {
   ME03_DEFAULTS,
@@ -42,7 +44,7 @@ const VALID_PULSE_SYSTEMS: readonly Me03PulseSystem[] = [
   "two-opposite",
 ];
 
-export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
+function validateMe03Fields(input: unknown): Me03ParameterCheck {
   if (input === null || typeof input !== "object") {
     return {
       kind: "refused",
@@ -56,7 +58,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
 
   const o = input as Partial<Record<keyof Me03Parameters, unknown>>;
 
-  const L = typeof o.emittedEnergy === "number" ? o.emittedEnergy : ME03_DEFAULTS.emittedEnergy;
+  const L = optionalNumber(o, "emittedEnergy", ME03_DEFAULTS.emittedEnergy);
   if (!Number.isFinite(L) || L <= 0) {
     return {
       kind: "refused",
@@ -73,7 +75,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
     };
   }
 
-  const inputE = typeof o.inputEnergy === "number" ? o.inputEnergy : ME03_DEFAULTS.inputEnergy;
+  const inputE = optionalNumber(o, "inputEnergy", ME03_DEFAULTS.inputEnergy);
   if (!Number.isFinite(inputE) || inputE < 0) {
     return {
       kind: "refused",
@@ -115,7 +117,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
 
   const notation: Me03Notation = o.notation === "modern" ? "modern" : "printed";
 
-  const boxMass = typeof o.boxMass === "number" ? o.boxMass : ME03_DEFAULTS.boxMass;
+  const boxMass = optionalNumber(o, "boxMass", ME03_DEFAULTS.boxMass);
   if (!Number.isFinite(boxMass) || boxMass <= 0) {
     return {
       kind: "refused",
@@ -132,7 +134,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
     };
   }
 
-  const boxLength = typeof o.boxLength === "number" ? o.boxLength : ME03_DEFAULTS.boxLength;
+  const boxLength = optionalNumber(o, "boxLength", ME03_DEFAULTS.boxLength);
   if (!Number.isFinite(boxLength) || boxLength <= 0) {
     return {
       kind: "refused",
@@ -149,7 +151,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
     };
   }
 
-  const pulseEnergy = typeof o.pulseEnergy === "number" ? o.pulseEnergy : ME03_DEFAULTS.pulseEnergy;
+  const pulseEnergy = optionalNumber(o, "pulseEnergy", ME03_DEFAULTS.pulseEnergy);
   if (!Number.isFinite(pulseEnergy) || pulseEnergy <= 0) {
     return {
       kind: "refused",
@@ -169,10 +171,19 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
   const assignLightMass =
     typeof o.assignLightMass === "boolean" ? o.assignLightMass : ME03_DEFAULTS.assignLightMass;
 
-  const magnification =
-    typeof o.magnification === "number" && Number.isFinite(o.magnification) && o.magnification > 0
-      ? o.magnification
-      : ME03_DEFAULTS.magnification;
+  // A finite value goes through, so the declared domain (at least 1) refuses it by name; a value
+  // that is not a finite number is refused here instead of putting the default back.
+  const magnification = optionalNumber(o, "magnification", ME03_DEFAULTS.magnification);
+  if (!Number.isFinite(magnification)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["magnification"] },
+        { details: { requirements: "Enter the magnification as a number." } },
+      ),
+    };
+  }
 
   if (mode === "box-1906") {
     const c = 299792458;
@@ -216,3 +227,8 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
 }
 
 export { ME03_DEFAULTS };
+
+/** The fields above, then every range content/experiments/me-03.yaml declares (dispatch 134). */
+export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
+  return withinDeclaredDomain("me-03", validateMe03Fields(input));
+}

@@ -31,3 +31,19 @@ export function readTypedNumber(
     return { kind: "refused", requirement: tooLarge ?? `Enter ${label} as a smaller number.` };
   return { kind: "number", value };
 }
+
+/**
+ * An optional numeric setting read from a record: its default when absent, and NaN, for the
+ * validator's own check to refuse by name, when present but not a number. Validators used to take
+ * the default for a present "abc" too, which accepted a text value without a word and made a
+ * shared link replay to a different state (ME-03, SR-12, SR-13; dispatch 165).
+ */
+export function optionalNumber(
+  record: Readonly<Record<string, unknown>>,
+  key: string,
+  fallback: number,
+): number {
+  const value = record[key];
+  if (value === undefined) return fallback;
+  return typeof value === "number" ? value : Number.NaN;
+}
