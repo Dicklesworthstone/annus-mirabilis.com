@@ -269,7 +269,12 @@ export function MinkowskiDiagramPlot({
           strokeWidth="1.5"
           strokeDasharray="2 2"
         />
-        <circle cx={originX + e1K.x * scale} cy={originY - e1K.t * scale} r="5" fill="#10b981" />
+        <circle
+          cx={originX + e1K.x * scale}
+          cy={originY - e1K.t * scale}
+          r="5"
+          fill="var(--sr03-event-1)"
+        />
         <text
           x={originX + e1K.x * scale - 10}
           y={originY - e1K.t * scale + 24}

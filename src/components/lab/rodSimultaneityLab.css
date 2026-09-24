@@ -27,7 +27,21 @@
 /* The three drawings (RodSimultaneityPlots.tsx): their sentences are HTML around them, and the
    drawings hold only shapes and short names. */
 .sr03-figure {
+  --sr03-event-1: #047857;
   margin-block: 1.25rem;
+}
+
+/* E₁'s dot in the spacetime diagram. The bright green it was drawn in stood at 2.45:1 on the
+   light theme's paper, under the 3:1 a mark needs; this darker green of the same hue stands at
+   5.30:1 there, and the dark theme keeps the bright one, 6.38:1 on its paper. */
+:root[data-theme="kramgasse-night"] .sr03-figure {
+  --sr03-event-1: #10b981;
+}
+/* Without JavaScript the pre-paint script never sets data-theme; this repeats the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .sr03-figure {
+    --sr03-event-1: #10b981;
+  }
 }
 
 .sr03-figure-title {
