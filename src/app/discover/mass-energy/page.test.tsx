@@ -161,7 +161,7 @@ describe("the route carries the discovery skeleton", () => {
     const step = html.slice(start, html.indexOf('<section id="in-the-paper"'));
     expect(step).toContain('data-world-check-quantity="massChange"');
     expect(step).toContain("The boundary ledger, for the check");
-    expect(text(step)).toContain("L/9·10^20, with the energy in erg and the mass in grams");
+    expect(text(step)).toContain("L/9·10²⁰, with the energy in erg and the mass in grams");
     expect(step).toContain('id="card-cockcroft-walton-1932-lithium"');
     // A later card is never on the 1904 shelf.
     const shelf = html.slice(at('id="shelf"'), at('id="nagging-fact"'));
@@ -222,5 +222,17 @@ describe("the route carries the discovery skeleton", () => {
     ].join(" ");
     const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+});
+
+describe("the reader sees powers as powers", () => {
+  test("no power of ten reaches the page as a raw caret", () => {
+    // "6 × 10^23" is how a program writes it. A sweep of the live discover pages on 2026-09-24
+    // found three on the Brownian route. KaTeX's TeX source rides in <annotation>, which no one
+    // reads, so it is left out; an exercise that asks for typed input may still show one.
+    const visible = html
+      .replace(/<annotation[^>]*>[\s\S]*?<\/annotation>/g, " ")
+      .replace(/<[^>]+>/g, " ");
+    expect(visible.match(/.{0,30}\d\s*\^\s*[-\d{]/g) ?? []).toEqual([]);
   });
 });

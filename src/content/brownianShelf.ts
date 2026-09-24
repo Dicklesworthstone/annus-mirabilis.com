@@ -231,7 +231,7 @@ export const BROWNIAN_LATER_EVIDENCE: readonly KnowledgeCard[] = [
   {
     id: "perrin-1909-molecular-reality",
     proposition:
-      "Perrin measures suspensions of gamboge grains of known radius, among them their vertical distribution in sedimentation equilibrium, and infers the number of molecules in a gram-molecule. Across his methods the values lie between roughly 6 and 7.5 × 10^23; the sedimentation-equilibrium value is near 7 × 10^23.",
+      "Perrin measures suspensions of gamboge grains of known radius, among them their vertical distribution in sedimentation equilibrium, and infers the number of molecules in a gram-molecule. Across his methods the values lie between roughly 6 and 7.5 × 10²³; the sedimentation-equilibrium value is near 7 × 10²³.",
     status: "later",
     sources: [
       {

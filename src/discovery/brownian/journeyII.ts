@@ -216,7 +216,7 @@ export const WORLD_CHECK: WorldCheck = {
   expected: "about 0.8 µm in one second, about 6 µm in one minute",
   comparisonKind: "printed-prediction",
   staticWorkedExample: {
-    label: "What Einstein printed in §5, taking N = 6 × 10^23 from gas theory",
+    label: "What Einstein printed in §5, taking N = 6 × 10²³ from gas theory",
     value: "about 0.8 µm in one second, about 6 µm in one minute",
     unit: "",
     constantSetId: "einstein-1905-brownian-printed",

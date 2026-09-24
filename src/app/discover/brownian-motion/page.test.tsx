@@ -240,3 +240,15 @@ describe("step 06 checks the prediction against the world", () => {
     expect(step).toContain('data-card-id="perrin-1909-molecular-reality"');
   });
 });
+
+describe("the reader sees powers as powers", () => {
+  test("no power of ten reaches the page as a raw caret", () => {
+    // "6 × 10^23" is how a program writes it. A sweep of the live discover pages on 2026-09-24
+    // found three on the Brownian route. KaTeX's TeX source rides in <annotation>, which no one
+    // reads, so it is left out; an exercise that asks for typed input may still show one.
+    const visible = html
+      .replace(/<annotation[^>]*>[\s\S]*?<\/annotation>/g, " ")
+      .replace(/<[^>]+>/g, " ");
+    expect(visible.match(/.{0,30}\d\s*\^\s*[-\d{]/g) ?? []).toEqual([]);
+  });
+});

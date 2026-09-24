@@ -97,7 +97,7 @@ describe("the check against the world reads the boundary ledger's accepted snaps
     const html = renderToStaticMarkup(check());
     expect(html).toContain("Check it against the world");
     expect(html).toContain("What Einstein printed on the paper&#x27;s last page");
-    expect(html).toContain("L/9·10^20, with the energy in erg and the mass in grams");
+    expect(html).toContain("L/9·10²⁰, with the energy in erg and the mass in grams");
     expect(html).toContain('data-card-id="cockcroft-walton-1932-lithium"');
     expect(html).toContain("Later evidence, not on the 1904 shelf");
     expect(html).toContain("Awaiting verification");

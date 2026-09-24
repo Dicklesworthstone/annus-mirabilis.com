@@ -232,14 +232,14 @@ export const PPE_TASK: PpeTask = {
 export const WORLD_CHECK: WorldCheck = {
   id: "me-world-check-mass",
   claim:
-    "The paper ends with a number and a suggestion. A change of energy L changes the mass by L/9·10^20, with the energy in erg and the mass in grams, and bodies whose energy content changes a great deal, radium salts for instance, might test it. Let an energy leave in the ledger below and read the mass that goes with it.",
+    "The paper ends with a number and a suggestion. A change of energy L changes the mass by L/9·10²⁰, with the energy in erg and the mass in grams, and bodies whose energy content changes a great deal, radium salts for instance, might test it. Let an energy leave in the ledger below and read the mass that goes with it.",
   instrumentId: "me-03",
   quantityId: "massChange",
-  expected: "L/9·10^20 grams for an energy L in erg",
+  expected: "L/9·10²⁰ grams for an energy L in erg",
   comparisonKind: "printed-prediction",
   staticWorkedExample: {
     label: "What Einstein printed on the paper's last page",
-    value: "the mass changes by L/9·10^20, with the energy in erg and the mass in grams",
+    value: "the mass changes by L/9·10²⁰, with the energy in erg and the mass in grams",
     unit: "",
     constantSetId: "einstein-1905-mass-energy-printed",
   },
