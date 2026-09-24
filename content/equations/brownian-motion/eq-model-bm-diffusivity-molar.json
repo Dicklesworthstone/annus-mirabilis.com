@@ -5,7 +5,7 @@
   "paper": "brownian-motion",
   "argument": "arg-bm-diffusivity",
   "title": "The same diffusivity, written with the gas constant",
-  "spoken": "D equals R T over six pi eta a N.",
+  "spoken": "D equals R T over six pi eta a N sub A.",
   "explanation": "Einstein's form: the gas constant per molecule, R over N, stands where the modern form writes Boltzmann's constant. A larger N would make each molecule's kick smaller and the spreading slower.",
   "review": "draft",
   "notation": "modern-pedagogical",
@@ -13,7 +13,7 @@
   "live": false,
   "assumptions": [
     "A dilute suspension of spheres, each moving slowly through a Newtonian liquid (Stokes drag).",
-    "N is Avogadro's number, the quantity the paper sets out to measure.",
+    "Avogadro's number is the quantity the paper sets out to measure.",
     "These are modern teaching equations in SI notation, not a transcription of the printed paper. The paper writes k for the viscosity."
   ],
   "tree": {
@@ -78,8 +78,8 @@
   "notes": [
     {
       "nodeId": "eq-model-bm-diffusivity-molar.op.denominator",
-      "title": "Six pi eta a N",
-      "explanation": "Stokes's drag coefficient for one sphere, times N.",
+      "title": "Six pi eta a N sub A",
+      "explanation": "Stokes's drag coefficient for one sphere, times Avogadro's number.",
       "foundation": "bridge-fractions-ratios"
     },
     {
@@ -175,11 +175,14 @@
       "text": " and "
     },
     {
-      "text": "N",
+      "text": "Avogadro's number",
       "nodeId": "eq-model-bm-diffusivity-molar.t.avogadro"
     },
     {
       "text": "."
     }
-  ]
+  ],
+  "printedGlyphs": {
+    "avogadroConstant": "N_A"
+  }
 }

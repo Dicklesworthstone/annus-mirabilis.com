@@ -64,10 +64,38 @@
         "returnCaption": "Return to the two expansions and their remainders."
       },
       {
+        "kind": "steps",
+        "items": [
+          "Name the pieces. \\(p(x,t)\\) is the density of tracers at position \\(x\\) and time \\(t\\): the chance of finding a tracer between \\(x\\) and a slightly larger \\(x + dx\\) is \\(p(x,t)\\,dx\\). Einstein writes this density as \\(f(x, t)\\) and counts particles rather than chances; the steps below are the same for both.",
+          "\\(\\tau\\) is a short interval of time. During it each tracer moves by a signed displacement \\(\\Delta\\), and \\(\\varphi(\\Delta)\\) is the probability density of that displacement: the chance of a displacement between \\(\\Delta\\) and \\(\\Delta + d\\Delta\\) is \\(\\varphi(\\Delta)\\,d\\Delta\\).",
+          "Two facts about \\(\\varphi\\) are assumed. It is normalized: some displacement certainly happens, so all its chances add up to one, \\(\\int_{-\\infty}^{\\infty}\\varphi(\\Delta)\\,d\\Delta = 1\\). And it is symmetric: a jump to the left is as likely as the same jump to the right, \\(\\varphi(-\\Delta) = \\varphi(\\Delta)\\).",
+          "To be at \\(x\\) at time \\(t + \\tau\\), a tracer must have been at \\(x - \\Delta\\) at time \\(t\\) and then made the displacement \\(\\Delta\\). The chance of that one route is the density at its start times the chance of the jump, \\(p(x - \\Delta, t)\\,\\varphi(\\Delta)\\,d\\Delta\\), because in this model the jump law is the same wherever the tracer starts. Adding over every possible \\(\\Delta\\), from far left to far right, gives the transition relation:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "p(x,t+\\tau)=\\int_{-\\infty}^{\\infty}p(x-\\Delta,t)\\varphi(\\Delta)\\,d\\Delta",
+        "spoken": "The density one interval later is the integral, over every jump, of the density one jump away now, times how likely that jump is.",
+        "equations": ["eq-model-bm-next-density"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The integral sign \\(\\int\\) is that adding-up over every value of \\(\\Delta\\). Both sides can now be simplified, using the assumption that \\(p\\) changes little over one interval \\(\\tau\\) and over one jump \\(\\Delta\\).",
+          "The left side, at fixed position. A short time \\(\\tau\\) later, the density is approximately its present value plus its rate of change in time, \\(\\partial p/\\partial t\\), multiplied by \\(\\tau\\). The curly \\(\\partial\\) marks a partial derivative: a rate of change in one variable while the other is held fixed, here time with position held fixed."
+        ]
+      },
+      {
         "kind": "formula",
         "latex": "p(x,t+\\tau)\\approx p(x,t)+\\tau\\frac{\\partial p}{\\partial t}",
         "spoken": "Keep the density and its first time change on the left.",
         "equations": ["eq-model-bm-taylor-in-time"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The right side, at fixed time. The density a distance \\(\\Delta\\) to the left of \\(x\\) is approximately its value at \\(x\\), minus the slope \\(\\partial p/\\partial x\\) times \\(\\Delta\\), plus half the curvature \\(\\partial^2p/\\partial x^2\\) times \\(\\Delta^2\\). The slope term carries a minus sign because the step is to the left. The curvature term does not, because \\((-\\Delta)^2 = \\Delta^2\\). Here \\(p\\) and its derivatives are all taken at \\(x\\) and \\(t\\)."
+        ]
       },
       {
         "kind": "formula",
@@ -78,19 +106,48 @@
       {
         "kind": "steps",
         "items": [
-          "The time derivative holds position fixed; the spatial derivatives hold time fixed.",
-          "Insert the spatial expansion into the transition integral. The derivatives do not depend on the integration variable \\(\\Delta\\).",
-          "The integral of \\(\\varphi\\) is one, so the first term integrates to \\(p\\).",
-          "For a symmetric \\(\\varphi\\), positive and negative \\(\\Delta\\) contributions cancel in the integral of \\(\\Delta\\varphi\\).",
-          "The remaining second-order contribution is half the second spatial derivative times the mean-square increment.",
-          "Subtract \\(p\\) from both sides and divide by \\(\\tau\\).",
-          "Identify the mean-square increment divided by \\(2\\tau\\) as \\(D\\). This is the retained diffusion law, with the stated approximation conditions."
+          "Put the spatial expansion into the integral and split it into three integrals, one for each term. The density and its derivatives are taken at \\(x\\), so they do not change as \\(\\Delta\\) runs over its values, and each one comes outside its integral.",
+          "First term: \\(p\\) times \\(\\int\\varphi\\,d\\Delta\\), which is \\(p\\) times one, because \\(\\varphi\\) is normalized.",
+          "Second term: \\(-\\partial p/\\partial x\\) times \\(\\int\\Delta\\varphi\\,d\\Delta\\). For a symmetric \\(\\varphi\\), each positive \\(\\Delta\\) is matched by the negative \\(-\\Delta\\) with the same weight, so this integral is zero. That is why there is no drift.",
+          "Third term: \\(\\frac{1}{2}\\,\\partial^2p/\\partial x^2\\) times \\(\\int\\Delta^2\\varphi\\,d\\Delta\\). This integral is the mean-square jump. It is positive, because \\(\\Delta^2\\) is never negative, so symmetry cannot remove it.",
+          "Set the two sides equal: \\(p + \\tau\\,\\partial p/\\partial t \\approx p + \\frac{1}{2}\\,\\frac{\\partial^2p}{\\partial x^2}\\int\\Delta^2\\varphi\\,d\\Delta\\). Subtract \\(p\\) from both sides; normalization is what makes the two \\(p\\) terms cancel. Then divide both sides by \\(\\tau\\): \\(\\partial p/\\partial t\\) is approximately \\(\\frac{1}{2\\tau}\\int\\Delta^2\\varphi\\,d\\Delta\\) times \\(\\partial^2p/\\partial x^2\\).",
+          "The factor in front of the curvature depends only on the jump law and on \\(\\tau\\), not on \\(x\\) or \\(t\\). Give it a name, \\(D\\):"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "D=\\frac{1}{2\\tau}\\int_{-\\infty}^{\\infty}\\Delta^2\\varphi(\\Delta)\\,d\\Delta",
+        "spoken": "D is half the mean-square step divided by the step interval.",
+        "equations": ["eq-model-bm-jump-moment"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "It is the mean-square jump divided by \\(2\\tau\\), the same form as the \\(l^2/(2\\tau)\\) of the previous passage. With that name, what remains is the diffusion equation:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}",
+        "spoken": "The retained equation is the diffusion equation.",
+        "equations": ["eq-model-bm-diffusion-equation"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Read it term by term. Where the density has a peak, its curvature is negative, so \\(\\partial p/\\partial t\\) is negative and the peak falls. Where it has a hollow, the curvature is positive and the hollow fills. \\(D\\) sets how fast.",
+          "What was dropped. The next spatial term carries \\(\\Delta^3\\) and vanishes by symmetry, like the \\(\\Delta\\) term. The first nonzero term left out carries \\(\\Delta^4\\), and on the left the term with \\(\\tau^2\\) was left out. Cutting the expansion there is an approximation. It becomes exact only in a limit where the jumps shrink with the time step so that \\(D\\) stays finite, and the equation describes the density on scales larger than one jump, not individual collisions."
         ]
       },
       {
         "kind": "foundation",
         "id": "integration",
         "returnCaption": "Return to where the jump chances add up to one and the lopsided terms cancel."
+      },
+      {
+        "kind": "foundation",
+        "id": "partial-derivatives",
+        "returnCaption": "Return to the rates of change taken with position or time held fixed."
       },
       {
         "kind": "foundation",

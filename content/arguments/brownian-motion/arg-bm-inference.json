@@ -65,20 +65,51 @@
       {
         "kind": "steps",
         "items": [
-          "Begin with mean square = 2Dt. Divide both sides by 2t, for positive t.",
-          "The result is \\(D = \\langle x^2\\rangle/(2t)\\).",
-          "The separate physical relation is \\(D = RT/(6\\pi\\eta a N)\\). Multiply both sides by \\(6\\pi\\eta a N\\).",
-          "Divide by \\(6\\pi\\eta a D\\) to obtain \\(N = RT/(6\\pi\\eta a D)\\).",
-          "Insert \\(\\langle x^2\\rangle/(2t)\\) for \\(D\\). Dividing by that fraction multiplies by \\(2t/\\langle x^2\\rangle\\).",
-          "Cancel the factor two against six, giving \\(N = RTt/(3\\pi\\eta a\\langle x^2\\rangle)\\).",
-          "Notice that a and N occur as a product in the original relation. Without one, D alone cannot determine the other.",
-          "A simulation using an assumed molecular number can test this inversion’s arithmetic, but cannot independently establish that number in nature."
+          "Start from the displacement law of §4, \\(\\langle x^2\\rangle = 2Dt\\). Here \\(\\langle x^2\\rangle\\) is the mean-square displacement along one axis after an observation time \\(t\\), and \\(D\\) is the tracers’ diffusivity. Divide both sides by \\(2t\\), which is allowed for any positive \\(t\\): \\(D = \\langle x^2\\rangle/(2t)\\).",
+          "Next, the physical relation of the previous passage, \\(D = RT/(6\\pi\\eta aN)\\), where \\(R\\) is the gas constant, \\(T\\) the absolute temperature, \\(\\eta\\) the viscosity (Einstein’s \\(k\\)), \\(a\\) the tracer radius (his \\(P\\)) and \\(N\\) the number of molecules in a mole.",
+          "Solve it for \\(N\\). Multiply both sides by \\(6\\pi\\eta aN\\), giving \\(6\\pi\\eta aND = RT\\). Then divide both sides by \\(6\\pi\\eta aD\\): \\(N = RT/(6\\pi\\eta aD)\\).",
+          "Put the first result in for \\(D\\). Dividing by a fraction is multiplying by its inverse, so dividing by \\(\\langle x^2\\rangle/(2t)\\) multiplies by \\(2t/\\langle x^2\\rangle\\): \\(N = RT \\cdot 2t/(6\\pi\\eta a\\langle x^2\\rangle)\\).",
+          "The 2 above and the 6 below leave a 3 below, since 2/6 = 1/3. Einstein prints this inversion at the end of §5 as \\(N = \\frac{t}{\\lambda_x^2}\\cdot\\frac{RT}{3\\pi kP}\\), with \\(\\lambda_x^2\\) for the mean square, his \\(k\\) for \\(\\eta\\) and his \\(P\\) for \\(a\\). The two results together:"
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "D=\\frac{\\langle x^2\\rangle}{2t},\\qquad N=\\frac{RTt}{3\\pi\\eta a\\langle x^2\\rangle}",
+        "spoken": "Diffusivity is the mean-square displacement divided by twice the time; the molecular number is the gas constant times temperature times time, divided by three pi times viscosity times radius times the mean-square displacement.",
+        "equations": ["eq-model-bm-diffusivity-from-data", "eq-model-bm-avogadro-inference"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Read what each symbol needs. In the formula \\(\\langle x^2\\rangle\\) is the model’s mean square. From a finite set of tracked particles you get an estimate of it, and that estimate has an uncertainty the formula does not show. Rearranging the symbols carries that uncertainty into \\(N\\); it does not remove it.",
+          "\\(R\\), \\(T\\), \\(\\eta\\) and \\(a\\) must each be measured separately, and all in one system of units. The inversion also holds only under the assumptions that gave \\(D = RT/(6\\pi\\eta aN)\\): few, small spheres in a liquid, Stokes’s drag and ideal osmotic pressure. An estimate needs checks of those assumptions as well as its uncertainty.",
+          "The radius matters most. In \\(D = RT/(6\\pi\\eta aN)\\), \\(a\\) and \\(N\\) appear only as the product \\(aN\\). A measured \\(D\\) fixes that product, \\(aN = RT/(6\\pi\\eta D)\\), and nothing more: halve \\(a\\) and double \\(N\\), and \\(D\\) is unchanged. Without an independent radius, the data select a family of compatible pairs rather than one molecular number.",
+          "Run Einstein’s §5 case through the formulas. His inputs are \\(T\\) = 290.15 K (water at 17 °C), \\(\\eta\\) = 1.35 × 10⁻³ Pa·s, \\(a\\) = 5 × 10⁻⁷ m and \\(N\\) = 6 × 10²³, with \\(R\\) = 8.31 J/(mol·K) supplied by this edition. The previous passage found \\(D\\) = 3.16 × 10⁻¹³ m²/s from them, so at \\(t\\) = 1 s the mean square is 6.32 × 10⁻¹³ m², an RMS of 0.795 μm.",
+          "Now invert. \\(RTt\\) = 8.31 × 290.15 × 1 = 2411 J·s/mol. \\(3\\pi\\eta a\\langle x^2\\rangle\\) = 3π × (1.35 × 10⁻³) × (5 × 10⁻⁷) × (6.32 × 10⁻¹³) = 4.02 × 10⁻²¹ J·s. Their quotient is \\(N\\) = 6.0 × 10²³ per mole: the \\(N\\) that went in.",
+          "That checks the arithmetic of the inversion and nothing else. It cannot count molecules, because the mean square fed into it was computed from an assumed \\(N\\). In §5 Einstein ran the relation forward in this way, as a prediction, and printed the inversion for a future measurement to use; he did not estimate \\(N\\) himself.",
+          "The same numbers show the family. With this \\(D\\), the product \\(aN\\) is 3.0 × 10¹⁷ metres per mole. A radius of 0.5 μm gives \\(N\\) = 6 × 10²³; had the radius been 1 μm, the same \\(D\\) would give \\(N\\) = 3 × 10²³. Only an independent measurement of \\(a\\) chooses between them.",
+          "A simulation that uses an assumed molecular number can test this inversion’s arithmetic in the same way, but cannot independently establish that number in nature."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "two-measurements-two-unknowns",
+        "returnCaption": "Return to the radius and the molecular number, which a measured D alone cannot separate."
       },
       {
         "kind": "foundation",
         "id": "mean-variance-rms",
         "returnCaption": "Return to estimating a mean square rather than a squared mean."
+      },
+      {
+        "kind": "foundation",
+        "id": "error-and-inference",
+        "returnCaption": "Return to what a finite sample and independent inputs can identify."
+      },
+      {
+        "kind": "foundation",
+        "id": "unit-system-1905",
+        "returnCaption": "Return to the inversion, where R, η and a must be in one system of units."
       }
     ],
     "margin": [

@@ -58,6 +58,14 @@
         "returnCaption": "Return to the independence and centring assumptions."
       },
       {
+        "kind": "steps",
+        "items": [
+          "Name the pieces. A tracer takes \\(n\\) steps, one in each interval of time \\(\\tau\\). Its \\(i\\)-th step is a signed displacement \\(\\Delta_i\\), where \\(i\\) counts the steps 1, 2, 3 and so on up to \\(n\\). Where it ends, measured from where it started, is the sum of its steps: \\(x = \\Delta_1 + \\Delta_2 + \\ldots + \\Delta_n\\).",
+          "The assumptions, stated once. Each step is centred: its average over many tracers is zero, \\(\\langle\\Delta_i\\rangle = 0\\), so on average it goes neither left nor right. Every step has the same mean square, written \\(l^2\\), so \\(l\\) is the root-mean-square length of one step. And the steps are independent: knowing one step tells you nothing about any other.",
+          "Start with two steps and call them \\(A\\) and \\(B\\). The square of their sum is found by multiplying it out, \\((A+B)(A+B)\\), which gives four products, two of which are the same:"
+        ]
+      },
+      {
         "kind": "formula",
         "latex": "(A+B)^2=A^2+2AB+B^2",
         "spoken": "The square of A plus B contains two squares and twice the cross product.",
@@ -66,13 +74,42 @@
       {
         "kind": "steps",
         "items": [
-          "Let A and B be two signed increments. Both have mean zero.",
-          "Independence gives average \\(AB\\) = average \\(A\\) times average \\(B\\) = 0.",
-          "Averaging the expansion leaves average \\(A^2\\) plus average \\(B^2\\).",
-          "For \\(n\\) increments, each squared increment contributes \\(l^2\\); all pairwise products vanish in the expectation.",
-          "Thus the total mean square is \\(nl^2\\). Since \\(t = n\\tau\\), replace \\(n\\) with \\(t/\\tau\\).",
-          "Name the coefficient \\(l^2/(2\\tau)\\) as \\(D\\). The result becomes \\(2Dt\\).",
-          "Four times t gives four times the mean square. Taking the square root gives twice the RMS."
+          "Average both sides over many tracers. The average of a sum is the sum of the averages, and a fixed number such as 2 can be taken outside an average, so \\(\\langle(A+B)^2\\rangle = \\langle A^2\\rangle + 2\\langle AB\\rangle + \\langle B^2\\rangle\\).",
+          "The middle term is where independence enters. For independent steps, the average of a product is the product of the averages: \\(\\langle AB\\rangle = \\langle A\\rangle\\langle B\\rangle\\). Both steps are centred, so both averages are zero, and \\(\\langle AB\\rangle = 0\\).",
+          "Check this with the simplest walk, where each step is +1 or −1 with equal chance. The four equally likely pairs (+1, +1), (+1, −1), (−1, +1) and (−1, −1) give the products +1, −1, −1, +1, whose average is zero. The squares \\(A^2\\) and \\(B^2\\) are always 1, so the mean square after two steps is 1 + 0 + 1 = 2.",
+          "Three steps work the same way. Multiplying out \\((\\Delta_1+\\Delta_2+\\Delta_3)^2\\) gives three squares, \\(\\Delta_1^2 + \\Delta_2^2 + \\Delta_3^2\\), and three cross terms, \\(2\\Delta_1\\Delta_2 + 2\\Delta_1\\Delta_3 + 2\\Delta_2\\Delta_3\\), one for each pair of different steps. Each cross term averages to zero, for the reason just given.",
+          "For \\(n\\) steps there are \\(n\\) squares and one cross term for every pair of different steps. Every cross term averages to zero. Each square averages to \\(l^2\\), so the \\(n\\) squares together contribute \\(n\\) times \\(l^2\\). In symbols, where \\(\\sum_{i=1}^n\\) means add up for \\(i\\) from 1 to \\(n\\):"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\left\\langle\\left(\\sum_{i=1}^n\\Delta_i\\right)^2\\right\\rangle=\\sum_{i=1}^n\\langle\\Delta_i^2\\rangle=nl^2",
+        "spoken": "The mean square of the sum of independent centred increments is the sum of their mean squares.",
+        "equations": ["eq-model-bm-sum-of-steps"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Now bring in time. Each step takes the interval \\(\\tau\\), so after \\(n\\) steps the elapsed time is \\(t = n\\tau\\). Dividing both sides by \\(\\tau\\), the number of steps is \\(n = t/\\tau\\).",
+          "Replace \\(n\\) in the mean square: \\(\\langle x^2\\rangle = nl^2 = (t/\\tau)\\,l^2\\). Regroup the same factors as \\((l^2/\\tau)\\,t\\): a constant times the elapsed time.",
+          "Write the constant \\(l^2/\\tau\\) as 2 times \\(l^2/(2\\tau)\\), and give \\(l^2/(2\\tau)\\) its own name, \\(D\\), the diffusivity of the walk. The factor 2 is a choice of convention: with it, this \\(D\\) is the same coefficient that appears in the diffusion equation of the next passage. The three statements together:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "t=n\\tau,\\qquad D=\\frac{l^2}{2\\tau},\\qquad\\langle x^2\\rangle=2Dt",
+        "spoken": "Elapsed time is n tau; defining D as ell squared over two tau gives mean-square displacement two D t.",
+        "equations": [
+          "eq-model-bm-walk-time",
+          "eq-model-bm-walk-diffusivity",
+          "eq-model-bm-mean-square-growth"
+        ]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The mean square grows in proportion to time: four times the time gives four times the mean square. The RMS is its square root, and \\(\\sqrt{4} = 2\\), so four times the time gives twice the RMS, not four times. In the ±1 walk, 4 steps give a mean square of 4 and an RMS of 2; 16 steps give a mean square of 16 and an RMS of 4.",
+          "Each assumption did work. If the steps were not centred, \\(\\langle A\\rangle\\langle B\\rangle\\) would not vanish, and the cross terms would add a part growing like \\(n^2\\), the square of a steady drift. If the steps were not independent, \\(\\langle AB\\rangle\\) need not factor at all. If the mean square of a step were infinite, there would be no \\(l^2\\) to add."
         ]
       },
       {

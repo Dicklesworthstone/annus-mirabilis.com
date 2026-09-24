@@ -69,12 +69,25 @@
       {
         "kind": "steps",
         "items": [
-          "For positive \\(t\\), change variable to \\(u = x/\\sqrt{4Dt}\\). Then \\(x = \\sqrt{4Dt}\\,u\\) and \\(dx = \\sqrt{4Dt}\\,du\\).",
-          "The normalization factor cancels the factor in \\(dx\\), leaving \\(\\exp(-u^2)/\\sqrt{\\pi}\\). Its integral is one.",
-          "The first moment vanishes because x times the density is odd: the negative side cancels the positive side.",
-          "For the second moment substitute \\(x^2 = 4Dt\\,u^2\\).",
-          "The normalized integral of \\(u^2\\exp(-u^2)\\) is one half, by integration by parts.",
-          "Multiplying \\(4Dt\\) by one half yields \\(2Dt\\). Taking the nonnegative square root gives \\(\\sqrt{2Dt}\\)."
+          "Set the scene. Every tracer starts at \\(x = 0\\) at time zero, on a line with no walls, with a constant, positive diffusivity \\(D\\) and nothing pushing the tracers one way. Their density \\(p(x,t)\\) then spreads by the diffusion equation of the previous passage. For every positive time \\(t\\), the solution is this bell-shaped curve, a Gaussian:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "p(x,t)=\\frac{e^{-x^2/(4Dt)}}{\\sqrt{4\\pi Dt}}\\quad(t>0)",
+        "spoken": "The point-source solution is the normalized Gaussian density for positive time."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Read its parts. \\(e\\) is the base of natural exponentials, about 2.718, and \\(\\pi\\) is about 3.1416. The exponent \\(-x^2/(4Dt)\\) is zero at \\(x = 0\\) and more negative the farther \\(x\\) is from the start, so the curve is highest at the start and falls away on both sides. The denominator \\(\\sqrt{4\\pi Dt}\\) scales the whole curve so that its total is one, as the next steps check.",
+          "The curve depends on \\(x\\) only through \\(x^2\\), so \\(p(-x,t) = p(x,t)\\): it is symmetric about the start.",
+          "Change variable to make the integrals standard ones. For positive \\(t\\), let \\(u = x/\\sqrt{4Dt}\\). Then \\(x = \\sqrt{4Dt}\\,u\\), \\(x^2 = 4Dt\\,u^2\\) and \\(dx = \\sqrt{4Dt}\\,du\\), and the exponent becomes \\(-u^2\\).",
+          "Total probability. \\(\\int p\\,dx\\) becomes \\(\\frac{1}{\\sqrt{4\\pi Dt}}\\int e^{-u^2}\\sqrt{4Dt}\\,du\\). The two square roots of \\(4Dt\\) cancel, leaving \\(\\frac{1}{\\sqrt\\pi}\\int_{-\\infty}^{\\infty}e^{-u^2}\\,du\\). The Gaussian integral \\(\\int_{-\\infty}^{\\infty}e^{-u^2}\\,du = \\sqrt\\pi\\) is a known result, so the total is one.",
+          "Mean. The mean displacement is \\(\\int x\\,p\\,dx\\). Because \\(p\\) is symmetric, the product \\(x\\,p\\) is odd: its value at \\(-x\\) is minus its value at \\(x\\). The negative side cancels the positive side, and the mean is zero.",
+          "Mean square. \\(\\langle x^2\\rangle = \\int x^2p\\,dx\\). Substitute \\(x^2 = 4Dt\\,u^2\\) and cancel the square roots as before; what remains is \\(4Dt\\) times \\(\\frac{1}{\\sqrt\\pi}\\int u^2e^{-u^2}\\,du\\).",
+          "That last integral is found by integration by parts. Write \\(u^2e^{-u^2}\\) as \\(u\\) times \\(ue^{-u^2}\\), and notice that \\(ue^{-u^2}\\) is the derivative of \\(-\\frac{1}{2}e^{-u^2}\\). Integration by parts moves the derivative across: \\(\\int u^2e^{-u^2}\\,du\\) equals \\(-\\frac{1}{2}ue^{-u^2}\\) evaluated between far left and far right, plus \\(\\frac{1}{2}\\int e^{-u^2}\\,du\\).",
+          "The first part is zero at both ends, because \\(e^{-u^2}\\) falls to zero much faster than \\(u\\) grows. So the integral is \\(\\frac{1}{2}\\sqrt\\pi\\), and divided by \\(\\sqrt\\pi\\) it gives one half:"
         ]
       },
       {
@@ -84,8 +97,33 @@
         "equations": ["eq-model-bm-gaussian-second-moment"]
       },
       {
-        "kind": "paragraph",
-        "text": "To check the density equation directly: the time derivative is \\(p\\) times \\((-1/(2t) + x^2/(4Dt^2))\\). The second spatial derivative is \\(p\\) times \\((-1/(2Dt) + x^2/(4D^2t^2))\\). Multiplying the latter by \\(D\\) gives the former."
+        "kind": "steps",
+        "items": [
+          "So the mean square is \\(4Dt\\) times one half, which is \\(2Dt\\): the same growth in proportion to time that the walk of independent steps gave. Its square root is a length, the RMS displacement along the axis, which Einstein writes \\(\\lambda_x\\). Taking the nonnegative root:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\lambda_x=\\sqrt{\\langle x^2\\rangle}=\\sqrt{2Dt}",
+        "spoken": "Coordinate RMS displacement is the square root of two D t.",
+        "equations": ["eq-model-bm-rms-from-mean-square"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "These are statements about the ensemble. The curve does not say where one tracer will be; it gives the probability of an interval. The probability of a displacement between two positions \\(x_1\\) and \\(x_2\\) is the integral of \\(p\\) from \\(x_1\\) to \\(x_2\\), the area under the curve there.",
+          "For this curve, the interval from \\(-\\lambda_x\\) to \\(+\\lambda_x\\) holds about 68% of the probability (0.6827), and the interval from \\(-2\\lambda_x\\) to \\(+2\\lambda_x\\) about 95% (0.9545), at every positive time. Only the width changes as the curve spreads.",
+          "At \\(t = 0\\) the formula has no meaning: \\(4Dt\\) is zero, and the curve would be infinitely narrow and infinitely tall. The state itself is simple. Every tracer is at the start, so any interval containing the start has probability one and any interval that misses it has probability zero. No finite bell represents that, which is why the formula carries \\((t>0)\\).",
+          "Last, check that the curve obeys the diffusion equation. Write \\(p\\) as a factor \\((4\\pi Dt)^{-1/2}\\) times \\(e^{-x^2/(4Dt)}\\), and take each rate of change with the other variable held fixed.",
+          "Time, with \\(x\\) fixed. The factor contributes \\(-1/(2t)\\) times \\(p\\), because the rate of change of \\(t^{-1/2}\\) is \\(-\\frac{1}{2}t^{-3/2}\\). The exponential contributes \\(x^2/(4Dt^2)\\) times \\(p\\), because the rate of change of \\(-x^2/(4Dt)\\) with \\(t\\) is \\(+x^2/(4Dt^2)\\). By the product rule, \\(\\partial p/\\partial t = p\\,(-1/(2t) + x^2/(4Dt^2))\\).",
+          "Position, with \\(t\\) fixed. The first derivative is \\(\\partial p/\\partial x = p\\,(-x/(2Dt))\\). Differentiate again with the product rule: \\(\\partial^2p/\\partial x^2 = p\\,(x^2/(4D^2t^2)) + p\\,(-1/(2Dt))\\).",
+          "Multiply that by \\(D\\): \\(p\\,(x^2/(4Dt^2) - 1/(2t))\\), the same as the time derivative. So the curve satisfies \\(\\partial p/\\partial t = D\\,\\partial^2p/\\partial x^2\\)."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "integration",
+        "returnCaption": "Return to the integration by parts that gives the one half."
       },
       {
         "kind": "foundation",

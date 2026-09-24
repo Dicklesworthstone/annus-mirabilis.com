@@ -3,46 +3,6 @@
   "measuredAt": "2026-09-24",
   "examined": 42,
   "violators": {
-    "arg-bm-diffusion-equation": {
-      "paper": "brownian-motion",
-      "missing": [
-        "eq-model-bm-next-density",
-        "eq-model-bm-jump-moment",
-        "eq-model-bm-diffusion-equation"
-      ],
-      "wordGap": 0
-    },
-    "arg-bm-diffusivity": {
-      "paper": "brownian-motion",
-      "missing": ["eq-model-bm-diffusivity-molar+eq-model-bm-diffusivity"],
-      "wordGap": 0
-    },
-    "arg-bm-gaussian": {
-      "paper": "brownian-motion",
-      "missing": [
-        "p(x,t)=\\frac{e^{-x^2/(4Dt)}}{\\sqrt{4\\piDt}}\\quad(t>0)",
-        "eq-model-bm-rms-from-mean-square"
-      ],
-      "wordGap": 0
-    },
-    "arg-bm-independent-steps": {
-      "paper": "brownian-motion",
-      "missing": [
-        "eq-model-bm-sum-of-steps",
-        "eq-model-bm-walk-time+eq-model-bm-walk-diffusivity+eq-model-bm-mean-square-growth"
-      ],
-      "wordGap": 0
-    },
-    "arg-bm-inference": {
-      "paper": "brownian-motion",
-      "missing": ["eq-model-bm-diffusivity-from-data+eq-model-bm-avogadro-inference"],
-      "wordGap": 2
-    },
-    "arg-bm-observable": {
-      "paper": "brownian-motion",
-      "missing": ["\\langlex\\rangle=0,\\qquad\\langlex^2\\rangle>0"],
-      "wordGap": 0
-    },
     "arg-lq-classical-allocation": {
       "paper": "light-quanta",
       "missing": [

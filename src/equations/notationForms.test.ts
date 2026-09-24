@@ -205,6 +205,30 @@ describe("printedForm", () => {
       expect(printsValue(twoKappa)).toBe(false);
     });
 
+    test("the record prints N_A, so D = RT/(6πkPN) draws whole in Einstein's letters (p. 559)", () => {
+      // The record's own letters, not the override above: it prints today's N_A for Avogadro's
+      // number (TanElk's option (a)), which is the concordance's target for Einstein's N.
+      const record = JSON.parse(
+        readFileSync(
+          join(ROOT, "content/equations/brownian-motion/eq-model-bm-diffusivity-molar.json"),
+          "utf8",
+        ),
+      );
+      expect(record.printedGlyphs).toEqual({ avogadroConstant: "N_A" });
+      const own = recordQuantities(
+        teachingProfile("brownian-motion")?.quantities ?? {},
+        record.printedGlyphs,
+      );
+      const f = printedForm(record.tree, own, bm, "s5");
+      expect(reasons(f)).toEqual([]);
+      const letters = f.state === "printed" ? f.letters : {};
+      expect(Object.fromEntries(Object.entries(letters).map(([q, l]) => [q, l.latex]))).toEqual({
+        viscosity: "k",
+        particleRadius: "P",
+        avogadroConstant: "N",
+      });
+    });
+
     test("two entries that both print a letter for viscosity are still ambiguous", () => {
       const k = bm.find((e) => e.id === "bm.k.viscosity") as ConcordanceEntry;
       const twin = { ...k, id: "bm.eta.viscosity", glyph: { unicode: "η", latex: "\\eta" } };

@@ -55,13 +55,27 @@
       {
         "kind": "steps",
         "items": [
-          "Choose the common starting point as zero and right as positive.",
-          "Use four displacements, in micrometres: −3, −1, +1, +3.",
-          "Their sum is zero. Divide by four: the signed mean is zero.",
-          "Square each first: 9, 1, 1, 9 square micrometres.",
-          "The squares add to 20. Divide by four: the mean square is 5 square micrometres.",
-          "Take the square root: the RMS is approximately 2.236 micrometres.",
-          "The mean distance is instead (3 + 1 + 1 + 3) / 4 = 2 micrometres. These are different questions, not inconsistent answers."
+          "Put every tracer’s starting point at zero and measure along one line, the \\(x\\)-axis, with right as positive and left as negative. After the same observation time, each tracer’s displacement \\(x\\) is a signed number: where it is now minus where it started.",
+          "The angle brackets stand for an average over the whole ensemble of tracers the model describes: \\(\\langle x\\rangle\\) is the average of the signed displacement, and \\(\\langle x^2\\rangle\\) is the average of its square, the mean square.",
+          "Take four displacements, in micrometres: −3, −1, +1, +3. As many went left as right, and by the same amounts, so they stand in for a centred distribution.",
+          "Their sum is (−3) + (−1) + (+1) + (+3) = 0: the two leftward numbers cancel the two rightward ones. Divide by four: the signed mean is zero.",
+          "The signed mean says where the centre of the group has moved, and here it has not moved at all. It says nothing about how far the members have spread out from that centre.",
+          "Square each displacement first. A negative number times itself is positive, so the squares are 9, 1, 1, 9 square micrometres, and now nothing can cancel.",
+          "The squares add to 20. Divide by four: the mean square is 5 square micrometres. It is positive although the signed mean was zero, which is the statement of the formula:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\langle x\\rangle=0,\\qquad\\langle x^2\\rangle>0",
+        "spoken": "The model’s mean displacement can be zero while its mean-square displacement is positive."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "In the formula both averages belong to the model, over its whole ensemble. Four numbers drawn at random from such a model would give a signed mean near zero rather than exactly zero; these four were chosen to cancel exactly, so that the arithmetic stays easy to follow.",
+          "The mean square is measured in square micrometres, an area, not a length. To return to a length, take the square root: \\(\\sqrt{5}\\) is approximately 2.236, so the root-mean-square displacement, or RMS, is about 2.236 micrometres.",
+          "The mean distance, ignoring direction, is a third average: (3 + 1 + 1 + 3) / 4 = 2 micrometres, the mean absolute displacement. RMS and mean distance weigh the large displacements differently, so 2.236 and 2 answer different questions. They are not inconsistent answers.",
+          "Neither average is the length of the path a tracer wandered along. A tracer that moves 2 micrometres right and then 1 micrometre left ends 1 micrometre from its start, having travelled 3. The squares record where the tracers ended up, not how far they walked on the way."
         ]
       },
       {

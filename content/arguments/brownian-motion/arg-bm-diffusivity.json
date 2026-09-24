@@ -73,14 +73,64 @@
       {
         "kind": "steps",
         "items": [
-          "Name the quantities: \\(T\\) is absolute temperature, \\(\\eta\\) dynamic viscosity, \\(a\\) tracer radius, \\(R\\) molar gas constant, and \\(N\\) molecular number per mole.",
-          "Mobility \\(b\\) is drift speed divided by force. Stokes drag supplies \\(b = 1/(6\\pi\\eta a)\\).",
-          "The isothermal ideal osmotic-pressure relation is Π = cRT/N, where c counts tracers per volume.",
-          "Differentiate with respect to position: the gradient of Π is (RT/N) times the gradient of c.",
-          "Mechanical balance gives cF equal to that pressure gradient. Multiply by b to obtain the drift flux.",
-          "Fick’s law gives the opposing diffusive flux as −D times the gradient of c.",
-          "Zero total flux for this balance gives \\(D = bRT/N\\). Substitute the Stokes mobility.",
-          "Holding \\(T\\), radius and constants fixed, doubling \\(\\eta\\) halves \\(D\\). The RMS displacement at a fixed time then falls by \\(\\sqrt{2}\\), not by two."
+          "Name the quantities. \\(T\\) is the absolute temperature, in kelvin. \\(\\eta\\) is the liquid’s dynamic viscosity, its resistance to flow, in pascal seconds. \\(a\\) is the radius of the spherical tracer. \\(R\\) is the molar gas constant, and \\(N\\) is the number of molecules in a mole. Einstein prints the viscosity as \\(k\\) and the radius as \\(P\\); his \\(k\\) is the viscosity, not Boltzmann’s constant.",
+          "\\(D\\) is the diffusivity of the earlier passages: it says how fast the mean square grows, \\(\\langle x^2\\rangle = 2Dt\\). This passage asks what fixes \\(D\\). The route has two halves: how a tracer answers a steady push, and how the crowding of many tracers pushes back.",
+          "First half, the push. Suppose a small steady force \\(F\\) acts on each tracer. In a viscous liquid the tracer soon moves at a steady mean drift speed in proportion to the force. Call the ratio of speed to force the mobility \\(b\\), so the drift speed is \\(bF\\).",
+          "Stokes’s law gives the drag on a sphere moving slowly at speed \\(v\\) through a liquid as \\(6\\pi\\eta av\\). At steady drift the drag balances the push, \\(F = 6\\pi\\eta av\\), so \\(v = F/(6\\pi\\eta a)\\) and the mobility is \\(b = 1/(6\\pi\\eta a)\\). Stokes’s law is brought in from the theory of fluids; the random-walk argument does not supply it."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "viscosity-stokes-drag",
+        "returnCaption": "Return to where the sphere's drag sets its mobility."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Second half, the crowding. Let \\(c\\) be the number of tracers per unit volume, which Einstein writes \\(\\nu\\). Few, small tracers in a liquid exert an osmotic pressure, written here Π, of the same form as an ideal gas’s pressure: Π = cRT/N. Dividing \\(R\\) by \\(N\\) turns the gas constant per mole into a constant per molecule.",
+          "Let the density vary along \\(x\\). A gradient is the rate at which a quantity changes with position. With \\(T\\) held fixed, only \\(c\\) varies in cRT/N, so the constant factor comes outside: the gradient of Π is \\(RT/N\\) times the gradient of \\(c\\).",
+          "In a steady balance, the force on the tracers in a thin slab is held by the difference in osmotic pressure across it. Per unit volume that reads: \\(cF\\) equals the gradient of Π, which is \\(RT/N\\) times the gradient of \\(c\\). This osmotic law, like Stokes’s, is brought in from outside; conservation of tracers alone does not give it."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "free-energy-osmotic-pressure",
+        "returnCaption": "Return to where the osmotic pressure balances the force on each grain."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Now count flows. A flux is the number of tracers crossing unit area in unit time. Tracers drifting at speed \\(bF\\) with density \\(c\\) carry the drift flux \\(c\\,bF\\). Multiply the balance of the last step by \\(b\\): the drift flux is \\(b\\,(RT/N)\\) times the gradient of \\(c\\).",
+          "Fick’s law gives the diffusive flux: tracers spread from crowded to sparse regions, and the flux is \\(-D\\) times the gradient of \\(c\\), with the minus sign because the flow runs down the gradient.",
+          "In the balance nothing flows overall, so the two fluxes add to zero: \\(b\\,(RT/N)\\) times the gradient, minus \\(D\\) times the gradient, is zero. Divide by the gradient, which is not zero where the density varies: \\(D = bRT/N\\).",
+          "Substitute the Stokes mobility \\(b = 1/(6\\pi\\eta a)\\): \\(D = (RT/N) \\times 1/(6\\pi\\eta a)\\), which is \\(RT\\) divided by \\(6\\pi\\eta aN\\). Einstein found this in §3 and quotes it at the start of §5 as \\(D = \\frac{RT}{N}\\frac{1}{6\\pi kP}\\), with his \\(k\\) for \\(\\eta\\) and his \\(P\\) for \\(a\\).",
+          "Boltzmann’s constant \\(k_B\\) equals \\(R/N\\), the gas constant per molecule. Replacing \\(R/N\\) by \\(k_B\\) gives the second form. Both are one relation:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "D=\\frac{RT}{6\\pi\\eta aN}=\\frac{k_BT}{6\\pi\\eta a}",
+        "spoken": "Stokes–Einstein diffusivity is the gas constant times temperature, divided by six pi times viscosity times radius times Avogadro's number; equivalently, Boltzmann's constant times temperature, divided by six pi times viscosity times radius.",
+        "equations": ["eq-model-bm-diffusivity-molar", "eq-model-bm-diffusivity"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Which form to use depends on the question. To predict a spread from modern constants, the \\(k_B\\) form is convenient. To infer \\(N\\) from a spread, it defeats the point: a value of \\(k_B\\) derived from a known \\(N\\) would put the answer into the data. The \\(R\\) form keeps \\(N\\) separate, because \\(R\\) can be measured on gases without counting molecules."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "temperature-thermal-energy",
+        "returnCaption": "Return to where Boltzmann's constant and R/N turn out to be one quantity."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Einstein’s own numbers, from §5: water at 17 °C, so \\(T\\) = 290.15 K; the viscosity printed as \\(k\\) = 1,35 · 10⁻², a bare number that in the centimetre-gram-second units of the time means poise, and is 1.35 × 10⁻³ Pa·s; a particle diameter printed as 0,001 mm, so \\(a\\) = 0.0005 mm = 5 × 10⁻⁷ m; and \\(N\\) = 6 × 10²³ from the kinetic theory of gases. The paper does not print \\(R\\); this edition supplies \\(R\\) = 8.31 J/(mol·K).",
+          "The denominator: 6π × (1.35 × 10⁻³ Pa·s) × (5 × 10⁻⁷ m) = 1.272 × 10⁻⁸ kg/s. The numerator: \\(RT/N\\) = 8.31 × 290.15 / (6 × 10²³) = 4.019 × 10⁻²¹ J. Their quotient is \\(D\\) = 3.16 × 10⁻¹³ m²/s, since a joule divided by a kilogram per second is a square metre per second.",
+          "With \\(\\lambda_x = \\sqrt{2Dt}\\) from §4: at \\(t\\) = 1 s the mean square is \\(2Dt\\) = 6.32 × 10⁻¹³ m², whose square root is 7.95 × 10⁻⁷ m, about 0.8 μm. Einstein prints “8 · 10⁻⁵ cm = 0,8 Mikron”. At \\(t\\) = 60 s the mean square is 60 times larger, so \\(\\lambda_x\\) is \\(\\sqrt{60}\\), about 7.75, times larger: 6.16 μm, which Einstein gives as about 6 micrometres in one minute.",
+          "Now double the viscosity, holding \\(T\\), \\(a\\) and the constants fixed. \\(\\eta\\) sits in the denominator, so \\(D\\) halves, to 1.58 × 10⁻¹³ m²/s, and the mean square at a fixed time halves with it. The RMS is a square root, so it changes by a factor \\(1/\\sqrt{2}\\), about 0.707: at 1 s it falls from 0.795 μm to 0.562 μm. Doubling the viscosity divides the RMS displacement by \\(\\sqrt{2}\\), not by two."
         ]
       },
       {
