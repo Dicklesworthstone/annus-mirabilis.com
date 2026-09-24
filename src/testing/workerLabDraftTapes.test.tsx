@@ -1,11 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { TracerLab } from "../components/lab/TracerLab.tsx";
 import { WaveDescriptionLab } from "../components/lab/WaveDescriptionLab.tsx";
+import { BM01_DRAFT_TAPE } from "../experiments/bm01/draftTape.ts";
+import type { PreparedBm01Example } from "../experiments/bm01/session.ts";
 import { LQ01_DRAFT_TAPE } from "../experiments/lq01/draftTape.ts";
 import type { PreparedLq01Example } from "../experiments/lq01/session.ts";
 import { encodeTapePermalink } from "../experiments/permalink/codec.ts";
 import { type DraftTapeBinding, draftTapeForSettings } from "../experiments/permalink/draftTape.ts";
+import rawBm01Example from "../generated/bm01-example.json";
 import rawLq01Example from "../generated/lq01-example.json";
 import { createContainer, installDom, removeContainer, uninstallDom } from "./reactDom.ts";
 
@@ -27,10 +31,10 @@ async function openShared(
   settings: Record<string, unknown>,
   element: ReturnType<typeof createElement>,
   field: string,
-): Promise<{ value: string; root: Element | null; text: string }> {
+): Promise<{ value: string; root: Element | null; text: string; shares: boolean }> {
   const tape = draftTapeForSettings(binding, settings);
   expect(tape).not.toBeNull();
-  if (!tape) return { value: "", root: null, text: "" };
+  if (!tape) return { value: "", root: null, text: "", shares: false };
   window.history.replaceState(null, "", `/lab/${lab}/?tape=${encodeTapePermalink(tape)}`);
   const container = createContainer();
   const root = createRoot(container);
@@ -51,6 +55,7 @@ async function openShared(
       value: read(),
       root: lab ? (lab.cloneNode(false) as Element) : null,
       text: container.textContent ?? "",
+      shares: container.querySelector("[data-share-form]") !== null,
     };
   } finally {
     await act(async () => {
@@ -81,5 +86,58 @@ describe("a worker laboratory's shared link fills the form and calculates nothin
     // Still the build's worked example: no calculation was requested.
     expect(opened.root?.getAttribute("data-input-revision")).toBe("1");
     expect(opened.root?.getAttribute("data-pending")).toBe("false");
+    expect(opened.shares).toBe(true);
+  });
+
+  test("BM-01: the seed field shows the shared seed, the reader is told to apply, and no worker starts", async () => {
+    const example = rawBm01Example as unknown as PreparedBm01Example;
+    expect(BM01_DRAFT_TAPE.defaults.seed).toBe("1905");
+    const opened = await openShared(
+      "bm-01",
+      BM01_DRAFT_TAPE,
+      { ...BM01_DRAFT_TAPE.defaults, seed: "2024" },
+      createElement(TracerLab, { example }),
+      'input[id$="-seed"]',
+    );
+    expect(opened.value).toBe("2024");
+    expect(opened.text).toContain(
+      "The shared link's settings are in the form. Apply them to calculate.",
+    );
+    expect(opened.text).not.toContain("This tracer link is incomplete or unsupported");
+    expect(opened.root?.getAttribute("data-pending")).toBe("false");
+    // The linked laboratory offers the tape's share control, the one the unlinked one must not.
+    expect(opened.shares).toBe(true);
+  });
+
+  test("BM-01: the page's second, unlinked ensemble neither reads the link nor offers one", async () => {
+    const example = rawBm01Example as unknown as PreparedBm01Example;
+    const tape = draftTapeForSettings(BM01_DRAFT_TAPE, {
+      ...BM01_DRAFT_TAPE.defaults,
+      seed: "2024",
+    });
+    expect(tape).not.toBeNull();
+    if (!tape) return;
+    window.history.replaceState(null, "", `/lab/bm-01/?tape=${encodeTapePermalink(tape)}`);
+    const container = createContainer();
+    const root = createRoot(container);
+    try {
+      await act(async () => {
+        root.render(createElement(TracerLab, { example, linked: false }));
+      });
+      for (let i = 0; i < 20; i++) {
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 10));
+        });
+      }
+      expect(container.querySelector<HTMLInputElement>('input[id$="-seed"]')?.value).toBe("1905");
+      expect(container.textContent).not.toContain("The shared link's settings are in the form.");
+      expect(container.querySelector("[data-share-form]")).toBeNull();
+    } finally {
+      await act(async () => {
+        root.unmount();
+      });
+      removeContainer(container);
+      window.history.replaceState(null, "", "/");
+    }
   });
 });

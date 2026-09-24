@@ -7,11 +7,13 @@ import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
 import { BM01_FIELDS, fromTracerDraft, toTracerDraft } from "../../experiments/bm01/controls.ts";
 import { BM01_CAPTION, type Bm01Parameters } from "../../experiments/bm01/definition.ts";
-import { decodeBm01Settings, encodeBm01Settings } from "../../experiments/bm01/permalink.ts";
+import { BM01_DRAFT_TAPE } from "../../experiments/bm01/draftTape.ts";
+import { decodeBm01Settings } from "../../experiments/bm01/permalink.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import type { ExecutionStateKind } from "../../experiments/provenance/executionState.ts";
 import { FRANKENSIM_BROWNIAN_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
@@ -20,7 +22,7 @@ import equationPayload from "../../generated/bm01-equations.json";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -63,6 +65,7 @@ export function TracerLab({
   equationScope,
   equationScopeLabel,
   session: sharedSession,
+  linked = true,
 }: {
   example: PreparedBm01Example;
   instanceId?: string | undefined;
@@ -75,6 +78,11 @@ export function TracerLab({
    * owns its own, as on /lab/bm-01/. Either way there is one owner per instance.
    */
   session?: ReturnType<typeof createBm01Session> | undefined;
+  /**
+   * Whether this laboratory reads a shared ?tape= link and offers one. The page's optional second
+   * ensemble is independent of the link, so it does neither.
+   */
+  linked?: boolean;
 }) {
   const generatedId = useId();
   const id = explicitInstanceId ?? generatedId;
@@ -99,8 +107,12 @@ export function TracerLab({
     [dirty, setDirty] = useState(false),
     [error, setError] = useState(""),
     [note, setNote] = useState(""),
-    [url, setUrl] = useState(""),
     [zoom, setZoom] = useState(1);
+  // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
+  const tapeLink = useDraftTapeLink(BM01_DRAFT_TAPE, p, linked, (settings) => {
+    setDraft(toTracerDraft(settings as unknown as Bm01Parameters));
+    setDirty(true);
+  });
   // The tracer paths and the controls come first; the spread the prompts ask about waits.
   const gate = usePredictGate("bm-01", BM01_PROMPTS);
   useEffect(() => {
@@ -152,17 +164,6 @@ export function TracerLab({
       setError(
         "A new random seed is unavailable on this device. Enter a different seed explicitly.",
       );
-    }
-  }
-  async function share() {
-    const link = new URL("/lab/bm-01/", window.location.origin);
-    link.search = encodeBm01Settings(session.acceptedParameters());
-    setUrl(link.href);
-    try {
-      await navigator.clipboard.writeText(link.href);
-      setNote("The accepted trial settings were copied.");
-    } catch {
-      setNote("Copy the accepted trial link from the field below.");
     }
   }
   const announcement = view.pending
@@ -750,22 +751,8 @@ export function TracerLab({
             </tbody>
           </table>
         </details>
-        <button type="button" className="secondary" disabled={!ready} onClick={() => void share()}>
-          Share accepted trial
-        </button>
         {note && <p className="notice">{note}</p>}
-        {url && (
-          <div className="share-field">
-            <label htmlFor={`${id}-share`}>Accepted trial link</label>
-            <input
-              id={`${id}-share`}
-              type="text"
-              readOnly
-              value={url}
-              onFocus={(e) => e.target.select()}
-            />
-          </div>
-        )}
+        {linked && <LabTapeLink link={withPredictions(tapeLink, gate)} />}
       </section>
     </EquationScope>
   );
@@ -790,6 +777,7 @@ export function TracerComparison({ example }: { example: PreparedBm01Example }) 
           title="A separate tracer ensemble"
           equationScope="compare"
           equationScopeLabel="comparison ensemble"
+          linked={false}
         />
       )}
     </>

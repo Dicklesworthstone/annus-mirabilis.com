@@ -100,7 +100,7 @@ import { WaveDescriptionLab } from "./WaveDescriptionLab.tsx";
  */
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
- * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-01, BM-04, BM-05, BM-07,
+ * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-04, BM-05, BM-07,
  * BM-08 and SR-03 share none (their worker runner is not written), and BM-02 and LQ-02 have no tape binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
  * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
@@ -118,7 +118,7 @@ const LABS: readonly GatedLab[] = [
     element: () =>
       createElement(TracerLab, { example: rawBm01Example as unknown as PreparedBm01Example }),
     result: "Whole-ensemble statistics",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {

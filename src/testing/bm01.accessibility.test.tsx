@@ -69,7 +69,9 @@ describe("bm01.accessibility: Keyboard Navigation & Usability (AC 13)", () => {
     expect(html).toContain("Observe at 1 second");
     expect(html).toContain("Observe at 4 seconds");
     expect(html).toContain("Toggle view magnification");
-    expect(html).toContain("Share accepted trial");
+    // The tape's share control replaced "Share accepted trial" (38999). It is drawn after
+    // hydration, so a reader without JavaScript gets no button that cannot work.
+    expect(html).not.toContain("Share accepted trial");
   });
 
   test("screen-reader status announcement has role='status' with polite aria-live", () => {
