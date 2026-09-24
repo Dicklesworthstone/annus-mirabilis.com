@@ -2,13 +2,14 @@ import { createHash } from "node:crypto";
 import type { RightsStatus } from "../../content/provenance/receiptSchema.ts";
 
 /**
- * The three ways /sources/ refuses to build, each with a code (as FirstPagesError does for the home
+ * The ways /sources/ refuses to build, each with a code (as FirstPagesError does for the home
  * page). Each one stops the export rather than publishing a page that says something false.
  */
 export type SourcesErrorCode =
   | "receipt-unparsed"
   | "rights-wording-missing"
-  | "served-digest-mismatch";
+  | "served-digest-mismatch"
+  | "receipt-page-unknown";
 
 export class SourcesError extends Error {
   readonly code: SourcesErrorCode;
