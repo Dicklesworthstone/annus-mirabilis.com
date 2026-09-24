@@ -39,8 +39,28 @@ export class ExerciseDefinitionError extends TypeError {
     this.code = code;
   }
 }
+/**
+ * What a reader can do next when the checker gives no verdict. The two outcomes differ: the first
+ * means the checker cannot read the answer, the second that it could not find enough places to
+ * compare it, and neither says whether the answer is right.
+ */
+export const NEXT_ACTION = Object.freeze({
+  "unsupported-expression":
+    "This says nothing about whether your answer is right. Rewrite it with the functions above and check again.",
+  "could-not-compare":
+    "This says nothing about whether your answer is right. The worked explanation below compares the two by hand.",
+});
+
 export type AnswerVerdict =
   | Readonly<{ kind: "parse-error"; position: number; message: string }>
+  | Readonly<{
+      kind: "unsupported-expression";
+      /** The function the checker does not read, for example "tan". */
+      name: string;
+      position: number;
+      message: string;
+      nextAction: string;
+    }>
   | Readonly<{ kind: "dimension"; message: string; readAs: string }>
   | Readonly<{
       kind: "checked";
@@ -261,6 +281,14 @@ export async function checkExerciseAnswer(
     if (!normalized.ok)
       return { kind: "parse-error", position: normalized.position, message: normalized.message };
     const reader = parse(normalized.text, new Set(p.declaredNames));
+    if (!reader.ok && reader.unsupported)
+      return {
+        kind: "unsupported-expression",
+        name: reader.unsupported,
+        position: reader.position,
+        message: reader.message,
+        nextAction: NEXT_ACTION["unsupported-expression"],
+      };
     if (!reader.ok)
       return { kind: "parse-error", position: reader.position, message: reader.message };
     const reference = parse(p.referenceSource, new Set(p.declaredNames));

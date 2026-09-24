@@ -16,7 +16,40 @@ export type Expr =
   | Readonly<{ kind: "binary"; op: "+" | "-" | "*" | "/" | "^"; left: Expr; right: Expr }>
   | Readonly<{ kind: "call"; name: FunctionName; arg: Expr }>;
 
-export type ParseError = Readonly<{ ok: false; position: number; message: string }>;
+export type ParseError = Readonly<{
+  ok: false;
+  position: number;
+  message: string;
+  /** Set when the reader wrote a real function this checker does not read (UNSUPPORTED_FUNCTIONS). */
+  unsupported?: string;
+}>;
+
+/** −a for a name or number, −(a) for anything longer, so a rewrite reads as a person writes it. */
+function negated(a: string): string {
+  return /^[A-Za-z0-9_.]+$/.test(a) ? `-${a}` : `-(${a})`;
+}
+
+/**
+ * Functions a reader may reasonably type that this checker does not read, each with a rewrite in
+ * functions it does read, or null where there is none. Telling a reader who wrote tan(x) that
+ * "'tan' is not a declared variable" misdescribes the answer: the function is real and the limit
+ * is the checker's. Every rewrite is checked numerically against the function it replaces
+ * (unsupported.test.ts), so the advice cannot drift from the mathematics.
+ */
+export const UNSUPPORTED_FUNCTIONS: Readonly<Record<string, ((arg: string) => string) | null>> =
+  Object.freeze({
+    tan: (a) => `sin(${a})/cos(${a})`,
+    log10: (a) => `ln(${a})/ln(10)`,
+    sinh: (a) => `(exp(${a}) - exp(${negated(a)}))/2`,
+    cosh: (a) => `(exp(${a}) + exp(${negated(a)}))/2`,
+    tanh: (a) => `(exp(${a}) - exp(${negated(a)}))/(exp(${a}) + exp(${negated(a)}))`,
+    arcsin: null,
+    asin: null,
+    arccos: null,
+    acos: null,
+    arctan: null,
+    atan: null,
+  });
 export type ParseSuccess = Readonly<{
   ok: true;
   expr: Expr;
@@ -133,6 +166,24 @@ class Parser {
 
   private peek(): Token {
     return this.tokens[this.pos] as Token;
+  }
+
+  /** A real function the checker does not read: name it, and say how to write it instead. */
+  private unsupported(tok: Token, depth: number): ParseError {
+    this.advance();
+    const arg = this.parseExpression(depth + 1);
+    const close = isParseError(arg) ? null : this.advance();
+    // The reader's own argument, echoed so it can be pasted back; a generic u if it did not parse.
+    const a = isParseError(arg) || close?.type !== "rparen" ? "u" : echo(arg);
+    const reads = `This checker does not read ${tok.value}. It reads ${ALLOWED_FUNCTIONS.slice(0, -1).join(", ")} and ${ALLOWED_FUNCTIONS.at(-1)}.`;
+    const rewrite = UNSUPPORTED_FUNCTIONS[tok.value];
+    const message =
+      tok.value === "log"
+        ? `${reads} log can mean a logarithm to base e or to base 10: write ln(${a}) for the natural logarithm, or ln(${a})/ln(10) for base 10.`
+        : rewrite
+          ? `${reads} ${tok.value}(${a}) can be written ${rewrite(a)}.`
+          : `${reads} Write the answer without ${tok.value}, or compare it with the worked explanation below.`;
+    return { ok: false, position: tok.position, message, unsupported: tok.value };
   }
 
   private advance(): Token {
@@ -285,6 +336,14 @@ class Parser {
         return this.node({ kind: "call", name: tok.value as FunctionName, arg });
       }
       if (!this.declaredNames.has(tok.value)) {
+        if (tok.value === "log" || Object.hasOwn(UNSUPPORTED_FUNCTIONS, tok.value))
+          if (this.peek().type === "lparen") return this.unsupported(tok, depth);
+        // The site's e is the elementary charge, never Euler's number (the bead's rule).
+        if (tok.value === "e")
+          return fail(
+            tok.position,
+            "'e' is not a name in this exercise, and this checker never reads it as Euler's number: for e raised to a power, write exp(…), so e^x is exp(x).",
+          );
         return fail(
           tok.position,
           `'${tok.value}' is not a declared variable or constant for this exercise.`,

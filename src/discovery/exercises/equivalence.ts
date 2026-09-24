@@ -42,7 +42,7 @@ export function checkEquivalence(
       (tolerance.relativeTo !== undefined &&
         !["reference", "larger"].includes(tolerance.relativeTo))
     )
-      return unable("The exercise has an invalid tolerance specification.");
+      return unable("This exercise's settings are invalid: its tolerance cannot be used.");
     const groups = [
       { name: "boundary", points: boundaryPoints(domains), minimum: 0 },
       { name: "Halton", points: haltonPoints(domains, CANDIDATE_POOL), minimum: MIN_ACCEPTED },
@@ -65,15 +65,17 @@ export function checkEquivalence(
         const actual = evaluate(reader, point);
         if (actual.status !== "value") {
           const at =
-            names.map((name) => `${name}=${point[name]}`).join(", ") || "the constant input";
+            names.map((name) => `${name} = ${point[name]}`).join(", ") || "the constant input";
+          // Not skipped: dropping points where only the reader's expression fails would let x/x
+          // pass for 1 on a range containing zero.
           return unable(
-            `Your expression is undefined or nonfinite at ${at}, where the reference is finite. This point cannot be discarded.`,
+            `Your expression cannot be evaluated at ${at}, where the reference has a value, so this point cannot be set aside.`,
           );
         }
         const compared = withinTolerance(actual.value, expected.value, tolerance);
         if (compared.kind === "invalid-spec")
           return unable(
-            `The exercise tolerance cannot compare this point: ${compared.issues.map((i) => i.message).join(" ")}`,
+            `This exercise's tolerance cannot compare this point: ${compared.issues.map((i) => i.message).join(" ")}`,
           );
         if (!compared.ok)
           return {
@@ -87,8 +89,9 @@ export function checkEquivalence(
       }
       const minimum = names.length ? group.minimum : 1;
       if (accepted.size < minimum)
+        // The family name stays out of reader copy; the count and the need do not.
         return unable(
-          `Only ${accepted.size} distinct ${group.name} points had finite reference values; ${minimum} are required. Check the domain and numeric resolution.`,
+          `Only ${accepted.size} of the sample points gave the reference a value, and ${minimum} are needed for a comparison.`,
         );
     }
     return {

@@ -44,7 +44,7 @@ test("a formula undefined on half the reference domain cannot pass by skipping t
 test("a cancelled denominator cannot hide a domain hole at zero", () => {
   const result = check(b("/", x, x), n(1), { x: { min: -1, max: 1 } });
   assert.equal(result.status, "could-not-compare");
-  assert.match(result.reason, /cannot be discarded/);
+  assert.match(result.reason, /cannot be evaluated at x = 0, where the reference has a value/);
 });
 test("sqrt(x*x) is not x on a domain including negative values", () => {
   assert.equal(

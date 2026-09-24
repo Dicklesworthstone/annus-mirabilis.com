@@ -7,6 +7,7 @@ import {
   checkExerciseAnswer,
   type ExpressionExercisePart,
   exerciseRenderKey,
+  NEXT_ACTION,
 } from "../../discovery/exercises/answer.ts";
 import type { DomainProbeOutcome } from "../../discovery/exercises/domainProbe.ts";
 import { Sci } from "../lab/Sci.tsx";
@@ -94,6 +95,12 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
           At position {verdict.position}: {verdict.message}
         </p>
       )}
+      {verdict?.kind === "unsupported-expression" && (
+        <div className="exercise-verdict" role="status">
+          <p>{verdict.message}</p>
+          <p>{verdict.nextAction}</p>
+        </div>
+      )}
       {verdict?.kind === "dimension" && (
         <div className="exercise-verdict" role="status">
           <p>
@@ -127,7 +134,13 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
             </p>
           )}
           {verdict.outcome.status === "could-not-compare" && (
-            <p>Could not compare: {verdict.outcome.reason}</p>
+            <>
+              <p>
+                The checker could not compare your answer with the reference.{" "}
+                {verdict.outcome.reason}
+              </p>
+              <p>{NEXT_ACTION["could-not-compare"]}</p>
+            </>
           )}
         </div>
       )}
