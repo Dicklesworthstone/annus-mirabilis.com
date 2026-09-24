@@ -56,20 +56,24 @@ struct EditionContentsView: View {
     // MARK: Papers
 
     private var papers: some View {
-        List(catalog.papers) { paper in
-            NavigationLink {
-                outline(paper)
-            } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(paper.name).font(.headline)
-                    Text(paper.title).font(.subheadline)
-                    Text(Self.german(paper.germanTitle)).font(.footnote).italic().foregroundStyle(Color("MutedInk"))
+        CatalogScreen(list: catalog.papers) { records in
+            List {
+                CatalogRecords(records: records) { paper in
+                    NavigationLink {
+                        outline(paper)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(paper.name).font(.headline)
+                            Text(paper.title).font(.subheadline)
+                            Text(Self.german(paper.germanTitle)).font(.footnote).italic().foregroundStyle(
+                                Color("MutedInk"))
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
-                .padding(.vertical, 4)
+                .editionPaperRow()
             }
-            .editionPaperRow()
         }
-        .onEditionPaper()
     }
 
     private func outline(_ paper: NativeCatalog.Paper) -> some View {
@@ -86,7 +90,7 @@ struct EditionContentsView: View {
             }
             .editionPaperRow()
             Section {
-                ForEach(paper.sections) { section in
+                CatalogRecords(records: paper.sections) { section in
                     Button {
                         go(section.route, section.anchor)
                     } label: {
@@ -104,19 +108,23 @@ struct EditionContentsView: View {
     // MARK: Discover
 
     private var discover: some View {
-        List(catalog.discover) { route in
-            NavigationLink {
-                steps(route)
-            } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(route.name).font(.headline)
-                    Text(Self.german(route.germanTitle)).font(.footnote).italic().foregroundStyle(Color("MutedInk"))
+        CatalogScreen(list: catalog.discover) { records in
+            List {
+                CatalogRecords(records: records) { route in
+                    NavigationLink {
+                        steps(route)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(route.name).font(.headline)
+                            Text(Self.german(route.germanTitle)).font(.footnote).italic().foregroundStyle(
+                                Color("MutedInk"))
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
-                .padding(.vertical, 4)
+                .editionPaperRow()
             }
-            .editionPaperRow()
         }
-        .onEditionPaper()
     }
 
     private func steps(_ route: NativeCatalog.DiscoverRoute) -> some View {
@@ -150,25 +158,29 @@ struct EditionContentsView: View {
     // MARK: Instruments
 
     private var instruments: some View {
-        List(catalog.labs) { group in
-            Section {
-                ForEach(group.instruments) { instrument in
-                    Button {
-                        go(instrument.route)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(instrument.name).foregroundStyle(Color("PageInk"))
-                            Text(instrument.id).font(.caption.monospaced()).foregroundStyle(Color("MutedInk"))
+        CatalogScreen(list: catalog.labs) { records in
+            List {
+                CatalogRecords(records: records) { group in
+                    Section {
+                        CatalogRecords(records: group.instruments) { instrument in
+                            Button {
+                                go(instrument.route)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(instrument.name).foregroundStyle(Color("PageInk"))
+                                    Text(instrument.id).font(.caption.monospaced()).foregroundStyle(
+                                        Color("MutedInk"))
+                                }
+                            }
+                            .accessibilityLabel(instrument.name)
                         }
+                    } header: {
+                        Text(group.name).foregroundStyle(Color("MutedInk"))
                     }
-                    .accessibilityLabel(instrument.name)
                 }
-            } header: {
-                Text(group.name).foregroundStyle(Color("MutedInk"))
+                .editionPaperRow()
             }
-            .editionPaperRow()
         }
-        .onEditionPaper()
     }
 
     /// German titles are marked as German, so VoiceOver reads them in German.
@@ -176,6 +188,65 @@ struct EditionContentsView: View {
         var german = AttributedString(text)
         german.languageIdentifier = "de"
         return german
+    }
+}
+
+/// One screen's list as `content` draws it, or, when the list could not be read at all, a notice
+/// for this screen only; the other screens keep theirs.
+struct CatalogScreen<Value: Decodable & Sendable & Equatable, Content: View>: View {
+    let list: CatalogList<Value>
+    @ViewBuilder let content: ([CatalogRecord<Value>]) -> Content
+
+    var body: some View {
+        Group {
+            switch list {
+            case .loaded(let records):
+                content(records)
+            case .failed(let reason):
+                ContentUnavailableView {
+                    Label("This part of the edition could not be loaded", systemImage: "exclamationmark.triangle")
+                } description: {
+                    CatalogReason(reason: reason)
+                }
+            }
+        }
+        .onEditionPaper()
+    }
+}
+
+/// Each record as `row` draws it, and a record that could not be read as one row saying so, so the
+/// rest of the list still opens.
+struct CatalogRecords<Value: Decodable & Sendable & Equatable, Row: View>: View {
+    let records: [CatalogRecord<Value>]
+    @ViewBuilder let row: (Value) -> Row
+
+    var body: some View {
+        ForEach(Array(records.enumerated()), id: \.offset) { _, record in
+            switch record {
+            case .available(let value):
+                row(value)
+            case .unavailable(let key, let reason):
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("This entry could not be loaded.").foregroundStyle(Color("MutedInk"))
+                    CatalogReason(reason: key.map { "\($0): \(reason)" } ?? reason)
+                }
+                .accessibilityElement(children: .combine)
+            }
+        }
+    }
+}
+
+/// Why a record or list failed, in DEBUG builds only: a reader has no use for a decoding path, and a
+/// developer needs it.
+struct CatalogReason: View {
+    let reason: String
+
+    var body: some View {
+        #if DEBUG
+            Text(reason).font(.caption.monospaced()).foregroundStyle(Color("MutedInk"))
+        #else
+            EmptyView()
+        #endif
     }
 }
 
