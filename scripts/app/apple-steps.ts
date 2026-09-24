@@ -30,6 +30,10 @@ export const APPLE_STEPS = [
     id: "apple-harness-evidence",
     title: "Apple: a seeded failing UI test leaves every evidence item",
   },
+  {
+    id: "apple-release-absence",
+    title: "Apple: a Release build carries none of the test-only code",
+  },
 ] as const;
 
 export type AppleStepId = (typeof APPLE_STEPS)[number]["id"];

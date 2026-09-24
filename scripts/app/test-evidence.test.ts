@@ -14,6 +14,7 @@ import {
   evidenceFolderName,
   failureRecord,
   gatherEvidence,
+  launchInstant,
   ORIENTATION_ATTACHMENT,
   pngSize,
   SCREENSHOT_ATTACHMENT,
@@ -70,6 +71,15 @@ function fixture(
   );
   const app = join(root, "AMTestEvidence");
   const folder = join(app, "HarnessUITests_testSeededFailureRetainsEvidence");
+  // An earlier run's launch of the same test: the app's container outlives a run.
+  write(
+    join(folder, "20260924T110000.000", "events.jsonl"),
+    line({ kind: "console", at: "2026-09-24T11:00:00.000Z", level: "log", message: "last run" }),
+  );
+  write(
+    join(folder, "20260924T110000.000", "dom.html"),
+    "<!-- am-test-evidence old run -->\n<html>",
+  );
   write(
     join(folder, "20260924T120000.000Z", "events.jsonl"),
     line({ kind: "launch", at: "2026-09-24T12:00:00.000Z", test: "HarnessUITests/x" }),
@@ -107,7 +117,10 @@ function fixture(
       windows.push({ start, end });
       return '{"eventMessage":"console"}\n';
     },
-    fallbackWindow: { start: new Date(0), end: new Date(1) },
+    runWindow: {
+      start: new Date("2026-09-24T11:59:30.000Z"),
+      end: new Date("2026-09-24T12:05:00Z"),
+    },
   });
   const xcresult = join(root, "run.xcresult");
   mkdirSync(xcresult);
@@ -125,6 +138,16 @@ describe("the evidence folder name", () => {
       assert.equal(evidenceFolderName(entry.xcresult), entry.folder, entry.xcresult);
       assert.equal(evidenceFolderName(entry.launch), entry.folder, entry.launch);
     }
+  });
+});
+
+describe("a launch folder's time", () => {
+  it("is read as UTC, with or without the zone letter, and anything else is no time", () => {
+    assert.equal(launchInstant("20260924T120009.975"), Date.parse("2026-09-24T12:00:09.975Z"));
+    assert.equal(launchInstant("20260924T120009.9Z"), Date.parse("2026-09-24T12:00:09.900Z"));
+    assert.equal(launchInstant("20260924T120009"), Date.parse("2026-09-24T12:00:09.000Z"));
+    assert.equal(launchInstant("unnamed"), null);
+    assert.equal(launchInstant("2026-09-24T12:00:09Z"), null);
   });
 });
 
@@ -150,7 +173,13 @@ describe("gathering and checking a failing test's evidence", () => {
       ["xcresult", "screenshot", "dom", "console", "runtime events", "no reader data", "app log"],
     );
     assert.match(readFileSync(join(dest, "dom.html"), "utf8"), /kramgasse-night/, "the newest DOM");
-    assert.equal(readFileSync(join(dest, "events.jsonl"), "utf8").trim().split("\n").length, 3);
+    const events = readFileSync(join(dest, "events.jsonl"), "utf8");
+    assert.equal(
+      events.trim().split("\n").length,
+      3,
+      "this run's two launches, not the earlier run's",
+    );
+    assert.doesNotMatch(events, /last run/);
     // The log window runs from a second before the first event to five after the last.
     assert.deepEqual(
       windows.map((w) => [w.start.toISOString(), w.end.toISOString()]),
@@ -190,7 +219,7 @@ describe("gathering and checking a failing test's evidence", () => {
       testIdentifier: TEST,
       dest,
       appLog: () => "",
-      fallbackWindow: { start: new Date(0), end: new Date(1) },
+      runWindow: { start: new Date(0), end: new Date(1) },
     });
     assert.deepEqual(
       checkEvidence(dest, join(root, "absent.xcresult"))

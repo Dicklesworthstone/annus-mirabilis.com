@@ -47,6 +47,13 @@ import {
 } from "./generate-app-icon.ts";
 import { recordedIdentity } from "./identity.ts";
 import {
+  appExecutables,
+  markersIn,
+  RELEASE_CONTROLS,
+  releaseAbsenceVerdict,
+  TEST_ONLY_MARKERS,
+} from "./release-absence.ts";
+import {
   ensureSimulators,
   planSimulators,
   readSimulatorSpecs,
@@ -587,7 +594,7 @@ function keepEvidence(
       testIdentifier: test.id,
       dest,
       appLog: (start, end) => (bundleId === null ? "" : appLog(udid, bundleId, start, end)),
-      fallbackWindow: window,
+      runWindow: window,
     });
     const items = checkEvidence(dest, xcresultPath);
     try {
@@ -616,6 +623,57 @@ function keepEvidence(
     kept.set(test.id, items);
   }
   return kept;
+}
+
+/**
+ * Builds the Release configuration into its own DerivedData, so the DEBUG products the tests use
+ * are untouched, and searches both builds for the test-only markers (scripts/app/release-absence.ts).
+ */
+function releaseAbsence(): StepVerdict {
+  const releaseData = `${DERIVED_DATA_PATH}-release`;
+  if (isInsideRepository(REPO, releaseData)) {
+    return {
+      outcome: "failed",
+      message: `DerivedData ${releaseData} is inside the repository. Refusing.`,
+    };
+  }
+  const udid = gateDeviceUdid();
+  const build = run(
+    "xcodebuild",
+    [
+      "-project",
+      "AnnusMirabilis.xcodeproj",
+      "-scheme",
+      "AnnusMirabilis",
+      "-configuration",
+      "Release",
+      "-destination",
+      udid === null ? `platform=iOS Simulator,name=${DEVICE}` : `id=${udid}`,
+      "-derivedDataPath",
+      releaseData,
+      "build",
+    ],
+    IOS,
+  );
+  if (build.status !== 0) {
+    return {
+      outcome: "failed",
+      message: `xcodebuild Release build exit ${build.status}`,
+      details: { lastOutput: lastLines(build.output, 200) },
+    };
+  }
+  const products = (data: string, configuration: string) =>
+    join(data, "Build", "Products", `${configuration}-iphonesimulator`, "AnnusMirabilis.app");
+  const debugFiles = appExecutables(products(DERIVED_DATA_PATH, "Debug"));
+  const releaseFiles = appExecutables(products(releaseData, "Release"));
+  return releaseAbsenceVerdict({
+    markers: TEST_ONLY_MARKERS,
+    debugFiles,
+    releaseFiles,
+    foundInDebug: markersIn(debugFiles, TEST_ONLY_MARKERS),
+    foundInRelease: markersIn(releaseFiles, TEST_ONLY_MARKERS),
+    controlsInRelease: markersIn(releaseFiles, RELEASE_CONTROLS),
+  });
 }
 
 /** The app's data container on the simulator, or null when the app is not installed there. */
@@ -920,6 +978,8 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
       ]);
     case "apple-harness-evidence":
       return seededFailureLane(logRunId);
+    case "apple-release-absence":
+      return releaseAbsence();
   }
 }
 

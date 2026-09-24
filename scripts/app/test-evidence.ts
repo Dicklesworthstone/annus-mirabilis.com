@@ -4,8 +4,9 @@
  * artifacts/test-logs/app-evidence/<logRunId>/<test folder>/:
  * - `screen.png` and `orientation.txt`: what HarnessObserver attached at the test's first issue,
  *   exported from the .xcresult;
- * - `events.jsonl` and `dom.html`: what the app kept in its data container (TestEvidence.swift), the
- *   events of every launch the test made, oldest first, and the newest launch's DOM;
+ * - `events.jsonl` and `dom.html`: what the app kept in its data container (TestEvidence.swift): the
+ *   events of every launch the test made in this run, oldest first, and the newest launch's DOM.
+ *   The container outlives a run, so a launch folder older than the run is left out;
  * - `app-log.ndjson`: the app's own log lines for the test's window, from the simulator's log.
  *
  * `checkEvidence` says which items a folder holds and which it lacks, and `failureRecord` writes the
@@ -44,6 +45,25 @@ export function evidenceFolderName(testIdentifier: string): string {
   return id === "" ? "unnamed" : id.replace(/[^A-Za-z0-9._-]/g, "_");
 }
 
+/**
+ * A launch folder's instant. TestEvidence names it in UTC, as 20260924T120009.975 (measured on the
+ * simulator, 2026-09-24: no zone letter). Null for any other name.
+ */
+export function launchInstant(name: string): number | null {
+  const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(?:\.(\d{1,3}))?Z?$/.exec(name);
+  if (m === null) return null;
+  const [, y, mo, d, h, mi, s, ms] = m;
+  return Date.UTC(
+    Number(y),
+    Number(mo) - 1,
+    Number(d),
+    Number(h),
+    Number(mi),
+    Number(s),
+    Number((ms ?? "0").padEnd(3, "0")),
+  );
+}
+
 /** A PNG's pixel size from its header, or null when the bytes are not a PNG. */
 export function pngSize(bytes: Uint8Array): { width: number; height: number } | null {
   const signature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -69,8 +89,11 @@ export type GatherOptions = {
   readonly dest: string;
   /** The app's log lines between two instants, as ndjson. */
   readonly appLog: (start: Date, end: Date) => string;
-  /** The window when the app kept no events: the whole run. */
-  readonly fallbackWindow: { readonly start: Date; readonly end: Date };
+  /**
+   * The run's own window. A launch folder from before it belongs to an earlier run and is left out,
+   * and when the app kept no events it is the log's window.
+   */
+  readonly runWindow: { readonly start: Date; readonly end: Date };
 };
 
 /** Copies a failing test's evidence into `dest`. Nothing is removed from where it came from. */
@@ -99,8 +122,11 @@ export function gatherEvidence(options: GatherOptions): void {
       ? []
       : (() => {
           const folder = join(appEvidenceDir, evidenceFolderName(testIdentifier));
+          // A launch that began before the run is an earlier run's; a second of slack for clocks.
+          const since = options.runWindow.start.getTime() - 1000;
           return existsSync(folder)
             ? readdirSync(folder)
+                .filter((launch) => (launchInstant(launch) ?? Number.NEGATIVE_INFINITY) >= since)
                 .sort()
                 .map((launch) => join(folder, launch))
             : [];
@@ -123,9 +149,8 @@ export function gatherEvidence(options: GatherOptions): void {
     .map((line) => Date.parse(String((JSON.parse(line) as { at?: unknown }).at)))
     .filter((time) => Number.isFinite(time));
   const start =
-    instants.length > 0 ? new Date(Math.min(...instants) - 1000) : options.fallbackWindow.start;
-  const end =
-    instants.length > 0 ? new Date(Math.max(...instants) + 5000) : options.fallbackWindow.end;
+    instants.length > 0 ? new Date(Math.min(...instants) - 1000) : options.runWindow.start;
+  const end = instants.length > 0 ? new Date(Math.max(...instants) + 5000) : options.runWindow.end;
   writeFileSync(join(dest, "app-log.ndjson"), options.appLog(start, end));
 }
 
