@@ -111,6 +111,9 @@ export function ShowTheCode({
   equationCard,
   uid = "stc",
 }: ShowTheCodeProps) {
+  // No pinned listing, no disclosure. With none, "Show the code" opened onto an empty box on five
+  // labs (the 2026-09-24 reality check), a control promising source that is not there.
+  if (listings.length === 0) return null;
   /*
     ONE COLOUR PER QUANTITY, here as in the equations (owner's ruling, 2026-09-22). The listing's
     paper is read from its equation or instrument id, and an identifier or trace row takes that

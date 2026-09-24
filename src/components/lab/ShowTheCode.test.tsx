@@ -198,3 +198,19 @@ describe("ShowTheCode", () => {
     });
   });
 });
+
+describe("no pinned listing, no disclosure", () => {
+  test("ShowTheCode with no listing renders nothing", () => {
+    expect(renderToStaticMarkup(<ShowTheCode listings={[]} />)).toBe("");
+  });
+
+  test("a lab whose instrument has no pinned listing draws no empty 'Show the code' box", async () => {
+    // SR-11 asks getKernelListingsForInstrument("sr-11"), which has no entry: until this, its page
+    // carried a "Show the code" disclosure that opened onto nothing.
+    const { MovingMirrorLab } = await import("./sr11/MovingMirrorLab.tsx");
+    const { DEFAULT_PREPARED_EXAMPLE } = await import("../../experiments/sr11/session.ts");
+    const html = renderToStaticMarkup(<MovingMirrorLab example={DEFAULT_PREPARED_EXAMPLE} />);
+    expect(html).not.toContain('class="show-the-code"');
+    // ShowTheCodeColour.test.tsx holds the other side: BM-01, with pinned listings, still draws it.
+  });
+});
