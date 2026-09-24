@@ -409,7 +409,7 @@ export function ClockSyncLab({
         <p className="predict-question">{SR01_PREDICT_MOVING_PAIR.question}</p>
         <div className="predict-options" role="radiogroup">
           {SR01_PREDICT_MOVING_PAIR.candidates.map((c) => (
-            <label key={c.id} className="predict-candidate">
+            <label key={c.id} className="lab-predict-candidate">
               <input
                 type="radio"
                 name={`predict-moving-pair-${id}`}
