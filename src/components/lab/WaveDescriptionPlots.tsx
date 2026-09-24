@@ -1,5 +1,5 @@
 import type { Lq01Parameters } from "../../experiments/lq01/definition.ts";
-import { fixed } from "./presentation.ts";
+import { display, fixed } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 
 /*
@@ -10,6 +10,23 @@ import { Sci } from "./Sci.tsx";
  * waveDescriptionLab.css, and a label that needs its own colour sets it as a style, which does
  * beat the rule.
  */
+/**
+ * A phase as a multiple of π, and in degrees, for the readouts. A typed phase has no upper bound,
+ * and toFixed writes exponential notation from 10²¹ up: a phase of 10³⁰⁰ rad read
+ * "3.183098861837907e+299π". From a million up the value is written in powers of ten instead.
+ */
+export function phaseInPi(delta: number): string {
+  const multiple = delta / Math.PI;
+  return Math.abs(multiple) < 1e6 ? multiple.toFixed(2) : display(multiple);
+}
+
+/** The same phase in degrees, or null where the conversion overflows a double. */
+export function phaseInDegrees(delta: number): string | null {
+  const degrees = delta * (180 / Math.PI);
+  if (!Number.isFinite(degrees)) return null;
+  return Math.abs(degrees) < 1e6 ? degrees.toFixed(0) : display(degrees);
+}
+
 const PROBE_LABEL: Readonly<Record<Lq01Parameters["screenPosition"], string>> = {
   center: "centre",
   "first-min": "first dark fringe",
@@ -109,7 +126,7 @@ export function InterferencePlot({
                 fontFamily: "var(--font-mono, monospace)",
               }}
             >
-              (δ = {(delta / Math.PI).toFixed(2)}π)
+              (δ = {phaseInPi(delta)}π)
             </span>
           )}
         </h3>
@@ -348,7 +365,7 @@ export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontP
             color: "var(--muted)",
           }}
         >
-          d = {separation.toFixed(1)} λ · δ = {(delta / Math.PI).toFixed(2)}π
+          d = {separation.toFixed(1)} λ · δ = {phaseInPi(delta)}π
         </span>
       </div>
       <p

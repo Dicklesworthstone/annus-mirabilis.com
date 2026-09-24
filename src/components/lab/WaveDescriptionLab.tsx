@@ -24,7 +24,13 @@ import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { SliderField } from "./SliderField.tsx";
 import { withScripts } from "./subscripts.tsx";
-import { InterferencePlot, SpreadingPlot, WavefrontPlot } from "./WaveDescriptionPlots.tsx";
+import {
+  InterferencePlot,
+  phaseInDegrees,
+  phaseInPi,
+  SpreadingPlot,
+  WavefrontPlot,
+} from "./WaveDescriptionPlots.tsx";
 import "./waveDescriptionLab.css";
 
 export type WaveDescriptionLabProps = Readonly<{
@@ -207,7 +213,8 @@ export function WaveDescriptionLab({
   const interference = p.mode === "interference";
   const prompt = interference ? LQ01_PROMPTS["phase-shift"] : LQ01_PROMPTS["inverse-square"];
   const chosen = selectedCandidates[prompt.id];
-  const phaseReadout = `${(p.delta / Math.PI).toFixed(2)}π rad, ${(p.delta * (180 / Math.PI)).toFixed(0)}°`;
+  const phaseDegrees = phaseInDegrees(p.delta);
+  const phaseReadout = `${phaseInPi(p.delta)}π rad${phaseDegrees === null ? "" : `, ${phaseDegrees}°`}`;
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
