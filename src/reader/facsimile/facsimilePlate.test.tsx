@@ -147,8 +147,12 @@ describe("the panel renders the initial page's plate", () => {
     expect(img).toContain(`${PLATE_DIR}/639.webp 640w, ${PLATE_DIR}/639-1280.webp 1280w`);
     expect(img).toContain('alt="Printed page 639 of the pinned journal scan"');
     expect(img).toContain('loading="lazy"');
-    // The frame is still in the page; CSS decides which one a width shows.
-    expect(html).toContain("data-facsimile-frame");
+    // With plates there is no PDF frame at any width: a browser's PDF viewer would expose the
+    // scan's machine-read text layer as selectable, searchable text (fb34b4ed).
+    expect(html).not.toContain("data-facsimile-frame");
+    expect(html).not.toContain("<iframe");
+    // The pinned PDF itself stays one link away.
+    expect(html).toContain('href="/papers/pdfs/ap-18-639.pdf#page=1"');
   });
   test("a section opens its plate at the section's first page", async () => {
     // s0-p6 is recorded on pages 640 and 641, so section s0 opens at 640.
@@ -159,6 +163,8 @@ describe("the panel renders the initial page's plate", () => {
     const html = panelHtml(await loaded([]));
     expect(html).not.toContain("data-facsimile-plate");
     expect(html).not.toContain("<img");
+    // With nothing else to show, the frame is the viewer.
+    expect(html).toContain("data-facsimile-frame");
   });
 });
 

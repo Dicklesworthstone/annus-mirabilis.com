@@ -90,9 +90,12 @@ describe("the inline facsimile on a reading page", () => {
       // The viewer itself, not the loading notice: its root class is the one the standalone
       // facsimile page renders.
       expect(mount.querySelector(".facsimile-reader")).not.toBeNull();
-      expect(mount.querySelector(".facsimile-reader iframe")?.getAttribute("src")).toContain(
-        "/papers/pdfs/ap-18-639.pdf",
-      );
+      // Mass-energy has page plates, so the viewer is the first page's plate and there is no PDF
+      // frame to expose the scan's text layer (fb34b4ed).
+      expect(
+        mount.querySelector(".facsimile-reader [data-facsimile-plate]")?.getAttribute("src"),
+      ).toContain("/figures/plates/pages/ap-18-639/");
+      expect(mount.querySelector(".facsimile-reader iframe")).toBeNull();
     } finally {
       act(() => root?.unmount());
       globalThis.fetch = realFetch;
