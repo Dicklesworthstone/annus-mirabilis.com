@@ -4,7 +4,7 @@
  * them; tests plant a missing dispatcher case and illegal catalogue ids.
  */
 
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import yaml from "js-yaml";
 import {
@@ -24,6 +24,7 @@ import {
   parsePresetId,
   parseTapeId,
 } from "../ids.ts";
+import { type OwnerFunction, ownerTestIndex } from "./ownerTests.ts";
 import { type AuditFinding, type AuditReport, summarize } from "./types.ts";
 
 export const INSTRUMENT_COLUMNS = [
@@ -252,6 +253,8 @@ export function loadLiveInstrumentRows(
 ): readonly InstrumentAuditRow[] {
   const targetIds = options?.ids ?? CATALOGUE_IDS;
   const rows: InstrumentAuditRow[] = [];
+  // Read every test file once; each lab below asks which of them import its owner functions.
+  const ownerTests = ownerTestIndex(rootDir);
 
   for (const id of targetIds) {
     const core = /^(lq|bm|sr|me)-\d{2}$/.test(id);
@@ -266,7 +269,7 @@ export function loadLiveInstrumentRows(
     let probes: string[] = [];
     let notModeled: string[] = [];
     let tapeModelId: string | undefined;
-    let ownerTest = false;
+    let ownerFunctions: OwnerFunction[] = [];
     // No manifest, no evidence: these start empty and are filled only from the manifest itself.
     let actionContracts = 0;
     let predictEnabled = false;
@@ -333,6 +336,18 @@ export function loadLiveInstrumentRows(
               ? predMode.reason
               : undefined;
           if (typeof parsed.embeddable === "boolean") embeddable = parsed.embeddable;
+          const owner = parsed.owner as { kernelFunctions?: unknown } | undefined;
+          if (Array.isArray(owner?.kernelFunctions)) {
+            ownerFunctions = owner.kernelFunctions.flatMap((fn: unknown) => {
+              const { module, exportName } = (fn ?? {}) as {
+                module?: unknown;
+                exportName?: unknown;
+              };
+              return typeof module === "string" && typeof exportName === "string"
+                ? [{ module, exportName }]
+                : [];
+            });
+          }
           // The manifests declare their action contracts as `actions`. This read `actionContracts`,
           // a key no manifest uses, and defaulted to 1, so every lab passed the column unread
           // (am-instrument-audit-defaults-pass-50bl).
@@ -346,22 +361,11 @@ export function loadLiveInstrumentRows(
       }
     }
 
-    const compactId = id.replace("-", "");
-    const expDir = resolve(rootDir, "src/experiments", compactId);
-    if (existsSync(expDir)) {
-      try {
-        const files = readdirSync(expDir);
-        if (files.some((f) => f.includes(".test."))) {
-          ownerTest = true;
-        }
-      } catch {
-        ownerTest = false;
-      }
-    }
-    if (!ownerTest) {
-      const directTest = resolve(rootDir, `src/experiments/${id}.test.ts`);
-      if (existsSync(directTest)) ownerTest = true;
-    }
+    // A lab has an owner test when a test file, wherever it lives, imports one of the owner
+    // functions its manifest names (src/content/audits/ownerTests.ts). Until 2026-09-24 this looked
+    // for any test in src/experiments/<compact id>/, which missed the 25 labs tested from
+    // src/testing/ and beside the reference evaluators, and credited a test whatever it imported.
+    const ownerTest = ownerFunctions.some((fn) => ownerTests.testsOf(fn).length > 0);
 
     if (!core && !predictEnabled && !predictExemptionReason) {
       predictExemptionReason = "In-preparation non-core discovery desk";

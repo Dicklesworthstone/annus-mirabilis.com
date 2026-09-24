@@ -131,44 +131,8 @@ const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
     "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
   ],
   [
-    "bm-03",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "bm-04",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "bm-06",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "bm-07",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "bm-08",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
     "light-thread",
     "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "lq-01",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "lq-05",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "lq-07",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "lq-08",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
   ],
   [
     "lq-09",
@@ -199,48 +163,8 @@ const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
     "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
   ],
   [
-    "sr-03",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
     "sr-04",
     "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 3 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "sr-05",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "sr-06",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "sr-07",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "sr-08",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "sr-09",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "sr-10",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "sr-11",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "sr-12",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "sr-13",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
   ],
 ]);
 
