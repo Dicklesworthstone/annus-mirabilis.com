@@ -148,14 +148,39 @@
   color: var(--ink);
 }
 
+/* The centre-of-mass readout in the 1906 box: green when the shift is exactly zero, red when it
+   is not. Its words say which as well. Each colour has a light and a dark value that stands at
+   4.5:1 or better on the paper and wash of its theme. The single values it had failed one theme
+   each: the green, #16a34a, at 3.18:1 on light paper and the red, #dc2626, at 3.35:1 on dark. */
 .telemetry-value-fixed {
-  color: #16a34a;
+  --me03-exact: #166534;
+  color: var(--me03-exact);
   font-weight: 700;
 }
 
 .telemetry-value-violation {
-  color: #dc2626;
+  --me03-violation: #b91c1c;
+  color: var(--me03-violation);
   font-weight: 700;
+}
+
+:root[data-theme="kramgasse-night"] .telemetry-value-fixed {
+  --me03-exact: #22c55e;
+}
+
+:root[data-theme="kramgasse-night"] .telemetry-value-violation {
+  --me03-violation: #f87171;
+}
+
+/* Without JavaScript the pre-paint script never sets data-theme; these repeat the two above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .telemetry-value-fixed {
+    --me03-exact: #22c55e;
+  }
+
+  :root:not([data-theme]) .telemetry-value-violation {
+    --me03-violation: #f87171;
+  }
 }
 
 /* Representation scale section */
