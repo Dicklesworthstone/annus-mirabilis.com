@@ -35,6 +35,11 @@
       {
         "kind": "paragraph",
         "text": "The light is outside the body after emission. Both accounts conserve energy when body and emitted light are included. Different frame totals are compatible with conservation; conservation compares before and after within one frame, not the numerical energies of different frames."
+      },
+      {
+        "kind": "foundation",
+        "id": "conservation-symmetry",
+        "returnCaption": "Return to the two accounts of the same loss, each balanced in its own frame."
       }
     ],
     "steps": [

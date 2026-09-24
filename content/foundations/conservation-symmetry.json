@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "conservation-symmetry",
+  "title": "Conservation and symmetry",
+  "question": "When an experiment is turned, moved or watched from a moving frame, what should stay the same?",
+  "summary": "A symmetry is a change that leaves the measured outcome unchanged: turning the apparatus, moving it, or describing it from a moving frame. Some numbers do change between frames, such as an energy, while the relations between them hold in each frame. Telling the two apart is most of the work.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Turn an apparatus to face another way, move it to another bench, or run it tomorrow instead of today, and it gives the same result. Each of those changes is a symmetry of the experiment: a change of setting that leaves the measured outcome unchanged. The relativity paper's first postulate adds one more: describing the experiment from a frame in uniform motion leaves the laws in the same form."
+    },
+    {
+      "kind": "paragraph",
+      "text": "What stays the same is often a relation, not a number. The second postulate is a relation kept in both frames: light moves at the same speed c. §3 of the paper checks it on a flash from the origin. A sphere of light, \\(x^2 + y^2 + z^2 = c^2t^2\\), is also a sphere in the moving frame, with the moving frame's own coordinates."
+    },
+    {
+      "kind": "formula",
+      "latex": "x^2 + y^2 + z^2 = c^2 t^2 \\quad\\text{and}\\quad x'^2 + y'^2 + z'^2 = c^2 t'^2",
+      "spoken": "x squared plus y squared plus z squared equals c squared t squared, and the same with every coordinate primed."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Conservation works the same way. An energy is not the same number in every frame, but in each frame the energy before equals the energy after. The mass-energy paper uses exactly this. A body at rest sends out two equal pulses of light, L in all, in opposite directions. Seen from a frame moving along the pulses, the pulses carry different energies, and their total is γL rather than L. Each frame keeps its own balance, and comparing the two balances is the whole argument."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Modern texts add one more quantity that every frame agrees on: \\(c^2\\Delta t^2 - \\Delta x^2\\) for any two events, the spacetime interval. It is a useful check on a calculation, and its home is Minkowski's geometry of 1908. It is not a premise of the 1905 route, which starts from the two postulates."
+    }
+  ],
+  "exampleTitle": "Two pulses from 0.6c, and one interval checked",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "In the body's frame, two pulses of energy \\(L/2\\) leave in opposite directions along x: \\(L/2 + L/2 = L\\) leaves the body.",
+        "From a frame moving at 0.6c along x, where γ = 1.25, a pulse sent along the motion carries \\(\\frac{L}{2}\\gamma\\left(1 - \\frac{v}{c}\\right) = 0.5L \\times 1.25 \\times 0.4 = 0.25L\\), and the pulse sent back carries \\(0.5L \\times 1.25 \\times 1.6 = L\\).",
+        "Their total is \\(1.25L = \\gamma L\\), not L. Each frame's account still balances, because each is compared only with itself, before and after.",
+        "The interval as a check: two events at the same time 10 light-seconds apart have \\(c^2\\Delta t^2 - \\Delta x^2 = 0 - 100 = -100\\) square light-seconds. From 0.6c they are 7.5 seconds and 12.5 light-seconds apart, and \\(7.5^2 - 12.5^2 = 56.25 - 156.25 = -100\\) again."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:quantities-units",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:functions-graphs",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:frames-events",
+      "kind": "cross-link"
+    },
+    {
+      "foundationId": "foundation:matrices-linear-maps",
+      "kind": "cross-link"
+    }
+  ],
+  "stoppingPoint": "A symmetry is a change that leaves the measured outcome unchanged. This lesson stops at naming what stays the same; showing why it must is the papers' work.",
+  "citations": ["ap-17-891", "ap-18-639"]
+}

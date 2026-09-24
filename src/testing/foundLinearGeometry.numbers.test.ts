@@ -202,6 +202,37 @@ describe("dot and cross products", () => {
   });
 });
 
+describe("conservation and symmetry", () => {
+  const text = lessonText("conservation-symmetry");
+  const speedRatio = 0.6;
+  const gamma = 1 / Math.sqrt(1 - speedRatio ** 2);
+
+  test("two pulses of L/2 from 0.6c carry 0.25L and L, a total of γL = 1.25L", () => {
+    // The mass-energy paper's pulse energy, (L/2)γ(1 ∓ (v/c) cos φ), along the motion and against it.
+    const forward = 0.5 * gamma * (1 - speedRatio);
+    const back = 0.5 * gamma * (1 + speedRatio);
+    close(forward, 0.25);
+    close(back, 1);
+    close(forward + back, gamma);
+    expect(text).toContain(`= ${forward.toFixed(2)}L, and the pulse sent back carries`);
+    expect(text).toContain(`${(forward + back).toFixed(2)}L = \\gamma L`);
+  });
+
+  test("the interval of two simultaneous events 10 light-seconds apart is −100 in both frames", () => {
+    const [dt, dx] = [0, 10];
+    const dtPrime = gamma * (dt - speedRatio * dx);
+    const dxPrime = gamma * (dx - speedRatio * dt);
+    close(dt ** 2 - dx ** 2, -100);
+    close(dtPrime ** 2 - dxPrime ** 2, -100);
+    expect(text).toContain("7.5^2 - 12.5^2 = 56.25 - 156.25 = -100");
+  });
+
+  test("the interval is labelled a modern check, never a premise of the 1905 route", () => {
+    expect(text).toContain("Minkowski's geometry of 1908");
+    expect(text).toContain("It is not a premise of the 1905 route");
+  });
+});
+
 describe("the β rule, over every lesson of the cluster that exists", () => {
   const present = CLUSTER.filter((id) => existsSync(path(id)));
 
