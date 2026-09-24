@@ -12,6 +12,7 @@ import {
   type Sr05Parameters,
 } from "../../../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../../../experiments/sr05/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import "./sr05.css";
@@ -102,6 +103,7 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
       className="laboratory"
       aria-labelledby={`${instanceId}-title`}
       data-testid="moving-clocks-lab"
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "properTime")}
     >
       <header className="lab-heading">

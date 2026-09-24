@@ -25,6 +25,7 @@ import {
   evaluateSr04,
   type PreparedSr04Example,
 } from "../../../experiments/sr04/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
@@ -179,6 +180,7 @@ export function LorentzMapLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "candidateResiduals")}
     >
       <header className="lab-heading">

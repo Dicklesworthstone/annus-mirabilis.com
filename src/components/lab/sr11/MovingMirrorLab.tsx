@@ -15,6 +15,7 @@ import {
   type Sr11Parameters,
 } from "../../../experiments/sr11/definition.ts";
 import { createSr11Session, type PreparedSr11Example } from "../../../experiments/sr11/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type {
   AcceptedSnapshot,
   PublishedResult,
@@ -167,6 +168,7 @@ export function MovingMirrorLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-11"
       {...identity(snapshot)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "frequencyRatio")}
       data-source-digest={example.sourceDigest}
     >

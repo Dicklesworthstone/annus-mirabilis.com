@@ -30,6 +30,7 @@ import { deriveHostExecution } from "../../experiments/provenance/executionState
 import { parseResult } from "../../experiments/results/codec.ts";
 import { statusMessage } from "../../experiments/results/explanations.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { PredictPanel } from "./PredictPanel.tsx";
@@ -275,6 +276,7 @@ export function CoefficientLab({
       {...identity(snapshot)}
       data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "kineticEnergyDifference")}
       data-source-digest={example.sourceDigest}
     >

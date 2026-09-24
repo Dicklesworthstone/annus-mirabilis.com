@@ -20,6 +20,7 @@ import {
 } from "../../../experiments/lightThread/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
@@ -206,6 +207,7 @@ export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } 
     <section
       className="laboratory"
       data-instrument-id="light-thread"
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "frequencyMoving")}
       aria-labelledby={`${id}-title`}
       {...identity(snapshot)}

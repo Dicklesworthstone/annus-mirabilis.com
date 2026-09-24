@@ -17,6 +17,7 @@ import {
 } from "../../../experiments/sr12/definition.ts";
 import { validateSr12Parameters } from "../../../experiments/sr12/parameters.ts";
 import { createSr12Session, type PreparedSr12Example } from "../../../experiments/sr12/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, fixed, identity, result } from "../presentation.ts";
@@ -170,6 +171,7 @@ export function ChargeCurrentLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-12"
       {...identity(snapshot)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "chargeDensityStationary")}
       data-source-digest={example.sourceDigest}
     >

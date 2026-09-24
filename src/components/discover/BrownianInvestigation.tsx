@@ -20,6 +20,7 @@ import { executionStateKindFromHostLabel } from "../../experiments/labels/execut
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { BrownianLab } from "../lab/BrownianLab.tsx";
 import { display, identity } from "../lab/presentation.ts";
 import { TracerPaths } from "../lab/TracerPlots.tsx";
@@ -198,6 +199,7 @@ export function BrownianInvestigation({
         data-pending={String(view.pending)}
         data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
         data-accepted-input-revision={snapshot.revisions.input}
+        {...instrumentRootAttributes(view)}
         {...labelRootAttributes(executionKind, view, "tracerPositions")}
       >
         <header className="lab-heading">

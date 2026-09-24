@@ -15,6 +15,7 @@ import {
 import { evaluateMillikanOverlay } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -350,6 +351,7 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
       className="laboratory lq08"
       data-testid="photoelectric-lab"
       data-instrument-id="lq-08"
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "stoppingPotentialMagnitude")}
       {...(accepted ? identity(accepted) : {})}
     >

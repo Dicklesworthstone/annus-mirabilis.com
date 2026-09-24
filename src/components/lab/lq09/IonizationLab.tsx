@@ -20,6 +20,7 @@ import {
   type PreparedLq09Example,
 } from "../../../experiments/lq09/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -215,6 +216,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
     <section
       className="laboratory lq09"
       data-instrument-id="lq-09"
+      {...instrumentRootAttributes(snapshot)}
       {...labelRootAttributes(executionKind, snapshot, "ionizationCount")}
       {...(accepted ? identity(accepted) : {})}
     >

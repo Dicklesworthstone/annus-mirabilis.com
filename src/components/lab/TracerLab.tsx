@@ -13,6 +13,7 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import type { ExecutionStateKind } from "../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import equationPayload from "../../generated/bm01-equations.json";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
@@ -225,6 +226,7 @@ export function TracerLab({
         data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
         data-accepted-input-revision={snapshot.revisions.input}
         data-pending={String(view.pending)}
+        {...instrumentRootAttributes(view)}
         {...labelRootAttributes(executionKind, view, "tracerPositions")}
         data-recording-draws={scalar(snapshot, "recordingDraws")}
         data-recording-reused={scalar(snapshot, "reusedRecording")}

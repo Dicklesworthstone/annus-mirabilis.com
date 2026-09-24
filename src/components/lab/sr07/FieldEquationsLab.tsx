@@ -29,6 +29,7 @@ import {
 } from "../../../experiments/sr07/definition.ts";
 import { decodeSr07Settings, encodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
 import { createSr07Session, type PreparedSr07Example } from "../../../experiments/sr07/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity, result } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
@@ -163,6 +164,7 @@ export function FieldEquationsLab({
       className="laboratory-shell"
       aria-label={title}
       data-instrument-id="sr-07"
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "residualMax")}
       data-source-digest={example.sourceDigest}
       data-unit-layer={p.unitLayer}

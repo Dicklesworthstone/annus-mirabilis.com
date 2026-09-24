@@ -24,6 +24,7 @@ import {
 } from "../../../experiments/lq05/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
@@ -149,6 +150,7 @@ export function IndependentConfigurationsLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "configurationProbability")}
     >
       <header

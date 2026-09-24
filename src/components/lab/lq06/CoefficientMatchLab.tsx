@@ -17,6 +17,7 @@ import {
 } from "../../../experiments/lq06/definition.ts";
 import { createLq06Session, type PreparedLq06Example } from "../../../experiments/lq06/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -254,6 +255,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
       className="laboratory lq06"
       data-instrument-id="lq-06"
       data-testid="lq06-coefficient-match-lab"
+      {...instrumentRootAttributes(snapshot)}
       {...labelRootAttributes(executionKind, snapshot, "quantumEnergy")}
       {...(accepted ? identity(accepted) : {})}
     >

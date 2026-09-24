@@ -17,6 +17,7 @@ import { executionStateKindFromHostLabel } from "../../../experiments/labels/exe
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result, unitText } from "../presentation.ts";
@@ -186,6 +187,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
     <section
       className="laboratory"
       data-instrument-id="avogadro-lab"
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "radiationNumber")}
       aria-labelledby={`${id}-title`}
       {...identity(snapshot)}

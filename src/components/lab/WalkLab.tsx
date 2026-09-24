@@ -16,6 +16,7 @@ import { executionStateKindFromHostLabel } from "../../experiments/labels/execut
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
@@ -174,6 +175,7 @@ export function WalkLab({
       data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "sampleRms")}
       data-selected-step={p.n}
       data-kernel={p.kernel}

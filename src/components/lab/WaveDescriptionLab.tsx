@@ -16,6 +16,7 @@ import {
 import { decodeLq01Settings, encodeLq01Settings } from "../../experiments/lq01/permalink.ts";
 import { createLq01Session, type PreparedLq01Example } from "../../experiments/lq01/session.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, identity, result, scalar } from "./presentation.ts";
@@ -228,6 +229,7 @@ export function WaveDescriptionLab({
       data-input-revision={view.requested?.revisions.input ?? 1}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "centerIntensity")}
       data-source-digest={example.sourceDigest}
       data-result-status={primaryResult.status}

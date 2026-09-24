@@ -30,6 +30,7 @@ import {
 } from "../../../experiments/lq03/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci, SciFromLn } from "../Sci.tsx";
@@ -213,6 +214,7 @@ export function SpectrumLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "frequencyEnergyDensity")}
     >
       <header className="lab-heading">

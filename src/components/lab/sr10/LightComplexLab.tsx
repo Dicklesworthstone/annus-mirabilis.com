@@ -19,6 +19,7 @@ import {
   type PreparedSr10Example,
   sr10Comparison,
 } from "../../../experiments/sr10/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type {
   AcceptedSnapshot,
   PublishedResult,
@@ -146,6 +147,7 @@ export function LightComplexLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-10"
       {...identity(snapshot)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "frameSpeed")}
       data-source-digest={example.sourceDigest}
     >

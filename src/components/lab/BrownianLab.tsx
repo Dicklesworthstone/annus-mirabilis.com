@@ -22,6 +22,7 @@ import { executionStateKindFromHostLabel } from "../../experiments/labels/execut
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
@@ -176,6 +177,7 @@ export function BrownianLab({
       data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "probabilityDensity")}
       data-source-digest={example.sourceDigest}
     >

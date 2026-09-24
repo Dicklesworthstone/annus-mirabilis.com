@@ -19,6 +19,7 @@ import {
   type PreparedSr08Example,
   SR08_SESSION_OUTPUTS,
 } from "../../../experiments/sr08/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
@@ -137,6 +138,7 @@ export function FieldFrameChangeLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-08"
       {...identity(snapshot)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "electricFieldStationary")}
       data-source-digest={example.sourceDigest}
     >

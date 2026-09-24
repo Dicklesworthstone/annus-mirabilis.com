@@ -35,6 +35,7 @@ import { deriveHostExecution } from "../../../experiments/provenance/executionSt
  * consumer of the same snapshot can never disagree.
  */
 import { statusMessage } from "../../../experiments/results/explanations.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type {
   AcceptedSnapshot,
   PublishedResult,
@@ -180,6 +181,7 @@ export function EntropyWorkbenchLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "radiationEntropy")}
     >
       <header className="lab-heading">

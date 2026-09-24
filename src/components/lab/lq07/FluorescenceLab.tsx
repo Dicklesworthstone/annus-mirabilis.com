@@ -24,6 +24,7 @@ import {
   type PreparedLq07Example,
 } from "../../../experiments/lq07/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
@@ -150,6 +151,7 @@ export function FluorescenceLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "emittedRate")}
     >
       <header

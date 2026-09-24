@@ -15,6 +15,7 @@ import {
 } from "../../../experiments/sr09/definition.ts";
 import { validateSr09Parameters } from "../../../experiments/sr09/parameters.ts";
 import { createSr09Session, type PreparedSr09Example } from "../../../experiments/sr09/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type {
   AcceptedSnapshot,
   PublishedResult,
@@ -112,6 +113,7 @@ export function DopplerAberrationLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-09"
       {...identity(snapshot)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "waveFrequencyMoving")}
       data-source-digest={example.sourceDigest}
     >

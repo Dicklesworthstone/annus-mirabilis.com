@@ -16,6 +16,7 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import {
   DensityProfilePlot,
   FluxBalancePlot,
@@ -211,6 +212,7 @@ export function DriftDiffusionLab({
       data-input-revision={view.requested?.revisions.input ?? 1}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "densityProfile")}
       data-source-digest={example.sourceDigest}
       data-result-status={primaryResult.status}

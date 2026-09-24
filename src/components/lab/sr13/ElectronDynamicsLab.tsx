@@ -15,6 +15,7 @@ import {
 } from "../../../experiments/sr13/definition.ts";
 import { validateSr13Parameters } from "../../../experiments/sr13/parameters.ts";
 import { createSr13Session, type PreparedSr13Example } from "../../../experiments/sr13/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type {
   AcceptedSnapshot,
   PublishedResult,
@@ -131,6 +132,7 @@ export function ElectronDynamicsLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-13"
       {...identity(snapshot)}
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "longitudinalMass")}
       data-source-digest={example.sourceDigest}
     >

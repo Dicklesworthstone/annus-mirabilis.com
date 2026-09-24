@@ -16,6 +16,7 @@ import {
 } from "../../../experiments/sr06/definition.ts";
 import { decodeSr06Settings, encodeSr06Settings } from "../../../experiments/sr06/permalink.ts";
 import { createSr06Session, type PreparedSr06Example } from "../../../experiments/sr06/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { result } from "../presentation.ts";
@@ -145,6 +146,7 @@ export function VelocityCompositionLab({
       className="laboratory-shell"
       aria-label={title}
       data-instrument-id="sr-06"
+      {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "composedSpeedOverC")}
     >
       <header className="lab-heading">
