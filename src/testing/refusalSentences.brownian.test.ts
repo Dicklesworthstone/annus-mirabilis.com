@@ -120,6 +120,12 @@ const VALIDATOR_CASES: readonly (readonly [string, () => Check, string])[] = [
   ],
 ];
 
+/** For cases whose old sentence named several controls at once, the other controls it named. */
+const RUN_ON_NEIGHBOURS: Readonly<Record<string, readonly string[]>> = {
+  "bm-07 0 displacements": ["coordinates", "hypothetical experiments"],
+  "bm-05 20000 recorded steps": ["walkers", "probability"],
+};
+
 const parseMessage = (parse: () => unknown): string => {
   try {
     parse();
@@ -175,6 +181,9 @@ describe("Brownian and wave labs: a refused value names its control and says wha
       expect(/^(Enter|Choose)\b/.test(sentence)).toBe(true);
       expect(sentence).toContain(names);
       expect(sentence).not.toMatch(UNSPECIFIC);
+      // One control per sentence: the old run-on refusals named several at once.
+      const others = RUN_ON_NEIGHBOURS[label];
+      if (others) for (const other of others) expect(sentence).not.toContain(other);
     });
   }
   for (const [label, run, expected] of PARSER_CASES) {
