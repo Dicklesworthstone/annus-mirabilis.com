@@ -14,7 +14,7 @@ import { renderToStaticMarkup } from "react-dom/server";
  *
  * Two lab groups remain for reasons recorded on the bead:
  * - no generated example with a source digest, so deriveHostExecution cannot earn a label
- *   (Avogadro, LightThread, CoefficientMatch, Photoelectric, Ionization, TwoLedgers,
+ *   (Avogadro, LightThread, CoefficientMatch, Ionization, TwoLedgers,
  *   BoundaryLedger, ShelfOptics, ClockSync);
  * - no lab-side not-modeled list for the model note yet (WaveDescription, RodSimultaneity,
  *   DriftDiffusion), a composite label (FieldEquations), or a test that pins "host".
@@ -33,7 +33,6 @@ const STILL_HARD_CODED = [
   "lab/lq05/IndependentConfigurationsLab.tsx",
   "lab/lq06/CoefficientMatchLab.tsx",
   "lab/lq07/FluorescenceLab.tsx",
-  "lab/lq08/PhotoelectricLab.tsx",
   "lab/lq09/IonizationLab.tsx",
   "lab/me01/TwoLedgersLab.tsx",
   "lab/me03/BoundaryLedgerLab.tsx",
@@ -44,7 +43,7 @@ const STILL_HARD_CODED = [
 ];
 
 /** Routes whose labs now derive the label; each must render the static label at build time. */
-const DERIVED_ROUTES = ["me-02", "sr-08", "sr-09", "sr-10", "sr-11", "sr-12", "sr-13"];
+const DERIVED_ROUTES = ["lq-08", "me-02", "sr-08", "sr-09", "sr-10", "sr-11", "sr-12", "sr-13"];
 
 const COMPONENTS = fileURLToPath(new URL("../components/", import.meta.url));
 const LITERAL = /data-execution-label="host"/;
