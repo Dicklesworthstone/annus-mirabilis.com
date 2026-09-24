@@ -321,10 +321,10 @@ export default function MassEnergyRoute() {
         />
         <p>
           The paper says only that a test is not ruled out for bodies whose energy content changes a
-          great deal, and names radium salts. The card above is a later test of another kind: in
+          great deal, and names radium salts. The cards above are later tests of another kind: in
           1932 Cockcroft and Walton set the energy released when lithium nuclei break apart beside
-          the mass lost. It tests the result, and it was on no one&rsquo;s shelf when the paper was
-          written.
+          the mass lost, and in 1933 Bainbridge weighed those nuclei with a mass spectrograph. They
+          test the result, and they were on no one&rsquo;s shelf when the paper was written.
         </p>
       </section>
       <section id="step-07">

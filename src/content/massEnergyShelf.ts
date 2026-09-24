@@ -250,4 +250,26 @@ export const MASS_ENERGY_LATER_EVIDENCE: readonly KnowledgeCard[] = [
     limits:
       "Later evidence, not on the 1904 shelf, and twenty-seven years after the paper. The edition has not transcribed its figures.",
   },
+  {
+    id: "bainbridge-1933-mass-spectrograph",
+    proposition:
+      "Bainbridge measures the masses of the nuclei in the lithium disintegration with a mass spectrograph, and sets the mass that disappears beside the energy the alpha particles carry away.",
+    status: "later",
+    sources: [
+      {
+        title: "The Equivalence of Mass and Energy",
+        date: "1933",
+        locator: "Phys. Rev. 44, 123",
+      },
+    ],
+    date: {
+      earliest: "1933",
+      latest: "1933",
+      precision: "year",
+      latestYear: 1933,
+      eventKind: "published",
+    },
+    limits:
+      "Later evidence, not on the 1904 shelf, and a check on the masses Cockcroft and Walton used rather than a new reaction. The edition has not transcribed its figures.",
+  },
 ];

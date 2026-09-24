@@ -223,9 +223,12 @@ describe("the route carries the discovery skeleton", () => {
     expect(step).toContain("The boundary ledger, for the check");
     expect(text(step)).toContain("L/9·10²⁰, with the energy in erg and the mass in grams");
     expect(step).toContain('id="card-cockcroft-walton-1932-lithium"');
+    // The bead's two dated nuclear checks, both later evidence beside the world check.
+    expect(step).toContain('id="card-bainbridge-1933-mass-spectrograph"');
     // A later card is never on the 1904 shelf.
     const shelf = html.slice(at('id="shelf"'), at('id="nagging-fact"'));
     expect(shelf).not.toContain("cockcroft-walton-1932-lithium");
+    expect(shelf).not.toContain("bainbridge-1933-mass-spectrograph");
   });
 
   test("three doors arrive at the same result and open where they say", () => {
