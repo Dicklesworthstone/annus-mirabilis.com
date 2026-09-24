@@ -18,8 +18,10 @@
 import { type ComponentProps, lazy } from "react";
 import type { BrownianLab } from "../../components/lab/BrownianLab.tsx";
 import type { ConfigurationLab } from "../../components/lab/bm03/ConfigurationLab.tsx";
+import type { CameraLab } from "../../components/lab/CameraLab.tsx";
 import type { CoefficientComparison } from "../../components/lab/CoefficientLab.tsx";
 import type { DriftDiffusionLab } from "../../components/lab/DriftDiffusionLab.tsx";
+import type { InferenceLab } from "../../components/lab/InferenceLab.tsx";
 import type { SpectrumLab } from "../../components/lab/lq03/SpectrumLab.tsx";
 import type { EntropyWorkbenchLab } from "../../components/lab/lq04/EntropyWorkbenchLab.tsx";
 import type { IndependentConfigurationsLab } from "../../components/lab/lq05/IndependentConfigurationsLab.tsx";
@@ -33,6 +35,8 @@ import type { RodSimultaneityLab } from "../../components/lab/RodSimultaneityLab
 import type { ShelfOpticsLab } from "../../components/lab/shelfOptics/ShelfOpticsLab.tsx";
 import type { ClockSyncLab } from "../../components/lab/sr01/ClockSyncLab.tsx";
 import type { LorentzMapLab } from "../../components/lab/sr04/LorentzMapLab.tsx";
+import type { VelocityCompositionLab } from "../../components/lab/sr06/VelocityCompositionLab.tsx";
+import type { FieldEquationsLab } from "../../components/lab/sr07/FieldEquationsLab.tsx";
 import type { FieldFrameChangeLab } from "../../components/lab/sr08/FieldFrameChangeLab.tsx";
 import type { DopplerAberrationLab } from "../../components/lab/sr09/DopplerAberrationLab.tsx";
 import type { LightComplexLab } from "../../components/lab/sr10/LightComplexLab.tsx";
@@ -40,6 +44,7 @@ import type { MovingMirrorLab } from "../../components/lab/sr11/MovingMirrorLab.
 import type { ChargeCurrentLab } from "../../components/lab/sr12/ChargeCurrentLab.tsx";
 import type { ElectronDynamicsLab } from "../../components/lab/sr13/ElectronDynamicsLab.tsx";
 import type { TracerLab } from "../../components/lab/TracerLab.tsx";
+import type { WalkLab } from "../../components/lab/WalkLab.tsx";
 import type { WaveDescriptionLab } from "../../components/lab/WaveDescriptionLab.tsx";
 // The shared laboratory stylesheets first, so each laboratory's own rules come after the shell
 // they refine.
@@ -66,6 +71,13 @@ import "../../components/lab/sr11/sr11.css";
 import "../../components/lab/sr12/sr12.css";
 import "../../components/lab/sr13/sr13.css";
 import "../../components/lab/waveDescriptionLab.css";
+// These five laboratories are styled partly by their route's own stylesheet, which an embed
+// does not load, so the embed imports it here.
+import "../../app/lab/bm-05/walks.css";
+import "../../app/lab/bm-07/inference.css";
+import "../../app/lab/bm-08/camera.css";
+import "../../app/lab/sr-06/composition.css";
+import "../../app/lab/sr-07/equations.css";
 
 const BrownianLabChunk = lazy(() =>
   import("../../components/lab/BrownianLab.tsx").then((m) => ({ default: m.BrownianLab })),
@@ -179,6 +191,26 @@ const WaveDescriptionLabChunk = lazy(() =>
   })),
 );
 
+const WalkLabChunk = lazy(() =>
+  import("../../components/lab/WalkLab.tsx").then((m) => ({ default: m.WalkLab })),
+);
+const InferenceLabChunk = lazy(() =>
+  import("../../components/lab/InferenceLab.tsx").then((m) => ({ default: m.InferenceLab })),
+);
+const CameraLabChunk = lazy(() =>
+  import("../../components/lab/CameraLab.tsx").then((m) => ({ default: m.CameraLab })),
+);
+const VelocityCompositionLabChunk = lazy(() =>
+  import("../../components/lab/sr06/VelocityCompositionLab.tsx").then((m) => ({
+    default: m.VelocityCompositionLab,
+  })),
+);
+const FieldEquationsLabChunk = lazy(() =>
+  import("../../components/lab/sr07/FieldEquationsLab.tsx").then((m) => ({
+    default: m.FieldEquationsLab,
+  })),
+);
+
 export function LazyBrownianLab(props: ComponentProps<typeof BrownianLab>) {
   return <BrownianLabChunk {...props} />;
 }
@@ -279,4 +311,24 @@ export function LazyTwoLedgersLab(props: ComponentProps<typeof TwoLedgersLab>) {
 
 export function LazyWaveDescriptionLab(props: ComponentProps<typeof WaveDescriptionLab>) {
   return <WaveDescriptionLabChunk {...props} />;
+}
+
+export function LazyWalkLab(props: ComponentProps<typeof WalkLab>) {
+  return <WalkLabChunk {...props} />;
+}
+
+export function LazyInferenceLab(props: ComponentProps<typeof InferenceLab>) {
+  return <InferenceLabChunk {...props} />;
+}
+
+export function LazyCameraLab(props: ComponentProps<typeof CameraLab>) {
+  return <CameraLabChunk {...props} />;
+}
+
+export function LazyVelocityCompositionLab(props: ComponentProps<typeof VelocityCompositionLab>) {
+  return <VelocityCompositionLabChunk {...props} />;
+}
+
+export function LazyFieldEquationsLab(props: ComponentProps<typeof FieldEquationsLab>) {
+  return <FieldEquationsLabChunk {...props} />;
 }

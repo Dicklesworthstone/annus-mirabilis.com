@@ -250,6 +250,52 @@ export const EMBED_INSTRUMENTS = [
     steps:
       "Choose a gas with a cited ionization energy, set the frequency and the absorbed energy, and read whether the quanta clear the threshold and how many molecules they could ionize. A gas without a citation is refused rather than given a number.",
   },
+  {
+    id: "bm-05",
+    title: "Random steps to diffusion",
+    source: "/papers/brownian-motion/#s4",
+    overview: "Add many independent steps and see a spread appear.",
+    full: "Change the shape of each step while keeping its variance, and compare the spread after many steps. For independent steps the mean square displacement grows in proportion to the number of steps, whatever the shape of a single step.",
+    steps:
+      "Begin with the coin walk you can count exactly, then switch to other step shapes with the same variance. Compare the spread and the shape at several step counts, and check which assumptions the result needs.",
+  },
+  {
+    id: "bm-07",
+    title: "Inferring the molecular number",
+    source: "/papers/brownian-motion/#s5",
+    overview: "Ask what a finite set of displacements can tell you about the molecular number.",
+    full: "The displacements fix the diffusion coefficient, which ties the particle radius and the molecular number together; without an independent radius the two cannot be separated. The positions here are synthetic, generated with a hidden molecular number.",
+    steps:
+      "First ask what the observations identify. Then declare the missing information, estimate the number, and test what a confidence interval does across hypothetical repeats.",
+  },
+  {
+    id: "bm-08",
+    title: "Measurement bias: localization noise, drift and exposure",
+    source: "/papers/brownian-motion/#s5",
+    overview: "See how a camera's errors change what the same motion appears to show.",
+    full: "A camera averages the motion over each exposure and adds uncertainty to every recorded position. The particle follows the same path either way, but the recorded displacements, and what they say about diffusion, change. The camera model is a later measurement aid, not Einstein's derivation.",
+    steps:
+      "Add localization noise, drift and a longer exposure one at a time, and compare what the recorded positions imply about the spread after each change.",
+  },
+  {
+    id: "sr-06",
+    title: "Velocity composition",
+    source: "/papers/special-relativity/#s5",
+    overview: "Combine two speeds and see why the result never reaches light speed.",
+    full: "By the addition theorem of §5, two speeds below light speed compose to less than their sum and never to light speed or more. Motions at an angle compose differently from motions along one line.",
+    steps:
+      "Compose 0.6c with 0.6c and compare the result with 1.2c. Then set an angle between the two motions, and apply two boosts in turn.",
+  },
+  {
+    id: "sr-07",
+    title: "Transforming the field equations",
+    source: "/papers/special-relativity/#s6",
+    overview:
+      "Transform the Maxwell-Hertz equations and see what the fields must do to keep their form.",
+    full: "Under the transformation of §3 the field equations keep their form only when the electric and magnetic components transform together, as §6 sets out. The laboratory reports the residuals of the transformed equations.",
+    steps:
+      "Change the frame speed and the field components, and read the residuals of the transformed equations. Compare the symbols printed in §6 with their modern names.",
+  },
 ] as const;
 
 export type EmbeddableId = (typeof EMBED_INSTRUMENTS)[number]["id"];

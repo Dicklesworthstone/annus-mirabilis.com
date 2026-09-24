@@ -9,6 +9,7 @@ import type { PreparedLq07Example } from "../lq07/session.ts";
 import type { EmbeddableId } from "./catalogue.ts";
 import {
   LazyBrownianLab,
+  LazyCameraLab,
   LazyChargeCurrentLab,
   LazyClockSyncLab,
   LazyCoefficientComparison,
@@ -18,9 +19,11 @@ import {
   LazyDriftDiffusionLab,
   LazyElectronDynamicsLab,
   LazyEntropyWorkbenchLab,
+  LazyFieldEquationsLab,
   LazyFieldFrameChangeLab,
   LazyFluorescenceLab,
   LazyIndependentConfigurationsLab,
+  LazyInferenceLab,
   LazyIonizationLab,
   LazyLightComplexLab,
   LazyLorentzMapLab,
@@ -32,6 +35,8 @@ import {
   LazySpectrumLab,
   LazyTracerLab,
   LazyTwoLedgersLab,
+  LazyVelocityCompositionLab,
+  LazyWalkLab,
   LazyWaveDescriptionLab,
 } from "./lazyEmbeddedLabs.tsx";
 
@@ -203,6 +208,59 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
       const checked = validateSr13Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("sr-13");
       return <LazyElectronDynamicsLab example={{ ...example, parameters: checked.data }} />;
+    }
+    case "bm-05": {
+      const { validateBm05Parameters } = await import("../bm05/parameters.ts");
+      const { default: example } = await import("../../generated/bm05-example.json");
+      const checked = validateBm05Parameters(example.parameters);
+      if (checked.kind !== "accepted") return preparedExampleFailed("bm-05");
+      return <LazyWalkLab example={{ ...example, parameters: checked.data }} />;
+    }
+    case "bm-07": {
+      const { validateBm07Parameters } = await import("../bm07/parameters.ts");
+      const { default: example } = await import("../../generated/bm07-example.json");
+      const checked = validateBm07Parameters(example.parameters);
+      if (checked.kind !== "accepted") return preparedExampleFailed("bm-07");
+      return <LazyInferenceLab example={{ ...example, parameters: checked.data }} />;
+    }
+    case "bm-08": {
+      const { validateBm08Parameters } = await import("../bm08/parameters.ts");
+      const { default: example } = await import("../../generated/bm08-example.json");
+      const checked = validateBm08Parameters(example.parameters);
+      if (checked.kind !== "accepted") return preparedExampleFailed("bm-08");
+      return <LazyCameraLab example={{ ...example, parameters: checked.data }} />;
+    }
+    case "sr-06": {
+      const { validateSr06Parameters } = await import("../sr06/parameters.ts");
+      const { DEFAULT_PREPARED_EXAMPLE } = await import("../sr06/session.ts");
+      const { default: labDigests } = await import("../../generated/lab-source-digests.json");
+      const checked = validateSr06Parameters(DEFAULT_PREPARED_EXAMPLE.parameters);
+      if (checked.kind !== "accepted") return preparedExampleFailed("sr-06");
+      return (
+        <LazyVelocityCompositionLab
+          example={{
+            ...DEFAULT_PREPARED_EXAMPLE,
+            parameters: checked.data,
+            sourceDigest: labDigests["sr-06"],
+          }}
+        />
+      );
+    }
+    case "sr-07": {
+      const { validateSr07Parameters } = await import("../sr07/parameters.ts");
+      const { DEFAULT_PREPARED_EXAMPLE } = await import("../sr07/session.ts");
+      const { default: labDigests } = await import("../../generated/lab-source-digests.json");
+      const checked = validateSr07Parameters(DEFAULT_PREPARED_EXAMPLE.parameters);
+      if (checked.kind !== "accepted") return preparedExampleFailed("sr-07");
+      return (
+        <LazyFieldEquationsLab
+          example={{
+            ...DEFAULT_PREPARED_EXAMPLE,
+            parameters: checked.data,
+            sourceDigest: labDigests["sr-07"],
+          }}
+        />
+      );
     }
     case "shelf-michelson-morley":
     case "shelf-fizeau":
