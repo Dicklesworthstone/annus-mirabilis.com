@@ -46,6 +46,12 @@
   border: 0;
   padding: 0;
 }
+/* A fieldset hands the interface sans to everything inside it (globals.css sets it on fieldset
+   so form labels match). The group's two paragraphs are prose, the premise and its conclusion,
+   and in the sans at body size they read as a heading between the controls. */
+.me-entrance .me-premise p {
+  font-family: var(--font-serif);
+}
 /* The checkbox was the browser's default blue, the one blue on the page; the counting and clock
    entrances already give theirs the ink colour and a 20px box (countingEntrance.css). */
 .me-entrance input[type="checkbox"] {
