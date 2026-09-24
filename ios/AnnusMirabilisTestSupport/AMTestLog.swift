@@ -21,7 +21,9 @@ enum AMTestLog {
             .year().month().day().time(includingFractionalSeconds: false)
             .dateSeparator(.omitted).timeSeparator(.omitted).dateTimeSeparator(.standard)
         let hex = (0..<4).map { _ in String(format: "%02x", UInt8.random(in: 0...255)) }.joined()
-        return "\(Date.now.formatted(stamp))-\(hex)"
+        // The style names no time-zone field, so it prints none; the time is GMT, and the shared form
+        // (20260924T120000Z-0a1b2c3d) marks that with a Z.
+        return "\(Date.now.formatted(stamp))Z-\(hex)"
     }()
 
     /// A UI test's record, attached for the gate to collect. Kept on success too: the gate needs it.
