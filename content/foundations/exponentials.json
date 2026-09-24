@@ -43,7 +43,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "Two exponentials from the 1905 papers pass that check. Wien's radiation law, which the light-quanta paper uses from §4 on, contains βν/T: β times a frequency is a temperature, so dividing by the temperature T leaves a pure number."
+      "text": "Two exponentials from the 1905 papers pass that check. Wien's radiation law, which the light-quanta paper uses from §4 on, contains βν/T: β times a frequency is a temperature, so dividing by the temperature T leaves a pure number. The formula below writes e to the power −βν/T as exp(−βν/T). exp(u) is another way of writing e to the power u, used when the power is long."
     },
     {
       "kind": "formula",
