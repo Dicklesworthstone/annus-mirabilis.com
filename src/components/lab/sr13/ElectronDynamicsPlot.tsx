@@ -262,7 +262,7 @@ export function ElectronDynamicsPlot({
                 y1={originY}
                 x2={frame.right - 8}
                 y2={originY}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
               <line
@@ -270,7 +270,7 @@ export function ElectronDynamicsPlot({
                 y1={frame.top + 8}
                 x2={originX}
                 y2={frame.bottom - 8}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
 

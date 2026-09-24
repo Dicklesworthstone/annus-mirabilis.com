@@ -130,7 +130,7 @@ export function DopplerAberrationPlot({
                 y1={cy}
                 x2={cx1 + radius}
                 y2={cy}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
               <line
@@ -138,7 +138,7 @@ export function DopplerAberrationPlot({
                 y1={cy - radius}
                 x2={cx1}
                 y2={cy + radius}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
               <text x={cx1 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">
@@ -246,7 +246,7 @@ export function DopplerAberrationPlot({
                 y1={cy}
                 x2={cx2 + radius}
                 y2={cy}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
               <line
@@ -254,7 +254,7 @@ export function DopplerAberrationPlot({
                 y1={cy - radius}
                 x2={cx2}
                 y2={cy + radius}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
               <text x={cx2 + radius + 8} y={cy + 4} fontSize="10" fill="var(--muted)">

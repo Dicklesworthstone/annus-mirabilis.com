@@ -124,7 +124,7 @@ export function LightComplexPlot({
                 y1={cy}
                 x2={cx1 + 130}
                 y2={cy}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
               <line
@@ -132,7 +132,7 @@ export function LightComplexPlot({
                 y1={cy - 120}
                 x2={cx1}
                 y2={cy + 120}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
               <text x={cx1 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
@@ -259,7 +259,7 @@ export function LightComplexPlot({
                 y1={cy}
                 x2={cx2 + 130}
                 y2={cy}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
               <line
@@ -267,7 +267,7 @@ export function LightComplexPlot({
                 y1={cy - 120}
                 x2={cx2}
                 y2={cy + 120}
-                stroke="var(--line)"
+                stroke="var(--muted)"
                 strokeWidth={1}
               />
               <text x={cx2 + 135} y={cy + 4} fontSize="10" fill="var(--muted)">
