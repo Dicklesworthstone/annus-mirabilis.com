@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "two-measurements-two-unknowns",
+  "title": "Two measurements, two unknowns",
+  "question": "Can a measured spreading rate tell you how big the particle is?",
+  "summary": "The Brownian relation fixes only the product of the molecular number and the particle's radius, so one measured diffusion coefficient leaves a curve of possible pairs. A second relation that depends on the two in another way crosses that curve, and the crossing fixes both, within a region set by the uncertainties of the two measurements.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "In §5 of the Brownian paper the diffusion coefficient of a suspended sphere is \\(D = \\frac{RT}{N}\\cdot\\frac{1}{6\\pi\\eta a}\\). Einstein writes k for the viscosity and P for the radius; this lesson uses η and a. At a fixed temperature and viscosity, a measured D fixes one combination of the two unknowns, the product of the molecular number N and the radius a."
+    },
+    {
+      "kind": "formula",
+      "latex": "N a = \\frac{RT}{6\\pi\\eta D}",
+      "spoken": "N times a equals R T divided by six pi eta D."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Every pair with that product fits the measurement equally well. Drawn in a plane with the radius along one axis and the molecular number along the other, the pairs form a curve. Double the radius and halve N, and the product, and with it D, is exactly what it was. Displacements alone cannot say which point on the curve is the true one: the question is underdetermined, and more careful measurement of D does not change that."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Einstein's dissertation measured something else: how much a dissolved substance thickens water. The volume taken up by the dissolved particles, as a fraction of the whole, is \\(\\varphi = \\frac{4}{3}\\pi a^3 N n\\), where n is the number of moles dissolved per unit volume. The viscosity relation therefore fixes a different combination, \\(a^3 N\\). Its curve in the same plane has another shape, and the two curves cross."
+    },
+    {
+      "kind": "formula",
+      "latex": "a^3 N = \\frac{3(\\eta^*/\\eta - 1)}{4\\pi c\\, n}",
+      "spoken": "a cubed times N equals three times the quantity eta star over eta minus one, divided by four pi c n."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Here \\(\\eta^*\\) is the viscosity of the solution, η that of the water, and c the coefficient of φ in the viscosity law: 1 as the dissertation printed it in 1906, and 5/2 after Einstein's correction of 1911. This lesson takes the relation as given: deriving it, and the history of its correction, belong to the dissertation. Dividing the second combination by the first leaves \\(a^2\\) alone, so the crossing gives the radius, and then either relation gives N."
+    },
+    {
+      "kind": "formula",
+      "latex": "a^2 = \\frac{3(\\eta^*/\\eta - 1)}{4\\pi c\\, n}\\cdot\\frac{6\\pi\\eta D}{RT}",
+      "spoken": "a squared equals three times the quantity eta star over eta minus one, over four pi c n, times six pi eta D over R T."
+    },
+    {
+      "kind": "paragraph",
+      "text": "A crossing is not yet an answer. Two curves that cross at a shallow angle fix their crossing poorly, so a small error in either measurement moves it a long way. Each measurement has an uncertainty, which widens its curve into a band, and the honest result is the region where the two bands overlap, not a point. Two measurements that rest on the same calibration can cross and still add nothing new. And each relation holds only within its own domain: dilute suspensions, spheres much larger than the molecules of the liquid."
+    }
+  ],
+  "exampleTitle": "Why solving for the radius gives a curve",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "The question: can a measured spreading rate tell you how big the particle is?",
+        "What is given: the measured D, the temperature T, the viscosity η, and the relation \\(D = RT/(6\\pi\\eta a N)\\).",
+        "The first thought, and a reasonable one: solve the relation for a. The algebra looks as if it allows that.",
+        "The decisive step: solving gives \\(a = RT/(6\\pi\\eta N D)\\), the radius in terms of N. Every choice of N gives its own a. Double a and halve N, and \\(6\\pi\\eta a N\\), and with it D, is exactly what it was. The answer is a curve, not a number.",
+        "The limitation: a second relation that depends on a and N in another way is needed. How well it fixes the pair depends on the angle at which the two curves cross and on the two measurements being independent, and what comes out is a region, not a point."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:ratios-scaling",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:error-and-inference",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:functions-graphs",
+      "kind": "cross-link"
+    }
+  ],
+  "stoppingPoint": "One measurement of one combination of two quantities leaves a curve, not a point.",
+  "citations": ["ap-17-549"]
+}

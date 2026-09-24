@@ -42,6 +42,11 @@
       },
       {
         "kind": "foundation",
+        "id": "two-measurements-two-unknowns",
+        "returnCaption": "Return to the radius and the molecular number, which a measured D alone cannot separate."
+      },
+      {
+        "kind": "foundation",
         "id": "mean-variance-rms",
         "returnCaption": "Return to the quantity estimated from measured displacements."
       },

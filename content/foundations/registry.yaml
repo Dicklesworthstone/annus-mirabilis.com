@@ -168,8 +168,11 @@ entries:
     kind: node
     cluster: statistics-inference
     ownerBead: am-found-statistics-inference-pzqv
-    status: planned
-    plannedCallers: []
+    status: authored
+    plannedCallers:
+      - "molecular-dimensions"
+      - "lab:bm-07"
+      - "lab:bm-08"
   - id: "foundation:viscosity-stokes-drag"
     kind: node
     cluster: transport-thermo
