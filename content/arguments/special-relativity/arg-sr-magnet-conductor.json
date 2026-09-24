@@ -39,6 +39,11 @@
       },
       {
         "kind": "foundation",
+        "id": "dot-cross-products",
+        "returnCaption": "Return to the magnetic force on the moving charges, and which way it pushes."
+      },
+      {
+        "kind": "foundation",
         "id": "electromagnetism-charges",
         "returnCaption": "Return to why changing the observer should change the explanation."
       }

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "dot-cross-products",
+  "title": "Dot and cross products",
+  "question": "How much of one arrow lies along another, and which way does a magnetic force push?",
+  "summary": "The dot product of two arrows measures how much of one lies along the other, and it gives the part of a field along a boost. The cross product gives an arrow at right angles to both, as long as the area they span, and it gives the direction of the magnetic force on a moving charge.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "The dot product multiplies two arrows into a single number: \\(\\mathbf{a}\\cdot\\mathbf{b} = a_x b_x + a_y b_y + a_z b_z\\), which also equals the two lengths times the cosine of the angle between them. With an arrow of length 1 along a chosen direction, the dot product is how much of the other arrow lies along that direction: its projection. Arrows at right angles have a dot product of zero."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\mathbf{a}\\cdot\\mathbf{b} = a_x b_x + a_y b_y + a_z b_z = |\\mathbf{a}|\\,|\\mathbf{b}|\\cos θ",
+      "spoken": "a dot b equals a x b x plus a y b y plus a z b z, which equals the length of a times the length of b times the cosine of the angle between them."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For a boost along x, the part of an electric field along the motion is its dot product with an arrow of length 1 along x. A field of 5 units pointing 3 along x and 4 along y has 3 along the boost; that part is the same in both frames, and only the rest changes."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The cross product \\(\\mathbf{a}\\times\\mathbf{b}\\) is an arrow at right angles to both a and b. Its length is the area of the parallelogram they span, the two lengths times the sine of the angle between them, and its direction follows the right-hand rule: curl the fingers of the right hand from a toward b, and the thumb points along the product. Swapping the order reverses the arrow."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\mathbf{F} = q\\,\\mathbf{v}\\times\\mathbf{B}",
+      "spoken": "The force F equals q times v cross B."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The magnetic force on a charge q moving with velocity v through a field B is \\(q\\,\\mathbf{v}\\times\\mathbf{B}\\). It is at right angles to the motion, so it changes the charge's direction and not its speed. For a positive charge moving along +x through a field along +z, \\(\\mathbf{v}\\times\\mathbf{B}\\) points along −y. In the frame moving with the charge the same push is electric: the relativity paper's §6 gives that frame an electric field along −y."
+    },
+    {
+      "kind": "paragraph",
+      "text": "One combination of the two fields, \\(\\mathbf{E}\\cdot\\mathbf{B}\\), comes out the same in every frame. That is a modern check on the field transformation, useful for catching an error in a calculation. It is not a premise of the 1905 argument, which derives the transformation from the equations of electrodynamics."
+    }
+  ],
+  "exampleTitle": "A projection, a force direction and a quantity that stays put",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "Projection: \\(\\mathbf{E} = (3, 4, 0)\\) and the boost direction \\((1, 0, 0)\\) give \\(\\mathbf{E}\\cdot(1, 0, 0) = 3\\), the part along the boost. The field's length is \\(\\sqrt{3^2 + 4^2} = 5\\).",
+        "Direction: with v along +x and B along +z, \\((1, 0, 0)\\times(0, 0, 1) = (0, -1, 0)\\), so a positive charge is pushed along −y.",
+        "Invariance, measuring fields so that c = 1: take \\(\\mathbf{E} = (0, 0.6, 0.8)\\) and \\(\\mathbf{B} = (0, 0, 1)\\), so \\(\\mathbf{E}\\cdot\\mathbf{B} = 0.8\\).",
+        "Seen from a frame moving at 0.6 along x, where γ = 1.25, the §6 rules give \\(\\mathbf{E}' = (0, 0, 1)\\) and \\(\\mathbf{B}' = (0, 0.6, 0.8)\\). Both fields changed, and \\(\\mathbf{E}'\\cdot\\mathbf{B}' = 1 \\times 0.8 = 0.8\\) did not."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:vectors-components",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:quantities-units",
+      "kind": "proof-edge"
+    }
+  ],
+  "stoppingPoint": "The dot product is how much of one arrow lies along another; the cross product is an arrow for the area two arrows span. This lesson stops at three dimensions.",
+  "citations": ["ap-17-891"]
+}

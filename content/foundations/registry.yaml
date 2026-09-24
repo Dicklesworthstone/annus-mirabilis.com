@@ -230,8 +230,9 @@ entries:
     kind: node
     cluster: linear-geometry
     ownerBead: am-found-linear-geometry-7w15
-    status: planned
-    plannedCallers: []
+    status: authored
+    plannedCallers:
+      - "lab:sr-08"
   - id: "foundation:hyperbolic-functions-rapidity"
     kind: node
     cluster: linear-geometry

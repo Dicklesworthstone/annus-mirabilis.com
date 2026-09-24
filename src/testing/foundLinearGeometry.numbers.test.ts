@@ -154,6 +154,54 @@ describe("hyperbolic functions and rapidity", () => {
   });
 });
 
+describe("dot and cross products", () => {
+  const text = lessonText("dot-cross-products");
+  type V3 = readonly [number, number, number];
+  const dot = (a: V3, b: V3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a: V3, b: V3): V3 => [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
+
+  test("the projection of (3, 4, 0) on the boost direction is 3, and its length is 5", () => {
+    expect(dot([3, 4, 0], [1, 0, 0])).toBe(3);
+    close(Math.sqrt(dot([3, 4, 0], [3, 4, 0])), 5);
+    expect(text).toContain("\\cdot(1, 0, 0) = 3, the part along the boost");
+  });
+
+  test("x̂ × ẑ = −ŷ: a positive charge moving along +x through B along +z is pushed along −y", () => {
+    expect(cross([1, 0, 0], [0, 0, 1])).toEqual([0, -1, 0]);
+    expect(text).toContain("(1, 0, 0)\\times(0, 0, 1) = (0, -1, 0)");
+  });
+
+  test("E·B = 0.8 before and after a boost of 0.6 along x, by the §6 rules with c = 1", () => {
+    const v = 0.6;
+    const gamma = 1 / Math.sqrt(1 - v * v);
+    const E: V3 = [0, 0.6, 0.8];
+    const B: V3 = [0, 0, 1];
+    const E2: V3 = [E[0], gamma * (E[1] - v * B[2]), gamma * (E[2] + v * B[1])];
+    const B2: V3 = [B[0], gamma * (B[1] + v * E[2]), gamma * (B[2] - v * E[1])];
+    for (const [actual, printed] of [
+      [E2[1], 0],
+      [E2[2], 1],
+      [B2[1], 0.6],
+      [B2[2], 0.8],
+    ] as const) {
+      expect(withinTolerance(actual, printed, { absolute: 1e-12 }).ok).toBe(true);
+    }
+    close(dot(E, B), 0.8);
+    close(dot(E2, B2), 0.8);
+    expect(text).toContain("\\mathbf{E}' = (0, 0, 1)");
+    expect(text).toContain("\\mathbf{B}' = (0, 0.6, 0.8)");
+  });
+
+  test("the invariant is labelled a modern check, not a premise of 1905", () => {
+    expect(text).toContain("a modern check on the field transformation");
+    expect(text).toContain("It is not a premise of the 1905 argument");
+  });
+});
+
 describe("the β rule, over every lesson of the cluster that exists", () => {
   const present = CLUSTER.filter((id) => existsSync(path(id)));
 
