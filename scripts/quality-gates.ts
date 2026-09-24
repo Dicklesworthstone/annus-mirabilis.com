@@ -10,7 +10,7 @@
  * Exit codes:
  * - 0: All executed and required steps passed
  * - 1: Any executed or required step failed, or NOTHING RAN: no step executed and at least one
- *      was skipped
+ *      was skipped, or no step matched the selection at all
  * - 2: Refused (e.g. required step unavailable in profile mode)
  */
 
@@ -463,7 +463,12 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
   // reads exactly like a clean one (AGENTS.md, "A Tool's Exit Code Is Not Evidence Until You Know
   // What It Examined"). Measured 2026-09-24: `bun run gates:apple` with xcodebuild off PATH printed
   // "Status: PASSED (exit code: 0)" over 0 passed and 15 skipped. A partial skip still passes.
-  const nothingRan = passedCount + failedCount === 0 && skippedCount > 0;
+  // An empty selection is the same claim over nothing: `--family fast --only browser-acceptance`
+  // selects 0 steps (browser-acceptance is in the browser family) and passed, the measurement
+  // src/testing/ciGateWiring.test.ts records from the period no job ran the browser gate. A run
+  // whose selected steps are all not-available still passes; a test asserts that on purpose.
+  const nothingSelected = selectedSteps.length === 0;
+  const nothingRan = passedCount + failedCount === 0 && (skippedCount > 0 || nothingSelected);
 
   let overallOutcome: QualityGatesSummary["outcome"] = "passed";
   let exitCode = 0;
@@ -482,8 +487,11 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
         reasons.set(reason, (reasons.get(reason) ?? 0) + 1);
       }
       const why = [...reasons].map(([reason, n]) => `${n} for ${reason}`).join(", ");
+      const only = onlyFilter ? [...onlyFilter].join(",") : "none";
       console.error(
-        `\n🚨 NOTHING RAN: 0 of ${selectedSteps.length} selected step(s) executed; ${skippedCount} skipped (${why}). A run that examined nothing is not a pass.`,
+        nothingSelected
+          ? `\n🚨 NOTHING RAN: no step matches family '${familyFilter}', profile '${profile || "none"}', only '${only}' among ${allSteps.length} registered. A run that examined nothing is not a pass.`
+          : `\n🚨 NOTHING RAN: 0 of ${selectedSteps.length} selected step(s) executed; ${skippedCount} skipped (${why}). A run that examined nothing is not a pass.`,
       );
     }
   } else if (failedCount > 0 || hasFailed || unmetRequiredSteps.length > 0) {

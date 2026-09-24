@@ -610,6 +610,62 @@ describe("Quality Gates Runner Engine", () => {
     expect(summary.exitCode).toBe(1);
   });
 
+  // The miswiring src/testing/ciGateWiring.test.ts records, measured with the CI's own flags:
+  // browser-acceptance is in the browser family, so `--family fast --only browser-acceptance`
+  // selects nothing, and the runner said PASSED over it.
+  it("reports NOTHING RAN and exits 1 when no step matches the selection", () => {
+    const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+    const step = QUALITY_GATE_STEPS.find((s) => s.id === "browser-acceptance");
+    // Non-vacuity: the step exists and is outside the fast family, so the selection is empty
+    // because of the family, not because the id is unknown.
+    assert.equal(step?.family, "browser");
+    const runtimeFlags = process.versions.bun ? [] : ["--experimental-strip-types"];
+    const cli = (only: string) =>
+      spawnObserved(
+        process.execPath,
+        [
+          ...runtimeFlags,
+          "scripts/quality-gates.ts",
+          "--fail-fast",
+          "--family",
+          "fast",
+          "--only",
+          only,
+        ],
+        { cwd: root },
+      );
+    const empty = cli("browser-acceptance");
+    const output = `${empty.stdout}\n${empty.stderr}`;
+    assert.equal(empty.exitCode, 1, output);
+    assert.match(output, /Selected Steps: 0\n/);
+    assert.match(output, /Status: +NOTHING RAN \(exit code: 1\)/);
+    assert.match(
+      output,
+      /no step matches family 'fast', profile 'none', only 'browser-acceptance'/,
+    );
+
+    const summary = runQualityGates({
+      steps: [
+        {
+          id: "apple-only-step",
+          title: "Apple only",
+          command: ["bun", "-e", "process.exit(0)"],
+          family: "apple",
+          cadence: "every-run",
+          requiredInCi: false,
+          requiredInProfiles: [],
+          availability: {},
+          owner: "test-owner",
+        },
+      ],
+      family: "fast",
+      silent: true,
+    });
+    expect(summary.totalSteps).toBe(0);
+    expect(summary.outcome).toBe("nothing-ran");
+    expect(summary.exitCode).toBe(1);
+  });
+
   it("still passes a run that skipped some steps and ran the rest", () => {
     const summary = runQualityGates({
       steps: [
