@@ -429,8 +429,11 @@
 
 /* Responsive Viewports (320px support) */
 @media (max-width: 640px) {
+  /* The bottom only. This rule comes after the phone rule near the top of the file, and when it
+     set `padding: 1rem 0 3rem` it overrode that 2rem: the heading sat 16px above the other
+     top-level pages' up to 560px and 32px above them from 561 to 640px. */
   .notation-page {
-    padding: 1rem 0 3rem;
+    padding-bottom: 3rem;
   }
 
   .filter-grid {
