@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { preload } from "react-dom";
 import "./notation.css";
 import "../../components/home/wideProse.css";
 import { CollisionClusterView } from "./CollisionClusterView.tsx";
 import { loadFirstUseTargets, resolveFirstUse } from "./firstUseTargets.ts";
+import { KATEX_PRELOAD_FONTS, katexPreloadHref } from "./katexPreload.ts";
 import { NotationEntryCard } from "./NotationEntryCard.tsx";
 import { NotationPageClient } from "./NotationPageClient.tsx";
 import { loadNotationPageData } from "./notationData.ts";
@@ -14,6 +16,11 @@ export const metadata: Metadata = {
 };
 
 export default async function NotationPage() {
+  // The symbol index's KaTeX faces, fetched with the page instead of after the stylesheet names
+  // them (katexPreload.ts: CLS at 1440 0.235 -> 0.097).
+  for (const file of KATEX_PRELOAD_FONTS) {
+    preload(katexPreloadHref(file), { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  }
   const targets = await loadFirstUseTargets();
   const data = loadNotationPageData(undefined, (paper, anchor) =>
     resolveFirstUse(paper, anchor, targets),
