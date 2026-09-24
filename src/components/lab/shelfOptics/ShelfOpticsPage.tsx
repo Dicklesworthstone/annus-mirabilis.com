@@ -134,13 +134,18 @@ export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
           </a>
         </p>
       </section>
+      {/* The comparison's source context, in a sentence rather than the actions row below: print
+          hides .actions, and this was the page's only link to where the comparison belongs. */}
+      <p>
+        This comparison belongs to the{" "}
+        <a href="/discover/special-relativity/">special-relativity discovery route</a>.
+      </p>
       <nav className="actions" aria-label="Related optical comparisons">
         {SHELF_IDS.filter((id) => id !== instrumentId).map((id) => (
           <a key={id} href={`/lab/${id}/`}>
             {SHELF_DEFINITIONS[id].title}
           </a>
         ))}
-        <a href="/discover/special-relativity/">Return to the special-relativity discovery route</a>
         <a href="/instruments/">All instruments</a>
       </nav>
     </article>
