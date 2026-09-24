@@ -31,9 +31,13 @@ test("foundCalculus.constructions: TableToPlotBuilder renders SSR markup, keyboa
 
   // Keyboard controls
   assert.ok(html.includes('aria-label="Plot builder controls"'));
-  assert.ok(html.includes('aria-label="Plot next data point"'));
-  assert.ok(html.includes('aria-label="Plot every point in the table"'));
-  assert.ok(html.includes('aria-label="Reset plot to first point"'));
+  // The visible words are the accessible name, and the controls are aria-disabled, never
+  // disabled, so a button keeps keyboard focus when it stops applying.
+  assert.ok(html.includes("Plot next point (5/5)"));
+  assert.ok(html.includes("Plot all"));
+  assert.ok(!html.includes(' disabled=""') && !/<button[^>]* disabled[ >]/.test(html));
+  assert.ok(html.includes('aria-disabled="true"'));
+  assert.ok(html.includes("Reset to the first point"));
   assert.ok(html.includes('aria-live="polite"'));
 
   // The table is computed from λx² = 2Dt, and must say so: it was captioned "Table of paired
@@ -558,10 +562,14 @@ test("foundCalculus.constructions: E2E 2 - From Brownian §5, open foundation:fu
     assert.equal(dialog.open, true, "Clarification drawer must open");
 
     // Step 2: Operate plot builder with keyboard only (Reset -> Plot next -> Plot all)
-    const resetBtn = mustQuery<HTMLButtonElement>(
-      pageRoot,
-      'button[aria-label="Reset plot to first point"]',
-    );
+    const button = (label: string) => {
+      const found = [...pageRoot.querySelectorAll<HTMLButtonElement>("button")].find((b) =>
+        b.textContent?.startsWith(label),
+      );
+      assert.ok(found, `No button labelled ${label}`);
+      return found;
+    };
+    const resetBtn = button("Reset to the first point");
     await act(async () => {
       resetBtn.focus();
       resetBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -570,10 +578,7 @@ test("foundCalculus.constructions: E2E 2 - From Brownian §5, open foundation:fu
     assert.equal(statusEl.textContent, "Showing 1 of 5 points plotted.");
 
     // Advance plot with keyboard
-    const nextBtn = mustQuery<HTMLButtonElement>(
-      pageRoot,
-      'button[aria-label="Plot next data point"]',
-    );
+    const nextBtn = button("Plot next point");
     await act(async () => {
       nextBtn.focus();
       nextBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -581,12 +586,19 @@ test("foundCalculus.constructions: E2E 2 - From Brownian §5, open foundation:fu
     assert.equal(statusEl.textContent, "Showing 2 of 5 points plotted.");
 
     // Plot all with keyboard
-    const allBtn = mustQuery<HTMLButtonElement>(
-      pageRoot,
-      'button[aria-label="Plot every point in the table"]',
-    );
+    const allBtn = button("Plot all");
     await act(async () => {
       allBtn.focus();
+      allBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    assert.equal(statusEl.textContent, "Showing 5 of 5 points plotted.");
+    // Plotting the last point makes Plot all inapplicable. It must stay focusable and keep focus,
+    // marked aria-disabled, rather than become disabled and drop the reader to the page's top.
+    assert.equal(allBtn.disabled, false);
+    assert.equal(allBtn.getAttribute("aria-disabled"), "true");
+    assert.equal(pageRoot.ownerDocument.activeElement, allBtn);
+    // Pressing it again does nothing.
+    await act(async () => {
       allBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
     assert.equal(statusEl.textContent, "Showing 5 of 5 points plotted.");

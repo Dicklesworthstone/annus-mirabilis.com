@@ -32,6 +32,9 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
     Sub = headingTag(headingLevel, 1);
   const [plottedCount, setPlottedCount] = useState<number>(BROWNIAN_PLOT_POINTS.length);
 
+  const complete = plottedCount >= BROWNIAN_PLOT_POINTS.length;
+  const atStart = plottedCount <= 1;
+
   const plotNext = () => {
     setPlottedCount((c) => Math.min(c + 1, BROWNIAN_PLOT_POINTS.length));
   };
@@ -70,34 +73,23 @@ export function TableToPlotBuilder({ headingLevel = 3 }: { readonly headingLevel
         2 µm²/s. Plot it point by point to see what square-root growth looks like.
       </p>
 
+      {/* aria-disabled, not disabled: a disabled button loses focus the moment it is disabled, so
+          plotting the last point or pressing Reset sent a keyboard reader back to the top of the
+          page. An aria-disabled button keeps focus and does nothing when pressed, and the status
+          line below announces the new count. No aria-label: the visible words are the name. */}
       <fieldset
         className="construction-controls"
         aria-label="Plot builder controls"
         style={{ border: "none", padding: 0, margin: 0 }}
       >
-        <button
-          type="button"
-          onClick={plotNext}
-          disabled={plottedCount >= BROWNIAN_PLOT_POINTS.length}
-          aria-label="Plot next data point"
-        >
+        <button type="button" onClick={complete ? undefined : plotNext} aria-disabled={complete}>
           Plot next point ({plottedCount}/{BROWNIAN_PLOT_POINTS.length})
         </button>
-        <button
-          type="button"
-          onClick={plotAll}
-          disabled={plottedCount >= BROWNIAN_PLOT_POINTS.length}
-          aria-label="Plot every point in the table"
-        >
+        <button type="button" onClick={complete ? undefined : plotAll} aria-disabled={complete}>
           Plot all
         </button>
-        <button
-          type="button"
-          onClick={resetPlot}
-          disabled={plottedCount <= 1}
-          aria-label="Reset plot to first point"
-        >
-          Reset
+        <button type="button" onClick={atStart ? undefined : resetPlot} aria-disabled={atStart}>
+          Reset to the first point
         </button>
         <span className="construction-status" aria-live="polite">
           Showing {plottedCount} of {BROWNIAN_PLOT_POINTS.length} points plotted.
