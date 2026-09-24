@@ -16,8 +16,9 @@ import "./menuToggle.css";
  * the six links in view exactly as before, and never sees a button that cannot work.
  *
  * It sits before the nav in the document, so the links it reveals follow it in reading and tab
- * order. Escape closes it and returns focus here, so a keyboard never loses its place in a list
- * that has just disappeared. A link loads a new page, where the menu starts closed.
+ * order. Escape pressed on this button or one of the links closes it and returns focus here, so a
+ * keyboard never loses its place in a list that has just disappeared. A link loads a new page,
+ * where the menu starts closed.
  */
 export function MenuToggle() {
   const [open, setOpen] = useState(false);
@@ -35,7 +36,14 @@ export function MenuToggle() {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      // Only from inside the menu. The open menu stays in the page's flow, so Tab carries on past
+      // it into the page; an Escape pressed there belongs to the page. Answering it from anywhere
+      // pulled focus and the scroll back to the header: measured on live /about/ at 390px, a link
+      // in the main text at scrollY 601, then Escape, and focus was on this button at scrollY 26.
+      const target = event.target instanceof Node ? event.target : null;
+      const nav = document.getElementById("site-nav");
+      if (!target || !(button.current?.contains(target) || nav?.contains(target))) return;
       setOpen(false);
       button.current?.focus();
     };

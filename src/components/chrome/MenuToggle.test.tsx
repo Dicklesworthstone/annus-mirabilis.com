@@ -51,19 +51,41 @@ describe("MenuToggle", () => {
     removeContainer(container);
   });
 
-  test("Escape closes it and gives focus back to the button", async () => {
+  test("Escape from a link in the menu closes it and gives focus back to the button", async () => {
     const { container, root, button } = await render();
     await act(async () => button.click());
-    const elsewhere = document.createElement("a");
-    elsewhere.href = "/papers/";
-    document.body.append(elsewhere);
-    elsewhere.focus();
+    const nav = document.createElement("nav");
+    nav.id = "site-nav";
+    const link = document.createElement("a");
+    link.href = "/papers/";
+    nav.append(link);
+    document.body.append(nav);
+    link.focus();
     await act(async () => {
-      window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      link.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     });
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(document.documentElement.hasAttribute("data-menu-open")).toBe(false);
     expect(document.activeElement).toBe(button);
+    nav.remove();
+    await act(async () => root.unmount());
+    removeContainer(container);
+  });
+
+  test("Escape pressed in the page, past the open menu, leaves focus where it is", async () => {
+    // Tab carries on past the open menu into the page. An Escape there is the page's, and used to
+    // pull focus and the scroll back to the header.
+    const { container, root, button } = await render();
+    await act(async () => button.click());
+    const elsewhere = document.createElement("a");
+    elsewhere.href = "/sources/";
+    document.body.append(elsewhere);
+    elsewhere.focus();
+    await act(async () => {
+      elsewhere.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
+    expect(document.activeElement).toBe(elsewhere);
+    expect(button.getAttribute("aria-expanded")).toBe("true");
     elsewhere.remove();
     await act(async () => root.unmount());
     removeContainer(container);
