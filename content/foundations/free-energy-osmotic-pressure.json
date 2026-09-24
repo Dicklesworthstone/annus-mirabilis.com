@@ -18,7 +18,8 @@
     {
       "kind": "formula",
       "latex": "p = \\frac{RT}{N}\\,\\nu",
-      "spoken": "The osmotic pressure p equals R T over N, times the number of particles per unit volume, nu."
+      "spoken": "The osmotic pressure p equals R T over N, times the number of particles per unit volume, nu.",
+      "equations": ["eq-model-fd-osmotic-pressure"]
     },
     {
       "kind": "paragraph",

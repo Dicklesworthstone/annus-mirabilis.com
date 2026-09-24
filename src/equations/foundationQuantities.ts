@@ -237,6 +237,33 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
       pick(MASS_ENERGY_QUANTITIES, "bodyMassBefore"),
       pick(MASS_ENERGY_QUANTITIES, "bodyMassAfter"),
       pick(MASS_ENERGY_QUANTITIES, "frameSpeed"),
+      // Osmotic pressure: section 1's p = (RT/N) ν, in the paper's own letters.
+      own({
+        id: "osmoticPressure",
+        name: "Osmotic pressure",
+        glyph: "p",
+        dimension: ["-1", "1", "-2", "0", "0", "0"],
+        unit: "Pa",
+        displayUnit: "Pa",
+        displayPower: 0,
+        semanticKind: "pressure",
+        role: "result",
+        definition:
+          "p: the push on each square metre of a membrane that dissolved particles cannot cross.",
+      }),
+      own({
+        id: "suspendedNumberDensity",
+        name: "Particles per unit volume",
+        glyph: "\\nu",
+        dimension: ["-3", "0", "0", "0", "0", "0"],
+        unit: "1/m^3",
+        displayUnit: "1/m^3",
+        displayPower: 0,
+        semanticKind: "number-density",
+        role: "input",
+        definition:
+          "Section 1's ν: the number of dissolved or suspended particles in each unit of volume.",
+      }),
       // Diffusion: the density and its flux along one coordinate.
       pick(BROWNIAN_QUANTITIES, "probabilityDensity"),
       pick(BROWNIAN_QUANTITIES, "displacementIncrement"),

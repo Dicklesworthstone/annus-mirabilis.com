@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-osmotic-pressure",
+  "paper": "foundations",
+  "argument": "free-energy-osmotic-pressure",
+  "title": "The osmotic pressure of dissolved or suspended particles",
+  "spoken": "p equals R T over N, times nu.",
+  "explanation": "Each particle in a unit of volume adds the same share of pressure, RT/N, so the pressure is that share times the number of particles per unit volume.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A dilute solution or suspension, where the particles do not crowd one another.",
+    "A foundation lesson's statement in the paper's letters; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-osmotic-pressure.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-osmotic-pressure.t.p",
+      "quantityId": "osmoticPressure"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-osmotic-pressure.op.times",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-osmotic-pressure.op.perParticle",
+          "numerator": {
+            "kind": "product",
+            "opId": "eq-model-fd-osmotic-pressure.op.rt",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-osmotic-pressure.t.r",
+                "quantityId": "molarGasConstant"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-osmotic-pressure.t.temp",
+                "quantityId": "temperature"
+              }
+            ]
+          },
+          "denominator": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-osmotic-pressure.t.n",
+            "quantityId": "avogadroConstant"
+          }
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-osmotic-pressure.t.nu",
+          "quantityId": "suspendedNumberDensity"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-osmotic-pressure.op.relation",
+      "title": "What it asserts",
+      "explanation": "The pressure on the membrane is set by how many particles there are, not by what they are.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-fd-osmotic-pressure.op.times",
+      "title": "A share per particle, times the particles",
+      "explanation": "Double the particles in each unit of volume and the pressure doubles.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-fd-osmotic-pressure.op.perParticle",
+      "title": "RT/N, each particle's share",
+      "explanation": "The gas constant per mole divided by the particles in a mole: the thermal share one particle contributes.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-fd-osmotic-pressure.op.rt",
+      "title": "R T",
+      "explanation": "The thermal energy of a mole at temperature T.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-fd-osmotic-pressure.t.p",
+      "title": "p, the osmotic pressure",
+      "explanation": "The push on each square metre of a membrane the particles cannot cross.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-fd-osmotic-pressure.t.r",
+      "title": "R, the gas constant",
+      "explanation": "The same constant as in the gas law for a mole of gas.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-fd-osmotic-pressure.t.temp",
+      "title": "T, the temperature",
+      "explanation": "The absolute temperature of the solution.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-fd-osmotic-pressure.t.n",
+      "title": "N, particles in a mole",
+      "explanation": "The number of molecules in a mole, the number Einstein's paper sets out to measure.",
+      "foundation": "free-energy-osmotic-pressure"
+    },
+    {
+      "nodeId": "eq-model-fd-osmotic-pressure.t.nu",
+      "title": "ν, particles per unit volume",
+      "explanation": "How many dissolved or suspended particles sit in each unit of volume.",
+      "foundation": "free-energy-osmotic-pressure"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The osmotic pressure",
+      "nodeId": "eq-model-fd-osmotic-pressure.t.p"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "each particle's share, RT/N,",
+      "nodeId": "eq-model-fd-osmotic-pressure.op.perParticle"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the number of particles in each unit of volume",
+      "nodeId": "eq-model-fd-osmotic-pressure.t.nu"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
