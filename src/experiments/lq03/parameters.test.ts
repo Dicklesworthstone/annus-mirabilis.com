@@ -12,7 +12,7 @@ describe("validateLq03Parameters: out-of-domain input explains, never silently c
     const tooLow = validateLq03Parameters({ ...LQ03_DEFAULTS, T: 100 });
     expect(tooLow.kind).toBe("refused");
     if (tooLow.kind !== "refused") return;
-    expect(String(tooLow.refusal.details?.requirements)).toMatch(/500 K and 10000 K/);
+    expect(String(tooLow.refusal.details?.requirements)).toMatch(/from 500 to 10 000 K/);
 
     const tooHigh = validateLq03Parameters({ ...LQ03_DEFAULTS, T: 1e6 });
     expect(tooHigh.kind).toBe("refused");
@@ -37,7 +37,11 @@ describe("validateLq03Parameters: out-of-domain input explains, never silently c
     const inverted = validateLq03Parameters({ ...LQ03_DEFAULTS, nu1: 6e14, nu2: 4e14 });
     expect(inverted.kind).toBe("refused");
     if (inverted.kind !== "refused") return;
-    expect(String(inverted.refusal.details?.requirements)).toMatch(/inverted or empty/);
+    const sentence = String(inverted.refusal.details?.requirements);
+    expect(sentence).toMatch(/inverted or empty/);
+    // Both edges, as the reader typed them, typeset as powers of ten rather than 600000000000000.
+    expect(sentence).toContain("4 × 10^{14} Hz");
+    expect(sentence).toContain("6 × 10^{14} Hz");
   });
 
   test("an empty band (nu2 === nu1) is refused", () => {
