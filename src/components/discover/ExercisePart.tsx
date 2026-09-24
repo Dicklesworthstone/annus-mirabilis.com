@@ -10,6 +10,7 @@ import {
   NEXT_ACTION,
 } from "../../discovery/exercises/answer.ts";
 import type { DomainProbeOutcome } from "../../discovery/exercises/domainProbe.ts";
+import { plainText } from "../../discovery/exercises/numeric.ts";
 import { Sci } from "../lab/Sci.tsx";
 
 export type { ExpressionExercisePart } from "../../discovery/exercises/answer.ts";
@@ -126,11 +127,11 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
                 : Object.entries(verdict.outcome.point).map(([name, value], i) => (
                     <span key={name}>
                       {i > 0 ? ", " : ""}
-                      {name} = <Sci value={value} digits={5} />
+                      {name} = <Readable value={value} />
                     </span>
                   ))}
-              , your expression gives <Sci value={verdict.outcome.readerValue} digits={5} /> and the
-              reference gives <Sci value={verdict.outcome.referenceValue} digits={5} />.
+              , your expression gives <Readable value={verdict.outcome.readerValue} /> and the
+              reference gives <Readable value={verdict.outcome.referenceValue} />.
             </p>
           )}
           {verdict.outcome.status === "could-not-compare" && (
@@ -205,4 +206,14 @@ function CheckedRanges({ domains }: { domains: ExpressionExercisePart["domains"]
       .
     </p>
   );
+}
+
+/**
+ * A number as a person writes it: six significant figures with trailing zeros dropped, plain
+ * between a thousandth and a million, and a power of ten only outside that range. "t = 10", not
+ * "t = 10.0000".
+ */
+function Readable({ value }: { value: number }) {
+  const rounded = Number(value.toPrecision(6)) + 0;
+  return <>{plainText(rounded) ?? <Sci value={rounded} />}</>;
 }

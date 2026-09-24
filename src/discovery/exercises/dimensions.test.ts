@@ -49,6 +49,17 @@ describe("the three cases the bead names", () => {
 });
 
 describe("the rest of the arithmetic", () => {
+  test("a speed squared is named as one, not spelled out as length and time exponents", () => {
+    const speeds = { v: dimension(["1", "0", "-1", "0", "0", "0"]) };
+    const parsed = parse("1-v^2", new Set(["v"]));
+    if (!parsed.ok) throw new TypeError(parsed.message);
+    expect(dimensionOf(parsed.expr, speeds)).toEqual({
+      kind: "refused",
+      message:
+        "Your expression subtracts a speed squared from a pure number, and quantities of different dimensions cannot be added or subtracted.",
+    });
+  });
+
   test("adding quantities of different dimensions is refused in words", () => {
     expect(dimensionMessage(tree("D+t"), length, DIMENSIONS)).toBe(
       "Your expression adds a time to an area per unit time, the dimension of a diffusion coefficient, and quantities of different dimensions cannot be added or subtracted.",
