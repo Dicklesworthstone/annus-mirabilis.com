@@ -92,6 +92,14 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
           At position {verdict.position}: {verdict.message}
         </p>
       )}
+      {verdict?.kind === "dimension" && (
+        <div className="exercise-verdict" role="status">
+          <p>
+            Read as <code>{verdict.readAs}</code>
+          </p>
+          <p>{verdict.message}</p>
+        </div>
+      )}
       {verdict?.kind === "checked" && (
         <div className="exercise-verdict" role="status">
           {verdict.readAs && (

@@ -1,5 +1,6 @@
 /** Shared reader-answer workflow. No browser storage, network, eval or alternate RNG. */
 import { type ToleranceSpec, validateToleranceSpec } from "../../units/tolerance.ts";
+import { dimensionMessage, readDimensions } from "./dimensions.ts";
 import { checkEquivalence, type EquivalenceOutcome } from "./equivalence.ts";
 import { ALLOWED_FUNCTIONS, echo, parse } from "./grammar.ts";
 import { normalize } from "./normalize.ts";
@@ -13,9 +14,16 @@ export interface ExpressionExercisePart {
   readonly referenceSource: string;
   readonly tolerance: ToleranceSpec;
   readonly workedExplanation: string;
+  /**
+   * Optional: each variable's dimension, six exponents in the content/quantities order (length,
+   * mass, time, temperature, current, amount). With it, a dimensionally wrong answer is told so
+   * before any numeric comparison.
+   */
+  readonly dimensions?: Readonly<Record<string, readonly string[]>>;
 }
 export type AnswerVerdict =
   | Readonly<{ kind: "parse-error"; position: number; message: string }>
+  | Readonly<{ kind: "dimension"; message: string; readAs: string }>
   | Readonly<{
       kind: "checked";
       outcome: EquivalenceOutcome;
@@ -113,6 +121,20 @@ export function snapshotExercise(part: ExpressionExercisePart): ExpressionExerci
   const reference = parse(referenceSource, new Set(declaredNames));
   if (!reference.ok)
     throw new TypeError(`The reference expression is invalid: ${reference.message}`);
+  // Optional, and never thrown on: a malformed map only turns the dimension pre-check off.
+  const descriptor = Object.getOwnPropertyDescriptor(part, "dimensions");
+  const rawDimensions: unknown =
+    descriptor?.enumerable && Object.hasOwn(descriptor, "value") ? descriptor.value : undefined;
+  const dimensionMap = rawDimensions ? readDimensions(rawDimensions, variables) : null;
+  // readDimensions accepted it, so it is a record with a six-entry list for every variable.
+  const accepted = rawDimensions as Readonly<Record<string, readonly string[]>>;
+  const dimensions = dimensionMap
+    ? Object.freeze(
+        Object.fromEntries(
+          variables.map((name) => [name, Object.freeze([...(accepted[name] ?? [])])]),
+        ),
+      )
+    : undefined;
   return Object.freeze({
     id,
     prompt,
@@ -121,6 +143,7 @@ export function snapshotExercise(part: ExpressionExercisePart): ExpressionExerci
     declaredNames,
     domains,
     tolerance,
+    ...(dimensions ? { dimensions } : {}),
   });
 }
 
@@ -170,6 +193,11 @@ export async function checkExerciseAnswer(
       return { kind: "parse-error", position: reader.position, message: reader.message };
     const reference = parse(p.referenceSource, new Set(p.declaredNames));
     if (!reference.ok) throw new TypeError("The reference expression is invalid.");
+    const dimensionMap = p.dimensions ? readDimensions(p.dimensions, Object.keys(p.domains)) : null;
+    if (dimensionMap) {
+      const message = dimensionMessage(reader.expr, reference.expr, dimensionMap);
+      if (message) return { kind: "dimension", message, readAs: echo(reader.expr) };
+    }
     const seed = await deriveExerciseSeed(exerciseDefinitionKey(p));
     return {
       kind: "checked",

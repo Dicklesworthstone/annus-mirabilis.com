@@ -188,6 +188,9 @@ const DISPLACEMENT_SCALE_EXERCISE: ExpressionExercisePart = {
   },
   referenceSource: "2*sqrt(D*t)",
   tolerance: { absolute: 1e-9, relative: 1e-9 },
+  // Length, mass, time, temperature, current, amount: D in m²/s and t in s, so an answer with the
+  // wrong dimension, such as D*t, is told so before any numbers are compared.
+  dimensions: { D: ["2", "0", "-1", "0", "0", "0"], t: ["0", "0", "1", "0", "0", "0"] },
   workedExplanation:
     "The squared distance from the start is x² + y². Each axis contributes a mean square of 2·D·t, independently, so the mean square distance is 4·D·t, and its root is sqrt(4·D·t) = 2·sqrt(D·t). That is sqrt(2) times the one-axis value, sqrt(2·D·t), not twice it: the two mean squares add, not the two distances.",
 };
