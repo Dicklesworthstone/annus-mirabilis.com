@@ -15,6 +15,8 @@ import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
 import { NotationNote } from "./NotationNote.tsx";
 import { navigate } from "./navigation.ts";
 import { createSelectionStore } from "./selectionStore.ts";
+import { lightQuantity, quantityAt } from "./TermHighlight.tsx";
+import { withQuantityIds } from "./termQuantities.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 import "./equations.css";
 
@@ -85,6 +87,14 @@ export function SemanticEquation({
   useEffect(() => {
     setReady(true);
   }, []);
+  // TERMS AS TARGETS (dispatch 144): pointing at or focusing anything that names a quantity lights
+  // every instance of that exact quantity in this card; a click still selects, as before.
+  const [pointed, setPointed] = useState<string | null>(null);
+  useEffect(() => {
+    if (root.current) lightQuantity(root.current, pointed);
+  }, [pointed]);
+  const pointAt = (target: EventTarget | null) =>
+    setPointed(root.current ? quantityAt(root.current, target) : null);
   useEffect(() => {
     for (const element of root.current?.querySelectorAll<HTMLElement>("[data-term],[data-op]") ??
       []) {
@@ -151,6 +161,10 @@ export function SemanticEquation({
       data-equation-digest={equation.treeDigest}
       data-selected-node-id={current ?? undefined}
       data-pattern={String(pattern)}
+      onPointerOver={(e) => pointAt(e.target)}
+      onPointerLeave={() => setPointed(null)}
+      onFocus={(e) => pointAt(e.target)}
+      onBlur={() => setPointed(null)}
     >
       <header>
         <p className="eyebrow">
@@ -188,7 +202,9 @@ export function SemanticEquation({
           className="equation-visual"
           aria-hidden="true"
           data-notation-form={printedNotation ? "modern" : undefined}
-          {...{ dangerouslySetInnerHTML: { __html: equation.html } }}
+          {...{
+            dangerouslySetInnerHTML: { __html: withQuantityIds(equation.html, equation.terms) },
+          }}
         />
         <div
           className="equation-mathml"
@@ -201,7 +217,11 @@ export function SemanticEquation({
               className="equation-visual"
               aria-hidden="true"
               data-notation-form="printed"
-              {...{ dangerouslySetInnerHTML: { __html: printedNotation.html } }}
+              {...{
+                dangerouslySetInnerHTML: {
+                  __html: withQuantityIds(printedNotation.html, equation.terms),
+                },
+              }}
             />
             <div
               className="equation-mathml"

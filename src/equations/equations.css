@@ -503,8 +503,8 @@
    THE READING'S OWN FORMULAS, COLOURED IN PLACE (ColouredFormula). A formula block that names its
    equation records shows them here, where the plain formula was: two relations sit side by side as
    the text set them with \qquad, and wrap to one per line on a phone. The legend underneath names
-   each quantity by glyph and name, centred under the formula it keys. Nothing here is interactive,
-   so the term spans do not take the explorer's pointer cursor.
+   each quantity by glyph and name, centred under the formula it keys. Its terms are targets (TERMS
+   AS TARGETS, below); its operations are not, so they keep the ordinary cursor.
    --------------------------------------------------------------------------- */
 .reading-formula {
   margin: 1rem 0 0.25rem;
@@ -541,7 +541,6 @@
 .reading-formula .equation-visual .katex-display {
   margin: 0.4rem 0;
 }
-.reading-formula .equation-visual [data-term],
 .reading-formula .equation-visual [data-op] {
   cursor: auto;
 }
@@ -586,4 +585,81 @@
 }
 .notation-note {
   margin-block: 0.25rem 0;
+}
+
+/* ---------------------------------------------------------------------------
+   TERMS AS TARGETS (dispatch 144; the owner, 2026-09-24: "more like the ones from the
+   ~/projects/classic-patents.com site, with hover-over and stuff"). Every term that names a
+   quantity is a chip: a faint tint of its own colour at rest, and, once lit, a stronger tint, a
+   ring and a soft glow. A term is lit while it is pointed at, focused or pinned, or while another
+   instance of the same quantity is; TermHighlight links the instances by exact quantity id, and
+   without JavaScript :hover still marks the one under the pointer.
+
+   CONTRAST, MEASURED (termTint.test.ts). A glyph in its own colour over its own tint falls below
+   4.5:1 in the light theme above about 7%, so the rest tint is 6% there (worst 4.58, ochre on the
+   wash) and 10% in the dark theme (worst 5.16). A lit chip is 22% and its glyph takes the ink
+   (worst 6.36 light, 6.52 dark), so the colour lives in the chip while it is lit. The ring, at 80%,
+   clears the 3:1 boundary minimum (3.39, 4.40). Ring and glow are box-shadows, so a chip adds no
+   width and no formula grows past a phone.
+   --------------------------------------------------------------------------- */
+:root {
+  --term-rest: 6%;
+  --term-lit: 22%;
+}
+:root[data-theme="kramgasse-night"] {
+  --term-rest: 10%;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --term-rest: 10%;
+  }
+}
+/* In ascending specificity, so no later rule is outranked by an earlier one it follows. */
+.equation-legend [data-quantity-id],
+.equation-sentence [data-quantity-id] {
+  border-radius: 0.3em;
+}
+.reading-formula .equation-legend [data-quantity-id] {
+  cursor: pointer;
+}
+.equation-visual .katex [data-quantity-id] {
+  border-radius: 0.25em;
+  background: color-mix(in srgb, var(--qc) var(--term-rest), transparent);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  cursor: pointer;
+}
+.equation-legend [data-quantity-id][data-lit],
+.equation-sentence [data-quantity-id][data-lit] {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--qc) var(--term-lit), transparent);
+  box-shadow:
+    0 0 0 0.12em color-mix(in srgb, var(--qc) var(--term-lit), transparent),
+    0 0 0 0.18em color-mix(in srgb, var(--qc) 80%, transparent);
+}
+.equation-visual .katex [data-quantity-id]:hover,
+.equation-visual .katex [data-quantity-id][data-lit],
+.equation-visual .katex [data-quantity-id][data-selected="true"] {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--qc) var(--term-lit), transparent);
+  box-shadow:
+    0 0 0 0.08em color-mix(in srgb, var(--qc) var(--term-lit), transparent),
+    0 0 0 0.14em color-mix(in srgb, var(--qc) 80%, transparent),
+    0 0 0.6em color-mix(in srgb, var(--qc) 35%, transparent);
+  outline: none;
+}
+.equation-visual .katex [data-quantity-id]:hover [class*="am-role-"],
+.equation-visual .katex [data-quantity-id][data-lit] [class*="am-role-"],
+.equation-visual .katex [data-quantity-id][data-selected="true"] [class*="am-role-"] {
+  color: var(--ink);
+}
+/* Motion only for readers who have not asked for less: the tint and ring change at once for them. */
+@media (prefers-reduced-motion: no-preference) {
+  .equation-legend [data-quantity-id],
+  .equation-sentence [data-quantity-id],
+  .equation-visual .katex [data-quantity-id] {
+    transition:
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
 }

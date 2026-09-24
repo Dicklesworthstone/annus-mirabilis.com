@@ -6,11 +6,17 @@
  *
  * Server-rendered and static: the coloured HTML is aria-hidden and the MathML beside it is what
  * assistive technology reads, as in SemanticEquation. The legend under it names every quantity by
- * glyph and name, which is the channel that does not depend on seeing colour. Exploring a term
- * stays with the explorer cards.
+ * glyph and name, which is the channel that does not depend on seeing colour.
+ *
+ * TERMS AS TARGETS (dispatch 144). Each term span carries its exact quantity id
+ * (termQuantities.ts), and a small island (TermHighlight) lights every instance of a quantity in
+ * the row and its legend when one is pointed at, focused or clicked. Without JavaScript the formula
+ * and the legend are exactly as before, and CSS alone marks the term under the pointer.
  */
 import { NotationNote } from "../equations/NotationNote.tsx";
 import { quantityLegend } from "../equations/quantityColourView.ts";
+import { TermHighlight } from "../equations/TermHighlight.tsx";
+import { withQuantityIds } from "../equations/termQuantities.ts";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
 import { QuantityLegendList } from "./QuantityLegendList.tsx";
 import "../equations/equations.css";
@@ -30,7 +36,10 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
   });
   const rowLabel = `Formula: ${equations.map((e) => e.title || e.id).join("; ")}`;
   return (
-    <div className="reading-formula" data-equations={equations.map((e) => e.id).join(" ")}>
+    <TermHighlight
+      className="reading-formula"
+      data-equations={equations.map((e) => e.id).join(" ")}
+    >
       {/* A tab stop because it can scroll: a relation wider than a phone scrolls inside its own
           line rather than pushing the page sideways, and a keyboard reader needs to reach that
           scroll. Named by the equations it shows; the focus ring is the global one. */}
@@ -48,7 +57,11 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
                 className="equation-visual"
                 aria-hidden="true"
                 data-notation-form={printed ? "modern" : undefined}
-                {...{ dangerouslySetInnerHTML: { __html: equation.html } }}
+                {...{
+                  dangerouslySetInnerHTML: {
+                    __html: withQuantityIds(equation.html, equation.terms),
+                  },
+                }}
               />
               <div
                 className="equation-mathml"
@@ -61,7 +74,11 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
                     className="equation-visual"
                     aria-hidden="true"
                     data-notation-form="printed"
-                    {...{ dangerouslySetInnerHTML: { __html: printed.html } }}
+                    {...{
+                      dangerouslySetInnerHTML: {
+                        __html: withQuantityIds(printed.html, equation.terms),
+                      },
+                    }}
                   />
                   <div
                     className="equation-mathml"
@@ -82,6 +99,6 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
         />
       ) : null}
       <QuantityLegendList legend={legend} label="Quantities in this formula" />
-    </div>
+    </TermHighlight>
   );
 }
