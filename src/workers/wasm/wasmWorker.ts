@@ -7,10 +7,11 @@
  * Conforms to am-rt-worker-protocol-gaq and passes runProtocolConformance.
  */
 
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
+import { createBufferHeader } from "../protocol/buffers.ts";
 import type { WorkerChannel } from "../protocol/conformance.ts";
-import { loadDefaultManifest } from "../protocol/provenance.ts";
+import { loadDefaultManifest, registerAdmittedManifest } from "../protocol/provenance.ts";
 import {
   type AcceptedResponse,
   type HelloMessage,
@@ -20,14 +21,23 @@ import {
   type RequestMessage,
 } from "../protocol/schema.ts";
 import {
+  callBrownianFrames,
+  callDiffusion1dFrames,
+  callPhiloxNormals,
+  type FrankenSimCall,
+} from "./frankensimCalls.ts";
+import {
   type BundleLoadResult,
   type BundleLoadSuccess,
   type LoadBundleOptions,
   loadBundle,
+  type WasmBindgenGlue,
+  wasmFileOf,
 } from "./loadBundle.ts";
+import { PINNED_ARTIFACT } from "./pinnedArtifact.ts";
+import { pinnedGlue } from "./pinnedGlue.ts";
 
-export const PINNED_WASM_DIGEST =
-  "105d7ffc15414de5eccebcbcae942015b187fed0ea67a26ced5c50949593bb7b";
+export const PINNED_WASM_DIGEST = PINNED_ARTIFACT.wasmDigest;
 
 export const WASM_WORKER_HELLO: HelloMessage = {
   messageKind: "hello",
@@ -74,37 +84,151 @@ if (
  * Resolves default bundle loading options in Node / Bun test and worker contexts.
  */
 export function resolveDefaultBundleOptions(options: LoadBundleOptions = {}): LoadBundleOptions {
-  if (options.manifestData && options.wasmUrl) {
-    return options;
-  }
-
   const isNodeOrBun =
     typeof process !== "undefined" &&
     typeof process.cwd === "function" &&
     typeof window === "undefined";
 
+  const glue = options.glue ?? (pinnedGlue as unknown as WasmBindgenGlue);
   if (isNodeOrBun) {
     const manifest = options.manifestData ?? loadDefaultManifest(process.cwd()) ?? undefined;
+    const file = manifest ? wasmFileOf(manifest) : null;
     const wasmUrl =
       options.wasmUrl ??
-      (manifest
-        ? resolve(
-            process.cwd(),
-            "public/wasm",
-            manifest.bundleId,
-            manifest.hashPrefix,
-            "fs_annus_diffusion_bg.wasm",
-          )
+      (manifest && file
+        ? resolve(process.cwd(), "public/wasm", manifest.bundleId, manifest.hashPrefix, file)
         : undefined);
 
     return {
       ...options,
+      glue,
+      readBytes: options.readBytes ?? ((location: string) => readFile(location)),
       ...(manifest ? { manifestData: manifest } : {}),
       ...(wasmUrl ? { wasmUrl } : {}),
     };
   }
 
-  return options;
+  return { ...options, glue };
+}
+
+type Identity = Pick<AcceptedResponse, "instanceId" | "runId" | "actionIndex" | "revisions">;
+
+const LAYOUT_OF = {
+  brownian_frames: "brownian-frames",
+  philox_normals: "philox-normals",
+  diffusion1d_frames: "diffusion1d-frames",
+} as const;
+
+const CAPABILITY_OF = {
+  brownian_frames: "diffusion.brownian-frames",
+  philox_normals: "diffusion.philox-normals",
+  diffusion1d_frames: "diffusion.ftcs-1d",
+} as const;
+
+function num(parameters: RequestMessage["parameters"], key: string): number {
+  const v = parameters[key];
+  return typeof v === "number" ? v : Number.NaN;
+}
+
+/**
+ * A request naming `parameters.export` runs the real export on the loaded module. The seed is
+ * the request's canonical u64 string (seedPolicy.seed), handed to the module as a BigInt. The
+ * envelope becomes an accepted response carrying the values as a transferred buffer, a typed
+ * refusal, or a typed execution outcome (never malformed-response for a registered envelope).
+ */
+export function callRequestedExport(
+  req: RequestMessage,
+  bundle: BundleLoadSuccess,
+): {
+  message: AcceptedResponse | RefusalResponse | OutcomeResponse;
+  transfer: ArrayBuffer[];
+} | null {
+  const name = req.parameters.export;
+  if (name !== "brownian_frames" && name !== "philox_normals" && name !== "diffusion1d_frames")
+    return null;
+  const p = req.parameters;
+  const call: FrankenSimCall =
+    name === "brownian_frames"
+      ? callBrownianFrames(bundle.exports, {
+          nParticles: num(p, "nParticles"),
+          steps: num(p, "steps"),
+          stepKernel: num(p, "stepKernel"),
+          seed: req.seedPolicy.seed,
+          diffusion: num(p, "diffusion"),
+          dt: num(p, "dt"),
+        })
+      : name === "philox_normals"
+        ? callPhiloxNormals(bundle.exports, {
+            seed: req.seedPolicy.seed,
+            streamKernel: num(p, "streamKernel"),
+            tile: num(p, "tile"),
+            startIndex: String(p.startIndex ?? ""),
+            count: num(p, "count"),
+          })
+        : callDiffusion1dFrames(bundle.exports, {
+            n: num(p, "n"),
+            frames: num(p, "frames"),
+            stepsPerFrame: num(p, "stepsPerFrame"),
+            diffusion: num(p, "diffusion"),
+            dx: num(p, "dx"),
+            dt: num(p, "dt"),
+            profile: num(p, "profile"),
+          });
+  const identity: Identity = {
+    instanceId: req.instanceId,
+    runId: req.runId,
+    actionIndex: req.actionIndex,
+    revisions: req.revisions,
+  };
+  if (call.kind === "refused")
+    return {
+      message: { messageKind: "refusal", ...identity, refusal: call.refusal },
+      transfer: [],
+    };
+  if (call.kind === "outcome")
+    return {
+      message: { messageKind: "outcome", ...identity, outcome: call.outcome },
+      transfer: [],
+    };
+  const shape =
+    name === "brownian_frames"
+      ? [num(p, "nParticles"), num(p, "steps") + 1]
+      : name === "philox_normals"
+        ? [call.values.length]
+        : [num(p, "frames"), num(p, "n")];
+  const data = call.values.buffer as ArrayBuffer;
+  const message: AcceptedResponse & { dataBuffers: ArrayBuffer[] } = {
+    messageKind: "accepted",
+    ...identity,
+    acceptedParameters: req.parameters,
+    stepIndex:
+      name === "diffusion1d_frames"
+        ? num(p, "frames") - 1
+        : name === "brownian_frames"
+          ? num(p, "steps")
+          : 1,
+    simulatedTime:
+      name === "brownian_frames"
+        ? num(p, "steps") * num(p, "dt")
+        : name === "diffusion1d_frames"
+          ? (num(p, "frames") - 1) * num(p, "stepsPerFrame") * num(p, "dt")
+          : 0,
+    outputs: [],
+    modelDomain: { regime: name === "philox_normals" ? "stream" : "ideal-diffusion" },
+    final: true,
+    provenance: {
+      ownerKind: "frankensim",
+      capabilityId: CAPABILITY_OF[name],
+      evaluatorId: bundle.bundleId,
+      modelVersion: PINNED_ARTIFACT.transportVersion,
+      artifactDigest: bundle.digest,
+      streamVersion: 1,
+      determinismClass: "bitwise-identical",
+    },
+    buffers: [createBufferHeader(LAYOUT_OF[name], 1, shape, "transfer")],
+    dataBuffers: [data],
+  };
+  return { message, transfer: [data] };
 }
 
 export async function handleWasmWorkerMessageWithPost(
@@ -135,22 +259,21 @@ export async function handleWasmWorkerMessageWithPost(
     const req = msg as RequestMessage;
 
     if (bundleResult.kind === "refused") {
-      const outcomeId =
-        bundleResult.outcome === "unsupported-environment"
-          ? "environment-unsupported"
-          : bundleResult.outcome;
       const resp: OutcomeResponse = {
         messageKind: "outcome",
         instanceId: req.instanceId,
         runId: req.runId,
         actionIndex: req.actionIndex,
         revisions: req.revisions,
-        outcome: {
-          outcome: outcomeId,
-          ...executionOutcomeRegistry[outcomeId],
-        },
+        outcome: bundleResult.executionOutcome,
       };
       post(resp);
+      return;
+    }
+
+    const real = callRequestedExport(req, bundleResult);
+    if (real) {
+      post(real.message, real.transfer);
       return;
     }
 
@@ -485,6 +608,8 @@ export async function createWasmWorkerChannel(
 ): Promise<WorkerChannel> {
   const resolvedOpts = resolveDefaultBundleOptions(options);
   const bundleResult = await loadBundle(resolvedOpts);
+  if (bundleResult.kind === "loaded" && resolvedOpts.manifestData)
+    registerAdmittedManifest(resolvedOpts.manifestData);
 
   if (bundleResult.kind === "refused") {
     const error = new Error(
@@ -527,7 +652,12 @@ let standaloneBundlePromise: Promise<BundleLoadResult> | null = null;
 
 function getStandaloneBundle(): Promise<BundleLoadResult> {
   if (!standaloneBundlePromise) {
-    standaloneBundlePromise = loadBundle(resolveDefaultBundleOptions());
+    const resolvedOpts = resolveDefaultBundleOptions();
+    standaloneBundlePromise = loadBundle(resolvedOpts).then((result) => {
+      if (result.kind === "loaded" && resolvedOpts.manifestData)
+        registerAdmittedManifest(resolvedOpts.manifestData);
+      return result;
+    });
   }
   return standaloneBundlePromise;
 }
