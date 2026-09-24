@@ -1,12 +1,39 @@
 /** Server-only composition: select the REAL laboratory component and its existing example.
- * Literal imports keep the selected graph separate from the embed builder and ordinary
- * reading routes. No proxy evaluator, copied formula, fixture owner or generic fallback.
+ * Each laboratory is reached through lazyEmbeddedLabs.tsx, so an embed loads its own laboratory's
+ * code and no other's. No proxy evaluator, copied formula, fixture owner or generic fallback.
  */
 import type { ReactNode } from "react";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import type { PreparedLq06Example } from "../lq06/session.ts";
 import type { PreparedLq07Example } from "../lq07/session.ts";
 import type { EmbeddableId } from "./catalogue.ts";
+import {
+  LazyBrownianLab,
+  LazyChargeCurrentLab,
+  LazyClockSyncLab,
+  LazyCoefficientComparison,
+  LazyCoefficientMatchEntry,
+  LazyConfigurationLab,
+  LazyDopplerAberrationLab,
+  LazyDriftDiffusionLab,
+  LazyElectronDynamicsLab,
+  LazyEntropyWorkbenchLab,
+  LazyFieldFrameChangeLab,
+  LazyFluorescenceLab,
+  LazyIndependentConfigurationsLab,
+  LazyIonizationLab,
+  LazyLightComplexLab,
+  LazyLorentzMapLab,
+  LazyMagnetConductorLab,
+  LazyMovingMirrorLab,
+  LazyPhotoelectricLab,
+  LazyRodSimultaneityLab,
+  LazyShelfOpticsLab,
+  LazySpectrumLab,
+  LazyTracerLab,
+  LazyTwoLedgersLab,
+  LazyWaveDescriptionLab,
+} from "./lazyEmbeddedLabs.tsx";
 
 /** A prepared example that fails its own validation is a build defect. The embed says so and
  * points at the full laboratory, as a refusal should, instead of crashing the frame. */
@@ -22,32 +49,22 @@ function preparedExampleFailed(id: string): ReactNode {
 export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactNode> {
   switch (id) {
     case "bm-03": {
-      const { ConfigurationLab } = await import("../../components/lab/bm03/ConfigurationLab.tsx");
-      return <ConfigurationLab />;
+      return <LazyConfigurationLab />;
     }
     case "lq-05": {
-      const { IndependentConfigurationsLab } = await import(
-        "../../components/lab/lq05/IndependentConfigurationsLab.tsx"
-      );
-      return <IndependentConfigurationsLab />;
+      return <LazyIndependentConfigurationsLab />;
     }
     case "lq-06": {
-      const { CoefficientMatchEntry } = await import(
-        "../../components/lab/lq06/CoefficientMatchEntry.tsx"
-      );
       const { default: example } = await import("../../generated/lq06-example.json");
-      return <CoefficientMatchEntry example={example as unknown as PreparedLq06Example} />;
+      return <LazyCoefficientMatchEntry example={example as unknown as PreparedLq06Example} />;
     }
     case "sr-04": {
-      const { LorentzMapLab } = await import("../../components/lab/sr04/LorentzMapLab.tsx");
-      return <LorentzMapLab />;
+      return <LazyLorentzMapLab />;
     }
     case "me-01": {
-      const { TwoLedgersLab } = await import("../../components/lab/me01/TwoLedgersLab.tsx");
-      return <TwoLedgersLab />;
+      return <LazyTwoLedgersLab />;
     }
     case "me-02": {
-      const { CoefficientComparison } = await import("../../components/lab/CoefficientLab.tsx");
       const { validateMe02Parameters } = await import("../me02/parameters.ts");
       const { default: example } = await import("../../generated/me02-example.json");
       const { default: equations } = await import("../../generated/mass-energy-equations.json");
@@ -62,40 +79,35 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
           </p>
         );
       return (
-        <CoefficientComparison
+        <LazyCoefficientComparison
           example={{ ...example, parameters: checked.data }}
           equations={equations.equations as readonly CompiledEquation[]}
         />
       );
     }
     case "bm-01": {
-      const { TracerLab } = await import("../../components/lab/TracerLab.tsx");
       const { default: example } = await import("../../generated/bm01-example.json");
-      return <TracerLab example={example} />;
+      return <LazyTracerLab example={example} />;
     }
     case "bm-04": {
-      const { DriftDiffusionLab } = await import("../../components/lab/DriftDiffusionLab.tsx");
       const { validateBm04Parameters } = await import("../bm04/parameters.ts");
       const { default: example } = await import("../../generated/bm04-example.json");
       const checked = validateBm04Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("bm-04");
-      return <DriftDiffusionLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyDriftDiffusionLab example={{ ...example, parameters: checked.data }} />;
     }
     case "bm-06": {
-      const { BrownianLab } = await import("../../components/lab/BrownianLab.tsx");
       const { default: example } = await import("../../generated/bm06-example.json");
-      return <BrownianLab example={example} readings />;
+      return <LazyBrownianLab example={example} readings />;
     }
     case "lq-01": {
-      const { WaveDescriptionLab } = await import("../../components/lab/WaveDescriptionLab.tsx");
       const { validateLq01Parameters } = await import("../lq01/parameters.ts");
       const { default: example } = await import("../../generated/lq01-example.json");
       const checked = validateLq01Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("lq-01");
-      return <WaveDescriptionLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyWaveDescriptionLab example={{ ...example, parameters: checked.data }} />;
     }
     case "lq-03": {
-      const { SpectrumLab } = await import("../../components/lab/lq03/SpectrumLab.tsx");
       const { LQ03_DEFAULTS } = await import("../lq03/definition.ts");
       const { evaluateLq03 } = await import("../lq03/session.ts");
       const example = {
@@ -103,17 +115,13 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
         evaluation: evaluateLq03(LQ03_DEFAULTS),
         sourceDigest: "src/physics/reference/radiation.ts",
       };
-      return <SpectrumLab example={example} />;
+      return <LazySpectrumLab example={example} />;
     }
     case "lq-04": {
-      const { EntropyWorkbenchLab } = await import(
-        "../../components/lab/lq04/EntropyWorkbenchLab.tsx"
-      );
       const { default: example } = await import("../../generated/lq04-example.json");
-      return <EntropyWorkbenchLab example={example} />;
+      return <LazyEntropyWorkbenchLab example={example} />;
     }
     case "lq-07": {
-      const { FluorescenceLab } = await import("../../components/lab/lq07/FluorescenceLab.tsx");
       const { LQ07_DEFAULTS } = await import("../lq07/definition.ts");
       const { evaluateLq07 } = await import("../lq07/session.ts");
       const evalResult = evaluateLq07(LQ07_DEFAULTS);
@@ -126,101 +134,81 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
         stepIndex: 1,
         simulationTime: 1.0,
       };
-      return <FluorescenceLab example={example} />;
+      return <LazyFluorescenceLab example={example} />;
     }
     case "lq-08": {
-      const { PhotoelectricLab } = await import("../../components/lab/lq08/PhotoelectricLab.tsx");
       const { default: example } = await import("../../generated/lq08-example.json");
-      return <PhotoelectricLab example={example} />;
+      return <LazyPhotoelectricLab example={example} />;
     }
     case "lq-09": {
-      const { IonizationLab } = await import("../../components/lab/lq09/IonizationLab.tsx");
       const { default: example } = await import("../../generated/lq09-example.json");
-      return <IonizationLab example={example} />;
+      return <LazyIonizationLab example={example} />;
     }
     case "sr-01": {
-      const { ClockSyncLab } = await import("../../components/lab/sr01/ClockSyncLab.tsx");
       const { DEFAULT_PREPARED_EXAMPLE } = await import("../sr01/session.ts");
-      return <ClockSyncLab example={DEFAULT_PREPARED_EXAMPLE} />;
+      return <LazyClockSyncLab example={DEFAULT_PREPARED_EXAMPLE} />;
     }
     case "sr-02": {
-      const { MagnetConductorLab } = await import("../../components/lab/MagnetConductorLab.tsx");
       const { validateSr02Parameters } = await import("../sr02/parameters.ts");
       const { default: example } = await import("../../generated/sr02-example.json");
       const checked = validateSr02Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("sr-02");
-      return <MagnetConductorLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyMagnetConductorLab example={{ ...example, parameters: checked.data }} />;
     }
     case "sr-03": {
-      const { RodSimultaneityLab } = await import("../../components/lab/RodSimultaneityLab.tsx");
       const { validateSr03Parameters } = await import("../sr03/parameters.ts");
       const { default: example } = await import("../../generated/sr03-example.json");
       const checked = validateSr03Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("sr-03");
-      return <RodSimultaneityLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyRodSimultaneityLab example={{ ...example, parameters: checked.data }} />;
     }
     case "sr-08": {
-      const { FieldFrameChangeLab } = await import(
-        "../../components/lab/sr08/FieldFrameChangeLab.tsx"
-      );
       const { validateSr08Parameters } = await import("../sr08/parameters.ts");
       const { default: example } = await import("../../generated/sr08-example.json");
       const checked = validateSr08Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("sr-08");
-      return <FieldFrameChangeLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyFieldFrameChangeLab example={{ ...example, parameters: checked.data }} />;
     }
     case "sr-09": {
-      const { DopplerAberrationLab } = await import(
-        "../../components/lab/sr09/DopplerAberrationLab.tsx"
-      );
       const { validateSr09Parameters } = await import("../sr09/parameters.ts");
       const { default: example } = await import("../../generated/sr09-example.json");
       const checked = validateSr09Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("sr-09");
-      return <DopplerAberrationLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyDopplerAberrationLab example={{ ...example, parameters: checked.data }} />;
     }
     case "sr-10": {
-      const { LightComplexLab } = await import("../../components/lab/sr10/LightComplexLab.tsx");
       const { validateSr10Parameters } = await import("../sr10/parameters.ts");
       const { default: example } = await import("../../generated/sr10-example.json");
       const checked = validateSr10Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("sr-10");
-      return <LightComplexLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyLightComplexLab example={{ ...example, parameters: checked.data }} />;
     }
     case "sr-11": {
-      const { MovingMirrorLab } = await import("../../components/lab/sr11/MovingMirrorLab.tsx");
       const { validateSr11Parameters } = await import("../sr11/parameters.ts");
       const { default: example } = await import("../../generated/sr11-example.json");
       const checked = validateSr11Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("sr-11");
-      return <MovingMirrorLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyMovingMirrorLab example={{ ...example, parameters: checked.data }} />;
     }
     case "sr-12": {
-      const { ChargeCurrentLab } = await import("../../components/lab/sr12/ChargeCurrentLab.tsx");
       const { validateSr12Parameters } = await import("../sr12/parameters.ts");
       const { default: example } = await import("../../generated/sr12-example.json");
       const checked = validateSr12Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("sr-12");
-      return <ChargeCurrentLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyChargeCurrentLab example={{ ...example, parameters: checked.data }} />;
     }
     case "sr-13": {
-      const { ElectronDynamicsLab } = await import(
-        "../../components/lab/sr13/ElectronDynamicsLab.tsx"
-      );
       const { validateSr13Parameters } = await import("../sr13/parameters.ts");
       const { default: example } = await import("../../generated/sr13-example.json");
       const checked = validateSr13Parameters(example.parameters);
       if (checked.kind !== "accepted") return preparedExampleFailed("sr-13");
-      return <ElectronDynamicsLab example={{ ...example, parameters: checked.data }} />;
+      return <LazyElectronDynamicsLab example={{ ...example, parameters: checked.data }} />;
     }
     case "shelf-michelson-morley":
     case "shelf-fizeau":
     case "shelf-maxwell-galilean": {
       const { SHELF_DEFINITIONS } = await import("../shelfOptics/definition.ts");
       const { evaluateShelfOptics } = await import("../shelfOptics/evaluation.ts");
-      const { ShelfOpticsLab } = await import(
-        "../../components/lab/shelfOptics/ShelfOpticsLab.tsx"
-      );
       const { Formula } = await import("../../components/edition/Formula.tsx");
       const example = evaluateShelfOptics(SHELF_DEFINITIONS[id].defaults);
       return (
@@ -229,7 +217,7 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
             Modern SI calibration and illustrative settings. This is not a verified historical
             dataset or a strict 1904-mode instrument. No FrankenSim WASM execution is claimed.
           </p>
-          <ShelfOpticsLab
+          <LazyShelfOpticsLab
             example={example}
             laterEquation={<Formula latex={String.raw`u_{\mathrm{rel}}=\frac{c/n+v}{1+v/(nc)}`} />}
           />
