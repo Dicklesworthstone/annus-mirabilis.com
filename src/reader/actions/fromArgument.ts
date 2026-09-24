@@ -70,12 +70,97 @@ const ARG_BM_OBSERVABLE_OBSTACLES: ObstacleResponses = {
   },
 };
 
+/**
+ * Light quanta's counting passage: why the probability is f to the power n. Every number and claim
+ * here is the passage's own (arg-lq-independent-configurations): four independent points in half
+ * the volume give 1/16, four locked together give 1/2, and section 6 reads the result "as if" for
+ * dilute radiation, which its entrance also says is not a general proof about light.
+ */
+const RETURN_LQ = "Return to independence supplies the exponent.";
+const ARG_LQ_INDEPENDENT_CONFIGURATIONS_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "f is a fraction of the volume: the chosen part divided by the whole, one half when the part is half of it. n is the number of points. W is a probability, the chance that at one moment all n points are inside the chosen part, and ln is the natural logarithm.",
+    foundationLinks: [
+      // One lesson per answer: ObstacleMenu names each link by its obstacle, so two links in
+      // one answer would share a name and lead to different lessons.
+      {
+        foundationId: "bridge-probability-notation",
+        callingAnchor: "arg-lq-independent-configurations",
+        returnCaption: RETURN_LQ,
+      },
+    ],
+  },
+  physicalReason: {
+    explanation:
+      "In the model each point moves over the whole volume without regard to the others, as the molecules of a dilute gas do. So the chance that any one point is in the chosen part is f, whatever the other points are doing. That independence is a premise of the model; the counting does not prove it.",
+    foundationLinks: [
+      {
+        foundationId: "probability-independence",
+        callingAnchor: "arg-lq-independent-configurations",
+        returnCaption: RETURN_LQ,
+      },
+    ],
+  },
+  connectionToPicture: {
+    explanation:
+      "Split the volume into the chosen part and the rest, and take one snapshot. One point is in the part a fraction f of the time. For two, the part must catch the first and also the second: f of the time, and then f of those times, which is f × f. Each further point multiplies by f again.",
+    foundationLinks: [
+      {
+        foundationId: "probability-independence",
+        callingAnchor: "arg-lq-independent-configurations",
+        returnCaption: RETURN_LQ,
+      },
+    ],
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "One example: four points, half the volume. One point is in the left half with chance 1/2. Two are, with chance 1/2 × 1/2 = 1/4. All four are, with chance 1/16. If the four were locked together and moved as one, the chance would stay 1/2. That difference is the whole passage.",
+    foundationLinks: [
+      {
+        foundationId: "bridge-fractions-ratios",
+        callingAnchor: "arg-lq-independent-configurations",
+        returnCaption: RETURN_LQ,
+      },
+    ],
+  },
+  algebraicMove: {
+    explanation:
+      "Multiplying n equal factors f is written fⁿ, and the logarithm turns that power into a product: ln fⁿ = n ln f. So k_B ln W becomes n k_B ln f, the number of points times the change for one. Because f is less than 1, ln f is negative, and so is the entropy change for crowding the points into the smaller part.",
+    foundationLinks: [
+      {
+        foundationId: "logarithms",
+        callingAnchor: "arg-lq-independent-configurations",
+        returnCaption: RETURN_LQ,
+      },
+    ],
+  },
+  purposeOfCalculation: {
+    explanation:
+      "Section 6 uses the result in reverse. The entropy of dilute monochromatic radiation changes with volume the way n k_B ln f does for n independent points, so in that respect such radiation behaves as if it consisted of n independent energy quanta. The exponent is what carries the comparison, which is why the passage says it comes from independence.",
+    foundationLinks: [
+      {
+        foundationId: "entropy-multiplicity",
+        callingAnchor: "arg-lq-independent-configurations",
+        returnCaption: RETURN_LQ,
+      },
+    ],
+  },
+};
+
+/** The passages marked hard, each with an authored answer for all six obstacles. */
+const OBSTACLES: Readonly<Record<string, ObstacleResponses>> = {
+  "arg-bm-observable": ARG_BM_OBSERVABLE_OBSTACLES,
+  "arg-lq-independent-configurations": ARG_LQ_INDEPENDENT_CONFIGURATIONS_OBSTACLES,
+};
+
 export function passageActionsFromArgument(argument: Argument): PassageActions {
   const firstExperiment = argument.experiments[0];
-  const obstacleResponses =
-    argument.id === "arg-bm-observable" ? ARG_BM_OBSERVABLE_OBSTACLES : undefined;
+  const obstacleResponses = Object.hasOwn(OBSTACLES, argument.id)
+    ? OBSTACLES[argument.id]
+    : undefined;
   return validatePassageActions({
-    hard: argument.id === "arg-bm-observable",
+    hard: obstacleResponses !== undefined,
     why: argument.help.why,
     missingStep: argument.help.missingStep,
     example: argument.help.example,
