@@ -2766,6 +2766,60 @@ test("HistoricalDataset: (experiment.ts:2724) invalid-evidence-status rejected w
   assert.equal(accepted.evidenceStatus, "modern-observation");
 });
 
+test("HistoricalDataset: a withdrawn record keeps its rows and must say when and why it was withdrawn", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const rowCount = raw.rows.length;
+  raw.evidenceStatus = "withdrawn";
+  // missing-withdrawal: no withdrawal block at all, then a reason with no date, then an empty reason.
+  for (const withdrawal of [
+    undefined,
+    { reason: "Rows could not be traced to the printed table." },
+    { date: "2026-09-24", reason: "  " },
+    { date: "24 September 2026", reason: "Rows could not be traced to the printed table." },
+  ]) {
+    raw.withdrawal = withdrawal;
+    if (withdrawal === undefined) delete raw.withdrawal;
+    assert.throws(
+      () => validateHistoricalDataset(raw),
+      (err: any) => {
+        assert.ok(err instanceof ExperimentValidationError);
+        assert.equal(err.code, "missing-withdrawal");
+        return true;
+      },
+    );
+  }
+  raw.withdrawal = { date: "2026-09-24", reason: "Rows could not be traced to the printed table." };
+  const withdrawn = validateHistoricalDataset(raw);
+  assert.equal(withdrawn.evidenceStatus, "withdrawn");
+  assert.deepEqual(withdrawn.withdrawal, {
+    date: "2026-09-24",
+    reason: "Rows could not be traced to the printed table.",
+  });
+  // Withdrawal is not deletion: the rows stay on the record for review.
+  assert.equal(withdrawn.rows.length, rowCount);
+  assert.ok(rowCount > 0);
+});
+
+test("HistoricalDataset: unexpected-withdrawal rejected on a standing measurement, absent when none is given", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.evidenceStatus = "historical-measurement";
+  raw.withdrawal = { date: "2026-09-24", reason: "A reason on a record that stands." };
+  assert.throws(
+    () => validateHistoricalDataset(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "unexpected-withdrawal");
+      return true;
+    },
+  );
+  delete raw.withdrawal;
+  const standing = validateHistoricalDataset(raw);
+  assert.equal(standing.evidenceStatus, "historical-measurement");
+  assert.equal(standing.withdrawal, undefined);
+});
+
 test("HistoricalDataset: (experiment.ts:2734) missing-publications rejected when publications empty or non-array, accepted with entries", () => {
   const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "dataset-valid.yaml"), "utf8");
   const raw = strictParse(yaml, "yaml") as any;

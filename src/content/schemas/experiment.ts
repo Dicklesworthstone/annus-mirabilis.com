@@ -2606,10 +2606,10 @@ export type DatasetFit = Readonly<{
   fitDescription?: string | undefined;
 }>;
 
-export type HistoricalDataset = Readonly<{
+export type HistoricalDatasetFields = Readonly<{
   id: string;
   title: string;
-  evidenceStatus: "historical-measurement" | "modern-observation";
+  evidenceStatus: DatasetEvidenceStatus;
   publications: readonly DatasetPublication[];
   primaryPublicationId: string;
   series?: readonly DatasetSeries[] | undefined;
@@ -2745,7 +2745,7 @@ export function validateHistoricalDataset(
       `${path}.title`,
     );
   }
-  if (o.evidenceStatus !== "historical-measurement" && o.evidenceStatus !== "modern-observation") {
+  if (!DATASET_EVIDENCE_STATUSES.some((status) => status === o.evidenceStatus)) {
     throw new ExperimentValidationError(
       "invalid-evidence-status",
       `Invalid evidenceStatus "${o.evidenceStatus}".`,
@@ -3356,7 +3356,7 @@ export function validateHistoricalDataset(
   return {
     id: o.id as string,
     title: o.title as string,
-    evidenceStatus: o.evidenceStatus as "historical-measurement" | "modern-observation",
+    ...validateDatasetWithdrawal(o, path),
     publications,
     primaryPublicationId: o.primaryPublicationId as string,
     series: seriesList.length > 0 ? seriesList : undefined,
@@ -3796,4 +3796,67 @@ export function validateConstantSet(raw: unknown, path = "ConstantSet"): Constan
       | "not-applicable",
     entries,
   };
+}
+
+// ============================================================================
+// HISTORICAL DATASET WITHDRAWAL
+// Kept at the end of the file: the refusal tests above cite their sites by line.
+// ============================================================================
+
+/**
+ * "withdrawn" keeps a record that can no longer be offered as evidence, with the reason, instead of
+ * deleting it: a record whose values could not be traced to the printed source stays reviewable
+ * beside the finding that withdrew it, and no view plots it.
+ */
+export const DATASET_EVIDENCE_STATUSES = [
+  "historical-measurement",
+  "modern-observation",
+  "withdrawn",
+] as const;
+export type DatasetEvidenceStatus = (typeof DATASET_EVIDENCE_STATUSES)[number];
+
+export type DatasetWithdrawal = Readonly<{
+  date: string;
+  reason: string;
+}>;
+
+export type HistoricalDataset = HistoricalDatasetFields &
+  Readonly<{
+    withdrawal?: DatasetWithdrawal | undefined;
+  }>;
+
+/** A withdrawn record says when and why; a standing one carries no withdrawal. */
+function validateDatasetWithdrawal(
+  o: Record<string, unknown>,
+  path: string,
+): Readonly<{ evidenceStatus: DatasetEvidenceStatus; withdrawal?: DatasetWithdrawal | undefined }> {
+  const evidenceStatus = o.evidenceStatus as DatasetEvidenceStatus;
+  const raw = o.withdrawal as Record<string, unknown> | undefined;
+  if (evidenceStatus !== "withdrawn") {
+    if (raw !== undefined) {
+      throw new ExperimentValidationError(
+        "unexpected-withdrawal",
+        `A dataset with evidenceStatus "${evidenceStatus}" cannot carry a withdrawal.`,
+        "HistoricalDataset",
+        `${path}.withdrawal`,
+      );
+    }
+    return { evidenceStatus };
+  }
+  if (
+    !raw ||
+    typeof raw !== "object" ||
+    typeof raw.reason !== "string" ||
+    !raw.reason.trim() ||
+    typeof raw.date !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(raw.date)
+  ) {
+    throw new ExperimentValidationError(
+      "missing-withdrawal",
+      "A withdrawn dataset must say when it was withdrawn (YYYY-MM-DD) and why.",
+      "HistoricalDataset",
+      `${path}.withdrawal`,
+    );
+  }
+  return { evidenceStatus, withdrawal: { date: raw.date, reason: raw.reason } };
 }
