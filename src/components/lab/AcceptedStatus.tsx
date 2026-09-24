@@ -19,7 +19,16 @@ const SPACING_MS = 1000;
  * manager spaces its announcements (src/a11y/descriptions/announcementManager.ts): at most one
  * change a second, the newest summary replacing a waiting one, never a stream per frame.
  */
-export function AcceptedStatus({ worked, summary }: { worked: boolean; summary: string }) {
+export function AcceptedStatus({
+  worked,
+  summary,
+  response,
+}: {
+  worked: boolean;
+  summary: string;
+  /** A predict gate's attribute (PredictGate.tsx): the line states the result, so it waits too. */
+  response?: Readonly<{ "data-predict-response": "shown" | "awaiting" }>;
+}) {
   const text = `${worked ? "Worked example" : "Accepted"}: ${summary}`;
   const [shown, setShown] = useState(text);
   const lastChange = useRef(Number.NEGATIVE_INFINITY);
@@ -33,7 +42,7 @@ export function AcceptedStatus({ worked, summary }: { worked: boolean; summary: 
     return () => clearTimeout(timer);
   }, [text, shown]);
   return (
-    <p role="status" aria-live="polite" aria-atomic="true" className="status-line">
+    <p role="status" aria-live="polite" aria-atomic="true" className="status-line" {...response}>
       {shown}
     </p>
   );

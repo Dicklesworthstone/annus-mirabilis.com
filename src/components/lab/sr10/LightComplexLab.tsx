@@ -26,8 +26,10 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { LightComplexPlot } from "./LightComplexPlot.tsx";
@@ -63,6 +65,9 @@ function SnapshotReading({
   return <span data-quantity-id={quantityId}>{statusMessage(item.status)}</span>;
 }
 
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate.
+const SR10_PROMPTS = PREDICT_PROMPTS["sr-10"] ?? [];
+
 export function LightComplexLab({
   example,
   title = "The finite light complex",
@@ -85,6 +90,8 @@ export function LightComplexLab({
     true,
     (restored) => setDraft({ ...restored }),
   );
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("sr-10", SR10_PROMPTS);
   const snapshot = view.accepted;
   const p = (snapshot?.parameters ?? example.parameters) as Sr10Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
@@ -201,6 +208,7 @@ export function LightComplexLab({
       <p data-detail="3" hidden>
         {withScripts(SR10_CAPTION.r3)}
       </p>
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <form noValidate onSubmit={submit} aria-label="Light complex settings">
           <fieldset disabled={!ready}>
@@ -340,9 +348,10 @@ export function LightComplexLab({
         <AcceptedStatus
           worked={snapshot === undefined || snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
+          response={gate.response}
         />
-        <LabTapeLink link={tapeLink} />
-        <div className="lab-results">
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
+        <div className="lab-results" {...gate.response}>
           {beta !== null &&
           phiK !== null &&
           phiPrime !== null &&

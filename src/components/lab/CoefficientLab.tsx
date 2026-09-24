@@ -335,6 +335,9 @@ export function CoefficientLab({
               onSkip={() => setPredictRecord((current) => skipPrediction(current))}
               onKeepToSelf={() => setPredictRecord((current) => keepToSelf(current))}
               onAmend={(choice) => setPredictRecord((current) => amendAfterReveal(current, choice))}
+              // Absolute, so the embed (which has no #coefficient-argument) opens the laboratory's own
+              // section rather than a link that goes nowhere (labFragmentLinks.test.tsx).
+              reasoningHref="/lab/me-02/#coefficient-argument"
             />
           </details>
           <form

@@ -22,8 +22,10 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
@@ -73,6 +75,9 @@ const FIELD_LABELS: Readonly<Record<NumericKey, string>> = {
   mirrorArea: "Mirror surface area A_{m}",
 };
 
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate.
+const SR11_PROMPTS = PREDICT_PROMPTS["sr-11"] ?? [];
+
 export function MovingMirrorLab({
   example,
   title = "Moving mirror reflection and radiation pressure",
@@ -89,6 +94,8 @@ export function MovingMirrorLab({
   );
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
   const tapeLink = useLabTapeLink(SR11_TAPE, session, session.acceptedParameters());
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("sr-11", SR11_PROMPTS);
   const [drafts, setDrafts] = useState<Partial<Record<NumericKey, string>>>({});
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -205,6 +212,7 @@ export function MovingMirrorLab({
         </p>
       </noscript>
 
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <div>
           <fieldset disabled={!ready} className="lab-choice">
@@ -291,11 +299,12 @@ export function MovingMirrorLab({
           <AcceptedStatus
             worked={snapshot === session.getServerSnapshot().accepted}
             summary={statusSummary}
+            response={gate.response}
           />
-          <LabTapeLink link={tapeLink} />
+          <LabTapeLink link={withPredictions(tapeLink, gate)} />
         </div>
 
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           <MovingMirrorPlot
             beta={p.beta}
             incidentAngleDeg={p.incidentAngleDeg}

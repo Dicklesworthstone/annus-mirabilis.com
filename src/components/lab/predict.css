@@ -217,3 +217,14 @@
   margin: 1rem 0;
   border-radius: 6px;
 }
+
+/* Predict mode's gate (PredictGate.tsx). The reader pre-paint script sets data-detail on <html>
+   before first paint, and only a running script sets it. With it, a result waits for the reader's
+   answer. Without it the panel's controls cannot work, so the panel goes and the result stays. */
+html[data-detail] [data-predict-response="awaiting"] {
+  display: none;
+}
+
+html:not([data-detail]) [data-predict-gate] {
+  display: none;
+}

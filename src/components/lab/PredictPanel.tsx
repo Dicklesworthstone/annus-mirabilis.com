@@ -68,6 +68,8 @@ const DEFAULT_SHAPES = [
   { id: "saturating", label: "Saturating" },
 ] as const;
 
+const ALL_FORMS: readonly PredictionFormTab[] = ["candidate", "sketch", "verbal", "values"];
+
 export function PredictPanel({
   prompt,
   record,
@@ -75,6 +77,9 @@ export function PredictPanel({
   onSkip,
   onKeepToSelf,
   onAmend,
+  forms = ALL_FORMS,
+  resultShown = false,
+  reasoningHref,
 }: {
   prompt: PredictPanelPrompt;
   record: PredictPromptRecord;
@@ -82,8 +87,15 @@ export function PredictPanel({
   onSkip: () => void;
   onKeepToSelf: () => void;
   onAmend: (choice: PredictionChoice) => void;
+  /** The prediction formats offered; one format draws no tabs. */
+  forms?: readonly PredictionFormTab[];
+  /** True where the result shows as soon as the reader answers (PredictGate), not after Apply. */
+  resultShown?: boolean;
+  /** Where "Show me the reasoning" goes; no link without one. */
+  reasoningHref?: string;
 }) {
-  const [activeTab, setActiveTab] = useState<PredictionFormTab>("candidate");
+  const [activeTab, setActiveTab] = useState<PredictionFormTab>(forms[0] ?? "candidate");
+  const offers = (tab: PredictionFormTab) => forms.includes(tab);
 
   // Verbal state
   const directions = prompt.verbalChoices?.directionChoices ?? DEFAULT_DIRECTIONS;
@@ -190,39 +202,45 @@ export function PredictPanel({
       <h3>Predict before the numbers</h3>
       <p>{prompt.question}</p>
 
-      {pending && (
+      {pending && forms.length > 1 && (
         // The chosen format is drawn as an action button and the others as secondary, from the same
         // test as aria-selected. They used an "active" class no stylesheet declares, so every tab
         // drew in the same ink and the choice showed only to a screen reader (live /lab/me-02/).
         <div className="predict-mode-tabs" role="tablist" aria-label="Prediction format">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "candidate"}
-            className={activeTab === "candidate" ? undefined : "secondary"}
-            onClick={() => setActiveTab("candidate")}
-          >
-            Candidate relation
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "sketch"}
-            className={activeTab === "sketch" ? undefined : "secondary"}
-            onClick={() => setActiveTab("sketch")}
-          >
-            Sketch curve
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "verbal"}
-            className={activeTab === "verbal" ? undefined : "secondary"}
-            onClick={() => setActiveTab("verbal")}
-          >
-            Verbal prediction
-          </button>
-          {targets.length > 0 && (
+          {offers("candidate") && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "candidate"}
+              className={activeTab === "candidate" ? undefined : "secondary"}
+              onClick={() => setActiveTab("candidate")}
+            >
+              Candidate relation
+            </button>
+          )}
+          {offers("sketch") && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "sketch"}
+              className={activeTab === "sketch" ? undefined : "secondary"}
+              onClick={() => setActiveTab("sketch")}
+            >
+              Sketch curve
+            </button>
+          )}
+          {offers("verbal") && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "verbal"}
+              className={activeTab === "verbal" ? undefined : "secondary"}
+              onClick={() => setActiveTab("verbal")}
+            >
+              Verbal prediction
+            </button>
+          )}
+          {offers("values") && targets.length > 0 && (
             <button
               type="button"
               role="tab"
@@ -525,7 +543,11 @@ export function PredictPanel({
       ) : null}
 
       {record.state === "predicted-unrecorded" ? (
-        <p>Nothing was stored. Apply settings to see what the model does.</p>
+        <p>
+          {resultShown
+            ? "Nothing was stored. Compare the one you have in mind with the result."
+            : "Nothing was stored. Apply settings to see what the model does."}
+        </p>
       ) : null}
 
       {adjudication ? (
@@ -582,11 +604,11 @@ export function PredictPanel({
         </fieldset>
       ) : null}
 
-      <p>
-        {/* Absolute, so the embed (which has no #coefficient-argument) opens the laboratory's own
-            section rather than a link that goes nowhere (labFragmentLinks.test.tsx). */}
-        <a href="/lab/me-02/#coefficient-argument">Show me the reasoning</a>
-      </p>
+      {reasoningHref ? (
+        <p>
+          <a href={reasoningHref}>Show me the reasoning</a>
+        </p>
+      ) : null}
     </div>
   );
 }
