@@ -88,6 +88,18 @@
   font-weight: 400;
   line-height: 1.2;
 }
+/* A lesson's formulas at a phone's narrowest. On a paper page the reader already drops them to
+   the fine size below 560px (equations.css, .reader-root); a lesson page is not under
+   .reader-root, so at 320px three coloured formulas stayed at the small size and ran 4 to 11px
+   past their 288px column (derivatives, partial derivatives, probability and independence).
+   Plain formulas take the same size, so a formula does not shrink or grow by gaining colour. */
+@media (max-width: 360px) {
+  .foundation-page .reading-formula .equation-visual,
+  .foundation-page .formula {
+    font-size: var(--type-fine);
+  }
+}
+
 /* The stopping point is the sentence a reader carries back to the passage, so on the lesson's
    own page the sentence is set large and its heading is a label. Leading as .lead's, the other
    text at this size; 1.45 was a fourteenth line-height the type ratchet refuses. */
