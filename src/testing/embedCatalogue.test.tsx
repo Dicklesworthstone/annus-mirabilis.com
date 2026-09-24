@@ -28,8 +28,6 @@ const NOT_YET_EMBEDDED = [
   "lq-07",
   "lq-08",
   "lq-09",
-  "sr-01",
-  "sr-02",
   "sr-06",
   "sr-07",
 ];
