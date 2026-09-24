@@ -3895,9 +3895,9 @@ export type PredictPrompt = PredictPromptFields &
   Readonly<{
     supportedCandidateId?: string | undefined;
     /**
-     * Why the supported relation holds, shown after the reader answers. Ten laboratories wrote this
-     * sentence into their own TypeScript copy of the prompt; it belongs with the prompt, so that the
-     * panel drawn from the manifest can show it too.
+     * Why the supported relation holds, shown after the reader answers. Five laboratories (LQ-06,
+     * LQ-08, LQ-09, ME-01, ME-03) keep this sentence in their own TypeScript copy of the prompt; it
+     * belongs with the prompt, so the panel drawn from the manifest can show it too.
      */
     explanation?: string | undefined;
   }>;
