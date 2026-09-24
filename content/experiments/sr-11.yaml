@@ -365,8 +365,8 @@ predictMode:
         - id: ratio-0-4
           label: "0.4"
           description: Only a single Doppler factor (1-v/c) is applied.
-          separatingAssumption: "Doppler shift is mistakenly applied only once upon arrival at the mirror."
+          separatingAssumption: "This applies the Doppler shift once, when the light reaches the mirror. The receding mirror shifts it again as the light leaves."
         - id: ratio-1-0
           label: "1.0 (no shift)"
           description: Speed of light is constant, so frequency is assumed invariant.
-          separatingAssumption: "Constancy of wave speed is confused with constancy of wave frequency."
+          separatingAssumption: "This takes the constant speed of light to mean a constant frequency. The speed is the same in every frame; the frequency is not."

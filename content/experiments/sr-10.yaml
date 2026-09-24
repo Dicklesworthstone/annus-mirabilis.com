@@ -316,7 +316,7 @@ predictMode:
         - id: contracts-like-rod
           label: Contracts to 0.8 times volume like a rigid rod (1/gamma = 0.8)
           description: "Naive Lorentz contraction 1/gamma assumes a rigid body rather than moving wave fronts."
-          separatingAssumption: "Light complex is incorrectly treated as a solid object subject to standard Lorentz length contraction."
+          separatingAssumption: "This treats the light complex as a rigid body, which would contract by 1/γ. Its surface moves with the light, and the moving frame's slice at one instant gives V′/V = 1/q instead."
         - id: invariant-volume
           label: Remains unchanged at 1.0
           description: "Galilean volume invariance ignores relativistic boundary slicing."

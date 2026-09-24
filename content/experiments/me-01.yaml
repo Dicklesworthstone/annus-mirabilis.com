@@ -479,8 +479,8 @@ predictMode:
         - id: me-01-candidate-sum-decreases
           label: "The total light energy decreases because the forward pulse is less blue-shifted."
           description: "Belief that the forward pulse energy reduction dominates."
-          separatingAssumption: "Treats forward Doppler shift in isolation without the backward compensation."
+          separatingAssumption: "This follows the forward pulse alone. The backward pulse's energy changes by the opposite amount, so the two changes cancel in the sum."
         - id: me-01-candidate-sum-increases
           label: "The total light energy increases due to the transverse Doppler effect."
           description: "Belief that angle tilt adds extra transverse energy."
-          separatingAssumption: "Misapplies transverse dilation to the sum of directional photons."
+          separatingAssumption: "This takes the tilt to add energy to the pair, as a transverse effect would. The two pulses' angle terms are equal and opposite, so the tilt cannot change their sum."

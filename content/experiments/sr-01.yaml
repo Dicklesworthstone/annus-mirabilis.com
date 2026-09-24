@@ -384,8 +384,8 @@ predictMode:
         - id: leading-clock-ahead
           label: "The leading clock is ahead"
           description: "The clock at the front of the moving pair, in its direction of travel, reads later than the trailing one."
-          separatingAssumption: "This is the mirror image of what the platform frame actually finds for a pair moving in the positive direction: vL/c^2 puts the trailing clock ahead, not the leading one, for positive v."
+          separatingAssumption: "This is the mirror image of what the platform frame actually finds for a pair moving in the positive direction: vL/c² puts the trailing clock ahead, not the leading one, for positive v."
         - id: trailing-clock-ahead
           label: "The trailing clock is ahead"
           description: "The clock at the back of the moving pair, in its direction of travel, reads later than the leading one."
-          separatingAssumption: "This is what vL/c^2 gives directly: for a positive velocity, the trailing clock is observed ahead in the platform frame, by an amount that grows with both the speed and the proper separation."
+          separatingAssumption: "This is what vL/c² gives directly: for a positive velocity, the trailing clock is observed ahead in the platform frame, by an amount that grows with both the speed and the proper separation."
