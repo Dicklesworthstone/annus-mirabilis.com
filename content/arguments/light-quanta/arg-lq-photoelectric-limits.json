@@ -56,7 +56,7 @@
     "steps": [
       {
         "kind": "paragraph",
-        "text": "Letters: Π is the potential the illuminated body reaches, E the charge of a gram-equivalent of a univalent ion, P′ the work for a gram-equivalent of electrons to leave the body, R the gas constant, N the number of molecules in a gram-molecule, β the constant from Planck's formula in §2, and ν the frequency. (R/N)βν is the energy of one quantum; later physics writes it hν."
+        "text": "Letters: Π is the potential the illuminated body reaches, E the charge of a gram-equivalent of a univalent ion, P′ the work for a gram-equivalent of electrons to leave the body, R the gas constant, N the number of real molecules in a gram-equivalent, β the constant from Planck's formula in §2, and ν the frequency. (R/N)βν is the energy of one quantum; later physics writes it hν."
       },
       {
         "kind": "steps",

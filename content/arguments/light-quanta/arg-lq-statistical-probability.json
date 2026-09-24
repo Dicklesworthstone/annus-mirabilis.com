@@ -46,7 +46,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Here W is the probability of the state with entropy S relative to a starting state with entropy \\(S_0\\), R is the gas constant, N the number of molecules in a gram-molecule, and lg is the natural logarithm as the paper writes it. Read with a statistical W, the formula needs no list of equally likely cases: a state the system is found in at 1 moment in 16, compared with a state it is always in, has W = 1/16, and its entropy is lower by R/N times ln 16."
+        "text": "Here W is the probability of the state with entropy S relative to a starting state with entropy \\(S_0\\), R is the gas constant, N the number of real molecules in a gram-equivalent, and lg is the natural logarithm as the paper writes it. Read with a statistical W, the formula needs no list of equally likely cases: a state the system is found in at 1 moment in 16, compared with a state it is always in, has W = 1/16, and its entropy is lower by R/N times ln 16."
       },
       {
         "kind": "paragraph",
@@ -56,7 +56,7 @@
     "steps": [
       {
         "kind": "paragraph",
-        "text": "Letters: the paper writes W for the probability of a state, S for its entropy, R for the gas constant, N for the number of molecules in a gram-molecule, and lg for the natural logarithm, which this explanation also writes ln."
+        "text": "Letters: the paper writes W for the probability of a state, S for its entropy, R for the gas constant, N for the number of real molecules in a gram-equivalent, and lg for the natural logarithm, which this explanation also writes ln."
       },
       {
         "kind": "steps",
