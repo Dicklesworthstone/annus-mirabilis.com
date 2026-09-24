@@ -398,13 +398,32 @@ function sanitizeJsonDetails(raw: Record<string, unknown>): Record<string, JsonV
 
 /**
  * Maps a FrankenSim refusal envelope to either a RefusalResponse or an OutcomeResponse.
+ *
+ * Two envelope keys are accepted, and exactly one may be present:
+ * - `{"refusal":{...}}`, a model or input refusal (or, for brownian_frames and
+ *   diffusion1d_frames, their budget miss, which upstream writes under this key);
+ * - `{"execution":{...}}`, philox_normals' budget miss.
+ * An `execution` envelope whose code maps to a refusal code is not a coherent envelope, and
+ * becomes malformed-response.
+ *
+ * A row matches when the envelope's code is the row's `upstreamCode` (the condition names
+ * docs/FRANKENSIM_BINDING.md §5.4 records) or the row's registered `target`. The compiled
+ * exports at FrankenSim 01824653 emit the registered code itself (`ftcs-unstable`,
+ * `unsupported-kernel`, `invalid-parameter`, `budget-exhausted`, ...), measured in
+ * scripts/wasm-artifacts/fs-annus-wasm/tests. When the match is by target, several conditions
+ * share one code, so the upstream's own ranked repairs are used, because they name the
+ * condition that actually failed. A code that matches neither form is still malformed-response.
  */
 export function mapFrankenSimRefusalEnvelope(
   envelope: unknown,
   identity: MessageIdentity,
   exportName?: string,
 ): RefusalResponse | OutcomeResponse {
-  const rawRefusalCandidate = isRecord(envelope) && "refusal" in envelope ? envelope.refusal : null;
+  const keys = isRecord(envelope) ? Object.keys(envelope) : [];
+  const envelopeKey =
+    keys.length === 1 && (keys[0] === "refusal" || keys[0] === "execution") ? keys[0] : null;
+  const rawRefusalCandidate =
+    envelopeKey !== null && isRecord(envelope) ? envelope[envelopeKey] : null;
 
   if (!isRecord(rawRefusalCandidate)) {
     const malformed = executionOutcomeRegistry["malformed-response"];
@@ -429,13 +448,23 @@ export function mapFrankenSimRefusalEnvelope(
   const rawDetails = isRecord(rawRefusal.details) ? rawRefusal.details : {};
 
   // Find in mapping table
-  const matchingRow = REFUSAL_MAPPING_ROWS.find((row) => {
-    if (exportName && row.export !== exportName) return false;
-    return row.upstreamCode === rawCode;
-  });
+  const matchingRow =
+    REFUSAL_MAPPING_ROWS.find((row) => {
+      if (exportName && row.export !== exportName) return false;
+      return row.upstreamCode === rawCode;
+    }) ??
+    REFUSAL_MAPPING_ROWS.find((row) => {
+      if (exportName && row.export !== exportName) return false;
+      return row.target === rawCode;
+    });
+  const matchedByTarget = matchingRow !== undefined && matchingRow.upstreamCode !== rawCode;
+  const incoherent =
+    matchingRow !== undefined &&
+    envelopeKey === "execution" &&
+    matchingRow.targetKind !== "execution-outcome";
 
-  if (!matchingRow) {
-    // Unmapped upstream code -> malformed-response outcome
+  if (!matchingRow || incoherent) {
+    // Unmapped upstream code (or an execution envelope naming a refusal) -> malformed-response
     const malformed = executionOutcomeRegistry["malformed-response"];
     return {
       messageKind: "outcome",
@@ -445,7 +474,9 @@ export function mapFrankenSimRefusalEnvelope(
         message: malformed.message,
         retry: malformed.retry,
         details: {
-          reason: `Unmapped upstream refusal code: "${rawCode}"`,
+          reason: incoherent
+            ? `An execution envelope named the refusal code "${rawCode}"`
+            : `Unmapped upstream refusal code: "${rawCode}"`,
           upstreamCode: rawCode,
           ...(rawMessage ? { upstreamMessage: rawMessage } : {}),
           ...(exportName ? { export: exportName } : {}),
@@ -493,9 +524,11 @@ export function mapFrankenSimRefusalEnvelope(
 
   // Repairs: reader text from definition, or ranked repairs from table
   const repairs =
-    matchingRow.rankedRepairs && matchingRow.rankedRepairs.length > 0
-      ? matchingRow.rankedRepairs.map((r) => ({ label: r }))
-      : [{ label: definition.repair }];
+    matchedByTarget && rawRepairs && rawRepairs.length > 0
+      ? rawRepairs.map((r) => ({ label: r }))
+      : matchingRow.rankedRepairs && matchingRow.rankedRepairs.length > 0
+        ? matchingRow.rankedRepairs.map((r) => ({ label: r }))
+        : [{ label: definition.repair }];
 
   const affected =
     typeof rawDetails.name === "string" ? { parameterIds: [rawDetails.name] as const } : {};
