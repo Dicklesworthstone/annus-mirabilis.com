@@ -57,14 +57,38 @@ describe("a power on a mean", () => {
     expect(s).not.toContain("\\left(");
   });
 
-  test("planted: a function and a sum keep their brackets", () => {
-    const cos = {
-      kind: "function",
-      name: "cos",
-      argument: { kind: "product", args: [sym("omega"), sym("t")] },
-    } as Expression;
-    expect(latex(squared(cos))).toBe("\\left(\\cos\\left(\\omega\\,t\\right)\\right)^{2}");
+  test("planted: exp, ln and a sum keep their brackets", () => {
+    // ln^2 x would read as either (ln x)^2 or ln(x^2); only sin and cos take the power on the name.
+    for (const name of ["exp", "ln"]) {
+      const f = { kind: "function", name, argument: sym("x") } as Expression;
+      expect(latex(squared(f))).toBe(`\\left(\\${name}\\left(x\\right)\\right)^{2}`);
+    }
     const sum = { kind: "sum", args: [sym("x"), sym("t")] } as Expression;
     expect(latex(squared(sum))).toBe("\\left(x + t\\right)^{2}");
+  });
+});
+
+describe("a power on sin or cos", () => {
+  const trig = (name: "sin" | "cos", opId?: string) =>
+    ({
+      kind: "function",
+      name,
+      ...(opId ? { opId } : {}),
+      argument: { kind: "product", args: [sym("omega"), sym("t")] },
+    }) as Expression;
+
+  test("cos squared is cos^2(omega t), as print sets it, and KaTeX accepts it", () => {
+    for (const name of ["sin", "cos"] as const) {
+      const s = latex(squared(trig(name)));
+      expect(s).toBe(`\\${name}^{2}\\left(\\omega\\,t\\right)`);
+      accepted(s);
+    }
+  });
+
+  test("coloured, the function's marker wraps the whole of it, the power included", () => {
+    const s = latex(squared(trig("cos", "eq-model-test.op.cos")), true);
+    expect(s).toContain("\\htmlData{op=eq-model-test.op.cos}{\\cos^{2}\\left(");
+    expect(s).toContain("\\htmlData{op=eq-model-test.op.power}");
+    expect(s).not.toContain("\\right)\\right)^{2}");
   });
 });

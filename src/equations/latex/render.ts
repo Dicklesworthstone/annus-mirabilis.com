@@ -209,7 +209,7 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
             : n.exponent.den === 1
               ? n.exponent.num
               : `\\frac{${n.exponent.num}}{${n.exponent.den}}`;
-        s = `${atomic ? rendered : `\\left(${rendered}\\right)`}^{${exponent}}`;
+        s = poweredLatex(base, rendered, exponent, atomic);
         break;
       }
 
@@ -560,4 +560,25 @@ export function renderEquationLatex(input: RenderEquationLatexInput): RenderEqua
     appliedOperations,
     warnings,
   };
+}
+
+/**
+ * A power's LaTeX. sin and cos carry the power on the function name, cos²(ωt), as print sets them;
+ * (cos(ωt))² is heavier and nothing is ambiguous. exp and ln keep their brackets, since ln²x reads as
+ * either (ln x)² or ln(x²). The function's own marker still wraps the whole of it. Anything else
+ * follows the atomic rule in the power case above.
+ */
+function poweredLatex(
+  base: Expression,
+  rendered: string,
+  exponent: string | number,
+  atomic: boolean,
+): string {
+  if (base.kind === "function" && (base.name === "sin" || base.name === "cos")) {
+    const command = `\\${base.name}\\left(`;
+    const at = rendered.indexOf(command);
+    if (at >= 0)
+      return `${rendered.slice(0, at)}\\${base.name}^{${exponent}}\\left(${rendered.slice(at + command.length)}`;
+  }
+  return `${atomic ? rendered : `\\left(${rendered}\\right)`}^{${exponent}}`;
 }

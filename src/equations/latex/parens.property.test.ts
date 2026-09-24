@@ -536,10 +536,20 @@ class TestPrecedenceParser {
 
     if (tok.type === "FN") {
       const fnTok = this.consume("FN");
+      // sin^{2}(x) and cos^{2}(x): the renderer sets a power on sin or cos on the name, and it is
+      // the power of the whole function, (sin x)^2, never sin of x^2.
+      let exponent: ParsedNode | undefined;
+      if (this.peek()?.type === "CARET") {
+        this.consume("CARET");
+        this.consume("LBRACE");
+        exponent = this.parseRelation();
+        this.consume("RBRACE");
+      }
       this.consume("LPAREN");
       const argument = this.parseRelation();
       this.consume("RPAREN");
-      return { kind: "function", name: fnTok.value, argument };
+      const fn: ParsedNode = { kind: "function", name: fnTok.value, argument };
+      return exponent ? { kind: "power", base: fn, exponent } : fn;
     }
 
     if (tok.type === "CONST") {
