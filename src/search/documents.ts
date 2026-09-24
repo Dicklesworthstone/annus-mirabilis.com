@@ -1,5 +1,6 @@
 import { parseInstrumentId } from "../content/ids.ts";
 import { inlineMathPlain } from "../content/inlineMath.ts";
+import { labName } from "../reader/actions/labNames.ts";
 import { type SearchAlias, type SearchDocument, validateSearchDocument } from "./core.ts";
 
 export type SearchProfile = "scaffold" | "preview" | "launch";
@@ -295,7 +296,11 @@ export function documentsFromCompiled(
       route: `/lab/${instrument.id}/`,
       anchor: "",
       face: "",
-      title: instrument.title,
+      // The name /instruments/ and every "Open the lab" link use: the question the laboratory
+      // answers. The catalogue's own title is a placeholder, "Light quanta instrument lq-06",
+      // which the palette and /search/ showed for all 37 laboratories. labName falls back to the
+      // id, and then the catalogue title is the better of the two.
+      title: labName(instrument.id) === instrument.id ? instrument.title : labName(instrument.id),
       text: instrument.question ?? instrument.title,
       terms: [instrument.id, ...(termsByInstrument.get(instrument.id) ?? [])],
       scopeLabel: `${paper.replaceAll("-", " ")} · host-calculation laboratory`,
