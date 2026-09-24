@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { withScripts } from "../../../components/lab/subscripts.tsx";
 import generated from "../../../generated/countermodels.json";
+import { COUNTERMODELS_CAPTION } from "../../../reasoning/countermodel/caption.ts";
 import { parseCountermodelCase } from "../../../reasoning/countermodel/caseSchema.ts";
 import type { PreparedCountermodelCase } from "../../../reasoning/countermodel/session.ts";
 import { CountermodelWorkbench } from "../../../reasoning/countermodel/Workbench.tsx";
@@ -26,6 +28,18 @@ export default function CountermodelPage() {
       {examples.map((example) => (
         <CountermodelWorkbench key={example.case.id} example={example} />
       ))}
+      {examples.length > 0 && (
+        <section className="lab-readings" aria-label="The comparison in words">
+          <p data-detail="0">{withScripts(COUNTERMODELS_CAPTION.r0)}</p>
+          <p data-detail="1">{withScripts(COUNTERMODELS_CAPTION.r1)}</p>
+          <p data-detail="2" hidden>
+            {withScripts(COUNTERMODELS_CAPTION.r2)}
+          </p>
+          <p data-detail="3" hidden>
+            {withScripts(COUNTERMODELS_CAPTION.r3)}
+          </p>
+        </section>
+      )}
       {generated.cases.length === 0 && (
         <p className="notice">
           The reviewed countermodel cases are in preparation. This publication profile does not

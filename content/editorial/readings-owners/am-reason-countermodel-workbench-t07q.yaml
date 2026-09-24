@@ -1,0 +1,22 @@
+# Declares this bead as the owner of the /lab/countermodels/ page's caption readings. The texts were
+# authored on 2026-09-23 (TopazPrairie): the target below mirrors COUNTERMODELS_CAPTION in
+# src/reasoning/countermodel/caption.ts, which the page renders after its workbenches.
+paper: special-relativity
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - countermodels
+ownerBeadId: am-reason-countermodel-workbench-t07q
+targets:
+  - kind: caption
+    id: countermodels
+    readings:
+      r0: "Two models can agree on some measurements and part company on others. This lab puts rival accounts of moving frames side by side and asks which observation, if any, would tell them apart."
+      r1: "The first comparison sets Galilean absolute time against the kinematics of the relativity paper. At 0.6c both combine 10 m/s with 10 m/s to give 20 m/s, to within 2 × 10^{−14} m/s, and both can be undone by their inverse; only the light-speed test separates them, where the Galilean map gives light a speed of 1.2 × 10^{8} m/s, 0.4c, instead of c. The second sets Lorentz's ether-based kinematics, with contraction and local time in a privileged frame, against Einstein's inertial-frame kinematics. Every test chosen here agrees: the coordinates of twenty events, a 100 m rod measured at 80 m, a moving clock at 0.8 s per second, and 0.6c combined with 0.6c at 0.882c. That agreement is the lesson: these measurements cannot decide between the two views. The introduction of the relativity paper calls the light ether superfluous, not refuted, because the view it develops needs no absolutely resting space."
+      r2: "Start with the slow speeds. Galilean kinematics simply adds, 10 + 10 = 20 m/s. Einstein's rule divides the sum by 1 + uv/c^{2}: 20/(1 + 100/(8.988 × 10^{16})) = 20 − 2.2 × 10^{−14} m/s, a difference far below any measurement. Now light, seen from a frame moving at v = 0.6c. The Galilean map subtracts, c − v = 0.4c = 1.199 × 10^{8} m/s. Einstein's composition gives (c − v)/(1 − v/c) = c(1 − 0.6)/(1 − 0.6) = c, which is the test the first candidate fails. For the second case both candidates use the same transformation, x′ = γ(x − vt) and t′ = γ(t − vx/c^{2}) with γ = 1/√(1 − 0.36) = 1.25, so they must agree on anything computed from it. A rod 100 m long at rest, measured at one time of the other frame, is 100/1.25 = 80 m. A moving clock reads 1/1.25 = 0.8 s for each second of the laboratory. And 0.6c combined with 0.6c is (0.6 + 0.6)/(1 + 0.36) = 1.2/1.36 = 0.882c, or 2.645 × 10^{8} m/s. What differs is the interpretation: for Lorentz one frame is truly at rest and the others' times are local times, while for Einstein every inertial frame's time is as good as any other's."
+      r3: "Lorentz's paper of 1904 gave the transformation with a scale factor l, set to 1 here, and Poincaré's note of June 1905 showed that the transformations form a group, which the composition test uses; the relativity paper cites neither. Its introduction says only that the ether will prove superfluous. Because the chosen kinematic measurements agree, the choice between the two views was argued afterwards on other grounds, such as economy and the principle of relativity itself. The cases here are authored comparisons with illustrative settings, not reconstructions of a historical dispute."
+      r3Citations:
+        - "Einstein, A. (1905). Zur Elektrodynamik bewegter Körper. Annalen der Physik 17, 891–921 (introduction, §3, §5)."
+        - "Lorentz, H. A. (1904). Electromagnetic phenomena in a system moving with any velocity smaller than that of light. Proceedings of the Royal Netherlands Academy of Arts and Sciences 6, 809–831."
+        - "Poincaré, H. (1905). Sur la dynamique de l'électron. Comptes rendus de l'Académie des sciences 140, 1504–1508."
