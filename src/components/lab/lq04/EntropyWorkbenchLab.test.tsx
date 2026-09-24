@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LQ04_DEFAULTS, LQ04_NOT_MODELED } from "../../../experiments/lq04/definition.ts";
 import { buildLq04Snapshot, evaluateLq04 } from "../../../experiments/lq04/session.ts";
+import generated from "../../../generated/lq04-example.json";
 import { exponentialParts } from "../../../units/scientific.ts";
 import { EntropyWorkbenchComparison } from "./EntropyWorkbenchLab.tsx";
 
@@ -14,16 +15,27 @@ function drawn(value: number, digits: number): string {
 }
 
 describe("EntropyWorkbenchLab: server-rendered markup shows real numbers without JavaScript (am-lq-04-entropy-workbench-senj)", () => {
+  test("an example whose digest is not a source digest earns neither the static nor the host label", () => {
+    const html = renderToStaticMarkup(
+      <EntropyWorkbenchComparison
+        example={{ sourceDigest: "src/physics/reference/radiation.ts", parameters: LQ04_DEFAULTS }}
+      />,
+    );
+    expect(html).not.toContain('data-execution-label="static"');
+    expect(html).not.toContain('data-execution-label="host"');
+  });
+
   test("the default example renders the reference state, not an empty box", () => {
-    const example = {
-      sourceDigest: "src/physics/reference/radiation.ts",
-      parameters: LQ04_DEFAULTS,
-    };
+    // The generated example, with its source digest, as the page passes it. The label is derived
+    // (am-inst-execution-labels-5ywv): a build-time example earns "Static worked example". Until
+    // b8c5be93 the lab hard-coded "host" and "Ideal model, host calculation".
+    const example = { sourceDigest: generated.sourceDigest, parameters: LQ04_DEFAULTS };
     const html = renderToStaticMarkup(<EntropyWorkbenchComparison example={example} />);
 
     expect(html).toContain('data-instrument-id="lq-04"');
-    expect(html).toContain('data-execution-label="host"');
-    expect(html).toContain("Ideal model, host calculation");
+    expect(html).toContain('data-execution-label="static"');
+    expect(html).toContain("Static worked example");
+    expect(html).not.toContain('data-execution-label="host"');
 
     // A real computed number reaches the markup, not a placeholder.
     const evaluation = evaluateLq04(LQ04_DEFAULTS);
