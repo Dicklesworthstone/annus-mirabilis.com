@@ -16,6 +16,7 @@ const PAPER = "mass-energy";
 const records = loadResultCards(process.cwd(), PAPER)?.cards ?? [];
 const html = await exportMarkup(await FaceFallback({ paperId: PAPER, face: "results" }));
 const german = renderToStaticMarkup(await PaperPage({ paperId: PAPER, face: "german" } as never));
+const explanation = await exportMarkup(await PaperPage({ paperId: PAPER } as never));
 
 /** The markup of one card, from its opening tag to the next card or the end of the cards. */
 function cardHtml(id: string): string {
@@ -93,10 +94,31 @@ describe("mass-energy's results face, static", () => {
     expect(card).toContain("A comparison, not a premise");
   });
 
+  test("each wrong turn a card names is a misconception record that names the card, linked to the explanation page", () => {
+    // Derived from the ledger's resultIds (resultCards.ts); reported, since the ledger's author
+    // decides how many there are.
+    const named = records.flatMap((r) => r.misconceptionIds.map((m) => ({ card: r.id, m })));
+    console.log(`[wrong turns on cards] ${named.length}`);
+    const wrong: string[] = [];
+    for (const { card, m } of named) {
+      const section = cardHtml(card);
+      if (!section.includes(`href="/papers/${PAPER}/#misconception-${m}"`))
+        wrong.push(`${card}: no link to ${m}`);
+      if (!explanation.includes(`id="misconception-${m}"`))
+        wrong.push(`${card}: the explanation page has no misconception-${m}`);
+    }
+    expect(wrong).toEqual([]);
+  });
+
   test("nothing a reader cannot use: no pending task, no typesetting error, no E = mc²", async () => {
     expect(html).not.toMatch(/pending am-/);
     expect(html).not.toContain("katex-error");
-    expect(html.replace(/<[^>]+>/g, "")).not.toMatch(/E\s*=\s*mc/);
+    // A wrong turn may quote the formula as the mistaken claim it is; everything else may not.
+    const outsideWrongTurns = html.replace(
+      /<section[^>]*data-result-layer="wrong-turns"[\s\S]*?<\/section>/g,
+      "",
+    );
+    expect(outsideWrongTurns.replace(/<[^>]+>/g, "")).not.toMatch(/E\s*=\s*mc/);
     // The argument's own outline stays below the cards, so a face change still lands on a passage.
     const { arguments: passages } = await loadPaper(PAPER);
     expect(passages.length).toBeGreaterThan(0);

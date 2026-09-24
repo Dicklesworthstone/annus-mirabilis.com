@@ -311,8 +311,29 @@ export function ResultCard({
         </section>
       )}
 
-      {card.misconceptionIds.length > 0 && (
-        <p className="result-misconceptions">Misconceptions: {card.misconceptionIds.join(", ")}</p>
+      {card.misconceptions && card.misconceptions.length > 0 ? (
+        <section
+          className="result-misconceptions"
+          aria-label="Common wrong turns"
+          data-result-layer="wrong-turns"
+        >
+          <h4>Common wrong turns</h4>
+          <ul>
+            {card.misconceptions.map((m) => (
+              <li key={m.id} data-misconception-id={m.id}>
+                <a href={m.href}>
+                  <InlineMathText text={m.claim} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        card.misconceptionIds.length > 0 && (
+          <p className="result-misconceptions">
+            Misconceptions: {card.misconceptionIds.join(", ")}
+          </p>
+        )
       )}
 
       <dl className="result-meanings" aria-label="Four kinds of meaning">

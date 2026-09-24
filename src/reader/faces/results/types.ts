@@ -166,6 +166,11 @@ export type ResultCard = Readonly<{
   probes: readonly ProbeRef[];
 
   misconceptionIds: readonly string[];
+  /**
+   * The same misconceptions with the tempting claim each names, linked to where the explanation
+   * page sets it out. Absent where only the ids are known.
+   */
+  misconceptions?: readonly Readonly<{ id: string; claim: string; href: string }>[] | undefined;
   usedBy: readonly UsedByEntry[];
 
   meanings: FourKindsOfMeaning;

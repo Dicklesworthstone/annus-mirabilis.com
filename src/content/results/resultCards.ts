@@ -6,9 +6,14 @@
  * or sentences of a paragraph by their order in it) and the text is read from the face at build
  * time, so a correction to the ledger reaches every card that cites it. The modern layer names
  * equation records; the probe names a registered laboratory and one of the presets its manifest
- * registers; misconceptions and "used later" notes name records in their own registries. Everything
- * a card cites must resolve, and what has no registry yet (the misconception ledger, margin records)
- * resolves nothing: a card that cites one is refused, never trusted.
+ * registers; "used later" notes name margin records. Everything a card cites must resolve, and what
+ * has no registry yet (margin records) resolves nothing: a card that cites one is refused, never
+ * trusted.
+ *
+ * A card's common wrong turns are not listed here. Each misconception record in the paper's ledger
+ * (content/misconceptions/<paper>/) names the results it concerns in `resultIds`, and a card's list
+ * is read from there, so the link is written once, by the ledger's author. A card that lists
+ * misconceptions itself is refused, and so is a ledger record naming a result no card has.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -69,16 +74,14 @@ export type ResultCardRecord = Readonly<{
 }>;
 
 /**
- * What a card may cite beyond the paper's own records and the laboratories' manifests. The
- * misconception ledger and the margin records have no registry in this repository yet, so the
- * default is empty: until theirs lands, a card lists none rather than inventing one.
+ * What a card may cite beyond the paper's own records and the laboratories' manifests. The margin
+ * records have no registry a card can resolve against yet, so the default is empty: until one
+ * lands, a card lists none rather than inventing one.
  */
 export type ResultRegistries = Readonly<{
-  misconceptions: ReadonlySet<string>;
   marginRecords: ReadonlySet<string>;
 }>;
 export const EMPTY_REGISTRIES: ResultRegistries = Object.freeze({
-  misconceptions: new Set<string>(),
   marginRecords: new Set<string>(),
 });
 
@@ -93,6 +96,8 @@ export type ResultContext = Readonly<{
   /** Preset id to its laboratory and label, from content/experiments/<id>.yaml. */
   presets: ReadonlyMap<string, Readonly<{ instrumentId: string; label: string }>>;
   face: GermanSourceFace;
+  /** The paper's misconception ledger: each record's id to the result ids it names. */
+  ledger: ReadonlyMap<string, readonly string[]>;
   registries: ResultRegistries;
 }>;
 
@@ -256,10 +261,13 @@ export function checkResultCards(
     });
     if (probes.length === 0) problems.push(`${at}: has no probe`);
 
-    const misconceptionIds = strings(c.misconceptions);
-    for (const m of misconceptionIds)
-      if (!context.registries.misconceptions.has(m))
-        problems.push(`${at}: misconception ${m} is not in the paper's ledger`);
+    if (list(c.misconceptions).length > 0)
+      problems.push(
+        `${at}: lists misconceptions itself; a card's wrong turns are the ledger records whose resultIds name it`,
+      );
+    const misconceptionIds = [...context.ledger]
+      .filter(([, results]) => results.includes(id))
+      .map(([misconception]) => misconception);
     const usedLater = strings(c.usedLater);
     for (const u of usedLater)
       if (!context.registries.marginRecords.has(u))
@@ -311,6 +319,12 @@ export function checkResultCards(
       selectionReason,
     });
   }
+  for (const [misconception, results] of context.ledger)
+    for (const r of results)
+      if (!seen.has(r))
+        problems.push(
+          `${context.paper} misconception ${misconception} names result ${r}, which is no card`,
+        );
   return { cards, problems };
 }
 
@@ -364,6 +378,23 @@ function presetRegistry(
   return out;
 }
 
+/** The paper's misconception ledger: record id to the result ids it names, in file order. */
+function misconceptionLedger(root: string, paper: string): ReadonlyMap<string, readonly string[]> {
+  const dir = join(root, "content", "misconceptions", paper);
+  const out = new Map<string, readonly string[]>();
+  if (!existsSync(dir)) return out;
+  for (const name of readdirSync(dir)
+    .filter((n) => n.endsWith(".json"))
+    .sort()) {
+    const r = JSON.parse(readFileSync(join(dir, name), "utf8")) as {
+      id?: unknown;
+      resultIds?: unknown;
+    };
+    if (typeof r.id === "string") out.set(r.id, strings(r.resultIds));
+  }
+  return out;
+}
+
 /** The context a paper's cards are checked against, or null when it has no German face. */
 export function resultContext(
   root: string,
@@ -385,6 +416,7 @@ export function resultContext(
     scenarios: scenarioOwners(root),
     presets: presetRegistry(root),
     face,
+    ledger: misconceptionLedger(root, paper),
     registries,
   };
 }

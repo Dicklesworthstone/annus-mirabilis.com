@@ -168,9 +168,9 @@ describe("each gap is refused by name", () => {
       /me-01-card-radium is not registered by me-01/,
     ],
     [
-      "a misconception the ledger lacks",
-      (c) => (c.misconceptions = ["me-misconception-1"]),
-      /me-misconception-1 is not in the paper's ledger/,
+      "a card that lists its misconceptions itself",
+      (c) => (c.misconceptions = ["misc-me-mass-converts"]),
+      /lists misconceptions itself/,
     ],
     [
       "a margin record that does not exist",
@@ -210,8 +210,20 @@ describe("each gap is refused by name", () => {
       expect(problems.some((p) => expected.test(p))).toBe(true);
     });
 
-  test("a misconception is accepted once the ledger holds it", () => {
-    const registries = { ...EMPTY_REGISTRIES, misconceptions: new Set(["me-misconception-1"]) };
-    expect(broken((c) => (c.misconceptions = ["me-misconception-1"]), registries)).toEqual([]);
+  test("a card's wrong turns are the ledger records that name it, and a record naming no card is refused", () => {
+    const first = (raw as { cards: { id: string }[] }).cards[0]?.id ?? "";
+    const ledger = new Map<string, readonly string[]>([
+      ["misc-names-first", [first]],
+      ["misc-names-nothing", ["me-no-such-result"]],
+      ["misc-names-none", []],
+    ]);
+    const r = checkResultCards(raw, { ...context, ledger });
+    expect(r.cards.find((c) => c.id === first)?.misconceptionIds).toEqual(["misc-names-first"]);
+    expect(
+      r.cards.filter((c) => c.id !== first).every((c) => c.misconceptionIds.length === 0),
+    ).toBe(true);
+    expect(r.problems).toEqual([
+      "mass-energy misconception misc-names-nothing names result me-no-such-result, which is no card",
+    ]);
   });
 });

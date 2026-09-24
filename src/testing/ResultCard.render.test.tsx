@@ -172,6 +172,25 @@ describe("ResultCard.render: the Brownian lambda_x fixture, static markup", () =
     expect(html).not.toContain("pending am-eq-live-bindings-2se");
   });
 
+  test("renders each wrong turn as its tempting claim, linked to the explanation page", () => {
+    const withClaims: ResultCardData = {
+      ...brownianFixture,
+      misconceptions: [
+        {
+          id: "misc-fixed-jump-size",
+          claim: "Each jump has the same length \\(\\ell\\).",
+          href: "/papers/brownian-motion/#misconception-misc-fixed-jump-size",
+        },
+      ],
+    };
+    const html = renderToStaticMarkup(<ResultCard card={withClaims} />);
+    expect(html).toContain('data-result-layer="wrong-turns"');
+    expect(html).toContain('href="/papers/brownian-motion/#misconception-misc-fixed-jump-size"');
+    expect(html).toContain("katex");
+    // The bare id line is the fallback for a card that knows only ids; it is not shown as well.
+    expect(html).not.toContain("Misconceptions: misc-fixed-jump-size");
+  });
+
   test("renders no support section when no derivation chain covers the result", () => {
     const { support: _support, ...unsupported } = brownianFixture;
     const html = renderToStaticMarkup(<ResultCard card={unsupported} />);

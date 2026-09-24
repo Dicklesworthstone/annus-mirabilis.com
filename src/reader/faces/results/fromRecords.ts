@@ -15,6 +15,7 @@ import {
   MASS_ENERGY_PRINTED_FACTOR_SCENARIO,
   printedMassConversion,
 } from "../../../physics/reference/massEnergy.ts";
+import { loadPaperMargins } from "../../marginRecords.ts";
 import { projectLimitation, projectPrintedCheck } from "./resultsProjection.ts";
 import type { PrintedCheck, ResultCard } from "./types.ts";
 
@@ -106,6 +107,8 @@ export function toCard(
   root: string,
   record: ResultCardRecord,
   passages: ReadonlyMap<string, Readonly<{ limitations: readonly string[] }>>,
+  /** Each misconception's first tempting claim, from the paper's ledger (loadPaperMargins). */
+  claims?: ReadonlyMap<string, string>,
 ): ResultCard {
   const printedCheck = record.printedCheck ? printedCheckFor(root, record.printedCheck) : null;
   return {
@@ -134,6 +137,15 @@ export function toCard(
       ...(p.preset ? { presetLabel: p.preset.label } : {}),
     })),
     misconceptionIds: record.misconceptionIds,
+    ...(claims
+      ? {
+          misconceptions: record.misconceptionIds.map((id) => ({
+            id,
+            claim: claims.get(id) ?? id,
+            href: `/papers/${record.paper}/#misconception-${id}`,
+          })),
+        }
+      : {}),
     // Margin records are cited by id once their registry exists; resultCards.ts refuses any
     // id until then, so there is nothing to project yet.
     usedBy: [],
@@ -164,5 +176,9 @@ export async function resultCardsFor(
     );
   const payload = await loadPaper(paperId);
   const passages = new Map(payload.arguments.map((a) => [a.id, a]));
-  return loaded.cards.map((record) => toCard(root, record, passages));
+  // The ledger's own loader, which checks every record the explanation page will show.
+  const claims = new Map(
+    loadPaperMargins(paperId, root).misconceptions.map((m) => [m.id, m.temptingClaims[0] ?? m.id]),
+  );
+  return loaded.cards.map((record) => toCard(root, record, passages, claims));
 }

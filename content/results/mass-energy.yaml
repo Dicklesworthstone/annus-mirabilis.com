@@ -7,9 +7,10 @@
 # (the one-sentence reading, the decoder, the qualifications, the probe questions) is draft
 # explanatory prose; no review is claimed.
 #
-# Misconceptions and "used later" notes stay empty until the mass-energy misconception ledger
-# (am-me-misconceptions-tr18) and margin records (am-me-margin-entries-kfg5) exist to cite; a
-# card lists none rather than inventing one. Probes name the laboratory, the question, and a preset
+# A card's common wrong turns are not listed here: each record in content/misconceptions/mass-energy
+# names the results it concerns in its resultIds, and the card reads them from there. "Used later"
+# notes stay empty until the margin records (am-me-margin-entries-kfg5) exist to cite; a card lists
+# none rather than inventing one. Probes name the laboratory, the question, and a preset
 # its manifest registers (content/experiments/me-0N.yaml); the preset's label is read from there.
 paper: mass-energy
 review: draft
@@ -43,7 +44,6 @@ cards:
       - instrument: me-01
         question: "How much energy does each pulse carry for an observer moving along x at 0.6 of the speed of light?"
         preset: me-01-default
-    misconceptions: []
     usedLater: []
     meanings:
       argumentStatus: "An assumption of this paper, admitted from the relativity paper"
@@ -77,7 +77,6 @@ cards:
       - instrument: me-01
         question: "With the observer at rest, what does each pulse carry and what does the body lose?"
         preset: me-01-rest-frame
-    misconceptions: []
     usedLater: []
     meanings:
       argumentStatus: "A chosen arrangement of the thought experiment"
@@ -113,7 +112,6 @@ cards:
       - instrument: me-01
         question: "Turn the emission axis: does either system's loss change with the angle?"
         preset: me-01-sixty-degree-tilt
-    misconceptions: []
     usedLater: []
     meanings:
       argumentStatus: "Two applications of the energy principle"
@@ -156,7 +154,6 @@ cards:
       - instrument: me-01
         question: "Starting from the collinear preset, relax the premise that the constant is unchanged: what can the subtraction still say about the kinetic energy?"
         preset: me-01-default
-    misconceptions: []
     usedLater: []
     meanings:
       argumentStatus: "A derivation resting on a stated premise"
@@ -188,7 +185,6 @@ cards:
       - instrument: me-02
         question: "Compare the exact drop, its second-order form, the finite-speed ratio and the limit: which one is the mass?"
         preset: me-02-0.6c
-    misconceptions: []
     usedLater: []
     meanings:
       argumentStatus: "An approximation of the exact result"
@@ -228,7 +224,6 @@ cards:
         question: "Draw the system boundary around the body alone, then around the body and the light: which system loses mass?"
         preset: me-03-sealed-lamp-and-mirror
     printedCheck: mass-energy-printed-factor
-    misconceptions: []
     usedLater: []
     meanings:
       argumentStatus: "The paper's conclusion, and an inference beyond it"
@@ -262,7 +257,6 @@ cards:
       - instrument: me-03
         question: "Read the radium card's boundary note: what would a measurement have to compare?"
         preset: me-03-card-radium
-    misconceptions: []
     usedLater: []
     meanings:
       argumentStatus: "Two conditional remarks"
