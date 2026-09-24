@@ -35,7 +35,13 @@ export function validateSr09Parameters(input: unknown): Sr09ParameterCheck {
   if (!Number.isFinite(beta)) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["beta"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["beta"] },
+        {
+          details: { requirements: "Enter the observer's speed as a finite fraction of c." },
+        },
+      ),
     };
   }
   // v = ±V is not a slower speed the model cannot handle: no inertial observer moves at it.
@@ -48,31 +54,66 @@ export function validateSr09Parameters(input: unknown): Sr09ParameterCheck {
   if (!Number.isFinite(propagationAngleDeg)) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["propagationAngleDeg"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["propagationAngleDeg"] },
+        {
+          details: {
+            requirements: "Enter the direction of the light as a finite number of degrees.",
+          },
+        },
+      ),
     };
   }
   if (!Number.isFinite(frequencyTHz) || frequencyTHz <= 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["frequencyTHz"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["frequencyTHz"] },
+        {
+          details: { requirements: "Enter a frequency greater than zero, in THz." },
+        },
+      ),
     };
   }
   if (!Number.isFinite(detectorSpeed) || Math.abs(detectorSpeed) >= 1) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["detectorSpeed"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["detectorSpeed"] },
+        {
+          details: {
+            requirements:
+              "Enter a detector speed below the speed of light, as a fraction of c between −1 and 1.",
+          },
+        },
+      ),
     };
   }
   if (!Number.isFinite(countingWindowCycles) || countingWindowCycles <= 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["countingWindowCycles"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["countingWindowCycles"] },
+        {
+          details: { requirements: "Enter a counting window of more than zero cycles." },
+        },
+      ),
     };
   }
   if (!Number.isFinite(secondOrderSpeed) || secondOrderSpeed <= 0 || secondOrderSpeed >= 1) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["secondOrderSpeed"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["secondOrderSpeed"] },
+        {
+          details: { requirements: "Enter a source speed between 0 and 1, as a fraction of c." },
+        },
+      ),
     };
   }
 

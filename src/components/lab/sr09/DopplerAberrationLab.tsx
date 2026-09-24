@@ -1,6 +1,7 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
+import { refusalSentence } from "../../../experiments/results/refusals.ts";
 import {
   SR09_CAPTION,
   SR09_MODEL,
@@ -66,7 +67,7 @@ export function DopplerAberrationLab({
   function apply(parameters: Sr09Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(outcome.refusal.message);
+      setError(refusalSentence(outcome.refusal));
       return;
     }
     setDraft(parameters);
@@ -76,7 +77,7 @@ export function DopplerAberrationLab({
     event.preventDefault();
     const checked = validateSr09Parameters(draft);
     if (checked.kind !== "accepted") {
-      setError(checked.refusal.message);
+      setError(refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);

@@ -31,6 +31,7 @@ import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { PredictPanel } from "./PredictPanel.tsx";
 import "./coefficientLab.css";
+import { refusalSentence } from "../../experiments/results/refusals.ts";
 import { display, identity, result } from "./presentation.ts";
 
 type Output = ScientificResult | PublishedResult;
@@ -198,14 +199,14 @@ export function CoefficientLab({
     if (linked?.kind === "settings") {
       const outcome = session.apply(linked.parameters);
       if (outcome.kind === "accepted") setDraft(linked.parameters);
-      else setError(outcome.refusal.message);
+      else setError(refusalSentence(outcome.refusal));
     }
     setReady(true);
   }, [session, restoreSettings]);
   function apply(parameters: Me02Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(outcome.refusal.message);
+      setError(refusalSentence(outcome.refusal));
       return;
     }
     setDraft(parameters);
@@ -225,7 +226,7 @@ export function CoefficientLab({
     event.preventDefault();
     const checked = validateMe02Parameters(draft);
     if (checked.kind !== "accepted") {
-      setError(checked.refusal.message);
+      setError(refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);

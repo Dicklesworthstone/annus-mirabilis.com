@@ -22,25 +22,52 @@ export function validateSr11Parameters(input: unknown): Sr11ParameterCheck {
   if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["beta"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["beta"] },
+        {
+          details: {
+            requirements:
+              "Enter a mirror speed below the speed of light, as a fraction of c between −1 and 1.",
+          },
+        },
+      ),
     };
   }
   if (!Number.isFinite(incidentAngleDeg) || incidentAngleDeg < 0 || incidentAngleDeg > 180) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["incidentAngleDeg"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["incidentAngleDeg"] },
+        {
+          details: { requirements: "Enter an angle of incidence from 0° to 180°." },
+        },
+      ),
     };
   }
   if (!Number.isFinite(incidentEnergyDensity) || incidentEnergyDensity <= 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["incidentEnergyDensity"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["incidentEnergyDensity"] },
+        {
+          details: { requirements: "Enter an incident energy density greater than zero, in J/m³." },
+        },
+      ),
     };
   }
   if (!Number.isFinite(mirrorArea) || mirrorArea <= 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["mirrorArea"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["mirrorArea"] },
+        {
+          details: { requirements: "Enter a mirror area greater than zero, in m²." },
+        },
+      ),
     };
   }
 

@@ -1,6 +1,7 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
+import { refusalSentence } from "../../../experiments/results/refusals.ts";
 import {
   SR10_CAPTION,
   SR10_MODEL,
@@ -80,7 +81,7 @@ export function LightComplexLab({
   function apply(parameters: Sr10Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(outcome.refusal.message);
+      setError(refusalSentence(outcome.refusal));
       return;
     }
     setDraft(parameters);
@@ -91,7 +92,7 @@ export function LightComplexLab({
     event.preventDefault();
     const checked = validateSr10Parameters(draft);
     if (checked.kind !== "accepted") {
-      setError(checked.refusal.message);
+      setError(refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);

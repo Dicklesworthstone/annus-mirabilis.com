@@ -45,7 +45,16 @@ export function validateSr13Parameters(input: unknown): Sr13ParameterCheck {
   if (!Number.isFinite(initialSpeed) || Math.abs(initialSpeed) >= 1) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["initialSpeed"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["initialSpeed"] },
+        {
+          details: {
+            requirements:
+              "Enter an initial speed below the speed of light, as a fraction of c between −1 and 1.",
+          },
+        },
+      ),
     };
   }
 

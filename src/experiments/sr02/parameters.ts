@@ -24,13 +24,25 @@ export function validateSr02Parameters(input: unknown): Sr02ParameterCheck {
   if (!Number.isFinite(speed) || Math.abs(speed) >= C_SI) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["speed"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["speed"] },
+        {
+          details: { requirements: "Enter a speed below the speed of light, 299 792 458 m/s." },
+        },
+      ),
     };
   }
   if (!Number.isFinite(magneticField)) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["magneticField"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["magneticField"] },
+        {
+          details: { requirements: "Enter the magnetic field as a finite number, in tesla." },
+        },
+      ),
     };
   }
   if (
@@ -40,19 +52,40 @@ export function validateSr02Parameters(input: unknown): Sr02ParameterCheck {
   ) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["dipoleMoment"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["dipoleMoment"] },
+        {
+          details: {
+            requirements:
+              "Enter a finite dipole moment and a test-point distance greater than zero.",
+          },
+        },
+      ),
     };
   }
   if (!Number.isFinite(segmentLength) || segmentLength <= 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["segmentLength"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["segmentLength"] },
+        {
+          details: { requirements: "Enter a conductor length greater than zero, in metres." },
+        },
+      ),
     };
   }
   if (!Number.isFinite(testCharge)) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["testCharge"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["testCharge"] },
+        {
+          details: { requirements: "Enter the test charge as a finite number, in coulombs." },
+        },
+      ),
     };
   }
   const mode = o.mode === "apparatus" ? "apparatus" : "analytic";

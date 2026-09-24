@@ -51,13 +51,30 @@ export function validateSr08Parameters(input: unknown): Sr08ParameterCheck {
   if (invalid.length > 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: invalid }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: invalid },
+        {
+          details: {
+            requirements: "Enter every field component, speed and charge as a finite number.",
+          },
+        },
+      ),
     };
   }
   if (Math.abs(numbers.boost) >= C_SI) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["boost"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["boost"] },
+        {
+          details: {
+            requirements:
+              "Enter a frame speed below the speed of light: no inertial observer moves at or beyond c.",
+          },
+        },
+      ),
     };
   }
   const uSpeed2 =
@@ -67,7 +84,15 @@ export function validateSr08Parameters(input: unknown): Sr08ParameterCheck {
   if (uSpeed2 >= C_SI * C_SI) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["chargeVelocityX"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["chargeVelocityX"] },
+        {
+          details: {
+            requirements: "Enter a charge velocity whose speed is below the speed of light.",
+          },
+        },
+      ),
     };
   }
 

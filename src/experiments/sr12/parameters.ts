@@ -37,7 +37,16 @@ export function validateSr12Parameters(input: unknown): Sr12ParameterCheck {
   if (!Number.isFinite(boost) || Math.abs(boost) >= C_SI) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["boost"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["boost"] },
+        {
+          details: {
+            requirements:
+              "Enter a frame speed below the speed of light: no inertial observer moves at or beyond c.",
+          },
+        },
+      ),
     };
   }
 
@@ -61,7 +70,16 @@ export function validateSr12Parameters(input: unknown): Sr12ParameterCheck {
   ) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["chargeDensity"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["chargeDensity"] },
+        {
+          details: {
+            requirements:
+              "Enter every charge density, current density and pulse setting as a finite number.",
+          },
+        },
+      ),
     };
   }
 
@@ -72,7 +90,15 @@ export function validateSr12Parameters(input: unknown): Sr12ParameterCheck {
   if (uSpeed2 >= C_SI * C_SI) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["carrierVelocityX"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["carrierVelocityX"] },
+        {
+          details: {
+            requirements: "Enter a carrier velocity whose speed is below the speed of light.",
+          },
+        },
+      ),
     };
   }
 

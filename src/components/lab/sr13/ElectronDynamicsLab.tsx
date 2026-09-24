@@ -1,13 +1,13 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
+import { refusalSentence } from "../../../experiments/results/refusals.ts";
 import {
   SR13_CAPTION,
   SR13_MODEL,
   SR13_NOT_MODELED,
   type Sr13Parameters,
 } from "../../../experiments/sr13/definition.ts";
-
 import { validateSr13Parameters } from "../../../experiments/sr13/parameters.ts";
 import { createSr13Session, type PreparedSr13Example } from "../../../experiments/sr13/session.ts";
 import type {
@@ -77,7 +77,7 @@ export function ElectronDynamicsLab({
   function apply(parameters: Sr13Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(outcome.refusal.message);
+      setError(refusalSentence(outcome.refusal));
       return;
     }
     setDraft(parameters);
@@ -88,7 +88,7 @@ export function ElectronDynamicsLab({
     event.preventDefault();
     const checked = validateSr13Parameters(draft);
     if (checked.kind !== "accepted") {
-      setError(checked.refusal.message);
+      setError(refusalSentence(checked.refusal));
       return;
     }
     apply(checked.data);

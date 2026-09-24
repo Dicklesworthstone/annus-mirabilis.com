@@ -23,13 +23,28 @@ export function validateMe02Parameters(input: unknown): Me02ParameterCheck {
   if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["beta"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["beta"] },
+        {
+          details: {
+            requirements:
+              "Enter a speed below the speed of light, as a fraction of c between −1 and 1.",
+          },
+        },
+      ),
     };
   }
   if (!Number.isFinite(emittedEnergy) || emittedEnergy <= 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["emittedEnergy"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["emittedEnergy"] },
+        {
+          details: { requirements: "Enter an emitted energy greater than zero." },
+        },
+      ),
     };
   }
   if (energyUnit !== "normalized" && energyUnit !== "erg" && energyUnit !== "joule") {
@@ -41,7 +56,16 @@ export function validateMe02Parameters(input: unknown): Me02ParameterCheck {
   if (energyUnit === "erg" && convert(emittedEnergy, "erg", "J") === 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["emittedEnergy"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["emittedEnergy"] },
+        {
+          details: {
+            requirements:
+              "This many ergs is too small to express in joules; enter a larger energy.",
+          },
+        },
+      ),
     };
   }
   if (

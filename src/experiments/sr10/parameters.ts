@@ -34,25 +34,51 @@ export function validateSr10Parameters(input: unknown): Sr10ParameterCheck {
   if (!Number.isFinite(propagationAngleDeg)) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["propagationAngleDeg"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["propagationAngleDeg"] },
+        {
+          details: {
+            requirements: "Enter the direction of the light as a finite number of degrees.",
+          },
+        },
+      ),
     };
   }
   if (!Number.isFinite(initialEnergyJ) || initialEnergyJ <= 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["initialEnergyJ"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["initialEnergyJ"] },
+        {
+          details: { requirements: "Enter an initial energy greater than zero, in joules." },
+        },
+      ),
     };
   }
   if (!Number.isFinite(initialVolumeM3) || initialVolumeM3 <= 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["initialVolumeM3"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["initialVolumeM3"] },
+        {
+          details: { requirements: "Enter an initial volume greater than zero, in cubic metres." },
+        },
+      ),
     };
   }
   if (!Number.isFinite(initialAmplitude) || initialAmplitude <= 0) {
     return {
       kind: "refused",
-      refusal: makeRefusal("invalid-parameter", { parameterIds: ["initialAmplitude"] }),
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["initialAmplitude"] },
+        {
+          details: { requirements: "Enter an initial amplitude greater than zero." },
+        },
+      ),
     };
   }
 

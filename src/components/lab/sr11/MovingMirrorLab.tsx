@@ -2,6 +2,7 @@
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
+import { refusalSentence } from "../../../experiments/results/refusals.ts";
 import {
   SR11_CAPTION,
   SR11_MODEL,
@@ -92,7 +93,7 @@ export function MovingMirrorLab({
   function apply(parameters: Sr11Parameters) {
     const outcome = session.apply(parameters);
     if (outcome.kind === "refused") {
-      setError(outcome.refusal.message);
+      setError(refusalSentence(outcome.refusal));
       return false;
     }
     setError("");
