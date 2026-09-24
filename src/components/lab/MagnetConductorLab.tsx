@@ -20,6 +20,7 @@ import {
 } from "../../experiments/sr02/definition.ts";
 import { validateSr02Parameters } from "../../experiments/sr02/parameters.ts";
 import { createSr02Session, type PreparedSr02Example } from "../../experiments/sr02/session.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { display, identity, result } from "./presentation.ts";
@@ -132,6 +133,7 @@ export function MagnetConductorLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id={apparatus ? "sr-02:apparatus" : "sr-02"}
       {...identity(snapshot)}
+      {...instrumentRootAttributes(view)}
       {...executionLabelAttributes(executionKind)}
       data-source-digest={example.sourceDigest}
       data-mode={p.mode}

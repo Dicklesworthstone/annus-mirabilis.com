@@ -21,6 +21,7 @@ import {
 } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import {
   InferenceCoverage,
   InferenceFamily,
@@ -193,8 +194,8 @@ export function InferenceLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-07"
       {...identity(snapshot)}
+      {...instrumentRootAttributes(view)}
       {...executionLabelAttributes(executionKind)}
-      data-pending={String(view.pending)}
       data-radius-known={String(p.radiusKnown)}
       data-estimator={p.estimator}
       data-observation-set={p.observationSet}

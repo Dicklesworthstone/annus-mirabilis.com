@@ -12,6 +12,8 @@ import { decodeBm08Settings, encodeBm08Settings } from "../../experiments/bm08/p
 import { createBm08Session, type PreparedBm08Example } from "../../experiments/bm08/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
+import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
 import { InferenceInterval as Interval, InferenceValue as Value } from "./InferencePlots.tsx";
@@ -183,7 +185,8 @@ export function CameraLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-08"
       {...identity(snapshot)}
-      data-pending={String(view.pending)}
+      {...instrumentRootAttributes(view)}
+      {...executionLabelAttributes(isStatic ? "static-example" : "host-accepted")}
       data-recording-draws={scalar(snapshot, "recordingDraws")}
       data-request-draws={scalar(snapshot, "requestDraws")}
       data-measurement-draws={scalar(snapshot, "measurementDraws")}

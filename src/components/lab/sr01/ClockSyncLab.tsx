@@ -24,6 +24,7 @@ import {
   type PreparedSr01Example,
   predictAnswerFor,
 } from "../../../experiments/sr01/session.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -185,9 +186,7 @@ export function ClockSyncLab({
       className="laboratory-shell"
       aria-label={title}
       data-instrument-id="sr-01"
-      data-instance-id={accepted?.instanceId ?? "sr-01"}
-      data-run-id={accepted?.runId ?? "sr01-init"}
-      data-snapshot-version={accepted?.snapshotVersion ?? 0}
+      {...instrumentRootAttributes(view)}
       {...executionLabelAttributes(executionKind)}
       data-refusal-code={refusalCode ?? undefined}
     >
