@@ -120,8 +120,12 @@ describe("Viscosity Epistemic Guard & Cross-Term Consistency (am-bm-first-encoun
     const argSteps = JSON.stringify(argJson.readings.steps);
     expect(argSteps).toContain("−3, −1, +1, +3");
     expect(argSteps).toContain("mean square is 5");
-    expect(argSteps).toContain("RMS is approximately 2.236");
-    expect(argSteps).toContain("mean distance is instead (3 + 1 + 1 + 3) / 4 = 2");
+    // The same numbers, not the same sentences: 717ae3d7 rewrote these steps (R2 now contains R1)
+    // and kept every value. The RMS is the square root of the mean square 5, about 2.236, and the
+    // mean distance is the plain average of the four magnitudes, 2.
+    expect(argSteps).toContain("\\\\sqrt{5}");
+    expect(argSteps).toMatch(/root-mean-square displacement[^"]*2\.236/);
+    expect(argSteps).toContain("(3 + 1 + 1 + 3) / 4 = 2");
 
     // Both must point to Section 5 / mean-variance-rms foundation
     expect(entranceJson.bridge.whyUsefulHere).toContain("Section 5");
