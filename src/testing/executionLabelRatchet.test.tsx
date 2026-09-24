@@ -14,7 +14,7 @@ import { renderToStaticMarkup } from "react-dom/server";
  *
  * Two lab groups remain for reasons recorded on the bead:
  * - no generated example with a source digest, so deriveHostExecution cannot earn a label
- *   (Avogadro, LightThread, TwoLedgers, BoundaryLedger, ShelfOptics, ClockSync);
+ *   (Avogadro, LightThread, BoundaryLedger, ShelfOptics, ClockSync);
  * - a composite label (FieldEquations), or a test that pins "host".
  * WaveDescription and DriftDiffusion derive their label without a model note: their not-modeled
  * lists live only in the manifests.
@@ -28,7 +28,6 @@ const STILL_HARD_CODED = [
   "lab/lq03/SpectrumLab.tsx",
   "lab/lq05/IndependentConfigurationsLab.tsx",
   "lab/lq07/FluorescenceLab.tsx",
-  "lab/me01/TwoLedgersLab.tsx",
   "lab/me03/BoundaryLedgerLab.tsx",
   "lab/shelfOptics/ShelfOpticsLab.tsx",
   "lab/sr01/ClockSyncLab.tsx",
@@ -44,6 +43,7 @@ const DERIVED_ROUTES = [
   "lq-06",
   "lq-08",
   "lq-09",
+  "me-01",
   "me-02",
   "sr-03",
   "sr-08",
