@@ -25,8 +25,9 @@ import {
 } from "../../../experiments/lq07/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { fixed, identity } from "../presentation.ts";
+import { fixed, identity, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { FluorescencePlot } from "./FluorescencePlot.tsx";
 import "./fluorescenceLab.css";
@@ -73,6 +74,10 @@ export function FluorescenceLab({
   const [predictAnswer2, setPredictAnswer2] = useState<string | null>(null);
 
   const evaluation = evaluateLq07(p);
+  // One sentence for the status line: the frequencies, the budget's own verdict, and the emission
+  // rate when light of the second frequency is emitted.
+  const emitted = evaluation.rates.status === "value" ? evaluation.rates.emittedRatePerSecond : 0;
+  const statusSummary = `${fixed(p.nu1, 1)} THz in, ${fixed(p.nu2, 1)} THz out. ${evaluation.budget.verdictReason}${emitted > 0 ? ` ${sentenceNumber(emitted)} quanta leave each second.` : ""}`;
 
   useEffect(() => {
     const shared = decodeLq07Settings(window.location.search);
@@ -631,10 +636,14 @@ export function FluorescenceLab({
         </form>
 
         {error && (
-          <div className="notice error" style={{ marginTop: "1rem" }}>
+          <div className="notice error" role="alert" style={{ marginTop: "1rem" }}>
             {error}
           </div>
         )}
+        <AcceptedStatus
+          worked={snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
         {linkNote && (
           <div className="notice" style={{ marginTop: "0.75rem" }}>
             {linkNote}
