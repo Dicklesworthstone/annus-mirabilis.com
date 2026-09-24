@@ -38,7 +38,7 @@
     {
       "id": "s5",
       "title": "§5 · independent configurations",
-      "arguments": ["arg-lq-independent-configurations"]
+      "arguments": ["arg-lq-statistical-probability", "arg-lq-independent-configurations"]
     },
     {
       "id": "s6",

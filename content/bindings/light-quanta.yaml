@@ -89,8 +89,7 @@ paragraphs:
     passages: [arg-lq-fixed-band-volume, arg-lq-entropy-correspondence]
     r0: "So the entropy of dilute monochromatic radiation depends on its volume by the same law as the entropy of an ideal gas or a dilute solution. Einstein will interpret this with Boltzmann's principle, that the entropy of a system is a function of the probability of its state."
   - unit: s5-p1
-    status: unexplained
-    reason: "No passage discusses Einstein's remark on the meaning of probability or the separate paper he promises; the passage on independent configurations starts from the probability W that this section goes on to use."
+    passages: [arg-lq-statistical-probability]
     r0: "Einstein notes that molecular theory often uses the word probability in a sense that differs from its mathematical definition, and says he will show in another paper that statistical probability is enough; here he gives only the general principle and some special cases."
   - unit: s5-p2
     passages: [arg-lq-independent-configurations]

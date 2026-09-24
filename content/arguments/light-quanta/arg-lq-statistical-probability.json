@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-statistical-probability",
+  "paper": "light-quanta",
+  "section": "s5",
+  "title": "Which probability the entropy uses",
+  "question": "What does Einstein mean by the probability of a state, and why does he insist on it?",
+  "recap": "Einstein uses the probability of a state in one definite sense: how likely it is to find the system in that state at a moment chosen at random. Read that way, Boltzmann's principle ties entropy to probability without first deciding by hypothesis which cases are equally likely.",
+  "review": "draft",
+  "premises": [
+    "The probability of a state is its statistical probability: the chance of finding the system in that state at a moment chosen at random.",
+    "Boltzmann's principle, as Einstein uses it: the entropy of a system is a function of the probability of its state.",
+    "The argument compares entropy differences between states; it needs no absolute entropy."
+  ],
+  "limitations": [
+    "Einstein says he will show in a separate paper that statistical probability is enough; this paper does not give that proof, and this passage does not supply it.",
+    "A moment chosen at random presupposes a system in a steady condition, watched over a long time; the passage does not treat systems that are not."
+  ],
+  "citations": ["ap-17-132"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Einstein says the word probability is often used loosely when entropy is calculated from molecules. He means one thing by it: how likely it is to find the system in a given state at a moment chosen at random, and he holds that this is enough for Boltzmann's principle."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "§5 opens with a warning about a word. When entropy is calculated from molecular theory, Einstein writes, 'probability' is often used in a sense that does not match its definition in the theory of probability. In particular, which cases count as equally probable is often fixed by hypothesis, even where the theoretical picture is definite enough to deduce them instead."
+      },
+      {
+        "kind": "paragraph",
+        "text": "He announces that he will show in a separate paper that the statistical probability is all that thermal questions need, and hopes this removes a logical difficulty that still stands in the way of applying Boltzmann's principle. Here he states the principle only in general and applies it to special cases. The first special case shows what statistical probability means: the probability that, at a moment chosen at random, the system is found in the state considered."
+      },
+      {
+        "kind": "foundation",
+        "id": "bridge-probability-notation",
+        "returnCaption": "Return to the probability of a state."
+      },
+      {
+        "kind": "formula",
+        "latex": "S-S_0=\\frac{R}{N}\\lg W",
+        "spoken": "The entropy difference S minus S zero equals R over N times the logarithm of W."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Here W is the probability of the state with entropy S relative to a starting state with entropy \\(S_0\\), R is the gas constant, N the number of molecules in a gram-molecule, and lg is the natural logarithm as the paper writes it. Read with a statistical W, the formula needs no list of equally likely cases: a state the system is found in at 1 moment in 16, compared with a state it is always in, has W = 1/16, and its entropy is lower by R/N times ln 16."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The reading matters for everything after it. The probability that n independent points are all in part of a volume, and in §6 the probability that all the energy of monochromatic radiation is in part of its volume, are statistical probabilities in exactly this sense. The step from entropy to energy quanta is only as good as that reading of W."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "paragraph",
+        "text": "Letters: the paper writes W for the probability of a state, S for its entropy, R for the gas constant, N for the number of molecules in a gram-molecule, and lg for the natural logarithm, which this explanation also writes ln."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The warning: in molecular calculations of entropy, the word 'probability' is often used in a sense that differs from its definition in the theory of probability.",
+          "The shortcut Einstein objects to: decide by hypothesis which cases are equally probable, then count cases. He objects where the model is definite enough to deduce those probabilities instead of assuming them.",
+          "His alternative, the statistical probability: watch the system over a long time and ask what fraction of the moments it spends in the state. Equivalently, pick a moment at random and ask how likely it is that the system is in the state then.",
+          "Worked example: four points that move independently in a box, each equally likely to be anywhere in it. At a random moment one point is in the left half with probability 1/2, so all four are there with probability 1/2 × 1/2 × 1/2 × 1/2 = 1/16. Watched for a long time, the box spends about 1 moment in 16 with all four points on the left.",
+          "Boltzmann's principle, as Einstein uses it: the entropy of a system is a function of the probability of its state. The next paragraphs of §5 show that the function has to be a logarithm, because entropies of separate systems add while their probabilities multiply."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "S-S_0=\\frac{R}{N}\\lg W",
+        "spoken": "The entropy difference S minus S zero equals R over N times the logarithm of W."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Reading the formula: S − \\(S_0\\) is the entropy of the state minus the entropy of the starting state, and W is the probability of the state relative to the starting state.",
+          "In the worked example, relative to the box with its points anywhere, W = 1/16. So S − \\(S_0\\) = (R/N) ln(1/16) = −(R/N) ln 16. Since ln 16 = 4 ln 2 ≈ 4 × 0.693 ≈ 2.77, the state with all four points on the left has an entropy lower by about 2.77 × R/N.",
+          "Nothing in this used a list of equally likely cases decided in advance: the 1/16 came from the independence of the points and the fraction of the volume, both properties of the model.",
+          "Einstein promises a separate paper to show that the statistical probability suffices for thermal questions; this paper does not contain that proof, so here it remains his announced position."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "probability-independence",
+        "returnCaption": "Return to the chance of finding the state at a random moment."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Boltzmann had tied entropy to the probability of a state in the kinetic theory of gases; Einstein calls the relation Boltzmann's principle and writes its constant as R/N. Planck's 1901 paper, which §2 cites (Ann. d. Phys. 4, p. 561), writes that constant as k, the letter later written \\(k_B\\). Before 1905 Einstein had published three papers on the molecular foundations of thermodynamics in the Annalen der Physik (1902, 1903 and 1904). The separate paper promised in §5 is not named, and this passage does not identify it; nor does §5 say whose use of probability it criticizes."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": {
+    "why": "probability-independence",
+    "missingStep": "logarithms",
+    "example": "entropy-multiplicity"
+  },
+  "experiments": [],
+  "meaning": {
+    "logicalRole": "definition",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}
