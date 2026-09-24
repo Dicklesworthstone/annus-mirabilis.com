@@ -4,6 +4,7 @@ import { BoostTable } from "./BoostTable.tsx";
 import { ConfigurationCounter } from "./ConfigurationCounter.tsx";
 import { foundationConstructionId } from "./constructionIds.ts";
 import { DescriptionOrWorld } from "./DescriptionOrWorld.tsx";
+import { EnergyLedger } from "./EnergyLedger.tsx";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
 import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
@@ -76,5 +77,7 @@ export function FoundationConstruction({
       return <TwoCurves headingLevel={headingLevel} />;
     case "entropy-multiplicity":
       return <ConfigurationCounter headingLevel={headingLevel} />;
+    case "work-energy":
+      return <EnergyLedger headingLevel={headingLevel} />;
   }
 }
