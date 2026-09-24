@@ -20,6 +20,8 @@ import {
   evaluateBm03,
   type PreparedBm03Example,
 } from "../../../experiments/bm03/session.ts";
+import { executionLabelFor } from "../../../experiments/labels/executionLabelFor.ts";
+import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { fixed, identity, numberText } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
@@ -62,6 +64,12 @@ export function ConfigurationLab({
     session.getServerSnapshot().accepted ??
     buildBm03Snapshot(`bm03-${id}`, "bm03-init", BM03_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
+  // Earned per snapshot, as CameraLab's is: the build's worked example until a reader's settings
+  // are accepted, a host calculation after. It was a fixed "host" and read "host calculation" on
+  // first paint, about a page the build had calculated.
+  const serverAccepted = session.getServerSnapshot().accepted;
+  const executionKind =
+    view.accepted === null || snapshot === serverAccepted ? "static-example" : "host-accepted";
   const p = snapshot.parameters as Bm03Parameters;
   const [draft, setDraft] = useState(() => toBm03Draft(p));
   const [ready, setReady] = useState(false);
@@ -159,14 +167,14 @@ export function ConfigurationLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...executionLabelAttributes(executionKind)}
     >
       <header className="lab-heading">
         <div>
           <p className="eyebrow">Statistical mechanics derivation</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{BM03_MODEL.label}</span>
+        <span className="badge">{executionLabelFor(executionKind).text}</span>
       </header>
 
       <noscript>

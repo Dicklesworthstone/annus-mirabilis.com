@@ -21,21 +21,22 @@ import { exportMarkup } from "./exportMarkup.ts";
  * leave it when it does: the list is compared for equality, so a migrated lab left on the list
  * fails as slack, and a new hard-coded label fails as a regression.
  *
- * The one that remains, and why (recorded on the bead): Configuration (BM-03), whose build-time
- * snapshot carries outputs that are not in the contract the lab declares, so a digest would still
- * derive "unavailable". ModeAllocation (LQ-02), OsmoticPartition (BM-02) and ShelfOptics left the
- * list in f16dcaa3: with no instance store, each is static while its state is still the one it
+ * None remains. Configuration (BM-03) was the last: its build-time snapshot carries outputs that
+ * are not in the contract the lab declares, so a digest would derive "unavailable", and it now
+ * derives its label from snapshot identity, as CameraLab does. ModeAllocation (LQ-02),
+ * OsmoticPartition (BM-02) and ShelfOptics left the list in f16dcaa3: with no instance store, each is static while its state is still the one it
  * started from, as the reasoning workbenches are (12a926b9).
  * WaveDescription and DriftDiffusion derive their label without a model note: their not-modeled
  * lists live only in the manifests.
  */
-const STILL_HARD_CODED = ["lab/bm03/ConfigurationLab.tsx"];
+const STILL_HARD_CODED: string[] = [];
 
 /** Routes whose labs now derive the label; each must render the static label at build time. */
 const DERIVED_ROUTES = [
   "avogadro-lab",
   "light-thread",
   "bm-02",
+  "bm-03",
   "bm-04",
   "bm-05",
   "bm-06",
@@ -78,7 +79,7 @@ const DERIVED_ROUTES = [
  * labels, in src/reasoning (countermodels/independence and lq-08/data, fixed in 12a926b9). May only
  * shrink, with STILL_HARD_CODED.
  */
-const HOST_AT_BUILD_TIME = ["bm-03/"];
+const HOST_AT_BUILD_TIME: string[] = [];
 
 /**
  * Routes whose instrument root may render with no label at build time, and so may not pass the

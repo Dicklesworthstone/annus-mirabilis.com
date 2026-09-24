@@ -58,7 +58,8 @@ describe("BM-03 UI components and route", () => {
   test("ConfigurationLab renders laboratory root with data attributes and noscript fallback", () => {
     const html = renderToStaticMarkup(<ConfigurationLab />);
     expect(html).toContain('data-instrument-id="bm-03"');
-    expect(html).toContain('data-execution-label="host"');
+    // The build's render is a worked example, not a host calculation (derived since this change).
+    expect(html).toContain('data-execution-label="static"');
     expect(html).toContain("<noscript>");
     expect(html).toContain("JavaScript is off.");
     expect(html).toContain("Predict before deriving");
