@@ -158,7 +158,8 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
         displayPower: 0,
         semanticKind: "sample-size",
         role: "input",
-        definition: "M: how many values are averaged, such as the four displacements of the example.",
+        definition:
+          "M: how many values are averaged, such as the four displacements of the example.",
       }),
       // The Gaussian: the unitless variable of the moment integral.
       pick(BROWNIAN_QUANTITIES, "scaledDisplacement"),
