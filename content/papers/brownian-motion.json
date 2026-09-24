@@ -4,7 +4,7 @@
   "id": "brownian-motion",
   "title": "Brownian motion: from wandering to a measurable law",
   "germanTitle": "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
-  "description": "Read the displacement argument and ask for the steps it leaves out. The laboratories test the same relationships.",
+  "description": "Particles just large enough to see under a microscope must wander, Einstein argues, and how far they wander in a given time would let us count molecules. Read the argument, and open any step it leaves out.",
   "citation": "ap-17-549",
   "status": "explanation-preview",
   "sourceStatus": "in-preparation",
