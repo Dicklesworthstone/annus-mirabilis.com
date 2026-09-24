@@ -271,6 +271,9 @@ function multiplyExactDecimal(left: string, right: string): string {
   return frac.length === 0 ? whole : `${whole}.${frac}`;
 }
 
+/** 2^-1022: below it a double is subnormal and has lost significant digits. */
+const SMALLEST_NORMAL_DOUBLE = 2.2250738585072014e-308;
+
 export type FactorRatio = Readonly<{
   decimal?: string;
   ln: number;
@@ -297,12 +300,16 @@ export function configurationFactorRatio(
     decimal = "1";
     for (let i = 0; i < Np; i++) decimal = multiplyExactDecimal(decimal, ratio);
   }
-  const dbl = Math.exp(ln);
+  // r ** Np is correctly rounded, where exp(Np ln r) drifts (exp(500 ln 2) is off in the 14th
+  // digit though 2^500 is exact) and can land just under the largest double for a ratio that
+  // overflows it (Np = 1024, r = 2). Overflow, underflow to 0 and a subnormal result are not the
+  // ratio, so each reports null and the logarithms stand.
+  const dbl = Number(ratio) ** Np;
   return Object.freeze({
     ...(decimal === undefined ? {} : { decimal }),
     ln,
     log10,
-    representableDouble: Number.isFinite(dbl) ? dbl : null,
+    representableDouble: Number.isFinite(dbl) && dbl >= SMALLEST_NORMAL_DOUBLE ? dbl : null,
   });
 }
 
