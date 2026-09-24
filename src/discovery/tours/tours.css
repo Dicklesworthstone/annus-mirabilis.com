@@ -1,6 +1,7 @@
+/* Flush with the header's left edge, as every other top-level page is; centred, the column started
+   100px in from the wordmark at 1440 (x=160 against the header's 60), on /tours/ and each tour. */
 .guided-tour-page {
   max-width: 70rem;
-  margin-inline: auto;
 }
 
 .guided-tour-catalogue {
