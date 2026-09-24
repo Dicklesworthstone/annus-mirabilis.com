@@ -1,6 +1,8 @@
 export interface UnreviewedBannerProps {
   readonly title?: string | undefined;
   readonly message?: string | undefined;
+  /** The layer the banner reports on, as its accessible name: the gloss face's is its gloss. */
+  readonly label?: string | undefined;
 }
 
 /**
@@ -9,6 +11,7 @@ export interface UnreviewedBannerProps {
 export function UnreviewedBanner({
   title = "Draft translation, not yet reviewed",
   message = "This translation has not been reviewed against the German.",
+  label = "Translation review status",
 }: UnreviewedBannerProps) {
   // Static content, so no role="status": a live region is for announcements, and a screen reader
   // should meet this once, in reading order. The faces pass the text translationReviewSummary
@@ -16,7 +19,7 @@ export function UnreviewedBanner({
   return (
     <aside
       className="unreviewed-translation-banner"
-      aria-label="Translation review status"
+      aria-label={label}
       data-unreviewed-banner="true"
     >
       <p className="banner-heading">

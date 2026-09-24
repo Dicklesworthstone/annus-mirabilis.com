@@ -17,9 +17,9 @@ import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { claimedDisplayIds } from "./displayClaims.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
+import { glossReviewSummary } from "./glossReview.ts";
 import { renderInlines } from "./inlines.tsx";
 import type { FaceId } from "./registry.ts";
-import { isPaperTranslationUnreviewed, translationReviewSummary } from "./reviewState.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 
@@ -38,6 +38,10 @@ export interface GlossFaceProps {
   readonly translations?: readonly TranslationUnit[] | undefined;
   readonly alignment?: Alignment | undefined;
   readonly editorialNotes?: readonly EditorialNote[] | undefined;
+  /**
+   * The translation's review records. The gloss banner does not read them (glossReview.ts): they
+   * name translation units, whose ids are often the sentence ids a gloss unit carries.
+   */
   readonly reviewRecords?: readonly ReviewRecord[] | undefined;
   readonly entryLink?: GlossEntryLink | undefined;
   readonly initialReasoningWords?: boolean | undefined;
@@ -64,7 +68,6 @@ export function GlossFace({
   translations = [],
   alignment,
   editorialNotes = [],
-  reviewRecords = [],
   entryLink,
   initialReasoningWords = false,
   modalityClasses,
@@ -148,9 +151,9 @@ export function GlossFace({
     return out;
   };
 
-  // Determine if gloss translation is unreviewed
-  const hasUnreviewed = isPaperTranslationUnreviewed(translations, reviewRecords);
-  const glossReview = translationReviewSummary(translations, reviewRecords);
+  // The gloss's own state, from its own units (glossReview.ts), not the English translation's.
+  const glossReview = glossReviewSummary(glossUnits);
+  const hasUnreviewed = glossReview.total > 0 && glossReview.counts.reviewed < glossReview.total;
 
   return (
     <article
@@ -162,7 +165,11 @@ export function GlossFace({
     >
       {/* Optional Unreviewed Translation Banner */}
       {hasUnreviewed && (
-        <UnreviewedBanner title={glossReview.title} message={glossReview.message} />
+        <UnreviewedBanner
+          title={glossReview.title}
+          message={glossReview.message}
+          label="Gloss review status"
+        />
       )}
 
       {/* Entry link slot (when configured) */}
