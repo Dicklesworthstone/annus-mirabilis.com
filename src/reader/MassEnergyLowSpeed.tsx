@@ -6,7 +6,7 @@ export function MassEnergyLowSpeed() {
   return (
     <details id="me-low-speed-derivation" data-low-speed-disclosure className="local-steps">
       <summary>Follow the low-speed limit all the way to the mass conclusion</summary>
-      <LazyLowSpeedExplorer proof={generated as LowSpeedProofView} />
+      <LazyLowSpeedExplorer proof={generated as LowSpeedProofView} moveAnchor="me-the-move" />
     </details>
   );
 }

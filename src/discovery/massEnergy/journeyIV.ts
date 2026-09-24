@@ -32,13 +32,16 @@ export const FIRST_HONEST_QUESTION =
  * accounts and the subtraction before it are bookkeeping any careful reader can check; this is the
  * identification the paper asks the reader to accept, and it is made only in the slow limit.
  *
+ * The ids are the paper page's checked chain: the low-speed certificate (massEnergyLowSpeed.ts)
+ * and its "identify" step, which LowSpeedExplorer names "The move" and anchors #me-the-move.
+ *
  * The summary is the bead's authored sentence, recorded as a draft: only a named physics reviewer
  * may set it reviewed.
  */
 export const MOVE: JourneyMove = {
   label: "Read the coefficient as a lost mass",
-  chainId: "arg-me-mass-change",
-  stepId: "eq-model-me-mass-decrease",
+  chainId: "me-low-speed-coefficient",
+  stepId: "identify",
   r0Summary: {
     text: "Seen by an observer moving past, the body carries less energy of motion after giving off light than before, at the same speed, just as a slightly lighter body would when the motion is slow, so, within the paper's stated premises, giving off energy lowers the body's mass by an amount set by that energy.",
     reviewState: "draft",
@@ -46,7 +49,7 @@ export const MOVE: JourneyMove = {
 };
 
 /** Where the marked step opens, in the reading face. */
-export const MOVE_HREF = "/papers/mass-energy/#arg-me-mass-change";
+export const MOVE_HREF = "/papers/mass-energy/#me-the-move";
 
 /**
  * The fork (plan §9.5): Poincaré's fictitious fluid, worked honestly as bookkeeping that is

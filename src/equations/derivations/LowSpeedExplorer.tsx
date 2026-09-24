@@ -25,9 +25,15 @@ function MathBlock({ value }: { value: LowSpeedFormula }) {
 export function LowSpeedExplorer({
   proof,
   restoreSettings = true,
+  moveAnchor,
 }: {
   proof: LowSpeedProofView;
   restoreSettings?: boolean;
+  /**
+   * The id the move's step is published under, given only by the page's one instance
+   * (MassEnergyLowSpeed): the explorer can be mounted twice, and an id must stay unique.
+   */
+  moveAnchor?: string | undefined;
 }) {
   const id = `low-speed-${useId().replace(/[^a-zA-Z0-9-]/g, "")}`;
   const [selection, setSelection] = useState<LowSpeedSelection>(() => ({
@@ -269,8 +275,10 @@ export function LowSpeedExplorer({
             </p>
           </details>
         </li>
-        <li>
-          <h4>Now identify inertia: this is the additional physical step</h4>
+        {/* The move (plan §9.1 item 6, §11 ME-02): the one step the paper asks the reader to accept
+            rather than check, named as such. Journey IV's marker links here by its anchor. */}
+        <li id={moveAnchor} data-move-step>
+          <h4>The move: read the coefficient as a lost mass</h4>
           {status("identify")}
           {equation("mass-decrease")}
           <p>

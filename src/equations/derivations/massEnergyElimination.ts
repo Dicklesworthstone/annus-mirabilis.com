@@ -94,7 +94,7 @@ export const ELIMINATION_STEPS = [
     reason:
       "Replace each H minus E with its corresponding K plus C. Keep the same C in both places.",
     detail:
-      "This is the consequential move. If the offset can change with emission, the two frame differences cannot be replaced by kinetic energies plus a shared constant. The earlier conservation comparison remains valid without it.",
+      "This is the consequential premise. If the offset can change with emission, the two frame differences cannot be replaced by kinetic energies plus a shared constant. The earlier conservation comparison remains valid without it.",
     foundation: "work-energy",
     move: true,
   },

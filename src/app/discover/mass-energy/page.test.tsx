@@ -10,11 +10,17 @@ import {
   FORK_FIELD_MASS,
   FORK_POINCARE,
   MOVE,
+  MOVE_HREF,
   NAGGING_FACT,
   PPE_TASK,
   SOURCE_JUMPS,
   WORLD_CHECK,
 } from "../../../discovery/massEnergy/journeyIV.ts";
+import type { LowSpeedProofView } from "../../../equations/derivations/lowSpeedView.ts";
+import { ELIMINATION_STEPS } from "../../../equations/derivations/massEnergyElimination.ts";
+import lowSpeed from "../../../generated/mass-energy-low-speed.json";
+import { MassEnergyLowSpeed } from "../../../reader/MassEnergyLowSpeed.tsx";
+import { exportMarkup } from "../../../testing/exportMarkup.ts";
 import MassEnergyEncounter from "./page";
 
 /**
@@ -112,11 +118,34 @@ describe("the route carries the discovery skeleton", () => {
     const marker = html.slice(start, html.indexOf("</aside>", start));
     expect(text(marker)).toContain("The move");
     expect(text(marker)).toContain("Read the coefficient as a lost mass");
-    expect(marker).toContain('href="/papers/mass-energy/#arg-me-mass-change"');
+    expect(marker).toContain('href="/papers/mass-energy/#me-the-move"');
     expect(start).toBeGreaterThan(at('id="step-05"'));
     // Step 03 is bookkeeping any reader can check, and no longer calls itself the move.
     const three = html.slice(at('id="step-03"'), at('id="step-04"'));
     expect(text(three)).not.toContain("This is the move");
+  });
+
+  test("the move's ids name the paper's checked chain, and the chain names that step the move", async () => {
+    // Nothing in the framework resolves a move's ids (checkJourney declares knownChains and never
+    // reads it), so this does: the chain is the low-speed certificate the paper page renders.
+    const proof = lowSpeed as LowSpeedProofView;
+    expect(MOVE.chainId).toBe(proof.certificate.id);
+    expect(proof.certificate.requirements.map((r) => r.step)).toContain(MOVE.stepId);
+    // The paper page's own instance, rendered as the export renders its lazy island.
+    const chain = await exportMarkup(<MassEnergyLowSpeed />);
+    const start = chain.indexOf('id="me-the-move"');
+    expect(start).toBeGreaterThan(-1);
+    const step = chain.slice(start, chain.indexOf("</li>", start));
+    expect(text(step)).toContain("The move: read the coefficient as a lost mass");
+    expect(step).toContain(`data-low-speed-step="${MOVE.stepId}"`);
+    expect(MOVE_HREF).toBe("/papers/mass-energy/#me-the-move");
+    // One move in the chain: no other step of it is called one, and the ledger elimination before
+    // it calls its offset step a premise (it said "the consequential move" until this change).
+    expect((text(chain).match(/The move/g) ?? []).length).toBe(1);
+    const words = (s: (typeof ELIMINATION_STEPS)[number]) => `${s.title} ${s.reason} ${s.detail}`;
+    expect(ELIMINATION_STEPS.filter((s) => /\bmove\b/i.test(words(s))).map((s) => s.id)).toEqual(
+      [],
+    );
   });
 
   test("the move's summary passes the framework's guard and stays a draft", () => {
