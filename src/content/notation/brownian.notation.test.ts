@@ -205,10 +205,17 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     assert.equal(jRes.entry.binding.dimensionStatus, "state-dependent");
   });
 
-  test("Unit conversion: 1.35 * 10^-2 poise converts to 1.35 * 10^-3 Pa*s in §5", () => {
+  test("Unit conversion: the printed 1,35 . 10⁻² (CGS, poise) converts by 0.1 to Pa·s in §5", () => {
     const file = loadConcordanceForPaper(paper);
-    const res = resolveGlyph(paper, "bm-s5", "1.35 \\times 10^{-2}", emptyManifestIndex, file);
-    assert.ok(res.ok, "Viscosity numerical constant in §5 must resolve");
+    // p. 559 prints "(k = 1,35 . 10⁻²)": a decimal comma, a dot for the product, and no unit.
+    const printed = "1{,}35 . 10^{-2}";
+    const res = resolveGlyph(paper, "bm-s5", printed, emptyManifestIndex, file);
+    assert.ok(res.ok, "Viscosity numerical constant in §5 must resolve by its printed form");
+    // The modern spelling is not what the page prints, so no entry may record it as printed.
+    assert.equal(
+      resolveGlyph(paper, "bm-s5", "1.35 \\times 10^{-2}", emptyManifestIndex, file).ok,
+      false,
+    );
     const entry = res.entry;
     assert.equal(entry.operation.kind, "unitConversion");
     const uc = entry.operation;
@@ -217,10 +224,7 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     assert.equal(uc.factor, 0.1);
 
     // modernSymbolFor never returns unit conversion
-    assert.equal(
-      modernSymbolFor(paper, "bm-s5", "1.35 \\times 10^{-2}", emptyManifestIndex, file),
-      undefined,
-    );
+    assert.equal(modernSymbolFor(paper, "bm-s5", printed, emptyManifestIndex, file), undefined);
   });
 
   test("Group rename: modernGroupsFor at §3 anchor returns R/N -> k_B", () => {
