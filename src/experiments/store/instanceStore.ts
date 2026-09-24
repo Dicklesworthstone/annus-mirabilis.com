@@ -110,7 +110,18 @@ export type OutputContract = Readonly<{
   unit: string;
   semanticKind: string;
   ownerId: string;
+  /**
+   * Further registered owners that may produce this output, besides `ownerId`. BM-01's tracer
+   * positions have two: the host reference (`diffusion.recordTracers`) and FrankenSim's
+   * `fs-wasm.brownian_frames`. A publication naming any other owner is still refused.
+   */
+  admittedOwnerIds?: readonly string[];
 }>;
+
+/** Whether a publication's owner is one this output's contract registers. */
+export function ownerAdmitted(contract: OutputContract, ownerId: string): boolean {
+  return ownerId === contract.ownerId || (contract.admittedOwnerIds?.includes(ownerId) ?? false);
+}
 const allParameterClasses = [
   "input",
   "observer",
@@ -448,7 +459,7 @@ export function createInstanceStore(options: {
           !expected ||
           output.unit !== expected.unit ||
           output.semanticKind !== expected.semanticKind ||
-          output.ownerId !== expected.ownerId
+          !ownerAdmitted(expected, output.ownerId)
         )
           return denied("malformed-publication");
       }
