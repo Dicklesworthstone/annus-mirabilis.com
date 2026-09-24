@@ -28,6 +28,7 @@ import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "n
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readerDataManifest } from "../../src/platform/app-bridge/readerData.ts";
+import { SITE_ORIGIN } from "../../src/platform/app-bridge/schemas.ts";
 import {
   SETTINGS_SNAPSHOT_PLACEHOLDER,
   SETTINGS_SNAPSHOT_TEMPLATE,
@@ -41,6 +42,7 @@ import {
   type NativeCatalog,
   nativeCatalogRoutes,
 } from "./native-catalog.ts";
+import { editionPageFor, pageAssetReferences, sitemapRoutes } from "./site-routes.ts";
 
 export const EDITION_SCHEMA_VERSION = "annus-mirabilis-app-edition.v1";
 
@@ -53,7 +55,10 @@ export type AppExportErrorCode =
   | "no-web-build"
   | "unsafe-edition-path"
   | "edition-over-budget"
-  | "catalog-route-missing";
+  | "catalog-route-missing"
+  | "no-route-list"
+  | "route-needs-server"
+  | "referenced-file-missing";
 
 /** A refusal of the export, with a code a caller or a test can branch on. */
 export class AppExportError extends Error {
@@ -378,6 +383,54 @@ function nextBuildId(outDir: string): string | null {
   }
 }
 
+/**
+ * The edition needs no server and lacks nothing a page asks for (bead am-app-edition-export-kwpu,
+ * requirements 3 and 4). Every route the build's own sitemap lists has its static page in the
+ * edition; a route without one would need a server at request time. Every file an included page
+ * asks for by src or href is in the build: one excluded by a named rule (a facsimile PDF) is a
+ * declared omission, and one that is absent altogether is an omission nothing declares.
+ */
+export function checkRoutesAndReferences(
+  outDir: string,
+  paths: readonly string[],
+  included: readonly string[],
+): void {
+  const sitemap = join(outDir, "sitemap.xml");
+  let routes: string[] = [];
+  try {
+    routes = sitemapRoutes(readFileSync(sitemap, "utf8"), SITE_ORIGIN);
+  } catch {
+    routes = [];
+  }
+  if (routes.length === 0) {
+    throw new AppExportError(
+      "no-route-list",
+      `${sitemap} is missing or lists no route of ${SITE_ORIGIN}, so the export cannot tell whether every route has a page.`,
+    );
+  }
+  const carried = new Set(included);
+  const needServer = routes.filter((route) => !carried.has(editionPageFor(route)));
+  if (needServer.length > 0) {
+    throw new AppExportError(
+      "route-needs-server",
+      `${needServer.length} of ${routes.length} route(s) the site lists have no static page in this build, so the app would need a server for them: ${needServer.slice(0, 10).join(", ")}`,
+    );
+  }
+  const inBuild = new Set(paths);
+  const absent: string[] = [];
+  for (const page of included.filter((path) => path.endsWith(".html"))) {
+    for (const file of pageAssetReferences(readFileSync(join(outDir, page), "utf8"))) {
+      if (!inBuild.has(file)) absent.push(`${file} (asked for by ${page})`);
+    }
+  }
+  if (absent.length > 0) {
+    throw new AppExportError(
+      "referenced-file-missing",
+      `${absent.length} file(s) a page asks for are not in the build, and no exclusion rule names them: ${absent.slice(0, 10).join("; ")}`,
+    );
+  }
+}
+
 export type ExportResult = {
   readonly manifestPath: string;
   readonly fileCount: number;
@@ -419,6 +472,8 @@ export function exportEdition(options: {
 
   const digests = referencedDigests(paths, (path) => readFileSync(join(outDir, path), "utf8"));
   const plan = planEdition(paths, digests);
+
+  checkRoutesAndReferences(outDir, paths, plan.included);
 
   const catalog = options.catalog ?? buildNativeCatalog(join(repo, "content"));
   const pages = new Set(plan.included);
