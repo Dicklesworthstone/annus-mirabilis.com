@@ -4,6 +4,15 @@ import { LQ06_DEFAULTS, type Lq06Parameters } from "./definition.ts";
 
 export type Lq06ParameterCheck = Computation<Lq06Parameters>;
 
+/** What each typed field is called on the page, with the unit it is entered in. */
+const LQ06_FIELD_NAMES = {
+  radiationEnergy: "the radiation energy E, in nJ,",
+  frequency: "the frequency ν, in THz,",
+  gasParticles: "the number of molecules n",
+  volumeRatio: "the volume ratio V/V₀",
+  temperature: "the temperature T, in kelvin,",
+} as const;
+
 function bad(requirements: string): Computation<never> {
   return {
     kind: "refused",
@@ -47,19 +56,19 @@ export function validateLq06Parameters(input: unknown): Lq06ParameterCheck {
     "temperature",
   ] as const) {
     if (typeof p[key] !== "number" || !Number.isFinite(p[key])) {
-      return bad(`Parameter "${key}" must be a finite number.`);
+      return bad(`Enter ${LQ06_FIELD_NAMES[key]} as a number.`);
     }
   }
-  if (p.radiationEnergy <= 0) return bad("Radiation energy must be strictly positive.");
-  if (p.frequency <= 0) return bad("Frequency must be strictly positive.");
+  if (p.radiationEnergy <= 0) return bad("Enter a radiation energy E greater than zero, in nJ.");
+  if (p.frequency <= 0) return bad("Enter a frequency ν greater than zero, in THz.");
   if (p.gasParticles <= 0 || !Number.isSafeInteger(p.gasParticles)) {
-    return bad("Gas particle count must be a positive safe integer.");
+    return bad("Enter a whole number of molecules n, at least 1.");
   }
   if (p.volumeRatio <= 0 || p.volumeRatio > 100) {
-    return bad("Volume ratio V/V0 must be positive and not exceed 100.");
+    return bad("Enter a volume ratio V/V₀ greater than 0 and at most 100.");
   }
   if (p.temperature <= 0 || p.temperature > 50000) {
-    return bad("Temperature must be positive and not exceed 50,000 K.");
+    return bad("Enter a temperature T greater than 0 and at most 50 000 K.");
   }
   if (
     !["none", "E", "nu", "E_over_beta_nu", "N_E_over_R_beta_nu", "V"].includes(
