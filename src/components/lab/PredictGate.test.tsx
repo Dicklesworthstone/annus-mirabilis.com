@@ -180,9 +180,12 @@ describe("with JavaScript, a first-time reader answers before the result shows",
       expect(prompt).toBeDefined();
       await mounted(element(), async (container) => {
         const waiting = responses(container);
-        // The status line and the results, both waiting.
-        expect(waiting.length).toBeGreaterThanOrEqual(2);
+        expect(waiting.length).toBeGreaterThan(0);
         expect(waiting.every((s) => s === "awaiting")).toBe(true);
+        // Every status line states the result, so each one waits, itself or inside a waiting region.
+        const lines = [...container.querySelectorAll(".status-line")];
+        expect(lines.length).toBeGreaterThan(0);
+        for (const line of lines) expect(line.closest("[data-predict-response]")).not.toBeNull();
         expect(
           container.querySelector("[data-predict-gate]")?.getAttribute("data-predict-gate"),
         ).toBe("awaiting");
@@ -355,8 +358,9 @@ function readerCopy(prompt: GeneratedPredictPrompt): string[] {
 describe("a gated lab's prompts judge no choice and speak the paper's vocabulary", () => {
   // A wrong prediction is a starting point, never a judgement (AGENTS.md, predict mode). Four
   // assumptions said "incorrectly", "mistakenly", "is confused with" or "Misapplies" until 5fa26651.
+  // "naive" is left out: BM-08 names an estimator "naive D", a statistics term, not a verdict.
   const judging =
-    /\b(?:wrong(?:ly)?|incorrect(?:ly)?|mistaken(?:ly)?|confus(?:ed|es|ion)|misappl\w*|naive(?:ly)?|foolish)\b/i;
+    /\b(?:wrong(?:ly)?|incorrect(?:ly)?|mistaken(?:ly)?|confus(?:ed|es|ion)|misappl\w*|foolish)\b/i;
   for (const [lab] of LABS) {
     test(`${lab}: no judging word, and no "photon", in anything a reader can see`, () => {
       const copy = (PREDICT_PROMPTS[lab] ?? []).flatMap(readerCopy);
@@ -406,7 +410,7 @@ describe("without JavaScript, nothing is hidden", () => {
       const html = renderToStaticMarkup(element());
       expect(html).toContain('data-predict-response="awaiting"');
       expect(html).toContain(resultText);
-      expect(html).toContain('class="status-line"');
+      expect(html).toMatch(/class="[^"]*\bstatus-line\b/);
     });
   }
 
