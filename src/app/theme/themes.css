@@ -79,6 +79,15 @@
   font-display: swap;
 }
 
+/* The italic twin of the face above; see globals.css. */
+@font-face {
+  font-family: "Newsreader";
+  src: url("/fonts/newsreader/Newsreader-Italic-Variable.ttf") format("truetype-variations");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
 @font-face {
   font-family: "Plus Jakarta Sans";
   src: url("/fonts/plus-jakarta-sans/PlusJakartaSans-Variable.ttf") format("truetype-variations");
