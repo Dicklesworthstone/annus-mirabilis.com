@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import { LazyInlineTracerLab } from "./LazyInlineTracerLab.tsx";
 import { PaperReader } from "./PaperReader.tsx";
 
@@ -30,7 +31,7 @@ describe("LazyInlineTracerLab", () => {
 
   test("the Brownian reading serves the disclosure, not the laboratory", async () => {
     // The page this exists for: BUILD 23 served 229,044 bytes of laboratory markup here.
-    const page = renderToStaticMarkup(await PaperReader({}));
+    const page = await exportMarkup(await PaperReader({}));
     expect(page).toContain('data-inline-lab="bm-01"');
     // A pattern over the tag, not a literal: the laboratory's attributes come first
     // (`<section class="laboratory" aria-labelledby=… data-instrument-id="bm-01"`), so the

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import { citationTitleClose } from "./citationTitle.ts";
 
 const title = (key: string): string =>
@@ -33,7 +34,7 @@ describe("the reference lists as rendered", () => {
     const { PaperPage } = await import("../reader/PaperPage.tsx");
     let questions = 0;
     for (const paperId of ["light-quanta", "special-relativity", "mass-energy"]) {
-      const html = renderToStaticMarkup(await PaperPage({ paperId }));
+      const html = await exportMarkup(await PaperPage({ paperId }));
       const refs = html.slice(html.indexOf("References and source status"));
       questions += (refs.match(/\?<\/a>/g) ?? []).length;
       expect(refs).not.toMatch(/\?<\/a>\./);

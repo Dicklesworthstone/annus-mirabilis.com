@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadPaper } from "../content/server";
 import { prerequisiteName } from "../equations/SemanticEquation.tsx";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import { PaperReader } from "./PaperReader.tsx";
 
 /*
@@ -30,7 +31,7 @@ async function sectionPages() {
   return Promise.all(
     paper.sections.map(async (s) => ({
       id: s.id,
-      html: renderToStaticMarkup(await PaperReader({ section: s.id })),
+      html: await exportMarkup(await PaperReader({ section: s.id })),
     })),
   );
 }

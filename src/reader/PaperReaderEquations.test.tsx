@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import TracerPage from "../app/lab/bm-01/page.tsx";
 import { loadPaper } from "../content/server";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import { getLogger } from "../testing/log/logger.ts";
 import { PaperReader } from "./PaperReader.tsx";
 
@@ -160,7 +161,7 @@ describe("PaperReader equation disambiguation (am-txy3)", () => {
     // Both kinds of card load on opening here: the reading's through "Explore the equations in this
     // step", the laboratory's with the tracer ensemble itself ("the Brownian reading mounts its
     // tracer laboratory on first opening"). So the page carries no card to collide.
-    const html = renderToStaticMarkup(await PaperReader());
+    const html = await exportMarkup(await PaperReader());
     expect(extractEquationIds(html)).toEqual([]);
     expect(extractChipNavLabels(html)).toEqual([]);
 
@@ -186,7 +187,7 @@ describe("PaperReader equation disambiguation (am-txy3)", () => {
     expect(paper.sections.length).toBeGreaterThan(0);
     let readingCards = 0;
     for (const section of paper.sections) {
-      const html = renderToStaticMarkup(await PaperReader({ section: section.id }));
+      const html = await exportMarkup(await PaperReader({ section: section.id }));
       const expected = readingIdsFor(args.filter((a) => a.section === section.id).map((a) => a.id));
       const result = assertEquationIdUniqueness(html, expected);
       expect(result.ids.sort()).toEqual([...expected].sort());

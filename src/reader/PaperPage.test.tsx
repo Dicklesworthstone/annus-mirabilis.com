@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import {
   FIXTURE_BROWNIAN_ALIGNMENT,
   FIXTURE_BROWNIAN_PAPER,
@@ -68,7 +69,7 @@ export function deriveReaderControllerQueriedAttributes(source: string): Set<str
 describe("PaperPage", () => {
   test("main reading shell is a ready reader root for the reading face", async () => {
     const paperId = await compiledPaperId();
-    const html = renderToStaticMarkup(await PaperPage({ paperId }));
+    const html = await exportMarkup(await PaperPage({ paperId }));
     expect(html).toContain("data-reader-root");
     expect(html).toContain('data-ready="true"');
     expect(html).toContain('data-view="reading"');
@@ -80,7 +81,7 @@ describe("PaperPage", () => {
     const payload = await (await import("../content/server.ts")).loadPaper(paperId);
     const section = payload.paper.sections[0]?.id;
     if (section === undefined) throw new Error("compiled paper has no sections");
-    const html = renderToStaticMarkup(await PaperPage({ paperId, section }));
+    const html = await exportMarkup(await PaperPage({ paperId, section }));
     expect(html).toContain("data-reader-root");
     expect(html).toContain('data-ready="true"');
     expect(html).toContain('data-view="reading"');
@@ -119,7 +120,7 @@ describe("PaperPage", () => {
     }
 
     const paperId = await compiledPaperId();
-    const html = renderToStaticMarkup(await PaperPage({ paperId }));
+    const html = await exportMarkup(await PaperPage({ paperId }));
 
     // Every attribute queried by ReaderController must appear in PaperPage's rendered markup
     const missingFromMarkup: string[] = [];

@@ -1,12 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { exportMarkup } from "../../testing/exportMarkup.ts";
 import { PaperPage } from "../PaperPage.tsx";
 import { PaperReader } from "../PaperReader.tsx";
 
 describe("am-read-detail-axis-sfc: static reading emission", () => {
   test("PaperReader emits all four readings statically into markup with R1 visible and R0/R2/R3 hidden", async () => {
     const element = await PaperReader({});
-    const html = renderToStaticMarkup(element);
+    const html = await exportMarkup(element);
 
     // Document root structure
     expect(html).toContain('data-reader-root="true"');
@@ -49,7 +50,7 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
 
   test("PaperPage emits all four readings statically for generic paper routes", async () => {
     const element = await PaperPage({ paperId: "brownian-motion" });
-    const html = renderToStaticMarkup(element);
+    const html = await exportMarkup(element);
 
     expect(html).toContain('data-reader-root="true"');
     expect(html).toContain('data-unit="arg-bm-observable"');
@@ -83,8 +84,8 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
   });
 
   test("planted negative: removing or corrupting the Why? link fails the detection check", async () => {
-    const readerHtml = renderToStaticMarkup(await PaperReader({}));
-    const pageHtml = renderToStaticMarkup(await PaperPage({ paperId: "brownian-motion" }));
+    const readerHtml = await exportMarkup(await PaperReader({}));
+    const pageHtml = await exportMarkup(await PaperPage({ paperId: "brownian-motion" }));
 
     const assertIndexHasWhyLink = (html: string) => {
       expect(html).toContain('data-unit="arg-bm-observable"');

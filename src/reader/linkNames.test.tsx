@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import TracerPage from "../app/lab/bm-01/page.tsx";
 import { getKernelListingsForInstrument } from "../content/kernel/listings.ts";
 import { loadPaper } from "../content/server";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import { PaperPage } from "./PaperPage.tsx";
 import { PaperReader } from "./PaperReader.tsx";
 
@@ -44,7 +45,7 @@ export function groupLinksByName(links: readonly ExtractedLink[]): Map<string, S
 /** The Brownian section pages, which serve the equation cards the whole-paper page loads lazily. */
 async function brownianSectionPagesHtml(): Promise<string> {
   const pages = await Promise.all(
-    ["s4", "s5"].map(async (section) => renderToStaticMarkup(await PaperReader({ section }))),
+    ["s4", "s5"].map(async (section) => exportMarkup(await PaperReader({ section }))),
   );
   return pages.join("\n");
 }
@@ -60,7 +61,7 @@ export const BENIGN_SAME_TARGET_NAMES = new Set([
 describe("PaperReader link accessible names (am-jmma)", () => {
   test("re-measurement: every name with genuinely differing destinations reaches exactly 1 destination", async () => {
     const jsx = await PaperReader({});
-    const html = renderToStaticMarkup(jsx);
+    const html = await exportMarkup(jsx);
     const links = extractLinks(html);
     const byName = groupLinksByName(links);
 
@@ -112,7 +113,7 @@ describe("PaperReader link accessible names (am-jmma)", () => {
 
   test("PaperPage on brownian-motion also isolates distinct destinations cleanly", async () => {
     const jsx = await PaperPage({ paperId: "brownian-motion" });
-    const html = renderToStaticMarkup(jsx);
+    const html = await exportMarkup(jsx);
     const links = extractLinks(html);
     const byName = groupLinksByName(links);
 
@@ -131,7 +132,7 @@ describe("PaperReader link accessible names (am-jmma)", () => {
   describe("AC4 negative: naive fixes fail link accessibility isolation", () => {
     test("planted negative: reverting section aria-label on real rendered markup fails verification", async () => {
       const jsx = await PaperReader({});
-      let html = renderToStaticMarkup(jsx);
+      let html = await exportMarkup(jsx);
       // Strip aria-label from section-only reading links so they collapse to 'Section-only reading →'
       html = html.replace(/aria-label="Section-only reading: [^"]*"/g, "");
       const links = extractLinks(html);
@@ -185,7 +186,7 @@ describe("PaperReader link accessible names (am-jmma)", () => {
   describe("am-xbfm: ten collision classes locked against regression", () => {
     test("all ten collision classes resolve without multi-destination collisions", async () => {
       const jsx = await PaperReader({});
-      const html = renderToStaticMarkup(jsx);
+      const html = await exportMarkup(jsx);
       const links = extractLinks(html);
       const byName = groupLinksByName(links);
 
@@ -290,7 +291,7 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       // Invariant: every name in the benign set must actually appear in the rendered reader
       // and all its destinations must resolve to the exact same hash anchor.
       const jsx = await PaperReader({});
-      const html = renderToStaticMarkup(jsx);
+      const html = await exportMarkup(jsx);
       const links = extractLinks(html);
       const byName = groupLinksByName(links);
 
@@ -332,7 +333,7 @@ describe("PaperReader link accessible names (am-jmma)", () => {
 
     test("planted negative: reverting passage actions to bare 'Try it' fails gate", async () => {
       const jsx = await PaperReader({});
-      let html = renderToStaticMarkup(jsx);
+      let html = await exportMarkup(jsx);
       // Revert aria-label on Try it links so they collapse back to bare 'Try it'
       html = html.replace(/aria-label="Try it: [^"]*"/g, "");
       const links = extractLinks(html);
@@ -345,7 +346,7 @@ describe("PaperReader link accessible names (am-jmma)", () => {
 
     test("planted negative: reverting passage actions to bare 'Why?' fails gate", async () => {
       const jsx = await PaperReader({});
-      let html = renderToStaticMarkup(jsx);
+      let html = await exportMarkup(jsx);
       // Revert aria-label on Why? links so they collapse back to bare 'Why?'
       html = html.replace(/aria-label="Why\?: [^"]*"/g, "");
       const links = extractLinks(html);
@@ -371,7 +372,7 @@ describe("PaperReader link accessible names (am-jmma)", () => {
 
     test("planted negative: reverting drawer full reading page links to bare label fails gate", async () => {
       const jsx = await PaperReader({});
-      let html = renderToStaticMarkup(jsx);
+      let html = await exportMarkup(jsx);
       // Revert aria-label on full reading page links
       html = html.replace(/aria-label="Open [^"]* as a full reading page"/g, "");
       const links = extractLinks(html);

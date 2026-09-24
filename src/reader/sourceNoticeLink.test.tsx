@@ -12,6 +12,7 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import { PaperPage } from "./PaperPage.tsx";
 
 function sourceNotices(markup: string): string[] {
@@ -25,7 +26,7 @@ describe("a passage's source notice leads to the German that exists", () => {
     for (const paperId of ["light-quanta", "mass-energy"] as const) {
       // The premise, checked rather than assumed: this paper has a German draft.
       expect(loadGermanSourceFace(paperId)?.blocks.length ?? 0).toBeGreaterThan(0);
-      const notices = sourceNotices(renderToStaticMarkup(await PaperPage({ paperId })));
+      const notices = sourceNotices(await exportMarkup(await PaperPage({ paperId })));
       expect(notices.length).toBeGreaterThan(0);
       for (const notice of notices) {
         expect(notice).toContain("not yet available");
@@ -39,7 +40,7 @@ describe("a passage's source notice leads to the German that exists", () => {
   test("special-relativity has no German text, so its notices carry no link", async () => {
     expect(loadGermanSourceFace("special-relativity")?.blocks.length ?? 0).toBe(0);
     const notices = sourceNotices(
-      renderToStaticMarkup(await PaperPage({ paperId: "special-relativity" })),
+      await exportMarkup(await PaperPage({ paperId: "special-relativity" })),
     );
     expect(notices.length).toBeGreaterThan(0);
     for (const notice of notices) {

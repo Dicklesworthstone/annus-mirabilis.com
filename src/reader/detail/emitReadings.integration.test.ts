@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { parseYaml } from "../../content/provenance/yaml.ts";
+import { exportMarkup } from "../../testing/exportMarkup.ts";
 import { PaperPage } from "../PaperPage.tsx";
 import { PaperReader } from "../PaperReader.tsx";
 import { type CaptionReadingSet, CaptionReadingUnit } from "./CaptionReadingUnit.tsx";
@@ -11,7 +12,7 @@ import { type CaptionReadingSet, CaptionReadingUnit } from "./CaptionReadingUnit
 describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
   test("paragraph unit contains exactly four readings with R1 visible and R0, R2, R3 hidden", async () => {
     const page = await PaperReader({ section: "s4" });
-    const html = renderToStaticMarkup(page);
+    const html = await exportMarkup(page);
 
     // Verify unit container
     expect(html).toContain('data-unit="arg-bm-observable"');
@@ -29,7 +30,7 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
 
   test("equation unit emits semantic structure within the passage unit", async () => {
     const page = await PaperReader({ section: "s4" });
-    const html = renderToStaticMarkup(page);
+    const html = await exportMarkup(page);
 
     // Semantic equations rendered within the passage. A section page scopes each card to its
     // argument (as every paper's reader does), so the id carries the argument; the bare record id
@@ -47,7 +48,7 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
 
   test("no-JS per-unit expansion exists as a static disclosure", async () => {
     const page = await PaperReader({ section: "s4" });
-    const html = renderToStaticMarkup(page);
+    const html = await exportMarkup(page);
 
     expect(html).toContain(
       '<details class="local-steps reading-version" data-reading="2"><summary>Show every step here:',
@@ -56,7 +57,7 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
 
   test("static paper route produces all four readings for each argument unit", async () => {
     const page = await PaperPage({ paperId: "brownian-motion" });
-    const html = renderToStaticMarkup(page);
+    const html = await exportMarkup(page);
 
     expect(html).toContain('data-reader-root="true"');
     expect(html).toContain('data-unit="arg-bm-observable"');

@@ -4,6 +4,7 @@ import { Companion } from "../../reader/layout/Companion.tsx";
 import { ReaderLayout } from "../../reader/layout/ReaderLayout.tsx";
 import { PaperPage } from "../../reader/PaperPage.tsx";
 import { PaperReader } from "../../reader/PaperReader.tsx";
+import { exportMarkup } from "../exportMarkup.ts";
 
 export type ExtractedNav = {
   accessibleName: string;
@@ -51,7 +52,7 @@ export function assertNavLandmarkUniqueness(html: string, contextDescription: st
 
 describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
   test("every nav landmark on PaperReader carries a unique accessible name (AC a)", async () => {
-    const html = renderToStaticMarkup(await PaperReader());
+    const html = await exportMarkup(await PaperReader());
     const result = assertNavLandmarkUniqueness(html, "PaperReader");
 
     expect(result.distinctCount).toBe(result.navCount);
@@ -62,7 +63,7 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
   });
 
   test("every nav landmark on PaperPage carries a unique accessible name (AC a)", async () => {
-    const html = renderToStaticMarkup(await PaperPage({ paperId: "brownian-motion" }));
+    const html = await exportMarkup(await PaperPage({ paperId: "brownian-motion" }));
     const result = assertNavLandmarkUniqueness(html, "PaperPage");
 
     expect(result.distinctCount).toBe(result.navCount);
@@ -70,17 +71,17 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
   });
 
   test("section-scoped PaperReader renders carry unique nav accessible names", async () => {
-    const htmlS4 = renderToStaticMarkup(await PaperReader({ section: "s4" }));
+    const htmlS4 = await exportMarkup(await PaperReader({ section: "s4" }));
     const resultS4 = assertNavLandmarkUniqueness(htmlS4, "PaperReader(s4)");
     expect(resultS4.distinctCount).toBe(resultS4.navCount);
 
-    const htmlS5 = renderToStaticMarkup(await PaperReader({ section: "s5" }));
+    const htmlS5 = await exportMarkup(await PaperReader({ section: "s5" }));
     const resultS5 = assertNavLandmarkUniqueness(htmlS5, "PaperReader(s5)");
     expect(resultS5.distinctCount).toBe(resultS5.navCount);
   });
 
   test("prerequisite navs across different passages pointing to the same foundation get distinct context names (AC 4)", async () => {
-    const html = renderToStaticMarkup(await PaperReader());
+    const html = await exportMarkup(await PaperReader());
     const navs = extractNavLandmarks(html);
     const meanVarianceNavs = navs.filter((n) =>
       n.accessibleName.includes("Mean, variance and RMS"),
@@ -133,7 +134,7 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
   });
 
   test("the Brownian reading renders no companion switch whose links could do nothing", async () => {
-    const html = renderToStaticMarkup(await PaperReader());
+    const html = await exportMarkup(await PaperReader());
     expect(
       extractNavLandmarks(html).filter((n) => n.accessibleName.includes("Companion view")),
     ).toEqual([]);
