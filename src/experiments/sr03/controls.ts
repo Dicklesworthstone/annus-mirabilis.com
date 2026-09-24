@@ -1,3 +1,4 @@
+import { readTypedNumber } from "../controls/typedNumber.ts";
 import type { Sr03Parameters } from "./definition.ts";
 import { validateSr03Parameters } from "./parameters.ts";
 
@@ -31,18 +32,21 @@ export function toSr03Draft(p: Sr03Parameters): Sr03Draft {
 }
 
 export function fromSr03Draft(d: Sr03Draft): Sr03Parameters {
-  const v = Number(d.v);
-  const L0 = Number(d.L0);
-  const R = Number(d.R);
+  // Number("") is 0, so a cleared field would read as 0 and apply without a word (dispatch 165).
+  const read = (text: string, label: string): number => {
+    const typed = readTypedNumber(text, label);
+    if (typed.kind === "refused") throw new Error(typed.requirement);
+    return typed.value;
+  };
+  const v = read(d.v, "the frame speed v/c");
+  const L0 = read(d.L0, "the proper length L₀");
+  const R = read(d.R, "the sphere radius R");
 
-  if (Number.isNaN(v)) throw new Error("Frame velocity v must be a valid number.");
-  if (Number.isNaN(L0)) throw new Error("Proper length L0 must be a valid number.");
-  if (Number.isNaN(R)) throw new Error("Radius R must be a valid number.");
-
-  const customT1 = d.customT1 !== undefined ? Number(d.customT1) : undefined;
-  const customX1 = d.customX1 !== undefined ? Number(d.customX1) : undefined;
-  const customT2 = d.customT2 !== undefined ? Number(d.customT2) : undefined;
-  const customX2 = d.customX2 !== undefined ? Number(d.customX2) : undefined;
+  const custom = d.customT1 !== undefined;
+  const customT1 = custom ? read(d.customT1 ?? "", "the time of the first event") : undefined;
+  const customX1 = custom ? read(d.customX1 ?? "", "the place of the first event") : undefined;
+  const customT2 = custom ? read(d.customT2 ?? "", "the time of the second event") : undefined;
+  const customX2 = custom ? read(d.customX2 ?? "", "the place of the second event") : undefined;
 
   const raw: Record<string, unknown> = {
     rodRestFrame: d.rodRestFrame,

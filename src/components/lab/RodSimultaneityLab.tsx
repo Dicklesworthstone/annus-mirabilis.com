@@ -158,6 +158,20 @@ export function RodSimultaneityLab({
     }
   }
 
+  /**
+   * A field that applies as the reader edits it. What cannot be applied is said, never swallowed:
+   * these handlers ended in catch {}, so 1.5c typed into v left the field showing 1.5 beside the
+   * old result, with no word (dispatch 165).
+   */
+  function applyDraft(next: Sr03Draft) {
+    setDraft(next);
+    try {
+      apply(fromSr03Draft(next));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Check the entered settings.");
+    }
+  }
+
   function preset(parameters: Sr03Parameters) {
     setDraft(toSr03Draft(parameters));
     setError("");
@@ -383,11 +397,7 @@ export function RodSimultaneityLab({
                     id={`${id}-rest-frame`}
                     value={draft.rodRestFrame}
                     onChange={(e) => {
-                      const next = { ...draft, rodRestFrame: e.target.value };
-                      setDraft(next);
-                      try {
-                        apply(fromSr03Draft(next));
-                      } catch {}
+                      applyDraft({ ...draft, rodRestFrame: e.target.value });
                     }}
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
@@ -403,11 +413,7 @@ export function RodSimultaneityLab({
                     id={`${id}-meas-frame`}
                     value={draft.measuringFrame}
                     onChange={(e) => {
-                      const next = { ...draft, measuringFrame: e.target.value };
-                      setDraft(next);
-                      try {
-                        apply(fromSr03Draft(next));
-                      } catch {}
+                      applyDraft({ ...draft, measuringFrame: e.target.value });
                     }}
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
@@ -433,11 +439,7 @@ export function RodSimultaneityLab({
                     step="0.05"
                     value={draft.v}
                     onChange={(e) => {
-                      const next = { ...draft, v: e.target.value };
-                      setDraft(next);
-                      try {
-                        apply(fromSr03Draft(next));
-                      } catch {}
+                      applyDraft({ ...draft, v: e.target.value });
                     }}
                   />
                   <input
@@ -448,11 +450,7 @@ export function RodSimultaneityLab({
                     step="0.01"
                     value={draft.v}
                     onChange={(e) => {
-                      const next = { ...draft, v: e.target.value };
-                      setDraft(next);
-                      try {
-                        apply(fromSr03Draft(next));
-                      } catch {}
+                      applyDraft({ ...draft, v: e.target.value });
                     }}
                     style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
                   />
@@ -475,11 +473,7 @@ export function RodSimultaneityLab({
                     step="1"
                     value={draft.L0}
                     onChange={(e) => {
-                      const next = { ...draft, L0: e.target.value };
-                      setDraft(next);
-                      try {
-                        apply(fromSr03Draft(next));
-                      } catch {}
+                      applyDraft({ ...draft, L0: e.target.value });
                     }}
                   />
                   <input
@@ -490,11 +484,7 @@ export function RodSimultaneityLab({
                     step="0.5"
                     value={draft.L0}
                     onChange={(e) => {
-                      const next = { ...draft, L0: e.target.value };
-                      setDraft(next);
-                      try {
-                        apply(fromSr03Draft(next));
-                      } catch {}
+                      applyDraft({ ...draft, L0: e.target.value });
                     }}
                     style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
                   />
@@ -517,11 +507,7 @@ export function RodSimultaneityLab({
                     step="0.5"
                     value={draft.R}
                     onChange={(e) => {
-                      const next = { ...draft, R: e.target.value };
-                      setDraft(next);
-                      try {
-                        apply(fromSr03Draft(next));
-                      } catch {}
+                      applyDraft({ ...draft, R: e.target.value });
                     }}
                   />
                   <input
@@ -532,11 +518,7 @@ export function RodSimultaneityLab({
                     step="0.1"
                     value={draft.R}
                     onChange={(e) => {
-                      const next = { ...draft, R: e.target.value };
-                      setDraft(next);
-                      try {
-                        apply(fromSr03Draft(next));
-                      } catch {}
+                      applyDraft({ ...draft, R: e.target.value });
                     }}
                     style={{ fontFamily: "var(--font-mono)", width: "6rem", marginTop: "0.25rem" }}
                   />
@@ -549,11 +531,7 @@ export function RodSimultaneityLab({
                     id={`${id}-endpoint-pair`}
                     value={draft.endpointPairId}
                     onChange={(e) => {
-                      const next = { ...draft, endpointPairId: e.target.value };
-                      setDraft(next);
-                      try {
-                        apply(fromSr03Draft(next));
-                      } catch {}
+                      applyDraft({ ...draft, endpointPairId: e.target.value });
                     }}
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
